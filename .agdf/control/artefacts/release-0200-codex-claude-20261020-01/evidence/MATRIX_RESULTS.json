@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "owner": "scripts/ci-plan.mjs:testInventory",
+  "inventory_digest": "07a73b76f3a2458dd286de4d61e655e672b4f414f82ebb7b940832ce3437be1f",
+  "candidate_id": "5db0b50535a8d4efc150f9e74b338bd8c100a052c881f5e544141c84536439e7",
+  "source": {
+    "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+    "dirty": true
+  },
+  "node": "v22.22.3",
+  "platform": "darwin",
+  "assurance": "deterministic_owned_fixtures",
+  "native_qualification": false,
+  "concurrency": 3,
+  "timeout_ms": 480000,
+  "directory": "logs/",
+  "results": [
+    {
+      "id": "7c200890364f",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "PRD"
+      ],
+      "status": "pass",
+      "source": "completed_serial_log"
+    },
+    {
+      "id": "701cf19f8a63",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "SD"
+      ],
+      "status": "pass",
+      "source": "completed_serial_log"
+    },
+    {
+      "id": "62cbcb8af399",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "TP"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 172656,
+      "log": "logs/matrix-62cbcb8af399.log",
+      "log_digest": "191860b1744ef756c2f73e002d1382028e22dce5b6d5a702963e3bdf20e5aa46",
+      "original_log_digest": "191860b1744ef756c2f73e002d1382028e22dce5b6d5a702963e3bdf20e5aa46"
+    },
+    {
+      "id": "a04273f89c0c",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 172698,
+      "log": "logs/matrix-a04273f89c0c.log",
+      "log_digest": "2f2c5b0b7cad26cb781bea8dff8f55c4193dda72b5fdea495a96dc5faaddf67e",
+      "original_log_digest": "2f2c5b0b7cad26cb781bea8dff8f55c4193dda72b5fdea495a96dc5faaddf67e"
+    },
+    {
+      "id": "e5b1596f849d",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 172824,
+      "log": "logs/matrix-e5b1596f849d.log",
+      "log_digest": "57425ba4d51ddfc8a83cecdfc49ce31e03d495ec138cce8638faf12e98c7af78",
+      "original_log_digest": "57425ba4d51ddfc8a83cecdfc49ce31e03d495ec138cce8638faf12e98c7af78"
+    },
+    {
+      "id": "9f36b7a5ce0d",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 133683,
+      "log": "logs/matrix-9f36b7a5ce0d.log",
+      "log_digest": "70e6edb5a8b5f9b69c3faa61486383e8a0cdfca7bc07ce9e4d10562f041e0c3e",
+      "original_log_digest": "70e6edb5a8b5f9b69c3faa61486383e8a0cdfca7bc07ce9e4d10562f041e0c3e"
+    },
+    {
+      "id": "f5ccebb208e9",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "SD"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 135459,
+      "log": "logs/matrix-f5ccebb208e9.log",
+      "log_digest": "9495ea5a330efe4c7c24344256456a577574ac884b035ad71711c816f8034bb1",
+      "original_log_digest": "9495ea5a330efe4c7c24344256456a577574ac884b035ad71711c816f8034bb1"
+    },
+    {
+      "id": "1ddb0089c9a5",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "TP"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 136283,
+      "log": "logs/matrix-1ddb0089c9a5.log",
+      "log_digest": "286a593c5421d9589445af39c8871b815a704560180c2cde3228a04a6d3eeb8d",
+      "original_log_digest": "286a593c5421d9589445af39c8871b815a704560180c2cde3228a04a6d3eeb8d"
+    },
+    {
+      "id": "fa5161a05a49",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 135544,
+      "log": "logs/matrix-fa5161a05a49.log",
+      "log_digest": "0488e37a69b8e632812ba65f8dcb21704b12f9dc4a540566eb28b5190ea47c7c",
+      "original_log_digest": "0488e37a69b8e632812ba65f8dcb21704b12f9dc4a540566eb28b5190ea47c7c"
+    },
+    {
+      "id": "f86d1245a344",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 140537,
+      "log": "logs/matrix-f86d1245a344.log",
+      "log_digest": "32ff23ab55253b0bd0aebae772de8df6b48a18d1f634fe292bfd998b9544bd62",
+      "original_log_digest": "32ff23ab55253b0bd0aebae772de8df6b48a18d1f634fe292bfd998b9544bd62"
+    },
+    {
+      "id": "a3026f9f2f2d",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 138980,
+      "log": "logs/matrix-a3026f9f2f2d.log",
+      "log_digest": "efd27928d291715224a4028aac40beff1a428d9b2e4c312d8bc51ca5d5f55c46",
+      "original_log_digest": "efd27928d291715224a4028aac40beff1a428d9b2e4c312d8bc51ca5d5f55c46"
+    },
+    {
+      "id": "2db1bfd118b9",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "TP"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 149211,
+      "log": "logs/matrix-2db1bfd118b9.log",
+      "log_digest": "82c745067e6f94e65610502b28bbe969946d80b4fff52c144dd16ebdfa8dba59",
+      "original_log_digest": "82c745067e6f94e65610502b28bbe969946d80b4fff52c144dd16ebdfa8dba59"
+    },
+    {
+      "id": "7fb2ea7c9eb9",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 146924,
+      "log": "logs/matrix-7fb2ea7c9eb9.log",
+      "log_digest": "a8809bcc6c179d5f61485b441d8f3279301bdb2a316739f4b21fde00c61aebf5",
+      "original_log_digest": "a8809bcc6c179d5f61485b441d8f3279301bdb2a316739f4b21fde00c61aebf5"
+    },
+    {
+      "id": "83ac2aab0428",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 146900,
+      "log": "logs/matrix-83ac2aab0428.log",
+      "log_digest": "4a81f6c5f9442794817c47de4dd0d3abca975d1353ea9e619584e3bd6e7da812",
+      "original_log_digest": "4a81f6c5f9442794817c47de4dd0d3abca975d1353ea9e619584e3bd6e7da812"
+    },
+    {
+      "id": "58fdf339a37a",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "TP",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 136483,
+      "log": "logs/matrix-58fdf339a37a.log",
+      "log_digest": "eccdc2a42546dda73bff3c3ceed706fb7c942492c2639e8b97ae300828864e0a",
+      "original_log_digest": "eccdc2a42546dda73bff3c3ceed706fb7c942492c2639e8b97ae300828864e0a"
+    },
+    {
+      "id": "25ce689547de",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 138980,
+      "log": "logs/matrix-25ce689547de.log",
+      "log_digest": "4b616a9e92986cd292516e7c9f22a0840c1e46e146cfb1f8d599b5e841bf899d",
+      "original_log_digest": "4b616a9e92986cd292516e7c9f22a0840c1e46e146cfb1f8d599b5e841bf899d"
+    },
+    {
+      "id": "dc895843d261",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "TP",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 139487,
+      "log": "logs/matrix-dc895843d261.log",
+      "log_digest": "926e07ed2239e47f4940f99e0f002b81cc9504da4ddbb8419951100514200242",
+      "original_log_digest": "926e07ed2239e47f4940f99e0f002b81cc9504da4ddbb8419951100514200242"
+    },
+    {
+      "id": "39347f96e03d",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "TP",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "exit_code": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 94485,
+      "log": "logs/matrix-39347f96e03d.log",
+      "log_digest": "0b376d7efe333126875c64c1d2f80e266d325d67540765779c86a50a7684d519",
+      "original_log_digest": "0b376d7efe333126875c64c1d2f80e266d325d67540765779c86a50a7684d519"
+    }
+  ],
+  "source_unchanged": true,
+  "status": "pass",
+  "source_unchanged_scope": "parallel continuation; serial results reference their separately retained log"
+}

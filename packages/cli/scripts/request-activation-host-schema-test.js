@@ -8,7 +8,10 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const evidenceRoot = join(repoRoot, ".agdf", "control", "artefacts", "agdf-request-activation-boundary");
 const schema = JSON.parse(readFileSync(join(evidenceRoot, "HOST_OBSERVATION_SCHEMA.json"), "utf8"));
 const unavailableMatrix = JSON.parse(readFileSync(join(evidenceRoot, "HOST_OBSERVATION_MATRIX.json"), "utf8"));
-const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
+// This schema is a frozen artefact of the agdf-request-activation-boundary run.
+// Its independently checked historical version must not follow later release candidates.
+const historicalRunVersion = "0.14.5";
+const currentVersion = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8")).version;
 const activationManifest = JSON.parse(readFileSync(join(repoRoot, "evals", "request-activation", "manifest.json"), "utf8"));
 const requiredHosts = schema.$defs.host.properties.host.enum;
 const requiredFamilies = schema.$defs.case_family_id.enum;
@@ -66,13 +69,13 @@ function validateCompletionEvidence(document) {
     for (const field of ["install_result", "root", "identity"]) {
       if (!isNonEmptyString(host.staged_profile?.[field])) fail(`${path}.staged_profile.${field}`, "must be a non-empty string");
     }
-    if (host.staged_profile?.version !== pluginDefinition.version) fail(`${path}.staged_profile.version`, `must equal ${pluginDefinition.version}`);
+    if (host.staged_profile?.version !== historicalRunVersion) fail(`${path}.staged_profile.version`, `must equal ${historicalRunVersion}`);
     if (!digestPattern.test(host.staged_profile?.digest ?? "")) fail(`${path}.staged_profile.digest`, "must be a SHA-256 digest");
     if (host.installed_profile?.status !== "observed") fail(`${path}.installed_profile.status`, "must be observed");
     for (const field of ["install_result", "root", "identity"]) {
       if (!isNonEmptyString(host.installed_profile?.[field])) fail(`${path}.installed_profile.${field}`, "must be a non-empty string");
     }
-    if (host.installed_profile?.version !== pluginDefinition.version) fail(`${path}.installed_profile.version`, `must equal ${pluginDefinition.version}`);
+    if (host.installed_profile?.version !== historicalRunVersion) fail(`${path}.installed_profile.version`, `must equal ${historicalRunVersion}`);
     if (!digestPattern.test(host.installed_profile?.digest ?? "")) fail(`${path}.installed_profile.digest`, "must be a SHA-256 digest");
     for (const field of ["version", "digest", "identity"]) {
       if (host.installed_profile?.[field] !== host.staged_profile?.[field]) fail(`${path}.installed_profile.${field}`, "must match the exact staged profile");
@@ -82,7 +85,7 @@ function validateCompletionEvidence(document) {
     for (const field of ["host_version", "model", "profile_identity"]) {
       if (!isNonEmptyString(host.fresh_session?.[field])) fail(`${path}.fresh_session.${field}`, "must be a non-empty string");
     }
-    if (host.fresh_session?.profile_version !== pluginDefinition.version) fail(`${path}.fresh_session.profile_version`, `must equal ${pluginDefinition.version}`);
+    if (host.fresh_session?.profile_version !== historicalRunVersion) fail(`${path}.fresh_session.profile_version`, `must equal ${historicalRunVersion}`);
     if (!digestPattern.test(host.fresh_session?.profile_digest ?? "")) fail(`${path}.fresh_session.profile_digest`, "must be a SHA-256 digest");
     if (host.fresh_session?.profile_digest !== host.installed_profile?.digest) fail(`${path}.fresh_session.profile_digest`, "must match installed readback");
     if (host.fresh_session?.profile_identity !== host.installed_profile?.identity) fail(`${path}.fresh_session.profile_identity`, "must match installed readback");
@@ -136,14 +139,14 @@ function completeFixture() {
   document.status = "complete";
   for (const [hostIndex, host] of document.hosts.entries()) {
     const profileDigest = `sha256:${String(hostIndex + 1).repeat(64)}`;
-    const profileIdentity = `agdf@${pluginDefinition.version}:${host.host}:${profileDigest}`;
+    const profileIdentity = `agdf@${historicalRunVersion}:${host.host}:${profileDigest}`;
     host.status = "complete";
     host.reason = "Exact installed profile and fresh loaded-host observations recorded.";
     host.install = { status: "observed", reason: "Installed with the host lifecycle after consent." };
     host.staged_profile = {
       status: "observed",
       install_result: "staged",
-      version: pluginDefinition.version,
+      version: historicalRunVersion,
       root: `/staged/${host.host}/agdf`,
       digest: profileDigest,
       identity: profileIdentity,
@@ -151,7 +154,7 @@ function completeFixture() {
     host.installed_profile = {
       status: "observed",
       install_result: "installed",
-      version: pluginDefinition.version,
+      version: historicalRunVersion,
       root: `/installed/${host.host}/agdf`,
       digest: profileDigest,
       identity: profileIdentity,
@@ -160,7 +163,7 @@ function completeFixture() {
       status: "observed",
       host_version: "1.0.0",
       model: "test-model",
-      profile_version: pluginDefinition.version,
+      profile_version: historicalRunVersion,
       profile_digest: profileDigest,
       profile_identity: profileIdentity,
       session_start_consent: "enabled",
@@ -212,6 +215,14 @@ assert.deepEqual(validateCompletionEvidence(unavailableMatrix), [], "the truthfu
 assert.deepEqual(validateCompletionEvidence(completeFixture()), [], "a fully evidenced four-host completion must be valid");
 assert.deepEqual(validateJsonSchema(schema, unavailableMatrix), [], "the actual JSON Schema must accept the truthful unavailable matrix");
 assert.deepEqual(validateJsonSchema(schema, completeFixture()), [], "the actual JSON Schema must accept fully evidenced completion");
+if (currentVersion !== historicalRunVersion) {
+  const newer = completeFixture();
+  for (const host of newer.hosts) {
+    host.staged_profile.version = currentVersion; host.installed_profile.version = currentVersion;
+    host.fresh_session.profile_version = currentVersion;
+  }
+  assert.notDeepEqual(validateJsonSchema(schema, newer), [], "historical host evidence cannot qualify a later release version");
+}
 
 const partialMatrix = structuredClone(unavailableMatrix);
 partialMatrix.status = "partial";
@@ -236,13 +247,13 @@ for (const profile of ["staged_profile", "installed_profile"]) {
   for (const field of ["install_result", "root", "identity"]) {
     assert.equal(completeHostRule[profile].properties[field].$ref, "#/$defs/non_empty_string");
   }
-  assert.equal(completeHostRule[profile].properties.version.const, pluginDefinition.version);
+  assert.equal(completeHostRule[profile].properties.version.const, historicalRunVersion);
   assert.equal(completeHostRule[profile].properties.digest.type, "string");
 }
 for (const field of ["host_version", "model"]) {
   assert.equal(completeHostRule.fresh_session.properties[field].$ref, "#/$defs/non_empty_string");
 }
-assert.equal(completeHostRule.fresh_session.properties.profile_version.const, pluginDefinition.version);
+assert.equal(completeHostRule.fresh_session.properties.profile_version.const, historicalRunVersion);
 assert.equal(completeHostRule.fresh_session.properties.profile_digest.type, "string");
 assert.equal(completeHostRule.fresh_session.properties.profile_identity.$ref, "#/$defs/non_empty_string");
 assert.equal(completeHostRule.fresh_session.properties.post_session_start_callback_baseline.$ref, "#/$defs/callback_baseline");

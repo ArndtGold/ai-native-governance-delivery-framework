@@ -3,11 +3,15 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { RELEASE_SCENARIOS, COMMON_STEPS } from './release-scenarios.mjs';
+import { runReleaseTool } from './lib/release-handoff.mjs';
+export { assertHostReleaseEvidence } from './lib/release-observation.mjs';
 
 export const REQUIRED_STEPS = Object.freeze(["host", "install", "installation_consent", "control_fixture",
   "discovery", "dispatch", "failure_case", "skill_continuation", "removal"]);
 
 export function assertReleaseEvidence(observations, { commit, version, policy }) {
+  const [major, minor] = version.split('.').map(Number);
+  assert.ok(major === 0 && minor < 20, 'legacy_evidence_not_release_grade');
   assert.match(commit, /^[a-f0-9]{40}$/);
   const partitioned = observations.some(row => row.scenario !== undefined);
   const expected = policy.platforms.flatMap(os => partitioned ? RELEASE_SCENARIOS.map(scenario => `${os}:${scenario}`) : [os]).sort();
@@ -53,12 +57,19 @@ export function assertReleaseEvidence(observations, { commit, version, policy })
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  if (process.argv[2] !== '--directory') {
+    try { console.log(JSON.stringify(await runReleaseTool(process.argv.slice(2)), null, 2)); }
+    catch (error) { console.error(error.message); process.exitCode = 1; }
+  } else {
   const policy = JSON.parse(readFileSync(new URL("./codex-release-policy.json", import.meta.url), "utf8"));
   const version = JSON.parse(readFileSync(new URL("../../packages/cli/package.json", import.meta.url), "utf8")).version;
   const args = process.argv.slice(2);
   const files = args[0] === "--directory" && args.length === 2
     ? readdirSync(args[1], { recursive: true }).filter(path => /(?:^|[\\/])observation\.json$/.test(path)).map(path => join(args[1], path)) : args;
-  assertReleaseEvidence(files.map(path => JSON.parse(readFileSync(path, "utf8"))),
+  if (JSON.parse(readFileSync(new URL('../../plugins/agdf/meta/agdf-plugin.definition.json', import.meta.url), 'utf8')).hostSupport) {
+    console.log(JSON.stringify(await runReleaseTool(['validate', '--candidate', '.release-candidate.json', '--directory', args[1]]), null, 2));
+  } else assertReleaseEvidence(files.map(path => JSON.parse(readFileSync(path, "utf8"))),
     { commit: process.env.GITHUB_SHA, version, policy });
   console.log("Release evidence: exact commit, version, model and native Linux/Windows lifecycle verified.");
+  }
 }

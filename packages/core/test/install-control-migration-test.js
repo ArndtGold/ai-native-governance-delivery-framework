@@ -14,7 +14,7 @@ import { applyRunRecovery, previewRunRecovery } from "../lib/control-state/run-r
 import { createLifecycleResult } from "../../cli/lib/lifecycle/result.js";
 import { parseArgs } from "../../cli/lib/cli/parse-args.js";
 import { validateCommandOptions } from "../../cli/lib/cli/command-registry.js";
-import { interactionLocales } from "../../cli/lib/cli/runtime-context.js";
+import { interactionLocales, pluginDefinition } from "../../cli/lib/cli/runtime-context.js";
 import { runCli } from "../../cli/lib/cli/application.js";
 
 const base = mkdtempSync(join(tmpdir(), "agdf-install-migration-"));
@@ -294,7 +294,7 @@ try {
     exec(_executable, args) {
       if (args.join(' ') === 'mcp list --json') return '[]';
       if (args.join(" ") === "plugin marketplace list --json") return '{"marketplaces":[]}';
-      if (args.join(" ") === "plugin list") return "agdf@agdf 0.14.5\n";
+      if (args.join(" ") === "plugin list") return `agdf@agdf ${pluginDefinition.version}\n`;
       return "";
     },
   };

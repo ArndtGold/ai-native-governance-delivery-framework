@@ -5,6 +5,7 @@ import { join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { AGDFPlugin } from "../opencode-plugin.js";
+import { pluginDefinition } from '../lib/cli/runtime-context.js';
 import {
   alignOpenCodePluginSdk,
   defaultOpenCodeConfigDir,
@@ -88,7 +89,7 @@ try {
   let repositoryProbeCalls = 0;
   const globalStatusDependencies = {
     readOpenCodeConfig: (path) => ({ exists: true, parseError: "", config: { plugin: ["./node_modules/create-agdf/opencode-plugin.js"] }, path }),
-    resolveOpenCodePackage: () => ({ loadable: true, path: "fixture", installed_version: "0.14.5", error: "" }),
+    resolveOpenCodePackage: () => ({ loadable: true, path: "fixture", installed_version: pluginDefinition.version, error: "" }),
     evaluateGlobalOpenCodeSurface: () => ({ complete: true, skill_count: 10, expected_skill_count: 10, contract_count: 9, expected_contract_count: 9 }),
     evaluateOpenCodeHostSdk: () => ({
       host: { installed_version: "1.18.3" },

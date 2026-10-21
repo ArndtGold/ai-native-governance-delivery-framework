@@ -12,7 +12,7 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
   if (![qualifyMs, closeMs, invokeMs].every(value => Number.isSafeInteger(value) && value > 0)
     || qualifyMs > L.qualify || closeMs > L.close || invokeMs > L.qualify) throw Error('generation_deadline_invalid');
   const epoch = randomUUID(), slots = new Map(), routes = new Map(), presentations = new Map(), operations = new Map(), receipts = new Map();
-  let current, nextGeneration = 0, replacing = false, closed = false, actualContext = {}, nativeRequired = false;
+  let current, nextGeneration = 0, replacing = false, closed = false, closing, actualContext = {}, nativeRequired = false;
   const uiDigest = runtime.ui ? loadCockpitResource(runtime.ui).digest : undefined;
   const expected = manifestDigest(generationManifest(runtime, uiDigest, publisher.initial.sdkDigest));
   const event = (row, kind, reason) => onEvent({ owner_epoch: epoch, generation_id: row?.id ?? null, kind, reason: reason ?? null, occupancy: slots.size });
@@ -199,10 +199,13 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
   for (const tool of tools) tool.execute = (input, signal, host) => invoke(tool.name, input, host, signal);
   return Object.freeze({ ...runtime, tools, tool: name => tools.find(tool => tool.name === name),
     requiresProjectedResult: true, postprocessToolResult: undefined, inspectOwnership: status, runtimeControl: control,
-    async close() {
-      if (closed) return; closed = true;
-      const previous = current; current = null; if (previous && !previous.exited) previous.state = 'draining';
-      await Promise.allSettled([...slots.values()].map(row => retire(row, true)));
+    close() {
+      return closing ??= (async () => {
+        closed = true;
+        const previous = current; current = null; if (previous && !previous.exited) previous.state = 'draining';
+        await Promise.allSettled([...slots.values()].map(row => retire(row, true)));
+        return status();
+      })();
     },
   });
 }

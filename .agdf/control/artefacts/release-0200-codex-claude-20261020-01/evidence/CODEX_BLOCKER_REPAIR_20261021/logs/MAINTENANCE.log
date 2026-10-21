@@ -1,0 +1,242 @@
+npm notice run test:maintenance-contracts
+npm notice run npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs && npm run test:release-qualification
+npm notice run test:verification
+npm notice run node --test scripts/verification-test.mjs
+TAP version 13
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, darwin.
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 1 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 87.256221
+  type: 'test'
+  ...
+# Subtest: the workflow matrix exposes functional labels for repository, release and published MCP callers
+ok 2 - the workflow matrix exposes functional labels for repository, release and published MCP callers
+  ---
+  duration_ms: 1512.123639
+  type: 'test'
+  ...
+# Subtest: compact graph names retain purpose, platform, partition and revision scenario
+ok 3 - compact graph names retain purpose, platform, partition and revision scenario
+  ---
+  duration_ms: 27.671002
+  type: 'test'
+  ...
+# Subtest: measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+ok 4 - measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+  ---
+  duration_ms: 12.349667
+  type: 'test'
+  ...
+# Subtest: graph matrices route every existing partition exactly once for every caller
+ok 5 - graph matrices route every existing partition exactly once for every caller
+  ---
+  duration_ms: 1170.43374
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 6 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 9.876697
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 7 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 3221.916827
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 8 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 38.665081
+  type: 'test'
+  ...
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 9 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 1.141377
+  type: 'test'
+  ...
+# Subtest: build shares CI checks without recursive builds; evidence preparation remains possible
+ok 10 - build shares CI checks without recursive builds; evidence preparation remains possible
+  ---
+  duration_ms: 1.423566
+  type: 'test'
+  ...
+# Subtest: real npm build failures prevent assembly and preserve stored evidence
+ok 11 - real npm build failures prevent assembly and preserve stored evidence
+  ---
+  duration_ms: 32385.604701
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 12 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 3.885571
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 13 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 345.516905
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 14 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 11684.83418
+  type: 'test'
+  ...
+# Subtest: both snapshot modes export an index larger than the default subprocess output buffer
+ok 15 - both snapshot modes export an index larger than the default subprocess output buffer
+  ---
+  duration_ms: 12712.326221
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 63619.326888
+Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+Payload budget review/report tests passed.
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.
+TAP version 13
+# Subtest: adaptive mode starts with ten cases and repeats only selected or deviant first runs
+ok 1 - adaptive mode starts with ten cases and repeats only selected or deviant first runs
+  ---
+  duration_ms: 3.851336
+  type: 'test'
+  ...
+# Subtest: the actual scheduler completes all first runs before conditional repeats
+ok 2 - the actual scheduler completes all first runs before conditional repeats
+  ---
+  duration_ms: 16.541373
+  type: 'test'
+  ...
+# Subtest: fixed mode and boundary IDs are validated before host setup
+ok 3 - fixed mode and boundary IDs are validated before host setup
+  ---
+  duration_ms: 0.78708
+  type: 'test'
+  ...
+# Subtest: expected target_unresolved remains a separate target-binding observation
+ok 4 - expected target_unresolved remains a separate target-binding observation
+  ---
+  duration_ms: 0.285252
+  type: 'test'
+  ...
+# Subtest: JSONL parsing separates cached input and counts completed search calls once
+ok 5 - JSONL parsing separates cached input and counts completed search calls once
+  ---
+  duration_ms: 1.872502
+  type: 'test'
+  ...
+# Subtest: unavailable usage or search telemetry remains unknown
+ok 6 - unavailable usage or search telemetry remains unknown
+  ---
+  duration_ms: 0.403651
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 319.065521
+npm notice run test:release-qualification
+npm notice run node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs
+TAP version 13
+# Subtest: candidate binds new and changed sources, locks, policies and shipped bytes
+ok 1 - candidate binds new and changed sources, locks, policies and shipped bytes
+  ---
+  duration_ms: 3886.8948
+  type: 'test'
+  ...
+# Subtest: normalized text and fixed evidence-only fields preserve content identity
+ok 2 - normalized text and fixed evidence-only fields preserve content identity
+  ---
+  duration_ms: 2138.31024
+  type: 'test'
+  ...
+# Subtest: missing payloads, forged inventory and source symlinks cannot qualify
+ok 3 - missing payloads, forged inventory and source symlinks cannot qualify
+  ---
+  duration_ms: 1043.151676
+  type: 'test'
+  ...
+# Subtest: complete matrix accepts real-shaped primary events and rejects missing/forged observations
+ok 4 - complete matrix accepts real-shaped primary events and rejects missing/forged observations
+  ---
+  duration_ms: 1099.928418
+  type: 'test'
+  ...
+# Subtest: Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+ok 5 - Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+  ---
+  duration_ms: 2768.967722
+  type: 'test'
+  ...
+# Subtest: Desktop templates are explicitly unverified and cannot satisfy release acceptance
+ok 6 - Desktop templates are explicitly unverified and cannot satisfy release acceptance
+  ---
+  duration_ms: 1529.32336
+  type: 'test'
+  ...
+# Subtest: local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+ok 7 - local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+  ---
+  duration_ms: 1448.023807
+  type: 'test'
+  ...
+# Subtest: native entrypoints parse without running hosts or using credentials
+ok 8 - native entrypoints parse without running hosts or using credentials
+  ---
+  duration_ms: 893.57012
+  type: 'test'
+  ...
+# Subtest: baseline subprocess stays in its isolated project instead of the invoking repository
+ok 9 - baseline subprocess stays in its isolated project instead of the invoking repository
+  ---
+  duration_ms: 254.032905
+  type: 'test'
+  ...
+# Subtest: released baseline integrity and archive entry restrictions are enforced before writes
+ok 10 - released baseline integrity and archive entry restrictions are enforced before writes
+  ---
+  duration_ms: 11.622021
+  type: 'test'
+  ...
+# Subtest: stale-state injection verifies complete owned provenance and refuses foreign ownership
+ok 11 - stale-state injection verifies complete owned provenance and refuses foreign ownership
+  ---
+  duration_ms: 7.932825
+  type: 'test'
+  ...
+# Subtest: host tiers and Codex compatibility projection have one canonical owner
+ok 12 - host tiers and Codex compatibility projection have one canonical owner
+  ---
+  duration_ms: 784.390161
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7389.417027

@@ -43,17 +43,22 @@
   },
   "dynamic_imports": [
     {
-      "file": "packages/cli/lib/mcp-lifecycle/plugin-runtime.js",
-      "expression": "pathToFileURL(join(runtime.packageRoot, \"src/main.js\"))",
-      "entrypoints": ["packages/mcp-server/src/main.js"]
+      "file": "packages/cli/lib/mcp-lifecycle/facade-entry.js",
+      "expression": "pathToFileURL(join(runtime.packageRoot, 'src/main.js'))",
+      "entrypoints": [
+        "packages/mcp-server/src/main.js"
+      ]
     }
   ],
   "common_entrypoints": [
+    "packages/cli/lib/mcp-lifecycle/facade-entry.js",
+    "packages/cli/lib/mcp-lifecycle/facade-owner-entry.js",
     "scripts/host-compatibility/contract.mjs",
     "scripts/host-compatibility/evaluate.mjs",
     "scripts/host-compatibility/render.mjs",
     "scripts/host-compatibility/run.mjs",
-    "packages/cli/scripts/host-compatibility-test.js"
+    "packages/cli/scripts/host-compatibility-test.js",
+    "scripts/host-compatibility/native-release.mjs"
   ],
   "extra_sources": [
     "package.json",

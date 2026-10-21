@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "kind": "agdf_codex_host_e2e",
+  "recorded_at": "2026-10-21T07:15:04.983Z",
+  "requested_model": "gpt-6-luna",
+  "scenario": "recovery",
+  "source": {
+    "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+    "dirty": true
+  },
+  "host": {
+    "client": "codex-cli",
+    "version": "0.163.0",
+    "os": "darwin",
+    "arch": "x64",
+    "node": "v22.22.3"
+  },
+  "agdf": {
+    "version": "0.20.0"
+  },
+  "approval_path": "installer_native_config_rpc",
+  "steps": [
+    {
+      "name": "host",
+      "status": "pass",
+      "evidence": {
+        "version": "0.163.0"
+      }
+    },
+    {
+      "name": "install",
+      "status": "pass",
+      "evidence": {
+        "result": "partial",
+        "effective_state": "mcp_ready_hook_review_required",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "installation_consent",
+      "status": "pass",
+      "evidence": {
+        "requested": "enabled",
+        "hook_verification": "hook_review_required",
+        "mcp_approval": {
+          "status": "configured",
+          "reason": "none",
+          "tool": "agdf_dispatch",
+          "policy_key": "plugins.\"agdf@agdf\".mcp_servers.agdf.tools.agdf_dispatch.approval_mode",
+          "config_file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/probe-results/codex-host-e2e-20261021-071504/work-tmp/codex-home/config.toml",
+          "write_attempted": true,
+          "verification": "config_readback"
+        }
+      }
+    },
+    {
+      "name": "repair",
+      "status": "pass",
+      "evidence": {
+        "exit_status": 1
+      }
+    },
+    {
+      "name": "control_fixture",
+      "status": "pass",
+      "evidence": {
+        "init_status": 0,
+        "run_create_status": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "discovery",
+      "status": "pass",
+      "evidence": {
+        "command": "node",
+        "args": "[\"<WORK>/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js\",\"--surface\",\"codex\",\"--data\",\"<WORK>/agdf-data/mcp/codex-plugin\"]"
+      }
+    },
+    {
+      "name": "recovery",
+      "status": "pass",
+      "evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": "owned_stale_install",
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 1,
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "plugin_id": "agdf@agdf",
+        "runtime_digest": "a38f3ee5a3053d53fbb7d36f19f62a50755d3cfdd8738857f831b757fc834f1c",
+        "outcome": "control_result",
+        "authorizes": false,
+        "exec_status": 0
+      }
+    },
+    {
+      "name": "removal",
+      "status": "fail",
+      "evidence": {
+        "uninstall_status": 0,
+        "mcp_listed": false,
+        "config_mcp_section": false,
+        "plugin_tool_policy": false,
+        "plugin_cache": false,
+        "mcp_runtime": true,
+        "kept_by_design": "agdf marketplace registration and directory",
+        "stderr": ""
+      }
+    }
+  ],
+  "result": "fail"
+}

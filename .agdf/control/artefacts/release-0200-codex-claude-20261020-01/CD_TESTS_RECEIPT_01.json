@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "30e3ee4b-7df3-4dba-81ab-5e03d75525c6",
+  "request_digest": "sha256:b1ead56d4c3c3014cd9c7f007935616ea32195d9b2ae4f413cf076784b5e8e32",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "expected_revision_id": "2d9532c6-6b43-49db-b37c-1cebbd0b4f46",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "2d9532c6-6b43-49db-b37c-1cebbd0b4f46",
+    "resulting_revision_id": "72c75aee-1d67-4dfb-9966-b54aa3bcf7fd",
+    "revision": 13,
+    "record": {
+      "step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:64378c2c3fdfe7a277fa64a03cfe816d0341dd89be9f6ab9728bedc40f2c5bc5"
+      },
+      "status": "revise",
+      "covers": "T-002–T-009 local preparation and canonical verification; T-010 native evidence pending; T-011 reviews/QA not complete",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "30e3ee4b-7df3-4dba-81ab-5e03d75525c6",
+    "request_digest": "sha256:b1ead56d4c3c3014cd9c7f007935616ea32195d9b2ae4f413cf076784b5e8e32",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "expected_revision_id": "2d9532c6-6b43-49db-b37c-1cebbd0b4f46",
+    "created_at": "2026-10-20T15:34:48.653Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "2d9532c6-6b43-49db-b37c-1cebbd0b4f46",
+      "resulting_revision_id": "72c75aee-1d67-4dfb-9966-b54aa3bcf7fd",
+      "revision": 13,
+      "record": {
+        "step": "CD+Tests",
+        "source": {
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "digest": "sha256:64378c2c3fdfe7a277fa64a03cfe816d0341dd89be9f6ab9728bedc40f2c5bc5"
+        },
+        "status": "revise",
+        "covers": "T-002–T-009 local preparation and canonical verification; T-010 native evidence pending; T-011 reviews/QA not complete",
+        "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 13,
+    "revision_id": "72c75aee-1d67-4dfb-9966-b54aa3bcf7fd",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "step": "internal",
+    "previous_revision_id": "2d9532c6-6b43-49db-b37c-1cebbd0b4f46",
+    "revision": "13",
+    "revision_id": "72c75aee-1d67-4dfb-9966-b54aa3bcf7fd",
+    "current_gate": "CD+Tests",
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "backlog": "updated",
+    "operation_id": "30e3ee4b-7df3-4dba-81ab-5e03d75525c6",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "30e3ee4b-7df3-4dba-81ab-5e03d75525c6",
+      "request_digest": "sha256:b1ead56d4c3c3014cd9c7f007935616ea32195d9b2ae4f413cf076784b5e8e32",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "release-0200-codex-claude-20261020-01",
+      "expected_revision_id": "2d9532c6-6b43-49db-b37c-1cebbd0b4f46",
+      "created_at": "2026-10-20T15:34:48.653Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "2d9532c6-6b43-49db-b37c-1cebbd0b4f46",
+        "resulting_revision_id": "72c75aee-1d67-4dfb-9966-b54aa3bcf7fd",
+        "revision": 13,
+        "record": {
+          "step": "CD+Tests",
+          "source": {
+            "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+            "digest": "sha256:64378c2c3fdfe7a277fa64a03cfe816d0341dd89be9f6ab9728bedc40f2c5bc5"
+          },
+          "status": "revise",
+          "covers": "T-002–T-009 local preparation and canonical verification; T-010 native evidence pending; T-011 reviews/QA not complete",
+          "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46"
+        }
+      }
+    }
+  }
+}

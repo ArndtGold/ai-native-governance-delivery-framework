@@ -1,0 +1,84 @@
+npm notice run test:release-qualification
+npm notice run node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs
+TAP version 13
+# Subtest: candidate binds new and changed sources, locks, policies and shipped bytes
+ok 1 - candidate binds new and changed sources, locks, policies and shipped bytes
+  ---
+  duration_ms: 4225.390854
+  type: 'test'
+  ...
+# Subtest: normalized text and fixed evidence-only fields preserve content identity
+ok 2 - normalized text and fixed evidence-only fields preserve content identity
+  ---
+  duration_ms: 2275.425909
+  type: 'test'
+  ...
+# Subtest: missing payloads, forged inventory and source symlinks cannot qualify
+ok 3 - missing payloads, forged inventory and source symlinks cannot qualify
+  ---
+  duration_ms: 1123.460571
+  type: 'test'
+  ...
+# Subtest: complete matrix accepts real-shaped primary events and rejects missing/forged observations
+ok 4 - complete matrix accepts real-shaped primary events and rejects missing/forged observations
+  ---
+  duration_ms: 1285.091684
+  type: 'test'
+  ...
+# Subtest: Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+ok 5 - Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+  ---
+  duration_ms: 3164.905106
+  type: 'test'
+  ...
+# Subtest: Desktop templates are explicitly unverified and cannot satisfy release acceptance
+ok 6 - Desktop templates are explicitly unverified and cannot satisfy release acceptance
+  ---
+  duration_ms: 1637.657642
+  type: 'test'
+  ...
+# Subtest: local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+ok 7 - local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+  ---
+  duration_ms: 1485.633876
+  type: 'test'
+  ...
+# Subtest: native entrypoints parse without running hosts or using credentials
+ok 8 - native entrypoints parse without running hosts or using credentials
+  ---
+  duration_ms: 952.554987
+  type: 'test'
+  ...
+# Subtest: baseline subprocess stays in its isolated project instead of the invoking repository
+ok 9 - baseline subprocess stays in its isolated project instead of the invoking repository
+  ---
+  duration_ms: 326.918368
+  type: 'test'
+  ...
+# Subtest: released baseline integrity and archive entry restrictions are enforced before writes
+ok 10 - released baseline integrity and archive entry restrictions are enforced before writes
+  ---
+  duration_ms: 11.748497
+  type: 'test'
+  ...
+# Subtest: stale-state injection verifies complete owned provenance and refuses foreign ownership
+ok 11 - stale-state injection verifies complete owned provenance and refuses foreign ownership
+  ---
+  duration_ms: 7.746885
+  type: 'test'
+  ...
+# Subtest: host tiers and Codex compatibility projection have one canonical owner
+ok 12 - host tiers and Codex compatibility projection have one canonical owner
+  ---
+  duration_ms: 883.979494
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8042.621028

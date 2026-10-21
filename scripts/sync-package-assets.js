@@ -1,4 +1,5 @@
 import { isMainEntry } from "./support/main-entry.js";
+import { releasePolicy } from './native-probes/lib/release-policy.mjs';
 import { hostSkillName, projectHostSkillNames } from "../packages/core/lib/skill-dispatch/contract.js";
 import { projectCore, projectPrivateCoreResources } from "./core-projection.mjs";
 import { getPluginSourceRoot } from "./public-plugin/source-root.js";
@@ -572,6 +573,9 @@ export function syncPackageAssets({
   // Canonical source projections must be current before any source/generated manifest write,
   // deletion, cleanup, copy, or runtime generation begins.
   projectionCheck();
+  // Compatibility projection: the canonical definition owns policy. Importing generator helpers
+  // is read-only; write this projection only after the normal generation prerequisites pass.
+  write(join(repoRoot, 'scripts/native-probes/codex-release-policy.json'), `${JSON.stringify(releasePolicy(repoRoot).codex, null, 2)}\n`);
   projectPrivateCoreResources();
   projectCore(packageRoot);
   const validateSchema = createPortableSchemaValidator(repoRoot);

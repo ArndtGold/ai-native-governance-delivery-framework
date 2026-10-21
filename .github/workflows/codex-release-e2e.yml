@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [linux, win32]
-        scenario: [dispatch, failure_case, skill_continuation]
+        scenario: [dispatch, failure_case, skill_continuation, upgrade, recovery]
         include:
           - os: ubuntu-latest
             platform: linux
@@ -40,6 +40,8 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.longpaths true
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
@@ -54,6 +56,8 @@ jobs:
         run: npm install --global --ignore-scripts "@openai/codex@$(node -p "require('./scripts/native-probes/codex-release-policy.json').codex_version")"
       - name: Verify native command resolution
         run: node packages/cli/scripts/host-command-test.js
+      - name: Bind the prepared candidate
+        run: node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
       # Trusted release/manual refs only; never invoked from a PR job. No account auth.json in CI.
       # The harness strips credentials before builds/install/removal and passes this key only to
       # codex exec. Raw transcripts and the isolated CODEX_HOME are never uploaded.
@@ -63,7 +67,7 @@ jobs:
           RELEASE_SCENARIO: ${{ matrix.scenario }}
         run: |
           test -n "$CODEX_API_KEY" || { echo "CODEX_API_KEY is required for the release gate" >&2; exit 1; }
-          node scripts/native-probes/codex-host-e2e.mjs --scenario "$RELEASE_SCENARIO" --model "$(node -p "require('./scripts/native-probes/codex-release-policy.json').model")"
+          node scripts/native-probes/codex-host-e2e.mjs --candidate .release-candidate.json --scenario "$RELEASE_SCENARIO" --model "$(node -p "require('./scripts/native-probes/codex-release-policy.json').model")"
       - name: Preserve bounded evidence only
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -74,6 +78,9 @@ jobs:
           path: |
             probe-results/codex-host-e2e-*/observation.json
             probe-results/codex-host-e2e-*/summary.txt
+            probe-results/codex-host-e2e-*/release-records.json
+            probe-results/codex-host-e2e-*/*-process.json
+            probe-results/codex-host-e2e-*/*-primary.json
 
   evidence:
     needs: native
@@ -81,9 +88,13 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
+      - name: Prepare the independently verified candidate
+        run: npm ci --ignore-scripts && node scripts/verify-ci.mjs --profile prepare && node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
       - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           pattern: codex-release-*

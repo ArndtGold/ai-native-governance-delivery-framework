@@ -8,6 +8,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   realpathSync,
   rmSync,
   writeFileSync,
@@ -827,6 +828,58 @@ export function inspectLocalMarketplaceProjection({
     sourceDigest: marker.source_digest ?? "",
     digest: marker.plugin_digest,
   });
+}
+
+// Repair admission is narrower than normal provenance: exactly the runtime
+// manifest may be stale, and restoring a fully verified native cache copy must
+// reproduce the pre-existing owner's complete payload hash. Nothing is reused
+// or written back here; the existing transaction still publishes a fresh build.
+export function inspectCodexOwnedManifestRepair({ dataRoot = defaultAgdfDataRoot(), env = process.env,
+  expectedVersion = pluginDefinition.version } = {}) {
+  try {
+    const root = join(resolve(dataRoot), 'marketplaces', MARKETPLACE_ID), marker = ownership(root);
+    if (marker.version !== expectedVersion || (marker.profile_id ?? 'runtime-plugin') !== 'runtime-plugin'
+      || !/^[a-f0-9]{64}$/u.test(marker.source_digest ?? '') || !/^[a-f0-9]{64}$/u.test(marker.plugin_digest ?? '')) return null;
+    const installVersion = marker.codex_install_version ?? marker.version;
+    if (installVersion !== marker.version && !isCodexLocalInstallVersion(marker.version, installVersion, marker.source_digest)) return null;
+    const pluginRoot = join(root, 'plugins', MARKETPLACE_ID);
+    const cache = join(env.CODEX_HOME || join(homedir(), '.codex'), 'plugins/cache/agdf/agdf', marker.codex_install_version ?? marker.version);
+    if (realpathSync(cache) !== resolve(cache) || realpathSync(pluginRoot) !== resolve(pluginRoot)) return null;
+    const noLinks = base => { let count = 0, bytes = 0;
+      const visit = path => { const stat = lstatSync(path); if (stat.isSymbolicLink()) throw Error('repair_symlink');
+        if (++count > 10000 || (bytes += stat.size) > 32 * 1024 * 1024) throw Error('repair_bounds');
+        if (stat.isDirectory()) for (const name of readdirSync(path)) visit(join(path, name));
+      }; visit(base);
+    };
+    noLinks(pluginRoot); noLinks(cache);
+    validateBuiltPlugin(cache, marker.version, marker.codex_install_version ?? marker.version, marker.source_digest,
+      { requireInstallationProvenance: true });
+    const manifest = join('runtime', 'runtime-manifest.json'), original = readFileSync(join(cache, manifest));
+    if (readFileSync(join(pluginRoot, manifest)).equals(original)) return null;
+    const observed = digestDirectory(pluginRoot), markerBytes = readFileSync(join(root, OWNERSHIP_FILE));
+    const temporary = mkdtempSync(join(tmpdir(), 'agdf-owned-repair-'));
+    let declaration;
+    try {
+      cpSync(pluginRoot, join(temporary, 'plugin'), { recursive: true, filter: path => {
+        if (lstatSync(path).isSymbolicLink()) throw Error('repair_symlink'); return true;
+      } });
+      writeFileSync(join(temporary, 'plugin', manifest), original);
+      if (digestDirectory(join(temporary, 'plugin')) !== marker.plugin_digest) return null;
+      validateBuiltPlugin(join(temporary, 'plugin'), marker.version, marker.codex_install_version ?? marker.version,
+        marker.source_digest, { requireInstallationProvenance: true });
+      declaration = readJson(join(temporary, 'plugin/mcp.json'), 'verified repair declaration');
+    } finally { rmSync(temporary, { recursive: true, force: true }); }
+    const assertCurrent = () => {
+      ownership(root); noLinks(pluginRoot); noLinks(cache);
+      if (!readFileSync(join(root, OWNERSHIP_FILE)).equals(markerBytes) || digestDirectory(pluginRoot) !== observed
+        || !readFileSync(join(cache, manifest)).equals(original)) throw Error('repair_source_changed');
+    };
+    return Object.freeze({ assertCurrent, inspect(candidateRoot) {
+      assertCurrent();
+      if (resolve(candidateRoot) !== pluginRoot || realpathSync(candidateRoot) !== pluginRoot) return { status: 'unconfirmed' };
+      return { status: 'matched', repair: true, version: marker.version, digest: 'sha256:' + marker.source_digest, declaration };
+    } });
+  } catch { return null; }
 }
 
 export function inspectOwnedSharedMarketplaceForCopilotMigration({

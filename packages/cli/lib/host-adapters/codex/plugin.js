@@ -7,7 +7,7 @@ import { execHostFileSync } from "../../host-command.js";
 import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { CODEX_REGISTRATION_REVISION, isCodexLocalInstallVersion } from "./identity.js";
-import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
+import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace, inspectCodexOwnedManifestRepair } from "../../installers/local-marketplace.js";
 import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "./plugin-mcp.js";
 import { ownedFileSnapshot } from "../../lifecycle/owned-mutation.js";
 import { inspectCodexCockpitAdmission, inspectCodexSetup } from '../../mcp-lifecycle/adapters/codex.js';
@@ -29,11 +29,15 @@ export function installCodexGlobalPlugin({
   const nativeOutput = [];
   if (target) target = realpathSync(target);
   // This check precedes prepare(), which publishes the marketplace candidate.
-  const cockpitAdmission = target ? inspectCodexCockpitAdmission({ target, env, exec }) : null;
+  let cockpitAdmission = target ? inspectCodexCockpitAdmission({ target, env, exec }) : null;
+  const manifestRepair = cockpitAdmission && !cockpitAdmission.admitted
+    ? inspectCodexOwnedManifestRepair({ ...(dataRoot ? { dataRoot } : {}), env, expectedVersion }) : null;
+  if (manifestRepair) cockpitAdmission = inspectCodexCockpitAdmission({ target, env, exec, manifestRepair });
   if (cockpitAdmission && !cockpitAdmission.admitted) throw lifecycleAdapterError('cockpit_conflict',
     'Cockpit server identity is already occupied or configuration coverage is unresolved. Preserve the existing route; qualify the same-key candidate in an isolated native context before a guarded transition.', cockpitAdmission);
   const legacyCockpit = target && inspectCodexSetup({ target, env }).entries.some(entry => entry.role === 'cockpit'
     && entry.scope !== 'plugin' && entry.configured !== 'disabled');
+  manifestRepair?.assertCurrent();
   const transaction = prepare({ expectedVersion, codexRegistrationRevision: CODEX_REGISTRATION_REVISION, ...(dataRoot ? { dataRoot } : {}) });
   const expectedInstallVersion = transaction.codexInstallVersion ?? expectedVersion;
   const migration = { state: "unknown", source: "", addedLocal: false, removedLegacy: false, refreshOwnedLocal: false, removedOwnedLocal: false };
@@ -46,7 +50,7 @@ export function installCodexGlobalPlugin({
     if (installedVersion !== expectedInstallVersion) {
       throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedInstallVersion, installedVersion, "npx --yes @agdf/cli@latest codex"));
     }
-    transaction.commit(legacyCockpit ? { retainCockpitRollbackFor: target } : undefined);
+    if (!manifestRepair) transaction.commit(legacyCockpit ? { retainCockpitRollbackFor: target } : undefined);
     const retainedCockpit = legacyCockpit && existsSync(`${transaction.root}.transaction.json`)
       ? JSON.parse(readFileSync(`${transaction.root}.transaction.json`, 'utf8'))
       : { previous_source_digest: transaction.sourceDigest, previous_version: expectedVersion };
@@ -56,6 +60,15 @@ export function installCodexGlobalPlugin({
       ...migrateMcp({ exec, env }),
       ...(transaction.pluginRoot ? prepareMcp({ exec, pluginRoot: transaction.pluginRoot }) : []),
     ];
+    if (manifestRepair) {
+      // Recovery does not turn failed ownership evidence into availability.
+      // Before deleting the backup, require a fresh, fully valid connected host.
+      const repairedAdmission = inspectCodexCockpitAdmission({ target, env, exec });
+      if (!repairedAdmission.admitted || repairedAdmission.native_provider_status !== 'owned_connected') throw lifecycleAdapterError('cockpit_repair_unconfirmed',
+        'The repaired owned plugin did not qualify in a fresh native context; preserve rollback.', repairedAdmission);
+      transaction.commit();
+      mcpEvidence.push('owned_manifest_repair:qualified_fresh_native_connection');
+    }
     return {
       surface: "codex", operation: migration.state === "owned_local_current" ? "update" : "install", expectedVersion: expectedInstallVersion, canonicalVersion: expectedVersion, installedVersion, verificationStatus: legacyCockpit ? 'configured_pending_restart' : "healthy",
       ...(legacyCockpit ? { cockpitTransition: { state: 'qualification_pending', target,

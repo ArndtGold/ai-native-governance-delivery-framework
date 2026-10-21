@@ -13,6 +13,7 @@ import { inspectPluginSurface } from "../../packages/cli/lib/installers/plugin-i
 
 const root = process.cwd();
 const manifest = JSON.parse(readFileSync(join(root, MANIFEST_PATH)));
+const currentVersion = JSON.parse(readFileSync(join(root, 'plugins/agdf/meta/agdf-plugin.definition.json'))).version;
 const digest = "a".repeat(64), previous = "b".repeat(64), reference = "e".repeat(64);
 const references = { "docs/compatibility/evidence/unit.json": reference };
 const make = (scenario = "installed", host = "codex") => {
@@ -36,7 +37,7 @@ const evaluate = observations => evaluateClaim(observations[0], observations, re
 check("valid input and observed installation", () => { const o = make(); assert.deepEqual(validateObservation(o, references), []); assert.equal(evaluate([o]).state, "demonstrated"); });
 check("legacy unspecified surface and import facade behavior", () => {
   for (const surface of [undefined, null, "unknown"]) {
-    const result = inspectPluginSurface(surface, (executable, args) => { assert.equal(executable, "codex"); assert.deepEqual(args, ["plugin", "list"]); return "agdf@agdf 0.14.5\n"; });
+    const result = inspectPluginSurface(surface, (executable, args) => { assert.equal(executable, "codex"); assert.deepEqual(args, ["plugin", "list"]); return `agdf@agdf ${currentVersion}\n`; });
     assert.equal(result.surface, surface); assert.equal(result.status, "healthy");
   }
 });

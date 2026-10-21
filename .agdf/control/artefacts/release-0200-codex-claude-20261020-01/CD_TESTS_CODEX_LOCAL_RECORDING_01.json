@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "presentation_language": "de",
+  "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "target_source": "continued_target",
+  "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "72c75aee-1d67-4dfb-9966-b54aa3bcf7fd",
+  "operation_id": "8ed1217a-4d8b-4467-9d19-6e92c0e1eb1a",
+  "assurance": "cooperative_local",
+  "command": {
+    "kind": "step.record",
+    "payload": {
+      "step": "internal",
+      "internal_step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_CODEX_LOCAL_INPUT.md",
+        "digest": "sha256:0f5470f23375092c044d3da02c57449b20fd9a3dcacda6ea7c94d9e1348d3278"
+      },
+      "decision": "revise",
+      "reason": "Actual local Codex CLI diagnostics: 13 attempts / 10 model sessions. No release pass; native tool availability, guarded recovery and protected runtime cleanup remain unresolved. Narrow harness fixes and 12 qualification tests pass.",
+      "covers": "T-009 probe correctness; T-010 actual macOS diagnostics and open native Linux/Windows/Claude evidence; T-011 reviews/QA incomplete"
+    }
+  }
+}

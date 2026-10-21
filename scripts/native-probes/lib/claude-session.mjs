@@ -2,7 +2,7 @@
 // Everything runs in an isolated CLAUDE_CONFIG_DIR and AGDF_DATA_DIR; the real ~/.claude is only
 // read to copy .credentials.json for a session, and the copy is always removed afterwards.
 // Evidence is structured (stream-json events, CLI output), never model prose.
-import { spawnSync } from "node:child_process";
+import { spawnHostSync } from '../../../packages/cli/lib/host-command.js';
 import { copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
@@ -23,7 +23,7 @@ export function createIsolatedClaudeHome(work, { homeName = "claude-home", dataN
 }
 
 export function runCommand(command, argv, { env = process.env, cwd, timeout = 300000, input } = {}) {
-  const result = spawnSync(command, argv, { encoding: "utf8", env, cwd, timeout, input, maxBuffer: 64 * 1024 * 1024, shell: false });
+  const result = spawnHostSync(command, argv, { encoding: "utf8", env, cwd, timeout, input, maxBuffer: 64 * 1024 * 1024, shell: false });
   return { status: result.status, stdout: result.stdout ?? "", stderr: result.stderr ?? "", error: result.error?.message ?? null };
 }
 

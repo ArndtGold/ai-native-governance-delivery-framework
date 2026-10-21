@@ -2,14 +2,25 @@
 
 Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
 
-AGDF canonical version: **0.14.5**.
-Observation dates: 2026-10-20T11:36:03.248Z to 2026-10-20T11:37:19.364Z.
-Source fingerprint: `d7a3e16f8fd580fb90f7c49f4e4c996cf29844bead2f3f91dfe6a5e39d90a406`.
+AGDF canonical version: **0.20.0**.
+Observation dates: 2026-10-21T08:46:20.450Z to 2026-10-21T08:47:28.669Z.
+Source fingerprint: `d794f629189285afe15ce9c7aba711d1488c4395b68f806c63ee8ab6ceffc4f1`.
 Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
 
 These scenario results describe isolated production fixtures. Expected negative cases can pass the test while the observed capability is failed. They provide no fresh-host or human-UAT proof.
 
 [Recorded facts](evidence/facts.json) · [Exact observations and source identities](evidence/snapshot.json)
+
+## Release support intent
+
+Support intent is separate from demonstrated native qualification. CLI, Desktop Code and embedded UI require their own exact observations.
+
+| Host | Release support intent |
+|---|---|
+| Codex | qualification_target |
+| Claude Code | qualification_target |
+| GitHub Copilot | experimental |
+| OpenCode | experimental |
 
 ## Five deterministic outcomes
 

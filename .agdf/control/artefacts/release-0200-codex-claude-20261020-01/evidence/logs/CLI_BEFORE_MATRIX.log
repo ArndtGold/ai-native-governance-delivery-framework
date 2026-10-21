@@ -1,0 +1,126 @@
+[verify-ci] scripts/install-control-repair-test.js
+Installation repair: 1/2/3, verified checkpoint/Git sources, missing inputs, backups, approval reset, conflicts, interruptions, CLI and EN/DE passed.
+[verify-ci] scripts/install-control-repair-test.js passed (20.0s)
+[verify-ci] scripts/control-maintenance-test.js
+Control maintenance shared service and interaction tests passed.
+[verify-ci] scripts/control-maintenance-test.js passed (3.3s)
+[verify-ci] scripts/control-maintenance-command-test.js
+Control maintenance source/generated command tests passed.
+[verify-ci] scripts/control-maintenance-command-test.js passed (6.3s)
+[verify-ci] ./scripts/repository-control-startup-test.js
+Repository control bounded startup, consent and reentry tests passed.
+[verify-ci] ./scripts/repository-control-startup-test.js passed (15.3s)
+[verify-ci] scripts/runtime-check-consent-test.js
+Codex hook observation tests passed.
+Runtime-check consent tests passed
+[verify-ci] scripts/runtime-check-consent-test.js passed (9.1s)
+[verify-ci] scripts/codex-plugin-consent-test.js
+Codex plugin consent: exact tool policy, readback, disable preservation, failures and input validation passed; revocation removes only the approval key.
+[verify-ci] scripts/codex-plugin-consent-test.js passed (0.5s)
+[verify-ci] ../core/test/task-target-resolution-test.js
+task target resolution tests passed
+[verify-ci] ../core/test/task-target-resolution-test.js passed (1.0s)
+[verify-ci] ../core/test/skill-names-test.js
+skill names tests passed
+[verify-ci] ../core/test/skill-names-test.js passed (1.8s)
+[verify-ci] scripts/skill-dispatch-function-contract-test.js
+Skill dispatch semantic function contract tests passed
+agdf_inspect function contract pins passed.
+[verify-ci] scripts/skill-dispatch-function-contract-test.js passed (0.6s)
+[verify-ci] scripts/skill-dispatch-test.js
+skill dispatch tests passed
+presentation_required preview tests passed.
+[verify-ci] scripts/skill-dispatch-test.js passed (0.5s)
+[verify-ci] scripts/compact-continuation-test.js
+Compact continuation policy and dispatcher boundaries passed
+[verify-ci] scripts/compact-continuation-test.js passed (0.5s)
+[verify-ci] scripts/skill-dispatch-binding-test.js
+40 adapter-to-dispatch cases passed (generated SessionStart and source-composed OpenCode, not loaded-host evidence)
+Skill dispatch binding tests passed
+[verify-ci] scripts/skill-dispatch-binding-test.js passed (49.6s)
+[verify-ci] scripts/delivery-run-assignment-test.js
+Delivery run assignment: zero/one/multiple runs, UR references, explicit scope binding, new scope, stale and racing revisions, ambient selector, integrity and EN/DE status passed.
+[verify-ci] scripts/delivery-run-assignment-test.js passed (1.2s)
+[verify-ci] scripts/control-inspect-test.js
+control-inspect parity, shared selection, read-only and preview tests passed.
+[verify-ci] scripts/control-inspect-test.js passed (33.7s)
+[verify-ci] scripts/active-run-inventory-test.js
+Active-run inventory routing corpus, target binding, localized output and read-only runtime tests passed.
+[verify-ci] scripts/active-run-inventory-test.js passed (1.6s)
+[verify-ci] ../core/test/artifact-readiness-test.js
+Artifact authoring readiness: validator parity, incomplete input, revision, source and read-only checks passed.
+[verify-ci] ../core/test/artifact-readiness-test.js passed (4.5s)
+[verify-ci] scripts/host-command-test.js
+[host-command-test] SKIPPED live Windows shim assertions on darwin
+Host command tests passed
+[verify-ci] scripts/host-command-test.js passed (0.3s)
+[verify-ci] scripts/codex-plugin-list-budget-test.js
+Codex plugin-list capture: reproduced 1 MiB ENOBUFS, verified >1 MiB exact version, retained bounded oversize rejection (owned subprocesses only).
+[verify-ci] scripts/codex-plugin-list-budget-test.js passed (1.1s)
+[verify-ci] scripts/mcp-lifecycle-test.js
+AGDF MCP lifecycle, package acquisition and host adapter tests passed.
+[verify-ci] scripts/mcp-lifecycle-test.js passed (44.1s)
+[verify-ci] scripts/plugin-mcp-runtime-test.js
+Plugin MCP runtime tests passed
+[verify-ci] scripts/plugin-mcp-runtime-test.js passed (35.0s)
+[verify-ci] scripts/mcp-runtime-retention-test.js
+Immutable same-version publication, pre-spawn retention, two actual child exits, uncertain/legacy preservation and tamper refusal passed; source/process proof only.
+[verify-ci] scripts/mcp-runtime-retention-test.js passed (12.4s)
+[verify-ci] ../core/test/mcp-tool-errors-test.js
+MCP error projector passed: 222 classification/correction cases, locale/bounds/domain/purity checks.
+[verify-ci] ../core/test/mcp-tool-errors-test.js passed (0.4s)
+[verify-ci] scripts/plugin-mcp-cockpit-variant-test.js
+Plugin MCP cockpit variant tests passed
+[verify-ci] scripts/plugin-mcp-cockpit-variant-test.js passed (0.4s)
+[verify-ci] scripts/claude-plugin-mcp-test.js
+Claude plugin MCP tests passed
+[verify-ci] scripts/claude-plugin-mcp-test.js passed (2.7s)
+[verify-ci] scripts/codex-plugin-mcp-test.js
+Codex plugin MCP tests passed
+[verify-ci] scripts/codex-plugin-mcp-test.js passed (21.8s)
+[verify-ci] ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+[verify-ci] ./test/contract.test.js passed (2.6s)
+[verify-ci] ./test/continuation.test.js
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+[verify-ci] ./test/continuation.test.js passed (38.0s)
+[verify-ci] ./test/late-source-revision.test.js
+Late source revision CLI/Core/MCP parity passed (actual stdio server, synthetic fixture approvals).
+[verify-ci] ./test/late-source-revision.test.js passed (237.4s)
+[verify-ci] ./test/run-command.test.js
+Actual legacy/modern STDIO group discovery, strict confinement, canonical recording/replay/status and worker uncertainty passed; native host consent remains unqualified.
+[verify-ci] ./test/run-command.test.js passed (107.6s)
+[verify-ci] ./test/decision-resource.test.js
+Packaged preview: actual STDIO Core preparation/session/stateless reads and honest unsupported Chat access passed without approval.
+Exact owned generated package UI resource, private nonce, model/App discovery, unqualified enforcement, disabled groups, document bytes and teardown passed over both actual STDIO eras; native qualification remains absent.
+[verify-ci] ./test/decision-resource.test.js passed (62.8s)
+[verify-ci] ./test/whole-flow.test.js
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+[verify-ci] ./test/whole-flow.test.js passed (47.8s)
+[verify-ci] ./test/structured-flow.test.js
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_slice: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_slice: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+[verify-ci] ./test/structured-flow.test.js passed (197.2s)
+[verify-ci] ./test/revision-command.test.js
+SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+[verify-ci] ./test/revision-command.test.js passed (125.8s)
+[verify-ci] ./test/expanded-source-revision.test.js --source-gate UR --phase PRD
+SCN-069/074: starting UR/PRD
+SCN-069/074: passed UR/PRD
+SCN-069/074: all 1 selected source/phase cells passed through actual generated CLI command adapter and owned STDIO MCP: identical read-only preview, canonical receipt/history, QA withdrawal and cross-adapter replay. Synthetic disposable decisions only; no native host proof.
+[verify-ci] ./test/expanded-source-revision.test.js --source-gate UR --phase PRD passed (96.8s)
+[verify-ci] ./test/expanded-source-revision.test.js --source-gate UR --phase SD
+SCN-069/074: starting UR/SD
+SCN-069/074: passed UR/SD
+SCN-069/074: all 1 selected source/phase cells passed through actual generated CLI command adapter and owned STDIO MCP: identical read-only preview, canonical receipt/history, QA withdrawal and cross-adapter replay. Synthetic disposable decisions only; no native host proof.
+[verify-ci] ./test/expanded-source-revision.test.js --source-gate UR --phase SD passed (101.7s)
+[verify-ci] ./test/expanded-source-revision.test.js --source-gate UR --phase TP
+SCN-069/074: starting UR/TP
+SCN-069/074: passed UR/TP
+SCN-069/074: all 1 selected source/phase cells passed through actual generated CLI command adapter and owned STDIO MCP: identical read-only preview, canonical receipt/history, QA withdrawal and cross-adapter replay. Synthetic disposable decisions only; no native host proof.

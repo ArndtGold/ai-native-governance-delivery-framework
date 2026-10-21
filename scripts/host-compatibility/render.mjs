@@ -11,6 +11,8 @@ export function renderComparison(report) {
     `Report consistency: **${report.consistent ? "valid" : "invalid"}**. Deterministic scenarios: **${report.scenarios.evaluated} evaluated, ${report.scenarios.failed} unexpected failures**.`, "",
     "These scenario results describe isolated production fixtures. Expected negative cases can pass the test while the observed capability is failed. They provide no fresh-host or human-UAT proof.", "",
     "[Recorded facts](evidence/facts.json) · [Exact observations and source identities](evidence/snapshot.json)", "",
+    ...(report.snapshot.support_tiers ? ["## Release support intent", "", "Support intent is separate from demonstrated native qualification. CLI, Desktop Code and embedded UI require their own exact observations.", "",
+      "| Host | Release support intent |", "|---|---|", ...HOSTS.map(host => `| ${hostName[host]} | ${escape(report.snapshot.support_tiers[host])} |`), ""] : []),
     "## Five deterministic outcomes", "",
     "| Host | Installed | Discovered | Callable | Updated | Recoverable |",
     "|---|---|---|---|---|---|",

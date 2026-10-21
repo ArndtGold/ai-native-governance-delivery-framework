@@ -1,0 +1,372 @@
+npm notice run verify:ci
+npm notice run node scripts/verify-ci.mjs
+[verify-ci] dependencies
+
+added 15 packages in 2s
+[verify-ci] dependencies passed (3.2s)
+[verify-ci] maintenance
+npm notice run test:maintenance-contracts
+npm notice run npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs && npm run test:release-qualification
+npm notice run test:verification
+npm notice run node --test scripts/verification-test.mjs
+TAP version 13
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, darwin.
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 1 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 121.041916
+  type: 'test'
+  ...
+# Subtest: the workflow matrix exposes functional labels for repository, release and published MCP callers
+ok 2 - the workflow matrix exposes functional labels for repository, release and published MCP callers
+  ---
+  duration_ms: 1422.274015
+  type: 'test'
+  ...
+# Subtest: compact graph names retain purpose, platform, partition and revision scenario
+ok 3 - compact graph names retain purpose, platform, partition and revision scenario
+  ---
+  duration_ms: 29.860632
+  type: 'test'
+  ...
+# Subtest: measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+ok 4 - measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+  ---
+  duration_ms: 13.341165
+  type: 'test'
+  ...
+# Subtest: graph matrices route every existing partition exactly once for every caller
+ok 5 - graph matrices route every existing partition exactly once for every caller
+  ---
+  duration_ms: 1351.720057
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 6 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 11.116107
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 7 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 3195.775801
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 8 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 43.948197
+  type: 'test'
+  ...
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 9 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 0.881334
+  type: 'test'
+  ...
+# Subtest: build shares CI checks without recursive builds; evidence preparation remains possible
+ok 10 - build shares CI checks without recursive builds; evidence preparation remains possible
+  ---
+  duration_ms: 1.573327
+  type: 'test'
+  ...
+# Subtest: real npm build failures prevent assembly and preserve stored evidence
+ok 11 - real npm build failures prevent assembly and preserve stored evidence
+  ---
+  duration_ms: 20846.540259
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 12 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 4.102395
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 13 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 256.158109
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 14 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 11127.887103
+  type: 'test'
+  ...
+# Subtest: both snapshot modes export an index larger than the default subprocess output buffer
+ok 15 - both snapshot modes export an index larger than the default subprocess output buffer
+  ---
+  duration_ms: 12696.655631
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 51608.404815
+Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+Payload budget review/report tests passed.
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.
+TAP version 13
+# Subtest: adaptive mode starts with ten cases and repeats only selected or deviant first runs
+ok 1 - adaptive mode starts with ten cases and repeats only selected or deviant first runs
+  ---
+  duration_ms: 9.908336
+  type: 'test'
+  ...
+# Subtest: the actual scheduler completes all first runs before conditional repeats
+ok 2 - the actual scheduler completes all first runs before conditional repeats
+  ---
+  duration_ms: 21.358268
+  type: 'test'
+  ...
+# Subtest: fixed mode and boundary IDs are validated before host setup
+ok 3 - fixed mode and boundary IDs are validated before host setup
+  ---
+  duration_ms: 0.80478
+  type: 'test'
+  ...
+# Subtest: expected target_unresolved remains a separate target-binding observation
+ok 4 - expected target_unresolved remains a separate target-binding observation
+  ---
+  duration_ms: 0.277159
+  type: 'test'
+  ...
+# Subtest: JSONL parsing separates cached input and counts completed search calls once
+ok 5 - JSONL parsing separates cached input and counts completed search calls once
+  ---
+  duration_ms: 1.848656
+  type: 'test'
+  ...
+# Subtest: unavailable usage or search telemetry remains unknown
+ok 6 - unavailable usage or search telemetry remains unknown
+  ---
+  duration_ms: 0.262502
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 370.593864
+npm notice run test:release-qualification
+npm notice run node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs
+TAP version 13
+# Subtest: candidate binds new and changed sources, locks, policies and shipped bytes
+ok 1 - candidate binds new and changed sources, locks, policies and shipped bytes
+  ---
+  duration_ms: 3610.91561
+  type: 'test'
+  ...
+# Subtest: normalized text and fixed evidence-only fields preserve content identity
+ok 2 - normalized text and fixed evidence-only fields preserve content identity
+  ---
+  duration_ms: 2522.92322
+  type: 'test'
+  ...
+# Subtest: missing payloads, forged inventory and source symlinks cannot qualify
+ok 3 - missing payloads, forged inventory and source symlinks cannot qualify
+  ---
+  duration_ms: 1130.516742
+  type: 'test'
+  ...
+# Subtest: complete matrix accepts real-shaped primary events and rejects missing/forged observations
+ok 4 - complete matrix accepts real-shaped primary events and rejects missing/forged observations
+  ---
+  duration_ms: 1669.275695
+  type: 'test'
+  ...
+# Subtest: Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+ok 5 - Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+  ---
+  duration_ms: 2521.199637
+  type: 'test'
+  ...
+# Subtest: Desktop templates are explicitly unverified and cannot satisfy release acceptance
+ok 6 - Desktop templates are explicitly unverified and cannot satisfy release acceptance
+  ---
+  duration_ms: 1460.657685
+  type: 'test'
+  ...
+# Subtest: native entrypoints parse without running hosts or using credentials
+ok 7 - native entrypoints parse without running hosts or using credentials
+  ---
+  duration_ms: 1280.020633
+  type: 'test'
+  ...
+# Subtest: released baseline integrity and archive entry restrictions are enforced before writes
+ok 8 - released baseline integrity and archive entry restrictions are enforced before writes
+  ---
+  duration_ms: 14.622663
+  type: 'test'
+  ...
+# Subtest: stale-state injection verifies complete owned provenance and refuses foreign ownership
+ok 9 - stale-state injection verifies complete owned provenance and refuses foreign ownership
+  ---
+  duration_ms: 6.948173
+  type: 'test'
+  ...
+# Subtest: host tiers and Codex compatibility projection have one canonical owner
+ok 10 - host tiers and Codex compatibility projection have one canonical owner
+  ---
+  duration_ms: 917.675967
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7725.07216
+[verify-ci] maintenance passed (81.1s)
+[verify-ci] shell
+warning: Empty last update token.
+Shell syntax passed (10 tracked scripts).
+[verify-ci] shell passed (1.3s)
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages in 9s
+[verify-ci] ui-dependencies passed (9.6s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+✓ built in 641ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1249259,"digest":"sha256:17eb8a4185a76c9aa8bdea6dbe0d2405f0fa4276d4223f437c8c99bc9c9a2d82","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 691ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":945815,"digest":"sha256:0cda3ead4c112991f697ae967bc0692dee465ef9e6f794ca7d43937f326ee7b6","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[verify-ci] ui-build passed (3.5s)
+[verify-ci] generate
+[verify-ci] generate passed (4.2s)
+[verify-ci] build-contracts
+Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).
+[verify-ci] build-contracts passed (55.0s)
+[verify-ci] evals
+npm notice run create-agdf@0.20.0 eval:skills
+npm notice run node ../../evals/scripts/run-skill-evals.js
+AGDF skill evals: pass (113/113 cases; 14 skills; deterministic replay, not live host execution)
+[verify-ci] evals passed (1.0s)
+[verify-ci] compatibility-freshness
+npm notice run compatibility:check
+npm notice run node scripts/host-compatibility/run.mjs check
+{
+  "status": "pass",
+  "scenarios": {
+    "evaluated": 56,
+    "failed": 0
+  },
+  "source_fingerprint": "e852bcbab025c36297af37c1db95fa14f977f41a15a1679d5bf3cf58714a0794"
+}
+[verify-ci] compatibility-freshness passed (2.4s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.0",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.0",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.0",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (2.4s)
+[verify-ci] prepare
+npm notice run create-agdf@0.20.0 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.20.0 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.20.0 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (9 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.20.0 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.20.0 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (49 surfaces at 0.20.0; 9 profile snapshots)
+npm notice run create-agdf@0.20.0 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+warning: Empty last update token.
+Public plugin tests passed (63 inventoried candidate files; digest bbf5cfd43aeea0da009eb0ac0efe29ed99972305a38255ee91a30fd6a49405ed)
+npm notice run create-agdf@0.20.0 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest bbf5cfd43aeea0da009eb0ac0efe29ed99972305a38255ee91a30fd6a49405ed
+[verify-ci] prepare passed (73.1s)
+[verify-ci] mcp-dependencies
+
+added 15 packages in 26s
+[verify-ci] mcp-dependencies passed (27.3s)
+[verify-ci] runtime
+[agdf-runtime-integrity] ok (mode=source; 14 skills and 16 control files checked)
+[verify-ci] runtime passed (8.2s)
+[verify-ci] community
+npm notice run test:community-health
+npm notice run node scripts/community-health-test.mjs
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Reviewed fixture baseline must pass: [{"code":"MARKDOWN_LINK_BROKEN","path":"README.md","message":"Relative link does not resolve: docs/maintenance/release-0.20.0.md."}]
++ actual - expected
+
++ [
++   {
++     code: 'MARKDOWN_LINK_BROKEN',
++     message: 'Relative link does not resolve: docs/maintenance/release-0.20.0.md.',
++     path: 'README.md'
++   }
++ ]
+- []
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/community-health-test.mjs:93:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    {
+      code: 'MARKDOWN_LINK_BROKEN',
+      path: 'README.md',
+      message: 'Relative link does not resolve: docs/maintenance/release-0.20.0.md.'
+    }
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+Verification failed at community: npm run test:community-health (1)

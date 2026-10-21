@@ -83,12 +83,33 @@ jobs:
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix packages/mcp-server run test:package
     timeout-minutes: 10
+  claude-evidence:
+    name: Validate Windows Claude evidence
+    needs: codex-e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+      - name: Prepare the candidate independently of returned evidence
+        run: npm ci --ignore-scripts && node scripts/verify-ci.mjs --profile prepare && node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
+      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3
+        with:
+          pattern: codex-release-*
+          path: .release-evidence
+      - name: Require all native Codex and Windows Claude observations
+        run: node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory .release-evidence --all-hosts
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - validate
       - codex-e2e
+      - claude-evidence
       - tests
     env:
       NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache

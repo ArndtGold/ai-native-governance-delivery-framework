@@ -149,7 +149,7 @@ export function buildAgdfServer({ runtime, executor } = {}) {
     }
   }
   return Object.assign(server, {
-    closeAgdfRuntime: async () => { await dispatchExecutor.close(); await runtime.close?.(); },
+    closeAgdfRuntime: async () => { await dispatchExecutor.close(); return runtime.close?.(); },
   });
 }
 
@@ -165,8 +165,14 @@ export function serveAgdfStdio({ runtime, executor, onerror } = {}) {
   });
   return Object.freeze({
     async close() {
-      await Promise.allSettled([...instances].map((server) => server.closeAgdfRuntime()));
+      // The generation facade is prepared before a client initializes. A host
+      // may cancel that connection without creating any SDK server instance;
+      // its already-owned executor/runtime must still close and prove exit.
+      const owners = instances.size ? [...instances].map(server => () => server.closeAgdfRuntime())
+        : [async () => { await executor?.close(); return runtime.close?.(); }];
+      const results = await Promise.allSettled(owners.map(close => close()));
       await handle.close();
+      return { confirmed: results.length > 0 && results.every(result => result.status === 'fulfilled' && result.value?.occupancy === 0) };
     },
   });
 }

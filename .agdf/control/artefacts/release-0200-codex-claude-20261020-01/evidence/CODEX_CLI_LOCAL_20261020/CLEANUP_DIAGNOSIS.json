@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "source_attempt": "codex-host-e2e-20261020-184436",
+  "root_state": "protected",
+  "publications": [
+    {
+      "publication": "e91307ec6aa0feb3dad28d0ac08b949ed14d5e0ee41b0caf36f3629bdc55bc8c",
+      "retirement_state": "retained",
+      "claim_count": 4
+    }
+  ],
+  "claim_policy_owner": "packages/cli/lib/mcp-lifecycle/package.js:mcpRuntimeRetirementState",
+  "facade_owner": "packages/cli/lib/mcp-lifecycle/plugin-runtime.js:launchPluginMcpServer",
+  "forced_claim_removal": false,
+  "explanation": "Facade self-owned claims conservatively protect the immutable executable root. The existing global-uninstall owner reports retained and preserves it; the native probe requires removal and correctly remains fail."
+}

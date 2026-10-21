@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
-import { spawn, spawnSync, execFileSync } from "node:child_process";
+import { spawn, spawnSync, execFileSync, fork } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { mcpPackageConstants } from "../lib/mcp-lifecycle/package.js";
-import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot, launchPluginMcpServer, launcherFailureLine, parseLauncherArguments } from "../lib/mcp-lifecycle/plugin-runtime.js";
+import { EventEmitter } from 'node:events';
+import { planGlobalUninstall, applyLifecyclePlan } from '../lib/lifecycle/operations.js';
+import { mcpPackageConstants, acquireMcpExecutableClaim, mcpRuntimeRetirementState } from "../lib/mcp-lifecycle/package.js";
+import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot, launchPluginMcpServer, launcherFailureLine, parseLauncherArguments, supervisePluginMcpFacade } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { npmCalls, offlineNpm, pluginRoot, version } from "../../../scripts/support/plugin-mcp-fixture.js";
 
 // Shared plugin-local MCP runtime used by every host whose runtime plugin declares the server itself.
@@ -20,6 +22,7 @@ try {
   assert.equal(prepared.changed, true);
   assert.equal(prepared.root, join(realpathSync(mcpRoot), 'generations', prepared.publication_id, version));
   assert.ok(existsSync(join(prepared.packageRoot, "bin", "agdf-mcp.js")), "the shipped server is installed");
+  assert.ok(existsSync(join(prepared.dispatcherRoot, 'lib/mcp-lifecycle/facade-entry.js')), 'the supervised facade entry must survive the immutable dispatcher projection');
   assert.equal(JSON.parse(readFileSync(join(prepared.dispatcherRoot, "package.json"), "utf8")).name, "create-agdf");
   // Exercise the assembled plugin package, not a fixture copying all source files.
   const { readSkillRuntimeContracts } = await import(pathToFileURL(join(prepared.dispatcherRoot, "lib/cli/contract-command.js")));
@@ -210,6 +213,154 @@ for (const invalid of [["--cockpit-dir"], ["--cockpit-dir", "relative/project"],
         assert.equal(input.surface, 'claude'); assert.equal(input.cockpitDir, cockpitDir); return 'owned-facade'; } });
     assert.equal(result, 'owned-facade');
   }
+}
+
+// The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.
+{
+  const work = mkdtempSync(join(tmpdir(), 'agdf-facade-owner-'));
+  const savedExit = process.exitCode;
+  try {
+    const runtime = ensurePluginMcpRuntime({ pluginRoot, dataRoot: join(work, 'data'), exec: offlineNpm });
+    const synthetic = join(work, 'synthetic'); mkdirSync(join(synthetic, 'lib/mcp-lifecycle'), { recursive: true });
+    writeFileSync(join(synthetic, 'lib/mcp-lifecycle/facade-entry.js'), `
+      const {token}=JSON.parse(process.argv[2]); const mode=process.env.AGDF_TEST_FACADE_MODE;
+      const end=()=>{process.exitCode=mode==='nonzero'?1:0;process.disconnect();};
+      if(mode==='missing')end();else process.send({kind:'facade_closed',token:mode==='wrong'?'wrong':token,confirmed:true},end);
+    `);
+    for (const mode of ['confirmed', 'contended', 'unknown-lock', 'wrong', 'missing', 'nonzero']) {
+      const claim = acquireMcpExecutableClaim(runtime), signals = new EventEmitter();
+      let lockOwner;
+      if (mode === 'contended') {
+        const writer = new URL('../../core/lib/control-state/run-state-writer.js', import.meta.url).href;
+        lockOwner = spawn(process.execPath, ['--input-type=module', '--eval', `
+          const {withOwnedFileLock}=await import(${JSON.stringify(writer)});
+          withOwnedFileLock(${JSON.stringify(join(runtime.root, '..', '.agdf-publication'))},()=>{
+            process.send({ready:true}); Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,750);
+          }); process.disconnect();
+        `], { stdio: ['ignore', 'ignore', 'pipe', 'ipc'] });
+        await new Promise((resolve, reject) => { const timer = setTimeout(() => reject(Error('lock_fixture_not_ready')), 3000);
+          lockOwner.once('message', () => { clearTimeout(timer); resolve(); }); lockOwner.once('error', reject); });
+      }
+      const unknownLock = join(runtime.root, '..', '.agdf-publication.lock');
+      if (mode === 'unknown-lock') writeFileSync(unknownLock, 'unknown owner fixture');
+      const call = supervisePluginMcpFacade({ runtime: { ...runtime, dispatcherRoot: synthetic }, pluginRoot, surface: 'codex',
+        env: { ...process.env, AGDF_TEST_FACADE_MODE: mode }, claim, signals });
+      if (mode === 'confirmed' || mode === 'contended') {
+        assert.equal((await call).confirmed_exit, true);
+        assert.equal(mcpRuntimeRetirementState(runtime.root), 'eligible');
+      } else if (mode === 'unknown-lock') {
+        assert.equal((await call).confirmed_exit, true);
+        assert.equal(mcpRuntimeRetirementState(runtime.root), 'retained');
+        assert.equal(readFileSync(unknownLock, 'utf8'), 'unknown owner fixture', 'unconfirmed publication ownership is never removed');
+        rmSync(unknownLock);
+      } else {
+        await assert.rejects(call, /FACADE_CLOSE_UNCONFIRMED/u);
+        assert.equal(mcpRuntimeRetirementState(runtime.root), 'retained', 'an exit without matching acknowledged cleanup never releases executable bytes');
+      }
+      assert.equal(signals.listenerCount('SIGTERM'), 0); assert.equal(signals.listenerCount('SIGINT'), 0);
+      process.exitCode = savedExit;
+    }
+  } finally { process.exitCode = savedExit; rmSync(work, { recursive: true, force: true }); }
+}
+
+// Recovery probes a damaged installed manifest before replacing it. Refuse that
+// source before creating a facade or claim, even when a matching SDK is cached.
+{
+  const work = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-stale-facade-start-')));
+  const plugin = join(work, 'plugin'), dataRoot = join(work, 'data');
+  try {
+    cpSync(pluginRoot, plugin, { recursive: true });
+    const runtime = ensurePluginMcpRuntime({ pluginRoot: plugin, dataRoot, exec: offlineNpm });
+    const manifestPath = join(plugin, 'runtime/runtime-manifest.json');
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    writeFileSync(manifestPath, JSON.stringify({ ...manifest, digest: '0'.repeat(64) }));
+    for (const suffix of [[], ['--prepare']]) {
+      const result = spawnSync(process.execPath, [join(plugin, 'mcp/agdf-mcp-launch.js'), '--surface', 'codex', '--data', dataRoot, ...suffix],
+        { input: '', encoding: 'utf8', timeout: 10000 });
+      assert.equal(result.status, 1, result.stderr);
+      assert.match(result.stderr, /^AGDF_MCP_PLUGIN_RUNTIME_INVALID:/u);
+      assert.equal(result.stdout, '');
+      assert.equal(mcpRuntimeRetirementState(runtime.root), 'eligible', 'failed source admission must create no executable claim');
+      assert.equal(existsSync(join(runtime.root, '.agdf-executable-claims')), false);
+    }
+  } finally { rmSync(work, { recursive: true, force: true }); }
+}
+
+// The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.
+for (const mode of ['orderly', 'killed', 'startup-stop', 'startup-killed']) {
+  const killed = mode === 'killed' || mode === 'startup-killed';
+  // Windows forcibly terminates a child sent SIGTERM; its owner must still
+  // close the SDK through the disconnected private channel and prove exit.
+  const expectedSignal = killed ? 'SIGKILL' : mode === 'startup-stop' && process.platform === 'win32' ? 'SIGTERM' : null;
+  const work = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-real-facade-exit-')));
+  const dataRoot = join(work, 'data/mcp/codex-plugin');
+  let child;
+  try {
+    const prepared = ensurePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm });
+    await new Promise((resolve, reject) => {
+      let pending = '', stderr = '', ready = false;
+      const timer = setTimeout(() => { child?.stdin.end(); child?.kill(); reject(Error('facade_test_deadline:' + stderr)); }, 10000);
+      child = spawn(process.execPath, [join(pluginRoot, 'mcp/agdf-mcp-launch.js'), '--surface', 'codex', '--data', dataRoot],
+        { stdio: ['pipe', 'pipe', 'pipe'], env: process.env });
+      child.stderr.on('data', bytes => { stderr += bytes; }); child.stdin.on('error', () => {});
+      child.on('error', error => { clearTimeout(timer); reject(error); });
+      child.on('exit', (code, signal) => { clearTimeout(timer);
+        if (!ready || (expectedSignal ? signal !== expectedSignal : code !== 0)) reject(Error('facade_exit:' + stderr));
+        else resolve();
+      });
+      const send = message => child.stdin.write(JSON.stringify({ jsonrpc: '2.0', ...message }) + '\n');
+      child.stdout.on('data', bytes => { pending += bytes; let at;
+        while ((at = pending.indexOf('\n')) !== -1) {
+          const line = pending.slice(0, at); pending = pending.slice(at + 1); let reply;
+          try { reply = JSON.parse(line); } catch { continue; }
+          if (reply.id === 1 && reply.result) { send({ method: 'notifications/initialized' }); send({ id: 2, method: 'tools/list', params: {} }); }
+          if (reply.id === 2 && reply.result?.tools?.some(tool => tool.name === 'agdf_dispatch')) {
+            ready = true; if (mode === 'killed') child.kill('SIGKILL'); child.stdin.end();
+          }
+        }
+      });
+      if (mode.startsWith('startup-')) {
+        // Cancel as soon as the owner acquired its claim, before SDK initialize.
+        // An OS signal forwarded to the bootstrapping facade would lose both
+        // its cleanup proof and the child's claim; the private message queues.
+        void (async () => {
+          const claims = join(prepared.root, '.agdf-executable-claims');
+          const deadline = performance.now() + 9000;
+          while ((!existsSync(claims) || !readdirSync(claims).length) && performance.now() < deadline) await new Promise(resolve => setTimeout(resolve, 10));
+          if (!existsSync(claims) || !readdirSync(claims).length) throw Error('startup_claim_not_observed');
+          ready = true; child.kill(killed ? 'SIGKILL' : 'SIGTERM'); child.stdin.end();
+        })().catch(reject);
+      } else send({ id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'owned-exit-regression', version: '1' } } });
+    });
+    const deadline = performance.now() + 10000;
+    while (inspectPluginMcpDataRoot(dataRoot) === 'protected' && performance.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
+    assert.equal(inspectPluginMcpDataRoot(dataRoot), 'owned', 'the direct owner must acknowledge and observe facade exit even after its host launcher is killed');
+    const plan = planGlobalUninstall('codex', { env: { AGDF_DATA_DIR: join(work, 'data') } });
+    assert.equal(applyLifecyclePlan(plan, { exec() {} }).status, 'success');
+    assert.equal(existsSync(dataRoot), false, 'the production cleanup owner removes only the now-retirable runtime');
+  } finally {
+    child?.stdin.end();
+    if (!existsSync(dataRoot) || inspectPluginMcpDataRoot(dataRoot) === 'owned') rmSync(work, { recursive: true, force: true });
+  }
+}
+
+// The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.
+{
+  const work = mkdtempSync(join(tmpdir(), 'agdf-owner-deadline-'));
+  try {
+    const runtime = ensurePluginMcpRuntime({ pluginRoot, dataRoot: join(work, 'data'), exec: offlineNpm });
+    const input = { runtime, pluginRoot, surface: 'codex', token: 'deadline-fixture', deadline_ns: (process.hrtime.bigint() - 1n).toString() };
+    const result = await new Promise((resolve, reject) => {
+      const child = fork(join(pluginRoot, 'runtime/create-agdf/lib/mcp-lifecycle/facade-owner-entry.js'), [JSON.stringify(input)],
+        { stdio: ['ignore', 'ignore', 'pipe', 'ipc'], execArgv: [] });
+      let message; const timer = setTimeout(() => { child.kill(); reject(Error('owner_deadline_fixture_timeout')); }, 10000);
+      child.on('message', value => { message = value; }); child.once('error', reject);
+      child.once('exit', code => { clearTimeout(timer); resolve({ message, code }); });
+    });
+    assert.equal(result.code, 1); assert.equal(result.message?.code, 'AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED');
+    assert.equal(result.message?.token, input.token);
+    assert.equal(mcpRuntimeRetirementState(runtime.root), 'eligible', 'a child process never restarts an expired publication allowance or acquires executable claims');
+  } finally { rmSync(work, { recursive: true, force: true }); }
 }
 
 // The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.

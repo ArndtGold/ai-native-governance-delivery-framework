@@ -1,0 +1,153 @@
+[
+  {
+    "schema_version": 2,
+    "id": "codex-20261021080241976-recovery",
+    "recorded_at": "2026-10-21T08:02:41.976Z",
+    "environment": {
+      "host": "codex",
+      "surface": "cli",
+      "os": "darwin",
+      "arch": "x64",
+      "version": "0.163.0",
+      "node": "v22.22.3",
+      "model": "gpt-6-luna"
+    },
+    "tuple_digest": "8299345338bf8687140d55d13cdc8242137cb7da0fbfeaeee4e3f57cda18e347",
+    "source": {
+      "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+      "dirty": true
+    },
+    "candidate_id": "4ea61d050734d903b0218fea28701e6eccc7225c934dba7549df686fe9027869",
+    "policy_digest": "2582e6a9a0f3dcaec123e0d9e6ee616c9a7052638d96cf6daf1e647bbef34a9e",
+    "scenario": "recovery",
+    "result": "fail",
+    "assurance": "native_process",
+    "loaded_identity": {
+      "version": "0.20.0",
+      "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+      "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
+    },
+    "steps": [
+      {
+        "name": "host",
+        "status": "pass",
+        "evidence": {
+          "version": "0.163.0"
+        }
+      },
+      {
+        "name": "install",
+        "status": "pass",
+        "evidence": {
+          "result": "partial",
+          "effective_state": "mcp_ready_hook_review_required",
+          "stderr": ""
+        }
+      },
+      {
+        "name": "installation_consent",
+        "status": "pass",
+        "evidence": {
+          "requested": "enabled",
+          "hook_verification": "hook_review_required",
+          "mcp_approval": {
+            "status": "configured",
+            "reason": "none",
+            "tool": "agdf_dispatch",
+            "policy_key": "plugins.\"agdf@agdf\".mcp_servers.agdf.tools.agdf_dispatch.approval_mode",
+            "config_file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/probe-results/codex-host-e2e-20261021-080241/work-tmp/codex-home/config.toml",
+            "write_attempted": true,
+            "verification": "config_readback"
+          }
+        }
+      },
+      {
+        "name": "repair",
+        "status": "pass",
+        "evidence": {
+          "exit_status": 1
+        }
+      },
+      {
+        "name": "control_fixture",
+        "status": "pass",
+        "evidence": {
+          "init_status": 0,
+          "run_create_status": 0,
+          "stderr": ""
+        }
+      },
+      {
+        "name": "discovery",
+        "status": "pass",
+        "evidence": {
+          "command": "node",
+          "args": "[\"<WORK>/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js\",\"--surface\",\"codex\",\"--data\",\"<WORK>/agdf-data/mcp/codex-plugin\"]"
+        }
+      },
+      {
+        "name": "recovery",
+        "status": "pass",
+        "evidence": {
+          "baseline": {
+            "version": "0.14.5",
+            "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+            "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+          },
+          "repair": "owned_stale_install",
+          "permission_preserved": true,
+          "preserved_foreign_state": true,
+          "calls": 1,
+          "observed_models": [
+            "gpt-6-luna"
+          ],
+          "plugin_id": "agdf@agdf",
+          "runtime_digest": "602c03f9d5348230ff77caf9c2fb2c870a6385ad84ece5e2e8b6ae15b9e900d0",
+          "outcome": "control_result",
+          "authorizes": false,
+          "exec_status": 0
+        }
+      },
+      {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      }
+    ],
+    "references": [
+      {
+        "path": "host-process.json",
+        "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+      },
+      {
+        "path": "recovery-primary.json",
+        "sha256": "2cf7a586d5aaafad0c237460be6194d010d5a38062d58a1caf5d217b29ebd6eb"
+      },
+      {
+        "path": "recovery-process.json",
+        "sha256": "8a1b6d5d235acf307fb8a859dc8b5cd06e42392f877b8e3d07ca28956033516b"
+      },
+      {
+        "path": "removal-process.json",
+        "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+      },
+      {
+        "path": "repair-process.json",
+        "sha256": "e7439523bbac74ef30eb3e5b67e39d4e706584637b7940f0faa70851e052a3e6"
+      },
+      {
+        "path": "uninstall-process.json",
+        "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+      }
+    ]
+  }
+]

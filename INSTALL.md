@@ -1,5 +1,14 @@
 # Installation and Setup
 
+## 0.20.0 candidate support scope
+
+Codex and Claude Code are the intended qualified hosts for 0.20.0. GitHub Copilot and OpenCode
+remain **experimental** with their adapters and regression checks retained. This is support intent;
+qualification requires current candidate-bound native evidence, and publication is a separate action.
+Codex CLI Linux/Windows and Windows Claude CLI/Desktop Code are separate required observations.
+An installed CLI or a successful protocol test does not establish Desktop or embedded MCP App behavior.
+See [0.20.0 preparation and Windows handoff](docs/maintenance/release-0.20.0.md).
+
 Install AGDF for the coding agent you use. AGDF provides the appropriate plugin, native skills or
 supported repository surface. It does not approve work automatically or replace product ownership, engineering
 judgement, security review, tests or human acceptance.

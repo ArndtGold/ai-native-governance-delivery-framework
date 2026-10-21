@@ -1,0 +1,91 @@
+AGDF CLI
+
+Operating model:
+  Chat/skill is the normal interaction surface.
+  .agdf/control is the durable source of truth.
+  The CLI validates, renders deterministic gate output and supports automation.
+
+Repeated local validation (after global installation):
+  agdf doctor
+  agdf gate-check --approval-envelope
+  agdf gate-check --json
+  agdf delivery-map --json
+  agdf delivery-path-search --surface codex --json
+  agdf delivery-path-search --surface claude --json
+  agdf delivery-path-search --surface opencode --json
+  agdf run-create --run <run_id>
+  agdf run-migrate [--run <run_id>]
+  agdf run-render-legacy --run <run_id>
+
+Bootstrap, installation and explicit refresh:
+
+Bootstrap and lifecycle commands:
+  npx --yes @agdf/cli@latest codex
+  npx --yes @agdf/cli@latest codex-repo
+  npx --yes @agdf/cli@latest claude
+  npx --yes @agdf/cli@latest copilot
+  npx --yes @agdf/cli@latest opencode
+  npx --yes @agdf/cli@latest opencode-status
+  npx --yes @agdf/cli@latest status [--surface <surface>] [--run <run_id>] [--json]
+  npx --yes @agdf/cli@latest runtime-checks <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]
+  npx --yes @agdf/cli@latest disable --surface <surface> [--scope repository] [--shared] [--dir <path>]
+  npx --yes @agdf/cli@latest uninstall --surface <surface> --scope global [--confirm]
+  npx --yes @agdf/cli@latest opencode-repo
+  npx --yes @agdf/cli@latest init
+
+Advanced / Compatibility
+
+Scaffold-compatible npm create usage:
+  npm create agdf@latest -- codex
+  npm create agdf@latest -- codex-repo
+  npm create agdf@latest -- claude
+  npm create agdf@latest -- opencode
+  npm create agdf@latest -- opencode-status
+  npm create agdf@latest -- opencode-repo
+  npm create agdf@latest -- init
+  npm create agdf@latest -- config --language de
+  npm create agdf@latest -- doctor
+  npm create agdf@latest -- gate-check
+  npm create agdf@latest -- delivery-map
+  npm create agdf@latest -- delivery-path-search --surface codex
+  npm create agdf@latest -- delivery-path-search --surface claude
+  npm create agdf@latest -- delivery-path-search --surface opencode
+
+Backward-compatible create-agdf usage:
+  npx --yes create-agdf@latest doctor --json
+  npx --yes create-agdf@latest gate-check --json
+
+Options:
+  --dir <path>   Write files into a specific directory. With opencode, use this as the OpenCode config directory.
+  --force        Overwrite existing generated files
+  --language <tag>
+                 Set AGDF chat and artefact language. Defaults to detected system locale.
+  --lang <tag>   Alias for --language
+  --json         Print machine-readable command output as JSON
+  --verbose       Print captured host command output and generated-file details
+  --status-card  Print compact gate-check status-card output for interactive use
+  --approval-envelope
+                 Print the deterministic ready-gate cards and exact-text request
+  --run <run_id> Select one canonical run
+  --all-active   Evaluate every active run (doctor and delivery-map only)
+  --surface <codex|claude|copilot|opencode|generic>
+                 Declare the active Delivery Path Search surface
+  --scope <repository|global>
+                 Select the lifecycle mutation scope
+  --confirm      Apply a previously previewed global uninstall plan
+  --shared       Apply Copilot repository disable through shared .github/copilot/settings.json
+  --runtime-checks <enable|manual|cancel>
+                 Make the installation-time automatic-check decision explicitly; no TTY defaults to manual
+  --fixture <path>
+                 Use deterministic evaluator/candidate fixtures instead of a live evaluator
+  --persist      Persist the redacted Delivery Path Search result under the current scope
+  --model <id>   Optional Codex evaluator model
+  --generate-candidates
+                 Add one bounded AI-native candidate-generation call before evaluation
+  --generator-model <id>
+                 Optional candidate-generator model override
+  --max-generated-candidates <1-5>
+  --generation-timeout-ms <1-30000>
+  --generation-cost-units <1-5>
+  --help         Show this help
+

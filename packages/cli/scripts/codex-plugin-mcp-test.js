@@ -3,7 +3,8 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "../lib/host-adapters/codex/plugin-mcp.js";
-import { prepareLocalMarketplace, settleCodexCockpitPublication } from "../lib/installers/local-marketplace.js";
+import { installCodexGlobalPlugin } from '../lib/host-adapters/codex/plugin.js';
+import { prepareLocalMarketplace, settleCodexCockpitPublication, inspectCodexOwnedManifestRepair } from "../lib/installers/local-marketplace.js";
 import { planGlobalUninstall } from "../lib/lifecycle/operations.js";
 import { ensurePluginMcpRuntime, launchPluginMcpServer } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { createCodexCockpitTransition, inspectCodexCockpitAdmission, inspectCodexCockpitPlugin } from "../lib/mcp-lifecycle/adapters/codex.js";
@@ -164,6 +165,68 @@ for (const [entry, expectedDisable] of [
   if (expectedDisable) assert.deepEqual([calls[0].action, calls[0].surface, calls[0].scope, evidence], ["disable", "codex", "user", ["legacy_user_mcp_registration:disabled"]]);
 }
 assert.deepEqual(migrateLegacyCodexMcpRegistration({ env: {}, exec() { throw new Error("no codex"); } }), []);
+
+// A damaged owned manifest is repairable only with an independently verified
+// native cache and the exact original full-payload hash. Admission still needs
+// native plugin ownership, never an unowned same-key connection.
+{
+  const work = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-manifest-repair-'))), dataRoot = join(work, 'data');
+  try {
+    const staged = prepareLocalMarketplace({ dataRoot, builtPluginRoot: pluginRoot }); staged.commit();
+    const env = { CODEX_HOME: join(work, 'home') };
+    const cache = join(env.CODEX_HOME, 'plugins/cache/agdf/agdf', staged.codexInstallVersion);
+    cpSync(staged.pluginRoot, cache, { recursive: true });
+    assert.equal(inspectCodexOwnedManifestRepair({ dataRoot, env }), null);
+    const manifest = join(staged.pluginRoot, 'runtime/runtime-manifest.json');
+    const original = readFileSync(manifest), parsed = JSON.parse(original); parsed.digest = '0'.repeat(64);
+    writeFileSync(manifest, JSON.stringify(parsed));
+    const damaged = readFileSync(manifest), proof = inspectCodexOwnedManifestRepair({ dataRoot, env });
+    assert.ok(proof, 'only the known stale manifest is proved against the original owned payload');
+    assert.equal(proof.inspect(staged.pluginRoot).repair, true);
+    assert.deepEqual(readFileSync(manifest), damaged, 'inspection never repairs or publishes files');
+    const cockpit = JSON.parse(readFileSync(join(staged.pluginRoot, 'mcp.json'))).mcpServers['agdf-cockpit'];
+    for (const pluginId of ['agdf@agdf', 'foreign@foreign', null]) {
+      const exec = command => command === 'codex' ? JSON.stringify([{ name: 'agdf-cockpit', enabled: true, transport: cockpit }])
+        : JSON.stringify({ status: 'observed', scope: { cwd: work, ephemeral: true, thread_id: 'native-owned-fixture' },
+          providers: [{ server_id: 'agdf-cockpit', plugin_id: pluginId, runtime_status: 'failed' }] });
+      assert.equal(inspectCodexCockpitAdmission({ target: work, env, exec }).admitted, false);
+      assert.equal(inspectCodexCockpitAdmission({ target: work, env, exec, manifestRepair: proof }).admitted, pluginId === 'agdf@agdf');
+    }
+    for (const [providers, admitted] of [
+      [[{ server_id: 'agdf-cockpit', plugin_id: 'agdf@agdf', runtime_status: 'connected' }], true],
+      [[{ server_id: 'agdf-cockpit', plugin_id: 'agdf@agdf', runtime_status: 'cancelled' }], false],
+      [[{ server_id: 'agdf-cockpit', plugin_id: 'agdf@agdf', runtime_status: null }], false],
+      [[{ server_id: 'agdf-cockpit', plugin_id: 'agdf@agdf', runtime_status: 'failed' },
+        { server_id: 'agdf-cockpit', plugin_id: 'foreign@foreign', runtime_status: 'failed' }], false],
+    ]) {
+      const exec = command => command === 'codex' ? JSON.stringify([{ name: 'agdf-cockpit', enabled: true, transport: cockpit }])
+        : JSON.stringify({ status: 'observed', scope: { cwd: work, ephemeral: true, thread_id: 'native-owned-fixture' }, providers });
+      assert.equal(inspectCodexCockpitAdmission({ target: work, env, exec, manifestRepair: proof }).admitted, admitted);
+    }
+    let prepared = false;
+    assert.throws(() => installCodexGlobalPlugin({ target: work, dataRoot, env,
+      prepare() { const transaction = prepareLocalMarketplace({ dataRoot, builtPluginRoot: pluginRoot }); prepared = true; return transaction; },
+      migrateMcp: () => [], prepareMcp: () => [],
+      exec(command, args) {
+        if (command === process.execPath) return JSON.stringify({ status: 'observed', scope: { cwd: work, ephemeral: true, thread_id: 'owned-before-repair' },
+          providers: [{ server_id: 'agdf-cockpit', plugin_id: 'agdf@agdf', runtime_status: 'failed' }] });
+        if (args[0] === 'mcp') return JSON.stringify(prepared ? [] : [{ name: 'agdf-cockpit', enabled: true, transport: cockpit }]);
+        if (args.join(' ') === 'plugin marketplace list --json') return JSON.stringify({ marketplaces: [{ name: 'agdf', marketplaceSource: { sourceType: 'local', source: staged.root } }] });
+        if (args.join(' ') === 'plugin list') return `agdf@agdf ${staged.codexInstallVersion}\n`;
+        return '';
+      },
+    }), error => error.phase === 'cockpit_repair_unconfirmed', 'provider absence cannot qualify fresh repaired availability');
+    assert.deepEqual(readFileSync(manifest), damaged, 'the existing owner restores rollback until an actual fresh connection qualifies');
+    const other = join(staged.pluginRoot, '.codex-plugin/plugin.json'), saved = readFileSync(other);
+    writeFileSync(other, 'unrelated tampering');
+    assert.equal(inspectCodexOwnedManifestRepair({ dataRoot, env }), null);
+    assert.throws(() => proof.assertCurrent(), /repair_source_changed/u);
+    writeFileSync(other, saved);
+    writeFileSync(join(cache, '.codex-plugin/plugin.json'), 'untrusted cache');
+    assert.equal(inspectCodexOwnedManifestRepair({ dataRoot, env }), null);
+    writeFileSync(manifest, original);
+  } finally { rmSync(work, { recursive: true, force: true }); }
+}
 assert.deepEqual(migrateLegacyCodexMcpRegistration({
   env: {}, exec: () => JSON.stringify(legacy), mcpLifecycle() { throw new Error("AGDF_MCP_REGISTRATION_FOREIGN"); },
 }), ["legacy_user_mcp_registration:retained"]);

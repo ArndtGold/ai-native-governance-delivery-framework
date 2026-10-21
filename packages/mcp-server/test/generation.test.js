@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { execFileSync, fork } from 'node:child_process';
-import { createMcpGenerationPublisher } from '../../cli/lib/mcp-lifecycle/package.js';
+import { createMcpGenerationPublisher, mcpRuntimeRetirementState } from '../../cli/lib/mcp-lifecycle/package.js';
 import { ensurePluginMcpRuntime } from '../../cli/lib/mcp-lifecycle/plugin-runtime.js';
 import { offlineNpm, pluginRoot } from '../../../scripts/support/plugin-mcp-fixture.js';
 import { createSdDefinitionTestRun, syntheticSd } from '../../cli/scripts/fixtures/sd-definition.js';
@@ -109,7 +109,7 @@ try {
   assert.ok(trace.some(e => e.generation_id === 1 && e.kind === 'confirmed_exit'));
   assert.equal(facade.runtimeControl.status().occupancy, 3);
   assert.equal(readFileSync(f.state, 'utf8'), saved, 'Inspection and retirement neither replay nor change the lost operation.');
-  await facade.close(); assert.equal(facade.runtimeControl.status().occupancy, 0);
+  assert.equal((await facade.close()).occupancy, 0); assert.equal(facade.runtimeControl.status().occupancy, 0);
   // Actual Cockpit view bound to generation 1 survives replacement. Its read
   // rejection must retain the producing descriptor through child IPC and SDK.
   const boundCockpitRuntime = await dispatcher.createMcpCockpitRuntime({ surface: 'codex', cockpitDir: target });
@@ -220,6 +220,18 @@ try {
     for (const session_id of sessions) assert.equal((await reader.execute(reader.parse({ operation: 'close', session_id }), undefined, { uiSupported: true })).data.closed, true);
   } finally { await cockpitFacade.close(); await cockpitRuntime.close(); }
   assert.equal(cockpitFacade.runtimeControl.status().occupancy, 0);
+  // A native inventory observer may disconnect before MCP initialize. Exercise
+  // the assembled SDK with its real prepared child, but no SDK server instance.
+  const uninitialized = execFileSync(process.execPath, ['--input-type=module', '--eval', `
+    import { runMcpServer } from ${JSON.stringify(pathToFileURL(join(base.packageRoot, 'src/main.js')).href)};
+    import { createMcpGenerationPublisher } from ${JSON.stringify(pathToFileURL(join(base.dispatcherRoot, 'lib/mcp-lifecycle/package.js')).href)};
+    const base = ${JSON.stringify(base)};
+    const handle = await runMcpServer({ surface: 'codex', ownedPublication: base, ownedPublisher: createMcpGenerationPublisher(base) });
+    console.log(JSON.stringify(await handle.close()));
+  `], { encoding: 'utf8', input: '', timeout: 10000, killSignal: 'SIGKILL',
+    env: { ...process.env, AGDF_DISPATCH_PLUGIN_ROOT: pluginRoot } });
+  assert.equal(JSON.parse(uninitialized).confirmed, true, 'a connection without initialize still closes its real generation and observes exit');
+  assert.equal(mcpRuntimeRetirementState(base.root), 'eligible', 'the uninitialized transport cannot leak a child claim');
   clean = true;
 } finally {
   await client?.close(); await server?.closeAgdfRuntime(); await server?.close();

@@ -1,11 +1,10 @@
-import { execFileSync, spawn } from "node:child_process";
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
+import { execFileSync, spawn, fork } from "node:child_process";
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmdirSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import process from "node:process";
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { digestDirectory, digestPluginMcpDispatcherSource, MCP_DISPATCHER_RUNTIME_ENTRIES } from "#agdf-core/runtime/plugin-provenance.js";
-import { acquireMcpExecutableClaim, createMcpGenerationPublisher, inspectMcpServerPackage, mcpPackageConstants, mcpRuntimeRetirementState, prepareMcpServerPackage } from "./package.js";
+import { acquireMcpExecutableClaim, inspectMcpServerPackage, mcpPackageConstants, mcpRuntimeRetirementState, prepareMcpServerPackage, createMcpRuntimeRetirementTransaction } from "./package.js";
 
 // Plugin-local AGDF MCP runtime shared by the hosts whose runtime plugin declares the server itself:
 // Claude Code passes ${CLAUDE_PLUGIN_DATA}, which it deletes on uninstall; Codex receives an absolute
@@ -241,13 +240,7 @@ export async function launchPluginMcpServer({
   ensure = ensurePluginMcpRuntime,
   acquireClaim = acquireMcpExecutableClaim,
   execPath = process.execPath,
-  startFacade = async ({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }) => {
-    // The facade's Core resource binding reads the plugin root from the environment it is
-    // loaded under; bind it on the injected environment before the dynamic import.
-    env.AGDF_DISPATCH_PLUGIN_ROOT = pluginRoot;
-    const { runMcpServer } = await import(pathToFileURL(join(runtime.packageRoot, "src/main.js")));
-    return runMcpServer({ surface, cockpitDir, cockpitMode, ownedPublication: runtime, ownedPublisher: createMcpGenerationPublisher(runtime, { publicationDeadline }) });
-  },
+  startFacade,
 } = {}) {
   const invocation = parseLauncherArguments(argv, env);
   if (!invocation) {
@@ -259,6 +252,14 @@ export async function launchPluginMcpServer({
   const publicationDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS;
   let runtime;
   try {
+    // Reject a damaged installed dispatcher before publication, claim acquisition
+    // or SDK execution. Its downstream resource context cannot qualify a facade;
+    // starting one first would correctly retain its unconfirmed executable use.
+    if (ensure === ensurePluginMcpRuntime) {
+      const manifest = readJson(join(pluginRoot, 'runtime/runtime-manifest.json'));
+      if (!/^[a-f0-9]{64}$/u.test(manifest?.digest ?? '')
+        || digestDirectory(join(pluginRoot, 'runtime/create-agdf')) !== manifest.digest) throw Error('AGDF_MCP_PLUGIN_RUNTIME_INVALID');
+    }
     runtime = ensure({ pluginRoot, dataRoot, env, publicationDeadline });
   } catch (error) {
     const code = /^AGDF_[A-Z_]+/.exec(error?.message ?? "")?.[0] ?? 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
@@ -274,22 +275,75 @@ export async function launchPluginMcpServer({
     stdout.write(`${JSON.stringify({ status: runtime.status, version: runtime.version, root: runtime.root, changed: runtime.changed })}\n`);
     return runtime;
   }
-  // Retain the facade's immutable SDK/executable root before dynamic loading.
-  // Its self-owned lifetime cannot be proven by PID polling after a host crash;
-  // this claim conservatively remains protected. Direct generations have their
-  // separate claims released only after an acknowledged, actual child exit.
-  try { acquireClaim(runtime, { publicationDeadline }); }
+  // The stable launcher directly owns the facade process. It retains its exact
+  // executable before fork and releases only after orderly teardown AND exit.
+  if (!startFacade && acquireClaim === acquireMcpExecutableClaim) {
+    try { return await startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }); }
+    catch (error) { const code = Object.hasOwn(LAUNCHER_FAILURES, error?.message) ? error.message : 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
+      stderr.write(`${launcherFailureLine(code, code === 'AGDF_MCP_PLUGIN_RUNTIME_FAILED' ? 'facade' : undefined)}\n`); process.exitCode = 1; return null; }
+  }
+  let claim;
+  try { claim = acquireClaim(runtime, { publicationDeadline }); }
   catch (error) {
     const code = ['AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED', 'AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED', 'AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED'].includes(error?.message)
       ? error.message : 'AGDF_MCP_EXECUTABLE_CLAIM_INVALID';
     stderr.write(`${launcherFailureLine(code)}\n`); process.exitCode = 1; return null;
   }
-  try { return await startFacade({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }); }
+  try { return await (startFacade ?? supervisePluginMcpFacade)({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline, claim }); }
   catch (error) {
     const code = Object.hasOwn(LAUNCHER_FAILURES, error?.message) ? error.message : 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
     stderr.write(`${launcherFailureLine(code, 'facade')}\n`); process.exitCode = 1; return null;
   }
 
+}
+
+export function supervisePluginMcpFacade({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, claim, deadlineNs, Fork = fork, signals = process } = {}) {
+  return new Promise((resolve, reject) => {
+    let acknowledged = false;
+    const child = Fork(join(runtime.dispatcherRoot, 'lib/mcp-lifecycle/facade-entry.js'),
+      [JSON.stringify({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, token: claim.token, deadline_ns: deadlineNs })],
+      { env, stdio: ['inherit', 'inherit', 'inherit', 'ipc'], execArgv: [] });
+    claim.bindOwnedChild(child, { confirmedEnd: () => acknowledged && child.exitCode === 0 && child.signalCode === null });
+    // Queue shutdown over the private channel. A signal can arrive before the
+    // SDK child has installed its handlers and would erase teardown evidence.
+    const terminate = () => { if (child.connected) child.send({ kind: 'facade_stop', token: claim.token }, () => {}); };
+    const interrupt = terminate;
+    const detach = () => { signals.off('SIGINT', interrupt); signals.off('SIGTERM', terminate); signals.off('disconnect', terminate); };
+    signals.on('SIGINT', interrupt); signals.on('SIGTERM', terminate);
+    signals.on('disconnect', terminate);
+    child.on('message', message => { if (message?.kind === 'facade_closed' && message.token === claim.token && message.confirmed === true) acknowledged = true; });
+    child.once('error', error => { detach(); reject(error); });
+    child.once('exit', (code, signal) => { detach();
+      if (!acknowledged || code !== 0 || signal) { process.exitCode = 1; reject(Error('AGDF_MCP_FACADE_CLOSE_UNCONFIRMED')); }
+      else resolve({ closed: true, confirmed_exit: true });
+    });
+  });
+}
+
+// Hosts may forcibly reap their direct STDIO launcher. The non-SDK owner stays
+// responsible for its directly forked facade and observes its acknowledged exit
+// even if that host connection disappears. No PID discovery or claim GC occurs.
+function startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }) {
+  const token = randomUUID();
+  const deadline = (process.hrtime.bigint() + BigInt(Math.floor(Math.max(0, publicationDeadline - performance.now()) * 1e6))).toString();
+  return new Promise((resolve, reject) => {
+    const child = fork(join(pluginRoot, 'runtime/create-agdf/lib/mcp-lifecycle/facade-owner-entry.js'),
+      [JSON.stringify({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, token, deadline_ns: deadline })],
+      { env, detached: process.platform !== 'win32', stdio: ['inherit', 'inherit', 'inherit', 'ipc'], execArgv: [] });
+    let confirmed = false, failure;
+    const stop = () => { if (child.connected) child.send({ kind: 'owner_stop', token }, () => {}); };
+    process.once('SIGTERM', stop); process.once('SIGINT', stop);
+    const detach = () => { process.off('SIGTERM', stop); process.off('SIGINT', stop); };
+    child.on('message', message => {
+      if (message?.kind === 'owner_closed' && message.token === token && message.confirmed === true) confirmed = true;
+      if (message?.kind === 'owner_failed' && message.token === token && Object.hasOwn(LAUNCHER_FAILURES, message.code)) failure = message.code;
+    });
+    child.once('error', error => { detach(); reject(error); });
+    child.once('exit', (code, signal) => { detach();
+      if (code === 0 && !signal && confirmed) resolve({ closed: true, confirmed_exit: true });
+      else reject(Error(failure ?? 'AGDF_MCP_FACADE_CLOSE_UNCONFIRMED'));
+    });
+  });
 }
 
 export function claudePluginDataRoot({ claudeConfigDir, pluginId = "agdf@agdf" }) {
@@ -332,5 +386,35 @@ export function inspectPluginMcpDataRoot(dataRoot) {
     return protectedFiles ? 'protected' : "owned";
   } catch {
     return "foreign";
+  }
+}
+
+// Retire each verified generation under the publisher's existing lock. Never
+// recursively delete the encompassing root after a separate state inspection:
+// a concurrent launcher may publish or acquire a new generation in between.
+export function retirePluginMcpDataRoot(dataRoot, revalidate = () => {}) {
+  revalidate();
+  if (inspectPluginMcpDataRoot(dataRoot) !== 'owned') throw Error('AGDF_MCP_RUNTIME_RETAINED');
+  dataRoot = realpathSync(dataRoot);
+  const mcp = join(dataRoot, 'mcp'), generations = join(mcp, 'generations');
+  try {
+    if (existsSync(generations)) for (const key of readdirSync(generations)) {
+      const publication = join(generations, key);
+      for (const entry of readdirSync(publication)) {
+        revalidate();
+        const root = join(publication, entry), marker = readJson(join(root, mcpPackageConstants.marker));
+        if (!marker || mcpRuntimeRetirementState(root) !== 'eligible') throw Error('AGDF_MCP_RUNTIME_RETAINED');
+        const transaction = createMcpRuntimeRetirementTransaction({ root, version: marker.version });
+        transaction.apply(); transaction.commit();
+      }
+      rmdirSync(publication);
+    }
+    if (existsSync(generations)) rmdirSync(generations);
+    if (existsSync(mcp)) rmdirSync(mcp);
+    revalidate(); rmdirSync(dataRoot);
+    return true;
+  } catch (error) {
+    if (['ENOTEMPTY', 'EEXIST'].includes(error.code)) return false;
+    throw error;
   }
 }

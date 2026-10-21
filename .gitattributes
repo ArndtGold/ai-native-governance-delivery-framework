@@ -13,4 +13,7 @@
 *.woff2 binary
 *.tgz binary
 
+# Imported native references bind original bytes, including Windows log line endings.
+evals/host-compatibility/native/** -text
+
 .agdf/control/AGDF_RUN.md merge=union

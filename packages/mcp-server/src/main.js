@@ -3,7 +3,7 @@ import process from "node:process";
 import { createAgdfWorkerExecutor, serveAgdfStdio } from "./server.js";
 import { loadCockpitResource } from './cockpit-resource.js';
 
-export async function runMcpServer({ surface, cockpitDir, cockpitMode, runtime, executor, ownedPublication, ownedPublisher } = {}) {
+export async function runMcpServer({ surface, cockpitDir, cockpitMode, runtime, executor, ownedPublication, ownedPublisher, onClosed } = {}) {
   if (cockpitMode !== undefined && (cockpitMode !== 'plugin' || surface !== 'codex' || cockpitDir !== undefined)) throw Error('AGDF_COCKPIT_TARGET_INVALID');
   const defaultRuntime = runtime === undefined && cockpitDir === undefined && cockpitMode === undefined;
   // A supplied, bound runtime owns its resources. Do not load a second package
@@ -45,11 +45,12 @@ export async function runMcpServer({ surface, cockpitDir, cockpitMode, runtime, 
       process.stderr.write(`${code}\n`);
     },
   });
-  const close = async () => {
-    await handle.close();
-  };
+  let closing;
+  const close = () => closing ??= handle.close().then(result => { onClosed?.(result); return result; });
   process.once("SIGINT", close);
   process.once("SIGTERM", close);
   process.stdin.once("close", close);
-  return handle;
+  process.stdin.once("end", close);
+  if (process.stdin.readableEnded || process.stdin.destroyed) void close();
+  return Object.freeze({ close });
 }

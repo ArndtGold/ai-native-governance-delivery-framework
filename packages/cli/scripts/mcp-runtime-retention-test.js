@@ -9,7 +9,7 @@ import { join, dirname } from 'node:path';
 import { withOwnedFileLock } from '#agdf-core/control-state/run-state-writer.js';
 import { tmpdir } from 'node:os';
 import { acquireMcpExecutableClaim, createMcpRuntimeRetirementTransaction, mcpRuntimeRetirementState } from '../lib/mcp-lifecycle/package.js';
-import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot } from '../lib/mcp-lifecycle/plugin-runtime.js';
+import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot, retirePluginMcpDataRoot } from '../lib/mcp-lifecycle/plugin-runtime.js';
 import { offlineNpm, pluginRoot } from '../../../scripts/support/plugin-mcp-fixture.js';
 
 const root = mkdtempSync(join(tmpdir(), 'agdf-immutable-runtime-retention-'));
@@ -92,6 +92,27 @@ try {
   const child2 = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 30)']); second.bindOwnedChild(child2);
   await once(child2, 'exit');
   assert.equal(mcpRuntimeRetirementState(runtime.root), 'eligible', 'Only actual directly owned process exits release both claims.');
+  {
+    const raceData = join(root, 'retirement-race'), nextSource = join(root, 'retirement-race-source');
+    ensurePluginMcpRuntime({ pluginRoot: source, dataRoot: raceData, exec: offlineNpm });
+    cpSync(source, nextSource, { recursive: true });
+    const changed = join(nextSource, 'mcp/server/README.md'); writeFileSync(changed, readFileSync(changed, 'utf8') + '\nnew concurrent publication\n');
+    let checks = 0, published, ownedChild, ended;
+    const removed = retirePluginMcpDataRoot(raceData, () => {
+      if (++checks !== 2) return;
+      published = ensurePluginMcpRuntime({ pluginRoot: nextSource, dataRoot: raceData, exec: offlineNpm });
+      const claim = acquireMcpExecutableClaim(published);
+      ownedChild = spawn(process.execPath, ['-e', 'setTimeout(()=>{},2000)']); ended = once(ownedChild, 'exit');
+      claim.bindOwnedChild(ownedChild);
+    });
+    assert.equal(removed, false, 'a concurrent publication prevents encompassing-root deletion');
+    assert.equal(existsSync(published.entrypoint), true);
+    assert.equal(inspectPluginMcpDataRoot(raceData), 'protected');
+    assert.throws(() => retirePluginMcpDataRoot(raceData), /AGDF_MCP_RUNTIME_RETAINED/u);
+    await ended;
+    assert.equal(retirePluginMcpDataRoot(raceData), true);
+    assert.equal(existsSync(raceData), false);
+  }
   const claimDir = join(runtime.root, '.agdf-executable-claims');
   writeFileSync(join(claimDir, 'uncertain.json'), '{');
   assert.equal(mcpRuntimeRetirementState(runtime.root), 'retained');

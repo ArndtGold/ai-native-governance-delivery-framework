@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "aa195ab4-f5fb-4612-a6cd-1f04e0b2606a",
+  "request_digest": "sha256:e1dd45ae273100f0a293529a7d34d5e48c7dda39a19682a3254f6a12e8d12f07",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "expected_revision_id": "6222e5be-e467-4686-8eca-48a37a7c2a09",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "6222e5be-e467-4686-8eca-48a37a7c2a09",
+    "resulting_revision_id": "06bf1cb3-921a-420a-9ee4-b5904c69e73c",
+    "revision": 15,
+    "record": {
+      "step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:f5617b71808c02f875d9a62c50be170a1af2830ae4bac7ae001c0708fcc43b61"
+      },
+      "status": "revise",
+      "covers": "T-004, T-005, T-009, T-010 lokale Diagnose; E-004, E-005, E-006 behoben; E-001, E-002, E-003 bleiben offen",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "aa195ab4-f5fb-4612-a6cd-1f04e0b2606a",
+    "request_digest": "sha256:e1dd45ae273100f0a293529a7d34d5e48c7dda39a19682a3254f6a12e8d12f07",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "expected_revision_id": "6222e5be-e467-4686-8eca-48a37a7c2a09",
+    "created_at": "2026-10-21T09:06:33.815Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "6222e5be-e467-4686-8eca-48a37a7c2a09",
+      "resulting_revision_id": "06bf1cb3-921a-420a-9ee4-b5904c69e73c",
+      "revision": 15,
+      "record": {
+        "step": "CD+Tests",
+        "source": {
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "digest": "sha256:f5617b71808c02f875d9a62c50be170a1af2830ae4bac7ae001c0708fcc43b61"
+        },
+        "status": "revise",
+        "covers": "T-004, T-005, T-009, T-010 lokale Diagnose; E-004, E-005, E-006 behoben; E-001, E-002, E-003 bleiben offen",
+        "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 15,
+    "revision_id": "06bf1cb3-921a-420a-9ee4-b5904c69e73c",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "step": "internal",
+    "previous_revision_id": "6222e5be-e467-4686-8eca-48a37a7c2a09",
+    "revision": "15",
+    "revision_id": "06bf1cb3-921a-420a-9ee4-b5904c69e73c",
+    "current_gate": "CD+Tests",
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "backlog": "updated",
+    "operation_id": "aa195ab4-f5fb-4612-a6cd-1f04e0b2606a",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "aa195ab4-f5fb-4612-a6cd-1f04e0b2606a",
+      "request_digest": "sha256:e1dd45ae273100f0a293529a7d34d5e48c7dda39a19682a3254f6a12e8d12f07",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "release-0200-codex-claude-20261020-01",
+      "expected_revision_id": "6222e5be-e467-4686-8eca-48a37a7c2a09",
+      "created_at": "2026-10-21T09:06:33.815Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "6222e5be-e467-4686-8eca-48a37a7c2a09",
+        "resulting_revision_id": "06bf1cb3-921a-420a-9ee4-b5904c69e73c",
+        "revision": 15,
+        "record": {
+          "step": "CD+Tests",
+          "source": {
+            "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+            "digest": "sha256:f5617b71808c02f875d9a62c50be170a1af2830ae4bac7ae001c0708fcc43b61"
+          },
+          "status": "revise",
+          "covers": "T-004, T-005, T-009, T-010 lokale Diagnose; E-004, E-005, E-006 behoben; E-001, E-002, E-003 bleiben offen",
+          "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46"
+        }
+      }
+    }
+  }
+}

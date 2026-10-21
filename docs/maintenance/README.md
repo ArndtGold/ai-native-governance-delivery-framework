@@ -1,5 +1,10 @@
 # Wartungsverträge und Release-Nachweise
 
+Die [Vorbereitung von 0.20.0](release-0.20.0.md) ergänzt den vorhandenen Codex-Nachweis um
+Upgrade/Wiederherstellung und die separat auf Windows erzeugten Claude-CLI-/Desktop-Code-Belege.
+Der Publish-Workflow verlangt beide Host-Nachweise; fehlende externe Ergebnisse bleiben Blocker.
+Copilot und OpenCode bleiben experimentell.
+
 ## Node-Versionen und GitHub Actions
 
 CLI und MCP benötigen Node.js 22 oder neuer. Die Pflichtmatrix prüft Linux/Node 22,

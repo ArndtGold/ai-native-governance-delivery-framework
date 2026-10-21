@@ -432,7 +432,7 @@ export function createCodexCockpitTransition({ target, env = {}, serverId: id, r
 }
 
 // Admission runs before the installer publishes a candidate. Availability still needs native proof.
-export function inspectCodexCockpitAdmission({ target, env = {}, exec } = {}) {
+export function inspectCodexCockpitAdmission({ target, env = {}, exec, manifestRepair } = {}) {
   const conflicts = [], checked = [];
   for (const source of sources({ scope: 'project', target, env })) {
     try {
@@ -473,7 +473,8 @@ export function inspectCodexCockpitAdmission({ target, env = {}, exec } = {}) {
           ? launcher.slice(0, -'/mcp/agdf-mcp-launch.js'.length) : null;
         let own = false;
         if (pluginRoot && row.name === 'agdf-cockpit') {
-          const identity = inspectCodexCockpitPlugin(pluginRoot);
+          let identity = inspectCodexCockpitPlugin(pluginRoot);
+          if (identity.status !== 'matched' && manifestRepair) identity = manifestRepair.inspect(pluginRoot);
           const declaration = identity.declaration?.mcpServers?.['agdf-cockpit'];
           own = declaration?.command === row.transport?.command && exactJson(declaration.args) === exactJson(row.transport?.args)
             && declaration.args?.[0] === portablePath(join(pluginRoot, 'mcp/agdf-mcp-launch.js')) && identity.status === 'matched';
@@ -487,7 +488,9 @@ export function inspectCodexCockpitAdmission({ target, env = {}, exec } = {}) {
             own = origin.status === 'observed' && origin.scope?.cwd === target && origin.scope?.ephemeral === true
               && typeof origin.scope?.thread_id === 'string' && origin.scope.thread_id.length > 0 && Array.isArray(origin.providers) && origin.providers.length === 1
               && origin.providers[0].server_id === 'agdf-cockpit' && origin.providers[0].plugin_id === 'agdf@agdf'
-              && origin.providers[0].runtime_status === 'connected';
+              && (origin.providers[0].runtime_status === 'connected'
+                || identity.repair === true && origin.providers[0].runtime_status === 'failed');
+            if (own) nativeProviderStatus = origin.providers[0].runtime_status === 'connected' ? 'owned_connected' : 'owned_failed_repair';
           }
         }
         if (!own) conflicts.push({ server_id: row.name, reason: 'host_same_key_or_possible_alias' });

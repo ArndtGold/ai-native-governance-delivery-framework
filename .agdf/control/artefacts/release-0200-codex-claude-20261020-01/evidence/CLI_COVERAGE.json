@@ -1,0 +1,2495 @@
+{
+  "schema_version": 1,
+  "execution_mode": "canonical_plan_resumed_after_coupled_fixture_repairs",
+  "native_qualification": false,
+  "inventory_digest": "fb6af0b612f1e24463967fb310c469b25af8ffd1752fdbd2ac1b6f5aa3c684de",
+  "required": 159,
+  "covered": 159,
+  "isolated_cells": 18,
+  "status": "pass",
+  "results": [
+    {
+      "index": 0,
+      "id": "0eff221b0194",
+      "cwd": "packages/cli",
+      "tool": "npm",
+      "args": [
+        "run",
+        "release:prepare"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 1,
+      "id": "8a058d2477e3",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/release-workflow-contract-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 2,
+      "id": "a4f6e8744023",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/release-registry-state-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 3,
+      "id": "2b774fe98ed5",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/instruction-footprint-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 4,
+      "id": "2b774fe98ed5",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/instruction-footprint-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 5,
+      "id": "e40211494c16",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/request-activation-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 6,
+      "id": "ee441080d93b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/request-activation-evals-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 7,
+      "id": "293573eeacfd",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/request-activation-callback-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 8,
+      "id": "86123bda149a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/request-activation-host-schema-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 9,
+      "id": "ae58b3352dbf",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/gate-check-missing-control-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 10,
+      "id": "ef68790dfa64",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/canonical-init-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 11,
+      "id": "cbc81b420b99",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/cli-modularization-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 12,
+      "id": "92d0392eb787",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/install-setup-contract-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 13,
+      "id": "aed1418c6447",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/install-setup-interaction-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 14,
+      "id": "f49011bcdc6d",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/install-setup-service-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_PREFIX.log",
+        "method": "canonical sequential npm prefix completed before subsequent migration fixture failure"
+      }
+    },
+    {
+      "index": 15,
+      "id": "384330588a82",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/install-control-migration-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/MIGRATION_FINAL.log",
+        "method": "current corrected migration fixture completed successfully"
+      }
+    },
+    {
+      "index": 16,
+      "id": "d49d3b000dc1",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/install-control-repair-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 3,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 17,
+      "id": "aee4eb8f16f5",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/control-maintenance-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 6,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 18,
+      "id": "6aa856439736",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/control-maintenance-command-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 9,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 19,
+      "id": "0c7e137d19e2",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "./scripts/repository-control-startup-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 12,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 20,
+      "id": "0998fad7246c",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/runtime-check-consent-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 16,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 21,
+      "id": "0123481c3595",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/codex-plugin-consent-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 19,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 22,
+      "id": "7c710f3b7ea9",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/task-target-resolution-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 22,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 23,
+      "id": "fb332025facd",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/skill-names-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 25,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 24,
+      "id": "b92836ba35ef",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/skill-dispatch-function-contract-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 29,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 25,
+      "id": "32e2aa665e6b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/skill-dispatch-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 33,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 26,
+      "id": "16744f7b93d7",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/compact-continuation-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 36,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 27,
+      "id": "17fb71211d3a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/skill-dispatch-binding-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 40,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 28,
+      "id": "17be6f2d73ca",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/delivery-run-assignment-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 43,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 29,
+      "id": "f5e84e1846da",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/control-inspect-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 46,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 30,
+      "id": "2a1a51fb8ac8",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/active-run-inventory-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 49,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 31,
+      "id": "3c3a2729e126",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/artifact-readiness-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 52,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 32,
+      "id": "6d95449cee6d",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/host-command-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 56,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 33,
+      "id": "e98f48d6ead3",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/codex-plugin-list-budget-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 59,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 34,
+      "id": "53a3b1b9b094",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/mcp-lifecycle-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 62,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 35,
+      "id": "26b685b69330",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/plugin-mcp-runtime-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 65,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 36,
+      "id": "c3ce2595ef0c",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/mcp-runtime-retention-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 68,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 37,
+      "id": "a59fbe4d3d13",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/mcp-tool-errors-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 71,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 38,
+      "id": "dc44141f2aff",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/plugin-mcp-cockpit-variant-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 74,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 39,
+      "id": "5ad1ff1d83d0",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/claude-plugin-mcp-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 77,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 40,
+      "id": "d7f7614c4388",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/codex-plugin-mcp-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 80,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 41,
+      "id": "02cab6434ccb",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/contract.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 83,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 42,
+      "id": "78e278117f9a",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/continuation.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 86,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 43,
+      "id": "7760bc500a42",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/late-source-revision.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 89,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 44,
+      "id": "6e6bc150c350",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/run-command.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 92,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 45,
+      "id": "654bf90cb770",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/decision-resource.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 96,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 46,
+      "id": "2aeb3c969632",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/whole-flow.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 100,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 47,
+      "id": "613d2dd37946",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/structured-flow.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 106,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 48,
+      "id": "15dc6271d696",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/revision-command.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_BEFORE_MATRIX.log",
+        "line": 112,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 49,
+      "id": "7c200890364f",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "PRD"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "7c200890364f",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 50,
+      "id": "701cf19f8a63",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "SD"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "701cf19f8a63",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 51,
+      "id": "62cbcb8af399",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "TP"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "62cbcb8af399",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 52,
+      "id": "a04273f89c0c",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "a04273f89c0c",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 53,
+      "id": "e5b1596f849d",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "e5b1596f849d",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 54,
+      "id": "9f36b7a5ce0d",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "UR",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "9f36b7a5ce0d",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 55,
+      "id": "f5ccebb208e9",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "SD"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "f5ccebb208e9",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 56,
+      "id": "1ddb0089c9a5",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "TP"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "1ddb0089c9a5",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 57,
+      "id": "f86d1245a344",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "f86d1245a344",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 58,
+      "id": "a3026f9f2f2d",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "a3026f9f2f2d",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 59,
+      "id": "fa5161a05a49",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "PRD",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "fa5161a05a49",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 60,
+      "id": "2db1bfd118b9",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "TP"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "2db1bfd118b9",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 61,
+      "id": "7fb2ea7c9eb9",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "7fb2ea7c9eb9",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 62,
+      "id": "83ac2aab0428",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "83ac2aab0428",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 63,
+      "id": "25ce689547de",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "SD",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "25ce689547de",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 64,
+      "id": "58fdf339a37a",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "TP",
+        "--phase",
+        "CD+Tests"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "58fdf339a37a",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 65,
+      "id": "dc895843d261",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "TP",
+        "--phase",
+        "QA"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "dc895843d261",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 66,
+      "id": "39347f96e03d",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/expanded-source-revision.test.js",
+        "--source-gate",
+        "TP",
+        "--phase",
+        "UAT"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "MATRIX_RESULTS.json",
+        "id": "39347f96e03d",
+        "method": "canonical isolated source/phase cell"
+      }
+    },
+    {
+      "index": 67,
+      "id": "36a79edeca9b",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/protocol.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 3,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 68,
+      "id": "bdfdd1da18e0",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/skill-names.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 6,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 69,
+      "id": "92ece58f3647",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/tool-errors.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 9,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 70,
+      "id": "4f3c20480e5a",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/cockpit-gating.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 12,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 71,
+      "id": "ec1549bdb660",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/generation.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 15,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 72,
+      "id": "3f0a3653ccab",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/safety.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 18,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 73,
+      "id": "3d92f7b4f985",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/worker-lock-release.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 21,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 74,
+      "id": "21f8916add98",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/provenance.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 24,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 75,
+      "id": "4d5317b24fc9",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/performance.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 27,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 76,
+      "id": "d28616e5e08c",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/package.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 31,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 77,
+      "id": "82cb1c11265f",
+      "cwd": "packages/mcp-server",
+      "tool": "node",
+      "args": [
+        "./test/sdk-digest.test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 34,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 78,
+      "id": "994b44aec3d1",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/local-validator-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 37,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 79,
+      "id": "4811f098ccce",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/local-marketplace-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 40,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 80,
+      "id": "0957cc1a84a6",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/claude-cache-recovery-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 43,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 81,
+      "id": "5b71eb211b09",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/claude-packaged-app-copy-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 46,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 82,
+      "id": "c43053016ebb",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/claude-install-hardening-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 49,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 83,
+      "id": "e4d022bf3cdf",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../../scripts/skill-name-projection-test.mjs"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 52,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 84,
+      "id": "a216bac9c922",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/copilot-profile-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 55,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 85,
+      "id": "0ff0c271d2c4",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/copilot-installer-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 58,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 86,
+      "id": "8e7114b86c5e",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/local-preparation-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 61,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 87,
+      "id": "0eff221b0194",
+      "cwd": "packages/cli",
+      "tool": "npm",
+      "args": [
+        "run",
+        "release:prepare"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 83,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 88,
+      "id": "c26c3e1d99c6",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/local-development-install-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 86,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 89,
+      "id": "1c92d257ee9b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/package-build-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 89,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 90,
+      "id": "8c62212ae18d",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/package-contents-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 92,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 91,
+      "id": "67e9699d2b0e",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/lifecycle-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 95,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 92,
+      "id": "5f7501039618",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/copilot-repository-retention-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 98,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 93,
+      "id": "529c5aa86725",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/control-command-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 170,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 94,
+      "id": "a528ceabb5f7",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/control-command-process-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 191,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 95,
+      "id": "f27b5670b14b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/control-command-package-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 216,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 96,
+      "id": "8c60c78523f5",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/cli-gate-scenarios-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 228,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 97,
+      "id": "f27fb327be71",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/control-state-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 233,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 98,
+      "id": "2ab34abbde7c",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/report-decision-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 253,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 99,
+      "id": "4393e9915bf6",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/decision-content-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 273,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 100,
+      "id": "be4d04d6275b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/run-command-contract-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 292,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 101,
+      "id": "70b9d4d55478",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/run-command-service-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 312,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 102,
+      "id": "603c12972add",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/run-flow-coherence-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 332,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 103,
+      "id": "f74cd4eab153",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/presentation-decision-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 351,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 104,
+      "id": "297fc044b12a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/presentation-document-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 370,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 105,
+      "id": "a66c5893a766",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/approval-command-recovery-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 389,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 106,
+      "id": "9dca4f877ccb",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/decision-action-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 408,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 107,
+      "id": "c2bacb3172e2",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/decision-qualification-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 427,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 108,
+      "id": "25b199b9b9d7",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/evidence-bindings-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 446,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 109,
+      "id": "70b28188a825",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/run-owned-output-recovery-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 465,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 110,
+      "id": "016f2ef1ba19",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/early-prd-command-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 484,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 111,
+      "id": "2163a390f417",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/run-command-revision-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 503,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 112,
+      "id": "6eba682640fd",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/run-closeout-command-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 522,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 113,
+      "id": "99eb0970c3d5",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/run-closeout-slice-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 541,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 114,
+      "id": "819aecc08711",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/quick-closeout-command-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 560,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 115,
+      "id": "7e1dd1f45850",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/qa-deviation-acceptance-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 579,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 116,
+      "id": "83058172ef02",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/approval-chain-defects-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 598,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 117,
+      "id": "84bd4f28b1c1",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "../core/test/review-findings-correction-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 617,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 118,
+      "id": "412b32355e78",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/preview-material-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 621,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 119,
+      "id": "1ef1cad8e98d",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/preview-render-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 626,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 120,
+      "id": "baf15aea10ba",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/preview-presentation-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 630,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 121,
+      "id": "f65e89f7c7cf",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/preview-session-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 633,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 122,
+      "id": "4987fbc689a0",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/run-step-transaction-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 636,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 123,
+      "id": "f07c80decef1",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/run-backlog-writer-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 655,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 124,
+      "id": "41b619e83e0b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/backlog-work-summary-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 669,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 125,
+      "id": "d9396484486a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/backlog-summary-codec-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 676,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 126,
+      "id": "232e88966c83",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/run-recovery-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 679,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 127,
+      "id": "2d2f04745d2c",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/run-lock-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 682,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 128,
+      "id": "267481715e28",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/prd-readiness-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 685,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 129,
+      "id": "6893055ad887",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/run-revision-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 688,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 130,
+      "id": "c8ea4d527029",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/next-action-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 691,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 131,
+      "id": "a122d6652b5d",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/early-ur-revision-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 732,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 132,
+      "id": "651459d6f737",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/run-source-revisions-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 735,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 133,
+      "id": "4c3577b22b68",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/late-source-revision-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 738,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 134,
+      "id": "7a7d401605f2",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/late-source-revision-performance-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 741,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 135,
+      "id": "e2a933ccc8db",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/intake-continuation-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 744,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 136,
+      "id": "e5753271ebba",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/prd-definition-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 747,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 137,
+      "id": "1c4e3d37ca2b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/sd-readiness-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 750,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 138,
+      "id": "a8a2b4b3d87f",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/sd-definition-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 753,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 139,
+      "id": "7f068cbffbf6",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/tp-definition-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 756,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 140,
+      "id": "697d49083fe7",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/tp-clarification-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 759,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 141,
+      "id": "173261f868ef",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/tp-readiness-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 762,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 142,
+      "id": "0ea3d971bf94",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/artifact-language-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 765,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 143,
+      "id": "c3371c03222a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/parent-reconciliation-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 768,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 144,
+      "id": "622516816d72",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/interaction-presentation-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 774,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 145,
+      "id": "fb656a6db24b",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/operational-localization-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 777,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 146,
+      "id": "be8466798a2c",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/verified-change-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 780,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 147,
+      "id": "9623f7b7285a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/runtime-integrity-layout-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 783,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 148,
+      "id": "e28b4d26e261",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/runtime-integrity-negative-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 786,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 149,
+      "id": "d1fcca81a467",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/agent-skills-conformance-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 789,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 150,
+      "id": "545d4111a650",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/skill-evals-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 792,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 151,
+      "id": "f7c7565c1000",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../../evals/scripts/run-skill-evals.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 795,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 152,
+      "id": "84e679e903be",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/proportionality-benchmark-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 798,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 153,
+      "id": "3cd5f63d451d",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/delivery-path-search-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 801,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 154,
+      "id": "d74169defa9a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "../core/test/delivery-path-search-unit-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 804,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 155,
+      "id": "8d8053295a0f",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/delivery-path-search-generator-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 807,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 156,
+      "id": "0a4afff8ce1a",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/opencode-hardening-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 810,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 157,
+      "id": "3f2c7a621071",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/smoke-test.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 852,
+        "method": "completed canonical inventory command"
+      }
+    },
+    {
+      "index": 158,
+      "id": "3cc76f00fd82",
+      "cwd": "packages/cli",
+      "tool": "node",
+      "args": [
+        "scripts/test-routing.js"
+      ],
+      "status": "pass",
+      "evidence": {
+        "path": "logs/CLI_AFTER_MATRIX.log",
+        "line": 855,
+        "method": "completed canonical inventory command"
+      }
+    }
+  ]
+}

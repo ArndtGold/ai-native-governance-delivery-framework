@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "agdf",
-  "version": "0.14.5",
+  "version": "0.20.0",
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "Arndt Gold",
   "description": "Control layer for governed AI-assisted delivery.",
@@ -584,6 +584,32 @@
         "installable": true,
         "machineValidation": "unavailable_or_external_required"
       }
+    }
+  },
+  "hostSupport": {
+    "schema_version": 1,
+    "tiers": {
+      "codex": "qualification_target",
+      "claude": "qualification_target",
+      "copilot": "experimental",
+      "opencode": "experimental"
+    },
+    "codex": {
+      "codex_version": "0.157.1",
+      "model": "gpt-6-luna",
+      "platforms": [
+        "linux",
+        "win32"
+      ]
+    },
+    "claude": {
+      "platforms": [
+        "win32"
+      ],
+      "surfaces": [
+        "cli",
+        "desktop-code"
+      ]
     }
   }
 }

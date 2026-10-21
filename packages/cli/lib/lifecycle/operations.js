@@ -17,7 +17,7 @@ import { inspectPluginSurface } from "../installers/plugin-installers.js";
 import { planCodexRepositoryDisable, verifyCodexRepositoryDisabled, uninstallCommand as codexUninstallCommand } from "../host-adapters/codex/plugin.js";
 import { planClaudeGlobalUninstall, verifyClaudeGlobalUninstall } from "../host-adapters/claude/uninstall.js";
 import { revokeClaudeRuntimeRule } from "../runtime-check-consent/claude-settings.js";
-import { inspectPluginMcpDataRoot } from "../mcp-lifecycle/plugin-runtime.js";
+import { inspectPluginMcpDataRoot, retirePluginMcpDataRoot } from "../mcp-lifecycle/plugin-runtime.js";
 import { CODEX_DISPATCH_POLICY_KEY } from "../runtime-check-consent/codex-plugin-consent.js";
 import { defaultAgdfDataRoot } from "../installers/local-marketplace.js";
 import { uninstallCommand as copilotUninstallCommand } from "../host-adapters/copilot/plugin.js";
@@ -80,7 +80,8 @@ export function planGlobalUninstall(surface, { configDir, ...claudeOptions } = {
   const state = inspectPluginMcpDataRoot(runtimeRoot);
   return Object.freeze({
     ...plan,
-    mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot, expectedIdentity: directoryIdentity(runtimeRoot) }] : []),
+    mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot, expectedIdentity: directoryIdentity(runtimeRoot) }]
+      : state === 'protected' ? [{ kind: 'retire_runtime', path: runtimeRoot, expectedIdentity: directoryIdentity(runtimeRoot) }] : []),
       // The installer's tool approval lives in the Codex user config; it is revoked through Codex after removal.
       { kind: "codex_tool_policy", key: CODEX_DISPATCH_POLICY_KEY }]),
     retained: Object.freeze([...plan.retained, ...(state === "foreign" ? [`Codex plugin MCP runtime with unowned content: ${runtimeRoot}`]
@@ -101,6 +102,8 @@ function nativeUninstallPlan(surface, executable, args) {
 
 export function applyLifecyclePlan(plan, { exec = execHostFileSync, applyCopilotSettings = applyCopilotRepositoryDisable } = {}) {
   const completed = [];
+  const retired = new Set();
+  const retained = () => plan.retained.filter(entry => ![...retired].some(path => entry.endsWith(': ' + path)));
   for (const mutation of plan.mutations) {
     try {
       if (mutation.kind === "write") {
@@ -116,9 +119,25 @@ export function applyLifecyclePlan(plan, { exec = execHostFileSync, applyCopilot
         rmSync(mutation.path);
         completed.push({ kind: "remove", path: mutation.path });
       } else if (mutation.kind === "remove_tree") {
-        assertOwnedDirectory(mutation.path, mutation.expectedIdentity, inspectPluginMcpDataRoot);
-        rmSync(mutation.path, { recursive: true, force: true });
+        const revalidate = () => assertOwnedDirectory(mutation.path, mutation.expectedIdentity, inspectPluginMcpDataRoot);
+        if (!retirePluginMcpDataRoot(mutation.path, revalidate)) throw Error('AGDF_MCP_RUNTIME_RETAINED');
         completed.push({ kind: "remove_tree", path: mutation.path });
+      } else if (mutation.kind === 'retire_runtime') {
+        // Native removal can finish before its directly owned server has sent
+        // teardown acknowledgement. Observe the existing claim owner, never a
+        // PID or age heuristic. An unconfirmed/foreign runtime remains intact.
+        const deadline = performance.now() + 10_000;
+        let state = inspectPluginMcpDataRoot(mutation.path);
+        while (state === 'protected' && performance.now() < deadline) {
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50);
+          state = inspectPluginMcpDataRoot(mutation.path);
+        }
+        if (state === 'owned') {
+          const revalidate = () => assertOwnedDirectory(mutation.path, mutation.expectedIdentity, inspectPluginMcpDataRoot);
+          if (retirePluginMcpDataRoot(mutation.path, revalidate)) {
+            completed.push({ kind: 'remove_tree', path: mutation.path }); retired.add(mutation.path);
+          }
+        } else if (state === 'absent') retired.add(mutation.path);
       } else if (mutation.kind === "claude_permission_rules") {
         for (const rule of mutation.rules) revokeClaudeRuntimeRule({ path: mutation.path, rule });
         completed.push({ kind: "claude_permission_rules", path: mutation.path, rules: mutation.rules });
@@ -127,8 +146,8 @@ export function applyLifecyclePlan(plan, { exec = execHostFileSync, applyCopilot
         completed.push({ kind: "command", executable: mutation.executable, args: mutation.args });
       }
     } catch (error) {
-      return { status: completed.length ? "partial" : "failed", completed, error, retained: [...plan.retained] };
+      return { status: completed.length ? "partial" : "failed", completed, error, retained: retained() };
     }
   }
-  return { status: "success", completed, error: null, retained: [...plan.retained] };
+  return { status: "success", completed, error: null, retained: retained() };
 }

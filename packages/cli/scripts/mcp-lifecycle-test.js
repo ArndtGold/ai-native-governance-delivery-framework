@@ -34,13 +34,14 @@ import { projectMcpLifecycleResult, renderMcpLifecycleText } from "../lib/mcp-li
 import { validateMcpDirectEvidenceResult } from "../lib/mcp-lifecycle/evidence.js";
 import { validateMcpCapabilityProfile } from "../lib/mcp-lifecycle/profile.js";
 import { mcpCapabilityProfile } from "../lib/mcp-lifecycle/profile-context.js";
+import { pluginDefinition } from '../lib/cli/runtime-context.js';
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 import {
   MCP_DISPATCHER_RUNTIME_ENTRIES,
   MCP_SDK_RUNTIME_ENTRIES,
 } from "#agdf-core/runtime/plugin-provenance.js";
 
-const VERSION = "0.14.5";
+const VERSION = pluginDefinition.version;
 const CREATE_AGDF_ROOT = fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url));
 const MCP_SERVER_ROOT = fileURLToPath(new URL("../../mcp-server/", import.meta.url));
 

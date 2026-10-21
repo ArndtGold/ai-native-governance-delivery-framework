@@ -1,0 +1,4 @@
+npm notice run @agdf/mcp-server@0.20.0 test:safety
+npm notice run node ./test/safety.test.js && node ./test/worker-lock-release.test.js
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+Abandoned-worker lock release passed: unconfirmed and late exit, hung worker, drained messages, release failure, real terminated thread and foreign lock.

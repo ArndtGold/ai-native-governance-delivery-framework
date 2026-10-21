@@ -1,0 +1,139 @@
+[
+  {
+    "schema_version": 2,
+    "id": "codex-20261021070955826-dispatch",
+    "recorded_at": "2026-10-21T07:09:55.826Z",
+    "environment": {
+      "host": "codex",
+      "surface": "cli",
+      "os": "darwin",
+      "arch": "x64",
+      "version": "0.163.0",
+      "node": "v22.22.3",
+      "model": "gpt-6-luna"
+    },
+    "tuple_digest": "8299345338bf8687140d55d13cdc8242137cb7da0fbfeaeee4e3f57cda18e347",
+    "source": {
+      "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+      "dirty": true
+    },
+    "candidate_id": "c97b3448017717cff1b1e18d8c3ecb7b94ab337f0b13892c34c5f98a39d7e4cd",
+    "policy_digest": "2582e6a9a0f3dcaec123e0d9e6ee616c9a7052638d96cf6daf1e647bbef34a9e",
+    "scenario": "dispatch",
+    "result": "pass",
+    "assurance": "native_process",
+    "loaded_identity": {
+      "version": "0.20.0",
+      "source_digest": "73014fa1a20b938d42b155f52f40f4b4aa5fed827371bf5f94e3fd432a2436dd",
+      "runtime_digest": "1c75927f92c5ac76062dcd0108c0be2a7463fdd7238ee6f7373c07dbe042c706"
+    },
+    "steps": [
+      {
+        "name": "host",
+        "status": "pass",
+        "evidence": {
+          "version": "0.163.0"
+        }
+      },
+      {
+        "name": "install",
+        "status": "pass",
+        "evidence": {
+          "result": "partial",
+          "effective_state": "mcp_ready_hook_review_required",
+          "stderr": ""
+        }
+      },
+      {
+        "name": "installation_consent",
+        "status": "pass",
+        "evidence": {
+          "requested": "enabled",
+          "hook_verification": "hook_review_required",
+          "mcp_approval": {
+            "status": "configured",
+            "reason": "none",
+            "tool": "agdf_dispatch",
+            "policy_key": "plugins.\"agdf@agdf\".mcp_servers.agdf.tools.agdf_dispatch.approval_mode",
+            "config_file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/probe-results/codex-host-e2e-20261021-070955/work-tmp/codex-home/config.toml",
+            "write_attempted": true,
+            "verification": "config_readback"
+          }
+        }
+      },
+      {
+        "name": "control_fixture",
+        "status": "pass",
+        "evidence": {
+          "init_status": 0,
+          "run_create_status": 0,
+          "stderr": ""
+        }
+      },
+      {
+        "name": "discovery",
+        "status": "pass",
+        "evidence": {
+          "command": "node",
+          "args": "[\"<WORK>/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js\",\"--surface\",\"codex\",\"--data\",\"<WORK>/agdf-data/mcp/codex-plugin\"]"
+        }
+      },
+      {
+        "name": "dispatch",
+        "status": "pass",
+        "evidence": {
+          "approval_path": "installer_native_config_rpc",
+          "observed_models": [
+            "gpt-6-luna"
+          ],
+          "calls": 1,
+          "plugin_id": "agdf@agdf",
+          "outcome": "control_result",
+          "terminal": true,
+          "authorizes": false,
+          "approval_blocked": false,
+          "host_action": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Describe the trustworthy outcome. · `codex-e2e` |\n| Pfad | ● UR |\n| Status | offen |\n|",
+          "runtime_digest": "a38f3ee5a3053d53fbb7d36f19f62a50755d3cfdd8738857f831b757fc834f1c",
+          "exec_status": 0,
+          "exec_stderr": "Reading additional input from stdin...\n"
+        }
+      },
+      {
+        "name": "removal",
+        "status": "pass",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": false,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      }
+    ],
+    "references": [
+      {
+        "path": "dispatch-primary.json",
+        "sha256": "ff86bdc727be95cfc10641a8bf62e985ba72a2691310b38807f7d36e5f2c1314"
+      },
+      {
+        "path": "dispatch-process.json",
+        "sha256": "00eaae56f0172b8fb8c76f5411326c0c80cbb062c4ecf20454078ef1cd37fc43"
+      },
+      {
+        "path": "host-process.json",
+        "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+      },
+      {
+        "path": "removal-process.json",
+        "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+      },
+      {
+        "path": "uninstall-process.json",
+        "sha256": "ea423ee4a4bdd0ca9874f02b5a7cf7256133e0b803611e715f74d066ebcf1781"
+      }
+    ]
+  }
+]

@@ -127,13 +127,15 @@ function pruneRuntimeOutput(root, expectedFiles) {
   visit(root);
 }
 
-// Modules the plugin-local Claude MCP launcher needs on top of the validator runtime. They stay out of
-// the Copilot runtime, which excludes MCP lifecycle, server and package acquisition code.
+// Modules needed by the plugin-local MCP launcher in every MCP-enabled profile.
+// The supervisor entry is shipped with the same owner as its launcher.
 export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
   "generated/plugins/agdf/meta/contracts",
   "lib/mcp-dispatch-runtime.js",
   "lib/mcp-lifecycle/package.js",
   "lib/mcp-lifecycle/plugin-runtime.js",
+  "lib/mcp-lifecycle/facade-entry.js",
+  "lib/mcp-lifecycle/facade-owner-entry.js",
   "lib/npm-invocation.js",
 ]);
 

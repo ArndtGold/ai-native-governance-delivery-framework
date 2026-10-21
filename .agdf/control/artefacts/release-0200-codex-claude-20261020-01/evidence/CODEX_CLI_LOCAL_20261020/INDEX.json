@@ -1,0 +1,1394 @@
+{
+  "schema_version": 1,
+  "kind": "local_codex_cli_native_diagnostic",
+  "date": "2026-10-20",
+  "assurance": "native_process_diagnostic_not_release_qualification",
+  "attempts": 13,
+  "model_sessions": 10,
+  "latest_cases": [
+    {
+      "directory": "codex-host-e2e-20261020-185051",
+      "scenario": "dispatch",
+      "recorded_at": "2026-10-20T18:50:51.440Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "approval_path": "unknown",
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 0,
+        "plugin_id": null,
+        "outcome": null,
+        "terminal": null,
+        "authorizes": null,
+        "approval_blocked": null,
+        "host_action": null,
+        "runtime_digest": null,
+        "exec_status": 0,
+        "exec_stderr": "Reading additional input from stdin...\n"
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185133",
+      "scenario": "failure_case",
+      "recorded_at": "2026-10-20T18:51:33.540Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "plugin_id": null,
+        "calls": 0,
+        "outcome": null,
+        "exec_status": 0,
+        "host_action": null
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185208",
+      "scenario": "skill_continuation",
+      "recorded_at": "2026-10-20T18:52:09.220Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 0,
+        "exec_status": 0,
+        "plugin_id": null,
+        "outcome": null,
+        "authorizes": null,
+        "runtime_digest": null,
+        "contract_modules": [],
+        "contracts_verified": false
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185246",
+      "scenario": "upgrade",
+      "recorded_at": "2026-10-20T18:52:46.250Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": null,
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 0,
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "exec_status": 0
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185328",
+      "scenario": "recovery",
+      "recorded_at": "2026-10-20T18:53:28.319Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": "owned_stale_install",
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 0,
+        "observed_models": [],
+        "exec_status": null
+      },
+      "model_session_executed": false,
+      "cleanup": {
+        "name": "removal",
+        "status": "pass",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": false,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    }
+  ],
+  "history": [
+    {
+      "directory": "codex-host-e2e-20261020-184339",
+      "scenario": "dispatch",
+      "recorded_at": "2026-10-20T18:43:39.739Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "pass",
+      "case_evidence": {
+        "approval_path": "installer_native_config_rpc",
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 1,
+        "plugin_id": "agdf@agdf",
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "approval_blocked": false,
+        "host_action": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Describe the trustworthy outcome. · `codex-e2e` |\n| Pfad | ● UR |\n| Status | offen |\n|",
+        "runtime_digest": "1c36d439929789a214c67c03307cd42aa1162137cde68e40f4a4bac4633e175e",
+        "exec_status": 0,
+        "exec_stderr": "Reading additional input from stdin...\n"
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-184436",
+      "scenario": "failure_case",
+      "recorded_at": "2026-10-20T18:44:36.165Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "plugin_id": "agdf@agdf",
+        "calls": 1,
+        "outcome": null,
+        "exec_status": 0,
+        "host_action": "{\n  \"schema_version\": \"1\",\n  \"contract_version\": 1,\n  \"outcome\": \"invalid_input\",\n  \"terminal\": true,\n  \"authorizes\": false,\n  \"skill\": null,\n  \"runtime\": {\n   "
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": true
+    },
+    {
+      "directory": "codex-host-e2e-20261020-184602",
+      "scenario": "failure_case",
+      "recorded_at": "2026-10-20T18:46:02.816Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "pass",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "plugin_id": "agdf@agdf",
+        "calls": 1,
+        "outcome": "invalid_input",
+        "exec_status": 0,
+        "host_action": "Ungültige Dispatcher-Eingabe für working_directory. Korrigieren und einmal erneut versuchen."
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-184652",
+      "scenario": "skill_continuation",
+      "recorded_at": "2026-10-20T18:46:52.474Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 0,
+        "exec_status": 0,
+        "plugin_id": null,
+        "outcome": null,
+        "authorizes": null,
+        "runtime_digest": null,
+        "contract_modules": [],
+        "contracts_verified": false
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-184722",
+      "scenario": "upgrade",
+      "recorded_at": "2026-10-20T18:47:22.454Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "pass",
+      "case_evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": null,
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 1,
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "plugin_id": "agdf@agdf",
+        "runtime_digest": "1c36d439929789a214c67c03307cd42aa1162137cde68e40f4a4bac4633e175e",
+        "outcome": "control_result",
+        "authorizes": false,
+        "exec_status": 0
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-184803",
+      "scenario": "recovery",
+      "recorded_at": "2026-10-20T18:48:03.542Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": "owned_stale_install",
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 0,
+        "observed_models": [],
+        "exec_status": null
+      },
+      "model_session_executed": false,
+      "cleanup": {
+        "name": "removal",
+        "status": "pass",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": false,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-184851",
+      "scenario": "skill_continuation",
+      "recorded_at": "2026-10-20T18:48:51.866Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 0,
+        "exec_status": 0,
+        "plugin_id": null,
+        "outcome": null,
+        "authorizes": null,
+        "runtime_digest": null,
+        "contract_modules": [],
+        "contracts_verified": false
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": true
+    },
+    {
+      "directory": "codex-host-e2e-20261020-184931",
+      "scenario": "recovery",
+      "recorded_at": "2026-10-20T18:49:31.637Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": "owned_stale_install",
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 0,
+        "observed_models": [],
+        "exec_status": null
+      },
+      "model_session_executed": false,
+      "cleanup": {
+        "name": "removal",
+        "status": "pass",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": false,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": true
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185051",
+      "scenario": "dispatch",
+      "recorded_at": "2026-10-20T18:50:51.440Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "approval_path": "unknown",
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 0,
+        "plugin_id": null,
+        "outcome": null,
+        "terminal": null,
+        "authorizes": null,
+        "approval_blocked": null,
+        "host_action": null,
+        "runtime_digest": null,
+        "exec_status": 0,
+        "exec_stderr": "Reading additional input from stdin...\n"
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185133",
+      "scenario": "failure_case",
+      "recorded_at": "2026-10-20T18:51:33.540Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "plugin_id": null,
+        "calls": 0,
+        "outcome": null,
+        "exec_status": 0,
+        "host_action": null
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185208",
+      "scenario": "skill_continuation",
+      "recorded_at": "2026-10-20T18:52:09.220Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 0,
+        "exec_status": 0,
+        "plugin_id": null,
+        "outcome": null,
+        "authorizes": null,
+        "runtime_digest": null,
+        "contract_modules": [],
+        "contracts_verified": false
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185246",
+      "scenario": "upgrade",
+      "recorded_at": "2026-10-20T18:52:46.250Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": null,
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 0,
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "exec_status": 0
+      },
+      "model_session_executed": true,
+      "cleanup": {
+        "name": "removal",
+        "status": "fail",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": true,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    },
+    {
+      "directory": "codex-host-e2e-20261020-185328",
+      "scenario": "recovery",
+      "recorded_at": "2026-10-20T18:53:28.319Z",
+      "host": {
+        "client": "codex-cli",
+        "version": "0.163.0",
+        "os": "darwin",
+        "arch": "x64",
+        "node": "v22.22.3"
+      },
+      "requested_model": "gpt-6-luna",
+      "agdf": {
+        "version": "0.20.0"
+      },
+      "source": {
+        "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+        "dirty": true
+      },
+      "result": "fail",
+      "case_status": "fail",
+      "case_evidence": {
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        },
+        "repair": "owned_stale_install",
+        "permission_preserved": true,
+        "preserved_foreign_state": true,
+        "calls": 0,
+        "observed_models": [],
+        "exec_status": null
+      },
+      "model_session_executed": false,
+      "cleanup": {
+        "name": "removal",
+        "status": "pass",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": false,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      },
+      "copied_auth_present": false,
+      "test_directory_retained": false
+    }
+  ],
+  "accepted_release_observations": 0,
+  "release_boundary": "macOS Codex 0.163.0; approved release matrix requires clean exact candidate, Codex 0.157.1, Linux and Windows; current source is dirty. No source or observation is relabeled.",
+  "files": [
+    {
+      "path": "codex-host-e2e-20261020-184339/dispatch-primary.json",
+      "bytes": 105173,
+      "sha256": "2edfc3528b9120f17419dbc0aff19682125eeea74bb133841a3f5c159b4422a9"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184339/dispatch-process.json",
+      "bytes": 11188,
+      "sha256": "579b8cc8d58f75cab01c123ddf91680225a35a6c8a993ca96147dc0d19fc8a12"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184339/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184339/observation.json",
+      "bytes": 3133,
+      "sha256": "cde01684b32df982cc30965222bbc3e407e7d277a30fa129a1579bbf0060eae6"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184339/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184339/summary.txt",
+      "bytes": 1877,
+      "sha256": "4e5f14b8b0222dcf0d365650cef8d502f1ea33fafc4818aa3dd02adb7a7beb47"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184339/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184436/failure_case-primary.json",
+      "bytes": 106553,
+      "sha256": "de537f8135717319a782e8ebb1e8791389665ee7aa769c0aa0d3756add84f556"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184436/failure_case-process.json",
+      "bytes": 4648,
+      "sha256": "8f38f012a547235c0f65043ab1e7afaa89519f0d8642e618547881cecf211fa8"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184436/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184436/observation.json",
+      "bytes": 2837,
+      "sha256": "3fd4cab736d3039fa542da526da1aaef693703c5802748a0e6b92c2e51c2049f"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184436/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184436/summary.txt",
+      "bytes": 1637,
+      "sha256": "c45b0e10d838945a3346f7b2d19236385454ac2da4386f0638406f96d151c83d"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184436/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184602/failure_case-primary.json",
+      "bytes": 90316,
+      "sha256": "c4a9198763621eb7c6370e4a2e1dd39d1f2bb7bcae3abda3498e288755d84ca1"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184602/failure_case-process.json",
+      "bytes": 4659,
+      "sha256": "c1dfc41af6940110bb380b887529524d0771158be2bd859f48867b3a75fbdc31"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184602/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184602/observation.json",
+      "bytes": 2756,
+      "sha256": "fca2683608b5ae94fd1a77859f07caf9dd31e3f27e50fbcf39e574463089daaa"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184602/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184602/summary.txt",
+      "bytes": 1556,
+      "sha256": "65e2a52210b11844665855a4cbe2e6855dc0fe1d7a6246bbe0fb3f07d5f95034"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184602/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184652/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184652/observation.json",
+      "bytes": 2758,
+      "sha256": "ded0617a804272acfcdf67d19eb3bc424a7f8c9dc3a493c994bcb01cb234731b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184652/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184652/skill_continuation-primary.json",
+      "bytes": 74961,
+      "sha256": "38ff200eff41a135b83b9a84ab0319b693ed82b1a018ab08afea294569173316"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184652/skill_continuation-process.json",
+      "bytes": 846,
+      "sha256": "bb87547f113b15b6ea967fc25a26d378fcd7ec906bdb02556d7aec91d5f05128"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184652/summary.txt",
+      "bytes": 1522,
+      "sha256": "2a4cd94342b13e9cde93cd0f577137f66088e59a32bc3a204abc14989730aafc"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184652/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184722/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184722/observation.json",
+      "bytes": 3132,
+      "sha256": "2ca0262c0ffe9f49685ff69c2e7e1bc0ef7f7c130679c8a1af86a29ac0073a67"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184722/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184722/summary.txt",
+      "bytes": 1842,
+      "sha256": "71448739daf7d6fb9dd68c88cf20ba16b1a72316351904362fc7029aa236dc23"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184722/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184722/upgrade-primary.json",
+      "bytes": 113897,
+      "sha256": "5a7a04e0abc0bec1de0957636ccd18a47fe3bbc3aa99e3053b9aba96f1152038"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184722/upgrade-process.json",
+      "bytes": 11177,
+      "sha256": "0fa0834bc1bb643b703808b15ff15efd9d30c1600a973da9a36ed5e94a919e08"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184803/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184803/observation.json",
+      "bytes": 3043,
+      "sha256": "86a60aa2f3d3bca9320173fce11049f15dd1f2e57460ec485948da8b3b045bed"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184803/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184803/summary.txt",
+      "bytes": 1731,
+      "sha256": "cb5d1d89f6c50195cf31c3a220dcbf3ff259528094a2f4d40a44d944fb691d57"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184803/uninstall-process.json",
+      "bytes": 2214,
+      "sha256": "ea423ee4a4bdd0ca9874f02b5a7cf7256133e0b803611e715f74d066ebcf1781"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184851/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184851/observation.json",
+      "bytes": 2758,
+      "sha256": "93d8e6a5cfabcab6d2f44c2e08abb45a7f7a96bc1fc86976212fc388ec574e27"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184851/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184851/skill_continuation-primary.json",
+      "bytes": 61518,
+      "sha256": "ccd1b80514f307a59c43ecc0c77966243688bc4e0e7c03bf7c597f4e3c2c82a0"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184851/skill_continuation-process.json",
+      "bytes": 858,
+      "sha256": "ac48a0cf2b5a4b296200fe19091afd9f1b3c4e653c69301f60efe5749f37dbc4"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184851/summary.txt",
+      "bytes": 1522,
+      "sha256": "cba36b45b2fde49ea062d5e552b913efcdde9e37751c190c31f9aca9010e2458"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184851/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184931/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184931/observation.json",
+      "bytes": 3043,
+      "sha256": "109b547e580396c7475fb89069f99fcd6219ed9ce8934da5753fd2bf67ba1adb"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184931/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184931/repair-process.json",
+      "bytes": 57540,
+      "sha256": "9d2277bc88aa2170987bcc264981c7e3a61114e2436d5d1859c37a8f87718b41"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184931/summary.txt",
+      "bytes": 1731,
+      "sha256": "2d2813c7a070962cbe0d495eb60ccbe137738ea1e0d4c1c90f74ee2c654b81f9"
+    },
+    {
+      "path": "codex-host-e2e-20261020-184931/uninstall-process.json",
+      "bytes": 2214,
+      "sha256": "ea423ee4a4bdd0ca9874f02b5a7cf7256133e0b803611e715f74d066ebcf1781"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185051/dispatch-primary.json",
+      "bytes": 74116,
+      "sha256": "0a70103068858a4ac950f83da6c95566a58155a458feacb5db8306d5df7d7c7f"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185051/dispatch-process.json",
+      "bytes": 861,
+      "sha256": "48c483bf7f154f6b70b0c143fa4383f134872558afdb3bebb8d8884410fddf6f"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185051/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185051/observation.json",
+      "bytes": 2841,
+      "sha256": "cb2664280fcfd9a9dc788f94212d5e44f5c66e7de06695f4ac9a36811ea0b893"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185051/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185051/summary.txt",
+      "bytes": 1585,
+      "sha256": "30fba3b256349b69e66065eaccf9c90cab6e64843ef485290f23524f32d0b92e"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185051/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185133/failure_case-primary.json",
+      "bytes": 60443,
+      "sha256": "a77a143cfb12dec693405c88718f948ba667dc5fc75c0b884d71947d7461fbcf"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185133/failure_case-process.json",
+      "bytes": 805,
+      "sha256": "9fce8ebcc1de03e2ace2a017c7b85a7ff72d7c3be8d146502b324d901a292d4f"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185133/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185133/observation.json",
+      "bytes": 2646,
+      "sha256": "d226954f9d8303cac083cb3c2e1252460d336118ebaf7bd6f1c8895daccd11bf"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185133/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185133/summary.txt",
+      "bytes": 1446,
+      "sha256": "81582faabe1d79a4155ff1a100bc8e85727b40b406639a04c75366b589d133b6"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185133/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185208/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185208/observation.json",
+      "bytes": 2758,
+      "sha256": "65167384c3e1c10130c5a93cfb3462830adb9303eaf69c69e5cd42c4f5350aa2"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185208/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185208/skill_continuation-primary.json",
+      "bytes": 63426,
+      "sha256": "4cbc17ceddd1e6a00c34bfa49eef83de20c4b0f18976ddfce09eafd752e5e08d"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185208/skill_continuation-process.json",
+      "bytes": 838,
+      "sha256": "169d7e1e9cf453b66b6071930306b47f1b7ea2561e346c094e2164fc5ccb9e27"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185208/summary.txt",
+      "bytes": 1522,
+      "sha256": "9949a1e09a012cfd7e92f683efca22599f16d7dcc282eb9e00a7fcdc9a945981"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185208/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185246/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185246/observation.json",
+      "bytes": 2938,
+      "sha256": "3681d6c0bab133c3ac8003fd49fc1b34a2a3f8bec400df761211e5d87dfe648d"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185246/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185246/summary.txt",
+      "bytes": 1688,
+      "sha256": "dbc221fd018aa70ccb66572bb154e43a68518f30c91616950f0a999af44db7b2"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185246/uninstall-process.json",
+      "bytes": 2192,
+      "sha256": "cf394f24316cfc89bdbd73856a9c5cf9ccc9f825177511392c373b52976a3f8b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185246/upgrade-primary.json",
+      "bytes": 72415,
+      "sha256": "e4b5a55de357988bfb99d53c72949b304f4d7cbbe6d7b7621fb1092ff0ebd1a1"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185246/upgrade-process.json",
+      "bytes": 697,
+      "sha256": "c2b1dc8b8238338b25c2f844385d1a31bb89010687357b6fd789cea28cd0b8ee"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185328/host-process.json",
+      "bytes": 68,
+      "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185328/observation.json",
+      "bytes": 3043,
+      "sha256": "d96716f8a38152039a79cd507154170427bb0d815ce60daea43846384b9fb14c"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185328/removal-process.json",
+      "bytes": 124,
+      "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185328/repair-process.json",
+      "bytes": 4724,
+      "sha256": "b2f067f5919775f5431c3473f415873eae621cd98d52dba18d1fded7140d0737"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185328/summary.txt",
+      "bytes": 1731,
+      "sha256": "512319100ea316404aac6daa809e2a00a4d79821e521399081bd66f76507ccf9"
+    },
+    {
+      "path": "codex-host-e2e-20261020-185328/uninstall-process.json",
+      "bytes": 2214,
+      "sha256": "ea423ee4a4bdd0ca9874f02b5a7cf7256133e0b803611e715f74d066ebcf1781"
+    }
+  ]
+}

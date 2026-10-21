@@ -160,12 +160,24 @@ test('candidate admission blocks same keys, normalized aliases and unsupported s
 // Exercise the actual protocol owner against a bounded child transport.
 import { EventEmitter } from 'node:events';
 import { observeCodexOrigins } from '../lib/mcp-lifecycle/adapters/codex-origin-probe.js';
+import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../lib/host-adapters/codex/mcp-startup.js';
+test('independent native discovery preserves security settings and waits within existing startup limits', () => {
+  const source = { CODEX_THREAD_ID: 'parent', CODEX_SESSION_ID: 'parent', CODEX_APP_TOOLS_PIPE_PATH: '/parent',
+    CODEX_SANDBOX: 'seatbelt', CODEX_SANDBOX_NETWORK_DISABLED: '1', CODEX_HOME: '/own', PATH: '/bin' };
+  const isolated = independentCodexEnvironment(source);
+  assert.equal(isolated.CODEX_THREAD_ID, undefined); assert.equal(isolated.CODEX_SESSION_ID, undefined);
+  assert.equal(isolated.CODEX_APP_TOOLS_PIPE_PATH, undefined);
+  for (const key of ['CODEX_SANDBOX', 'CODEX_SANDBOX_NETWORK_DISABLED', 'CODEX_HOME', 'PATH']) assert.equal(isolated[key], source[key]);
+  assert.equal(source.CODEX_THREAD_ID, 'parent');
+  assert.deepEqual(CODEX_MCP_STARTUP_ARGS, ['-c', 'mcp_optional_startup_grace_ms=0']);
+});
 for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged', 'inventory-error']) {
   test(`Codex origin discovery binds a disposable project context (${fault ?? 'success'})`, async () => {
     const target = process.cwd(), writes = [];
     const child = new EventEmitter(); child.stdout = new EventEmitter(); child.stderr = new EventEmitter();
     child.kill = () => { child.killed = true; };
     child.stdin = new EventEmitter();
+    child.stdin.end = () => { child.ended = true; queueMicrotask(() => child.emit('exit', 0, null)); };
     child.stdin.write = line => {
       const request = JSON.parse(line); writes.push(request);
       const reply = result => queueMicrotask(() => child.stdout.emit('data', JSON.stringify({ id: request.id, result }) + '\n'));
@@ -189,7 +201,8 @@ for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged',
     if (!fault) assert.deepEqual(result.providers.map(row => row.server_id), ['agdf-cockpit', 'agdf-cockpit-local']);
     if (['wrong-target', 'persistent', 'start-error'].includes(fault)) assert.equal(writes.some(row => row.method === 'mcpServerStatus/list'), false);
     assert.equal(writes.some(row => row.method === 'turn/start'), false);
-    assert.equal(child.killed, true);
+    assert.equal(child.ended, true);
+    assert.notEqual(child.killed, true, 'ordinary discovery waits for owned process exit rather than killing its MCP children');
   });
 }
 test('Codex project origin timeout closes its process without global-inventory fallback', async () => {
@@ -198,5 +211,46 @@ test('Codex project origin timeout closes its process without global-inventory f
   const result = await observeCodexOrigins({ target: process.cwd(), timeoutMs: 10, command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
   assert.deepEqual(result, { status: 'unavailable', reason: 'timeout' });
   assert.deepEqual(writes.map(row => row.method), ['initialize']);
+  assert.equal(child.killed, true);
+});
+test('narrow origin output waits for every connection owned by its temporary context', async () => {
+  const target = process.cwd(), child = new EventEmitter(), writes = [];
+  child.stdout = new EventEmitter(); child.stderr = new EventEmitter(); child.stdin = new EventEmitter();
+  let inventories = 0;
+  child.stdin.end = () => { assert.equal(inventories, 2); queueMicrotask(() => child.emit('exit', 0, null)); };
+  child.kill = () => assert.fail('a settled disposable context must close without forced termination');
+  child.stdin.write = line => {
+    const request = JSON.parse(line); writes.push(request);
+    const reply = result => queueMicrotask(() => child.stdout.emit('data', JSON.stringify({ id: request.id, result }) + '\n'));
+    if (request.method === 'initialize') reply({});
+    if (request.method === 'thread/start') reply({ cwd: target, thread: { id: 'owned-context', cwd: target, ephemeral: true } });
+    if (request.method === 'mcpServerStatus/list') {
+      assert.equal(request.params.serverName, undefined, 'discovery must also finish the sibling governance connection');
+      reply({ data: [
+        { name: 'agdf-cockpit', pluginId: 'agdf@agdf', runtimeStatus: 'connected', tools: {} },
+        { name: 'agdf', pluginId: 'agdf@agdf', runtimeStatus: ++inventories === 1 ? 'connecting' : 'connected', tools: {} },
+      ] });
+    }
+  };
+  const result = await observeCodexOrigins({ target, command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
+  assert.equal(result.status, 'observed');
+  assert.deepEqual(result.providers.map(row => row.server_id), ['agdf-cockpit']);
+  assert.equal(inventories, 2); assert.equal(writes.some(row => row.method === 'turn/start'), false);
+});
+test('an inventory at the exhausted deadline cannot substitute for confirmed host exit', async () => {
+  const target = process.cwd(), child = new EventEmitter();
+  child.stdout = new EventEmitter(); child.stderr = new EventEmitter(); child.stdin = new EventEmitter();
+  child.stdin.end = () => assert.fail('the exhausted observation has no teardown budget');
+  child.kill = () => { child.killed = true; };
+  child.stdin.write = line => {
+    const request = JSON.parse(line);
+    const result = request.method === 'initialize' ? {} : request.method === 'thread/start'
+      ? { cwd: target, thread: { id: 'deadline-context', cwd: target, ephemeral: true } } : { data: [] };
+    if (request.id) queueMicrotask(() => child.stdout.emit('data', JSON.stringify({ id: request.id, result }) + '\n'));
+  };
+  let readings = 0;
+  const result = await observeCodexOrigins({ target, now: () => readings++ ? 45000 : 0,
+    command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
+  assert.deepEqual(result, { status: 'unavailable', reason: 'teardown_unconfirmed' });
   assert.equal(child.killed, true);
 });

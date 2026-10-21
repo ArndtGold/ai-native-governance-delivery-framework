@@ -174,11 +174,15 @@ const LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
   "generated/plugins/agdf/meta/contracts",
 ]);
 
-export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
+const CORE_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
   "package.json", "lib/mcp-dispatch-runtime.js", "lib/cli/runtime-context.js", "lib/runtime/control-context.js", "lib/cli/contract-command.js", "lib/runtime/plugin-provenance.js", "runtime/core",
   "generated/plugins/agdf/meta/agdf-plugin.definition.json", "generated/plugins/agdf/meta/agdf-interaction-locales.json", "generated/plugins/agdf/meta/contracts",
 ]);
-const dispatcherEntries = root => existsSync(join(root, "runtime", "core")) ? MCP_DISPATCHER_RUNTIME_ENTRIES : LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES;
+export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...CORE_MCP_DISPATCHER_RUNTIME_ENTRIES,
+  'lib/mcp-lifecycle/package.js', 'lib/mcp-lifecycle/facade-entry.js', 'lib/npm-invocation.js', 'lib/host-command.js']);
+const dispatcherEntries = root => existsSync(join(root, "runtime", "core"))
+  ? existsSync(join(root, 'lib/mcp-lifecycle/facade-entry.js')) ? MCP_DISPATCHER_RUNTIME_ENTRIES : CORE_MCP_DISPATCHER_RUNTIME_ENTRIES
+  : LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES;
 
 export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
   "node_modules/@modelcontextprotocol/server",

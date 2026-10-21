@@ -16,7 +16,7 @@ import { selectControlRepair } from "../lib/install-setup/interaction.js";
 import { renderControlRepairOffer, renderControlRepairPlan, renderInstallSetupText } from "../lib/install-setup/presentation.js";
 import { runInstallSetup } from "../lib/install-setup/service.js";
 import { createLifecycleResult } from "../lib/lifecycle/result.js";
-import { interactionLocales } from "../lib/cli/runtime-context.js";
+import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context.js";
 import { runCli } from "../lib/cli/application.js";
 
 const base = mkdtempSync(join(tmpdir(), "agdf-install-repair-"));
@@ -352,7 +352,7 @@ try {
     exec(_executable, args) {
       if (args.join(' ') === 'mcp list --json') return '[]';
       if (args.join(" ") === "plugin marketplace list --json") return '{"marketplaces":[]}';
-      if (args.join(" ") === "plugin list") return "agdf@agdf 0.14.5\n";
+      if (args.join(" ") === "plugin list") return `agdf@agdf ${pluginDefinition.version}\n`;
       return "";
     },
   };

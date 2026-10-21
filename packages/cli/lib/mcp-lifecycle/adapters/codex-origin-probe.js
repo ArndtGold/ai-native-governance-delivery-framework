@@ -3,23 +3,37 @@ import { spawn } from 'node:child_process';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveHostCommand } from '../../host-command.js';
+import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../../host-adapters/codex/mcp-startup.js';
 
-export function observeCodexOrigins({ target, all = false, command, spawnProcess = spawn, timeoutMs = 45_000 }) {
+export function observeCodexOrigins({ target, all = false, command, spawnProcess = spawn, timeoutMs = 45_000, now = Date.now }) {
   if (typeof target !== 'string' || !isAbsolute(target)) return Promise.resolve({ status: 'unavailable', reason: 'target_invalid' });
   return new Promise(resolve => {
-    let child, pending = '', received = 0, done = false, phase = 'initialize', threadId;
+    let child, pending = '', received = 0, done = false, phase = 'initialize', threadId, closing, closeTimer, pollTimer, inventoryId = 3;
+    const deadline = now() + timeoutMs;
     const finish = result => {
       if (done) return;
-      done = true; clearTimeout(timer); child?.kill(); resolve(result);
+      done = true; clearTimeout(timer); clearTimeout(pollTimer);
+      if (!child) { resolve(result); return; }
+      if (child.exitCode != null || child.signalCode != null) {
+        resolve(child.exitCode === 0 && child.signalCode === null ? result : { status: 'unavailable', reason: 'teardown_unconfirmed' }); return;
+      }
+      closing = result;
+      const remaining = Math.min(2000, deadline - now());
+      if (remaining <= 0) { child.kill(); resolve(result.status === 'observed' ? { status: 'unavailable', reason: 'teardown_unconfirmed' } : result); return; }
+      closeTimer = setTimeout(() => { child.kill(); resolve({ status: 'unavailable', reason: 'teardown_unconfirmed' }); }, remaining);
+      try { child.stdin.end(); } catch { clearTimeout(closeTimer); child.kill(); resolve({ status: 'unavailable', reason: 'teardown_unconfirmed' }); }
     };
     const timer = setTimeout(() => finish({ status: 'unavailable', reason: 'timeout' }), timeoutMs);
     const send = message => child.stdin.write(JSON.stringify(message) + '\n');
     try {
       const resolved = command ?? resolveHostCommand('codex', { env: process.env });
-      child = spawnProcess(resolved.executable, [...resolved.prefixArgs, 'app-server'], { cwd: target, env: process.env,
+      child = spawnProcess(resolved.executable, [...resolved.prefixArgs, ...CODEX_MCP_STARTUP_ARGS, 'app-server'], { cwd: target, env: independentCodexEnvironment(process.env),
         stdio: ['pipe', 'pipe', 'pipe'], shell: false, windowsHide: true });
       child.on('error', () => finish({ status: 'unavailable', reason: 'spawn_failed' }));
-      child.on('exit', () => finish({ status: 'unavailable', reason: 'process_exit' }));
+      child.on('exit', (code, signal) => {
+        if (closing) { clearTimeout(closeTimer); resolve(code === 0 && !signal ? closing : { status: 'unavailable', reason: 'teardown_unconfirmed' }); }
+        else finish({ status: 'unavailable', reason: 'process_exit' });
+      });
       child.stderr.on('data', () => {});
       child.stdin.on('error', () => finish({ status: 'unavailable', reason: 'stdin_failed' }));
       child.stdout.on('data', chunk => {
@@ -41,14 +55,22 @@ export function observeCodexOrigins({ target, all = false, command, spawnProcess
               || context.cwd !== target || context.thread.cwd !== target || context.thread.ephemeral !== true)
               return finish({ status: 'unavailable', reason: 'project_context_unconfirmed' });
             threadId = context.thread.id; phase = 'inventory';
-            send({ id: 3, method: 'mcpServerStatus/list', params: { threadId, detail: 'full', ...(all ? {} : { serverName: 'agdf-cockpit' }) } });
-          } else if (phase === 'inventory' && message.id === 3) {
+            // The temporary context owns every connection it starts. A narrow
+            // server filter can finish while another SDK is still handshaking;
+            // collect the complete settled inventory before closing the host.
+            send({ id: 3, method: 'mcpServerStatus/list', params: { threadId, detail: 'full' } });
+          } else if (phase === 'inventory' && message.id === inventoryId) {
             const rows = message.result?.data;
             if (message.error || !Array.isArray(rows) || rows.length > 256 || message.result.nextCursor
               || rows.some(row => typeof row?.name !== 'string' || (row.pluginId != null && typeof row.pluginId !== 'string')))
               return finish({ status: 'unavailable', reason: 'inventory_unconfirmed' });
+            if (rows.some(row => ['starting', 'connecting'].includes(row.runtimeStatus))) {
+              pollTimer = setTimeout(() => send({ id: ++inventoryId, method: 'mcpServerStatus/list',
+                params: { threadId, detail: 'full' } }), 100);
+              continue;
+            }
             finish({ status: 'observed', scope: { cwd: target, thread_id: threadId, ephemeral: true },
-              providers: rows.map(row => ({ server_id: row.name, plugin_id: row.pluginId ?? null,
+              providers: rows.filter(row => all || row.name === 'agdf-cockpit').map(row => ({ server_id: row.name, plugin_id: row.pluginId ?? null,
                 runtime_status: row.runtimeStatus, tools: Object.keys(row.tools ?? {}) })) });
           }
         }

@@ -1,0 +1,139 @@
+[
+  {
+    "schema_version": 2,
+    "id": "codex-20261021090021568-skill_continuation",
+    "recorded_at": "2026-10-21T09:00:21.568Z",
+    "environment": {
+      "host": "codex",
+      "surface": "cli",
+      "os": "darwin",
+      "arch": "x64",
+      "version": "0.163.0",
+      "node": "v22.22.3",
+      "model": "gpt-6-luna"
+    },
+    "tuple_digest": "8299345338bf8687140d55d13cdc8242137cb7da0fbfeaeee4e3f57cda18e347",
+    "source": {
+      "commit": "da8be438b381493f4dbbdfb7f73d3f18c4d440ed",
+      "dirty": true
+    },
+    "candidate_id": "eae8e25426de427bccfe335bb9f99132d7be4cc5a1606066061067e6fe1dbccb",
+    "policy_digest": "2582e6a9a0f3dcaec123e0d9e6ee616c9a7052638d96cf6daf1e647bbef34a9e",
+    "scenario": "skill_continuation",
+    "result": "pass",
+    "assurance": "native_process",
+    "loaded_identity": {
+      "version": "0.20.0",
+      "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+      "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
+    },
+    "steps": [
+      {
+        "name": "host",
+        "status": "pass",
+        "evidence": {
+          "version": "0.163.0"
+        }
+      },
+      {
+        "name": "install",
+        "status": "pass",
+        "evidence": {
+          "result": "partial",
+          "effective_state": "mcp_ready_hook_review_required",
+          "stderr": ""
+        }
+      },
+      {
+        "name": "installation_consent",
+        "status": "pass",
+        "evidence": {
+          "requested": "enabled",
+          "hook_verification": "hook_review_required",
+          "mcp_approval": {
+            "status": "configured",
+            "reason": "none",
+            "tool": "agdf_dispatch",
+            "policy_key": "plugins.\"agdf@agdf\".mcp_servers.agdf.tools.agdf_dispatch.approval_mode",
+            "config_file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/probe-results/codex-host-e2e-20261021-090021/work-tmp/codex-home/config.toml",
+            "write_attempted": true,
+            "verification": "config_readback"
+          }
+        }
+      },
+      {
+        "name": "control_fixture",
+        "status": "pass",
+        "evidence": {
+          "init_status": 0,
+          "run_create_status": 0,
+          "stderr": ""
+        }
+      },
+      {
+        "name": "discovery",
+        "status": "pass",
+        "evidence": {
+          "command": "node",
+          "args": "[\"<WORK>/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js\",\"--surface\",\"codex\",\"--data\",\"<WORK>/agdf-data/mcp/codex-plugin\"]"
+        }
+      },
+      {
+        "name": "skill_continuation",
+        "status": "pass",
+        "evidence": {
+          "observed_models": [
+            "gpt-6-luna"
+          ],
+          "calls": 1,
+          "exec_status": 0,
+          "plugin_id": "agdf@agdf",
+          "outcome": "skill_continuation",
+          "authorizes": false,
+          "runtime_digest": "602c03f9d5348230ff77caf9c2fb2c870a6385ad84ece5e2e8b6ae15b9e900d0",
+          "contract_modules": [
+            "quality",
+            "context-graph"
+          ],
+          "contracts_verified": true
+        }
+      },
+      {
+        "name": "removal",
+        "status": "pass",
+        "evidence": {
+          "uninstall_status": 0,
+          "mcp_listed": false,
+          "config_mcp_section": false,
+          "plugin_tool_policy": false,
+          "plugin_cache": false,
+          "mcp_runtime": false,
+          "kept_by_design": "agdf marketplace registration and directory",
+          "stderr": ""
+        }
+      }
+    ],
+    "references": [
+      {
+        "path": "host-process.json",
+        "sha256": "284c4804ef5f57aab528a20a40bcf6c2dd7abe75a1aebe1e5515ae6f0bb5e86b"
+      },
+      {
+        "path": "removal-process.json",
+        "sha256": "e0d37b6d5d66c7e3b206e27bc876ea3aaec22e2d72fbb5838d6880b75f26d4ff"
+      },
+      {
+        "path": "skill_continuation-primary.json",
+        "sha256": "da59827b7a80591a6fde42d1bbcb055b36286b8bdfb9121149bef5bf79056dd9"
+      },
+      {
+        "path": "skill_continuation-process.json",
+        "sha256": "193a9b8ad93aebc7be715226132b5dab4dc81b5004193b5051807005853c7d08"
+      },
+      {
+        "path": "uninstall-process.json",
+        "sha256": "ea423ee4a4bdd0ca9874f02b5a7cf7256133e0b803611e715f74d066ebcf1781"
+      }
+    ]
+  }
+]

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { mcpCalls as capturedCodexCalls } from './lib/codex-trace.mjs';
 // Host end-to-end check for AGDF under Codex with exactly one recorded tuple:
 // host version, model, discovery, one agdf_dispatch call, one defined failure case and removal.
 //
@@ -22,6 +23,7 @@ import { delimiter, dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { spawnHostSync } from "../../packages/cli/lib/host-command.js";
+import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../../packages/cli/lib/host-adapters/codex/mcp-startup.js';
 import { CODEX_HOOK_STATES } from "../../packages/core/lib/interaction-catalog.js";
 import { createProtocolRuntime } from '../../evals/mcp-ergonomics/lib/protocol-harness.js';
 import { withStdioClient } from '../../packages/mcp-server/test/helpers.js';
@@ -29,7 +31,10 @@ import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess } from '..
 import { compareManifests, hashManifest, parseCodexT4Trace, strictT4DocumentFlow, CODEX_T4_FEATURES, assertCodexT4HostReady } from '../../evals/mcp-ergonomics/lib/native-run.js';
 import { snapshotWorkspace, changedPaths, mutationViolations } from '../../evals/lib/skill-evals/workspace.js';
 import { sanitizeTranscript } from '../../evals/mcp-ergonomics/lib/redaction.js';
-import { RELEASE_SCENARIOS } from './release-scenarios.mjs';
+import { CLI_CASES } from './lib/release-policy.mjs';
+import { readCandidate, validateCandidate, jsonDigest } from './lib/release-candidate.mjs';
+import { emitReleaseRecords } from './lib/release-observation.mjs';
+import { installedIdentity, rootForVersion, releasedBaseline, installBaseline, makeOwnedStale } from './lib/release-lifecycle.mjs';
 
 const SERVER = "agdf";
 const TOOL = "agdf_dispatch";
@@ -51,10 +56,15 @@ if (args.includes('--task') || args.includes('--dry-run')) throw Error('SINGLE_T
 
 const keep = args.includes("--keep");
 const scenario = option('--scenario', null);
-if (scenario !== null && !RELEASE_SCENARIOS.includes(scenario)) throw Error('Invalid release scenario');
+if (scenario !== null && !CLI_CASES.includes(scenario)) throw Error('Invalid release scenario');
 const codex = process.env.CODEX_BIN || "codex";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const candidatePath = option('--candidate', null);
+const candidate = candidatePath ? readCandidate(candidatePath) : null;
+if (candidate) { validateCandidate(repo, candidate); if (!scenario) throw Error('RELEASE_SCENARIO_REQUIRED'); }
+const tuplePath = option('--tuple', null);
+const frozenTuple = tuplePath ? JSON.parse(readFileSync(tuplePath, 'utf8')) : null;
 const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "").replace("T", "-");
 const resultsRel = `probe-results/codex-host-e2e-${stamp}`;
 const results = join(repo, resultsRel);
@@ -67,7 +77,7 @@ for (const dir of [codexHome, dataRoot, target]) mkdirSync(dir, { recursive: tru
 spawnSync("git", ["init", "-q"], { cwd: target });
 
 // The AGDF CLI resolves `codex` from PATH; with CODEX_BIN the installer must use the same binary as the checks.
-const env = { ...process.env, CODEX_HOME: codexHome, AGDF_DATA_DIR: dataRoot,
+const env = { ...independentCodexEnvironment(process.env), CODEX_HOME: codexHome, AGDF_DATA_DIR: dataRoot,
   ...(isAbsolute(codex) ? { PATH: `${dirname(codex)}${delimiter}${process.env.PATH ?? ""}` } : {}) };
 // Only model invocations receive an API key. Installers, builds and removal never inherit it.
 const apiKey = env.CODEX_API_KEY;
@@ -76,7 +86,7 @@ delete env.OPENAI_API_KEY;
 delete process.env.CODEX_API_KEY;
 delete process.env.OPENAI_API_KEY;
 const run = (command, argv, options = {}) => {
-  const result = spawnHostSync(command, argv, { encoding: "utf8", env, timeout: 300000, maxBuffer: 64 * 1024 * 1024, ...options });
+  const result = spawnHostSync(command, argv, { encoding: "utf8", env, cwd: target, timeout: 300000, maxBuffer: 64 * 1024 * 1024, ...options });
   return { status: result.status, stdout: result.stdout ?? "", stderr: result.stderr ?? "", error: result.error?.message ?? null };
 };
 // Paths appear raw, with forward slashes and JSON-escaped (doubled backslashes) in tool results.
@@ -87,39 +97,6 @@ const step = (name, pass, evidence) => { steps.push({ name, status: pass ? "pass
 
 // Collects structured MCP tool-call items for agdf_dispatch from `codex exec --json` output and the
 // session rollouts; item shapes differ between those sources and Codex versions.
-function mcpCalls(texts) {
-  const calls = [];
-  const visit = (node) => {
-    if (!node || typeof node !== "object") return;
-    const item = node.item ?? node.payload?.item;
-    if (item && ["mcp_tool_call", "McpToolCall"].includes(item.type)) {
-      const call = item.invocation ?? item;
-      if (call.tool === TOOL && (!call.server || call.server === SERVER)) {
-        const result = item.result ?? item.output ?? null;
-        const text = typeof result === "string" ? result
-          : Array.isArray(result?.content) ? result.content.map((part) => part.text ?? "").join("")
-            : result?.structured_content ? JSON.stringify(result.structured_content) : "";
-        const error = item.error?.message ?? (typeof item.error === "string" ? item.error : null);
-        calls.push({ id: item.id ?? null, status: item.status ?? null, pluginId: item.pluginId ?? call.pluginId ?? null, text, error });
-      }
-    }
-  };
-  for (const text of texts) for (const line of text.split("\n")) { try { visit(JSON.parse(line)); } catch {} }
-  // The same call can appear as started and completed and in exec output and rollout: keep the last per id.
-  const byId = new Map();
-  for (const call of calls) byId.set(call.id ?? `${byId.size}`, call);
-  return [...byId.values()].map((call) => {
-    let parsed = null;
-    try { parsed = JSON.parse(call.text); } catch {}
-    const contracts = parsed?.continuation?.runtime_contracts;
-    return { status: call.status, plugin_id: call.pluginId, outcome: parsed?.outcome ?? null, terminal: parsed?.terminal ?? null, authorizes: parsed?.authorizes ?? null,
-      contract_modules: Array.isArray(contracts) ? contracts.map(c => c.module) : [],
-      contracts_verified: Array.isArray(contracts) && contracts.length > 0 && contracts.every(c => typeof c.content === "string" && c.content.length > 0 && createHash("sha256").update(c.content).digest("hex") === c.sha256),
-      host_action: redact(parsed?.host_action?.text ?? call.error ?? call.text).slice(0, 160),
-      approval_blocked: /requires approval/i.test(`${call.error ?? ""} ${call.text}`) };
-  });
-}
-
 function rolloutsSince(startMs) {
   const files = [];
   const visit = (dir) => {
@@ -139,14 +116,20 @@ const prompt = (input) => `Call the MCP tool ${TOOL} from the ${SERVER} server e
   + "If the tool is deferred, use functions.exec to find mcp__agdf__agdf_dispatch in ALL_TOOLS and invoke it through tools.mcp__agdf__agdf_dispatch. "
   + "Tool discovery and this wrapper are allowed. Do not run shell commands or call unrelated tools. Follow the tool's terminal response instructions. For a nonterminal skill_continuation this is only a transport probe: consume continuation.runtime_contracts and reply CONTRACTS_RECEIVED without executing the review or recording any governance decision.";
 const configPath = join(codexHome, "config.toml");
+writeFileSync(configPath, 'approval_policy = "on-request"\nsandbox_mode = "workspace-write"\n');
+const permissionPreserved = () => {
+  const text = readFileSync(configPath, 'utf8');
+  return /^approval_policy\s*=\s*"on-request"/mu.test(text) && /^sandbox_mode\s*=\s*"workspace-write"/mu.test(text);
+};
 let approvalPath = "installer_native_config_rpc";
 const session = (input, label) => {
   const started = Date.now();
-  const output = run(codex, ["exec", "--json", "--sandbox", "read-only", "--skip-git-repo-check", "-m", model,
+  const output = run(codex, ["exec", ...CODEX_MCP_STARTUP_ARGS, "--json", "--sandbox", "read-only", "--skip-git-repo-check", "-m", model,
     prompt(input)], { cwd: target, stdio: ["ignore", "pipe", "pipe"], env: { ...env, ...(apiKey ? { CODEX_API_KEY: apiKey } : {}) } });
   writeFileSync(join(results, `${label}-process.json`), JSON.stringify({ ...output, stdout: redact(output.stdout), stderr: redact(output.stderr) }, null, 2));
   const rollouts = rolloutsSince(started);
-  const rolloutCalls = mcpCalls(rollouts);
+  writeFileSync(join(results, `${label}-primary.json`), redact(JSON.stringify({ status: output.status, stdout: output.stdout, rollouts })));
+  const rolloutCalls = capturedCodexCalls(rollouts, redact);
   const models = new Set();
   for (const text of rollouts) for (const line of text.split("\n")) {
     try {
@@ -154,7 +137,7 @@ const session = (input, label) => {
       if (item.type === "turn_context" && item.payload?.model) models.add(item.payload.model);
     } catch {}
   }
-  return { output, observed_models: [...models], calls: rolloutCalls.length ? rolloutCalls : mcpCalls([output.stdout]) };
+  return { output, observed_models: [...models], calls: rolloutCalls.length ? rolloutCalls : capturedCodexCalls([output.stdout], redact) };
 };
 
 const authSource = join(homedir(), ".codex", "auth.json");
@@ -165,11 +148,23 @@ const commit = run("git", ["rev-parse", "HEAD"], { cwd: repo });
 const status = run("git", ["--no-optional-locks", "-c", "core.fsmonitor=false", "status", "--porcelain"], { cwd: repo });
 observation.source = { commit: commit.status === 0 ? commit.stdout.trim() : null,
   dirty: status.status !== 0 || Boolean(status.stdout.trim()) };
+let loadedIdentity = null, baseline = null;
+writeFileSync(join(target, 'foreign-sentinel.txt'), 'preserve-native-test-state\n');
 try {
   // 1. Host tuple
   const version = run(codex, ["--version"]);
+  writeFileSync(join(results, 'host-process.json'), redact(JSON.stringify(version)));
   observation.host = { client: "codex-cli", version: version.stdout.trim().split(/\s+/).at(-1) || null, os: process.platform, arch: process.arch, node: process.version };
   step("host", version.status === 0, { version: observation.host.version });
+  if (frozenTuple) {
+    const actual = { host: 'codex', surface: 'cli', os: process.platform, arch: process.arch, version: observation.host.version, node: process.version, model };
+    if (frozenTuple.candidate_id !== candidate?.candidate_id || frozenTuple.tuple_digest !== jsonDigest(actual)) throw Error('CODEX_PREFLIGHT_TUPLE_MISMATCH');
+  }
+  if (['upgrade', 'recovery'].includes(scenario)) {
+    baseline = await releasedBaseline(join(work, 'baseline'));
+    installBaseline(baseline.cli, 'codex', env, { cwd: target });
+    baseline.identity = installedIdentity(rootForVersion(work, '0.14.5'), '0.14.5');
+  }
 
   // 2. Install the current checkout through the AGDF CLI into the isolated host
   const install = run(process.execPath, [join(repo, "packages", "cli", "bin", "create-agdf.js"), "codex", "--accept-plugin-capabilities", "--json"]);
@@ -191,6 +186,13 @@ try {
     hook_verification: installReport?.runtime_checks?.verification ?? null,
     mcp_approval: installReport?.runtime_checks?.mcp_approval ?? null,
   });
+  if (scenario === 'recovery') {
+    makeOwnedStale(rootForVersion(work, candidate?.version ?? observation.agdf.version), candidate?.version ?? observation.agdf.version);
+    const repaired = run(process.execPath, [join(repo, 'packages/cli/bin/create-agdf.js'), 'codex', '--accept-plugin-capabilities', '--json']);
+    writeFileSync(join(results, 'repair-process.json'), redact(JSON.stringify(repaired, null, 2)));
+    let repairReport; try { repairReport = JSON.parse(repaired.stdout); } catch {}
+    step('repair', ['success', 'partial'].includes(repairReport?.result) && !repairReport?.failure, { exit_status: repaired.status });
+  }
 
   // Prepare a real, isolated AGDF control target. A bare Git repository is intentionally not
   // sufficient for a positive dispatch result: it would correctly return target_content_mismatch.
@@ -207,6 +209,7 @@ try {
   const launcherArgs = entry?.transport?.args ?? [];
   step("discovery", Boolean(entry?.enabled !== false && String(launcherArgs[0] ?? "").replaceAll("\\", "/").endsWith("/mcp/agdf-mcp-launch.js")
     && launcherArgs[1] === "--surface" && launcherArgs[2] === "codex"), { command: entry?.transport?.command ?? null, args: redact(JSON.stringify(launcherArgs)) });
+  if (candidate) loadedIdentity = installedIdentity(dirname(dirname(launcherArgs[0])), candidate.version);
 
   // The installer owns the explicit tool consent; this test must not inject a replacement policy.
 
@@ -229,12 +232,26 @@ try {
     && call.plugin_id === "agdf@agdf"),
     canRunSessions ? { approval_path: approvalPath, observed_models: good.observed_models, calls: good.calls.length, plugin_id: call?.plugin_id ?? null, outcome: call?.outcome ?? null, terminal: call?.terminal ?? null,
       authorizes: call?.authorizes ?? null, approval_blocked: call?.approval_blocked ?? null, host_action: call?.host_action ?? null,
+      runtime_digest: call?.runtime_digest ?? null,
       exec_status: good.output.status, exec_stderr: redact(good.output.stderr).slice(0, 200) } : { skipped: hasAuth ? "prerequisite_failed" : "no ~/.codex/auth.json to copy" });
 
   }
+  if (['upgrade', 'recovery'].includes(scenario)) {
+    const checked = canRunSessions ? session({ skill_id: 'gate-check', presentation_language: 'de', working_directory: target,
+      target_source: 'explicit_target', primary_target: target, run_id: 'codex-e2e' }, scenario) : null;
+    const call = checked?.calls?.at(-1);
+    const preserved = readFileSync(join(target, 'foreign-sentinel.txt'), 'utf8') === 'preserve-native-test-state\n';
+    step(scenario, Boolean(checked?.output.status === 0 && checked.calls.length === 1 && call?.outcome === 'control_result'
+      && call.authorizes === false && call.plugin_id === 'agdf@agdf' && preserved), {
+      baseline: { version: baseline?.version, integrity: baseline?.integrity, source_digest: baseline?.identity?.source_digest }, repair: scenario === 'recovery' ? 'owned_stale_install' : null,
+      permission_preserved: permissionPreserved(),
+      preserved_foreign_state: preserved, calls: checked?.calls.length ?? 0, observed_models: checked?.observed_models ?? [],
+      plugin_id: call?.plugin_id, runtime_digest: call?.runtime_digest, outcome: call?.outcome, authorizes: call?.authorizes,
+      exec_status: checked?.output.status ?? null });
+  }
   // 5. Defined failure: a relative working directory yields invalid_input, not a crash
   if (!scenario || scenario === 'failure_case') {
-  const bad = canRunSessions ? session({ skill_id: "gate-check", presentation_language: "de", working_directory: "relative/dir" }, "failure") : null;
+  const bad = canRunSessions ? session({ skill_id: "gate-check", presentation_language: "de", working_directory: "relative/dir" }, "failure_case") : null;
   const failure = bad?.calls?.at(-1);
   step("failure_case", Boolean(bad?.output.status === 0 && bad.observed_models.length === 1 && bad.observed_models[0] === model && bad.calls.length === 1 && failure?.outcome === "invalid_input" && failure.terminal === true && failure.authorizes === false && failure.plugin_id === "agdf@agdf"),
     canRunSessions ? { observed_models: bad.observed_models, plugin_id: failure?.plugin_id ?? null, calls: bad.calls.length, outcome: failure?.outcome ?? null, exec_status: bad.output.status, host_action: failure?.host_action ?? null } : { skipped: hasAuth ? "prerequisite_failed" : "authentication unavailable" });
@@ -242,7 +259,7 @@ try {
   // Regression: judgement skills must receive contracts even though this isolated host has no trusted hook.
   if (!scenario || scenario === 'skill_continuation') {
   const continued = canRunSessions ? session({ skill_id: "code-review", presentation_language: "de", working_directory: target,
-    target_source: "explicit_target", primary_target: target, run_id: "codex-e2e" }, "continuation") : null;
+    target_source: "explicit_target", primary_target: target, run_id: "codex-e2e" }, "skill_continuation") : null;
   const continuation = continued?.calls?.at(-1);
   step("skill_continuation", Boolean(continued?.output.status === 0 && continued.calls.length === 1
     && continued.observed_models.length === 1 && continued.observed_models[0] === model
@@ -252,15 +269,20 @@ try {
     { observed_models: continued?.observed_models ?? [], calls: continued?.calls.length ?? 0,
       exec_status: continued?.output.status ?? null,
       plugin_id: continuation?.plugin_id ?? null, outcome: continuation?.outcome ?? null,
+      authorizes: continuation?.authorizes ?? null, runtime_digest: continuation?.runtime_digest ?? null,
       contract_modules: continuation?.contract_modules ?? [], contracts_verified: continuation?.contracts_verified ?? false });
   }
   rmSync(authCopy, { force: true });
-
+} catch {
+  step("probe_error", false, { reason: "Unexpected probe failure; inspect local process reports. No credentials are included in release artifacts." });
+} finally {
+  rmSync(authCopy, { force: true });
   // 6. Removal: the documented AGDF uninstall runs `codex plugin remove` and removes the owned runtime.
   // Do not edit host configuration before removal: evidence must describe the real uninstall.
   const uninstall = run(process.execPath, [join(repo, "packages", "cli", "bin", "create-agdf.js"), "uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"]);
   writeFileSync(join(results, "uninstall-process.json"), redact(JSON.stringify(uninstall, null, 2)));
   const after = run(codex, ["mcp", "list"], { cwd: target });
+  writeFileSync(join(results, 'removal-process.json'), redact(JSON.stringify(after)));
   const config = existsSync(configPath) ? readFileSync(configPath, "utf8") : "";
   const leftovers = {
     mcp_listed: /^agdf\s/m.test(after.stdout),
@@ -270,18 +292,15 @@ try {
     plugin_cache: existsSync(join(codexHome, "plugins", "cache", "agdf", "agdf")),
     mcp_runtime: existsSync(join(dataRoot, "mcp", "codex-plugin")),
   };
-  step("removal", uninstall.status === 0 && after.status === 0 && Object.values(leftovers).every((value) => value === false),
+  step("removal", uninstall.status === 0 && after.status === 0 && Object.values(leftovers).every((value) => value === false) && permissionPreserved(),
     { uninstall_status: uninstall.status, ...leftovers, kept_by_design: "agdf marketplace registration and directory",
       stderr: redact(uninstall.stderr).slice(0, 200) });
-} catch {
-  step("probe_error", false, { reason: "Unexpected probe failure; inspect local process reports. No credentials are included in release artifacts." });
-} finally {
-  rmSync(authCopy, { force: true });
 }
 
 observation.steps = steps;
 observation.result = steps.every((entry) => entry.status === "pass") ? "pass" : "fail";
 writeFileSync(join(results, "observation.json"), `${JSON.stringify(observation, null, 2)}\n`);
+emitReleaseRecords({ observation, candidate, directory: results, host: 'codex', scenario, loadedIdentity });
 const summary = [
   `AGDF Codex-Host-E2E (${observation.recorded_at})`,
   `Tupel: Codex ${observation.host?.version ?? "?"}, Modell ${observation.requested_model}, ${observation.host?.os}/${observation.host?.arch}, Node ${observation.host?.node}, AGDF ${observation.agdf?.version ?? "?"}`,
@@ -290,7 +309,9 @@ const summary = [
   ...steps.map((entry) => `  ${entry.status === "pass" ? "ok  " : "FAIL"} ${entry.name}: ${JSON.stringify(entry.evidence)}`),
 ].join("\n");
 writeFileSync(join(results, "summary.txt"), `${summary}\n`);
-if (!keep) rmSync(work, { recursive: true, force: true });
+// A failed native removal can leave executing or unconfirmed SDK bytes. Keep
+// that isolated diagnostic profile intact; the auth copy was removed above.
+if (!keep && !existsSync(join(dataRoot, 'mcp/codex-plugin'))) rmSync(work, { recursive: true, force: true });
 console.log(summary);
 console.log(`\nErgebnisse: ${resultsRel}/ (summary.txt, observation.json)`);
 process.exitCode = observation.result === "pass" ? 0 : 1;

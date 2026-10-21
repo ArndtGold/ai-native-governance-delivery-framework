@@ -79,9 +79,23 @@ export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), 
     try { writeFileSync(fd, body); fsyncSync(fd); } finally { closeSync(fd); }
     fsyncDirectory(dir);
     let bound = false;
-    const releaseConfirmed = () => withOwnedFileLock(join(dirname(root), '.agdf-publication'), () => {
-      if (!lstatSync(path).isSymbolicLink() && readFileSync(path, 'utf8') === body) { unlinkSync(path); fsyncDirectory(dir); }
-    });
+    const releaseConfirmed = () => {
+      const deadline = clock() + CLAIM_WAIT_MS;
+      for (;;) {
+        try {
+          return withOwnedFileLock(publication, () => {
+            if (!lstatSync(path).isSymbolicLink() && readFileSync(path, 'utf8') === body) { unlinkSync(path); fsyncDirectory(dir); }
+          });
+        } catch (error) {
+          // Concurrent facades retire the same publication. A short, verified
+          // live-owner lock must not turn a confirmed child exit into a leaked
+          // claim. Unknown/dead ownership still retains all evidence unchanged.
+          if (error?.message !== 'AGDF_RUN_WRITE_LOCKED' || error.lock_path !== `${publication}.lock`
+            || error.lock_owner_status !== 'live' || clock() >= deadline) throw error;
+          wait(Math.min(CLAIM_POLL_MS, Math.max(0, deadline - clock())));
+        }
+      }
+    };
     return Object.freeze({ token, owner_epoch: ownerEpoch, generation,
       bindOwnedChild(child, { confirmedEnd = () => true } = {}) {
         if (bound || !(child instanceof ChildProcess)) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');

@@ -1,33 +1,39 @@
 {
   "schema_version": 1,
   "source": {
-    "version": "0.14.5",
+    "version": "0.20.0",
+    "support_tiers": {
+      "codex": "qualification_target",
+      "claude": "qualification_target",
+      "copilot": "experimental",
+      "opencode": "experimental"
+    },
     "payloads": {
       "codex": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "claude": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "copilot": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "opencode": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       }
     },
     "files": {
-      "evals/host-compatibility/manifest.json": "bc24c34c6406ff2875a19bf1eb88ef32b20d8ec03970754f76f72d3956ef4b69",
-      "package-lock.json": "c8f837d4850e15296a8c0e76c3327814071ccacbb9021ce8b441a5b658157b54",
-      "package.json": "5ac9a6d9154417227fe05a5669669366cee96dea7335e55f661e114cd18d6ed7",
+      "evals/host-compatibility/manifest.json": "ef5cbad7c4d8d93c808424e81d851ba492cf13b41ab89d4ef2fa46643cbe8db6",
+      "package-lock.json": "83a958b5836e1bcf7431350c5c7e48474be07d41268f34dc3dcd665b0ec855f8",
+      "package.json": "9bbb4e0057de8a21a8be1ee8141e7fe97baa0acfcac4f66337734c277d8b3b67",
       "packages/cli/bin/agdf-validator.js": "0d92020ee7b3d4033b24f66be81941814fc773e4f3058e96c66ca2de2e3c61c0",
       "packages/cli/lib/cli/command-registry.js": "3ff0e6144593b0a824d31c3418681d4731bd90e2ca3453dd626687030c86a957",
       "packages/cli/lib/cli/contract-command.js": "93f4c791e1cc54ad027b1c1fe3f2dfab907081f4fd23fe5a36616ee1a7cf0d19",
@@ -59,8 +65,9 @@
       "packages/cli/lib/host-adapters/claude/runtime-check.js": "fe309c71b70bd88de458393c1dd3e9356b6c31546fa27e21895b4a699e28e0ac",
       "packages/cli/lib/host-adapters/claude/session-command.js": "fc705975f1378497bae641f9d679ae13ccf7f48032da6e2eb3cb0f7b0927cd35",
       "packages/cli/lib/host-adapters/codex/identity.js": "b66011d015b3f0e07996f320bdf78079d55bb30cc4eae72fcf6bb1d3d9efc212",
+      "packages/cli/lib/host-adapters/codex/mcp-startup.js": "3f76a51580d0f527ec31caac1517d5c8d3dc9e39ec6ca803e2b206b71cabcb9d",
       "packages/cli/lib/host-adapters/codex/plugin-mcp.js": "a4ac1464f89b01d7d557d38b8134e05c3845d4359df9ef71936266b0ebca880d",
-      "packages/cli/lib/host-adapters/codex/plugin.js": "662e17da288e152fbe87279a3270515c04783c7f2aa9b5de8cc60a611136b8af",
+      "packages/cli/lib/host-adapters/codex/plugin.js": "c8524f62fb1fb0f2753e587e79714601e54635c695b50796e8690575c47ed51a",
       "packages/cli/lib/host-adapters/codex/runtime-check.js": "bcead3a92db8e3ae12ee8c2770c6c44917bb2a14cb590e170a6fa703904358bb",
       "packages/cli/lib/host-adapters/codex/session-command.js": "64035f8eb12dd968f4401cbfd91d9a9e34588ca93d64f24af731cf1971267003",
       "packages/cli/lib/host-adapters/copilot/plugin.js": "2111314a899050559aee5760f310ff953e3205d7339d7525817470f31670e41c",
@@ -74,7 +81,7 @@
       "packages/cli/lib/installers/copilot-settings.js": "347b44154c670e37ae1ff14d77ff11df2a5d1c6b8bbcb9152c612f41075a0f4e",
       "packages/cli/lib/installers/copilot-skill-discovery.js": "4dd191423d350188a151af87daae84a0aefb3ac8be2f6343f7f13bc8b035e3d7",
       "packages/cli/lib/installers/local-development.js": "2ce5440bb014dbdee19acdbfcfb573cd68d459ff82d9fabd0cb4daef96622296",
-      "packages/cli/lib/installers/local-marketplace.js": "2521e99de80ade3fc7e96572fbbfced1da346dc1da3482f9c4cd603947094101",
+      "packages/cli/lib/installers/local-marketplace.js": "267ba53945298377183805a436750bb33e9db173077a5c49c8228117760fd49e",
       "packages/cli/lib/installers/npm-invocation.js": "7710fa08ce24ecb708b0c8e4793716b616e4fa5712b5438220f3c93bc738acc5",
       "packages/cli/lib/installers/opencode-activation.js": "cea852fee63597bc5906e5cf1b71d3fd78fe787b4abf0b41ba41c5ce952d93e2",
       "packages/cli/lib/installers/opencode.js": "8e7488f691e0a26d34e3088fba745ac69e813ab21a6456cfbd87f47b7e3b3683",
@@ -83,15 +90,17 @@
       "packages/cli/lib/lifecycle/owned-mutation.js": "1ad6b293022fce6adbc13ff920391e9e8f7c66438bc6aab78a7b6a08b625fca2",
       "packages/cli/lib/mcp-lifecycle/adapter-contract.js": "000981e6b3e21a246c4d30d29a56582f3076dcf04f22a2ce3b29d6ddc6c84866",
       "packages/cli/lib/mcp-lifecycle/adapters/claude.js": "daf90cc9e276a167d9e1e5dc7427953df5d5bfe4381cbfa67a6996b0ef3b82d3",
-      "packages/cli/lib/mcp-lifecycle/adapters/codex-origin-probe.js": "6e58ea62371a4b676ca4e9deef01244e988fcd3ffec7687b757442eb95019925",
-      "packages/cli/lib/mcp-lifecycle/adapters/codex.js": "7671761d384d3a490303f72795433979d794d925075cf023b98823a4b6cba280",
+      "packages/cli/lib/mcp-lifecycle/adapters/codex-origin-probe.js": "a30e7cf6f55123515b8f7a950ccc706b83332d68122d6e5fa012ac2ef034afb1",
+      "packages/cli/lib/mcp-lifecycle/adapters/codex.js": "195ac932e6c01cb9b11ac55d04c93eefa37ddb07304d9fea1b11a68993a4dcca",
       "packages/cli/lib/mcp-lifecycle/adapters/copilot.js": "b7698c871c48e282a6fa02790feb22f47b757fa769eea355831ca97e135be76f",
       "packages/cli/lib/mcp-lifecycle/adapters/file-utils.js": "bd6402b3876540a98c13947ff13d64f07f389a9fe12e32b7dd3f84d8943c6abb",
       "packages/cli/lib/mcp-lifecycle/adapters/opencode.js": "3d4cb3d2be01f5a0ecb8f6c3615317dc00667c5f4b6dfb5414a8313dc020a5ee",
       "packages/cli/lib/mcp-lifecycle/evidence.js": "264503de5dae08281b87b705825cdfcaae3500778f367a1d52212be49eb00a6d",
+      "packages/cli/lib/mcp-lifecycle/facade-entry.js": "d8c139865ec32ef2a7782430ce81c87a6c13547d48c924f323e1f8109f9691f4",
+      "packages/cli/lib/mcp-lifecycle/facade-owner-entry.js": "c54ecedb000ed34891261c6af2f8737a940c65fc87e7d15cc154a83bb491187e",
       "packages/cli/lib/mcp-lifecycle/host-config.js": "541362a8130d3447699b494496a107641f1716968c5588171d2f15d85a6befb3",
-      "packages/cli/lib/mcp-lifecycle/package.js": "591752836d9674d1d29f60a4d2f14a86a1d7b17fe636ec489e8271bb4279e378",
-      "packages/cli/lib/mcp-lifecycle/plugin-runtime.js": "535be84e20b7605592617e9ea1647882306233e7239247fd39a71c1359eb4e36",
+      "packages/cli/lib/mcp-lifecycle/package.js": "1b843902901fcb1d070dc279bd13f3ad3cfada9415d8a51b8d3e97efdd62fb0e",
+      "packages/cli/lib/mcp-lifecycle/plugin-runtime.js": "d732635b62459945f3c61c711a5e72839b6d4151c2759eaa7923fe05852c6085",
       "packages/cli/lib/mcp-lifecycle/presentation.js": "434aab5823bc1c64295b26ce83d46dfa78cfecacdfa0f5b35b03d5e0dc2dd12c",
       "packages/cli/lib/mcp-lifecycle/profile-context.js": "1b48011d7e6ea1136e0d775613f7a5dcadc0ed78b27ead1a8dc11edc44535e74",
       "packages/cli/lib/mcp-lifecycle/profile.js": "0633b8cfef34f4f7898312fc822c7bc9b7fce7d5c8eb7077d61ff30d4d9aabdc",
@@ -116,7 +125,7 @@
       "packages/cli/lib/scaffold/plan.js": "7a44a4bcc8a3c8050b87c3ad68f2c16adb860001dbfaf02237e7364564e4ddfa",
       "packages/cli/lib/skill-dispatch/binding.js": "2051b5ac592c46faedeb5f415964ea5fe86cbd83729cd2c2cfa76a1f7faf29e1",
       "packages/cli/opencode-plugin.js": "17ca66aecd2961a2a2fdc7542e153afb3f2ded8c63a91a858a40938aa9de86aa",
-      "packages/cli/package.json": "21ff5241c4fadc9e1e66465a0ba17144b7f42e0cae29c08b6e8cee1c0fae06a7",
+      "packages/cli/package.json": "9ea295b988b876effe9a37f4c5fd9332d26606a1ce9e1e4d0f0051599a3b4f83",
       "packages/cli/scripts/fixtures/host-compatibility/claude.js": "688eb94bdad7efbde1deab47281a5c2b2c943f3bfa2a605cdc808157fc658bbe",
       "packages/cli/scripts/fixtures/host-compatibility/codex.js": "b983d05d2cfc478a110701439586af6318afbaa437a958d515f5e7422376ec5c",
       "packages/cli/scripts/fixtures/host-compatibility/copilot.js": "b6d7e04ffafa6bb9c89bd215964b892fb14e5bf0f476944de023c0703fac99ff",
@@ -244,7 +253,7 @@
       "packages/core/lib/resources/contracts.js": "3415f51f3568591b5b4a1eaf667630e3e95c21dfbd2734994bcc975f1591b859",
       "packages/core/lib/runtime/distribution-profile-history.js": "e8d31599333c95e2f397b3637303713a2a064a95ea464dcab6ad80a2528f68f9",
       "packages/core/lib/runtime/host-installation.js": "d1f6acdea9bb2e72a541d8a742fc29911a1910e5ef64f7f489145ae5df0911cf",
-      "packages/core/lib/runtime/plugin-provenance.js": "42853fec8080c7a74e9e1b6f80743afa53a384a745b09ff0a4dfb5d641a62785",
+      "packages/core/lib/runtime/plugin-provenance.js": "5bf02a710112132021cdaeeb53f7c3ba4532e4d7419fc8bdd363c8f397fefec0",
       "packages/core/lib/skill-dispatch/binding.js": "ea5c32e5f2e41c38d6990c490084f93d9e9c162ce91b7d73c697df17eaa3c243",
       "packages/core/lib/skill-dispatch/compact-continuation.js": "d709532cd76332e8780c227737bf24263dbb642a6466e7f6d44dab984a19fc02",
       "packages/core/lib/skill-dispatch/contract.js": "c72b729b3822ad5773d64112153dd0a1de47560aa7034ad4d0b5ce3ace785f5c",
@@ -255,33 +264,36 @@
       "packages/core/lib/skill-dispatch/service.js": "bd7c98273799a1a67005244d7194e609ed6d2ded22a2226deb47227d7ad96757",
       "packages/core/lib/skill-dispatch/tp-definition.js": "25f144ca8cadaf03b17a1e347fba16afb9906661f5bd08eb43f752a8528e61ed",
       "packages/core/lib/task-target-resolution.js": "dd8d135102f66bca6d32f4b46de25edd1cd68b4ea2dd6a980e8786ae603bb733",
-      "packages/core/package.json": "aedb9a4c1eca6aa30ce82c0819461258cad0aa214d369efff1d1e4fef5f643e2",
-      "packages/mcp-server/package.json": "5c15504fd836e8017cd0b284efc4eb6a88fe358c9493ebaeb15801943200411b",
+      "packages/core/package.json": "ef28afb4a83378ee665ed3bb7c74ce516b21a319918a22b1dbc0bad129bed0f9",
+      "packages/mcp-server/package.json": "838a5a190778c1d6df540cdb9711a0d12e0b7fdd8013c29647c10def7da7f23d",
       "packages/mcp-server/src/cockpit-resource.js": "c1501b2ea909f5eb6ed5da1afb030dfff9a4e060ad3702596be5ffa715d87bb4",
       "packages/mcp-server/src/generation-protocol.js": "894cf8f5563d51dfb5df1c06139ce1be83307b6562dd6b78c5ea13079494d63f",
-      "packages/mcp-server/src/generation.js": "d1b986b25743daaf190557a36e2cff3c7a6d753c16b7a7041b0b0815a4ffda28",
-      "packages/mcp-server/src/main.js": "8749e308e15c0be63b2aeff48c1774fd6bc0277ba734bf3e80e502cc84a1ed95",
-      "packages/mcp-server/src/server.js": "64ff16a5f675efda83e2d44a595024e22eec30f60dc748e1b7b1cdb6144fb653",
+      "packages/mcp-server/src/generation.js": "befcb9f540b6a08b5278157db6381bf1c781d4370a57aa19c806e48b59758f72",
+      "packages/mcp-server/src/main.js": "40623fb56a1f9d5cc61e916ee76be193c2cba7c8642a9a01b74b6f5dc1f9eec4",
+      "packages/mcp-server/src/server.js": "3569c4805780ed0672e93f1c1c63fa322e81b9e03a821fa9262fa42b75af8faf",
       "packages/mcp-server/src/ui-capability.js": "343da845674023f2440dc9d3c752b2c50e12aad9aec642129f36725aceea0274",
       "packages/mcp-server/src/worker-entry.js": "d40a1bbd5a8b91651c072f4ffd3544a096744f63db574f36e6e7cfc99dd76ed4",
       "packages/mcp-server/src/worker.js": "bad90a5189b696726a9492d845293b9aee0e47fc9b1b9157236ba067df266249",
       "plugins/agdf/meta/agdf-interaction-locales.json": "b238431ea3c3ece507af4838eb969e837cb7555c3ed9b05f8259b1abb43854e3",
-      "plugins/agdf/meta/agdf-plugin.definition.json": "2f4ee751194363f592940694a3e6a63ef7feadec01fa88c6cee91c4c88a0d2b1",
-      "plugins/agdf/meta/copilot-payload-baseline.json": "43011d34b2a16f12154b10e6a9444f82f2c6a2b11c193aa9173a0b61679399f2",
+      "plugins/agdf/meta/agdf-plugin.definition.json": "f009bc86982803b469d3860e571e331fe12e0de22d7dbdd055fc6b405fa84b24",
+      "plugins/agdf/meta/copilot-payload-baseline.json": "7255bda825d87d3e74b8b6a90068d3b2c9bd7e996890adcdadc7e2752cb9cb77",
       "scripts/host-compatibility/contract.mjs": "32e4c06a059968a1b4d6ff22fac91232d2cb56c7f6ede196792522a5df637772",
       "scripts/host-compatibility/evaluate.mjs": "00502dc4bc7b62f524936364b1bc945efb15bfdc044d9860fdc827c932c9a88a",
-      "scripts/host-compatibility/render.mjs": "10a6d7e295c691c7ca80be43a90bf82803eb47cab9541484bf091a26adcb4353",
-      "scripts/host-compatibility/run.mjs": "437113014ce19726d8a8777c4e47dc6695919d51049db40bcbe098900d4a43cb",
-      "scripts/host-compatibility/test.mjs": "20970223a7e78b4b4365b9a974a040cd90cc46452700c3306b715821d421b1dc",
+      "scripts/host-compatibility/native-release.mjs": "4ad6927cf59bca7b5b8fdc44744b46b77951a2cc9b2811ba8bb60383405720a0",
+      "scripts/host-compatibility/render.mjs": "4e18b9f4b91a7041812df7538d929ab42c9dcfd4ce4e4894c38ab5f054cb248b",
+      "scripts/host-compatibility/run.mjs": "923c1796d3e13d2b1ccb18830fce3bc62006e45a22628c9bc9413beb967a5a94",
+      "scripts/host-compatibility/test.mjs": "850db30d5536ee3356324a1845c3083f8cd043da0b30373517acbadb4831c1a2",
+      "scripts/native-probes/lib/release-candidate.mjs": "4ee01af12676ff979b3f632761a0d13cc6187e96854d3e3af0c081ea6e54e17a",
+      "scripts/native-probes/lib/release-policy.mjs": "c8c077f71af538db247a91f7d8da012094528c5fe27204af70e4bd5af7d3e7f4",
       "scripts/public-plugin/copilot-profile.js": "97ac9a96d0638ef13a71a7291a312c67f49a0849b0fa28abcdf8ff5d5240d5ce"
     },
     "by_host": {
-      "codex": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
-      "claude": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
-      "copilot": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
-      "opencode": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05"
+      "codex": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
+      "claude": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
+      "copilot": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
+      "opencode": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb"
     },
-    "digest": "d7a3e16f8fd580fb90f7c49f4e4c996cf29844bead2f3f91dfe6a5e39d90a406"
+    "digest": "d794f629189285afe15ce9c7aba711d1488c4395b68f806c63ee8ab6ceffc4f1"
   },
   "observations": [
     {
@@ -309,34 +321,34 @@
         "condition": "installed"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "payload_present": true,
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "original_result": "healthy"
       },
       "original": {
         "result": "healthy",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:03.248Z",
+      "observed_at": "2026-10-21T08:46:20.450Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -370,17 +382,17 @@
         "condition": "discovered"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -401,72 +413,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           }
         ]
       },
@@ -474,16 +486,16 @@
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:03.252Z",
+      "observed_at": "2026-10-21T08:46:20.450Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -517,17 +529,17 @@
         "condition": "discovery-missing"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3",
+        "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -548,67 +560,67 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           }
         ]
       },
@@ -616,16 +628,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:03.393Z",
+      "observed_at": "2026-10-21T08:46:20.494Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -659,17 +671,17 @@
         "condition": "discovery-wrong-payload"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545",
+        "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -690,72 +702,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           }
         ]
       },
@@ -763,16 +775,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:03.517Z",
+      "observed_at": "2026-10-21T08:46:20.658Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -806,14 +818,14 @@
         "condition": "callable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -839,16 +851,16 @@
         "result": "control_result",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:05.005Z",
+      "observed_at": "2026-10-21T08:46:21.764Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -882,14 +894,14 @@
         "condition": "target-unresolved"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -915,16 +927,16 @@
         "result": "target_unresolved",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:05.987Z",
+      "observed_at": "2026-10-21T08:46:22.337Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -958,14 +970,14 @@
         "condition": "missing-approval"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -991,16 +1003,16 @@
         "result": "skill_continuation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:06.707Z",
+      "observed_at": "2026-10-21T08:46:23.258Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1034,14 +1046,14 @@
         "condition": "invalid-input"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -1067,16 +1079,16 @@
         "result": "invalid_input",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:07.300Z",
+      "observed_at": "2026-10-21T08:46:23.842Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1110,34 +1122,34 @@
         "condition": "updated"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "previous_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "previous_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "update_observed": true,
-        "payload_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7"
+        "payload_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f"
       },
       "original": {
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:09.167Z",
+      "observed_at": "2026-10-21T08:46:25.005Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1171,34 +1183,34 @@
         "condition": "update-stale"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "previous_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "previous_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "update_observed": true,
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
       },
       "original": {
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:09.586Z",
+      "observed_at": "2026-10-21T08:46:25.313Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1232,20 +1244,20 @@
         "condition": "recoverable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": true,
-        "previous_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "recovered_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
+        "previous_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "recovered_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
         "foreign_preserved": true,
         "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
         "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
@@ -1257,16 +1269,16 @@
         "result": "plugin_operation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:11.633Z",
+      "observed_at": "2026-10-21T08:46:27.344Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1300,20 +1312,20 @@
         "condition": "recovery-partial"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": false,
-        "previous_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "recovered_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
+        "previous_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "recovered_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
         "foreign_preserved": true,
         "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
         "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
@@ -1337,16 +1349,16 @@
         "result": "plugin_operation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:12.279Z",
+      "observed_at": "2026-10-21T08:46:28.001Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1380,14 +1392,14 @@
         "condition": "manual-checks"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "check_executed": false,
@@ -1399,16 +1411,16 @@
         "result": "manual",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:12.279Z",
+      "observed_at": "2026-10-21T08:46:28.001Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1442,14 +1454,14 @@
         "condition": "trusted-unexecuted"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "check_executed": false,
@@ -1461,16 +1473,16 @@
         "result": "hook_trusted_session_unverified",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:12.279Z",
+      "observed_at": "2026-10-21T08:46:28.001Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "df7395aba8c8e11a70d73365c62942cf898f5ed138acac6e8e1777d40e2f4544",
+      "source_fingerprint": "22802fc918110c5f908469fe06d23f3cf7395d2fa39b761b3c2dd7921c2e6b23",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1504,34 +1516,34 @@
         "condition": "installed"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "payload_present": true,
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "original_result": "healthy"
       },
       "original": {
         "result": "healthy",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:13.317Z",
+      "observed_at": "2026-10-21T08:46:28.721Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1565,17 +1577,17 @@
         "condition": "discovered"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -1596,72 +1608,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           }
         ]
       },
@@ -1669,16 +1681,16 @@
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:13.317Z",
+      "observed_at": "2026-10-21T08:46:28.721Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1712,17 +1724,17 @@
         "condition": "discovery-missing"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3",
+        "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -1743,67 +1755,67 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           }
         ]
       },
@@ -1811,16 +1823,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:13.372Z",
+      "observed_at": "2026-10-21T08:46:28.765Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -1854,17 +1866,17 @@
         "condition": "discovery-wrong-payload"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545",
+        "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -1885,72 +1897,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           }
         ]
       },
@@ -1958,16 +1970,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:13.426Z",
+      "observed_at": "2026-10-21T08:46:28.809Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2001,14 +2013,14 @@
         "condition": "callable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -2034,16 +2046,16 @@
         "result": "control_result",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:14.247Z",
+      "observed_at": "2026-10-21T08:46:29.712Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2077,14 +2089,14 @@
         "condition": "target-unresolved"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -2110,16 +2122,16 @@
         "result": "target_unresolved",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:14.849Z",
+      "observed_at": "2026-10-21T08:46:30.259Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2153,14 +2165,14 @@
         "condition": "missing-approval"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -2186,16 +2198,16 @@
         "result": "skill_continuation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:15.567Z",
+      "observed_at": "2026-10-21T08:46:30.946Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2229,14 +2241,14 @@
         "condition": "invalid-input"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -2262,16 +2274,16 @@
         "result": "invalid_input",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:16.189Z",
+      "observed_at": "2026-10-21T08:46:31.508Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2305,34 +2317,34 @@
         "condition": "updated"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "previous_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "previous_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "update_observed": true,
-        "payload_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7"
+        "payload_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f"
       },
       "original": {
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:17.572Z",
+      "observed_at": "2026-10-21T08:46:32.951Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2366,34 +2378,34 @@
         "condition": "update-stale"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "previous_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "previous_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "update_observed": true,
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
       },
       "original": {
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:18.036Z",
+      "observed_at": "2026-10-21T08:46:33.292Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2427,20 +2439,20 @@
         "condition": "recoverable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": true,
-        "previous_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "recovered_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
+        "previous_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "recovered_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
         "foreign_preserved": true,
         "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
         "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
@@ -2452,16 +2464,16 @@
         "result": "plugin_operation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:24.350Z",
+      "observed_at": "2026-10-21T08:46:35.326Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2495,20 +2507,20 @@
         "condition": "recovery-partial"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": false,
-        "previous_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "recovered_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
+        "previous_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "recovered_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
         "foreign_preserved": true,
         "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
         "permission_after": "5cde84ef32def8b818be4137a6f686d14912745a249102fe0ae15d6ff1554e37",
@@ -2532,16 +2544,16 @@
         "result": "plugin_operation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:26.023Z",
+      "observed_at": "2026-10-21T08:46:35.928Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2575,14 +2587,14 @@
         "condition": "manual-checks"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "check_executed": false,
@@ -2594,16 +2606,16 @@
         "result": "manual",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:26.023Z",
+      "observed_at": "2026-10-21T08:46:35.928Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2637,14 +2649,14 @@
         "condition": "trusted-unexecuted"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "check_executed": false,
@@ -2656,16 +2668,16 @@
         "result": "trust_is_not_execution",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:26.024Z",
+      "observed_at": "2026-10-21T08:46:35.928Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "a2a38ab2c340ed8b4bc78504ca1081a1d8c50a4787afbaf28f13ec789c4f4594",
+      "source_fingerprint": "a1e6a71df738c895f537fd735189737217f355f0dcb99ce327015dd3e571911e",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2699,34 +2711,34 @@
         "condition": "installed"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "payload_present": true,
-        "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
+        "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
         "original_result": "healthy"
       },
       "original": {
         "result": "healthy",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:34.911Z",
+      "observed_at": "2026-10-21T08:46:38.793Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2760,17 +2772,17 @@
         "condition": "discovered"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
-        "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
+        "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -2791,72 +2803,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+            "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
           }
         ]
       },
@@ -2864,16 +2876,16 @@
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:34.911Z",
+      "observed_at": "2026-10-21T08:46:38.794Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -2907,17 +2919,17 @@
         "condition": "discovery-missing"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
-        "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5",
+        "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -2938,67 +2950,67 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "39807dbe95d9d85daf64ebcd98f129d2fb291762f438b309457f7ef8421b19e5"
+            "payload_digest": "f0467e1b8fee19bf482e54530792eaf90d6095d19228dca42344658faa0413f1"
           }
         ]
       },
@@ -3006,16 +3018,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:35.126Z",
+      "observed_at": "2026-10-21T08:46:38.828Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3049,17 +3061,17 @@
         "condition": "discovery-wrong-payload"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
-        "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218",
+        "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -3080,72 +3092,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "3d6595747d027eb54e772a76ddb791e5e30ef00eb46bd464b74d97c628048218"
+            "payload_digest": "417a158624164e7491ddc14daac439443a6c100f76ca44c17fde4e5776a8abf7"
           }
         ]
       },
@@ -3153,16 +3165,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:35.167Z",
+      "observed_at": "2026-10-21T08:46:38.862Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3196,14 +3208,14 @@
         "condition": "callable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "invocation": {
@@ -3229,16 +3241,16 @@
         "result": "control_result",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:37.477Z",
+      "observed_at": "2026-10-21T08:46:39.559Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3272,14 +3284,14 @@
         "condition": "target-unresolved"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "invocation": {
@@ -3305,16 +3317,16 @@
         "result": "target_unresolved",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:39.063Z",
+      "observed_at": "2026-10-21T08:46:40.131Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3348,14 +3360,14 @@
         "condition": "missing-approval"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "invocation": {
@@ -3381,16 +3393,16 @@
         "result": "skill_continuation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:40.519Z",
+      "observed_at": "2026-10-21T08:46:40.769Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3424,14 +3436,14 @@
         "condition": "invalid-input"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "invocation": {
@@ -3457,16 +3469,16 @@
         "result": "invalid_input",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:41.287Z",
+      "observed_at": "2026-10-21T08:46:41.343Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3500,34 +3512,34 @@
         "condition": "updated"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
-        "previous_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
+        "previous_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
         "update_observed": true,
-        "payload_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef"
+        "payload_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4"
       },
       "original": {
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:48.565Z",
+      "observed_at": "2026-10-21T08:46:44.740Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3561,34 +3573,34 @@
         "condition": "update-stale"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
-        "previous_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
+        "previous_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
         "update_observed": true,
-        "payload_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290"
+        "payload_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525"
       },
       "original": {
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:49.169Z",
+      "observed_at": "2026-10-21T08:46:44.998Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3622,23 +3634,23 @@
         "condition": "recoverable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f551ad7b1659a905d3d2ff8b21fd0dc705437d40e2b897d6a1f17a8365b36c46",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "7b2cd04d5fd4741ed42f80b20d573537b9040f384378f4bab8348c2ca7fb16e9",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": true,
-        "previous_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef",
-        "recovered_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef",
+        "previous_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4",
+        "recovered_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4",
         "foreign_preserved": true,
-        "permission_before": "e6872835cdb964fe624781bda06d9fb2ceef03756da7dfc19d58f7e3c265c41d",
-        "permission_after": "e6872835cdb964fe624781bda06d9fb2ceef03756da7dfc19d58f7e3c265c41d",
+        "permission_before": "a341232250c0d52a9cbcbbd66ef432e86fb642b9f00d95c955accb05b333c92f",
+        "permission_after": "a341232250c0d52a9cbcbbd66ef432e86fb642b9f00d95c955accb05b333c92f",
         "permission_preserved": true,
         "unresolved": [],
         "original_result": "verification"
@@ -3647,16 +3659,16 @@
         "result": "verification",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:36:57.949Z",
+      "observed_at": "2026-10-21T08:47:01.823Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3690,23 +3702,23 @@
         "condition": "recovery-partial"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f551ad7b1659a905d3d2ff8b21fd0dc705437d40e2b897d6a1f17a8365b36c46",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "7b2cd04d5fd4741ed42f80b20d573537b9040f384378f4bab8348c2ca7fb16e9",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f551ad7b1659a905d3d2ff8b21fd0dc705437d40e2b897d6a1f17a8365b36c46",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "7b2cd04d5fd4741ed42f80b20d573537b9040f384378f4bab8348c2ca7fb16e9",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": false,
-        "previous_digest": "0295d302b5261cd0beeb1fd1d9cae3c376f234f6ef9d4e649a8fc69ddd9c03ef",
-        "recovered_digest": "f551ad7b1659a905d3d2ff8b21fd0dc705437d40e2b897d6a1f17a8365b36c46",
+        "previous_digest": "42e813b3c8d9585b05e2d6063342560205c58f4339fbf2c539a1e5589833bcf4",
+        "recovered_digest": "7b2cd04d5fd4741ed42f80b20d573537b9040f384378f4bab8348c2ca7fb16e9",
         "foreign_preserved": true,
-        "permission_before": "e6872835cdb964fe624781bda06d9fb2ceef03756da7dfc19d58f7e3c265c41d",
-        "permission_after": "e6872835cdb964fe624781bda06d9fb2ceef03756da7dfc19d58f7e3c265c41d",
+        "permission_before": "a341232250c0d52a9cbcbbd66ef432e86fb642b9f00d95c955accb05b333c92f",
+        "permission_after": "a341232250c0d52a9cbcbbd66ef432e86fb642b9f00d95c955accb05b333c92f",
         "permission_preserved": true,
         "unresolved": [
           "injected_recovery_failure"
@@ -3727,16 +3739,16 @@
         "result": "verification",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:01.382Z",
+      "observed_at": "2026-10-21T08:47:06.390Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3770,14 +3782,14 @@
         "condition": "manual-checks"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "check_executed": false,
@@ -3789,16 +3801,16 @@
         "result": "manual",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:01.382Z",
+      "observed_at": "2026-10-21T08:47:06.390Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3832,14 +3844,14 @@
         "condition": "trusted-unexecuted"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "bcdd2ac5470f23415e94f2029d0757a41922e8ce9a44c2d2bc23493fc5817290",
-        "runtime_digest": "c15c3fd57cd7e9df62275784ea080b23852e452bf2a86f844d962a4797a0b1f7"
+        "canonical_version": "0.20.0",
+        "source_digest": "6fa71b2de122dbf0279f41abf704a3f527a91dd778b703c6f150aeb13f793525",
+        "runtime_digest": "60eaf818f649266ca4879a14c8e0d10d3859a1bf6336de84a49449bc07cada0e"
       },
       "facts": {
         "check_executed": false,
@@ -3851,16 +3863,16 @@
         "result": "trust_is_not_execution",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:01.382Z",
+      "observed_at": "2026-10-21T08:47:06.390Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "da2a090f692e105a20017e86df09449aea738e11ee7f09e84677394a14184368",
+      "source_fingerprint": "142ad0ad7a4273bb0d6c134c8dde0abc88f472573daffe79a7e0c7621a81f6a4",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3894,34 +3906,34 @@
         "condition": "installed"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "payload_present": true,
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "original_result": "installed"
       },
       "original": {
         "result": "installed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:04.132Z",
+      "observed_at": "2026-10-21T08:47:10.475Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -3955,17 +3967,17 @@
         "condition": "discovered"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -3986,72 +3998,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+            "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
           }
         ]
       },
@@ -4059,16 +4071,16 @@
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:04.132Z",
+      "observed_at": "2026-10-21T08:47:10.476Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4102,17 +4114,17 @@
         "condition": "discovery-missing"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3",
+        "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -4133,67 +4145,67 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "b05e617044a7218c0783fd91523ed9e0cd6cf63dc469a324f48a0d84c78ad8e3"
+            "payload_digest": "e3ed9de6ef211fa9aa78358fcfc28b36292ba2b37809ac216064b74e89b82d6a"
           }
         ]
       },
@@ -4201,16 +4213,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:04.186Z",
+      "observed_at": "2026-10-21T08:47:10.737Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4244,17 +4256,17 @@
         "condition": "discovery-wrong-payload"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545",
+        "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe",
         "expected_skills": [
           "delivery-path-search",
           "brownfield-analysis",
@@ -4275,72 +4287,72 @@
           {
             "name": "delivery-path-search",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "brownfield-analysis",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "ux-intent-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "clean-implementation-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "code-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "delivery-closeout",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "ur-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "prd-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "sd-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "tp-definition",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "gate-check",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "qa-gate",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "release-or",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           },
           {
             "name": "task-plan-review",
             "enabled": true,
-            "payload_digest": "de2b1f9e73b9263fb19fac932f18091f17569864d16f7b0988592aacbb0ea545"
+            "payload_digest": "803d474a46be68d3badb0864fd84d2c6a59cba356584535ba91ad936d089ddfe"
           }
         ]
       },
@@ -4348,16 +4360,16 @@
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:04.258Z",
+      "observed_at": "2026-10-21T08:47:10.907Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4391,14 +4403,14 @@
         "condition": "callable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -4424,16 +4436,16 @@
         "result": "control_result",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:04.990Z",
+      "observed_at": "2026-10-21T08:47:12.200Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4467,14 +4479,14 @@
         "condition": "target-unresolved"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -4500,16 +4512,16 @@
         "result": "target_unresolved",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:05.533Z",
+      "observed_at": "2026-10-21T08:47:13.135Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4543,14 +4555,14 @@
         "condition": "missing-approval"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -4576,16 +4588,16 @@
         "result": "skill_continuation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:06.298Z",
+      "observed_at": "2026-10-21T08:47:14.081Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4619,14 +4631,14 @@
         "condition": "invalid-input"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "invocation": {
@@ -4652,16 +4664,16 @@
         "result": "invalid_input",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:06.877Z",
+      "observed_at": "2026-10-21T08:47:14.697Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4695,34 +4707,34 @@
         "condition": "updated"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "previous_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "previous_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "update_observed": true,
-        "payload_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7"
+        "payload_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f"
       },
       "original": {
         "result": "demonstrated",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:09.892Z",
+      "observed_at": "2026-10-21T08:47:18.191Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4756,34 +4768,34 @@
         "condition": "update-stale"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
-        "previous_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
+        "previous_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
         "update_observed": true,
-        "payload_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b"
+        "payload_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853"
       },
       "original": {
         "result": "failed",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:10.199Z",
+      "observed_at": "2026-10-21T08:47:18.553Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4817,20 +4829,20 @@
         "condition": "recoverable"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": true,
-        "previous_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "recovered_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
+        "previous_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "recovered_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
         "foreign_preserved": true,
         "permission_before": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
         "permission_after": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
@@ -4842,16 +4854,16 @@
         "result": "plugin_operation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:16.663Z",
+      "observed_at": "2026-10-21T08:47:25.749Z",
       "conformance": {
         "expected": "demonstrated",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4885,20 +4897,20 @@
         "condition": "recovery-partial"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "failure_observed": true,
         "recovery_observed": false,
-        "previous_digest": "f92ed6bf082e8df2cc3e9ad070456a8e9b8f605e4363bf25185d550ac3b269c7",
-        "recovered_digest": "a2b174997eb7a4fc363503120de87b427236d483f556e170dfabf4a0e092c24a",
+        "previous_digest": "5f0eaad531f37bf20f9ddb034cf3abdee593a14952bd3d86265b9ecc48b4630f",
+        "recovered_digest": "49cfb6b16a14a7fe12ddb4824121d2d9439ddb6350d9014227c16cd7ea0a1ab6",
         "foreign_preserved": true,
         "permission_before": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
         "permission_after": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
@@ -4922,16 +4934,16 @@
         "result": "plugin_operation",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:19.364Z",
+      "observed_at": "2026-10-21T08:47:28.669Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -4965,14 +4977,14 @@
         "condition": "manual-checks"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "check_executed": false,
@@ -4984,16 +4996,16 @@
         "result": "manual",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:19.364Z",
+      "observed_at": "2026-10-21T08:47:28.669Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -5027,14 +5039,14 @@
         "condition": "trusted-unexecuted"
       },
       "expected": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "observed": {
-        "canonical_version": "0.14.5",
-        "source_digest": "3f3614d97be81319b331eccdab8a626a25dc7fffa93a3df5ed2bb5eb4c26493b",
-        "runtime_digest": "3af63b16e70209ec18cc506dafb03723bcf5df82401893e55a69c1e7c69b4b97"
+        "canonical_version": "0.20.0",
+        "source_digest": "673fad202507dd72e70c2fe34ba57b3ba7ed745136b3d77b32792e53aa678853",
+        "runtime_digest": "9c70017a34160fa0d47dc9e0445c9aae118fc79323cb13c142a93347907b0710"
       },
       "facts": {
         "check_executed": false,
@@ -5046,16 +5058,16 @@
         "result": "trust_is_not_execution",
         "evidence_class": "repository_fixture"
       },
-      "observed_at": "2026-10-20T11:37:19.364Z",
+      "observed_at": "2026-10-21T08:47:28.669Z",
       "conformance": {
         "expected": "failed",
         "passed": true
       },
-      "source_fingerprint": "c052ba01b5e17740600e65a11f51418092948b6aa0a0ae169cb07c8bb097db05",
+      "source_fingerprint": "6bf4fd815f3f29eff1c0b66733b0d8c402a9059e91447cdc12280f1828cd45bb",
       "references": [
         {
           "path": "docs/compatibility/evidence/facts.json",
-          "sha256": "f371e8f1c851c51e8394186513dc615223a45864a937703d7cdd6f6c2286695d"
+          "sha256": "bde15a6fd994b621ef326efafd0e6e930c199bf406cfd3aaf661a16ae690095d"
         }
       ],
       "publication": {
@@ -6053,7 +6065,7 @@
   ],
   "input_sources": {},
   "observation_source": {
-    "path": "evals/host-compatibility/observations/e1a61c9b438e25af8794d89916561e1e6607e878a806d74001346e5c9c94fedb.json",
-    "sha256": "e1a61c9b438e25af8794d89916561e1e6607e878a806d74001346e5c9c94fedb"
+    "path": "evals/host-compatibility/observations/9612e1502b2d0ce9e72ba22466a03af50dc8bca36d193d78eec2e6979162d70d.json",
+    "sha256": "9612e1502b2d0ce9e72ba22466a03af50dc8bca36d193d78eec2e6979162d70d"
   }
 }

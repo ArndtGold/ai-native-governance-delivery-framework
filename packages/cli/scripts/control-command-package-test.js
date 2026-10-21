@@ -1,4 +1,3 @@
-import { copySourceFixture } from "../../../scripts/support/source-fixture.js";
 import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -7,8 +6,6 @@ import { tmpdir } from "node:os";
 import nodePath, { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { builtinModules, createRequire } from 'node:module';
-import { npmInvocation } from "../lib/npm-invocation.js";
-import { approvalArgs, commandFixture, invoke, json } from "../../../scripts/support/control-command-fixture.js";
 import { CONTROL_COMMAND_PACKAGE_PARTS } from "./control-command-package-parts.js";
 
 // CI runs one part per invocation; the default invocation runs all parts.
@@ -16,6 +13,11 @@ const selector = process.argv.slice(2);
 assert.ok(selector.length === 0 || (selector.length === 2 && selector[0] === "--part"
   && Object.hasOwn(CONTROL_COMMAND_PACKAGE_PARTS, selector[1])), "Invalid control-command package test selector");
 const part = selector[1];
+// Planning validates selectors before generation or MCP dependency installation.
+const [{ copySourceFixture }, { npmInvocation }, { approvalArgs, commandFixture, invoke, json }] = await Promise.all([
+  import("../../../scripts/support/source-fixture.js"), import("../lib/npm-invocation.js"),
+  import("../../../scripts/support/control-command-fixture.js"),
+]);
 const repository = fileURLToPath(new URL("../../..", import.meta.url));
 const sandbox = realpathSync(mkdtempSync(join(tmpdir(), "agdf-command-package-")));
 const snapshot = join(sandbox, "snapshot"), consumer = join(sandbox, "consumer");

@@ -320,16 +320,16 @@ export function supervisePluginMcpFacade({ runtime, surface, cockpitDir, cockpit
   });
 }
 
-// Hosts may forcibly reap their direct STDIO launcher. The non-SDK owner stays
-// responsible for its directly forked facade and observes its acknowledged exit
-// even if that host connection disappears. No PID discovery or claim GC occurs.
+// The owner must outlive its launcher: Windows libuv kills non-detached children
+// with their parent. Keep IPC referenced and prove the facade's acknowledged
+// exit after disconnect; no PID discovery or claim GC.
 function startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }) {
   const token = randomUUID();
   const deadline = (process.hrtime.bigint() + BigInt(Math.floor(Math.max(0, publicationDeadline - performance.now()) * 1e6))).toString();
   return new Promise((resolve, reject) => {
     const child = fork(join(pluginRoot, 'runtime/create-agdf/lib/mcp-lifecycle/facade-owner-entry.js'),
       [JSON.stringify({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, token, deadline_ns: deadline })],
-      { env, detached: process.platform !== 'win32', stdio: ['inherit', 'inherit', 'inherit', 'ipc'], execArgv: [] });
+      { env, detached: true, windowsHide: true, stdio: ['inherit', 'inherit', 'inherit', 'ipc'], execArgv: [] });
     let confirmed = false, failure;
     const stop = () => { if (child.connected) child.send({ kind: 'owner_stop', token }, () => {}); };
     process.once('SIGTERM', stop); process.once('SIGINT', stop);

@@ -287,18 +287,19 @@ for (const invalid of [["--cockpit-dir"], ["--cockpit-dir", "relative/project"],
 }
 
 // The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.
-for (const mode of ['orderly', 'killed', 'startup-stop', 'startup-killed']) {
+for (const mode of ['orderly', 'terminated', 'killed', 'startup-stop', 'startup-killed']) {
   const killed = mode === 'killed' || mode === 'startup-killed';
   // Windows forcibly terminates a child sent SIGTERM; its owner must still
   // close the SDK through the disconnected private channel and prove exit.
-  const expectedSignal = killed ? 'SIGKILL' : mode === 'startup-stop' && process.platform === 'win32' ? 'SIGTERM' : null;
+  const terminated = mode === 'terminated' || mode === 'startup-stop';
+  const expectedSignal = killed ? 'SIGKILL' : terminated && process.platform === 'win32' ? 'SIGTERM' : null;
   const work = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-real-facade-exit-')));
   const dataRoot = join(work, 'data/mcp/codex-plugin');
-  let child;
+  let child, stderr = '';
   try {
     const prepared = ensurePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm });
     await new Promise((resolve, reject) => {
-      let pending = '', stderr = '', ready = false;
+      let pending = '', ready = false;
       const timer = setTimeout(() => { child?.stdin.end(); child?.kill(); reject(Error('facade_test_deadline:' + stderr)); }, 10000);
       child = spawn(process.execPath, [join(pluginRoot, 'mcp/agdf-mcp-launch.js'), '--surface', 'codex', '--data', dataRoot],
         { stdio: ['pipe', 'pipe', 'pipe'], env: process.env });
@@ -315,7 +316,10 @@ for (const mode of ['orderly', 'killed', 'startup-stop', 'startup-killed']) {
           try { reply = JSON.parse(line); } catch { continue; }
           if (reply.id === 1 && reply.result) { send({ method: 'notifications/initialized' }); send({ id: 2, method: 'tools/list', params: {} }); }
           if (reply.id === 2 && reply.result?.tools?.some(tool => tool.name === 'agdf_dispatch')) {
-            ready = true; if (mode === 'killed') child.kill('SIGKILL'); child.stdin.end();
+            ready = true;
+            if (mode === 'killed') child.kill('SIGKILL');
+            if (mode === 'terminated') child.kill('SIGTERM');
+            child.stdin.end();
           }
         }
       });
@@ -334,10 +338,11 @@ for (const mode of ['orderly', 'killed', 'startup-stop', 'startup-killed']) {
     });
     const deadline = performance.now() + 10000;
     while (inspectPluginMcpDataRoot(dataRoot) === 'protected' && performance.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
-    assert.equal(inspectPluginMcpDataRoot(dataRoot), 'owned', 'the direct owner must acknowledge and observe facade exit even after its host launcher is killed');
+    assert.equal(inspectPluginMcpDataRoot(dataRoot), 'owned', `${process.platform}/${mode}: the direct owner must acknowledge and observe facade exit even after its host launcher is killed; ${stderr}`);
     const plan = planGlobalUninstall('codex', { env: { AGDF_DATA_DIR: join(work, 'data') } });
     assert.equal(applyLifecyclePlan(plan, { exec() {} }).status, 'success');
     assert.equal(existsSync(dataRoot), false, 'the production cleanup owner removes only the now-retirable runtime');
+    console.log(`PASS real facade ${process.platform}/${mode}: confirmed exit, released claims and complete uninstall`);
   } finally {
     child?.stdin.end();
     if (!existsSync(dataRoot) || inspectPluginMcpDataRoot(dataRoot) === 'owned') rmSync(work, { recursive: true, force: true });

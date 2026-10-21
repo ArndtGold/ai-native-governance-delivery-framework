@@ -16,8 +16,8 @@ function nativeFixtures(f, host) {
     const directory = join(root, String(i)); mkdirSync(directory);
     const environment = { host: item.host, surface: item.surface, os: item.os, arch: 'x64', node: 'v22.22.3',
       version: item.host === 'codex' ? policy.codex.codex_version : '2.1.193', model: item.host === 'codex' ? policy.codex.model : 'fixture-model' };
-    const result = { outcome: item.scenario === 'failure_case' ? 'invalid_input' : item.scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
-      terminal: item.scenario !== 'skill_continuation', authorizes: false, runtime: { runtime_digest: f.candidate.identities.agdf.runtime_digest } };
+    const result = { schema_version: '1', outcome: item.scenario === 'failure_case' ? 'invalid_input' : item.scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
+      terminal: item.scenario !== 'skill_continuation', authorizes: false, runtime: { runtime_digest: f.candidate.identities.mcp_dispatcher.digest } };
     if (item.scenario === 'skill_continuation') result.continuation = { runtime_contracts: ['quality','context-graph'].map(module => ({ module, content: module, sha256: sha(module) })) };
     let record = { schema_version: 2, id: `fixture-${item.host}-${i}`, recorded_at: '2026-10-20T12:00:00Z', environment,
       tuple_digest: jsonDigest(environment), source: f.candidate.source_revision, candidate_id: f.candidate.candidate_id, policy_digest: f.candidate.policy_digest,
@@ -36,7 +36,10 @@ function nativeFixtures(f, host) {
       ] : [
         { type: 'system', subtype: 'init', model: environment.model },
         { type: 'assistant', message: { content: [{ type: 'tool_use', id: 'call', name: 'mcp__plugin_agdf_agdf__agdf_dispatch' }] } },
-        { type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'call', content: [{ text: JSON.stringify(result) }] }] } },
+        // Claude CLI joins an error reply's machine report and human diagnostic into one string.
+        { type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'call', ...(item.scenario === 'failure_case'
+          ? { is_error: true, content: `${JSON.stringify(result, null, 2)}\nAGDF tool failed: dispatch_input_invalid (working_directory).` }
+          : { content: [{ text: JSON.stringify(result) }] }) }] } },
       ];
       const text = events.map(event => JSON.stringify(event)).join('\n');
       const primary = { status: 0, stdout: text, ...(item.host === 'codex' ? { rollouts: [text] } : {}) };
@@ -76,6 +79,17 @@ test('complete matrix accepts real-shaped primary events and rejects missing/for
     const changed = drift.at(-1).record;
     changed.environment.version = '3.0.0'; changed.tuple_digest = jsonDigest(changed.environment);
     assert.throws(() => assertHostReleaseEvidence(drift, { ...data.options, lockedTuples: [...data.options.lockedTuples, changed.environment] }), /tuple_changed_between_cases/u);
+    // A native call reports the MCP dispatcher projection; the plugin runtime manifest digest is no substitute.
+    const { mcp_dispatcher: { digest: dispatcher }, agdf: { runtime_digest: manifest } } = f.candidate.identities;
+    assert.notEqual(dispatcher, manifest);
+    const executed = data.rows.find(row => row.record.environment.surface === 'cli' && row.record.scenario === 'dispatch');
+    const capture = join(executed.directory, 'dispatch-process.json'), bytes = readFileSync(capture, 'utf8');
+    const step = executed.record.steps.find(row => row.name === 'dispatch');
+    writeFileSync(capture, bytes.replaceAll(dispatcher, manifest)); step.evidence.runtime_digest = manifest;
+    executed.record.references = referencesFrom(executed.directory, executed.record.references.map(row => row.path));
+    assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_executed_runtime_mismatch/u);
+    writeFileSync(capture, bytes); step.evidence.runtime_digest = dispatcher;
+    executed.record.references = referencesFrom(executed.directory, executed.record.references.map(row => row.path));
     const primary = data.rows[0];
     const original = readFileSync(join(primary.directory, primary.record.references[0].path));
     writeFileSync(join(primary.directory, primary.record.references[0].path), JSON.stringify({ status: 0, stdout: 'model says PASS' }));

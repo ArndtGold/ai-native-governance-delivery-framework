@@ -135,7 +135,7 @@ export function assertNativeRecord(record, { candidate, policy, directory, commi
     assert.equal(call.exec_status, 0); assert.equal(call.calls, 1);
     assert.deepEqual(call.observed_models, [tuple.model]);
     assert.equal(call.authorizes, false);
-    if (record.scenario !== 'failure_case') assert.equal(call.runtime_digest, record.loaded_identity.runtime_digest, 'native_executed_runtime_mismatch');
+    if (record.scenario !== 'failure_case') assert.equal(call.runtime_digest, candidate.identities.mcp_dispatcher?.digest, 'native_executed_runtime_mismatch');
     if (record.scenario === 'failure_case') assert.equal(call.outcome, 'invalid_input');
     else if (record.scenario === 'skill_continuation') { assert.equal(call.outcome, 'skill_continuation'); assert.equal(call.contracts_verified, true); }
     else assert.equal(call.outcome, 'control_result');

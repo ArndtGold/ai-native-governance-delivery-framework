@@ -146,8 +146,25 @@ export function createRedactor(entries) {
   return text => patterns.reduce((value, { pattern, token }) => value.replace(pattern, () => token), String(text ?? ""));
 }
 
+// Claude delivers an error reply as one string: the machine report, then a human diagnostic.
+// Keep only the report, or valid native invalid_input results cannot be decoded.
+function machineReport(text) {
+  const report = head => { try { const value = JSON.parse(head); return value?.schema_version && value?.outcome ? head : null; } catch { return null; } };
+  if (report(text)) return text;
+  for (let end = text.indexOf("}\n"); end !== -1; end = text.indexOf("}\n", end + 1)) {
+    const head = report(text.slice(0, end + 1));
+    if (head) return head;
+  }
+  return null;
+}
+
 function resultText(content) {
-  return Array.isArray(content) ? content.map(part => part?.text ?? "").join("") : String(content ?? "");
+  const parts = Array.isArray(content) ? content.map(part => part?.text ?? "") : [String(content ?? "")];
+  for (const part of parts) {
+    const report = machineReport(part);
+    if (report) return report;
+  }
+  return parts.join("");
 }
 
 // ToolSearch answers with tool_reference parts instead of text; keep the referenced tool names.

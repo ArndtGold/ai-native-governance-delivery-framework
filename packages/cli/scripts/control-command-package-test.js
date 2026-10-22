@@ -1,4 +1,3 @@
-import { copySourceFixture } from "../../../scripts/support/source-fixture.js";
 import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -7,9 +6,18 @@ import { tmpdir } from "node:os";
 import nodePath, { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { builtinModules, createRequire } from 'node:module';
-import { npmInvocation } from "../lib/npm-invocation.js";
-import { approvalArgs, commandFixture, invoke, json } from "../../../scripts/support/control-command-fixture.js";
+import { CONTROL_COMMAND_PACKAGE_PARTS } from "./control-command-package-parts.js";
 
+// CI runs one part per invocation; the default invocation runs all parts.
+const selector = process.argv.slice(2);
+assert.ok(selector.length === 0 || (selector.length === 2 && selector[0] === "--part"
+  && Object.hasOwn(CONTROL_COMMAND_PACKAGE_PARTS, selector[1])), "Invalid control-command package test selector");
+const part = selector[1];
+// Planning validates selectors before generation or MCP dependency installation.
+const [{ copySourceFixture }, { npmInvocation }, { approvalArgs, commandFixture, invoke, json }] = await Promise.all([
+  import("../../../scripts/support/source-fixture.js"), import("../lib/npm-invocation.js"),
+  import("../../../scripts/support/control-command-fixture.js"),
+]);
 const repository = fileURLToPath(new URL("../../..", import.meta.url));
 const sandbox = realpathSync(mkdtempSync(join(tmpdir(), "agdf-command-package-")));
 const snapshot = join(sandbox, "snapshot"), consumer = join(sandbox, "consumer");
@@ -61,17 +69,30 @@ function checkDependencyClosure(entry, root) {
   return [...seen].map((path) => relative(root, path).replaceAll("\\", "/")).sort();
 }
 
-try {
+function prepareSnapshot() {
   mkdirSync(snapshot); mkdirSync(consumer, { recursive: true });
   copySourceFixture(snapshot, { git: true });
   execFileSync(process.execPath, [join(packageRoot, "scripts/sync-package-assets.js")], { cwd: sandbox, stdio: "pipe" });
   execFileSync(process.execPath, [join(snapshot, "scripts/assemble-npm.mjs")], { cwd: sandbox, stdio: "pipe" });
-  execFileSync(process.execPath, [join(packageRoot, "scripts/cli-modularization-test.js")], { cwd: sandbox, stdio: "pipe" });
-  console.log("PASS SCN-024/028 CLI modularization against the current source and documentation in isolated snapshot");
-  for (const name of ["package-build", "copilot-profile", "release-version-coherence", "package-contents", "local-validator", "plugin-mcp-runtime", "runtime-integrity-layout", "runtime-integrity-negative"]) {
+}
+
+function runIsolatedRegressions(names) {
+  for (const name of names) {
     execFileSync(process.execPath, [join(packageRoot, `scripts/${name}-test.js`)], { cwd: sandbox, stdio: "pipe" });
     console.log(`PASS SCN-029/032 isolated ${name} regression`);
   }
+}
+
+if (part && part !== "core") try {
+  prepareSnapshot();
+  runIsolatedRegressions(CONTROL_COMMAND_PACKAGE_PARTS[part]);
+  console.log(`Control command package tests passed (${part} part).`);
+} finally { rmSync(sandbox, { recursive: true, force: true }); }
+else try {
+  prepareSnapshot();
+  execFileSync(process.execPath, [join(packageRoot, "scripts/cli-modularization-test.js")], { cwd: sandbox, stdio: "pipe" });
+  console.log("PASS SCN-024/028 CLI modularization against the current source and documentation in isolated snapshot");
+  runIsolatedRegressions(part ? CONTROL_COMMAND_PACKAGE_PARTS.core : Object.values(CONTROL_COMMAND_PACKAGE_PARTS).flat());
   const npm = npmInvocation(["pack", "--ignore-scripts", "--json", "--pack-destination", sandbox]);
   const rawReport = JSON.parse(execFileSync(npm.executable, npm.args, { cwd: join(snapshot, "dist", "npm", "create-agdf"), encoding: "utf8", stdio: "pipe",
     env: { ...process.env, npm_config_cache: join(sandbox, "npm-cache"), npm_config_offline: "true" } }));

@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "presentation_language": "de",
+  "working_directory": "C:\\Workspace\\ai-native-governance-delivery-framework",
+  "primary_target": "C:\\Workspace\\ai-native-governance-delivery-framework",
+  "target_source": "current_repository",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "1109775b-bc30-4c7c-8c39-45897c418b41",
+  "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+  "assurance": "cooperative_local",
+  "command": {
+    "kind": "step.record",
+    "payload": {
+      "step": "internal",
+      "internal_step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_CLAUDE_CLI_WINDOWS_830D8B94_INPUT.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70"
+      },
+      "decision": "revise",
+      "reason": "CI-Budget der Packages-Partition behoben: control-command-package-test nach dem bestehenden Planer-Muster in drei Teile zerlegt (e3a0a632) und Selektor vor dem Laden der Fixtures geprüft (97454ec2); Guardrails-Lauf 39609232214 mit 118/118 Jobs grün. Fünf native Claude-CLI-Fälle unter Windows auf dem sauberen Kandidaten 830d8b94 bestanden und vom Release-Validator einzeln angenommen; sie ersetzen die Nachweise zu 5961f391. Desktop Code (0/3), Review und Import der Claude-Nachweise, Codex Linux/Windows (0/10) und die finale gemeinsame Referenz bleiben offen.",
+      "covers": "T-007, T-009, T-010 Claude CLI Windows 5/5 validator-angenommen auf 830d8b94; E-010 behoben; E-001, E-002, E-003 (Desktop 0/3, Review/Import) bleiben offen"
+    }
+  }
+}

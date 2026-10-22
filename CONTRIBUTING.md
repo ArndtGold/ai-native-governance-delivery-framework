@@ -174,7 +174,9 @@ Guardrails also runs Windows with Node 22 and Linux with Node 24. The reusable `
 workflow derives its matrix from the canonical npm test chains through `scripts/ci-plan.mjs`.
 Compound CLI and MCP suites are expanded to test files; the 18 MCP source/phase cases use the
 shared fixture inventory and run one source/phase cell per dedicated job, including its full
-fixture setup and CLI/STDIO assertions. Every platform/Node lane retains the full
+fixture setup and CLI/STDIO assertions. The packed control-command suite runs its core, plugin
+MCP runtime and runtime integrity parts as separate planned commands, each with its own isolated
+snapshot; its default local invocation still runs every part. Every platform/Node lane retains the full
 test multiset. New tests are assigned automatically; unsupported commands, lifecycle hooks and
 oversized individual tests fail planning rather than disappear from CI.
 

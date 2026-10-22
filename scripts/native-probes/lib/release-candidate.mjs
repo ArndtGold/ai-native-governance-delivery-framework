@@ -6,7 +6,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from '
 import { isAbsolute, join, resolve } from 'node:path';
 import { canonical } from '../../host-compatibility/contract.mjs';
 import { releasePolicy } from './release-policy.mjs';
-import { digestNormalizedPluginSource } from '../../../packages/core/lib/runtime/plugin-provenance.js';
+import { digestNormalizedPluginSource, digestPluginMcpDispatcherSource } from '../../../packages/core/lib/runtime/plugin-provenance.js';
 
 export const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 export const jsonDigest = value => sha(canonical(value));
@@ -83,8 +83,11 @@ export function candidateManifest(root) {
     return [path, inventory(root, path)];
   }));
   const pluginRoot = join(root, PAYLOAD_ROOTS[0]);
+  // Native calls run the MCP generation's projection of this dispatcher and report its digest,
+  // not the plugin runtime manifest digest.
   const identities = { agdf: { version: policy.version, source_digest: digestNormalizedPluginSource(pluginRoot, policy.version),
-    runtime_digest: JSON.parse(readFileSync(join(pluginRoot, 'runtime/runtime-manifest.json'), 'utf8')).digest } };
+    runtime_digest: JSON.parse(readFileSync(join(pluginRoot, 'runtime/runtime-manifest.json'), 'utf8')).digest },
+    mcp_dispatcher: { digest: digestPluginMcpDispatcherSource(join(pluginRoot, 'runtime/create-agdf'), policy.version) } };
   const identity = { schema_version: 1, version: policy.version, policy_digest: jsonDigest(policy), source, payloads, identities };
   return { ...identity, candidate_id: jsonDigest(identity), source_revision: gitIdentity(root) };
 }

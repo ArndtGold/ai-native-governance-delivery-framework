@@ -8,6 +8,7 @@ import { parse } from 'yaml';
 import { ciJobs, ciJobPlan, ciGraphMatrices, testInventory, partitionTests, CI_TEST_BUDGET_SECONDS } from './ci-plan.mjs';
 import { verificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
+import { CONTROL_COMMAND_PACKAGE_PARTS } from '../packages/cli/scripts/control-command-package-parts.js';
 import { TEST_DOMAINS } from './ci-test-domains.mjs';
 
 const preparation = ['dependencies', 'ui-dependencies', 'ui-build', 'generate', 'build-contracts', 'evals', 'assemble', 'prepare', 'mcp-dependencies'];
@@ -54,6 +55,9 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
   const cells = Object.entries(SOURCE_PHASE_MATRIX).flatMap(([gate, phases]) => phases.map(phase => [gate, phase]));
   assert.deepEqual(selected.map(c => [c.args[c.args.indexOf('--source-gate') + 1], c.args[c.args.indexOf('--phase') + 1]]).sort(), cells.sort());
   assert.equal(selected.length, 18);
+  const packageParts = inventory.filter(c => c.args[0] === 'scripts/control-command-package-test.js');
+  assert.deepEqual(packageParts.map(c => c.args.slice(1)), Object.keys(CONTROL_COMMAND_PACKAGE_PARTS).map(part => ['--part', part]));
+  assert.ok(packageParts.every(c => c.domain === 'packages' && !c.isolated));
   for (const suite of ['cli', 'mcp']) for (const row of ciJobs({ suite }).filter(row => row.commands?.some(c => c.args.includes('--phase')))) {
     assert.equal(row.commands.length, 1, `${row.id}: source/phase fixtures need an exclusive job`);
     const args = row.commands[0].args, gate = args[args.indexOf('--source-gate') + 1], phase = args[args.indexOf('--phase') + 1];
@@ -118,6 +122,15 @@ test('measured Windows MCP lifecycle and whole-flow costs prevent the exhausted 
   assert.notEqual(lifecycle.id, wholeFlow.id, 'run 39142873658 exhausted its budget when both heavy fixtures shared one job');
   assert.ok(lifecycle.seconds <= CI_TEST_BUDGET_SECONDS);
   assert.ok(wholeFlow.seconds <= CI_TEST_BUDGET_SECONDS);
+});
+
+test('measured packed control-command parts run in separate Windows partitions', () => {
+  const jobs = ciJobs().filter(row => row.os === 'windows-latest');
+  const owners = Object.keys(CONTROL_COMMAND_PACKAGE_PARTS).map(part => jobs.find(row => row.commands?.some(command =>
+    command.args[0] === 'scripts/control-command-package-test.js' && command.args.at(-1) === part)));
+  assert.ok(owners.every(Boolean));
+  assert.equal(new Set(owners.map(row => row.id)).size, owners.length, 'run 39600811858 exhausted its budget when all parts shared one job');
+  assert.ok(owners.every(row => row.seconds <= CI_TEST_BUDGET_SECONDS));
 });
 
 test('graph matrices route every existing partition exactly once for every caller', () => {
@@ -207,6 +220,11 @@ test('over-budget tests fail planning instead of being omitted; selectors reject
     const result = spawnSync(process.execPath, ['packages/mcp-server/test/expanded-source-revision.test.js', ...selector], { encoding: 'utf8' });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /Invalid source-gate\/phase test selector/);
+  }
+  for (const selector of [['--part'], ['--part', 'skip'], ['--part', 'core', 'extra'], ['core']]) {
+    const result = spawnSync(process.execPath, ['packages/cli/scripts/control-command-package-test.js', ...selector], { encoding: 'utf8' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Invalid control-command package test selector/);
   }
 });
 

@@ -1,0 +1,57 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+  "request_digest": "sha256:22e3afadd5227fd3b008445d48456fcb54e3538fd0b0c3f5601b3fb26e6f2070",
+  "binding": {
+    "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "expected_revision_id": "1109775b-bc30-4c7c-8c39-45897c418b41",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "1109775b-bc30-4c7c-8c39-45897c418b41",
+    "resulting_revision_id": "38b4d50c-ab56-4693-a352-5000cf4e6185",
+    "revision": 17,
+    "record": {
+      "step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70"
+      },
+      "status": "revise",
+      "covers": "T-007, T-009, T-010 Claude CLI Windows 5/5 validator-angenommen auf 830d8b94; E-010 behoben; E-001, E-002, E-003 (Desktop 0/3, Review/Import) bleiben offen",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+    "request_digest": "sha256:22e3afadd5227fd3b008445d48456fcb54e3538fd0b0c3f5601b3fb26e6f2070",
+    "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "expected_revision_id": "1109775b-bc30-4c7c-8c39-45897c418b41",
+    "created_at": "2026-10-21T14:57:18.485Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    }
+  },
+  "current": {
+    "revision": 17,
+    "revision_id": "38b4d50c-ab56-4693-a352-5000cf4e6185",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR."
+  },
+  "authorizes": false
+}

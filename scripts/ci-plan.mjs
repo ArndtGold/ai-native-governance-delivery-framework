@@ -5,6 +5,7 @@ import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verificationPlan, executeVerificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
+import { CONTROL_COMMAND_PACKAGE_PARTS } from '../packages/cli/scripts/control-command-package-parts.js';
 import { TEST_DOMAINS, scriptDomain, commandDomain } from './ci-test-domains.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -86,6 +87,8 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
     return commands;
   }
   const commands = expand(suite === 'cli' ? 'smoke-test' : 'test', `packages/${suite === 'cli' ? 'cli' : 'mcp-server'}`);
+  // Each cell or part pays its own fixture setup on top of its share of the measured file.
+  const share = (seconds, count) => Object.fromEntries(Object.entries(seconds ?? {}).map(([key, value]) => [key, value / count + (key === 'windows' ? 60 : 15)]));
   // This file exercises 18 independent source/phase cells. Preserve the full
   // default invocation locally; CI executes each validated source/phase cell.
   return commands.flatMap(command => {
@@ -94,11 +97,17 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
       const fileHints = baseline.files[relative(repository, resolve(repository, command.cwd, file)).replaceAll('\\', '/')];
       command.seconds = { ...command.seconds, ...fileHints };
     }
+    // The packed control-command suite rebuilds an isolated snapshot for each part. Run 39600811858
+    // exhausted the Windows execution budget when all parts shared one invocation.
+    if (command.cwd === 'packages/cli' && command.args[0] === 'scripts/control-command-package-test.js') {
+      const parts = Object.keys(CONTROL_COMMAND_PACKAGE_PARTS);
+      return parts.map(part => ({ ...command, args: [...command.args, '--part', part], seconds: share(command.seconds, parts.length) }));
+    }
     if (command.cwd !== 'packages/mcp-server' || command.args[0] !== './test/expanded-source-revision.test.js') return [command];
     const total = Object.values(SOURCE_PHASE_MATRIX).flat().length;
     return Object.entries(SOURCE_PHASE_MATRIX).flatMap(([gate, phases]) => phases.map(phase => ({ ...command,
       args: [...command.args, '--source-gate', gate, '--phase', phase], isolated: true, domain: 'revisions',
-      seconds: Object.fromEntries(Object.entries(command.seconds ?? {}).map(([key, value]) => [key, value / total + (key === 'windows' ? 60 : 15)])) })));
+      seconds: share(command.seconds, total) })));
   }).map(command => ({ ...command, id: createHash('sha256').update(identity(command)).digest('hex').slice(0, 12) }));
 }
 

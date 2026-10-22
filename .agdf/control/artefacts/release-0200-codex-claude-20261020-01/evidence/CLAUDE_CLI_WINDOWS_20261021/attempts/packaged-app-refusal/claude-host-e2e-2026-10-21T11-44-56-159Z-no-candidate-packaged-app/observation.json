@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "kind": "agdf_claude_host_e2e",
+  "recorded_at": "2026-10-21T11:44:56.360Z",
+  "requested_model": "claude-sonnet-5",
+  "source": {
+    "commit": "486b19652545deb654722e491b87580692aa9bd8",
+    "dirty": false
+  },
+  "scenario": null,
+  "host": {
+    "client": "claude-code-cli",
+    "version": "2.1.302",
+    "os": "win32",
+    "arch": "x64",
+    "node": "v22.22.3"
+  },
+  "agdf": {
+    "version": null
+  },
+  "model": "claude-sonnet-5",
+  "steps": [
+    {
+      "name": "host",
+      "status": "pass",
+      "evidence": {
+        "version": "2.1.302"
+      }
+    },
+    {
+      "name": "install",
+      "status": "fail",
+      "evidence": {
+        "result": null,
+        "effective_state": null
+      }
+    },
+    {
+      "name": "control_fixture",
+      "status": "pass",
+      "evidence": {
+        "init_status": 0,
+        "run_create_status": 0
+      }
+    },
+    {
+      "name": "discovery",
+      "status": "fail",
+      "evidence": {
+        "mcp_list": ""
+      }
+    },
+    {
+      "name": "dispatch",
+      "status": "fail",
+      "evidence": {
+        "exec_status": null,
+        "calls": 0,
+        "unexpected_tools": [],
+        "observed_models": [],
+        "outcome": null,
+        "terminal": null,
+        "authorizes": null,
+        "runtime_digest": null,
+        "contracts_verified": false,
+        "preserved_foreign_state": true,
+        "permission_preserved": true
+      }
+    },
+    {
+      "name": "failure_case",
+      "status": "fail",
+      "evidence": {
+        "exec_status": null,
+        "calls": 0,
+        "unexpected_tools": [],
+        "observed_models": [],
+        "outcome": null,
+        "terminal": null,
+        "authorizes": null,
+        "runtime_digest": null,
+        "contracts_verified": false,
+        "preserved_foreign_state": true,
+        "permission_preserved": true
+      }
+    },
+    {
+      "name": "skill_continuation",
+      "status": "fail",
+      "evidence": {
+        "exec_status": null,
+        "calls": 0,
+        "unexpected_tools": [],
+        "observed_models": [],
+        "outcome": null,
+        "terminal": null,
+        "authorizes": null,
+        "runtime_digest": null,
+        "contracts_verified": false,
+        "preserved_foreign_state": true,
+        "permission_preserved": true
+      }
+    },
+    {
+      "name": "removal",
+      "status": "fail",
+      "evidence": {
+        "mcp_listed": false,
+        "plugin_data": false,
+        "enabled": false,
+        "permission_rules": 0,
+        "user_mcp": false,
+        "installed_entry": false,
+        "kept_by_design": "agdf marketplace registration"
+      }
+    }
+  ],
+  "result": "fail"
+}

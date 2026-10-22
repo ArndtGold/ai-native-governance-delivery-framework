@@ -8,8 +8,10 @@ import { containedOutput, jsonDigest, sha } from '../native-probes/lib/release-c
 export function projectNativeRelease(root, rows, candidate) {
   const manifestPath = containedOutput(root, 'evals/host-compatibility/manifest.json');
   const original = readFileSync(manifestPath, 'utf8'), manifest = JSON.parse(original);
-  const publicPath = `docs/compatibility/evidence/claude-release-${candidate.candidate_id}.json`;
-  const observationPath = `evals/host-compatibility/observations/claude-release-${candidate.candidate_id}.json`;
+  const scopes = [...new Set(rows.map(({record}) => `${record.environment.host}-${record.environment.surface}`))];
+  const prefix = scopes.length === 1 ? scopes[0] : 'claude';
+  const publicPath = `docs/compatibility/evidence/${prefix}-release-${candidate.candidate_id}.json`;
+  const observationPath = `evals/host-compatibility/observations/${prefix}-release-${candidate.candidate_id}.json`;
   const summary = rows.map(({ record }) => ({ id: record.id, candidate_id: record.candidate_id, environment: record.environment,
     scenario: record.scenario, result: record.result, assurance: record.assurance, loaded_identity: record.loaded_identity,
     primary_references: record.references }));

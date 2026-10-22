@@ -31,7 +31,7 @@ test('normalized text and fixed evidence-only fields preserve content identity',
     f.put('packages/core/input.txt', 'fixture\r\n');
     f.put('evals/host-compatibility/native/results.json', '{}');
     f.put('evals/host-compatibility/observations/results.json', '{}');
-    f.put('evals/host-compatibility/manifest.json', JSON.stringify({ schema_version: 1, native_sources: ['new-observation'], native_targets: ['new-target'], public_evidence: ['new-evidence'], inputs: ['fixture'] }));
+    f.put('evals/host-compatibility/manifest.json', JSON.stringify({ schema_version: 1, native_sources: ['new-observation'], native_targets: ['new-target'], public_evidence: ['new-evidence'], reported_sources: ['reported-only'], inputs: ['fixture'] }));
     assert.equal(candidateManifest(f.root).candidate_id, f.candidate.candidate_id);
     f.git('add', '.'); f.git('commit', '-qm', 'result-only');
     assert.equal(validateCandidate(f.root, f.candidate, { requireClean: true }).candidate_id, f.candidate.candidate_id);

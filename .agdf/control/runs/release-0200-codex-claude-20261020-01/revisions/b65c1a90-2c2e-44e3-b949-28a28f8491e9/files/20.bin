@@ -1,0 +1,75 @@
+# UR: Prepare AGDF 0.20.0 for Codex and Claude Code
+
+Status: draft
+Gate: UR
+Gate approval: open
+Requirements clarification: complete
+Preview requirement: none
+Date: 2026-10-20
+Owner: AGDF maintainer
+
+## 1. Problem
+
+The repository still declares AGDF 0.14.5 despite substantial changes to the Core, package boundaries, MCP interface and control UI. Public installation guidance presents Codex, Claude Code, GitHub Copilot and OpenCode together. The current compatibility report records deterministic adapter scenarios but does not establish current native host qualification. The publication workflow requires Codex native evidence without an equivalent Claude Code release requirement.
+
+## 2. Goal
+
+Prepare one coherent AGDF 0.20.0 release candidate with Codex and Claude Code as its intended qualified hosts, close the missing native host evidence for the release scope, and explicitly retain GitHub Copilot and OpenCode as experimental integrations. Qualification must follow observed results for the exact candidate and host environment.
+
+## Affected Users
+
+AGDF users installing or upgrading on Codex and Claude Code, maintainers assessing release readiness, and existing Copilot and OpenCode users who need an accurate experimental-support statement.
+
+## 3. Scope
+
+- Prepare version 0.20.0 through the canonical version and release preparation owners, keeping dependent packages, plugin metadata, generated distributions and release history coherent.
+- Align installation guidance, release notes and compatibility reporting with Codex and Claude Code as the intended qualified hosts and Copilot/OpenCode as experimental. Preserve existing experimental adapters and their regression coverage.
+- Define the exact release qualification matrix during PRD/SD: host variant, client version, operating system, architecture, model, Node version, candidate identity and claimed capabilities. Do not infer Desktop or embedded MCP App qualification from CLI observations.
+- Obtain fresh native evidence for installation, discovery, invocation, controlled failure, effective upgrade and recovery, and clean removal on the declared Codex and Claude Code release combinations. Include supported skills/MCP paths and automatic checks according to their actual capability claims; keep hook trust and execution evidence distinct from successful MCP calls.
+- Reuse and extend existing native probes, evidence validation and release workflow owners so both intended qualified hosts have mandatory candidate-bound evidence before publication. Preserve existing Codex Linux/Windows requirements unless an explicit support-scope decision changes them.
+- Retain durable, redacted observations identifying the exact tested candidate, host environment, expected and actual results, limitations and cleanup. Refresh compatibility evidence without converting fixture results or historical observations into fresh native proof.
+- Produce a reviewable release candidate and readiness report. Record inaccessible native platforms, authentication or rendering prerequisites as concrete open blockers rather than successful qualification.
+
+## 4. Non-Goals
+
+- Publish packages, create or push release tags, submit a marketplace listing, or claim release approval under this preparation request.
+- Remove Copilot/OpenCode, qualify their native hosts, or create separate AGDF version lines per host.
+- Add unrelated product features, alter governance approval authority, weaken evidence checks, or mark unexecuted tests as passed.
+- Change the user's active host installation or credentials merely to make an isolated test pass. Prefer isolated profiles and preserve unrelated worktree changes.
+
+## 5. Acceptance Signals
+
+- The prepared candidate consistently declares 0.20.0 and passes the canonical release preparation, packaging and affected regression checks.
+- User-facing documentation and release metadata consistently distinguish the two intended qualified hosts from the two experimental integrations.
+- Each declared qualified combination has fresh native observations bound to the exact candidate, including installation, discovery, invocation, controlled failure, upgrade, recovery and removal. Missing observations remain visible blockers; green deterministic tests cannot close them.
+- Mandatory release validation checks Codex and Claude Code evidence and rejects failed, incomplete, stale, mismatched or duplicate observations.
+- Capability claims distinguish CLI, Desktop, MCP App rendering, available skills, automatic checks and technical enforcement wherever applicable. Qualification is limited to the combinations and capabilities actually demonstrated.
+- A release readiness report exposes completed checks, unresolved prerequisites and required human decisions without claiming publication or human acceptance.
+
+## 6. Existing Source Of Truth
+
+Canonical plugin metadata is owned by `plugins/agdf/meta/agdf-plugin.definition.json` and `plugins/agdf/plugin.json`. Package versions and dependencies live in the package manifests. Version changes and preparation use `scripts/release-bump.js`, `scripts/release/version-bump.js`, `scripts/release/version-coherence.js` and `packages/cli/package.json`'s `release:prepare`. Host installation behavior remains in `packages/cli`; governance remains in `packages/core`.
+
+Native probe and evidence owners are `scripts/native-probes/`, `.github/workflows/codex-release-e2e.yml` and `.github/workflows/publish-agdf.yml`. Compatibility reporting is owned by `scripts/host-compatibility/` and `docs/compatibility/`. Public guidance includes `README.md`, `INSTALL.md` and `docs/maintenance/README.md`. Existing runs are dependencies or historical evidence, not substitutes for this release's qualification.
+
+## 7. Risks And Unknowns
+
+Read-only preflight found Codex CLI 0.163.0 and Claude Code 2.1.193 on this macOS environment. This is client availability, not successful authentication, installation or qualification. The existing Codex release policy pins another client version and requires native Linux and Windows; availability of remote runners and credentials must be established before executing that matrix. The Claude probe currently skips real model calls when credentials cannot be transferred into its isolated profile and does not yet provide equivalent commit-bound upgrade/recovery evidence. These limitations need explicit resolution through the existing owners.
+
+The working tree contains unrelated modifications; preserve them and qualify a clean, reviewable candidate. Existing active runs and historical approvals may not cover the final candidate. Exact operating-system and host-variant coverage, supported upgrade baselines, model selection and bounded test execution are downstream PRD/SD decisions; they must be settled before qualification and reported transparently if prerequisites remain unavailable.
+
+## 8. Next Step
+
+Review and approve this UR with `Approval: UR`. Continue through canonical Brownfield Review and Mode/Slice routing to PRD, SD and TP as required. Implement version preparation and execute native qualification only after the applicable approvals. No UI preview was requested.
+
+## AGDF Approval Summary (de; source=en)
+
+AGDF soll als gemeinsame Version 0.20.0 vorbereitet werden. Codex und Claude Code sind die vorgesehenen qualifizierten Hosts; Copilot und OpenCode bleiben ausdrücklich experimentell, ihre Adapter und Regressionstests bleiben erhalten. Betroffen sind Anwender bei Installation und Upgrade sowie Maintainer bei der Release-Entscheidung.
+
+Der Umfang umfasst konsistente Paket- und Pluginversionen, Installationshinweise, Release-Dokumentation und verpflichtende native Nachweise für beide vorgesehenen Hosts. Nachzuweisen sind Installation, Erkennung, Aufruf, kontrollierter Fehler, Upgrade, Wiederherstellung und Entfernung am exakten Kandidaten. Host-Variante, Version, Betriebssystem, Modell und Fähigkeiten werden ausdrücklich festgehalten. CLI-Ergebnisse belegen weder Desktop-Verhalten noch die sichtbare MCP-App; Hook-Vertrauen und Hook-Ausführung bleiben getrennte Nachweise.
+
+Erfolg bedeutet einen prüfbaren Kandidaten mit bestandener Release-Vorbereitung und passenden nativen Belegen für jede als qualifiziert bezeichnete Kombination. Fehlende Plattformen, Zugangsdaten oder UI-Nachweise bleiben sichtbare Blocker. Die bestehenden Codex-Anforderungen für Linux und Windows bleiben erhalten, sofern keine ausdrückliche Änderung des Supportumfangs erfolgt. Die genaue Matrix und Upgrade-Baselines werden vor Umsetzung konkretisiert.
+
+Versionspflege, Installation, Core, native Probes und Release-Workflow behalten ihre vorhandenen kanonischen Eigentümer. Hier verfügbar sind Codex CLI 0.163.0 und Claude Code 2.1.193 auf macOS; Authentifizierung und native Qualifikation sind damit noch nicht belegt. Der Claude-Test benötigt insbesondere eine Lösung für isolierte Authentifizierung sowie kandidatengebundene Upgrade- und Wiederherstellungsbelege. Fremde Arbeitsänderungen werden erhalten.
+
+Veröffentlichung, Release-Tags, Marketplace-Einreichung und pauschale Freigaben sind ausgeschlossen. Nach UR-Freigabe folgen die erforderlichen Analyse-, Anforderungs-, Entwurfs- und Planungsstufen; danach Umsetzung und Host-Tests.

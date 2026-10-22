@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "presentation_language": "de",
+  "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "target_source": "continued_target",
+  "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "276d8549-c732-400e-9498-43fed41d3c2f",
+  "operation_id": "7b245069-2d61-47fa-a2bf-b4fa7e2b37e4",
+  "assurance": "cooperative_local",
+  "command": {
+    "kind": "step.record",
+    "payload": {
+      "step": "internal",
+      "internal_step": "CD+Tests",
+      "decision": "revise",
+      "source": {
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_DESKTOP_MATRIX_20261022_INPUT.md",
+        "digest": "sha256:8c55fa9539a68248fb9275bcac2de80e1153b259989f023be76f03ecde549a99"
+      },
+      "reason": "Desktop-Matrix und Schutzprüfungen umgesetzt; lokale Vollprüfung besteht alle 27 Stufen bei unveränderten Quellen. CD+Tests bleibt revise: ursprüngliche Desktop-Sitzungen sind noch keinem finalen Kandidaten zugeordnet, ein sauberer Release-Stand fehlt und die bekannte EOF-Formatdiagnose im versiegelten Review bleibt dokumentiert. Handprüfungen bleiben als bestanden gemeldet; keine QA/UAT/OR- oder Veröffentlichungsfreigabe wird abgeleitet.",
+      "covers": "T-001 through T-008 implemented; T-009 verification passed but clean source pending; T-010 original CLI reviewed and human reports preserved, current Desktop evidence pending; T-011 formal reviews/QA not completed."
+    }
+  }
+}

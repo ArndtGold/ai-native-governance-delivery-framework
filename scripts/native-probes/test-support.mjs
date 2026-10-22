@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { SOURCE_ROOTS, SOURCE_FILES, PAYLOAD_ROOTS, candidateManifest } from './lib/release-candidate.mjs';
 import { MCP_DISPATCHER_RUNTIME_ENTRIES } from '../../packages/core/lib/runtime/plugin-provenance.js';
 
-export function candidateFixture() {
+export function candidateFixture({ policyVersion = 1 } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'agdf-release-'));
   const put = (path, content) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), content); };
   for (const path of [...SOURCE_ROOTS, ...PAYLOAD_ROOTS]) put(`${path}/input.txt`, 'fixture\n');
@@ -13,6 +13,7 @@ export function candidateFixture() {
   put('.gitattributes', readFileSync(new URL('../../.gitattributes', import.meta.url)));
   put('.gitignore', 'dist/\npackages/cli/generated/\n.release-candidate.json\nprobe-results/\n');
   const definition = JSON.parse(readFileSync(new URL('../../plugins/agdf/meta/agdf-plugin.definition.json', import.meta.url), 'utf8'));
+  if (policyVersion === 1 && definition.hostSupport.schema_version === 2) definition.hostSupport = { schema_version: 1, tiers: definition.hostSupport.tiers, codex: definition.hostSupport.optional_cli.codex, claude: { platforms: ['win32'], surfaces: ['cli','desktop-code'] } };
   put('plugins/agdf/meta/agdf-plugin.definition.json', JSON.stringify(definition));
   put('evals/host-compatibility/manifest.json', JSON.stringify({ schema_version: 1, native_sources: [], native_targets: [], public_evidence: [], inputs: ['fixture'] }));
   put('packages/cli/generated/plugins/agdf/runtime/runtime-manifest.json', JSON.stringify({ digest: 'b'.repeat(64) }));

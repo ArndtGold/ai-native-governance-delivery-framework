@@ -1,0 +1,56 @@
+{
+  "observed_at": "2026-10-22T09:34:20.082Z",
+  "qualification": "unverified",
+  "publication_eligible": false,
+  "candidate_id": "5143cc192852d091d9792124832805e34adcb8193689857a1217dc311486dd7f",
+  "candidate_source": {
+    "commit": "7ce6e8385632c001f6cdcd94fdb242e07f2ee748",
+    "dirty": true
+  },
+  "required_cases": [
+    {
+      "host": "codex",
+      "surface": "desktop-code",
+      "os": "observed",
+      "scenario": "session"
+    },
+    {
+      "host": "codex",
+      "surface": "desktop-code",
+      "os": "observed",
+      "scenario": "upgrade"
+    },
+    {
+      "host": "codex",
+      "surface": "desktop-code",
+      "os": "observed",
+      "scenario": "recovery"
+    },
+    {
+      "host": "claude",
+      "surface": "desktop-code",
+      "os": "win32",
+      "scenario": "session"
+    },
+    {
+      "host": "claude",
+      "surface": "desktop-code",
+      "os": "win32",
+      "scenario": "upgrade"
+    },
+    {
+      "host": "claude",
+      "surface": "desktop-code",
+      "os": "win32",
+      "scenario": "recovery"
+    }
+  ],
+  "qualified_desktop_records": 0,
+  "human_reports": 2,
+  "observed_rejections": {
+    "clean_source": "candidate_source_dirty",
+    "native_matrix": "native_required_matrix_missing_or_duplicate"
+  },
+  "check_scope": "Actual candidate clean-source guard and actual required-matrix owner guard; no native execution or full-publication success asserted.",
+  "authorizes": false
+}

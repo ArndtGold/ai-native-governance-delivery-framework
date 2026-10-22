@@ -51,7 +51,7 @@ function inventory(root, base, { source = false } = {}) {
       assert.ok(stat.isFile(), `candidate_file_invalid:${path}`);
       let bytes = normalizedBytes(readFileSync(absolute));
       if (source && path === 'evals/host-compatibility/manifest.json') {
-        const { native_sources, native_targets, public_evidence, ...inputs } = JSON.parse(bytes);
+        const { native_sources, native_targets, public_evidence, reported_sources, ...inputs } = JSON.parse(bytes);
         bytes = Buffer.from(canonical(inputs));
       }
       rows.push({ path, executable: Boolean(stat.mode & 0o111), bytes: bytes.length, digest: sha(bytes) });

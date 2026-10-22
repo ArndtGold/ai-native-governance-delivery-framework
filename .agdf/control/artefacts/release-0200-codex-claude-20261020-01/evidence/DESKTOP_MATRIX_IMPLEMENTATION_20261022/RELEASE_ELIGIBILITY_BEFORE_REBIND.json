@@ -1,0 +1,55 @@
+{
+  "observed_at": "2026-10-22T07:54:56.039Z",
+  "qualification": "unverified",
+  "publication_eligible": false,
+  "candidate_id": "7a112e882d7fc605ab06b7a03e4da071640fd59ade9bd4f3f234b851887fea7c",
+  "candidate_source": {
+    "commit": "7ce6e8385632c001f6cdcd94fdb242e07f2ee748",
+    "dirty": true
+  },
+  "required_cases": [
+    {
+      "host": "codex",
+      "surface": "desktop-code",
+      "os": "observed",
+      "scenario": "session"
+    },
+    {
+      "host": "codex",
+      "surface": "desktop-code",
+      "os": "observed",
+      "scenario": "upgrade"
+    },
+    {
+      "host": "codex",
+      "surface": "desktop-code",
+      "os": "observed",
+      "scenario": "recovery"
+    },
+    {
+      "host": "claude",
+      "surface": "desktop-code",
+      "os": "win32",
+      "scenario": "session"
+    },
+    {
+      "host": "claude",
+      "surface": "desktop-code",
+      "os": "win32",
+      "scenario": "upgrade"
+    },
+    {
+      "host": "claude",
+      "surface": "desktop-code",
+      "os": "win32",
+      "scenario": "recovery"
+    }
+  ],
+  "qualified_desktop_records": 0,
+  "human_reports": 2,
+  "observed_rejections": {
+    "clean_source": "candidate_source_dirty",
+    "native_matrix": "native_required_matrix_missing_or_duplicate"
+  },
+  "authorizes": false
+}

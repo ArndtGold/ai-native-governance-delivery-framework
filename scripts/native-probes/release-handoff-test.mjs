@@ -9,6 +9,16 @@ import { releasePolicy, requiredReleaseCases, optionalCliCases } from './lib/rel
 import { assertHostReleaseEvidence, assertHumanReport, referencesFrom, releaseRecords } from './lib/release-observation.mjs';
 import { assertBundleReview, bundleDigest, importClaudeEvidence, importNativeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
 
+async function runFixtureReleaseTool(args, fixture) {
+  const previous = process.env.GITHUB_SHA;
+  try {
+    process.env.GITHUB_SHA = fixture.git('rev-parse', 'HEAD').trim();
+    return await runReleaseTool(args, fixture.root);
+  } finally {
+    if (previous === undefined) delete process.env.GITHUB_SHA; else process.env.GITHUB_SHA = previous;
+  }
+}
+
 // All records below are synthetic validator fixtures, never installed-host observations.
 function desktopFixtures(f) {
   const root = mkdtempSync(join(tmpdir(), 'agdf-desktop-fixture-'));
@@ -88,18 +98,21 @@ test('Desktop primary capabilities, raw calls, transitions and cleanup cannot be
 });
 test('default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy', async () => {
   const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  const previous = process.env.GITHUB_SHA;
   try {
     const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
     const args=['validate','--candidate',candidate,'--directory',d.root];
-    assert.equal((await runReleaseTool(args,f.root)).cases.length,6);
-    assert.equal((await runReleaseTool([...args,'--all-hosts'],f.root)).cases.length,6);
+    assert.equal((await runFixtureReleaseTool(args,f)).cases.length,6);
+    assert.equal((await runFixtureReleaseTool([...args,'--all-hosts'],f)).cases.length,6);
+    assert.equal(process.env.GITHUB_SHA, previous);
     rmSync(join(d.root,'claude'),{recursive:true});
-    await assert.rejects(runReleaseTool(args,f.root));
-    await assert.rejects(runReleaseTool([...args,'--all-hosts'],f.root));
+    await assert.rejects(runFixtureReleaseTool(args,f));
+    await assert.rejects(runFixtureReleaseTool([...args,'--all-hosts'],f));
+    assert.equal(process.env.GITHUB_SHA, previous);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
   const old=candidateFixture();
   try { const candidate=join(old.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(old.candidate));
-    await assert.rejects(runReleaseTool(['validate','--candidate',candidate,'--directory',old.root,'--all-hosts'],old.root),/publication_requires_desktop_policy/u);
+    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',old.root,'--all-hosts'],old),/publication_requires_desktop_policy/u);
   } finally {rmSync(old.root,{recursive:true,force:true});}
 });
 test('Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection', () => {
@@ -277,6 +290,8 @@ test('local validation binds the actual checkout and CI additionally requires it
     delete process.env.GITHUB_SHA;
     const args = ['validate','--candidate',candidatePath,'--directory',data.root];
     assert.equal((await runReleaseTool(args, f.root)).result, 'pass');
+    process.env.GITHUB_SHA = f.git('rev-parse', 'HEAD').trim();
+    assert.equal((await runReleaseTool(args, f.root)).result, 'pass');
     process.env.GITHUB_SHA = 'f'.repeat(40);
     await assert.rejects(runReleaseTool(args, f.root), /release_checkout_sha_mismatch/u);
   } finally {
@@ -289,13 +304,13 @@ test('optional current-policy CLI diagnostics retain strict checks and never gra
   try {
     const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
     const args=['validate-cli','--candidate',candidate,'--directory',d.root];
-    const result=await runReleaseTool(args,f.root);
+    const result=await runFixtureReleaseTool(args,f);
     assert.equal(result.cases.length,10);assert.equal(result.qualification,'unqualified');
-    await assert.rejects(runReleaseTool(['validate','--candidate',candidate,'--directory',d.root,'--all-hosts'],f.root));
+    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',d.root,'--all-hosts'],f));
     const record=d.rows[0].record;
     record.source.commit='f'.repeat(40);
     writeFileSync(join(d.rows[0].directory,'release-records.json'),JSON.stringify([record]));
-    await assert.rejects(runReleaseTool(args,f.root),/commit_mismatch/u);
+    await assert.rejects(runFixtureReleaseTool(args,f),/commit_mismatch/u);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
 });
 test('Desktop preflight uses captured runtime identity, never the helper process tuple', async () => {

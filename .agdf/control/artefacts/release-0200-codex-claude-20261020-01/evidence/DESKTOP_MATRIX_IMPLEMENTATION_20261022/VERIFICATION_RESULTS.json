@@ -1,0 +1,187 @@
+{
+  "recorded_at": "2026-10-22T09:34:47.035Z",
+  "source_head": "7ce6e8385632c001f6cdcd94fdb242e07f2ee748",
+  "source_dirty": true,
+  "candidate_id": "5143cc192852d091d9792124832805e34adcb8193689857a1217dc311486dd7f",
+  "full_verification": {
+    "command": "NPM_CONFIG_CACHE=/tmp/agdf-desktop-npm-cache npm run verify:ci",
+    "exit_code": 0,
+    "log": "full-verification-attempt-2.log",
+    "stages": [
+      {
+        "stage": "dependencies",
+        "seconds": 2.3
+      },
+      {
+        "stage": "maintenance",
+        "seconds": 86
+      },
+      {
+        "stage": "shell",
+        "seconds": 1.1
+      },
+      {
+        "stage": "ui-dependencies",
+        "seconds": 8
+      },
+      {
+        "stage": "ui-build",
+        "seconds": 2.2
+      },
+      {
+        "stage": "generate",
+        "seconds": 2.9
+      },
+      {
+        "stage": "build-contracts",
+        "seconds": 37.4
+      },
+      {
+        "stage": "evals",
+        "seconds": 1
+      },
+      {
+        "stage": "compatibility-freshness",
+        "seconds": 2.3
+      },
+      {
+        "stage": "assemble",
+        "seconds": 1.8
+      },
+      {
+        "stage": "prepare",
+        "seconds": 55.4
+      },
+      {
+        "stage": "mcp-dependencies",
+        "seconds": 10
+      },
+      {
+        "stage": "runtime",
+        "seconds": 3.2
+      },
+      {
+        "stage": "community",
+        "seconds": 11.9
+      },
+      {
+        "stage": "host-compatibility",
+        "seconds": 128.5
+      },
+      {
+        "stage": "mcp-ergonomics",
+        "seconds": 9.4
+      },
+      {
+        "stage": "built-runtime",
+        "seconds": 2.5
+      },
+      {
+        "stage": "cli-package",
+        "seconds": 6.2
+      },
+      {
+        "stage": "wrapper-package",
+        "seconds": 1.9
+      },
+      {
+        "stage": "transactions",
+        "seconds": 33.8
+      },
+      {
+        "stage": "delivery-map",
+        "seconds": 18.2
+      },
+      {
+        "stage": "mcp-package",
+        "seconds": 23.5
+      },
+      {
+        "stage": "archives",
+        "seconds": 39.3
+      },
+      {
+        "stage": "cli-smoke",
+        "seconds": 4443.4
+      },
+      {
+        "stage": "wrapper-smoke",
+        "seconds": 11.3
+      },
+      {
+        "stage": "pages-install",
+        "seconds": 22.2
+      },
+      {
+        "stage": "pages",
+        "seconds": 24
+      }
+    ],
+    "scope": "Complete canonical local repository plan, darwin/x64 Node v22.22.3; no fresh GitHub CI or native Desktop qualification."
+  },
+  "prior_attempt": {
+    "exit_code": 1,
+    "log": "full-verification-attempt-1.log",
+    "failure": "cli-smoke request-activation stale SOURCE_FINGERPRINT; corrected only reviewed derived binding through existing fingerprint owner."
+  },
+  "prerequisites": {
+    "test:request-activation": {
+      "result": "pass",
+      "cases": 39,
+      "log": "request-activation.log"
+    },
+    "build:prepare": {
+      "result": "pass",
+      "log": "build-prepare-after-rebind.log"
+    },
+    "compatibility:record": {
+      "result": "pass",
+      "adapter_cases": 56,
+      "unexpected_failures": 0,
+      "log": "compatibility-record-after-rebind.log"
+    },
+    "compatibility:check": {
+      "result": "pass",
+      "log": "compatibility-check-after-rebind.log"
+    },
+    "build": {
+      "result": "pass",
+      "log": "build-after-rebind.log"
+    },
+    "release:prepare": {
+      "result": "pass",
+      "log": "release-prepare-after-rebind.log"
+    }
+  },
+  "whitespace": {
+    "global": {
+      "exit_code": 2,
+      "diagnostic": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md:124: new blank line at EOF.",
+      "scope": "Pre-existing exact sealed analytical source; retained unchanged."
+    },
+    "implementation_scope": {
+      "exit_code": 0,
+      "paths": [
+        ".github",
+        "CONTRIBUTING.md",
+        "INSTALL.md",
+        "README.md",
+        "docs",
+        "evals",
+        "packages",
+        "plugins",
+        "scripts"
+      ]
+    }
+  },
+  "platform_limits": [
+    "[host-command-test] SKIPPED live Windows shim assertions on darwin",
+    "SCN-030/031 QUALIFICATION {\"source\":\"passed\",\"packed_external\":\"passed\",\"generated_validator\":\"passed\",\"native_platform\":\"darwin/x64\",\"native_linux\":\"unavailable\",\"native_windows\":\"unavailable\",\"new_installed_plugin\":\"not_installed\",\"visible_host\":\"not_observed\",\"independent_human_proof\":\"unavailable\"}"
+  ],
+  "native_desktop_qualified_cases": 0,
+  "human_reports": 2,
+  "shared_repository_vcs_actions": "none; HEAD unchanged and index unstaged",
+  "foreign_run": "preserved",
+  "qualification": "pending",
+  "authorizes": false
+}

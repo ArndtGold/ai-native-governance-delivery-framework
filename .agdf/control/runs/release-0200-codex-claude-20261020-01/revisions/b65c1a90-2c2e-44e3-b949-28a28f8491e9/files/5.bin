@@ -1,0 +1,562 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "38b4d50c-ab56-4693-a352-5000cf4e6185",
+  "operation_id": "b65c1a90-2c2e-44e3-b949-28a28f8491e9",
+  "source_gate": "PRD",
+  "reason": "The maintainer explicitly requested a release matrix matching the actually checked hosts, confirmed both Desktop handchecks and all named scenarios, and directed that Codex Windows/Linux remain unqualified. The approved PRD still requires those unavailable CLI platforms.",
+  "intended_change": "For AGDF 0.20.0, use Codex Desktop and Claude Desktop as the manually checked release targets, retain separately validated Windows Claude CLI evidence and bounded macOS Codex CLI diagnostics, and explicitly leave Codex CLI Linux/native Windows unqualified outside the mandatory release matrix. Document reported Desktop invocation, upgrade and recovery without inventing tuple, candidate or primary-evidence details; propagate renewed requirements through canonical policy, evidence, publication and compatibility owners after approval.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+      "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+      "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+      "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee"
+    }
+  ],
+  "initiating_phase": "CD+Tests",
+  "changed_statements": [
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+      "statement": "The mandatory native release matrix retains the existing Codex CLI Linux and native Windows requirements. Claude Code qualification runs on the other Windows computer identified by the user, with separate evidence for Claude CLI and the Claude Code coding surface in the Claude Desktop app. Desktop chat is not a substitute for Claude Code. Exact client/app versions, model, architecture and Node version are captured at execution and must be fixed for each observation; the description current is insufficient evidence. Codex's existing release policy supplies its required client/model tuple unless separately revised through an explicit design decision with justification and fresh evidence. A successful additional local macOS test may be reported only for its observed tuple; it cannot replace a required matrix row.",
+      "intended_change": "For AGDF 0.20.0, use Codex Desktop and Claude Desktop as the manually checked release targets, retain separately validated Windows Claude CLI evidence and bounded macOS Codex CLI diagnostics, and explicitly leave Codex CLI Linux/native Windows unqualified outside the mandatory release matrix. Document reported Desktop invocation, upgrade and recovery without inventing tuple, candidate or primary-evidence details; propagate renewed requirements through canonical policy, evidence, publication and compatibility owners after approval.",
+      "reason": "Replace the explicit mandatory Linux/Windows Codex CLI requirement with the maintainer's revised Desktop support scope; preserve honest qualification and evidence boundaries."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+      "statement": "Native Linux and native Windows Codex CLI evidence passes the existing mandatory release checks, including deliberate installation consent, discovery, actual non-authorizing MCP dispatch, controlled invalid input, skill continuation and clean removal. Add native evidence for effective upgrade and bounded recovery according to AC-006. Keep the current pinned client/model policy unless an explicitly justified SD decision renews that policy and its checks. A local macOS observation does not substitute for Linux or Windows; successful MCP does not assert trusted/executed hooks or Desktop rendering.",
+      "intended_change": "For AGDF 0.20.0, use Codex Desktop and Claude Desktop as the manually checked release targets, retain separately validated Windows Claude CLI evidence and bounded macOS Codex CLI diagnostics, and explicitly leave Codex CLI Linux/native Windows unqualified outside the mandatory release matrix. Document reported Desktop invocation, upgrade and recovery without inventing tuple, candidate or primary-evidence details; propagate renewed requirements through canonical policy, evidence, publication and compatibility owners after approval.",
+      "reason": "Replace the explicit mandatory Linux/Windows Codex CLI requirement with the maintainer's revised Desktop support scope; preserve honest qualification and evidence boundaries."
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex source-impact review based on the maintainer's explicit scope instruction",
+    "earliest_source": "PRD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+        "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+        "rationale": "The approved UR explicitly says to preserve Codex Linux/Windows requirements unless an explicit support-scope decision changes them. The maintainer has now made that decision. Its single 0.20.0 release line, separate host/surface evidence, exact-candidate provenance, experimental-host preservation and no-false-qualification requirements remain unchanged."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:73cb7e4d76a4c9c4c66243db3424ddfe0a3e9a2d0273da75ad6a168f409d6939",
+        "disposition": "reassess",
+        "reason": "The release matrix and manual-evidence interpretation change. Current analytical applicability is unknown and must be reviewed, not assumed retained."
+      }
+    ],
+    "implementation_evidence": "Retain implementation, raw tests, CLI records and Desktop human statements as evidence with their original provenance. Reassess preparation, current CD+Tests and all downstream quality results under the renewed PRD/SD/TP and candidate; do not turn absent Linux/Windows evidence into a pass or unknown Desktop details into verified facts.",
+    "unresolved": []
+  },
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:73cb7e4d76a4c9c4c66243db3424ddfe0a3e9a2d0273da75ad6a168f409d6939",
+        "status": "done"
+      },
+      "record_digest": "sha256:fb235170ed479ae9afbb280838c424256d4f15ced0b25f858762caad0a3f0033",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+        "status": "done"
+      },
+      "record_digest": "sha256:e87260d1214b4ffa75b7f163dbd7f68266dab930566e2bf8780b953266726431",
+      "operation_id": "66777cad-11b2-4e02-b9d1-45e8ccdfc13c",
+      "source_set_digest": "sha256:71d95108bcc4b2e329423a8919a5da942220fab9980d732449145725fd2e8372",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:73cb7e4d76a4c9c4c66243db3424ddfe0a3e9a2d0273da75ad6a168f409d6939",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70",
+        "status": "revise"
+      },
+      "record_digest": "sha256:c458db8ab2ad162285cfc788049133828ea29a80fada307a7fc0b8b36418ff72",
+      "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+        "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+        "status": "documented"
+      },
+      "record_digest": "sha256:8e01be41e84a2eeaf6f6927e17f25c0bc09a9d8fe4571bd7b7b5029af1af00b1",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:73cb7e4d76a4c9c4c66243db3424ddfe0a3e9a2d0273da75ad6a168f409d6939",
+        "status": "documented"
+      },
+      "record_digest": "sha256:257ed11468615fb8c3fab04c64bc6369dfa9caab1724c37d7ccb609c45dea857",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD_MAPPING_01.json",
+        "digest": "sha256:f259fc09f5d0011ea1100ae2b08d091fb3d3bfdbe2e0f448a190c1d5d1ab932e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:9595d13d87b66f6326ccaa35561e5cc7cb79af6164b267fa624aa2c9905b13ba",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD_MAPPING_01.json",
+        "digest": "sha256:bab8a4da69d7cb43d8e3461c27b15dabf49b6a96833ccd56db894e48bacb30a4",
+        "status": "documented"
+      },
+      "record_digest": "sha256:97aca41219323c89098dd9d98dcc181d1aa50edd6ecbc6d5222cbe574a27d5ab",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_MAPPING_01.json",
+        "digest": "sha256:1295707bbc18ae3d16962d6b898f495a295d654109595b6c49f7fb20f428acb7",
+        "status": "documented"
+      },
+      "record_digest": "sha256:3a4e12232047f7a29934ff060acbca11840a0cfed4ba00f82a43a616f2557dca",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+        "status": "documented"
+      },
+      "record_digest": "sha256:e5c6f2a09a08286735f6be1d4e50216755a01ee7c586b04cf39e3f79dddb06a0",
+      "operation_id": "66777cad-11b2-4e02-b9d1-45e8ccdfc13c",
+      "source_set_digest": "sha256:71d95108bcc4b2e329423a8919a5da942220fab9980d732449145725fd2e8372",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:73cb7e4d76a4c9c4c66243db3424ddfe0a3e9a2d0273da75ad6a168f409d6939",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70",
+        "status": "documented"
+      },
+      "record_digest": "sha256:b121ea9a8c9874def6f6d3773938bf8d555b18d74a7f53fb2dfb289f6c1116c5",
+      "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70",
+        "status": "documented"
+      },
+      "record_digest": "sha256:014dac8a07f9129f1f71412511578ce6b46671aef0acd39085696973fe9961db",
+      "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70",
+        "status": "documented"
+      },
+      "record_digest": "sha256:425c5a7837fb156491ff1f60d63bfa0e38741b1d6628702aa1e341a13745f3c8",
+      "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70",
+        "status": "documented"
+      },
+      "record_digest": "sha256:54b8fa1b317f62dbd76fd49d88da8c62c14ac5351608c55e9437620255be5489",
+      "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:10c0ce9eb02d86555036b15aad1a1b8b87076b0f4e16a4bacb1f5377da13ca70",
+        "status": "documented"
+      },
+      "record_digest": "sha256:ca3737e706e27189820e513e2593a2f36d2b182d494c3827f9483813dfa0bb37",
+      "operation_id": "c2b1a511-e61f-4859-819f-4c6879d78d4e",
+      "source_set_digest": "sha256:f2f18eecf03cb9ff4b217942e517f9a5a46c22a408921e45d14764a7d590ad46",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:300db93728b59074a42667cb1677d7ec0e01b9ffdaf88e53ecd3b977d1b2cdaf",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:8e1da114cc8454d904017cf63813b5ea8f413b1530f024ec1e9e5f36a334b72a",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:4df6433a55d45e0ed517772f88616993e18b5dd6d6841ea688e93632faefffee",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:8563aa04698de02ecaaf79f530a9023b50745413fb77167f593e8b81943fbca2",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess this exact registered record under the changed mandatory host matrix and manual Desktop evidence contract. Retain original bytes/history; no current or unknown association is silently accepted as renewed fulfillment."
+    }
+  ]
+}

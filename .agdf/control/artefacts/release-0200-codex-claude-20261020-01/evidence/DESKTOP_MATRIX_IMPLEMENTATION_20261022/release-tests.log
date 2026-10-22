@@ -1,0 +1,114 @@
+npm notice run test:release-qualification
+npm notice run node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs
+TAP version 13
+# Subtest: candidate binds new and changed sources, locks, policies and shipped bytes
+ok 1 - candidate binds new and changed sources, locks, policies and shipped bytes
+  ---
+  duration_ms: 3972.468209
+  type: 'test'
+  ...
+# Subtest: normalized text and fixed evidence-only fields preserve content identity
+ok 2 - normalized text and fixed evidence-only fields preserve content identity
+  ---
+  duration_ms: 1918.813942
+  type: 'test'
+  ...
+# Subtest: missing payloads, forged inventory and source symlinks cannot qualify
+ok 3 - missing payloads, forged inventory and source symlinks cannot qualify
+  ---
+  duration_ms: 1071.35044
+  type: 'test'
+  ...
+# Subtest: Desktop policy requires both exact observed tuples and preserves optional CLI pins
+ok 4 - Desktop policy requires both exact observed tuples and preserves optional CLI pins
+  ---
+  duration_ms: 1177.183479
+  type: 'test'
+  ...
+# Subtest: Desktop primary capabilities, raw calls, transitions and cleanup cannot be replaced by booleans
+ok 5 - Desktop primary capabilities, raw calls, transitions and cleanup cannot be replaced by booleans
+  ---
+  duration_ms: 810.884819
+  type: 'test'
+  ...
+# Subtest: default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy
+ok 6 - default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy
+  ---
+  duration_ms: 2767.838757
+  type: 'test'
+  ...
+# Subtest: Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection
+ok 7 - Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection
+  ---
+  duration_ms: 1941.306445
+  type: 'test'
+  ...
+# Subtest: attributed human reports preserve unknown identity and cannot supply native qualification
+ok 8 - attributed human reports preserve unknown identity and cannot supply native qualification
+  ---
+  duration_ms: 735.339564
+  type: 'test'
+  ...
+# Subtest: complete matrix accepts real-shaped primary events and rejects missing/forged observations
+ok 9 - complete matrix accepts real-shaped primary events and rejects missing/forged observations
+  ---
+  duration_ms: 1101.637516
+  type: 'test'
+  ...
+# Subtest: Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+ok 10 - Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+  ---
+  duration_ms: 5480.892206
+  type: 'test'
+  ...
+# Subtest: Desktop templates are explicitly unverified and cannot satisfy release acceptance
+ok 11 - Desktop templates are explicitly unverified and cannot satisfy release acceptance
+  ---
+  duration_ms: 6302.126059
+  type: 'test'
+  ...
+# Subtest: local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+ok 12 - local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+  ---
+  duration_ms: 5576.747419
+  type: 'test'
+  ...
+# Subtest: native entrypoints parse without running hosts or using credentials
+ok 13 - native entrypoints parse without running hosts or using credentials
+  ---
+  duration_ms: 1267.535754
+  type: 'test'
+  ...
+# Subtest: baseline subprocess stays in its isolated project instead of the invoking repository
+ok 14 - baseline subprocess stays in its isolated project instead of the invoking repository
+  ---
+  duration_ms: 321.94349
+  type: 'test'
+  ...
+# Subtest: released baseline integrity and archive entry restrictions are enforced before writes
+ok 15 - released baseline integrity and archive entry restrictions are enforced before writes
+  ---
+  duration_ms: 12.10951
+  type: 'test'
+  ...
+# Subtest: stale-state injection verifies complete owned provenance and refuses foreign ownership
+ok 16 - stale-state injection verifies complete owned provenance and refuses foreign ownership
+  ---
+  duration_ms: 6.51985
+  type: 'test'
+  ...
+# Subtest: host tiers and Codex compatibility projection have one canonical owner
+ok 17 - host tiers and Codex compatibility projection have one canonical owner
+  ---
+  duration_ms: 890.322811
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 26629.661796

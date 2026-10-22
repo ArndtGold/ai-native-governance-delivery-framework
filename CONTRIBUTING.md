@@ -243,10 +243,12 @@ tests. The compatibility-evidence workflow shares the same dependency preparatio
 
 Release validation uses the same Linux partitions. Publication, exact-version propagation,
 published-dependency MCP tests, latest-tag propagation and bootstrap verification are separate
-dependent jobs, preserving package publication order. Native Codex release probes run each of
-the three model scenarios separately on both platforms, with installation, discovery and removal
-checked in every scenario; the evidence gate requires all six exact commit/version/model tuples.
-These release-only paths require a trusted release or explicit manual invocation and credentials.
+dependent jobs, preserving package publication order. The 0.20.0 publication gate requires reviewed candidate-bound Codex Desktop and Windows Claude
+Desktop session, upgrade and recovery evidence. Human reports remain separately attributed and
+cannot satisfy those required cases. Codex CLI Windows/Linux remains unqualified; its pinned native
+workflow is optional diagnostics with unchanged strict checks. Ordinary Linux/Windows regression
+coverage and timeout budgets remain mandatory. Protected workflows still require their existing
+trusted events and any credentials actually needed by the invoked path.
 
 For targeted debugging, the commands below are still available:
 

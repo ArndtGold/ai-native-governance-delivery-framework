@@ -6,10 +6,6 @@ on:
     tags:
       - agdf-v*
 jobs:
-  codex-e2e:
-    uses: ./.github/workflows/codex-release-e2e.yml
-    secrets:
-      CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
   validate:
     runs-on: ubuntu-latest
     steps:
@@ -83,9 +79,8 @@ jobs:
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix packages/mcp-server run test:package
     timeout-minutes: 10
-  claude-evidence:
-    name: Validate Windows Claude evidence
-    needs: codex-e2e
+  desktop-evidence:
+    name: Validate both Desktop release targets
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -97,19 +92,14 @@ jobs:
           node-version: 22
       - name: Prepare the candidate independently of returned evidence
         run: npm ci --ignore-scripts && node scripts/verify-ci.mjs --profile prepare && node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
-      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3
-        with:
-          pattern: codex-release-*
-          path: .release-evidence
-      - name: Require all native Codex and Windows Claude observations
-        run: node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory .release-evidence --all-hosts
+      - name: Require both reviewed Desktop evidence sets
+        run: node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory evals/host-compatibility/native/$(node -p "require('./.release-candidate.json').candidate_id") --all-hosts
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - validate
-      - codex-e2e
-      - claude-evidence
+      - desktop-evidence
       - tests
     env:
       NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache

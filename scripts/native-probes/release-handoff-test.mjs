@@ -5,17 +5,140 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { candidateFixture } from './test-support.mjs';
 import { jsonDigest, sha } from './lib/release-candidate.mjs';
-import { releasePolicy, requiredReleaseCases } from './lib/release-policy.mjs';
-import { assertHostReleaseEvidence, referencesFrom, releaseRecords } from './lib/release-observation.mjs';
-import { assertBundleReview, bundleDigest, importClaudeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
+import { releasePolicy, requiredReleaseCases, optionalCliCases } from './lib/release-policy.mjs';
+import { assertHostReleaseEvidence, assertHumanReport, referencesFrom, releaseRecords } from './lib/release-observation.mjs';
+import { assertBundleReview, bundleDigest, importClaudeEvidence, importNativeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
 
-function nativeFixtures(f, host) {
+// All records below are synthetic validator fixtures, never installed-host observations.
+function desktopFixtures(f) {
+  const root = mkdtempSync(join(tmpdir(), 'agdf-desktop-fixture-'));
+  const policy = releasePolicy(f.root);
+  const lockedTuples = ['codex','claude'].map(host => ({ host, surface: 'desktop-code', os: host === 'codex' ? 'darwin' : 'win32',
+    arch: 'x64', version: '9.8.7', node: 'v22.22.3', model: 'fixture-desktop-model' }));
+  const rows = requiredReleaseCases(policy, undefined, lockedTuples).map((item, index) => {
+    const directory = join(root, item.host, item.surface, String(index)); mkdirSync(directory, { recursive: true });
+    const environment = lockedTuples.find(t => t.host === item.host);
+    const calls = (item.scenario === 'session' ? ['dispatch','failure_case','skill_continuation'] : ['dispatch']).map(scenario => {
+      const result = { schema_version: '1', outcome: scenario === 'failure_case' ? 'invalid_input' : scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
+        authorizes: false, terminal: scenario !== 'skill_continuation', runtime: { runtime_digest: f.candidate.identities.mcp_dispatcher.digest } };
+      if (scenario === 'skill_continuation') result.continuation = { runtime_contracts: ['quality','context-graph'].map(module => ({module,content:module,sha256:sha(module)})) };
+      const events = item.host === 'codex' ? [{type:'turn_context',payload:{model:environment.model}},
+        {item:{id:scenario,type:'mcp_tool_call',pluginId:'agdf@agdf',invocation:{tool:'agdf_dispatch',server:'agdf'},result:{content:[{text:JSON.stringify(result)}]}}}]
+        : [{type:'system',subtype:'init',model:environment.model},{type:'assistant',message:{content:[{type:'tool_use',id:scenario,name:'mcp__plugin_agdf_agdf__agdf_dispatch'}]}},
+          {type:'user',message:{content:[{type:'tool_result',tool_use_id:scenario,content:[{text:JSON.stringify(result)}]}]}}];
+      return {scenario,status:0,stdout:events.map(e=>JSON.stringify(e)).join('\n')};
+    });
+    const transition = item.scenario === 'session' ? undefined : {baseline:{version:'0.14.5',integrity:'sha512-'+Buffer.alloc(64).toString('base64'),source_digest:'c'.repeat(64)},
+      preserved_foreign_state:true,permission_preserved:true,...(item.scenario==='recovery'?{repair:'owned_stale_install'}:{})};
+    const primary = {session_id:'fixture-desktop-session',environment,candidate_id:f.candidate.candidate_id,loaded_identity:f.candidate.identities.agdf,
+      coding_surface:'code',fresh_session:true,owned_scope:'fixture-owned-scope',installation:{status:0,consent:'configured',loaded_identity:f.candidate.identities.agdf},
+      discovery:{plugin:'agdf@agdf',loaded_identity:f.candidate.identities.agdf},
+      cleanup:{status:0,leftovers:{mcp_listed:false,config_mcp_section:false,plugin_cache:false,mcp_runtime:false,plugin_tool_policy:false,
+        plugin_data:false,enabled:false,permission_rules:0,user_mcp:false,installed_entry:false}},calls,...(transition?{transition}:{})};
+    writeFileSync(join(directory,'desktop-primary.json'),JSON.stringify(primary));
+    writeFileSync(join(directory,'capture.png'),'Synthetic fixture; not a native screenshot');
+    const record={schema_version:3,kind:'qualified_desktop',id:'desktop-fixture-'+index,recorded_at:'2026-10-22T10:00:00Z',environment,
+      tuple_digest:jsonDigest(environment),source:f.candidate.source_revision,candidate_id:f.candidate.candidate_id,policy_digest:f.candidate.policy_digest,
+      loaded_identity:f.candidate.identities.agdf,scenario:item.scenario,result:'pass',assurance:'operator_observed',session_id:primary.session_id,
+      ...(transition?{transition}:{}),references:referencesFrom(directory,['desktop-primary.json','capture.png'])};
+    writeFileSync(join(directory,'desktop-'+item.scenario+'.json'),JSON.stringify([record]));
+    return {record,directory};
+  });
+  for(const host of ['codex','claude']) {
+    const scoped=rows.filter(r=>r.record.environment.host===host);
+    writeFileSync(join(root,host,'desktop-code','review.json'),JSON.stringify({schema_version:1,reviewed:true,reviewer:'Fixture reviewer',
+      candidate_id:f.candidate.candidate_id,bundle_digest:bundleDigest(scoped),tuples:lockedTuples.filter(t=>t.host===host)}));
+  }
+  return {root,rows,options:{candidate:f.candidate,policy,lockedTuples,commit:f.candidate.source_revision.commit}};
+}
+
+test('Desktop policy requires both exact observed tuples and preserves optional CLI pins', () => {
+  const f=candidateFixture({policyVersion:2}), d=desktopFixtures(f);
+  try {
+    assert.equal(d.rows.length,6); assert.equal(requiredReleaseCases(d.options.policy)[0].os,'observed');
+    assert.deepEqual(d.options.policy.optional_cli.codex,JSON.parse(readFileSync(new URL('./codex-release-policy.json',import.meta.url))));
+    assert.equal(assertHostReleaseEvidence(d.rows,d.options).result,'pass');
+    for(const mutate of [rows=>rows.pop(),rows=>rows.push(rows[0]),rows=>rows[0].record.kind='human_report',
+      rows=>rows[0].record.schema_version=2,rows=>rows[0].record.candidate_id='0'.repeat(64),
+      rows=>rows[0].record.environment.os='unknown',rows=>rows[0].record.assurance='native_process',
+      rows=>rows[0].record.environment.version='0.157.1',rows=>delete rows[0].record.session_id]) {
+      const rows=structuredClone(d.rows);mutate(rows);assert.throws(()=>assertHostReleaseEvidence(rows,d.options));
+    }
+    assert.throws(()=>assertHostReleaseEvidence(d.rows,{...d.options,lockedTuples:[]}));
+    assert.throws(()=>assertHostReleaseEvidence(d.rows,{...d.options,lockedTuples:[...d.options.lockedTuples,{...d.options.lockedTuples[0],os:'win32'}]}),/ambiguous/u);
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('Desktop primary capabilities, raw calls, transitions and cleanup cannot be replaced by booleans', () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const row=d.rows[0],file=join(row.directory,'desktop-primary.json'),original=readFileSync(file);
+    for(const mutate of [p=>p.calls=[],p=>p.calls[0].stdout='model says PASS',p=>p.installation.consent='unknown',
+      p=>p.cleanup.leftovers.enabled=true,p=>p.discovery.loaded_identity=null,p=>p.session_id='wrong',
+      p=>p.environment={...p.environment,model:'wrong'},p=>p.coding_surface='chat',
+      p=>p.calls[0].stdout=p.calls[0].stdout.replaceAll('false','true'),
+      p=>p.calls[2].stdout=p.calls[2].stdout.replaceAll('quality','forged')]) {
+      const primary=JSON.parse(original);mutate(primary);writeFileSync(file,JSON.stringify(primary));
+      row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+      assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options));
+    }
+    writeFileSync(file,original);row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+    const transition=d.rows.find(r=>r.record.scenario==='recovery');
+    transition.record.transition.permission_preserved=false;assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options));
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy', async () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
+    const args=['validate','--candidate',candidate,'--directory',d.root];
+    assert.equal((await runReleaseTool(args,f.root)).cases.length,6);
+    assert.equal((await runReleaseTool([...args,'--all-hosts'],f.root)).cases.length,6);
+    rmSync(join(d.root,'claude'),{recursive:true});
+    await assert.rejects(runReleaseTool(args,f.root));
+    await assert.rejects(runReleaseTool([...args,'--all-hosts'],f.root));
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+  const old=candidateFixture();
+  try { const candidate=join(old.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(old.candidate));
+    await assert.rejects(runReleaseTool(['validate','--candidate',candidate,'--directory',old.root,'--all-hosts'],old.root),/publication_requires_desktop_policy/u);
+  } finally {rmSync(old.root,{recursive:true,force:true});}
+});
+test('Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection', () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const bundle=join(d.root,'codex','desktop-code'),review=JSON.parse(readFileSync(join(bundle,'review.json')));
+    const imported=importNativeEvidence(f.root,{candidate:f.candidate,bundle,review,host:'codex',surface:'desktop-code'});
+    assert.equal(imported.cases.length,3);
+    const manifest=JSON.parse(readFileSync(join(f.root,'evals/host-compatibility/manifest.json')));
+    assert.ok(manifest.native_sources[0].includes('codex-desktop-code-release'));
+    assert.ok(manifest.native_targets.every(t=>t.environment.host==='codex'&&t.environment.variant==='desktop-code'));
+    f.git('add','.'); f.git('commit','-qm','fixture evidence-only import');
+    assert.throws(()=>importNativeEvidence(f.root,{candidate:f.candidate,bundle,review,host:'codex',surface:'desktop-code'}),/already_exists/u);
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('attributed human reports preserve unknown identity and cannot supply native qualification', () => {
+  const f=candidateFixture({policyVersion:2});
+  try {
+    const report={schema_version:1,kind:'human_report',id:'fixture-report',recorded_at:'2026-10-22T10:00:00Z',reported_by:'Fixture operator',
+      host:'codex',surface:'desktop-code',assurance:'human_reported',qualification:'unverified',candidate_id:null,
+      scenarios:{session:'reported_pass',upgrade:'reported_pass',recovery:'reported_pass'},
+      identity:{os:null,arch:null,version:null,model:null,node:null,session_id:null,executed_at:null},missing_evidence:['candidate and actual tuple'],
+      references:referencesFrom(f.root,['package.json'])};
+    assert.equal(assertHumanReport(report,f.root).identity.os,null);
+    assert.throws(()=>assertHostReleaseEvidence([{record:report,directory:f.root}],{candidate:f.candidate,policy:releasePolicy(f.root)}));
+    for(const mutation of [{qualification:'qualified'},{candidate_id:f.candidate.candidate_id},{assurance:'operator_observed'}])
+      assert.throws(()=>assertHumanReport({...report,...mutation},f.root));
+    assert.throws(()=>assertHumanReport({...report,references:[{path:'../outside',sha256:'a'.repeat(64)}]},f.root));
+  } finally {rmSync(f.root,{recursive:true,force:true});}
+});
+
+function nativeFixtures(f, host, scope) {
   const root = mkdtempSync(join(tmpdir(), 'agdf-native-fixture-'));
   const policy = releasePolicy(f.root);
-  const rows = requiredReleaseCases(policy, host).map((item, i) => {
+  const rows = (scope === 'optional-cli' ? optionalCliCases(policy, host) : requiredReleaseCases(policy, host)).map((item, i) => {
     const directory = join(root, String(i)); mkdirSync(directory);
+    const codexPolicy = policy.optional_cli?.codex ?? policy.codex;
     const environment = { host: item.host, surface: item.surface, os: item.os, arch: 'x64', node: 'v22.22.3',
-      version: item.host === 'codex' ? policy.codex.codex_version : '2.1.193', model: item.host === 'codex' ? policy.codex.model : 'fixture-model' };
+      version: item.host === 'codex' ? codexPolicy.codex_version : '2.1.193', model: item.host === 'codex' ? codexPolicy.model : 'fixture-model' };
     const result = { schema_version: '1', outcome: item.scenario === 'failure_case' ? 'invalid_input' : item.scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
       terminal: item.scenario !== 'skill_continuation', authorizes: false, runtime: { runtime_digest: f.candidate.identities.mcp_dispatcher.digest } };
     if (item.scenario === 'skill_continuation') result.continuation = { runtime_contracts: ['quality','context-graph'].map(module => ({ module, content: module, sha256: sha(module) })) };
@@ -160,4 +283,34 @@ test('local validation binds the actual checkout and CI additionally requires it
     if (previous === undefined) delete process.env.GITHUB_SHA; else process.env.GITHUB_SHA = previous;
     rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true });
   }
+});
+test('optional current-policy CLI diagnostics retain strict checks and never grant Desktop eligibility', async () => {
+  const f=candidateFixture({policyVersion:2}),d=nativeFixtures(f,'codex','optional-cli');
+  try {
+    const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
+    const args=['validate-cli','--candidate',candidate,'--directory',d.root];
+    const result=await runReleaseTool(args,f.root);
+    assert.equal(result.cases.length,10);assert.equal(result.qualification,'unqualified');
+    await assert.rejects(runReleaseTool(['validate','--candidate',candidate,'--directory',d.root,'--all-hosts'],f.root));
+    const record=d.rows[0].record;
+    record.source.commit='f'.repeat(40);
+    writeFileSync(join(d.rows[0].directory,'release-records.json'),JSON.stringify([record]));
+    await assert.rejects(runReleaseTool(args,f.root),/commit_mismatch/u);
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('Desktop preflight uses captured runtime identity, never the helper process tuple', async () => {
+  const f=candidateFixture({policyVersion:2}), temp=mkdtempSync(join(tmpdir(),'agdf-desktop-preflight-'));
+  try {
+    const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
+    const capture=join(temp,'native-version.json'),output=join(temp,'tuple.json');
+    const observed={host:'codex',surface:'desktop-code',os:process.platform,arch:'captured-native-arch',version:'9.8.7',node:'v24.1.2',model:'captured-native-model'};
+    writeFileSync(capture,JSON.stringify(observed));
+    const args=['preflight','--candidate',candidate,'--host','codex','--surface','desktop-code','--version','9.8.7','--version-evidence',capture,'--model','captured-native-model','--output',output];
+    const tuple=await runReleaseTool(args,f.root);
+    assert.deepEqual(tuple.environment,observed);
+    rmSync(output);writeFileSync(capture,JSON.stringify({...observed,version:'1.2.3'}));
+    await assert.rejects(runReleaseTool(args,f.root),/version_capture_mismatch/u);
+    writeFileSync(capture,JSON.stringify({...observed,node:'unknown'}));
+    await assert.rejects(runReleaseTool(args,f.root),/tuple_node_missing/u);
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(temp,{recursive:true,force:true});}
 });

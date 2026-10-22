@@ -1,9 +1,10 @@
-# Brownfield Review: AGDF 0.20.0 host qualification
+# Brownfield Review: AGDF 0.20.0 revised Desktop matrix
 
 Gate: Brownfield Review
 Type: Brownfield Review
 Mode: post_ur_review
 Status: done
+Decision: pass
 
 ## Run
 
@@ -11,17 +12,20 @@ Status: done
 - related_ur: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md
 - current_gate: Brownfield Review
 - reviewer: Codex
-- reviewed_at: 2026-10-20
+- reviewed_at: 2026-10-22
+- source_revision: b65c1a90-2c2e-44e3-b949-28a28f8491e9; resulting revision 52f2e573-5c5c-49a7-9182-b6920df82804
 
 ## Objective
 
-Size the approved release preparation: one coherent version 0.20.0, native qualification for Codex and Claude Code, and explicit experimental status for Copilot/OpenCode. Claude testing occurs on another computer. The user clarified during this review that it runs Windows with the current Claude Desktop app and Claude CLI. Exact versions and models are runtime observations to record, not facts established by the word current.
+Reassess the existing release preparation after the confirmed PRD-source revision. Retain the exact approved UR and one 0.20.0 release line. Codex Desktop and Claude Desktop are the manually checked release targets. Codex CLI Windows/Linux remains unqualified outside the revised mandatory matrix; Copilot/OpenCode remain experimental. This changes required scope, not the truth or assurance of earlier results.
+
+The archived PRD/SD/TP and previous review describe the old matrix and have historical authority only. The exact source-revision archive is .agdf/control/runs/release-0200-codex-claude-20261020-01/revisions/b65c1a90-2c2e-44e3-b949-28a28f8491e9/manifest.json. Retained code and tests require renewed applicability assessment.
 
 ## UI / UX Impact Routing
 
 - delivery_context: brownfield
 - ui_ux_impact: low
-- ui_ux_impact_reason: Installation guidance, release status and evidence labels change; installation consent, approval authority, normal working modes and recovery semantics remain owned by their existing components. No new user interaction or UI feature is requested.
+- ui_ux_impact_reason: Existing guidance and generated compatibility/readiness labels change; no new interaction or approval authority is introduced.
 - ux_intent_definition_required: no
 - ux_intent_definition_result: not_applicable
 
@@ -29,72 +33,74 @@ Size the approved release preparation: one coherent version 0.20.0, native quali
 
 | Area | Existing owner or artefact | Evidence | Impact |
 |---|---|---|---|
-| Product semantics | README.md; INSTALL.md | Four hosts are presented together; INSTALL distinguishes published 0.14.5 from the development MCP implementation | medium |
-| Source of truth | plugins/agdf/meta/agdf-plugin.definition.json; scripts/release/version-coherence.js | Canonical 0.14.5 metadata and enumerated source/derived version surfaces | medium |
-| Runtime path | packages/cli; packages/core; packages/mcp-server | Existing host lifecycle, governance and MCP owners remain authoritative | low |
-| UI / UX | scripts/host-compatibility/render.mjs; docs/compatibility/HOST_COMPATIBILITY.md | Public evidence is generated and explicitly distinguishes fixtures from native observations | low |
-| Persistence / data | scripts/release/version-bump.js; plugins/agdf/meta/distribution-profile-history.json | Release history and exact-version upgrade compatibility remain validated | medium |
-| Tests / QA | scripts/native-probes/codex-host-e2e.mjs; claude-host-e2e.mjs; release-evidence.mjs | Codex evidence binds clean commit/version/model; Claude currently has no equivalent source binding or native upgrade/recovery steps | high |
-| Release / operations | .github/workflows/codex-release-e2e.yml; publish-agdf.yml; docs/maintenance/README.md | Publication depends on native Codex Linux/Windows evidence; no equivalent Claude requirement exists | high |
+| Product semantics | Retained UR and explicit revised scope decision | UR.md; DESKTOP_HANDCHECKS_20261022.md; source revision receipt | high |
+| Source of truth | plugins/agdf/meta/agdf-plugin.definition.json; existing schema/generator | hostSupport schema 1 still mandates Codex Linux/Windows CLI and Claude Windows CLI/Desktop | high |
+| Runtime path | packages/cli; packages/core; packages/mcp-server | Existing installation, consent, ownership, MCP and governance owners retained | low |
+| UI / UX | scripts/host-compatibility/contract.mjs and render.mjs; README.md; INSTALL.md | Generated reports remain derived projections of canonical support policy | low |
+| Persistence / data | scripts/native-probes/lib/release-observation.mjs and release-handoff.mjs | Immutable candidate/bundle/tuple review and import; strict operator_observed Desktop records | medium |
+| Tests / QA | scripts/native-probes/lib/release-policy.mjs; scripts/ci-plan.mjs | Five CLI cases and three Desktop cases; ordinary CI is not native qualification | high |
+| Release / operations | .github/workflows/publish-agdf.yml; codex-release-e2e.yml | Publication currently requires codex-e2e then claude-evidence | high |
 
 ## Architecture Impact
 
 - architecture_relevance: relevant
 - architecture_impact: medium
-- architecture_reason: Release eligibility consumes evidence from independently executed hosts, including a separate Windows computer. Candidate identity and acceptance must remain centralized while execution is host-specific. This changes a public support and release boundary, without creating another governance authority.
-- architecture_evidence: scripts/native-probes/release-evidence.mjs; scripts/native-probes/claude-host-e2e.mjs; .github/workflows/publish-agdf.yml; scripts/host-compatibility/contract.mjs.
-- architecture_missing_evidence: Exact remote versions/model and results remain execution prerequisites; the evidence exchange format and release integration must be designed by the existing native-probe/release owners in SD.
-- architecture_next_owner_and_action: PRD fixes qualified capabilities and evidence obligations; SD extends existing evidence and release owners with a common candidate-binding contract and bounded remote handoff.
+- architecture_reason: Public support and mandatory publication eligibility change to Desktop targets with human observations. Candidate identity, assurance, policy derivation and publication remain coordinated through existing owners.
+- architecture_evidence: hostSupport; release-policy.mjs; release-observation.mjs; release-handoff.mjs; publish-agdf.yml; host-compatibility/contract.mjs.
+- architecture_missing_evidence: Desktop app/model/session/candidate identity and primary captures not supplied; original observations belong to the maintainer. These qualification limits do not prevent choosing delivery depth.
+- architecture_next_owner_and_action: PRD defines acceptance and honest incomplete/manual states; SD assigns representation, policy migration, validators and publication projection to existing owners.
 
 ## Reuse And Parallel-Structure Risk
 
 | Finding | Evidence | Risk | Required action |
 |---|---|---|---|
-| problem: Claude success cannot establish exact release-candidate qualification | claude-host-e2e.mjs records version and steps but lacks the Codex clean-commit binding and upgrade/recovery coverage | revise | PRD defines required proof; SD extends existing probes and evidence validation rather than inventing a second release decision owner |
-| problem: Publication protects Codex evidence only | publish-agdf.yml uses codex-e2e; release-evidence.mjs validates Codex observations | revise | Existing release owner must require matching Claude Windows evidence and retain Codex Linux/Windows checks |
-| unresolved: Remote Desktop and CLI identities and results | User confirmed Windows with Claude Desktop and Claude CLI; no observation from that computer has been supplied | warn | PRD separates Claude Code CLI and Desktop capability evidence; TP captures exact tuple and returned observations before QA claims |
-| problem: Generated report would overwrite a manual experimental-status edit | scripts/host-compatibility/render.mjs generates public compatibility prose | revise | SD chooses one canonical host-support declaration consumed by generated reporting and public guidance; do not fork host policy |
-| problem: Release versions must change coherently across existing consumers | version-coherence.js enumerates package, plugin, Pages and submission surfaces | revise | Reuse release-bump.js and release:prepare; retain generated/experimental profile version coherence |
-| problem: Existing worktree is shared with unrelated work | Read-only git status at da8be438b381493f4dbbdfb7f73d3f18c4d440ed shows unrelated untracked artefacts and staged release intake | warn | Preserve foreign changes and establish a clean exact candidate before release-grade host observations |
+| problem: Old effective matrix conflicts with revised requested scope | Confirmed source revision; hostSupport still requires Codex Linux/Windows CLI | revise | Renew PRD/SD/TP, then propagate canonical definition/schema/generator through existing release consumers |
+| problem: Reported Desktop passes lack exact execution identity | DESKTOP_HANDCHECKS_20261022.md confirms invocation, upgrade and recovery, with unknown tuple/candidate/captures | revise | PRD separates human-reported success from candidate-bound qualification; recover original identity first and prohibit invented facts |
+| problem: Current strict Desktop validator cannot qualify an unbound report | release-observation.mjs requires tuple, session, loaded identity, operator assurance and primary references | revise | SD reuses this owner, retains strict qualified-record checks and makes incomplete reports visibly non-qualifying |
+| problem: CLI/CI success could be overgeneralized | Separate Claude Windows CLI candidate 830d8b94; older dirty Codex macOS diagnostic evidence | revise | Preserve exact tuple/candidate and surface/OS boundaries in renewed criteria |
+| problem: Old publication dependency would preserve the unavailable matrix | publish-agdf.yml codex-e2e then claude-evidence | revise | Replace only after renewed approvals and tested migration; retain ordinary CI coverage and timeouts |
+| problem: Manual report edits could fork support policy | Existing definition plus generated compatibility contract/rendering | revise | Extend canonical owner and generated projections, never a second compatibility or approval authority |
 
-The revise risks above are identified obligations for the next design and implementation stages, not accepted debt or an inability to route this release. No separate debt allowance is granted.
+These findings are obligations for the renewed sources, not accepted debt or check waivers. Review passes because ownership and safe routing are established; qualification remains incomplete.
 
 ## Mode / Slice Decision
 
 - decision: structured_delivery
 - required_next_gate: PRD
-- scope_reason: release_cross_host_depth: Versioned public release qualification coordinates Codex native CI and external Claude Windows execution. Rejected alternatives: quick_task and verified_change prohibit release/public-contract impact; structured_slice cannot exclude full-depth cross-host rollout and release effects.
-- evidence: This review; approved UR; publish-agdf.yml; codex-release-policy.json; release-evidence.mjs; claude-host-e2e.mjs.
-- transparency_note: PRD, SD and TP remain required to agree qualified combinations, candidate handoff, mandatory checks, upgrade/recovery coverage and operational handling. This review grants no implementation or release authority.
+- scope_reason: release_cross_host_depth: public release matrix and publication eligibility coordinate independent Desktop/CLI observations. Rejected alternative structured_slice cannot exclude public-contract and cross-host release effects. Quick/verified paths are ineligible for this policy and release change.
+- evidence: This review; UR.md; PRD_SCOPE_REVISION_APPLY_RESULT_01.json; DESKTOP_HANDCHECKS_20261022.md; hostSupport; publication graph.
+- transparency_note: Renew PRD, SD and TP at existing owners. UR remains exact. Revision confirmation approves no gate. Current preparation, implementation assessment, reviews and QA must precede UAT/OR.
 
 ## Structured Depth Evidence
 
 - depth_policy_version: 1
 - depth_facts_status: complete
 - primary_reason_code: release_cross_host_depth
-- decisive_full_depth_triggers: Release, deployment or cross-host; public support contract and shared release version across independently tested consumers.
-- rejected_alternative: structured_slice; full_depth_impacts_absent and local-only recovery cannot be proven because release eligibility requires independently collected remote native observations.
-- missing_or_conflicting_facts: none decisive for depth; exact remote client/model identities and results are later execution facts, not reasons to invent a narrower route.
-- depth_evidence_refs: .github/workflows/publish-agdf.yml; .github/workflows/codex-release-e2e.yml; scripts/native-probes/codex-release-policy.json; scripts/native-probes/release-evidence.mjs; scripts/native-probes/claude-host-e2e.mjs; approved UR.
+- decisive_full_depth_triggers: Public host-support contract and coordinated cross-host release/publication eligibility change.
+- rejected_alternative: structured_slice; full_depth_impacts_absent fails because release and compatibility policy change; external observations prevent local-only qualification.
+- missing_or_conflicting_facts: none decisive for depth. Unknown Desktop identity remains a qualification limit, never a default pass.
+- depth_evidence_refs: DESKTOP_HANDCHECKS_20261022.md; PRD_SCOPE_REVISION_APPLY_RESULT_01.json; hostSupport; release-policy.mjs; release-observation.mjs; release-handoff.mjs; publish-agdf.yml.
 
 | check_id | result | evidence |
 |---|---|---|
-| coherent_outcome | pass | One 0.20.0 candidate with explicitly bounded host qualification and experimental integrations |
-| authority_boundary | pass | Existing Core approval owner and existing release evidence owner remain authoritative; tests grant no approvals |
-| owner_consumer_coordination | fail | Final release requires evidence from native Codex runners and the independent Windows Claude computer |
-| full_depth_impacts_absent | fail | Exact-version distribution and cross-host public support are release-critical effects |
-| migration_propagation_bounded | pass | Canonical version bump and preparation enumerate the dependent surfaces and historical profiles |
-| failure_recovery_local | fail | Missing or mismatched remote evidence cannot be repaired solely by a local code/test result |
-| independently_acceptable | fail | Final native qualification depends on external Windows observations and clean-candidate CI |
+| coherent_outcome | pass | One 0.20.0 candidate with Desktop target scope, bounded CLI evidence and explicit unqualified/experimental paths |
+| authority_boundary | pass | Existing Core approval and canonical release owners retained; observation recording grants no approval |
+| owner_consumer_coordination | fail | Qualification coordinates independent Desktop reports, Windows CLI observations and publication consumers |
+| full_depth_impacts_absent | fail | Public support and mandatory release eligibility change |
+| migration_propagation_bounded | pass | Existing definition/schema/generator, validators, report and workflow owners enumerate propagation |
+| failure_recovery_local | fail | Original Desktop identity cannot be repaired by repository tests or local CLI success |
+| independently_acceptable | fail | Overall closeout needs reviewed applicable host evidence and renewed current quality results |
 
 ## PRD / SD Open Questions
 
 | Question | Required gate | Impact |
 |---|---|---|
-| Which exact combinations and capabilities qualify release, and how are Claude CLI and Desktop evidence separated? | PRD | revise |
-| How do existing probe/evidence owners bind, export, validate and consume the remote candidate results without a second support authority? | SD | revise |
-| How are supported upgrade baselines and bounded recovery scenarios exercised on each host? | SD | revise |
-| Which exact installed Windows client/model versions and credentials are available when the remote test executes? | TP | warn |
+| Define mandatory Desktop scope and distinguish reported handchecks from candidate-bound qualification without filling unknown fields | PRD | revise |
+| Represent incomplete human reports and revised policy through existing validators/projections while preserving qualified-record safeguards | SD | revise |
+| Review/import Claude CLI evidence only for its actual tuple and applicable final candidate | TP | revise |
+| Recover original Desktop environment/session/candidate evidence before requiring justified targeted follow-up | TP | warn |
+
+The maintainer already selected the hosts and reported all three Desktop scenarios. Do not ask these decisions again. The answer "alle" supplies no concrete version/model/SHA. Missing identity does not mean the reported scenarios failed.
 
 ## Context Graph Impact
 
@@ -102,16 +108,17 @@ The revise risks above are identified obligations for the next design and implem
 - context_graph_refs: none
 - context_graph_required_action: none
 - context_graph_gate_effect: none
-- context_graph_evidence: Findings are run-specific release prerequisites; this review does not create an architecture decision or reusable graph node. Reassess at closeout if the implemented evidence contract establishes reusable knowledge.
+- context_graph_evidence: Run-specific scope/evidence reassessment; reusable knowledge is reassessed at closeout without automatically creating graph nodes.
 - memory_target: scope_artifact
-- memory_reason: Retain release-specific boundaries and facts in this review and subsequent approved sources.
-- memory_refs: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md
+- memory_reason: Preserve human statements and qualification limits in the selected run.
+- memory_refs: DESKTOP_HANDCHECKS_20261022.md; PRD_SCOPE_REVISION_APPLY_RESULT_01.json
 
 ## Next Permissible Step
 
-- next_allowed_action: Record this Brownfield Review and structured_delivery route together, then draft the PRD from the approved UR and this analysis.
-- forbidden_until_then: Do not change version, product source, workflows or host installations; do not launch native qualification or claim release readiness.
+- next_allowed_action: Record this review and structured_delivery route together, author a fresh PRD from retained UR and revised matrix, then present for a new deliberate Approval: PRD.
+- forbidden_until_then: No implementation, host policy/workflow changes, qualification claims, publication, tags or VCS actions.
 
 ## Quality Outlook
 
-- quality_outlook: Existing deterministic coverage is reusable, but fresh exact-candidate native upgrade/recovery and remote Windows evidence remain mandatory. Review/routing is complete; implementation and qualification are pending.
+- quality_outlook: Routing reassessment passes. Desktop handchecks remain documented human reports with unverified exact identity. Retained code/tests require assessment under renewed TP. Safety, ownership, candidate, unknown-state and approval checks remain binding.
+

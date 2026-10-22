@@ -575,7 +575,7 @@ export function syncPackageAssets({
   projectionCheck();
   // Compatibility projection: the canonical definition owns policy. Importing generator helpers
   // is read-only; write this projection only after the normal generation prerequisites pass.
-  write(join(repoRoot, 'scripts/native-probes/codex-release-policy.json'), `${JSON.stringify(releasePolicy(repoRoot).codex, null, 2)}\n`);
+  write(join(repoRoot, 'scripts/native-probes/codex-release-policy.json'), `${JSON.stringify((releasePolicy(repoRoot).optional_cli?.codex ?? releasePolicy(repoRoot).codex), null, 2)}\n`);
   projectPrivateCoreResources();
   projectCore(packageRoot);
   const validateSchema = createPortableSchemaValidator(repoRoot);

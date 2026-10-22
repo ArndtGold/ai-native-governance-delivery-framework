@@ -28,6 +28,7 @@ export function validateInventory(manifest) {
   if (canonical(manifest?.hosts) !== canonical(HOSTS) || canonical(manifest?.systems) !== canonical(SYSTEMS)) errors.push("inventory_incomplete");
   if (!Array.isArray(manifest?.scenarios) || !manifest.scenarios.length || new Set(manifest.scenarios).size !== manifest.scenarios.length) errors.push("scenarios_empty_or_duplicate");
   if (!["native_sources", "native_targets", "public_evidence", "historical_sources"].every(key => Array.isArray(manifest?.[key]))) errors.push("evidence_inventory_missing");
+  if (manifest?.reported_sources !== undefined && !Array.isArray(manifest.reported_sources)) errors.push("reported_inventory_invalid");
   for (const target of manifest?.native_targets ?? []) {
     if (!target.environment || !ENVIRONMENT_FIELDS.every(key => Object.hasOwn(target.environment, key))
         || !HOSTS.includes(target.environment.host) || !SYSTEMS.includes(target.environment.os)

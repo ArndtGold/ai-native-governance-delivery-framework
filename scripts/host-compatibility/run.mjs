@@ -6,6 +6,7 @@ import { parse } from "acorn";
 import { digestNormalizedPluginSource } from "../../packages/core/lib/runtime/plugin-provenance.js";
 import { CAPABILITIES, CLAIMS, HOSTS, OUTCOMES, SCENARIOS, canonical, importHistoricalHC, tuple, validateInventory, validateObservation } from "./contract.mjs";
 import { evaluateClaim } from "./evaluate.mjs";
+import { assertHumanReport } from "../native-probes/lib/release-observation.mjs";
 import { renderComparison } from "./render.mjs";
 
 export const MANIFEST_PATH = "evals/host-compatibility/manifest.json";
@@ -131,7 +132,7 @@ export function sourceSnapshot(root, manifest) {
     return [host, { canonical_version: definition.version, source_digest: digestNormalizedPluginSource(payloadRoot, definition.version), runtime_digest: readJson(join(payloadRoot, "runtime/runtime-manifest.json")).digest }];
   }));
   const byHost = Object.fromEntries(HOSTS.map(host => [host, hash(canonical(Object.fromEntries([...new Set([...common, ...hostFiles[host]])].sort().map(file => [file, fingerprints[file]]))))]));
-  return { version: definition.version, ...(definition.hostSupport ? { support_tiers: definition.hostSupport.tiers } : {}), payloads, files: fingerprints, by_host: byHost, digest: hash(canonical({ fingerprints, payloads })) };
+  return { version: definition.version, ...(definition.hostSupport ? { support_tiers: definition.hostSupport.tiers, release_matrix: definition.hostSupport.required_targets ?? [], unqualified: definition.hostSupport.unqualified ?? [] } : {}), payloads, files: fingerprints, by_host: byHost, digest: hash(canonical({ fingerprints, payloads })) };
 }
 
 function readReferences(root, observations) {
@@ -155,7 +156,23 @@ function historicalInputs(root, manifest) {
   });
 }
 
-export function comparison(snapshot, observations, referenceHashes, historical = [], nativeTargets = []) {
+export function reportedInputs(root, manifest) {
+  const ids = new Set();
+  return (manifest.reported_sources ?? []).flatMap(path => {
+    if (!path.startsWith('evals/host-compatibility/native/reported/')) throw new Error('human_report_source_unsafe');
+    if (lstatSync(safePath(root, path)).size > 1024 * 1024) throw new Error("human_report_input_too_large");
+    const reports = readJson(safePath(root, path));
+    if (!Array.isArray(reports) || reports.length > 32) throw new Error('human_report_inventory_invalid');
+    return reports.map(report => {
+      assertHumanReport(report, root);
+      if (ids.has(report.id)) throw new Error("duplicate_human_report_id");
+      ids.add(report.id);
+      return { ...report, input: { path, sha256: fileHash(safePath(root, path)) } };
+    });
+  });
+}
+
+export function comparison(snapshot, observations, referenceHashes, historical = [], nativeTargets = [], reported = []) {
   const rows = observations.filter(o => o.lane === "deterministic_adapter").map(o => ({ ...o, ...evaluateClaim(o, observations, referenceHashes) }));
   const native = nativeTargets.flatMap(target => CLAIMS.map(claim => {
     const query = { environment: target.environment, expected: snapshot.payloads[target.environment.host], source_fingerprint: null,
@@ -172,7 +189,7 @@ export function comparison(snapshot, observations, referenceHashes, historical =
   if (new Set(observations.map(o => o.id)).size !== observations.length) invalid.push("duplicate_observation_id");
   const failed = rows.filter(o => o.conformance?.passed !== true || o.state !== o.conformance.expected);
   const dates = [...new Set(observations.map(o => o.observed_at))].sort();
-  return { snapshot, rows, native, historical, dates, scenarios: { evaluated: rows.length, failed: failed.length },
+  return { snapshot, rows, native, historical, reported, dates, scenarios: { evaluated: rows.length, failed: failed.length },
     diagnostics: [...missing, ...invalid], consistent: rows.length > 0 && missing.length === 0 && invalid.length === 0 && failed.length === 0 };
 }
 
@@ -196,7 +213,9 @@ export function checkComparison(root = process.cwd()) {
     if (canonical(observations) !== canonical(snapshot.observations)) throw new Error("published_observations_changed");
     const historical = historicalInputs(root, manifest);
     if (canonical(historical) !== canonical(snapshot.historical)) throw new Error("historical_source_changed");
-    const report = comparison(current, observations, readReferences(root, observations), historical, manifest.native_targets);
+    const reported = reportedInputs(root, manifest);
+    if (canonical(reported) !== canonical(snapshot.reported ?? [])) throw new Error("human_report_input_changed");
+    const report = comparison(current, observations, readReferences(root, observations), historical, manifest.native_targets, reported);
     if (!report.consistent) throw new Error(`comparison_invalid:${report.diagnostics.join(",")};failures=${report.scenarios.failed}`);
     publicationSafe(snapshot);
     if (readFileSync(safePath(root, `${OUTPUT}/HOST_COMPATIBILITY.md`), "utf8") !== renderComparison(report)) throw new Error("rendered_comparison_changed");
@@ -252,9 +271,10 @@ async function record(root, { runSuite, beforePublish = () => {} } = {}) {
   if (canonical(before) !== canonical(current)) throw new Error("source_changed_during_recording");
   const historical = historicalInputs(root, manifest);
   const references = { ...readReferences(root, observations.filter(o => o.lane !== "deterministic_adapter")), [FACTS]: factsDigest };
-  const report = comparison(current, observations, references, historical, manifest.native_targets);
+  const reported = reportedInputs(root, manifest);
+  const report = comparison(current, observations, references, historical, manifest.native_targets, reported);
   if (!report.consistent) throw new Error(`scenario_recording_failed:${attemptPath};failures=${report.scenarios.failed};${report.diagnostics.join(",")}`);
-  const snapshot = { schema_version: 1, source: current, observations, historical, input_sources: inputSources, observation_source: { path: attemptPath, sha256: hash(observationBytes) } };
+  const snapshot = { schema_version: 1, source: current, observations, historical, reported, input_sources: inputSources, observation_source: { path: attemptPath, sha256: hash(observationBytes) } };
   publicationSafe(snapshot); publicationSafe(facts);
   mkdirSync(dirname(output), { recursive: true });
   const stage = mkdtempSync(join(dirname(output), ".compatibility-stage-"));
@@ -279,6 +299,7 @@ async function record(root, { runSuite, beforePublish = () => {} } = {}) {
     const finalInputs = Object.fromEntries(manifest.native_sources.map(path => [path, fileHash(safePath(root, path))]));
     if (canonical(finalInputs) !== canonical(inputSources)) throw new Error("native_input_changed_during_recording");
     if (canonical(historicalInputs(root, manifest)) !== canonical(historical)) throw new Error("historical_source_changed_during_recording");
+    if (canonical(reportedInputs(root, manifest)) !== canonical(reported)) throw new Error("human_report_changed_during_recording");
     const finalReferences = { ...readReferences(root, observations.filter(o => o.lane !== "deterministic_adapter")), [FACTS]: factsDigest };
     if (canonical(finalReferences) !== canonical(references)) throw new Error("native_evidence_changed_during_recording");
     if (existsSync(output)) { renameSync(output, backup); movedPrevious = true; }

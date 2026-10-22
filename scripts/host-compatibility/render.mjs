@@ -17,6 +17,15 @@ export function renderComparison(report) {
     "| Host | Installed | Discovered | Callable | Updated | Recoverable |",
     "|---|---|---|---|---|---|",
   ];
+  if (report.snapshot.release_matrix?.length) lines.splice(lines.indexOf('## Five deterministic outcomes'), 0,
+    '## Mandatory 0.20.0 Desktop scope', '',
+    '| Host | Surface | OS scope | Cases |', '|---|---|---|---|',
+    ...report.snapshot.release_matrix.map(t => `| ${escape(hostName[t.host])} | ${escape(t.surface)} | ${t.os === 'observed' ? 'Unknown until an exact reviewed Desktop tuple is supplied' : escape(osName[t.os])} | ${escape(t.scenarios.join(', '))} |`), '',
+    'Codex CLI on Windows/Linux remains **unqualified** and outside the mandatory matrix. Optional CLI probes and green OS regression tests do not qualify Desktop or another OS.', '',
+    '## Reported Desktop handchecks', '',
+    'Attributed human reports have zero qualified native coverage. Unknown identity remains unknown; recover original evidence before justified targeted verification.', '',
+    '| Host | OS context | Invocation | Upgrade | Recovery | Qualification | Missing facts |', '|---|---|---|---|---|---|---|',
+    ...(report.reported ?? []).map(r => `| ${escape(hostName[r.host])} | ${escape(r.identity.os)} | ${escape(r.scenarios.session)} | ${escape(r.scenarios.upgrade)} | ${escape(r.scenarios.recovery)} | ${escape(r.qualification)} (human_reported) | ${escape(r.missing_evidence.join('; '))} |`), '');
   for (const host of HOSTS) lines.push(`| ${hostName[host]} | ${OUTCOMES.map(claim => escape(report.rows.find(row => row.environment.host === host && row.scenario === claim)?.state ?? "unverified")).join(" | ")} |`);
   lines.push("", "Each outcome is independent. Legacy installation `healthy` does not establish discovery, invocation, effective update, recovery or automatic execution.", "", "## Native coverage", "",
     "Inventory of required evidence, not twelve supported combinations. Unknown host versions are gaps, never wildcard matches.", "",

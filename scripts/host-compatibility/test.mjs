@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { CAPABILITIES, HOSTS, SCENARIOS, SCENARIO_SPECS, canonical, importHistoricalHC, proofState, validateObservation } from "./contract.mjs";
 import { evaluateClaim } from "./evaluate.mjs";
-import { checkComparison, checkoutBytes, comparison, hash, MANIFEST_PATH, recordComparison, safePath, sourceClosure, sourceSnapshot } from "./run.mjs";
+import { checkComparison, checkoutBytes, comparison, hash, MANIFEST_PATH, recordComparison, reportedInputs, safePath, sourceClosure, sourceSnapshot } from "./run.mjs";
 import { renderComparison } from "./render.mjs";
 import { environment } from "../../packages/cli/scripts/host-compatibility-test.js";
 import { inspectPluginSurface } from "../../packages/cli/lib/installers/plugin-installers.js";
@@ -34,6 +34,20 @@ let checks = 0;
 const check = (name, action) => { action(); checks++; };
 const evaluate = observations => evaluateClaim(observations[0], observations, references);
 
+check("human reports stay outside native qualification and preserve unknown Desktop identity", () => {
+  const reports = reportedInputs(root, manifest);
+  assert.equal(reports.length, 2);
+  assert.equal(reports.find(r => r.host === 'codex').identity.os, null);
+  assert.ok(reports.every(r => r.qualification === 'unverified' && r.candidate_id === null));
+  const report = comparison({ version: currentVersion, digest, payloads: {}, release_matrix: [
+    {host:'codex',surface:'desktop-code',os:'observed',scenarios:['session','upgrade','recovery']}
+  ] }, [], {}, [], [], reports);
+  assert.deepEqual(report.native, []);
+  const rendered = renderComparison(report);
+  assert.match(rendered, /reported_pass/u); assert.match(rendered, /zero qualified native coverage/u);
+  assert.match(rendered, /Unknown until an exact reviewed Desktop tuple/u);
+  assert.throws(() => reportedInputs(root, {...manifest, reported_sources: [...manifest.reported_sources, ...manifest.reported_sources]}), /duplicate_human_report_id/u);
+});
 check("valid input and observed installation", () => { const o = make(); assert.deepEqual(validateObservation(o, references), []); assert.equal(evaluate([o]).state, "demonstrated"); });
 check("legacy unspecified surface and import facade behavior", () => {
   for (const surface of [undefined, null, "unknown"]) {
@@ -110,7 +124,7 @@ try {
     mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path), { recursive: true });
   }
   // Approved public evidence is an input too, even when it does not supply native comparison rows.
-  for (const path of ["docs/compatibility/.agdf-compatibility-owned.json", ...manifest.public_evidence]) {
+  for (const path of ["docs/compatibility/.agdf-compatibility-owned.json", ...manifest.public_evidence, ...(manifest.reported_sources ?? []), ...reportedInputs(root, manifest).flatMap(r => r.references.map(ref => ref.path))]) {
     const destination = safePath(temp, path);
     mkdirSync(dirname(destination), { recursive: true }); cpSync(safePath(root, path), destination);
   }

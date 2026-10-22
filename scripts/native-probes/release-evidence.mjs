@@ -67,7 +67,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const files = args[0] === "--directory" && args.length === 2
     ? readdirSync(args[1], { recursive: true }).filter(path => /(?:^|[\\/])observation\.json$/.test(path)).map(path => join(args[1], path)) : args;
   if (JSON.parse(readFileSync(new URL('../../plugins/agdf/meta/agdf-plugin.definition.json', import.meta.url), 'utf8')).hostSupport) {
-    console.log(JSON.stringify(await runReleaseTool(['validate', '--candidate', '.release-candidate.json', '--directory', args[1]]), null, 2));
+    throw new Error('Legacy CLI directory route is not publication eligibility; use explicit validate-cli diagnostics or full Desktop validate.');
   } else assertReleaseEvidence(files.map(path => JSON.parse(readFileSync(path, "utf8"))),
     { commit: process.env.GITHUB_SHA, version, policy });
   console.log("Release evidence: exact commit, version, model and native Linux/Windows lifecycle verified.");

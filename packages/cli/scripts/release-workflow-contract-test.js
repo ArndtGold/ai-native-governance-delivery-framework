@@ -101,6 +101,27 @@ assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("--pr
 assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("NPM_TOKEN is required")) < firstPublish);
 assert.ok(publishSteps.some((step) => step.if === "failure()" && String(step.run).includes("--report")));
 assert.ok(publish.jobs.bootstrap.steps.some((step) => String(step.run ?? "").includes("--complete")));
+// Full Desktop evidence is mandatory; optional native CLI credentials cannot gate this release.
+assert.equal(publish.jobs['codex-e2e'], undefined);
+assert.equal(publish.jobs['claude-evidence'], undefined);
+assert.ok(publish.jobs.publish.needs.includes('desktop-evidence'));
+const desktopGate = publish.jobs['desktop-evidence'];
+assert.equal(desktopGate['timeout-minutes'], 10);
+assert.ok(!desktopGate.if && !desktopGate['continue-on-error']);
+assert.ok(desktopGate.steps.some(step => /release-evidence\.mjs validate\s/u.test(String(step.run ?? '')) && step.run.includes('--all-hosts')));
+assert.ok(desktopGate.steps.every(step => !step['continue-on-error'] && !step.if && !JSON.stringify(step).includes('CODEX_API_KEY')));
+const ancestors = (id, jobs, visiting = new Set()) => {
+  assert.ok(!visiting.has(id), 'publication dependency cycle');
+  const next = new Set([...visiting, id]);
+  return new Set([id, ...[jobs[id].needs ?? []].flat().flatMap(dep => [...ancestors(dep, jobs, next)])]);
+};
+for (const [id, job] of Object.entries(publish.jobs)) if (job.steps?.some(step => String(step.run ?? '').includes('npm publish'))) {
+  const required = ancestors(id, publish.jobs);
+  for (const dependency of ['desktop-evidence','validate','tests']) assert.ok(required.has(dependency), id + ' bypasses ' + dependency);
+  assert.ok(!job.if && !job['continue-on-error'], id + ' must fail closed');
+}
+const bypass = structuredClone(publish.jobs); bypass.publish.needs = ['validate','tests'];
+assert.equal(ancestors('publish-wrapper', bypass).has('desktop-evidence'), false, 'mutated graph exposes bypass');
 const chain = ['publish', 'wait-create-agdf', 'verify-published-mcp', 'publish-mcp', 'wait-mcp', 'publish-wrapper', 'wait-wrapper', 'wait-wrapper-latest', 'bootstrap'];
 for (let i = 1; i < chain.length; i++) assert.equal(publish.jobs[chain[i]].needs, chain[i - 1]);
 assert.deepEqual(publish.jobs['verify-published-mcp'].with, { scope: 'linux', suite: 'mcp', published: true });

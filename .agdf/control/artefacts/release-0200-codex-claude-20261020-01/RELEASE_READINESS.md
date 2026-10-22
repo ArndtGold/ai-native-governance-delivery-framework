@@ -1,226 +1,106 @@
-# AGDF 0.20.0 release readiness
+# AGDF 0.20.0 release readiness — Desktop matrix revision
 
-Date: 2026-10-21
+Date: 2026-10-22
 Run: release-0200-codex-claude-20261020-01
-Status: Claude CLI on native Windows 5/5 validator-accepted on candidate 830d8b94 (review/import pending); Desktop Code and Codex native release qualification pending
-Gate authority: none; this report does not approve QA, UAT, OR or publication.
+Status: implementation prepared; final Desktop candidate qualification pending
+Gate authority: none. No QA, UAT, OR or publication approval is asserted.
 
-## Prepared scope
+## Current release scope
 
-- One canonical 0.20.0 version transaction covers the CLI, wrapper, MCP package, plugin profiles,
-  dependent manifests and public version surfaces. Registry preflight found all three intended npm
-  package versions available. No package was published.
-- The canonical plugin definition owns release support intent and host policy. Codex and Claude
-  are qualification targets; Copilot and OpenCode remain experimental. The Codex policy file is
-  generated from that definition; the existing client/model pins remain unchanged.
-- Candidate inventories bind relevant source, lockfiles, policy, validation/probe code and prepared
-  package bytes. Dirty candidates remain diagnostic. Evidence-only imports preserve tested content
-  identity; final Codex results still require the exact release CI commit.
-- Native CLI probes partition dispatch, failure_case, skill_continuation, upgrade and recovery.
-  Primary model/tool events, installed/runtime identities, measured cleanup and frozen tuples are
-  required. Released 0.14.5 is downloaded with registry integrity verification for transitions.
-  Native preparation jobs fetch complete history/tags for the existing strict release-history checks.
-- Separate Windows Desktop Code records require a fresh coding session, actual loaded identity,
-  AGDF access, cleanup, transition facts where applicable, and hashed native/capture references.
-  Templates start unverified. CLI results cannot satisfy Desktop cases.
-- Reviewed Claude imports validate contained references and the exact reviewed bundle before
-  immutable import, then project only measured claims through the existing compatibility producer.
-  Every publication path depends on the required Codex and Claude evidence validation.
-
-The Windows execution and return instructions are in
-[release-0.20.0.md](../../../../docs/maintenance/release-0.20.0.md).
-
-## Earlier preparation verification (2026-10-20)
-
-| Check | Current result | Evidence |
-|---|---|---|
-| Canonical release preparation | Pass; 49 version surfaces at 0.20.0; nine profile snapshots | release preparation log |
-| Candidate/evidence/lifecycle contracts | Pass; eleven tests, including missing/forged evidence, tuple drift, unexpected native tools, exact checkout/CI SHA, immutable import, unsafe paths, source/payload changes and unverified Desktop templates | qualification log |
-| Release workflow and legacy-evidence rejection | Pass | full verification maintenance stage |
-| Four-host deterministic compatibility | Pass; 56 evaluated, zero unexpected failures | compatibility report and log |
-| Package build | Pass; 113/113 deterministic skill evaluations | build log |
-| Community documentation fixture | Pass; baseline and 29 negative contracts after adding the new linked document to the fixture | community log |
-| Released 0.14.5 artifact | Integrity, safe extraction and package identity pass; no native installation claimed | evidence/BASELINE_REGISTRY_CHECK.json |
-| Complete shared CI plan | Pass through documented canonical staged/resumed execution; CLI inventory 159/159, including 18 isolated cells; wrapper/pages stages pass | [CLI_COVERAGE.json](evidence/CLI_COVERAGE.json), [LOG_INDEX.json](evidence/LOG_INDEX.json) |
-| Final maintenance, build, compatibility and runtime integrity | Pass; source and installed runtime integrity cover 14 skills and 16 controls; diff whitespace check pass | evidence/logs/*_FINAL.log |
-| Native release matrix | Pending; no current-candidate observations accepted | Inventory below |
-
-The two all-in-one verification attempts stopped at coupled fixture issues: the community fixture
-omitted the new README link target, then a current-version mock retained 0.14.5. After the targeted
-repairs, execution resumed through the existing shared planner and inventory. All 159 required CLI
-entries are accounted for, including all 18 isolated source/phase cells, and the remaining wrapper
-and pages stages passed. Final maintenance, affected migration fixture, compatibility, build and
-runtime integrity checks passed after the last implementation changes. This is a complete audited
-local inventory execution; neither earlier all-in-one invocation is reported as a successful run.
-The 34 retained logs have a digest index; all stored hashes were rechecked.
-
-Further checks found current-version mocks still fixed at 0.14.5 in inspection, migration, repair,
-MCP-lifecycle and OpenCode tests. These now use the canonical current version. The historical
-request-activation host-schema test instead retains its own independently checked 0.14.5 run version
-and rejects later-release completion records; its historical schema and unavailable matrix were not
-edited. The request-activation corpus source fingerprint was recomputed through its existing owner
-after review of the version/host-support metadata change. Its 39 deterministic cases pass; old
-behavioral/native observations were not relabeled or regenerated.
-
-Byte-custody tests demonstrated and fixed two defects before native use: invalid non-UTF8 byte
-sequences without NUL could collapse through text decoding, and Git's global LF policy changed
-imported Windows CRLF log bytes. Non-UTF8 inputs now remain byte-exact, and the native evidence
-directory has a narrowly scoped `-text` rule. Tests verify the actual Git blob, a fresh checkout and
-the complete post-checkout evidence validator. Raw and Git-stored fixture hashes now agree.
-
-The 18 isolated source/phase cases passed through the canonical CI inventory in serial/parallel
-execution; the 16 parallel continuations retained the same source snapshot throughout that portion.
-They exercise owned deterministic fixtures
-and do not count toward any of the 18 native host observations below.
-
-The exact measured Copilot payload budget changed from 3,475,653 to 3,476,904 bytes for version and
-host-policy/history metadata, with the same 395-file budget inventory and no spare allowance.
-The existing payload-budget owner recorded that assessment. Experimental-host coverage was retained.
-
-## Native obligations
-
-| Surface | Required | Accepted for this candidate | Status |
+| Host / surface | Required cases | Available evidence | Qualification |
 |---|---|---|---|
-| Codex CLI, native Linux; 0.157.1 / gpt-6-luna | Five cases | 0 | Pending |
-| Codex CLI, native Windows; 0.157.1 / gpt-6-luna | Five cases | 0 | Pending |
-| Claude CLI, native Windows on the other computer | Five cases | 5 validator-accepted on candidate 830d8b94; review/import pending | Review pending |
-| Claude Code in Windows Desktop app | Session, upgrade, recovery | 0 | Pending |
+| Codex Desktop Code; original OS unknown | session, upgrade, recovery | Maintainer reports all three passed; original app/model/session/candidate and primary references unavailable | Pending candidate binding and reviewed primary evidence |
+| Claude Desktop Code; Windows test-computer context | session, upgrade, recovery | Maintainer reports all three passed; original Desktop app/model/session/candidate and primary references unavailable | Pending candidate binding and reviewed primary evidence |
+| Codex CLI, Windows/Linux | Outside mandatory Desktop matrix | Optional diagnostics only | Unqualified |
+| Claude CLI, Windows | Outside mandatory Desktop matrix | Five cases rechecked on original clean candidate 830d8b94; 79 indexed files match | Historical CLI evidence only; original review/import pending |
+| Copilot / OpenCode | Retained adapter and regression coverage | Experimental support intent retained | Experimental |
 
-The Windows app/CLI versions and actual model remain to be captured and frozen by preflight on
-that computer. The user's description of current installed clients is context, not an exact native
-tuple. Local macOS clients and deterministic fixtures do not satisfy these observations.
+The two attributed human reports preserve the confirmed normal invocation, upgrade and recovery.
+Unknown values remain null. Reports receive zero machine-qualified native credit; repository fixtures
+and ordinary Linux/Windows regression tests do not establish installed Desktop behavior.
 
-## Task execution status
+Original reports: DESKTOP_HANDCHECKS_20261022.md and the separately published human_report inputs.
+Detailed recovery/disposition: evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/DESKTOP_EVIDENCE_RECOVERY.md.
 
-| Tasks | Actual state | Remaining obligation |
-|---|---|---|
-| T-001 | Recorded Brownfield preparation pass; unrelated work/index baseline preserved | None for this preparation |
-| T-002–T-008 | Scoped implementation, documentation, deterministic contract coverage and compatibility integration prepared | Actual native behavior remains subject to T-010 |
-| T-009 | Version, build and complete local verification pass | Authorized clean source/ref and executable handoff |
-| T-010 | Local macOS diagnostics executed; required Linux/Windows matrix not executed | Ten Codex, five Claude CLI, three Desktop observations; reviewed return/import and final all-host validation |
-| T-011 | Not completed | Required reviews and final QA against fulfilled current evidence; no QA pass while native obligations remain open |
+## Implemented behavior and canonical owners
 
-## Concrete next action and boundaries
+- plugins/agdf/meta/agdf-plugin.definition.json owns schema-2 hostSupport, the two mandatory Desktop
+  targets, optional CLI policy and explicit unqualified Codex CLI OS scopes. Existing pins remain.
+- Existing release policy/candidate/observation/handoff owners validate actual Desktop identity,
+  native calls, loaded runtime, reviewed tuple/bundle, baseline transition, preservation and cleanup.
+  Human reports are a separate discriminated input. Templates are unverified; unknowns never pass.
+- Default and --all-hosts release validation require both complete Desktop sets. The explicit
+  validate-cli command retains strict Codex diagnostics without publication credit. All publication
+  paths require the Desktop gate plus existing tests/tag/version/registry/provenance checks.
+- Existing compatibility contract/producer/render owners retain attributed reports separately from
+  qualified native_sources/native_targets. Reviewed imports remain scoped, immutable, contained and
+  rechecked; original CLI files and their candidate association were not rewritten.
+- Existing generation and release preparation produce coherent 0.20.0 package assets. Distribution
+  profile values and the exact Copilot cap of 397 files / 3,488,492 bytes were preserved. Canonical
+  JSON formatting was compacted where needed; no payload allowance or timeout was increased.
 
-Obtain the separately authorized VCS handoff to a clean shared candidate/ref. TP section "Evidence, VCS and publication boundaries" expressly excludes
-autonomous commit/push/tag. Preserve the unrelated core-model handoff artefacts and existing index.
-Recreate the clean candidate manifest, export the Windows handoff, execute native Codex CI and the
-remote Windows cases, review/import the returned files, and validate the complete 18-case matrix.
-Then finish the required review/QA sequence with the actual results.
+Public execution guidance: docs/maintenance/release-0.20.0.md (repository root).
 
-No current clean release SHA, native qualification, completed human acceptance, commit, push,
-tag, marketplace submission or publication is asserted by this preparation.
+## Current verification
 
-## Earlier preparation diagnostic identity
+| Check | Result / boundary |
+|---|---|
+| Release qualification suite | 19 deterministic tests pass in current full verification maintenance stage; no native Desktop execution implied |
+| Release workflow / legacy route safeguards | Pass; all publication ancestors protected; optional CLI cannot substitute Desktop |
+| Compatibility producer and freshness | Pass; 56 adapter cases, zero unexpected failures; zero qualified Desktop cases |
+| npm run build | Pass; 113 skill evaluations; package/runtime integrity checked |
+| Release preparation | Pass; 0.20.0 package/profile/history safeguards retained |
+| CI planner / inventory | 9 planner tests pass; 161 original commands across 117 planned jobs unchanged in each OS/Node lane; original timeouts not increased |
+| npm run verify:ci | Pass, exit 0; all 27 canonical local stages completed. See VERIFICATION_RESULTS.json and full-verification-attempt-2.log |
+| Scoped source whitespace | Pass for .github, CONTRIBUTING.md, INSTALL.md, README.md, docs, evals, packages, plugins and scripts |
+| Global git diff --check | Fails on one pre-existing sealed BROWNFIELD_REVIEW.md blank line at EOF; protected source was not edited |
+| Final clean release source | Unavailable: working tree is dirty; no automatic stage, commit, reset or clean export represented as a shared final ref |
+| Fresh remote CI / Desktop model session | Not executed for this working-tree revision; historical CI and original host runs are separate evidence |
 
-- Candidate content ID: `1d7c02407e4ad6d6da35445437095335fcd1f6cfdf5727d6616fe880704ce96b`.
-- Source HEAD: `da8be438b381493f4dbbdfb7f73d3f18c4d440ed`; dirty: true.
-- [CANDIDATE_DIAGNOSTIC.json](evidence/CANDIDATE_DIAGNOSTIC.json) is diagnostic and grants no native qualification.
-- Actual handoff rejected it with `candidate_source_dirty` and created no destination: [negative result](evidence/DIRTY_HANDOFF_REJECTION.json).
-- The matrix snapshot predates the final byte-custody corrections; affected qualification tests and
-  final shared maintenance/build/integrity were rerun. It is not relabeled as native evidence for
-  the diagnostic identity. The current exact clean native candidate still has to be created.
+Evidence logs, original baseline, CLI review, release rejection and CI comparison are retained under
+evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/. Unchanged live Windows shim assertions are skipped on darwin and are not claimed as executed.
+Full verification results remain local repository
+verification, not a claim that new GitHub jobs or installed-host acceptance passed.
 
-## Actual Codex CLI diagnostics after the preparation
+The first current full verification stopped at the expected stale request-activation source
+fingerprint after the host-policy revision. The existing fingerprint owner recomputed only that
+manifest value after source review. All 39 deterministic cases and callback/host-schema checks pass;
+no expected behavior, activation guard or historical host observation was changed. Compatibility
+was then regenerated after its correct stale-snapshot rejection. Both failures remain in evidence;
+the second complete invocation passed after this repair.
 
-The dispatcher continuation call is corrected: expected_revision_id belongs to intake/resume, not
-continue_delivery. The bound run returned implementation continuation at revision 13; no gate approval
-was repeated or changed.
+## Candidate and publication boundary
 
-On 2026-10-20 the existing native harness executed 13 attempts and 10 real model sessions with Codex
-CLI 0.163.0, gpt-6-luna, macOS darwin/x64, Node v22.22.3, installed AGDF 0.20.0 and existing ChatGPT
-account authentication in isolated profiles. API-key variables were removed from the test invocation.
-All five case types were exercised, with failed attempts preserved. Copies of authentication files
-were absent afterward, and no profiles or credentials are included in the retained evidence.
+Prepared diagnostic candidate: 5143cc192852d091d9792124832805e34adcb8193689857a1217dc311486dd7f.
+Source HEAD: 7ce6e8385632c001f6cdcd94fdb242e07f2ee748; dirty=true.
+See PREPARED_DIAGNOSTIC_CANDIDATE.json and RELEASE_ELIGIBILITY.json in the evidence directory.
 
-[Actual attempts and 87 hashed references](evidence/CODEX_CLI_LOCAL_20261020/INDEX.json).
-The latest complete five-case repetition has no passing overall case. Earlier successful dispatch,
-invalid-input and post-upgrade tool calls are not a stable qualification: later sessions reported no
-AGDF tool in their available inventory. Skill continuation never obtained the required AGDF call.
-The retained stdout and session captures support this diagnosis; a configured mcp get declaration
-alone did not establish a usable tool in those model sessions.
+Actual negative checks reject dirty source with candidate_source_dirty and missing Desktop rows with
+native_required_matrix_missing_or_duplicate. Required Desktop cases: six. Qualified records: zero.
+Two human reports are retained. Publication remains ineligible. Policy/probe changes produce a new
+candidate; earlier CLI or unspecified Desktop results cannot be relabeled for this identity.
 
-Recovery failed before model invocation. The repair process returns cockpit_conflict /
-host_same_key_or_possible_alias after the owned runtime manifest is made stale. Correcting the
-harness working directory removed main-repository configuration from the checked sources, but did
-not remove that same-key safety rejection. The existing safety owner was not bypassed.
+## Minimum remaining evidence and closeout
 
-[Cleanup diagnosis](evidence/CODEX_CLI_LOCAL_20261020/CLEANUP_DIAGNOSIS.json) confirms a protected
-immutable runtime with four executable claims. Deinstallation removes registration, plugin policy
-and cache but preserves that protected runtime by design; the stricter native cleanup requirement
-therefore remains failed. No claim was forcibly removed to make the test pass.
+Recover one existing original Desktop session/log/export reference per host, with tested candidate
+or loaded runtime identity if present. Review it before asking for any remaining specific fact.
+The existing confirmation of all three scenarios needs no repetition. A commit label alone does
+not supply missing native capability/transition observations. No blanket rerun, credentials,
+whole-profile export, remote access or daily-profile replacement is requested or authorized.
+See MINIMUM_REMAINING_EVIDENCE.md for the bounded disposition.
 
-Narrow harness fixes now decode the actual structured error report instead of joining it to a human
-diagnostic, run lifecycle commands and the released baseline from the isolated test project, and
-retain a redacted repair-process report. Final checks pass: 12/12 qualification tests, native error-
-report regression tests, existing 56-case compatibility freshness check and diff whitespace check.
-The earlier full inventory remains historical local evidence; it was not rerun or relabeled after
-these probe-only fixes.
+Current local macOS/app metadata is recorded only as present-day metadata. It cannot establish the
+original Windows Claude or Codex Desktop tuple and does not qualify prepared AGDF 0.20.0.
 
-Latest dirty diagnostic candidate: d365febfebb362e1ce942324cf087a6ce240d7af3eb451ad3a58b3d067a93b00
-([manifest](evidence/CANDIDATE_CODEX_LOCAL_FINAL_20261020.json)). This is a post-diagnostic snapshot,
-not an exact clean candidate validated before the native attempts. The approved Codex release matrix
-still requires CLI 0.157.1 with gpt-6-luna on native Linux and Windows, a clean exact candidate and
-passing evidence. Accepted release observations remain Codex 0/10, Claude CLI 0/5 and Desktop 0/3.
-CD+Tests stays revise; CR, QA, UAT and OR remain incomplete.
+All 1,593 software-source inventory entries stayed unchanged during the full second verification;
+approved source digests match exactly. Prepared payload inventories are unchanged by the derived
+fingerprint repair. See SOURCE_STABILITY_FINAL.json and METADATA_SCOPE_CHECK.json.
 
-## Codex blocker repair and final local repetition (2026-10-21)
+T-001 through T-008 have implementation evidence. T-009 remains partial until an authorized clean
+source is available. T-010 remains partial because the six Desktop cases lack current-candidate
+primary evidence. T-011 reviews/QA are not completed. CD+Tests must retain revise while these
+required obligations remain open; later human approvals, OR and publication cannot be inferred.
 
-The three implementation gaps E-004/E-005/E-006 are resolved for the measured local tuple.
-All five cases pass with Codex CLI 0.163.0 / gpt-6-luna on darwin/x64, including full native
-deinstallation. Recovery now rejects damaged dispatcher bytes before executable claims are acquired,
-then uses the verified owned repair and a fresh strict connection. Unknown executable use remains
-protected. Prior failed attempts are preserved.
-
-[Current detailed implementation/test report](CD_TESTS_CODEX_BLOCKER_REPAIR_INPUT.md),
-[final candidate](evidence/CODEX_BLOCKER_REPAIR_20261021/CANDIDATE_FINAL_V4.json),
-[primary-evidence audit](evidence/CODEX_BLOCKER_REPAIR_20261021/AUDIT.json),
-[all attempts and hashed references](evidence/CODEX_BLOCKER_REPAIR_20261021/INDEX.json).
-
-The final candidate is eae8e25426de427bccfe335bb9f99132d7be4cc5a1606066061067e6fe1dbccb; source HEAD da8be438b381493f4dbbdfb7f73d3f18c4d440ed, dirty=true.
-Build (113/113 skill evals), final launcher/shared-host regressions and deterministic compatibility
-(56/56) pass. Final MCP protocol, generation, safety, provenance and packed archive checks pass, including
-confirmed cleanup without client initialization. The exact shared payload budget is now 397 files / 3,488,492 bytes.
-Earlier full-inventory claims above remain dated preparation evidence.
-
-The formal release validator still rejects the local candidate as candidate_source_dirty.
-The required pinned Linux/Windows Codex matrix and the other computer's Windows Claude CLI/Desktop
-records remain open: accepted release observations are still 0/10 and 0/8. CD+Tests remains revise;
-reviews, QA, UAT and OR remain incomplete. Copilot and OpenCode remain experimental.
-
-## Claude CLI on native Windows (2026-10-21)
-
-Five Claude CLI release cases ran once each on the Windows test computer against the clean
-candidate 5961f3913205b6c741e16b44a85849ad65fbbbc2eafa33ccb7e627128a5dc7ea (source bbeae23e, head
-of PR #27). Tuple: Claude Code 2.1.302, claude-sonnet-5-5, win32/x64, Node v22.22.3. All five
-pass, and the release validator accepts each record; every removal is complete. The cases ran
-outside the packaged Claude Desktop app, whose install refusal remains in force.
-
-Two evidence-tooling defects were fixed first (bbeae23e): Claude error replies are now decoded,
-and executed calls are compared with the candidate's MCP dispatcher digest instead of the plugin
-runtime manifest digest. PR #27 also fixes the Windows owner lifetime and hides the facade console
-window (486b1965). The earlier attempt on candidate 0162491b (0/5 accepted) is retained.
-
-[Current CD+Tests report](CD_TESTS_CLAUDE_CLI_WINDOWS_INPUT.md),
-[evidence index](evidence/CLAUDE_CLI_WINDOWS_20261021/INDEX.json).
-
-Accepted release observations are now Codex 0/10, Claude CLI 5/5 pending review and Desktop 0/3.
-Import needs the complete Claude matrix and a completed review record. CD+Tests remains revise;
-reviews, QA, UAT and OR remain incomplete.
-## CI partition repair and current candidate (2026-10-21)
-
-Guardrails run 39600811858 on 4c725e68 exhausted the Windows Packages budget in the packed
-control-command suite. e3a0a632 splits that suite into three planned parts after the existing
-source/phase pattern, and 97454ec2 validates the part selector before loading fixtures. Guardrails
-run 39609232214 on 97454ec2 completed with 118/118 jobs successful.
-
-The five Claude CLI cases were repeated on the resulting clean candidate
-830d8b9414a6e7b4eb4080ff5ce64daeb4b064cbf5fffc8680c4d2876604ebff (source 97454ec2) with the same
-tuple. All five pass and are accepted by the release validator; every removal is complete. They
-replace the records for candidate 5961f391, which remain stored as superseded evidence.
-
-[Current CD+Tests report](CD_TESTS_CLAUDE_CLI_WINDOWS_830D8B94_INPUT.md),
-[evidence index](evidence/CLAUDE_CLI_WINDOWS_20261021_830D8B94/INDEX.json).
-
-Accepted release observations: Codex 0/10, Claude CLI 5/5 pending review, Desktop 0/3 (to run on
-candidate 830d8b94). CD+Tests remains revise; reviews, QA, UAT and OR remain incomplete.
+Previous readiness bytes, including dated legacy CLI matrix and earlier verification history, are
+preserved at evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/READINESS_BEFORE_DESKTOP_MATRIX.md.
+They are historical evidence and do not define this renewed mandatory matrix.

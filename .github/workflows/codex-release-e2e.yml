@@ -1,4 +1,4 @@
-name: Codex native release gate
+name: Optional Codex CLI diagnostics
 
 on:
   workflow_call:
@@ -100,4 +100,4 @@ jobs:
           pattern: codex-release-*
           path: .release-evidence
       - name: Verify exact release tuple on both native platforms
-        run: node scripts/native-probes/release-evidence.mjs --directory .release-evidence
+        run: node scripts/native-probes/release-evidence.mjs validate-cli --candidate .release-candidate.json --directory .release-evidence

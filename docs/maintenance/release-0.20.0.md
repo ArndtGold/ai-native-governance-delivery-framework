@@ -1,133 +1,123 @@
-# AGDF 0.20.0: preparation and host evidence
+# AGDF 0.20.0: Desktop scope and evidence handoff
 
-This is a release candidate preparation, not a publication announcement. Versions and dependent
-packages move together through the existing release transaction. Canonical support intent and
-qualification policy live in `plugins/agdf/meta/agdf-plugin.definition.json`; the old Codex policy
-file is a checked generated projection. No separate host version line is introduced.
+This is candidate preparation, not a publication announcement. Canonical hostSupport schema 2 in
+plugins/agdf/meta/agdf-plugin.definition.json owns release scope. Existing generators derive the
+optional Codex CLI policy; one 0.20.0 version line remains shared by all integrations.
 
-| Integration | Intent for 0.20.0 | Required native release observations |
+| Surface | 0.20.0 treatment | Current evidence and limit |
 |---|---|---|
-| Codex CLI | Qualification target | Native Linux and Windows; CLI 0.157.1, model gpt-6-luna; five scenarios on each OS |
-| Claude CLI | Qualification target | Native Windows on the other test computer; exact installed version/model captured before execution; five scenarios |
-| Claude Code in the Desktop app | Qualification target | Separate Windows coding-session, post-upgrade and post-recovery observations; actual app/session and loaded candidate identity |
-| GitHub Copilot | Experimental | Adapter and deterministic regression coverage retained; no native qualification promised |
-| OpenCode | Experimental | Adapter and deterministic regression coverage retained; no native qualification promised |
+| Codex Desktop | Mandatory release target: session, upgrade, recovery | Maintainer reports all three manual checks passed; actual OS/app/model/session/candidate and primary captures remain unverified |
+| Claude Desktop | Mandatory Windows release target: session, upgrade, recovery | Same reported manual passes; actual Desktop identity/candidate/captures remain unverified; CLI identity is separate |
+| Claude CLI Windows | Separate retained evidence | Five validator-accepted cases on original candidate 830d8b94; review/import/applicability remain distinct from current Desktop qualification |
+| Codex CLI macOS | Diagnostic only | Earlier dirty-candidate observations; no current or other-OS qualification |
+| Codex CLI Windows/Linux | **Unqualified**, outside mandatory matrix | Optional pinned native probes retained; ordinary platform regression tests remain required |
+| Copilot / OpenCode | **Experimental** | Adapters and regression tests retained; no native qualification claimed |
 
-CLI scenarios are dispatch, controlled invalid input, skill continuation, released-baseline upgrade
-and supported owned-state recovery. Each has installation/discovery and cleanup obligations.
-Native hooks and embedded MCP App rendering need their own observations and are not inferred.
-The published 0.14.5 package is the upgrade baseline; today's same-version development tree is not.
+The maintainer's original handcheck statement is preserved with the reported input under
+evals/host-compatibility/native/reported/desktop-handchecks-20261022/. Recording date is not execution
+date. Unknown identities stay unknown. The generated compatibility report distinguishes these
+human_reported assertions from candidate-bound operator_observed native records. Reports have zero
+qualified coverage. No CLI result, protocol test or green OS build qualifies another surface.
 
-## Prepare a candidate
+## Prepare and freeze the candidate
 
-Run the existing preparation and verification path before native testing. Relevant source/policy/probe,
-lockfile or shipped-content changes invalidate candidate identity. Native result files and their
-defined compatibility manifest pointers are outputs; they do not change tested software identity.
-Codex still requires its exact clean release CI SHA, including after a result-only import commit.
+Use the existing locked preparation and verification order:
 
 ```sh
 npm run build:prepare
 npm --prefix packages/mcp-server ci --ignore-scripts
 npm run compatibility:record
+npm run compatibility:check
 npm run build
+npm --prefix packages/cli run release:prepare
 npm run verify:ci
 node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
 ```
 
-Candidate creation reports source dirtiness. A dirty candidate is diagnostic and cannot qualify or
-produce an executable handoff. After the final authorized clean ref is available, create the manifest
-again and export the test instructions into ignored local results:
+Source, policy, probe, lock or shipped changes invalidate identity; only fixed evidence-output classes
+are excluded. Use a clean prepared source/export for release-grade evidence. Do not remove foreign or
+ignored daily host settings to manufacture a clean checkout. No staging, commit, tag or publication
+is performed by these commands.
+
+Recover original Desktop facts first. Reuse only matching candidate/tuple evidence; a changed policy
+is a different candidate and old records are never relabelled. Identify concrete remaining facts and
+justify targeted verification only where originals cannot establish them. There is no blanket request
+to repeat all previously reported handchecks.
 
 ```sh
-node scripts/native-probes/release-evidence.mjs handoff --candidate .release-candidate.json --output probe-results/windows-0200-handoff
+node scripts/native-probes/release-evidence.mjs handoff --candidate .release-candidate.json --output probe-results/desktop-0200-handoff
 ```
 
-The handoff carries candidate/policy/package checksums, the source commit and required case inventory.
-It does not contain credentials, install a remote service or contact the other computer. Native
-execution always validates the complete prepared source and payload inventories against the manifest.
-Hashes establish content equality; they do not independently attest human identity or execution.
+The handoff describes both required Desktop targets. Authentication stays on each executor. It
+neither contacts the other computer nor assumes Desktop shares the CLI's profile/isolation/payload.
+Use a verified host-supported test scope or dedicated environment; missing safe access is a blocker.
 
-## Windows Claude execution
+## Actual Desktop identity and templates
 
-Use that exact clean source/candidate on the Windows test computer and prepare it with lockfile
-dependencies. Authentication stays there. Do not modify the daily-use Desktop profile merely to
-obtain a pass: use a verified supported test profile or dedicated test environment. Do not assume
-Desktop honors CLI isolation variables or loads the CLI's payload.
-
-Capture the actual model ID and runtime tuple; replace the example model/version values below with
-observed values. The script rejects current/latest placeholders. Desktop version evidence must be
-an actual local capture or native version diagnostic, not this document.
-
-```powershell
-node scripts/native-probes/release-evidence.mjs preflight --candidate .release-candidate.json --surface cli --model "ACTUAL_MODEL_ID" --output probe-results/claude-cli-tuple.json
-node scripts/native-probes/release-evidence.mjs preflight --candidate .release-candidate.json --surface desktop-code --model "ACTUAL_MODEL_ID" --version "ACTUAL_APP_VERSION" --version-evidence "PATH_TO_NATIVE_VERSION_CAPTURE" --output probe-results/claude-desktop-tuple.json
-```
-
-Run each case once; retain every actual output and failure. The release probe uses an isolated CLI
-home and bounded existing authentication. It resolves npm command shims through the existing Windows
-host-command owner, verifies the installed/loaded runtime and measures native uninstall before
-discarding its temporary profile.
-
-```powershell
-npm run native:claude-e2e -- --candidate .release-candidate.json --tuple probe-results/claude-cli-tuple.json --model "ACTUAL_MODEL_ID" --scenario dispatch
-```
-
-Repeat with `failure_case`, `skill_continuation`, `upgrade`, and `recovery`. The baseline download
-validates the exact published package integrity, rejects unsafe archive entries and never executes
-archive lifecycle scripts. Upgrade/recovery capture a fresh model invocation after the transition.
-Unknown ownership or unsupported repair fails the case rather than replacing foreign state.
-
-Create separate Desktop templates for `session`, `upgrade`, `recovery`:
-
-```powershell
-node scripts/native-probes/release-evidence.mjs desktop-template --candidate .release-candidate.json --tuple probe-results/claude-desktop-tuple.json --scenario session --output probe-results/desktop-session.json
-```
-
-Templates start unverified. Complete them only from actual fresh Claude **Code** sessions in the
-Desktop app, recording session identity, loaded plugin/runtime diagnostics, AGDF access and cleanup.
-For upgrade/recovery, complete the separate transition fields from that Desktop test scope: verified
-released baseline integrity/source digest, foreign-state and permission preservation, and the actual
-owned stale-state repair for recovery. Supply references for these observations as well.
-Each needs contained hashed native JSON/log references and an image capture identifying the coding
-surface. A screenshot alone, generic Desktop chat, CLI trace or model claim is insufficient.
-Keep unavailable capabilities unverified and state the exact missing observation.
-
-Return only the redacted `release-records.json` files, the three `desktop-*.json` records, their
-referenced native/capture files, the candidate and frozen tuples. Preserve relative directory
-structure. Never return authentication files or complete personal profiles. Keep failed attempts
-separately; do not mix duplicate success/failure cases in one acceptance bundle.
-
-## Review and import
-
-On a matching clean candidate, create a review template for the returned local bundle:
+Run preflight on the actual Desktop executor with observed app/model/version evidence, not example
+values or the CLI version. The native version-evidence JSON supplies the exact host, surface, os,
+arch, version, node and model tuple; the helper process version/architecture is not substituted. Claude Desktop preflight runs on native Windows; Codex Desktop records
+its actual OS, without claiming other OS support.
 
 ```sh
-node scripts/native-probes/release-evidence.mjs review-template --candidate .release-candidate.json --bundle probe-results/returned-windows --output probe-results/windows-review.json
+node scripts/native-probes/release-evidence.mjs preflight --candidate .release-candidate.json --host codex --surface desktop-code --model ACTUAL_MODEL --version ACTUAL_APP_VERSION --version-evidence PATH_TO_NATIVE_VERSION_CAPTURE --output probe-results/codex-desktop-tuple.json
+node scripts/native-probes/release-evidence.mjs desktop-template --candidate .release-candidate.json --tuple probe-results/codex-desktop-tuple.json --scenario session --output probe-results/desktop-session.json
 ```
 
-It starts with `reviewed: false` and no reviewer. Inspect primary observations, exact tuple/model,
-baseline, preservation, cleanup and Desktop assurance before completing the reviewer and review
-decision. This cooperative record is evidence review, not an AGDF gate approval.
+Use --host claude for the separate Windows Desktop preflight. Create session, upgrade and recovery
+templates for each host. Templates are unverified; they are never completed by copying this guide or
+converting the human report into synthetic traces.
+
+Qualified Desktop schema-3 records carry kind qualified_desktop, operator_observed assurance, exact
+candidate/policy/source/loaded identity, environment/tuple digest, session, case/result and hashed
+contained references. They require an app-identifying image and desktop-primary.json with matching
+session/environment/candidate/loaded identity, coding_surface code, fresh_session true and a named
+owned test scope. Native installation/discovery/cleanup diagnostics identify effective payload,
+deliberate consent, plugin discovery and actual absence of owned leftovers. Session calls include
+dispatch, failure_case and skill_continuation; transition cases include fresh dispatch. Each call
+retains its native Codex rollout or Claude stream in stdout/rollouts with actual model, non-authorizing
+result and verified contract content/digests. See the strict checks in release-observation.mjs.
+Booleans, generic chat, a screenshot alone or a separately successful CLI trace cannot satisfy them.
+
+Upgrade/recovery requires the actually released 0.14.5 baseline and integrity/source digest,
+supported owned-state action, fresh effective candidate, foreign-state and permission preservation,
+and cleanup. Recovery must use the supported owned_stale_install path. Keep actual failed attempts
+and stop on unknown ownership or unsupported repair; never broaden cache deletion or permissions.
+
+Hashes prove content integrity, not independent execution truth or operator authenticity. Review
+actual native material and retain operator assurance. Redact credentials and unrelated private data;
+return only the records and their bounded referenced files, not complete profiles or transcripts.
+
+## Reviewed scoped import and full eligibility
+
+A reviewer inspects original identity, primary observations, capability checks, baseline, preservation
+and cleanup, then completes the exact tuple/bundle review. Templates start reviewed false. This is
+cooperative evidence review and grants no AGDF gate approval.
 
 ```sh
-node scripts/native-probes/release-evidence.mjs import --candidate .release-candidate.json --bundle probe-results/returned-windows --review probe-results/windows-review.json
+node scripts/native-probes/release-evidence.mjs review-template --candidate .release-candidate.json --bundle probe-results/codex-desktop --output probe-results/codex-review.json
+node scripts/native-probes/release-evidence.mjs import --candidate .release-candidate.json --host codex --surface desktop-code --bundle probe-results/codex-desktop --review probe-results/codex-review.json
+```
+
+Repeat the scoped import for Claude Desktop. Imports are immutable, copy only validated references,
+reject unsafe/mixed/duplicate/failed records and roll back only their owned output. Native records live
+under evals/host-compatibility/native/<candidate>/<host>/desktop-code/ with their review.json.
+Optional CLI ingestion is explicit and cannot satisfy Desktop coverage. Historical schema-2 CLI
+records retain original policy/tuple/candidate semantics.
+
+The common validate command always requires both Desktop targets under policy schema 2, including
+its default route. The publication path additionally rejects legacy policy:
+
+```sh
+node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory evals/host-compatibility/native/CANDIDATE_ID --all-hosts
 npm run compatibility:record
 npm run compatibility:check
 ```
 
-Import rejects missing, duplicate, failed, dirty, mismatched or altered records and unsafe paths.
-It copies only verified references into an immutable candidate-scoped evidence directory. The
-existing compatibility producer receives only measured native claims with lane/mechanism/tuple and
-bounded public references. Other capabilities remain unverified. Native release records retain the
-complete required-case evidence; compatibility vocabulary does not invent additional skills or UI proof.
+All npm publication paths depend on complete reviewed Desktop evidence, normal verification and the
+existing tag/version/registry/credential/integrity controls. Missing exact Desktop binding keeps
+qualification and publication blocked. Existing CI timeouts and all ordinary test commands remain.
 
-## Publication eligibility and remaining decisions
-
-The existing publication graph depends on both the Codex native gate and the all-host validation
-job. It requires ten Codex, five Claude CLI and three Desktop Code observations. Missing Windows
-evidence blocks publication before any npm package is published. Existing native job limits remain
-unchanged; a timeout is a failure, not permission to omit coverage or raise the limit.
-
-No native results are supplied by adding this tooling. Package preparation, native qualification,
-QA/UAT/OR, an authorized clean VCS ref and publication remain distinct. No commit, push, tag,
-marketplace submission or package publication is performed by these preparation commands.
+Preparation, native qualification, current QA, deliberate human UAT/OR, an authorized VCS handoff and
+publication remain separate. A documented manual pass or a successful validator fixture is no release
+authorization. Embedded MCP Apps, hook trust/execution and other capabilities need their own proof.

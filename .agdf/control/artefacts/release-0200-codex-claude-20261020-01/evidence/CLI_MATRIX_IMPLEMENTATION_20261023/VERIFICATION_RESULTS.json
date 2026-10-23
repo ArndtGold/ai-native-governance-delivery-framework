@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-23T13:06:27.068Z",
+  "host": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v22.22.3"
+  },
+  "base_commit": "79df3564fc7214821afb585372c45e82d525cfc9",
+  "working_tree": "uncommitted T-002 to T-008 changes; commit and push pending maintainer authorization",
+  "tasks": {
+    "T-002": "hostSupport schema 3, release-policy.mjs, generator unchanged, policy tests",
+    "T-003": "schema migration candidate test",
+    "T-004": "scoped tuple binding, candidate-commit binding for the mandatory Codex row, optional Desktop scope",
+    "T-005": "evidenceScope import mapping, per-host handoff, Codex CLI preflight on darwin, schema-3 validate with optional strict Desktop",
+    "T-006": "harness paths reused; darwin applicability in DARWIN_HARNESS_APPLICABILITY.json (diagnostic only)",
+    "T-007": "publish job renamed release-evidence; CI inventory and timeouts unchanged (CI_INVENTORY_COMPARISON.json)",
+    "T-008": "report snapshot/render, README, INSTALL, release guide, maintenance README; compatibility record/check"
+  },
+  "payload_budget": {
+    "file": "plugins/agdf/meta/copilot-payload-baseline.json",
+    "before": {
+      "files": 397,
+      "bytes": 3488492
+    },
+    "after": {
+      "files": 397,
+      "bytes": 3488952
+    },
+    "reason": "exact measured growth of the shipped schema-3 definition, no headroom; first build:prepare stop kept in build-prepare-payload-budget-stop.log"
+  },
+  "results": [
+    {
+      "command": "npm run build:prepare",
+      "exit": 0
+    },
+    {
+      "command": "npm run test:release-qualification",
+      "exit": 0,
+      "tests": "31/31"
+    },
+    {
+      "command": "node scripts/native-probes/release-evidence-test.mjs",
+      "exit": 0
+    },
+    {
+      "command": "npm --prefix packages/cli run test:release-workflows",
+      "exit": 0
+    },
+    {
+      "command": "node --test scripts/ci-plan-test.mjs",
+      "exit": 0,
+      "tests": "9/9"
+    },
+    {
+      "command": "npm run test:host-compatibility",
+      "exit": 0,
+      "checks": 70
+    },
+    {
+      "command": "npm run test:community-health",
+      "exit": 0
+    },
+    {
+      "command": "npm run test:maintenance-contracts (Git Bash)",
+      "exit": 0
+    },
+    {
+      "command": "npm run compatibility:record",
+      "exit": 0,
+      "source_fingerprint": "73050d43d4b5c984e2d06a858fd67605831518da2d7bf03247c881e1ac5f252a"
+    },
+    {
+      "command": "npm run compatibility:check",
+      "exit": 0,
+      "scenarios": "56/0"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "not_run": [
+    "npm run build, release:prepare and npm run verify:ci (T-009, after the authorized commit)",
+    "final candidate and remote CI (T-009)",
+    "native Claude CLI Windows and Codex CLI macOS records (T-010)"
+  ],
+  "logs": [
+    {
+      "path": "build-prepare-payload-budget-stop.log",
+      "sha256": "d28a089118b275e4893e9ee9a829c4f657aa99ab4898d76f1641419884dc96b6"
+    },
+    {
+      "path": "build-prepare.log",
+      "sha256": "5f8837d3de4bfd6f74e4bd87011abc03019da449f4a76a45abbbcd79edb48da7"
+    },
+    {
+      "path": "ci-plan-test.log",
+      "sha256": "a604ac28bd8f9288dd02f06fc9f0cca8d67f2020869d211227b643db19b620a0"
+    },
+    {
+      "path": "community-health-after-record.log",
+      "sha256": "c8f44af0f8b9fa6cf1f3e2e26bccdce5b0f629d693266cfe29e9d768e2be4c2b"
+    },
+    {
+      "path": "community-health.log",
+      "sha256": "c8f44af0f8b9fa6cf1f3e2e26bccdce5b0f629d693266cfe29e9d768e2be4c2b"
+    },
+    {
+      "path": "compatibility-check.log",
+      "sha256": "96bd2324595bc10ae80581d3764179bc0e2e16b0abe7c5419d917cb9da3fb66c"
+    },
+    {
+      "path": "compatibility-record.log",
+      "sha256": "fb91b41e2aa8cfb8c764b8d51bc08c9a2536965e6974bd1ccf45475bf82d91b0"
+    },
+    {
+      "path": "host-compatibility.log",
+      "sha256": "cc933628fb6a397a05ac971a478f59f281f6bccb0943ccdab763ef432ebe546b"
+    },
+    {
+      "path": "maintenance-contracts.log",
+      "sha256": "08d7f7f1f4b1b3958d51b1e0311ad70d86a19254eadde26c2b5ce2787bf557c1"
+    },
+    {
+      "path": "release-evidence-test.log",
+      "sha256": "bbc3b2688cb99ff1c91b635f591487d2909ef58118f8c31a3859acf7fa60291a"
+    },
+    {
+      "path": "release-qualification.log",
+      "sha256": "7984f078425ce740224ac67dc3dd2d8fa317e65fcf39b0325d5300cb05e63f67"
+    },
+    {
+      "path": "release-workflows.log",
+      "sha256": "7c780212e3f365a8668e835c3037f45fb4c8c2c6da2e9921b16f73d0cc3c6f88"
+    }
+  ]
+}

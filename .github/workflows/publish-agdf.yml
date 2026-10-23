@@ -79,8 +79,8 @@ jobs:
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix packages/mcp-server run test:package
     timeout-minutes: 10
-  desktop-evidence:
-    name: Validate both Desktop release targets
+  release-evidence:
+    name: Validate the mandatory CLI release targets
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -92,14 +92,14 @@ jobs:
           node-version: 22
       - name: Prepare the candidate independently of returned evidence
         run: npm ci --ignore-scripts && node scripts/verify-ci.mjs --profile prepare && node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
-      - name: Require both reviewed Desktop evidence sets
+      - name: Require reviewed evidence for every mandatory CLI target
         run: node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory evals/host-compatibility/native/$(node -p "require('./.release-candidate.json').candidate_id") --all-hosts
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - validate
-      - desktop-evidence
+      - release-evidence
       - tests
     env:
       NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache

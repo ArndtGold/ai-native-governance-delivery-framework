@@ -567,10 +567,11 @@
     }
   },
   "hostSupport": {
-    "schema_version": 2,
+    "schema_version": 3,
     "tiers": {"codex":"qualification_target","claude":"qualification_target","copilot":"experimental","opencode":"experimental"},
-    "required_targets": [{"host":"codex","surface":"desktop-code","os":"observed","scenarios":["session","upgrade","recovery"]},{"host":"claude","surface":"desktop-code","os":"win32","scenarios":["session","upgrade","recovery"]}],
-    "optional_cli": {"codex":{"codex_version":"0.157.1","model":"gpt-6-luna","platforms":["linux","win32"]},"claude":{"platforms":["win32"]}},
+    "required_targets": [{"host":"claude","surface":"cli","os":"win32","scenarios":["dispatch","failure_case","skill_continuation","upgrade","recovery"]},{"host":"codex","surface":"cli","os":"darwin","scenarios":["dispatch","failure_case","skill_continuation","upgrade","recovery"]}],
+    "reported_desktop": [{"host":"codex","surface":"desktop-code","os":"observed","scenarios":["session","upgrade","recovery"]},{"host":"claude","surface":"desktop-code","os":"win32","scenarios":["session","upgrade","recovery"]}],
+    "optional_cli": {"codex":{"codex_version":"0.157.1","model":"gpt-6-luna","platforms":["linux","win32"]}},
     "unqualified": [{"host":"codex","surface":"cli","os":"linux"},{"host":"codex","surface":"cli","os":"win32"}]
   }
 }

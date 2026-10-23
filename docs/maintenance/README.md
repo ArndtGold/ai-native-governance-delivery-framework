@@ -1,9 +1,9 @@
 # Wartungsverträge und Release-Nachweise
 
-Die [Vorbereitung von 0.20.0](release-0.20.0.md) ergänzt den vorhandenen Codex-Nachweis um
-Upgrade/Wiederherstellung und die separat auf Windows erzeugten Claude-CLI-/Desktop-Code-Belege.
-Der Publish-Workflow verlangt beide Host-Nachweise; fehlende externe Ergebnisse bleiben Blocker.
-Copilot und OpenCode bleiben experimentell.
+Die [Vorbereitung von 0.20.0](release-0.20.0.md) verlangt für Claude Code CLI unter Windows und
+Codex CLI unter macOS je fünf kandidatengebundene Fälle, darunter Upgrade und Wiederherstellung.
+Der Publish-Workflow verlangt beide geprüften Host-Nachweise; fehlende externe Ergebnisse bleiben Blocker.
+Die Desktop-Oberflächen sind manuell geprüft, Copilot und OpenCode bleiben experimentell.
 
 ## Node-Versionen und GitHub Actions
 

@@ -1,0 +1,8 @@
+release-qualification exit=0 started=2026-10-23T12:58:03Z finished=2026-10-23T12:58:40Z :: npm run test:release-qualification
+release-evidence-test exit=0 started=2026-10-23T12:58:40Z finished=2026-10-23T12:58:40Z :: node scripts/native-probes/release-evidence-test.mjs
+release-workflows exit=0 started=2026-10-23T12:58:40Z finished=2026-10-23T12:59:01Z :: npm --prefix packages/cli run test:release-workflows
+ci-plan-test exit=0 started=2026-10-23T12:59:01Z finished=2026-10-23T12:59:08Z :: node --test scripts/ci-plan-test.mjs
+host-compatibility exit=0 started=2026-10-23T12:59:08Z finished=2026-10-23T13:01:18Z :: npm run test:host-compatibility
+community-health exit=0 started=2026-10-23T13:01:18Z finished=2026-10-23T13:01:31Z :: npm run test:community-health
+maintenance-contracts exit=0 started=2026-10-23T13:01:31Z finished=2026-10-23T13:03:22Z :: npm run test:maintenance-contracts
+DONE

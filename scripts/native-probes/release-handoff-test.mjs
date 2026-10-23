@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { basename, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { candidateFixture } from './test-support.mjs';
 import { jsonDigest, sha } from './lib/release-candidate.mjs';
-import { releasePolicy, requiredReleaseCases, optionalCliCases } from './lib/release-policy.mjs';
+import { releasePolicy, requiredReleaseCases, optionalCliCases, optionalDesktopCases } from './lib/release-policy.mjs';
 import { assertHostReleaseEvidence, assertHumanReport, referencesFrom, releaseRecords } from './lib/release-observation.mjs';
-import { assertBundleReview, bundleDigest, importClaudeEvidence, importNativeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
+import { assertBundleReview, bundleDigest, evidenceScope, importClaudeEvidence, importNativeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
 
 async function runFixtureReleaseTool(args, fixture) {
   const previous = process.env.GITHUB_SHA;
@@ -26,7 +26,9 @@ function desktopFixtures(f) {
   const policy = releasePolicy(f.root);
   const lockedTuples = ['codex','claude'].map(host => ({ host, surface: 'desktop-code', os: host === 'codex' ? 'darwin' : 'win32',
     arch: 'x64', version: '9.8.7', node: 'v22.22.3', model: 'fixture-desktop-model' }));
-  const rows = requiredReleaseCases(policy, undefined, lockedTuples).map((item, index) => {
+  // Schema 3 keeps the Desktop surfaces as optional evidence; schema 2 still requires them.
+  const cases = policy.schema_version === 3 ? optionalDesktopCases(policy, undefined, lockedTuples) : requiredReleaseCases(policy, undefined, lockedTuples);
+  const rows = cases.map((item, index) => {
     const directory = join(root, item.host, item.surface, String(index)); mkdirSync(directory, { recursive: true });
     const environment = lockedTuples.find(t => t.host === item.host);
     // Every case is observed in its own fresh Desktop session.
@@ -179,7 +181,7 @@ test('each Desktop case binds its own scenario, fresh session, scoped review tup
     const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
     const reviewFile=join(d.root,'codex','desktop-code','review.json'),review=JSON.parse(readFileSync(reviewFile));
     writeFileSync(reviewFile,JSON.stringify({...review,tuples:d.options.lockedTuples}));
-    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',d.root,'--all-hosts'],f),/native_review_tuple_scope/u);
+    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',d.root],f),/native_review_tuple_scope/u);
     assert.throws(()=>importNativeEvidence(f.root,{candidate:f.candidate,bundle:join(d.root,'codex','desktop-code'),host:'codex',surface:'desktop-code',
       review:{...review,tuples:d.options.lockedTuples}}),/native_review_tuple_scope/u);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
@@ -254,14 +256,14 @@ test('Desktop import rejects oversized or linked evidence and rolls back a faile
     assert.equal(importNativeEvidence(f.root,scope).cases.length,3);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
 });
-test('default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy', async () => {
+test('historical schema-2 validation needs both Desktop hosts and is never publication eligibility', async () => {
   const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
   const previous = process.env.GITHUB_SHA;
   try {
     const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
     const args=['validate','--candidate',candidate,'--directory',d.root];
     assert.equal((await runFixtureReleaseTool(args,f)).cases.length,6);
-    assert.equal((await runFixtureReleaseTool([...args,'--all-hosts'],f)).cases.length,6);
+    await assert.rejects(runFixtureReleaseTool([...args,'--all-hosts'],f),/publication_requires_cli_policy/u);
     await assert.rejects(runFixtureReleaseTool([...args,'--host','claude'],f),/release_command_invalid/u);
     assert.equal(process.env.GITHUB_SHA, previous);
     rmSync(join(d.root,'claude'),{recursive:true});
@@ -271,7 +273,7 @@ test('default and explicit full validation cannot accept a Codex-only Desktop bu
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
   const old=candidateFixture();
   try { const candidate=join(old.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(old.candidate));
-    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',old.root,'--all-hosts'],old),/publication_requires_desktop_policy/u);
+    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',old.root,'--all-hosts'],old),/publication_requires_cli_policy/u);
   } finally {rmSync(old.root,{recursive:true,force:true});}
 });
 test('Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection', () => {
@@ -309,8 +311,10 @@ function nativeFixtures(f, host, scope) {
   const rows = (scope === 'optional-cli' ? optionalCliCases(policy, host) : requiredReleaseCases(policy, host)).map((item, i) => {
     const directory = join(root, String(i)); mkdirSync(directory);
     const codexPolicy = policy.optional_cli?.codex ?? policy.codex;
+    const pinned = item.host === 'codex' && (policy.schema_version < 3 || scope === 'optional-cli');
     const environment = { host: item.host, surface: item.surface, os: item.os, arch: 'x64', node: 'v22.22.3',
-      version: item.host === 'codex' ? codexPolicy.codex_version : '2.1.193', model: item.host === 'codex' ? codexPolicy.model : 'fixture-model' };
+      version: item.host === 'codex' ? pinned ? codexPolicy.codex_version : '0.163.0' : '2.1.193',
+      model: item.host === 'codex' ? pinned ? codexPolicy.model : 'fixture-codex-model' : 'fixture-model' };
     const result = { schema_version: '1', outcome: item.scenario === 'failure_case' ? 'invalid_input' : item.scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
       terminal: item.scenario !== 'skill_continuation', authorizes: false, runtime: { runtime_digest: f.candidate.identities.mcp_dispatcher.digest } };
     if (item.scenario === 'skill_continuation') result.continuation = { runtime_contracts: ['quality','context-graph'].map(module => ({ module, content: module, sha256: sha(module) })) };
@@ -490,4 +494,107 @@ test('Desktop preflight uses captured runtime identity, never the helper process
     writeFileSync(capture,JSON.stringify({...observed,node:'unknown'}));
     await assert.rejects(runReleaseTool(args,f.root),/tuple_node_missing/u);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(temp,{recursive:true,force:true});}
+});
+
+// Schema 3: the mandatory matrix is Claude Code CLI on Windows plus Codex CLI on macOS.
+function cliReview(f, rows) {
+  return { schema_version: 1, reviewed: true, reviewer: 'Fixture reviewer', candidate_id: f.candidate.candidate_id,
+    bundle_digest: bundleDigest(rows), tuples: [rows[0].record.environment] };
+}
+test('schema-3 CLI matrix binds reviewed tuples per host; the Codex pin binds only Linux/Windows diagnostics', () => {
+  const f = candidateFixture({ policyVersion: 3 }), d = nativeFixtures(f), diag = nativeFixtures(f, 'codex', 'optional-cli');
+  try {
+    const policy = releasePolicy(f.root), codex = d.rows.find(row => row.record.environment.host === 'codex').record.environment;
+    assert.equal(d.rows.length, 10); assert.equal(codex.os, 'darwin');
+    assert.notEqual(codex.version, policy.optional_cli.codex.codex_version, 'the macOS row is not tied to the diagnostic pin');
+    assert.equal(assertHostReleaseEvidence(d.rows, d.options).result, 'pass');
+    for (const [host, code] of [['codex', /codex_tuple_not_reviewed/u], ['claude', /claude_tuple_not_reviewed/u]])
+      assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, lockedTuples: d.options.lockedTuples.filter(t => t.host !== host) }), code);
+    // The macOS row binds the candidate commit, not the later checkout commit that also carries imported evidence.
+    assert.equal(assertHostReleaseEvidence(d.rows, { ...d.options, commit: 'f'.repeat(40) }).result, 'pass');
+    const moved = structuredClone(d.rows); moved.find(row => row.record.environment.host === 'codex').record.source.commit = 'f'.repeat(40);
+    assert.throws(() => assertHostReleaseEvidence(moved, d.options), /native_codex_release_commit_mismatch/u);
+    for (const mutate of [rows => rows.pop(), rows => rows.push(rows[0]), rows => rows[0].record.policy_digest = '0'.repeat(64),
+      rows => rows[0].record.loaded_identity = null, rows => rows[0].record.environment.os = 'linux']) {
+      const rows = structuredClone(d.rows); mutate(rows); assert.throws(() => assertHostReleaseEvidence(rows, d.options));
+    }
+    // Pinned Linux/Windows diagnostics can never fill the macOS row, and the pin still binds their own scope.
+    const mixed = [...d.rows.filter(row => row.record.environment.host === 'claude'), ...diag.rows.filter(row => row.record.environment.os === 'linux')];
+    assert.throws(() => assertHostReleaseEvidence(mixed, d.options), /native_case_unexpected/u);
+    // Reviewing several tuples for one host and surface is ambiguous rather than a wider scope.
+    assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, lockedTuples: [...d.options.lockedTuples, ...diag.options.lockedTuples] }), /tuple_ambiguous/u);
+    assert.equal(assertHostReleaseEvidence(diag.rows, { ...diag.options, scope: 'optional-cli' }).result, 'pass');
+    const drifted = structuredClone(diag.rows);
+    drifted[0].record.environment.version = '0.163.0'; drifted[0].record.tuple_digest = jsonDigest(drifted[0].record.environment);
+    assert.throws(() => assertHostReleaseEvidence(drifted, { ...diag.options, scope: 'optional-cli' }), /native_codex_pin_mismatch/u);
+    // Claude CLI is mandatory, so it has no diagnostic scope left.
+    assert.throws(() => assertHostReleaseEvidence(d.rows.filter(row => row.record.environment.host === 'claude'), { ...d.options, host: 'claude', scope: 'optional-cli' }), /unknown_release_host/u);
+  } finally { for (const root of [f.root, d.root, diag.root]) rmSync(root, { recursive: true, force: true }); }
+});
+test('schema-3 publication validation needs both CLI scopes; supplied Desktop scopes stay optional but strict', async () => {
+  const f = candidateFixture({ policyVersion: 3 }), bundle = mkdtempSync(join(tmpdir(), 'agdf-cli-bundle-'));
+  const parts = ['claude', 'codex'].map(host => nativeFixtures(f, host)), d = desktopFixtures(f);
+  try {
+    for (const part of parts) {
+      const folder = join(bundle, part.rows[0].record.environment.host, 'cli');
+      cpSync(part.root, folder, { recursive: true }); writeFileSync(join(folder, 'review.json'), JSON.stringify(cliReview(f, part.rows)));
+    }
+    const candidate = join(f.root, '.release-candidate.json'); writeFileSync(candidate, JSON.stringify(f.candidate));
+    const args = ['validate', '--candidate', candidate, '--directory', bundle, '--all-hosts'];
+    const result = await runFixtureReleaseTool(args, f);
+    assert.equal(result.cases.length, 10); assert.deepEqual(result.optional_desktop, []);
+    assert.equal((await runFixtureReleaseTool(args.slice(0, -1), f)).cases.length, 10, 'the default route evaluates the same matrix');
+    // A complete strict Desktop set is accepted as optional evidence; a partial one rejects instead of being ignored.
+    const desktop = join(bundle, 'claude', 'desktop-code');
+    cpSync(join(d.root, 'claude', 'desktop-code'), desktop, { recursive: true });
+    assert.deepEqual((await runFixtureReleaseTool(args, f)).optional_desktop, ['claude']);
+    const claudeDesktop = d.rows.filter(row => row.record.environment.host === 'claude');
+    const dropped = claudeDesktop.find(row => row.record.scenario === 'upgrade');
+    rmSync(join(desktop, basename(dropped.directory)), { recursive: true });
+    const remaining = claudeDesktop.filter(row => row !== dropped);
+    writeFileSync(join(desktop, 'review.json'), JSON.stringify({ ...JSON.parse(readFileSync(join(desktop, 'review.json'))), bundle_digest: bundleDigest(remaining) }));
+    await assert.rejects(runFixtureReleaseTool(args, f), /native_required_matrix_missing_or_duplicate/u);
+    rmSync(desktop, { recursive: true });
+    assert.equal((await runFixtureReleaseTool(args, f)).cases.length, 10);
+    rmSync(join(bundle, 'codex'), { recursive: true });
+    await assert.rejects(runFixtureReleaseTool(args, f));
+  } finally { for (const root of [f.root, bundle, d.root, ...parts.map(part => part.root)]) rmSync(root, { recursive: true, force: true }); }
+});
+test('schema-3 import maps --surface cli to the required scope and projects only that host', () => {
+  const f = candidateFixture({ policyVersion: 3 }), d = nativeFixtures(f, 'codex'), diag = nativeFixtures(f, 'codex', 'optional-cli');
+  try {
+    const policy = releasePolicy(f.root);
+    assert.equal(evidenceScope(policy, 'codex', 'cli'), undefined); assert.equal(evidenceScope(policy, 'claude', 'cli'), undefined);
+    assert.equal(evidenceScope(policy, 'claude', 'desktop-code'), 'optional-desktop');
+    const review = cliReview(f, d.rows);
+    const imported = importNativeEvidence(f.root, { candidate: f.candidate, bundle: d.root, review, host: 'codex', surface: 'cli' });
+    assert.equal(imported.cases.length, 5); assert.equal(basename(imported.destination), 'cli');
+    const manifest = JSON.parse(readFileSync(join(f.root, 'evals/host-compatibility/manifest.json')));
+    assert.ok(manifest.native_sources.every(path => path.includes('codex-cli-release')));
+    assert.ok(manifest.native_targets.every(t => t.environment.host === 'codex' && t.environment.os === 'darwin' && t.lane === 'fresh_host'));
+    f.git('add', '.'); f.git('commit', '-qm', 'fixture evidence-only import');
+    assert.throws(() => importNativeEvidence(f.root, { candidate: f.candidate, bundle: d.root, review, host: 'codex', surface: 'cli' }), /already_exists/u);
+    // A pinned diagnostic bundle cannot be imported as the mandatory macOS evidence.
+    assert.throws(() => importNativeEvidence(f.root, { candidate: f.candidate, bundle: diag.root, review: cliReview(f, diag.rows), host: 'codex', surface: 'cli' }), /native_case_unexpected/u);
+    assert.throws(() => importNativeEvidence(f.root, { candidate: f.candidate, bundle: d.root, review: { ...review, tuples: [{ ...review.tuples[0], surface: 'desktop-code' }] }, host: 'codex', surface: 'cli' }), /native_review_tuple_scope/u);
+  } finally { for (const root of [f.root, d.root, diag.root]) rmSync(root, { recursive: true, force: true }); }
+});
+test('schema-3 handoff is per host and Codex CLI preflight runs only on macOS', async () => {
+  const f = candidateFixture({ policyVersion: 3 }), temp = mkdtempSync(join(tmpdir(), 'agdf-cli-handoff-'));
+  try {
+    const candidate = join(f.root, '.release-candidate.json'); writeFileSync(candidate, JSON.stringify(f.candidate));
+    await assert.rejects(runReleaseTool(['handoff', '--candidate', candidate, '--output', join(temp, 'unscoped')], f.root), /release_required:--host/u);
+    for (const [host, os, file] of [['claude', 'win32', 'WINDOWS_TEST.md'], ['codex', 'darwin', 'MACOS_TEST.md']]) {
+      const output = join(temp, host);
+      await runReleaseTool(['handoff', '--candidate', candidate, '--host', host, '--output', output], f.root);
+      const cases = JSON.parse(readFileSync(join(output, 'required-cases.json')));
+      assert.equal(cases.length, 5); assert.ok(cases.every(row => row.host === host && row.surface === 'cli' && row.os === os));
+      const text = readFileSync(join(output, file), 'utf8');
+      assert.match(text, new RegExp(`native:${host}-e2e`, 'u')); assert.match(text, new RegExp(`--host ${host} --surface cli`, 'u'));
+      assert.match(text, host === 'claude' ? /outside the Claude Desktop app package/u : /CODEX_BIN/u);
+      assert.match(text, /grants no gate approval or publication/u);
+    }
+    if (process.platform !== 'darwin')
+      await assert.rejects(runReleaseTool(['preflight', '--candidate', candidate, '--host', 'codex', '--surface', 'cli', '--model', 'fixture-model', '--output', join(temp, 'tuple.json')], f.root), /codex_cli_preflight_requires_macos/u);
+  } finally { for (const root of [f.root, temp]) rmSync(root, { recursive: true, force: true }); }
 });

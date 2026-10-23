@@ -1,47 +1,48 @@
-# Brownfield Analysis: Desktop matrix implementation preparation
+# Brownfield Analysis: CLI-qualified matrix implementation preparation
 
 Decision: pass
 Mode: pre_implementation_analysis
 Status: done
-Owner: Codex
-Date: 2026-10-22
+Owner: Claude (Claude Desktop Code, Windows)
+Date: 2026-10-23
 Run: release-0200-codex-claude-20261020-01
 
 ## Scope and current sources
 
-Apply renewed TP T-001 through T-011 from approved PRD/SD/TP. Exact source digests: UR 2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248; PRD 1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e; SD 0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1; TP 0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff. TP approval operation bf02b79a-b441-4fa8-bb05-a20ae350e144 established revision eb96217a-1db2-45bd-8a91-ffa54f5a3325.
+Apply the approved TP T-002 to T-008 now; T-009 to T-011 follow later. Exact source digests: UR 2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248; PRD 7ff703b088b9db7a223b286c9f949de3ce20612d37d3615f4e9f648ed47c7daa; SD 2e1be758666cf513aae78309a301de1ea26536d5e156d84f430b493ff83577a1; TP ee5e322f0887d8cd14912d9953b6676a733aefa908bdef13a3dc5592502d4581. TP approval operation 90f5eabb-4c58-4fa1-8488-1a11934a1588 established revision 0b0e72ac-5d75-46b2-9c61-f48fcf50513c.
 
 ## Baseline and ownership
 
-evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/BASELINE.json captures HEAD 7ce6e8385632c001f6cdcd94fdb242e07f2ee748, tracked/untracked state, 161 ordinary canonical commands, 117 planned jobs and all existing workflow timeout declarations before implementation. Job counts alone are not coverage proof; compare normalized per-lane command multisets. Existing changed files belong to the release source revision/control; preserve the unrelated core-model-handoff-simplification-20261015-01 artefacts. No automatic staging, commits, tags or publication.
+evidence/CLI_MATRIX_IMPLEMENTATION_20261023/BASELINE.json captures HEAD 79df3564fc7214821afb585372c45e82d525cfc9 (the maintainer's local commit on feat/prepare-0.20.0-Desktop-evidence-handoff, one ahead of origin), the untracked run files, 161 canonical CI commands, 117 planned jobs and every workflow job timeout before implementation. Compare normalized per-lane command multisets, not job counts. Untracked run artefacts belong to this run; no foreign work is touched. Commit and push wait for the maintainer.
 
 ## Existing coverage and reuse
 
 | Owner / paths | Coverage | Reuse and required extension |
 |---|---|---|
-| plugins/agdf/meta/agdf-plugin.definition.json; release-policy.mjs; sync-package-assets.js | partially_done | Current schema 1 still hardcodes mandatory CLI matrix. Extend same source/validator to schema 2, keeping optional CLI pins and derived compatibility view |
-| release-candidate.mjs and Core provenance | partially_done | Reuse source/payload inventories, normalized hashes and containment; normalize only reported_sources evidence output alongside existing fixed outputs |
-| release-observation.mjs | partially_done | Preserve schema-2 CLI checks and historical semantics. Add explicit human_report and strict Desktop schema-3 path, exact reviewed tuple and primary proof. Current Desktop booleans alone and Codex CLI pin branch are insufficient for new scope |
-| release-handoff.mjs | partially_done | Existing immutable staged Claude import, tuple/review and references reusable; generalize host/surface scopes and full Desktop validation with no partial-default bypass |
-| release-lifecycle.mjs; CLI runtime/ownership lifecycle | fully_done for existing protected mechanisms; applicability reassessed by tests | Existing integrity-checked baseline, owned-stale repair and preservation remain. Extend evidence checks rather than rewrite production guards |
-| publish-agdf.yml; codex-release-e2e.yml; CI plan and test chains | partially_done | Replace mandatory CLI dependency with all-Desktop gate; retain standalone optional probes and full ordinary CI inventory/timeouts |
-| host-compatibility contract/run/render/native-release and manifest | partially_done | Current qualified projection is Claude-specific; extend same owner with scoped paths and separately attributed reports that never feed qualified claims |
-| Desktop human/CLI evidence | partially_done | Human invocation/upgrade/recovery reports exist, unknown identity remains. Original Windows CLI bundle is historical candidate-specific evidence, not new Desktop qualification |
+| plugins/agdf/meta/agdf-plugin.definition.json hostSupport; packages/core/generated copy | partially_done | Schema 2 lists the two Desktop targets as required. Add schema 3 with required CLI targets, reported_desktop, optional_cli codex only and the unchanged unqualified list; regenerate the core copy through the existing generator |
+| scripts/native-probes/lib/release-policy.mjs | partially_done | CLI_CASES and the schema-1 CLI branch already exist. Accept schema 3 with exact assertions, return ten required rows, keep diagnostic rows disjoint, add a reported-Desktop case selector; keep schema 1 and 2 readable |
+| scripts/sync-package-assets.js | fully_done | Already derives codex-release-policy.json from optional_cli.codex; the schema-3 shape keeps that key, so the generated pin stays byte-identical |
+| scripts/native-probes/lib/release-candidate.mjs | fully_done | Policy bytes are part of the candidate identity; evidence-only outputs are already excluded. Reuse, verify through tests |
+| scripts/native-probes/lib/release-observation.mjs | partially_done | CLI step, primary capture and loaded-identity checks are reusable. Codex records are bound only by the pin; add reviewed locked-tuple binding for required targets, keep the exact-commit rule, add an optional Desktop scope, keep schema-3 Desktop checks |
+| scripts/native-probes/lib/release-handoff.mjs | partially_done | Import maps --surface cli to the optional scope; preflight refuses Codex CLI; validate --all-hosts demands schema 2; handoff text is Desktop-only. Map scopes from the policy, allow Codex CLI preflight on darwin with CODEX_BIN, per-host handoff text, schema-3 validate with optional strict Desktop scopes |
+| scripts/native-probes/claude-host-e2e.mjs; codex-host-e2e.mjs | fully_done | Both run the five cases with --candidate, --scenario and --tuple and refuse a changed tuple; Codex reads CODEX_BIN and records process.platform; released-baseline and owned-stale helpers are shared. No harness change expected |
+| .github/workflows/publish-agdf.yml; codex-release-e2e.yml; packages/cli/scripts/release-workflow-contract-test.js; scripts/native-probes/release-evidence-test.mjs | partially_done | The evidence job is named desktop-evidence and the contract tests assert that name. Rename it to release-evidence with the CLI wording, keep validate --all-hosts, all needs edges and timeouts; the Codex E2E workflow stays diagnostic |
+| scripts/host-compatibility/run.mjs, render.mjs, native-release.mjs, test.mjs | partially_done | Projection is already host/surface-scoped. The snapshot and render still title the Desktop matrix; add reported_desktop to the snapshot and render the CLI matrix plus manually checked Desktop surfaces |
+| README.md, INSTALL.md, docs/maintenance/release-0.20.0.md, docs/maintenance/README.md, plugins/agdf/submission/openai/release-notes.md | partially_done | Guidance names the Desktop surfaces as targets; update wording to the approved matrix |
+| Tests: release-handoff-test, release-lifecycle-test, test-support | partially_done | Fixtures derive the policy from the repository definition and convert only schema 2 to 1. Keep schema 1 and 2 fixtures as historical conversions from schema 3, add schema-3 tests |
 
 ## Interfaces, risks and minimal implementation
 
-Version policy and Desktop observation formats explicitly. Keep legacy parsing under original predicates; do not relabel archived/native records. One candidate owner, one policy owner, one release evaluator. Imported files remain non-executable inputs with containment, bounded sizes/hashes, recheck, owned transaction rollback and separate review. No new runtime authority, host service or persistent approval store.
+Policy first, then evaluator, handoff/import/validate, workflow and reports, then guidance. One policy owner, one evaluator, one import path; no new service, register or authority. Risks: the publish-graph rename must keep every transitive dependency; the schema-3 import mapping must not let a diagnostic record satisfy a required row; the render text change requires compatibility:record, whose Windows output must be checked for platform-only noise before acceptance. The known local MCP structured-flow flake can affect verify:ci; remote CI remains the commit-bound check.
 
-Implement policy/identity first, observation/report parsing next, host-scoped exchange and strict capability/transition checks, then workflow and compatibility/public projections. Extend existing fixture suites and canonical test chains before refreshing generated assets. Verify negative cases and full per-lane test multiset/timeouts. A final clean prepared source is a later execution prerequisite; never delete ignored host configuration or foreign files to create it.
-
-Scope permits related regression tests and generated public/package outputs only. No Core gate, runtime security guard, ownership postcondition, consent rule, payload/history limit or existing timeout is relaxed. If testing reveals an implementation defect with unchanged approved intent, repair it through its existing owner; upstream changes use their revision route.
+No Core gate, runtime guard, ownership postcondition, consent rule, payload/history limit or timeout is relaxed. A defect with unchanged approved intent is repaired at its owner; scope changes use their revision route.
 
 ## Missing evidence and next step
 
-Exact Desktop app/model/session/candidate and primary captures are unknown. Record actual human reports without qualification credit, recover only explicitly relevant original references first, then identify specific justified missing-fact verification. Unknown access or unsafe isolation blocks the affected native case; independent implementation and fixture checks can proceed. The other Windows machine remains its executor; no credentials or remote access are inferred.
+The ten native records do not exist yet and need the final candidate (T-009, T-010). The Codex macOS client version and model are captured by preflight at execution. Independent implementation and fixture checks proceed now.
 
 - context_graph_impact: none
 - context_graph_reconciliation: not_applicable
 - memory_target: scope_artifact
-- memory_reason: Run-specific implementation baseline and exact evidence limits; reassess reusable knowledge at closeout.
-- required_next_step: Record this preparation through the existing internal-step owner, then implement CD+Tests under the approved TP and current bound continuation.
+- memory_reason: Run-specific implementation baseline and limits; reassess reusable knowledge at closeout.
+- required_next_step: Record this preparation through the internal-step owner, then implement T-002 to T-008 under CD+Tests.

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, lstatSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { caseKey, CLI_CASES, requiredReleaseCases, optionalCliCases } from './release-policy.mjs';
+import { caseKey, CLI_CASES, requiredReleaseCases, optionalCliCases, optionalDesktopCases } from './release-policy.mjs';
 import { containedFile, jsonDigest, sha } from './release-candidate.mjs';
 import { mcpCalls } from './codex-trace.mjs';
 import { parseClaudeDesktopTranscript, parseClaudeStream } from './claude-session.mjs';
@@ -177,13 +177,14 @@ export function captureNativeCall(primary, host, scenario, { surface = 'cli' } =
 }
 
 export function assertNativeRecord(record, { candidate, policy, directory, commit, lockedTuples, scope }) {
-  const desktop = policy.schema_version === 2 && record.environment?.surface === 'desktop-code';
+  const desktop = policy.schema_version >= 2 && record.environment?.surface === 'desktop-code';
   assert.equal(record.schema_version, desktop ? 3 : 2, 'release_observation_schema');
   assert.ok(record.kind === undefined && !desktop || desktop && record.kind === 'qualified_desktop', 'release_observation_kind');
   assert.ok(text(record.id) && Number.isFinite(Date.parse(record.recorded_at)), 'native_observation_identity');
   assertTuple(record.environment);
   const key = { ...record.environment, scenario: record.scenario };
-  const cases = scope === 'optional-cli' ? optionalCliCases(policy) : requiredReleaseCases(policy, undefined, lockedTuples);
+  const cases = scope === 'optional-cli' ? optionalCliCases(policy)
+    : scope === 'optional-desktop' ? optionalDesktopCases(policy, undefined, lockedTuples) : requiredReleaseCases(policy, undefined, lockedTuples);
   assert.ok(cases.some(row => caseKey(row) === caseKey(key)), 'native_case_unexpected');
   assert.equal(record.result, 'pass', 'native_case_not_passed');
   assert.equal(record.candidate_id, candidate.candidate_id, 'native_candidate_mismatch');
@@ -198,12 +199,15 @@ export function assertNativeRecord(record, { candidate, policy, directory, commi
     assertDesktopRecord(record, { candidate, directory, lockedTuples });
     return caseKey(key);
   }
-  if (tuple.host === 'codex') {
-    const cliPolicy = policy.schema_version === 2 ? policy.optional_cli.codex : policy.codex;
-    assert.equal(record.source.commit, commit, 'native_codex_release_commit_mismatch');
-    assert.equal(tuple.version, cliPolicy.codex_version); assert.equal(tuple.model, cliPolicy.model);
+  // A mandatory schema-3 target binds the candidate commit and its reviewed frozen tuple, so later evidence-only
+  // commits keep it valid; the pin and the checkout commit describe only the Linux/Windows diagnostic runners.
+  const mandatory = policy.schema_version === 3 && scope !== 'optional-cli';
+  if (tuple.host === 'codex') assert.equal(record.source.commit, mandatory ? candidate.source_revision.commit : commit, 'native_codex_release_commit_mismatch');
+  if (tuple.host === 'codex' && !mandatory) {
+    const cliPolicy = policy.schema_version === 1 ? policy.codex : policy.optional_cli.codex;
+    assert.equal(tuple.version, cliPolicy.codex_version, 'native_codex_pin_mismatch'); assert.equal(tuple.model, cliPolicy.model, 'native_codex_pin_mismatch');
   } else {
-    assert.ok(Array.isArray(lockedTuples) && lockedTuples.some(item => jsonDigest(item) === record.tuple_digest), 'claude_tuple_not_reviewed');
+    assert.ok(Array.isArray(lockedTuples) && lockedTuples.some(item => jsonDigest(item) === record.tuple_digest), `${tuple.host}_tuple_not_reviewed`);
   }
   if (tuple.surface === 'desktop-code') {
     assert.equal(record.assurance, 'operator_observed');
@@ -272,7 +276,9 @@ export function assertNativeRecord(record, { candidate, policy, directory, commi
   return caseKey(key);
 }
 export function assertHostReleaseEvidence(rows, options) {
-  const required = options.scope === 'optional-cli' ? optionalCliCases(options.policy, options.host) : requiredReleaseCases(options.policy, options.host, options.lockedTuples);
+  const required = options.scope === 'optional-cli' ? optionalCliCases(options.policy, options.host)
+    : options.scope === 'optional-desktop' ? optionalDesktopCases(options.policy, options.host, options.lockedTuples)
+    : requiredReleaseCases(options.policy, options.host, options.lockedTuples);
   const expected = required.map(caseKey).sort();
   const seen = rows.map(({ record, directory }) => assertNativeRecord(record, { ...options, directory }));
   const tuples = new Map();

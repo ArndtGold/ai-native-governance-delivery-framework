@@ -3,8 +3,8 @@
 Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
 
 AGDF canonical version: **0.20.0**.
-Observation dates: 2026-10-23T06:43:55.843Z to 2026-10-23T06:45:24.904Z.
-Source fingerprint: `832d2e0a73af161755720bfbb9f50f284401ff6bf120e898c8985145fa109b19`.
+Observation dates: 2026-10-23T13:03:42.622Z to 2026-10-23T13:05:10.742Z.
+Source fingerprint: `73050d43d4b5c984e2d06a858fd67605831518da2d7bf03247c881e1ac5f252a`.
 Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
 
 These scenario results describe isolated production fixtures. Expected negative cases can pass the test while the observed capability is failed. They provide no fresh-host or human-UAT proof.
@@ -22,14 +22,23 @@ Support intent is separate from demonstrated native qualification. CLI, Desktop 
 | GitHub Copilot | experimental |
 | OpenCode | experimental |
 
-## Mandatory 0.20.0 Desktop scope
+## Mandatory 0.20.0 release matrix
+
+Qualification requires reviewed native records of the exact candidate and tuple for every listed case.
 
 | Host | Surface | OS scope | Cases |
+|---|---|---|---|
+| Claude Code | cli | native Windows | dispatch, failure_case, skill_continuation, upgrade, recovery |
+| Codex | cli | macOS | dispatch, failure_case, skill_continuation, upgrade, recovery |
+
+Manually checked Desktop surfaces (human_reported; not qualified and not required for publication):
+
+| Host | Surface | OS scope | Reported cases |
 |---|---|---|---|
 | Codex | desktop-code | Unknown until an exact reviewed Desktop tuple is supplied | session, upgrade, recovery |
 | Claude Code | desktop-code | native Windows | session, upgrade, recovery |
 
-Codex CLI on Windows/Linux remains **unqualified** and outside the mandatory matrix. Optional CLI probes and green OS regression tests do not qualify Desktop or another OS.
+Codex CLI on Windows/Linux remains **unqualified** and outside the mandatory matrix. Pinned CLI diagnostics and green OS regression tests qualify no other OS, and no CLI result qualifies a Desktop surface.
 
 ## Reported Desktop handchecks
 

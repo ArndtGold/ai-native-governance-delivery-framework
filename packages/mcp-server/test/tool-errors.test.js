@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { EventEmitter } from 'node:events';
 import { randomUUID } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -137,6 +138,41 @@ await injected(runtime, { execute: async () => oversized, close: async () => {} 
   assert.equal(reply.structuredContent.host_action.text, reply.content[1].text);
   assert.ok(!/Repair|Reparier/.test(reply.content[1].text));
 });
+// Executor diagnostics survive runtime normalization, projection and SDK error serialization.
+for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_record']) {
+  let worker;
+  class HungWorker extends EventEmitter {
+    constructor() { super(); worker = this; }
+    terminate() { return new Promise(() => {}); }
+  }
+  const executor = createWorkerDispatchExecutor({ timeoutMs: 100, WorkerClass: HungWorker,
+    onEvent: event => { if (event.phase === 'worker_start') queueMicrotask(() => {
+      worker.emit('message', { type: 'phase', phase: 'operation' });
+      worker.emit('message', { type: 'phase', phase: 'PRIVATE_PHASE' });
+    }); } });
+  const args = name === 'agdf_dispatch' ? unresolvedArguments : name === 'agdf_inspect'
+    ? { operation: 'doctor', presentation_language: 'de', working_directory: tmpdir() }
+    : { schema_version: '1', presentation_language: 'de', working_directory: tmpdir(), primary_target: tmpdir(),
+      target_source: 'explicit_target', target_id: 'sha256:' + 'a'.repeat(64), run_id: 'timeout-fixture',
+      expected_revision_id: randomUUID(), operation_id: randomUUID(), assurance: 'cooperative_local',
+      command: { kind: 'step.record', payload: { step: 'evidence',
+        source: { path: 'artefacts/evidence.md', digest: 'sha256:' + 'b'.repeat(64) }, reason: 'fixture', covers: 'fixture' } } };
+  await injected(runtime, executor, async client => {
+    const reply = await client.callTool({ name, arguments: args });
+    failed(reply, 'dispatch_worker_termination_unconfirmed');
+    assert.deepEqual(reply.structuredContent.diagnostics[0], { code: 'dispatch_worker_termination_unconfirmed',
+      cause_code: 'dispatch_timeout', worker_phase: 'operation' });
+    assert.match(reply.content[1].text, /cause_code=dispatch_timeout, worker_phase=operation/);
+    assert.ok(!JSON.stringify(reply).includes('PRIVATE'));
+    if (name === 'agdf_record') {
+      assert.equal(reply.structuredContent.outcome, 'effect_unknown');
+      assert.equal(reply.structuredContent.operation_id, args.operation_id);
+    }
+    assert.equal(executor.active, true);
+    worker.emit('exit', 1);
+    assert.equal(executor.active, false);
+  });
+}
 // Construction is known non-dispatch; handoff/exit is uncertain.
 class CannotConstruct { constructor() { throw Error('PRIVATE'); } }
 const setup = createWorkerDispatchExecutor({ WorkerClass: CannotConstruct });

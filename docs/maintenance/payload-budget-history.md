@@ -479,3 +479,23 @@ fixes. The corrected baseline is the exact measured 260 files / 2265459 bytes.
 No additional files, UI assets or spare headroom are admitted. Payload provenance,
 file/byte limits, exclusions and the one-byte-over-budget rejection remain active;
 CI test coverage and job timeouts are unchanged.
+
+## Worker shutdown reserve and original-cause diagnostics (2026-10-23)
+
+The shared worker reserves shutdown confirmation within the existing ten-second
+request deadline and accepts a proven actual exit after a rejected termination request.
+The existing Core/CLI error projection retains only allowlisted cause codes and worker
+phases when termination remains unconfirmed. Uncertain effects, active capacity and
+owned-lock protection remain intact. The server README describes this boundary.
+The generated Copilot inventory measures 397 files / 3490902 bytes, up 2410 bytes
+from 397 / 3488492. This records the exact generated payload without spare headroom;
+no payload checks, test coverage or CI timeout limits are removed or relaxed.
+
+## hostSupport schema 3 in the shipped plugin definition (2026-10-23)
+
+The 0.20.0 release matrix moves to hostSupport schema 3: mandatory Claude Code CLI on Windows
+and Codex CLI on macOS, reported Desktop surfaces and Codex-only diagnostic pins. The shipped
+plugin definition grows by 460 bytes without another file. Merged with the worker shutdown
+reserve above and the longer combined baseline rationale, the generated Copilot inventory measures
+397 files / 3491406 bytes. This records the exact generated payload without spare headroom;
+no payload checks, test coverage or CI timeout limits are removed or relaxed.

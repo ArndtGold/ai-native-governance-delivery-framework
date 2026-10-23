@@ -28,9 +28,12 @@ const textBytes = value => new TextEncoder().encode(JSON.stringify(value)).lengt
 
 export function knownExecutionCode(code) { return causes.has(code) ? code : 'dispatch_worker_failed'; }
 export function validExecutionFacts(value) {
-  return plain(value) && Object.keys(value).every(key => ['code', 'dispatch', 'field'].includes(key))
+  return plain(value) && Object.keys(value).every(key => ['code', 'dispatch', 'field', 'cause_code', 'worker_phase'].includes(key))
     && causes.has(value.code) && ['not_dispatched', 'unknown'].includes(value.dispatch)
-    && (value.field === undefined || safeFields.has(value.field));
+    && (value.field === undefined || safeFields.has(value.field))
+    && (value.cause_code === undefined || value.code === 'dispatch_worker_termination_unconfirmed' && causes.has(value.cause_code))
+    && (value.worker_phase === undefined || value.code === 'dispatch_worker_termination_unconfirmed'
+      && ['worker_start', 'runtime_provenance', 'operation', 'result'].includes(value.worker_phase));
 }
 export function executionFacts(error, { phase = 'execute' } = {}) {
   // Callers must establish the phase. An arbitrary exception's message/code is
@@ -131,7 +134,9 @@ export function describeToolResult(name, input, result, pack, facts) {
   const ownerAction = !facts && result.outcome === 'invalid_input'
     && typeof result.recovery?.action === 'string' && result.recovery.action.length <= 700
     && !/[\0\x01-\x08]/u.test(result.recovery.action) ? result.recovery.action : null;
-  const message = `${copy.failure} ${code}${field ? ` (${field})` : ''}. ${copy.effects[effect]} ${ownerAction ?? (action === causes.get(code).action ? copy.causes?.[code] : null) ?? copy.actions[action]}`;
+  const workerDetails = validExecutionFacts(facts)
+    ? [facts.cause_code && `cause_code=${facts.cause_code}`, facts.worker_phase && `worker_phase=${facts.worker_phase}`].filter(Boolean) : [];
+  const message = `${copy.failure} ${code}${field ? ` (${field})` : ''}${workerDetails.length ? ` (${workerDetails.join(', ')})` : ''}. ${copy.effects[effect]} ${ownerAction ?? (action === causes.get(code).action ? copy.causes?.[code] : null) ?? copy.actions[action]}`;
   return { ...descriptor, code, category, effect_state: effect, action, message };
 }
 

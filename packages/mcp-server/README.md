@@ -122,6 +122,14 @@ a lost connection cannot establish rollback. For an uncertain command, inspect
 `operation-status` with the original UUID and retain its exact payload. Recovery,
 receipts, approval eligibility and any permitted replay remain Core-owned.
 
+Worker requests retain a ten-second total deadline, including shutdown confirmation.
+Execution reserves up to one second (one quarter of shorter configured deadlines) for
+termination. Capacity and owned locks are released only after confirmed termination or
+an observed exit, including an exit after a rejected termination request. If shutdown
+remains unconfirmed, the error preserves the typed `cause_code` when one exists and the
+last allowlisted `worker_phase` in diagnostics and the bounded explanation. Result content
+and raw exception text never become a cause; an uncertain worker continues to block reuse.
+
 This follows the [MCP tool error contract](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#error-handling)
 and [SDK error behavior](https://ts.sdk.modelcontextprotocol.io/v2/servers/errors).
 Local protocol, package and browser tests do not establish native host or agent

@@ -266,10 +266,15 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
       return tools.find((entry) => entry.name === name) ?? null;
     },
     serialize: serializeSkillDispatchResult,
-    failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name, argumentsValue, { dispatch = 'unknown', field } = {}) {
-      const facts = { code, dispatch, ...(field ? { field } : {}) };
+    failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name, argumentsValue, { dispatch = 'unknown', field, cause_code, worker_phase } = {}) {
+      const facts = { code, dispatch, ...(field ? { field } : {}),
+        ...(cause_code ? { cause_code } : {}), ...(worker_phase ? { worker_phase } : {}) };
       const finish = value => {
-        if (validExecutionFacts(facts) && facts.field && value.diagnostics?.length) value = { ...value, diagnostics: value.diagnostics.map((d, i) => i === 0 ? { ...d, field: facts.field } : d) };
+        if (validExecutionFacts(facts)) {
+          const { code: _code, dispatch: _dispatch, ...details } = facts;
+          if (value.diagnostics?.length) value = { ...value, diagnostics: value.diagnostics.map((d, i) => i === 0 ? { ...d, ...details } : d) };
+          else if (facts.cause_code || facts.worker_phase) value = { ...value, diagnostics: [{ code, ...details }] };
+        }
         const message = describeToolResult(toolName, argumentsValue ?? {}, value,
           localePack(interactionLocales, argumentsValue?.presentation_language ?? 'en'), facts).message;
         return value.terminal ? { ...value, recovery: { action: message }, host_action: { ...value.host_action, text: message } } : value;

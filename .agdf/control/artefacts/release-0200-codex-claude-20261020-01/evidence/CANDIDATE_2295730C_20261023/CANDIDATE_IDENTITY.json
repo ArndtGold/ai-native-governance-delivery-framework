@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "kind": "candidate_identity_summary",
+  "candidate_id": "aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108",
+  "version": "0.20.0",
+  "source_revision": {
+    "commit": "2295730c4ed661f688ca5b0d10be335e945a7843",
+    "dirty": false
+  },
+  "policy_digest": "1bf3c8c9d3a23cfc4ee2f5b672fd15d6c913095116736682ffd557c54b6fffbf",
+  "identities": {
+    "agdf": {
+      "version": "0.20.0",
+      "source_digest": "6eeb51bb9050fb0806f7dd1b32a4e0672d0753d666e0249095c3112942b9f048",
+      "runtime_digest": "89c28ecbdac8ff15f0091df6f0e29810957e4b70f3d715eb45922d3a7cbe7fcf"
+    },
+    "mcp_dispatcher": {
+      "digest": "61e3e38eeaca4af5c3494156e7e1fe58ac0db37daf25229d06f203bf460ca485"
+    }
+  },
+  "source_inventory": {
+    "files": 1591,
+    "digest": "b4c40944dd2650b8130cbff28607ac0a50e4ea7622ed7721d1a558dfc4401a28"
+  },
+  "payload_inventories": {
+    "packages/cli/generated/plugins/agdf": {
+      "files": 448,
+      "digest": "77490c88a8876ab364d0ba4ff9c29392515468d9e7e57a787ca983b9793d58e6"
+    },
+    "packages/cli/generated/plugins/copilot/agdf": {
+      "files": 398,
+      "digest": "0cf735a0ce30b7bc1a1013386b8298cb6b1ca2a7f253eff340a9b68fe6c7c215"
+    },
+    "dist/npm/create-agdf": {
+      "files": 1354,
+      "digest": "94f1673f2a7314afccbf15063730c883048d76dacfcea7ac4623e2492eed0309"
+    },
+    "dist/npm/agdf-mcp-server": {
+      "files": 18,
+      "digest": "f3f010383be016753d835415a1ef9d217d2e43b8fbf69bffbe5c8cee6676b008"
+    },
+    "dist/npm/agdf": {
+      "files": 5,
+      "digest": "e877dfc16b6624237a15883b0b3cfcb64ed9ce6a7e759edb2fa38a44fe924058"
+    }
+  },
+  "candidate_file_sha256": "7bbaa028061cdc95b45739e62cf6e2821897fffd74c25659c8a42960a0412451",
+  "remote": {
+    "branch": "feat/prepare-0.20.0-Desktop-evidence-handoff",
+    "pr": 30,
+    "head": "2295730c4ed661f688ca5b0d10be335e945a7843",
+    "main": "b75e50c52687d2a5bcd3f448ad70e856bf841512 (merge of PR 29 at 17a82bf6)"
+  },
+  "comparison": {
+    "previous_candidate": "af150d337fbf47abcfea5f03ae06a53b15107a4b219495ab54ea424c869f1158 (17a82bf6)",
+    "policy_digest_equal": true,
+    "plugin_identity_equal": true,
+    "payload_inventories_equal": true,
+    "source_differences": [
+      "evals/mcp-ergonomics/test/native.test.mjs (3ac401a5)",
+      "scripts/native-probes/lib/claude-session.mjs (d4f39956)",
+      "scripts/native-probes/lib/release-observation.mjs (d4f39956, 0e93784f)",
+      "scripts/native-probes/lib/release-handoff.mjs (d4f39956, 0e93784f)",
+      "scripts/native-probes/lib/release-policy.mjs (0e93784f)",
+      "scripts/native-probes/release-handoff-test.mjs (d4f39956, 0e93784f, 2295730c)",
+      "scripts/native-probes/release-lifecycle-test.mjs (0e93784f)"
+    ]
+  },
+  "superseded_local_candidates": [
+    "ca829515263795ac50a7da264569b33b5965a00bc8c2201ce84ce54f542e0082 (d4f39956, preliminary, never pushed as tip)"
+  ],
+  "prior_candidates_not_reused": [
+    "af150d33 (17a82bf6)",
+    "5143cc19 (diagnostic, dirty)",
+    "830d8b94 (Claude CLI, schema-1 policy)"
+  ],
+  "authorizes": false
+}

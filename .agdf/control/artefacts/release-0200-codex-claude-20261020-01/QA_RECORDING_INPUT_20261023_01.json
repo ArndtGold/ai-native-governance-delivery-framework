@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "8f03a4bd-5142-4077-a552-b9bff311edd8",
+  "destination": {
+    "type": "QA_REPORT",
+    "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md",
+    "digest": "sha256:5ef4a2da2d5bc941aa6ee8dfeda16b88f09af20a95e410df918d8239b430b8fd",
+    "status": "revise"
+  },
+  "source": {
+    "type": "TP",
+    "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+    "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff"
+  },
+  "relationship": {
+    "from": "QA_REPORT",
+    "relationship": "tests",
+    "to": "TP"
+  },
+  "review": {
+    "reviewer": "Claude (qa-gate owner, Claude Desktop Code)",
+    "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_20261023_01.json",
+    "digest": "sha256:c293a8f08361657d8cbaeb14b16105aef9afd0c1e92b33f9c548b7b15b9110ca"
+  },
+  "update_draft": false
+}

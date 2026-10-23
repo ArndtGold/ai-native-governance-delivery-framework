@@ -1,0 +1,35 @@
+
+> create-agdf@0.20.0 release:prepare
+> npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+
+
+> create-agdf@0.20.0 sync-package-assets
+> node ../../scripts/sync-package-assets.js
+
+
+> create-agdf@0.20.0 test:distribution-profile-history
+> node scripts/distribution-profile-history-test.js
+
+Distribution profile history passed (9 exact releases, malformed and closed-policy matrices)
+
+> create-agdf@0.20.0 test:release-bump
+> node scripts/release-bump-test.js
+
+Skipped release-bump symlink recovery fixture: symlink creation is unavailable on this host (EPERM).
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+
+> create-agdf@0.20.0 test:release-version-coherence
+> node scripts/release-version-coherence-test.js
+
+Release version coherence passed (49 surfaces at 0.20.0; 9 profile snapshots)
+
+> create-agdf@0.20.0 test:public-plugin
+> node scripts/public-plugin-test.js
+
+Skipped symlink negative fixture: symlink creation is unavailable on this host (EPERM).
+Public plugin tests passed (63 inventoried candidate files; digest 36449bf829ddb56098ee3ee103ee97d0175d14f441316a4504687965cbc10e81)
+
+> create-agdf@0.20.0 test:portable-plugin
+> node scripts/portable-plugin-test.js
+
+Portable plugin schema/profile/resource/selection/retry tests passed; digest 36449bf829ddb56098ee3ee103ee97d0175d14f441316a4504687965cbc10e81

@@ -1,83 +1,74 @@
-# CD+Tests — 0.20.0 final candidate aa3e4b02
+# CD+Tests — 0.20.0 CLI matrix, final candidate 90f6552a
 
 - decision: pass
 - run_id: release-0200-codex-claude-20261020-01
 - date: 2026-10-23
 - owner: Claude (Claude Desktop Code, Windows), current bound implementation and evidence review
-- source_head: 2295730c4ed661f688ca5b0d10be335e945a7843
-- source_state: clean isolated worktree of the pushed PR 30 head; main is b75e50c5 (merge of PR 29 at 17a82bf6)
+- source_head: 151b4a042f8d3e2b2eafbb5dd5bb784ce57394cd
+- source_state: clean isolated worktree of the pushed PR 30 head
 
 ## Bound sources and work boundary
 
-Approved digests are unchanged: UR sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248,
-PRD sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e,
-SD sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1,
-TP sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff.
-This result supersedes the CD+Tests result recorded at revision 28 (candidate af150d33, revise).
+Approved digests: UR sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248,
+PRD sha256:7ff703b088b9db7a223b286c9f949de3ce20612d37d3615f4e9f648ed47c7daa,
+SD sha256:2e1be758666cf513aae78309a301de1ea26536d5e156d84f430b493ff83577a1,
+TP sha256:ee5e322f0887d8cd14912d9953b6676a733aefa908bdef13a3dc5592502d4581.
+Brownfield Analysis was recorded at revision 42. Earlier CD+Tests results for the Desktop matrix are historical.
 
-Implementation since then, all on the PR 30 branch and authorized by the maintainer:
+Implementation on the PR 30 branch, committed and pushed with maintainer authorization:
 
 | Commit | Change | Scope |
 |---|---|---|
-| 3ac401a5 | Windows path for the Codex T4 dry-run probe test | Outside TP, test-only, separately authorized |
-| d4f39956 | F-001: native Claude Desktop transcripts in Desktop records; regenerated compatibility evidence | T-004 |
-| 0e93784f | Review fixes F1-F4 (Codex Desktop rollout session/source, scenario and fresh-session binding, scoped review tuple, capture signature) and planned TP negative tests | T-002, T-004, T-005, T-006, T-007 |
-| 215eccf2 | Run artefacts committed by the maintainer | Run records |
-| 2295730c | Link check in the import test runs before the fixture is dirty (CI Contracts fix) | T-005 test |
+| 79df3564 | Run artefacts of the source revision, committed by the maintainer | Run records |
+| 5bb9cc54 | hostSupport schema 3, scoped tuple and candidate-commit binding, policy-driven import scope, per-host handoff, Codex CLI preflight on macOS, optional strict Desktop validation, release-evidence publication job, CLI matrix in reports and guidance, exact Copilot payload baseline, plus run artefacts | T-002 to T-008 |
+| 9c3131f5 | Verification summary for T-002 to T-008 | Run records |
+| 151b4a04 | Re-pinned request activation source fingerprint after the definition change (Auto-fix for the Skills lanes) | T-002 follow-up |
 
-Evidence directory: evidence/CANDIDATE_2295730C_20261023/ (relative to this run).
+Evidence: evidence/CLI_MATRIX_IMPLEMENTATION_20261023/ and evidence/CANDIDATE_151B4A04_20261023/ (relative to this run).
 
 ## Candidate (T-009)
 
-- Candidate aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108, commit 2295730c,
-  dirty false; CANDIDATE.json sha256 7bbaa028061cdc95b45739e62cf6e2821897fffd74c25659c8a42960a0412451.
-- Policy 1bf3c8c9…; loaded identity agdf 0.20.0 / source 6eeb51bb… / runtime 89c28ecb…; MCP dispatcher
-  61e3e38e…; 1,591 source files, inventory digest b4c40944dd2650b8130cbff28607ac0a50e4ea7622ed7721d1a558dfc4401a28.
-- Payloads and loaded identity are byte-identical to af150d33; exactly the seven expected source files differ.
-- Documented preparation in the clean worktree: all steps exit 0; compatibility 56/0, fingerprint
-  832d2e0a…; platform-only re-record output preserved and committed bytes restored.
+- Candidate 90f6552aa15a6e18d8eee6d9ef410383d56bf52cd19fdc5acd9ef65d689880b7, commit 151b4a04, dirty false;
+  CANDIDATE.json sha256 d37ae896cedc760dac96d40be0ed623180a6c76a00c0139c302b86aaf53dd726.
+- Policy 8d7ff1967b9f6d6be94b050aeff2aebf243905c48eb920c9fa1382be74d87af8; loaded identity agdf 0.20.0 /
+  source 5e3d634d… / runtime 8b9e789a…; MCP dispatcher 1c6c69c4…; 1,591 source files.
+- Computed in the clean worktree C:/Workspace/agdf-rc-151b4a04 after npm ci, build:prepare and the MCP
+  package install; git status stayed empty. The main checkout validates against the same candidate.
 
 ## Verification, separated by kind
 
 | Kind | Result |
 |---|---|
-| Repository tests, local win32 x64 Node v22.22.3 | test:release-qualification 25/25; release-handoff-test 16/16; release-lifecycle-test 6/6; release-evidence-test, test:maintenance-contracts, test:community-health and build pass; test:mcp-ergonomics 44/44; documented preparation all exit 0 |
-| Local full plan | verify:commit for 0e93784f passed every stage through archives; cli-smoke stopped at packages/mcp-server/test/structured-flow.test.js:96 (approval past the MCP worker deadline under host load, then dispatch_busy), reproduced 3/3 including 17a82bf6; verify:ci not repeated for 2295730c by maintainer decision |
-| Commit-bound remote CI | AGDF Guardrails run 39927176152 for 2295730c: 99 of 100 jobs pass (44 Windows). Install · Win22 1of4 failed on spawnSync git ETIMEDOUT in unchanged packages/cli installer code; packages/cli is unchanged in PR 30; re-run requires repository admin |
-| Native host observations | 0 qualified Desktop records |
-| Human acceptance | None; two human_reported handchecks retained |
-
-## Desktop evidence (T-010)
-
-DESKTOP_EVIDENCE_REVIEW.md: F-001 resolved and proven on real Claude Desktop lines; originals stay
-unbindable; 0 of 6 candidate-bound Desktop records; handoff prepared; validate --all-hosts rejects.
-No targeted observation: the only Claude Desktop profile here is the daily one with a non-identical
-development install; Codex Desktop is absent.
+| Repository tests, local win32 x64 Node v22.22.3 | test:release-qualification 31/31; release-evidence-test; test:release-workflows; ci-plan-test 9/9; test:host-compatibility 70 checks; test:community-health; test:maintenance-contracts in Git Bash; activation lane 23/23 after the re-pin |
+| Local full plan on 151b4a04 | npm run build, release:prepare and npm run verify:ci all exit 0 (verify:ci 14:35 to 16:08 UTC, cli-smoke passed); Windows rewrote pages/.astro/content.d.ts (../src to ./../src), diff kept as windows-astro-content-dts.diff and committed bytes restored |
+| Compatibility evidence | compatibility:record and compatibility:check 56/0, fingerprint 73050d43… |
+| CI inventory | 161 commands and 117 jobs unchanged; only timeout change is the rename desktop-evidence to release-evidence at 10 minutes (CI_INVENTORY_COMPARISON.json) |
+| Commit-bound remote CI | AGDF Guardrails run 39970720377 for 151b4a04: success, 119 of 119 checks; run 39969057580 for 9c3131f5 failed in the Skills lanes on the stale fingerprint and was superseded |
+| Native host observations | 0 of 10 mandatory CLI records for 90f6552a |
+| Human acceptance | None; two human_reported Desktop handchecks retained |
 
 ## Task disposition
 
 | Task | State | Evidence / remaining work |
 |---|---|---|
-| T-001 to T-008 | Complete | Implementation, fixes and planned negative tests; test:release-qualification 25/25 |
-| T-009 | Complete | Clean pushed candidate aa3e4b02; preparation green; remote CI 99/100 with one runner git timeout awaiting re-run |
-| T-010 | Partial, evidence obligation | Six Desktop records require executors with isolated Desktop scopes |
-| T-011 | Ready | TP Review, Clean Implementation Review and Code Review can now evaluate the final diff |
+| T-001 | Complete | BROWNFIELD_ANALYSIS.md, baseline inventory and timeouts |
+| T-002 to T-008 | Complete | Implementation and planned tests; affected suites green |
+| T-009 | Complete | Clean candidate 90f6552a; local full verification and remote CI green |
+| T-010 | Open, evidence obligation | Five Claude Code CLI cases on the Windows test computer and five Codex CLI cases on the maintainer's Mac for 90f6552a |
+| T-011 | Ready | TP Review, Clean Implementation Review and Code Review can evaluate the final diff |
 
 ## Decision and normalized findings
 
-Decision: pass. Implementation and repository tests for T-001 to T-009 are complete for candidate
-aa3e4b02. The remaining items are evidence obligations, routed by quality.md to evidence_obligation
-rather than CD+Tests: six candidate-bound Desktop records and the re-run of one CI job that failed on
-a runner git timeout. QA cannot pass while they are open; publication stays ineligible.
+Decision: pass. Implementation, repository tests and commit-bound verification for T-001 to T-009 are
+complete for candidate 90f6552a. The ten native CLI records are evidence obligations, routed by quality.md
+to evidence_obligation rather than CD+Tests. QA cannot pass while they are open; publication stays ineligible.
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| F-001 | implementation_gap | CD+Tests | resolved | d4f39956 and CLAUDE_DESKTOP_CAPTURE_PROBE_AFTER_FIX.json: real Desktop dispatch excerpt yields model and session | none |
-| E-WIN-TEST-PATH | evidence_gap | evidence_obligation | resolved | 3ac401a5; test:mcp-ergonomics 44/44 and verify:commit stage mcp-ergonomics passed on win32 | none |
-| E-CLEAN-SOURCE | evidence_gap | evidence_obligation | resolved | CANDIDATE.json: commit 2295730c, dirty false, pushed PR 30 head | none |
-| E-DESKTOP-CODEX | evidence_gap | evidence_obligation | open | DESKTOP_EVIDENCE_REVIEW.md: 0 of 3 Codex Desktop records for aa3e4b02 | Codex Desktop executor records session, upgrade and recovery for aa3e4b02 in an isolated scope and returns the bundle for review and import |
-| E-DESKTOP-CLAUDE | evidence_gap | evidence_obligation | open | DESKTOP_EVIDENCE_REVIEW.md: 0 of 3 Claude Desktop Windows records for aa3e4b02 | Windows Claude Desktop executor records the three cases for aa3e4b02 in a dedicated isolated Desktop profile and returns the bundle for review and import |
-| E-LOCAL-SMOKE-FLAKE | evidence_gap | evidence_obligation | resolved | evidence/CANDIDATE_0E93784F_20261023/logs/structured-flow-diagnosis.txt: host-load flake reproduced on 17a82bf6; maintainer decision 2026-10-23 to use remote CI; MCP lanes incl. structured-flow pass in run 39927176152 | none |
-| E-CI-INSTALL-RERUN | evidence_gap | evidence_obligation | open | logs/ci-install-win22-1of4-failed.log: Install · Win22 1of4 spawnSync git ETIMEDOUT in unchanged installer code, run 39927176152 | Maintainer re-runs the failed job of run 39927176152 and the result is recorded for 2295730c |
+| F-SKILLS-FINGERPRINT | implementation_gap | CD+Tests | resolved | run 39969057580 Skills lanes SOURCE_FINGERPRINT; 151b4a04 re-pin; activation lane 23/23; run 39970720377 success | none |
+| F-COPILOT-PAYLOAD | implementation_gap | CD+Tests | resolved | build-prepare-payload-budget-stop.log: 460 bytes over the baseline from the shipped schema-3 definition; copilot-payload-baseline.json set to the exact measured 3488952 bytes with rationale | none |
+| F-CODEX-COMMIT-BINDING | implementation_gap | CD+Tests | resolved | release-handoff-test schema-3 cases: the macOS row binds the candidate commit so evidence-only commits keep it valid; the diagnostic scope keeps the checkout commit | none |
+| E-CLI-CLAUDE-WIN | evidence_gap | evidence_obligation | open | 0 of 5 Claude Code CLI win32 records for 90f6552a | Maintainer runs the five cases on the Windows test computer from a process outside the Claude Desktop app package, then review-template, review and import with --host claude --surface cli |
+| E-CLI-CODEX-MACOS | evidence_gap | evidence_obligation | open | 0 of 5 Codex CLI darwin records for 90f6552a | Maintainer runs preflight and the five cases on the Mac, then review-template, review and import with --host codex --surface cli |
 
 No QA, UAT, OR, release or publication authority is inferred.

@@ -267,12 +267,12 @@ test('Codex trace audit includes failed detours and incomplete calls, preserving
 });
 
 test('single Codex T4 planning cannot enter the default multi-session host probe', () => {
-  const script = new URL('../../../scripts/native-probes/codex-host-e2e.mjs', import.meta.url);
-  const result = spawnSync(process.execPath, [script.pathname, '--model', 'fixture-model', '--task', 'T4', '--single-session', '--dry-run'], { encoding: 'utf8' });
+  const script = new URL('../../../scripts/native-probes/codex-host-e2e.mjs', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/u, '$1');
+  const result = spawnSync(process.execPath, [script, '--model', 'fixture-model', '--task', 'T4', '--single-session', '--dry-run'], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   const plan = JSON.parse(result.stdout);
   assert.equal(plan.sessions, 1); assert.equal(plan.features.code_mode_host, true); assert.equal(plan.features.shell_tool, false); assert.equal(plan.executes, false); assert.equal(plan.additional_api_spend_usd, 0);
-  const invalid = spawnSync(process.execPath, [script.pathname, '--model', 'fixture-model', '--task', 'T3', '--single-session', '--dry-run'], { encoding: 'utf8' });
+  const invalid = spawnSync(process.execPath, [script, '--model', 'fixture-model', '--task', 'T3', '--single-session', '--dry-run'], { encoding: 'utf8' });
   assert.notEqual(invalid.status, 0); assert.match(invalid.stderr, /SINGLE_T4_ARGUMENT_INVALID/);
 });
 

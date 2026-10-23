@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "kind": "diagnostic_probe",
+  "authorizes": false,
+  "purpose": "Can the candidate Claude capture owner ingest a native Claude Desktop Code session transcript?",
+  "transcript": {
+    "file": "transcript-snapshot.jsonl",
+    "selection": "full",
+    "file_sha256_at_probe": "293cf7fba0e2680ddffff17f53bfb588ebffdc143c0d28b503e98569b3abd622",
+    "selected_sha256": "293cf7fba0e2680ddffff17f53bfb588ebffdc143c0d28b503e98569b3abd622",
+    "selected_lines": 721
+  },
+  "parser": {
+    "init_event_present": false,
+    "init_model": null,
+    "assistant_message_models": [
+      "claude-opus-5-5"
+    ],
+    "event_types": {
+      "queue-operation": 4,
+      "attachment": 114,
+      "user": 81,
+      "last-prompt": 48,
+      "custom-title": 49,
+      "file-history-snapshot": 1,
+      "atis-latch": 48,
+      "agent-name": 48,
+      "api-request-shape": 3,
+      "api-request-blob": 98,
+      "api-request": 70,
+      "assistant": 154,
+      "file-history-delta": 2,
+      "system:stop_hook_summary": 1
+    },
+    "tool_use_count_by_name": {
+      "mcp__ccd_turn__update_plan": 2,
+      "Bash": 45,
+      "Read": 9,
+      "ToolSearch": 2,
+      "mcp__plugin_agdf_agdf__agdf_inspect": 1,
+      "mcp__ccd_session_mgmt__get_session": 1,
+      "mcp__ccd_session_mgmt__search_session_transcripts": 5,
+      "mcp__ccd_session_mgmt__list_sessions": 1,
+      "PowerShell": 1,
+      "Write": 2,
+      "Grep": 8,
+      "mcp__plugin_agdf_agdf__agdf_dispatch": 1,
+      "Edit": 2
+    }
+  },
+  "validator_capture_native_call": {
+    "capture_accepted": false,
+    "error": "primary_unexpected_native_tool"
+  }
+}

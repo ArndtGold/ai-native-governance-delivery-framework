@@ -1,106 +1,68 @@
-# AGDF 0.20.0 release readiness — Desktop matrix revision
+# AGDF 0.20.0 release readiness — clean candidate af150d33
 
 Date: 2026-10-22
 Run: release-0200-codex-claude-20261020-01
-Status: implementation prepared; final Desktop candidate qualification pending
+Status: clean candidate prepared and verified; Desktop qualification pending; CD+Tests revise
 Gate authority: none. No QA, UAT, OR or publication approval is asserted.
 
-## Current release scope
+## Candidate
+
+| Field | Value |
+|---|---|
+| Verified commit | 17a82bf6a8476c7a0c1380d6476537bf256659a8 (contains handoff commit 2e79783863d00f4d3b9b86776f36d8d59bcff165; PR 29 head; merge base main 7ce6e838) |
+| Candidate ID | af150d337fbf47abcfea5f03ae06a53b15107a4b219495ab54ea424c869f1158 |
+| Clean status | dirty false; isolated worktree with porcelain 0 throughout; main checkout's untracked .claude/ preserved |
+| Policy digest | 1bf3c8c9d3a23cfc4ee2f5b672fd15d6c913095116736682ffd557c54b6fffbf |
+| Loaded identity | agdf 0.20.0, source 6eeb51bb9050fb0806f7dd1b32a4e0672d0753d666e0249095c3112942b9f048, runtime 89c28ecbdac8ff15f0091df6f0e29810957e4b70f3d715eb45922d3a7cbe7fcf |
+| MCP dispatcher | 61e3e38eeaca4af5c3494156e7e1fe58ac0db37daf25229d06f203bf460ca485 |
+| Source / payload | 1,591 source files, inventory digest 27a5b71dd61d6c6fb9ef662294280bad3f0bd0cf319ec90c89f551dc02f03b7a; five payload inventories byte-identical to the macOS diagnostic build |
+
+Details: evidence/CANDIDATE_17A82BF6_20261022/CANDIDATE_IDENTITY.json and CANDIDATE.json.
+
+## Release scope
 
 | Host / surface | Required cases | Available evidence | Qualification |
 |---|---|---|---|
-| Codex Desktop Code; original OS unknown | session, upgrade, recovery | Maintainer reports all three passed; original app/model/session/candidate and primary references unavailable | Pending candidate binding and reviewed primary evidence |
-| Claude Desktop Code; Windows test-computer context | session, upgrade, recovery | Maintainer reports all three passed; original Desktop app/model/session/candidate and primary references unavailable | Pending candidate binding and reviewed primary evidence |
-| Codex CLI, Windows/Linux | Outside mandatory Desktop matrix | Optional diagnostics only | Unqualified |
-| Claude CLI, Windows | Outside mandatory Desktop matrix | Five cases rechecked on original clean candidate 830d8b94; 79 indexed files match | Historical CLI evidence only; original review/import pending |
-| Copilot / OpenCode | Retained adapter and regression coverage | Experimental support intent retained | Experimental |
+| Codex Desktop Code; OS as observed | session, upgrade, recovery | Maintainer reports all three passed; no recoverable original reference; Codex Desktop absent on the Windows host | Pending: 0/3 candidate-bound records |
+| Claude Desktop Code, Windows | session, upgrade, recovery | Maintainer reports all three passed; no original session in this host's Desktop session store; F-001 rejects native Desktop captures | Pending: 0/3; blocked by F-001 |
+| Claude CLI, Windows | Outside mandatory matrix | Five cases on original candidate 830d8b94 | Historical CLI evidence only |
+| Codex CLI, Windows/Linux | Outside mandatory matrix | Optional diagnostics | Unqualified |
+| Copilot / OpenCode | Adapters and regression tests | Experimental support intent | Experimental |
 
-The two attributed human reports preserve the confirmed normal invocation, upgrade and recovery.
-Unknown values remain null. Reports receive zero machine-qualified native credit; repository fixtures
-and ordinary Linux/Windows regression tests do not establish installed Desktop behavior.
+No CLI result, repository fixture, Windows CI lane or human report qualifies a Desktop surface.
 
-Original reports: DESKTOP_HANDCHECKS_20261022.md and the separately published human_report inputs.
-Detailed recovery/disposition: evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/DESKTOP_EVIDENCE_RECOVERY.md.
+## Verification, separated by kind
 
-## Implemented behavior and canonical owners
-
-- plugins/agdf/meta/agdf-plugin.definition.json owns schema-2 hostSupport, the two mandatory Desktop
-  targets, optional CLI policy and explicit unqualified Codex CLI OS scopes. Existing pins remain.
-- Existing release policy/candidate/observation/handoff owners validate actual Desktop identity,
-  native calls, loaded runtime, reviewed tuple/bundle, baseline transition, preservation and cleanup.
-  Human reports are a separate discriminated input. Templates are unverified; unknowns never pass.
-- Default and --all-hosts release validation require both complete Desktop sets. The explicit
-  validate-cli command retains strict Codex diagnostics without publication credit. All publication
-  paths require the Desktop gate plus existing tests/tag/version/registry/provenance checks.
-- Existing compatibility contract/producer/render owners retain attributed reports separately from
-  qualified native_sources/native_targets. Reviewed imports remain scoped, immutable, contained and
-  rechecked; original CLI files and their candidate association were not rewritten.
-- Existing generation and release preparation produce coherent 0.20.0 package assets. Distribution
-  profile values and the exact Copilot cap of 397 files / 3,488,492 bytes were preserved. Canonical
-  JSON formatting was compacted where needed; no payload allowance or timeout was increased.
-
-Public execution guidance: docs/maintenance/release-0.20.0.md (repository root).
-
-## Current verification
-
-| Check | Result / boundary |
+| Kind | Result |
 |---|---|
-| Release qualification suite | 19 deterministic tests pass in current full verification maintenance stage; no native Desktop execution implied |
-| Release workflow / legacy route safeguards | Pass; all publication ancestors protected; optional CLI cannot substitute Desktop |
-| Compatibility producer and freshness | Pass; 56 adapter cases, zero unexpected failures; zero qualified Desktop cases |
-| npm run build | Pass; 113 skill evaluations; package/runtime integrity checked |
-| Release preparation | Pass; 0.20.0 package/profile/history safeguards retained |
-| CI planner / inventory | 9 planner tests pass; 161 original commands across 117 planned jobs unchanged in each OS/Node lane; original timeouts not increased |
-| npm run verify:ci | Pass, exit 0; all 27 canonical local stages completed. See VERIFICATION_RESULTS.json and full-verification-attempt-2.log |
-| Scoped source whitespace | Pass for .github, CONTRIBUTING.md, INSTALL.md, README.md, docs, evals, packages, plugins and scripts |
-| Global git diff --check | Fails on one pre-existing sealed BROWNFIELD_REVIEW.md blank line at EOF; protected source was not edited |
-| Final clean release source | Unavailable: working tree is dirty; no automatic stage, commit, reset or clean export represented as a shared final ref |
-| Fresh remote CI / Desktop model session | Not executed for this working-tree revision; historical CI and original host runs are separate evidence |
+| Repository tests, local Windows (win32 x64, Node v22.22.3) | 26 of 27 canonical stages pass. verify:commit --ref HEAD and verify:ci both stop at mcp-ergonomics, 43/44: native.test.mjs:271/275 pass URL.pathname to node (Windows-only, from 8ad683bc on main). All later stages pass individually, cli-smoke 6,831 s. 24 symlink assertions SKIPPED (EPERM) |
+| Commit-bound remote CI | AGDF Guardrails run 39770870527, head 17a82bf6, success 118/118 (48 Windows jobs) |
+| Native host observations | 0 qualified Desktop records. Current Claude Desktop 3.1623.1.0 executes the candidate's dispatcher and runtime digests from a non-identical daily development install; no isolated scope |
+| Human acceptance | Two human_reported handchecks retained; no UAT |
 
-Evidence logs, original baseline, CLI review, release rejection and CI comparison are retained under
-evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/. Unchanged live Windows shim assertions are skipped on darwin and are not claimed as executed.
-Full verification results remain local repository
-verification, not a claim that new GitHub jobs or installed-host acceptance passed.
+Release tool: handoff prepared (six required cases); validate --all-hosts rejects because no
+candidate-bound import exists. Compatibility reports are unchanged: no import occurred, and the
+committed snapshot passes compatibility:check (56/0, fingerprint cc7fa169…).
 
-The first current full verification stopped at the expected stale request-activation source
-fingerprint after the host-policy revision. The existing fingerprint owner recomputed only that
-manifest value after source review. All 39 deterministic cases and callback/host-schema checks pass;
-no expected behavior, activation guard or historical host observation was changed. Compatibility
-was then regenerated after its correct stale-snapshot rejection. Both failures remain in evidence;
-the second complete invocation passed after this repair.
+## Blocking findings and obligations
 
-## Candidate and publication boundary
+| ID | Type / route | State | Next bounded action |
+|---|---|---|---|
+| F-001 | implementation_gap / CD+Tests | open | Accept native Claude Desktop session transcripts in the existing capture owner with equivalent strictness and tests; recompute candidate |
+| E-WIN-TEST-PATH | evidence_gap / evidence_obligation | open | Maintainer-authorized portability fix outside this run; rerun verify:commit on the resulting commit |
+| E-DESKTOP-CODEX | evidence_gap / evidence_obligation | open | Codex Desktop executor: three cases for the final candidate in an isolated scope |
+| E-DESKTOP-CLAUDE | evidence_gap / evidence_obligation | open | After F-001: Windows Claude Desktop executor, three cases in a dedicated isolated scope |
+| E-CLEAN-SOURCE | evidence_gap / evidence_obligation | resolved | none |
 
-Prepared diagnostic candidate: 5143cc192852d091d9792124832805e34adcb8193689857a1217dc311486dd7f.
-Source HEAD: 7ce6e8385632c001f6cdcd94fdb242e07f2ee748; dirty=true.
-See PREPARED_DIAGNOSTIC_CANDIDATE.json and RELEASE_ELIGIBILITY.json in the evidence directory.
+A formatting diagnostic in sealed run artefacts (BROWNFIELD_REVIEW.md EOF blank line and two
+recorded JSON files) remains unchanged; implementation paths pass git diff --check.
 
-Actual negative checks reject dirty source with candidate_source_dirty and missing Desktop rows with
-native_required_matrix_missing_or_duplicate. Required Desktop cases: six. Qualified records: zero.
-Two human reports are retained. Publication remains ineligible. Policy/probe changes produce a new
-candidate; earlier CLI or unspecified Desktop results cannot be relabeled for this identity.
+## Gate position
 
-## Minimum remaining evidence and closeout
+CD+Tests is revise. Core admits TP Review, Clean Implementation Review and CR only after
+CD+Tests is done, so reviews and QA have not started. Publication stays ineligible. Repairing F-001
+changes scripts/ and therefore the candidate; any commit, push, merge, tag or publish needs explicit
+maintainer authorization.
 
-Recover one existing original Desktop session/log/export reference per host, with tested candidate
-or loaded runtime identity if present. Review it before asking for any remaining specific fact.
-The existing confirmation of all three scenarios needs no repetition. A commit label alone does
-not supply missing native capability/transition observations. No blanket rerun, credentials,
-whole-profile export, remote access or daily-profile replacement is requested or authorized.
-See MINIMUM_REMAINING_EVIDENCE.md for the bounded disposition.
-
-Current local macOS/app metadata is recorded only as present-day metadata. It cannot establish the
-original Windows Claude or Codex Desktop tuple and does not qualify prepared AGDF 0.20.0.
-
-All 1,593 software-source inventory entries stayed unchanged during the full second verification;
-approved source digests match exactly. Prepared payload inventories are unchanged by the derived
-fingerprint repair. See SOURCE_STABILITY_FINAL.json and METADATA_SCOPE_CHECK.json.
-
-T-001 through T-008 have implementation evidence. T-009 remains partial until an authorized clean
-source is available. T-010 remains partial because the six Desktop cases lack current-candidate
-primary evidence. T-011 reviews/QA are not completed. CD+Tests must retain revise while these
-required obligations remain open; later human approvals, OR and publication cannot be inferred.
-
-Previous readiness bytes, including dated legacy CLI matrix and earlier verification history, are
-preserved at evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/READINESS_BEFORE_DESKTOP_MATRIX.md.
-They are historical evidence and do not define this renewed mandatory matrix.
+Previous readiness bytes: evidence/CANDIDATE_17A82BF6_20261022/READINESS_BEFORE_CANDIDATE_AF150D33.md
+(sha256 84266bff1b55e7731dd2c07e8add38df39e0b678fffb4002a96869824d24619c).

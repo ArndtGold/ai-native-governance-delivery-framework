@@ -1,0 +1,12 @@
+diff --git a/pages/.astro/content.d.ts b/pages/.astro/content.d.ts
+index c0082cc8..96b2fc3e 100644
+--- a/pages/.astro/content.d.ts
++++ b/pages/.astro/content.d.ts
+@@ -194,6 +194,6 @@ declare module 'astro:content' {
+ 		LiveContentConfig['collections'][C]['loader']
+ 	>;
+ 
+-	export type ContentConfig = typeof import("../src/content.config.mjs");
++	export type ContentConfig = typeof import("./../src/content.config.mjs");
+ 	export type LiveContentConfig = never;
+ }

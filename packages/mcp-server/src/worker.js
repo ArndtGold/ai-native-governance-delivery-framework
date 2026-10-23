@@ -4,12 +4,13 @@ const WORKER_URL = new URL("./worker-entry.js", import.meta.url);
 const PHASES = new Set(['runtime_provenance', 'operation', 'result']);
 
 export class DispatchExecutionError extends Error {
-  constructor(code, dispatch = 'unknown', field) {
+  constructor(code, dispatch = 'unknown', field, { cause_code, worker_phase } = {}) {
     super(code);
     this.name = "DispatchExecutionError";
     this.code = code;
     this.dispatch = dispatch;
-    this.facts = { code, dispatch, ...(field ? { field } : {}) };
+    this.facts = { code, dispatch, ...(field ? { field } : {}),
+      ...(cause_code ? { cause_code } : {}), ...(worker_phase ? { worker_phase } : {}) };
   }
 }
 
@@ -25,6 +26,9 @@ export function createWorkerDispatchExecutor({
   onEvent = () => {}, releaseOwnedLock = null,
 } = {}) {
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 10_000) throw Error('dispatch_deadline_invalid');
+  // The request budget includes both execution and confirmed worker shutdown.
+  // Reserve up to one second instead of beginning shutdown at the deadline.
+  const terminationReserveMs = Math.min(1_000, Math.max(1, Math.floor(timeoutMs / 4)));
   let active = null;
   const event = (phase, started) => {
     try { onEvent({ phase, elapsed_ms: performance.now() - started }); } catch {}
@@ -34,7 +38,9 @@ export function createWorkerDispatchExecutor({
       if (active) throw new DispatchExecutionError("dispatch_busy", 'not_dispatched');
       if (signal?.aborted) throw new DispatchExecutionError("dispatch_cancelled", 'not_dispatched');
       return new Promise((resolve, reject) => {
-        let settled = false, exited = false, completion;
+        let settled = false, exited = false, completion, workerPhase = 'worker_start';
+        let confirmExit;
+        const actualExit = new Promise(resolve => { confirmExit = resolve; });
         const started = performance.now(), deadline = started + timeoutMs;
         let worker;
         try { worker = new WorkerClass(WORKER_URL, {
@@ -70,16 +76,21 @@ export function createWorkerDispatchExecutor({
               confirmationTimer = setTimeout(() => done(false), Math.max(0, deadline - performance.now()));
             });
             let ending;
-            try { ending = Promise.resolve(worker.terminate()).then(() => { exited = true; release(); return true; }, () => false); }
-            catch { ending = Promise.resolve(false); }
-            const confirmed = exited || await Promise.race([ending, bounded]);
+            try { ending = exited ? actualExit : Promise.resolve(worker.terminate()).then(() => {
+              exited = true; release(); return true;
+            }, () => actualExit); }
+            catch { ending = actualExit; }
+            const confirmed = exited || await Promise.race([ending, actualExit, bounded]);
             clearTimeout(confirmationTimer);
             if (confirmed) {
               release(); event('terminated', started); callback(value);
             } else {
               // A late actual exit may release capacity; rejection alone never proves termination.
               event('termination_unconfirmed', started);
-              reject(new DispatchExecutionError('dispatch_worker_termination_unconfirmed'));
+              reject(new DispatchExecutionError('dispatch_worker_termination_unconfirmed', 'unknown', undefined, {
+                ...(callback === reject && value instanceof DispatchExecutionError ? { cause_code: value.code } : {}),
+                worker_phase: workerPhase,
+              }));
             }
           })();
           return completion;
@@ -89,7 +100,7 @@ export function createWorkerDispatchExecutor({
           current.cleanupSignal = () => signal.removeEventListener("abort", cancel);
           signal.addEventListener("abort", cancel, { once: true });
         }
-        current.timer = setTimeout(() => finish(reject, new DispatchExecutionError("dispatch_timeout")), timeoutMs);
+        current.timer = setTimeout(() => finish(reject, new DispatchExecutionError("dispatch_timeout")), timeoutMs - terminationReserveMs);
         worker.on("message", message => {
           // Lock messages also arrive after settlement while the worker drains.
           if (message?.type === 'lock') {
@@ -101,14 +112,15 @@ export function createWorkerDispatchExecutor({
           }
           if (settled) return;
           if (message?.type === 'phase') {
-            if (PHASES.has(message.phase)) event(message.phase, started);
-          } else if (message?.type === "result") finish(resolve, message.result);
+            if (PHASES.has(message.phase)) { workerPhase = message.phase; event(message.phase, started); }
+          } else if (message?.type === "result") { workerPhase = 'result'; finish(resolve, message.result); }
           else if (message?.type === 'failure') finish(reject, new DispatchExecutionError(message.code, message.dispatch, message.field));
           else finish(reject, new DispatchExecutionError('dispatch_worker_failed'));
         });
         worker.once("error", () => finish(reject, new DispatchExecutionError("dispatch_worker_failed")));
         worker.once("exit", () => {
           exited = true;
+          confirmExit(true);
           if (settled) release();
           else finish(reject, new DispatchExecutionError("dispatch_worker_failed"));
         });

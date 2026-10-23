@@ -479,3 +479,14 @@ fixes. The corrected baseline is the exact measured 260 files / 2265459 bytes.
 No additional files, UI assets or spare headroom are admitted. Payload provenance,
 file/byte limits, exclusions and the one-byte-over-budget rejection remain active;
 CI test coverage and job timeouts are unchanged.
+
+## Worker shutdown reserve and original-cause diagnostics (2026-10-23)
+
+The shared worker reserves shutdown confirmation within the existing ten-second
+request deadline and accepts a proven actual exit after a rejected termination request.
+The existing Core/CLI error projection retains only allowlisted cause codes and worker
+phases when termination remains unconfirmed. Uncertain effects, active capacity and
+owned-lock protection remain intact. The server README describes this boundary.
+The generated Copilot inventory measures 397 files / 3490902 bytes, up 2410 bytes
+from 397 / 3488492. This records the exact generated payload without spare headroom;
+no payload checks, test coverage or CI timeout limits are removed or relaxed.

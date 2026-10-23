@@ -2,6 +2,6 @@
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
   "max_files": 397,
-  "max_bytes": 3488492,
-  "rationale": "Reviewed token-bound queued shutdown across launcher owner and SDK bootstrap; preserves startup requests until exact cleanup acknowledgement and actual child exit, plus strict source and uninitialized transport checks; exact measured payload with no headroom"
+  "max_bytes": 3490902,
+  "rationale": "Reviewed bounded worker shutdown reserve and allowlisted original-cause/phase diagnostics across the existing MCP error path; exact measured 397-file payload with no headroom"
 }

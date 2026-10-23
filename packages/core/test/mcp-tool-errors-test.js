@@ -64,6 +64,25 @@ assert.equal(localePack(registry, 'fr'), localePack(registry, 'en'));
 assert.deepEqual(executionFacts(Error('PRIVATE'), { phase: 'parse' }), { code: 'dispatch_worker_failed', dispatch: 'not_dispatched' });
 assert.deepEqual(executionFacts({ code: 'resource_denied', message: 'PRIVATE' }), { code: 'dispatch_worker_failed', dispatch: 'unknown' });
 assert.deepEqual(executionFacts({ facts: { code: 'resource_denied', dispatch: 'not_dispatched', field: '/secret' } }), { code: 'dispatch_worker_failed', dispatch: 'unknown' });
+const shutdownFacts = { code: 'dispatch_worker_termination_unconfirmed', dispatch: 'unknown',
+  cause_code: 'dispatch_timeout', worker_phase: 'operation' };
+assert.deepEqual(executionFacts({ facts: shutdownFacts }), shutdownFacts);
+for (const facts of [
+  { ...shutdownFacts, cause_code: 'PRIVATE_CAUSE' },
+  { ...shutdownFacts, worker_phase: 'PRIVATE_PHASE' },
+  { ...shutdownFacts, code: 'resource_denied' },
+  { ...shutdownFacts, private: 'PRIVATE_VALUE' },
+]) assert.deepEqual(executionFacts({ facts }), { code: 'dispatch_worker_failed', dispatch: 'unknown' });
+for (const language of ['de', 'en']) {
+  const result = { ...dispatch('evaluator_error'), diagnostics: [{ code: shutdownFacts.code }] };
+  const descriptor = describeToolResult('agdf_dispatch', {}, result, localePack(registry, language), shutdownFacts);
+  assert.match(descriptor.message, /cause_code=dispatch_timeout, worker_phase=operation/);
+  assert.equal(descriptor.effect_state, 'unknown');
+  assert.equal(descriptor.action, 'inspect_operation');
+  validateToolDescriptor(descriptor);
+  const invalid = describeToolResult('agdf_dispatch', {}, result, localePack(registry, language), { ...shutdownFacts, worker_phase: 'PRIVATE_PHASE' });
+  assert.ok(!invalid.message.includes('PRIVATE'));
+}
 const source = readFileSync(new URL('../lib/mcp-tool-errors.js', import.meta.url), 'utf8');
 assert.ok(!/\bimport\b|\bprocess\b\.|\b(?:writeFile|readFile|setTimeout|eval)\s*\(/.test(source), 'projector stays pure');
 console.log(`MCP error projector passed: ${count} classification/correction cases, locale/bounds/domain/purity checks.`);

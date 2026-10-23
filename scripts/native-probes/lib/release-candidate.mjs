@@ -107,7 +107,7 @@ export function validateCandidate(root, expected, { requireClean = false } = {})
 export function readCandidate(path) { return JSON.parse(readFileSync(resolve(path), 'utf8')); }
 const MANIFEST = 'evals/host-compatibility/manifest.json';
 const manifestInputs = text => { const { native_sources, native_targets, public_evidence, reported_sources, ...inputs } = JSON.parse(text); return canonical(inputs); };
-// Mirrors inventory(): whether a repository path belongs to the candidate source identity.
+// Applies the path rules of inventory(): whether a repository path belongs to the candidate source identity.
 export function isCandidateSource(path) {
   if (SOURCE_FILES.includes(path)) return true;
   const base = SOURCE_ROOTS.find(root => path.startsWith(`${root}/`));
@@ -120,12 +120,15 @@ export function isCandidateSource(path) {
   return true;
 }
 // Proves an earlier commit carried the candidate source of `head` without trusting the candidate file's
-// commit field: it must be an ancestor whose later changes touch only evidence outputs.
+// commit field: it must be an ancestor whose later changes touch only evidence outputs. Git compares blobs
+// and modes, so this is stricter than the normalized inventory and rejects rather than accepts on doubt.
 export function assertEvidenceOnlyDescendant(root, ancestor, head) {
   assert.match(ancestor ?? '', /^[a-f0-9]{40}$/u, 'candidate_ancestor_invalid');
   assert.match(head ?? '', /^[a-f0-9]{40}$/u, 'candidate_ancestor_invalid');
   if (ancestor === head) return;
   const git = args => spawnSync('git', ['-c', 'core.fsmonitor=false', ...args], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  // A missing object, for example in a shallow clone, is reported apart from a commit outside the history.
+  assert.equal(git(['cat-file', '-e', `${ancestor}^{commit}`]).status, 0, 'candidate_ancestor_unavailable');
   assert.equal(git(['merge-base', '--is-ancestor', ancestor, head]).status, 0, 'candidate_ancestor_not_in_history');
   const diff = git(['diff', '--no-renames', '--name-only', '-z', ancestor, head]);
   assert.equal(diff.status, 0, 'candidate_ancestor_diff_failed');

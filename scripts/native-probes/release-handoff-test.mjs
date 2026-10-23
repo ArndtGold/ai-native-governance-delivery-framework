@@ -618,7 +618,7 @@ test('the publication gate keeps imported mandatory Codex records valid across e
     assert.equal((await runFixtureReleaseTool(args, f)).cases.length, 10);
     const head = f.git('rev-parse', 'HEAD').trim();
     assertEvidenceOnlyDescendant(f.root, origin, head);
-    assert.throws(() => assertEvidenceOnlyDescendant(f.root, 'a'.repeat(40), head), /candidate_ancestor_not_in_history/u);
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, 'a'.repeat(40), head), /candidate_ancestor_unavailable/u);
     assert.throws(() => assertEvidenceOnlyDescendant(f.root, head, origin), /candidate_ancestor_not_in_history/u);
     // Any later change of candidate source, including non-evidence manifest inputs, breaks the binding.
     const manifestPath = 'evals/host-compatibility/manifest.json', manifest = JSON.parse(readFileSync(join(f.root, manifestPath)));

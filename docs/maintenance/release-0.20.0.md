@@ -77,8 +77,11 @@ executing computer.
 ## Tuple binding
 
 A mandatory target is bound by its reviewed frozen tuple: host, surface cli, OS, architecture, client
-version, Node and model. Codex records additionally carry the exact candidate commit, so later
-evidence-only commits keep them valid. The Codex 0.157.1 / gpt-6-luna pin applies only to the
+version, Node and model. The harness of each mandatory row refuses to run without that frozen tuple.
+Codex records additionally carry the commit they ran on; import and the publication gate prove
+through git that it is an ancestor of the checked-out commit whose later changes touch only evidence
+outputs, so committing the imported evidence keeps the records valid. The commit field of a
+candidate file is never trusted for this binding. The Codex 0.157.1 / gpt-6-luna pin applies only to the
 Linux/Windows diagnostic scope (validate-cli) and never satisfies the macOS row.
 
 ## Reviewed scoped import and full eligibility

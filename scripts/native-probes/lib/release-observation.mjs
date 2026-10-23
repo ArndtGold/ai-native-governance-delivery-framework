@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, lstatSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { caseKey, CLI_CASES, requiredReleaseCases, optionalCliCases, optionalDesktopCases } from './release-policy.mjs';
-import { containedFile, jsonDigest, sha } from './release-candidate.mjs';
+import { assertEvidenceOnlyDescendant, containedFile, jsonDigest, sha } from './release-candidate.mjs';
 import { mcpCalls } from './codex-trace.mjs';
 import { parseClaudeDesktopTranscript, parseClaudeStream } from './claude-session.mjs';
 
@@ -176,7 +176,7 @@ export function captureNativeCall(primary, host, scenario, { surface = 'cli' } =
   return { captured, observedModels };
 }
 
-export function assertNativeRecord(record, { candidate, policy, directory, commit, lockedTuples, scope }) {
+export function assertNativeRecord(record, { candidate, policy, directory, commit, lockedTuples, scope, root }) {
   const desktop = policy.schema_version >= 2 && record.environment?.surface === 'desktop-code';
   assert.equal(record.schema_version, desktop ? 3 : 2, 'release_observation_schema');
   assert.ok(record.kind === undefined && !desktop || desktop && record.kind === 'qualified_desktop', 'release_observation_kind');
@@ -199,10 +199,13 @@ export function assertNativeRecord(record, { candidate, policy, directory, commi
     assertDesktopRecord(record, { candidate, directory, lockedTuples });
     return caseKey(key);
   }
-  // A mandatory schema-3 target binds the candidate commit and its reviewed frozen tuple, so later evidence-only
-  // commits keep it valid; the pin and the checkout commit describe only the Linux/Windows diagnostic runners.
+  // A mandatory schema-3 target binds its reviewed frozen tuple and the commit it ran on. That commit must be the
+  // checkout or, proven through git, an ancestor changed only by evidence outputs, so the import and publication
+  // commits keep it valid; the candidate file's commit field is never trusted. The pin and the exact checkout
+  // commit describe only the Linux/Windows diagnostic runners.
   const mandatory = policy.schema_version === 3 && scope !== 'optional-cli';
-  if (tuple.host === 'codex') assert.equal(record.source.commit, mandatory ? candidate.source_revision.commit : commit, 'native_codex_release_commit_mismatch');
+  if (tuple.host === 'codex' && mandatory && root) assertEvidenceOnlyDescendant(root, record.source.commit, commit);
+  else if (tuple.host === 'codex') assert.equal(record.source.commit, commit, 'native_codex_release_commit_mismatch');
   if (tuple.host === 'codex' && !mandatory) {
     const cliPolicy = policy.schema_version === 1 ? policy.codex : policy.optional_cli.codex;
     assert.equal(tuple.version, cliPolicy.codex_version, 'native_codex_pin_mismatch'); assert.equal(tuple.model, cliPolicy.model, 'native_codex_pin_mismatch');

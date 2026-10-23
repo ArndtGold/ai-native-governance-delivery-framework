@@ -50,7 +50,7 @@ export function importNativeEvidence(root, { candidate, bundle, review, host = '
   const rows = releaseRecords(bundle);
   assertBundleReview(review, rows, candidate);
   if (policy.schema_version >= 2) assertReviewScope(review, host, surface);
-  const result = assertHostReleaseEvidence(rows, { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples });
+  const result = assertHostReleaseEvidence(rows, { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples, root });
   if (surface) assert.ok(rows.every(({record}) => record.environment.host === host && record.environment.surface === surface), 'native_import_scope_mismatch');
   const parent = ownedImportParent(root, candidate.candidate_id);
   let destination = join(parent, host);
@@ -75,7 +75,7 @@ export function importNativeEvidence(root, { candidate, bundle, review, host = '
     }
     writeNew(join(stage, 'review.json'), review);
     // Recheck bytes immediately before committing the owned import.
-    assertHostReleaseEvidence(releaseRecords(stage), { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples });
+    assertHostReleaseEvidence(releaseRecords(stage), { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples, root });
     validateCandidate(root, candidate);
     renameSync(stage, destination);
     try { projectNativeRelease(root, rows, candidate); }
@@ -207,14 +207,14 @@ export async function runReleaseTool(args, root = process.cwd()) {
     for (const target of policy.required_targets) {
       const scoped = scopedBundle(target); rows.push(...scoped.rows); lockedTuples.push(...scoped.tuples);
     }
-    const result = assertHostReleaseEvidence(rows, { candidate, policy, commit, lockedTuples });
+    const result = assertHostReleaseEvidence(rows, { candidate, policy, commit, lockedTuples, root });
     if (policy.schema_version === 2) return result;
     // Reported Desktop surfaces never gate publication; a supplied set must still be complete and strictly valid.
     const optionalDesktop = [];
     for (const target of policy.reported_desktop) {
       if (!existsSync(join(directory, target.host, target.surface))) continue;
       const scoped = scopedBundle(target);
-      assertHostReleaseEvidence(scoped.rows, { candidate, policy, host: target.host, scope: 'optional-desktop', commit, lockedTuples: scoped.tuples });
+      assertHostReleaseEvidence(scoped.rows, { candidate, policy, host: target.host, scope: 'optional-desktop', commit, lockedTuples: scoped.tuples, root });
       optionalDesktop.push(target.host);
     }
     return { ...result, optional_desktop: optionalDesktop };

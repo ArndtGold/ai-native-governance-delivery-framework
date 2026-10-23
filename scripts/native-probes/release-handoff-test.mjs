@@ -4,7 +4,7 @@ import { cpSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync
 import { basename, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { candidateFixture } from './test-support.mjs';
-import { jsonDigest, sha } from './lib/release-candidate.mjs';
+import { assertEvidenceOnlyDescendant, candidateManifest, jsonDigest, sha } from './lib/release-candidate.mjs';
 import { releasePolicy, requiredReleaseCases, optionalCliCases, optionalDesktopCases } from './lib/release-policy.mjs';
 import { assertHostReleaseEvidence, assertHumanReport, referencesFrom, releaseRecords } from './lib/release-observation.mjs';
 import { assertBundleReview, bundleDigest, evidenceScope, importClaudeEvidence, importNativeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
@@ -510,10 +510,10 @@ test('schema-3 CLI matrix binds reviewed tuples per host; the Codex pin binds on
     assert.equal(assertHostReleaseEvidence(d.rows, d.options).result, 'pass');
     for (const [host, code] of [['codex', /codex_tuple_not_reviewed/u], ['claude', /claude_tuple_not_reviewed/u]])
       assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, lockedTuples: d.options.lockedTuples.filter(t => t.host !== host) }), code);
-    // The macOS row binds the candidate commit, not the later checkout commit that also carries imported evidence.
-    assert.equal(assertHostReleaseEvidence(d.rows, { ...d.options, commit: 'f'.repeat(40) }).result, 'pass');
-    const moved = structuredClone(d.rows); moved.find(row => row.record.environment.host === 'codex').record.source.commit = 'f'.repeat(40);
-    assert.throws(() => assertHostReleaseEvidence(moved, d.options), /native_codex_release_commit_mismatch/u);
+    // Without a repository the macOS record must carry the checkout commit; with one, git must prove its ancestry.
+    assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, commit: 'f'.repeat(40) }), /native_codex_release_commit_mismatch/u);
+    assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, commit: 'f'.repeat(40), root: f.root }), /candidate_ancestor_not_in_history/u);
+    assert.equal(assertHostReleaseEvidence(d.rows, { ...d.options, root: f.root }).result, 'pass');
     for (const mutate of [rows => rows.pop(), rows => rows.push(rows[0]), rows => rows[0].record.policy_digest = '0'.repeat(64),
       rows => rows[0].record.loaded_identity = null, rows => rows[0].record.environment.os = 'linux']) {
       const rows = structuredClone(d.rows); mutate(rows); assert.throws(() => assertHostReleaseEvidence(rows, d.options));
@@ -597,4 +597,34 @@ test('schema-3 handoff is per host and Codex CLI preflight runs only on macOS', 
     if (process.platform !== 'darwin')
       await assert.rejects(runReleaseTool(['preflight', '--candidate', candidate, '--host', 'codex', '--surface', 'cli', '--model', 'fixture-model', '--output', join(temp, 'tuple.json')], f.root), /codex_cli_preflight_requires_macos/u);
   } finally { for (const root of [f.root, temp]) rmSync(root, { recursive: true, force: true }); }
+});
+test('the publication gate keeps imported mandatory Codex records valid across evidence-only commits only', async () => {
+  const f = candidateFixture({ policyVersion: 3 }), parts = ['claude', 'codex'].map(host => nativeFixtures(f, host));
+  try {
+    const origin = f.git('rev-parse', 'HEAD').trim();
+    for (const part of parts) {
+      const host = part.rows[0].record.environment.host;
+      importNativeEvidence(f.root, { candidate: f.candidate, bundle: part.root, review: cliReview(f, part.rows), host, surface: 'cli' });
+      f.git('add', '.'); f.git('commit', '-qm', `fixture ${host} evidence`);
+    }
+    // The release job regenerates the candidate from its checkout: same identity, commit of the evidence commit.
+    const regenerated = candidateManifest(f.root);
+    assert.equal(regenerated.candidate_id, f.candidate.candidate_id); assert.notEqual(regenerated.source_revision.commit, origin);
+    const file = join(f.root, '.release-candidate.json'); writeFileSync(file, JSON.stringify(regenerated));
+    const args = ['validate', '--candidate', file, '--directory', join(f.root, 'evals/host-compatibility/native', f.candidate.candidate_id), '--all-hosts'];
+    assert.equal((await runFixtureReleaseTool(args, f)).cases.length, 10);
+    // The candidate file's commit field is not authenticated, so it plays no part in the binding.
+    writeFileSync(file, JSON.stringify({ ...regenerated, source_revision: { commit: 'f'.repeat(40), dirty: false } }));
+    assert.equal((await runFixtureReleaseTool(args, f)).cases.length, 10);
+    const head = f.git('rev-parse', 'HEAD').trim();
+    assertEvidenceOnlyDescendant(f.root, origin, head);
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, 'a'.repeat(40), head), /candidate_ancestor_not_in_history/u);
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, head, origin), /candidate_ancestor_not_in_history/u);
+    // Any later change of candidate source, including non-evidence manifest inputs, breaks the binding.
+    const manifestPath = 'evals/host-compatibility/manifest.json', manifest = JSON.parse(readFileSync(join(f.root, manifestPath)));
+    f.put(manifestPath, JSON.stringify({ ...manifest, inputs: ['changed'] })); f.git('add', '.'); f.git('commit', '-qm', 'fixture manifest input change');
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, origin, f.git('rev-parse', 'HEAD').trim()), /candidate_ancestor_source_changed:evals\/host-compatibility\/manifest\.json/u);
+    f.put('scripts/later-source.mjs', 'export {};\n'); f.git('add', '.'); f.git('commit', '-qm', 'fixture source change');
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, head, f.git('rev-parse', 'HEAD').trim()), /candidate_ancestor_source_changed:/u);
+  } finally { for (const root of [f.root, ...parts.map(part => part.root)]) rmSync(root, { recursive: true, force: true }); }
 });

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { releasedBaseline, extractBaseline, installedIdentity, makeOwnedStale, installBaseline } from './lib/release-lifecycle.mjs';
 import { digestNormalizedPluginSource } from '../../packages/core/lib/runtime/plugin-provenance.js';
 import { candidateFixture } from './test-support.mjs';
-import { CLI_CASES, caseKey, optionalCliCases, optionalDesktopCases, releasePolicy, requiredReleaseCases } from './lib/release-policy.mjs';
+import { CLI_CASES, caseKey, optionalCliCases, optionalDesktopCases, releasePolicy, requiredReleaseCases, requiresFrozenTuple } from './lib/release-policy.mjs';
 
 test('native entrypoints parse without running hosts or using credentials', () => {
   for (const file of ['codex-host-e2e.mjs','claude-host-e2e.mjs','release-evidence.mjs'])
@@ -114,6 +114,9 @@ test('schema-3 CLI policy pins both mandatory CLI targets and keeps Desktop and 
     assert.throws(() => optionalCliCases(policy, 'claude'), /unknown_release_host/u);
     assert.deepEqual(optionalDesktopCases(policy).map(row => row.surface), Array(6).fill('desktop-code'));
     assert.throws(() => optionalDesktopCases(releasePolicyOf(2)), /optional_desktop_requires_cli_policy/u);
+    // Mandatory CLI runs need a frozen tuple; pinned diagnostics and Desktop-era policies do not.
+    assert.deepEqual([['codex','darwin'],['claude','win32'],['codex','linux'],['codex','win32']].map(([h,o]) => requiresFrozenTuple(policy, h, o)), [true, true, false, false]);
+    assert.equal(requiresFrozenTuple(releasePolicyOf(2), 'codex', 'darwin'), false);
     for (const [mutate, code] of [[h=>{h.schema_version=4;},/unsupported/u],
       [h=>{h.required_targets[1].os='linux';},/release_cli_targets_invalid/u],
       [h=>{h.required_targets[0].os='darwin';},/release_cli_targets_invalid/u],

@@ -73,4 +73,8 @@ export function optionalDesktopCases(policy, host, lockedTuples = []) {
   assert.equal(policy?.schema_version, 3, 'optional_desktop_requires_cli_policy');
   return targetCases(policy.reported_desktop, host, lockedTuples);
 }
+// A native CLI run for a mandatory target must use a preflight-frozen, reviewed tuple.
+export function requiresFrozenTuple(policy, host, os) {
+  return policy.schema_version >= 2 && policy.required_targets.some(t => t.host === host && t.surface === 'cli' && t.os === os);
+}
 export const caseKey = row => [row.host, row.surface, row.os, row.scenario].join(':');

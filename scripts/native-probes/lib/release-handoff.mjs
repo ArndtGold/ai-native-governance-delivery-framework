@@ -18,6 +18,11 @@ export function assertBundleReview(review, rows, candidate) {
   assert.equal(review.candidate_id, candidate.candidate_id, 'native_review_candidate_mismatch');
   assert.equal(review.bundle_digest, bundleDigest(rows), 'native_review_bundle_mismatch');
 }
+// A schema-2 review locks exactly the one actual tuple of its own host and surface.
+function assertReviewScope(review, host, surface) {
+  assert.ok(Array.isArray(review.tuples) && review.tuples.length === 1
+    && review.tuples[0]?.host === host && review.tuples[0]?.surface === surface, 'native_review_tuple_scope');
+}
 function ownedImportParent(root, candidateId) {
   assert.match(candidateId, /^[a-f0-9]{64}$/u);
   let parent = root;
@@ -36,6 +41,7 @@ export function importNativeEvidence(root, { candidate, bundle, review, host = '
   const actualCandidate = validateCandidate(root, candidate, { requireClean: true });
   const rows = releaseRecords(bundle);
   assertBundleReview(review, rows, candidate);
+  if (policy.schema_version === 2) assertReviewScope(review, host, surface);
   const result = assertHostReleaseEvidence(rows, { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples });
   if (surface) assert.ok(rows.every(({record}) => record.environment.host === host && record.environment.surface === surface), 'native_import_scope_mismatch');
   const parent = ownedImportParent(root, candidate.candidate_id);
@@ -163,6 +169,7 @@ export async function runReleaseTool(args, root = process.cwd()) {
       const review = JSON.parse(readFileSync(containedFile(directory, `${target.host}/${target.surface}/review.json`), 'utf8'));
       const scoped = releaseRecords(folder);
       assertBundleReview(review, scoped, candidate);
+      assertReviewScope(review, target.host, target.surface);
       assert.ok(scoped.every(({record}) => record.environment.host === target.host && record.environment.surface === target.surface), 'native_bundle_scope_mismatch');
       rows.push(...scoped); lockedTuples.push(...review.tuples);
     }

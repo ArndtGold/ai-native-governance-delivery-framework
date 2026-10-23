@@ -59,10 +59,14 @@ function assertDesktopRecord(record, { candidate, directory, lockedTuples }) {
   assert.equal(record.assurance, 'operator_observed', 'desktop_assurance_invalid');
   assert.ok(lockedTuples?.some(t => jsonDigest(t) === record.tuple_digest), 'desktop_tuple_not_reviewed');
   assert.ok(text(record.session_id), 'desktop_session_missing');
-  assert.ok(record.references.some(r => /\.(?:png|jpg|webp)$/u.test(r.path)), 'desktop_primary_capture_missing');
+  const images = record.references.filter(r => /\.(?:png|jpg|webp)$/u.test(r.path));
+  assert.ok(images.length > 0, 'desktop_primary_capture_missing');
+  // The extension alone is not a capture: require the actual PNG, JPEG or WebP signature.
+  for (const image of images) assert.ok(imageSignature(readFileSync(containedFile(directory, image.path))), 'desktop_primary_capture_invalid');
   const ref = record.references.find(r => r.path === 'desktop-primary.json');
   assert.ok(ref, 'desktop_primary_missing');
   const primary = JSON.parse(readFileSync(containedFile(directory, ref.path), 'utf8'));
+  assert.equal(primary.scenario, record.scenario, 'desktop_primary_scenario_mismatch');
   assert.equal(primary.session_id, record.session_id, 'desktop_primary_session_mismatch');
   assert.deepEqual(primary.environment, record.environment, 'desktop_primary_tuple_mismatch');
   assert.equal(primary.candidate_id, candidate.candidate_id, 'desktop_primary_candidate_mismatch');
@@ -87,7 +91,7 @@ function assertDesktopRecord(record, { candidate, directory, lockedTuples }) {
     assert.equal(call.status, 0, 'desktop_call_failed');
     const { captured, observedModels } = captureNativeCall(call, record.environment.host, call.scenario, { surface: 'desktop-code' });
     assert.deepEqual(observedModels, [record.environment.model], 'desktop_model_mismatch');
-    if (record.environment.host === 'claude') assert.equal(captured.session_id, record.session_id, 'desktop_call_session_mismatch');
+    assert.equal(captured.session_id, record.session_id, 'desktop_call_session_mismatch');
     if (record.environment.host === 'codex') assert.equal(captured.plugin_id, 'agdf@agdf', 'desktop_plugin_mismatch');
     assert.equal(captured.authorizes, false, 'desktop_call_authority_mismatch');
     assert.equal(captured.terminal, call.scenario !== 'skill_continuation', 'desktop_terminal_mismatch');
@@ -100,6 +104,7 @@ function assertDesktopRecord(record, { candidate, directory, lockedTuples }) {
   }
   if (['upgrade','recovery'].includes(record.scenario)) {
     assertTransition(record.transition, record.scenario);
+    if (record.scenario === 'upgrade') assert.equal(record.transition.repair, undefined, 'desktop_upgrade_repair_invalid');
     assert.match(record.transition.baseline.integrity, /^sha512-[A-Za-z0-9+/]{86}==$/u, 'desktop_baseline_integrity_invalid');
     assert.notEqual(record.transition.baseline.source_digest, candidate.identities.agdf.source_digest, 'desktop_baseline_is_candidate');
     assert.deepEqual(primary.transition, record.transition, 'desktop_transition_primary_mismatch');
@@ -122,18 +127,32 @@ export function assertHumanReport(report, directory) {
   assertReferences(directory, report.references);
   return report;
 }
+function imageSignature(bytes) {
+  return bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+    || bytes.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))
+    || bytes.subarray(0, 4).toString('latin1') === 'RIFF' && bytes.subarray(8, 12).toString('latin1') === 'WEBP';
+}
 export function captureNativeCall(primary, host, scenario, { surface = 'cli' } = {}) {
   let captured, observedModels;
+  const desktop = surface === 'desktop-code';
   if (host === 'codex') {
+      // Codex Desktop calls retain their session rollouts; exec/CLI stdout cannot stand in for them.
+      if (desktop) assert.ok(Array.isArray(primary.rollouts) && primary.rollouts.length > 0, 'desktop_rollout_missing');
       const texts = Array.isArray(primary.rollouts) ? primary.rollouts : [primary.stdout];
       const calls = mcpCalls(texts); assert.equal(calls.length, 1, 'primary_native_calls'); captured = calls[0];
-      const models = texts.flatMap(text => String(text).split('\n').flatMap(line => {
-        try { const value = JSON.parse(line); return value.type === 'turn_context' && value.payload?.model ? [value.payload.model] : []; } catch { return []; }
+      const events = type => texts.flatMap(rollout => String(rollout).split('\n').flatMap(line => {
+        try { const value = JSON.parse(line); return value.type === type ? [value.payload ?? {}] : []; } catch { return []; }
       }));
-      observedModels = [...new Set(models)];
+      observedModels = [...new Set(events('turn_context').filter(payload => payload.model).map(payload => payload.model))];
+      if (desktop) {
+        const sessions = events('session_meta'), ids = [...new Set(sessions.map(meta => meta.id ?? null))];
+        assert.ok(sessions.length > 0 && ids.length === 1 && text(ids[0]), 'desktop_rollout_session');
+        // `codex exec` reports originator Codex Desktop too; only its session source tells it apart.
+        assert.ok(sessions.every(meta => !['exec', 'cli'].includes(meta.source)), 'desktop_rollout_cli_source');
+        captured = { ...captured, session_id: ids[0] };
+      }
     } else {
       // Claude Desktop keeps its own session transcript; a CLI stream-json capture cannot stand in for it.
-      const desktop = surface === 'desktop-code';
       const parsed = desktop ? parseClaudeDesktopTranscript(primary.stdout) : parseClaudeStream(primary.stdout);
       if (desktop) {
         assert.equal(parsed.init, null, 'desktop_transcript_cli_stream');
@@ -264,6 +283,9 @@ export function assertHostReleaseEvidence(rows, options) {
   }
   assert.deepEqual(seen.sort(), expected, 'native_required_matrix_missing_or_duplicate');
   assert.equal(new Set(rows.map(({ record }) => record.id)).size, rows.length, 'duplicate_observation_id');
+  // Session, upgrade and recovery each need their own fresh Desktop session per host.
+  const sessions = rows.filter(({ record }) => record.kind === 'qualified_desktop').map(({ record }) => `${record.environment.host}:${record.session_id}`);
+  assert.equal(new Set(sessions).size, sessions.length, 'desktop_session_reused');
   return { result: 'pass', candidate_id: options.candidate.candidate_id, cases: seen, authorizes: false };
 }
 export function emitReleaseRecords({ observation, candidate, directory, host, scenario, loadedIdentity, tuple }) {

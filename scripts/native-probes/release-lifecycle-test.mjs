@@ -81,3 +81,21 @@ test('host tiers and Codex compatibility projection have one canonical owner', (
     assert.throws(() => releasePolicy(f.root));
   } finally { rmSync(f.root, { recursive:true, force:true }); }
 });
+test('schema-2 Desktop policy rejects unknown schemas, changed targets and widened scope', () => {
+  const f = candidateFixture({ policyVersion: 2 });
+  try {
+    const path = join(f.root,'plugins/agdf/meta/agdf-plugin.definition.json'), original = readFileSync(path,'utf8');
+    assert.equal(releasePolicy(f.root).schema_version, 2);
+    for (const [mutate, code] of [[h=>{h.schema_version=3;},/unsupported/u],
+      [h=>{h.required_targets[1].os='linux';},/release_desktop_targets_invalid/u],
+      [h=>{h.required_targets[0].os='darwin';},/release_desktop_targets_invalid/u],
+      [h=>{h.required_targets.pop();},/release_desktop_targets_invalid/u],
+      [h=>{h.required_targets[0].scenarios.pop();},/release_desktop_targets_invalid/u],
+      [h=>{h.unqualified.pop();},/release_unqualified_scope_invalid/u],
+      [h=>{h.optional_cli.claude.platforms.push('linux');},undefined],
+      [h=>{h.optional_cli.codex.model='other-model';},undefined]]) {
+      const definition = JSON.parse(original); mutate(definition.hostSupport); writeFileSync(path, JSON.stringify(definition));
+      assert.throws(() => releasePolicy(f.root), code);
+    }
+  } finally { rmSync(f.root, { recursive:true, force:true }); }
+});

@@ -70,16 +70,20 @@ converting the human report into synthetic traces.
 
 Qualified Desktop schema-3 records carry kind qualified_desktop, operator_observed assurance, exact
 candidate/policy/source/loaded identity, environment/tuple digest, session, case/result and hashed
-contained references. They require an app-identifying image and desktop-primary.json with matching
-session/environment/candidate/loaded identity, coding_surface code, fresh_session true and a named
-owned test scope. Native installation/discovery/cleanup diagnostics identify effective payload,
+contained references. They require an app-identifying PNG, JPEG or WebP capture (checked by its file
+signature) and desktop-primary.json with matching scenario/session/environment/candidate/loaded
+identity, coding_surface code, fresh_session true and a named owned test scope. Session, upgrade and
+recovery each use their own fresh Desktop session per host; an upgrade record carries no repair.
+Each host review locks exactly the one tuple of its own host and surface. Native installation/discovery/cleanup diagnostics identify effective payload,
 deliberate consent, plugin discovery and actual absence of owned leftovers. Session calls include
 dispatch, failure_case and skill_continuation; transition cases include fresh dispatch. Each call
-retains its native Codex rollout in rollouts or, for Claude Desktop, the unmodified lines of its Desktop
-session transcript in stdout, with actual model, non-authorizing result and verified contract
-content/digests. Claude Desktop lines carry entrypoint claude-desktop and one sessionId equal to the
-record's session_id; a CLI stream-json init event or sidechain is rejected. See the strict checks in
-release-observation.mjs.
+retains its native Codex Desktop session rollout in rollouts or, for Claude Desktop, the unmodified
+lines of its Desktop session transcript in stdout, with actual model, non-authorizing result and
+verified contract content/digests. A Codex rollout has one session_meta id equal to the record's
+session_id and no exec or cli session source; `codex exec` also reports originator Codex Desktop, so
+the source decides. Claude Desktop lines carry entrypoint claude-desktop and one sessionId equal to
+the record's session_id; a CLI stream-json init event or sidechain is rejected. See the strict
+checks in release-observation.mjs.
 Booleans, generic chat, a screenshot alone or a separately successful CLI trace cannot satisfy them.
 
 Upgrade/recovery requires the actually released 0.14.5 baseline and integrity/source digest,

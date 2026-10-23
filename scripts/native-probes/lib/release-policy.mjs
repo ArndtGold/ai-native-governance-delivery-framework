@@ -50,7 +50,8 @@ export function requiredReleaseCases(policy, host, lockedTuples = []) {
   return targets.flatMap(target => {
     const tuples = lockedTuples.filter(t => t.host === target.host && t.surface === target.surface);
     // "observed" is an unresolved evidence obligation, never a supported-OS wildcard.
-    if (tuples.length) assert.equal(new Set(tuples.map(t => JSON.stringify(t))).size, 1, 'desktop_target_tuple_ambiguous');
+    // Compare flat tuples independent of key order; a reordered copy is the same tuple.
+    if (tuples.length) assert.equal(new Set(tuples.map(t => JSON.stringify(Object.entries(t).sort(([a], [b]) => a.localeCompare(b, 'en'))))).size, 1, 'desktop_target_tuple_ambiguous');
     const os = target.os === 'observed' ? tuples[0]?.os ?? 'observed' : target.os;
     return target.scenarios.map(scenario => ({ host: target.host, surface: target.surface, os, scenario }));
   });

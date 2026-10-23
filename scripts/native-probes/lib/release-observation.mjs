@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { caseKey, CLI_CASES, requiredReleaseCases, optionalCliCases } from './release-policy.mjs';
 import { containedFile, jsonDigest, sha } from './release-candidate.mjs';
 import { mcpCalls } from './codex-trace.mjs';
-import { parseClaudeStream } from './claude-session.mjs';
+import { parseClaudeDesktopTranscript, parseClaudeStream } from './claude-session.mjs';
 
 const text = value => typeof value === 'string' && value.trim().length > 0 && !/^(?:unknown|current|latest|pending|unverified)$/iu.test(value.trim());
 export function assertTuple(tuple) {
@@ -85,8 +85,9 @@ function assertDesktopRecord(record, { candidate, directory, lockedTuples }) {
   assert.deepEqual(primary.calls?.map(c => c.scenario).sort(), [...scenarios].sort(), 'desktop_calls_incomplete');
   for (const call of primary.calls) {
     assert.equal(call.status, 0, 'desktop_call_failed');
-    const { captured, observedModels } = captureNativeCall(call, record.environment.host, call.scenario);
+    const { captured, observedModels } = captureNativeCall(call, record.environment.host, call.scenario, { surface: 'desktop-code' });
     assert.deepEqual(observedModels, [record.environment.model], 'desktop_model_mismatch');
+    if (record.environment.host === 'claude') assert.equal(captured.session_id, record.session_id, 'desktop_call_session_mismatch');
     if (record.environment.host === 'codex') assert.equal(captured.plugin_id, 'agdf@agdf', 'desktop_plugin_mismatch');
     assert.equal(captured.authorizes, false, 'desktop_call_authority_mismatch');
     assert.equal(captured.terminal, call.scenario !== 'skill_continuation', 'desktop_terminal_mismatch');
@@ -121,7 +122,7 @@ export function assertHumanReport(report, directory) {
   assertReferences(directory, report.references);
   return report;
 }
-export function captureNativeCall(primary, host, scenario) {
+export function captureNativeCall(primary, host, scenario, { surface = 'cli' } = {}) {
   let captured, observedModels;
   if (host === 'codex') {
       const texts = Array.isArray(primary.rollouts) ? primary.rollouts : [primary.stdout];
@@ -131,7 +132,15 @@ export function captureNativeCall(primary, host, scenario) {
       }));
       observedModels = [...new Set(models)];
     } else {
-      const parsed = parseClaudeStream(primary.stdout);
+      // Claude Desktop keeps its own session transcript; a CLI stream-json capture cannot stand in for it.
+      const desktop = surface === 'desktop-code';
+      const parsed = desktop ? parseClaudeDesktopTranscript(primary.stdout) : parseClaudeStream(primary.stdout);
+      if (desktop) {
+        assert.equal(parsed.init, null, 'desktop_transcript_cli_stream');
+        assert.ok(parsed.conversation_events > 0 && parsed.entrypoints.length === 1 && parsed.entrypoints[0] === 'claude-desktop', 'desktop_transcript_entrypoint');
+        assert.ok(parsed.session_ids.length === 1 && text(parsed.session_ids[0]), 'desktop_transcript_session');
+        assert.equal(parsed.sidechain, false, 'desktop_transcript_sidechain');
+      }
       assert.ok(parsed.calls.every(item => [ 'mcp__plugin_agdf_agdf__agdf_dispatch', 'ToolSearch' ].includes(item.name)), 'primary_unexpected_native_tool');
       const calls = parsed.calls.filter(item => item.name === 'mcp__plugin_agdf_agdf__agdf_dispatch');
       assert.equal(calls.length, 1, 'primary_native_calls');
@@ -139,8 +148,10 @@ export function captureNativeCall(primary, host, scenario) {
       captured = { ...result, runtime_digest: result.runtime?.runtime_digest,
         contract_modules: result.continuation?.runtime_contracts?.map(module => module.module),
         contracts_verified: Array.isArray(result.continuation?.runtime_contracts) && result.continuation.runtime_contracts.length > 0
-          && result.continuation.runtime_contracts.every(module => typeof module.content === 'string' && sha(module.content) === module.sha256) };
-      observedModels = parsed.init?.model ? [parsed.init.model] : [];
+          && result.continuation.runtime_contracts.every(module => typeof module.content === 'string' && sha(module.content) === module.sha256),
+        ...(desktop ? { session_id: parsed.session_ids[0] } : {}) };
+      // A Desktop call reports every distinct assistant model, so a mixed or missing model cannot match one tuple.
+      observedModels = desktop ? parsed.models : parsed.init?.model ? [parsed.init.model] : [];
       assert.equal(primary.status, 0, 'primary_native_exit_failed');
     }
   return { captured, observedModels };

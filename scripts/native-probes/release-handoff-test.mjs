@@ -32,10 +32,12 @@ function desktopFixtures(f) {
       const result = { schema_version: '1', outcome: scenario === 'failure_case' ? 'invalid_input' : scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
         authorizes: false, terminal: scenario !== 'skill_continuation', runtime: { runtime_digest: f.candidate.identities.mcp_dispatcher.digest } };
       if (scenario === 'skill_continuation') result.continuation = { runtime_contracts: ['quality','context-graph'].map(module => ({module,content:module,sha256:sha(module)})) };
+      // Claude Desktop calls use the shape of the app's session transcript: no init event, model per assistant message.
+      const session = {sessionId:'fixture-desktop-session',entrypoint:'claude-desktop',version:'2.1.0',isSidechain:false};
       const events = item.host === 'codex' ? [{type:'turn_context',payload:{model:environment.model}},
         {item:{id:scenario,type:'mcp_tool_call',pluginId:'agdf@agdf',invocation:{tool:'agdf_dispatch',server:'agdf'},result:{content:[{text:JSON.stringify(result)}]}}}]
-        : [{type:'system',subtype:'init',model:environment.model},{type:'assistant',message:{content:[{type:'tool_use',id:scenario,name:'mcp__plugin_agdf_agdf__agdf_dispatch'}]}},
-          {type:'user',message:{content:[{type:'tool_result',tool_use_id:scenario,content:[{text:JSON.stringify(result)}]}]}}];
+        : [{...session,type:'assistant',message:{model:environment.model,content:[{type:'tool_use',id:scenario,name:'mcp__plugin_agdf_agdf__agdf_dispatch'}]}},
+          {...session,type:'user',message:{content:[{type:'tool_result',tool_use_id:scenario,content:[{text:JSON.stringify(result)}]}]}}];
       return {scenario,status:0,stdout:events.map(e=>JSON.stringify(e)).join('\n')};
     });
     const transition = item.scenario === 'session' ? undefined : {baseline:{version:'0.14.5',integrity:'sha512-'+Buffer.alloc(64).toString('base64'),source_digest:'c'.repeat(64)},
@@ -94,6 +96,32 @@ test('Desktop primary capabilities, raw calls, transitions and cleanup cannot be
     writeFileSync(file,original);row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
     const transition=d.rows.find(r=>r.record.scenario==='recovery');
     transition.record.transition.permission_preserved=false;assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options));
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('Claude Desktop calls require one native Desktop transcript session and reject CLI streams', () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const row=d.rows.find(r=>r.record.environment.host==='claude'&&r.record.scenario==='session');
+    const file=join(row.directory,'desktop-primary.json'),original=readFileSync(file);
+    const events=stdout=>stdout.split('\n').map(line=>JSON.parse(line));
+    const write=(call,list)=>{call.stdout=list.map(e=>JSON.stringify(e)).join('\n');};
+    const cliStream=call=>write(call,[{type:'system',subtype:'init',model:d.options.lockedTuples[1].model},
+      ...events(call.stdout).map(({sessionId,entrypoint,version,isSidechain,...e})=>e)]);
+    for(const [mutate,code] of [[c=>cliStream(c),/desktop_transcript_cli_stream/u],
+      [c=>write(c,events(c.stdout).map(e=>({...e,entrypoint:'cli'}))),/desktop_transcript_entrypoint/u],
+      [c=>write(c,events(c.stdout).map(({entrypoint,...e})=>e)),/desktop_transcript_entrypoint/u],
+      [c=>write(c,events(c.stdout).map((e,i)=>i?{...e,sessionId:'other-session'}:e)),/desktop_transcript_session/u],
+      [c=>write(c,events(c.stdout).map(e=>({...e,sessionId:'other-session'}))),/desktop_call_session_mismatch/u],
+      [c=>write(c,events(c.stdout).map(e=>({...e,isSidechain:true}))),/desktop_transcript_sidechain/u],
+      [c=>write(c,[...events(c.stdout),{...events(c.stdout)[0],message:{model:'other-model',content:[]}}]),/desktop_model_mismatch/u],
+      [c=>write(c,events(c.stdout).map(e=>e.type==='assistant'?{...e,message:{...e.message,model:undefined}}:e)),/desktop_model_mismatch/u],
+      [c=>write(c,[...events(c.stdout),{...events(c.stdout)[0],message:{model:d.options.lockedTuples[1].model,content:[{type:'tool_use',id:'shell',name:'Bash'}]}}]),/primary_unexpected_native_tool/u]]) {
+      const primary=JSON.parse(original);mutate(primary.calls[0]);writeFileSync(file,JSON.stringify(primary));
+      row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+      assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),code);
+    }
+    writeFileSync(file,original);row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+    assert.equal(assertHostReleaseEvidence(d.rows,d.options).result,'pass');
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
 });
 test('default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy', async () => {

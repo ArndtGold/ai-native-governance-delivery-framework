@@ -229,6 +229,20 @@ test('Desktop import rejects oversized or linked evidence and rolls back a faile
     assert.throws(()=>importNativeEvidence(f.root,scope),/evidence_file_invalid/u);
     writeFileSync(capture,captureBytes);
     assert.equal(existsSync(imported),false);
+    // Linked evidence is rejected while the fixture repository is still clean, so the link check itself
+    // must reject. Windows may deny file symlinks without developer mode; a directory junction needs no
+    // privilege and must count as a link too.
+    const claudeBundle=join(d.root,'claude','desktop-code');
+    const claudeDir=join(claudeBundle,String(d.rows.findIndex(r=>r.record.environment.host==='claude')));
+    let linked=join(claudeDir,'linked.png');
+    try { symlinkSync(capture,linked); }
+    catch (error) {
+      if (!['EPERM','EACCES'].includes(error.code)) throw error;
+      linked=join(claudeDir,'linked-dir'); symlinkSync(row.directory,linked,'junction');
+    }
+    assert.throws(()=>importNativeEvidence(f.root,{...scope,bundle:claudeBundle,host:'claude',review:JSON.parse(readFileSync(join(claudeBundle,'review.json')))}),/evidence_symlink/u);
+    rmSync(linked,{recursive:false,force:true});
+    assert.equal(existsSync(linked),false);
     // A projection failure after the rename removes the import and keeps shared metadata unchanged.
     const manifest=join(f.root,'evals/host-compatibility/manifest.json'),before=readFileSync(manifest);
     const blocker=`docs/compatibility/evidence/codex-desktop-code-release-${f.candidate.candidate_id}.json`;
@@ -238,12 +252,6 @@ test('Desktop import rejects oversized or linked evidence and rolls back a faile
     assert.equal(readFileSync(join(f.root,blocker),'utf8'),'pre-existing\n');
     f.git('rm','-q',blocker);f.git('commit','-qm','remove fixture projection blocker');
     assert.equal(importNativeEvidence(f.root,scope).cases.length,3);
-    // Windows may disallow symlink creation without developer mode; rejection is tested where available.
-    const linked=join(d.root,'claude','desktop-code',String(d.rows.findIndex(r=>r.record.environment.host==='claude')),'linked.png');
-    try { symlinkSync(capture,linked); }
-    catch (error) { if (['EPERM','EACCES'].includes(error.code)) return; throw error; }
-    const claudeBundle=join(d.root,'claude','desktop-code');
-    assert.throws(()=>importNativeEvidence(f.root,{...scope,bundle:claudeBundle,host:'claude',review:JSON.parse(readFileSync(join(claudeBundle,'review.json')))}),/evidence_symlink/u);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
 });
 test('default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy', async () => {

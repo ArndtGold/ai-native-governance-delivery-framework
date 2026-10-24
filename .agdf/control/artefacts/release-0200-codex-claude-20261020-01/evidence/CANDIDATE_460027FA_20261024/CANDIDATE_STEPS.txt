@@ -1,0 +1,8 @@
+worktree-add exit=0 finished=2026-10-24T07:33:48Z :: git -C /c/Workspace/ai-native-governance-delivery-framework worktree add --detach /c/Workspace/agdf-rc-460027fa 460027fabc58fe0da041bbabe117519dd1f696b7
+status-before exit=0 finished=2026-10-24T07:33:49Z :: git status --porcelain
+root-ci exit=0 finished=2026-10-24T07:33:52Z :: npm ci --ignore-scripts
+build-prepare exit=0 finished=2026-10-24T07:35:09Z :: npm run build:prepare
+mcp-ci exit=0 finished=2026-10-24T07:35:19Z :: npm --prefix packages/mcp-server ci --ignore-scripts
+status-after exit=0 finished=2026-10-24T07:35:20Z :: git status --porcelain
+candidate exit=0 finished=2026-10-24T07:35:22Z :: node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
+DONE

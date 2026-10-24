@@ -343,7 +343,12 @@ for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged',
 test('Codex project origin timeout closes its process without global-inventory fallback', async () => {
   const child = new EventEmitter(); child.stdout = new EventEmitter(); child.stderr = new EventEmitter(); child.stdin = new EventEmitter();
   const writes = []; child.stdin.write = line => writes.push(JSON.parse(line)); child.kill = () => { child.killed = true; };
-  const result = await observeCodexOrigins({ target: process.cwd(), timeoutMs: 10, command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
+  // A real 10 ms timer can fire before Date.now() reaches the deadline. Pin the
+  // exhausted observation budget; teardown uncertainty has its own test below.
+  let readings = 0;
+  child.stdin.end = () => assert.fail('the timed-out observation has no teardown budget');
+  const result = await observeCodexOrigins({ target: process.cwd(), timeoutMs: 10, now: () => readings++ ? 10 : 0,
+    command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
   assert.deepEqual(result, { status: 'unavailable', reason: 'timeout' });
   assert.deepEqual(writes.map(row => row.method), ['initialize']);
   assert.equal(child.killed, true);

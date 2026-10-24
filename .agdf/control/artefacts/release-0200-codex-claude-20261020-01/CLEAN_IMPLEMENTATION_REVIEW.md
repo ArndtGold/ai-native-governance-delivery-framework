@@ -1,53 +1,50 @@
-# Clean Implementation Review — 0.20.0 CLI matrix
+# Clean Implementation Review — TPR-103 fix, candidate 8e2b8699
 
 - decision: pass
 - run_id: release-0200-codex-claude-20261020-01
 - date: 2026-10-24
 - reviewer: Claude (Claude Desktop Code, Windows)
-- reviewed_diff: 5fb2642c..7a41879e (candidate 5e84374e)
+- reviewed_diff: 7a41879e..460027fa (candidate 8e2b8699). The only code change is af660509; the earlier scope
+  5fb2642c..7a41879e passed in CLEAN_IMPLEMENTATION_REVIEW_5E84374E_20261024_INPUT.md.
 
 ## Clean Implementation Review
 
 - decision: pass
-- primary_solution: The approved matrix lives in the one canonical owner, hostSupport schema 3 in
-  plugins/agdf/meta/agdf-plugin.definition.json, read through the one policy owner release-policy.mjs.
-  One evaluator (assertNativeRecord and assertHostReleaseEvidence) selects required, optional-cli or
-  optional-desktop cases by an explicit scope. One import path (importNativeEvidence with evidenceScope) and
-  one validate path handle every host and surface. The publication workflow keeps its single evidence job.
-  Reports extend the existing run/render owners. No new service, register, validator or decision authority.
-- evidence: release-policy.mjs, release-observation.mjs, release-handoff.mjs, release-candidate.mjs,
-  codex-host-e2e.mjs, publish-agdf.yml, scripts/host-compatibility run/render; release qualification 32/32;
-  Code Review pass with independent re-review; remote CI run 39994196802 118/118.
-- fallbacks_retained:
-  - Schema 1 and 2 branches in the policy reader, evaluator and import remain so historical candidates can be
-    read under their own predicates. This is SDD-001 of the approved SD. Target state: new eligibility uses
-    schema 3 only; validate --all-hosts rejects schema 1 and 2, so the branches cannot open publication.
-    Exit condition: they go when no historical candidate evidence needs interpretation, decided with that
-    evidence's retention.
-  - Without a repository root a mandatory Codex record must equal the checkout commit. Only direct evaluator
-    calls without a repository take this path; it is stricter than the git proof, never weaker. Every
-    production caller (import, validate, optional Desktop) passes the repository.
-  - The pinned Codex Linux/Windows diagnostics and their workflow remain, as decided in SDD-003 and SDD-007,
-    and are excluded from eligibility.
-- workaround_or_shim_risk: The root cause of CR-101 was fixed at its owner. The binding now proves exact
-  candidate source through git ancestry instead of comparing an unauthenticated field; the guide states the
-  rule. The Copilot payload baseline and the request activation fingerprint were re-pinned to exact measured
-  values with recorded rationale, not given headroom.
-- parallel_structure_risk: Low. isCandidateSource repeats the path rules of inventory() and manifestInputs
-  repeats the manifest normalization, both in the same file and on the same constants (SOURCE_ROOTS,
-  SOURCE_FILES, OUTPUT_PARTS, evidenceOutput). If they ever diverge, the ancestry check rejects valid evidence
-  rather than accepting changed source, and the publication-flow and candidate tests would expose it.
-- brownfield_fit: Fits the existing owners named in the Brownfield Analysis. Historical evidence and
-  candidates stay unchanged; CI inventory and timeouts are unchanged apart from the gate rename; the native
-  harnesses keep their structure.
-- missing_evidence: The ten native records for 5e84374e (TP Review TPR-101, TPR-102) are outside this
-  review's scope.
-- required_next_step: Run the QA gate on the recorded reviews and the open native evidence obligations.
+- primary_solution: The root cause, a test fixture that assumed an empty native inventory, is fixed in its owner,
+  scripts/host-compatibility/test.mjs.
+  - One helper, `evidenceInputs`/`copyEvidenceInputs`, names every repository evidence input that recording and
+    checking read: the owner file, native sources, public evidence and reported inputs. The fixture and the new
+    regression check both use it.
+  - The no-promotion check states its invariant directly: published native rows equal the imported native rows.
+  - The recorder, the checker and the release import (run.mjs, native-release.mjs, release-handoff.mjs) are
+    unchanged. No production rule was loosened to make the test pass.
+- evidence:
+  - af660509;
+  - real-import verification and mutation check (CD_TESTS_TPR103_8E2B8699_20261024_INPUT.md, revision 50);
+  - Code Review pass with independent review (CODE_REVIEW_TPR103_20261024_INPUT.md, revision 51);
+  - clean-worktree suites in evidence/CANDIDATE_460027FA_20261024/VERIFY_STEPS.txt.
+- fallbacks_retained: none added. The schema 1/2 reading branches and the pinned Codex diagnostics from the
+  earlier review are unchanged, as are their exit conditions.
+- workaround_or_shim_risk: None.
+  - The fix does not skip, special-case or stub the native rows.
+  - The real native evidence passes through the unchanged recorder and checker, and the test now accepts exactly
+    that.
+  - Re-recording the compatibility evidence is required by the existing source-snapshot rule, because the test is a
+    listed compatibility source input. It is not a workaround.
+- parallel_structure_risk: Low.
+  - The new helper is the single copy list inside the test. It replaces an inline list instead of adding a second
+    one.
+  - The list repeats knowledge of what run.mjs reads, as the previous inline list already did. If run.mjs gains a
+    new input, a fixture built from a real repository with that input would fail loudly, not pass silently.
+- brownfield_fit: The fix stays inside the existing test owner and keeps its structure and named checks. The
+  harnesses, the release flow and the CI inventory are unchanged.
+- missing_evidence: The green commit-bound remote CI for the PR head and the ten native records for 8e2b8699 are
+  evidence obligations outside this review.
+- required_next_step: The QA gate on the recorded reviews once the remote CI and the native records are available.
 
 ## Advisory
 
-- Use manifestInputs inside inventory() at the next touch of release-candidate.mjs so the manifest
-  normalization has one implementation.
-- The SD phrases the Codex binding as equality with the candidate commit; the implementation proves the
-  same exact source through git ancestry with an evidence-only diff. QA confirms that reading.
-- No Context Graph impact: context_graph_impact none; memory_target scope_artifact (run evidence).
+- From the Code Review: the regression check exercises the helper with a synthetic native release, not the main
+  fixture path with real data. The real-data path is covered by the manual real-import run and by CI on the first
+  committed import.
+- There is no Context Graph impact (context_graph_impact none; memory_target scope_artifact, run evidence).

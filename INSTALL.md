@@ -1,6 +1,6 @@
 # Installation and Setup
 
-## 0.20.0 candidate support scope
+## 0.20.x support scope
 
 The voluntary native qualification targets are Claude Code CLI on Windows and Codex CLI on macOS,
 each with five candidate-bound cases; qualification covers only the exact reviewed tuple. Native
@@ -9,9 +9,10 @@ qualification for 0.20.0 remains incomplete. Codex Desktop and
 Claude Desktop are **manually checked**: the maintainer reports successful AGDF invocation, upgrade
 and recovery, but exact Desktop identities remain unverified, so they are not qualified and do not
 gate publication. Codex CLI on Windows/Linux remains **unqualified**, outside this qualification matrix.
-GitHub Copilot and OpenCode remain **experimental**, with adapters and all ordinary platform
-regression tests retained. CLI/protocol/CI success proves no Desktop, other operating-system or
-embedded MCP App capability.
+GitHub Copilot and OpenCode are **experimentally supported in 0.20.x**. Both have adapters and
+automated regression tests; native qualification is not currently claimed. Tests with simulated
+hosts do not establish behavior in an actual Copilot or OpenCode session. CLI/protocol/CI success
+proves no Desktop, other operating-system or embedded MCP App capability.
 See [0.20.0 scope and evidence handoff](docs/maintenance/release-0.20.0.md).
 
 Install AGDF for the coding agent you use. AGDF provides the appropriate plugin, native skills or
@@ -25,14 +26,13 @@ and technical enforcement are separate claims. Use local status and a fresh host
 your own installation.
 
 > [!IMPORTANT]
-> **MCP development status:** The published AGDF 0.14.5 package does not include MCP support. The current
-> development tree includes plugin-managed MCP for Codex, Claude Code and GitHub Copilot. The guided MCP setup,
-> `mcp` commands, `--with-mcp` and `--mcp-scope` documented below describe unreleased work for the
-> next AGDF version. Until that version is published, examples containing those commands are
-> development previews and do not describe the behavior of `@agdf/cli@latest`. Repository assemblies
-> and local plugin builds can still carry `0.14.5` while containing newer MCP features; version equality
-> does not establish payload or loaded-session equality. The ordinary plugin
-> installation commands remain valid for the version resolved by npm.
+> **MCP and UI evidence:** The previously published AGDF 0.14.5 release did not include the MCP support
+> described here. The MCP and MCP App details below describe the repository development build.
+> They do not verify the payload currently resolved by `@agdf/cli@latest` or qualify a native host.
+> The version alone does not identify the payload; compare payload digests and the loaded session.
+> The runtime plugins for Codex, Claude Code and
+> GitHub Copilot declare MCP themselves; OpenCode uses separate registration. The public OpenAI
+> Skills-only candidate contains no MCP server. MCP availability alone does not establish UI support.
 
 ## Choose your installation path
 
@@ -44,11 +44,28 @@ repository-local commands inside the target Git repository, not inside this AGDF
 | Codex available in your personal environment | `npx --yes @agdf/cli@latest codex` | Installs or updates the global plugin and verifies its version through the Codex CLI. | Start a new Codex task and ask: `Run an AGDF gate check for this request.` |
 | Codex only for one repository | `npx --yes @agdf/cli@latest codex-repo` | Writes the local marketplace and plugin files; restart Codex, open `/plugins`, select **This repository**, then install `agdf`. | Start a new task in that repository and ask for a gate check. |
 | Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after a full restart. | Start a fresh session and use `/gate-check` for new build or change intent. |
-| GitHub Copilot plugin | `npx --yes @agdf/cli@latest copilot` | Installs through Copilot CLI. If `copilot` is not on `PATH`, the installer runs a pinned official `@github/copilot` package through npm and verifies the installed version. | Restart Copilot, verify Installed Plugins and the `agdf-` skills, then request an AGDF gate check. |
-| OpenCode, global discovery | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Create durable control in a repository before expecting governance to be active. |
-| OpenCode, repository governance | `npx --yes @agdf/cli@latest opencode-repo` | Writes durable control configuration and templates without copying a runtime surface. Re-run `opencode-status --json` from that repository. | Load `agdf-global-gate-check` through OpenCode's native skill tool. |
+| GitHub Copilot plugin (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest copilot` | Installs through Copilot CLI. If `copilot` is not on `PATH`, the installer runs a pinned official `@github/copilot` package through npm and verifies the installed version. | Restart Copilot, verify Installed Plugins and the `agdf-` skills, then request an AGDF gate check. |
+| OpenCode, global discovery (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Create durable control in a repository before expecting governance to be active. |
+| OpenCode, repository governance (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest opencode-repo` | Writes durable control configuration and templates without copying a runtime surface. Re-run `opencode-status --json` from that repository. | Load `agdf-global-gate-check` through OpenCode's native skill tool. |
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
+
+### Claude Code and Codex: MCP and UI
+
+The runtime plugins for both hosts declare the local AGDF MCP server. Neither needs a separate
+`mcp enable` command. Their UI profiles differ in the current shared default build:
+
+| Capability | Claude Code | Codex |
+|---|---|---|
+| AGDF MCP tools | Plugin-managed `agdf` server. | Plugin-managed `agdf` server. |
+| Cockpit MCP App | Not enabled in the shared default build. A separate Claude-specific development build can add a project-bound Cockpit. | Included as the additional plugin server `agdf-cockpit`, with the project selected when opening the view. |
+| Gate-decision MCP App | Not enabled by the regular Claude server. | The regular `agdf` server supplies the decision UI; production click actions remain disabled pending native App-only qualification. |
+
+These are build and runtime distinctions. Rendering requires a host with MCP App support;
+CLI operation and reported Desktop handchecks do not qualify App rendering or interaction.
+The Claude-specific Cockpit variant does not establish general Claude Code or Claude Desktop UI
+support. See [Cockpit in the Codex plugin](#cockpit-in-the-codex-plugin-development-integration)
+and [plugin MCP lifecycle details](#claude-code-and-codex-mcp-lives-in-the-plugin).
 
 ### Guided plugin and MCP setup (unreleased development preview)
 
@@ -199,7 +216,7 @@ qualification record when the host does not expose its negotiated lane. Copilot 
 Desktop, IDE integrations and cloud agents remain separate client variants. Each tuple stays
 unverified until direct discovery, bounded dispatch, failure and cleanup evidence is complete. The
 public OpenAI Skills-only candidate remains MCP-free. A host or marketplace plugin installation
-never enables MCP, except for Claude Code and Codex, whose plugin declares the server. Otherwise only
+never enables MCP, except for Claude Code, Codex and GitHub Copilot, whose runtime plugins declare the server. Otherwise only
 the explicit complete CLI setup or the separate `mcp enable` command can do so.
 
 ### Automatic runtime checks and installation consent
@@ -876,11 +893,15 @@ npm create agdf@latest -- doctor
 npm create agdf@latest -- gate-check
 ```
 
-Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `opencode`, `both`, `init` or
+Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `opencode`, `init` or
 `config` to save an explicit AGDF language preference in `.agdf/control/config.json`. Without the
 flag, AGDF derives the preference from the local system locale.
 
 ## OpenCode
+
+**Experimental support in 0.20.x.** The adapter and automated regression tests are maintained;
+native qualification is not currently claimed. Installation and SDK declarations do not prove
+that AGDF runs correctly in a fresh OpenCode session.
 
 Run this once when you want OpenCode to load the AGDF npm plugin as a user-wide hook:
 
@@ -1122,6 +1143,10 @@ created separately with `init` when the delivery run requires it.
 
 ## GitHub Copilot
 
+**Experimental support in 0.20.x.** The adapter and automated regression tests are maintained;
+native qualification is not currently claimed. Successful installation and skill discovery do not
+prove behavior in a fresh Copilot session or another Copilot client variant.
+
 Install the generated plugin first:
 
 ```bash
@@ -1141,7 +1166,7 @@ Support claims are evidence-bound:
 
 | Plane | Current claim boundary |
 |---|---|
-| Generated package | Deterministically verified at AGDF 0.14.1 for the isolated manifest, prefixed skills, hook, runtime digest, semantic payload inventory and release contents. |
+| Generated package | Automated regression tests cover the manifest, prefixed skills, hook, runtime digest, semantic payload inventory and release contents. Consult the dated compatibility report for evidence identity and freshness; package tests do not qualify a native host. |
 | macOS Copilot client | Installation and loaded-session support require direct `/plugins` and fresh-session observation for the installed client version. Package tests alone are insufficient. |
 | Copilot CLI | Lifecycle is verified only when the installed or npm-provided official CLI accepts the documented commands and post-operation listing. A failed npm bootstrap remains an explicit manual handoff. |
 | Linux and native Windows | No parity claim without direct lifecycle and fresh-session evidence on that operating system. Generated command fixtures are not host proof. |

@@ -4,6 +4,11 @@ Bootstrap AGDF into the coding-agent surface and repository where work actually 
 
 AGDF is useful when AI-assisted work can affect an existing system and a team needs a traceable answer to: what is allowed next, who approved it and what evidence supports it. It is deliberately not a substitute for engineering judgement, security review, tests, product ownership or human acceptance. For the framework's fit, limits and examples, start with the [project overview](../README.md).
 
+GitHub Copilot and OpenCode are **experimentally supported in 0.20.x**. Both have adapters and
+automated regression tests; native qualification is not currently claimed. Tests with simulated
+hosts do not establish behavior in an actual Copilot or OpenCode session. See the
+[host compatibility report](../../docs/compatibility/HOST_COMPATIBILITY.md) for dated evidence and gaps.
+
 ## Quick start
 
 AGDF's normal operating model has three roles: chat/skills provide the user interaction,
@@ -18,12 +23,12 @@ after uncertainty. See [Core and MCP command flow](../../docs/architecture/core-
 for bindings, decision permissions, receipts, compatibility and qualification boundaries.
 
 > [!IMPORTANT]
-> **MCP development status:** The previously published AGDF 0.14.5 release did not include the MCP
-> support described here. The guided setup and `mcp` commands in this README describe the repository
-> development build. Local assemblies and plugin builds can still carry `0.14.5` while containing
-> newer MCP features; compare payload digests and the loaded session rather than the version alone.
-> These examples do not verify the contents of a current `@agdf/cli@latest` resolution. The ordinary
-> installation commands use the version actually resolved by npm.
+> **MCP and UI evidence:** The previously published AGDF 0.14.5 release did not include the MCP support
+> described here. The MCP and MCP App details describe the repository development build, not a verified
+> `@agdf/cli@latest` resolution or native-host qualification. The version alone does not identify
+> the payload; compare payload digests and the loaded session. Runtime plugins for Codex, Claude Code
+> and GitHub Copilot declare MCP themselves;
+> the public OpenAI Skills-only candidate contains no MCP server.
 
 If you use Codex, this is the recommended first installation:
 
@@ -33,14 +38,20 @@ npx --yes @agdf/cli@latest codex
 
 Fully restart Codex, open a fresh task in the repository you want to work in, and describe the intended change. Restoring a previous task can retain stale AGDF skills. AGDF starts with the smallest permitted governance step; it does not make implementation automatic.
 
+**Claude Code and Codex share plugin-managed MCP, with different UI profiles.** The shared default
+build enables Cockpit (`agdf-cockpit`) and the gate-decision MCP App in Codex. It does not enable
+those UI paths in Claude Code. A separate Claude-specific Cockpit development build exists.
+Rendering requires host MCP App support and separate native evidence; production gate-decision
+click actions remain disabled pending qualification. See [MCP and UI by host](../../INSTALL.md#claude-code-and-codex-mcp-and-ui).
+
 Use a different target when Codex is not your agent surface:
 
 | Surface or goal | Start with | What it gives you |
 |---|---|---|
-| Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin for Claude Code. |
-| GitHub Copilot | `npx --yes @agdf/cli@latest copilot` | The AGDF plugin with prefixed skills and a consent-bound session hook. |
-| OpenCode, user-wide discovery | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
-| OpenCode, one repository | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
+| Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin with MCP; the shared default build does not enable the Codex UI paths. |
+| GitHub Copilot (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest copilot` | The AGDF plugin with prefixed skills and a consent-bound session hook. |
+| OpenCode, user-wide discovery (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
+| OpenCode, one repository (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
 | Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
 In the next AGDF version, an interactive runtime-bearing installer will first show the plugin state,
@@ -51,13 +62,14 @@ and **Back**. That screen also has no default. Back returns to the first choice 
 Only the selected, available scope is passed to the existing MCP lifecycle owner. Plugin only
 leaves every MCP registration unchanged.
 
-Non-interactive use defaults to plugin only. Automation must provide an explicit absolute target
-to enable MCP:
+Non-interactive use defaults to plugin only. Codex, Claude Code and Copilot already declare MCP
+through the runtime plugin and reject `--with-mcp`. For OpenCode, separate MCP registration requires
+an explicit absolute target:
 
 ```bash
 npx --yes @agdf/cli@latest codex --plugin-only
-npx --yes @agdf/cli@latest codex --with-mcp --dir /absolute/path/to/repository
-npx --yes @agdf/cli@latest copilot --with-mcp --scope user --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest opencode --with-mcp --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest opencode --with-mcp --scope user --dir /absolute/path/to/repository
 ```
 
 Empty or unsupported answers never select a setup or scope; end of input cancels before mutation.
@@ -546,7 +558,7 @@ it does not localize the CLI lifecycle card.
 - `codex-repo` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `claude` installs the AGDF plugin globally for Claude Code
 - `copilot` registers the AGDF-owned local Marketplace and installs `agdf@agdf` through Copilot CLI; when `copilot` is not on `PATH`, it runs the pinned official `@github/copilot` CLI package through npm, then verifies the plugin identity and all expected enabled plugin skills against the installed package content
-- `opencode` installs the AGDF npm plugin and ten native skills as a user-wide OpenCode surface
+- `opencode` installs the AGDF npm plugin and native AGDF skills as a user-wide OpenCode surface
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, installed host/plugin-SDK versions, declaration-level support for AGDF's two experimental hooks, durable repository activation, legacy compatibility and observable session signals
 - `status` reports installation, repository activation and delivery separately without mutating state
 - `runtime-checks status|enable|manual` reports the requested/effective automatic-check state or gives the exact reinstall route needed to change it
@@ -603,7 +615,8 @@ select the fallback with an explicit PowerShell `if` expression. They never conc
 values. The generated runtime and SessionStart hook use the same resolver, so a compatibility
 variable cannot override the native root of the active host.
 
-Copilot staging uses the independent path `<AGDF data directory>/marketplaces/agdf-copilot`. This
+**Copilot support remains experimental in 0.20.x.** Staging uses the independent path
+`<AGDF data directory>/marketplaces/agdf-copilot`. This
 prevents Copilot updates and rollbacks from replacing the shared Codex and Claude payload while the
 host-facing Marketplace identity remains `agdf` and the install identity remains `agdf@agdf`.
 
@@ -629,7 +642,8 @@ After `npm create agdf@latest -- codex-repo`, restart Codex in that repository, 
 runtime-free source checkout and is validated before lifecycle status treats `agdf@agdf-repo` as
 active.
 
-Use the `opencode` target to install the AGDF npm plugin as a user-wide OpenCode hook:
+**OpenCode support remains experimental in 0.20.x.** Use the `opencode` target to install the
+AGDF npm plugin as a user-wide OpenCode hook:
 
 ```bash
 npx --yes @agdf/cli@latest opencode
@@ -653,7 +667,7 @@ npm create agdf@latest -- opencode-repo
 OpenCode loads the AGDF npm plugin and global native skills from global OpenCode config. Global adapters use the collision-safe `agdf-global-` prefix, including `agdf-global-gate-check`. `opencode-repo` adds the durable `.agdf/control/config.json` marker and control templates; it does not write `opencode.json`, `.opencode/AGDF.md`, copied contracts or copied skills.
 The global skills load on demand through OpenCode's native `skill` tool. After positive Request Activation selects actual delivery work, use `agdf-global-gate-check` first. Unclear approval alone never activates AGDF. Existing local `.opencode/` assets remain supported as a compatibility path and are not deleted.
 The built-in `question` tool can present a gate choice, but `.agdf/control/` and exact post-response validation remain authoritative; technical permission and auto-mode outcomes never approve an AGDF gate. Explicit `permission.question: deny` remains unchanged and uses exact-text fallback.
-The global layer makes the ten native AGDF skills discoverable, but does not activate repository governance by itself. Global skills fail closed until the current repository has valid `.agdf/control/config.json`. Use `opencode-repo` to create the durable activation marker.
+The global layer makes the native AGDF skills discoverable, but does not activate repository governance by itself. Global skills fail closed until the current repository has valid `.agdf/control/config.json`. Use `opencode-repo` to create the durable activation marker.
 
 ### Request activation and instruction loading
 

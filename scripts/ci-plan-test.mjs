@@ -68,7 +68,7 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
   const mcp = ciJobs({ scope: 'linux', suite: 'mcp' })[0];
   const published = ciJobPlan(mcp, { suite: 'mcp', published: true });
   assert.deepEqual(published.find(stage => stage.id === 'mcp-dependencies').commands[0].args,
-    ['install', '--package-lock=false', '--ignore-scripts', '--no-audit', '--no-fund']);
+    ['scripts/release/install-published-mcp.mjs']);
   assert.deepEqual(ciJobPlan(mcp, { suite: 'mcp' }).find(stage => stage.id === 'mcp-dependencies').commands[0].args,
     ['ci', '--ignore-scripts']);
   assert.throws(() => ciJobPlan(mcp, { published: true }), /MCP-only/);
@@ -90,7 +90,7 @@ test('the workflow matrix exposes functional labels for repository, release and 
       assert.equal(job.graphLabel, row.graphLabel);
       const plan = ciJobPlan(job, { suite, published: suite === 'mcp' });
       assert.ok(plan.length > 0);
-      if (suite === 'mcp') assert.ok(plan.find(stage => stage.id === 'mcp-dependencies').commands[0].args.includes('--package-lock=false'));
+      if (suite === 'mcp') assert.equal(plan.find(stage => stage.id === 'mcp-dependencies').commands[0].tool, 'node');
     }
   }
 });

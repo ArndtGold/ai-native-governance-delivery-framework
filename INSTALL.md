@@ -2,11 +2,13 @@
 
 ## 0.20.0 candidate support scope
 
-The mandatory 0.20.0 release matrix is Claude Code CLI on Windows and Codex CLI on macOS, each with
-five fresh candidate-bound cases; qualification covers only the exact reviewed tuple. Codex Desktop and
+The voluntary native qualification targets are Claude Code CLI on Windows and Codex CLI on macOS,
+each with five candidate-bound cases; qualification covers only the exact reviewed tuple. Native
+evidence does not gate publication or require a new run for every version. Final-candidate native
+qualification for 0.20.0 remains incomplete. Codex Desktop and
 Claude Desktop are **manually checked**: the maintainer reports successful AGDF invocation, upgrade
 and recovery, but exact Desktop identities remain unverified, so they are not qualified and do not
-gate publication. Codex CLI on Windows/Linux remains **unqualified**, outside the mandatory matrix.
+gate publication. Codex CLI on Windows/Linux remains **unqualified**, outside this qualification matrix.
 GitHub Copilot and OpenCode remain **experimental**, with adapters and all ordinary platform
 regression tests retained. CLI/protocol/CI success proves no Desktop, other operating-system or
 embedded MCP App capability.

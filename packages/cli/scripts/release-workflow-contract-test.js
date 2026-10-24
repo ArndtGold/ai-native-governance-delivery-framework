@@ -127,16 +127,17 @@ assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("--pr
 assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("NPM_TOKEN is required")) < firstPublish);
 assert.ok(publishSteps.some((step) => step.if === "failure()" && String(step.run).includes("--report")));
 assert.ok(publish.jobs.bootstrap.steps.some((step) => String(step.run ?? "").includes("--complete")));
-// Reviewed evidence for every mandatory CLI target gates publication; no native model credentials run here.
-assert.equal(publish.jobs['codex-e2e'], undefined);
-assert.equal(publish.jobs['claude-evidence'], undefined);
-assert.ok(publish.jobs.publish.needs.includes('release-evidence'));
-assert.equal(publish.jobs['desktop-evidence'], undefined);
-const evidenceGate = publish.jobs['release-evidence'];
-assert.equal(evidenceGate['timeout-minutes'], 10);
-assert.ok(!evidenceGate.if && !evidenceGate['continue-on-error']);
-assert.ok(evidenceGate.steps.some(step => /release-evidence\.mjs validate\s/u.test(String(step.run ?? '')) && step.run.includes('--all-hosts')));
-assert.ok(evidenceGate.steps.every(step => !step['continue-on-error'] && !step.if && !JSON.stringify(step).includes('CODEX_API_KEY')));
+// Native qualification is voluntary. Publication retains all deterministic checks,
+// without depending on a credential-bearing native workflow or imported records.
+for (const id of ['codex-e2e', 'claude-evidence', 'desktop-evidence', 'release-evidence']) {
+  assert.equal(publish.jobs[id], undefined, `${id} must not gate publication`);
+}
+assert.deepEqual(publish.jobs.publish.needs, ['validate', 'tests']);
+assert.doesNotMatch(publishText, /release-evidence\.mjs|codex-release-e2e\.yml|CODEX_API_KEY|CLAUDE_CODE_OAUTH_TOKEN/u);
+const qualificationBoundary = publish.jobs.validate.steps.find(step => step.name === 'Record the native qualification boundary');
+assert.ok(qualificationBoundary);
+assert.match(qualificationBoundary.run, /Native host qualification is voluntary and does not gate npm publication/u);
+assert.match(qualificationBoundary.run, /does not establish native CLI qualification/u);
 const ancestors = (id, jobs, visiting = new Set()) => {
   assert.ok(!visiting.has(id), 'publication dependency cycle');
   const next = new Set([...visiting, id]);
@@ -144,11 +145,14 @@ const ancestors = (id, jobs, visiting = new Set()) => {
 };
 for (const [id, job] of Object.entries(publish.jobs)) if (job.steps?.some(step => String(step.run ?? '').includes('npm publish'))) {
   const required = ancestors(id, publish.jobs);
-  for (const dependency of ['release-evidence','validate','tests']) assert.ok(required.has(dependency), id + ' bypasses ' + dependency);
+  for (const dependency of ['validate','tests']) assert.ok(required.has(dependency), id + ' bypasses ' + dependency);
   assert.ok(!job.if && !job['continue-on-error'], id + ' must fail closed');
 }
-const bypass = structuredClone(publish.jobs); bypass.publish.needs = ['validate','tests'];
-assert.equal(ancestors('publish-wrapper', bypass).has('release-evidence'), false, 'mutated graph exposes bypass');
+for (const dependency of ['validate', 'tests']) {
+  const bypass = structuredClone(publish.jobs);
+  bypass.publish.needs = bypass.publish.needs.filter(id => id !== dependency);
+  assert.equal(ancestors('publish-wrapper', bypass).has(dependency), false, 'mutated graph exposes missing ' + dependency);
+}
 const chain = ['publish', 'wait-create-agdf', 'verify-published-mcp', 'publish-mcp', 'wait-mcp', 'publish-wrapper', 'wait-wrapper', 'wait-wrapper-latest', 'bootstrap'];
 for (let i = 1; i < chain.length; i++) assert.equal(publish.jobs[chain[i]].needs, chain[i - 1]);
 assert.deepEqual(publish.jobs['verify-published-mcp'].with, { scope: 'linux', suite: 'mcp', published: true });

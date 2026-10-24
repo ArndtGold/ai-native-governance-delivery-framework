@@ -1,0 +1,62 @@
+name: Verify published AGDF 0.20.0
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/verify-published-agdf-0.20.0.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out current validation harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check out immutable published source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: agdf-v0.20.0
+          fetch-depth: 0
+          path: release
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Verify the completed source CI, original MCP partitions and both uploads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          node --input-type=module -e '
+          import assert from "node:assert/strict";
+          import { execFileSync } from "node:child_process";
+          import { ciJobs } from "./release/scripts/ci-plan.mjs";
+          const read = path => JSON.parse(execFileSync("gh", ["api", "repos/ArndtGold/ai-native-governance-delivery-framework/" + path], { encoding: "utf8" }));
+          const sha = "f5a263e510caa1ee03ae8724042b14fa3ef5140d";
+          const ci = read("actions/runs/40113774802");
+          assert.equal(ci.head_sha, sha); assert.equal(ci.status, "completed"); assert.equal(ci.conclusion, "success");
+          const recovery = read("actions/runs/40113774739");
+          assert.equal(recovery.head_sha, sha); assert.equal(recovery.status, "completed");
+          const { jobs } = read("actions/runs/40113774739/jobs?per_page=100");
+          const expected = [...ciJobs({ scope: "linux", suite: "mcp" }).map(job => "Published " + job.graphLabel), "publish-mcp", "publish-wrapper"];
+          for (const name of expected) {
+            const matches = jobs.filter(job => job.name === name);
+            assert.equal(matches.length, 1, name); assert.equal(matches[0].conclusion, "success", name);
+          }
+          for (const job of jobs.filter(job => job.conclusion !== "success")) assert.equal(job.name, "bootstrap", "Only the superseded bootstrap harness may have failed");
+          console.log("Verified green source CI, all 21 original MCP partitions and both completed uploads; no publish operation in this workflow.");
+          '
+      - name: Verify all exact versions, immutable source and latest
+        run: node scripts/release/resume-0200.mjs complete release
+      - name: Run clean public npm bootstrap with the current host contract
+        env:
+          AGDF_EXPECTED_VERSION: 0.20.0
+        run: node packages/cli/scripts/release-bootstrap-smoke-test.js

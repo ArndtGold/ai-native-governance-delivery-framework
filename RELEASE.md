@@ -85,7 +85,9 @@ workflow run. This avoids registry visibility races before dependent-package val
 
 The repository secret `NPM_TOKEN` must have publish rights for `create-agdf`,
 `@agdf/mcp-server` and `@agdf/cli`.
-The native release gate also needs `CODEX_API_KEY` in the protected `codex-release` environment.
+Native host qualification is voluntary and separate from publication, as described below.
+The optional Codex CLI diagnostics workflow uses `CODEX_API_KEY` in the protected `codex-release` environment; those
+diagnostics do not replace the mandatory native evidence.
 The workflow uses `id-token: write` for npm provenance and currently supplies `NPM_TOKEN` for
 publishing. Do not describe this as npm Trusted Publishing until the registry-side publisher
 configuration and a real publish have been observed.
@@ -106,6 +108,48 @@ workflow run. Decide deliberately whether to complete the missing packages from 
 sources or prepare a superseding version. Never unpublish automatically, and do not retry the tag
 workflow as though it were an untouched release. Record each published package, version and
 registry observation in the release handoff before calling the release complete.
+
+Published MCP validation keeps the reviewed SDK lock, substituting only the exact published
+`create-agdf` tarball and integrity for its checkout-local dependency locator. It restores the
+checkout lock after installation, including after failure; transitive SDK versions never float.
+
+The scoped, now manual-only `resume-agdf-0.20.0.yml` workflow completes the partial 0.20.0 publication from immutable
+tag commit `21149673016c731fcf678c748f54ddbd8ffd9149`. Its separate repair checkout supplies only
+test preparation and recovery orchestration. Every original published-MCP partition must pass,
+and CI for the repair commit must be green. Before either missing-package upload, the rebuilt
+`create-agdf` archive must contain exactly the published tar bytes, including paths and modes.
+The npm download's SHA-512 integrity is verified before decompression; only gzip encoding may
+differ across Node/zlib versions. Existing versions are never
+uploaded again; unknown registry state, source drift or a payload mismatch stops recovery.
+The workflow retains provenance, verifies all three exact versions and `@agdf/cli@latest`, then
+runs the public bootstrap smoke test. It does not move the published tag or claim
+native host qualification.
+
+After both missing packages were uploaded, `verify-published-agdf-0.20.0.yml` provides a read-only
+completion check. It verifies the successful source CI, all original MCP partitions and both upload
+jobs, then rechecks registry identity/latest and runs the current bootstrap test harness against the
+published packages. The harness supplies the current Codex inventory contract and setup Success
+Card assertions; its isolated synthetic host is not native qualification. This does not republish
+packages or rewrite the earlier failed bootstrap log.
+
+### Native host qualification
+
+Native CLI runs are voluntary qualification evidence, not a publication prerequisite. A new version
+alone does not require another native run. On 2026-10-24 the maintainer explicitly removed this
+publication dependency for 0.20.0 and future releases, replacing the initial version-only exception.
+Repository CI, package contents, runtime integrity, version/registry checks, provenance and the public
+bootstrap smoke test remain mandatory. The publish workflow states this boundary in its job summary.
+
+Run native checks when host integration changes or when exact host qualification is needed. A claim
+of native qualification still requires reviewed records for the actual candidate and tuple; the
+standalone evidence validators, frozen tuples and scoped imports remain strict. The hostSupport
+required_targets matrix defines what complete native qualification requires, not npm eligibility.
+
+The final-candidate native CLI matrix for 0.20.0 remains incomplete. Earlier Codex/macOS and
+Claude Code/Windows records retain their original candidate and tuple. They are not relabeled or
+used as proof of the final release candidate, and completed records and returned bundles remain
+unchanged. Missing native evidence is disclosed rather than converted into a pass. Publishing does
+not establish native qualification, another operating system's support or human acceptance.
 
 ## Do not use legacy split tags
 

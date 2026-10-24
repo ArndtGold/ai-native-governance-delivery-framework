@@ -62,12 +62,13 @@ check("human reports stay outside native qualification and preserve unknown Desk
   assert.match(rendered, /Unknown until an exact reviewed Desktop tuple/u);
   assert.throws(() => reportedInputs(root, {...manifest, reported_sources: [...manifest.reported_sources, ...manifest.reported_sources]}), /duplicate_human_report_id/u);
 });
-check("the CLI release matrix renders exact OS scopes and keeps Desktop manually checked", () => {
+check("voluntary CLI qualification renders exact OS scopes and keeps Desktop manually checked", () => {
   const cases = ['dispatch','failure_case','skill_continuation','upgrade','recovery'];
   const rendered = renderComparison(comparison({ version: currentVersion, digest, payloads: {},
     release_matrix: [{host:'claude',surface:'cli',os:'win32',scenarios:cases},{host:'codex',surface:'cli',os:'darwin',scenarios:cases}],
     reported_desktop: [{host:'codex',surface:'desktop-code',os:'observed',scenarios:['session','upgrade','recovery']}] }, [], {}, [], [], reportedInputs(root, manifest)));
-  assert.match(rendered, /## Mandatory 0\.20\.0 release matrix/u);
+  assert.match(rendered, /## Native CLI qualification targets/u);
+  assert.match(rendered, /voluntary and does not gate publication or require a new run for every version/u);
   assert.match(rendered, /\| Claude Code \| cli \| native Windows \| dispatch, failure_case/u);
   assert.match(rendered, /\| Codex \| cli \| macOS \|/u);
   assert.match(rendered, /not qualified and not required for publication/u);

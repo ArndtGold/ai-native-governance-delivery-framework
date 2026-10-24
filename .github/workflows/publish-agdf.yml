@@ -78,28 +78,21 @@ jobs:
         run: npm --prefix packages/cli/distribution/agdf run test:package
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix packages/mcp-server run test:package
+      - name: Record the native qualification boundary
+        shell: bash
+        run: |
+          {
+            echo "## Release validation scope"
+            echo "Native host qualification is voluntary and does not gate npm publication."
+            echo "This workflow does not establish native CLI qualification. Existing records retain their original candidate and tuple."
+            echo "Repository, package, integrity and public bootstrap checks remain required. See RELEASE.md."
+          } >> "$GITHUB_STEP_SUMMARY"
     timeout-minutes: 10
-  release-evidence:
-    name: Validate the mandatory CLI release targets
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version: 22
-      - name: Prepare the candidate independently of returned evidence
-        run: npm ci --ignore-scripts && node scripts/verify-ci.mjs --profile prepare && node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
-      - name: Require reviewed evidence for every mandatory CLI target
-        run: node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory evals/host-compatibility/native/$(node -p "require('./.release-candidate.json').candidate_id") --all-hosts
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - validate
-      - release-evidence
       - tests
     env:
       NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache

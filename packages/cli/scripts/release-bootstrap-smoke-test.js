@@ -24,9 +24,10 @@ writeFileSync(fakeCodexPath, `#!/usr/bin/env node
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.AGDF_BOOTSTRAP_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "mcp list --json") console.log("[]");
 if (args.join(" ") === "plugin marketplace list --json") console.log(JSON.stringify({ marketplaces: [] }));
 if (args.join(" ") === "plugin add agdf@agdf --json") fs.writeFileSync(process.env.AGDF_BOOTSTRAP_MARKER, "installed\\n");
-if (args.join(" ") === "plugin list") console.log("agdf@agdf " + process.env.AGDF_EXPECTED_VERSION);
+if (args.join(" ") === "plugin list" && fs.existsSync(process.env.AGDF_BOOTSTRAP_MARKER)) console.log("agdf@agdf " + process.env.AGDF_EXPECTED_VERSION);
 `, "utf8");
 chmodSync(fakeCodexPath, 0o755);
 
@@ -47,26 +48,31 @@ try {
     },
   });
 
-  if (!output.includes(`Version: ${expectedVersion} (verified)`)
-    || !output.includes("Installation scope: global")
-    || !output.includes("Verification: healthy")
+  if (!output.includes("Result: success")
+    || !output.includes("Setup choice: plugin only")
+    || !output.includes(`AGDF version: ${expectedVersion}`)
+    || !output.includes("Plugin state: healthy")
+    || !output.includes("MCP state: included in the plugin")
     || !output.includes("Restart required: yes")) {
-    throw new Error("Clean public bootstrap did not report the verified global lifecycle Success Card.");
+    throw new Error(`Clean public bootstrap did not report the verified setup Success Card:\n${output}`);
   }
 
   const calls = readFileSync(logPath, "utf8").trim().split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line).join(" "));
   const expectedCalls = [
+    "plugin list",
+    "mcp list --json",
     "plugin marketplace list --json",
     `plugin marketplace add ${join(homeDir, "agdf-data", "marketplaces", "agdf")} --json`,
     "plugin add agdf@agdf --json",
     "plugin list",
+    "mcp get agdf --json",
   ];
   if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {
     throw new Error(`Clean public bootstrap dispatch changed: ${calls.join(" | ")}`);
   }
 
   if (!existsSync(markerPath)) throw new Error("Clean public bootstrap did not produce the expected isolated installation marker.");
-  console.log("Clean public bootstrap smoke test passed with release-built local marketplace distribution.");
+  console.log("Clean public npm bootstrap smoke passed with an isolated synthetic Codex host; this is not native CLI qualification.");
 } finally {
   rmSync(tempDir, { recursive: true, force: true });
 }

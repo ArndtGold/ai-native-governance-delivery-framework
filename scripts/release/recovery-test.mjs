@@ -81,8 +81,7 @@ test('archive comparison accepts recompression only, while verifying registry in
 
 test('recovery workflow preserves all verification, source binding, provenance and bootstrap dependencies', () => {
   const workflow = parse(readFileSync(new URL('../../.github/workflows/resume-agdf-0.20.0.yml', import.meta.url), 'utf8'));
-  assert.deepEqual(workflow.on.push.branches, ['main']);
-  assert.deepEqual(workflow.on.push.paths, ['.github/workflows/resume-agdf-0.20.0.yml']);
+  assert.deepEqual(Object.keys(workflow.on), ['workflow_dispatch'], 'completed publication recovery is now manual-only');
   assert.equal(workflow.jobs.verify.strategy['fail-fast'], false);
   assert.equal(workflow.jobs['publish-mcp'].needs, 'verify');
   assert.equal(workflow.jobs['publish-wrapper'].needs, 'publish-mcp');
@@ -107,4 +106,19 @@ test('recovery workflow preserves all verification, source binding, provenance a
   for (const id of ['publish-mcp', 'publish-wrapper']) assert.equal(workflow.jobs[id].permissions['id-token'], 'write');
   assert.equal(workflow.jobs.bootstrap.permissions?.['id-token'], undefined);
   assert.ok(workflow.jobs.bootstrap.steps.some(s => /release-bootstrap-smoke-test/.test(s.run ?? '')));
+});
+
+test('published-release verification reuses exact completed source checks and has no upload permission or command', () => {
+  const text = readFileSync(new URL('../../.github/workflows/verify-published-agdf-0.20.0.yml', import.meta.url), 'utf8');
+  const workflow = parse(text);
+  assert.deepEqual(workflow.permissions, { contents: 'read', actions: 'read' });
+  assert.doesNotMatch(text, /NPM_TOKEN|npm publish|id-token: write|continue-on-error/);
+  assert.match(text, /f5a263e510caa1ee03ae8724042b14fa3ef5140d/);
+  assert.match(text, /40113774802/);
+  assert.match(text, /40113774739/);
+  const steps = workflow.jobs.verify.steps;
+  assert.ok(steps.findIndex(s => s.name?.includes('completed source CI')) < steps.findIndex(s => s.run?.includes('resume-0200.mjs complete')));
+  assert.ok(steps.some(s => s.with?.ref === 'agdf-v0.20.0'));
+  assert.equal(workflow.jobs.verify['timeout-minutes'], 10);
+  for (const step of steps) if (step.uses) assert.match(step.uses, /^actions\/[\w-]+@[a-f0-9]{40}$/);
 });

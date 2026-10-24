@@ -113,7 +113,7 @@ Published MCP validation keeps the reviewed SDK lock, substituting only the exac
 `create-agdf` tarball and integrity for its checkout-local dependency locator. It restores the
 checkout lock after installation, including after failure; transitive SDK versions never float.
 
-The scoped `resume-agdf-0.20.0.yml` workflow completes the partial 0.20.0 publication from immutable
+The scoped, now manual-only `resume-agdf-0.20.0.yml` workflow completes the partial 0.20.0 publication from immutable
 tag commit `21149673016c731fcf678c748f54ddbd8ffd9149`. Its separate repair checkout supplies only
 test preparation and recovery orchestration. Every original published-MCP partition must pass,
 and CI for the repair commit must be green. Before either missing-package upload, the rebuilt
@@ -122,8 +122,15 @@ The npm download's SHA-512 integrity is verified before decompression; only gzip
 differ across Node/zlib versions. Existing versions are never
 uploaded again; unknown registry state, source drift or a payload mismatch stops recovery.
 The workflow retains provenance, verifies all three exact versions and `@agdf/cli@latest`, then
-runs the unchanged public bootstrap smoke test. It does not move the published tag or claim
+runs the public bootstrap smoke test. It does not move the published tag or claim
 native host qualification.
+
+After both missing packages were uploaded, `verify-published-agdf-0.20.0.yml` provides a read-only
+completion check. It verifies the successful source CI, all original MCP partitions and both upload
+jobs, then rechecks registry identity/latest and runs the current bootstrap test harness against the
+published packages. The harness supplies the current Codex inventory contract and setup Success
+Card assertions; its isolated synthetic host is not native qualification. This does not republish
+packages or rewrite the earlier failed bootstrap log.
 
 ### Native host qualification
 

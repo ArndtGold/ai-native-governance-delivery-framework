@@ -1,9 +1,6 @@
 name: Complete AGDF 0.20.0 publication
 
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/resume-agdf-0.20.0.yml]
   workflow_dispatch:
 
 permissions:
@@ -144,8 +141,7 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Verify all exact package versions and latest
         run: node tooling/scripts/release/resume-0200.mjs complete source
-      - name: Run unchanged clean public bootstrap smoke test
-        working-directory: source
+      - name: Run current clean public bootstrap smoke test against the published release
         env:
           AGDF_EXPECTED_VERSION: 0.20.0
-        run: node packages/cli/scripts/release-bootstrap-smoke-test.js
+        run: node tooling/packages/cli/scripts/release-bootstrap-smoke-test.js

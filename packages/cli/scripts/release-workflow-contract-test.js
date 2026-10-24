@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 import { verificationPlan } from "../../../scripts/verify-ci.mjs";
@@ -127,7 +128,8 @@ assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("--pr
 assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("NPM_TOKEN is required")) < firstPublish);
 assert.ok(publishSteps.some((step) => step.if === "failure()" && String(step.run).includes("--report")));
 assert.ok(publish.jobs.bootstrap.steps.some((step) => String(step.run ?? "").includes("--complete")));
-// Reviewed evidence for every mandatory CLI target gates publication; no native model credentials run here.
+// Reviewed native evidence gates publication, with one explicitly documented 0.20.0 exception.
+// No native model credentials run here; no observation is synthesized by the exception.
 assert.equal(publish.jobs['codex-e2e'], undefined);
 assert.equal(publish.jobs['claude-evidence'], undefined);
 assert.ok(publish.jobs.publish.needs.includes('release-evidence'));
@@ -137,6 +139,53 @@ assert.equal(evidenceGate['timeout-minutes'], 10);
 assert.ok(!evidenceGate.if && !evidenceGate['continue-on-error']);
 assert.ok(evidenceGate.steps.some(step => /release-evidence\.mjs validate\s/u.test(String(step.run ?? '')) && step.run.includes('--all-hosts')));
 assert.ok(evidenceGate.steps.every(step => !step['continue-on-error'] && !step.if && !JSON.stringify(step).includes('CODEX_API_KEY')));
+const nativeGateScript = evidenceGate.steps.find(step => String(step.run ?? '').includes('release-evidence.mjs validate')).run;
+const releaseDocumentation = readFileSync(new URL('../../../RELEASE.md', import.meta.url), 'utf8');
+assert.match(releaseDocumentation, /0\.20\.0 native evidence exception/u);
+// Execute the actual workflow shell against an isolated validator double. Future
+// releases must still call the validator and propagate its missing-evidence failure.
+function exerciseNativeGate(version, tag, validationStatus = 23) {
+  const fixture = mkdtempSync(join(tmpdir(), 'agdf-native-publication-gate-'));
+  try {
+    const candidateId = 'a'.repeat(64);
+    writeFileSync(join(fixture, '.release-candidate.json'), JSON.stringify({ version, candidate_id: candidateId }));
+    mkdirSync(join(fixture, 'scripts/native-probes'), { recursive: true });
+    writeFileSync(join(fixture, 'scripts/native-probes/release-evidence.mjs'), `
+      import { writeFileSync } from 'node:fs';
+      writeFileSync('validation-invocation.json', JSON.stringify(process.argv.slice(2)));
+      process.exit(Number(process.env.NATIVE_GATE_TEST_STATUS));
+    `);
+    const summaryPath = join(fixture, 'summary.md');
+    const result = spawnSync('bash', ['-e', '-c', nativeGateScript], {
+      cwd: fixture, encoding: 'utf8',
+      env: { ...process.env, GITHUB_REF_NAME: tag, GITHUB_STEP_SUMMARY: summaryPath.replaceAll('\\', '/'),
+        NATIVE_GATE_TEST_STATUS: String(validationStatus) },
+    });
+    assert.ifError(result.error);
+    const invocationPath = join(fixture, 'validation-invocation.json');
+    return { status: result.status, stdout: result.stdout,
+      summary: existsSync(summaryPath) ? readFileSync(summaryPath, 'utf8') : '',
+      invocation: existsSync(invocationPath) ? JSON.parse(readFileSync(invocationPath, 'utf8')) : null };
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+}
+const waived = exerciseNativeGate('0.20.0', 'agdf-v0.20.0');
+assert.equal(waived.status, 0);
+assert.equal(waived.invocation, null);
+assert.match(waived.stdout, /::warning::.*qualification is incomplete/u);
+assert.match(waived.summary, /no native pass is claimed/u);
+assert.ok(waived.summary.includes('a'.repeat(64)), 'exception summary binds the prepared candidate');
+for (const [version, tag] of [
+  ['0.20.1', 'agdf-v0.20.1'], ['0.21.0', 'agdf-v0.21.0'], ['1.0.0', 'agdf-v1.0.0'],
+  ['0.20.0', 'main'], ['0.20.0', 'agdf-v0.20.1'], ['0.20.1', 'agdf-v0.20.0'],
+]) {
+  const required = exerciseNativeGate(version, tag);
+  assert.equal(required.status, 23, `${tag}/${version} must preserve validation failure`);
+  assert.deepEqual(required.invocation, ['validate', '--candidate', '.release-candidate.json', '--directory',
+    `evals/host-compatibility/native/${'a'.repeat(64)}`, '--all-hosts']);
+  assert.equal(required.summary, '', 'no exception for another tag or candidate version');
+}
+assert.equal(exerciseNativeGate('0.20.1', 'agdf-v0.20.1', 0).status, 0,
+  'ordinary releases can publish with passing reviewed evidence');
 const ancestors = (id, jobs, visiting = new Set()) => {
   assert.ok(!visiting.has(id), 'publication dependency cycle');
   const next = new Set([...visiting, id]);

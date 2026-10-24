@@ -92,8 +92,24 @@ jobs:
           node-version: 22
       - name: Prepare the candidate independently of returned evidence
         run: npm ci --ignore-scripts && node scripts/verify-ci.mjs --profile prepare && node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
-      - name: Require reviewed evidence for every mandatory CLI target
-        run: node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory evals/host-compatibility/native/$(node -p "require('./.release-candidate.json').candidate_id") --all-hosts
+      - name: Require native evidence or record the 0.20.0 maintainer exception
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./.release-candidate.json').version")"
+          CANDIDATE_ID="$(node -p "require('./.release-candidate.json').candidate_id")"
+          if [ "$GITHUB_REF_NAME" = "agdf-v0.20.0" ] && [ "$VERSION" = "0.20.0" ]; then
+            echo "::warning::AGDF 0.20.0 maintainer exception: final-candidate native CLI qualification is incomplete; publication proceeds without a native pass. See RELEASE.md."
+            {
+              echo "## AGDF 0.20.0 native evidence exception"
+              echo "The maintainer explicitly waived this publication prerequisite on 2026-10-24."
+              echo "Candidate: $CANDIDATE_ID"
+              echo "Native qualification: incomplete; no native pass is claimed. Existing records remain unchanged."
+              echo "Scope: agdf-v0.20.0 only. All other releases require reviewed evidence for every mandatory CLI target."
+              echo "See RELEASE.md for the decision and remaining evidence gap."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            node scripts/native-probes/release-evidence.mjs validate --candidate .release-candidate.json --directory "evals/host-compatibility/native/$CANDIDATE_ID" --all-hosts
+          fi
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10

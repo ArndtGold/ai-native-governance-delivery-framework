@@ -85,7 +85,10 @@ workflow run. This avoids registry visibility races before dependent-package val
 
 The repository secret `NPM_TOKEN` must have publish rights for `create-agdf`,
 `@agdf/mcp-server` and `@agdf/cli`.
-The native release gate also needs `CODEX_API_KEY` in the protected `codex-release` environment.
+The native release gate requires reviewed evidence for the exact candidate from Codex CLI on macOS
+and Claude Code CLI on Windows, with all five mandatory cases per host. The optional Codex CLI
+diagnostics workflow uses `CODEX_API_KEY` in the protected `codex-release` environment; those
+diagnostics do not replace the mandatory native evidence.
 The workflow uses `id-token: write` for npm provenance and currently supplies `NPM_TOKEN` for
 publishing. Do not describe this as npm Trusted Publishing until the registry-side publisher
 configuration and a real publish have been observed.
@@ -106,6 +109,23 @@ workflow run. Decide deliberately whether to complete the missing packages from 
 sources or prepare a superseding version. Never unpublish automatically, and do not retry the tag
 workflow as though it were an untouched release. Record each published package, version and
 registry observation in the release handoff before calling the release complete.
+
+### 0.20.0 native evidence exception
+
+On 2026-10-24 the maintainer explicitly directed publication of `0.20.0` without waiting for
+the incomplete final-candidate native CLI matrix. The publication workflow records this exception
+as a warning and in its job summary, including the actual candidate ID. It applies only when both
+the release tag is `agdf-v0.20.0` and the prepared candidate version is `0.20.0`.
+
+This is an accepted release evidence gap, not a native qualification pass. Earlier Codex/macOS and
+Claude Code/Windows records remain bound to their original candidate; they are not relabeled or
+used as proof of the final release candidate. No completed record or returned bundle is changed.
+Final-candidate native installation, invocation, failure, continuation, upgrade and recovery
+qualification remains incomplete. Deterministic CI, package validation and public bootstrap checks
+retain their separate scope and remain mandatory.
+
+All other versions and tags continue to require the full reviewed native CLI matrix. This exception
+does not change the host support policy or grant future release exceptions.
 
 ## Do not use legacy split tags
 

@@ -52,11 +52,10 @@ assert.equal(existsSync(new URL("../../.github/workflows/publish-create-agdf.yml
 const publish = parse(readFileSync(new URL("../../.github/workflows/publish-agdf.yml", import.meta.url), "utf8"));
 assert.deepEqual(publish.on.push.tags, ["agdf-v*"]);
 assert.equal(publish.jobs["codex-e2e"], undefined);
-assert.ok(publish.jobs.publish.needs.includes('release-evidence'));
-assert.match(publish.jobs['release-evidence'].steps.at(-1).run, /validate .*--all-hosts/u);
-assert.equal(publish.jobs["release-evidence"].uses, undefined);
+assert.deepEqual(publish.jobs.publish.needs, ['validate', 'tests']);
+assert.equal(publish.jobs['release-evidence'], undefined);
 const workflow = parse(readFileSync(new URL("../../.github/workflows/codex-release-e2e.yml", import.meta.url), "utf8"));
-for (const job of [workflow.jobs.native, workflow.jobs.evidence, publish.jobs['release-evidence']]) {
+for (const job of [workflow.jobs.native, workflow.jobs.evidence]) {
   assert.equal(job.steps.find(step => step.uses?.startsWith('actions/checkout@'))?.with?.['fetch-depth'], 0,
     'candidate preparation validates historical release tags and needs full checkout history');
 }
@@ -73,4 +72,4 @@ assert.ok(!workflow.env && !workflow.jobs.native.env);
 assert.equal(workflow.jobs.evidence.needs, "native");
 const upload = workflow.jobs.native.steps.find(row => row.uses?.startsWith("actions/upload-artifact@"));
 assert.deepEqual(upload.with.path.trim().split("\n").map(path => path.split("/").at(-1)), ["observation.json", "summary.txt", "release-records.json", "*-process.json", "*-primary.json"]);
-console.log("Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.");
+console.log("Voluntary native qualification: strict matrix, publication independence, credential/artifact boundaries and negative evidence tests passed.");

@@ -20,12 +20,12 @@ export function renderComparison(report) {
   const targetRow = t => `| ${escape(hostName[t.host])} | ${escape(t.surface)} | ${t.os === 'observed' ? 'Unknown until an exact reviewed Desktop tuple is supplied' : escape(osName[t.os])} | ${escape(t.scenarios.join(', '))} |`;
   const reportedDesktop = report.snapshot.reported_desktop ?? [];
   if (report.snapshot.release_matrix?.length) lines.splice(lines.indexOf('## Five deterministic outcomes'), 0,
-    '## Mandatory 0.20.0 release matrix', '',
-    'Qualification requires reviewed native records of the exact candidate and tuple for every listed case.', '',
+    '## Native CLI qualification targets', '',
+    'Native qualification is voluntary and does not gate publication or require a new run for every version. A qualification claim requires reviewed native records of the exact candidate and tuple for every listed case.', '',
     '| Host | Surface | OS scope | Cases |', '|---|---|---|---|', ...report.snapshot.release_matrix.map(targetRow), '',
     ...(reportedDesktop.length ? ['Manually checked Desktop surfaces (human_reported; not qualified and not required for publication):', '',
       '| Host | Surface | OS scope | Reported cases |', '|---|---|---|---|', ...reportedDesktop.map(targetRow), ''] : []),
-    'Codex CLI on Windows/Linux remains **unqualified** and outside the mandatory matrix. Pinned CLI diagnostics and green OS regression tests qualify no other OS, and no CLI result qualifies a Desktop surface.', '',
+    'Codex CLI on Windows/Linux remains **unqualified** and outside this qualification matrix. Pinned CLI diagnostics and green OS regression tests qualify no other OS, and no CLI result qualifies a Desktop surface.', '',
     '## Reported Desktop handchecks', '',
     'Attributed human reports have zero qualified native coverage. Unknown identity remains unknown; recover original evidence before justified targeted verification.', '',
     '| Host | OS context | Invocation | Upgrade | Recovery | Qualification | Missing facts |', '|---|---|---|---|---|---|---|',

@@ -85,9 +85,8 @@ workflow run. This avoids registry visibility races before dependent-package val
 
 The repository secret `NPM_TOKEN` must have publish rights for `create-agdf`,
 `@agdf/mcp-server` and `@agdf/cli`.
-The native release gate requires reviewed evidence for the exact candidate from Codex CLI on macOS
-and Claude Code CLI on Windows, with all five mandatory cases per host. The optional Codex CLI
-diagnostics workflow uses `CODEX_API_KEY` in the protected `codex-release` environment; those
+Native host qualification is voluntary and separate from publication, as described below.
+The optional Codex CLI diagnostics workflow uses `CODEX_API_KEY` in the protected `codex-release` environment; those
 diagnostics do not replace the mandatory native evidence.
 The workflow uses `id-token: write` for npm provenance and currently supplies `NPM_TOKEN` for
 publishing. Do not describe this as npm Trusted Publishing until the registry-side publisher
@@ -110,22 +109,24 @@ sources or prepare a superseding version. Never unpublish automatically, and do 
 workflow as though it were an untouched release. Record each published package, version and
 registry observation in the release handoff before calling the release complete.
 
-### 0.20.0 native evidence exception
+### Native host qualification
 
-On 2026-10-24 the maintainer explicitly directed publication of `0.20.0` without waiting for
-the incomplete final-candidate native CLI matrix. The publication workflow records this exception
-as a warning and in its job summary, including the actual candidate ID. It applies only when both
-the release tag is `agdf-v0.20.0` and the prepared candidate version is `0.20.0`.
+Native CLI runs are voluntary qualification evidence, not a publication prerequisite. A new version
+alone does not require another native run. On 2026-10-24 the maintainer explicitly removed this
+publication dependency for 0.20.0 and future releases, replacing the initial version-only exception.
+Repository CI, package contents, runtime integrity, version/registry checks, provenance and the public
+bootstrap smoke test remain mandatory. The publish workflow states this boundary in its job summary.
 
-This is an accepted release evidence gap, not a native qualification pass. Earlier Codex/macOS and
-Claude Code/Windows records remain bound to their original candidate; they are not relabeled or
-used as proof of the final release candidate. No completed record or returned bundle is changed.
-Final-candidate native installation, invocation, failure, continuation, upgrade and recovery
-qualification remains incomplete. Deterministic CI, package validation and public bootstrap checks
-retain their separate scope and remain mandatory.
+Run native checks when host integration changes or when exact host qualification is needed. A claim
+of native qualification still requires reviewed records for the actual candidate and tuple; the
+standalone evidence validators, frozen tuples and scoped imports remain strict. The hostSupport
+required_targets matrix defines what complete native qualification requires, not npm eligibility.
 
-All other versions and tags continue to require the full reviewed native CLI matrix. This exception
-does not change the host support policy or grant future release exceptions.
+The final-candidate native CLI matrix for 0.20.0 remains incomplete. Earlier Codex/macOS and
+Claude Code/Windows records retain their original candidate and tuple. They are not relabeled or
+used as proof of the final release candidate, and completed records and returned bundles remain
+unchanged. Missing native evidence is disclosed rather than converted into a pass. Publishing does
+not establish native qualification, another operating system's support or human acceptance.
 
 ## Do not use legacy split tags
 

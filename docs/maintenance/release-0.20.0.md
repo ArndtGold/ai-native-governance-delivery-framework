@@ -1,16 +1,19 @@
-# AGDF 0.20.0: CLI-qualified release scope and evidence handoff
+# AGDF 0.20.0: voluntary CLI qualification and evidence handoff
 
-This is candidate preparation, not a publication announcement. Canonical hostSupport schema 3 in
-plugins/agdf/meta/agdf-plugin.definition.json owns release scope. Existing generators derive the
+Native qualification is voluntary and does not gate publication or require a new run for each version.
+See [the release policy](../../RELEASE.md#native-host-qualification). The final-candidate native CLI
+matrix for 0.20.0 remains incomplete. This document describes how to obtain qualification; it is not a
+publication announcement. Canonical hostSupport schema 3 in
+plugins/agdf/meta/agdf-plugin.definition.json owns the qualification target scope. Existing generators derive the
 diagnostic Codex CLI pin; one 0.20.0 version line remains shared by all integrations.
 
 | Surface | 0.20.0 treatment | Current evidence and limit |
 |---|---|---|
-| Claude Code CLI on Windows | **Mandatory** qualified target: dispatch, failure_case, skill_continuation, upgrade, recovery | Needs five fresh reviewed records for the final candidate; the five cases for 830d8b94 stay historical |
-| Codex CLI on macOS | **Mandatory** qualified target: the same five cases | Needs five fresh reviewed records for the final candidate with the preflight-frozen tuple; earlier dirty-candidate runs stay diagnostic |
+| Claude Code CLI on Windows | Voluntary qualification target: dispatch, failure_case, skill_continuation, upgrade, recovery | Needs five fresh reviewed records for the final candidate; the five cases for 830d8b94 stay historical |
+| Codex CLI on macOS | Voluntary qualification target: the same five cases | Needs five fresh reviewed records for the final candidate with the preflight-frozen tuple; earlier dirty-candidate runs stay diagnostic |
 | Codex Desktop | Manually checked; not qualified; not required for publication | Maintainer reports invocation, upgrade and recovery passed; OS/app/model/session/candidate unknown |
 | Claude Desktop | Manually checked on Windows; not qualified; not required for publication | Same reported manual passes; Desktop identity unknown; CLI identity is separate |
-| Codex CLI Windows/Linux | **Unqualified**, outside the mandatory matrix | Pinned diagnostic probes (Codex 0.157.1, gpt-6-luna) retained; ordinary platform regression tests remain required |
+| Codex CLI Windows/Linux | **Unqualified**, outside this qualification matrix | Pinned diagnostic probes (Codex 0.157.1, gpt-6-luna) retained; ordinary platform regression tests remain required |
 | Copilot / OpenCode | **Experimental** | Adapters and regression tests retained; no native qualification claimed |
 
 The maintainer's original Desktop handcheck statement is preserved under
@@ -42,7 +45,7 @@ relabelled for a new one.
 
 ## Per-host handoff and native runs
 
-Each mandatory host runs on its own computer with its existing authentication:
+When native qualification is requested, each host runs on its own computer with its existing authentication:
 
 ```sh
 node scripts/native-probes/release-evidence.mjs handoff --candidate .release-candidate.json --host claude --output probe-results/claude-cli-handoff
@@ -76,15 +79,15 @@ executing computer.
 
 ## Tuple binding
 
-A mandatory target is bound by its reviewed frozen tuple: host, surface cli, OS, architecture, client
-version, Node and model. The harness of each mandatory row refuses to run without that frozen tuple.
-Codex records additionally carry the commit they ran on; import and the publication gate prove
+A qualification target is bound by its reviewed frozen tuple: host, surface cli, OS, architecture, client
+version, Node and model. The harness of each qualification row refuses to run without that frozen tuple.
+Codex records additionally carry the commit they ran on; import and the standalone validator prove
 through git that it is an ancestor of the checked-out commit whose later changes touch only evidence
 outputs, so committing the imported evidence keeps the records valid. The commit field of a
 candidate file is never trusted for this binding. The Codex 0.157.1 / gpt-6-luna pin applies only to the
 Linux/Windows diagnostic scope (validate-cli) and never satisfies the macOS row.
 
-## Reviewed scoped import and full eligibility
+## Reviewed scoped import and full qualification
 
 A reviewer inspects identity, primary captures, the non-authorizing calls, baseline, preservation and
 cleanup, then completes the exact tuple/bundle review. Templates start reviewed false. This is
@@ -107,10 +110,10 @@ npm run compatibility:record
 npm run compatibility:check
 ```
 
-The validate command requires all ten mandatory rows, including on its default route; the
-publication path additionally rejects schema 1 and 2. All npm publication paths depend on this
-release-evidence job, normal verification and the existing tag/version/registry/credential/integrity
-controls. Existing CI timeouts and all ordinary test commands remain.
+The standalone validate command requires all ten qualification rows, including on its default route;
+--all-hosts additionally rejects schema 1 and 2. It is voluntary and is not an npm publication
+dependency. All npm publication paths retain normal verification and the existing
+tag/version/registry/credential/integrity controls. Existing CI timeouts and ordinary tests remain.
 
 ## Optional Desktop evidence
 

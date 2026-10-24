@@ -285,8 +285,8 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   const validateJob = release.jobs.validate.steps.map(step => step.name);
   const before = (first, second) => validateJob.includes(first) && validateJob.includes(second)
     && validateJob.indexOf(first) < validateJob.indexOf(second);
-  if (!(before('Verify runtime-free source and plugin metadata', 'Prepare and verify release assets')
-    && before('Prepare and verify release assets', 'Verify built plugin integrity')
+  if (!(before('Prepare and verify release assets', 'Verify runtime-free source and plugin metadata')
+    && before('Verify runtime-free source and plugin metadata', 'Verify built plugin integrity')
     && before('Verify built plugin integrity', 'Install MCP validation dependencies from checkout')
     && before('Install MCP validation dependencies from checkout', 'Verify @agdf/mcp-server package contents')
     && release.jobs.tests.uses === './.github/workflows/verify-agdf.yml'
@@ -294,7 +294,7 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
     && release.jobs.publish.needs.includes('tests')
     && release.jobs['verify-published-mcp'].with.suite === 'mcp'
     && release.jobs['verify-published-mcp'].with.published === true)) {
-    throw new Error("Publish validation must verify runtime-free source, prepare release assets and verify installed/package layouts before publication eligibility.");
+    throw new Error("Publish validation must prepare release assets, verify source and built integrity, and verify installed/package layouts before publication eligibility.");
   }
   const publishJob = JSON.stringify(release.jobs.publish.steps);
   if (!(publishJob.indexOf("Prepare and verify release assets") < publishJob.indexOf("Verify built plugin integrity")

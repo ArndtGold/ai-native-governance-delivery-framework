@@ -11,6 +11,7 @@ import { validateCommunityHealth } from "./check-community-health.mjs";
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const fixturePaths = [
   "README.md",
+  "RELEASE.md",
   "CODE_OF_CONDUCT.md",
   "CONTRIBUTING.md",
   "SECURITY.md",

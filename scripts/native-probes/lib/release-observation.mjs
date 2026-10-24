@@ -251,7 +251,11 @@ export function assertNativeRecord(record, { candidate, policy, directory, commi
     }
     assert.equal(call.exec_status, 0); assert.equal(call.calls, 1);
     assert.deepEqual(call.observed_models, [tuple.model]);
-    assert.equal(call.authorizes, false);
+    // Older Codex failure-case summaries omitted this field. Their hash-checked primary
+    // capture must still explicitly report authorizes:false, as verified above.
+    const authority = tuple.host === 'codex' && record.scenario === 'failure_case' && !Object.hasOwn(call, 'authorizes')
+      ? captured.authorizes : call.authorizes;
+    assert.equal(authority, false, 'native_authority_mismatch');
     if (record.scenario !== 'failure_case') assert.equal(call.runtime_digest, candidate.identities.mcp_dispatcher?.digest, 'native_executed_runtime_mismatch');
     if (record.scenario === 'failure_case') assert.equal(call.outcome, 'invalid_input');
     else if (record.scenario === 'skill_continuation') { assert.equal(call.outcome, 'skill_continuation'); assert.equal(call.contracts_verified, true); }

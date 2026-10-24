@@ -1,0 +1,48 @@
+{
+  "kind": "qa_read_only_validation",
+  "date": "2026-10-24",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "candidate_id": "8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692",
+  "source": {
+    "commit": "460027fabc58fe0da041bbabe117519dd1f696b7",
+    "dirty": false
+  },
+  "technical_matrix": {
+    "result": "pass",
+    "candidate_id": "8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692",
+    "cases": [
+      "claude:cli:win32:dispatch",
+      "claude:cli:win32:failure_case",
+      "claude:cli:win32:recovery",
+      "claude:cli:win32:skill_continuation",
+      "claude:cli:win32:upgrade",
+      "codex:cli:darwin:dispatch",
+      "codex:cli:darwin:failure_case",
+      "codex:cli:darwin:recovery",
+      "codex:cli:darwin:skill_continuation",
+      "codex:cli:darwin:upgrade"
+    ],
+    "authorizes": false
+  },
+  "claude_review_present": true,
+  "codex_review_and_import_present": false,
+  "repository_tests": {
+    "release_qualification": {
+      "pass": 34,
+      "fail": 0
+    },
+    "release_evidence_test": "pass",
+    "diff_check": "pass"
+  },
+  "immutable_files_checked": 44,
+  "changed_immutable_files": [],
+  "bundle_sha256": "2d9798679652f8bf80acd529496e4b0f09fdb35cb3b73ca1382c82f89241ea36",
+  "ci": {
+    "id": 40079920556,
+    "head_sha": "94ef61c9f0aa5a2041269236affc6556c33ed5a3",
+    "conclusion": "success",
+    "url": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/actions/runs/40079920556"
+  },
+  "qualification": "Codex review/import and current-diff reviews remain outstanding; not an import or gate approval",
+  "authorizes": false
+}

@@ -1,0 +1,68 @@
+{
+  "original_candidate": "8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692",
+  "original_commit": "460027fabc58fe0da041bbabe117519dd1f696b7",
+  "changed": [
+    {
+      "path": "scripts/native-probes/codex-host-e2e.mjs",
+      "before": {
+        "path": "scripts/native-probes/codex-host-e2e.mjs",
+        "bytes": 34461,
+        "digest": "1c080d62169978cd934c0b60e0775ca68510cef30f262b874c3dc8a349e7d295"
+      },
+      "after": {
+        "path": "scripts/native-probes/codex-host-e2e.mjs",
+        "bytes": 34502,
+        "digest": "da948b92eec3f13148c110e98f6837be941c7a7015a7b2df3e3929f8cb426428"
+      }
+    },
+    {
+      "path": "scripts/native-probes/lib/release-observation.mjs",
+      "before": {
+        "path": "scripts/native-probes/lib/release-observation.mjs",
+        "bytes": 24334,
+        "digest": "0100e83267bcaa12f7ac06df29f8608e28ac80a7f2930c292a138dd0396af8e3"
+      },
+      "after": {
+        "path": "scripts/native-probes/lib/release-observation.mjs",
+        "bytes": 24695,
+        "digest": "28ce89864189aa26678b9d49d21ac14ebf543b356e88d1a0e743468cf16880f4"
+      }
+    },
+    {
+      "path": "scripts/native-probes/release-handoff-test.mjs",
+      "before": {
+        "path": "scripts/native-probes/release-handoff-test.mjs",
+        "bytes": 56463,
+        "digest": "0f5b47781805b55d6a9bc98e82f0a44fc3453ff92a6d78498ed6dacea607c1ec"
+      },
+      "after": {
+        "path": "scripts/native-probes/release-handoff-test.mjs",
+        "bytes": 59969,
+        "digest": "49a098e62469cdb050c599447132f3641514219d8e2c36b0c395242a8c5d6599"
+      }
+    }
+  ],
+  "removed": [],
+  "new_candidate_frozen": false,
+  "source_commit_created": false,
+  "native_records_reused_as_new_candidate": false,
+  "limit": "The approved TP requires a new clean final commit/candidate and native records after probe/source changes. No commit or push is authorized, so that release-source obligation remains open.",
+  "local_worktree_source_digest": "0990215fbb94ca040ce672347914669ac783e5821428154a445cfd3b6a844c77",
+  "preserved_local_ignored_inputs": [
+    {
+      "path": "packages/cli/.codex/config.toml",
+      "sha256": "48f186dbdcf99109b9f2d1d181bae6a50c7d34dce5f88c59e482f0903d466c0f",
+      "bytes": 481,
+      "disposition": "Pre-existing ignored local configuration, dated before this task. Preserved. Not copied by the Git snapshot exporter and not claimed as tested release input."
+    },
+    {
+      "path": "packages/cli/.github/mcp.json",
+      "sha256": "b19753d16969a6d9e734e751dde6db1b69047d0b0ad8c182e2ff65b425231759",
+      "bytes": 645,
+      "disposition": "Pre-existing ignored local configuration, dated before this task. Preserved. Not copied by the Git snapshot exporter and not claimed as tested release input."
+    }
+  ],
+  "tested_snapshot_source_digest": "9888565d0513806fda85ef1eb860f1c6a8e9e32800497a9229a502bd3264cfc4",
+  "snapshot": "/private/tmp/agdf-final-qa-lT8dow/checkout",
+  "snapshot_export": "HEAD plus all current tracked/nonignored files, as enumerated and byte-hashed in SNAPSHOT.json; source index unchanged"
+}

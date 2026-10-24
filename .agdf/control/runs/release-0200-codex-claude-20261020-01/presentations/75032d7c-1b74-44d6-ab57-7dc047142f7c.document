@@ -1,0 +1,112 @@
+## Kurzfassung · UAT
+
+Run: `release-0200-codex-claude-20261020-01` · Gate: `UAT` · Revision: `12a7fc9a-2cc3-4821-a430-a97e600ca1fa`
+
+- Ziel: AGDF 0.20.0 soll für Anwender und Maintainer mit konsistenten Versionen, Dokumentation und nativen Nachweisen für Codex und Claude Code vorbereitet werden. Copilot und OpenCode bleiben experimentell; ihre Adapter und Tests bleiben erhalten. Der bisherige Stand 0.14.5 und die vorhandenen Tests belegen diese neue Host-Qualifikation noch nicht.
+- Geliefertes Ergebnis: Alle 27 lokalen Prüfstufen und die vollständige lesende Matrixprüfung mit zehn Originalfällen bestehen; Import- und Traceability-Fehler sind korrigiert.
+- Technische QA: revise
+- Nachweisgrenzen: Der Windows-Review/Import und die endgültige Importprojektion fehlen. Die geänderten Probe-Quellen haben noch keinen neuen freigegebenen finalen Commit/Kandidaten mit zugehöriger CI und nativen Nachweisen.
+- Risiken und offene Punkte: Die vorgeschlagene Akzeptanz gilt nur für interne Prüfung und Übergabe. Sie qualifiziert keine geänderten Quellen und erlaubt keine Veröffentlichung oder automatischen VCS-/Importaktionen.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- route · UR (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- evidence · UR, PRD, SD, TP (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 57
+
+- QA: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md · sha256:8fb657e3990cb337b048a651ea66e3026a15f1d98b1936a50a5b570cc0b8f791
+- UR: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md · sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248
+
+## Vorliegende UAT-Evidenz
+
+- route · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md · Deckt ab: UR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- evidence · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/evidence/QA_RECHECK_20261024/WINDOWS_GAP_MAINTAINER_DISPOSITION.json · Deckt ab: UR, PRD, SD, TP · Stärke: exact cooperative association
+- CR · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- route · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- TP Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_CANDIDATE_5E84374E_20261023_INPUT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- TP Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- TP Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_TPR103_8E2B8699_20261024_INPUT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW_TPR103_20261024_INPUT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- TP Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CR · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- TP Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- TP Review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- review · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md · Deckt ab: recorded_report_unavailable_or_changed · Stärke: Zuordnung unbekannt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD_MAPPING_20261022_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD_MAPPING_20261022_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_MAPPING_20261022_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_20261023_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD_MAPPING_20261023_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD_MAPPING_20261023_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_MAPPING_20261023_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_CANDIDATE_5E84374E_20261023_INPUT.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_TPR103_8E2B8699_20261024_INPUT.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW_TPR103_20261024_INPUT.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_REVIEW_20261024_CODEX.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_REVIEW_20261024_CODEX_02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_REVIEW_20261024_CODEX_03.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/release-0200-codex-claude-20261020-01/evidence/QA_RECHECK_20261024/WINDOWS_GAP_MAINTAINER_DISPOSITION.json · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_REVIEW_20261024_CODEX_04.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_REVIEW_20261024_CODEX_05.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+
+Mit Abweichungen freigegeben.
+
+Geltungsbereich: Interne Prüfung und Übergabe des Originalkandidaten 8e2b8699 und des separat lokal geprüften Import-Fixes. Keine Veröffentlichung, keine Qualifikation geänderter Quellen und kein automatischer Git-Commit, Push oder Import.
+
+- TPR-102 (mittel): Der vorgesehene Windows-Review/Import der Codex-Mac-Nachweise wurde nicht ausgeführt; diese Restlücke hat der Maintainer bereits ausdrücklich akzeptiert.
+  Folge: Die zehn Originalfälle bestehen die vollständige lesende Matrixprüfung, aber eine ausgeführte Windows-Importstrecke ist damit nicht nachgewiesen.
+  Nacharbeit: Das unveränderte Übergabepaket aufbewahren; vor einem entsprechenden Windows-Importnachweis den dokumentierten Ablauf tatsächlich ausführen.
+  Verantwortlich: Arndt Gold, Maintainer
+
+- TPR-105 (mittel): Der korrigierte Quellstand hat einen exakt erfassten lokalen Prüfsnapshot, aber keinen neuen freigegebenen Commit, finalen Release-Kandidaten und dazugehörige native Qualifikation.
+  Folge: Die Akzeptanz gilt nur für interne Prüfung und Übergabe. Die alten nativen Datensätze qualifizieren weiterhin ausschließlich Kandidat 8e2b8699.
+  Nacharbeit: Vor Veröffentlichung der geänderten Quellen den ausdrücklich autorisierten VCS-Schritt, einen sauberen finalen Kandidaten sowie dessen erforderliche CI- und native Nachweise herstellen.
+  Verantwortlich: Arndt Gold, Maintainer; bestehender Release-Verifikationsowner
+
+- TPR-106 (mittel): Die endgültige Projektion einer gemeinsam importierten nativen Matrix fehlt; die vorhandene Projektion zeigt weiterhin nur tatsächlich importierte Nachweise.
+  Folge: Lesende Zehn-Fall-Validierung und vollständiger Repository-Import bleiben getrennte Aussagen. Es wird kein zusätzlicher qualifizierter Hoststatus behauptet.
+  Nacharbeit: Falls die spätere Veröffentlichung diese importierte Matrix benötigt, den dokumentierten Import abschließen und die bestehende Kompatibilitätsprojektion erneuern.
+  Verantwortlich: Arndt Gold, Maintainer; bestehender Kompatibilitätsowner
+
+Diese Abweichungen wurden für die vorgelegte Fassung ausdrücklich akzeptiert. Der QA-Befund bleibt „Nachbessern“; fehlende Prüfungen und native Produktionsqualifikation sind nicht bestanden.

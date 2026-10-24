@@ -1,0 +1,40 @@
+Retrying the failed MCP test chain and every remaining canonical CLI smoke command. The earlier passing prefix and failed attempt remain in the prior log.
+[cli-smoke-recovery] npm run test:mcp-server
+npm notice run create-agdf@0.20.0 test:mcp-server
+npm notice run npm --prefix ../mcp-server test
+npm notice run @agdf/mcp-server@0.20.0 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:run-command-flow && npm run test:protocol && npm run test:cockpit-gating && npm run test:generation && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+npm notice run @agdf/mcp-server@0.20.0 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+npm notice run @agdf/mcp-server@0.20.0 test:continuation
+npm notice run node ./test/continuation.test.js
+node:fs:1746
+  const stats = binding.stat(
+                        ^
+
+Error: ENOENT: no such file or directory, stat '/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-FXsVWf/node_modules/create-agdf/package.json'
+    at statSync (node:fs:1746:25)
+    at visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/runtime/plugin-provenance.js:196:19)
+    at digestSelectedEntries (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/runtime/plugin-provenance.js:201:32)
+    at digestMcpDispatcherPackage (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/runtime/plugin-provenance.js:214:10)
+    at createOwnedRuntimeFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/owned-runtime.js:84:24)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/continuation.test.js:14:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: '/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-FXsVWf/node_modules/create-agdf/package.json'
+}
+
+Node.js v22.22.3
+npm error Lifecycle script `test:mcp-server` failed with error:
+npm error code 1
+npm error path /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli
+npm error workspace create-agdf@0.20.0
+npm error location /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli
+npm error command failed
+npm error command sh -c npm --prefix ../mcp-server test
+CLI smoke recovery failed: npm run test:mcp-server (1)

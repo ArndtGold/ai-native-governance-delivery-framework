@@ -1,0 +1,116 @@
+[verify-ci] wrapper-smoke
+npm notice run @agdf/cli@0.20.0 smoke-test
+npm notice run node ./scripts/smoke-test.js
+node:internal/errors:983
+  const err = new Error(message);
+              ^
+
+Error: Command failed: npm pack --silent /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:916:11)
+    at execFileSync (node:child_process:952:15)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf/scripts/smoke-test.js:32:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  status: 254,
+  signal: null,
+  output: [ null, Buffer(0) [Uint8Array] [], Buffer(0) [Uint8Array] [] ],
+  pid: 96411,
+  stdout: Buffer(0) [Uint8Array] [],
+  stderr: Buffer(0) [Uint8Array] []
+}
+
+Node.js v22.22.3
+Verification failed at wrapper-smoke: npm --prefix packages/cli/distribution/agdf run smoke-test (1)
+[verify-ci] pages-install
+npm warn deprecated tsconfck@3.1.6: unmaintained
+
+added 429 packages in 18s
+
+177 packages are looking for funding
+  run `npm fund` for details
+npm warn install-scripts 4 packages had install scripts blocked because they are not covered by allowScripts:
+npm warn install-scripts   esbuild@0.27.7 (postinstall: node install.js)
+npm warn install-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn install-scripts   sharp@0.34.5 (install: node install/check.js || npm run build)
+npm warn install-scripts   esbuild@0.25.12 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+[verify-ci] pages-install passed (18.6s)
+[verify-ci] pages
+npm notice run agdf-web@0.20.0 check
+npm notice run astro check
+12:23:13 [content] Syncing content
+12:23:13 [content] Synced content
+12:23:13 [types] Generated 501ms
+12:23:13 [check] Getting diagnostics for Astro files in /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/pages...
+Result (13 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+npm notice run agdf-web@0.20.0 test:landing
+npm notice run npm run build && node ./scripts/landing-page-test.mjs
+npm notice run agdf-web@0.20.0 prebuild
+npm notice run node scripts/design-tokens.mjs
+npm notice run agdf-web@0.20.0 build
+npm notice run astro build
+12:23:37 [content] Syncing content
+12:23:37 [content] Synced content
+12:23:37 [types] Generated 174ms
+12:23:37 [build] output: "static"
+12:23:37 [build] mode: "static"
+12:23:37 [build] directory: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/pages/dist/
+12:23:37 [build] Collecting build info...
+12:23:37 [build] ✓ Completed in 394ms.
+12:23:37 [build] Building static entrypoints...
+12:23:42 [vite] ✓ built in 5.00s
+12:23:42 [build] ✓ Completed in 5.16s.
+
+ generating static routes 
+12:23:42 ▶ src/pages/[document].astro
+12:23:42   ├─ /privacy/index.html (+10ms) 
+12:23:42   ├─ /terms/index.html (+2ms) 
+12:23:42   └─ /support/index.html (+2ms) 
+12:23:42 ▶ src/pages/index.astro
+12:23:42   └─ /index.html (+5ms) 
+12:23:42 ✓ Completed in 36ms.
+
+12:23:42 [build] 4 page(s) built in 5.62s
+12:23:42 [build] Complete!
+Landing-page visible word count: 1711 (editorial target 1500–1800; hard maximum 2200)
+Landing-page local image payload: 1210792 bytes across 2 unique assets
+Landing-page structure, copy, boundary, metadata, No-JS and payload tests passed
+npm notice run agdf-web@0.20.0 test:public-documents
+npm notice run npm run build && node ./scripts/public-documents-test.mjs
+npm notice run agdf-web@0.20.0 prebuild
+npm notice run node scripts/design-tokens.mjs
+npm notice run agdf-web@0.20.0 build
+npm notice run astro build
+12:23:56 [content] Syncing content
+12:23:56 [content] Synced content
+12:23:56 [types] Generated 199ms
+12:23:56 [build] output: "static"
+12:23:56 [build] mode: "static"
+12:23:56 [build] directory: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/pages/dist/
+12:23:56 [build] Collecting build info...
+12:23:56 [build] ✓ Completed in 323ms.
+12:23:56 [build] Building static entrypoints...
+12:24:02 [vite] ✓ built in 5.48s
+12:24:02 [build] ✓ Completed in 5.67s.
+
+ generating static routes 
+12:24:02 ▶ src/pages/[document].astro
+12:24:02   ├─ /privacy/index.html (+30ms) 
+12:24:02   ├─ /terms/index.html (+5ms) 
+12:24:02   └─ /support/index.html (+3ms) 
+12:24:02 ▶ src/pages/index.astro
+12:24:02   └─ /index.html (+9ms) 
+12:24:02 ✓ Completed in 70ms.
+
+12:24:02 [build] 4 page(s) built in 6.11s
+12:24:02 [build] Complete!
+Public document and route tests passed
+[verify-ci] pages passed (58.1s)

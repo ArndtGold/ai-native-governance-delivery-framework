@@ -1,82 +1,86 @@
-# TP Review — 0.20.0 CLI-qualified release matrix, candidate 8e2b8699
+# TP Review: current native evidence and Codex import correction
 
 - decision: revise
 - run_id: release-0200-codex-claude-20261020-01
 - date: 2026-10-24
-- reviewer: Claude (Claude Desktop Code, Windows); cooperative task-plan review
-- source_head: 460027fabc58fe0da041bbabe117519dd1f696b7 (candidate 8e2b8699); PR branch 08bb962f
+- reviewer: Codex agent, cooperative task-plan review
 - based_on: TP sha256:ee5e322f0887d8cd14912d9953b6676a733aefa908bdef13a3dc5592502d4581
-- supersedes: TP_REVIEW_5E84374E_20261024_02_INPUT.md (revise, revision 49)
-
-Reference is the approved TP, not plausible code. Evidence paths are relative to this run's artefact
-directory unless a repository path is named. Candidate: 8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.
-
-## What changed since the previous TP Review
-
-1. **TPR-103 fix (af660509).** scripts/host-compatibility/test.mjs now carries the manifest's native sources
-   into its fixture. Its no-promotion check accepts exactly the imported native rows. A regression check
-   covers fixture inputs from a repository with an imported native release.
-2. **Verification against the real failure.** With the real 5e84374e Claude CLI import applied, the fixed test
-   passes (71 checks), as do `compatibility:record` and `compatibility:check`. Before the fix the same state
-   failed with ENOENT.
-   - A mutation that drops native sources from the fixture inputs fails the new check.
-   - The import itself stays set aside and is not relabelled for the new candidate.
-3. **New candidate.** 8e2b8699 was built from 460027fa in a clean worktree. Exactly one candidate source differs
-   from 5e84374e: scripts/host-compatibility/test.mjs. Policy, payload and runtime identities are unchanged.
-   - Clean-worktree suites are green: host compatibility, compatibility 56/0 and maintenance contracts,
-     including release qualification 32/32.
-   - CD+Tests is recorded as run evidence at revision 50 (CD_TESTS_TPR103_8E2B8699_20261024_INPUT.md).
-4. **Code Review pass.** CODE_REVIEW_TPR103_20261024_INPUT.md includes an independent read-only review. It is
-   recorded as run evidence at revision 51, because the review step is rejected at the QA gate with
-   review_step_not_ready.
-   - One low advisory: the regression exercises the shared helper with a synthetic native release. The
-     real-data path is proven by the manual real-import run, and CI runs it on the first committed import.
 
 ## TP Coverage
 
 | task_id | status | evidence | missing_evidence | QA impact |
 |---|---|---|---|---|
-| T-001 | fully_done | unchanged | — | none |
-| T-002 | fully_done | unchanged; the policy digest of 8e2b8699 equals the one of 5e84374e | — | none |
-| T-003 | fully_done | unchanged | — | none |
-| T-004 | fully_done | unchanged; a real Claude bundle passed the evaluator on 5e84374e | — | none |
-| T-005 | fully_done | review-template, review and scoped import were exercised with real Claude records (evidence/CLAUDE_CLI_5E84374E_20261024/REVIEW.md) | — | none |
-| T-006 | fully_done | unchanged; upgrade and recovery passed natively from released 0.14.5 on 5e84374e, and the harness is unchanged in 8e2b8699 | — | none |
-| T-007 | fully_done | unchanged | — | none |
-| T-008 | fully_done | af660509 fixes TPR-103; real-import verification, mutation check and clean-worktree host compatibility 71 checks; compatibility re-recorded (fingerprint ad31f063) | — | none |
-| T-009 | partially_done | evidence/CANDIDATE_460027FA_20261024/ (CANDIDATE.json, CANDIDATE_STEPS.txt, VERIFY_STEPS.txt) | Green commit-bound remote CI for the PR head (08bb962f, an evidence-only descendant of 460027fa) | QA needs the green run |
-| T-010 | not_done | Handoff, preflight, harness binding, review and import work on real records (5e84374e Claude run, set aside) | Ten native records for 8e2b8699: five Claude Code CLI win32 and five Codex CLI darwin, reviewed and imported; then compatibility record and validate --all-hosts | P0: qualification and publication stay blocked |
-| T-011 | partially_done | Code Review pass (revision 51 evidence); this TP Review; Clean Implementation Review follows | Clean Implementation Review and QA decision | QA consumes this review |
+| T-001 | fully_done | Recorded Brownfield Analysis; same source owners | none for its scoped task | none |
+| T-002 | fully_done | Existing schema-3 policy; 34/34 release tests | none for its scoped task | none |
+| T-003 | fully_done | Original clean candidate revalidated; source mutation remains candidate-sensitive | none for identity mechanism | none |
+| T-004 | fully_done | Existing primary evaluator plus reviewed import correction; original ten-case validation passes | none for evaluator behavior | none |
+| T-005 | fully_done | Existing handoff/scoped import mechanism; immutable-record compatibility reviewed | Execution of Codex Windows import belongs to T-010 | none for mechanism |
+| T-006 | fully_done | Original native upgrade/recovery captures and recorded baseline tests | none for original candidate transitions | none |
+| T-007 | fully_done | Publication dependency tests and original-head green CI; no workflow changed locally | none for workflow task | none |
+| T-008 | partially_done | Current CLI support projection retained; QA evidence records actual counts | Readiness/compatibility projection after both imports | keep reporting boundary visible |
+| T-009 | partially_done | Original clean candidate and original-head green CI; all 27 shared verification stages now pass in the exact current-source snapshot, including complete CLI smoke | New clean final commit/candidate and its required evidence if the changed probes enter the release; no VCS step is authorized | old candidate is not relabelled |
+| T-010 | partially_done | Ten original cases and their exact reviews pass the full canonical read-only validate --all-hosts command | Specified Windows review/import is accepted as a residual gap by the maintainer; no repository import is claimed | retain original candidate-only qualification and accepted gap |
+| T-011 | fully_done | Current Code/Clean reviews cover actual source, derived outputs and metadata corrections; this TP Review and the actual QA revise decision retain all remaining gaps | Deliberate human QA/UAT decisions are not inferred | review work is complete; technical QA still revise |
+
+## Current evidence and limits
+
+QA_RECHECK_20261024/VALIDATION.json validates all ten original cases mechanically. Claude review
+exists in the candidate's claude/cli scope. CODEX_PRIMARY_REVIEW.json checks original Codex primary
+responses; CODEX_BUNDLE_REVIEW.json locks their actual bundle digest/tuple and identifies the
+agent reviewer. It is not a claim that the requested Windows review/import ran. The original
+archive and all 44 watched files are unchanged. No native case was repeated.
+
+Guardrails 40079920556 succeeds for 94ef61c9. That closes the original TPR-104 CI obligation only;
+it does not establish CI for the three uncommitted source/test changes. The approved candidate
+source inventory includes those paths, so the changed working tree is not candidate 8e2b8699.
+An external patched evaluator may validate the original clean candidate without changing its
+identity; releasing the changed source itself requires its own final-snapshot evidence.
+
+## Final local verification and residual limits
+
+QA_FINISH_20261024/FINAL_VERIFICATION.md and VERIFICATION.json record the complete 27-stage
+repository plan passing on the exact isolated current-source snapshot. The complete CLI/MCP
+smoke chain now passes. The reviewed traceability corrections clear the three aggregate map
+blockers while preserving every approval and listed artefact; thirteen old objective warnings
+remain. The current Code/Clean reviews cover the additional metadata and projection changes.
+REVIEWED_MATRIX_VALIDATION.json proves a complete canonical read-only ten-case matrix pass.
+No repository import or native scenario repetition occurred.
+
+The maintainer accepts the specified Windows review/import as a residual evidence gap, as
+registered in WINDOWS_GAP_MAINTAINER_DISPOSITION.json. This acceptance does not resolve the
+missing test/import findings. The final source/probe commit/candidate obligation remains open
+under the explicit no-commit/no-push boundary; original native records cannot qualify a new
+source identity. SOURCE_APPLICABILITY.json and SNAPSHOT_IDENTITY.json make that distinction exact.
 
 ## Summary
 
-- fully_done: T-001 to T-008
-- partially_done: T-009 (remote CI pending), T-011
-- not_done: T-010 (ten native CLI records for 8e2b8699)
-- out_of_scope_changes: none
-- risks:
-  - A copied Claude credential can be consumed by one case's token refresh. The handoff refuses to start without
-    a sign-in valid for at least an hour, or with CLAUDE_CODE_OAUTH_TOKEN.
-  - The Codex harness also copies auth.json, so the maintainer should sign in freshly before the Mac run.
-  - The regression scope advisory from the Code Review applies.
-- required_next_step:
-  1. Record the green remote CI for the PR head.
-  2. The maintainer runs the five Claude Code CLI cases for 8e2b8699 on the Windows test computer and the five
-     Codex CLI cases on the Mac, each after a fresh sign-in.
-  3. Review, import, compatibility record, validate --all-hosts, then QA.
+- fully_done: T-001 to T-007 and T-011
+- partially_done: T-008 to T-010
+- not_done: none
+- out_of_scope_changes: No product/runtime scope expansion; the correction stays with existing evidence owners.
+- risks: No Windows execution surface is connected in this chat. The user's location and immutable
+  evidence constraints remain in force. No commit, push or release is inferred from autofix.
+- required_next_step: Present the current bounded evidence-only QA deviation proposal; keep the final-candidate obligation and the accepted Windows limitation explicit.
 
 ## UX Intent Fidelity
 
 | prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type |
 |---|---|---|---|---|---|
-| AC-002 | Mandatory CLI qualification, Desktop handcheck documentation and unqualified/experimental path | T-008 | HOST_COMPATIBILITY.md renders the mandatory CLI matrix, the manually checked Desktop surfaces and the unqualified/experimental paths. With the real import applied, it also renders the imported Claude tuple, and the test suite accepts that state. | fulfilled | none |
-| AC-008 | Release preparation, mandatory CLI qualification and Desktop handcheck documentation | T-008 | RELEASE_READINESS.md updated for 8e2b8699 with completed checks, historical records and one next action per host | fulfilled | none |
+| AC-002 | Mandatory CLI qualification and manually checked Desktop scope | T-008 | Existing HOST_COMPATIBILITY.md; current QA evidence separates observed/reviewed/imported states | fulfilled | none |
+| AC-008 | Final release readiness reporting | T-008 | Current QA and evidence logs exist; final post-import readiness is outstanding | partial | evidence_gap |
 
 ## Normalized Findings
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| TPR-101 | evidence_gap | evidence_obligation | open | 0 of 5 Claude Code CLI win32 records for 8e2b8699; the 5e84374e records stay historical | Maintainer runs the 8e2b8699 handoff (preflight and five native:claude-e2e cases) outside the Claude Desktop app package with a valid sign-in, then review and import |
-| TPR-102 | evidence_gap | evidence_obligation | open | 0 of 5 Codex CLI darwin records for 8e2b8699 | Maintainer signs in freshly with codex login and runs the 8e2b8699 handoff on the Mac, then returns the bundle for review and import |
-| TPR-103 | implementation_gap | CD+Tests | resolved | af660509; CD_TESTS_TPR103_8E2B8699_20261024_INPUT.md (revision 50); CODE_REVIEW_TPR103_20261024_INPUT.md (revision 51) | none |
-| TPR-104 | evidence_gap | evidence_obligation | open | Remote CI for 08bb962f pending at recording | Record the green AGDF Guardrails run for the PR head, or fix a failing check through Auto-fix |
+| TPR-101 | evidence_gap | evidence_obligation | resolved | Five original candidate-bound Claude CLI records and exact review already imported under 8e2b8699/claude/cli | Preserve that imported candidate-bound proof |
+| TPR-102 | evidence_gap | evidence_obligation | open | Five original Codex cases and the full read-only reviewed matrix pass; specified Windows review/import remains unexecuted and is explicitly accepted as a residual gap | Retain the unchanged return package and execute the documented Windows review/import before claiming that execution |
+| TPR-103 | implementation_gap | CD+Tests | resolved | Recorded af660509 repair and original reviewed evidence, retained in BEFORE_TP_REVIEW.md | Preserve the recorded fix and its exact evidence |
+| TPR-104 | evidence_gap | evidence_obligation | resolved | Guardrails 40079920556 success for exact PR head 94ef61c9 | Preserve the original-head CI link without extending it to uncommitted source |
+| TPR-105 | evidence_gap | evidence_obligation | open | The changed source passes the complete 27-stage isolated snapshot verification, but no new final commit/candidate or native qualification exists for that changed identity | Establish the expressly authorized clean final commit/candidate and its required CI/native evidence before releasing the changed source |
+| TPR-106 | evidence_gap | evidence_obligation | open | Full reviewed ten-case read-only validation passes and readiness is current, but the final combined repository-import projection remains absent | Refresh the existing projection after an actual authorized import if the later qualification claim requires it |
+| TPR-107 | evidence_gap | evidence_obligation | resolved | All 27 shared verification stages pass in the exact isolated snapshot; reviewed relationship corrections clear aggregate blockers; complete CLI/MCP smoke passes | Preserve the full verification log, source identity and unchanged-source guards |
+
+- context_graph_impact: none
+- context_graph_reconciliation: not_applicable
+- memory_target: scope_artifact

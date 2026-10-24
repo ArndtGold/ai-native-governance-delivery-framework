@@ -5,10 +5,11 @@
 - control_state_version: 2
 - run_id: architecture-review-prevention-2026-09-27
 - lifecycle: active
-- revision: 21
-- revision_id: 64ad08ec-825c-42bf-a2a4-62779ec5e636
-- content_seal: sha256:c9c2614ad9d6decdb3fdbcce562d6ee11d6df753d97b797e0f43a6123412633e
+- revision: 22
+- revision_id: 9ee3ea44-ab08-45db-a144-3962bd82fadc
+- content_seal: sha256:3220febd0be6fea01b16bd17f1b9c219de3c1a84859e45b8fc2b65d3771b8bff
 - approval_seal: sha256:dff2c429dd60f2516b26bee3ea715c139e593b44ade35d797f7c6c773a443c79
+- updated_at: 2026-10-24T10:52:38.522Z
 - mode: structured_delivery
 - current_gate: CD+Tests
 - decision: in_progress
@@ -67,7 +68,7 @@ Make architecture risks and trade-offs visible before implementation so the smal
 |---|---|---|---|
 | UR | approved_by | Approval: UR | `Approval: UR` · 2026-09-27 · revision 2 · `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/UR.md` sha256:981fceeb73238947 · presentation 9b8d8ef0-a910-4cdc-b6ee-a5485eace972 sha256:e4b0a66d0ca0abb894b5c176babca3ff45c0a311fdc9f79e3709bb315a7ac4c5 |
 | PRD | derived_from | UR | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/PRD.md` |
-| PRD | derived_from | Brownfield Review | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/BROWNFIELD_REVIEW.md` |
+| PRD | informed_by | Brownfield Review | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/BROWNFIELD_REVIEW.md` |
 | SD | derived_from | PRD | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/SD.md` derives from approved PRD revision 11 |
 | TP | derived_from | SD | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/TP.md` derives from approved SD revision 14 |
 | Brownfield Analysis | verifies | TP | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/BROWNFIELD_ANALYSIS.md` |
@@ -87,6 +88,7 @@ Make architecture risks and trade-offs visible before implementation so the smal
 | Brownfield Analysis pass for approved TP | .agdf/control/artefacts/architecture-review-prevention-2026-09-27/BROWNFIELD_ANALYSIS.md | T1-T7 reuse path, policy owners and regression risks | direct |
 | CD+Tests partial: source and package checks pass; four-host acceptance remains open | .agdf/control/artefacts/architecture-review-prevention-2026-09-27/CD_TESTS.md | TP T1-T7 and AC-ARCH-01 through AC-ARCH-07 evidence limits | direct |
 | Final source and package checks pass; seven Codex model cases current; direct four-host Brownfield acceptance remains open | .agdf/control/artefacts/architecture-review-prevention-2026-09-27/CD_TESTS.md | TP T1-T5 complete, T6 partial, T7 open; AC-ARCH-06 unverified across all hosts | direct |
+| Traceability metadata correction | Current QA closure, 2026-10-24 | Canonical relationship registry matched to existing approved UR/TP and current PRD/QA source; no new source content, approval or gate advancement | reviewed source mapping |
 
 ## Closeout
 

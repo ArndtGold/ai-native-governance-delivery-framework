@@ -1,0 +1,88 @@
+{
+  "action": "record_gate_approval",
+  "assurance": {
+    "independent_human_proof": "unavailable",
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply"
+  },
+  "binding": {
+    "expected_revision_id": "12a7fc9a-2cc3-4821-a430-a97e600ca1fa",
+    "gate": "UAT",
+    "presentation_id": "75032d7c-1b74-44d6-ab57-7dc047142f7c",
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19"
+  },
+  "command_digest": "sha256:a8bfda0f6832755402f857e6eed1e5dc5a30f045d7a03900ff9db429fb39c792",
+  "created_at": "2026-10-24T12:25:18.163Z",
+  "effect": {
+    "allowed_after_approval": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+    "approval": "Approval: UAT",
+    "artefact_digest": null,
+    "gate": "UAT",
+    "material_sources": [
+      {
+        "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+        "type": "UR"
+      },
+      {
+        "digest": "sha256:7ff703b088b9db7a223b286c9f949de3ce20612d37d3615f4e9f648ed47c7daa",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+        "type": "PRD"
+      },
+      {
+        "digest": "sha256:2e1be758666cf513aae78309a301de1ea26536d5e156d84f430b493ff83577a1",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+        "type": "SD"
+      },
+      {
+        "digest": "sha256:ee5e322f0887d8cd14912d9953b6676a733aefa908bdef13a3dc5592502d4581",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+        "type": "TP"
+      },
+      {
+        "digest": "sha256:ac66cf9fbf54d738977ab94b32c940ad7e1aa3d7752c0608cc3d045c7779f26c",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "type": "Brownfield Analysis"
+      },
+      {
+        "digest": "sha256:42ba7b3ac5442ea88a3eb214963a2d8066837244774edd48ab76c0044bb764f8",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "type": "CD+Tests"
+      },
+      {
+        "digest": "sha256:46884fa39511f09be7a475516d31babed402fb284940f7a7b18ea074fda0dc4a",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md",
+        "type": "TP Review"
+      },
+      {
+        "digest": "sha256:4ffe271771c2db0374f5c40b03b1dd5acb276a59e7590265e5e110c0a96b47bb",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "type": "Clean Implementation Review"
+      },
+      {
+        "digest": "sha256:3ca48c1edd0c6833470fc2605dfd9f4c61bfac512bd3ddf850fd980005df6e95",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md",
+        "type": "CR"
+      },
+      {
+        "digest": "sha256:8fb657e3990cb337b048a651ea66e3026a15f1d98b1936a50a5b570cc0b8f791",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md",
+        "type": "QA"
+      }
+    ],
+    "material_version": "sha256:967487cc309303db8fb73fe30dd9ebb16d701cb9b86958721e35eb37256b5ab2",
+    "next_gate_after_approval": "OR",
+    "presentation_digest": "sha256:ee1f84fa4e71a4b3ee38e6018482f83db6ea5f026aa6dac87da416f4380000ae",
+    "previous_revision_id": "12a7fc9a-2cc3-4821-a430-a97e600ca1fa",
+    "resulting_revision_id": "b335f78c-bf86-4b9f-b809-e1c79aac615e",
+    "revision": 68
+  },
+  "operation_id": "ad50d8eb-55b9-4a7b-839c-a3a5910c0c53",
+  "producer": {
+    "contract": "approval-service/1",
+    "package_version": "0.14.5"
+  },
+  "request_digest": "sha256:87c530bcbf4e8ac841ef4e196f1544d0c30d8efb7cb98070c2489add6db024b1",
+  "schema_version": "2"
+}

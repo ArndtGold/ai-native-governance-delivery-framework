@@ -1,0 +1,651 @@
+{
+  "status": "revise",
+  "selected_run": {
+    "run_id": "release-0200-codex-claude-20261020-01",
+    "status": "pass",
+    "current_gate": "QA",
+    "findings": []
+  },
+  "aggregate_findings": [
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/agdf-actionable-card-ux-20260928-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/agdf-actionable-card-ux-20260928-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "agdf-actionable-card-ux-20260928-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/agdf-clean-build-output-repair-20261004-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/agdf-clean-build-output-repair-20261004-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "agdf-clean-build-output-repair-20261004-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/agdf-cockpit-claude-host-20261008-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/agdf-cockpit-claude-host-20261008-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "agdf-cockpit-claude-host-20261008-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Final German context-only repo-less and repository-bound Copilot evidence",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Restart Copilot, verify the complete German `qa-gate` `no_reliable_target` card immediately, then run the repository-bound path separately.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Direct Linux and native-Windows lifecycle behavior",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Require separately authorized host evidence before cross-platform parity claims.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Gate-safe native Copilot input transport",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Keep exact-text approval as the baseline until a later adapter preflight proves exact values and deliberate waiting.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Copilot plugin installation or permissions are mistaken for AGDF gate approval.",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Preserve `interaction.md` and exact approval revalidation as the sole authority.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Retirement deletes or rewrites existing user-owned Copilot repository files.",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Stop generating and supporting the projection without automatically deleting existing files.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Repository or package evidence is overstated as loaded app behavior.",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Maintain separate source, bundle, installed-root, fresh-session and human-UAT evidence.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Native input or hook support drifts across the Copilot app, CLI and cloud agent.",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Start with the supported common subset and gate stronger claims on direct capability evidence.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A host working directory is mistaken for task-target or governance authority.",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Require the code-owned target preflight before doctor, run selection or gate evaluation and expose `instruction_only` honestly.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A host infers presentation language from English skill, runtime or UI text instead of the current conversation.",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "next_step": "Keep current-conversation meaning in the semantic function description and binding grammar, project it into every executable skill and require fresh loaded-host evidence.",
+      "run_id": "agdf-copilot-plugin-integration"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Recommended setup is mistaken for implicit consent.",
+      "path": ".agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+      "next_step": "Require a deliberate interactive choice and explicit noninteractive `--with-mcp`.",
+      "run_id": "agdf-guided-mcp-activation"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Partial failure is reported as complete installation.",
+      "path": ".agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+      "next_step": "Model plugin, hook, registration, discovery and restart as separate effective states.",
+      "run_id": "agdf-guided-mcp-activation"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "New orchestration duplicates installer or MCP lifecycle logic.",
+      "path": ".agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+      "next_step": "Brownfield Review must preserve existing owners and add only composition.",
+      "run_id": "agdf-guided-mcp-activation"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Coupled removal deletes foreign or shared state.",
+      "path": ".agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+      "next_step": "Reuse exact ownership, provenance and reference-counted cleanup.",
+      "run_id": "agdf-guided-mcp-activation"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Repository tests are presented as loaded-host support.",
+      "path": ".agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+      "next_step": "Retain separate direct host and UAT evidence lanes.",
+      "run_id": "agdf-guided-mcp-activation"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A user-wide registration is mistaken for governance target authority.",
+      "path": ".agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+      "next_step": "Explain that user scope changes host discovery only; every dispatch still resolves one target and run.",
+      "run_id": "agdf-guided-mcp-activation"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/agdf-intermediate-status-card-reduction-20261002-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/agdf-intermediate-status-card-reduction-20261002-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "agdf-intermediate-status-card-reduction-20261002-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Final file-level consumer map for non-submission metadata",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "next_step": "Resolve in Solution Design before any exclusion beyond the proven submission classes.",
+      "run_id": "agdf-npm-package-payload-cleanup"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Clean-client completeness after exclusions",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "next_step": "Define deterministic installation and runtime probes in the Task/Test Plan.",
+      "run_id": "agdf-npm-package-payload-cleanup"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A runtime-required file is classified as development-only.",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "next_step": "Require consumer and lifecycle evidence before exclusion; later execution must stop if that evidence is absent.",
+      "run_id": "agdf-npm-package-payload-cleanup"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Package cleanup creates a second hand-maintained inventory.",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "next_step": "Reuse one semantic generated profile or deterministic allowlist owner.",
+      "run_id": "agdf-npm-package-payload-cleanup"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Local submission generation is accidentally removed.",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "next_step": "Separate generation from publication; preserve canonical and generated review sources.",
+      "run_id": "agdf-npm-package-payload-cleanup"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Size reduction is optimized at the expense of supported-host completeness.",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "next_step": "Treat runtime completeness as the invariant and size only as measured evidence; later execution must stop on any completeness regression.",
+      "run_id": "agdf-npm-package-payload-cleanup"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "The Copilot QA scope is silently expanded or invalidated.",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "next_step": "Keep the runs independent and retest package coexistence later without rewriting Copilot approvals.",
+      "run_id": "agdf-npm-package-payload-cleanup"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_CONTEXT_GRAPH_GATE_EFFECT",
+      "message": "Context Graph impact is update_existing_node with gate effect warning.",
+      "path": ".agdf/control/runs/agdf-physical-package-boundaries-20261001-01/RUN_STATE.md",
+      "next_step": "Clarify the Context Graph impact before advancing the gate.",
+      "run_id": "agdf-physical-package-boundaries-20261001-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A keyword filter misclassifies advice or quoted implementation text.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Classify requested effect through one semantic contract and test adversarial cases.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A second hook becomes a competing activation policy.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Keep activation semantics canonical and treat any mutation hook only as later defense in depth.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Dispatcher compatibility is changed in place or confused with another run's completed/QA evidence.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Preserve dispatcher v1 by default; any necessary executable backstop requires explicit versioning and independent evidence.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Ordinary read-only handling still emits an AGDF banner.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Require silent abstention and loaded-host transcript evidence.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Explicit AGDF status or lifecycle requests stop working.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Preserve explicit-operation routes and test missing-control behavior by request class.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Canonical init recovery overwrites user or conflicting partial state.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Strict valid-run parser, file/link constraints, content/identity snapshots and rollback tests fail closed; preserve this owner boundary.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Full eager routing or repeated policy channels return in a future projection.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Preserve definition-owned byte budgets, kernel fingerprint, on-demand route and duplicate/conflict integrity checks.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Source-composed Copilot or OpenCode profiles are falsely presented as live evaluation on those hosts.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Keep `profile_surface` and `evaluator_surface` independent, report `evidence_plane: source_composed`, and retain fresh-host evidence as a separate obligation. Treat any conflation as an implementation stop condition.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Expected case outcomes leak into model-visible composed instructions.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Use only closed `composed_profile.instruction_skill` metadata and exclude both metadata and `expected` from model input. Treat any leakage as an implementation stop condition.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_CONTEXT_GRAPH_GATE_EFFECT",
+      "message": "Context Graph impact is update_existing_node with gate effect warning.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "next_step": "Resolve Context Graph action: update.",
+      "run_id": "agdf-request-activation-boundary"
+    },
+    {
+      "severity": "revise",
+      "code": "AGDF_DELIVERY_RELATIONSHIP_CONFLICT",
+      "message": "PRD must be traceable via derived_from UR.",
+      "path": ".agdf/control/runs/architecture-review-prevention-2026-09-27/RUN_STATE.md",
+      "next_step": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+      "run_id": "architecture-review-prevention-2026-09-27"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/backlog-status-flow-clarity-20261009-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/backlog-status-flow-clarity-20261009-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "backlog-status-flow-clarity-20261009-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Existing owner and protocol-impact inventory",
+      "path": ".agdf/control/runs/codex-harness-conformance-slice/RUN_STATE.md",
+      "next_step": "Perform Brownfield Review only after UR approval.",
+      "run_id": "codex-harness-conformance-slice"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Direct authenticated Codex host behavior for any future adapter",
+      "path": ".agdf/control/runs/codex-harness-conformance-slice/RUN_STATE.md",
+      "next_step": "Keep as later UAT evidence; do not infer it from repository or protocol tests.",
+      "run_id": "codex-harness-conformance-slice"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Codex tool permissions are mistaken for AGDF gate approvals.",
+      "path": ".agdf/control/runs/codex-harness-conformance-slice/RUN_STATE.md",
+      "next_step": "Preserve `interaction.md` as sole approval authority and require exact AGDF approval validation.",
+      "run_id": "codex-harness-conformance-slice"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Codex integration duplicates AGDF state, rendering or gate logic.",
+      "path": ".agdf/control/runs/codex-harness-conformance-slice/RUN_STATE.md",
+      "next_step": "Brownfield Review must identify and reuse canonical owners before any design.",
+      "run_id": "codex-harness-conformance-slice"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Codex-specific integration weakens cross-host portability.",
+      "path": ".agdf/control/runs/codex-harness-conformance-slice/RUN_STATE.md",
+      "next_step": "Keep host-specific transport behind shared AGDF contracts and test host-neutral semantics.",
+      "run_id": "codex-harness-conformance-slice"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Repository evidence is overstated as live-host behavior.",
+      "path": ".agdf/control/runs/codex-harness-conformance-slice/RUN_STATE.md",
+      "next_step": "Maintain separate repository, protocol and authenticated-host evidence classes.",
+      "run_id": "codex-harness-conformance-slice"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Direct fresh-session behavior for repository-disabled Copilot AGDF",
+      "path": ".agdf/control/runs/cross-surface-plugin-opt-out/RUN_STATE.md",
+      "next_step": "Keep as later host evidence; do not infer from repository fixtures.",
+      "run_id": "cross-surface-plugin-opt-out"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A local opt-out overwrites unrelated Copilot settings.",
+      "path": ".agdf/control/runs/cross-surface-plugin-opt-out/RUN_STATE.md",
+      "next_step": "Reuse atomic settings ownership, preserve unrelated keys and fail closed on invalid or unowned paths.",
+      "run_id": "cross-surface-plugin-opt-out"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Plugin-disabled is mistaken for all AGDF instructions disabled.",
+      "path": ".agdf/control/runs/cross-surface-plugin-opt-out/RUN_STATE.md",
+      "next_step": "Document and separately verify plugin and instruction discovery.",
+      "run_id": "cross-surface-plugin-opt-out"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Unsupported host behavior is presented as parity.",
+      "path": ".agdf/control/runs/cross-surface-plugin-opt-out/RUN_STATE.md",
+      "next_step": "Publish an explicit support matrix and separate repository, CLI and fresh-session evidence.",
+      "run_id": "cross-surface-plugin-opt-out"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/gate-decision-card-20261010-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/gate-decision-card-20261010-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "gate-decision-card-20261010-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/gate-internal-continuation-recovery-20261008-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/gate-internal-continuation-recovery-20261008-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "gate-internal-continuation-recovery-20261008-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Private vulnerability reporting availability",
+      "path": ".agdf/control/runs/github-community-health-governance/RUN_STATE.md",
+      "next_step": "Confirm the host capability during implementation; use the approved email fallback if unavailable.",
+      "run_id": "github-community-health-governance"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Default-branch Community Profile recognition",
+      "path": ".agdf/control/runs/github-community-health-governance/RUN_STATE.md",
+      "next_step": "Verify after repository files are delivered to the default branch.",
+      "run_id": "github-community-health-governance"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Applied GitHub metadata and social preview",
+      "path": ".agdf/control/runs/github-community-health-governance/RUN_STATE.md",
+      "next_step": "Verify through public or authenticated host observation after application.",
+      "run_id": "github-community-health-governance"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Public policy text could promise unsupported response behavior",
+      "path": ".agdf/control/runs/github-community-health-governance/RUN_STATE.md",
+      "next_step": "Enforce the approved no-SLA and current-release-only boundaries through deterministic policy assertions.",
+      "run_id": "github-community-health-governance"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "New files could duplicate existing Pages or runtime documentation instead of routing to canonical owners",
+      "path": ".agdf/control/runs/github-community-health-governance/RUN_STATE.md",
+      "next_step": "Brownfield Review must identify canonical owners and link rather than copy where appropriate.",
+      "run_id": "github-community-health-governance"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Host metadata and repository files could drift because they have separate mutation paths",
+      "path": ".agdf/control/runs/github-community-health-governance/RUN_STATE.md",
+      "next_step": "Define separate validation and delivery evidence for repository files and GitHub-hosted settings.",
+      "run_id": "github-community-health-governance"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Verified automatic-mode outcome for each Codex, Claude Code and OpenCode combination on macOS, Linux and native Windows",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Complete the remaining direct-host matrix without inferred parity.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Safe consent persistence and invalidation behavior for each supported host",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Observe revised install/update choices, renewal and rollback through separately authorized host evidence.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Direct fresh-session behavior after enabled, declined, revoked and updated consent",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Complete the declared host evidence before QA pass; do not infer it from repository tests.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_MISSING_EVIDENCE_DECLARED",
+      "message": "Direct native-Windows evidence for installation, consent, status, revocation, update, rollback and fresh session",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Require native-Windows execution before claiming Windows support; simulation remains supporting evidence only.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Installation consent is mistaken for an AGDF gate approval.",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Preserve `interaction.md` and `CG-NATIVE-INTERACTION-AUTHORITY` as the sole authority boundary.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "A broad or stale permission rule survives changed executable content.",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Brownfield Review and later design must prove least-privilege scope and renewed-consent behavior.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "The installer silently mutates user or project configuration.",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Require explicit consent, ownership checks, visible effects and reversible state through existing installer owners.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "One generic mechanism ignores material host differences.",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Keep one semantic consent contract with thin host-specific adapters and honest unsupported outcomes.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "macOS or Linux evidence is generalized into an unsupported Windows claim.",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Require an explicit host/OS matrix and direct native-Windows evidence for every claimed Windows path.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Repository or installation evidence is overstated as effective host behavior.",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "next_step": "Preserve separate repository, package, installed-host and fresh-session evidence planes.",
+      "run_id": "installation-consent-runtime-checks"
+    },
+    {
+      "severity": "revise",
+      "code": "AGDF_DELIVERY_RELATIONSHIP_MISSING",
+      "message": "QA_REPORT must be traceable via tests TP.",
+      "path": ".agdf/control/runs/mcp-zielarchitektur-doku-20260929-01/RUN_STATE.md",
+      "next_step": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+      "run_id": "mcp-zielarchitektur-doku-20260929-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Native tool becomes a general shell bypass.",
+      "path": ".agdf/control/runs/opencode-native-dispatch-tool/RUN_STATE.md",
+      "next_step": "Strict schema, fixed runtime owner, no arbitrary executable/command/path and dedicated permission key.",
+      "run_id": "opencode-native-dispatch-tool"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Tool permission is mistaken for AGDF approval.",
+      "path": ".agdf/control/runs/opencode-native-dispatch-tool/RUN_STATE.md",
+      "next_step": "Preserve exact `Approval: <Gate>` validation and non-authorizing tool result.",
+      "run_id": "opencode-native-dispatch-tool"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Installer overwrites user policy.",
+      "path": ".agdf/control/runs/opencode-native-dispatch-tool/RUN_STATE.md",
+      "next_step": "Additive, consent-bound projection that preserves explicit user settings and provides manual mode.",
+      "run_id": "opencode-native-dispatch-tool"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_RISK_DECLARED",
+      "message": "Repository evidence is overstated as host behavior.",
+      "path": ".agdf/control/runs/opencode-native-dispatch-tool/RUN_STATE.md",
+      "next_step": "Require separate direct loaded-host evidence.",
+      "run_id": "opencode-native-dispatch-tool"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/payload-budget-root-resolution-20261008-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/payload-budget-root-resolution-20261008-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "payload-budget-root-resolution-20261008-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/prd-definition-separation-20261004-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/prd-definition-separation-20261004-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "prd-definition-separation-20261004-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/quick-task-closeout-status-20261002-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/quick-task-closeout-status-20261002-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "quick-task-closeout-status-20261002-01"
+    },
+    {
+      "severity": "revise",
+      "code": "AGDF_DELIVERY_RELATIONSHIP_MISSING",
+      "message": "QA_REPORT must be traceable via tests TP.",
+      "path": ".agdf/control/runs/repository-control-compatibility-20260930-01/RUN_STATE.md",
+      "next_step": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+      "run_id": "repository-control-compatibility-20260930-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/restore-unsealed-active-run-records-20260929-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/restore-unsealed-active-run-records-20260929-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "restore-unsealed-active-run-records-20260929-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/sd-definition-separation-20261004-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/sd-definition-separation-20261004-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "sd-definition-separation-20261004-01"
+    },
+    {
+      "severity": "warn",
+      "code": "AGDF_DECISION_CONTENT_INCOMPLETE",
+      "message": "The selected active Run has incomplete decision orientation.",
+      "path": ".agdf/control/runs/status-card-stale-next-action-20261008-01/RUN_STATE.md",
+      "next_step": "Complete decision content\n\nObjective: missing_or_placeholder \u00b7 .agdf/control/runs/status-card-stale-next-action-20261008-01/RUN_STATE.md \u00b7 Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.",
+      "run_id": "status-card-stale-next-action-20261008-01"
+    }
+  ],
+  "finding_codes": {
+    "AGDF_DECISION_CONTENT_INCOMPLETE": 13,
+    "AGDF_MISSING_EVIDENCE_DECLARED": 15,
+    "AGDF_RISK_DECLARED": 46,
+    "AGDF_CONTEXT_GRAPH_GATE_EFFECT": 2,
+    "AGDF_DELIVERY_RELATIONSHIP_CONFLICT": 1,
+    "AGDF_DELIVERY_RELATIONSHIP_MISSING": 2
+  }
+}

@@ -404,6 +404,61 @@ test('complete matrix accepts real-shaped primary events and rejects missing/for
     assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /primary_unexpected_native_tool/u);
   } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
 });
+test('legacy Codex failure-case records use primary authority evidence without rewriting records', () => {
+  const f = candidateFixture({ policyVersion: 3 }), data = nativeFixtures(f, 'codex');
+  try {
+    const row = data.rows.find(row => row.record.scenario === 'failure_case');
+    delete row.record.steps.find(step => step.name === 'failure_case').evidence.authorizes;
+    const path = join(row.directory, 'release-records.json');
+    writeFileSync(path, JSON.stringify([row.record]));
+    const before = readFileSync(path), original = structuredClone(row.record), digest = bundleDigest(data.rows);
+    assert.equal(assertHostReleaseEvidence(data.rows, data.options).result, 'pass');
+    assert.deepEqual(row.record, original);
+    assert.deepEqual(readFileSync(path), before);
+    assert.equal(bundleDigest(data.rows), digest);
+  } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
+});
+test('legacy authority compatibility rejects unsafe primary evidence and stays limited to Codex failure cases', () => {
+  const f = candidateFixture({ policyVersion: 3 }), data = nativeFixtures(f);
+  try {
+    const row = data.rows.find(row => row.record.environment.host === 'codex' && row.record.scenario === 'failure_case');
+    const evidence = row.record.steps.find(step => step.name === 'failure_case').evidence;
+    for (const value of [true, null, 'false']) {
+      evidence.authorizes = value;
+      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_authority_mismatch/u);
+    }
+    delete evidence.authorizes;
+    const path = join(row.directory, 'failure_case-process.json'), original = readFileSync(path);
+    for (const value of [true, null, undefined]) {
+      const primary = JSON.parse(original);
+      const change = text => text.split('\n').map(line => {
+        const event = JSON.parse(line), result = event.item?.result;
+        if (result) {
+          const reply = JSON.parse(result.content[0].text);
+          if (value === undefined) delete reply.authorizes; else reply.authorizes = value;
+          result.content[0].text = JSON.stringify(reply);
+        }
+        return JSON.stringify(event);
+      }).join('\n');
+      primary.stdout = change(primary.stdout); primary.rollouts = primary.rollouts.map(change);
+      writeFileSync(path, JSON.stringify(primary));
+      row.record.references = referencesFrom(row.directory, row.record.references.map(ref => ref.path));
+      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /primary_authority_mismatch/u);
+    }
+    writeFileSync(path, original);
+    row.record.references = referencesFrom(row.directory, row.record.references.map(ref => ref.path));
+    writeFileSync(path, Buffer.concat([original, Buffer.from('\n')]));
+    assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_reference_changed/u);
+    writeFileSync(path, original);
+    assert.equal(assertHostReleaseEvidence(data.rows, data.options).result, 'pass');
+    for (const other of data.rows.filter(other => other !== row)) {
+      const step = other.record.steps.find(step => step.name === other.record.scenario);
+      delete step.evidence.authorizes;
+      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_authority_mismatch/u);
+      step.evidence.authorizes = false;
+    }
+  } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
+});
 test('Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files', () => {
   const f = candidateFixture(), data = nativeFixtures(f, 'claude');
   try {

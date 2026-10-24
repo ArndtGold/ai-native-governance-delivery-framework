@@ -1,0 +1,43 @@
+MCP retry uses the documented archive-candidate roots, with these exact archive hashes: {"cli":{"root":"/private/tmp/agdf-qa-built-archives-lbjyrucm/cli/package","archive":"dist/tarballs/create-agdf-0.20.0.tgz","sha256":"d9e5f07a3d9829040e259b9e541de8c63d734997c82fca10302b793d8b895a7a"},"mcp":{"root":"/private/tmp/agdf-qa-built-archives-lbjyrucm/mcp/package","archive":"dist/tarballs/agdf-mcp-server-0.20.0.tgz","sha256":"f183c3e3af02d6bcb2da4c0e088d5dfad90470803a8de58896d08a0adcb87836"}}
+[cli-smoke-recovery] npm run test:mcp-server
+npm notice run create-agdf@0.20.0 test:mcp-server
+npm notice run npm --prefix ../mcp-server test
+npm notice run @agdf/mcp-server@0.20.0 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:run-command-flow && npm run test:protocol && npm run test:cockpit-gating && npm run test:generation && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+npm notice run @agdf/mcp-server@0.20.0 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+npm notice run @agdf/mcp-server@0.20.0 test:continuation
+npm notice run node ./test/continuation.test.js
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+npm notice run @agdf/mcp-server@0.20.0 test:late-source-revision
+npm notice run node ./test/late-source-revision.test.js
+Late source revision CLI/Core/MCP parity passed (actual stdio server, synthetic fixture approvals).
+npm notice run @agdf/mcp-server@0.20.0 test:run-command-flow
+npm notice run node ./test/run-command.test.js && node ./test/decision-resource.test.js && node ./test/whole-flow.test.js && node ./test/structured-flow.test.js && node ./test/revision-command.test.js && node ./test/expanded-source-revision.test.js
+Actual legacy/modern STDIO group discovery, strict confinement, canonical recording/replay/status and worker uncertainty passed; native host consent remains unqualified.
+Packaged preview: actual STDIO Core preparation/session/stateless reads and honest unsupported Chat access passed without approval.
+Exact owned generated package UI resource, private nonce, model/App discovery, unqualified enforcement, disabled groups, document bytes and teardown passed over both actual STDIO eras; native qualification remains absent.
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_slice: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_slice: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+SCN-069/074: starting UR/PRD
+SCN-069/074: passed UR/PRD
+SCN-069/074: starting UR/SD
+SCN-069/074: passed UR/SD
+SCN-069/074: starting UR/TP
+SCN-069/074: passed UR/TP
+SCN-069/074: starting UR/CD+Tests
+SCN-069/074: passed UR/CD+Tests
+SCN-069/074: starting UR/QA
+SCN-069/074: passed UR/QA
+SCN-069/074: starting UR/UAT
+
+REVIEWER OBSERVATION: The supplementary broad CLI retry was deliberately stopped after its source/phase matrix had partially progressed. It is incomplete, not passed. The original full verification already failed at Delivery Map; targeted importer tests and completed stages retain their recorded results. No native qualification case was rerun or changed.

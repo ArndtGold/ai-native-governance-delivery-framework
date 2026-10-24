@@ -1,0 +1,781 @@
+Resuming unchanged canonical plan after the recorded passing prefix; retrying failed compatibility-freshness and every remaining stage.
+[verify-ci] compatibility-freshness
+npm notice run compatibility:check
+npm notice run node scripts/host-compatibility/run.mjs check
+{
+  "status": "pass",
+  "scenarios": {
+    "evaluated": 56,
+    "failed": 0
+  },
+  "source_fingerprint": "ba5213c3a1bf45901b1bc12ced48d216b06f3cdc4314613c83f51816ffe34cdb"
+}
+[verify-ci] compatibility-freshness passed (3.8s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.0",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.0",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.0",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (2.0s)
+[verify-ci] prepare
+npm notice run create-agdf@0.20.0 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.20.0 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.20.0 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (9 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.20.0 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.20.0 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (49 surfaces at 0.20.0; 9 profile snapshots)
+npm notice run create-agdf@0.20.0 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+warning: Empty last update token.
+Public plugin tests passed (63 inventoried candidate files; digest fe37d912617062f0c579f267e3209fe0ead8ee58389968c27a8e6251870481fc)
+npm notice run create-agdf@0.20.0 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest fe37d912617062f0c579f267e3209fe0ead8ee58389968c27a8e6251870481fc
+[verify-ci] prepare passed (65.9s)
+[verify-ci] mcp-dependencies
+
+added 15 packages, and audited 16 packages in 16s
+
+2 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] mcp-dependencies passed (16.9s)
+[verify-ci] runtime
+[agdf-runtime-integrity] ok (mode=source; 14 skills and 16 control files checked)
+[verify-ci] runtime passed (5.4s)
+[verify-ci] community
+npm notice run test:community-health
+npm notice run node scripts/community-health-test.mjs
+community-health-test: pass (reviewed baseline + 29 negative contracts)
+npm notice run check:community-health
+npm notice run node scripts/check-community-health.mjs
+community-health: pass (39 required files, 4 issue forms)
+[verify-ci] community passed (14.5s)
+[verify-ci] host-compatibility
+npm notice run test:host-compatibility
+npm notice run node packages/cli/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs
+{
+  "evaluated": 56,
+  "failed": []
+}
+Host compatibility evidence tests passed (71 named checks, recording failure and isolation controls).
+[verify-ci] host-compatibility passed (131.1s)
+[verify-ci] mcp-ergonomics
+npm notice run test:mcp-ergonomics
+npm notice run node --test "evals/mcp-ergonomics/test/*.test.mjs"
+TAP version 13
+# Subtest: the shared parser reproduces the probe's former session summary
+ok 1 - the shared parser reproduces the probe's former session summary
+  ---
+  duration_ms: 6.596055
+  type: 'test'
+  ...
+# Subtest: the generalized parser keeps every tool pair, error flag, init and result
+ok 2 - the generalized parser keeps every tool pair, error flag, init and result
+  ---
+  duration_ms: 0.56412
+  type: 'test'
+  ...
+# Subtest: tool_reference parts of ToolSearch results are kept as references
+ok 3 - tool_reference parts of ToolSearch results are kept as references
+  ---
+  duration_ms: 6.678063
+  type: 'test'
+  ...
+# Subtest: redaction removes raw, forward-slash and JSON-escaped path forms (SCN-015)
+ok 4 - redaction removes raw, forward-slash and JSON-escaped path forms (SCN-015)
+  ---
+  duration_ms: 0.466952
+  type: 'test'
+  ...
+# Subtest: the credential copy exists during sync and async callbacks and is removed afterwards
+ok 5 - the credential copy exists during sync and async callbacks and is removed afterwards
+  ---
+  duration_ms: 114.61601
+  type: 'test'
+  ...
+# Subtest: mcp list parsing and installed plugin root lookup
+ok 6 - mcp list parsing and installed plugin root lookup
+  ---
+  duration_ms: 1.611814
+  type: 'test'
+  ...
+# Subtest: session arguments keep the probe's flag order and add variant flags
+ok 7 - session arguments keep the probe's flag order and add variant flags
+  ---
+  duration_ms: 4.68475
+  type: 'test'
+  ...
+# Subtest: task set v1 holds the approved decisions and six complete tasks (SCN-008)
+ok 8 - task set v1 holds the approved decisions and six complete tasks (SCN-008)
+  ---
+  duration_ms: 12.276085
+  type: 'test'
+  ...
+# Subtest: read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+ok 9 - read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+  ---
+  duration_ms: 0.964587
+  type: 'test'
+  ...
+# Subtest: new-run, document-page and stale-write predicates (SCN-009)
+ok 10 - new-run, document-page and stale-write predicates (SCN-009)
+  ---
+  duration_ms: 21.743801
+  type: 'test'
+  ...
+# Subtest: approval predicate on a real presented fixture (SCN-009)
+ok 11 - approval predicate on a real presented fixture (SCN-009)
+  ---
+  duration_ms: 12996.123686
+  type: 'test'
+  ...
+# Subtest: cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+ok 12 - cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+  ---
+  duration_ms: 1.399604
+  type: 'test'
+  ...
+# Subtest: variant verification and session metrics
+ok 13 - variant verification and session metrics
+  ---
+  duration_ms: 1.241458
+  type: 'test'
+  ...
+# Subtest: variant allowlists follow SD SDD-007
+ok 14 - variant allowlists follow SD SDD-007
+  ---
+  duration_ms: 0.344881
+  type: 'test'
+  ...
+# Subtest: variant verification rejects foreign MCP servers and built-in tools outside the variant
+ok 15 - variant verification rejects foreign MCP servers and built-in tools outside the variant
+  ---
+  duration_ms: 0.380472
+  type: 'test'
+  ...
+# Subtest: PowerShell AGDF calls count as shell calls and permission denials are counted
+ok 16 - PowerShell AGDF calls count as shell calls and permission denials are counted
+  ---
+  duration_ms: 0.610566
+  type: 'test'
+  ...
+# Subtest: plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+ok 17 - plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+  ---
+  duration_ms: 0.880148
+  type: 'test'
+  ...
+# Subtest: tasks.v1.json stays valid JSON with the documented prompt placeholders
+ok 18 - tasks.v1.json stays valid JSON with the documented prompt placeholders
+  ---
+  duration_ms: 0.730922
+  type: 'test'
+  ...
+# Subtest: the native runner's dry run plans cells with their task ids
+ok 19 - the native runner's dry run plans cells with their task ids
+  ---
+  duration_ms: 2331.425014
+  type: 'test'
+  ...
+# Subtest: sessions that end in an error or without result are no measurement
+ok 20 - sessions that end in an error or without result are no measurement
+  ---
+  duration_ms: 0.455056
+  type: 'test'
+  ...
+# Subtest: a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+ok 21 - a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+  ---
+  duration_ms: 1961.77556
+  type: 'test'
+  ...
+# Subtest: strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+ok 22 - strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+  ---
+  duration_ms: 2.35465
+  type: 'test'
+  ...
+# Subtest: Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+ok 23 - Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+  ---
+  duration_ms: 2.311767
+  type: 'test'
+  ...
+# Subtest: single Codex T4 planning cannot enter the default multi-session host probe
+ok 24 - single Codex T4 planning cannot enter the default multi-session host probe
+  ---
+  duration_ms: 4791.346069
+  type: 'test'
+  ...
+# Subtest: code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+ok 25 - code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+  ---
+  duration_ms: 11.481136
+  type: 'test'
+  ...
+# Subtest: single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+ok 26 - single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+  ---
+  duration_ms: 1.21311
+  type: 'test'
+  ...
+# Subtest: Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+ok 27 - Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+  ---
+  duration_ms: 1.994902
+  type: 'test'
+  ...
+# Subtest: empty host catalog discovery cannot supply bindings or admit resource reads
+ok 28 - empty host catalog discovery cannot supply bindings or admit resource reads
+  ---
+  duration_ms: 0.926968
+  type: 'test'
+  ...
+# Subtest: normalization replaces every root form and zeroes *_ms values
+ok 29 - normalization replaces every root form and zeroes *_ms values
+  ---
+  duration_ms: 74.106746
+  type: 'test'
+  ...
+# Subtest: normalized bytes are independent of root length and timing digits
+ok 30 - normalized bytes are independent of root length and timing digits
+  ---
+  duration_ms: 2.344654
+  type: 'test'
+  ...
+# Subtest: token estimate rule and summary statistics
+ok 31 - token estimate rule and summary statistics
+  ---
+  duration_ms: 0.327369
+  type: 'test'
+  ...
+# Subtest: classification follows the written rule order
+ok 32 - classification follows the written rule order
+  ---
+  duration_ms: 0.794692
+  type: 'test'
+  ...
+# Subtest: the pinned SDK input-validation text matches the installed MCP server SDK
+ok 33 - the pinned SDK input-validation text matches the installed MCP server SDK
+  ---
+  duration_ms: 19.952973
+  type: 'test'
+  ...
+# Subtest: a failing fixture build leaves no temporary directory behind
+ok 34 - a failing fixture build leaves no temporary directory behind
+  ---
+  duration_ms: 19603.333038
+  type: 'test'
+  ...
+# Subtest: protocol compare is exact for non-timing metrics and ignores latency (SCN-005)
+ok 35 - protocol compare is exact for non-timing metrics and ignores latency (SCN-005)
+  ---
+  duration_ms: 4.237026
+  type: 'test'
+  ...
+# Subtest: native compare uses the recorded range and marks missing cells
+ok 36 - native compare uses the recorded range and marks missing cells
+  ---
+  duration_ms: 2.100621
+  type: 'test'
+  ...
+# Subtest: re-evaluation changes only transcript-determined verdicts and refuses transcripts with evidence writes
+ok 37 - re-evaluation changes only transcript-determined verdicts and refuses transcripts with evidence writes
+  ---
+  duration_ms: 16.074652
+  type: 'test'
+  ...
+# Subtest: the report states a failed or empty native run instead of claiming full measurement
+ok 38 - the report states a failed or empty native run instead of claiming full measurement
+  ---
+  duration_ms: 81.257076
+  type: 'test'
+  ...
+# Subtest: tool captures must be byte-identical (SCN-023)
+ok 39 - tool captures must be byte-identical (SCN-023)
+  ---
+  duration_ms: 0.446556
+  type: 'test'
+  ...
+# Subtest: redaction check fails closed on local paths and credential patterns (SCN-015/016)
+ok 40 - redaction check fails closed on local paths and credential patterns (SCN-015/016)
+  ---
+  duration_ms: 33.64956
+  type: 'test'
+  ...
+# Subtest: transcripts lose connector names and tool prefixes but keep AGDF servers
+ok 41 - transcripts lose connector names and tool prefixes but keep AGDF servers
+  ---
+  duration_ms: 1.233745
+  type: 'test'
+  ...
+# Subtest: promote writes baseline and report only for clean input (SCN-016, SCN-021/022)
+ok 42 - promote writes baseline and report only for clean input (SCN-016, SCN-021/022)
+  ---
+  duration_ms: 16.668643
+  type: 'test'
+  ...
+# Subtest: findings map covers the twelve review findings with a metric or a reason (SCN-021)
+ok 43 - findings map covers the twelve review findings with a metric or a reason (SCN-021)
+  ---
+  duration_ms: 1.186836
+  type: 'test'
+  ...
+# Subtest: call matrix v1 covers valid, schema-invalid and semantic calls for all seven agdf tools (SCN-001)
+ok 44 - call matrix v1 covers valid, schema-invalid and semantic calls for all seven agdf tools (SCN-001)
+  ---
+  duration_ms: 2.524284
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25881.618638
+[verify-ci] mcp-ergonomics passed (29.0s)
+[verify-ci] built-runtime
+[agdf-runtime-integrity] ok (mode=installed; 14 skills and 16 control files checked)
+[verify-ci] built-runtime passed (7.7s)
+[verify-ci] cli-package
+npm notice run create-agdf@0.20.0 test:package-contents
+npm notice run node scripts/package-contents-test.js
+Package contents tests passed (1354 files; complete release-built plugin present)
+[verify-ci] cli-package passed (17.7s)
+[verify-ci] wrapper-package
+npm notice run @agdf/cli@0.20.0 test:package
+npm notice run node ./scripts/package-test.js
+AGDF CLI package contents passed (5 files).
+[verify-ci] wrapper-package passed (3.7s)
+[verify-ci] transactions
+npm notice run create-agdf@0.20.0 test:run-step-transaction
+npm notice run node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js && node ../core/test/backlog-work-summary-test.js && node ../core/test/backlog-summary-codec-test.js
+Run-step transaction boundaries passed.
+PASS approval + Backlog transaction recovers intent, identical replay has one effect
+PASS approval + Backlog transaction recovers run, identical replay has one effect
+PASS approval + Backlog transaction recovers backlog, identical replay has one effect
+PASS nonexact reply changes neither Run nor Backlog
+PASS presentation tampered after journal intent is rejected before commit
+PASS backlog-only repair preserves exact sealed Run bytes and is idempotent
+PASS backtick key is matched once, title and links retained
+PASS unsupported header is reported as skipped with zero mutation
+PASS duplicate identity is reported as skipped with zero mutation
+PASS stale caller cannot repair pointer
+PASS legacy pointer repair retains its thirteen columns and existing links
+PASS symlink Backlog is skipped without changing foreign file or Run
+PASS symlink Run cannot authorize a Backlog-only repair
+PASS evidence recording also synchronizes status and next action
+PASS approval is accepted when the Backlog cannot be synchronized and reports why
+PASS run-step keeps a legacy row's title and links, updates its status and reports the layout
+16 Backlog writer scenarios passed.
+PASS specific qa_evidence_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+PASS contradictory/missing/invalid/foreign normalized sources remain unconfirmed
+PASS missing QA registration, invalid UTF-8, oversized report and bounded reference set stay explicit
+PASS pass awaiting approval, approved QA/UAT, closeout and completed are distinct from block
+PASS actual resulting revision, exact repeat timestamp/bytes and selected current comparison
+PASS consumed QA source movement before commit cannot mix Run and pointer evidence
+PASS explicit referenced review movement also prevents a mixed commit
+11 work-summary checks passed
+PASS bounded saved roundtrip outside table preserves title, foreign row and exact repeat bytes
+PASS unknown versions, malformed/oversized/foreign/path/prototype-like fields and row mutations fail closed
+PASS old seven/thirteen-column rows retain stored text without migration
+PASS saved-only immutable scope reads exactly the Backlog and never writes
+4 codec checks passed
+npm notice run create-agdf@0.20.0 test:run-lock
+npm notice run node ../core/test/run-lock-test.js
+Run lock owner recovery passed.
+[verify-ci] transactions passed (43.2s)
+[verify-ci] delivery-map
+AGDF delivery-map: block
+Current gate: all-active
+Next allowed action: Resolve per-run findings.
+Quality outlook: Keep every active run independently actionable.
+Relationships: 232/285 evidenced
+Findings: 80
+
+[block] AGDF_RUN_PATH_INVALID
+Invalid canonical run entry.
+Next step: Repair or remove the invalid run entry.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/agdf-actionable-card-ux-20260928-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/agdf-clean-build-output-repair-20261004-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/agdf-cockpit-claude-host-20261008-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Final German context-only repo-less and repository-bound Copilot evidence
+Next step: Restart Copilot, verify the complete German `qa-gate` `no_reliable_target` card immediately, then run the repository-bound path separately.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Direct Linux and native-Windows lifecycle behavior
+Next step: Require separately authorized host evidence before cross-platform parity claims.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Gate-safe native Copilot input transport
+Next step: Keep exact-text approval as the baseline until a later adapter preflight proves exact values and deliberate waiting.
+
+[warn] AGDF_RISK_DECLARED
+Copilot plugin installation or permissions are mistaken for AGDF gate approval.
+Next step: Preserve `interaction.md` and exact approval revalidation as the sole authority.
+
+[warn] AGDF_RISK_DECLARED
+Retirement deletes or rewrites existing user-owned Copilot repository files.
+Next step: Stop generating and supporting the projection without automatically deleting existing files.
+
+[warn] AGDF_RISK_DECLARED
+Repository or package evidence is overstated as loaded app behavior.
+Next step: Maintain separate source, bundle, installed-root, fresh-session and human-UAT evidence.
+
+[warn] AGDF_RISK_DECLARED
+Native input or hook support drifts across the Copilot app, CLI and cloud agent.
+Next step: Start with the supported common subset and gate stronger claims on direct capability evidence.
+
+[warn] AGDF_RISK_DECLARED
+A host working directory is mistaken for task-target or governance authority.
+Next step: Require the code-owned target preflight before doctor, run selection or gate evaluation and expose `instruction_only` honestly.
+
+[warn] AGDF_RISK_DECLARED
+A host infers presentation language from English skill, runtime or UI text instead of the current conversation.
+Next step: Keep current-conversation meaning in the semantic function description and binding grammar, project it into every executable skill and require fresh loaded-host evidence.
+
+[warn] AGDF_RISK_DECLARED
+Recommended setup is mistaken for implicit consent.
+Next step: Require a deliberate interactive choice and explicit noninteractive `--with-mcp`.
+
+[warn] AGDF_RISK_DECLARED
+Partial failure is reported as complete installation.
+Next step: Model plugin, hook, registration, discovery and restart as separate effective states.
+
+[warn] AGDF_RISK_DECLARED
+New orchestration duplicates installer or MCP lifecycle logic.
+Next step: Brownfield Review must preserve existing owners and add only composition.
+
+[warn] AGDF_RISK_DECLARED
+Coupled removal deletes foreign or shared state.
+Next step: Reuse exact ownership, provenance and reference-counted cleanup.
+
+[warn] AGDF_RISK_DECLARED
+Repository tests are presented as loaded-host support.
+Next step: Retain separate direct host and UAT evidence lanes.
+
+[warn] AGDF_RISK_DECLARED
+A user-wide registration is mistaken for governance target authority.
+Next step: Explain that user scope changes host discovery only; every dispatch still resolves one target and run.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/agdf-intermediate-status-card-reduction-20261002-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Final file-level consumer map for non-submission metadata
+Next step: Resolve in Solution Design before any exclusion beyond the proven submission classes.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Clean-client completeness after exclusions
+Next step: Define deterministic installation and runtime probes in the Task/Test Plan.
+
+[warn] AGDF_RISK_DECLARED
+A runtime-required file is classified as development-only.
+Next step: Require consumer and lifecycle evidence before exclusion; later execution must stop if that evidence is absent.
+
+[warn] AGDF_RISK_DECLARED
+Package cleanup creates a second hand-maintained inventory.
+Next step: Reuse one semantic generated profile or deterministic allowlist owner.
+
+[warn] AGDF_RISK_DECLARED
+Local submission generation is accidentally removed.
+Next step: Separate generation from publication; preserve canonical and generated review sources.
+
+[warn] AGDF_RISK_DECLARED
+Size reduction is optimized at the expense of supported-host completeness.
+Next step: Treat runtime completeness as the invariant and size only as measured evidence; later execution must stop on any completeness regression.
+
+[warn] AGDF_RISK_DECLARED
+The Copilot QA scope is silently expanded or invalidated.
+Next step: Keep the runs independent and retest package coexistence later without rewriting Copilot approvals.
+
+[warn] AGDF_CONTEXT_GRAPH_GATE_EFFECT
+Context Graph impact is update_existing_node with gate effect warning.
+Next step: Clarify the Context Graph impact before advancing the gate.
+
+[warn] AGDF_RISK_DECLARED
+A keyword filter misclassifies advice or quoted implementation text.
+Next step: Classify requested effect through one semantic contract and test adversarial cases.
+
+[warn] AGDF_RISK_DECLARED
+A second hook becomes a competing activation policy.
+Next step: Keep activation semantics canonical and treat any mutation hook only as later defense in depth.
+
+[warn] AGDF_RISK_DECLARED
+Dispatcher compatibility is changed in place or confused with another run's completed/QA evidence.
+Next step: Preserve dispatcher v1 by default; any necessary executable backstop requires explicit versioning and independent evidence.
+
+[warn] AGDF_RISK_DECLARED
+Ordinary read-only handling still emits an AGDF banner.
+Next step: Require silent abstention and loaded-host transcript evidence.
+
+[warn] AGDF_RISK_DECLARED
+Explicit AGDF status or lifecycle requests stop working.
+Next step: Preserve explicit-operation routes and test missing-control behavior by request class.
+
+[warn] AGDF_RISK_DECLARED
+Canonical init recovery overwrites user or conflicting partial state.
+Next step: Strict valid-run parser, file/link constraints, content/identity snapshots and rollback tests fail closed; preserve this owner boundary.
+
+[warn] AGDF_RISK_DECLARED
+Full eager routing or repeated policy channels return in a future projection.
+Next step: Preserve definition-owned byte budgets, kernel fingerprint, on-demand route and duplicate/conflict integrity checks.
+
+[warn] AGDF_RISK_DECLARED
+Source-composed Copilot or OpenCode profiles are falsely presented as live evaluation on those hosts.
+Next step: Keep `profile_surface` and `evaluator_surface` independent, report `evidence_plane: source_composed`, and retain fresh-host evidence as a separate obligation. Treat any conflation as an implementation stop condition.
+
+[warn] AGDF_RISK_DECLARED
+Expected case outcomes leak into model-visible composed instructions.
+Next step: Use only closed `composed_profile.instruction_skill` metadata and exclude both metadata and `expected` from model input. Treat any leakage as an implementation stop condition.
+
+[warn] AGDF_CONTEXT_GRAPH_GATE_EFFECT
+Context Graph impact is update_existing_node with gate effect warning.
+Next step: Resolve Context Graph action: update.
+
+[revise] AGDF_DELIVERY_RELATIONSHIP_CONFLICT
+PRD must be traceable via derived_from UR.
+Next step: Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/backlog-status-flow-clarity-20261009-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Existing owner and protocol-impact inventory
+Next step: Perform Brownfield Review only after UR approval.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Direct authenticated Codex host behavior for any future adapter
+Next step: Keep as later UAT evidence; do not infer it from repository or protocol tests.
+
+[warn] AGDF_RISK_DECLARED
+Codex tool permissions are mistaken for AGDF gate approvals.
+Next step: Preserve `interaction.md` as sole approval authority and require exact AGDF approval validation.
+
+[warn] AGDF_RISK_DECLARED
+Codex integration duplicates AGDF state, rendering or gate logic.
+Next step: Brownfield Review must identify and reuse canonical owners before any design.
+
+[warn] AGDF_RISK_DECLARED
+Codex-specific integration weakens cross-host portability.
+Next step: Keep host-specific transport behind shared AGDF contracts and test host-neutral semantics.
+
+[warn] AGDF_RISK_DECLARED
+Repository evidence is overstated as live-host behavior.
+Next step: Maintain separate repository, protocol and authenticated-host evidence classes.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Direct fresh-session behavior for repository-disabled Copilot AGDF
+Next step: Keep as later host evidence; do not infer from repository fixtures.
+
+[warn] AGDF_RISK_DECLARED
+A local opt-out overwrites unrelated Copilot settings.
+Next step: Reuse atomic settings ownership, preserve unrelated keys and fail closed on invalid or unowned paths.
+
+[warn] AGDF_RISK_DECLARED
+Plugin-disabled is mistaken for all AGDF instructions disabled.
+Next step: Document and separately verify plugin and instruction discovery.
+
+[warn] AGDF_RISK_DECLARED
+Unsupported host behavior is presented as parity.
+Next step: Publish an explicit support matrix and separate repository, CLI and fresh-session evidence.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/gate-decision-card-20261010-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/gate-internal-continuation-recovery-20261008-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Private vulnerability reporting availability
+Next step: Confirm the host capability during implementation; use the approved email fallback if unavailable.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Default-branch Community Profile recognition
+Next step: Verify after repository files are delivered to the default branch.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Applied GitHub metadata and social preview
+Next step: Verify through public or authenticated host observation after application.
+
+[warn] AGDF_RISK_DECLARED
+Public policy text could promise unsupported response behavior
+Next step: Enforce the approved no-SLA and current-release-only boundaries through deterministic policy assertions.
+
+[warn] AGDF_RISK_DECLARED
+New files could duplicate existing Pages or runtime documentation instead of routing to canonical owners
+Next step: Brownfield Review must identify canonical owners and link rather than copy where appropriate.
+
+[warn] AGDF_RISK_DECLARED
+Host metadata and repository files could drift because they have separate mutation paths
+Next step: Define separate validation and delivery evidence for repository files and GitHub-hosted settings.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Verified automatic-mode outcome for each Codex, Claude Code and OpenCode combination on macOS, Linux and native Windows
+Next step: Complete the remaining direct-host matrix without inferred parity.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Safe consent persistence and invalidation behavior for each supported host
+Next step: Observe revised install/update choices, renewal and rollback through separately authorized host evidence.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Direct fresh-session behavior after enabled, declined, revoked and updated consent
+Next step: Complete the declared host evidence before QA pass; do not infer it from repository tests.
+
+[warn] AGDF_MISSING_EVIDENCE_DECLARED
+Direct native-Windows evidence for installation, consent, status, revocation, update, rollback and fresh session
+Next step: Require native-Windows execution before claiming Windows support; simulation remains supporting evidence only.
+
+[warn] AGDF_RISK_DECLARED
+Installation consent is mistaken for an AGDF gate approval.
+Next step: Preserve `interaction.md` and `CG-NATIVE-INTERACTION-AUTHORITY` as the sole authority boundary.
+
+[warn] AGDF_RISK_DECLARED
+A broad or stale permission rule survives changed executable content.
+Next step: Brownfield Review and later design must prove least-privilege scope and renewed-consent behavior.
+
+[warn] AGDF_RISK_DECLARED
+The installer silently mutates user or project configuration.
+Next step: Require explicit consent, ownership checks, visible effects and reversible state through existing installer owners.
+
+[warn] AGDF_RISK_DECLARED
+One generic mechanism ignores material host differences.
+Next step: Keep one semantic consent contract with thin host-specific adapters and honest unsupported outcomes.
+
+[warn] AGDF_RISK_DECLARED
+macOS or Linux evidence is generalized into an unsupported Windows claim.
+Next step: Require an explicit host/OS matrix and direct native-Windows evidence for every claimed Windows path.
+
+[warn] AGDF_RISK_DECLARED
+Repository or installation evidence is overstated as effective host behavior.
+Next step: Preserve separate repository, package, installed-host and fresh-session evidence planes.
+
+[revise] AGDF_DELIVERY_RELATIONSHIP_MISSING
+QA_REPORT must be traceable via tests TP.
+Next step: Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.
+
+[warn] AGDF_RISK_DECLARED
+Native tool becomes a general shell bypass.
+Next step: Strict schema, fixed runtime owner, no arbitrary executable/command/path and dedicated permission key.
+
+[warn] AGDF_RISK_DECLARED
+Tool permission is mistaken for AGDF approval.
+Next step: Preserve exact `Approval: <Gate>` validation and non-authorizing tool result.
+
+[warn] AGDF_RISK_DECLARED
+Installer overwrites user policy.
+Next step: Additive, consent-bound projection that preserves explicit user settings and provides manual mode.
+
+[warn] AGDF_RISK_DECLARED
+Repository evidence is overstated as host behavior.
+Next step: Require separate direct loaded-host evidence.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/payload-budget-root-resolution-20261008-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/prd-definition-separation-20261004-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/quick-task-closeout-status-20261002-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[revise] AGDF_DELIVERY_RELATIONSHIP_MISSING
+QA_REPORT must be traceable via tests TP.
+Next step: Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/restore-unsealed-active-run-records-20260929-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/sd-definition-separation-20261004-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+
+[warn] AGDF_DECISION_CONTENT_INCOMPLETE
+The selected active Run has incomplete decision orientation.
+Next step: Complete decision content
+
+Objective: missing_or_placeholder · .agdf/control/runs/status-card-stale-next-action-20261008-01/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.
+Verification failed at delivery-map: node packages/cli/bin/create-agdf.js delivery-map --dir . --all-active (2)

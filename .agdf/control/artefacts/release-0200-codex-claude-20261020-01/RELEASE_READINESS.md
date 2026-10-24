@@ -1,73 +1,66 @@
-# AGDF 0.20.0 release readiness — final candidate 8e2b8699
+# AGDF 0.20.0 release readiness — final local QA
 
 Date: 2026-10-24
-Run: release-0200-codex-claude-20261020-01 (revision 53, gate QA)
-Status: TPR-103 fixed, CD+Tests and Code Review pass. Commit-bound CI and native CLI qualification are pending,
-so publication is ineligible.
-Gate authority: none. No QA approval, UAT, OR or publication is asserted.
+Run: release-0200-codex-claude-20261020-01
+Status: local implementation and verification complete; technical QA revise with a bounded human deviation decision prepared.
+Authority: no QA/UAT/OR approval, commit, push, merge, tag, import or publication is granted here.
 
-## Candidate
+## Result and exact applicability
 
-| Field | Value |
-|---|---|
-| Verified commit | 460027fabc58fe0da041bbabe117519dd1f696b7 (PR 30). The PR head 08bb962f adds only run records. |
-| Candidate ID | 8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692 |
-| Clean status | dirty false, built in the isolated worktree C:/Workspace/agdf-rc-460027fa |
-| Change against 5e84374e | Exactly one candidate source: scripts/host-compatibility/test.mjs (TPR-103) |
-| Policy digest | 8d7ff1967b9f6d6be94b050aeff2aebf243905c48eb920c9fa1382be74d87af8 (hostSupport schema 3, unchanged) |
-| Loaded identity | agdf 0.20.0, source 99053ec3…, runtime 6c5ec6dd… (unchanged) |
-| MCP dispatcher | 3caf8c2a… (unchanged) |
-| Source files | 1,592 |
+All 27 canonical repository verification stages pass in the isolated snapshot, including the full
+CLI/MCP smoke chain. Source digest: 9888565d0513806fda85ef1eb860f1c6a8e9e32800497a9229a502bd3264cfc4.
+See evidence/QA_FINISH_20261024/FINAL_VERIFICATION.md, VERIFICATION.json and verification.log.
+The targeted release suite passes 34/34. Deterministic compatibility fixtures: 56 scenarios,
+zero unexpected failures. Mac fixture results do not establish native Windows behavior.
 
-Details are in evidence/CANDIDATE_460027FA_20261024/: CANDIDATE.json, CANDIDATE_STEPS.txt and VERIFY_STEPS.txt.
+The three-file importer correction is implemented and Code/Clean reviewed. The legacy omission
+of authorizes is accepted only for Codex failure_case with hash-checked primary authorizes false;
+explicit unsafe values and other scopes remain rejected. Original records are not rewritten.
+Three traceability relationship defects are corrected through the canonical writer; approved
+artefacts, approval seals and gates remain intact. The aggregate Delivery Map has no block/revise
+findings; thirteen pre-existing objective warnings remain visible.
 
-The superseded candidates 5e84374e (7a41879e), 90f6552a (151b4a04), aa3e4b02, af150d33 and 830d8b94 stay
-historical and are never relabelled.
+## Native evidence
 
-## Release scope
+| Original host tuple | Native cases | Review/import boundary |
+|---|---|---|
+| Codex CLI 0.163.0, gpt-6-luna, macOS 15.7.7, x64, Node v22.22.3 | 5/5 PASS | Agent capture/bundle review complete; specified Windows review/import absent and accepted as a residual gap |
+| Claude Code CLI, Windows, frozen recorded tuple | 5/5 PASS | Existing exact review and repository import preserved |
 
-| Host / surface | 0.20.0 scope | Available evidence | Qualification |
-|---|---|---|---|
-| Claude Code CLI, Windows | Mandatory: dispatch, failure_case, skill_continuation, upgrade, recovery | No record for 8e2b8699. Five passing, reviewed records for 5e84374e are historical (evidence/CLAUDE_CLI_5E84374E_20261024/), and their import was set aside. | Pending: 0/5 |
-| Codex CLI, macOS | Mandatory: the same five cases | No record for 8e2b8699. Earlier dirty-candidate runs passed all five cases as diagnostics (DARWIN_HARNESS_APPLICABILITY.json). | Pending: 0/5 |
-| Codex Desktop | Manually checked, not required for publication | Maintainer reports invocation, upgrade and recovery passed; identity unknown | Not qualified (human_reported) |
-| Claude Desktop, Windows | Manually checked, not required for publication | Same reported manual passes; identity unknown | Not qualified (human_reported) |
-| Codex CLI, Windows/Linux | Outside the mandatory matrix | Pinned diagnostic probes (0.157.1, gpt-6-luna) | Unqualified |
-| Copilot / OpenCode | Adapters and regression tests | Experimental support intent | Experimental |
+All ten actual original records and their exact locked reviews pass the complete canonical
+read-only validate --all-hosts route in a temporary tree. No repository import or projection write
+was performed by that validation. Desktop handchecks remain human-reported, non-gating and not
+qualified; Windows/Linux Codex diagnostic scopes and experimental adapters gain no qualification.
 
-No CLI result qualifies a Desktop surface, and no result for one operating system qualifies another.
+Original candidate: 8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.
+Original clean commit: 460027fabc58fe0da041bbabe117519dd1f696b7.
+All five shipped payload inventories remain identical to that candidate. Three changed tooling/test
+files still change source identity: publication of those changes requires an authorized clean final
+commit/candidate and its required CI/native evidence. The old records qualify only the original
+candidate. Remote CI 40079920556 succeeded only for 94ef61c9f0aa5a2041269236affc6556c33ed5a3,
+not for the current uncommitted correction. Root HEAD remains that commit.
 
-## Verification, separated by kind
+## Immutable return package
 
-| Kind | Result |
-|---|---|
-| Repository tests, clean worktree, win32 x64, Node v22.22.3 | test:host-compatibility 71 checks. compatibility:check 56/0, fingerprint ad31f063…. test:maintenance-contracts: verification, node support, interaction catalog, payload budget, release workflow, release evidence, Codex activation matrix and release qualification 32/32. git diff --check is clean. |
-| Fix against the real failure | With the real 5e84374e Claude CLI import applied, the fixed test passes, as do compatibility:record and compatibility:check. Before the fix the same state failed with ENOENT. A mutation check confirms the regression. |
-| Preparation | build:prepare passes in the clean worktree; the Copilot payload baseline is unchanged |
-| Commit-bound remote CI | AGDF Guardrails for the PR head 08bb962f, pending at writing. 08bb962f is an evidence-only descendant of 460027fa. |
-| Reviews | CD+Tests (revision 50) and Code Review pass (revision 51, with an independent review), both recorded as run evidence. TP Review is revise while the native records are open. Clean Implementation Review pass. |
-| Native host observations | 0 of 10 mandatory CLI records for 8e2b8699 |
-| Human acceptance | None. Two human_reported Desktop handchecks are retained. |
+Original archive: /Users/arndtgold/codex-cli-bundle-8e2b8699.tar.gz
+SHA-256: 2d9798679652f8bf80acd529496e4b0f09fdb35cb3b73ca1382c82f89241ea36
+All 44 protected Codex files/archive and 26 imported Claude files remain byte-identical.
+No native case was repeated to change its result. No native work-tmp remains.
+Archive scan found no token-like secrets, email addresses, auth.json, config directory or work-tmp;
+20 absolute /Users/ path occurrences in 16 files remain reported and unchanged.
 
-## Open obligations
+New final transfer: /private/tmp/codex-cli-windows-return-8e2b8699-final.zip.
+Its manifest covers the unchanged original archive, correction patch, current reviews and final
+verification evidence. The older transfer ZIP remains unchanged. See the final WINDOWS_RETURN.md.
 
-| ID | Type / route | Owner | Next bounded action |
-|---|---|---|---|
-| TPR-104 | evidence_gap / evidence_obligation | Claude (Auto-fix on PR 30) | Record the green remote CI for the PR head, or fix a failing check |
-| TPR-101 | evidence_gap / evidence_obligation | Maintainer on the Windows test computer | Run explorer.exe C:\Workspace\agdf-rc-460027fa\probe-results\run-claude-cli-cases.cmd with a sign-in valid for at least an hour (evidence/HANDOFF_8E2B8699_20261024/claude/WINDOWS_RUN.md), then review and import --host claude --surface cli |
-| TPR-102 | evidence_gap / evidence_obligation | Maintainer on the Mac | Run codex login, then bash run-codex-cli-cases.sh (evidence/HANDOFF_8E2B8699_20261024/codex/MAC_RUN.md), then return the bundle for review and import --host codex --surface cli |
+## Remaining bounded QA decision
 
-After both imports: compatibility:record and compatibility:check, validate --all-hosts, then QA again. Only a QA
-pass opens Approval: QA, UAT and OR. The publication job validates the same ten rows independently.
+The maintainer explicitly accepted the Windows review/import gap. The final QA proposal preserves
+three medium evidence findings: that Windows gap (TPR-102), final changed-source candidate/CI/native
+proof (TPR-105), and the final combined repository-import projection (TPR-106). Technical QA stays
+revise; proposed human acceptance is limited to internal review/handoff and grants no publication
+or changed-source qualification. The exact current presentation still needs deliberate human QA
+acceptance; the Windows-only disposition is not reused as that approval.
 
-## Notes
-
-- Codex records are bound to the commit they ran on. Git proves it to be an ancestor of the release checkout with
-  only evidence-output changes; the candidate file's commit field is not trusted.
-- The first real native import exposed TPR-103: the host-compatibility test assumed an empty native inventory.
-  The import commit's CI runs the fixed test with real data before publication.
-- The published Claude captures contain account-level connector names, organisation skill names and the overage
-  setting. The maintainer accepted this for the public repository on 2026-10-24.
-- The sealed earlier BROWNFIELD_REVIEW material keeps its EOF blank-line finding unchanged.
-- The previous readiness bytes are in evidence/TP_REVIEW_8E2B8699_20261024/READINESS_BEFORE_CANDIDATE_8E2B8699.md
-  (sha256 b2fb5ef6c70772d6725bafc0d8f6194dc06776c06fa8f89bd8e3e8d3a2f797b4).
+Existing staged evidence additions were observed in the root index; attribution is unknown and
+they were preserved. No reset, unstage, new root commit or push was performed. See INDEX_OBSERVATION.md.

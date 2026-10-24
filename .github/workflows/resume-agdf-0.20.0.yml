@@ -93,7 +93,13 @@ jobs:
           exit 1
       - name: Build and validate unchanged tagged payloads
         working-directory: source
-        run: npm ci --ignore-scripts && npm run build && npm --prefix packages/cli run release:prepare && AGDF_RUNTIME_INTEGRITY_ROOT="$PWD/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs && npm --prefix packages/mcp-server run test:package
+        run: npm ci --ignore-scripts && npm run build && npm --prefix packages/cli run release:prepare && AGDF_RUNTIME_INTEGRITY_ROOT="$PWD/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
+      - name: Install locked MCP package test dependencies
+        working-directory: source
+        run: node ../tooling/scripts/release/install-published-mcp.mjs
+      - name: Verify MCP package and exact packed stdio smoke
+        working-directory: source
+        run: npm --prefix packages/mcp-server run test:package
       - name: Publish only missing MCP package after exact source and create-agdf byte verification
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

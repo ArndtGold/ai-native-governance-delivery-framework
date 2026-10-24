@@ -99,6 +99,11 @@ test('recovery workflow preserves all verification, source binding, provenance a
   const mcp = workflow.jobs['publish-mcp'];
   const ci = mcp.steps.findIndex(s => s.name === 'Require green CI for the repair commit');
   assert.ok(ci >= 0 && ci < mcp.steps.findIndex(s => /Publish only/.test(s.name ?? '')));
+  const prepare = mcp.steps.findIndex(s => /npm run build/.test(s.run ?? ''));
+  const dependencies = mcp.steps.findIndex(s => s.run === 'node ../tooling/scripts/release/install-published-mcp.mjs');
+  const smoke = mcp.steps.findIndex(s => s.run === 'npm --prefix packages/mcp-server run test:package');
+  assert.ok(prepare >= 0 && prepare < dependencies && dependencies < smoke,
+    'packed stdio smoke requires locked MCP client and SDK dependencies after assembly');
   for (const id of ['publish-mcp', 'publish-wrapper']) assert.equal(workflow.jobs[id].permissions['id-token'], 'write');
   assert.equal(workflow.jobs.bootstrap.permissions?.['id-token'], undefined);
   assert.ok(workflow.jobs.bootstrap.steps.some(s => /release-bootstrap-smoke-test/.test(s.run ?? '')));

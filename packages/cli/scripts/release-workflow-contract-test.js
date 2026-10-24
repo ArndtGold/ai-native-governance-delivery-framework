@@ -94,6 +94,32 @@ for (const [name, job] of Object.entries({ validate: publish.jobs.validate, publ
   assert.ok(index("npm ci --ignore-scripts") >= 0, `${name} must install declared checkout dependencies`);
   assert.ok(index("npm ci --ignore-scripts") < index("release:prepare"), `${name} must install before preparing`);
 }
+// Source integrity also probes the generated OpenCode package. A fresh checkout
+// must prepare those assets before either source or built integrity consumes them.
+function assertIntegrityPreparation(steps) {
+  const expanded = expandVerificationSteps(steps);
+  const prepare = expanded.findIndex(step => String(step.run ?? '').includes('release:prepare'));
+  assert.ok(prepare >= 0, 'integrity consumers require release preparation');
+  for (const [index, step] of expanded.entries()) {
+    if (String(step.run ?? '').includes('check-runtime-integrity.mjs')) {
+      assert.ok(prepare < index, 'release assets must be prepared before integrity checks');
+    }
+  }
+}
+for (const job of Object.values(publish.jobs)) {
+  if (job.steps?.some(step => String(step.run ?? '').includes('check-runtime-integrity.mjs'))) {
+    assertIntegrityPreparation(job.steps);
+  }
+}
+const validationSteps = publish.jobs.validate.steps;
+const sourceIntegrity = validationSteps.find(step => step.run === 'node plugins/agdf/scripts/check-runtime-integrity.mjs');
+assert.ok(sourceIntegrity, 'publish validation retains source integrity');
+assert.throws(() => assertIntegrityPreparation([
+  sourceIntegrity, ...validationSteps.filter(step => step !== sourceIntegrity),
+]), /before integrity checks/);
+assert.throws(() => assertIntegrityPreparation(
+  validationSteps.filter(step => !String(step.run ?? '').includes('release:prepare')),
+), /require release preparation/);
 const publishSteps = publish.jobs.publish.steps;
 const firstPublish = publishSteps.findIndex((step) => String(step.run ?? "").includes("npm publish"));
 assert.ok(firstPublish > 0);

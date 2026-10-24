@@ -57,10 +57,10 @@ jobs:
             echo "@agdf/cli depends on create-agdf@${AGDF_CLI_CREATE_AGDF_VERSION}, expected ${CREATE_AGDF_VERSION}" >&2
             exit 1
           fi
-      - name: Verify runtime-free source and plugin metadata
-        run: node plugins/agdf/scripts/check-runtime-integrity.mjs
       - name: Prepare and verify release assets
         run: npm run build && npm --prefix packages/cli run release:prepare
+      - name: Verify runtime-free source and plugin metadata
+        run: node plugins/agdf/scripts/check-runtime-integrity.mjs
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
       - name: Verify versioned AGDF skill evaluations

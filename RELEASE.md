@@ -109,6 +109,22 @@ sources or prepare a superseding version. Never unpublish automatically, and do 
 workflow as though it were an untouched release. Record each published package, version and
 registry observation in the release handoff before calling the release complete.
 
+Published MCP validation keeps the reviewed SDK lock, substituting only the exact published
+`create-agdf` tarball and integrity for its checkout-local dependency locator. It restores the
+checkout lock after installation, including after failure; transitive SDK versions never float.
+
+The scoped `resume-agdf-0.20.0.yml` workflow completes the partial 0.20.0 publication from immutable
+tag commit `21149673016c731fcf678c748f54ddbd8ffd9149`. Its separate repair checkout supplies only
+test preparation and recovery orchestration. Every original published-MCP partition must pass,
+and CI for the repair commit must be green. Before either missing-package upload, the rebuilt
+`create-agdf` archive must contain exactly the published tar bytes, including paths and modes.
+The npm download's SHA-512 integrity is verified before decompression; only gzip encoding may
+differ across Node/zlib versions. Existing versions are never
+uploaded again; unknown registry state, source drift or a payload mismatch stops recovery.
+The workflow retains provenance, verifies all three exact versions and `@agdf/cli@latest`, then
+runs the unchanged public bootstrap smoke test. It does not move the published tag or claim
+native host qualification.
+
 ### Native host qualification
 
 Native CLI runs are voluntary qualification evidence, not a publication prerequisite. A new version

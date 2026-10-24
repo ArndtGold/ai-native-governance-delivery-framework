@@ -190,8 +190,8 @@ export function ciJobPlan(job, { suite = 'cli', published = false } = {}) {
     : [...complete.filter(stage => prerequisites.has(stage.id)),
     ...job.commands.map((command, i) => ({ id: `${suite}-${command.id}-${i + 1}`, commands: [command] }))];
   if (published) {
-    plan.find(stage => stage.id === 'mcp-dependencies').commands = [{ tool: 'npm',
-      args: ['install', '--package-lock=false', '--ignore-scripts', '--no-audit', '--no-fund'], cwd: 'packages/mcp-server' }];
+    plan.find(stage => stage.id === 'mcp-dependencies').commands = [{ tool: 'node',
+      args: ['scripts/release/install-published-mcp.mjs'] }];
   }
   return plan;
 }

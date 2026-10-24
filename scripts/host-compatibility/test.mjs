@@ -30,6 +30,20 @@ const make = (scenario = "installed", host = "codex") => {
     expected: identity, observed: identity, source_fingerprint: digest, lane: "deterministic_adapter", method: "isolated_production_fixture", observed_at: "2026-09-05T10:00:00.000Z",
     original: { result: "raw_fixture_result", evidence_class: "repository_fixture" }, facts, references: [{ path: Object.keys(references)[0], sha256: reference }], conformance: { expected: spec.expected, passed: true } };
 };
+// Repository evidence inputs that recording and checking read besides the source snapshot. A fixture built from a
+// repository with an imported native release must carry its native sources too.
+const evidenceInputs = (sourceRoot, inventory) => ["docs/compatibility/.agdf-compatibility-owned.json", ...inventory.native_sources,
+  ...inventory.public_evidence, ...(inventory.reported_sources ?? []), ...reportedInputs(sourceRoot, inventory).flatMap(r => r.references.map(ref => ref.path))];
+const copyEvidenceInputs = (sourceRoot, destination, inventory) => {
+  for (const path of evidenceInputs(sourceRoot, inventory)) {
+    const target = safePath(destination, path);
+    mkdirSync(dirname(target), { recursive: true }); cpSync(safePath(sourceRoot, path), target);
+  }
+};
+// Native rows reach the published snapshot only from the inventory's reviewed native sources, never from a fixture run.
+const importedNativeIds = (sourceRoot, inventory) => inventory.native_sources.flatMap(path => JSON.parse(readFileSync(safePath(sourceRoot, path), "utf8")).map(row => row.id)).sort();
+const publishedNativeIds = fixtureRoot => JSON.parse(readFileSync(join(fixtureRoot, "docs/compatibility/evidence/snapshot.json"))).observations
+  .filter(row => row.lane !== "deterministic_adapter").map(row => row.id).sort();
 let checks = 0;
 const check = (name, action) => { action(); checks++; };
 const evaluate = observations => evaluateClaim(observations[0], observations, references);
@@ -135,11 +149,8 @@ try {
   for (const path of ["packages/core/generated", "packages/cli/generated/plugins/agdf", "packages/cli/generated/plugins/copilot/agdf", ".agdf/control/artefacts/agdf-live-host-conformance-matrix"]) {
     mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path), { recursive: true });
   }
-  // Approved public evidence is an input too, even when it does not supply native comparison rows.
-  for (const path of ["docs/compatibility/.agdf-compatibility-owned.json", ...manifest.public_evidence, ...(manifest.reported_sources ?? []), ...reportedInputs(root, manifest).flatMap(r => r.references.map(ref => ref.path))]) {
-    const destination = safePath(temp, path);
-    mkdirSync(dirname(destination), { recursive: true }); cpSync(safePath(root, path), destination);
-  }
+  // Approved public evidence and imported native sources are inputs too, even when they supply no comparison rows.
+  copyEvidenceInputs(root, temp, manifest);
   check("path traversal and symlink escape", () => {
     for (const path of ["../outside", "/absolute", "docs/../outside", "docs\\outside"]) assert.throws(() => safePath(temp, path));
     // Windows junctions need no symlink privilege and still report as symbolic links.
@@ -210,8 +221,7 @@ try {
   check("deterministic rendering and immutable attempt reuse", () => assert.deepEqual(readFileSync(reportPath), reportBytes));
   check("approved public evidence survives regeneration without native promotion", () => {
     for (const path of manifest.public_evidence) assert.deepEqual(readFileSync(safePath(temp, path)), readFileSync(safePath(root, path)));
-    const snapshot = JSON.parse(readFileSync(join(temp, "docs/compatibility/evidence/snapshot.json")));
-    assert.equal(snapshot.observations.filter(row => row.lane !== "deterministic_adapter").length, 0);
+    assert.deepEqual(publishedNativeIds(temp), importedNativeIds(root, manifest));
   });
   await assert.rejects(() => recordComparison(temp, { runSuite: () => [] }), /scenario_recording_failed/);
   check("empty recording retains accepted comparison", () => assert.deepEqual(readFileSync(reportPath), reportBytes));
@@ -249,6 +259,15 @@ try {
     assert.equal(checkComparison(temp).status, "pass");
     const text = readFileSync(reportPath, "utf8"); assert.match(text, /installed: demonstrated \(installed_payload\)/);
     assert.match(text, /callable: unverified \(installed_payload\)/); assert.equal(readFileSync(join(temp, nativeEvidence), "utf8"), nativeBytes);
+  });
+  check("a repository with an imported native release yields complete fixture inputs", () => {
+    assert.deepEqual(importedNativeIds(temp, nativeManifest), ["native.unit"]);
+    assert.deepEqual(publishedNativeIds(temp), importedNativeIds(temp, nativeManifest));
+    const fresh = mkdtempSync(join(tmpdir(), "agdf-compatibility-inputs-test-"));
+    try {
+      copyEvidenceInputs(temp, fresh, nativeManifest);
+      for (const path of [nativeSource, nativeEvidence]) assert.deepEqual(readFileSync(safePath(fresh, path)), readFileSync(safePath(temp, path)));
+    } finally { rmSync(fresh, { recursive: true, force: true }); }
   });
   writeFileSync(join(temp, nativeSource), JSON.stringify([{ ...native, original: { ...native.original, result: "changed" } }]));
   check("changed native input cannot hide a new result behind old observations", () => assert.equal(checkComparison(temp).diagnostic, "native_input_changed"));

@@ -22,6 +22,9 @@ Which existing modules, documents, services or owners remain authoritative?
 Use one bullet per binding decision in the form `SDD-...: <decision>; rationale: <why>; consequence: <trade-off>`.
 Use stable IDs. If no binding design decision is needed, record one reasoned bullet beginning
 `none —`. The Acceptance Traceability table below must reference every listed ID and no others.
+When a decision selects or changes external technology (framework, library, API, protocol,
+service or major version), name the checked authoritative source, version and check date in its
+rationale.
 
 ## 4. Integration Points
 

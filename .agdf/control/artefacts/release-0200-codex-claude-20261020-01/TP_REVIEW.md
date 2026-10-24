@@ -1,45 +1,50 @@
-# TP Review — 0.20.0 Desktop release matrix
+# TP Review — 0.20.0 CLI-qualified release matrix
 
 - decision: revise
 - run_id: release-0200-codex-claude-20261020-01
-- date: 2026-10-23
+- date: 2026-10-24
 - reviewer: Claude (Claude Desktop Code, Windows); cooperative task-plan review
-- source_head: 2295730c4ed661f688ca5b0d10be335e945a7843
-- based_on: TP sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff
+- source_head: 7a41879e742a95579755020b04ccb6e93b81d257 (candidate 5e84374e)
+- based_on: TP sha256:ee5e322f0887d8cd14912d9953b6676a733aefa908bdef13a3dc5592502d4581
 
-Reference is the approved TP, not plausible code. Scenario-to-test mapping was rechecked at
-d4f39956 by an independent read-only pass and extended in 0e93784f; evidence below names the
-covering suites. Candidate: aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108.
+Reference is the approved TP, not plausible code. Evidence paths are relative to this run's artefact
+directory unless a repository path is named. Candidate: 5e84374e54be68685b1ded7edf71e1e1688d58011db405c87c50aa4a3121a130.
 
 ## TP Coverage
 
 | task_id | status | evidence | missing_evidence | QA impact |
 |---|---|---|---|---|
-| T-001 | fully_done | BROWNFIELD_ANALYSIS.md recorded (sha256:c8a8233d…); BASELINE.json with tracked/untracked/CI inventory and timeout baseline | — | none |
-| T-002 | fully_done | plugins/agdf/meta/agdf-plugin.definition.json hostSupport schema 2; lib/release-policy.mjs; release-lifecycle-test "schema-2 Desktop policy rejects unknown schemas, changed targets and widened scope"; release-handoff-test optional_cli projection equality (SCN-001/003/011) | — | none |
-| T-003 | fully_done | release-candidate-test source/new-file/lock/shipped-byte/payload mutations, normalization and binary cases; candidate aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108 recomputed clean (SCN-005/006). Probe and policy files are covered as source-root files | explicit per-file probe and policy mutation cases (covered generically) | none |
-| T-004 | fully_done | lib/release-observation.mjs human_report and schema-3 Desktop branch; d4f39956 native Claude Desktop transcript (F-001); 0e93784f Codex Desktop rollout session/source binding, scenario binding, distinct sessions, capture signature; release-handoff-test cases 1-6, 10, 11 and 15 (SCN-007/008/010/012/014) | — | none |
-| T-005 | fully_done | lib/release-handoff.mjs handoff, preflight, desktop-template, review-template, scoped import, per-scope review tuple; release-handoff-test cases 7, 9, 12, 13 and 16 for templates, preflight, scoped imports, oversized and linked evidence (file symlink or Windows junction) and projection rollback (SCN-009/013) | — | none |
-| T-006 | fully_done | release-lifecycle-test released baseline integrity and owned-stale injection; release-handoff-test Claude and Codex Desktop transition, owned repair, preservation and primary-proof negatives (SCN-015/016) | actual Desktop transitions belong to T-010 | none |
-| T-007 | fully_done | .github/workflows/publish-agdf.yml Desktop gate; release-workflow-contract-test publish ancestry and bypass mutation; ci-plan-test inventory and timeouts; validate --host and Codex-only rejection (SCN-017/018/027); CI_COVERAGE.json baseline/current multiset | — | none |
-| T-008 | fully_done | host-compatibility contract/producer/render with reported_sources; test:host-compatibility; compatibility:check 56/0; guidance in docs/maintenance/release-0.20.0.md, INSTALL.md, README.md; RELEASE_READINESS.md (SCN-004/028/029) | guidance consistency is inspection-based | none |
-| T-009 | partially_done | Clean worktree candidate aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108 at 2295730c; documented preparation green; remote CI run 39927176152 for 2295730c 99/100 (one runner git timeout in unchanged installer code, re-run pending); local verify:commit limited by a host-load MCP test flake (maintainer decision: remote CI is the commit-bound verification) (SCN-002/030) | Green re-run of Install · Win22 1of4 for 2295730c | QA cannot pass until the commit-bound CI is complete |
-| T-010 | partially_done | Originals searched and unbindable (DESKTOP_EVIDENCE_REVIEW.md); Claude CLI 830d8b94 reviewed on its original candidate; handoff for aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108 prepared; validate --all-hosts rejects (SCN-014/019/026) | Six candidate-bound Desktop records: Codex session/upgrade/recovery and Claude Windows session/upgrade/recovery (SCN-020 to SCN-025) | P0: release qualification and publication stay blocked |
-| T-011 | partially_done | This TP Review; Clean Implementation Review and Code Review follow in this run | QA decision pending | QA consumes this review |
+| T-001 | fully_done | BROWNFIELD_ANALYSIS.md (revision 42); evidence/CLI_MATRIX_IMPLEMENTATION_20261023/BASELINE.json with 161 commands, 117 jobs and all workflow timeouts | — | none |
+| T-002 | fully_done | hostSupport schema 3 in plugins/agdf/meta/agdf-plugin.definition.json; release-policy.mjs; codex-release-policy.json regenerated byte-identical; release-lifecycle-test "schema-3 CLI policy pins both mandatory CLI targets…" with ten required rows, disjoint diagnostics, Desktop selector, requiresFrozenTuple and mutation rejections (SCN-001, SCN-003, SCN-011) | — | none |
+| T-003 | fully_done | release-candidate-test "the schema-3 CLI matrix is a different candidate…" and the existing evidence-only, LF/CRLF and binary cases (SCN-005, SCN-006) | — | none |
+| T-004 | fully_done | release-observation.mjs scoped tuple binding, git-proven commit binding (assertEvidenceOnlyDescendant), optional Desktop scope; release-handoff-test schema-3 matrix test and publication-flow test (SCN-007, SCN-008, SCN-010); evidence/TP_REVIEW_5E84374E_20261024/historical-evidence.log: the five 830d8b94 records are rejected for 5e84374e and the originals stay byte-identical (SCN-015) | — | none |
+| T-005 | fully_done | release-handoff.mjs evidenceScope, per-host handoff, Codex CLI preflight on darwin, schema-3 validate with optional strict Desktop sets; release-handoff-test schema-3 import, validate and handoff tests, existing import safety tests (SCN-009, SCN-013, SCN-022) | — | none |
+| T-006 | fully_done | Released-baseline and owned-stale helpers reused; release-lifecycle-test baseline and stale-state tests (SCN-016, SCN-017); codex-host-e2e.mjs refuses a mandatory row without --tuple; evidence/CLI_MATRIX_IMPLEMENTATION_20261023/DARWIN_HARNESS_APPLICABILITY.json (diagnostic, all five cases on darwin) | — | none |
+| T-007 | fully_done | publish-agdf.yml release-evidence job; test:release-workflows and release-evidence-test (SCN-019); CI_INVENTORY_COMPARISON.json: inventory and jobs unchanged, only the rename at 10 minutes (SCN-020) | — | none |
+| T-008 | fully_done | render.mjs and run.mjs CLI matrix with reported Desktop; host-compatibility test "the CLI release matrix renders…" (SCN-004, SCN-023); README.md, INSTALL.md, docs/maintenance/release-0.20.0.md, docs/maintenance/README.md; RELEASE_READINESS.md updated for 5e84374e with open obligations (SCN-024); compatibility 56/0 | — | none |
+| T-009 | fully_done | evidence/CANDIDATE_7A41879E_20261023/CANDIDATE.json (clean worktree, dirty false); build:prepare, release qualification 32/32 and compatibility 56/0 after the merge; remote CI run 39994196802 for 7a41879e 118/118 (SCN-002, SCN-025); local verify:ci on 151b4a04 | — | none |
+| T-010 | not_done | Handoff, preflight, harness binding and import are implemented and tested; no native run on the final candidate | Ten native records for 5e84374e: five Claude Code CLI win32 and five Codex CLI darwin cases, reviewed and imported, then validate --all-hosts (SCN-012, SCN-014, SCN-018, SCN-021) | P0: qualification and publication stay blocked |
+| T-011 | partially_done | Code Review pass (revision 46); this TP Review; Clean Implementation Review follows | Clean Implementation Review and QA decision | QA consumes this review |
 
 ## Summary
 
-- fully_done: T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008
-- partially_done: T-009 (one CI job awaiting re-run), T-010 (native Desktop records absent), T-011 (in progress)
-- not_done: none
-- out_of_scope_changes: 215eccf2 also committed the session-local .claude/launch.json (maintainer commit, not part of the TP); 3ac401a5 fixes a Windows-only test path in evals/mcp-ergonomics (maintainer-authorized, outside the TP scope, test-only); 17a82bf6 CI fixture SHA binding (maintainer-requested, test-only)
-- risks: Desktop qualification depends on executors with isolated Desktop scopes; no such scope exists on the Windows host that ran this review
-- required_next_step: Desktop executors record the six cases for aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108, then review, import and validate --all-hosts
+- fully_done: T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009
+- partially_done: T-011 (Clean Implementation Review and QA still to come)
+- not_done: T-010 (ten native CLI records)
+- out_of_scope_changes: 0ac2ac9e merges main 1c66c2c3 (MCP worker shutdown reserve), reviewed on main; the merge only resolved the shared payload baseline. 151b4a04 re-pins the request activation fingerprint required by the definition change.
+- risks: both native environments are maintainer-operated; the Codex macOS client and model are captured only at preflight; the git ancestry binding fails closed on mode-only or line-ending-only source changes after the record commit
+- required_next_step: The maintainer runs the five Claude Code CLI cases on the Windows test computer and the five Codex CLI cases on the Mac for 5e84374e, followed by review, import and validate --all-hosts
+
+## UX Intent Fidelity
+
+| prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type |
+|---|---|---|---|---|---|
+| AC-002 | Mandatory CLI qualification, Desktop handcheck documentation and unqualified/experimental path | T-008 | docs/compatibility/HOST_COMPATIBILITY.md renders the mandatory CLI matrix with exact OS, the manually checked Desktop surfaces as not qualified and not required, and the unqualified and experimental paths; README.md and INSTALL.md state the same | fulfilled | none |
+| AC-008 | Release preparation, mandatory CLI qualification and Desktop handcheck documentation | T-008 | RELEASE_READINESS.md shows completed checks by kind, the candidate, historical and diagnostic records, the open obligations per host and one next action each; docs/maintenance/release-0.20.0.md gives the per-host handoff steps | fulfilled | none |
 
 ## Normalized Findings
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| TPR-001 | evidence_gap | evidence_obligation | open | DESKTOP_EVIDENCE_REVIEW.md and validate --all-hosts rejection for aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108: 0 of 3 Codex Desktop records; Codex Desktop is not installed on the reviewing host | Codex Desktop executor records session, upgrade and recovery for aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108 in a host-supported isolated scope via preflight and desktop-template and returns the bundle for review and import |
-| TPR-003 | evidence_gap | evidence_obligation | open | evidence/CANDIDATE_2295730C_20261023/VERIFICATION_RESULTS.json: run 39927176152 for 2295730c 99/100; Install · Win22 1of4 failed on spawnSync git ETIMEDOUT in unchanged installer code; re-run needs repository admin | Maintainer re-runs the failed job of run 39927176152 and the green result is recorded for 2295730c |
-| TPR-002 | evidence_gap | evidence_obligation | open | DESKTOP_EVIDENCE_REVIEW.md and validate --all-hosts rejection for aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108: 0 of 3 Claude Desktop Windows records; only the daily Desktop profile exists on the reviewing host | Windows Claude Desktop executor records session, upgrade and recovery for aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108 in a dedicated isolated Desktop scope and returns the bundle for review and import |
+| TPR-101 | evidence_gap | evidence_obligation | open | 0 of 5 Claude Code CLI win32 records for 5e84374e (RELEASE_READINESS.md, T-010) | Maintainer runs handoff, preflight and the five native:claude-e2e cases for 5e84374e on the Windows test computer outside the Claude Desktop app package and returns the bundle for review and import |
+| TPR-102 | evidence_gap | evidence_obligation | open | 0 of 5 Codex CLI darwin records for 5e84374e (RELEASE_READINESS.md, T-010) | Maintainer runs handoff, preflight and the five native:codex-e2e cases for 5e84374e on the Mac and returns the bundle for review and import |

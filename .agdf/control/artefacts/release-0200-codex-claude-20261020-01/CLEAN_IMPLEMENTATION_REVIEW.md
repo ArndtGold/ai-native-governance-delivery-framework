@@ -1,20 +1,53 @@
-# Clean Implementation Review — 0.20.0 Desktop release matrix
+# Clean Implementation Review — 0.20.0 CLI matrix
 
 - decision: pass
 - run_id: release-0200-codex-claude-20261020-01
-- date: 2026-10-23
-- reviewer: Claude (Claude Desktop Code, Windows), using an independent read-only review of 7ce6e838..d4f39956 and own review of 0e93784f and 2295730c
-- source_head: 2295730c4ed661f688ca5b0d10be335e945a7843
+- date: 2026-10-24
+- reviewer: Claude (Claude Desktop Code, Windows)
+- reviewed_diff: 5fb2642c..7a41879e (candidate 5e84374e)
 
 ## Clean Implementation Review
 
-- primary_solution: The canonical hostSupport schema 2 in plugins/agdf/meta/agdf-plugin.definition.json owns the release scope. Existing owners were extended in place: release-policy.mjs (checked target selection), release-observation.mjs (human_report and schema-3 Desktop branch), claude-session.mjs (native Desktop transcript parser), release-handoff.mjs (handoff, preflight, templates, scoped import, full validation), host-compatibility contract/producer/render (reported_sources) and publish-agdf.yml (Desktop gate). No second policy owner, evidence service or governance writer was introduced.
-- evidence: Commits 2e797838/d7e2587a (matrix), 17a82bf6 (CI fixture SHA), d4f39956 (F-001), 0e93784f (review fixes F1-F4 and TP negative tests), 2295730c (import-test link check before the fixture is dirty); test:release-qualification 25/25; documented preparation green; remote CI run 39927176152 for 2295730c 99/100 (one runner git timeout in unchanged installer code, re-run pending); local verify:commit limited by a host-load MCP test flake (maintainer decision: remote CI is the commit-bound verification).
-- fallbacks_retained: (1) schema-1 policy branch and schema-2 CLI record parsing, kept by SD decision for historical candidate 830d8b94 and optional CLI diagnostics; target state is permanent historical verifiability, and publication rejects schema 1 via validate --all-hosts. (2) Generated legacy codex-release-policy.json projection and the optional_cli fallback in scripts/sync-package-assets.js, both serving that same historical branch. (3) Legacy --directory route in release-evidence.mjs throws under schema 2.
-- workaround_or_shim_risk: Low. Dead or test-only remnants remain: the assertReleaseEvidence branch in release-evidence.mjs is unreachable while hostSupport exists, and importClaudeEvidence is a test-only wrapper. native-release.mjs uses a 'claude' prefix for mixed-scope projections. Recommended cleanup, no behavioural risk.
-- parallel_structure_risk: release-policy.mjs repeats the expected Desktop targets, Codex pins and unqualified scope as a deliberate tamper lock against the canonical definition. A policy change therefore needs a matching validator change, which is intended friction rather than a second owner. Release tooling keeps one owner per concern.
-- brownfield_fit: Fits the Brownfield Analysis: existing candidate, lifecycle, handoff, compatibility and workflow owners reused; installer and runtime code under packages/cli/lib and packages/core/lib/runtime unchanged since 97454ec2; no guard, timeout or payload allowance relaxed (CI_COVERAGE.json, Copilot cap unchanged).
-- missing_evidence: Native Desktop behaviour of the validator rules is proven on synthetic fixtures plus one real Claude Desktop dispatch excerpt; real Codex Desktop rollout fields beyond session_meta id/source are not yet observed.
-- required_next_step: Code Review of the same diff, then QA in this run.
+- decision: pass
+- primary_solution: The approved matrix lives in the one canonical owner, hostSupport schema 3 in
+  plugins/agdf/meta/agdf-plugin.definition.json, read through the one policy owner release-policy.mjs.
+  One evaluator (assertNativeRecord and assertHostReleaseEvidence) selects required, optional-cli or
+  optional-desktop cases by an explicit scope. One import path (importNativeEvidence with evidenceScope) and
+  one validate path handle every host and surface. The publication workflow keeps its single evidence job.
+  Reports extend the existing run/render owners. No new service, register, validator or decision authority.
+- evidence: release-policy.mjs, release-observation.mjs, release-handoff.mjs, release-candidate.mjs,
+  codex-host-e2e.mjs, publish-agdf.yml, scripts/host-compatibility run/render; release qualification 32/32;
+  Code Review pass with independent re-review; remote CI run 39994196802 118/118.
+- fallbacks_retained:
+  - Schema 1 and 2 branches in the policy reader, evaluator and import remain so historical candidates can be
+    read under their own predicates. This is SDD-001 of the approved SD. Target state: new eligibility uses
+    schema 3 only; validate --all-hosts rejects schema 1 and 2, so the branches cannot open publication.
+    Exit condition: they go when no historical candidate evidence needs interpretation, decided with that
+    evidence's retention.
+  - Without a repository root a mandatory Codex record must equal the checkout commit. Only direct evaluator
+    calls without a repository take this path; it is stricter than the git proof, never weaker. Every
+    production caller (import, validate, optional Desktop) passes the repository.
+  - The pinned Codex Linux/Windows diagnostics and their workflow remain, as decided in SDD-003 and SDD-007,
+    and are excluded from eligibility.
+- workaround_or_shim_risk: The root cause of CR-101 was fixed at its owner. The binding now proves exact
+  candidate source through git ancestry instead of comparing an unauthenticated field; the guide states the
+  rule. The Copilot payload baseline and the request activation fingerprint were re-pinned to exact measured
+  values with recorded rationale, not given headroom.
+- parallel_structure_risk: Low. isCandidateSource repeats the path rules of inventory() and manifestInputs
+  repeats the manifest normalization, both in the same file and on the same constants (SOURCE_ROOTS,
+  SOURCE_FILES, OUTPUT_PARTS, evidenceOutput). If they ever diverge, the ancestry check rejects valid evidence
+  rather than accepting changed source, and the publication-flow and candidate tests would expose it.
+- brownfield_fit: Fits the existing owners named in the Brownfield Analysis. Historical evidence and
+  candidates stay unchanged; CI inventory and timeouts are unchanged apart from the gate rename; the native
+  harnesses keep their structure.
+- missing_evidence: The ten native records for 5e84374e (TP Review TPR-101, TPR-102) are outside this
+  review's scope.
+- required_next_step: Run the QA gate on the recorded reviews and the open native evidence obligations.
 
-Advisory follow-ups (not normalized findings): remove the unreachable legacy release-evidence branch and the test-only importClaudeEvidence wrapper once historical CLI evidence no longer needs that route; confirm the Codex Desktop session_meta source value at the first real capture.
+## Advisory
+
+- Use manifestInputs inside inventory() at the next touch of release-candidate.mjs so the manifest
+  normalization has one implementation.
+- The SD phrases the Codex binding as equality with the candidate commit; the implementation proves the
+  same exact source through git ancestry with an evidence-only diff. QA confirms that reading.
+- No Context Graph impact: context_graph_impact none; memory_target scope_artifact (run evidence).

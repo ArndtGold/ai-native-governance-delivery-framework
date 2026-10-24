@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "diagnostic_probe",
+  "authorizes": false,
+  "purpose": "Can the candidate Claude capture owner ingest a native Claude Desktop Code session transcript?",
+  "transcript": {
+    "file": "transcript-snapshot.jsonl",
+    "selection": "dispatch-only",
+    "file_sha256_at_probe": "293cf7fba0e2680ddffff17f53bfb588ebffdc143c0d28b503e98569b3abd622",
+    "selected_sha256": "2d6e612064541f7c1c883fdafe01f3a52c1b07e0087c6d83c90f99500240de66",
+    "selected_lines": 2
+  },
+  "parser": {
+    "init_event_present": false,
+    "init_model": null,
+    "assistant_message_models": [
+      "claude-opus-5-5"
+    ],
+    "event_types": {
+      "assistant": 1,
+      "user": 1
+    },
+    "tool_use_count_by_name": {
+      "mcp__plugin_agdf_agdf__agdf_dispatch": 1
+    }
+  },
+  "validator_capture_native_call": {
+    "capture_accepted": true,
+    "observed_models": [],
+    "outcome": "control_result",
+    "terminal": true,
+    "authorizes": false,
+    "runtime_digest": "61e3e38eeaca4af5c3494156e7e1fe58ac0db37daf25229d06f203bf460ca485",
+    "desktop_model_check": {
+      "expected": [
+        "claude-opus-5-5"
+      ],
+      "passes": false,
+      "failure_code": "desktop_model_mismatch"
+    }
+  }
+}

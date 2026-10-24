@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-23T09:12:00Z",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "scope": "Verification of final candidate aa3e4b02 at commit 2295730c (PR 30). Repository tests, commit-bound remote CI and local host limits are listed separately. No native Desktop qualification, human acceptance, gate approval or publication.",
+  "source": {
+    "verified_commit": "2295730c4ed661f688ca5b0d10be335e945a7843",
+    "pr": 30,
+    "remote_main": "b75e50c52687d2a5bcd3f448ad70e856bf841512 (merge of PR 29 at 17a82bf6)",
+    "isolated_clean_worktree": "C:/Workspace/agdf-rc-2295730c (detached at 2295730c, porcelain 0 after restoring platform-generated output)",
+    "maintainer_decision": "Remote CI is the commit-bound verification; the local cli-smoke flake is documented as an environment limit (2026-10-23)."
+  },
+  "remote_ci": {
+    "workflow": "AGDF Guardrails",
+    "run_id": 39927176152,
+    "url": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/actions/runs/39927176152",
+    "event": "pull_request (PR 30)",
+    "head_sha": "2295730c4ed661f688ca5b0d10be335e945a7843",
+    "tested_tree": "merge ref of 2295730c into main b75e50c5; main equals the merge base content (17a82bf6), so the merged tree equals the 2295730c tree",
+    "created_at": "2026-10-23T08:47:39Z",
+    "updated_at": "2026-10-23T09:05:54Z",
+    "conclusion": "failure",
+    "jobs": { "total": 100, "success": 99, "failure": 1, "windows_jobs": 44 },
+    "failed_job": {
+      "name": "CI / Install · Win22 1of4",
+      "test": "packages/cli/scripts/local-development-install-test.js",
+      "cause": "spawnSync git ETIMEDOUT (SIGTERM) for 'git add --force --all' in the Copilot marketplace staging, packages/cli/lib/installers/copilot-marketplace-transport.js:21, 30 s git timeout on the Windows runner",
+      "relation_to_change": "packages/cli unchanged in PR 30 (0 files); the same lane passed in run 39918075437",
+      "rerun": "not possible with the session token (admin rights required); maintainer re-run of failed jobs pending",
+      "log": "logs/ci-install-win22-1of4-failed.log"
+    },
+    "previous_run": {
+      "run_id": 39918075437,
+      "head_sha": "215eccf2576a64cd1a89436a13dee3f930042940",
+      "failed": ["Contracts · Linux22", "Contracts · Linux24", "Contracts · Win22", "MCP · Win22 6of6"],
+      "contracts_cause": "import test from 0e93784f created the evidence link after a successful import had dirtied the fixture; reproduced locally and fixed in 2295730c; all three lanes green in run 39927176152",
+      "mcp_cause": "package.test.js reported success but its process did not exit before the 8-minute budget (spawnSync ETIMEDOUT); green in run 39927176152",
+      "log": "logs/ci-prev-run-mcp-win22-6of6-failed.log"
+    }
+  },
+  "local_windows": {
+    "platform": "win32 x64, Node v22.22.3",
+    "documented_preparation": {
+      "steps": ["npm ci --ignore-scripts", "npm run build:prepare", "npm --prefix packages/mcp-server ci --ignore-scripts", "npm run compatibility:record", "npm run compatibility:check", "npm run build", "npm --prefix packages/cli run release:prepare"],
+      "result": "all exit 0 (logs/prep-*.log)",
+      "compatibility": "56 evaluated, 0 failed; fingerprint 832d2e0a73af161755720bfbb9f50f284401ff6bf120e898c8985145fa109b19",
+      "platform_generated_output": "re-record changed only timestamps, observation reference and fixture permission hashes; preserved in platform-generated-output/compat-record-win32 and committed bytes restored; compatibility:check passes on the committed snapshot"
+    },
+    "targeted_suites_main_checkout": {
+      "test:release-qualification": "25/25",
+      "release-handoff-test": "16/16",
+      "release-lifecycle-test": "6/6",
+      "release-evidence-test": "pass",
+      "test:maintenance-contracts": "pass",
+      "test:mcp-ergonomics": "44/44",
+      "test:community-health": "pass",
+      "build": "pass"
+    },
+    "verify_commit": {
+      "0e93784f": "stages 1-23 passed incl. prepare and mcp-ergonomics; cli-smoke failed in packages/mcp-server/test/structured-flow.test.js:96 (evidence/CANDIDATE_0E93784F_20261023/logs)",
+      "flake_diagnosis": "approval exceeds the MCP worker deadline under host load (effect_unknown, dispatch_worker_termination_unconfirmed); immediate operation-status returns dispatch_busy with report null; reproduced 3/3 in isolation including 17a82bf6, which passed the day before",
+      "environment_limit": "host load from other local tools (IntelliJ agents, further AGDF and Playwright MCP servers); a separate test-robustness task was proposed"
+    },
+    "verify_ci": "not repeated locally for 2295730c by maintainer decision; it would run the same plan into the same host flake"
+  },
+  "release_tool": {
+    "candidate": { "candidate_id": "aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108", "file": "CANDIDATE.json", "dirty": false },
+    "handoff": { "exit_code": 0, "result": "prepared", "qualification": "pending", "files": "handoff/" },
+    "validate_all_hosts": { "exit_code": 1, "message": "ENOENT: no candidate-bound import directory exists", "log": "logs/validate-all-hosts.txt" },
+    "preflight_template_review_import": "not run: no isolated Desktop executor on this host"
+  },
+  "native_desktop_qualified_cases": 0,
+  "human_reports": 2,
+  "qualification": "pending",
+  "publication_eligible": false,
+  "authorizes": false
+}

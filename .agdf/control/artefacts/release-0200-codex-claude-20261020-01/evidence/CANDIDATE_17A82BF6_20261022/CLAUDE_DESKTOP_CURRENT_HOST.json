@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "current_host_observation",
+  "observed_at": "2026-10-22T11:58:00Z",
+  "observer": "Claude (agent in this Claude Desktop Code session); cooperative, not operator_observed",
+  "scope": "Present-day facts of the Windows Claude Desktop that runs this session. Not original handcheck evidence, not a qualified Desktop record, no isolated test scope.",
+  "host": {
+    "app": "Claude Desktop (MSIX package Claude_pzs8sxrjxfjjc)",
+    "app_version": "3.1623.1.0",
+    "app_architecture": "X64",
+    "embedded_claude_code_version": "2.1.304",
+    "transcript_entrypoint": "claude-desktop",
+    "os": "Microsoft Windows 11 Enterprise 10.0.26200 (64-bit)",
+    "process_platform": "win32",
+    "agdf_mcp_node": "C:\\nvm4w\\nodejs\\node.exe v22.22.3"
+  },
+  "session": {
+    "desktop_session_id": "local_ee5f44cb-f020-4f07-9a3f-5563f4c233be",
+    "transcript_session_id": "6da83f61-6ab2-44d9-92ee-8127937a8675",
+    "created_at": "2026-10-22T11:37:32.480Z",
+    "model": "claude-opus-5-5",
+    "fresh_session_for_installed_payload": "session created after the 2026-10-22T10:24:58Z plugin installation; not an isolated test session"
+  },
+  "installed_agdf": {
+    "plugin_id": "agdf@agdf",
+    "scope": "user (daily profile)",
+    "version": "0.20.0",
+    "installed_at": "2026-10-22T10:24:58.031Z",
+    "installation_record": {
+      "owner": "create-agdf",
+      "source_digest": "8f11a04ca6f22d2212df1569ba426f994d90612e3049cd9880796cb39de33716",
+      "runtime_digest": "89c28ecbdac8ff15f0091df6f0e29810957e4b70f3d715eb45922d3a7cbe7fcf",
+      "installed_at": "2026-10-22T10:25:06.052Z"
+    },
+    "loaded_mcp_runtime": {
+      "generation": "299af26cefd70d873ff08e5b1f00761088a7d40a7ed50fe499bfc85ab9d08758",
+      "runtime_digest": "61e3e38eeaca4af5c3494156e7e1fe58ac0db37daf25229d06f203bf460ca485",
+      "expected_version": "0.20.0",
+      "provenance_status": "matched"
+    }
+  },
+  "sources": [
+    "Get-AppxPackage -Name '*Claude*' (Name, Version, Architecture, PackageFamilyName)",
+    "Win32_OperatingSystem (Caption, Version, OSArchitecture)",
+    "ccd get_session self (sessionId, createdAt, model)",
+    "own session transcript identity fields only (version, entrypoint, sessionId, message.model)",
+    "~/.claude/plugins/installed_plugins.json agdf@agdf entry and ~/.claude/plugins/data/agdf-agdf/installation.json",
+    "agdf_inspect/agdf_dispatch runtime block of this session"
+  ],
+  "not_observed": [
+    "Original 2026-10-22 maintainer handcheck sessions (no matching Desktop session in this host's session store)",
+    "Installation consent, discovery and uninstall/cleanup in an owned isolated Desktop test scope",
+    "Released 0.14.5 baseline transition or owned_stale_install recovery on this Desktop",
+    "App-identifying screenshot"
+  ],
+  "authorizes": false
+}

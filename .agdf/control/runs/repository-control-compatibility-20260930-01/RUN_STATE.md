@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: repository-control-compatibility-20260930-01
 - lifecycle: active
-- revision: 22
-- revision_id: adf6c70b-3a5b-46d1-ab01-7d01e7f0124f
-- content_seal: sha256:663eac4d10b80b697e355a21477e57de170fc678aad0a9f03ad2cbeb5a7b1bf3
+- revision: 23
+- revision_id: 10662971-61f7-4433-ae72-dcc206d63458
+- content_seal: sha256:38e0f98efa06ba5de9ba7a2fd6bf614554b173b77e962acb7aecfb4cdcfeddb8
 - approval_seal: sha256:eef8656d73ab3beaa214201fa0071871f99ea2fd9529329b9de44fd1c5eb4811
-- updated_at: 2026-09-30T14:11:51.592Z
+- updated_at: 2026-10-24T10:52:39.439Z
 - mode: structured_delivery
 - current_gate: QA
 - decision: pass
@@ -82,6 +82,7 @@ Inspect compatibility for each selected repository and provide direct, reviewed 
 | CD+Tests | derived_from | TP | Approved TP tasks and 30 scenarios evidenced through source/package, installed PTY and actual native SessionStart lanes. |
 | CR | verifies | CD+Tests | Scoped diff, 29 suites, canonical body parity; no remaining source defect. |
 | QA | evaluates | CD+Tests and CR | Completed plan/source/clean reviews and actual native installed lane; QA pass, no human approval. |
+| QA_REPORT | tests | TP | .agdf/control/artefacts/repository-control-compatibility-20260930-01/QA_REPORT.md evaluates the approved .agdf/control/artefacts/repository-control-compatibility-20260930-01/TP.md; existing plan coverage and test evidence reviewed, exact source files unchanged; no QA approval inferred. |
 
 ## Evidence
 
@@ -103,6 +104,7 @@ Inspect compatibility for each selected repository and provide direct, reviewed 
 | QA installed live reevaluation | `.agdf/control/artefacts/repository-control-compatibility-20260930-01/QA_REPORT.md` | Passed installed behavior; native fresh-session boundary | bounded revise; no human QA approval |
 | Native fresh-session follow-up | `.agdf/control/artefacts/repository-control-compatibility-20260930-01/NATIVE_SESSION_OBSERVATION.md`; `.agdf/control/artefacts/repository-control-compatibility-20260930-01/NATIVE_SESSION_EVIDENCE.json` | SCN-028/029; four native roots; TP-E01 resolved | direct automatic host event/model-context evidence; no human UAT |
 | QA native reevaluation | `.agdf/control/artefacts/repository-control-compatibility-20260930-01/QA_REPORT.md` | Quality Readiness pass within approved scope | formal QA decision; exact human approval pending |
+| Traceability metadata correction | Current QA closure, 2026-10-24 | Canonical relationship registry matched to existing approved UR/TP and current PRD/QA source; no new source content, approval or gate advancement | reviewed source mapping |
 
 ## Closeout
 

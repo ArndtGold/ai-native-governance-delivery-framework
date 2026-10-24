@@ -1,0 +1,85 @@
+
+> build
+> node scripts/verify-ci.mjs --profile build
+
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 212 packages, and audited 213 packages in 6s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+2 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (6.3s)
+[verify-ci] ui-build
+
+> agdf-control-ui@0.0.0 build:mcp
+> node scripts/build-mcp.mjs
+
+[36mvite v8.3.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+[32m✓ built in 298ms[39m
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1249259,"digest":"sha256:17eb8a4185a76c9aa8bdea6dbe0d2405f0fa4276d4223f437c8c99bc9c9a2d82","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[36mvite v8.3.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+[32m✓ built in 166ms[39m
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":945815,"digest":"sha256:0cda3ead4c112991f697ae967bc0692dee465ef9e6f794ca7d43937f326ee7b6","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[verify-ci] ui-build passed (1.7s)
+[verify-ci] generate
+[verify-ci] generate passed (3.5s)
+[verify-ci] build-contracts
+Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).
+[verify-ci] build-contracts passed (24.3s)
+[verify-ci] evals
+
+> create-agdf@0.20.0 eval:skills
+> node ../../evals/scripts/run-skill-evals.js
+
+AGDF skill evals: pass (113/113 cases; 14 skills; deterministic replay, not live host execution)
+[verify-ci] evals passed (1.0s)
+[verify-ci] compatibility-freshness
+
+> compatibility:check
+> node scripts/host-compatibility/run.mjs check
+
+{
+  "status": "pass",
+  "scenarios": {
+    "evaluated": 56,
+    "failed": 0
+  },
+  "source_fingerprint": "832d2e0a73af161755720bfbb9f50f284401ff6bf120e898c8985145fa109b19"
+}
+[verify-ci] compatibility-freshness passed (2.8s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.0",
+    "source": "C:\\Workspace\\agdf-rc-2295730c\\packages\\cli",
+    "output": "C:\\Workspace\\agdf-rc-2295730c\\dist\\npm\\create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.0",
+    "source": "C:\\Workspace\\agdf-rc-2295730c\\packages\\cli\\distribution\\agdf",
+    "output": "C:\\Workspace\\agdf-rc-2295730c\\dist\\npm\\agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.0",
+    "source": "C:\\Workspace\\agdf-rc-2295730c\\packages\\mcp-server",
+    "output": "C:\\Workspace\\agdf-rc-2295730c\\dist\\npm\\agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (3.5s)

@@ -13,7 +13,11 @@ export function candidateFixture({ policyVersion = 1 } = {}) {
   put('.gitattributes', readFileSync(new URL('../../.gitattributes', import.meta.url)));
   put('.gitignore', 'dist/\npackages/cli/generated/\n.release-candidate.json\nprobe-results/\n');
   const definition = JSON.parse(readFileSync(new URL('../../plugins/agdf/meta/agdf-plugin.definition.json', import.meta.url), 'utf8'));
-  if (policyVersion === 1 && definition.hostSupport.schema_version === 2) definition.hostSupport = { schema_version: 1, tiers: definition.hostSupport.tiers, codex: definition.hostSupport.optional_cli.codex, claude: { platforms: ['win32'], surfaces: ['cli','desktop-code'] } };
+  // Historical schemas are derived from the current schema-3 definition so older evidence keeps its own predicates.
+  const support = definition.hostSupport;
+  if (policyVersion === 1) definition.hostSupport = { schema_version: 1, tiers: support.tiers, codex: support.optional_cli.codex, claude: { platforms: ['win32'], surfaces: ['cli','desktop-code'] } };
+  if (policyVersion === 2) definition.hostSupport = { schema_version: 2, tiers: support.tiers, required_targets: support.reported_desktop,
+    optional_cli: { codex: support.optional_cli.codex, claude: { platforms: ['win32'] } }, unqualified: support.unqualified };
   put('plugins/agdf/meta/agdf-plugin.definition.json', JSON.stringify(definition));
   put('evals/host-compatibility/manifest.json', JSON.stringify({ schema_version: 1, native_sources: [], native_targets: [], public_evidence: [], inputs: ['fixture'] }));
   put('packages/cli/generated/plugins/agdf/runtime/runtime-manifest.json', JSON.stringify({ digest: 'b'.repeat(64) }));

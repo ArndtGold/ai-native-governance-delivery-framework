@@ -4,13 +4,13 @@
 
 AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex, Claude Code, GitHub Copilot und OpenCode. Zugleich ist es ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
 
-**Release-Vorbereitung 0.20.0:** Codex Desktop und Claude Desktop sind die vorgesehenen Release-Ziele.
-GitHub Copilot und OpenCode bleiben **experimentell**; ihre Adapter und Regressionstests bleiben erhalten.
+**Release-Vorbereitung 0.20.0:** Pflichtmatrix sind Claude Code CLI unter Windows und Codex CLI unter macOS,
+je mit fünf frischen, kandidatengebundenen Fällen. Qualifiziert ist nur, was für das exakte Tupel belegt ist.
+Codex Desktop und Claude Desktop gelten als **manuell geprüft**: AGDF-Aufruf, Upgrade und Wiederherstellung
+sind von Hand als bestanden gemeldet, aber nicht maschinell qualifiziert und keine Veröffentlichungsvoraussetzung.
 Codex CLI unter Windows/Linux bleibt **unqualifiziert** und außerhalb der Pflichtmatrix.
-Für beide Desktop-Hosts sind AGDF-Aufruf, Upgrade und Wiederherstellung von Hand als bestanden gemeldet.
-Konkrete Desktop-Versionen, Modelle, Sitzungs-/Kandidatenidentitäten und Primärbelege sind noch offen.
-Diese menschlichen Berichte sind keine kandidatsgebundene Qualifikation oder Veröffentlichungsfreigabe.
-Vorhandene Windows-Claude-CLI-Belege und ältere macOS-Codex-CLI-Diagnosen bleiben getrennt zugeordnet.
+GitHub Copilot und OpenCode bleiben **experimentell**; ihre Adapter und Regressionstests bleiben erhalten.
+Ältere Windows-Claude-CLI-Belege und macOS-Codex-CLI-Diagnosen bleiben historisch und zählen nicht für den finalen Kandidaten.
 Siehe [Release-Umfang und Testübergabe](docs/maintenance/release-0.20.0.md) und
 [aktuellen Kompatibilitätsbericht](docs/compatibility/HOST_COMPATIBILITY.md).
 

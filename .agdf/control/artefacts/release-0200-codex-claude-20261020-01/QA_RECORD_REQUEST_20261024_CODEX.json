@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "682f28a6-1e9c-463c-917c-1d8eda603796",
+  "destination": {
+    "type": "QA_REPORT",
+    "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md",
+    "digest": "sha256:0647cdafb6320badbb96909dd99c349df40f3e58aeacfce483a9e148315f4a18",
+    "status": "revise"
+  },
+  "source": {
+    "type": "TP",
+    "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+    "digest": "sha256:ee5e322f0887d8cd14912d9953b6676a733aefa908bdef13a3dc5592502d4581"
+  },
+  "relationship": {
+    "from": "QA_REPORT",
+    "relationship": "tests",
+    "to": "TP"
+  },
+  "review": {
+    "reviewer": "Codex (qa-gate), cooperative local review of TP coverage and exact report mapping",
+    "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_REVIEW_20261024_CODEX.json",
+    "digest": "sha256:4401377e1d202c17e5a864adf6cce3f60b8d4f265eaaf3cee954f90ce6656112"
+  },
+  "update_draft": false
+}

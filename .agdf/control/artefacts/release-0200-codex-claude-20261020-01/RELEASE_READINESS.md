@@ -1,106 +1,66 @@
-# AGDF 0.20.0 release readiness — Desktop matrix revision
+# AGDF 0.20.0 release readiness — final local QA
 
-Date: 2026-10-22
+Date: 2026-10-24
 Run: release-0200-codex-claude-20261020-01
-Status: implementation prepared; final Desktop candidate qualification pending
-Gate authority: none. No QA, UAT, OR or publication approval is asserted.
+Status: local implementation and verification complete; technical QA revise with a bounded human deviation decision prepared.
+Authority: no QA/UAT/OR approval, commit, push, merge, tag, import or publication is granted here.
 
-## Current release scope
+## Result and exact applicability
 
-| Host / surface | Required cases | Available evidence | Qualification |
-|---|---|---|---|
-| Codex Desktop Code; original OS unknown | session, upgrade, recovery | Maintainer reports all three passed; original app/model/session/candidate and primary references unavailable | Pending candidate binding and reviewed primary evidence |
-| Claude Desktop Code; Windows test-computer context | session, upgrade, recovery | Maintainer reports all three passed; original Desktop app/model/session/candidate and primary references unavailable | Pending candidate binding and reviewed primary evidence |
-| Codex CLI, Windows/Linux | Outside mandatory Desktop matrix | Optional diagnostics only | Unqualified |
-| Claude CLI, Windows | Outside mandatory Desktop matrix | Five cases rechecked on original clean candidate 830d8b94; 79 indexed files match | Historical CLI evidence only; original review/import pending |
-| Copilot / OpenCode | Retained adapter and regression coverage | Experimental support intent retained | Experimental |
+All 27 canonical repository verification stages pass in the isolated snapshot, including the full
+CLI/MCP smoke chain. Source digest: 9888565d0513806fda85ef1eb860f1c6a8e9e32800497a9229a502bd3264cfc4.
+See evidence/QA_FINISH_20261024/FINAL_VERIFICATION.md, VERIFICATION.json and verification.log.
+The targeted release suite passes 34/34. Deterministic compatibility fixtures: 56 scenarios,
+zero unexpected failures. Mac fixture results do not establish native Windows behavior.
 
-The two attributed human reports preserve the confirmed normal invocation, upgrade and recovery.
-Unknown values remain null. Reports receive zero machine-qualified native credit; repository fixtures
-and ordinary Linux/Windows regression tests do not establish installed Desktop behavior.
+The three-file importer correction is implemented and Code/Clean reviewed. The legacy omission
+of authorizes is accepted only for Codex failure_case with hash-checked primary authorizes false;
+explicit unsafe values and other scopes remain rejected. Original records are not rewritten.
+Three traceability relationship defects are corrected through the canonical writer; approved
+artefacts, approval seals and gates remain intact. The aggregate Delivery Map has no block/revise
+findings; thirteen pre-existing objective warnings remain visible.
 
-Original reports: DESKTOP_HANDCHECKS_20261022.md and the separately published human_report inputs.
-Detailed recovery/disposition: evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/DESKTOP_EVIDENCE_RECOVERY.md.
+## Native evidence
 
-## Implemented behavior and canonical owners
+| Original host tuple | Native cases | Review/import boundary |
+|---|---|---|
+| Codex CLI 0.163.0, gpt-6-luna, macOS 15.7.7, x64, Node v22.22.3 | 5/5 PASS | Agent capture/bundle review complete; specified Windows review/import absent and accepted as a residual gap |
+| Claude Code CLI, Windows, frozen recorded tuple | 5/5 PASS | Existing exact review and repository import preserved |
 
-- plugins/agdf/meta/agdf-plugin.definition.json owns schema-2 hostSupport, the two mandatory Desktop
-  targets, optional CLI policy and explicit unqualified Codex CLI OS scopes. Existing pins remain.
-- Existing release policy/candidate/observation/handoff owners validate actual Desktop identity,
-  native calls, loaded runtime, reviewed tuple/bundle, baseline transition, preservation and cleanup.
-  Human reports are a separate discriminated input. Templates are unverified; unknowns never pass.
-- Default and --all-hosts release validation require both complete Desktop sets. The explicit
-  validate-cli command retains strict Codex diagnostics without publication credit. All publication
-  paths require the Desktop gate plus existing tests/tag/version/registry/provenance checks.
-- Existing compatibility contract/producer/render owners retain attributed reports separately from
-  qualified native_sources/native_targets. Reviewed imports remain scoped, immutable, contained and
-  rechecked; original CLI files and their candidate association were not rewritten.
-- Existing generation and release preparation produce coherent 0.20.0 package assets. Distribution
-  profile values and the exact Copilot cap of 397 files / 3,488,492 bytes were preserved. Canonical
-  JSON formatting was compacted where needed; no payload allowance or timeout was increased.
+All ten actual original records and their exact locked reviews pass the complete canonical
+read-only validate --all-hosts route in a temporary tree. No repository import or projection write
+was performed by that validation. Desktop handchecks remain human-reported, non-gating and not
+qualified; Windows/Linux Codex diagnostic scopes and experimental adapters gain no qualification.
 
-Public execution guidance: docs/maintenance/release-0.20.0.md (repository root).
+Original candidate: 8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.
+Original clean commit: 460027fabc58fe0da041bbabe117519dd1f696b7.
+All five shipped payload inventories remain identical to that candidate. Three changed tooling/test
+files still change source identity: publication of those changes requires an authorized clean final
+commit/candidate and its required CI/native evidence. The old records qualify only the original
+candidate. Remote CI 40079920556 succeeded only for 94ef61c9f0aa5a2041269236affc6556c33ed5a3,
+not for the current uncommitted correction. Root HEAD remains that commit.
 
-## Current verification
+## Immutable return package
 
-| Check | Result / boundary |
-|---|---|
-| Release qualification suite | 19 deterministic tests pass in current full verification maintenance stage; no native Desktop execution implied |
-| Release workflow / legacy route safeguards | Pass; all publication ancestors protected; optional CLI cannot substitute Desktop |
-| Compatibility producer and freshness | Pass; 56 adapter cases, zero unexpected failures; zero qualified Desktop cases |
-| npm run build | Pass; 113 skill evaluations; package/runtime integrity checked |
-| Release preparation | Pass; 0.20.0 package/profile/history safeguards retained |
-| CI planner / inventory | 9 planner tests pass; 161 original commands across 117 planned jobs unchanged in each OS/Node lane; original timeouts not increased |
-| npm run verify:ci | Pass, exit 0; all 27 canonical local stages completed. See VERIFICATION_RESULTS.json and full-verification-attempt-2.log |
-| Scoped source whitespace | Pass for .github, CONTRIBUTING.md, INSTALL.md, README.md, docs, evals, packages, plugins and scripts |
-| Global git diff --check | Fails on one pre-existing sealed BROWNFIELD_REVIEW.md blank line at EOF; protected source was not edited |
-| Final clean release source | Unavailable: working tree is dirty; no automatic stage, commit, reset or clean export represented as a shared final ref |
-| Fresh remote CI / Desktop model session | Not executed for this working-tree revision; historical CI and original host runs are separate evidence |
+Original archive: /Users/arndtgold/codex-cli-bundle-8e2b8699.tar.gz
+SHA-256: 2d9798679652f8bf80acd529496e4b0f09fdb35cb3b73ca1382c82f89241ea36
+All 44 protected Codex files/archive and 26 imported Claude files remain byte-identical.
+No native case was repeated to change its result. No native work-tmp remains.
+Archive scan found no token-like secrets, email addresses, auth.json, config directory or work-tmp;
+20 absolute /Users/ path occurrences in 16 files remain reported and unchanged.
 
-Evidence logs, original baseline, CLI review, release rejection and CI comparison are retained under
-evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/. Unchanged live Windows shim assertions are skipped on darwin and are not claimed as executed.
-Full verification results remain local repository
-verification, not a claim that new GitHub jobs or installed-host acceptance passed.
+New final transfer: /private/tmp/codex-cli-windows-return-8e2b8699-final.zip.
+Its manifest covers the unchanged original archive, correction patch, current reviews and final
+verification evidence. The older transfer ZIP remains unchanged. See the final WINDOWS_RETURN.md.
 
-The first current full verification stopped at the expected stale request-activation source
-fingerprint after the host-policy revision. The existing fingerprint owner recomputed only that
-manifest value after source review. All 39 deterministic cases and callback/host-schema checks pass;
-no expected behavior, activation guard or historical host observation was changed. Compatibility
-was then regenerated after its correct stale-snapshot rejection. Both failures remain in evidence;
-the second complete invocation passed after this repair.
+## Remaining bounded QA decision
 
-## Candidate and publication boundary
+The maintainer explicitly accepted the Windows review/import gap. The final QA proposal preserves
+three medium evidence findings: that Windows gap (TPR-102), final changed-source candidate/CI/native
+proof (TPR-105), and the final combined repository-import projection (TPR-106). Technical QA stays
+revise; proposed human acceptance is limited to internal review/handoff and grants no publication
+or changed-source qualification. The exact current presentation still needs deliberate human QA
+acceptance; the Windows-only disposition is not reused as that approval.
 
-Prepared diagnostic candidate: 5143cc192852d091d9792124832805e34adcb8193689857a1217dc311486dd7f.
-Source HEAD: 7ce6e8385632c001f6cdcd94fdb242e07f2ee748; dirty=true.
-See PREPARED_DIAGNOSTIC_CANDIDATE.json and RELEASE_ELIGIBILITY.json in the evidence directory.
-
-Actual negative checks reject dirty source with candidate_source_dirty and missing Desktop rows with
-native_required_matrix_missing_or_duplicate. Required Desktop cases: six. Qualified records: zero.
-Two human reports are retained. Publication remains ineligible. Policy/probe changes produce a new
-candidate; earlier CLI or unspecified Desktop results cannot be relabeled for this identity.
-
-## Minimum remaining evidence and closeout
-
-Recover one existing original Desktop session/log/export reference per host, with tested candidate
-or loaded runtime identity if present. Review it before asking for any remaining specific fact.
-The existing confirmation of all three scenarios needs no repetition. A commit label alone does
-not supply missing native capability/transition observations. No blanket rerun, credentials,
-whole-profile export, remote access or daily-profile replacement is requested or authorized.
-See MINIMUM_REMAINING_EVIDENCE.md for the bounded disposition.
-
-Current local macOS/app metadata is recorded only as present-day metadata. It cannot establish the
-original Windows Claude or Codex Desktop tuple and does not qualify prepared AGDF 0.20.0.
-
-All 1,593 software-source inventory entries stayed unchanged during the full second verification;
-approved source digests match exactly. Prepared payload inventories are unchanged by the derived
-fingerprint repair. See SOURCE_STABILITY_FINAL.json and METADATA_SCOPE_CHECK.json.
-
-T-001 through T-008 have implementation evidence. T-009 remains partial until an authorized clean
-source is available. T-010 remains partial because the six Desktop cases lack current-candidate
-primary evidence. T-011 reviews/QA are not completed. CD+Tests must retain revise while these
-required obligations remain open; later human approvals, OR and publication cannot be inferred.
-
-Previous readiness bytes, including dated legacy CLI matrix and earlier verification history, are
-preserved at evidence/DESKTOP_MATRIX_IMPLEMENTATION_20261022/READINESS_BEFORE_DESKTOP_MATRIX.md.
-They are historical evidence and do not define this renewed mandatory matrix.
+Existing staged evidence additions were observed in the root index; attribution is unknown and
+they were preserved. No reset, unstage, new root commit or push was performed. See INDEX_OBSERVATION.md.

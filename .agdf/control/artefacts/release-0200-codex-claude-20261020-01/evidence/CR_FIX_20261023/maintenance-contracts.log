@@ -1,0 +1,374 @@
+
+> test:maintenance-contracts
+> npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs && npm run test:release-qualification
+
+
+> test:verification
+> node --test scripts/verification-test.mjs
+
+TAP version 13
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, win32.
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 1 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 266.9351
+  type: 'test'
+  ...
+# Subtest: the workflow matrix exposes functional labels for repository, release and published MCP callers
+ok 2 - the workflow matrix exposes functional labels for repository, release and published MCP callers
+  ---
+  duration_ms: 3021.3772
+  type: 'test'
+  ...
+# Subtest: compact graph names retain purpose, platform, partition and revision scenario
+ok 3 - compact graph names retain purpose, platform, partition and revision scenario
+  ---
+  duration_ms: 128.3955
+  type: 'test'
+  ...
+# Subtest: measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+ok 4 - measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+  ---
+  duration_ms: 61.4273
+  type: 'test'
+  ...
+# Subtest: measured packed control-command parts run in separate Windows partitions
+ok 5 - measured packed control-command parts run in separate Windows partitions
+  ---
+  duration_ms: 56.4144
+  type: 'test'
+  ...
+# Subtest: graph matrices route every existing partition exactly once for every caller
+ok 6 - graph matrices route every existing partition exactly once for every caller
+  ---
+  duration_ms: 879.4674
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 7 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 14.1725
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 8 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 1921.1267
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 9 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 20.2129
+  type: 'test'
+  ...
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 10 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 0.5796
+  type: 'test'
+  ...
+# Subtest: build shares CI checks without recursive builds; evidence preparation remains possible
+ok 11 - build shares CI checks without recursive builds; evidence preparation remains possible
+  ---
+  duration_ms: 0.5402
+  type: 'test'
+  ...
+# Subtest: real npm build failures prevent assembly and preserve stored evidence
+ok 12 - real npm build failures prevent assembly and preserve stored evidence
+  ---
+  duration_ms: 17540.2807
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 13 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 1.7044
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 14 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 97.2445
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 15 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 11032.9521
+  type: 'test'
+  ...
+# Subtest: both snapshot modes export an index larger than the default subprocess output buffer
+ok 16 - both snapshot modes export an index larger than the default subprocess output buffer
+  ---
+  duration_ms: 19272.2933
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 54516.6361
+Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+Payload budget review/report tests passed.
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.
+TAP version 13
+# Subtest: adaptive mode starts with ten cases and repeats only selected or deviant first runs
+ok 1 - adaptive mode starts with ten cases and repeats only selected or deviant first runs
+  ---
+  duration_ms: 1.1487
+  type: 'test'
+  ...
+# Subtest: the actual scheduler completes all first runs before conditional repeats
+ok 2 - the actual scheduler completes all first runs before conditional repeats
+  ---
+  duration_ms: 14.3251
+  type: 'test'
+  ...
+# Subtest: fixed mode and boundary IDs are validated before host setup
+ok 3 - fixed mode and boundary IDs are validated before host setup
+  ---
+  duration_ms: 0.7887
+  type: 'test'
+  ...
+# Subtest: expected target_unresolved remains a separate target-binding observation
+ok 4 - expected target_unresolved remains a separate target-binding observation
+  ---
+  duration_ms: 0.2372
+  type: 'test'
+  ...
+# Subtest: JSONL parsing separates cached input and counts completed search calls once
+ok 5 - JSONL parsing separates cached input and counts completed search calls once
+  ---
+  duration_ms: 1.5656
+  type: 'test'
+  ...
+# Subtest: unavailable usage or search telemetry remains unknown
+ok 6 - unavailable usage or search telemetry remains unknown
+  ---
+  duration_ms: 0.1881
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 191.5907
+
+> test:release-qualification
+> node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs
+
+TAP version 13
+# Subtest: candidate binds new and changed sources, locks, policies and shipped bytes
+ok 1 - candidate binds new and changed sources, locks, policies and shipped bytes
+  ---
+  duration_ms: 2483.3682
+  type: 'test'
+  ...
+# Subtest: normalized text and fixed evidence-only fields preserve content identity
+ok 2 - normalized text and fixed evidence-only fields preserve content identity
+  ---
+  duration_ms: 1665.9134
+  type: 'test'
+  ...
+# Subtest: missing payloads, forged inventory and source symlinks cannot qualify
+ok 3 - missing payloads, forged inventory and source symlinks cannot qualify
+  ---
+  duration_ms: 1073.2863
+  type: 'test'
+  ...
+# Subtest: the schema-3 CLI matrix is a different candidate than the historical Desktop policy
+ok 4 - the schema-3 CLI matrix is a different candidate than the historical Desktop policy
+  ---
+  duration_ms: 2068.8047
+  type: 'test'
+  ...
+# Subtest: Desktop policy requires both exact observed tuples and preserves optional CLI pins
+ok 5 - Desktop policy requires both exact observed tuples and preserves optional CLI pins
+  ---
+  duration_ms: 825.9132
+  type: 'test'
+  ...
+# Subtest: Desktop primary capabilities, raw calls, transitions and cleanup cannot be replaced by booleans
+ok 6 - Desktop primary capabilities, raw calls, transitions and cleanup cannot be replaced by booleans
+  ---
+  duration_ms: 807.3287
+  type: 'test'
+  ...
+# Subtest: Claude Desktop calls require one native Desktop transcript session and reject CLI streams
+ok 7 - Claude Desktop calls require one native Desktop transcript session and reject CLI streams
+  ---
+  duration_ms: 941.9679
+  type: 'test'
+  ...
+# Subtest: Codex Desktop calls require their own Desktop session rollout, never exec or CLI output
+ok 8 - Codex Desktop calls require their own Desktop session rollout, never exec or CLI output
+  ---
+  duration_ms: 816.8352
+  type: 'test'
+  ...
+# Subtest: each Desktop case binds its own scenario, fresh session, scoped review tuple and real capture
+ok 9 - each Desktop case binds its own scenario, fresh session, scoped review tuple and real capture
+  ---
+  duration_ms: 1468.7858
+  type: 'test'
+  ...
+# Subtest: Claude Desktop upgrade and recovery require the released baseline, owned repair and matching primary proof
+ok 10 - Claude Desktop upgrade and recovery require the released baseline, owned repair and matching primary proof
+  ---
+  duration_ms: 1602.1532
+  type: 'test'
+  ...
+# Subtest: Desktop import rejects oversized or linked evidence and rolls back a failed projection
+ok 11 - Desktop import rejects oversized or linked evidence and rolls back a failed projection
+  ---
+  duration_ms: 4137.7777
+  type: 'test'
+  ...
+# Subtest: historical schema-2 validation needs both Desktop hosts and is never publication eligibility
+ok 12 - historical schema-2 validation needs both Desktop hosts and is never publication eligibility
+  ---
+  duration_ms: 3420.061
+  type: 'test'
+  ...
+# Subtest: Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection
+ok 13 - Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection
+  ---
+  duration_ms: 2932.5179
+  type: 'test'
+  ...
+# Subtest: attributed human reports preserve unknown identity and cannot supply native qualification
+ok 14 - attributed human reports preserve unknown identity and cannot supply native qualification
+  ---
+  duration_ms: 1011.8177
+  type: 'test'
+  ...
+# Subtest: complete matrix accepts real-shaped primary events and rejects missing/forged observations
+ok 15 - complete matrix accepts real-shaped primary events and rejects missing/forged observations
+  ---
+  duration_ms: 2948.1513
+  type: 'test'
+  ...
+# Subtest: Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+ok 16 - Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+  ---
+  duration_ms: 3730.5736
+  type: 'test'
+  ...
+# Subtest: Desktop templates are explicitly unverified and cannot satisfy release acceptance
+ok 17 - Desktop templates are explicitly unverified and cannot satisfy release acceptance
+  ---
+  duration_ms: 1791.4798
+  type: 'test'
+  ...
+# Subtest: local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+ok 18 - local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+  ---
+  duration_ms: 2332.1091
+  type: 'test'
+  ...
+# Subtest: optional current-policy CLI diagnostics retain strict checks and never grant Desktop eligibility
+ok 19 - optional current-policy CLI diagnostics retain strict checks and never grant Desktop eligibility
+  ---
+  duration_ms: 2315.9905
+  type: 'test'
+  ...
+# Subtest: Desktop preflight uses captured runtime identity, never the helper process tuple
+ok 20 - Desktop preflight uses captured runtime identity, never the helper process tuple
+  ---
+  duration_ms: 1802.8768
+  type: 'test'
+  ...
+# Subtest: schema-3 CLI matrix binds reviewed tuples per host; the Codex pin binds only Linux/Windows diagnostics
+ok 21 - schema-3 CLI matrix binds reviewed tuples per host; the Codex pin binds only Linux/Windows diagnostics
+  ---
+  duration_ms: 1424.26
+  type: 'test'
+  ...
+# Subtest: schema-3 publication validation needs both CLI scopes; supplied Desktop scopes stay optional but strict
+ok 22 - schema-3 publication validation needs both CLI scopes; supplied Desktop scopes stay optional but strict
+  ---
+  duration_ms: 3650.7259
+  type: 'test'
+  ...
+# Subtest: schema-3 import maps --surface cli to the required scope and projects only that host
+ok 23 - schema-3 import maps --surface cli to the required scope and projects only that host
+  ---
+  duration_ms: 4175.3997
+  type: 'test'
+  ...
+# Subtest: schema-3 handoff is per host and Codex CLI preflight runs only on macOS
+ok 24 - schema-3 handoff is per host and Codex CLI preflight runs only on macOS
+  ---
+  duration_ms: 1610.9162
+  type: 'test'
+  ...
+# Subtest: the publication gate keeps imported mandatory Codex records valid across evidence-only commits only
+ok 25 - the publication gate keeps imported mandatory Codex records valid across evidence-only commits only
+  ---
+  duration_ms: 19117.8889
+  type: 'test'
+  ...
+# Subtest: native entrypoints parse without running hosts or using credentials
+ok 26 - native entrypoints parse without running hosts or using credentials
+  ---
+  duration_ms: 264.1925
+  type: 'test'
+  ...
+# Subtest: baseline subprocess stays in its isolated project instead of the invoking repository
+ok 27 - baseline subprocess stays in its isolated project instead of the invoking repository
+  ---
+  duration_ms: 102.0255
+  type: 'test'
+  ...
+# Subtest: released baseline integrity and archive entry restrictions are enforced before writes
+ok 28 - released baseline integrity and archive entry restrictions are enforced before writes
+  ---
+  duration_ms: 13.1348
+  type: 'test'
+  ...
+# Subtest: stale-state injection verifies complete owned provenance and refuses foreign ownership
+ok 29 - stale-state injection verifies complete owned provenance and refuses foreign ownership
+  ---
+  duration_ms: 12.1121
+  type: 'test'
+  ...
+# Subtest: host tiers and Codex compatibility projection have one canonical owner
+ok 30 - host tiers and Codex compatibility projection have one canonical owner
+  ---
+  duration_ms: 703.2688
+  type: 'test'
+  ...
+# Subtest: schema-2 Desktop policy rejects unknown schemas, changed targets and widened scope
+ok 31 - schema-2 Desktop policy rejects unknown schemas, changed targets and widened scope
+  ---
+  duration_ms: 728.8373
+  type: 'test'
+  ...
+# Subtest: schema-3 CLI policy pins both mandatory CLI targets and keeps Desktop and diagnostics outside them
+ok 32 - schema-3 CLI policy pins both mandatory CLI targets and keeps Desktop and diagnostics outside them
+  ---
+  duration_ms: 2235.3682
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 63129.3718

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "candidate_identity_summary",
+  "candidate_id": "af150d337fbf47abcfea5f03ae06a53b15107a4b219495ab54ea424c869f1158",
+  "version": "0.20.0",
+  "source_revision": {
+    "commit": "17a82bf6a8476c7a0c1380d6476537bf256659a8",
+    "dirty": false
+  },
+  "policy_digest": "1bf3c8c9d3a23cfc4ee2f5b672fd15d6c913095116736682ffd557c54b6fffbf",
+  "identities": {
+    "agdf": {
+      "version": "0.20.0",
+      "source_digest": "6eeb51bb9050fb0806f7dd1b32a4e0672d0753d666e0249095c3112942b9f048",
+      "runtime_digest": "89c28ecbdac8ff15f0091df6f0e29810957e4b70f3d715eb45922d3a7cbe7fcf"
+    },
+    "mcp_dispatcher": {
+      "digest": "61e3e38eeaca4af5c3494156e7e1fe58ac0db37daf25229d06f203bf460ca485"
+    }
+  },
+  "source_inventory": {
+    "files": 1591,
+    "digest": "27a5b71dd61d6c6fb9ef662294280bad3f0bd0cf319ec90c89f551dc02f03b7a"
+  },
+  "payload_inventories": {
+    "packages/cli/generated/plugins/agdf": {
+      "files": 448,
+      "digest": "77490c88a8876ab364d0ba4ff9c29392515468d9e7e57a787ca983b9793d58e6"
+    },
+    "packages/cli/generated/plugins/copilot/agdf": {
+      "files": 398,
+      "digest": "0cf735a0ce30b7bc1a1013386b8298cb6b1ca2a7f253eff340a9b68fe6c7c215"
+    },
+    "dist/npm/create-agdf": {
+      "files": 1354,
+      "digest": "94f1673f2a7314afccbf15063730c883048d76dacfcea7ac4623e2492eed0309"
+    },
+    "dist/npm/agdf-mcp-server": {
+      "files": 18,
+      "digest": "f3f010383be016753d835415a1ef9d217d2e43b8fbf69bffbe5c8cee6676b008"
+    },
+    "dist/npm/agdf": {
+      "files": 5,
+      "digest": "e877dfc16b6624237a15883b0b3cfcb64ed9ce6a7e759edb2fa38a44fe924058"
+    }
+  },
+  "candidate_file_sha256": "66a98318e5b1e2233ad5fc66c1cefb187dbc6b928a5a6def2b279800a6da514a",
+  "comparison": {
+    "macos_diagnostic_candidate": "5143cc192852d091d9792124832805e34adcb8193689857a1217dc311486dd7f (7ce6e838, dirty)",
+    "policy_digest_equal": true,
+    "plugin_identity_equal": true,
+    "payload_inventories_equal": true,
+    "source_differences": [
+      "scripts/native-probes/release-handoff-test.mjs (17a82bf6 CI fixture fix)",
+      "packages/cli/.codex/config.toml and packages/cli/.github/mcp.json present only in the macOS dirty tree"
+    ]
+  },
+  "prior_candidates_not_reused": [
+    "5143cc19 (diagnostic, dirty)",
+    "830d8b94 (Claude CLI, schema-1 policy)"
+  ],
+  "authorizes": false
+}

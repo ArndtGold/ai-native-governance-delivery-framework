@@ -196,6 +196,22 @@ export function parseClaudeStream(stdout) {
   return { init, calls, result: events.find(event => event.type === "result") ?? null, eventTypes, events };
 }
 
+// Parses lines of a native Claude Desktop Code session transcript (the app's session store, one event per
+// line). It has no `system`/`init` event: each assistant message carries its model, and conversation events
+// name their session and the `claude-desktop` entrypoint. Identity facts are reported, never defaulted.
+export function parseClaudeDesktopTranscript(text) {
+  const parsed = parseClaudeStream(text);
+  const conversation = parsed.events.filter(event => event.type === "user" || event.type === "assistant");
+  return {
+    ...parsed,
+    conversation_events: conversation.length,
+    models: [...new Set(conversation.filter(event => event.type === "assistant").map(event => event.message?.model ?? null))],
+    session_ids: [...new Set(parsed.events.filter(event => Object.hasOwn(event, "sessionId") || conversation.includes(event)).map(event => event.sessionId ?? null))],
+    entrypoints: [...new Set(parsed.events.filter(event => Object.hasOwn(event, "entrypoint") || conversation.includes(event)).map(event => event.entrypoint ?? null))],
+    sidechain: parsed.events.some(event => event.isSidechain === true),
+  };
+}
+
 // The host E2E probe's view of one session: offered tool, server status and each call of `tool`
 // with its parsed AGDF outcome. host_action is redacted before shortening so a cut path cannot escape.
 export function summarizeToolSession(parsed, { tool, server, redact = text => String(text ?? "") }) {

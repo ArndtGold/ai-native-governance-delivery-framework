@@ -132,7 +132,7 @@ export function sourceSnapshot(root, manifest) {
     return [host, { canonical_version: definition.version, source_digest: digestNormalizedPluginSource(payloadRoot, definition.version), runtime_digest: readJson(join(payloadRoot, "runtime/runtime-manifest.json")).digest }];
   }));
   const byHost = Object.fromEntries(HOSTS.map(host => [host, hash(canonical(Object.fromEntries([...new Set([...common, ...hostFiles[host]])].sort().map(file => [file, fingerprints[file]]))))]));
-  return { version: definition.version, ...(definition.hostSupport ? { support_tiers: definition.hostSupport.tiers, release_matrix: definition.hostSupport.required_targets ?? [], unqualified: definition.hostSupport.unqualified ?? [] } : {}), payloads, files: fingerprints, by_host: byHost, digest: hash(canonical({ fingerprints, payloads })) };
+  return { version: definition.version, ...(definition.hostSupport ? { support_tiers: definition.hostSupport.tiers, release_matrix: definition.hostSupport.required_targets ?? [], reported_desktop: definition.hostSupport.reported_desktop ?? [], unqualified: definition.hostSupport.unqualified ?? [] } : {}), payloads, files: fingerprints, by_host: byHost, digest: hash(canonical({ fingerprints, payloads })) };
 }
 
 function readReferences(root, observations) {

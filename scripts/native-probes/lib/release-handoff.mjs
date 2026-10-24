@@ -3,7 +3,7 @@ import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, writeFileS
 import { dirname, join, resolve } from 'node:path';
 import { spawnHostSync } from '../../../packages/cli/lib/host-command.js';
 import { candidateManifest, containedFile, jsonDigest, readCandidate, sha, validateCandidate } from './release-candidate.mjs';
-import { releasePolicy, requiredReleaseCases } from './release-policy.mjs';
+import { CLI_CASES, releasePolicy, requiredReleaseCases } from './release-policy.mjs';
 import { assertHostReleaseEvidence, assertTuple, releaseRecords } from './release-observation.mjs';
 import { projectNativeRelease } from '../../host-compatibility/native-release.mjs';
 
@@ -18,6 +18,11 @@ export function assertBundleReview(review, rows, candidate) {
   assert.equal(review.candidate_id, candidate.candidate_id, 'native_review_candidate_mismatch');
   assert.equal(review.bundle_digest, bundleDigest(rows), 'native_review_bundle_mismatch');
 }
+// A schema-2 review locks exactly the one actual tuple of its own host and surface.
+function assertReviewScope(review, host, surface) {
+  assert.ok(Array.isArray(review.tuples) && review.tuples.length === 1
+    && review.tuples[0]?.host === host && review.tuples[0]?.surface === surface, 'native_review_tuple_scope');
+}
 function ownedImportParent(root, candidateId) {
   assert.match(candidateId, /^[a-f0-9]{64}$/u);
   let parent = root;
@@ -28,19 +33,28 @@ function ownedImportParent(root, candidateId) {
   }
   return parent;
 }
+// Schema 3 derives the scope from the canonical targets: a listed host/surface is mandatory evidence.
+export function evidenceScope(policy, host, surface) {
+  if (policy.schema_version === 3) {
+    if (policy.required_targets.some(target => target.host === host && target.surface === surface)) return undefined;
+    return surface === 'desktop-code' ? 'optional-desktop' : 'optional-cli';
+  }
+  return surface === 'cli' ? 'optional-cli' : undefined;
+}
 export function importNativeEvidence(root, { candidate, bundle, review, host = 'claude', surface }) {
   assert.ok(['codex','claude'].includes(host), 'native_import_host_invalid');
   const policy = releasePolicy(root);
-  if (policy.schema_version === 2) assert.ok(['cli','desktop-code'].includes(surface), 'native_import_surface_required');
-  const scope = surface === 'cli' ? 'optional-cli' : undefined;
+  if (policy.schema_version >= 2) assert.ok(['cli','desktop-code'].includes(surface), 'native_import_surface_required');
+  const scope = evidenceScope(policy, host, surface);
   const actualCandidate = validateCandidate(root, candidate, { requireClean: true });
   const rows = releaseRecords(bundle);
   assertBundleReview(review, rows, candidate);
-  const result = assertHostReleaseEvidence(rows, { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples });
+  if (policy.schema_version >= 2) assertReviewScope(review, host, surface);
+  const result = assertHostReleaseEvidence(rows, { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples, root });
   if (surface) assert.ok(rows.every(({record}) => record.environment.host === host && record.environment.surface === surface), 'native_import_scope_mismatch');
   const parent = ownedImportParent(root, candidate.candidate_id);
   let destination = join(parent, host);
-  if (policy.schema_version === 2) {
+  if (policy.schema_version >= 2) {
     if (existsSync(destination)) assert.ok(lstatSync(destination).isDirectory() && !lstatSync(destination).isSymbolicLink(), 'native_import_parent_unsafe');
     else mkdirSync(destination);
     destination = join(destination, surface);
@@ -61,7 +75,7 @@ export function importNativeEvidence(root, { candidate, bundle, review, host = '
     }
     writeNew(join(stage, 'review.json'), review);
     // Recheck bytes immediately before committing the owned import.
-    assertHostReleaseEvidence(releaseRecords(stage), { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples });
+    assertHostReleaseEvidence(releaseRecords(stage), { candidate, policy, host, scope, commit: actualCandidate.source_revision.commit, lockedTuples: review.tuples, root });
     validateCandidate(root, candidate);
     renameSync(stage, destination);
     try { projectNativeRelease(root, rows, candidate); }
@@ -70,6 +84,21 @@ export function importNativeEvidence(root, { candidate, bundle, review, host = '
   return { ...result, destination, assurance: 'cooperative_evidence_review' };
 }
 export function importClaudeEvidence(root, args) { return importNativeEvidence(root, { ...args, host: 'claude' }); }
+
+// Per-host instructions for the mandatory schema-3 CLI matrix; the executor keeps credentials and the computer.
+function cliHandoff(candidate, host) {
+  const claude = host === 'claude';
+  return [`# ${claude ? 'Claude Code CLI on Windows' : 'Codex CLI on macOS'}: release qualification`, '',
+    `Candidate: ${candidate.candidate_id}`, `Version: ${candidate.version}`, `Clean source commit: ${candidate.source_revision.commit}`, '',
+    `Mandatory cases on ${claude ? 'native Windows' : 'macOS'}: ${CLI_CASES.join(', ')}. Each case installs, discovers, invokes and removes AGDF in an isolated scope.`, '',
+    '1. Use a clean checkout of that commit with complete history and lockfile dependencies. Run npm run build:prepare, then npm --prefix packages/mcp-server ci --ignore-scripts. Recompute and validate the candidate content before execution.',
+    claude ? '2. Start every command from a terminal outside the Claude Desktop app package, for example one opened through explorer.exe. Keep the existing Claude authentication on this computer.'
+      : '2. Use the legitimately authenticated Codex CLI on this Mac. When the client ships inside the ChatGPT app, set CODEX_BIN to that executable for preflight and every case.',
+    `3. Freeze the actual tuple: node scripts/native-probes/release-evidence.mjs preflight --candidate candidate.json --host ${host} --surface cli --model MODEL --output tuple.json, where MODEL is the model actually available.`,
+    `4. For each case run npm run native:${host}-e2e -- --candidate candidate.json --tuple tuple.json --model MODEL --scenario CASE. The harness refuses a changed tuple; never edit a completed record.`,
+    '5. Return only the probe-results directories with release-records.json and their referenced captures, plus tuple.json and candidate.json. Credentials, profiles and unrelated transcripts stay on this computer.',
+    `6. A reviewer runs review-template, checks the primary captures, marks the review and imports with --host ${host} --surface cli. Missing or failed cases stay open; this handoff grants no gate approval or publication.`, ''].join('\n');
+}
 
 export async function runReleaseTool(args, root = process.cwd()) {
   const [command, ...rest] = args;
@@ -85,7 +114,7 @@ export async function runReleaseTool(args, root = process.cwd()) {
   assert.ok(allowed[command] && Object.keys(options).every(key => allowed[command].includes(key)), 'release_command_invalid');
   const required = key => { assert.ok(options[key], `release_required:${key}`); return options[key]; };
   const policy = releasePolicy(root);
-  if (command === 'validate' && options['--all-hosts']) assert.equal(policy.schema_version, 2, 'publication_requires_desktop_policy');
+  if (command === 'validate' && options['--all-hosts']) assert.equal(policy.schema_version, 3, 'publication_requires_cli_policy');
   if (command === 'candidate') {
     const candidate = candidateManifest(root); writeNew(resolve(required('--output')), candidate);
     return { candidate_id: candidate.candidate_id, version: candidate.version, source: candidate.source_revision, authorizes: false };
@@ -96,26 +125,35 @@ export async function runReleaseTool(args, root = process.cwd()) {
   const actual = validateCandidate(root, candidate, { requireClean: command !== 'desktop-template' });
   if (command === 'handoff') {
     const destination = resolve(required('--output'));
+    // Each schema-3 executor receives exactly the cases of the host on its own computer.
+    if (policy.schema_version === 3) required('--host');
     assert.ok(!existsSync(destination), 'handoff_destination_exists');
     mkdirSync(destination, { recursive: true });
     writeNew(join(destination, 'candidate.json'), candidate);
-    writeNew(join(destination, 'required-cases.json'), requiredReleaseCases(policy, policy.schema_version === 2 ? options['--host'] : 'claude'));
-    writeNew(join(destination, 'WINDOWS_TEST.md'), policy.schema_version === 2 ? `# Desktop release evidence\n\nCandidate: ${candidate.candidate_id}\n\nRecover original session, upgrade and recovery evidence first. Both Codex Desktop and Windows Claude Desktop are required; Codex Desktop OS remains unknown until observed. Do not borrow CLI tuples or relabel old candidates. Capture the actual Desktop app/model/session and loaded identity in a safe host-supported isolated scope. Templates are unverified. Each session needs installation/consent/discovery/dispatch/invalid-input/skill/cleanup primary observations and an app capture. Upgrade/recovery require the actually released 0.14.5 baseline and fresh effective candidate. Return redacted records and hashed contained primary references with a locked tuple/bundle review; credentials stay on the executor. Missing facts remain explicit blockers. No blanket retest, remote control, approval or publication is authorized.\n` : `# Claude Code Windows qualification\n\nCandidate: ${candidate.candidate_id}\nVersion: ${candidate.version}\nClean source commit: ${candidate.source_revision.commit}\n\nUse a clean checkout of that commit with complete history and lockfile dependencies. Run npm run build:prepare, then install the MCP package dependencies. Recompute and validate the candidate content before execution. Keep authentication on this computer. Never change a completed record to fit another version.\n\n1. Capture preflight for cli with the actual available model and for desktop-code with the actual app version plus native version evidence. Freeze each tuple.\n2. Run npm run native:claude-e2e with --candidate, --tuple, --model and each --scenario dispatch, failure_case, skill_continuation, upgrade, recovery.\n3. Use a safely isolated Desktop Code test environment. Create desktop-template records for session, upgrade and recovery. Capture a fresh coding session after each transition, the loaded plugin/runtime diagnostics, actual AGDF access and cleanup; add native JSON/log and image references. Generic Desktop chat and CLI calls are insufficient. Leave unsupported observations unverified.\n4. Return only redacted release-records.json, desktop-session/upgrade/recovery.json and their hashed native references, the frozen tuples and candidate.json. Do not return credentials, whole profiles or unrelated transcripts.\n5. A reviewer must check primary observations and prepare the exact candidate/bundle/tuple review record before import. Missing results remain open; this handoff grants no gate approval or publication.\n`);
+    writeNew(join(destination, 'required-cases.json'), requiredReleaseCases(policy, policy.schema_version >= 2 ? options['--host'] : 'claude'));
+    if (policy.schema_version === 3) {
+      writeNew(join(destination, host === 'codex' ? 'MACOS_TEST.md' : 'WINDOWS_TEST.md'), cliHandoff(candidate, host));
+      return { result: 'prepared', destination, candidate_id: candidate.candidate_id, qualification: 'pending', authorizes: false };
+    }
+    writeNew(join(destination, 'WINDOWS_TEST.md'), policy.schema_version === 2 ? `# Desktop release evidence\n\nCandidate: ${candidate.candidate_id}\n\nRecover original session, upgrade and recovery evidence first. Both Codex Desktop and Windows Claude Desktop are required; Codex Desktop OS remains unknown until observed. Do not borrow CLI tuples or relabel old candidates. Capture the actual Desktop app/model/session and loaded identity in a safe host-supported isolated scope. Templates are unverified. Each session needs installation/consent/discovery/dispatch/invalid-input/skill/cleanup primary observations and an app capture. Claude Desktop calls keep the unmodified lines of that Desktop session transcript; a CLI stream cannot replace them.Upgrade/recovery require the actually released 0.14.5 baseline and fresh effective candidate. Return redacted records and hashed contained primary references with a locked tuple/bundle review; credentials stay on the executor. Missing facts remain explicit blockers. No blanket retest, remote control, approval or publication is authorized.\n` : `# Claude Code Windows qualification\n\nCandidate: ${candidate.candidate_id}\nVersion: ${candidate.version}\nClean source commit: ${candidate.source_revision.commit}\n\nUse a clean checkout of that commit with complete history and lockfile dependencies. Run npm run build:prepare, then install the MCP package dependencies. Recompute and validate the candidate content before execution. Keep authentication on this computer. Never change a completed record to fit another version.\n\n1. Capture preflight for cli with the actual available model and for desktop-code with the actual app version plus native version evidence. Freeze each tuple.\n2. Run npm run native:claude-e2e with --candidate, --tuple, --model and each --scenario dispatch, failure_case, skill_continuation, upgrade, recovery.\n3. Use a safely isolated Desktop Code test environment. Create desktop-template records for session, upgrade and recovery. Capture a fresh coding session after each transition, the loaded plugin/runtime diagnostics, actual AGDF access and cleanup; add native JSON/log and image references. Generic Desktop chat and CLI calls are insufficient. Leave unsupported observations unverified.\n4. Return only redacted release-records.json, desktop-session/upgrade/recovery.json and their hashed native references, the frozen tuples and candidate.json. Do not return credentials, whole profiles or unrelated transcripts.\n5. A reviewer must check primary observations and prepare the exact candidate/bundle/tuple review record before import. Missing results remain open; this handoff grants no gate approval or publication.\n`);
     return { result: 'prepared', destination, candidate_id: candidate.candidate_id, qualification: 'pending', authorizes: false };
   }
   if (command === 'preflight') {
     if (host === 'claude') assert.equal(process.platform, 'win32', 'claude_preflight_requires_native_windows');
     const surface = required('--surface'); assert.ok(['cli','desktop-code'].includes(surface));
-    if (host === 'codex') assert.equal(surface, 'desktop-code', 'codex_cli_uses_pinned_probe_preflight');
+    if (host === 'codex' && policy.schema_version < 3) assert.equal(surface, 'desktop-code', 'codex_cli_uses_pinned_probe_preflight');
+    if (host === 'codex' && surface === 'cli') assert.equal(process.platform, 'darwin', 'codex_cli_preflight_requires_macos');
     let version, desktopEnvironment;
     if (surface === 'cli') {
-      const result = spawnHostSync('claude', ['--version'], { encoding: 'utf8', timeout: 15000 });
-      assert.equal(result.status, 0, 'claude_cli_unavailable'); version = result.stdout.trim().split(/\s+/u)[0];
+      // Same executable and version token as the native harness of that host.
+      const result = spawnHostSync(host === 'codex' ? process.env.CODEX_BIN || 'codex' : 'claude', ['--version'], { encoding: 'utf8', timeout: 15000 });
+      assert.equal(result.status, 0, `${host}_cli_unavailable`);
+      const parts = result.stdout.trim().split(/\s+/u); version = host === 'codex' ? parts.at(-1) : parts[0];
     } else {
       version = required('--version');
       const bytes = readFileSync(resolve(required('--version-evidence')));
       assert.ok(bytes.length > 0 && bytes.length <= 1024 * 1024, 'desktop_version_evidence_missing');
-      if (policy.schema_version === 2) {
+      if (policy.schema_version >= 2) {
         desktopEnvironment = JSON.parse(bytes); assertTuple(desktopEnvironment);
         assert.equal(desktopEnvironment.host, host); assert.equal(desktopEnvironment.surface, surface);
         assert.equal(desktopEnvironment.os, process.platform, 'desktop_preflight_os_mismatch');
@@ -135,7 +173,7 @@ export async function runReleaseTool(args, root = process.cwd()) {
     assert.equal(tuple.candidate_id, candidate.candidate_id); assertTuple(tuple.environment);
     assert.equal(tuple.environment.surface, 'desktop-code');
     const scenario = options['--scenario'] ?? 'session'; assert.ok(['session','upgrade','recovery'].includes(scenario));
-    const record = { schema_version: policy.schema_version === 2 ? 3 : 2, ...(policy.schema_version === 2 ? { kind: 'qualified_desktop' } : {}), id: `${tuple.environment.host}-desktop-${scenario}`, recorded_at: new Date().toISOString(), environment: tuple.environment,
+    const record = { schema_version: policy.schema_version >= 2 ? 3 : 2, ...(policy.schema_version >= 2 ? { kind: 'qualified_desktop' } : {}), id: `${tuple.environment.host}-desktop-${scenario}`, recorded_at: new Date().toISOString(), environment: tuple.environment,
       tuple_digest: tuple.tuple_digest, candidate_id: candidate.candidate_id, policy_digest: candidate.policy_digest, source: actual.source_revision,
       scenario, result: 'unverified', assurance: 'operator_observed', session_id: '', loaded_identity: null,
       ...(['upgrade','recovery'].includes(scenario) ? { transition: { baseline: { version: '0.14.5', integrity: null, source_digest: null },
@@ -155,18 +193,31 @@ export async function runReleaseTool(args, root = process.cwd()) {
   const commit = actual.source_revision.commit;
   if (process.env.GITHUB_SHA) assert.equal(process.env.GITHUB_SHA, commit, 'release_checkout_sha_mismatch');
   if (command === 'validate-cli') return { ...assertHostReleaseEvidence(releaseRecords(directory), { candidate, policy, host: 'codex', scope: 'optional-cli', commit }), scope: 'optional_cli_diagnostic', qualification: 'unqualified' };
-  if (policy.schema_version === 2) {
-    // Publication always evaluates both Desktop hosts, including the default command route.
+  if (policy.schema_version >= 2) {
+    const scopedBundle = target => {
+      const review = JSON.parse(readFileSync(containedFile(directory, `${target.host}/${target.surface}/review.json`), 'utf8'));
+      const scoped = releaseRecords(join(directory, target.host, target.surface));
+      assertBundleReview(review, scoped, candidate);
+      assertReviewScope(review, target.host, target.surface);
+      assert.ok(scoped.every(({record}) => record.environment.host === target.host && record.environment.surface === target.surface), 'native_bundle_scope_mismatch');
+      return { rows: scoped, tuples: review.tuples };
+    };
+    // Publication always evaluates every required target, including the default command route.
     const rows = []; const lockedTuples = [];
     for (const target of policy.required_targets) {
-      const folder = join(directory, target.host, target.surface);
-      const review = JSON.parse(readFileSync(containedFile(directory, `${target.host}/${target.surface}/review.json`), 'utf8'));
-      const scoped = releaseRecords(folder);
-      assertBundleReview(review, scoped, candidate);
-      assert.ok(scoped.every(({record}) => record.environment.host === target.host && record.environment.surface === target.surface), 'native_bundle_scope_mismatch');
-      rows.push(...scoped); lockedTuples.push(...review.tuples);
+      const scoped = scopedBundle(target); rows.push(...scoped.rows); lockedTuples.push(...scoped.tuples);
     }
-    return assertHostReleaseEvidence(rows, { candidate, policy, commit, lockedTuples });
+    const result = assertHostReleaseEvidence(rows, { candidate, policy, commit, lockedTuples, root });
+    if (policy.schema_version === 2) return result;
+    // Reported Desktop surfaces never gate publication; a supplied set must still be complete and strictly valid.
+    const optionalDesktop = [];
+    for (const target of policy.reported_desktop) {
+      if (!existsSync(join(directory, target.host, target.surface))) continue;
+      const scoped = scopedBundle(target);
+      assertHostReleaseEvidence(scoped.rows, { candidate, policy, host: target.host, scope: 'optional-desktop', commit, lockedTuples: scoped.tuples, root });
+      optionalDesktop.push(target.host);
+    }
+    return { ...result, optional_desktop: optionalDesktop };
   }
   const codex = releaseRecords(directory);
   const imported = join(root, 'evals/host-compatibility/native', candidate.candidate_id, 'claude');

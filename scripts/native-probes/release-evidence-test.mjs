@@ -52,11 +52,11 @@ assert.equal(existsSync(new URL("../../.github/workflows/publish-create-agdf.yml
 const publish = parse(readFileSync(new URL("../../.github/workflows/publish-agdf.yml", import.meta.url), "utf8"));
 assert.deepEqual(publish.on.push.tags, ["agdf-v*"]);
 assert.equal(publish.jobs["codex-e2e"], undefined);
-assert.ok(publish.jobs.publish.needs.includes('desktop-evidence'));
-assert.match(publish.jobs['desktop-evidence'].steps.at(-1).run, /validate .*--all-hosts/u);
-assert.equal(publish.jobs["desktop-evidence"].uses, undefined);
+assert.ok(publish.jobs.publish.needs.includes('release-evidence'));
+assert.match(publish.jobs['release-evidence'].steps.at(-1).run, /validate .*--all-hosts/u);
+assert.equal(publish.jobs["release-evidence"].uses, undefined);
 const workflow = parse(readFileSync(new URL("../../.github/workflows/codex-release-e2e.yml", import.meta.url), "utf8"));
-for (const job of [workflow.jobs.native, workflow.jobs.evidence, publish.jobs['desktop-evidence']]) {
+for (const job of [workflow.jobs.native, workflow.jobs.evidence, publish.jobs['release-evidence']]) {
   assert.equal(job.steps.find(step => step.uses?.startsWith('actions/checkout@'))?.with?.['fetch-depth'], 0,
     'candidate preparation validates historical release tags and needs full checkout history');
 }

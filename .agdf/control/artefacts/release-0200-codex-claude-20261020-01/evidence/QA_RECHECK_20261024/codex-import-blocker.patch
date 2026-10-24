@@ -1,0 +1,96 @@
+diff --git a/scripts/native-probes/codex-host-e2e.mjs b/scripts/native-probes/codex-host-e2e.mjs
+index 7bac0986..46af1cbf 100644
+--- a/scripts/native-probes/codex-host-e2e.mjs
++++ b/scripts/native-probes/codex-host-e2e.mjs
+@@ -256,7 +256,7 @@ try {
+   const bad = canRunSessions ? session({ skill_id: "gate-check", presentation_language: "de", working_directory: "relative/dir" }, "failure_case") : null;
+   const failure = bad?.calls?.at(-1);
+   step("failure_case", Boolean(bad?.output.status === 0 && bad.observed_models.length === 1 && bad.observed_models[0] === model && bad.calls.length === 1 && failure?.outcome === "invalid_input" && failure.terminal === true && failure.authorizes === false && failure.plugin_id === "agdf@agdf"),
+-    canRunSessions ? { observed_models: bad.observed_models, plugin_id: failure?.plugin_id ?? null, calls: bad.calls.length, outcome: failure?.outcome ?? null, exec_status: bad.output.status, host_action: failure?.host_action ?? null } : { skipped: hasAuth ? "prerequisite_failed" : "authentication unavailable" });
++    canRunSessions ? { observed_models: bad.observed_models, plugin_id: failure?.plugin_id ?? null, calls: bad.calls.length, outcome: failure?.outcome ?? null, authorizes: failure?.authorizes ?? null, exec_status: bad.output.status, host_action: failure?.host_action ?? null } : { skipped: hasAuth ? "prerequisite_failed" : "authentication unavailable" });
+   }
+   // Regression: judgement skills must receive contracts even though this isolated host has no trusted hook.
+   if (!scenario || scenario === 'skill_continuation') {
+diff --git a/scripts/native-probes/lib/release-observation.mjs b/scripts/native-probes/lib/release-observation.mjs
+index 4251f8d0..1d171cf0 100644
+--- a/scripts/native-probes/lib/release-observation.mjs
++++ b/scripts/native-probes/lib/release-observation.mjs
+@@ -251,7 +251,11 @@ export function assertNativeRecord(record, { candidate, policy, directory, commi
+     }
+     assert.equal(call.exec_status, 0); assert.equal(call.calls, 1);
+     assert.deepEqual(call.observed_models, [tuple.model]);
+-    assert.equal(call.authorizes, false);
++    // Older Codex failure-case summaries omitted this field. Their hash-checked primary
++    // capture must still explicitly report authorizes:false, as verified above.
++    const authority = tuple.host === 'codex' && record.scenario === 'failure_case' && !Object.hasOwn(call, 'authorizes')
++      ? captured.authorizes : call.authorizes;
++    assert.equal(authority, false, 'native_authority_mismatch');
+     if (record.scenario !== 'failure_case') assert.equal(call.runtime_digest, candidate.identities.mcp_dispatcher?.digest, 'native_executed_runtime_mismatch');
+     if (record.scenario === 'failure_case') assert.equal(call.outcome, 'invalid_input');
+     else if (record.scenario === 'skill_continuation') { assert.equal(call.outcome, 'skill_continuation'); assert.equal(call.contracts_verified, true); }
+diff --git a/scripts/native-probes/release-handoff-test.mjs b/scripts/native-probes/release-handoff-test.mjs
+index 7f427599..34bc553f 100644
+--- a/scripts/native-probes/release-handoff-test.mjs
++++ b/scripts/native-probes/release-handoff-test.mjs
+@@ -404,6 +404,61 @@ test('complete matrix accepts real-shaped primary events and rejects missing/for
+     assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /primary_unexpected_native_tool/u);
+   } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
+ });
++test('legacy Codex failure-case records use primary authority evidence without rewriting records', () => {
++  const f = candidateFixture({ policyVersion: 3 }), data = nativeFixtures(f, 'codex');
++  try {
++    const row = data.rows.find(row => row.record.scenario === 'failure_case');
++    delete row.record.steps.find(step => step.name === 'failure_case').evidence.authorizes;
++    const path = join(row.directory, 'release-records.json');
++    writeFileSync(path, JSON.stringify([row.record]));
++    const before = readFileSync(path), original = structuredClone(row.record), digest = bundleDigest(data.rows);
++    assert.equal(assertHostReleaseEvidence(data.rows, data.options).result, 'pass');
++    assert.deepEqual(row.record, original);
++    assert.deepEqual(readFileSync(path), before);
++    assert.equal(bundleDigest(data.rows), digest);
++  } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
++});
++test('legacy authority compatibility rejects unsafe primary evidence and stays limited to Codex failure cases', () => {
++  const f = candidateFixture({ policyVersion: 3 }), data = nativeFixtures(f);
++  try {
++    const row = data.rows.find(row => row.record.environment.host === 'codex' && row.record.scenario === 'failure_case');
++    const evidence = row.record.steps.find(step => step.name === 'failure_case').evidence;
++    for (const value of [true, null, 'false']) {
++      evidence.authorizes = value;
++      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_authority_mismatch/u);
++    }
++    delete evidence.authorizes;
++    const path = join(row.directory, 'failure_case-process.json'), original = readFileSync(path);
++    for (const value of [true, null, undefined]) {
++      const primary = JSON.parse(original);
++      const change = text => text.split('\n').map(line => {
++        const event = JSON.parse(line), result = event.item?.result;
++        if (result) {
++          const reply = JSON.parse(result.content[0].text);
++          if (value === undefined) delete reply.authorizes; else reply.authorizes = value;
++          result.content[0].text = JSON.stringify(reply);
++        }
++        return JSON.stringify(event);
++      }).join('\n');
++      primary.stdout = change(primary.stdout); primary.rollouts = primary.rollouts.map(change);
++      writeFileSync(path, JSON.stringify(primary));
++      row.record.references = referencesFrom(row.directory, row.record.references.map(ref => ref.path));
++      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /primary_authority_mismatch/u);
++    }
++    writeFileSync(path, original);
++    row.record.references = referencesFrom(row.directory, row.record.references.map(ref => ref.path));
++    writeFileSync(path, Buffer.concat([original, Buffer.from('\n')]));
++    assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_reference_changed/u);
++    writeFileSync(path, original);
++    assert.equal(assertHostReleaseEvidence(data.rows, data.options).result, 'pass');
++    for (const other of data.rows.filter(other => other !== row)) {
++      const step = other.record.steps.find(step => step.name === other.record.scenario);
++      delete step.evidence.authorizes;
++      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_authority_mismatch/u);
++      step.evidence.authorizes = false;
++    }
++  } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
++});
+ test('Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files', () => {
+   const f = candidateFixture(), data = nativeFixtures(f, 'claude');
+   try {

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-22T14:10:00Z",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "scope": "Repository verification of commit 17a82bf6 on win32 x64 Node v22.22.3, plus commit-bound remote CI. No native Desktop qualification, human acceptance, gate approval or publication.",
+  "source": {
+    "handoff_commit": "2e79783863d00f4d3b9b86776f36d8d59bcff165",
+    "verified_commit": "17a82bf6a8476c7a0c1380d6476537bf256659a8",
+    "handoff_commit_is_ancestor": true,
+    "verified_commit_on_remote": "refs/heads/feat/prepare-0.20.0-Desktop-evidence-handoff and refs/pull/29/head",
+    "remote_main": "7ce6e8385632c001f6cdcd94fdb242e07f2ee748 (merge base of the verified commit)",
+    "main_checkout_state": "only untracked session-local .claude/ (launch.json) besides ignored files; preserved unchanged",
+    "isolated_clean_worktree": "C:/Workspace/agdf-rc-17a82bf6 (git worktree, detached at 17a82bf6, porcelain 0 before and after every step)"
+  },
+  "verify_commit_ref_HEAD": {
+    "command": "npm run verify:commit -- --ref HEAD",
+    "started": "2026-10-22T11:43:21Z",
+    "ended": "2026-10-22T11:56:04Z",
+    "exit_code": 1,
+    "passed_stages": ["dependencies", "maintenance", "shell", "ui-dependencies", "ui-build", "generate", "build-contracts", "evals", "compatibility-freshness", "assemble", "prepare", "mcp-dependencies", "runtime", "community", "host-compatibility"],
+    "failed_stage": "mcp-ergonomics",
+    "failure": "evals/mcp-ergonomics/test/native.test.mjs test 24 (43/44 pass): spawnSync passes new URL(...).pathname ('/C:/...') to node on Windows, resolved as 'C:\\C:\\...' -> MODULE_NOT_FOUND. Lines 271 and 275; lines 199 and 220 of the same file already strip the drive-letter prefix.",
+    "failure_origin": "Introduced in 8ad683bc (2026-10-20), contained in main 7ce6e838; outside the release diff 7ce6e838..17a82bf6.",
+    "not_reached": ["built-runtime", "cli-package", "wrapper-package", "transactions", "delivery-map", "mcp-package", "archives", "cli-smoke", "wrapper-smoke", "pages-install", "pages"],
+    "log": "logs/verify-commit-ref-HEAD.log"
+  },
+  "documented_preparation": {
+    "order_source": "docs/maintenance/release-0.20.0.md",
+    "steps": [
+      { "command": "npm ci --ignore-scripts", "exit_code": 0, "log": "logs/prep-root-ci.log" },
+      { "command": "npm run build:prepare", "exit_code": 0, "log": "logs/prep-build-prepare.log" },
+      { "command": "npm --prefix packages/mcp-server ci --ignore-scripts", "exit_code": 0, "log": "logs/prep-mcp-ci.log" },
+      { "command": "npm run compatibility:record", "exit_code": 0, "scenarios": "56 evaluated, 0 failed", "log": "logs/prep-compatibility-record.log" },
+      { "command": "npm run compatibility:check", "exit_code": 0, "log": "logs/prep-compatibility-check.log" },
+      { "command": "npm run build", "exit_code": 0, "log": "logs/prep-build.log" },
+      { "command": "npm --prefix packages/cli run release:prepare", "exit_code": 0, "log": "logs/prep-release-prepare.log" }
+    ],
+    "platform_generated_output": "compatibility:record rewrote the deterministic fixture snapshot with os win32 instead of darwin and new timestamps; source fingerprint unchanged (cc7fa169c208413cdb5155f29c40a53ee8b80d9887faf87813e5fbcfc2464253). The own output is preserved under platform-generated-output/compatibility-record-win32 and the committed bytes were restored in the isolated worktree; npm run compatibility:check then passed on the committed snapshot (logs/prep-compatibility-check-committed.log)."
+  },
+  "verify_ci": {
+    "command": "npm run verify:ci (AGDF_DATA_DIR isolated in scratch)",
+    "started": "2026-10-22T11:55:29Z",
+    "ended": "2026-10-22T12:03:18Z",
+    "exit_code": 1,
+    "passed_stages": 15,
+    "failed_stage": "mcp-ergonomics",
+    "failure": "identical to verify_commit_ref_HEAD (43/44, same test)",
+    "porcelain_after": 0,
+    "log": "logs/verify-ci.log"
+  },
+  "remaining_stages_individually": {
+    "command": "node scripts/verify-ci.mjs --stage <id> in canonical plan order",
+    "results": [
+      { "stage": "built-runtime", "exit_code": 0 },
+      { "stage": "cli-package", "exit_code": 0 },
+      { "stage": "wrapper-package", "exit_code": 0 },
+      { "stage": "transactions", "exit_code": 0 },
+      { "stage": "delivery-map", "exit_code": 0 },
+      { "stage": "mcp-package", "exit_code": 0 },
+      { "stage": "archives", "exit_code": 0 },
+      { "stage": "cli-smoke", "exit_code": 0, "seconds": 6831.1 },
+      { "stage": "wrapper-smoke", "exit_code": 0 },
+      { "stage": "pages-install", "exit_code": 0 },
+      { "stage": "pages", "exit_code": 0 }
+    ],
+    "platform_generated_output": "pages check rewrote tracked pages/.astro/content.d.ts import path to './../src/content.config.mjs'; preserved as platform-generated-output/pages-astro-content-win32.diff and restored. pages/ is outside candidate source identity.",
+    "platform_limits": "24 symlink-dependent assertions in cli-smoke reported SKIPPED (EPERM: no elevated privileges or Windows Developer Mode)",
+    "logs": "logs/stages-remaining.txt and logs/stage-*.log"
+  },
+  "local_summary": "26 of 27 canonical stages passed on Windows; mcp-ergonomics fails 1 of 44 tests through a Windows-only test path defect. A complete single-invocation verify:ci or verify:commit pass on Windows is not established.",
+  "remote_ci": {
+    "workflow": "AGDF Guardrails",
+    "run_id": 39770870527,
+    "url": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/actions/runs/39770870527",
+    "event": "pull_request (PR 29)",
+    "head_sha": "17a82bf6a8476c7a0c1380d6476537bf256659a8",
+    "tested_tree": "pull_request merge ref of 17a82bf6 into main 7ce6e838; main equals the merge base, so the merged tree equals the 17a82bf6 tree",
+    "created_at": "2026-10-22T11:28:42Z",
+    "updated_at": "2026-10-22T11:48:34Z",
+    "conclusion": "success",
+    "jobs": { "total": 118, "success": 118, "failure": 0, "skipped": 0, "windows_jobs": 48 },
+    "note": "mcp-ergonomics is a repository-lane stage and runs on Linux only in CI"
+  },
+  "whitespace": {
+    "worktree_vs_index": "git diff --check exit 0",
+    "branch_vs_main_scoped": "git diff --check origin/main...HEAD -- .github CONTRIBUTING.md INSTALL.md README.md docs evals packages plugins scripts: exit 0",
+    "branch_vs_main_global": "exit 2: blank line at EOF in recorded run artefacts BROWNFIELD_REVIEW.md:124, PRD_SCOPE_REVISION_APPLY_REQUEST_01.json:25, PRD_SCOPE_REVISION_APPLY_RESULT_01.json:1150 and trailing whitespace in the verbatim log DESKTOP_MATRIX_IMPLEMENTATION_20261022/full-verification-attempt-2.log; no repository or CI check enforces this; sealed bytes unchanged"
+  },
+  "release_tool": {
+    "candidate": { "command": "node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json", "candidate_id": "af150d337fbf47abcfea5f03ae06a53b15107a4b219495ab54ea424c869f1158", "file": "CANDIDATE.json", "equals_preliminary_before_stages_17_27": true },
+    "handoff": { "command": "release-evidence.mjs handoff --candidate .release-candidate.json --output probe-results/desktop-0200-handoff", "exit_code": 0, "result": "prepared", "qualification": "pending", "files": "handoff/" },
+    "preflight": "not run: no isolated Desktop test scope on this host, Codex Desktop absent, and F-001 requires a new candidate",
+    "desktop_template": "not run, same reason",
+    "review_template": "not run: no bundle",
+    "import": "not run: no reviewed passing bundle",
+    "validate_all_hosts": { "command": "release-evidence.mjs validate --candidate .release-candidate.json --directory evals/host-compatibility/native/af150d33... --all-hosts", "exit_code": 1, "message": "ENOENT: no candidate-bound import directory exists", "log": "logs/validate-all-hosts.txt" }
+  },
+  "native_desktop_qualified_cases": 0,
+  "human_reports": 2,
+  "qualification": "pending",
+  "publication_eligible": false,
+  "authorizes": false
+}

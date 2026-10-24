@@ -1,0 +1,1229 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "12914fa8-8bfa-40ef-8f8b-ef65dbfc7c80",
+  "operation_id": "077ecefa-98b4-47cc-92cd-ae653fcd092b",
+  "source_gate": "PRD",
+  "reason": "On 2026-10-23 the maintainer confirmed that the six mandatory candidate-bound Desktop records cannot be produced with the available environments: the Windows test computer has only the daily Claude Desktop profile that runs the agent and no host-supported isolated Desktop scope, Codex Desktop is not installed there, and the Desktop validator accepted genuine Desktop captures only after F-001 and the review fixes of 2026-10-23. QA for candidate aa3e4b02 therefore stays revise without an executable evidence path. The maintainer chose to qualify 0.20.0 on the reproducibly provable Claude Code CLI on Windows and to release both Desktop surfaces as manually checked but not machine-qualified.",
+  "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+      "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+      "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+      "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff"
+    }
+  ],
+  "initiating_phase": "QA",
+  "changed_statements": [
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "Prepare one coherent AGDF 0.20.0 candidate for Codex Desktop and Claude Desktop as the intended release targets.",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "The mandatory qualified target becomes Claude Code CLI on Windows; both Desktop surfaces stay intended hosts but ship as manually checked, not qualified."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "| Codex Desktop | Mandatory Desktop release target |",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Codex Desktop leaves the mandatory matrix and is labelled manually checked (human_reported) for 0.20.0."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "| Claude Desktop | Mandatory Desktop release target; Windows test computer |",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Claude Desktop leaves the mandatory matrix and is labelled manually checked (human_reported) for 0.20.0."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "| Claude CLI on Windows | Separate retained evidence, outside the mandatory Desktop matrix |",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Claude CLI on Windows becomes the mandatory qualified row; historical 830d8b94 records are not reused for the new candidate."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "consistently identify Codex Desktop and Claude Desktop as the intended targets and disclose observation method and limits.",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Guidance must name Claude CLI on Windows as the qualified surface and both Desktop surfaces as manually checked and unqualified."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "The mandatory Codex target is Desktop only.",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Codex has no mandatory qualified surface in 0.20.0: Codex Desktop is manually checked, Codex CLI macOS optional within its exact tuple, Codex CLI Windows/Linux unqualified."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "CLI evidence remains separate and does not satisfy a mandatory Desktop row.",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "The CLI row itself becomes mandatory; CLI evidence still never satisfies or implies a Desktop surface."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "For each mandatory Desktop target, retain the human-reported upgrade/recovery result while separately assessing candidate-bound proof of upgrade from released 0.14.5 to final 0.20.0",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Upgrade and bounded recovery proof applies to the mandatory Claude CLI target; Desktop upgrade and recovery stay human_reported."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "The single existing release eligibility path must enforce the approved Desktop matrix",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "The release eligibility path must enforce the approved Claude CLI Windows matrix; Desktop records become optional and non-gating."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "Missing Desktop identity keeps qualification and publication eligibility open.",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Missing Desktop identity keeps only Desktop qualification open; publication depends on the mandatory CLI matrix and the existing checks."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+      "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+      "statement": "| Version and mandatory release targets | before_prd | resolved | Maintainer requested one 0.20.0 Desktop matrix for Codex and Claude;",
+      "intended_change": "For AGDF 0.20.0 make Claude Code CLI on Windows the mandatory qualified release target: fresh candidate-bound native evidence for dispatch, controlled invalid input, skill continuation, upgrade from the released 0.14.5 baseline and bounded owned-stale recovery, each including installation, discovery and clean removal, produced with the existing native harness on the final candidate and reviewed and imported before publication. Release Codex Desktop and Claude Desktop as manually checked (human_reported) surfaces without machine qualification; the schema-3 Desktop records, validator, handoff and import stay available but do not gate publication, and their qualification moves to a later 0.20.x run. Codex CLI on macOS may be reported only within reviewed evidence for its exact tuple and never gates publication. Codex CLI Windows/Linux stays unqualified and Copilot/OpenCode experimental. No CLI evidence qualifies a Desktop surface; every exact-candidate, review, cleanup, ownership and no-false-qualification safeguard stays.",
+      "reason": "Record the maintainer decision of 2026-10-23 for the Claude CLI Windows mandatory matrix with both Desktop surfaces manually checked."
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude source-impact review based on the maintainer decision of 2026-10-23 (option B)",
+    "earliest_source": "PRD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+        "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+        "rationale": "The approved UR stays unchanged: one coherent 0.20.0 line, Codex and Claude Code as intended qualified hosts, Copilot/OpenCode experimental, fresh native observations bound to the exact candidate for each declared qualified combination (installation, discovery, invocation, controlled failure, upgrade, recovery, removal), Claude testing on the other Windows computer, and qualification limited to the combinations actually demonstrated. Only the PRD choice of the mandatory combination changes."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:1a0500ec5bfd2e7d18336c252d900963fd4fec4039213dcf4c902231dd7511c8",
+        "disposition": "reassess",
+        "reason": "The mandatory host matrix changes again; reassess routing, owners and reuse for a CLI-gated release with non-gating Desktop records."
+      }
+    ],
+    "implementation_evidence": "Retain code, tests, candidate aa3e4b02 evidence, reviews, the two Desktop human reports and the historical Claude CLI 830d8b94 records with their original provenance. Reassess Brownfield Review, Brownfield Analysis, CD+Tests and all downstream quality results under the renewed PRD/SD/TP. Policy, publication gate and reports are migrated through their existing owners and tested before any eligibility change; absent Desktop records are not converted into passes and old CLI records are not relabelled for a new candidate.",
+    "unresolved": []
+  },
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:1a0500ec5bfd2e7d18336c252d900963fd4fec4039213dcf4c902231dd7511c8",
+        "status": "done"
+      },
+      "record_digest": "sha256:7c1f14d6dbb9ef2fb3b17acde46238013a0e06262cfd47ce2347940dea12b7fd",
+      "operation_id": "405e3857-e2cd-45a7-b074-4c12b2054d57",
+      "source_set_digest": "sha256:a8c49093c748988ac932ce33151a2b3b6342f145961c939003d2a70184fdef0f",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The mandatory host matrix changes again; reassess routing, owners and reuse for a CLI-gated release with non-gating Desktop records."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+        "status": "done"
+      },
+      "record_digest": "sha256:1aabd4e689163ead9fc90f464e5c22776e8f915bbaf5ee3cd577a81f97aca18a",
+      "operation_id": "84e34604-c013-4eaf-8720-271ef4f3f8ee",
+      "source_set_digest": "sha256:c194e9e871c5bc5f8d1dbbb697216aca1c8aa9f57cfb12813d842b3e702c98a5",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:1a0500ec5bfd2e7d18336c252d900963fd4fec4039213dcf4c902231dd7511c8",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Implementation preparation must be renewed for the changed policy, gate and report targets."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "done"
+      },
+      "record_digest": "sha256:21756bd05c551b0db645b66ddd4ae2845e5741b7c658050fe17222c5931a4587",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Implementation and tests must be renewed against the revised PRD/SD/TP and a new candidate."
+    },
+    {
+      "record": {
+        "type": "CR",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md",
+        "digest": "sha256:cb4e1261f39c04c646b63e5c8d024e5a0055d700d78c6f242b7aee292da48a63",
+        "status": "done"
+      },
+      "record_digest": "sha256:401011df7f368aaac58023ae3952da6c723f77796e24cfc9f122ef2ed18e7ab3",
+      "operation_id": "8baa6b62-ede7-4f33-9e48-24a54c6079a6",
+      "source_set_digest": "sha256:7facf7a779d089a400ef260b173b541e42ac886e7c397d8b91f8732a666dfa9e",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Code review applies to the new implementation diff for the revised matrix."
+    },
+    {
+      "record": {
+        "type": "QA",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_REPORT.md",
+        "digest": "sha256:5ef4a2da2d5bc941aa6ee8dfeda16b88f09af20a95e410df918d8239b430b8fd",
+        "status": "revise"
+      },
+      "record_digest": "sha256:ba515aa681293c0c42ddfc7c9d667a3db07a980a5c2f667982b9736613baf97d",
+      "operation_id": "b261c6a1-4a9b-429a-832a-42d8ef50021a",
+      "source_set_digest": "sha256:e8536a673df090a4986546f93749fb5acf6d4c77cb66c0965c418421cf1e176f",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        },
+        {
+          "digest": "sha256:cdcf3f96db5610c5b06cda338adb4472b4d9875cb3f38e34d772566fdc2e3d03",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md",
+          "status": "revise",
+          "type": "TP Review"
+        },
+        {
+          "digest": "sha256:79fe95e35869636359b1c55c341b7f4a57239e123c79463c772cb08902f5f32d",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+          "status": "done",
+          "type": "Clean Implementation Review"
+        },
+        {
+          "digest": "sha256:cb4e1261f39c04c646b63e5c8d024e5a0055d700d78c6f242b7aee292da48a63",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CODE_REVIEW.md",
+          "status": "done",
+          "type": "CR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "QA must be re-run under the revised matrix and renewed evidence."
+    },
+    {
+      "record": {
+        "type": "TP Review",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md",
+        "digest": "sha256:cdcf3f96db5610c5b06cda338adb4472b4d9875cb3f38e34d772566fdc2e3d03",
+        "status": "revise"
+      },
+      "record_digest": "sha256:fa63636d977b7461491d1056c2d4fcc2bbcd60b275596f47e526aa51f263ee66",
+      "operation_id": "8dd87b34-c4c7-4718-8ede-08705f02f6ad",
+      "source_set_digest": "sha256:7facf7a779d089a400ef260b173b541e42ac886e7c397d8b91f8732a666dfa9e",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Task coverage is evaluated against the renewed TP."
+    },
+    {
+      "record": {
+        "type": "Clean Implementation Review",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:79fe95e35869636359b1c55c341b7f4a57239e123c79463c772cb08902f5f32d",
+        "status": "done"
+      },
+      "record_digest": "sha256:b3a5956ff9207eabc1d19c3a06a9f0427e7dd166d2a6f33533f655cf09762a12",
+      "operation_id": "e6d24698-53d0-4409-a358-0b4b983fc5b8",
+      "source_set_digest": "sha256:7facf7a779d089a400ef260b173b541e42ac886e7c397d8b91f8732a666dfa9e",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Solution integrity is evaluated against the renewed design."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+        "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+        "status": "documented"
+      },
+      "record_digest": "sha256:8e01be41e84a2eeaf6f6927e17f25c0bc09a9d8fe4571bd7b7b5029af1af00b1",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:1a0500ec5bfd2e7d18336c252d900963fd4fec4039213dcf4c902231dd7511c8",
+        "status": "documented"
+      },
+      "record_digest": "sha256:257ed11468615fb8c3fab04c64bc6369dfa9caab1724c37d7ccb609c45dea857",
+      "operation_id": "405e3857-e2cd-45a7-b074-4c12b2054d57",
+      "source_set_digest": "sha256:a8c49093c748988ac932ce33151a2b3b6342f145961c939003d2a70184fdef0f",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD_MAPPING_01.json",
+        "digest": "sha256:f259fc09f5d0011ea1100ae2b08d091fb3d3bfdbe2e0f448a190c1d5d1ab932e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:9595d13d87b66f6326ccaa35561e5cc7cb79af6164b267fa624aa2c9905b13ba",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD_MAPPING_01.json",
+        "digest": "sha256:bab8a4da69d7cb43d8e3461c27b15dabf49b6a96833ccd56db894e48bacb30a4",
+        "status": "documented"
+      },
+      "record_digest": "sha256:97aca41219323c89098dd9d98dcc181d1aa50edd6ecbc6d5222cbe574a27d5ab",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_MAPPING_01.json",
+        "digest": "sha256:1295707bbc18ae3d16962d6b898f495a295d654109595b6c49f7fb20f428acb7",
+        "status": "documented"
+      },
+      "record_digest": "sha256:3a4e12232047f7a29934ff060acbca11840a0cfed4ba00f82a43a616f2557dca",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+        "status": "documented"
+      },
+      "record_digest": "sha256:e5c6f2a09a08286735f6be1d4e50216755a01ee7c586b04cf39e3f79dddb06a0",
+      "operation_id": "84e34604-c013-4eaf-8720-271ef4f3f8ee",
+      "source_set_digest": "sha256:c194e9e871c5bc5f8d1dbbb697216aca1c8aa9f57cfb12813d842b3e702c98a5",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:1a0500ec5bfd2e7d18336c252d900963fd4fec4039213dcf4c902231dd7511c8",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:b121ea9a8c9874def6f6d3773938bf8d555b18d74a7f53fb2dfb289f6c1116c5",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:014dac8a07f9129f1f71412511578ce6b46671aef0acd39085696973fe9961db",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:425c5a7837fb156491ff1f60d63bfa0e38741b1d6628702aa1e341a13745f3c8",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:54b8fa1b317f62dbd76fd49d88da8c62c14ac5351608c55e9437620255be5489",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:ca3737e706e27189820e513e2593a2f36d2b182d494c3827f9483813dfa0bb37",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:1a0500ec5bfd2e7d18336c252d900963fd4fec4039213dcf4c902231dd7511c8",
+        "status": "documented"
+      },
+      "record_digest": "sha256:257ed11468615fb8c3fab04c64bc6369dfa9caab1724c37d7ccb609c45dea857",
+      "operation_id": "405e3857-e2cd-45a7-b074-4c12b2054d57",
+      "source_set_digest": "sha256:a8c49093c748988ac932ce33151a2b3b6342f145961c939003d2a70184fdef0f",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD_MAPPING_20261022_01.json",
+        "digest": "sha256:c3825009105041c3ba910f4227e54f7e0bde0e57418d1a7d4808dfd1f04def91",
+        "status": "documented"
+      },
+      "record_digest": "sha256:561b6ecdf3a766eec0e8ef86e2f39fa87564249d1588442878931fd35595648a",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD_MAPPING_20261022_01.json",
+        "digest": "sha256:92ed2c8c01fa9a2772848271b0594e3eeb6d2f08c91129ad28685ea6086d4148",
+        "status": "documented"
+      },
+      "record_digest": "sha256:4d2754e0a7fb43b1b6bd0ee9710d9d52be23820c54bfe4362932ca1fc1d9d2ab",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_MAPPING_20261022_01.json",
+        "digest": "sha256:9a81ff34ad41915d2bd5c65decdc93dd1ff6047f72353c687cf94cf44e0264be",
+        "status": "documented"
+      },
+      "record_digest": "sha256:922f533945792a4d51037644e3b84521327100c7d7548cb3d7e22b3d30c22cb4",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+        "status": "documented"
+      },
+      "record_digest": "sha256:76da13c00b7e078e3b0b497001a817cd297cb8275fb9fa7c0d8d4324e1e09997",
+      "operation_id": "84e34604-c013-4eaf-8720-271ef4f3f8ee",
+      "source_set_digest": "sha256:c194e9e871c5bc5f8d1dbbb697216aca1c8aa9f57cfb12813d842b3e702c98a5",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:1a0500ec5bfd2e7d18336c252d900963fd4fec4039213dcf4c902231dd7511c8",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:78218316d9188966709b63539e29dff9039ce20cc32c93de449a97c4f96dcc22",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:9d7bcb55851c23e8a970daa0ce5bf6602cc071a4ecc6567d93f59f7905d09fae",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+        "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:230b51d6455318aa5acb475edca9af17c4c97abef3b67d3af0e5e02feb55ee6a",
+      "operation_id": "b70befaf-fa04-4b82-bb14-9562e3976fbf",
+      "source_set_digest": "sha256:dd94b1aee14a258b27447744de376e4e352792a98e92a1660adced0ef1d0fed2",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:c8a8233d607d3f09c2975bf6e84fbf6cb1b626ce70d53d52fdf00b10308bd4c9",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:241a511e5d45b731a20562d1c48ec9e705b1085e2b716c6e2e041ef4dbd30db8",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP_REVIEW.md",
+        "digest": "sha256:cdcf3f96db5610c5b06cda338adb4472b4d9875cb3f38e34d772566fdc2e3d03",
+        "status": "documented"
+      },
+      "record_digest": "sha256:bf636b7850390a0dfe5f086cff9c753da40aec038bc021f0208d8d598a01dc67",
+      "operation_id": "8dd87b34-c4c7-4718-8ede-08705f02f6ad",
+      "source_set_digest": "sha256:7facf7a779d089a400ef260b173b541e42ac886e7c397d8b91f8732a666dfa9e",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:79fe95e35869636359b1c55c341b7f4a57239e123c79463c772cb08902f5f32d",
+        "status": "documented"
+      },
+      "record_digest": "sha256:950dbbd468ca6fac7305818702e29275d407793c21ba549983b562c7bc655c78",
+      "operation_id": "e6d24698-53d0-4409-a358-0b4b983fc5b8",
+      "source_set_digest": "sha256:7facf7a779d089a400ef260b173b541e42ac886e7c397d8b91f8732a666dfa9e",
+      "sources": [
+        {
+          "digest": "sha256:2d92505776f81a79e399e124c434e501c96e5bf05510f1f185fca397d7224248",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d6bf911c1d9229d6c54ddfc0fc74bb3402d0e1a8efff775ad5903d81b657a9e",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0a1f8de1bb71b1ffbb317af7f5977dc9c0b617d3080fc62d7d998528fe7f11f1",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:0a00d7cd0c13858e038b38a8b18e6419cc4dc21375c4702db4c0d3e6b01a23ff",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:5d01b7922a38252e1e2e4ded9a6f9cc233c7dc7c6074874802c4465ed7e4372f",
+          "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/QA_MAPPING_20261023_01.json",
+        "digest": "sha256:c293a8f08361657d8cbaeb14b16105aef9afd0c1e92b33f9c548b7b15b9110ca",
+        "status": "documented"
+      },
+      "record_digest": "sha256:b1f727b1aea77aa82e0f5b3c36eeff5e9062828f8c93c2977339948de2254655",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Retain the original bytes and provenance; applicability to the revised matrix must be reassessed and is not assumed."
+    }
+  ]
+}

@@ -1,0 +1,2210 @@
+diff --git a/docs/compatibility/HOST_COMPATIBILITY.md b/docs/compatibility/HOST_COMPATIBILITY.md
+index a9e64503..eebecac2 100644
+--- a/docs/compatibility/HOST_COMPATIBILITY.md
++++ b/docs/compatibility/HOST_COMPATIBILITY.md
+@@ -3,7 +3,7 @@
+ Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
+ 
+ AGDF canonical version: **0.20.0**.
+-Observation dates: 2026-10-22T08:06:06.814Z to 2026-10-22T08:06:58.555Z.
++Observation dates: 2026-10-22T11:48:49.552Z to 2026-10-22T11:51:23.536Z.
+ Source fingerprint: `cc7fa169c208413cdb5155f29c40a53ee8b80d9887faf87813e5fbcfc2464253`.
+ Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
+ 
+@@ -89,62 +89,62 @@ All rows below use the deterministic_adapter lane, a simulated host, the recorde
+ 
+ | Observation | OS / path | Outcome | Observed state | Scenario conformance | Evidence | Limitation / next action |
+ |---|---|---|---|---|---|---|
+-| codex.installed | macOS / primary/fixture | installed | demonstrated | pass | [codex.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.discovered | macOS / primary/fixture | discovered | demonstrated | pass | [codex.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.discovery-missing | macOS / primary/fixture | discovered | failed | pass | [codex.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| codex.discovery-wrong-payload | macOS / primary/fixture | discovered | failed | pass | [codex.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| codex.callable | macOS / primary/fixture | callable | demonstrated | pass | [codex.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.target-unresolved | macOS / primary/fixture | callable | demonstrated | pass | [codex.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.missing-approval | macOS / primary/fixture | callable | demonstrated | pass | [codex.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.invalid-input | macOS / primary/fixture | callable | demonstrated | pass | [codex.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.updated | macOS / primary/fixture | updated | demonstrated | pass | [codex.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.update-stale | macOS / primary/fixture | updated | failed | pass | [codex.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| codex.recoverable | macOS / primary/fixture | recoverable | demonstrated | pass | [codex.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| codex.recovery-partial | macOS / primary/fixture | recoverable | failed | pass | [codex.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| codex.manual-checks | macOS / primary/fixture | automatic_checks | failed | pass | [codex.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
+-| codex.trusted-unexecuted | macOS / primary/fixture | automatic_checks | failed | pass | [codex.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| claude.installed | macOS / primary/fixture | installed | demonstrated | pass | [claude.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.discovered | macOS / primary/fixture | discovered | demonstrated | pass | [claude.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.discovery-missing | macOS / primary/fixture | discovered | failed | pass | [claude.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| claude.discovery-wrong-payload | macOS / primary/fixture | discovered | failed | pass | [claude.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| claude.callable | macOS / primary/fixture | callable | demonstrated | pass | [claude.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.target-unresolved | macOS / primary/fixture | callable | demonstrated | pass | [claude.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.missing-approval | macOS / primary/fixture | callable | demonstrated | pass | [claude.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.invalid-input | macOS / primary/fixture | callable | demonstrated | pass | [claude.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.updated | macOS / primary/fixture | updated | demonstrated | pass | [claude.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.update-stale | macOS / primary/fixture | updated | failed | pass | [claude.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| claude.recoverable | macOS / primary/fixture | recoverable | demonstrated | pass | [claude.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| claude.recovery-partial | macOS / primary/fixture | recoverable | failed | pass | [claude.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| claude.manual-checks | macOS / primary/fixture | automatic_checks | failed | pass | [claude.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
+-| claude.trusted-unexecuted | macOS / primary/fixture | automatic_checks | failed | pass | [claude.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| copilot.installed | macOS / primary/fixture | installed | demonstrated | pass | [copilot.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.discovered | macOS / primary/fixture | discovered | demonstrated | pass | [copilot.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.discovery-missing | macOS / primary/fixture | discovered | failed | pass | [copilot.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| copilot.discovery-wrong-payload | macOS / primary/fixture | discovered | failed | pass | [copilot.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| copilot.callable | macOS / primary/fixture | callable | demonstrated | pass | [copilot.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.target-unresolved | macOS / primary/fixture | callable | demonstrated | pass | [copilot.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.missing-approval | macOS / primary/fixture | callable | demonstrated | pass | [copilot.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.invalid-input | macOS / primary/fixture | callable | demonstrated | pass | [copilot.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.updated | macOS / primary/fixture | updated | demonstrated | pass | [copilot.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.update-stale | macOS / primary/fixture | updated | failed | pass | [copilot.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| copilot.recoverable | macOS / primary/fixture | recoverable | demonstrated | pass | [copilot.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| copilot.recovery-partial | macOS / primary/fixture | recoverable | failed | pass | [copilot.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| copilot.manual-checks | macOS / primary/fixture | automatic_checks | failed | pass | [copilot.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
+-| copilot.trusted-unexecuted | macOS / primary/fixture | automatic_checks | failed | pass | [copilot.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| opencode.installed | macOS / primary/fixture | installed | demonstrated | pass | [opencode.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.discovered | macOS / primary/fixture | discovered | demonstrated | pass | [opencode.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.discovery-missing | macOS / primary/fixture | discovered | failed | pass | [opencode.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| opencode.discovery-wrong-payload | macOS / primary/fixture | discovered | failed | pass | [opencode.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| opencode.callable | macOS / primary/fixture | callable | demonstrated | pass | [opencode.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.target-unresolved | macOS / primary/fixture | callable | demonstrated | pass | [opencode.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.missing-approval | macOS / primary/fixture | callable | demonstrated | pass | [opencode.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.invalid-input | macOS / primary/fixture | callable | demonstrated | pass | [opencode.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.updated | macOS / primary/fixture | updated | demonstrated | pass | [opencode.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.update-stale | macOS / primary/fixture | updated | failed | pass | [opencode.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| opencode.recoverable | macOS / primary/fixture | recoverable | demonstrated | pass | [opencode.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
+-| opencode.recovery-partial | macOS / primary/fixture | recoverable | failed | pass | [opencode.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+-| opencode.manual-checks | macOS / primary/fixture | automatic_checks | failed | pass | [opencode.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
+-| opencode.trusted-unexecuted | macOS / primary/fixture | automatic_checks | failed | pass | [opencode.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| codex.installed | native Windows / primary/fixture | installed | demonstrated | pass | [codex.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.discovered | native Windows / primary/fixture | discovered | demonstrated | pass | [codex.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.discovery-missing | native Windows / primary/fixture | discovered | failed | pass | [codex.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| codex.discovery-wrong-payload | native Windows / primary/fixture | discovered | failed | pass | [codex.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| codex.callable | native Windows / primary/fixture | callable | demonstrated | pass | [codex.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.target-unresolved | native Windows / primary/fixture | callable | demonstrated | pass | [codex.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.missing-approval | native Windows / primary/fixture | callable | demonstrated | pass | [codex.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.invalid-input | native Windows / primary/fixture | callable | demonstrated | pass | [codex.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.updated | native Windows / primary/fixture | updated | demonstrated | pass | [codex.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.update-stale | native Windows / primary/fixture | updated | failed | pass | [codex.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| codex.recoverable | native Windows / primary/fixture | recoverable | demonstrated | pass | [codex.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| codex.recovery-partial | native Windows / primary/fixture | recoverable | failed | pass | [codex.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| codex.manual-checks | native Windows / primary/fixture | automatic_checks | failed | pass | [codex.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
++| codex.trusted-unexecuted | native Windows / primary/fixture | automatic_checks | failed | pass | [codex.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| claude.installed | native Windows / primary/fixture | installed | demonstrated | pass | [claude.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.discovered | native Windows / primary/fixture | discovered | demonstrated | pass | [claude.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.discovery-missing | native Windows / primary/fixture | discovered | failed | pass | [claude.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| claude.discovery-wrong-payload | native Windows / primary/fixture | discovered | failed | pass | [claude.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| claude.callable | native Windows / primary/fixture | callable | demonstrated | pass | [claude.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.target-unresolved | native Windows / primary/fixture | callable | demonstrated | pass | [claude.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.missing-approval | native Windows / primary/fixture | callable | demonstrated | pass | [claude.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.invalid-input | native Windows / primary/fixture | callable | demonstrated | pass | [claude.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.updated | native Windows / primary/fixture | updated | demonstrated | pass | [claude.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.update-stale | native Windows / primary/fixture | updated | failed | pass | [claude.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| claude.recoverable | native Windows / primary/fixture | recoverable | demonstrated | pass | [claude.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| claude.recovery-partial | native Windows / primary/fixture | recoverable | failed | pass | [claude.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| claude.manual-checks | native Windows / primary/fixture | automatic_checks | failed | pass | [claude.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
++| claude.trusted-unexecuted | native Windows / primary/fixture | automatic_checks | failed | pass | [claude.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| copilot.installed | native Windows / primary/fixture | installed | demonstrated | pass | [copilot.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.discovered | native Windows / primary/fixture | discovered | demonstrated | pass | [copilot.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.discovery-missing | native Windows / primary/fixture | discovered | failed | pass | [copilot.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| copilot.discovery-wrong-payload | native Windows / primary/fixture | discovered | failed | pass | [copilot.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| copilot.callable | native Windows / primary/fixture | callable | demonstrated | pass | [copilot.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.target-unresolved | native Windows / primary/fixture | callable | demonstrated | pass | [copilot.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.missing-approval | native Windows / primary/fixture | callable | demonstrated | pass | [copilot.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.invalid-input | native Windows / primary/fixture | callable | demonstrated | pass | [copilot.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.updated | native Windows / primary/fixture | updated | demonstrated | pass | [copilot.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.update-stale | native Windows / primary/fixture | updated | failed | pass | [copilot.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| copilot.recoverable | native Windows / primary/fixture | recoverable | demonstrated | pass | [copilot.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| copilot.recovery-partial | native Windows / primary/fixture | recoverable | failed | pass | [copilot.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| copilot.manual-checks | native Windows / primary/fixture | automatic_checks | failed | pass | [copilot.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
++| copilot.trusted-unexecuted | native Windows / primary/fixture | automatic_checks | failed | pass | [copilot.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| opencode.installed | native Windows / primary/fixture | installed | demonstrated | pass | [opencode.installed](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.discovered | native Windows / primary/fixture | discovered | demonstrated | pass | [opencode.discovered](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.discovery-missing | native Windows / primary/fixture | discovered | failed | pass | [opencode.discovery-missing](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| opencode.discovery-wrong-payload | native Windows / primary/fixture | discovered | failed | pass | [opencode.discovery-wrong-payload](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| opencode.callable | native Windows / primary/fixture | callable | demonstrated | pass | [opencode.callable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.target-unresolved | native Windows / primary/fixture | callable | demonstrated | pass | [opencode.target-unresolved](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.missing-approval | native Windows / primary/fixture | callable | demonstrated | pass | [opencode.missing-approval](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.invalid-input | native Windows / primary/fixture | callable | demonstrated | pass | [opencode.invalid-input](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.updated | native Windows / primary/fixture | updated | demonstrated | pass | [opencode.updated](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.update-stale | native Windows / primary/fixture | updated | failed | pass | [opencode.update-stale](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| opencode.recoverable | native Windows / primary/fixture | recoverable | demonstrated | pass | [opencode.recoverable](evidence/facts.json) | Simulated host only. Use only this dated environment and evidence scope; inspect local status for your machine. |
++| opencode.recovery-partial | native Windows / primary/fixture | recoverable | failed | pass | [opencode.recovery-partial](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
++| opencode.manual-checks | native Windows / primary/fixture | automatic_checks | failed | pass | [opencode.manual-checks](evidence/facts.json) | Simulated host only. Use the existing manual verification path; automatic checks remain declined. |
++| opencode.trusted-unexecuted | native Windows / primary/fixture | automatic_checks | failed | pass | [opencode.trusted-unexecuted](evidence/facts.json) | Simulated host only. Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+ 
+ ## Historical evidence
+ 
+diff --git a/docs/compatibility/evidence/facts.json b/docs/compatibility/evidence/facts.json
+index 59a916eb..48c52285 100644
+--- a/docs/compatibility/evidence/facts.json
++++ b/docs/compatibility/evidence/facts.json
+@@ -14,7 +14,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -55,7 +55,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -182,7 +182,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -304,7 +304,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -431,7 +431,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -487,7 +487,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -543,7 +543,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -599,7 +599,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -655,7 +655,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -696,7 +696,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -737,7 +737,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -785,7 +785,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -845,7 +845,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -887,7 +887,7 @@
+       "host": "codex",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -929,7 +929,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -970,7 +970,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1097,7 +1097,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1219,7 +1219,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1346,7 +1346,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1402,7 +1402,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1458,7 +1458,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1514,7 +1514,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1570,7 +1570,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1611,7 +1611,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1652,7 +1652,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1700,7 +1700,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1760,7 +1760,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1802,7 +1802,7 @@
+       "host": "claude",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1844,7 +1844,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -1885,7 +1885,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2012,7 +2012,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2134,7 +2134,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2261,7 +2261,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2317,7 +2317,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2373,7 +2373,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2429,7 +2429,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2485,7 +2485,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2526,7 +2526,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2567,7 +2567,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2585,8 +2585,8 @@
+       "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+       "recovered_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+       "foreign_preserved": true,
+-      "permission_before": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
+-      "permission_after": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
++      "permission_before": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
++      "permission_after": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
+       "permission_preserved": true,
+       "unresolved": [],
+       "original_result": "verification"
+@@ -2615,7 +2615,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2633,8 +2633,8 @@
+       "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+       "recovered_digest": "dc223791fc07b60e654f3a596e79ad815905fc3617ded8358bb751882dcf1649",
+       "foreign_preserved": true,
+-      "permission_before": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
+-      "permission_after": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
++      "permission_before": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
++      "permission_after": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
+       "permission_preserved": true,
+       "unresolved": [
+         "injected_recovery_failure"
+@@ -2675,7 +2675,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2717,7 +2717,7 @@
+       "host": "copilot",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2759,7 +2759,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2800,7 +2800,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -2927,7 +2927,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3049,7 +3049,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3176,7 +3176,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3232,7 +3232,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3288,7 +3288,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3344,7 +3344,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3400,7 +3400,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3441,7 +3441,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3482,7 +3482,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3530,7 +3530,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3590,7 +3590,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+@@ -3632,7 +3632,7 @@
+       "host": "opencode",
+       "variant": "simulated",
+       "host_version": null,
+-      "os": "darwin",
++      "os": "win32",
+       "target_os": null,
+       "path": "primary/fixture",
+       "permission": "fixture-isolated",
+diff --git a/docs/compatibility/evidence/snapshot.json b/docs/compatibility/evidence/snapshot.json
+index d0745b48..692aed18 100644
+--- a/docs/compatibility/evidence/snapshot.json
++++ b/docs/compatibility/evidence/snapshot.json
+@@ -345,7 +345,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -376,7 +376,7 @@
+         "result": "healthy",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:06.814Z",
++      "observed_at": "2026-10-22T11:48:49.552Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -385,7 +385,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -406,7 +406,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -523,7 +523,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:06.814Z",
++      "observed_at": "2026-10-22T11:48:49.552Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -532,7 +532,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -553,7 +553,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -665,7 +665,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:06.860Z",
++      "observed_at": "2026-10-22T11:48:49.875Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -674,7 +674,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -695,7 +695,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -812,7 +812,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:06.906Z",
++      "observed_at": "2026-10-22T11:48:50.239Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -821,7 +821,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -842,7 +842,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -888,7 +888,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:07.833Z",
++      "observed_at": "2026-10-22T11:48:51.433Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -897,7 +897,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -918,7 +918,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -964,7 +964,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:08.371Z",
++      "observed_at": "2026-10-22T11:48:52.165Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -973,7 +973,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -994,7 +994,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1040,7 +1040,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:09.020Z",
++      "observed_at": "2026-10-22T11:48:53.085Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1049,7 +1049,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1070,7 +1070,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1116,7 +1116,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:09.564Z",
++      "observed_at": "2026-10-22T11:48:53.722Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1125,7 +1125,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1146,7 +1146,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1177,7 +1177,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:11.286Z",
++      "observed_at": "2026-10-22T11:49:00.426Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1186,7 +1186,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1207,7 +1207,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1238,7 +1238,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:11.692Z",
++      "observed_at": "2026-10-22T11:49:02.289Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1247,7 +1247,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1268,7 +1268,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1306,7 +1306,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:13.665Z",
++      "observed_at": "2026-10-22T11:49:13.207Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1315,7 +1315,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1336,7 +1336,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1386,7 +1386,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:14.257Z",
++      "observed_at": "2026-10-22T11:49:16.988Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1395,7 +1395,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1416,7 +1416,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1448,7 +1448,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:14.258Z",
++      "observed_at": "2026-10-22T11:49:16.989Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1457,7 +1457,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1478,7 +1478,7 @@
+         "host": "codex",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1510,7 +1510,7 @@
+         "result": "hook_trusted_session_unverified",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:14.258Z",
++      "observed_at": "2026-10-22T11:49:16.989Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1519,7 +1519,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1540,7 +1540,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1571,7 +1571,7 @@
+         "result": "healthy",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:15.005Z",
++      "observed_at": "2026-10-22T11:49:21.086Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1580,7 +1580,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1601,7 +1601,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1718,7 +1718,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:15.005Z",
++      "observed_at": "2026-10-22T11:49:21.086Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1727,7 +1727,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1748,7 +1748,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -1860,7 +1860,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:15.047Z",
++      "observed_at": "2026-10-22T11:49:21.387Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1869,7 +1869,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -1890,7 +1890,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2007,7 +2007,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:15.091Z",
++      "observed_at": "2026-10-22T11:49:21.669Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2016,7 +2016,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2037,7 +2037,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2083,7 +2083,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:15.703Z",
++      "observed_at": "2026-10-22T11:49:22.503Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2092,7 +2092,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2113,7 +2113,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2159,7 +2159,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:16.194Z",
++      "observed_at": "2026-10-22T11:49:23.265Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2168,7 +2168,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2189,7 +2189,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2235,7 +2235,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:16.819Z",
++      "observed_at": "2026-10-22T11:49:24.425Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2244,7 +2244,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2265,7 +2265,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2311,7 +2311,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:17.336Z",
++      "observed_at": "2026-10-22T11:49:25.165Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2320,7 +2320,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2341,7 +2341,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2372,7 +2372,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:18.385Z",
++      "observed_at": "2026-10-22T11:49:31.749Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2381,7 +2381,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2402,7 +2402,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2433,7 +2433,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:18.674Z",
++      "observed_at": "2026-10-22T11:49:33.508Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2442,7 +2442,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2463,7 +2463,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2501,7 +2501,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:20.737Z",
++      "observed_at": "2026-10-22T11:49:44.336Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2510,7 +2510,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2531,7 +2531,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2581,7 +2581,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:21.297Z",
++      "observed_at": "2026-10-22T11:49:47.865Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2590,7 +2590,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2611,7 +2611,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2643,7 +2643,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:21.297Z",
++      "observed_at": "2026-10-22T11:49:47.865Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2652,7 +2652,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2673,7 +2673,7 @@
+         "host": "claude",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2705,7 +2705,7 @@
+         "result": "trust_is_not_execution",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:21.297Z",
++      "observed_at": "2026-10-22T11:49:47.865Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2714,7 +2714,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2735,7 +2735,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2766,7 +2766,7 @@
+         "result": "healthy",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:24.039Z",
++      "observed_at": "2026-10-22T11:49:56.786Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2775,7 +2775,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2796,7 +2796,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -2913,7 +2913,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:24.039Z",
++      "observed_at": "2026-10-22T11:49:56.786Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2922,7 +2922,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -2943,7 +2943,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3055,7 +3055,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:24.074Z",
++      "observed_at": "2026-10-22T11:49:57.043Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3064,7 +3064,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3085,7 +3085,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3202,7 +3202,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:24.108Z",
++      "observed_at": "2026-10-22T11:49:57.292Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3211,7 +3211,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3232,7 +3232,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3278,7 +3278,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:24.745Z",
++      "observed_at": "2026-10-22T11:49:58.176Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3287,7 +3287,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3308,7 +3308,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3354,7 +3354,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:25.255Z",
++      "observed_at": "2026-10-22T11:49:58.833Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3363,7 +3363,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3384,7 +3384,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3430,7 +3430,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:25.882Z",
++      "observed_at": "2026-10-22T11:49:59.687Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3439,7 +3439,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3460,7 +3460,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3506,7 +3506,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:26.390Z",
++      "observed_at": "2026-10-22T11:50:00.345Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3515,7 +3515,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3536,7 +3536,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3567,7 +3567,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:29.995Z",
++      "observed_at": "2026-10-22T11:50:12.684Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3576,7 +3576,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3597,7 +3597,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3628,7 +3628,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:30.454Z",
++      "observed_at": "2026-10-22T11:50:14.021Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3637,7 +3637,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3658,7 +3658,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3686,8 +3686,8 @@
+         "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+         "recovered_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+         "foreign_preserved": true,
+-        "permission_before": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
+-        "permission_after": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
++        "permission_before": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
++        "permission_after": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
+         "permission_preserved": true,
+         "unresolved": [],
+         "original_result": "verification"
+@@ -3696,7 +3696,7 @@
+         "result": "verification",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:39.179Z",
++      "observed_at": "2026-10-22T11:50:42.834Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3705,7 +3705,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3726,7 +3726,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3754,8 +3754,8 @@
+         "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+         "recovered_digest": "dc223791fc07b60e654f3a596e79ad815905fc3617ded8358bb751882dcf1649",
+         "foreign_preserved": true,
+-        "permission_before": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
+-        "permission_after": "35d1850a5e0de2f994d95836409e934a19ef13a11d98164745b03704be650c7f",
++        "permission_before": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
++        "permission_after": "d1f9415e14c7aeaef0535cadf286c6233cf5925a142a319c88e71f1493072dd9",
+         "permission_preserved": true,
+         "unresolved": [
+           "injected_recovery_failure"
+@@ -3776,7 +3776,7 @@
+         "result": "verification",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:42.312Z",
++      "observed_at": "2026-10-22T11:50:56.023Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3785,7 +3785,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3806,7 +3806,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3838,7 +3838,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:42.312Z",
++      "observed_at": "2026-10-22T11:50:56.023Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3847,7 +3847,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3868,7 +3868,7 @@
+         "host": "copilot",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3900,7 +3900,7 @@
+         "result": "trust_is_not_execution",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:42.312Z",
++      "observed_at": "2026-10-22T11:50:56.023Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3909,7 +3909,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3930,7 +3930,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -3961,7 +3961,7 @@
+         "result": "installed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:44.676Z",
++      "observed_at": "2026-10-22T11:50:59.454Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3970,7 +3970,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -3991,7 +3991,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4108,7 +4108,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:44.676Z",
++      "observed_at": "2026-10-22T11:50:59.454Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4117,7 +4117,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4138,7 +4138,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4250,7 +4250,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:44.726Z",
++      "observed_at": "2026-10-22T11:50:59.776Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4259,7 +4259,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4280,7 +4280,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4397,7 +4397,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:44.774Z",
++      "observed_at": "2026-10-22T11:51:00.109Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4406,7 +4406,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4427,7 +4427,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4473,7 +4473,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:45.402Z",
++      "observed_at": "2026-10-22T11:51:01.217Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4482,7 +4482,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4503,7 +4503,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4549,7 +4549,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:45.910Z",
++      "observed_at": "2026-10-22T11:51:02.019Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4558,7 +4558,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4579,7 +4579,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4625,7 +4625,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:46.543Z",
++      "observed_at": "2026-10-22T11:51:02.951Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4634,7 +4634,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4655,7 +4655,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4701,7 +4701,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:47.090Z",
++      "observed_at": "2026-10-22T11:51:03.626Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4710,7 +4710,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4731,7 +4731,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4762,7 +4762,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:49.682Z",
++      "observed_at": "2026-10-22T11:51:07.987Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4771,7 +4771,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4792,7 +4792,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4823,7 +4823,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:50.011Z",
++      "observed_at": "2026-10-22T11:51:09.725Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4832,7 +4832,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4853,7 +4853,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4891,7 +4891,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:56.097Z",
++      "observed_at": "2026-10-22T11:51:19.533Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4900,7 +4900,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -4921,7 +4921,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -4971,7 +4971,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:58.555Z",
++      "observed_at": "2026-10-22T11:51:23.536Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4980,7 +4980,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -5001,7 +5001,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -5033,7 +5033,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:58.555Z",
++      "observed_at": "2026-10-22T11:51:23.536Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -5042,7 +5042,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -5063,7 +5063,7 @@
+         "host": "opencode",
+         "variant": "simulated",
+         "host_version": null,
+-        "os": "darwin",
++        "os": "win32",
+         "target_os": null,
+         "path": "primary/fixture",
+         "permission": "fixture-isolated",
+@@ -5095,7 +5095,7 @@
+         "result": "trust_is_not_execution",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T08:06:58.555Z",
++      "observed_at": "2026-10-22T11:51:23.536Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -5104,7 +5104,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "f75094b8130c86bca9c5b0d3358e4ae7d407a7a749659e594a48491c13558e91"
++          "sha256": "467bb2efb5e6d8ebdadf03894607b546c08e08e6b70e2b3f5550f2485aed4600"
+         }
+       ],
+       "publication": {
+@@ -6186,7 +6186,7 @@
+   ],
+   "input_sources": {},
+   "observation_source": {
+-    "path": "evals/host-compatibility/observations/094ff6ff24f93cec131c1e5432b8709277ddca7523606a5c21e9ac2bfbe656e6.json",
+-    "sha256": "094ff6ff24f93cec131c1e5432b8709277ddca7523606a5c21e9ac2bfbe656e6"
++    "path": "evals/host-compatibility/observations/9537385052551b84c6df71c8fb1ed4b704beda1a1fc782629973a83aab617fc6.json",
++    "sha256": "9537385052551b84c6df71c8fb1ed4b704beda1a1fc782629973a83aab617fc6"
+   }
+ }

@@ -1,0 +1,1083 @@
+diff --git a/docs/compatibility/HOST_COMPATIBILITY.md b/docs/compatibility/HOST_COMPATIBILITY.md
+index 9992a2b0..32cefcb0 100644
+--- a/docs/compatibility/HOST_COMPATIBILITY.md
++++ b/docs/compatibility/HOST_COMPATIBILITY.md
+@@ -3,7 +3,7 @@
+ Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
+ 
+ AGDF canonical version: **0.20.0**.
+-Observation dates: 2026-10-22T14:40:32.041Z to 2026-10-22T14:42:42.533Z.
++Observation dates: 2026-10-23T06:09:15.385Z to 2026-10-23T06:11:59.372Z.
+ Source fingerprint: `2a2b08075184a657056b0a9cea2ec57d9f50c69a95289c19abf2ffb6439fd8b7`.
+ Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
+ 
+diff --git a/docs/compatibility/evidence/facts.json b/docs/compatibility/evidence/facts.json
+index fcf24776..4d3b5bc2 100644
+--- a/docs/compatibility/evidence/facts.json
++++ b/docs/compatibility/evidence/facts.json
+@@ -2585,8 +2585,8 @@
+       "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+       "recovered_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+       "foreign_preserved": true,
+-      "permission_before": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
+-      "permission_after": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
++      "permission_before": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
++      "permission_after": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
+       "permission_preserved": true,
+       "unresolved": [],
+       "original_result": "verification"
+@@ -2633,8 +2633,8 @@
+       "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+       "recovered_digest": "dc223791fc07b60e654f3a596e79ad815905fc3617ded8358bb751882dcf1649",
+       "foreign_preserved": true,
+-      "permission_before": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
+-      "permission_after": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
++      "permission_before": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
++      "permission_after": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
+       "permission_preserved": true,
+       "unresolved": [
+         "injected_recovery_failure"
+diff --git a/docs/compatibility/evidence/snapshot.json b/docs/compatibility/evidence/snapshot.json
+index 89b1fc6d..71333dfd 100644
+--- a/docs/compatibility/evidence/snapshot.json
++++ b/docs/compatibility/evidence/snapshot.json
+@@ -376,7 +376,7 @@
+         "result": "healthy",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:32.041Z",
++      "observed_at": "2026-10-23T06:09:15.385Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -385,7 +385,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -523,7 +523,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:32.042Z",
++      "observed_at": "2026-10-23T06:09:15.386Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -532,7 +532,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -665,7 +665,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:32.441Z",
++      "observed_at": "2026-10-23T06:09:15.690Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -674,7 +674,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -812,7 +812,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:32.748Z",
++      "observed_at": "2026-10-23T06:09:15.931Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -821,7 +821,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -888,7 +888,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:36.855Z",
++      "observed_at": "2026-10-23T06:09:16.718Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -897,7 +897,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -964,7 +964,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:40.863Z",
++      "observed_at": "2026-10-23T06:09:17.176Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -973,7 +973,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1040,7 +1040,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:42.806Z",
++      "observed_at": "2026-10-23T06:09:17.832Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1049,7 +1049,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1116,7 +1116,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:44.242Z",
++      "observed_at": "2026-10-23T06:09:18.380Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1125,7 +1125,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1177,7 +1177,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:49.233Z",
++      "observed_at": "2026-10-23T06:09:24.591Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1186,7 +1186,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1238,7 +1238,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:50.322Z",
++      "observed_at": "2026-10-23T06:09:26.585Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1247,7 +1247,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1306,7 +1306,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:56.412Z",
++      "observed_at": "2026-10-23T06:09:39.813Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1315,7 +1315,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1386,7 +1386,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:58.051Z",
++      "observed_at": "2026-10-23T06:09:43.552Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1395,7 +1395,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1448,7 +1448,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:58.051Z",
++      "observed_at": "2026-10-23T06:09:43.553Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1457,7 +1457,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1510,7 +1510,7 @@
+         "result": "hook_trusted_session_unverified",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:58.051Z",
++      "observed_at": "2026-10-23T06:09:43.553Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1519,7 +1519,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1571,7 +1571,7 @@
+         "result": "healthy",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:59.844Z",
++      "observed_at": "2026-10-23T06:09:47.906Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1580,7 +1580,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1718,7 +1718,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:59.844Z",
++      "observed_at": "2026-10-23T06:09:47.906Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -1727,7 +1727,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -1860,7 +1860,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:40:59.949Z",
++      "observed_at": "2026-10-23T06:09:48.190Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -1869,7 +1869,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2007,7 +2007,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:00.060Z",
++      "observed_at": "2026-10-23T06:09:48.450Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2016,7 +2016,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2083,7 +2083,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:00.770Z",
++      "observed_at": "2026-10-23T06:09:49.034Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2092,7 +2092,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2159,7 +2159,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:01.284Z",
++      "observed_at": "2026-10-23T06:09:49.490Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2168,7 +2168,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2235,7 +2235,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:02.012Z",
++      "observed_at": "2026-10-23T06:09:50.182Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2244,7 +2244,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2311,7 +2311,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:02.543Z",
++      "observed_at": "2026-10-23T06:09:50.615Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2320,7 +2320,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2372,7 +2372,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:07.006Z",
++      "observed_at": "2026-10-23T06:09:57.991Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2381,7 +2381,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2433,7 +2433,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:08.471Z",
++      "observed_at": "2026-10-23T06:10:00.271Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2442,7 +2442,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2501,7 +2501,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:19.317Z",
++      "observed_at": "2026-10-23T06:10:13.367Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2510,7 +2510,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2581,7 +2581,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:21.377Z",
++      "observed_at": "2026-10-23T06:10:17.048Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2590,7 +2590,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2643,7 +2643,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:21.377Z",
++      "observed_at": "2026-10-23T06:10:17.048Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2652,7 +2652,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2705,7 +2705,7 @@
+         "result": "trust_is_not_execution",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:21.377Z",
++      "observed_at": "2026-10-23T06:10:17.048Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -2714,7 +2714,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2766,7 +2766,7 @@
+         "result": "healthy",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:30.314Z",
++      "observed_at": "2026-10-23T06:10:25.554Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2775,7 +2775,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -2913,7 +2913,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:30.314Z",
++      "observed_at": "2026-10-23T06:10:25.554Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -2922,7 +2922,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3055,7 +3055,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:30.548Z",
++      "observed_at": "2026-10-23T06:10:25.774Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3064,7 +3064,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3202,7 +3202,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:30.845Z",
++      "observed_at": "2026-10-23T06:10:25.989Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3211,7 +3211,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3278,7 +3278,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:31.600Z",
++      "observed_at": "2026-10-23T06:10:26.620Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3287,7 +3287,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3354,7 +3354,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:32.209Z",
++      "observed_at": "2026-10-23T06:10:27.095Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3363,7 +3363,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3430,7 +3430,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:33.040Z",
++      "observed_at": "2026-10-23T06:10:27.690Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3439,7 +3439,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3506,7 +3506,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:33.607Z",
++      "observed_at": "2026-10-23T06:10:28.218Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3515,7 +3515,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3567,7 +3567,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:43.732Z",
++      "observed_at": "2026-10-23T06:10:41.981Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3576,7 +3576,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3628,7 +3628,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:41:44.996Z",
++      "observed_at": "2026-10-23T06:10:47.566Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3637,7 +3637,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3686,8 +3686,8 @@
+         "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+         "recovered_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+         "foreign_preserved": true,
+-        "permission_before": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
+-        "permission_after": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
++        "permission_before": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
++        "permission_after": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
+         "permission_preserved": true,
+         "unresolved": [],
+         "original_result": "verification"
+@@ -3696,7 +3696,7 @@
+         "result": "verification",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:08.847Z",
++      "observed_at": "2026-10-23T06:11:23.567Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3705,7 +3705,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3754,8 +3754,8 @@
+         "previous_digest": "7e6ae264adf9bba49409d87baf49146e78a4a528e0107ffd0ed558bcee8dc63b",
+         "recovered_digest": "dc223791fc07b60e654f3a596e79ad815905fc3617ded8358bb751882dcf1649",
+         "foreign_preserved": true,
+-        "permission_before": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
+-        "permission_after": "e179f49f2525c06d20a9ecf34af3b5ea0af1f8494306279873e1524916a8e1a1",
++        "permission_before": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
++        "permission_after": "ea86046cfc57978ec667bb19c56d9494958aa8e60046733e534bb6e4cbadfe97",
+         "permission_preserved": true,
+         "unresolved": [
+           "injected_recovery_failure"
+@@ -3776,7 +3776,7 @@
+         "result": "verification",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:19.386Z",
++      "observed_at": "2026-10-23T06:11:34.914Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3785,7 +3785,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3838,7 +3838,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:19.386Z",
++      "observed_at": "2026-10-23T06:11:34.914Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3847,7 +3847,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3900,7 +3900,7 @@
+         "result": "trust_is_not_execution",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:19.386Z",
++      "observed_at": "2026-10-23T06:11:34.914Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -3909,7 +3909,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -3961,7 +3961,7 @@
+         "result": "installed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:22.243Z",
++      "observed_at": "2026-10-23T06:11:37.705Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -3970,7 +3970,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4108,7 +4108,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:22.243Z",
++      "observed_at": "2026-10-23T06:11:37.705Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4117,7 +4117,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4250,7 +4250,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:22.526Z",
++      "observed_at": "2026-10-23T06:11:38.243Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4259,7 +4259,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4397,7 +4397,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:22.809Z",
++      "observed_at": "2026-10-23T06:11:38.578Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4406,7 +4406,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4473,7 +4473,7 @@
+         "result": "control_result",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:23.614Z",
++      "observed_at": "2026-10-23T06:11:39.253Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4482,7 +4482,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4549,7 +4549,7 @@
+         "result": "target_unresolved",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:24.233Z",
++      "observed_at": "2026-10-23T06:11:39.835Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4558,7 +4558,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4625,7 +4625,7 @@
+         "result": "skill_continuation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:24.989Z",
++      "observed_at": "2026-10-23T06:11:40.555Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4634,7 +4634,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4701,7 +4701,7 @@
+         "result": "invalid_input",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:25.644Z",
++      "observed_at": "2026-10-23T06:11:41.085Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4710,7 +4710,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4762,7 +4762,7 @@
+         "result": "demonstrated",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:29.548Z",
++      "observed_at": "2026-10-23T06:11:45.669Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4771,7 +4771,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4823,7 +4823,7 @@
+         "result": "failed",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:31.093Z",
++      "observed_at": "2026-10-23T06:11:47.685Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4832,7 +4832,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4891,7 +4891,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:39.082Z",
++      "observed_at": "2026-10-23T06:11:55.956Z",
+       "conformance": {
+         "expected": "demonstrated",
+         "passed": true
+@@ -4900,7 +4900,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -4971,7 +4971,7 @@
+         "result": "plugin_operation",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:42.533Z",
++      "observed_at": "2026-10-23T06:11:59.372Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -4980,7 +4980,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -5033,7 +5033,7 @@
+         "result": "manual",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:42.533Z",
++      "observed_at": "2026-10-23T06:11:59.372Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -5042,7 +5042,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -5095,7 +5095,7 @@
+         "result": "trust_is_not_execution",
+         "evidence_class": "repository_fixture"
+       },
+-      "observed_at": "2026-10-22T14:42:42.533Z",
++      "observed_at": "2026-10-23T06:11:59.372Z",
+       "conformance": {
+         "expected": "failed",
+         "passed": true
+@@ -5104,7 +5104,7 @@
+       "references": [
+         {
+           "path": "docs/compatibility/evidence/facts.json",
+-          "sha256": "3a398ae9dff7e2c44b8f6f8d4f8ff659aa10b3ec09f5f2f987d3302a53b33781"
++          "sha256": "17a529761d041439a786544afe10abff2771ea92592fb6b3635d9c9c4613cde9"
+         }
+       ],
+       "publication": {
+@@ -6186,7 +6186,7 @@
+   ],
+   "input_sources": {},
+   "observation_source": {
+-    "path": "evals/host-compatibility/observations/9d75d137faecce49d064deb4eaae5b4fdefca1115cc4b97047ea67801dbe771f.json",
+-    "sha256": "9d75d137faecce49d064deb4eaae5b4fdefca1115cc4b97047ea67801dbe771f"
++    "path": "evals/host-compatibility/observations/607552bc97ebb25b1d35a3bfd7c13605de6ffc9c20241ac3d3cedc38601b27af.json",
++    "sha256": "607552bc97ebb25b1d35a3bfd7c13605de6ffc9c20241ac3d3cedc38601b27af"
+   }
+ }

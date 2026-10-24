@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "diagnostic_probe",
+  "authorizes": false,
+  "excerpt": {
+    "selection": "unmodified native lines of the single agdf_dispatch tool_use and tool_result",
+    "lines": 2,
+    "sha256": "2d6e612064541f7c1c883fdafe01f3a52c1b07e0087c6d83c90f99500240de66"
+  },
+  "results": [
+    {
+      "label": "dispatch-only excerpt",
+      "surface": "desktop-code",
+      "accepted": true,
+      "observed_models": [
+        "claude-opus-5-5"
+      ],
+      "session_id": "6da83f61-6ab2-44d9-92ee-8127937a8675",
+      "outcome": "control_result",
+      "terminal": true,
+      "authorizes": false,
+      "runtime_digest": "61e3e38eeaca4af5c3494156e7e1fe58ac0db37daf25229d06f203bf460ca485"
+    },
+    {
+      "label": "full transcript",
+      "surface": "desktop-code",
+      "accepted": false,
+      "error": "primary_unexpected_native_tool"
+    },
+    {
+      "label": "dispatch-only excerpt through CLI parser",
+      "surface": "cli",
+      "accepted": true,
+      "observed_models": [],
+      "session_id": null,
+      "outcome": "control_result",
+      "terminal": true,
+      "authorizes": false,
+      "runtime_digest": "61e3e38eeaca4af5c3494156e7e1fe58ac0db37daf25229d06f203bf460ca485"
+    }
+  ]
+}

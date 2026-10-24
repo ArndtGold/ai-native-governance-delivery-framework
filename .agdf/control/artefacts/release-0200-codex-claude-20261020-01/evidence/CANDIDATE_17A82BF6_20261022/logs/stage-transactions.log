@@ -1,0 +1,46 @@
+[verify-ci] transactions
+
+> create-agdf@0.20.0 test:run-step-transaction
+> node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js && node ../core/test/backlog-work-summary-test.js && node ../core/test/backlog-summary-codec-test.js
+
+Run-step transaction boundaries passed.
+PASS approval + Backlog transaction recovers intent, identical replay has one effect
+PASS approval + Backlog transaction recovers run, identical replay has one effect
+PASS approval + Backlog transaction recovers backlog, identical replay has one effect
+PASS nonexact reply changes neither Run nor Backlog
+PASS presentation tampered after journal intent is rejected before commit
+PASS backlog-only repair preserves exact sealed Run bytes and is idempotent
+PASS backtick key is matched once, title and links retained
+PASS unsupported header is reported as skipped with zero mutation
+PASS duplicate identity is reported as skipped with zero mutation
+PASS stale caller cannot repair pointer
+PASS legacy pointer repair retains its thirteen columns and existing links
+SKIPPED symlink assertions: symlinks need elevated privileges or Windows Developer Mode (EPERM)
+SKIPPED symlink assertions: symlinks need elevated privileges or Windows Developer Mode (EPERM)
+PASS evidence recording also synchronizes status and next action
+PASS approval is accepted when the Backlog cannot be synchronized and reports why
+PASS run-step keeps a legacy row's title and links, updates its status and reports the layout
+14 Backlog writer scenarios passed.
+PASS specific qa_evidence_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+PASS contradictory/missing/invalid/foreign normalized sources remain unconfirmed
+PASS missing QA registration, invalid UTF-8, oversized report and bounded reference set stay explicit
+PASS pass awaiting approval, approved QA/UAT, closeout and completed are distinct from block
+PASS actual resulting revision, exact repeat timestamp/bytes and selected current comparison
+PASS consumed QA source movement before commit cannot mix Run and pointer evidence
+PASS explicit referenced review movement also prevents a mixed commit
+11 work-summary checks passed
+PASS bounded saved roundtrip outside table preserves title, foreign row and exact repeat bytes
+PASS unknown versions, malformed/oversized/foreign/path/prototype-like fields and row mutations fail closed
+PASS old seven/thirteen-column rows retain stored text without migration
+PASS saved-only immutable scope reads exactly the Backlog and never writes
+4 codec checks passed
+
+> create-agdf@0.20.0 test:run-lock
+> node ../core/test/run-lock-test.js
+
+Run lock owner recovery passed.
+[verify-ci] transactions passed (42.7s)

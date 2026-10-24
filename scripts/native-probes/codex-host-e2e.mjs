@@ -31,7 +31,7 @@ import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess } from '..
 import { compareManifests, hashManifest, parseCodexT4Trace, strictT4DocumentFlow, CODEX_T4_FEATURES, assertCodexT4HostReady } from '../../evals/mcp-ergonomics/lib/native-run.js';
 import { snapshotWorkspace, changedPaths, mutationViolations } from '../../evals/lib/skill-evals/workspace.js';
 import { sanitizeTranscript } from '../../evals/mcp-ergonomics/lib/redaction.js';
-import { CLI_CASES } from './lib/release-policy.mjs';
+import { CLI_CASES, releasePolicy, requiresFrozenTuple } from './lib/release-policy.mjs';
 import { readCandidate, validateCandidate, jsonDigest } from './lib/release-candidate.mjs';
 import { emitReleaseRecords } from './lib/release-observation.mjs';
 import { installedIdentity, rootForVersion, releasedBaseline, installBaseline, makeOwnedStale } from './lib/release-lifecycle.mjs';
@@ -64,6 +64,8 @@ const candidatePath = option('--candidate', null);
 const candidate = candidatePath ? readCandidate(candidatePath) : null;
 if (candidate) { validateCandidate(repo, candidate); if (!scenario) throw Error('RELEASE_SCENARIO_REQUIRED'); }
 const tuplePath = option('--tuple', null);
+// A mandatory Codex row is bound by its preflight-frozen tuple, as for Claude; pinned diagnostics are not.
+if (candidate && requiresFrozenTuple(releasePolicy(repo), 'codex', process.platform) && !tuplePath) throw Error('CODEX_RELEASE_PREFLIGHT_REQUIRED');
 const frozenTuple = tuplePath ? JSON.parse(readFileSync(tuplePath, 'utf8')) : null;
 const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "").replace("T", "-");
 const resultsRel = `probe-results/codex-host-e2e-${stamp}`;
@@ -254,7 +256,7 @@ try {
   const bad = canRunSessions ? session({ skill_id: "gate-check", presentation_language: "de", working_directory: "relative/dir" }, "failure_case") : null;
   const failure = bad?.calls?.at(-1);
   step("failure_case", Boolean(bad?.output.status === 0 && bad.observed_models.length === 1 && bad.observed_models[0] === model && bad.calls.length === 1 && failure?.outcome === "invalid_input" && failure.terminal === true && failure.authorizes === false && failure.plugin_id === "agdf@agdf"),
-    canRunSessions ? { observed_models: bad.observed_models, plugin_id: failure?.plugin_id ?? null, calls: bad.calls.length, outcome: failure?.outcome ?? null, exec_status: bad.output.status, host_action: failure?.host_action ?? null } : { skipped: hasAuth ? "prerequisite_failed" : "authentication unavailable" });
+    canRunSessions ? { observed_models: bad.observed_models, plugin_id: failure?.plugin_id ?? null, calls: bad.calls.length, outcome: failure?.outcome ?? null, authorizes: failure?.authorizes ?? null, exec_status: bad.output.status, host_action: failure?.host_action ?? null } : { skipped: hasAuth ? "prerequisite_failed" : "authentication unavailable" });
   }
   // Regression: judgement skills must receive contracts even though this isolated host has no trusted hook.
   if (!scenario || scenario === 'skill_continuation') {

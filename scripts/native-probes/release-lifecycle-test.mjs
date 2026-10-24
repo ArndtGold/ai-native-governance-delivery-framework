@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { releasedBaseline, extractBaseline, installedIdentity, makeOwnedStale, installBaseline } from './lib/release-lifecycle.mjs';
 import { digestNormalizedPluginSource } from '../../packages/core/lib/runtime/plugin-provenance.js';
 import { candidateFixture } from './test-support.mjs';
-import { releasePolicy } from './lib/release-policy.mjs';
+import { CLI_CASES, caseKey, optionalCliCases, optionalDesktopCases, releasePolicy, requiredReleaseCases, requiresFrozenTuple } from './lib/release-policy.mjs';
 
 test('native entrypoints parse without running hosts or using credentials', () => {
   for (const file of ['codex-host-e2e.mjs','claude-host-e2e.mjs','release-evidence.mjs'])
@@ -80,4 +80,60 @@ test('host tiers and Codex compatibility projection have one canonical owner', (
     const definition = JSON.parse(readFileSync(path)); definition.hostSupport.tiers.copilot='qualified'; writeFileSync(path,JSON.stringify(definition));
     assert.throws(() => releasePolicy(f.root));
   } finally { rmSync(f.root, { recursive:true, force:true }); }
+});
+test('schema-2 Desktop policy rejects unknown schemas, changed targets and widened scope', () => {
+  const f = candidateFixture({ policyVersion: 2 });
+  try {
+    const path = join(f.root,'plugins/agdf/meta/agdf-plugin.definition.json'), original = readFileSync(path,'utf8');
+    assert.equal(releasePolicy(f.root).schema_version, 2);
+    for (const [mutate, code] of [[h=>{h.schema_version=4;},/unsupported/u],
+      // A schema-2 Desktop shape relabelled as schema 3 is not the CLI matrix.
+      [h=>{h.schema_version=3;},/release_cli_targets_invalid/u],
+      [h=>{h.required_targets[1].os='linux';},/release_desktop_targets_invalid/u],
+      [h=>{h.required_targets[0].os='darwin';},/release_desktop_targets_invalid/u],
+      [h=>{h.required_targets.pop();},/release_desktop_targets_invalid/u],
+      [h=>{h.required_targets[0].scenarios.pop();},/release_desktop_targets_invalid/u],
+      [h=>{h.unqualified.pop();},/release_unqualified_scope_invalid/u],
+      [h=>{h.optional_cli.claude.platforms.push('linux');},undefined],
+      [h=>{h.optional_cli.codex.model='other-model';},undefined]]) {
+      const definition = JSON.parse(original); mutate(definition.hostSupport); writeFileSync(path, JSON.stringify(definition));
+      assert.throws(() => releasePolicy(f.root), code);
+    }
+  } finally { rmSync(f.root, { recursive:true, force:true }); }
+});
+test('schema-3 CLI policy pins both mandatory CLI targets and keeps Desktop and diagnostics outside them', () => {
+  const f = candidateFixture({ policyVersion: 3 });
+  try {
+    const path = join(f.root,'plugins/agdf/meta/agdf-plugin.definition.json'), original = readFileSync(path,'utf8');
+    const policy = releasePolicy(f.root);
+    assert.equal(policy.schema_version, 3);
+    assert.deepEqual(policy.optional_cli.codex, JSON.parse(readFileSync(new URL('./codex-release-policy.json',import.meta.url),'utf8')));
+    const required = requiredReleaseCases(policy).map(caseKey), optional = optionalCliCases(policy).map(caseKey);
+    assert.deepEqual(required.sort(), CLI_CASES.flatMap(c => [`claude:cli:win32:${c}`, `codex:cli:darwin:${c}`]).sort());
+    assert.equal(optional.length, 10); assert.ok(optional.every(key => !required.includes(key)), 'diagnostic rows never overlap required rows');
+    assert.throws(() => optionalCliCases(policy, 'claude'), /unknown_release_host/u);
+    assert.deepEqual(optionalDesktopCases(policy).map(row => row.surface), Array(6).fill('desktop-code'));
+    assert.throws(() => optionalDesktopCases(releasePolicyOf(2)), /optional_desktop_requires_cli_policy/u);
+    // Mandatory CLI runs need a frozen tuple; pinned diagnostics and Desktop-era policies do not.
+    assert.deepEqual([['codex','darwin'],['claude','win32'],['codex','linux'],['codex','win32']].map(([h,o]) => requiresFrozenTuple(policy, h, o)), [true, true, false, false]);
+    assert.equal(requiresFrozenTuple(releasePolicyOf(2), 'codex', 'darwin'), false);
+    for (const [mutate, code] of [[h=>{h.schema_version=4;},/unsupported/u],
+      [h=>{h.required_targets[1].os='linux';},/release_cli_targets_invalid/u],
+      [h=>{h.required_targets[0].os='darwin';},/release_cli_targets_invalid/u],
+      [h=>{h.required_targets.pop();},/release_cli_targets_invalid/u],
+      [h=>{h.required_targets[1].scenarios.pop();},/release_cli_targets_invalid/u],
+      [h=>{h.required_targets.push({host:'codex',surface:'desktop-code',os:'darwin',scenarios:['session']});},/release_cli_targets_invalid/u],
+      [h=>{h.reported_desktop.pop();},/release_reported_desktop_invalid/u],
+      [h=>{delete h.reported_desktop;},/release_reported_desktop_invalid/u],
+      [h=>{h.optional_cli.claude={platforms:['win32']};},/release_optional_cli_scope_invalid/u],
+      [h=>{h.optional_cli.codex.platforms.push('darwin');},undefined],
+      [h=>{h.unqualified.pop();},/release_unqualified_scope_invalid/u]]) {
+      const definition = JSON.parse(original); mutate(definition.hostSupport); writeFileSync(path, JSON.stringify(definition));
+      assert.throws(() => releasePolicy(f.root), code);
+    }
+  } finally { rmSync(f.root, { recursive:true, force:true }); }
+  function releasePolicyOf(version) {
+    const fixture = candidateFixture({ policyVersion: version });
+    try { return releasePolicy(fixture.root); } finally { rmSync(fixture.root, { recursive:true, force:true }); }
+  }
 });

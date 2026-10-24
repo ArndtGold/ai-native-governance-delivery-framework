@@ -1,0 +1,89 @@
+[verify-ci] pages
+
+> agdf-web@0.20.0 check
+> astro check
+
+[2m16:02:07[22m [34m[content][39m Syncing content
+[2m16:02:07[22m [34m[content][39m Synced content
+[2m16:02:07[22m [34m[types][39m Generated [2m352ms[22m
+[2m16:02:07[22m [34m[check][39m Getting diagnostics for Astro files in C:\Workspace\agdf-rc-17a82bf6\pages...
+Result (13 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+
+> agdf-web@0.20.0 test:landing
+> npm run build && node ./scripts/landing-page-test.mjs
+
+
+> agdf-web@0.20.0 prebuild
+> node scripts/design-tokens.mjs
+
+
+> agdf-web@0.20.0 build
+> astro build
+
+[2m16:02:14[22m [34m[content][39m Syncing content
+[2m16:02:14[22m [34m[content][39m Synced content
+[2m16:02:14[22m [34m[types][39m Generated [2m39ms[22m
+[2m16:02:14[22m [34m[build][39m output: [34m"static"[39m
+[2m16:02:14[22m [34m[build][39m mode: [34m"static"[39m
+[2m16:02:14[22m [34m[build][39m directory: [34mC:\Workspace\agdf-rc-17a82bf6\pages\dist\[39m
+[2m16:02:14[22m [34m[build][39m Collecting build info...
+[2m16:02:14[22m [34m[build][39m [32m✓ Completed in 138ms.[39m
+[2m16:02:14[22m [34m[build][39m Building static entrypoints...
+[2m16:02:16[22m [34m[vite][39m [32m✓ built in 1.39s[39m
+[2m16:02:16[22m [34m[build][39m [32m✓ Completed in 1.42s.[39m
+
+[42m[30m generating static routes [39m[49m
+[2m16:02:16[22m [32m▶[39m src/pages/[document].astro
+[2m16:02:16[22m   [34m├─[39m [2m/privacy/index.html[22m [2m(+7ms)[22m 
+[2m16:02:16[22m   [34m├─[39m [2m/terms/index.html[22m [2m(+2ms)[22m 
+[2m16:02:16[22m   [34m└─[39m [2m/support/index.html[22m [2m(+2ms)[22m 
+[2m16:02:16[22m [32m▶[39m src/pages/index.astro
+[2m16:02:16[22m   [34m└─[39m [2m/index.html[22m [2m(+4ms)[22m 
+[2m16:02:16[22m [32m✓ Completed in 31ms.
+[39m
+[2m16:02:16[22m [34m[build][39m 4 page(s) built in [1m1.60s[22m
+[2m16:02:16[22m [34m[build][39m [1mComplete![22m
+Landing-page visible word count: 1711 (editorial target 1500–1800; hard maximum 2200)
+Landing-page local image payload: 1210792 bytes across 2 unique assets
+Landing-page structure, copy, boundary, metadata, No-JS and payload tests passed
+
+> agdf-web@0.20.0 test:public-documents
+> npm run build && node ./scripts/public-documents-test.mjs
+
+
+> agdf-web@0.20.0 prebuild
+> node scripts/design-tokens.mjs
+
+
+> agdf-web@0.20.0 build
+> astro build
+
+[2m16:02:20[22m [34m[content][39m Syncing content
+[2m16:02:20[22m [34m[content][39m Synced content
+[2m16:02:20[22m [34m[types][39m Generated [2m46ms[22m
+[2m16:02:20[22m [34m[build][39m output: [34m"static"[39m
+[2m16:02:20[22m [34m[build][39m mode: [34m"static"[39m
+[2m16:02:20[22m [34m[build][39m directory: [34mC:\Workspace\agdf-rc-17a82bf6\pages\dist\[39m
+[2m16:02:20[22m [34m[build][39m Collecting build info...
+[2m16:02:20[22m [34m[build][39m [32m✓ Completed in 134ms.[39m
+[2m16:02:20[22m [34m[build][39m Building static entrypoints...
+[2m16:02:21[22m [34m[vite][39m [32m✓ built in 1.46s[39m
+[2m16:02:21[22m [34m[build][39m [32m✓ Completed in 1.49s.[39m
+
+[42m[30m generating static routes [39m[49m
+[2m16:02:21[22m [32m▶[39m src/pages/[document].astro
+[2m16:02:21[22m   [34m├─[39m [2m/privacy/index.html[22m [2m(+7ms)[22m 
+[2m16:02:21[22m   [34m├─[39m [2m/terms/index.html[22m [2m(+2ms)[22m 
+[2m16:02:21[22m   [34m└─[39m [2m/support/index.html[22m [2m(+2ms)[22m 
+[2m16:02:21[22m [32m▶[39m src/pages/index.astro
+[2m16:02:21[22m   [34m└─[39m [2m/index.html[22m [2m(+5ms)[22m 
+[2m16:02:21[22m [32m✓ Completed in 33ms.
+[39m
+[2m16:02:21[22m [34m[build][39m 4 page(s) built in [1m1.68s[22m
+[2m16:02:21[22m [34m[build][39m [1mComplete![22m
+Public document and route tests passed
+[verify-ci] pages passed (18.7s)

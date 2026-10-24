@@ -5,10 +5,11 @@
 - control_state_version: 2
 - run_id: mcp-zielarchitektur-doku-20260929-01
 - lifecycle: active
-- revision: 23
-- revision_id: 7f7008c1-01da-41f7-9511-a40cc4621179
-- content_seal: sha256:b77258dd7dfab3eb7d68f4dbd5509322e782f02609398e562432c6cd0e4d199c
+- revision: 24
+- revision_id: 39dd1f25-901f-4331-b0d6-44f2cf11d478
+- content_seal: sha256:da2ebcaa3eb923d0f2122579c1d14ae31f013ea3002e4722bade8c7bd64c4bc5
 - approval_seal: sha256:d6e13126d957586eb8bc7f25f3f2150d95c9252b649817431d3b24b2f4559eed
+- updated_at: 2026-10-24T10:52:38.687Z
 - mode: structured_slice
 - current_gate: QA
 - decision: in_progress
@@ -75,6 +76,7 @@ MCP capabilities, linked from the current architecture overview, without changin
 | Brownfield Analysis | based_on | TP | `.agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/BROWNFIELD_ANALYSIS.md` evaluates the approved TP scope against existing MCP contracts, services, architecture documentation, and Context Graph ownership |
 | CD+Tests | fulfils | TP | `.agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/CD_TESTS.md` records implementation of T-001 through T-004 and manual evidence for AC-001 through AC-009 |
 | QA | evaluates | TP | `.agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/QA_REPORT.md` evaluates plan coverage, Brownfield fit, solution integrity, code review, test evidence, and Context Graph reconciliation |
+| QA_REPORT | tests | TP | .agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/QA_REPORT.md evaluates the approved .agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/TP.md; existing plan coverage and test evidence reviewed, exact source files unchanged; no QA approval inferred. |
 
 ## Evidence
 
@@ -92,6 +94,7 @@ MCP capabilities, linked from the current architecture overview, without changin
 | Task Plan Review | `.agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/TASK_PLAN_REVIEW.md` | all approved tasks fully done and all nine criteria covered with manual evidence | direct |
 | Clean Implementation Review | `.agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/CLEAN_IMPLEMENTATION_REVIEW.md` | clean additive documentation solution; no workaround or parallel owner | direct |
 | QA Report | `.agdf/control/artefacts/mcp-zielarchitektur-doku-20260929-01/QA_REPORT.md` | QA decision and Quality Readiness evidence for the approved documentation scope | direct |
+| Traceability metadata correction | Current QA closure, 2026-10-24 | Canonical relationship registry matched to existing approved UR/TP and current PRD/QA source; no new source content, approval or gate advancement | reviewed source mapping |
 
 ## Closeout
 

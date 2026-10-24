@@ -53,3 +53,13 @@ test('missing payloads, forged inventory and source symlinks cannot qualify', ()
     assert.throws(() => candidateManifest(f.root), /symlink/u);
   } finally { rmSync(f.root, { recursive: true, force: true }); }
 });
+test('the schema-3 CLI matrix is a different candidate than the historical Desktop policy', () => {
+  const desktop = candidateFixture({ policyVersion: 2 }), cli = candidateFixture({ policyVersion: 3 });
+  try {
+    assert.notEqual(cli.candidate.policy_digest, desktop.candidate.policy_digest);
+    assert.notEqual(cli.candidate.candidate_id, desktop.candidate.candidate_id);
+    // Rewriting only the policy of an existing candidate checkout invalidates that candidate.
+    cli.put('plugins/agdf/meta/agdf-plugin.definition.json', readFileSync(join(desktop.root, 'plugins/agdf/meta/agdf-plugin.definition.json')));
+    assert.throws(() => validateCandidate(cli.root, cli.candidate), /candidate_content_mismatch|policy/u);
+  } finally { for (const f of [desktop, cli]) rmSync(f.root, { recursive: true, force: true }); }
+});

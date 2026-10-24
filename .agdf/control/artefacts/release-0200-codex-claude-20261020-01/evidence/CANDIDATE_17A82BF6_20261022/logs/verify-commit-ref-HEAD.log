@@ -1,0 +1,800 @@
+
+> verify:commit
+> node scripts/verify-commit.mjs --ref HEAD
+
+[verify-commit] Isolated commit HEAD; Node 22.22.3, win32.
+[verify-ci] dependencies
+
+added 15 packages, and audited 18 packages in 3s
+
+7 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+[verify-ci] dependencies passed (3.6s)
+[verify-ci] maintenance
+
+> test:maintenance-contracts
+> npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs && npm run test:release-qualification
+
+
+> test:verification
+> node --test scripts/verification-test.mjs
+
+TAP version 13
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, win32.
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 1 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 196.3397
+  type: 'test'
+  ...
+# Subtest: the workflow matrix exposes functional labels for repository, release and published MCP callers
+ok 2 - the workflow matrix exposes functional labels for repository, release and published MCP callers
+  ---
+  duration_ms: 3257.0377
+  type: 'test'
+  ...
+# Subtest: compact graph names retain purpose, platform, partition and revision scenario
+ok 3 - compact graph names retain purpose, platform, partition and revision scenario
+  ---
+  duration_ms: 106.0904
+  type: 'test'
+  ...
+# Subtest: measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+ok 4 - measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+  ---
+  duration_ms: 50.6894
+  type: 'test'
+  ...
+# Subtest: measured packed control-command parts run in separate Windows partitions
+ok 5 - measured packed control-command parts run in separate Windows partitions
+  ---
+  duration_ms: 47.818
+  type: 'test'
+  ...
+# Subtest: graph matrices route every existing partition exactly once for every caller
+ok 6 - graph matrices route every existing partition exactly once for every caller
+  ---
+  duration_ms: 1066.8994
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 7 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 31.4433
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 8 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 2161.0704
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 9 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 41.6755
+  type: 'test'
+  ...
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 10 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 1.5577
+  type: 'test'
+  ...
+# Subtest: build shares CI checks without recursive builds; evidence preparation remains possible
+ok 11 - build shares CI checks without recursive builds; evidence preparation remains possible
+  ---
+  duration_ms: 1.3494
+  type: 'test'
+  ...
+# Subtest: real npm build failures prevent assembly and preserve stored evidence
+ok 12 - real npm build failures prevent assembly and preserve stored evidence
+  ---
+  duration_ms: 29519.2493
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 13 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 4.6235
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 14 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 204.4506
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 15 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 14248.9464
+  type: 'test'
+  ...
+# Subtest: both snapshot modes export an index larger than the default subprocess output buffer
+ok 16 - both snapshot modes export an index larger than the default subprocess output buffer
+  ---
+  duration_ms: 36970.7262
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 88265.8734
+Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+Payload budget review/report tests passed.
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.
+TAP version 13
+# Subtest: adaptive mode starts with ten cases and repeats only selected or deviant first runs
+ok 1 - adaptive mode starts with ten cases and repeats only selected or deviant first runs
+  ---
+  duration_ms: 3.5525
+  type: 'test'
+  ...
+# Subtest: the actual scheduler completes all first runs before conditional repeats
+ok 2 - the actual scheduler completes all first runs before conditional repeats
+  ---
+  duration_ms: 15.1317
+  type: 'test'
+  ...
+# Subtest: fixed mode and boundary IDs are validated before host setup
+ok 3 - fixed mode and boundary IDs are validated before host setup
+  ---
+  duration_ms: 0.9995
+  type: 'test'
+  ...
+# Subtest: expected target_unresolved remains a separate target-binding observation
+ok 4 - expected target_unresolved remains a separate target-binding observation
+  ---
+  duration_ms: 0.3139
+  type: 'test'
+  ...
+# Subtest: JSONL parsing separates cached input and counts completed search calls once
+ok 5 - JSONL parsing separates cached input and counts completed search calls once
+  ---
+  duration_ms: 2.0844
+  type: 'test'
+  ...
+# Subtest: unavailable usage or search telemetry remains unknown
+ok 6 - unavailable usage or search telemetry remains unknown
+  ---
+  duration_ms: 0.2605
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 234.9346
+
+> test:release-qualification
+> node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs
+
+TAP version 13
+# Subtest: candidate binds new and changed sources, locks, policies and shipped bytes
+ok 1 - candidate binds new and changed sources, locks, policies and shipped bytes
+  ---
+  duration_ms: 5492.0357
+  type: 'test'
+  ...
+# Subtest: normalized text and fixed evidence-only fields preserve content identity
+ok 2 - normalized text and fixed evidence-only fields preserve content identity
+  ---
+  duration_ms: 3113.2038
+  type: 'test'
+  ...
+# Subtest: missing payloads, forged inventory and source symlinks cannot qualify
+ok 3 - missing payloads, forged inventory and source symlinks cannot qualify
+  ---
+  duration_ms: 2042.2143
+  type: 'test'
+  ...
+# Subtest: Desktop policy requires both exact observed tuples and preserves optional CLI pins
+ok 4 - Desktop policy requires both exact observed tuples and preserves optional CLI pins
+  ---
+  duration_ms: 2203.2899
+  type: 'test'
+  ...
+# Subtest: Desktop primary capabilities, raw calls, transitions and cleanup cannot be replaced by booleans
+ok 5 - Desktop primary capabilities, raw calls, transitions and cleanup cannot be replaced by booleans
+  ---
+  duration_ms: 1549.6316
+  type: 'test'
+  ...
+# Subtest: default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy
+ok 6 - default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy
+  ---
+  duration_ms: 5263.5057
+  type: 'test'
+  ...
+# Subtest: Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection
+ok 7 - Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection
+  ---
+  duration_ms: 4682.6527
+  type: 'test'
+  ...
+# Subtest: attributed human reports preserve unknown identity and cannot supply native qualification
+ok 8 - attributed human reports preserve unknown identity and cannot supply native qualification
+  ---
+  duration_ms: 2445.963
+  type: 'test'
+  ...
+# Subtest: complete matrix accepts real-shaped primary events and rejects missing/forged observations
+ok 9 - complete matrix accepts real-shaped primary events and rejects missing/forged observations
+  ---
+  duration_ms: 4759.4939
+  type: 'test'
+  ...
+# Subtest: Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+ok 10 - Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files
+  ---
+  duration_ms: 6244.4149
+  type: 'test'
+  ...
+# Subtest: Desktop templates are explicitly unverified and cannot satisfy release acceptance
+ok 11 - Desktop templates are explicitly unverified and cannot satisfy release acceptance
+  ---
+  duration_ms: 2100.9309
+  type: 'test'
+  ...
+# Subtest: local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+ok 12 - local validation binds the actual checkout and CI additionally requires its exact trusted SHA
+  ---
+  duration_ms: 3875.7554
+  type: 'test'
+  ...
+# Subtest: optional current-policy CLI diagnostics retain strict checks and never grant Desktop eligibility
+ok 13 - optional current-policy CLI diagnostics retain strict checks and never grant Desktop eligibility
+  ---
+  duration_ms: 3548.54
+  type: 'test'
+  ...
+# Subtest: Desktop preflight uses captured runtime identity, never the helper process tuple
+ok 14 - Desktop preflight uses captured runtime identity, never the helper process tuple
+  ---
+  duration_ms: 2697.1551
+  type: 'test'
+  ...
+# Subtest: native entrypoints parse without running hosts or using credentials
+ok 15 - native entrypoints parse without running hosts or using credentials
+  ---
+  duration_ms: 733.3183
+  type: 'test'
+  ...
+# Subtest: baseline subprocess stays in its isolated project instead of the invoking repository
+ok 16 - baseline subprocess stays in its isolated project instead of the invoking repository
+  ---
+  duration_ms: 189.1247
+  type: 'test'
+  ...
+# Subtest: released baseline integrity and archive entry restrictions are enforced before writes
+ok 17 - released baseline integrity and archive entry restrictions are enforced before writes
+  ---
+  duration_ms: 33.3334
+  type: 'test'
+  ...
+# Subtest: stale-state injection verifies complete owned provenance and refuses foreign ownership
+ok 18 - stale-state injection verifies complete owned provenance and refuses foreign ownership
+  ---
+  duration_ms: 30.3887
+  type: 'test'
+  ...
+# Subtest: host tiers and Codex compatibility projection have one canonical owner
+ok 19 - host tiers and Codex compatibility projection have one canonical owner
+  ---
+  duration_ms: 1617.187
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 39842.0472
+[verify-ci] maintenance passed (161.7s)
+[verify-ci] shell
+Shell syntax passed (10 tracked scripts).
+[verify-ci] shell passed (1.7s)
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 212 packages, and audited 213 packages in 11s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+2 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (11.4s)
+[verify-ci] ui-build
+
+> agdf-control-ui@0.0.0 build:mcp
+> node scripts/build-mcp.mjs
+
+[36mvite v8.3.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+[32m✓ built in 603ms[39m
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1249259,"digest":"sha256:17eb8a4185a76c9aa8bdea6dbe0d2405f0fa4276d4223f437c8c99bc9c9a2d82","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[36mvite v8.3.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+[32m✓ built in 364ms[39m
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":945815,"digest":"sha256:0cda3ead4c112991f697ae967bc0692dee465ef9e6f794ca7d43937f326ee7b6","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[verify-ci] ui-build passed (2.8s)
+[verify-ci] generate
+[verify-ci] generate passed (8.0s)
+[verify-ci] build-contracts
+Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).
+[verify-ci] build-contracts passed (46.3s)
+[verify-ci] evals
+
+> create-agdf@0.20.0 eval:skills
+> node ../../evals/scripts/run-skill-evals.js
+
+AGDF skill evals: pass (113/113 cases; 14 skills; deterministic replay, not live host execution)
+[verify-ci] evals passed (2.3s)
+[verify-ci] compatibility-freshness
+
+> compatibility:check
+> node scripts/host-compatibility/run.mjs check
+
+{
+  "status": "pass",
+  "scenarios": {
+    "evaluated": 56,
+    "failed": 0
+  },
+  "source_fingerprint": "cc7fa169c208413cdb5155f29c40a53ee8b80d9887faf87813e5fbcfc2464253"
+}
+[verify-ci] compatibility-freshness passed (4.4s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.0",
+    "source": "C:\\Users\\golda\\AppData\\Local\\Temp\\agdf-commit-r5nCqk\\checkout\\packages\\cli",
+    "output": "C:\\Users\\golda\\AppData\\Local\\Temp\\agdf-commit-r5nCqk\\checkout\\dist\\npm\\create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.0",
+    "source": "C:\\Users\\golda\\AppData\\Local\\Temp\\agdf-commit-r5nCqk\\checkout\\packages\\cli\\distribution\\agdf",
+    "output": "C:\\Users\\golda\\AppData\\Local\\Temp\\agdf-commit-r5nCqk\\checkout\\dist\\npm\\agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.0",
+    "source": "C:\\Users\\golda\\AppData\\Local\\Temp\\agdf-commit-r5nCqk\\checkout\\packages\\mcp-server",
+    "output": "C:\\Users\\golda\\AppData\\Local\\Temp\\agdf-commit-r5nCqk\\checkout\\dist\\npm\\agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (2.9s)
+[verify-ci] prepare
+
+> create-agdf@0.20.0 release:prepare
+> npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+
+
+> create-agdf@0.20.0 sync-package-assets
+> node ../../scripts/sync-package-assets.js
+
+
+> create-agdf@0.20.0 test:distribution-profile-history
+> node scripts/distribution-profile-history-test.js
+
+Distribution profile history passed (9 exact releases, malformed and closed-policy matrices)
+
+> create-agdf@0.20.0 test:release-bump
+> node scripts/release-bump-test.js
+
+Skipped release-bump symlink recovery fixture: symlink creation is unavailable on this host (EPERM).
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+
+> create-agdf@0.20.0 test:release-version-coherence
+> node scripts/release-version-coherence-test.js
+
+Release version coherence passed (49 surfaces at 0.20.0; 9 profile snapshots)
+
+> create-agdf@0.20.0 test:public-plugin
+> node scripts/public-plugin-test.js
+
+Skipped symlink negative fixture: symlink creation is unavailable on this host (EPERM).
+Public plugin tests passed (63 inventoried candidate files; digest dc7cf7f451740e7a7097edc3fb3cd8ec5813e7352cd6a404249808e47340f736)
+
+> create-agdf@0.20.0 test:portable-plugin
+> node scripts/portable-plugin-test.js
+
+Portable plugin schema/profile/resource/selection/retry tests passed; digest dc7cf7f451740e7a7097edc3fb3cd8ec5813e7352cd6a404249808e47340f736
+[verify-ci] prepare passed (96.3s)
+[verify-ci] mcp-dependencies
+
+added 15 packages, and audited 16 packages in 18s
+
+2 packages are looking for funding
+  run `npm fund` for details
+
+2 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] mcp-dependencies passed (19.1s)
+[verify-ci] runtime
+[agdf-runtime-integrity] ok (mode=source; 14 skills and 16 control files checked)
+[verify-ci] runtime passed (2.8s)
+[verify-ci] community
+
+> test:community-health
+> node scripts/community-health-test.mjs
+
+community-health-test: pass (reviewed baseline + 29 negative contracts)
+
+> check:community-health
+> node scripts/check-community-health.mjs
+
+community-health: pass (39 required files, 4 issue forms)
+[verify-ci] community passed (33.3s)
+[verify-ci] host-compatibility
+
+> test:host-compatibility
+> node packages/cli/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs
+
+{
+  "evaluated": 56,
+  "failed": []
+}
+Host compatibility evidence tests passed (69 named checks, recording failure and isolation controls).
+[verify-ci] host-compatibility passed (254.3s)
+[verify-ci] mcp-ergonomics
+
+> test:mcp-ergonomics
+> node --test "evals/mcp-ergonomics/test/*.test.mjs"
+
+TAP version 13
+# Subtest: the shared parser reproduces the probe's former session summary
+ok 1 - the shared parser reproduces the probe's former session summary
+  ---
+  duration_ms: 4.6075
+  type: 'test'
+  ...
+# Subtest: the generalized parser keeps every tool pair, error flag, init and result
+ok 2 - the generalized parser keeps every tool pair, error flag, init and result
+  ---
+  duration_ms: 0.7957
+  type: 'test'
+  ...
+# Subtest: tool_reference parts of ToolSearch results are kept as references
+ok 3 - tool_reference parts of ToolSearch results are kept as references
+  ---
+  duration_ms: 1.3101
+  type: 'test'
+  ...
+# Subtest: redaction removes raw, forward-slash and JSON-escaped path forms (SCN-015)
+ok 4 - redaction removes raw, forward-slash and JSON-escaped path forms (SCN-015)
+  ---
+  duration_ms: 0.3972
+  type: 'test'
+  ...
+# Subtest: the credential copy exists during sync and async callbacks and is removed afterwards
+ok 5 - the credential copy exists during sync and async callbacks and is removed afterwards
+  ---
+  duration_ms: 32.8847
+  type: 'test'
+  ...
+# Subtest: mcp list parsing and installed plugin root lookup
+ok 6 - mcp list parsing and installed plugin root lookup
+  ---
+  duration_ms: 1.3965
+  type: 'test'
+  ...
+# Subtest: session arguments keep the probe's flag order and add variant flags
+ok 7 - session arguments keep the probe's flag order and add variant flags
+  ---
+  duration_ms: 0.3953
+  type: 'test'
+  ...
+# Subtest: task set v1 holds the approved decisions and six complete tasks (SCN-008)
+ok 8 - task set v1 holds the approved decisions and six complete tasks (SCN-008)
+  ---
+  duration_ms: 2.7684
+  type: 'test'
+  ...
+# Subtest: read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+ok 9 - read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+  ---
+  duration_ms: 0.9063
+  type: 'test'
+  ...
+# Subtest: new-run, document-page and stale-write predicates (SCN-009)
+ok 10 - new-run, document-page and stale-write predicates (SCN-009)
+  ---
+  duration_ms: 16.0886
+  type: 'test'
+  ...
+# Subtest: approval predicate on a real presented fixture (SCN-009)
+ok 11 - approval predicate on a real presented fixture (SCN-009)
+  ---
+  duration_ms: 4890.26
+  type: 'test'
+  ...
+# Subtest: cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+ok 12 - cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+  ---
+  duration_ms: 2.1926
+  type: 'test'
+  ...
+# Subtest: variant verification and session metrics
+ok 13 - variant verification and session metrics
+  ---
+  duration_ms: 2.0743
+  type: 'test'
+  ...
+# Subtest: variant allowlists follow SD SDD-007
+ok 14 - variant allowlists follow SD SDD-007
+  ---
+  duration_ms: 0.5172
+  type: 'test'
+  ...
+# Subtest: variant verification rejects foreign MCP servers and built-in tools outside the variant
+ok 15 - variant verification rejects foreign MCP servers and built-in tools outside the variant
+  ---
+  duration_ms: 0.6867
+  type: 'test'
+  ...
+# Subtest: PowerShell AGDF calls count as shell calls and permission denials are counted
+ok 16 - PowerShell AGDF calls count as shell calls and permission denials are counted
+  ---
+  duration_ms: 0.9708
+  type: 'test'
+  ...
+# Subtest: plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+ok 17 - plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+  ---
+  duration_ms: 1.2905
+  type: 'test'
+  ...
+# Subtest: tasks.v1.json stays valid JSON with the documented prompt placeholders
+ok 18 - tasks.v1.json stays valid JSON with the documented prompt placeholders
+  ---
+  duration_ms: 1.0236
+  type: 'test'
+  ...
+# Subtest: the native runner's dry run plans cells with their task ids
+ok 19 - the native runner's dry run plans cells with their task ids
+  ---
+  duration_ms: 838.9818
+  type: 'test'
+  ...
+# Subtest: sessions that end in an error or without result are no measurement
+ok 20 - sessions that end in an error or without result are no measurement
+  ---
+  duration_ms: 0.872
+  type: 'test'
+  ...
+# Subtest: a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+ok 21 - a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+  ---
+  duration_ms: 895.8729
+  type: 'test'
+  ...
+# Subtest: strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+ok 22 - strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+  ---
+  duration_ms: 2.0109
+  type: 'test'
+  ...
+# Subtest: Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+ok 23 - Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+  ---
+  duration_ms: 2.3119
+  type: 'test'
+  ...
+# Subtest: single Codex T4 planning cannot enter the default multi-session host probe
+not ok 24 - single Codex T4 planning cannot enter the default multi-session host probe
+  ---
+  duration_ms: 156.6308
+  type: 'test'
+  location: 'C:\\Users\\golda\\AppData\\Local\\Temp\\agdf-commit-r5nCqk\\checkout\\evals\\mcp-ergonomics\\test\\native.test.mjs:269:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    node:internal/modules/cjs/loader:1433
+      throw err;
+      ^
+    
+    Error: Cannot find module 'C:\C:\Users\golda\AppData\Local\Temp\agdf-commit-r5nCqk\checkout\scripts\native-probes\codex-host-e2e.mjs'
+        at Function._resolveFilename (node:internal/modules/cjs/loader:1430:15)
+        at defaultResolveImpl (node:internal/modules/cjs/loader:1040:19)
+        at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
+        at Function._load (node:internal/modules/cjs/loader:1216:25)
+        at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+        at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+        at node:internal/main/run_main_module:36:49 {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: []
+    }
+    
+    Node.js v22.22.3
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    Function._resolveFilename (node:internal/modules/cjs/loader:1430:15)
+    defaultResolveImpl (node:internal/modules/cjs/loader:1040:19)
+    resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
+    Function._load (node:internal/modules/cjs/loader:1216:25)
+    wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    node:internal/main/run_main_module:36:49 {
+    TestContext.<anonymous> (file:///C:/Users/golda/AppData/Local/Temp/agdf-commit-r5nCqk/checkout/evals/mcp-ergonomics/test/native.test.mjs:272:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+ok 25 - code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+  ---
+  duration_ms: 21.2219
+  type: 'test'
+  ...
+# Subtest: single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+ok 26 - single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+  ---
+  duration_ms: 2.0378
+  type: 'test'
+  ...
+# Subtest: Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+ok 27 - Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+  ---
+  duration_ms: 5.0386
+  type: 'test'
+  ...
+# Subtest: empty host catalog discovery cannot supply bindings or admit resource reads
+ok 28 - empty host catalog discovery cannot supply bindings or admit resource reads
+  ---
+  duration_ms: 2.325
+  type: 'test'
+  ...
+# Subtest: normalization replaces every root form and zeroes *_ms values
+ok 29 - normalization replaces every root form and zeroes *_ms values
+  ---
+  duration_ms: 1.4473
+  type: 'test'
+  ...
+# Subtest: normalized bytes are independent of root length and timing digits
+ok 30 - normalized bytes are independent of root length and timing digits
+  ---
+  duration_ms: 1.2596
+  type: 'test'
+  ...
+# Subtest: token estimate rule and summary statistics
+ok 31 - token estimate rule and summary statistics
+  ---
+  duration_ms: 0.2771
+  type: 'test'
+  ...
+# Subtest: classification follows the written rule order
+ok 32 - classification follows the written rule order
+  ---
+  duration_ms: 0.6918
+  type: 'test'
+  ...
+# Subtest: the pinned SDK input-validation text matches the installed MCP server SDK
+ok 33 - the pinned SDK input-validation text matches the installed MCP server SDK
+  ---
+  duration_ms: 11.3735
+  type: 'test'
+  ...
+# Subtest: a failing fixture build leaves no temporary directory behind
+ok 34 - a failing fixture build leaves no temporary directory behind
+  ---
+  duration_ms: 7678.1118
+  type: 'test'
+  ...
+# Subtest: protocol compare is exact for non-timing metrics and ignores latency (SCN-005)
+ok 35 - protocol compare is exact for non-timing metrics and ignores latency (SCN-005)
+  ---
+  duration_ms: 2.6178
+  type: 'test'
+  ...
+# Subtest: native compare uses the recorded range and marks missing cells
+ok 36 - native compare uses the recorded range and marks missing cells
+  ---
+  duration_ms: 1.1823
+  type: 'test'
+  ...
+# Subtest: re-evaluation changes only transcript-determined verdicts and refuses transcripts with evidence writes
+ok 37 - re-evaluation changes only transcript-determined verdicts and refuses transcripts with evidence writes
+  ---
+  duration_ms: 22.0427
+  type: 'test'
+  ...
+# Subtest: the report states a failed or empty native run instead of claiming full measurement
+ok 38 - the report states a failed or empty native run instead of claiming full measurement
+  ---
+  duration_ms: 3.5852
+  type: 'test'
+  ...
+# Subtest: tool captures must be byte-identical (SCN-023)
+ok 39 - tool captures must be byte-identical (SCN-023)
+  ---
+  duration_ms: 0.4456
+  type: 'test'
+  ...
+# Subtest: redaction check fails closed on local paths and credential patterns (SCN-015/016)
+ok 40 - redaction check fails closed on local paths and credential patterns (SCN-015/016)
+  ---
+  duration_ms: 13.4869
+  type: 'test'
+  ...
+# Subtest: transcripts lose connector names and tool prefixes but keep AGDF servers
+ok 41 - transcripts lose connector names and tool prefixes but keep AGDF servers
+  ---
+  duration_ms: 1.7942
+  type: 'test'
+  ...
+# Subtest: promote writes baseline and report only for clean input (SCN-016, SCN-021/022)
+ok 42 - promote writes baseline and report only for clean input (SCN-016, SCN-021/022)
+  ---
+  duration_ms: 12.7823
+  type: 'test'
+  ...
+# Subtest: findings map covers the twelve review findings with a metric or a reason (SCN-021)
+ok 43 - findings map covers the twelve review findings with a metric or a reason (SCN-021)
+  ---
+  duration_ms: 0.949
+  type: 'test'
+  ...
+# Subtest: call matrix v1 covers valid, schema-invalid and semantic calls for all seven agdf tools (SCN-001)
+ok 44 - call matrix v1 covers valid, schema-invalid and semantic calls for all seven agdf tools (SCN-001)
+  ---
+  duration_ms: 1.7789
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 43
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7939.3532
+Verification failed at mcp-ergonomics: npm run test:mcp-ergonomics (1)
+Snapshot verification failed (1); source checkout and index were preserved.
+exit=1
+2026-10-22T11:56:04Z

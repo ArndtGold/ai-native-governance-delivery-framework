@@ -1,0 +1,8 @@
+worktree-add exit=0 finished=2026-10-23T17:20:24Z :: git worktree add --detach /c/Workspace/agdf-rc-7a41879e 7a41879e742a95579755020b04ccb6e93b81d257
+status-before exit=0 finished=2026-10-23T17:20:25Z :: git status --porcelain
+root-ci exit=0 finished=2026-10-23T17:20:29Z :: npm ci --ignore-scripts
+build-prepare exit=0 finished=2026-10-23T17:21:41Z :: npm run build:prepare
+mcp-ci exit=0 finished=2026-10-23T17:21:49Z :: npm --prefix packages/mcp-server ci --ignore-scripts
+status-after exit=0 finished=2026-10-23T17:21:49Z :: git status --porcelain
+candidate exit=0 finished=2026-10-23T17:21:51Z :: node scripts/native-probes/release-evidence.mjs candidate --output .release-candidate.json
+DONE

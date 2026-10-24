@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { basename, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { candidateFixture } from './test-support.mjs';
-import { jsonDigest, sha } from './lib/release-candidate.mjs';
-import { releasePolicy, requiredReleaseCases, optionalCliCases } from './lib/release-policy.mjs';
+import { assertEvidenceOnlyDescendant, candidateManifest, jsonDigest, sha } from './lib/release-candidate.mjs';
+import { releasePolicy, requiredReleaseCases, optionalCliCases, optionalDesktopCases } from './lib/release-policy.mjs';
 import { assertHostReleaseEvidence, assertHumanReport, referencesFrom, releaseRecords } from './lib/release-observation.mjs';
-import { assertBundleReview, bundleDigest, importClaudeEvidence, importNativeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
+import { assertBundleReview, bundleDigest, evidenceScope, importClaudeEvidence, importNativeEvidence, runReleaseTool } from './lib/release-handoff.mjs';
 
 async function runFixtureReleaseTool(args, fixture) {
   const previous = process.env.GITHUB_SHA;
@@ -20,33 +20,43 @@ async function runFixtureReleaseTool(args, fixture) {
 }
 
 // All records below are synthetic validator fixtures, never installed-host observations.
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 function desktopFixtures(f) {
   const root = mkdtempSync(join(tmpdir(), 'agdf-desktop-fixture-'));
   const policy = releasePolicy(f.root);
   const lockedTuples = ['codex','claude'].map(host => ({ host, surface: 'desktop-code', os: host === 'codex' ? 'darwin' : 'win32',
     arch: 'x64', version: '9.8.7', node: 'v22.22.3', model: 'fixture-desktop-model' }));
-  const rows = requiredReleaseCases(policy, undefined, lockedTuples).map((item, index) => {
+  // Schema 3 keeps the Desktop surfaces as optional evidence; schema 2 still requires them.
+  const cases = policy.schema_version === 3 ? optionalDesktopCases(policy, undefined, lockedTuples) : requiredReleaseCases(policy, undefined, lockedTuples);
+  const rows = cases.map((item, index) => {
     const directory = join(root, item.host, item.surface, String(index)); mkdirSync(directory, { recursive: true });
     const environment = lockedTuples.find(t => t.host === item.host);
+    // Every case is observed in its own fresh Desktop session.
+    const sessionId = `fixture-${item.host}-${item.scenario}-session`;
     const calls = (item.scenario === 'session' ? ['dispatch','failure_case','skill_continuation'] : ['dispatch']).map(scenario => {
       const result = { schema_version: '1', outcome: scenario === 'failure_case' ? 'invalid_input' : scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
         authorizes: false, terminal: scenario !== 'skill_continuation', runtime: { runtime_digest: f.candidate.identities.mcp_dispatcher.digest } };
       if (scenario === 'skill_continuation') result.continuation = { runtime_contracts: ['quality','context-graph'].map(module => ({module,content:module,sha256:sha(module)})) };
-      const events = item.host === 'codex' ? [{type:'turn_context',payload:{model:environment.model}},
+      // Codex Desktop calls keep their session rollout; Claude Desktop calls use the shape of the app's session transcript:
+      // no init event, model per assistant message.
+      const session = {sessionId,entrypoint:'claude-desktop',version:'2.1.0',isSidechain:false};
+      const events = item.host === 'codex' ? [{type:'session_meta',payload:{id:sessionId,originator:'Codex Desktop',source:'vscode'}},
+        {type:'turn_context',payload:{model:environment.model}},
         {item:{id:scenario,type:'mcp_tool_call',pluginId:'agdf@agdf',invocation:{tool:'agdf_dispatch',server:'agdf'},result:{content:[{text:JSON.stringify(result)}]}}}]
-        : [{type:'system',subtype:'init',model:environment.model},{type:'assistant',message:{content:[{type:'tool_use',id:scenario,name:'mcp__plugin_agdf_agdf__agdf_dispatch'}]}},
-          {type:'user',message:{content:[{type:'tool_result',tool_use_id:scenario,content:[{text:JSON.stringify(result)}]}]}}];
-      return {scenario,status:0,stdout:events.map(e=>JSON.stringify(e)).join('\n')};
+        : [{...session,type:'assistant',message:{model:environment.model,content:[{type:'tool_use',id:scenario,name:'mcp__plugin_agdf_agdf__agdf_dispatch'}]}},
+          {...session,type:'user',message:{content:[{type:'tool_result',tool_use_id:scenario,content:[{text:JSON.stringify(result)}]}]}}];
+      const capture = events.map(e=>JSON.stringify(e)).join('\n');
+      return item.host === 'codex' ? {scenario,status:0,rollouts:[capture]} : {scenario,status:0,stdout:capture};
     });
     const transition = item.scenario === 'session' ? undefined : {baseline:{version:'0.14.5',integrity:'sha512-'+Buffer.alloc(64).toString('base64'),source_digest:'c'.repeat(64)},
       preserved_foreign_state:true,permission_preserved:true,...(item.scenario==='recovery'?{repair:'owned_stale_install'}:{})};
-    const primary = {session_id:'fixture-desktop-session',environment,candidate_id:f.candidate.candidate_id,loaded_identity:f.candidate.identities.agdf,
+    const primary = {scenario:item.scenario,session_id:sessionId,environment,candidate_id:f.candidate.candidate_id,loaded_identity:f.candidate.identities.agdf,
       coding_surface:'code',fresh_session:true,owned_scope:'fixture-owned-scope',installation:{status:0,consent:'configured',loaded_identity:f.candidate.identities.agdf},
       discovery:{plugin:'agdf@agdf',loaded_identity:f.candidate.identities.agdf},
       cleanup:{status:0,leftovers:{mcp_listed:false,config_mcp_section:false,plugin_cache:false,mcp_runtime:false,plugin_tool_policy:false,
         plugin_data:false,enabled:false,permission_rules:0,user_mcp:false,installed_entry:false}},calls,...(transition?{transition}:{})};
     writeFileSync(join(directory,'desktop-primary.json'),JSON.stringify(primary));
-    writeFileSync(join(directory,'capture.png'),'Synthetic fixture; not a native screenshot');
+    writeFileSync(join(directory,'capture.png'),Buffer.concat([PNG_SIGNATURE,Buffer.from('Synthetic fixture; not a native screenshot')]));
     const record={schema_version:3,kind:'qualified_desktop',id:'desktop-fixture-'+index,recorded_at:'2026-10-22T10:00:00Z',environment,
       tuple_digest:jsonDigest(environment),source:f.candidate.source_revision,candidate_id:f.candidate.candidate_id,policy_digest:f.candidate.policy_digest,
       loaded_identity:f.candidate.identities.agdf,scenario:item.scenario,result:'pass',assurance:'operator_observed',session_id:primary.session_id,
@@ -71,7 +81,8 @@ test('Desktop policy requires both exact observed tuples and preserves optional 
     for(const mutate of [rows=>rows.pop(),rows=>rows.push(rows[0]),rows=>rows[0].record.kind='human_report',
       rows=>rows[0].record.schema_version=2,rows=>rows[0].record.candidate_id='0'.repeat(64),
       rows=>rows[0].record.environment.os='unknown',rows=>rows[0].record.assurance='native_process',
-      rows=>rows[0].record.environment.version='0.157.1',rows=>delete rows[0].record.session_id]) {
+      rows=>rows[0].record.environment.version='0.157.1',rows=>delete rows[0].record.session_id,
+      rows=>rows[3].record.policy_digest='0'.repeat(64)]) {
       const rows=structuredClone(d.rows);mutate(rows);assert.throws(()=>assertHostReleaseEvidence(rows,d.options));
     }
     assert.throws(()=>assertHostReleaseEvidence(d.rows,{...d.options,lockedTuples:[]}));
@@ -82,11 +93,12 @@ test('Desktop primary capabilities, raw calls, transitions and cleanup cannot be
   const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
   try {
     const row=d.rows[0],file=join(row.directory,'desktop-primary.json'),original=readFileSync(file);
-    for(const mutate of [p=>p.calls=[],p=>p.calls[0].stdout='model says PASS',p=>p.installation.consent='unknown',
+    const edit=(call,change)=>{call.rollouts=call.rollouts.map(change);};
+    for(const mutate of [p=>p.calls=[],p=>{p.calls[0].rollouts=['model says PASS'];},p=>p.installation.consent='unknown',
       p=>p.cleanup.leftovers.enabled=true,p=>p.discovery.loaded_identity=null,p=>p.session_id='wrong',
       p=>p.environment={...p.environment,model:'wrong'},p=>p.coding_surface='chat',
-      p=>p.calls[0].stdout=p.calls[0].stdout.replaceAll('false','true'),
-      p=>p.calls[2].stdout=p.calls[2].stdout.replaceAll('quality','forged')]) {
+      p=>edit(p.calls[0],r=>r.replaceAll('false','true')),
+      p=>edit(p.calls[2],r=>r.replaceAll('quality','forged'))]) {
       const primary=JSON.parse(original);mutate(primary);writeFileSync(file,JSON.stringify(primary));
       row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
       assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options));
@@ -96,14 +108,163 @@ test('Desktop primary capabilities, raw calls, transitions and cleanup cannot be
     transition.record.transition.permission_preserved=false;assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options));
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
 });
-test('default and explicit full validation cannot accept a Codex-only Desktop bundle or legacy publication policy', async () => {
+test('Claude Desktop calls require one native Desktop transcript session and reject CLI streams', () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const row=d.rows.find(r=>r.record.environment.host==='claude'&&r.record.scenario==='session');
+    const file=join(row.directory,'desktop-primary.json'),original=readFileSync(file);
+    const events=stdout=>stdout.split('\n').map(line=>JSON.parse(line));
+    const write=(call,list)=>{call.stdout=list.map(e=>JSON.stringify(e)).join('\n');};
+    const cliStream=call=>write(call,[{type:'system',subtype:'init',model:d.options.lockedTuples[1].model},
+      ...events(call.stdout).map(({sessionId,entrypoint,version,isSidechain,...e})=>e)]);
+    for(const [mutate,code] of [[c=>cliStream(c),/desktop_transcript_cli_stream/u],
+      [c=>write(c,events(c.stdout).map(e=>({...e,entrypoint:'cli'}))),/desktop_transcript_entrypoint/u],
+      [c=>write(c,events(c.stdout).map(({entrypoint,...e})=>e)),/desktop_transcript_entrypoint/u],
+      [c=>write(c,events(c.stdout).map((e,i)=>i?{...e,sessionId:'other-session'}:e)),/desktop_transcript_session/u],
+      [c=>write(c,events(c.stdout).map(e=>({...e,sessionId:'other-session'}))),/desktop_call_session_mismatch/u],
+      [c=>write(c,events(c.stdout).map(e=>({...e,isSidechain:true}))),/desktop_transcript_sidechain/u],
+      [c=>write(c,[...events(c.stdout),{...events(c.stdout)[0],message:{model:'other-model',content:[]}}]),/desktop_model_mismatch/u],
+      [c=>write(c,events(c.stdout).map(e=>e.type==='assistant'?{...e,message:{...e.message,model:undefined}}:e)),/desktop_model_mismatch/u],
+      [c=>write(c,[...events(c.stdout),{...events(c.stdout)[0],message:{model:d.options.lockedTuples[1].model,content:[{type:'tool_use',id:'shell',name:'Bash'}]}}]),/primary_unexpected_native_tool/u]]) {
+      const primary=JSON.parse(original);mutate(primary.calls[0]);writeFileSync(file,JSON.stringify(primary));
+      row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+      assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),code);
+    }
+    writeFileSync(file,original);row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+    assert.equal(assertHostReleaseEvidence(d.rows,d.options).result,'pass');
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('Codex Desktop calls require their own Desktop session rollout, never exec or CLI output', () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const row=d.rows.find(r=>r.record.environment.host==='codex'&&r.record.scenario==='session');
+    const file=join(row.directory,'desktop-primary.json'),original=readFileSync(file);
+    const events=call=>call.rollouts[0].split('\n').map(line=>JSON.parse(line));
+    const write=(call,list)=>{call.rollouts=[list.map(e=>JSON.stringify(e)).join('\n')];};
+    const meta=(call,payload)=>write(call,events(call).map(e=>e.type==='session_meta'?{...e,payload:{...e.payload,...payload}}:e));
+    for(const [mutate,code] of [[c=>{c.stdout=c.rollouts[0];delete c.rollouts;},/desktop_rollout_missing/u],
+      [c=>meta(c,{source:'exec'}),/desktop_rollout_cli_source/u],[c=>meta(c,{source:'cli'}),/desktop_rollout_cli_source/u],
+      [c=>write(c,events(c).filter(e=>e.type!=='session_meta')),/desktop_rollout_session/u],
+      [c=>write(c,[...events(c),{type:'session_meta',payload:{id:'other-session',source:'vscode'}}]),/desktop_rollout_session/u],
+      [c=>meta(c,{id:'other-session'}),/desktop_call_session_mismatch/u]]) {
+      const primary=JSON.parse(original);mutate(primary.calls[0]);writeFileSync(file,JSON.stringify(primary));
+      row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+      assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),code);
+    }
+    writeFileSync(file,original);row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);
+    assert.equal(assertHostReleaseEvidence(d.rows,d.options).result,'pass');
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('each Desktop case binds its own scenario, fresh session, scoped review tuple and real capture', async () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const refresh=row=>{row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);};
+    const upgrade=d.rows.find(r=>r.record.environment.host==='codex'&&r.record.scenario==='upgrade');
+    const file=join(upgrade.directory,'desktop-primary.json'),original=readFileSync(file),record=structuredClone(upgrade.record);
+    writeFileSync(file,JSON.stringify({...JSON.parse(original),scenario:'recovery'}));refresh(upgrade);
+    assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),/desktop_primary_scenario_mismatch/u);
+    // A consistent primary proof that reuses the session case's Desktop session is still rejected.
+    const reused=d.rows.find(r=>r.record.environment.host==='codex'&&r.record.scenario==='session').record.session_id;
+    const primary=JSON.parse(original);primary.session_id=reused;
+    primary.calls[0].rollouts=primary.calls[0].rollouts.map(r=>r.replaceAll(record.session_id,reused));
+    writeFileSync(file,JSON.stringify(primary));upgrade.record={...structuredClone(record),session_id:reused};refresh(upgrade);
+    assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),/desktop_session_reused/u);
+    writeFileSync(file,original);upgrade.record={...structuredClone(record),transition:{...record.transition,repair:'owned_stale_install'}};refresh(upgrade);
+    assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),/desktop_upgrade_repair_invalid/u);
+    upgrade.record=structuredClone(record);refresh(upgrade);
+    const capture=join(upgrade.directory,'capture.png'),image=readFileSync(capture);
+    writeFileSync(capture,'Synthetic fixture text with an image extension');refresh(upgrade);
+    assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),/desktop_primary_capture_invalid/u);
+    writeFileSync(capture,image);refresh(upgrade);
+    assert.equal(assertHostReleaseEvidence(d.rows,d.options).result,'pass');
+    // Each review locks only the one tuple of its own scope, for full validation and for import.
+    const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
+    const reviewFile=join(d.root,'codex','desktop-code','review.json'),review=JSON.parse(readFileSync(reviewFile));
+    writeFileSync(reviewFile,JSON.stringify({...review,tuples:d.options.lockedTuples}));
+    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',d.root],f),/native_review_tuple_scope/u);
+    assert.throws(()=>importNativeEvidence(f.root,{candidate:f.candidate,bundle:join(d.root,'codex','desktop-code'),host:'codex',surface:'desktop-code',
+      review:{...review,tuples:d.options.lockedTuples}}),/native_review_tuple_scope/u);
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('Claude Desktop upgrade and recovery require the released baseline, owned repair and matching primary proof', () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const refresh=row=>{row.record.references=referencesFrom(row.directory,['desktop-primary.json','capture.png']);};
+    for(const scenario of ['upgrade','recovery']) {
+      const row=d.rows.find(r=>r.record.environment.host==='claude'&&r.record.scenario===scenario);
+      const file=join(row.directory,'desktop-primary.json'),original=readFileSync(file),record=structuredClone(row.record);
+      // Consistent record and primary mutations reach the transition rules themselves.
+      for(const [mutate,code] of [[t=>{t.baseline.version='0.14.4';}],[t=>{t.baseline.integrity='sha256-'+'a'.repeat(44);}],
+        [t=>{t.baseline.integrity='sha512-short';},/desktop_baseline_integrity_invalid/u],
+        [t=>{t.baseline.source_digest=f.candidate.identities.agdf.source_digest;},/desktop_baseline_is_candidate/u],
+        [t=>{t.preserved_foreign_state=false;}],[t=>{t.permission_preserved=false;}],
+        ...(scenario==='recovery'?[[t=>{t.repair='broad_cache_cleanup';}]]:[])]) {
+        const primary=JSON.parse(original);mutate(primary.transition);writeFileSync(file,JSON.stringify(primary));
+        row.record=structuredClone(record);mutate(row.record.transition);refresh(row);
+        assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),code);
+      }
+      // A transition stated only in the record, or a reused session, is not primary proof.
+      for(const [mutate,code] of [[p=>{p.transition.preserved_foreign_state=false;},/desktop_transition_primary_mismatch/u],
+        [p=>{delete p.transition;},/desktop_transition_primary_mismatch/u],[p=>{p.fresh_session=false;},/desktop_fresh_session_missing/u]]) {
+        const primary=JSON.parse(original);mutate(primary);writeFileSync(file,JSON.stringify(primary));
+        row.record=structuredClone(record);refresh(row);
+        assert.throws(()=>assertHostReleaseEvidence(d.rows,d.options),code);
+      }
+      writeFileSync(file,original);row.record=structuredClone(record);refresh(row);
+    }
+    assert.equal(assertHostReleaseEvidence(d.rows,d.options).result,'pass');
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('Desktop import rejects oversized or linked evidence and rolls back a failed projection', () => {
+  const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
+  try {
+    const bundle=join(d.root,'codex','desktop-code'),review=JSON.parse(readFileSync(join(bundle,'review.json')));
+    const scope={candidate:f.candidate,bundle,review,host:'codex',surface:'desktop-code'};
+    const imported=join(f.root,'evals/host-compatibility/native',f.candidate.candidate_id,'codex','desktop-code');
+    const row=d.rows.find(r=>r.record.environment.host==='codex'&&r.record.scenario==='session');
+    const recordFile=join(row.directory,'desktop-session.json'),recordBytes=readFileSync(recordFile);
+    writeFileSync(recordFile,Buffer.concat([recordBytes,Buffer.alloc(1024*1024,' ')]));
+    assert.throws(()=>importNativeEvidence(f.root,scope),/native_observation_too_large/u);
+    writeFileSync(recordFile,recordBytes);
+    const capture=join(row.directory,'capture.png'),captureBytes=readFileSync(capture);
+    writeFileSync(capture,Buffer.alloc(16*1024*1024+1));
+    assert.throws(()=>importNativeEvidence(f.root,scope),/evidence_file_invalid/u);
+    writeFileSync(capture,captureBytes);
+    assert.equal(existsSync(imported),false);
+    // Linked evidence is rejected while the fixture repository is still clean, so the link check itself
+    // must reject. Windows may deny file symlinks without developer mode; a directory junction needs no
+    // privilege and must count as a link too.
+    const claudeBundle=join(d.root,'claude','desktop-code');
+    const claudeDir=join(claudeBundle,String(d.rows.findIndex(r=>r.record.environment.host==='claude')));
+    let linked=join(claudeDir,'linked.png');
+    try { symlinkSync(capture,linked); }
+    catch (error) {
+      if (!['EPERM','EACCES'].includes(error.code)) throw error;
+      linked=join(claudeDir,'linked-dir'); symlinkSync(row.directory,linked,'junction');
+    }
+    assert.throws(()=>importNativeEvidence(f.root,{...scope,bundle:claudeBundle,host:'claude',review:JSON.parse(readFileSync(join(claudeBundle,'review.json')))}),/evidence_symlink/u);
+    rmSync(linked,{recursive:false,force:true});
+    assert.equal(existsSync(linked),false);
+    // A projection failure after the rename removes the import and keeps shared metadata unchanged.
+    const manifest=join(f.root,'evals/host-compatibility/manifest.json'),before=readFileSync(manifest);
+    const blocker=`docs/compatibility/evidence/codex-desktop-code-release-${f.candidate.candidate_id}.json`;
+    f.put(blocker,'pre-existing\n');f.git('add','.');f.git('commit','-qm','fixture projection blocker');
+    assert.throws(()=>importNativeEvidence(f.root,scope),/native_projection_exists/u);
+    assert.equal(existsSync(imported),false);assert.deepEqual(readFileSync(manifest),before);
+    assert.equal(readFileSync(join(f.root,blocker),'utf8'),'pre-existing\n');
+    f.git('rm','-q',blocker);f.git('commit','-qm','remove fixture projection blocker');
+    assert.equal(importNativeEvidence(f.root,scope).cases.length,3);
+  } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
+});
+test('historical schema-2 validation needs both Desktop hosts and is never publication eligibility', async () => {
   const f=candidateFixture({policyVersion:2}),d=desktopFixtures(f);
   const previous = process.env.GITHUB_SHA;
   try {
     const candidate=join(f.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(f.candidate));
     const args=['validate','--candidate',candidate,'--directory',d.root];
     assert.equal((await runFixtureReleaseTool(args,f)).cases.length,6);
-    assert.equal((await runFixtureReleaseTool([...args,'--all-hosts'],f)).cases.length,6);
+    await assert.rejects(runFixtureReleaseTool([...args,'--all-hosts'],f),/publication_requires_cli_policy/u);
+    await assert.rejects(runFixtureReleaseTool([...args,'--host','claude'],f),/release_command_invalid/u);
     assert.equal(process.env.GITHUB_SHA, previous);
     rmSync(join(d.root,'claude'),{recursive:true});
     await assert.rejects(runFixtureReleaseTool(args,f));
@@ -112,7 +273,7 @@ test('default and explicit full validation cannot accept a Codex-only Desktop bu
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
   const old=candidateFixture();
   try { const candidate=join(old.root,'.release-candidate.json');writeFileSync(candidate,JSON.stringify(old.candidate));
-    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',old.root,'--all-hosts'],old),/publication_requires_desktop_policy/u);
+    await assert.rejects(runFixtureReleaseTool(['validate','--candidate',candidate,'--directory',old.root,'--all-hosts'],old),/publication_requires_cli_policy/u);
   } finally {rmSync(old.root,{recursive:true,force:true});}
 });
 test('Codex Desktop import is scoped, reviewed, immutable and produces only its actual host projection', () => {
@@ -150,8 +311,10 @@ function nativeFixtures(f, host, scope) {
   const rows = (scope === 'optional-cli' ? optionalCliCases(policy, host) : requiredReleaseCases(policy, host)).map((item, i) => {
     const directory = join(root, String(i)); mkdirSync(directory);
     const codexPolicy = policy.optional_cli?.codex ?? policy.codex;
+    const pinned = item.host === 'codex' && (policy.schema_version < 3 || scope === 'optional-cli');
     const environment = { host: item.host, surface: item.surface, os: item.os, arch: 'x64', node: 'v22.22.3',
-      version: item.host === 'codex' ? codexPolicy.codex_version : '2.1.193', model: item.host === 'codex' ? codexPolicy.model : 'fixture-model' };
+      version: item.host === 'codex' ? pinned ? codexPolicy.codex_version : '0.163.0' : '2.1.193',
+      model: item.host === 'codex' ? pinned ? codexPolicy.model : 'fixture-codex-model' : 'fixture-model' };
     const result = { schema_version: '1', outcome: item.scenario === 'failure_case' ? 'invalid_input' : item.scenario === 'skill_continuation' ? 'skill_continuation' : 'control_result',
       terminal: item.scenario !== 'skill_continuation', authorizes: false, runtime: { runtime_digest: f.candidate.identities.mcp_dispatcher.digest } };
     if (item.scenario === 'skill_continuation') result.continuation = { runtime_contracts: ['quality','context-graph'].map(module => ({ module, content: module, sha256: sha(module) })) };
@@ -241,6 +404,61 @@ test('complete matrix accepts real-shaped primary events and rejects missing/for
     assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /primary_unexpected_native_tool/u);
   } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
 });
+test('legacy Codex failure-case records use primary authority evidence without rewriting records', () => {
+  const f = candidateFixture({ policyVersion: 3 }), data = nativeFixtures(f, 'codex');
+  try {
+    const row = data.rows.find(row => row.record.scenario === 'failure_case');
+    delete row.record.steps.find(step => step.name === 'failure_case').evidence.authorizes;
+    const path = join(row.directory, 'release-records.json');
+    writeFileSync(path, JSON.stringify([row.record]));
+    const before = readFileSync(path), original = structuredClone(row.record), digest = bundleDigest(data.rows);
+    assert.equal(assertHostReleaseEvidence(data.rows, data.options).result, 'pass');
+    assert.deepEqual(row.record, original);
+    assert.deepEqual(readFileSync(path), before);
+    assert.equal(bundleDigest(data.rows), digest);
+  } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
+});
+test('legacy authority compatibility rejects unsafe primary evidence and stays limited to Codex failure cases', () => {
+  const f = candidateFixture({ policyVersion: 3 }), data = nativeFixtures(f);
+  try {
+    const row = data.rows.find(row => row.record.environment.host === 'codex' && row.record.scenario === 'failure_case');
+    const evidence = row.record.steps.find(step => step.name === 'failure_case').evidence;
+    for (const value of [true, null, 'false']) {
+      evidence.authorizes = value;
+      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_authority_mismatch/u);
+    }
+    delete evidence.authorizes;
+    const path = join(row.directory, 'failure_case-process.json'), original = readFileSync(path);
+    for (const value of [true, null, undefined]) {
+      const primary = JSON.parse(original);
+      const change = text => text.split('\n').map(line => {
+        const event = JSON.parse(line), result = event.item?.result;
+        if (result) {
+          const reply = JSON.parse(result.content[0].text);
+          if (value === undefined) delete reply.authorizes; else reply.authorizes = value;
+          result.content[0].text = JSON.stringify(reply);
+        }
+        return JSON.stringify(event);
+      }).join('\n');
+      primary.stdout = change(primary.stdout); primary.rollouts = primary.rollouts.map(change);
+      writeFileSync(path, JSON.stringify(primary));
+      row.record.references = referencesFrom(row.directory, row.record.references.map(ref => ref.path));
+      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /primary_authority_mismatch/u);
+    }
+    writeFileSync(path, original);
+    row.record.references = referencesFrom(row.directory, row.record.references.map(ref => ref.path));
+    writeFileSync(path, Buffer.concat([original, Buffer.from('\n')]));
+    assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_reference_changed/u);
+    writeFileSync(path, original);
+    assert.equal(assertHostReleaseEvidence(data.rows, data.options).result, 'pass');
+    for (const other of data.rows.filter(other => other !== row)) {
+      const step = other.record.steps.find(step => step.name === other.record.scenario);
+      delete step.evidence.authorizes;
+      assert.throws(() => assertHostReleaseEvidence(data.rows, data.options), /native_authority_mismatch/u);
+      step.evidence.authorizes = false;
+    }
+  } finally { rmSync(f.root, { recursive: true, force: true }); rmSync(data.root, { recursive: true, force: true }); }
+});
 test('Claude import requires reviewed exact bundle, remains immutable and excludes unrelated files', () => {
   const f = candidateFixture(), data = nativeFixtures(f, 'claude');
   try {
@@ -311,6 +529,9 @@ test('optional current-policy CLI diagnostics retain strict checks and never gra
     record.source.commit='f'.repeat(40);
     writeFileSync(join(d.rows[0].directory,'release-records.json'),JSON.stringify([record]));
     await assert.rejects(runFixtureReleaseTool(args,f),/commit_mismatch/u);
+    record.source.commit=f.candidate.source_revision.commit;record.policy_digest='0'.repeat(64);
+    writeFileSync(join(d.rows[0].directory,'release-records.json'),JSON.stringify([record]));
+    await assert.rejects(runFixtureReleaseTool(args,f),/native_policy_mismatch/u);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(d.root,{recursive:true,force:true});}
 });
 test('Desktop preflight uses captured runtime identity, never the helper process tuple', async () => {
@@ -328,4 +549,137 @@ test('Desktop preflight uses captured runtime identity, never the helper process
     writeFileSync(capture,JSON.stringify({...observed,node:'unknown'}));
     await assert.rejects(runReleaseTool(args,f.root),/tuple_node_missing/u);
   } finally {rmSync(f.root,{recursive:true,force:true});rmSync(temp,{recursive:true,force:true});}
+});
+
+// Schema 3: the mandatory matrix is Claude Code CLI on Windows plus Codex CLI on macOS.
+function cliReview(f, rows) {
+  return { schema_version: 1, reviewed: true, reviewer: 'Fixture reviewer', candidate_id: f.candidate.candidate_id,
+    bundle_digest: bundleDigest(rows), tuples: [rows[0].record.environment] };
+}
+test('schema-3 CLI matrix binds reviewed tuples per host; the Codex pin binds only Linux/Windows diagnostics', () => {
+  const f = candidateFixture({ policyVersion: 3 }), d = nativeFixtures(f), diag = nativeFixtures(f, 'codex', 'optional-cli');
+  try {
+    const policy = releasePolicy(f.root), codex = d.rows.find(row => row.record.environment.host === 'codex').record.environment;
+    assert.equal(d.rows.length, 10); assert.equal(codex.os, 'darwin');
+    assert.notEqual(codex.version, policy.optional_cli.codex.codex_version, 'the macOS row is not tied to the diagnostic pin');
+    assert.equal(assertHostReleaseEvidence(d.rows, d.options).result, 'pass');
+    for (const [host, code] of [['codex', /codex_tuple_not_reviewed/u], ['claude', /claude_tuple_not_reviewed/u]])
+      assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, lockedTuples: d.options.lockedTuples.filter(t => t.host !== host) }), code);
+    // Without a repository the macOS record must carry the checkout commit; with one, git must prove its ancestry.
+    assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, commit: 'f'.repeat(40) }), /native_codex_release_commit_mismatch/u);
+    assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, commit: 'f'.repeat(40), root: f.root }), /candidate_ancestor_not_in_history/u);
+    assert.equal(assertHostReleaseEvidence(d.rows, { ...d.options, root: f.root }).result, 'pass');
+    for (const mutate of [rows => rows.pop(), rows => rows.push(rows[0]), rows => rows[0].record.policy_digest = '0'.repeat(64),
+      rows => rows[0].record.loaded_identity = null, rows => rows[0].record.environment.os = 'linux']) {
+      const rows = structuredClone(d.rows); mutate(rows); assert.throws(() => assertHostReleaseEvidence(rows, d.options));
+    }
+    // Pinned Linux/Windows diagnostics can never fill the macOS row, and the pin still binds their own scope.
+    const mixed = [...d.rows.filter(row => row.record.environment.host === 'claude'), ...diag.rows.filter(row => row.record.environment.os === 'linux')];
+    assert.throws(() => assertHostReleaseEvidence(mixed, d.options), /native_case_unexpected/u);
+    // Reviewing several tuples for one host and surface is ambiguous rather than a wider scope.
+    assert.throws(() => assertHostReleaseEvidence(d.rows, { ...d.options, lockedTuples: [...d.options.lockedTuples, ...diag.options.lockedTuples] }), /tuple_ambiguous/u);
+    assert.equal(assertHostReleaseEvidence(diag.rows, { ...diag.options, scope: 'optional-cli' }).result, 'pass');
+    const drifted = structuredClone(diag.rows);
+    drifted[0].record.environment.version = '0.163.0'; drifted[0].record.tuple_digest = jsonDigest(drifted[0].record.environment);
+    assert.throws(() => assertHostReleaseEvidence(drifted, { ...diag.options, scope: 'optional-cli' }), /native_codex_pin_mismatch/u);
+    // Claude CLI is mandatory, so it has no diagnostic scope left.
+    assert.throws(() => assertHostReleaseEvidence(d.rows.filter(row => row.record.environment.host === 'claude'), { ...d.options, host: 'claude', scope: 'optional-cli' }), /unknown_release_host/u);
+  } finally { for (const root of [f.root, d.root, diag.root]) rmSync(root, { recursive: true, force: true }); }
+});
+test('schema-3 publication validation needs both CLI scopes; supplied Desktop scopes stay optional but strict', async () => {
+  const f = candidateFixture({ policyVersion: 3 }), bundle = mkdtempSync(join(tmpdir(), 'agdf-cli-bundle-'));
+  const parts = ['claude', 'codex'].map(host => nativeFixtures(f, host)), d = desktopFixtures(f);
+  try {
+    for (const part of parts) {
+      const folder = join(bundle, part.rows[0].record.environment.host, 'cli');
+      cpSync(part.root, folder, { recursive: true }); writeFileSync(join(folder, 'review.json'), JSON.stringify(cliReview(f, part.rows)));
+    }
+    const candidate = join(f.root, '.release-candidate.json'); writeFileSync(candidate, JSON.stringify(f.candidate));
+    const args = ['validate', '--candidate', candidate, '--directory', bundle, '--all-hosts'];
+    const result = await runFixtureReleaseTool(args, f);
+    assert.equal(result.cases.length, 10); assert.deepEqual(result.optional_desktop, []);
+    assert.equal((await runFixtureReleaseTool(args.slice(0, -1), f)).cases.length, 10, 'the default route evaluates the same matrix');
+    // A complete strict Desktop set is accepted as optional evidence; a partial one rejects instead of being ignored.
+    const desktop = join(bundle, 'claude', 'desktop-code');
+    cpSync(join(d.root, 'claude', 'desktop-code'), desktop, { recursive: true });
+    assert.deepEqual((await runFixtureReleaseTool(args, f)).optional_desktop, ['claude']);
+    const claudeDesktop = d.rows.filter(row => row.record.environment.host === 'claude');
+    const dropped = claudeDesktop.find(row => row.record.scenario === 'upgrade');
+    rmSync(join(desktop, basename(dropped.directory)), { recursive: true });
+    const remaining = claudeDesktop.filter(row => row !== dropped);
+    writeFileSync(join(desktop, 'review.json'), JSON.stringify({ ...JSON.parse(readFileSync(join(desktop, 'review.json'))), bundle_digest: bundleDigest(remaining) }));
+    await assert.rejects(runFixtureReleaseTool(args, f), /native_required_matrix_missing_or_duplicate/u);
+    rmSync(desktop, { recursive: true });
+    assert.equal((await runFixtureReleaseTool(args, f)).cases.length, 10);
+    rmSync(join(bundle, 'codex'), { recursive: true });
+    await assert.rejects(runFixtureReleaseTool(args, f));
+  } finally { for (const root of [f.root, bundle, d.root, ...parts.map(part => part.root)]) rmSync(root, { recursive: true, force: true }); }
+});
+test('schema-3 import maps --surface cli to the required scope and projects only that host', () => {
+  const f = candidateFixture({ policyVersion: 3 }), d = nativeFixtures(f, 'codex'), diag = nativeFixtures(f, 'codex', 'optional-cli');
+  try {
+    const policy = releasePolicy(f.root);
+    assert.equal(evidenceScope(policy, 'codex', 'cli'), undefined); assert.equal(evidenceScope(policy, 'claude', 'cli'), undefined);
+    assert.equal(evidenceScope(policy, 'claude', 'desktop-code'), 'optional-desktop');
+    const review = cliReview(f, d.rows);
+    const imported = importNativeEvidence(f.root, { candidate: f.candidate, bundle: d.root, review, host: 'codex', surface: 'cli' });
+    assert.equal(imported.cases.length, 5); assert.equal(basename(imported.destination), 'cli');
+    const manifest = JSON.parse(readFileSync(join(f.root, 'evals/host-compatibility/manifest.json')));
+    assert.ok(manifest.native_sources.every(path => path.includes('codex-cli-release')));
+    assert.ok(manifest.native_targets.every(t => t.environment.host === 'codex' && t.environment.os === 'darwin' && t.lane === 'fresh_host'));
+    f.git('add', '.'); f.git('commit', '-qm', 'fixture evidence-only import');
+    assert.throws(() => importNativeEvidence(f.root, { candidate: f.candidate, bundle: d.root, review, host: 'codex', surface: 'cli' }), /already_exists/u);
+    // A pinned diagnostic bundle cannot be imported as the mandatory macOS evidence.
+    assert.throws(() => importNativeEvidence(f.root, { candidate: f.candidate, bundle: diag.root, review: cliReview(f, diag.rows), host: 'codex', surface: 'cli' }), /native_case_unexpected/u);
+    assert.throws(() => importNativeEvidence(f.root, { candidate: f.candidate, bundle: d.root, review: { ...review, tuples: [{ ...review.tuples[0], surface: 'desktop-code' }] }, host: 'codex', surface: 'cli' }), /native_review_tuple_scope/u);
+  } finally { for (const root of [f.root, d.root, diag.root]) rmSync(root, { recursive: true, force: true }); }
+});
+test('schema-3 handoff is per host and Codex CLI preflight runs only on macOS', async () => {
+  const f = candidateFixture({ policyVersion: 3 }), temp = mkdtempSync(join(tmpdir(), 'agdf-cli-handoff-'));
+  try {
+    const candidate = join(f.root, '.release-candidate.json'); writeFileSync(candidate, JSON.stringify(f.candidate));
+    await assert.rejects(runReleaseTool(['handoff', '--candidate', candidate, '--output', join(temp, 'unscoped')], f.root), /release_required:--host/u);
+    for (const [host, os, file] of [['claude', 'win32', 'WINDOWS_TEST.md'], ['codex', 'darwin', 'MACOS_TEST.md']]) {
+      const output = join(temp, host);
+      await runReleaseTool(['handoff', '--candidate', candidate, '--host', host, '--output', output], f.root);
+      const cases = JSON.parse(readFileSync(join(output, 'required-cases.json')));
+      assert.equal(cases.length, 5); assert.ok(cases.every(row => row.host === host && row.surface === 'cli' && row.os === os));
+      const text = readFileSync(join(output, file), 'utf8');
+      assert.match(text, new RegExp(`native:${host}-e2e`, 'u')); assert.match(text, new RegExp(`--host ${host} --surface cli`, 'u'));
+      assert.match(text, host === 'claude' ? /outside the Claude Desktop app package/u : /CODEX_BIN/u);
+      assert.match(text, /grants no gate approval or publication/u);
+    }
+    if (process.platform !== 'darwin')
+      await assert.rejects(runReleaseTool(['preflight', '--candidate', candidate, '--host', 'codex', '--surface', 'cli', '--model', 'fixture-model', '--output', join(temp, 'tuple.json')], f.root), /codex_cli_preflight_requires_macos/u);
+  } finally { for (const root of [f.root, temp]) rmSync(root, { recursive: true, force: true }); }
+});
+test('the publication gate keeps imported mandatory Codex records valid across evidence-only commits only', async () => {
+  const f = candidateFixture({ policyVersion: 3 }), parts = ['claude', 'codex'].map(host => nativeFixtures(f, host));
+  try {
+    const origin = f.git('rev-parse', 'HEAD').trim();
+    for (const part of parts) {
+      const host = part.rows[0].record.environment.host;
+      importNativeEvidence(f.root, { candidate: f.candidate, bundle: part.root, review: cliReview(f, part.rows), host, surface: 'cli' });
+      f.git('add', '.'); f.git('commit', '-qm', `fixture ${host} evidence`);
+    }
+    // The release job regenerates the candidate from its checkout: same identity, commit of the evidence commit.
+    const regenerated = candidateManifest(f.root);
+    assert.equal(regenerated.candidate_id, f.candidate.candidate_id); assert.notEqual(regenerated.source_revision.commit, origin);
+    const file = join(f.root, '.release-candidate.json'); writeFileSync(file, JSON.stringify(regenerated));
+    const args = ['validate', '--candidate', file, '--directory', join(f.root, 'evals/host-compatibility/native', f.candidate.candidate_id), '--all-hosts'];
+    assert.equal((await runFixtureReleaseTool(args, f)).cases.length, 10);
+    // The candidate file's commit field is not authenticated, so it plays no part in the binding.
+    writeFileSync(file, JSON.stringify({ ...regenerated, source_revision: { commit: 'f'.repeat(40), dirty: false } }));
+    assert.equal((await runFixtureReleaseTool(args, f)).cases.length, 10);
+    const head = f.git('rev-parse', 'HEAD').trim();
+    assertEvidenceOnlyDescendant(f.root, origin, head);
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, 'a'.repeat(40), head), /candidate_ancestor_unavailable/u);
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, head, origin), /candidate_ancestor_not_in_history/u);
+    // Any later change of candidate source, including non-evidence manifest inputs, breaks the binding.
+    const manifestPath = 'evals/host-compatibility/manifest.json', manifest = JSON.parse(readFileSync(join(f.root, manifestPath)));
+    f.put(manifestPath, JSON.stringify({ ...manifest, inputs: ['changed'] })); f.git('add', '.'); f.git('commit', '-qm', 'fixture manifest input change');
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, origin, f.git('rev-parse', 'HEAD').trim()), /candidate_ancestor_source_changed:evals\/host-compatibility\/manifest\.json/u);
+    f.put('scripts/later-source.mjs', 'export {};\n'); f.git('add', '.'); f.git('commit', '-qm', 'fixture source change');
+    assert.throws(() => assertEvidenceOnlyDescendant(f.root, head, f.git('rev-parse', 'HEAD').trim()), /candidate_ancestor_source_changed:/u);
+  } finally { for (const root of [f.root, ...parts.map(part => part.root)]) rmSync(root, { recursive: true, force: true }); }
 });

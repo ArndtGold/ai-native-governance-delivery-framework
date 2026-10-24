@@ -3,8 +3,8 @@
 Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
 
 AGDF canonical version: **0.20.0**.
-Observation dates: 2026-10-22T08:06:06.814Z to 2026-10-22T08:06:58.555Z.
-Source fingerprint: `cc7fa169c208413cdb5155f29c40a53ee8b80d9887faf87813e5fbcfc2464253`.
+Observation dates: 2026-10-24T07:50:45.438Z to 2026-10-24T09:41:31.011Z.
+Source fingerprint: `ba5213c3a1bf45901b1bc12ced48d216b06f3cdc4314613c83f51816ffe34cdb`.
 Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
 
 These scenario results describe isolated production fixtures. Expected negative cases can pass the test while the observed capability is failed. They provide no fresh-host or human-UAT proof.
@@ -22,14 +22,23 @@ Support intent is separate from demonstrated native qualification. CLI, Desktop 
 | GitHub Copilot | experimental |
 | OpenCode | experimental |
 
-## Mandatory 0.20.0 Desktop scope
+## Mandatory 0.20.0 release matrix
+
+Qualification requires reviewed native records of the exact candidate and tuple for every listed case.
 
 | Host | Surface | OS scope | Cases |
+|---|---|---|---|
+| Claude Code | cli | native Windows | dispatch, failure_case, skill_continuation, upgrade, recovery |
+| Codex | cli | macOS | dispatch, failure_case, skill_continuation, upgrade, recovery |
+
+Manually checked Desktop surfaces (human_reported; not qualified and not required for publication):
+
+| Host | Surface | OS scope | Reported cases |
 |---|---|---|---|
 | Codex | desktop-code | Unknown until an exact reviewed Desktop tuple is supplied | session, upgrade, recovery |
 | Claude Code | desktop-code | native Windows | session, upgrade, recovery |
 
-Codex CLI on Windows/Linux remains **unqualified** and outside the mandatory matrix. Optional CLI probes and green OS regression tests do not qualify Desktop or another OS.
+Codex CLI on Windows/Linux remains **unqualified** and outside the mandatory matrix. Pinned CLI diagnostics and green OS regression tests qualify no other OS, and no CLI result qualifies a Desktop surface.
 
 ## Reported Desktop handchecks
 
@@ -62,7 +71,11 @@ Inventory of required evidence, not twelve supported combinations. Unknown host 
 | Codex | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | Claude Code | macOS | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | Claude Code | Linux | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
-| Claude Code | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | installed: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | discovered: unverified (fresh_host) | Record a matching discovered observation through the existing verification path; retain manual mode while evidence is missing. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | callable: unverified (fresh_host) | Record a matching callable observation through the existing verification path; retain manual mode while evidence is missing. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | updated: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | recoverable: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
 | GitHub Copilot | macOS | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | GitHub Copilot | Linux | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | GitHub Copilot | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
@@ -77,7 +90,7 @@ Available skills, automatic checks, observed governance and technical enforcemen
 | Host | Available skills | Automatic checks | Observed governance | Technical enforcement |
 |---|---|---|---|---|
 | Codex | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
-| Claude Code | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
+| Claude Code | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) |
 | GitHub Copilot | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
 | OpenCode | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
 

@@ -1,0 +1,5 @@
+# Desktop release evidence
+
+Candidate: aa3e4b02af5650c8c2aab5f965fccd87924db2f40d928c72e24061baecc26108
+
+Recover original session, upgrade and recovery evidence first. Both Codex Desktop and Windows Claude Desktop are required; Codex Desktop OS remains unknown until observed. Do not borrow CLI tuples or relabel old candidates. Capture the actual Desktop app/model/session and loaded identity in a safe host-supported isolated scope. Templates are unverified. Each session needs installation/consent/discovery/dispatch/invalid-input/skill/cleanup primary observations and an app capture. Claude Desktop calls keep the unmodified lines of that Desktop session transcript; a CLI stream cannot replace them.Upgrade/recovery require the actually released 0.14.5 baseline and fresh effective candidate. Return redacted records and hashed contained primary references with a locked tuple/bundle review; credentials stay on the executor. Missing facts remain explicit blockers. No blanket retest, remote control, approval or publication is authorized.

@@ -3,8 +3,8 @@
 Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
 
 AGDF canonical version: **0.20.0**.
-Observation dates: 2026-10-24T06:44:20.536Z to 2026-10-24T06:45:30.025Z.
-Source fingerprint: `ad31f0633a1478542fffbfc81a1a157d42301095f1f2a91e3393de182f26115b`.
+Observation dates: 2026-10-24T07:50:45.438Z to 2026-10-24T08:39:56.443Z.
+Source fingerprint: `2fe213557b80bf37842e060d6724ec69dee4980356a50bce40d43b9625b2481d`.
 Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
 
 These scenario results describe isolated production fixtures. Expected negative cases can pass the test while the observed capability is failed. They provide no fresh-host or human-UAT proof.
@@ -71,7 +71,11 @@ Inventory of required evidence, not twelve supported combinations. Unknown host 
 | Codex | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | Claude Code | macOS | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | Claude Code | Linux | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
-| Claude Code | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | installed: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | discovered: unverified (fresh_host) | Record a matching discovered observation through the existing verification path; retain manual mode while evidence is missing. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | callable: unverified (fresh_host) | Record a matching callable observation through the existing verification path; retain manual mode while evidence is missing. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | updated: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | recoverable: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
 | GitHub Copilot | macOS | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | GitHub Copilot | Linux | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | GitHub Copilot | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
@@ -86,7 +90,7 @@ Available skills, automatic checks, observed governance and technical enforcemen
 | Host | Available skills | Automatic checks | Observed governance | Technical enforcement |
 |---|---|---|---|---|
 | Codex | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
-| Claude Code | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
+| Claude Code | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) | unverified: cli 2.1.302, win32, primary/native, unspecified [evidence](evidence/snapshot.json) |
 | GitHub Copilot | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
 | OpenCode | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple | unverified in a current native tuple |
 

@@ -79,10 +79,38 @@
       "format": "historical_hc_v1"
     }
   ],
-  "native_sources": [],
-  "native_targets": [],
+  "native_sources": [
+    "evals/host-compatibility/observations/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json"
+  ],
+  "native_targets": [
+    {
+      "environment": {
+        "host": "claude",
+        "variant": "cli",
+        "host_version": "2.1.302",
+        "os": "win32",
+        "target_os": null,
+        "path": "primary/native",
+        "permission": "explicit_test_scope",
+        "trust": "native_process",
+        "activation": "deliberate_native_test",
+        "runtime_version": "v22.22.3",
+        "sdk_version": null,
+        "model": "claude-sonnet-5-5",
+        "fixture_version": null,
+        "condition": "release_qualification"
+      },
+      "lane": "fresh_host",
+      "mechanisms": {
+        "installed": "claude_cli_native_release",
+        "updated": "claude_cli_native_release",
+        "recoverable": "claude_cli_native_release"
+      }
+    }
+  ],
   "public_evidence": [
-    "docs/compatibility/evidence/codex-luna-e2e-20260926.json"
+    "docs/compatibility/evidence/codex-luna-e2e-20260926.json",
+    "docs/compatibility/evidence/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json"
   ],
   "source_files": {
     "opencode": [

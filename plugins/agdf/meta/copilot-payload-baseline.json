@@ -2,6 +2,6 @@
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
   "max_files": 397,
-  "max_bytes": 3491406,
-  "rationale": "Reviewed bounded worker shutdown reserve and allowlisted original-cause/phase diagnostics across the existing MCP error path, plus hostSupport schema 3 in the shipped plugin definition (mandatory Claude Code CLI Windows and Codex CLI macOS targets, reported Desktop surfaces); exact measured 397-file payload with no headroom"
+  "max_bytes": 3493331,
+  "rationale": "Release 0.20.1 metadata only: canonical version serialization adds 834 bytes to each of two plugin-definition copies and the exact historical release record adds 257 bytes; 397 files, 3493331 bytes measured with verified source mappings and digests, zero headroom; no Copilot runtime behavior change."
 }

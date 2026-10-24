@@ -12,18 +12,23 @@ import { registryPackage, publishMissing, samePayload, RELEASE_SOURCE } from './
 const metadata = { name: 'create-agdf', version: '0.20.0', gitHead: RELEASE_SOURCE,
   dist: { tarball: 'https://registry.npmjs.org/create-agdf/-/create-agdf-0.20.0.tgz', integrity: 'sha512-Ynl0ZXM=' } };
 const lock = JSON.parse(readFileSync(new URL('../../packages/mcp-server/package-lock.json', import.meta.url)));
+// Generic dependency preparation follows the current reviewed lock. The frozen
+// 0.20.0 recovery tests below retain their own immutable source and metadata.
+const dependencyVersion = lock.packages[''].dependencies['create-agdf'];
+const dependencyMetadata = { name: 'create-agdf', version: dependencyVersion,
+  dist: { ...metadata.dist, tarball: `https://registry.npmjs.org/create-agdf/-/create-agdf-${dependencyVersion}.tgz` } };
 
 test('published preparation substitutes only create-agdf and preserves the exact reviewed SDK closure', () => {
-  const before = structuredClone(lock), result = publishedMcpLock(lock, metadata, '0.20.0');
+  const before = structuredClone(lock), result = publishedMcpLock(lock, dependencyMetadata, dependencyVersion);
   assert.deepEqual(lock, before);
-  assert.equal(result.packages['node_modules/create-agdf'].resolved, metadata.dist.tarball);
-  assert.equal(result.packages['node_modules/create-agdf'].integrity, metadata.dist.integrity);
+  assert.equal(result.packages['node_modules/create-agdf'].resolved, dependencyMetadata.dist.tarball);
+  assert.equal(result.packages['node_modules/create-agdf'].integrity, dependencyMetadata.dist.integrity);
   delete before.packages['node_modules/create-agdf'];
   delete result.packages['node_modules/create-agdf'];
   assert.deepEqual(result, before);
-  for (const invalid of [{ ...metadata, version: '0.14.5' }, { ...metadata, name: 'foreign' },
-    { ...metadata, dependencies: { foreign: '1' } }, { ...metadata, dist: { ...metadata.dist, tarball: 'https://foreign.invalid/a.tgz' } }]) {
-    assert.throws(() => publishedMcpLock(lock, invalid, '0.20.0'), /INVALID/);
+  for (const invalid of [{ ...dependencyMetadata, version: '0.14.5' }, { ...dependencyMetadata, name: 'foreign' },
+    { ...dependencyMetadata, dependencies: { foreign: '1' } }, { ...dependencyMetadata, dist: { ...dependencyMetadata.dist, tarball: 'https://foreign.invalid/a.tgz' } }]) {
+    assert.throws(() => publishedMcpLock(lock, invalid, dependencyVersion), /INVALID/);
   }
 });
 
@@ -33,10 +38,10 @@ test('a failed locked install restores the original checkout lock byte-for-byte'
   mkdirSync(path, { recursive: true });
   const original = JSON.stringify(lock, null, 4) + '\n';
   writeFileSync(join(path, 'package-lock.json'), original);
-  writeFileSync(join(path, 'package.json'), JSON.stringify({ dependencies: { 'create-agdf': '0.20.0' } }));
+  writeFileSync(join(path, 'package.json'), JSON.stringify({ dependencies: { 'create-agdf': dependencyVersion } }));
   try {
     assert.throws(() => installPublishedMcp({ repository: root, execute: (_file, args) => {
-      if (args.includes('view')) return JSON.stringify([metadata]);
+      if (args.includes('view')) return JSON.stringify([dependencyMetadata]);
       assert.deepEqual(args.slice(-4), ['ci', '--ignore-scripts', '--no-audit', '--no-fund']);
       const temporary = JSON.parse(readFileSync(join(path, 'package-lock.json'), 'utf8'));
       assert.equal(temporary.packages['node_modules/zod'].version, lock.packages['node_modules/zod'].version);

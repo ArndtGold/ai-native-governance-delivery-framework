@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "agdf",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "Arndt Gold",
   "description": "Control layer for governed AI-assisted delivery.",
@@ -559,19 +559,110 @@
       "generatedRepository": "agdf-repo"
     },
     "profiles": {
-      "source-development": {"runtime":"absent","installable":false,"machineValidation":"unavailable"},
-      "runtime-plugin": {"runtime":"required","installable":true,"machineValidation":"local_exact_version_digest"},
-      "copilot-runtime-plugin": {"runtime":"required","installable":true,"machineValidation":"local_exact_version_digest_inventory"},
-      "opencode-config-local": {"runtime":"config_local_package","installable":true,"machineValidation":"local_exact_version"},
-      "portable-skills": {"runtime":"absent","installable":true,"machineValidation":"unavailable_or_external_required"}
+      "source-development": {
+        "runtime": "absent",
+        "installable": false,
+        "machineValidation": "unavailable"
+      },
+      "runtime-plugin": {
+        "runtime": "required",
+        "installable": true,
+        "machineValidation": "local_exact_version_digest"
+      },
+      "copilot-runtime-plugin": {
+        "runtime": "required",
+        "installable": true,
+        "machineValidation": "local_exact_version_digest_inventory"
+      },
+      "opencode-config-local": {
+        "runtime": "config_local_package",
+        "installable": true,
+        "machineValidation": "local_exact_version"
+      },
+      "portable-skills": {
+        "runtime": "absent",
+        "installable": true,
+        "machineValidation": "unavailable_or_external_required"
+      }
     }
   },
   "hostSupport": {
     "schema_version": 3,
-    "tiers": {"codex":"qualification_target","claude":"qualification_target","copilot":"experimental","opencode":"experimental"},
-    "required_targets": [{"host":"claude","surface":"cli","os":"win32","scenarios":["dispatch","failure_case","skill_continuation","upgrade","recovery"]},{"host":"codex","surface":"cli","os":"darwin","scenarios":["dispatch","failure_case","skill_continuation","upgrade","recovery"]}],
-    "reported_desktop": [{"host":"codex","surface":"desktop-code","os":"observed","scenarios":["session","upgrade","recovery"]},{"host":"claude","surface":"desktop-code","os":"win32","scenarios":["session","upgrade","recovery"]}],
-    "optional_cli": {"codex":{"codex_version":"0.157.1","model":"gpt-6-luna","platforms":["linux","win32"]}},
-    "unqualified": [{"host":"codex","surface":"cli","os":"linux"},{"host":"codex","surface":"cli","os":"win32"}]
+    "tiers": {
+      "codex": "qualification_target",
+      "claude": "qualification_target",
+      "copilot": "experimental",
+      "opencode": "experimental"
+    },
+    "required_targets": [
+      {
+        "host": "claude",
+        "surface": "cli",
+        "os": "win32",
+        "scenarios": [
+          "dispatch",
+          "failure_case",
+          "skill_continuation",
+          "upgrade",
+          "recovery"
+        ]
+      },
+      {
+        "host": "codex",
+        "surface": "cli",
+        "os": "darwin",
+        "scenarios": [
+          "dispatch",
+          "failure_case",
+          "skill_continuation",
+          "upgrade",
+          "recovery"
+        ]
+      }
+    ],
+    "reported_desktop": [
+      {
+        "host": "codex",
+        "surface": "desktop-code",
+        "os": "observed",
+        "scenarios": [
+          "session",
+          "upgrade",
+          "recovery"
+        ]
+      },
+      {
+        "host": "claude",
+        "surface": "desktop-code",
+        "os": "win32",
+        "scenarios": [
+          "session",
+          "upgrade",
+          "recovery"
+        ]
+      }
+    ],
+    "optional_cli": {
+      "codex": {
+        "codex_version": "0.157.1",
+        "model": "gpt-6-luna",
+        "platforms": [
+          "linux",
+          "win32"
+        ]
+      }
+    },
+    "unqualified": [
+      {
+        "host": "codex",
+        "surface": "cli",
+        "os": "linux"
+      },
+      {
+        "host": "codex",
+        "surface": "cli",
+        "os": "win32"
+      }
+    ]
   }
 }

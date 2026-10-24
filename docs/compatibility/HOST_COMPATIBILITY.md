@@ -2,9 +2,9 @@
 
 Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
 
-AGDF canonical version: **0.20.0**.
-Observation dates: 2026-10-24T07:50:45.438Z to 2026-10-24T15:13:49.960Z.
-Source fingerprint: `4bf276e9436080daa0b28a454b9ac64a28925ecc5ad248a7aa66fb6d5dc24e07`.
+AGDF canonical version: **0.20.1**.
+Observation dates: 2026-10-24T07:50:45.438Z to 2026-10-24T18:29:17.944Z.
+Source fingerprint: `30de14ad7ba4666c6f7a5b76310f9e5a03da719852e2e2860186268859ca4abd`.
 Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
 
 These scenario results describe isolated production fixtures. Expected negative cases can pass the test while the observed capability is failed. They provide no fresh-host or human-UAT proof.
@@ -71,11 +71,11 @@ Inventory of required evidence, not twelve supported combinations. Unknown host 
 | Codex | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | Claude Code | macOS | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | Claude Code | Linux | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
-| Claude Code | native Windows | cli / 2.1.302 / primary/native | installed: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | installed: stale/mismatched (fresh_host) | Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
 | Claude Code | native Windows | cli / 2.1.302 / primary/native | discovered: unverified (fresh_host) | Record a matching discovered observation through the existing verification path; retain manual mode while evidence is missing. |
 | Claude Code | native Windows | cli / 2.1.302 / primary/native | callable: unverified (fresh_host) | Record a matching callable observation through the existing verification path; retain manual mode while evidence is missing. |
-| Claude Code | native Windows | cli / 2.1.302 / primary/native | updated: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
-| Claude Code | native Windows | cli / 2.1.302 / primary/native | recoverable: demonstrated (fresh_host) | Use only this dated environment and evidence scope; inspect local status for your machine. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | updated: stale/mismatched (fresh_host) | Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
+| Claude Code | native Windows | cli / 2.1.302 / primary/native | recoverable: stale/mismatched (fresh_host) | Use the existing bounded retry/restart/repair path when authorized, then record matching evidence. |
 | GitHub Copilot | macOS | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | GitHub Copilot | Linux | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |
 | GitHub Copilot | native Windows | unverified | unverified | Record an exact authorized host/OS observation and fresh-session payload identity. |

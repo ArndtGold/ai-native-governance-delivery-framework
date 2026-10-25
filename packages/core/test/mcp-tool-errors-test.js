@@ -8,6 +8,10 @@ const dispatch = outcome => ({ ...base, outcome, ...(outcome === 'control_result
 const inspect = report => ({ ...base, outcome: 'inspect_result', operation: 'doctor', report });
 const envelope = state => ({ schema_version: '1', target: null, snapshot_id: null, state, code: state === 'blocked' ? 'resource_denied' : null, retryable: false, data: null });
 const commands = ['agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout', 'agdf_decision_action'];
+const successfulCommand = (outcome, receipt = {}) => ({ schema_version: '1', outcome, reason: null, receipt, authorizes: false,
+  operation_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', request_digest: 'sha256:' + 'a'.repeat(64),
+  binding: { target_id: 'sha256:' + 'b'.repeat(64), run_id: 'fixture', expected_revision_id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', kind: 'fixture' },
+  effect: null, current: { available: false }, assurance: {}, historical_effect: false, recovery: null, family_result: {} });
 let count = 0;
 for (const language of ['en', 'de', 'fr']) {
   const pack = localePack(registry, language);
@@ -21,8 +25,8 @@ for (const language of ['en', 'de', 'fr']) {
       assert.equal(d.failed, true); assert.equal(d.code, 'unclassified_tool_failure'); assert.ok(!d.message.includes('PRIVATE'));
       if (outcome !== 'rejected') { assert.equal(d.action, 'inspect_operation'); assert.equal(d.effect_state, 'unknown'); }
     }
-    for (const outcome of ['accepted', 'already_applied']) assert.equal(describe(name, {}, { schema_version: '1', outcome, receipt: {}, authorizes: false }).failed, false);
-    assert.equal(describe(name, {}, { schema_version: '1', outcome: 'accepted', receipt: null, authorizes: false }).failed, false, 'preparation/preview/runtime-control have no Run receipt');
+    for (const outcome of ['accepted', 'already_applied']) assert.equal(describe(name, {}, successfulCommand(outcome)).failed, false);
+    assert.equal(describe(name, {}, successfulCommand('accepted', null)).failed, false, 'preparation/preview/runtime-control have no Run receipt');
     const d = describe(name, {}, { schema_version: '1', outcome: 'rejected', reason: 'dispatch_cancelled', authorizes: false }, { code: 'dispatch_cancelled', dispatch: 'unknown' });
     assert.equal(d.action, 'inspect_operation');
   }

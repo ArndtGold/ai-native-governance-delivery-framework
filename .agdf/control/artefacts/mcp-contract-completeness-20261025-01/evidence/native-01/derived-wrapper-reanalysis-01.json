@@ -1,0 +1,101 @@
+{
+  "classification": "derived_reanalysis_of_immutable_native_trace",
+  "original_observation_sha256": "a27321d94de76d77fc1a9d84fd8a01408490611e1b94d50e1d72248e55103020",
+  "parser_sha256": "a7b9c0e8f20a001b7c6a3cf740b2032e1fe842a3c3680772730dcf9abc980441",
+  "trace_complete": true,
+  "detours": [],
+  "strict": {
+    "check": "strict_t7_command_flow_v1",
+    "success": false,
+    "reason": "unreadable_domain_result"
+  },
+  "observed_models": [
+    "gpt-6.1-sol"
+  ],
+  "observed_efforts": [
+    "low"
+  ],
+  "isolation": {
+    "changed": [
+      "personal_config:config.toml"
+    ],
+    "credential_copy_removed": true,
+    "temporary_roots_removed": true
+  },
+  "overall_qualified": false,
+  "reason": "Global config changed in the original run; correcting the Promise wrapper audit does not undo or waive that failure.",
+  "calls": [
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "gate-check",
+      "module": null,
+      "is_error": true,
+      "outcome": null,
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "gate-check",
+      "module": null,
+      "is_error": true,
+      "outcome": "target_unresolved",
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "gate-check",
+      "module": null,
+      "is_error": false,
+      "outcome": "inspect_result",
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "operation-contract",
+      "module": "agdf_approve",
+      "is_error": true,
+      "outcome": null,
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "operation-contract",
+      "module": "agdf_approve",
+      "is_error": true,
+      "outcome": "invalid_input",
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "operation-contract",
+      "module": "agdf_approve/approval.record",
+      "is_error": false,
+      "outcome": "inspect_result",
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "presentation-current",
+      "module": null,
+      "is_error": true,
+      "outcome": null,
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+      "input_operation": "operation-contract",
+      "module": "agdf_prepare/presentation.prepare",
+      "is_error": false,
+      "outcome": "inspect_result",
+      "reason": null
+    },
+    {
+      "tool": "mcp__plugin_agdf_agdf__agdf_approve",
+      "input_operation": "approval.record",
+      "module": null,
+      "is_error": false,
+      "outcome": "accepted",
+      "reason": null
+    }
+  ]
+}

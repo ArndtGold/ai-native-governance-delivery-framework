@@ -1,0 +1,51 @@
+# Brownfield Analysis: MCP contract implementation path
+
+Decision: pass
+Gate: Brownfield Analysis
+Mode: pre_implementation_analysis
+Date: 2026-10-25
+Owner: Codex brownfield-analysis
+
+## Approved scope and inputs
+
+Run mcp-contract-completeness-20261025-01, revision c895fad6-b865-4c0c-8eeb-949b1946bd96. TP approval 8b5c895f-0889-4655-a6f0-f7c51ebed698 binds TP.md @ sha256:586f4228a3cf5e178889798659e8d0bc73f53363910f26c2a3c024d7d4c1c272 and the unchanged approved UR/PRD/SD. Current HEAD c327c50deae6e5b4fd8071c9e03b1ef2803df6ae has no product-source delta before implementation. Foreign untracked handoff/host-observation files remain protected. There is no repository AGENTS.md in the scoped tree. T-001 covers T-002 through T-009 implementation paths; T-010 is later review.
+
+## Existing coverage and minimal reuse path
+
+| Boundary | Current evidence and coverage | Strategy and implementation owner | Regression obligation |
+|---|---|---|---|
+| SDK/transport | server.js already owns McpServer registration/serveStdio, deferred Ajv schemas, response boundary, direct resource callback and capability discovery. ui-capability.js owns request-local modern versus negotiated legacy capability access. Public SDK 2.0.0 exports classifier, typed error and Transport; SD_SDK_SEAM_FINDINGS-01.md documents the inspected public connect seam. Modern denial is not_done | Extend existing server with a small public connect subclass/decorator and registered-schema eligibility; extend pure capability helpers. Keep SDK framing/maps/validation/era/codec. No private hook or additional dispatcher | Actual STDIO both eras, malformed metadata/input/unknown tools, wrong/supported MIME, per-request alternation, exact resource route, zero execution and callback/send/close/drain/cancellation |
+| Input/help | run-command-contract.js owns descriptors, eleven-field envelope, expanded group schemas, finite own-data checker and operationContract. Help descriptions and compact factoring are not_done | Extend this owner with shared field/payload help and deterministic local-ref discovery projection; Core checker stays expanded. No external refs, new parser/registry or validator runtime | Contract/examples and SDK parity corpus; exact final definitions including decision metadata |
+| Results/error ownership | run-command-service.js emits full and minimal negative/fallback variants. mcp-dispatch-runtime.js adds execution failures and decision presentation delivery. mcp-tool-errors.js validates producers/consumers and descriptors but command structural validation is partial | Add one complete structural result model and bounded public projection at command owner; extend current finite checker only for needed constructs. Call shared checks at existing producer/consumer boundary after postprocessing, preserving original generation descriptor policy | Five-family normal/minimal/budget/executor/postprocessed positives and negatives, malformed success/error, checked fallback and single effect/original UUID after uncertainty |
+| Generation/safety | Existing runtime manifests bind definitions; toolResult preserves projected producer metadata and response-limit fallback; workers/locks/provenance have current tests | Reuse all current ownership and equality checks. No receipt rewrite, replay, worker replacement, new writer or installed generation replacement | Generation/package/provenance and current safety/termination/lock suites remain mandatory |
+| Metadata/package | Canonical capability manifest contradicts dispatch readOnlyHint; MCP README's current 0.14.5 claim contradicts current package versions. Existing build/generate/npm assembly owners exist | Correct only current authoritative claims, compare source owners through existing tests, regenerate derived assets; preserve historical and development wording | Deliberate mismatch fixtures, source/generated/archive equality and existing installation-facing contracts |
+| Native task | Existing Codex host owner contains focused T4 candidate/fixture/JSON/rollout/isolation path; shared native-run.js has T4-specific parser/auditor. Current T4 auth-copy path is not the approved T7 path | Scoped T7 mode at same host owner, reused task/fixture/verifier/metrics with explicit host-qualified parsing. Existing account via exec --ignore-user-config and inline candidate-only config; no credential handling or installation. Two fresh gpt-6.1-sol/low runs, no additional API expenditure | Offline spawn/config/two-session/no-fallback tests first; actual exact candidate/model/effort/full trace/fixture transition/isolation and account usage recorded; missing evidence stays open |
+
+Current overall coverage is partially_done. Writers, domain effects, request identity, SDK registration, bounded result/error plumbing and test infrastructure already exist; the requested contract and capability changes require extension. No persistence format migration is planned. Schema structure must preserve all legitimate current fields and negative variants; model validity must not be inferred from a happy-path example. Test additions belong at existing owners named by TP routes R1-R10, not a new policy/evidence system.
+
+## Risks, constraints and implementation order
+
+Public transport interception has a lifecycle surface: forward every normal message/context unchanged, use the original channel to settle denied request IDs and preserve SDK input/error precedence. Only a known enabled tool with valid synchronous registered input and valid modern envelope can be denied early. Resource lookup stays SDK-owned. If this seam cannot satisfy real tests, route a design gap to SD rather than patching private SDK state.
+
+Discovery has limited headroom: retained failed probes -01 through -03 and feasible -04 are subordinate design evidence only. Measure final metadata/compositions; do not raise 8192/24576/65536/1048576 or 1500/1000ms thresholds. Output schema tightening must not invent receipt/effect facts or create replay. Input projection references are only local SDK-validated discovery; existing Core own-data validation remains strict. Full result checking and producing-generation policy retain their current owners.
+
+Order: capability seam and Core models/help; wire/error/parity tests; metadata/build/package projections; complete functional/safety/generation checks; final size/p95; offline scoped Codex mode; two exact candidate native repetitions; task/clean/code reviews and sole QA assessment. Rebuild changes invalidate dependent evidence. No implementation, test pass, native qualification or delivery completion is claimed by this analysis.
+
+## Scope and authority
+
+No material upstream ambiguity or new architecture choice was found beyond approved SD/TP. No accepted technical debt, parallel registry, writer, permission store, SDK fork, dependency change or generic dispatcher is proposed. If execution exposes an actual gap, retain its evidence and route through the existing normalized owner. The approved TP is sufficient for the scoped path after this internal record, without another human Brownfield approval.
+
+## Context Graph and knowledge persistence
+
+- context_graph_impact: none
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: existing owners above remain authoritative; this is candidate-specific implementation preparation, not a new durable project-memory claim
+- memory_target: scope_artifact
+- memory_reason: retain exact Run/source-bound preparation and limits here
+- memory_refs: this report and approved TP/SD
+
+## Missing evidence and next step
+
+No missing existing-system fact blocks implementation preparation. Product behavior, final schemas, budgets, safety and native candidate evidence are still unimplemented/unverified and remain explicit TP obligations. Record this actual analysis through the existing internal step writer, redispatch gate-check, and begin CD+Tests only on its fresh permitted route.

@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: timeout leaves time for asynchronous termination within the original deadline
+ok 1 - timeout leaves time for asynchronous termination within the original deadline
+  ---
+  duration_ms: 783.742042
+  type: 'test'
+  ...
+# Subtest: an actual exit confirms cancellation even when terminate rejects
+ok 2 - an actual exit confirms cancellation even when terminate rejects
+  ---
+  duration_ms: 28.505542
+  type: 'test'
+  ...
+# Subtest: unconfirmed termination retains the typed timeout and last safe phase
+ok 3 - unconfirmed termination retains the typed timeout and last safe phase
+  ---
+  duration_ms: 102.364515
+  type: 'test'
+  ...
+# Subtest: failed result cleanup never treats result content as a typed failure cause
+ok 4 - failed result cleanup never treats result content as a typed failure cause
+  ---
+  duration_ms: 100.812873
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1023.489104

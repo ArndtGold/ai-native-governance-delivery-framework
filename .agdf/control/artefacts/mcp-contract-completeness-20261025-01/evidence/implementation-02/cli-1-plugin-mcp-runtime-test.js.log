@@ -1,0 +1,10 @@
+file:///private/tmp/agdf-contract-candidate-3ahp_a7h/packages/cli/scripts/plugin-mcp-runtime-test.js:303
+      const timer = setTimeout(() => { child?.stdin.end(); child?.kill(); reject(Error('facade_test_deadline:' + stderr)); }, 10000);
+                                                                                 ^
+
+Error: facade_test_deadline:
+    at Timeout._onTimeout (file:///private/tmp/agdf-contract-candidate-3ahp_a7h/packages/cli/scripts/plugin-mcp-runtime-test.js:303:82)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)
+
+Node.js v22.22.3

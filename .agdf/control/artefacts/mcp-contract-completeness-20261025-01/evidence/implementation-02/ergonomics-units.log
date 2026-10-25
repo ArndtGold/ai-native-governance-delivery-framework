@@ -1,0 +1,284 @@
+
+> test:mcp-ergonomics
+> node --test "evals/mcp-ergonomics/test/*.test.mjs"
+
+TAP version 13
+# Subtest: the shared parser reproduces the probe's former session summary
+ok 1 - the shared parser reproduces the probe's former session summary
+  ---
+  duration_ms: 81.118683
+  type: 'test'
+  ...
+# Subtest: the generalized parser keeps every tool pair, error flag, init and result
+ok 2 - the generalized parser keeps every tool pair, error flag, init and result
+  ---
+  duration_ms: 0.610245
+  type: 'test'
+  ...
+# Subtest: tool_reference parts of ToolSearch results are kept as references
+ok 3 - tool_reference parts of ToolSearch results are kept as references
+  ---
+  duration_ms: 0.399458
+  type: 'test'
+  ...
+# Subtest: redaction removes raw, forward-slash and JSON-escaped path forms (SCN-015)
+ok 4 - redaction removes raw, forward-slash and JSON-escaped path forms (SCN-015)
+  ---
+  duration_ms: 0.392226
+  type: 'test'
+  ...
+# Subtest: the credential copy exists during sync and async callbacks and is removed afterwards
+ok 5 - the credential copy exists during sync and async callbacks and is removed afterwards
+  ---
+  duration_ms: 23.474324
+  type: 'test'
+  ...
+# Subtest: mcp list parsing and installed plugin root lookup
+ok 6 - mcp list parsing and installed plugin root lookup
+  ---
+  duration_ms: 1.359493
+  type: 'test'
+  ...
+# Subtest: session arguments keep the probe's flag order and add variant flags
+ok 7 - session arguments keep the probe's flag order and add variant flags
+  ---
+  duration_ms: 0.378721
+  type: 'test'
+  ...
+# Subtest: task set v1 holds the approved decisions and six complete tasks (SCN-008)
+ok 8 - task set v1 holds the approved decisions and six complete tasks (SCN-008)
+  ---
+  duration_ms: 12.097008
+  type: 'test'
+  ...
+# Subtest: read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+ok 9 - read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+  ---
+  duration_ms: 0.904065
+  type: 'test'
+  ...
+# Subtest: new-run, document-page and stale-write predicates (SCN-009)
+ok 10 - new-run, document-page and stale-write predicates (SCN-009)
+  ---
+  duration_ms: 10.046022
+  type: 'test'
+  ...
+# Subtest: approval predicate on a real presented fixture (SCN-009)
+ok 11 - approval predicate on a real presented fixture (SCN-009)
+  ---
+  duration_ms: 12993.913632
+  type: 'test'
+  ...
+# Subtest: cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+ok 12 - cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+  ---
+  duration_ms: 1.729342
+  type: 'test'
+  ...
+# Subtest: variant verification and session metrics
+ok 13 - variant verification and session metrics
+  ---
+  duration_ms: 1.278509
+  type: 'test'
+  ...
+# Subtest: variant allowlists follow SD SDD-007
+ok 14 - variant allowlists follow SD SDD-007
+  ---
+  duration_ms: 0.412018
+  type: 'test'
+  ...
+# Subtest: variant verification rejects foreign MCP servers and built-in tools outside the variant
+ok 15 - variant verification rejects foreign MCP servers and built-in tools outside the variant
+  ---
+  duration_ms: 0.732316
+  type: 'test'
+  ...
+# Subtest: PowerShell AGDF calls count as shell calls and permission denials are counted
+ok 16 - PowerShell AGDF calls count as shell calls and permission denials are counted
+  ---
+  duration_ms: 0.688096
+  type: 'test'
+  ...
+# Subtest: plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+ok 17 - plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+  ---
+  duration_ms: 0.755872
+  type: 'test'
+  ...
+# Subtest: tasks.v1.json stays valid JSON with the documented prompt placeholders
+ok 18 - tasks.v1.json stays valid JSON with the documented prompt placeholders
+  ---
+  duration_ms: 1.675084
+  type: 'test'
+  ...
+# Subtest: the native runner's dry run plans cells with their task ids
+ok 19 - the native runner's dry run plans cells with their task ids
+  ---
+  duration_ms: 1904.710209
+  type: 'test'
+  ...
+# Subtest: sessions that end in an error or without result are no measurement
+ok 20 - sessions that end in an error or without result are no measurement
+  ---
+  duration_ms: 0.437031
+  type: 'test'
+  ...
+# Subtest: a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+ok 21 - a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+  ---
+  duration_ms: 2019.396762
+  type: 'test'
+  ...
+# Subtest: strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+ok 22 - strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+  ---
+  duration_ms: 2.532886
+  type: 'test'
+  ...
+# Subtest: Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+ok 23 - Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+  ---
+  duration_ms: 2.044286
+  type: 'test'
+  ...
+# Subtest: single Codex T4 planning cannot enter the default multi-session host probe
+ok 24 - single Codex T4 planning cannot enter the default multi-session host probe
+  ---
+  duration_ms: 3429.677301
+  type: 'test'
+  ...
+# Subtest: code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+ok 25 - code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+  ---
+  duration_ms: 16.219502
+  type: 'test'
+  ...
+# Subtest: single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+ok 26 - single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+  ---
+  duration_ms: 0.993651
+  type: 'test'
+  ...
+# Subtest: Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+ok 27 - Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+  ---
+  duration_ms: 2.156488
+  type: 'test'
+  ...
+# Subtest: empty host catalog discovery cannot supply bindings or admit resource reads
+ok 28 - empty host catalog discovery cannot supply bindings or admit resource reads
+  ---
+  duration_ms: 0.990692
+  type: 'test'
+  ...
+# Subtest: Codex command qualification retains T4 boundaries and requires prior MCP bindings and one original approval
+ok 29 - Codex command qualification retains T4 boundaries and requires prior MCP bindings and one original approval
+  ---
+  duration_ms: 1.594513
+  type: 'test'
+  ...
+# Subtest: normalization replaces every root form and zeroes *_ms values
+ok 30 - normalization replaces every root form and zeroes *_ms values
+  ---
+  duration_ms: 11.728741
+  type: 'test'
+  ...
+# Subtest: normalized bytes are independent of root length and timing digits
+ok 31 - normalized bytes are independent of root length and timing digits
+  ---
+  duration_ms: 7.004437
+  type: 'test'
+  ...
+# Subtest: token estimate rule and summary statistics
+ok 32 - token estimate rule and summary statistics
+  ---
+  duration_ms: 0.598097
+  type: 'test'
+  ...
+# Subtest: classification follows the written rule order
+ok 33 - classification follows the written rule order
+  ---
+  duration_ms: 1.296468
+  type: 'test'
+  ...
+# Subtest: the pinned SDK input-validation text matches the installed MCP server SDK
+ok 34 - the pinned SDK input-validation text matches the installed MCP server SDK
+  ---
+  duration_ms: 64.584257
+  type: 'test'
+  ...
+# Subtest: a failing fixture build leaves no temporary directory behind
+ok 35 - a failing fixture build leaves no temporary directory behind
+  ---
+  duration_ms: 19546.470756
+  type: 'test'
+  ...
+# Subtest: protocol compare is exact for non-timing metrics and ignores latency (SCN-005)
+ok 36 - protocol compare is exact for non-timing metrics and ignores latency (SCN-005)
+  ---
+  duration_ms: 6.626625
+  type: 'test'
+  ...
+# Subtest: native compare uses the recorded range and marks missing cells
+ok 37 - native compare uses the recorded range and marks missing cells
+  ---
+  duration_ms: 1.534649
+  type: 'test'
+  ...
+# Subtest: re-evaluation changes only transcript-determined verdicts and refuses transcripts with evidence writes
+ok 38 - re-evaluation changes only transcript-determined verdicts and refuses transcripts with evidence writes
+  ---
+  duration_ms: 24.800573
+  type: 'test'
+  ...
+# Subtest: the report states a failed or empty native run instead of claiming full measurement
+ok 39 - the report states a failed or empty native run instead of claiming full measurement
+  ---
+  duration_ms: 46.960235
+  type: 'test'
+  ...
+# Subtest: tool captures must be byte-identical (SCN-023)
+ok 40 - tool captures must be byte-identical (SCN-023)
+  ---
+  duration_ms: 0.389341
+  type: 'test'
+  ...
+# Subtest: redaction check fails closed on local paths and credential patterns (SCN-015/016)
+ok 41 - redaction check fails closed on local paths and credential patterns (SCN-015/016)
+  ---
+  duration_ms: 23.158236
+  type: 'test'
+  ...
+# Subtest: transcripts lose connector names and tool prefixes but keep AGDF servers
+ok 42 - transcripts lose connector names and tool prefixes but keep AGDF servers
+  ---
+  duration_ms: 1.805543
+  type: 'test'
+  ...
+# Subtest: promote writes baseline and report only for clean input (SCN-016, SCN-021/022)
+ok 43 - promote writes baseline and report only for clean input (SCN-016, SCN-021/022)
+  ---
+  duration_ms: 7.396325
+  type: 'test'
+  ...
+# Subtest: findings map covers the twelve review findings with a metric or a reason (SCN-021)
+ok 44 - findings map covers the twelve review findings with a metric or a reason (SCN-021)
+  ---
+  duration_ms: 4.548182
+  type: 'test'
+  ...
+# Subtest: call matrix v1 covers valid, schema-invalid and semantic calls for all seven agdf tools (SCN-001)
+ok 45 - call matrix v1 covers valid, schema-invalid and semantic calls for all seven agdf tools (SCN-001)
+  ---
+  duration_ms: 1.947325
+  type: 'test'
+  ...
+1..45
+# tests 45
+# suites 0
+# pass 45
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 22858.044942

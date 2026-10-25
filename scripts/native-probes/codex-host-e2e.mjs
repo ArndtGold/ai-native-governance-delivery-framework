@@ -15,9 +15,11 @@ import { mcpCalls as capturedCodexCalls } from './lib/codex-trace.mjs';
 //   npm run native:codex-e2e -- --model <model> --keep
 //   CODEX_BIN=/Applications/ChatGPT.app/Contents/Resources/codex npm run native:codex-e2e -- --model gpt-6-luna
 // Result: probe-results/codex-host-e2e-<timestamp>/summary.txt and observation.json.
+// The separately selected T7 command mode reuses the existing ChatGPT account
+// with process-only configuration: no credential copy or plugin installation.
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
@@ -27,8 +29,8 @@ import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../../packa
 import { CODEX_HOOK_STATES } from "../../packages/core/lib/interaction-catalog.js";
 import { createProtocolRuntime } from '../../evals/mcp-ergonomics/lib/protocol-harness.js';
 import { withStdioClient } from '../../packages/mcp-server/test/helpers.js';
-import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess } from '../../evals/mcp-ergonomics/lib/native-tasks.js';
-import { compareManifests, hashManifest, parseCodexT4Trace, strictT4DocumentFlow, CODEX_T4_FEATURES, assertCodexT4HostReady } from '../../evals/mcp-ergonomics/lib/native-run.js';
+import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess, CODEX_COMMAND_TASK } from '../../evals/mcp-ergonomics/lib/native-tasks.js';
+import { compareManifests, hashManifest, parseCodexT4Trace, strictT4DocumentFlow, parseCodexCommandTrace, strictCommandFlow, nativeSessionMetrics, CODEX_T4_FEATURES, assertCodexT4HostReady } from '../../evals/mcp-ergonomics/lib/native-run.js';
 import { snapshotWorkspace, changedPaths, mutationViolations } from '../../evals/lib/skill-evals/workspace.js';
 import { sanitizeTranscript } from '../../evals/mcp-ergonomics/lib/redaction.js';
 import { CLI_CASES, releasePolicy, requiresFrozenTuple } from './lib/release-policy.mjs';
@@ -45,11 +47,31 @@ if (!model) {
   console.error("AGDF_E2E_MODEL_REQUIRED: pass --model <model> or set AGDF_E2E_MODEL");
   process.exit(2);
 }
+if (args.includes('--command-task')) {
+  const permitted = new Set(['--command-task', '--repetitions', '--model', '--reasoning-effort', '--dry-run', '--preflight-only']);
+  for (let i = 0; i < args.length; i++) {
+    if (!permitted.has(args[i])) throw Error('COMMAND_TASK_ARGUMENT_INVALID');
+    if (!['--dry-run', '--preflight-only'].includes(args[i])) i++;
+  }
+  if (option('--command-task') !== 'T7' || option('--repetitions') !== '2' || option('--reasoning-effort') !== 'low' || model !== 'gpt-6.1-sol') throw Error('COMMAND_TASK_TUPLE_INVALID');
+  const plan = { task: 'T7', sessions: 2, repetitions: 2, model, reasoning_effort: 'low', timeout_ms: 600000,
+    additional_api_spend_authorized_usd: 0, auth: 'existing_chatgpt_account', credential_copy: false, plugin_install: false, executes: false };
+  if (args.includes('--dry-run')) console.log(JSON.stringify(plan));
+  else if (args.includes('--preflight-only')) await runFocusedTask(model, process.env.CODEX_BIN || 'codex', { commandTask: true, preflightOnly: true });
+  else {
+    for (let repetition = 1; repetition <= 2; repetition++) {
+      const report = await runFocusedTask(model, process.env.CODEX_BIN || 'codex', { commandTask: true, repetition });
+      if (!report.infrastructure_ok) break;
+    }
+  }
+  process.exit(process.exitCode ?? 0);
+}
+if (args.includes('--preflight-only')) throw Error('COMMAND_TASK_MODE_REQUIRED');
 if (args.includes('--single-session')) {
   if (option('--task') !== 'T4' || args.includes('--scenario') || args.includes('--keep')) throw Error('SINGLE_T4_ARGUMENT_INVALID');
   if (args.includes('--dry-run')) {
     console.log(JSON.stringify({ task: 'T4', sessions: 1, repetitions: 1, model, reasoning_effort: 'high', timeout_ms: 300000, additional_api_spend_usd: 0, auth: 'existing_chatgpt_account', features: CODEX_T4_FEATURES, executes: false }));
-  } else await runSingleT4(model, process.env.CODEX_BIN || 'codex');
+  } else await runFocusedTask(model, process.env.CODEX_BIN || 'codex');
   process.exit(process.exitCode ?? 0);
 }
 if (args.includes('--task') || args.includes('--dry-run')) throw Error('SINGLE_T4_MODE_REQUIRED');
@@ -320,42 +342,58 @@ process.exitCode = observation.result === "pass" ? 0 : 1;
 
 // One new mode of the existing host owner; the default multi-session probe above
 // is unreachable from this path. No fixture identifier is inserted into the prompt.
-async function runSingleT4(requestedModel, executable) {
+async function runFocusedTask(requestedModel, executable, { commandTask = false, repetition = 1, preflightOnly = false } = {}) {
   const taskRepo = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-  const outputDir = join(taskRepo, 'probe-results', `codex-t4-${new Date().toISOString().replace(/[:.]/gu, '-')}`);
+  const outputDir = join(taskRepo, 'probe-results', `codex-${commandTask ? 't7' : 't4'}-${new Date().toISOString().replace(/[:.]/gu, '-')}-${repetition}`);
   const taskWork = join(outputDir, 'work-tmp'), taskHome = join(taskWork, 'codex-home');
   mkdirSync(taskHome, { recursive: true, mode: 0o700 });
   const authPath = join(taskHome, 'auth.json');
-  const taskEnv = { ...process.env, CODEX_HOME: taskHome, AGDF_DATA_DIR: join(taskWork, 'agdf-data') };
+  const taskEnv = { ...process.env, CODEX_HOME: commandTask ? process.env.CODEX_HOME ?? join(homedir(), '.codex') : taskHome, AGDF_DATA_DIR: join(taskWork, 'agdf-data') };
   for (const key of ['CODEX_API_KEY', 'OPENAI_API_KEY', 'OPENAI_BASE_URL', 'OPENAI_ORG_ID']) delete taskEnv[key];
   let fixture, runtime, session, beforeFixture, expectedBytes;
-  const personalHome = join(homedir(), '.codex');
+  const personalHome = commandTask ? taskEnv.CODEX_HOME : join(homedir(), '.codex');
   const manifests = () => ({ repository_control: hashManifest(join(taskRepo, '.agdf/control')),
     personal_config: hashManifest(personalHome, { files: ['config.toml', 'plugins/installed_plugins.json', 'plugins/known_marketplaces.json'] }) });
   const beforePersonal = manifests();
-  const report = { schema_version: '1', kind: 'agdf_codex_t4_single', requested_model: requestedModel,
-    task: 'T4', variant: 'mcp_only', repetitions: 1, session_invocations: 0, timeout_ms: 300000,
+  const report = { schema_version: '1', kind: commandTask ? 'agdf_codex_t7_commands' : 'agdf_codex_t4_single', requested_model: requestedModel,
+    evidence_class: process.env.NODE_TEST_CONTEXT ? 'offline_mock_host' : preflightOnly ? 'native_host_preflight' : 'native_host_observation', executable,
+    task: commandTask ? 'T7' : 'T4', variant: 'mcp_only', repetitions: commandTask ? 2 : 1, repetition, session_invocations: 0, timeout_ms: commandTask ? 600000 : 300000, reasoning_effort: commandTask ? 'low' : 'high',
     additional_api_spend_authorized_usd: 0, cost_usd: 'unavailable', auth: 'existing_chatgpt_account', complete: false };
+  if (commandTask) report.isolation_manifests = { before: beforePersonal };
+  let hostExecutable = executable, hostPrefix = [];
   const redactText = value => [outputDir, fixture?.root, runtime?.fixture.root, personalHome].filter(Boolean)
     .reduce((text, path) => text.replaceAll(path, '<ISOLATED_PATH>'), String(value));
   const cleanup = () => { rmSync(authPath, { force: true }); rmSync(taskWork, { recursive: true, force: true }); fixture?.dispose(); runtime?.dispose(); };
   const onSignal = () => { session?.kill('SIGKILL'); cleanup(); process.exit(130); };
   for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.once(signal, onSignal);
   try {
+    if (commandTask) {
+      // --ignore-user-config controls loading, not every host-owned write.
+      // Enforce the approved immutable settings boundary for preflight and exec;
+      // normal account/session files remain owned by Codex. No fallback guard.
+      if (process.platform !== 'darwin' || !existsSync('/usr/bin/sandbox-exec')) throw Error('CONFIG_WRITE_GUARD_UNAVAILABLE');
+      const files = ['config.toml', 'plugins/installed_plugins.json', 'plugins/known_marketplaces.json'];
+      const policy = `(version 1)\n(allow default)\n(deny file-write* ${files.map(file => `(literal ${JSON.stringify(join(realpathSync(personalHome), file))})`).join(' ')})\n`;
+      const policyPath = join(taskWork, 'immutable-settings.sb');
+      writeFileSync(policyPath, policy, { mode: 0o600 });
+      hostExecutable = '/usr/bin/sandbox-exec'; hostPrefix = ['-f', policyPath, executable];
+      report.host_guard = { owner: 'macos_sandbox_exec', immutable_settings: files, policy_digest: createHash('sha256').update(policy).digest('hex') };
+    }
     // No credential value is included in output. The fresh isolated login must
     // confirm account auth; API-key fallback is disabled in config and environment.
     const source = join(personalHome, 'auth.json');
-    if (process.env.CI || !existsSync(source)) throw Error('EXISTING_CHATGPT_AUTH_UNAVAILABLE');
-    copyFileSync(source, authPath); chmodSync(authPath, 0o600);
-    const command = (argv, options = {}) => spawnHostSync(executable, argv, { encoding: 'utf8', env: taskEnv, timeout: 15000, maxBuffer: 4 * 1024 * 1024, ...options });
+    if (!commandTask && (process.env.CI || !existsSync(source))) throw Error('EXISTING_CHATGPT_AUTH_UNAVAILABLE');
+    if (!commandTask) { copyFileSync(source, authPath); chmodSync(authPath, 0o600); }
+    const command = (argv, options = {}) => spawnHostSync(hostExecutable, [...hostPrefix, ...argv], { encoding: 'utf8', env: taskEnv, timeout: 15000, maxBuffer: 4 * 1024 * 1024, ...options });
     const auth = command(['login', 'status']);
     if (auth.status !== 0 || !/Logged in using ChatGPT/iu.test(`${auth.stdout}${auth.stderr}`)) throw Error('EXISTING_CHATGPT_AUTH_UNAVAILABLE');
     report.host = { version: command(['--version']).stdout.trim(), platform: process.platform, arch: process.arch, node: process.version };
-    const task = loadTaskSet().tasks.find(entry => entry.id === 'T4');
+    if (commandTask && !/0\.163\.0(?:\s|$)/u.test(report.host.version)) throw Error('CODEX_VERSION_CHANGED');
+    const task = commandTask ? CODEX_COMMAND_TASK : loadTaskSet().tasks.find(entry => entry.id === 'T4');
     fixture = buildTaskFixture(task); runtime = createProtocolRuntime();
     beforeFixture = snapshotWorkspace(fixture.root);
     const document = join(fixture.root, `.agdf/control/runs/${fixture.runId}/presentations/${fixture.presentationId}.document`);
-    expectedBytes = readFileSync(document);
+    expectedBytes = commandTask ? null : readFileSync(document);
     const binding = { target_id: fixture.targetId, run_id: fixture.runId, gate: 'UR', expected_revision_id: fixture.revision(), presentation_id: fixture.presentationId };
     const serverArgs = [join(runtime.fixture.serverRoot, 'bin/agdf-mcp.js'), '--surface', 'codex'];
     await withStdioClient({ modern: true, command: process.execPath, args: serverArgs, cwd: fixture.root, env: taskEnv }, async client => {
@@ -363,15 +401,43 @@ async function runSingleT4(requestedModel, executable) {
       const bytes = Buffer.byteLength(JSON.stringify(definition));
       if (!definition?.outputSchema || bytes > 5000) throw Error('CANDIDATE_INSPECT_CONTRACT_INVALID');
       report.discovery = { inspect_definition_bytes: bytes, inspect_definition_digest: `sha256:${createHash('sha256').update(JSON.stringify(definition)).digest('hex')}`, protocol: client.getNegotiatedProtocolVersion() };
+      if (commandTask) {
+        report.discovery.commands = ['agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout'].map(name => {
+          const tool = tools.find(value => value.name === name);
+          if (!tool?.outputSchema || Object.values(tool.inputSchema.properties).some(field => !field.description)) throw Error('CANDIDATE_COMMAND_CONTRACT_INVALID');
+          return { name, definition_bytes: Buffer.byteLength(JSON.stringify(tool)), digest: `sha256:${createHash('sha256').update(JSON.stringify(tool)).digest('hex')}` };
+        });
+      }
     });
-    const config = `model = ${JSON.stringify(requestedModel)}\nmodel_reasoning_effort = "high"\nforced_login_method = "chatgpt"\nweb_search = "disabled"\n[features]\n${Object.entries(CODEX_T4_FEATURES).map(([key, value]) => `${key} = ${value}`).join("\n")}\n[mcp_servers.agdf]\ncommand = ${JSON.stringify(process.execPath)}\nargs = ${JSON.stringify(serverArgs)}\nrequired = true\nenabled_tools = ["agdf_inspect"]\n[mcp_servers.agdf.tools.agdf_inspect]\napproval_mode = "approve"\n`;
-    writeFileSync(join(taskHome, 'config.toml'), config, { mode: 0o600 });
-    const configCheck = command(['mcp', 'get', 'agdf', '--json'], { cwd: fixture.root });
+    const tools = commandTask ? ['agdf_inspect', 'agdf_approve'] : ['agdf_inspect'];
+    let config, configCheck, features, scopedArgs = [];
+    if (commandTask) {
+      const overrides = { model: requestedModel, model_reasoning_effort: 'low', model_provider: 'openai', forced_login_method: 'chatgpt', web_search: 'disabled', project_doc_max_bytes: 0,
+        ...Object.fromEntries(Object.entries({ ...CODEX_T4_FEATURES, plugins: false, hooks: false }).map(([key, value]) => [`features.${key}`, value])),
+        'mcp_servers.agdf.command': process.execPath, 'mcp_servers.agdf.args': serverArgs, 'mcp_servers.agdf.required': true, 'mcp_servers.agdf.enabled_tools': tools,
+        ...Object.fromEntries(tools.map(tool => [`mcp_servers.agdf.tools.${tool}.approval_mode`, 'approve'])) };
+      scopedArgs = Object.entries(overrides).flatMap(([key, value]) => ['-c', `${key}=${JSON.stringify(value)}`]);
+      config = Object.entries(overrides).map(([key, value]) => `${key} = ${JSON.stringify(value)}`).join('\n');
+      configCheck = command([...scopedArgs, 'mcp', 'get', 'agdf', '--json'], { cwd: fixture.root });
+      features = command([...scopedArgs, 'features', 'list']);
+    } else {
+      config = `model = ${JSON.stringify(requestedModel)}\nmodel_reasoning_effort = "high"\nforced_login_method = "chatgpt"\nweb_search = "disabled"\n[features]\n${Object.entries(CODEX_T4_FEATURES).map(([key, value]) => `${key} = ${value}`).join("\n")}\n[mcp_servers.agdf]\ncommand = ${JSON.stringify(process.execPath)}\nargs = ${JSON.stringify(serverArgs)}\nrequired = true\nenabled_tools = ["agdf_inspect"]\n[mcp_servers.agdf.tools.agdf_inspect]\napproval_mode = "approve"\n`;
+      writeFileSync(join(taskHome, 'config.toml'), config, { mode: 0o600 });
+      configCheck = command(['mcp', 'get', 'agdf', '--json'], { cwd: fixture.root });
+      features = command(['features', 'list']);
+    }
     if (configCheck.status !== 0) throw Error('ISOLATED_MCP_CONFIG_INVALID');
-    const features = command(['features', 'list']);
+    if (commandTask) {
+      const effective = JSON.parse(configCheck.stdout);
+      if (effective.enabled !== true || effective.transport?.command !== process.execPath
+        || JSON.stringify(effective.transport.args) !== JSON.stringify(serverArgs)
+        || JSON.stringify(effective.enabled_tools) !== JSON.stringify(tools)) throw Error('CANDIDATE_MCP_CONFIG_MISMATCH');
+    }
     assertCodexT4HostReady(features);
     report.discovery.code_mode_host = 'enabled_by_verified_config';
-    report.effective_context = { isolated_home: true, installed_skills: 0, other_mcp_servers: 0, shell_tool: false, memories: false, multi_agent: false, approved_tools: ['agdf_inspect'], config_digest: createHash('sha256').update(config).digest('hex') };
+    report.effective_context = { isolated_home: !commandTask, ignore_user_config: commandTask, existing_account_home: commandTask,
+      credential_copy: !commandTask, installed_skills: 0, other_mcp_servers: 0, shell_tool: false, memories: false, multi_agent: false,
+      approved_tools: tools, config_digest: createHash('sha256').update(config).digest('hex') };
     report.candidate = { git_head: spawnHostSync('git', ['rev-parse', 'HEAD'], { cwd: taskRepo, encoding: 'utf8' }).stdout.trim(),
       source_files: { ...hashManifest(join(taskRepo, 'packages/core/lib')), ...Object.fromEntries(Object.entries(hashManifest(join(taskRepo, 'packages/mcp-server/src'))).map(([key, value]) => [`mcp/${key}`, value])) },
       runtime_marker: JSON.parse(readFileSync(join(runtime.fixture.root, '.agdf-mcp-owned.json'), 'utf8')),
@@ -379,34 +445,45 @@ async function runSingleT4(requestedModel, executable) {
       protected_inputs: hashManifest(join(taskRepo, 'evals/mcp-ergonomics'), { files: ['tasks.v1.json', 'lib/fixtures.js', 'lib/native-tasks.js'] }) };
     writeFileSync(join(outputDir, 'effective-config.toml'), redactText(config));
     const finalPath = join(outputDir, 'final-message.txt');
-    const argv = ['exec', '--json', '--sandbox', 'read-only', '--skip-git-repo-check', '-m', requestedModel, '-o', finalPath, renderPrompt(task, fixture)];
+    const argv = ['exec', ...(commandTask ? ['--ignore-user-config', ...scopedArgs] : []), '--json', '--sandbox', commandTask ? 'workspace-write' : 'read-only', '--skip-git-repo-check', '-m', requestedModel, '-o', finalPath, renderPrompt(task, fixture)];
+    if (commandTask) {
+      report.isolation_manifests.before_session = manifests();
+      if (compareManifests(beforePersonal, report.isolation_manifests.before_session).length) throw Error('PROTECTED_SETTINGS_CHANGED_DURING_PREFLIGHT');
+    }
+    if (preflightOnly) { report.preflight_only = true; report.preflight_status = 'pass'; report.infrastructure_ok = true; return report; }
     // This is the only model invocation in this mode. It is never retried/resumed.
     ++report.session_invocations;
+    const sessionStarted = performance.now();
     const output = await new Promise((resolveSession, rejectSession) => {
-      const child = spawn(executable, argv, { cwd: fixture.root, env: taskEnv, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
+      const child = spawn(hostExecutable, [...hostPrefix, ...argv], { cwd: fixture.root, env: taskEnv, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
       const kill = signal => { try { if (process.platform !== 'win32') process.kill(-child.pid, signal); else child.kill(signal); } catch {} };
       let stdout = '', stderr = '', timedOut = false, bytes = 0;
       session = { kill };
-      const timer = setTimeout(() => { timedOut = true; kill('SIGKILL'); }, 300000);
+      const timer = setTimeout(() => { timedOut = true; kill('SIGKILL'); }, report.timeout_ms);
       const collect = stream => data => { bytes += data.length; if (bytes > 64 * 1024 * 1024) kill('SIGKILL'); else if (stream === 'stdout') stdout += data; else stderr += data; };
       child.stdout.on('data', collect('stdout')); child.stderr.on('data', collect('stderr'));
       child.once('error', error => { clearTimeout(timer); rejectSession(error); });
       child.once('close', code => { clearTimeout(timer); session = null; resolveSession({ code, stdout, stderr, timedOut, output_limit: bytes > 64 * 1024 * 1024 }); });
     });
     const rollouts = [];
-    const visit = directory => { if (existsSync(directory)) for (const name of readdirSync(directory)) { const file = join(directory, name); if (statSync(file).isDirectory()) visit(file); else if (name.endsWith('.jsonl')) rollouts.push(readFileSync(file, 'utf8')); } };
-    visit(join(taskHome, 'sessions'));
-    const parsed = parseCodexT4Trace(output.stdout, rollouts);
+    const visit = directory => { if (existsSync(directory)) for (const name of readdirSync(directory)) { const file = join(directory, name); if (statSync(file).isDirectory()) visit(file); else if (name.endsWith('.jsonl') && (!commandTask || name.includes(sessionId))) rollouts.push(readFileSync(file, 'utf8')); } };
+    const sessionId = commandTask ? output.stdout.split('\n').filter(Boolean).map(line => { try { return JSON.parse(line); } catch { return {}; } }).find(event => event.type === 'thread.started')?.thread_id : null;
+    if (commandTask && !/^[0-9a-f-]{36}$/u.test(sessionId ?? '')) throw Error('CODEX_SESSION_ID_UNAVAILABLE');
+    visit(join(commandTask ? personalHome : taskHome, 'sessions'));
+    const parsed = commandTask ? parseCodexCommandTrace(output.stdout, rollouts) : parseCodexT4Trace(output.stdout, rollouts);
     if (output.code !== 0 || output.timedOut || output.output_limit) parsed.trace_complete = false;
     const finalText = existsSync(finalPath) ? readFileSync(finalPath, 'utf8') : '';
     report.process = { exit: output.code, timeout: output.timedOut, output_limit: output.output_limit, stderr: redactText(output.stderr).slice(0, 1000) };
     report.original_predicate = evaluateSuccess({ task, fixture, parsed, mutationViolations: mutationViolations(changedPaths(beforeFixture, snapshotWorkspace(fixture.root)), task.allowed_paths) });
-    report.strict = strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText });
-    report.observed_models = parsed.observed_models; report.usage = parsed.usage;
-    report.metrics = { calls: parsed.calls.length, invalid_calls: parsed.calls.filter(call => call.result.is_error).length };
-    report.expected_document = { binding, bytes: expectedBytes.length, digest: `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}` };
+    report.strict = commandTask ? strictCommandFlow({ parsed, binding }) : strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText });
+    report.observed_models = parsed.observed_models; report.observed_efforts = parsed.observed_efforts; report.usage = parsed.usage;
+    report.metrics = { calls: parsed.calls.length, invalid_calls: parsed.calls.filter(call => call.result.is_error).length,
+      ...(commandTask ? { ...nativeSessionMetrics({ ...parsed, result: { usage: parsed.usage } }, [...runtime.roots, { path: fixture.root, token: '<FIXTURE>' }, { path: personalHome, token: '<HOME>' }]), wall_time_ms: Math.round(performance.now() - sessionStarted) } : {}) };
+    if (commandTask) report.expected_binding = binding;
+    else report.expected_document = { binding, bytes: expectedBytes.length, digest: `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}` };
     report.trace_complete = parsed.trace_complete; report.detours = parsed.detours;
-    report.complete = report.original_predicate.success && report.strict.success && parsed.observed_models.length === 1 && parsed.observed_models[0] === requestedModel;
+    report.complete = report.original_predicate.success && report.strict.success && parsed.observed_models.length === 1 && parsed.observed_models[0] === requestedModel && (!commandTask || parsed.observed_efforts.length === 1 && parsed.observed_efforts[0] === 'low');
+    report.infrastructure_ok = parsed.trace_complete && !parsed.detours.length && parsed.observed_models.length === 1 && parsed.observed_models[0] === requestedModel && (!commandTask || parsed.observed_efforts.length === 1 && parsed.observed_efforts[0] === 'low');
     writeFileSync(join(outputDir, 'events.jsonl'), sanitizeTranscript(output.stdout, redactText));
     writeFileSync(join(outputDir, 'rollouts.jsonl'), sanitizeTranscript(rollouts.join('\n'), redactText));
     writeFileSync(finalPath, redactText(finalText));
@@ -414,10 +491,13 @@ async function runSingleT4(requestedModel, executable) {
   } catch (error) { report.error = redactText(error.message); process.exitCode = 1; }
   finally {
     cleanup();
-    report.isolation = { changed: compareManifests(beforePersonal, manifests()), credential_copy_removed: !existsSync(authPath), temporary_roots_removed: !existsSync(taskWork) };
-    if (report.isolation.changed.length || !report.isolation.credential_copy_removed || !report.isolation.temporary_roots_removed) { report.complete = false; process.exitCode = 1; }
+    const afterPersonal = manifests();
+    if (commandTask) report.isolation_manifests.after = afterPersonal;
+    report.isolation = { changed: compareManifests(beforePersonal, afterPersonal), credential_copy_removed: !existsSync(authPath), temporary_roots_removed: !existsSync(taskWork) };
+    if (report.isolation.changed.length || !report.isolation.credential_copy_removed || !report.isolation.temporary_roots_removed) { report.complete = false; report.infrastructure_ok = false; process.exitCode = 1; }
     for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.off(signal, onSignal);
     writeFileSync(join(outputDir, 'observation.json'), JSON.stringify(report, null, 2) + '\n');
     console.log(JSON.stringify({ report: join(outputDir, 'observation.json'), complete: report.complete, session_invocations: report.session_invocations, error: report.error ?? report.strict?.reason ?? null }));
+    return report;
   }
 }

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { PROTOCOL_VERSION_META_KEY, CLIENT_CAPABILITIES_META_KEY } from "@modelcontextprotocol/server";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -19,6 +20,7 @@ writeFileSync(join(uiDirectory, "manifest.json"), JSON.stringify({ schema_versio
   bytes: Buffer.byteLength(html), digest: `sha256:${createHash("sha256").update(html).digest("hex")}` }));
 const entry = fileURLToPath(new URL("./cockpit-gating-entry.js", import.meta.url));
 const ui = { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } };
+const missingUi = error => { assert.equal(error.code, -32021); assert.deepEqual(error.data, { requiredCapabilities: ui }); return true; };
 const calls = () => existsSync(marker) ? readFileSync(marker, "utf8").split("\n").filter(Boolean) : [];
 const session = (surface, modern, capabilities, callback) => withStdioClient({ modern, capabilities, args: [entry, surface, uiDirectory, marker] }, callback);
 
@@ -89,12 +91,13 @@ try {
       assert.deepEqual(listed.map(tool => tool.name), ['agdf_cockpit', 'agdf_cockpit_read'], era);
       assert.equal(listed[0]._meta.ui.resourceUri, COCKPIT_UI_URI);
       assert.deepEqual((await client.listResources()).resources, [], era);
-      await assert.rejects(client.readResource({ uri: COCKPIT_UI_URI }), /resource_denied/, era);
+      await assert.rejects(client.readResource({ uri: COCKPIT_UI_URI }), modern ? missingUi : /resource_denied/, era);
       const before = calls().length;
       for (const name of ['agdf_cockpit', 'agdf_cockpit_read']) {
-        const result = await client.callTool({ name, arguments: name === 'agdf_cockpit' ? {}
-          : { operation: 'close', session_id: '00000000-0000-4000-8000-000000000000' } });
-        assert.equal(result.structuredContent.code, 'resource_denied', era);
+        const input = { name, arguments: name === 'agdf_cockpit' ? {}
+          : { operation: 'close', session_id: '00000000-0000-4000-8000-000000000000' } };
+        if (modern) await assert.rejects(client.callTool(input), missingUi, era);
+        else assert.equal((await client.callTool(input)).structuredContent.code, 'resource_denied', era);
       }
       assert.equal(calls().length, before, `${era}: discovery must not allocate or read a view`);
     });
@@ -118,15 +121,49 @@ try {
     await session("claude", modern, { roots: { listChanged: true }, elicitation: { form: {} } }, async (client) => {
       assert.deepEqual((await client.listTools()).tools, [], era);
       assert.deepEqual((await client.listResources()).resources, [], era);
-      await assert.rejects(client.readResource({ uri: COCKPIT_UI_URI }), /resource_denied/, era);
+      await assert.rejects(client.readResource({ uri: COCKPIT_UI_URI }), modern ? missingUi : /resource_denied/, era);
       const before = calls().length;
       for (const name of ["agdf_cockpit", "agdf_cockpit_read"]) {
-        const result = await client.callTool({ name, arguments: name === "agdf_cockpit" ? {} : { operation: "close", session_id: "00000000-0000-4000-8000-000000000000" } });
-        assert.equal(result.structuredContent.code, "resource_denied", `${era}:${name}`);
+        const input = { name, arguments: name === "agdf_cockpit" ? {} : { operation: "close", session_id: "00000000-0000-4000-8000-000000000000" } };
+        if (modern) await assert.rejects(client.callTool(input), missingUi, `${era}:${name}`);
+        else assert.equal((await client.callTool(input)).structuredContent.code, "resource_denied", `${era}:${name}`);
       }
       assert.equal(calls().length, before, `${era}: denied calls never reach the cockpit service`);
     });
   }
+  // Actual wire frames on one modern connection: declarations are per request,
+  // malformed/unknown/invalid-input priority remains SDK-owned and EOF drains.
+  const modernMeta = capabilities => ({ [PROTOCOL_VERSION_META_KEY]: '2026-07-28', [CLIENT_CAPABILITIES_META_KEY]: capabilities });
+  const request = (id, method, params, capabilities = {}) => ({ jsonrpc: '2.0', id, method, params: { ...params, _meta: modernMeta(capabilities) } });
+  const wire = [
+    request(101, 'tools/call', { name: 'agdf_cockpit', arguments: {} }),
+    request(102, 'tools/call', { name: 'agdf_cockpit', arguments: {} }, ui),
+    request(103, 'tools/call', { name: 'agdf_cockpit', arguments: {} }),
+    { jsonrpc: '2.0', id: 104, method: 'tools/call', params: { name: 'agdf_cockpit', arguments: {}, _meta: { [PROTOCOL_VERSION_META_KEY]: '2026-07-28' } } },
+    request(105, 'tools/call', { name: 'agdf_cockpit', arguments: { injected: true } }),
+    request(106, 'tools/call', { name: 'absent', arguments: {} }),
+    request(107, 'resources/read', { uri: COCKPIT_UI_URI }),
+    request(108, 'resources/read', { uri: 'ui://absent' }),
+    request(109, 'tools/call', { name: 'agdf_cockpit', arguments: {} }, { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: ['text/html'] } } }),
+  ];
+  const beforeWire = calls().length;
+  const exchanged = spawnSync(process.execPath, [entry, 'claude', uiDirectory, marker], { encoding: 'utf8', input: wire.map(row => JSON.stringify(row)).join('\n') + '\n', timeout: 30000 });
+  assert.equal(exchanged.status, 0, exchanged.stderr);
+  const replies = exchanged.stdout.trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(replies.length, wire.length, 'one reply per request, all pending IDs drained at EOF');
+  const byId = new Map(replies.map(reply => [reply.id, reply]));
+  for (const id of [101, 103, 107, 109]) { assert.equal(byId.get(id).error.code, -32021); assert.deepEqual(byId.get(id).error.data, { requiredCapabilities: ui }); }
+  assert.ok(byId.get(102).result);
+  assert.equal(byId.get(104).error.code, -32602);
+  assert.equal(byId.get(105).result.isError, true);
+  assert.match(byId.get(105).result.content[0].text, /Input validation error/);
+  for (const id of [106, 108]) { assert.ok(byId.get(id).error); assert.notEqual(byId.get(id).error.code, -32021); }
+  assert.equal(calls().length, beforeWire + 1, 'only the explicitly supported request executes');
+  if (process.env.AGDF_MCP_WIRE_EVIDENCE === '1') console.log(JSON.stringify({
+    scenario_ids: ['SCN-001', 'SCN-002', 'SCN-013'], protocol: '2026-07-28',
+    requests: wire, responses: replies, executions: calls().length - beforeWire,
+    process_exit: exchanged.status, stderr: exchanged.stderr, eof_drained: replies.length === wire.length,
+  }));
   console.log("AGDF cockpit UI capability gating tests passed (2025-11-25 and 2026-07-28).");
 } finally {
   rmSync(temporary, { recursive: true, force: true });

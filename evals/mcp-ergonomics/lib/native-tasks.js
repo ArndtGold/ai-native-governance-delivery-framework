@@ -11,6 +11,11 @@ import { repoRoot } from "./protocol-harness.js";
 export const TASKS_PATH = join(repoRoot, "evals", "mcp-ergonomics", "tasks.v1.json");
 export const loadTaskSet = (path = TASKS_PATH) => JSON.parse(readFileSync(path, "utf8"));
 
+// Supplemental Codex command task: keep the historical six-task matrix intact.
+export const CODEX_COMMAND_TASK = Object.freeze({ id: 'T7', title: 'Presented UR approval through MCP', fixture: 'F3',
+  prompt: 'Mir wurde die UR von Run demo-run-01 in diesem Repository vorgelegt. Meine Antwort: Approval: UR. Erfasse diese Antwort für die vorgelegte Fassung.',
+  allowed_paths: ['.agdf/control/**'], success: { type: 'single_ur_approval', run_id: 'demo-run-01' } });
+
 const AGDF_MCP_PREFIXES = ["mcp__plugin_agdf_agdf__", "mcp__plugin_agdf_agdf-cockpit__"];
 const AGDF_SHELL = /agdf-local\.js|create-agdf|agdf-validator/u;
 

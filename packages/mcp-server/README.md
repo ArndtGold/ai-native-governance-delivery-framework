@@ -53,8 +53,7 @@ service itself remains read-only. Accordingly, `agdf_dispatch` declares `readOnl
 
 > [!IMPORTANT]
 > This package documents the repository development build. The previously published AGDF 0.14.5 release
-> did not include the MCP support described here. Repository assemblies and local plugin builds still
-> carry the canonical version `0.14.5`, but can contain these newer MCP features. The version alone
+> did not include the MCP support described here. Current assemblies and local plugin builds take their version from the canonical package manifests. The version alone
 > does not identify the payload: verify the assembly or installed runtime digests and the loaded session.
 > These development instructions do not establish what a current npm `@latest` resolution contains.
 

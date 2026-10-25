@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: task set v1 holds the approved decisions and six complete tasks (SCN-008)
+ok 1 - task set v1 holds the approved decisions and six complete tasks (SCN-008)
+  ---
+  duration_ms: 5.647584
+  type: 'test'
+  ...
+# Subtest: read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+ok 2 - read-bound predicate passes on a successful bound read and fails otherwise (SCN-009)
+  ---
+  duration_ms: 0.853988
+  type: 'test'
+  ...
+# Subtest: new-run, document-page and stale-write predicates (SCN-009)
+ok 3 - new-run, document-page and stale-write predicates (SCN-009)
+  ---
+  duration_ms: 9.278982
+  type: 'test'
+  ...
+# Subtest: approval predicate on a real presented fixture (SCN-009)
+ok 4 - approval predicate on a real presented fixture (SCN-009)
+  ---
+  duration_ms: 7717.766489
+  type: 'test'
+  ...
+# Subtest: cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+ok 5 - cells run round 1 before round 2 and the schedule stops at the cap (SCN-024)
+  ---
+  duration_ms: 1.309888
+  type: 'test'
+  ...
+# Subtest: variant verification and session metrics
+ok 6 - variant verification and session metrics
+  ---
+  duration_ms: 1.24857
+  type: 'test'
+  ...
+# Subtest: variant allowlists follow SD SDD-007
+ok 7 - variant allowlists follow SD SDD-007
+  ---
+  duration_ms: 0.331918
+  type: 'test'
+  ...
+# Subtest: variant verification rejects foreign MCP servers and built-in tools outside the variant
+ok 8 - variant verification rejects foreign MCP servers and built-in tools outside the variant
+  ---
+  duration_ms: 0.335723
+  type: 'test'
+  ...
+# Subtest: PowerShell AGDF calls count as shell calls and permission denials are counted
+ok 9 - PowerShell AGDF calls count as shell calls and permission denials are counted
+  ---
+  duration_ms: 0.871003
+  type: 'test'
+  ...
+# Subtest: plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+ok 10 - plugin data root budget keeps the MCP runtime under Windows MAX_PATH
+  ---
+  duration_ms: 0.70101
+  type: 'test'
+  ...
+# Subtest: tasks.v1.json stays valid JSON with the documented prompt placeholders
+ok 11 - tasks.v1.json stays valid JSON with the documented prompt placeholders
+  ---
+  duration_ms: 0.370452
+  type: 'test'
+  ...
+# Subtest: the native runner's dry run plans cells with their task ids
+ok 12 - the native runner's dry run plans cells with their task ids
+  ---
+  duration_ms: 1382.906846
+  type: 'test'
+  ...
+# Subtest: sessions that end in an error or without result are no measurement
+ok 13 - sessions that end in an error or without result are no measurement
+  ---
+  duration_ms: 0.498326
+  type: 'test'
+  ...
+# Subtest: a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+ok 14 - a native run without token needs the explicit credential-copy opt-in and stops before any side effect
+  ---
+  duration_ms: 1494.44995
+  type: 'test'
+  ...
+# Subtest: strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+ok 15 - strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery
+  ---
+  duration_ms: 2.039768
+  type: 'test'
+  ...
+# Subtest: Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+ok 16 - Codex trace audit includes failed detours and incomplete calls, preserving original task predicate
+  ---
+  duration_ms: 2.016195
+  type: 'test'
+  ...
+# Subtest: single Codex T4 planning cannot enter the default multi-session host probe
+ok 17 - single Codex T4 planning cannot enter the default multi-session host probe
+  ---
+  duration_ms: 2842.618063
+  type: 'test'
+  ...
+# Subtest: code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+ok 18 - code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation
+  ---
+  duration_ms: 14.241428
+  type: 'test'
+  ...
+# Subtest: single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+ok 19 - single Codex T4 rejects a disabled or unobservable code-mode host before model execution
+  ---
+  duration_ms: 0.856815
+  type: 'test'
+  ...
+# Subtest: Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+ok 20 - Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence
+  ---
+  duration_ms: 1.727634
+  type: 'test'
+  ...
+# Subtest: empty host catalog discovery cannot supply bindings or admit resource reads
+ok 21 - empty host catalog discovery cannot supply bindings or admit resource reads
+  ---
+  duration_ms: 0.92359
+  type: 'test'
+  ...
+# Subtest: Codex command qualification retains T4 boundaries and requires prior MCP bindings and one original approval
+ok 22 - Codex command qualification retains T4 boundaries and requires prior MCP bindings and one original approval
+  ---
+  duration_ms: 1.658362
+  type: 'test'
+  ...
+# Subtest: T7 dry-run binds exactly two low-effort account sessions without invoking a host
+ok 23 - T7 dry-run binds exactly two low-effort account sessions without invoking a host
+  ---
+  duration_ms: 9105.681694
+  type: 'test'
+  ...
+# Subtest: offline mock host proves two fresh fixtures, account-home reuse, low overrides and API exclusion
+ok 24 - offline mock host proves two fresh fixtures, account-home reuse, low overrides and API exclusion
+  ---
+  duration_ms: 87266.435376
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 96867.243958

@@ -164,3 +164,29 @@ await client.close();
 await server.closeAgdfRuntime();
 await server.close();
 console.log("AGDF MCP semantic contract tests passed.");
+
+// The public Transport seam preserves context, send options and optional APIs;
+// denied calls settle via the original channel and never enter SDK dispatch.
+const { capabilityTransport } = await import('../src/ui-capability.js');
+const sent = [], forwarded = [], failures = [], lifecycle = [];
+const transport = { sessionId: 'first', hasPerRequestStream: true,
+  async start() { lifecycle.push('start'); }, async close() { lifecycle.push('close'); this.onclose?.(); },
+  async send(message, options) { if (message.id === 3) throw Error('send_failed'); sent.push({ message, options }); },
+  setProtocolVersion(version) { lifecycle.push(version); }, setSupportedProtocolVersions(versions) { lifecycle.push(versions); } };
+const decorated = capabilityTransport(transport, message => message.method === 'protected' ? { code: -32021, message: 'missing', data: { requiredCapabilities: {} } } : null);
+decorated.onmessage = (message, extra) => forwarded.push({ message, extra });
+decorated.onerror = error => failures.push(error.message);
+decorated.onclose = () => lifecycle.push('closed');
+await decorated.start(); decorated.sessionId = 'second';
+assert.equal(transport.sessionId, 'second'); assert.equal(decorated.hasPerRequestStream, true);
+decorated.setProtocolVersion('modern'); decorated.setSupportedProtocolVersions(['modern']);
+const extra = { opaque: 'retained' }, ordinary = { method: 'notifications/cancelled', params: { requestId: 1 } };
+transport.onmessage(ordinary, extra); assert.equal(forwarded[0].message, ordinary); assert.equal(forwarded[0].extra, extra);
+const options = { relatedRequestId: 4 }; await decorated.send({ id: 4, result: {} }, options); assert.equal(sent[0].options, options);
+transport.onmessage({ jsonrpc: '2.0', id: 2, method: 'protected' }, extra);
+transport.onmessage({ jsonrpc: '2.0', id: 3, method: 'protected' }, extra);
+await new Promise(resolve => setImmediate(resolve));
+assert.equal(forwarded.length, 1); assert.equal(sent[1].message.id, 2); assert.equal(sent[1].message.error.code, -32021);
+assert.deepEqual(failures, ['send_failed']);
+await decorated.close(); assert.deepEqual(lifecycle, ['start', 'modern', ['modern'], 'close', 'closed']);
+console.log('Public capability Transport callback/context/options/session/close/send-failure forwarding passed.');

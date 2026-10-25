@@ -1,0 +1,303 @@
+{
+  "scenario_ids": [
+    "SCN-001",
+    "SCN-002",
+    "SCN-013"
+  ],
+  "protocol": "2026-07-28",
+  "requests": [
+    {
+      "jsonrpc": "2.0",
+      "id": 101,
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit",
+        "arguments": {},
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {}
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 102,
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit",
+        "arguments": {},
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html;profile=mcp-app"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 103,
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit",
+        "arguments": {},
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {}
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 104,
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit",
+        "arguments": {},
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 105,
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit",
+        "arguments": {
+          "injected": true
+        },
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {}
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 106,
+      "method": "tools/call",
+      "params": {
+        "name": "absent",
+        "arguments": {},
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {}
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 107,
+      "method": "resources/read",
+      "params": {
+        "uri": "ui://agdf/cockpit/v1.html",
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {}
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 108,
+      "method": "resources/read",
+      "params": {
+        "uri": "ui://absent",
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {}
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 109,
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit",
+        "arguments": {},
+        "_meta": {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "responses": [
+    {
+      "jsonrpc": "2.0",
+      "id": 101,
+      "error": {
+        "code": -32021,
+        "message": "resource_denied",
+        "data": {
+          "requiredCapabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html;profile=mcp-app"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 103,
+      "error": {
+        "code": -32021,
+        "message": "resource_denied",
+        "data": {
+          "requiredCapabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html;profile=mcp-app"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 104,
+      "error": {
+        "code": -32602,
+        "message": "Invalid _meta envelope for protocol revision 2026-07-28: Invalid input: expected object, received undefined"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 106,
+      "error": {
+        "code": -32602,
+        "message": "Tool absent not found"
+      }
+    },
+    {
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Input validation error: Invalid arguments for tool agdf_cockpit: data must NOT have additional properties"
+          }
+        ],
+        "isError": true,
+        "resultType": "complete",
+        "_meta": {
+          "io.modelcontextprotocol/serverInfo": {
+            "name": "agdf-mcp",
+            "version": "0.20.1"
+          }
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 105
+    },
+    {
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"schema_version\":\"1\",\"authorizes\":false,\"target\":null,\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":null,\"tool\":\"agdf_cockpit\"}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "authorizes": false,
+          "target": null,
+          "snapshot_id": null,
+          "observed_as_of": null,
+          "source_digest": null,
+          "state": "available",
+          "code": null,
+          "retryable": false,
+          "data": null,
+          "tool": "agdf_cockpit"
+        },
+        "resultType": "complete",
+        "_meta": {
+          "io.modelcontextprotocol/serverInfo": {
+            "name": "agdf-mcp",
+            "version": "0.20.1"
+          }
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 102
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 109,
+      "error": {
+        "code": -32021,
+        "message": "resource_denied",
+        "data": {
+          "requiredCapabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html;profile=mcp-app"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 107,
+      "error": {
+        "code": -32021,
+        "message": "resource_denied",
+        "data": {
+          "requiredCapabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html;profile=mcp-app"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 108,
+      "error": {
+        "code": -32602,
+        "message": "Resource not found: ui://absent",
+        "data": {
+          "uri": "ui://absent"
+        }
+      }
+    }
+  ],
+  "executions": 1,
+  "process_exit": 0,
+  "stderr": "",
+  "eof_drained": true
+}

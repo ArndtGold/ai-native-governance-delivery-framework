@@ -113,6 +113,8 @@ try {
     assert.equal(inspectCodexCockpitPlugin(path).status, 'matched', 'Native and portable separators identify the same canonical installed plugin');
     assert.equal(inspectCodexCockpitPlugin(path + '/.').status, 'unconfirmed', 'Separator compatibility must not admit noncanonical paths');
   }
+  mkdirSync(join(root, 'user'));
+  writeFileSync(join(root, 'user/config.toml'), 'git-commit-instructions = """\n[mcp_servers.agdf-cockpit]\nenabled = true\n"""\n');
   for (const providers of [
     [{ server_id: 'agdf-cockpit', plugin_id: 'agdf@agdf' }],
     [{ server_id: 'agdf-cockpit', plugin_id: 'foreign@foreign' }],
@@ -253,7 +255,9 @@ const transitionTarget = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-cockpit-t
 try {
   const env = { CODEX_HOME: join(transitionTarget, 'user'), AGDF_DATA_DIR: join(transitionTarget, 'data') };
   mkdirSync(env.CODEX_HOME);
-  const foreignConfig = '[mcp_servers.foreign]\ncommand = "/foreign"\n[mcp_servers.foreign.env]\nSECRET = "PRESERVED_CANARY"\n[mcp_servers.foreign.tools.read]\napproval_mode = "never"\n';
+  const foreignConfig = 'git-commit-instructions = """\n[mcp_servers.agdf-cockpit]\nenabled = true\n"""\n'
+    + "git-pr-instructions = '''\n[mcp_servers.agdf-cockpit-local]\nenabled = true\n'''\n"
+    + '[mcp_servers.foreign]\ncommand = "/foreign"\n[mcp_servers.foreign.env]\nSECRET = "PRESERVED_CANARY"\n[mcp_servers.foreign.tools.read]\napproval_mode = "never"\n';
   writeFileSync(join(env.CODEX_HOME, 'config.toml'), foreignConfig);
   const runtime = ensurePluginMcpRuntime({ pluginRoot, dataRoot: join(transitionTarget, 'runtime'), exec: offlineNpm });
   const enabled = runMcpLifecycle({ action: 'enable', surface: 'codex', scope: 'project', target: transitionTarget,
@@ -267,6 +271,40 @@ try {
     inventory: { origins: [{ path, digest: hash(original) }, { path: join(env.CODEX_HOME, 'config.toml'), digest: hash(foreignConfig) }] } };
   const make = (extra = {}) => createCodexCockpitTransition({ target: transitionTarget, env,
     serverId: legacyId, evidence, evidenceDigest: hash('observed evidence'), ...extra });
+  // Strings in both source scopes must neither block a transition nor introduce
+  // another provider, ownership marker, section boundary or enabled field.
+  for (const eol of ['\n', '\r\n']) {
+    const prefix = `instructions = """\n[mcp_servers.${legacyId}]\nenabled = true\n"""\n`.replaceAll('\n', eol);
+    const suffix = `[notes]\ninstructions = '''\n[mcp_servers.${legacyId}]\nenabled = false\n'''\n`.replaceAll('\n', eol);
+    const combined = prefix + original + suffix;
+    writeFileSync(path, combined);
+    const stringEvidence = { ...evidence, config_digest: hash(combined),
+      inventory: { origins: evidence.inventory.origins.map(row => row.path === path ? { ...row, digest: hash(combined) } : row) } };
+    const tx = make({ evidence: stringEvidence }); tx.apply();
+    const disabled = readFileSync(path, 'utf8');
+    assert.equal(disabled.slice(0, prefix.length), prefix);
+    assert.ok(disabled.endsWith(suffix));
+    make({ evidence: stringEvidence, restore: true }).apply();
+    assert.equal(readFileSync(path, 'utf8'), combined, 'Guarded restore preserves all foreign bytes.');
+    const again = make({ evidence: stringEvidence }); again.apply(); again.rollback();
+    assert.equal(readFileSync(path, 'utf8'), combined, 'Rollback preserves all foreign bytes.');
+    assert.equal(readFileSync(join(env.CODEX_HOME, 'config.toml'), 'utf8'), foreignConfig);
+    for (const extra of [
+      `[mcp_servers.${legacyId}]\ncommand = "/foreign"\n`,
+      `[mcp_servers.${legacyId.replaceAll('-', '_').toUpperCase()}]\ncommand = "/foreign"\n`,
+      '[[mcp_servers.agdf-cockpit]]\ncommand = "/foreign"\n',
+      '"mcp_servers" = {}\n',
+      'unclosed = """\n',
+    ]) {
+      writeFileSync(join(env.CODEX_HOME, 'config.toml'), foreignConfig + extra);
+      const conflictEvidence = { ...stringEvidence, inventory: { origins: stringEvidence.inventory.origins.map(row =>
+        row.path === path ? row : { ...row, digest: hash(foreignConfig + extra) }) } };
+      assert.throws(() => make({ evidence: conflictEvidence }), /NAME_CONFLICT|INVENTORY_UNCONFIRMED/);
+      assert.equal(readFileSync(path, 'utf8'), combined, 'Unsupported sources and real aliases must never retire Legacy.');
+    }
+    writeFileSync(join(env.CODEX_HOME, 'config.toml'), foreignConfig);
+  }
+  writeFileSync(path, original);
   const tx = make(); tx.apply();
   assert.ok(readFileSync(path, 'utf8').includes('enabled = false'));
   assert.ok(existsSync(runtime.entrypoint), 'legacy executable retained');

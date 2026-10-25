@@ -1,6 +1,6 @@
 {
   "name": "create-agdf",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "description": "Install AGDF plugins, bootstrap supported repository surfaces and validate durable governance state.",
   "type": "module",
   "engines": {
@@ -100,7 +100,7 @@
     "test:plugin-mcp-runtime": "node scripts/plugin-mcp-runtime-test.js && node scripts/mcp-runtime-retention-test.js && node ../core/test/mcp-tool-errors-test.js",
     "test:plugin-mcp-cockpit-variant": "node scripts/plugin-mcp-cockpit-variant-test.js",
     "test:claude-plugin-mcp": "node scripts/claude-plugin-mcp-test.js",
-    "test:codex-plugin-mcp": "node scripts/codex-plugin-mcp-test.js",
+    "test:codex-plugin-mcp": "node scripts/codex-plugin-mcp-test.js && node scripts/codex-cockpit-config-test.js",
     "test:mcp-server": "npm --prefix ../mcp-server test",
     "test:verified-change": "node scripts/verified-change-test.js",
     "test:runtime-integrity-layout": "node scripts/runtime-integrity-layout-test.js",

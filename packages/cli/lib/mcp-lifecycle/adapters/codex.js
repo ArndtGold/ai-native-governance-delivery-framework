@@ -6,6 +6,7 @@ import { inspectMcpServerPackage, inspectMcpExecutableRoot } from '../package.js
 import { homedir } from "node:os";
 import { dirname, basename, join, isAbsolute, resolve, relative, sep } from "node:path";
 import { fileURLToPath } from 'node:url';
+import { codexConfigSyntax } from '../../host-adapters/codex/config-source.js';
 import {
   allSourceResult,
   atomicWrite,
@@ -49,13 +50,13 @@ function section(spec, { createdConfig = false, createdDirectory = false } = {})
 }
 
 function sectionRange(content, id = 'agdf') {
-  // This bounded owner edits generated single-line sections only. Headers inside
-  // TOML multiline strings cannot establish ownership; preserve unsupported sources.
-  if (/'''|"""/u.test(content)) throw Error('AGDF_MCP_CODEX_CONFIG_INVALID');
+  // Ownership remains limited to generated single-line sections. Ignore table
+  // examples inside unrelated TOML strings without rewriting those strings.
+  const syntax = codexConfigSyntax(content);
   const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const exactHeader = `[mcp_servers.${id}]`;
-  const headers = [...content.matchAll(new RegExp('^[ \\t]*\\[mcp_servers\\.' + escaped + '\\][ \\t]*$', 'gm'))];
-  const unsupported = content.split("\n").some((line) => {
+  const headers = [...syntax.matchAll(new RegExp('^[ \\t]*\\[mcp_servers\\.' + escaped + '\\][ \\t]*\\r?$', 'gm'))];
+  const unsupported = syntax.split("\n").some((line) => {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) return false;
     if (trimmed.startsWith("[")) {
@@ -71,12 +72,12 @@ function sectionRange(content, id = 'agdf') {
   const [header] = headers;
   if (!header) return null;
   const sectionStart = header.index;
-  const next = /^[ \t]*\[[^\n]+\][ \t]*$/gm;
+  const next = /^[ \t]*\[[^\r\n]+\][ \t]*\r?$/gm;
   next.lastIndex = sectionStart + header[0].length;
-  const nextHeader = next.exec(content);
+  const nextHeader = next.exec(syntax);
   let start = sectionStart;
-  const marker = content.slice(0, sectionStart).match(/(?:^|\n)(# AGDF-OWNED-MCP: [^\n]+)\n$/);
-  if (marker) start = sectionStart - marker[0].length + (marker[0].startsWith("\n") ? 1 : 0);
+  const marker = content.slice(0, sectionStart).match(/(?:^|\r?\n)(# AGDF-OWNED-MCP: [^\r\n]+)\r?\n$/);
+  if (marker) start = sectionStart - marker[0].length + (marker[0].startsWith('\r\n') ? 2 : marker[0].startsWith('\n') ? 1 : 0);
   return { start, sectionStart, end: nextHeader?.index ?? content.length, marker: marker?.[1] ?? null };
 }
 
@@ -215,11 +216,10 @@ export function inspectCodexSetup({ target, env = {}, pluginRoot } = {}) {
   for (const source of sources({ scope: 'project', target, env })) {
     try {
       const snapshot = safeSnapshot(source.path);
-      if (Buffer.byteLength(snapshot.content) > 65_536) throw Error('bounded_source');
-      if (/'''|"""/u.test(snapshot.content)) throw Error('unsupported_multiline_source');
+      const syntax = codexConfigSyntax(snapshot.content);
       const sourceDigest = createHash('sha256').update(snapshot.content).digest('hex');
       checked.push({ source: source.id, path: source.path, status: snapshot.existed ? 'declared' : 'absent', digest: sourceDigest });
-      const sections = [...snapshot.content.matchAll(/^[ \t]*\[([^\n]+)\][ \t]*$/gm)];
+      const sections = [...syntax.matchAll(/^[ \t]*\[([^\r\n]+)\][ \t]*\r?$/gm)];
       for (let index = 0; index < sections.length; index++) {
         const header = sections[index][1];
         const id = /^mcp_servers\.([A-Za-z0-9_-]+)$/u.exec(header)?.[1];
@@ -227,13 +227,13 @@ export function inspectCodexSetup({ target, env = {}, pluginRoot } = {}) {
         if (!id && !plugin) continue;
         if (entries.length >= 32) throw Error('bounded_entries');
         const name = plugin ? 'agdf' : id;
-        const body = snapshot.content.slice(sections[index].index + sections[index][0].length, sections[index + 1]?.index ?? snapshot.content.length);
+        const body = syntax.slice(sections[index].index + sections[index][0].length, sections[index + 1]?.index ?? syntax.length);
         const role = plugin ? 'product' : ['agdf-cockpit', 'agdf-cockpit-local'].includes(name) ? 'cockpit'
           : name.startsWith('agdf-test-') || ['agdf-cockpit-draft-check', 'agdf-decision-probe'].includes(name) ? 'diagnostic' : 'legacy_or_conflict';
         const value = key => new RegExp('^' + key + '[ \\t]*=[ \\t]*([^\\n#]+)', 'm').exec(body)?.[1]?.trim();
         const declaredEnabled = value('enabled');
         const enabled = declaredEnabled === 'false' ? false : declaredEnabled === 'true' ? true : declaredEnabled !== undefined || plugin ? null : true;
-        const beforeHeader = snapshot.content.slice(0, sections[index].index).match(/(# AGDF-OWNED-MCP: [^\n]+)\n$/u)?.[1];
+        const beforeHeader = snapshot.content.slice(0, sections[index].index).match(/(# AGDF-OWNED-MCP: [^\r\n]+)\r?\n$/u)?.[1];
         const mark = identity(beforeHeader);
         const exactIdOwned = mark && (plugin || name === 'agdf' || mark.server_id === name && mark.role === role);
         const timeout = key => { const raw = value(key); return raw && /^\d+(?:\.\d+)?$/u.test(raw) ? Number(raw) : null; };
@@ -296,6 +296,24 @@ const portablePath = path => path.split(sep).join('/');
 function mcpTable(header) {
   const match = /^mcp_servers\.([A-Za-z0-9_-]+)((?:\.[A-Za-z0-9_-]+)*)$/u.exec(header);
   return match ? { name: match[1], nested: Boolean(match[2]) } : null;
+}
+
+function mcpTables(syntax) {
+  const headers = [...syntax.matchAll(/^[ \t]*\[([^\r\n]+)\][ \t]*\r?$/gm)], tables = [], seen = new Set();
+  for (let i = 0; i < headers.length; i++) {
+    const header = headers[i][1], normalized = header.replace(/[\s"'\[\]]/gu, '');
+    if (normalized !== 'mcp_servers' && !normalized.startsWith('mcp_servers.')) continue;
+    const table = mcpTable(header);
+    if (!table || seen.has(header)) throw Error('unsupported_mcp_header');
+    seen.add(header);
+    tables.push({ ...table, bodyStart: headers[i].index + headers[i][0].length,
+      end: headers[i + 1]?.index ?? syntax.length });
+  }
+  if (syntax.split('\n').some(line => {
+    const key = line.match(/^[ \t]*([^=\n]+)=/u)?.[1]?.replace(/[\s"']/gu, '');
+    return key === 'mcp_servers' || key?.startsWith('mcp_servers.');
+  })) throw Error('unsupported_mcp_assignment');
+  return tables;
 }
 
 export function inspectCodexCockpitPlugin(pluginRoot) {
@@ -390,12 +408,10 @@ export function createCodexCockpitTransition({ target, env = {}, serverId: id, r
     }
     // No higher/lower scope same key, aliases or second Cockpit is silently adopted.
     for (const source of snapshots) {
-      if (/'''|"""/u.test(source.content) || /^[ \t]*mcp_servers(?:[. \t]|=)/mu.test(source.content))
-        throw Error('AGDF_MCP_COCKPIT_INVENTORY_UNCONFIRMED');
-      const headers = [...source.content.matchAll(/^[ \t]*\[mcp_servers\.([^\n\]]+)\][ \t]*$/gm)];
-      for (const header of headers) {
-        const table = mcpTable(`mcp_servers.${header[1]}`);
-        if (!table) throw Error('AGDF_MCP_COCKPIT_INVENTORY_UNCONFIRMED');
+      let tables;
+      try { tables = mcpTables(codexConfigSyntax(source.content)); }
+      catch { throw Error('AGDF_MCP_COCKPIT_INVENTORY_UNCONFIRMED'); }
+      for (const table of tables) {
         if ([potentialAlias('agdf-cockpit'), potentialAlias('agdf-cockpit-local')].includes(potentialAlias(table.name))
           && !(source.path === path && table.name === id && !table.nested)) throw Error('AGDF_MCP_COCKPIT_NAME_CONFLICT');
       }
@@ -437,23 +453,18 @@ export function inspectCodexCockpitAdmission({ target, env = {}, exec, manifestR
   for (const source of sources({ scope: 'project', target, env })) {
     try {
       const snapshot = safeSnapshot(source.path), content = snapshot.content;
-      if (Buffer.byteLength(content) > 65_536 || /'''|"""/u.test(content)) throw Error('unsupported_source');
+      let syntax;
+      try { syntax = codexConfigSyntax(content); } catch { throw Error('unsupported_source'); }
       checked.push({ path: source.path, digest: sha(content) });
-      const headers = [...content.matchAll(/^[ \t]*\[([^\n]+)\][ \t]*$/gm)];
-      for (let i = 0; i < headers.length; i++) {
-        const header = headers[i][1];
-        if (!header.replace(/[\s"']/gu, '').startsWith('mcp_servers.')) continue;
-        const table = mcpTable(header);
-        if (!table) throw Error('unsupported_mcp_header');
+      for (const table of mcpTables(syntax)) {
         const name = table.name;
         if (potentialAlias(name) !== 'agdf_cockpit') continue;
         if (table.nested) throw Error('unsupported_mcp_header');
-        const body = content.slice(headers[i].index + headers[i][0].length, headers[i + 1]?.index ?? content.length);
+        const body = syntax.slice(table.bodyStart, table.end);
         const enabled = [...body.matchAll(/^[ \t]*enabled[ \t]*=[ \t]*([^\n#]+)(?:#[^\n]*)?$/gm)];
         if (enabled.length === 1 && enabled[0][1].trim() === 'false') continue;
         conflicts.push({ path: source.path, server_id: name, reason: 'same_key_or_possible_alias' });
       }
-      if (/^[ \t]*mcp_servers(?:[. \t]|=)/mu.test(content)) throw Error('unsupported_mcp_assignment');
     } catch (error) { conflicts.push({ path: source.path, reason: error.message }); }
   }
   let nativeProviderStatus = 'unobserved';

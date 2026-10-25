@@ -2,7 +2,12 @@
 
 # AI native Governance and Delivery Framework
 
-AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex, Claude Code, GitHub Copilot und OpenCode. Zugleich ist es ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
+AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex und Claude Code.
+GitHub Copilot und OpenCode werden in der Versionsreihe **0.20.x experimentell unterstützt**.
+Für beide sind Adapter und automatisierte Regressionstests vorhanden; eine native Qualifizierung
+wird derzeit nicht beansprucht. Automatisierte Tests mit simulierten Hosts belegen keine Funktion
+in einer tatsächlichen Copilot- oder OpenCode-Sitzung.
+Zugleich ist AGDF ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
 
 **0.20.0:** Native Qualifizierungsziele sind Claude Code CLI unter Windows und Codex CLI unter macOS,
 je mit fünf kandidatengebundenen Fällen. Native Nachweise sind freiwillig und keine Veröffentlichungsvoraussetzung;
@@ -10,7 +15,6 @@ eine neue Version erzwingt keinen neuen nativen Lauf. Qualifiziert ist nur, was 
 Codex Desktop und Claude Desktop gelten als **manuell geprüft**: AGDF-Aufruf, Upgrade und Wiederherstellung
 sind von Hand als bestanden gemeldet, aber nicht maschinell qualifiziert und keine Veröffentlichungsvoraussetzung.
 Codex CLI unter Windows/Linux bleibt **unqualifiziert** und außerhalb dieser Qualifizierungsmatrix.
-GitHub Copilot und OpenCode bleiben **experimentell**; ihre Adapter und Regressionstests bleiben erhalten.
 Ältere Windows-Claude-CLI-Belege und macOS-Codex-CLI-Diagnosen bleiben historisch und zählen nicht für den finalen Kandidaten.
 Die vollständige native Abnahme des finalen 0.20.0-Kandidaten bleibt offen. Siehe
 [Release-Prozess](RELEASE.md#native-host-qualification), [Qualifizierungsumfang und Testübergabe](docs/maintenance/release-0.20.0.md) und
@@ -34,17 +38,32 @@ npx --yes @agdf/cli@latest codex
 
 Nach Abschluss zeigt die Installation Version, Installationsbereich, Prüfergebnis, erforderlichen Neustart und genau einen nächsten Schritt.
 
-Claude Code, GitHub Copilot und OpenCode verwenden dieselbe Befehlsfamilie:
+Für Claude Code:
 
 ```bash
 npx --yes @agdf/cli@latest claude
+```
+
+Für GitHub Copilot und OpenCode (**experimentelle Unterstützung in 0.20.x**):
+
+```bash
 npx --yes @agdf/cli@latest copilot
 npx --yes @agdf/cli@latest opencode
 ```
 
 Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
 
-Optional kann AGDF für Codex, Claude Code, GitHub Copilot und OpenCode einen lokalen MCP-Server registrieren.
+**MCP-Anbindung und UI-App sind getrennte Fähigkeiten.** Claude Code und Codex erhalten den
+lokalen AGDF-MCP-Server über das Runtime-Plugin; ein separates `mcp enable` ist dafür nicht nötig.
+Der gemeinsame Standard-Build aktiviert die MCP-App-Integration für Cockpit und
+Gate-Entscheidungsansichten im Codex-Profil. Im Claude-Code-Profil dieses Builds ist sie nicht
+aktiviert. Eine eigene Claude-Cockpit-Entwicklungsvariante bleibt davon getrennt. Die Darstellung
+benötigt einen Host mit MCP-App-Unterstützung; native UI-Qualifizierung und QA/UAT bleiben eigene
+Nachweise. Produktive Klickaktionen der Gate-Entscheidungsansicht sind bis zur Qualifizierung
+deaktiviert. Details: [MCP und UI je Host](INSTALL.md#claude-code-and-codex-mcp-and-ui).
+
+GitHub Copilot erhält MCP ebenfalls über sein Runtime-Plugin. Für OpenCode kann der lokale
+MCP-Server separat registriert werden; beide Integrationen bleiben experimentell in 0.20.x.
 MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 `agdf_dispatch` verwendet dieselbe kanonische
 Funktionsbeschreibung und Gate-Auswertung wie die CLI; `agdf_inspect` bietet lesenden Zugriff auf
@@ -53,13 +72,13 @@ offline und ist nicht freigebend. Eine Werkzeugberechtigung oder ein erfolgreich
 AGDF-Freigabe. Der Prozess übernimmt die Betriebssystemrechte des startenden Hosts und beansprucht
 keine Sandbox.
 
-In Codex heißt der MCP-Server `agdf`; seine Werkzeuge heißen `agdf_dispatch` und `agdf_inspect`.
+In Codex heißt der reguläre MCP-Server `agdf`; Cockpit verwendet zusätzlich `agdf-cockpit`.
 Ein Eintrag `codex_app` gehört zur separaten Codex-App-Integration und ist nicht der AGDF-MCP-Server.
 
 ```bash
 npx --yes @agdf/cli@latest mcp status --surface codex --dir /absoluter/pfad/zum/repository --json
-npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absoluter/pfad/zum/repository
-npx --yes @agdf/cli@latest mcp disable --surface codex --dir /absoluter/pfad/zum/repository
+npx --yes @agdf/cli@latest mcp enable --surface opencode --dir /absoluter/pfad/zum/repository
+npx --yes @agdf/cli@latest mcp disable --surface opencode --dir /absoluter/pfad/zum/repository
 ```
 
 Der Repository-Bereich ist der Standard. `--scope user` muss bewusst gewählt werden. MCP benötigt
@@ -67,7 +86,8 @@ Node.js 22 oder neuer, ebenso wie die CLI. Nach der
 Aktivierung muss der Host neu gestartet und die Erkennung in einer frischen Sitzung geprüft werden.
 Host-Unterstützung bleibt bis zu direkter Registrierung, Erkennung, Aufruf, kontrolliertem Fehler
 und Entfernung je Host und Betriebssystem-Tupel `unverified`. Die vier Adapter teilen eine
-versionsgleiche Laufzeit pro Bereich. Plugin-Installation aktiviert MCP nicht automatisch.
+versionsgleiche Laufzeit pro Bereich. Die Runtime-Plugins für Codex, Claude Code und Copilot
+deklarieren MCP selbst; das öffentliche Skills-only-Paket enthält dagegen keinen MCP-Server.
 Der GitHub-Copilot-Adapter folgt den Projekt- und Benutzerdateien des Copilot-CLI-Vertrags. Copilot
 Desktop, IDE-Integrationen und Cloud Agents sind getrennte Clientvarianten und benötigen jeweils
 eigene direkte Evidenz. Kontrollierte Protokolltests belegen die MCP-Kompatibilität des Servers,

@@ -3,7 +3,34 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { codexAdapter, inspectCodexSetup } from '../lib/mcp-lifecycle/adapters/codex.js';
+import { codexAdapter, inspectCodexSetup, inspectCodexCockpitAdmission } from '../lib/mcp-lifecycle/adapters/codex.js';
+import { codexConfigSyntax } from '../lib/host-adapters/codex/config-source.js';
+import { installCodexGlobalPlugin } from '../lib/host-adapters/codex/plugin.js';
+import { pluginDefinition } from '../lib/cli/runtime-context.js';
+
+// Public synthetic counterpart of desktop Git instructions. Never copy a user's
+// private config into a repository fixture or test output.
+const instructions = [
+  '# Both delimiters in a comment: """ and \'\'\'',
+  'git-commit-instructions = """',
+  'PRIVATE_CANARY 🧭: preserve Unicode offsets and example declarations.',
+  '# AGDF-OWNED-MCP: {"owner":"create-agdf:mcp-runtime"}',
+  '[mcp_servers.agdf]',
+  'command = "/example"',
+  '[mcp_servers.agdf-cockpit]',
+  'enabled = false',
+  '[plugins."agdf@agdf"]',
+  'enabled = false',
+  'mcp_servers = { example = {} }',
+  'An escaped delimiter stays inside this string: \\"""',
+  '"""',
+  "git-pr-instructions = '''",
+  '[mcp_servers.AGDF_COCKPIT]',
+  'enabled = true',
+  'Backslashes do not escape literal strings: \\',
+  "'''",
+  'quoted-delimiter = "literal \'\'\' and # within a basic string"',
+].join('\n') + '\n';
 
 test('SCN-032: governance registration preserves the separately named cockpit connection', () => {
   const target = mkdtempSync(join(tmpdir(), 'agdf-cockpit-config-'));
@@ -66,7 +93,12 @@ test('Closed Codex roles revalidate preview and preserve concurrent foreign chan
     assert.throws(() => codexAdapter.inspect({ ...input, spec: { ...spec, serverId: 'node_repl' } }), /ROLE_INVALID/);
     const quoted = 'prompt = """\n' + readFileSync(path, 'utf8') + '\n"""\n';
     writeFileSync(path, quoted);
-    assert.throws(() => codexAdapter.createTransaction({ ...input, action: 'enable' }), /CONFIG_INVALID/);
+    assert.equal(codexAdapter.inspect(input).selected_status, 'absent', 'A quoted ownership marker cannot establish a registration.');
+    const quotedEnable = codexAdapter.createTransaction({ ...input, action: 'enable' });
+    quotedEnable.apply();
+    assert.equal(codexAdapter.inspect(input).selected_status, 'matched');
+    assert.ok(readFileSync(path, 'utf8').startsWith(quoted));
+    quotedEnable.rollback();
     assert.equal(readFileSync(path, 'utf8'), quoted);
     writeFileSync(path, '# FOREIGN_LATER\n');
     assert.throws(() => codexAdapter.inspect({ ...input, spec: { ...spec, role: 'diagnostic', serverId: 'agdf-decision-probe' } }), /ROLE_INVALID/);
@@ -75,6 +107,109 @@ test('Closed Codex roles revalidate preview and preserve concurrent foreign chan
     assert.equal(codexAdapter.inspect(diagnostic).selected_status, 'matched');
     codexAdapter.createTransaction({ ...diagnostic, action: 'disable' }).apply();
     codexAdapter.createTransaction({ ...diagnostic, action: 'disable' }).apply();
+  } finally { rmSync(target, { recursive: true, force: true }); }
+});
+
+for (const eol of ['\n', '\r\n']) {
+  test(`Multiline instructions preserve real admission, diagnosis and registration (${JSON.stringify(eol)})`, () => {
+    const target = mkdtempSync(join(tmpdir(), 'agdf-codex-multiline-'));
+    const user = join(target, 'user'), path = join(user, 'config.toml');
+    const prefix = instructions.replaceAll('\n', eol);
+    const real = '[plugins."agdf@agdf"]\nenabled = true\n[mcp_servers.foreign]\nenabled = false\n'.replaceAll('\n', eol);
+    const original = prefix + real;
+    const input = { target, scope: 'user', env: { CODEX_HOME: user }, exec: (_command, args) => args[1] === 'list' ? '[]' : '{}',
+      spec: { command: '/node', args: ['/owned'], version: '0.20.0', digest: 'a'.repeat(64) } };
+    try {
+      mkdirSync(user); writeFileSync(path, original);
+      const syntax = codexConfigSyntax(original);
+      assert.equal(syntax.length, original.length);
+      assert.deepEqual([...syntax.matchAll(/[\r\n]/g)].map(row => row.index), [...original.matchAll(/[\r\n]/g)].map(row => row.index));
+      assert.equal(syntax.indexOf('[mcp_servers.foreign]'), original.indexOf('[mcp_servers.foreign]'));
+      assert.equal(syntax.includes('PRIVATE_CANARY'), false);
+      assert.equal(inspectCodexCockpitAdmission(input).admitted, true);
+      const setup = inspectCodexSetup(input);
+      assert.deepEqual(setup.entries.map(row => [row.server_id, row.configured]), [['agdf', 'declared'], ['foreign', 'disabled']]);
+      assert.ok(setup.checked_sources.every(row => row.status !== 'unavailable'));
+      assert.equal(JSON.stringify(setup).includes('PRIVATE_CANARY'), false);
+      assert.equal(codexAdapter.inspect(input).selected_status, 'absent');
+      const tx = codexAdapter.createTransaction({ ...input, action: 'enable' });
+      tx.apply();
+      assert.equal(codexAdapter.inspect(input).selected_status, 'matched');
+      assert.ok(readFileSync(path, 'utf8').startsWith(original.trimEnd()));
+      const disable = codexAdapter.createTransaction({ ...input, action: 'disable' });
+      disable.apply();
+      assert.equal(codexAdapter.inspect(input).selected_status, 'absent');
+      disable.rollback(); tx.rollback();
+      assert.equal(readFileSync(path, 'utf8'), original);
+      for (const suffix of [
+        '[mcp_servers.agdf-cockpit]\ncommand = "/foreign"\n',
+        '[mcp_servers.agdf-cockpit]\nnotes = """\nenabled = false\n"""\n',
+        '[mcp_servers.AGDF_COCKPIT]\nenabled = true\n',
+        '[mcp_servers."agdf-cockpit"]\nenabled = false\n',
+        '[[mcp_servers.agdf-cockpit]]\nenabled = false\n',
+        '[mcp_servers]\nagdf-cockpit = {}\n',
+        '"mcp_servers" = {}\n',
+      ]) {
+        writeFileSync(path, prefix + suffix);
+        assert.equal(inspectCodexCockpitAdmission(input).admitted, false, suffix);
+        assert.equal(readFileSync(path, 'utf8'), prefix + suffix);
+      }
+    } finally { rmSync(target, { recursive: true, force: true }); }
+  });
+}
+
+test('Installer accepts unrelated multiline instructions before publishing and still blocks real conflicts', () => {
+  const target = mkdtempSync(join(tmpdir(), 'agdf-codex-install-multiline-'));
+  const user = join(target, 'user'), path = join(user, 'config.toml');
+  let preparations = 0, commits = 0;
+  try {
+    mkdirSync(user); writeFileSync(path, instructions);
+    const input = { target, env: { CODEX_HOME: user }, migrateMcp: () => [],
+      prepare() { preparations++; return { root: join(target, 'marketplace'), commit() { commits++; } }; },
+      exec(command, args) {
+        assert.equal(command, 'codex');
+        if (args.join(' ') === 'mcp list --json') return '[]';
+        if (args.join(' ') === 'plugin marketplace list --json') return '{"marketplaces":[]}';
+        if (args.join(' ') === 'plugin list') return `agdf@agdf ${pluginDefinition.version}\n`;
+        return '';
+      } };
+    assert.equal(installCodexGlobalPlugin(input).verificationStatus, 'healthy');
+    assert.deepEqual([preparations, commits], [1, 1]);
+    assert.equal(readFileSync(path, 'utf8'), instructions);
+    writeFileSync(path, instructions + '[mcp_servers.agdf-cockpit]\ncommand = "/foreign"\n');
+    assert.throws(() => installCodexGlobalPlugin(input), /Cockpit server identity/);
+    assert.deepEqual([preparations, commits], [1, 1], 'A real conflict stops before publication.');
+  } finally { rmSync(target, { recursive: true, force: true }); }
+});
+
+test('String boundaries handle escapes, literal quotes, closing runs and comments without leaking example fields', () => {
+  for (const quote of ['"', "'"]) for (const extra of [0, 1, 2]) {
+    const source = `prompt = ${quote.repeat(3)}\n[mcp_servers.agdf-cockpit]\nenabled = false\n${quote.repeat(3 + extra)}\n[real]\nenabled = true\n`;
+    assert.equal(codexConfigSyntax(source).includes('mcp_servers'), false);
+    assert.ok(codexConfigSyntax(source).includes('[real]\nenabled = true'));
+  }
+  const source = 'notes = """\n' + String.raw`escaped \"""` + '\n[mcp_servers.agdf-cockpit]\n"""\n[real]\nenabled = true # """\n';
+  assert.equal(codexConfigSyntax(source).includes('mcp_servers'), false);
+  assert.ok(codexConfigSyntax(source).includes('[real]\nenabled = true'));
+});
+
+test('Unclosed or oversized sources stay unavailable and cannot publish or mutate a registration', () => {
+  const target = mkdtempSync(join(tmpdir(), 'agdf-codex-invalid-string-'));
+  const path = join(target, '.codex/config.toml');
+  const input = { target, scope: 'project', env: { CODEX_HOME: join(target, 'user') },
+    spec: { command: '/node', args: [], version: '0.20.0', digest: 'a'.repeat(64) } };
+  try {
+    mkdirSync(join(target, '.codex'));
+    for (const content of ['prompt = """\n[real]\n', "prompt = '''\n[real]\n", 'prompt = "unclosed\n',
+      'prompt = "bad\\\ncontinued"\n', '#'.repeat(65_537)]) {
+      writeFileSync(path, content);
+      assert.throws(() => codexAdapter.createTransaction({ ...input, action: 'enable' }), /CONFIG_INVALID/);
+      assert.equal(inspectCodexCockpitAdmission(input).admitted, false);
+      assert.ok(inspectCodexSetup(input).checked_sources.some(row => row.status === 'unavailable'));
+      assert.equal(readFileSync(path, 'utf8'), content);
+    }
+    writeFileSync(path, '[mcp_servers.foreign]\nenabled = """\nfalse\n"""\n');
+    assert.equal(inspectCodexSetup(input).entries[0].configured, 'unknown');
   } finally { rmSync(target, { recursive: true, force: true }); }
 });
 
@@ -208,7 +343,12 @@ for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged',
 test('Codex project origin timeout closes its process without global-inventory fallback', async () => {
   const child = new EventEmitter(); child.stdout = new EventEmitter(); child.stderr = new EventEmitter(); child.stdin = new EventEmitter();
   const writes = []; child.stdin.write = line => writes.push(JSON.parse(line)); child.kill = () => { child.killed = true; };
-  const result = await observeCodexOrigins({ target: process.cwd(), timeoutMs: 10, command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
+  // A real 10 ms timer can fire before Date.now() reaches the deadline. Pin the
+  // exhausted observation budget; teardown uncertainty has its own test below.
+  let readings = 0;
+  child.stdin.end = () => assert.fail('the timed-out observation has no teardown budget');
+  const result = await observeCodexOrigins({ target: process.cwd(), timeoutMs: 10, now: () => readings++ ? 10 : 0,
+    command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
   assert.deepEqual(result, { status: 'unavailable', reason: 'timeout' });
   assert.deepEqual(writes.map(row => row.method), ['initialize']);
   assert.equal(child.killed, true);

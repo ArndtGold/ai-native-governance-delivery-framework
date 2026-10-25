@@ -1,0 +1,17 @@
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"fixture":{"control":"hermetic","control_runs":["agdf-mcp-dispatch-server"],"control_files":31,"control_bytes":754736},"cold_tools_list_ms":[1296.717,1564.83,1668.594,805.994,823.404,782.572,789.423,743.278,765.318,790.344,775.084,760.013,745.345,753.154,808.662,784.227,754.569,794.238,749.643,809.629],"cold_p95_ms":1564.83,"warm_dispatch_ms":[681.378,546.858,533.683,491.481,640.599,532.53,497.81,546.811,484.37,492.085,485.527,517.039,506.965,493.549,579.778,456.547,509.514,463.09,465.601,622.365],"warm_p95_ms":640.599}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 1564.830437
+    at file:///private/tmp/agdf-contract-candidate-3ahp_a7h/packages/mcp-server/test/performance.test.js:65:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

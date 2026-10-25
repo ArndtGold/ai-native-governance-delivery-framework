@@ -1,0 +1,591 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "mcp-contract-completeness-20261025-01",
+  "expected_revision_id": "a2173edf-0bd7-4e9f-a64f-36635326062a",
+  "operation_id": "bf7982be-3d0c-4c94-8376-b575da83d1c9",
+  "source_gate": "TP",
+  "reason": "The direct owner answer in TP_GUARDED_NATIVE_DECISION-01.md accepts configuration C2 after the observed first-session isolation failure; current approved TP's session ceiling and original stop condition require explicit renewal.",
+  "intended_change": "Authorize two additional fresh guarded Codex gpt-6.1-sol/low T7 sessions, at most three real invocations in this Run including the immutable failed original; preserve every MCP budget and the exact Copilot baseline, require OS write guard and before/pre-session/after manifests.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+      "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD.md",
+      "digest": "sha256:2a0c4a464e97c0df1a0e72544c9c98073f98273d7e24d7ad67e3e6b85d089dfa"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD.md",
+      "digest": "sha256:04adc7913d3889900fb3594167e0e800c7cce4a9481286119c12faf88b14788f"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+      "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex TP source revision review",
+    "earliest_source": "TP",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+        "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+        "rationale": "UR remains byte-identical: product intent, acceptance, protocol effects and ownership stay unchanged. Its native execution detail is delegated to TP; only the now-answered execution/cohort allowance and enforced configuration immutability change."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD.md",
+        "digest": "sha256:2a0c4a464e97c0df1a0e72544c9c98073f98273d7e24d7ad67e3e6b85d089dfa",
+        "rationale": "PRD remains byte-identical: product intent, acceptance, protocol effects and ownership stay unchanged. Its native execution detail is delegated to TP; only the now-answered execution/cohort allowance and enforced configuration immutability change."
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD.md",
+        "digest": "sha256:04adc7913d3889900fb3594167e0e800c7cce4a9481286119c12faf88b14788f",
+        "rationale": "SD remains byte-identical: product intent, acceptance, protocol effects and ownership stay unchanged. Its native execution detail is delegated to TP; only the now-answered execution/cohort allowance and enforced configuration immutability change."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2ad2b8aa6392ce67b5d3b5f62ccef9cecf79c2415a3ec60034cc5eeb6a89fc74",
+        "disposition": "reassess",
+        "reason": "The registered analytical association is unknown; do not infer retention. Reassess unchanged external-contract routing and the bounded guarded native follow-up, retaining upstream approved bytes."
+      }
+    ],
+    "implementation_evidence": "Preserve all product code, deterministic passes, failed attempts, original native observation/raw traces, derived reanalysis and model-free guarded preflight. The original native cohort remains unqualified and has exactly one real invocation. Guard/auditor repairs are already implemented and checked offline; reassess preparation and applicable evidence under renewed TP, and create no new native qualification until both newly authorized sessions actually satisfy it.",
+    "unresolved": []
+  },
+  "initiating_phase": "CD+Tests",
+  "changed_statements": [
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+      "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+      "statement": "at most two model sessions",
+      "intended_change": "Replace the old cohort ceiling with exactly two additional guarded C2 sessions and at most three real invocations across this Run, counting and retaining the original failed invocation.",
+      "reason": "Direct user approval accepts two additional sessions after the original isolation stop; no automatic reuse or replacement is inferred."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+      "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+      "statement": "An infrastructure/isolation failure before or during the first session prevents the second",
+      "intended_change": "Preserve the honored original stop and apply the same fail-closed rule to the new C2 pair; only the explicit owner answer and renewed TP permit starting that separate pair.",
+      "reason": "Do not erase the original failed cohort or waive its isolation violation; bind the two new sessions to the new guard/candidate/verifier."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+      "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+      "statement": "Protect real config, installed-plugin metadata and repository control with before/after manifests",
+      "intended_change": "Require the prepared macOS sandbox-exec write guard for the three protected settings files across preflight and exec, retained before/pre-session/after manifests, zero-model guarded preflight and no fallback if unavailable.",
+      "reason": "The original native task succeeded functionally but changed global config; enforce the existing no-change requirement instead of relying on --ignore-user-config loading behavior."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2ad2b8aa6392ce67b5d3b5f62ccef9cecf79c2415a3ec60034cc5eeb6a89fc74",
+        "status": "done"
+      },
+      "record_digest": "sha256:76bf378a189d611a62370219fcd9970c186930f86a7d8d075c1375adaf5d7abe",
+      "operation_id": "ae6292af-8fb2-4354-a065-aa1c373d8687",
+      "source_set_digest": "sha256:bf8b3aed4d29b01ae717b43f88719fa9d6ba5208443efb33aa80214d1cfe9976",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:f49190fe930f217e502544fcca9fca2ec26e1bac86c135fa3a4bbfcfdaa4e708",
+        "status": "done"
+      },
+      "record_digest": "sha256:02a5d3e838e34096c8606ca82e4045e6f674c90faf9c43a37d530fcaf12e05ce",
+      "operation_id": "f9cab124-934c-4c1e-88cc-d45dc7067138",
+      "source_set_digest": "sha256:1c4a09ded8a5acd4223d0bdc73ee0a288b57e192e3c679869321f6f304d94644",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:2a0c4a464e97c0df1a0e72544c9c98073f98273d7e24d7ad67e3e6b85d089dfa",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:04adc7913d3889900fb3594167e0e800c7cce4a9481286119c12faf88b14788f",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:2ad2b8aa6392ce67b5d3b5f62ccef9cecf79c2415a3ec60034cc5eeb6a89fc74",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/CD_TESTS.md",
+        "digest": "sha256:f1449d07162bbd716f2c75140dee09edcda68f7a4d7290f68ecc807349ba3bcf",
+        "status": "revise"
+      },
+      "record_digest": "sha256:8d21d882736d780d1d24b3aa6ac6863bd0d72c397d9026d1309ca79adf895a48",
+      "operation_id": "79c0885d-7e72-4bfa-a884-01611275c8f4",
+      "source_set_digest": "sha256:294103cd7a64a62cbd4d76b6fd79c7bf53d2ea27b73934b4744510d24cc89bb7",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:2a0c4a464e97c0df1a0e72544c9c98073f98273d7e24d7ad67e3e6b85d089dfa",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:04adc7913d3889900fb3594167e0e800c7cce4a9481286119c12faf88b14788f",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:f49190fe930f217e502544fcca9fca2ec26e1bac86c135fa3a4bbfcfdaa4e708",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+        "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+        "status": "documented"
+      },
+      "record_digest": "sha256:c0f0d9c9caad86212cff6710db099c783e91b67b955bf0ebb249733ca8adc469",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2ad2b8aa6392ce67b5d3b5f62ccef9cecf79c2415a3ec60034cc5eeb6a89fc74",
+        "status": "documented"
+      },
+      "record_digest": "sha256:46006d9ff0abcc979861fc06ae5ca6e9ef5d8e9da824e5e1274a4a93b076eb7c",
+      "operation_id": "ae6292af-8fb2-4354-a065-aa1c373d8687",
+      "source_set_digest": "sha256:bf8b3aed4d29b01ae717b43f88719fa9d6ba5208443efb33aa80214d1cfe9976",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:05fca120fc0be46c44e0b8734e688ab67db23588f04e9bbea129a86ebe188003",
+        "status": "documented"
+      },
+      "record_digest": "sha256:c004a8833537be920f6888db2ba974defcdf604327d954ef4f1307cab826f743",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:8f360499ae43d426027e3ec4aeda82fef179ddeaca7ad4e6ab220aeb3efd33b8",
+        "status": "documented"
+      },
+      "record_digest": "sha256:506b107bb969d3beec4397d5b812eb034af705b6d3188a58a615d2ebcaa1af1d",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:c39dc82013d2777056ee1949778249568cd6e22912ed3860d72d064a9ade78da",
+        "status": "documented"
+      },
+      "record_digest": "sha256:81069ad1fda3607985eb25858c58b18ee6bd3e931f50a73743e466a2a2b580b4",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:bdac1c219118d05d977792e42308c95929073880a12f0658b2b952219cc09f07",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP_DERIVATION_REVIEW-02.json",
+        "digest": "sha256:71f57717780c8b803b47634a0bec01f8ce508b7739df5ae2fa4ed82ae1676008",
+        "status": "documented"
+      },
+      "record_digest": "sha256:c8873bd7dec55423015b0757e33867f44c95e7b8681758033ae5036b0fda0e16",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP_DERIVATION_REVIEW-03.json",
+        "digest": "sha256:8292743f448ec0231d462ac55abeb3fe57e00f6de913456db5acea2371052d29",
+        "status": "documented"
+      },
+      "record_digest": "sha256:88a7131269bc613cfb7560f4449db3bfc25719620bfc44286ba5c2bd9fa31153",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:f49190fe930f217e502544fcca9fca2ec26e1bac86c135fa3a4bbfcfdaa4e708",
+        "status": "documented"
+      },
+      "record_digest": "sha256:486ad58a1a6c195baf571a8b05eb5491b62e4d51db99703ddb51fc24005587e8",
+      "operation_id": "f9cab124-934c-4c1e-88cc-d45dc7067138",
+      "source_set_digest": "sha256:1c4a09ded8a5acd4223d0bdc73ee0a288b57e192e3c679869321f6f304d94644",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:2a0c4a464e97c0df1a0e72544c9c98073f98273d7e24d7ad67e3e6b85d089dfa",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:04adc7913d3889900fb3594167e0e800c7cce4a9481286119c12faf88b14788f",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:2ad2b8aa6392ce67b5d3b5f62ccef9cecf79c2415a3ec60034cc5eeb6a89fc74",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:31acfa8797b25af538e25afc9852166120c2f964532717d90b84e386b4022dff",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:124106cb18d75e5a17c00690631af5f211a7ffe5c8925480fb88a2b6a1ef7bfd",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2ad2b8aa6392ce67b5d3b5f62ccef9cecf79c2415a3ec60034cc5eeb6a89fc74",
+        "status": "documented"
+      },
+      "record_digest": "sha256:46006d9ff0abcc979861fc06ae5ca6e9ef5d8e9da824e5e1274a4a93b076eb7c",
+      "operation_id": "ae6292af-8fb2-4354-a065-aa1c373d8687",
+      "source_set_digest": "sha256:bf8b3aed4d29b01ae717b43f88719fa9d6ba5208443efb33aa80214d1cfe9976",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP_DERIVATION_REVIEW-04.json",
+        "digest": "sha256:5964edd7c7bd6f7a638e71783d67ada68960f56c25cee0566c133a7979e43b21",
+        "status": "documented"
+      },
+      "record_digest": "sha256:bd51b852aad741c70dd058984422089699382fbfd4625c39e1e4c6de4ef975aa",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:f49190fe930f217e502544fcca9fca2ec26e1bac86c135fa3a4bbfcfdaa4e708",
+        "status": "documented"
+      },
+      "record_digest": "sha256:acad6288af4cf15d362f7d4253cdf440400f8cf8eb76753b755511012b50fb68",
+      "operation_id": "f9cab124-934c-4c1e-88cc-d45dc7067138",
+      "source_set_digest": "sha256:1c4a09ded8a5acd4223d0bdc73ee0a288b57e192e3c679869321f6f304d94644",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:2a0c4a464e97c0df1a0e72544c9c98073f98273d7e24d7ad67e3e6b85d089dfa",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:04adc7913d3889900fb3594167e0e800c7cce4a9481286119c12faf88b14788f",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:2ad2b8aa6392ce67b5d3b5f62ccef9cecf79c2415a3ec60034cc5eeb6a89fc74",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/CD_TESTS.md",
+        "digest": "sha256:f1449d07162bbd716f2c75140dee09edcda68f7a4d7290f68ecc807349ba3bcf",
+        "status": "documented"
+      },
+      "record_digest": "sha256:6c803fb823d3716ecd114bdf77d9aad28b86395d6ca1834620d94867765184d4",
+      "operation_id": "79c0885d-7e72-4bfa-a884-01611275c8f4",
+      "source_set_digest": "sha256:294103cd7a64a62cbd4d76b6fd79c7bf53d2ea27b73934b4744510d24cc89bb7",
+      "sources": [
+        {
+          "digest": "sha256:90da41de9d341e20349f682f49b7f23511d869351e71aac699aa8d530860c47a",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:2a0c4a464e97c0df1a0e72544c9c98073f98273d7e24d7ad67e3e6b85d089dfa",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:04adc7913d3889900fb3594167e0e800c7cce4a9481286119c12faf88b14788f",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:f49190fe930f217e502544fcca9fca2ec26e1bac86c135fa3a4bbfcfdaa4e708",
+          "path": ".agdf/control/artefacts/mcp-contract-completeness-20261025-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "The registered source set includes the TP being renewed; reassess current fulfillment and native obligations against the new source. Preserve original passes, failures and source-bound evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:26d9c1421c6b6640442a3c1e7db3961744c8b3d01827b9b1761c6594ae2c2181",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Unknown registered association cannot establish current fulfillment. Retain the record as historical evidence and reassess exact applicability through its existing owner; no original bytes or outcomes are rewritten."
+    }
+  ]
+}

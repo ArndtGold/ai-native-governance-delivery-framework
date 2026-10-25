@@ -1,0 +1,85 @@
+npm error code EPERM
+npm error syscall open
+npm error path /Users/arndtgold/.npm/_cacache/tmp/d01ef8be
+npm error errno -1
+npm error
+npm error Your cache folder contains root-owned files, due to a bug in
+npm error previous versions of npm which has since been addressed.
+npm error
+npm error To permanently fix this problem, please run:
+npm error   sudo chown -R 502:20 "/Users/arndtgold/.npm"
+npm error Log files were not written due to an error writing to the directory: /Users/arndtgold/.npm/_logs
+npm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal
+node:internal/errors:983
+  const err = new Error(message);
+              ^
+
+Error: Command failed: npm pack --json --pack-destination /private/tmp/agdf-contract-candidate-3ahp_a7h/dist/tarballs
+npm error code EPERM
+npm error syscall open
+npm error path /Users/arndtgold/.npm/_cacache/tmp/d01ef8be
+npm error errno -1
+npm error
+npm error Your cache folder contains root-owned files, due to a bug in
+npm error previous versions of npm which has since been addressed.
+npm error
+npm error To permanently fix this problem, please run:
+npm error   sudo chown -R 502:20 "/Users/arndtgold/.npm"
+npm error Log files were not written due to an error writing to the directory: /Users/arndtgold/.npm/_logs
+npm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal
+
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:916:11)
+    at execFileSync (node:child_process:952:15)
+    at file:///private/tmp/agdf-contract-candidate-3ahp_a7h/scripts/pack-npm.mjs:10:16
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  status: 255,
+  signal: null,
+  output: [
+    null,
+    '{\n' +
+      '  "error": {\n' +
+      '    "code": "EPERM",\n' +
+      '    "summary": "Your cache folder contains root-owned files, due to a bug in\\nprevious versions of npm which has since been addressed.\\n\\nTo permanently fix this problem, please run:\\n  sudo chown -R 502:20 \\"/Users/arndtgold/.npm\\"",\n' +
+      '    "detail": ""\n' +
+      '  }\n' +
+      '}\n',
+    'npm error code EPERM\n' +
+      'npm error syscall open\n' +
+      'npm error path /Users/arndtgold/.npm/_cacache/tmp/d01ef8be\n' +
+      'npm error errno -1\n' +
+      'npm error\n' +
+      'npm error Your cache folder contains root-owned files, due to a bug in\n' +
+      'npm error previous versions of npm which has since been addressed.\n' +
+      'npm error\n' +
+      'npm error To permanently fix this problem, please run:\n' +
+      'npm error   sudo chown -R 502:20 "/Users/arndtgold/.npm"\n' +
+      'npm error Log files were not written due to an error writing to the directory: /Users/arndtgold/.npm/_logs\n' +
+      'npm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal\n'
+  ],
+  pid: 54716,
+  stdout: '{\n' +
+    '  "error": {\n' +
+    '    "code": "EPERM",\n' +
+    '    "summary": "Your cache folder contains root-owned files, due to a bug in\\nprevious versions of npm which has since been addressed.\\n\\nTo permanently fix this problem, please run:\\n  sudo chown -R 502:20 \\"/Users/arndtgold/.npm\\"",\n' +
+    '    "detail": ""\n' +
+    '  }\n' +
+    '}\n',
+  stderr: 'npm error code EPERM\n' +
+    'npm error syscall open\n' +
+    'npm error path /Users/arndtgold/.npm/_cacache/tmp/d01ef8be\n' +
+    'npm error errno -1\n' +
+    'npm error\n' +
+    'npm error Your cache folder contains root-owned files, due to a bug in\n' +
+    'npm error previous versions of npm which has since been addressed.\n' +
+    'npm error\n' +
+    'npm error To permanently fix this problem, please run:\n' +
+    'npm error   sudo chown -R 502:20 "/Users/arndtgold/.npm"\n' +
+    'npm error Log files were not written due to an error writing to the directory: /Users/arndtgold/.npm/_logs\n' +
+    'npm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal\n'
+}
+
+Node.js v22.22.3

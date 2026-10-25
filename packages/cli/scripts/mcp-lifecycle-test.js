@@ -47,6 +47,7 @@ const MCP_SERVER_ROOT = fileURLToPath(new URL("../../mcp-server/", import.meta.u
 
 assert.deepEqual(validateMcpCapabilityProfile(mcpCapabilityProfile, { expectedVersion: VERSION }), { valid: true, errors: [] });
 assert.equal(Object.hasOwn(mcpCapabilityProfile.tool, "description"), false, "semantic tool copy is forbidden");
+assert.equal(validateMcpCapabilityProfile({ ...mcpCapabilityProfile, tool: { ...mcpCapabilityProfile.tool, read_only: !mcpCapabilityProfile.tool.read_only } }, { expectedVersion: VERSION }).errors.includes('tool_boundary'), true, 'manifest drift from the canonical dispatch hint fails closed');
 assert.equal(validateMcpCapabilityProfile({ ...mcpCapabilityProfile, tool: {
   ...mcpCapabilityProfile.tool, description: "duplicate",
 } }, { expectedVersion: VERSION }).valid, false);

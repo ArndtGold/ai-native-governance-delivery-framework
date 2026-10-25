@@ -2,6 +2,6 @@
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
   "max_files": 397,
-  "max_bytes": 3495133,
-  "rationale": "Merge the 0.20.1 release metadata baseline (397 files, 3493331 bytes) with the authoritative-source rule for external technology decisions in the SD contract and template (1802 additional payload bytes); exact measured 397-file payload, 3495133 bytes with verified source mappings and digests, zero headroom; no Copilot runtime behavior change."
+  "max_bytes": 3509461,
+  "rationale": "Reviewed MCP contract-completeness changes add 14328 bytes to the previous 3495133-byte Copilot payload for shared command help/result validation, compatible capability errors and canonical lifecycle metadata validation. Exact measured 397-file payload, 3509461 bytes with verified source mappings and digests, zero headroom. Preserve file count, profile exclusions, dependencies and permissions; MCP discovery, response and performance limits remain unchanged."
 }

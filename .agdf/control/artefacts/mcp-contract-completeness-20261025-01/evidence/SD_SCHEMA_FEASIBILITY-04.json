@@ -1,0 +1,40 @@
+{
+  "kind": "nonshipping_design_feasibility",
+  "source_commit": "c327c50deae6e5b4fd8071c9e03b1ef2803df6ae",
+  "sdk": "@modelcontextprotocol/server 2.0.0",
+  "scope": "In-memory repeated-schema factoring, direct top-level field help, per-operation payload meaning, on-demand nested field help and essential public output-envelope projection from one full result model. SDK compilation/empty-input rejection only; not implemented behavior or full compatibility proof.",
+  "per_tool": [
+    {
+      "tool": "agdf_prepare",
+      "proposed_definition_bytes": 3013,
+      "within_limit": true
+    },
+    {
+      "tool": "agdf_record",
+      "proposed_definition_bytes": 6872,
+      "within_limit": true
+    },
+    {
+      "tool": "agdf_approve",
+      "proposed_definition_bytes": 3135,
+      "within_limit": true
+    },
+    {
+      "tool": "agdf_revise",
+      "proposed_definition_bytes": 5273,
+      "within_limit": true
+    },
+    {
+      "tool": "agdf_closeout",
+      "proposed_definition_bytes": 3754,
+      "within_limit": true
+    }
+  ],
+  "public_output_schema_bytes": 725,
+  "ordinary_aggregate_bytes": 22047,
+  "existing_decision_action_bytes": 1166,
+  "decision_aggregate_bytes": 23213,
+  "aggregate_limit": 24576,
+  "within_all_limits": true,
+  "qualification_note": "The probe used a literal candidate public output schema to measure the proposed shape; the planned derivation from a full Core result model and complete result checks are not implemented by this probe. Ordinary definitions and the existing decision-action definition were counted; final runtime metadata and every assembled composition remain TP acceptance obligations."
+}

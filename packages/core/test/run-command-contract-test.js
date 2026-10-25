@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
-import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, validateRunCommand, operationContract } from '../lib/control-state/run-command-contract.js';
+import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, commandGroupSchema, validateRunCommand, operationContract } from '../lib/control-state/run-command-contract.js';
 const input = { schema_version: '1', presentation_language: 'de', working_directory: '/tmp/project', target_source: 'explicit_target', primary_target: '/tmp/project',
   target_id: 'sha256:' + 'a'.repeat(64), run_id: 'bounded-run', expected_revision_id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', operation_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', assurance: 'cooperative_local',
   command: { kind: 'approval.record', payload: { gate: 'TP', presentation_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', response: 'Approval: TP' } } };
 assert.deepEqual(validateRunCommand('agdf_approve', input), []);
 const recoveries = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['prd_revision.reopen'], agdf_closeout: ['closeout.record'] };
 for (const [group, allowed] of Object.entries(recoveries)) {
-  const definition = commandGroupDefinition(group).inputSchema.properties.command.oneOf.find(row => row.properties.kind.const === 'operation.recover');
+  const definition = commandGroupSchema(group).properties.command.oneOf.find(row => row.properties.kind.const === 'operation.recover');
   assert.deepEqual(definition.properties.payload.properties.original_kind.enum, allowed);
-  assert.deepEqual(operationContract(group, 'operation.recover').payload_schema, definition.properties.payload);
+  assert.deepEqual(operationContract(group, 'operation.recover').schema.properties.command.properties.payload, definition.properties.payload);
   for (const original of Object.values(recoveries).flat()) {
     const command = { ...input, command: { kind: 'operation.recover', payload: { original_kind: original,
       pending_digest: 'sha256:' + 'd'.repeat(64), recovery_revision_id: input.expected_revision_id } } };
@@ -57,3 +57,54 @@ for (const field of ['pid', 'shell', 'connection_id', 'owner_epoch', 'executable
   ...replacement, command: { ...replacement.command, payload: { ...replacement.command.payload, [field]: 'untrusted' } } }).length);
 assert.equal(operationContract('agdf_record', 'runtime_generation.replace').confirmation, 'concrete_candidate_digest');
 assert.equal(operationContract('agdf_prepare', 'presentation.prepare').presentation_format.owner, 'run-presentation-render');
+
+// SDK validates the compact discovery projection; Core keeps its expanded
+// own-data model. Cover every kind, not just a hand-written happy path.
+const { fromJsonSchema } = await import('../../mcp-server/node_modules/@modelcontextprotocol/server/dist/index.mjs');
+const { schemaDiagnostics, validateRunCommandResult, commandResultSchema } = await import('../lib/control-state/run-command-contract.js');
+const sample = (schema) => {
+  if (schema.oneOf) return sample(schema.oneOf[0]);
+  if (Object.hasOwn(schema, 'const')) return schema.const;
+  if (schema.enum) return schema.enum[0];
+  if (schema.type === 'object') return Object.fromEntries(schema.required.map(key => [key, sample(schema.properties[key])]));
+  if (schema.pattern?.includes('sha256')) return 'sha256:' + 'c'.repeat(64);
+  if (schema.pattern?.includes('[0-9a-f]{8}')) return 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  return 'fixture';
+};
+let parityCases = 0;
+for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
+  const expanded = commandGroupSchema(group), definition = commandGroupDefinition(group);
+  assert.ok(definition.outputSchema);
+  for (const field of Object.values(definition.inputSchema.properties)) assert.ok(field.description?.length > 10);
+  const sdk = fromJsonSchema(definition.inputSchema)['~standard'];
+  for (const kind of kinds) {
+    const payload = sample(operationContract(group, kind).payload_schema);
+    const valid = { ...input, command: { kind, payload } };
+    for (const value of [valid, { ...valid, injected: 'effect' }, { ...valid, operation_id: 'not-a-uuid' },
+      { ...valid, assurance: 'permission' }, { ...valid, command: { ...valid.command, payload: { ...payload, injected: true } } }]) {
+      const actual = sdk.validate(value);
+      assert.equal(Boolean(actual.issues?.length), schemaDiagnostics(value, expanded).length > 0, `${group}/${kind}`);
+      parityCases++;
+    }
+  }
+}
+const success = { schema_version: '1', outcome: 'accepted', authorizes: false, reason: null,
+  operation_id: input.operation_id, request_digest: 'sha256:' + 'a'.repeat(64),
+  binding: { target_id: input.target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id, kind: input.command.kind },
+  receipt: null, effect: null, current: { available: true }, assurance: { lane: 'cooperative_local', reply_provenance: 'caller_forwarded_deliberate_reply', independent_human_proof: 'unavailable' }, historical_effect: false, recovery: null, family_result: {} };
+const output = fromJsonSchema(commandResultSchema())['~standard'];
+for (const value of [success, { ...success, outcome: 'already_applied', receipt: {} },
+  { schema_version: '1', outcome: 'rejected', reason: 'command_schema_invalid', diagnostics: [], authorizes: false },
+  { schema_version: '1', outcome: 'effect_unknown', reason: 'resource_limit', operation_id: null, binding: null, authorizes: false, recovery: 'Inspect original operation.' }]) {
+  assert.deepEqual(validateRunCommandResult(value), []);
+  assert.equal(output.validate(value).issues, undefined);
+}
+for (const delta of [{ operation_id: null }, { binding: null }, { receipt: [] }, { authorizes: true }, { outcome: 'success' },
+  { current: null }, { historical_effect: 'false' }, { assurance: 'caller' }, { assurance: {} }, { current: [] }, { current: { available: 'yes' } }, { current: { available: true, revision: 1.5 } }, { presentation_delivery: { text: 'unbound' } }]) {
+  assert.ok(validateRunCommandResult({ ...success, ...delta }).length, JSON.stringify(delta));
+}
+assert.ok(validateRunCommandResult({ schema_version: '1', outcome: 'rejected', authorizes: false }).length);
+assert.ok(validateRunCommandResult({ ...success, outcome: 'effect_unknown', reason: null }).length);
+console.log(`Expanded/compact SDK parity (${parityCases} cases), direct field help, five output schemas and legitimate/malformed result variants passed.`);
+
+assert.ok(validateRunCommandResult({ schema_version: '1', outcome: 'effect_unknown', reason: 'dispatch_worker_failed', authorizes: false }).length, 'uncertainty retains original-operation field and recovery guidance');

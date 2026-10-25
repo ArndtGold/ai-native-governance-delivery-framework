@@ -37,6 +37,8 @@ assert.equal(capability.schema_version, 2);
 assert.equal(capability.tool.name, "agdf_dispatch");
 assert.equal(capability.tool.semantic_owner, "packages/core/lib/skill-dispatch/contract.js");
 assert.equal(capability.tool.authorizes, false);
+const { SKILL_DISPATCH_FUNCTION_DEFINITION } = await import('../../cli/lib/mcp-dispatch-runtime.js');
+assert.equal(capability.tool.read_only, SKILL_DISPATCH_FUNCTION_DEFINITION.annotations.readOnlyHint);
 assert.equal(capability.package.sdk_server, manifest.dependencies["@modelcontextprotocol/server"]);
 assert.equal(capability.transport.kind, "stdio");
 assert.deepEqual(capability.transport.compatibility_protocols, ["2025-11-25"]);

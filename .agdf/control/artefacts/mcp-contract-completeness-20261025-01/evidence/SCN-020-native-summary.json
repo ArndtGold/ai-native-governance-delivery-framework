@@ -1,0 +1,90 @@
+{
+  "classification": "qualified_c2_native_pair",
+  "tp_digest": "sha256:52f644123916ad5db5b102d8508d094db110a6e3d032e3ed23a2febdec7f0adb",
+  "qualified_repetitions": 2,
+  "new_real_invocations": 2,
+  "prior_real_invocations": 1,
+  "total_real_invocations_in_run": 3,
+  "original_cohort_status": "failed isolation; original records retained; not waived or compared causally",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "low",
+  "host_version": "codex-cli 0.163.0",
+  "platform": "darwin-x64",
+  "same_candidate_harness_verifier_guard": true,
+  "protected_settings_unchanged": true,
+  "cost_usd": "unavailable",
+  "additional_api_spend_authorized_usd": 0,
+  "sessions": [
+    {
+      "repetition": 1,
+      "path": "repetition-01/observation.json",
+      "metrics": {
+        "calls": 13,
+        "invalid_calls": 9,
+        "tool_calls": {
+          "agdf_inspect": 12,
+          "agdf_approve": 1
+        },
+        "invalid_argument_calls": 8,
+        "is_error_results": 9,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "agdf_inspect": 11991,
+          "agdf_approve": 1371
+        },
+        "total_tokens": 435595,
+        "permission_denials": "unavailable",
+        "denied_tools": [],
+        "cost_usd": "unavailable",
+        "wall_time_ms": 85665,
+        "num_turns": null,
+        "model_reported": null
+      },
+      "usage": {
+        "input_tokens": 433790,
+        "cached_input_tokens": 396672,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1805,
+        "reasoning_output_tokens": 88
+      }
+    },
+    {
+      "repetition": 2,
+      "path": "repetition-02/observation.json",
+      "metrics": {
+        "calls": 13,
+        "invalid_calls": 8,
+        "tool_calls": {
+          "agdf_inspect": 12,
+          "agdf_approve": 1
+        },
+        "invalid_argument_calls": 7,
+        "is_error_results": 8,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "agdf_inspect": 12489,
+          "agdf_approve": 1371
+        },
+        "total_tokens": 399332,
+        "permission_denials": "unavailable",
+        "denied_tools": [],
+        "cost_usd": "unavailable",
+        "wall_time_ms": 81495,
+        "num_turns": null,
+        "model_reported": null
+      },
+      "usage": {
+        "input_tokens": 397640,
+        "cached_input_tokens": 361344,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1692,
+        "reasoning_output_tokens": 84
+      }
+    }
+  ],
+  "qualification_limits": "Two fixed task repetitions on the exact macOS/Codex tuple; SDK argument errors occurred and are retained. No native production/cross-host qualification, independent human-origin proof or causal performance/success-rate comparison."
+}

@@ -1,0 +1,269 @@
+# TP: Reliable Codex MCP inspection and bound approval navigation
+
+Status: draft
+Gate: TP
+Gate approval: open
+Based on: SD
+Date: 2026-10-25
+Owner: Arndt Gold
+Traceability contract: criteria-chain-v1
+Planning Decisions contract: tp-decisions-v1
+
+This plan derives from approved PRD sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0 and SD sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6, with completed Brownfield Review sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118. This renewal follows source revision b1c5f54c-c386-4b49-8a11-ed0a925852a4 and the new deliberate SD approval at revision 17. Acceptance remains solely in PRD. Retained fulfillment is reassessed, not automatically transferred. The two native sessions are still unused; no cohort has been launched. No implementation, new model session or test-harness modification is performed by authoring this plan.
+
+Execution aliases in this document are explicit task inputs, not implicit Run selection:
+
+- ROOT: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework
+- RUN: mcp-codex-guided-inspection-20261025-01
+- RUN_DIR: ROOT/.agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01
+- E: RUN_DIR/evidence
+- NODE: /usr/local/Cellar/node@22/22.22.3/bin/node
+- CODEX: /Users/arndtgold/.npm-global/bin/codex
+- CANDIDATE: /private/tmp/agdf-guided-implementation-5cu6sw88/candidate, the existing isolated candidate recorded in E/baseline/candidate.json; reuse only after T-BASE revalidates it
+- V: RUN_DIR/validation; scoped, non-production qualification helpers created only after TP approval
+
+Every command below runs with Node 22.22.3 first in its child PATH. All build/test npm commands run in CANDIDATE unless stated otherwise. No global PATH, host configuration, plugin or installed runtime is changed.
+
+## 1. Task List
+
+| task_id | Task | Owner | Dependencies |
+|---|---|---|---|
+| T-BASE | Execute fresh implementation-preparation Brownfield Analysis against renewed sources; verify retained baseline, source/assembly/environment and protected snapshots; write explicit applicability assessment before CD+Tests. | Codex using brownfield-analysis | Valid renewed Approval: TP and canonical continuation |
+| T-RET | Verify the existing selected immutable study bundle, original manifests and all failed guard/preflight evidence; preserve bytes and record current applicability without rerunning completed sessions. | Codex | T-BASE |
+| T-CORE | Reassess retained SDD-001/002/003/004 implementation and its exact source fingerprints; retain the passing Core slice without reapplying the prototype. Any necessary scoped correction invalidates affected proof. | Codex | T-BASE, T-RET; implementation-preparation permits CD+Tests |
+| T-NAV | Reassess existing returned-call, historical/current, refusal and advisory-failure regressions against unchanged source and complete retained outputs; rerun affected cases only if applicability fails. | Codex | T-CORE |
+| T-SCHEMA | Reassess retained 247,003-case schema comparison, 160 frozen Core expectations and original-input replay against exact comparator/validator/source hashes. | Codex | T-BASE, T-CORE |
+| T-RENDER | Reassess actual installed CLI loopback renderer proof against unchanged definition, CLI 0.163.0 and raw captured declaration; rerun model-free only if an input changes. | Codex | T-CORE, T-SCHEMA |
+| T-GUARD | Integrate SDD-009 in the existing T7 entry and its test-only helper if needed; extend codex-command-task-test.mjs for protected/unguarded worker, inherited execution, startup classification and bounded owned-tree lifecycle. | Codex | T-BASE, T-RET, T-CORE reassessment |
+| T-BUILD | Reassess retained canonical build, SDK/STDIO/Core suites, payload and fixed-fixture performance; propagate only approved guard/test source, check new source provenance and affected canonical freshness/budgets. | Codex | T-NAV, T-SCHEMA, T-RENDER, T-GUARD |
+| T-NATIVE | Freeze final guard/harness/candidate; pass a fresh integrated zero-model preflight; launch once for the same two unused normal T7 sessions under one inherited combined profile; preserve all original results. | Codex | T-BUILD pass; fresh guard/source/account prerequisites pass |
+| T-REVIEW | Record fresh CD+Tests with exact applicability and actual guard/native outcomes; run task-plan-review, clean-implementation-review, code-review and qa-gate through their existing owners. | Existing AGDF review and QA owners | T-NATIVE or explicit retained evidence gap; no fabricated success |
+| T-CLOSE | Reconcile changed paths, protected files and all session slots; present the next canonically ready human gate and later complete UAT/OR through their owners. | Codex | T-REVIEW; each required deliberate approval |
+
+## 2. Verification Traceability
+
+| criterion_id | design_decision_id | task_id | scenario_id | expected_result | evidence |
+|---|---|---|---|---|---|
+| AC-001 | SDD-001 | T-CORE | SCN-CONTRACT-VISIBILITY | Published field/operation inventory and meaningful selector guidance remain complete under the equivalent canonical projection. | E/checks/contract.json and control-inspect-01.log |
+| AC-001 | SDD-006 | T-RENDER | SCN-HOST-TYPES | Actual installed Codex argument declaration contains all 14 fields and 11 operations without unknown intersections hiding them. | E/renderer/capture/signature.ts, capture/requests.json and capture/visibility.json |
+| AC-002 | SDD-001 | T-SCHEMA | SCN-ACCEPTANCE | 247,003 matrix cases have zero SDK acceptance differences against the verified original schema. | E/checks/schema-parity.json |
+| AC-002 | SDD-006 | T-SCHEMA | SCN-CORE-REPLAY | The 160 accepted matrix cases preserve frozen Core outcomes; all 15 retained original SDK-invalid calls stay rejected and replay acceptance is unchanged. | E/baseline/core-expectations.json, E/checks/core-parity.json and replay.json |
+| AC-003 | SDD-002 | T-NAV | SCN-NAV-VALID | Explicit normal context yields only complete SDK-valid inspect calls from canonical descriptor/catalog owners, in sequential order. | E/checks/navigation.json and protocol-02.log |
+| AC-003 | SDD-003 | T-NAV | SCN-NAV-FAULT | Unbound or unavailable advisory context yields no actionable hints and does not create an alternative authority. | E/checks/navigation.json, named unavailable/unbound assertions |
+| AC-003 | SDD-004 | T-NAV | SCN-NAV-PRECEDENCE | Catalog filter/completeness are visible; a valid exact known binding remains readable even when broader discovery is ambiguous, without substitution by a current-gate hint. | E/checks/navigation.json, scope and known-binding cases |
+| AC-004 | SDD-004 | T-NAV | SCN-DOC-BINDINGS | Document arguments retain original revision while operation-contract arguments use current revision; ambiguous/invalid data creates no replacement presentation. | E/checks/historical.json and navigation.json |
+| AC-004 | SDD-006 | T-NAV | SCN-DOC-STDIO | Actual SDK/STDIO document retrieval preserves bytes, order, cursor namespace and existing multipage behavior; invalid cursor/binding is rejected. | E/checks/protocol-02.log and run-command-flow-01.log |
+| AC-004 | SDD-008 | T-NAV | SCN-APPROVAL-REFUSAL | Stale revision and historical/foreign presentation approvals are rejected without approval or revision mutation. | E/checks/historical.json and run-command-flow-01.log |
+| AC-005 | SDD-006 | T-NATIVE | SCN-NATIVE-T7 | Both planned final-candidate sessions satisfy original and unchanged strict T7 predicates, with at most 4 MCP calls and zero SDK/other errors each. | E/qualification/renewed/native/session-01 and session-02; renewed/native-summary.json |
+| AC-005 | SDD-008 | T-NATIVE | SCN-NATIVE-GUARD | Every executed session has the approved model/effort, complete trace, unchanged protected settings and no forbidden detour; original ROOT is write-protected during the cohort. | E/qualification/renewed/ledger.json, guard policy/digests and preservation.json |
+| AC-006 | SDD-007 | T-BUILD | SCN-BUDGET-LATENCY | Normal generated artifacts satisfy all unchanged size ceilings; the original fixed-fixture performance suite passes its existing metrics and thresholds. | E/checks/budget.json, copilot-profile-01.log and performance.json |
+| AC-007 | SDD-003 | T-NAV | SCN-LEGACY-FAULT | Injected advisory-only failure leaves the original valid/blocked report and presentation unchanged; original evaluator failure still fails. | E/checks/navigation.json and control-inspect-01.log |
+| AC-007 | SDD-006 | T-BUILD | SCN-PROTOCOL-REGRESSION | Existing CLI/read-only/preview and modern/legacy MCP protocol suites pass without skipped or weakened behavioral assertions. | E/checks/control-inspect-01.log and mcp-server-01.log |
+| AC-007 | SDD-008 | T-BUILD | SCN-WRITER-RECOVERY | Existing command, receipt, refusal and uncertainty/recovery tests pass; no writer or approval behavior is changed. | E/checks/run-command-flow-01.log and mcp-server-01.log |
+| AC-008 | SDD-005 | T-RET | SCN-RETENTION | All selected original observations and manifests match their original bytes; positive and negative cohorts remain separately labeled. | E/prestudy/retention-index.json and original manifests |
+| AC-008 | SDD-006 | T-BUILD | SCN-CANDIDATE-PROVENANCE | CLI/tests and assembled MCP payload load the reviewed candidate Core files, not a stale copied workspace package. | E/build/source-bindings.json and E/qualification/renewed/preflight-summary.json |
+| AC-008 | SDD-007 | T-BUILD | SCN-DERIVED-SOURCE | Canonical generation/assembly/profile outputs map to the exact reviewed source; any deterministic compatibility refresh preserves historical inputs. | E/checks/normal-build-02.log, compatibility-check-01.log and source-bindings.json |
+| AC-008 | SDD-008 | T-CLOSE | SCN-SCOPE-PRESERVATION | Original Git entries, foreign files, protected settings and prior Run bytes are preserved; only reviewed product/test/derived paths and this Run's authorized control/evidence change. | E/baseline/preservation.json, E/qualification/renewed/preservation.json and final scope report |
+| AC-005 | SDD-009 | T-GUARD | SCN-GUARD-INHERITANCE | One OS application covers setup, MCP and both mock Codex descendants; Root/config existing-file append opens and all settings replacement probes fail, owned candidate/temp writes succeed. | E/qualification/renewed/guard-tests.log and guard-controls.json |
+| AC-005 | SDD-009 | T-GUARD | SCN-GUARD-FAIL-CLOSED | Direct unguarded worker, flag-only, wrong binding/digest and failed controls stop before account/MCP/model; guard application is distinct from executed auth failure. | E/qualification/renewed/guard-tests.log and classification.json |
+| AC-008 | SDD-009 | T-GUARD | SCN-GUARD-DEADLINE | A short fixture deadline covers setup/model/teardown and kills only the owned process group; an unrelated sentinel survives; no real model. | E/qualification/renewed/lifecycle.json and guard-tests.log |
+| AC-008 | SDD-009 | T-NATIVE | SCN-GUARD-PREFLIGHT | Fresh final-source guarded preflight verifies actual controls, account/host and unchanged task/audit with zero model calls; old failures remain intact and do not independently determine readiness. | E/qualification/renewed/preflight and preflight-summary.json |
+
+## 3. Test Plan
+
+| criterion_id | scenario_id | test_route | environment | prerequisites_permissions | owner | expected_evidence | unavailable_action |
+|---|---|---|---|---|---|---|---|
+| AC-001 | SCN-CONTRACT-VISIBILITY | R-CLI: npm --prefix packages/cli run test:control-inspect | Isolated candidate, Node 22.22.3 | Reviewed source, normal workspace links and generated prerequisites | Codex | contract.json, control-inspect-01.log | Fix only the scoped source/setup or report a blocker; no reduced field inventory |
+| AC-001 | SCN-HOST-TYPES | R-RENDER: python3 V/codex-render-check.py --candidate CANDIDATE --output E/renderer | darwin x64; installed CLI 0.163.0; loopback only | New scoped probe adapted from retained probe.py, local TCP and sandbox permission; no model/auth | Codex | Raw request/IPC, signature.ts and visibility.json | Stop this obligation if the approved host/guard is unavailable; no guessed rendering success |
+| AC-002 | SCN-ACCEPTANCE | R-SCHEMA: NODE V/inspect-contract-checks.mjs --candidate CANDIDATE --evidence E | Node 22.22.3; actual SDK 2.0.0 validator | Verified frozen original schema, unchanged matrix and explicit candidate | Codex | schema-parity.json | Resolve the concrete mismatch; never redefine the baseline or relax the comparator |
+| AC-002 | SCN-CORE-REPLAY | R-SCHEMA: same checks with frozen Core outcomes and retained native inputs | Isolated candidate and retained source-bound inputs | Baseline snapshots captured before T-CORE; original trace parser unchanged | Codex | core-parity.json and replay.json | Keep a missing/mismatching input as an evidence gap; no reconstruction by native rerun |
+| AC-003 | SCN-NAV-VALID | R-NAV: NODE packages/mcp-server/test/protocol.test.js and R-CLI | Actual modern/legacy SDK/STDIO fixture | T-NAV adds named cases to existing registered test files | Codex | navigation.json and protocol-02.log | Stop on invalid hint; repair its existing owner without bypassing SDK validation |
+| AC-003 | SCN-NAV-FAULT | R-NAV: unbound/missing/corrupt advisory cases | Isolated deterministic fixtures | Existing fixture and dependency seams; no real account | Codex | navigation.json with no-hint assertions | Block implementation qualification if optional observation breaks a valid read |
+| AC-003 | SCN-NAV-PRECEDENCE | R-NAV: scope, ambiguity and exact known-binding cases | Isolated current/historical fixtures | Exact fixture bindings and catalog scope retained as test inputs | Codex | Scope/completeness and exact-read results | Correct the advisory boundary; do not infer a substitute document or new product rule |
+| AC-004 | SCN-DOC-BINDINGS | R-NAV: historical/current revision cases | Isolated actual MCP runtime | Existing document/catalog and evidence-record fixture helpers | Codex | historical.json and mutation snapshots | Preserve the failure and return to the design owner if revision meaning conflicts |
+| AC-004 | SCN-DOC-STDIO | R-MCP: npm --prefix packages/mcp-server test | Actual SDK/STDIO and existing multipage fixtures | Assembled candidate and locked client/server dependencies | Codex | mcp-server-01.log with existing document/cursor cases | Keep the obligation open; no short document substituted for required multipage proof |
+| AC-004 | SCN-APPROVAL-REFUSAL | R-CORE: npm --prefix packages/cli run test:run-command-flow plus R-NAV | Synthetic Runs only | Existing Core transaction and presentation fixtures | Codex | Refusal outcomes and unchanged post-state | Stop if any unintended approval occurs; preserve trace and inspect the existing owner |
+| AC-005 | SCN-NATIVE-T7 | R-NATIVE: one unchanged two-repetition command defined below | macOS darwin x64, CLI 0.163.0, gpt-6.1-sol/low | TP approved, prior tasks pass, account/guard/candidate preflight passes | Codex | Two original observations, traces and native-summary.json | Report an unfulfilled criterion; no extra session, resume, model fallback or predicate change |
+| AC-005 | SCN-NATIVE-GUARD | R-NATIVE: one combined inherited profile plus verified negative/positive controls and hashes | Same native cohort | Existing sandbox-exec and original harness/audit hashes; source snapshots | Codex | Ledger, guard proof, before/after manifests | Stop on unavailable guard or infrastructure violation; do not launch a replacement session |
+| AC-006 | SCN-BUDGET-LATENCY | R-BUDGET: normal profile checks, payload-budget.js and original performance.test.js | Isolated fixed fixtures, no concurrent heavy tests | Canonical build passes, original limits/baseline unchanged | Codex | budget.json, copilot-profile-01.log and performance.json | Keep a size/timing failure visible; no threshold change, required-file exclusion or repeated sampling to select a pass |
+| AC-007 | SCN-LEGACY-FAULT | R-CLI and R-NAV: advisory exception versus evaluator exception | Existing test seams and actual read path | Candidate guard only encloses new advisory work | Codex | Exact report/presentation parity and failure assertions | Repair failure isolation within SD; do not swallow the original failure |
+| AC-007 | SCN-PROTOCOL-REGRESSION | R-CLI and R-MCP | Existing registered suites, both supported protocol versions | Build, workspace and SDK provenance checked | Codex | Applicable retained full suite logs or affected fresh full suite logs | Diagnose the failing case; no skipped test or weaker behavioral assertion |
+| AC-007 | SCN-WRITER-RECOVERY | R-CORE and R-MCP | Existing synthetic command/uncertainty fixtures | Original writer, SDK and trace/audit sources retained | Codex | run-command-flow-01.log and mcp-server-01.log | Stop at the existing recovery owner if effects are uncertain; no speculative replay |
+| AC-008 | SCN-RETENTION | R-RET: NODE V/retain-study.mjs --sources explicit --output E/prestudy | Read-only original study directories | Source allowlist and original manifests verified | Codex | retention-index.json and exact copied bytes | Missing/corrupt source is a blocker; never edit or recreate the original observation |
+| AC-008 | SCN-CANDIDATE-PROVENANCE | R-BUILD source check and R-NATIVE --preflight-only | Isolated candidate and zero-model preflight | Loaded source paths, payload and protected snapshots recorded | Codex | source-bindings.json and preflight.json | Fix a stale workspace resolution before qualification; no installed-runtime replacement |
+| AC-008 | SCN-DERIVED-SOURCE | R-BUILD: npm run build, compatibility checks and normal assembly/profile owners | Candidate with canonical generated assets | Local locked build dependencies; deterministic refresh only as specified | Codex | build.log and compatibility/source reports | Preserve non-freshness failures as blockers; no automatic native evidence renewal |
+| AC-008 | SCN-SCOPE-PRESERVATION | R-SCOPE: exact staged-entry/content and protected-file comparison | Original ROOT and isolated outputs | T-BASE captures expected bytes; compare before importing run outputs | Codex | final scope/preservation report | Preserve foreign changes; never reset/clean/restore them to make comparison pass |
+| AC-005 | SCN-GUARD-INHERITANCE | R-GUARD: NODE --test scripts/native-probes/codex-command-task-test.mjs, real OS profile with synthetic host | macOS, owned isolated Root/settings/fixtures | Renewed TP, integrated guard, local sandbox execution permission; no account/model | Codex | guard-tests.log; inherited denials and positive writes | Stop if OS protection cannot be established; no mock result relabeled native |
+| AC-005 | SCN-GUARD-FAIL-CLOSED | R-GUARD: direct worker/flag, tampered input/profile and injected startup/control/auth cases | Same synthetic fixtures | Bound safe probe files; zero real host/model | Codex | classification.json; zero account/model counter on guard failure | Fix guard owner or report blocker, no weaker fallback |
+| AC-008 | SCN-GUARD-DEADLINE | R-GUARD: short-deadline hanging setup/worker/teardown and unrelated sentinel | Owned child process groups | Local process/sandbox permission; no real account/model | Codex | lifecycle.json and process-exit evidence | Stop if owned-tree termination cannot be proved; do not kill foreign processes |
+| AC-008 | SCN-GUARD-PREFLIGHT | R-NATIVE --preflight-only using final integrated entry and bound guard input | Exact installed CLI/host/account and frozen candidate | Source/assembly/applicability/guard checks pass; no real session reserved | Codex | fresh successful original preflight observation, policy and snapshots; session_invocations 0 | Preserve failure and stop model-dependent work; scoped model-free correction/retest only |
+
+### Baseline, source boundary and preparation
+
+T-BASE follows the canonical renewed-TP implementation-preparation Brownfield Analysis before any guard edit or CD+Tests. Revalidate approved PRD/SD/Brownfield digests, base HEAD 5046858826f3bca7922c14ef402b095feca8b6fb and the existing isolated candidate. Do not reset dirty files or allocate another candidate simply to bypass a mismatch. Retain old source-revision fulfillment as historical; write E/reassessment/applicability.json mapping every scenario to exact retained raw log/report hashes, source/SDK/host/build inputs, applicable/not-applicable rationale and the fresh action where needed. Review semantic coverage and full suite exits, not just a pass label.
+
+Current retained source bindings are E/build/source-bindings.json and derived-source-bindings.json. Recheck these exact Core/test sources in ROOT and CANDIDATE:
+
+- contract.js: 73519532b325310d67f9724e945111053213c818d76a2cd9ec1f25742b51ed2f
+- service.js: 0e3e4557c0cabeee4706c6c6965ae356462c36d98df6e9b8807dbbe54ff05b2a
+- packages/cli/scripts/control-inspect-test.js: 1acb08aba3ccbbb16770e657e4c7ce53442f37b0baad723170d0a0c6f1644156
+- packages/mcp-server/test/protocol.test.js: 16a2125d73b7a15b7d0ddf65057f3eb4fb28e6e8120fa70c9cfa2e0e6d3ab552
+
+Immutable task/audit fingerprints remain native-run.js 0241b7687a599cf64d646409466d6bcebdad0a08b51e0ebb1997d266edd67a1d and native-tasks.js 1ed79fdfc59b6e67b6742e958a16a94a16dd06febcda2efb4f8d00b39c7bca84. The old harness hash 70e6a604900577334247824397beeaa2061cd0fc0cf1752c9aff49050ffe6f6a is historical, not a requirement to preserve the broken guard composition. Freeze the reviewed final harness/helper/test hashes before preflight/model launch. Keep prompt, predicates, parser, wrapper audit, two-repetition semantics and all other native modes unchanged.
+
+Use exact git ls-files --stage -z bytes, retained entry SHA 3e920896a1946dccf9df5fa9953e7b736f520508a4ee39c89080e12840ec16fb, all known foreign-file bytes and full other-Run/control snapshots. Original baseline expectations and selected study bytes already exist: verify rather than recapture from the changed candidate. The original definition baseline raw SHA is 38558b12d11eca3b1f7bf20f2d98097be6e62c9dfdb7deda2736b76442bbc4c4. Preserve ROOT dist/dependencies/foreign staging and the candidate's correct workspace Core resolution.
+
+### Planned write boundary
+
+Keep the existing two Core and two registered regression files unless a scoped defect actually requires correction. Renewed implementation changes only scripts/native-probes/codex-host-e2e.mjs, its existing scripts/native-probes/codex-command-task-test.mjs, and, if separation is useful, one test-only scripts/native-probes/lib/codex-command-guard.mjs. No product runtime dependency or parallel protection registry is added. Run targeted tests through the explicit R-GUARD route; preserve all existing native task assertions.
+
+Qualification glue and retained evidence remain under this Run's validation/evidence and isolated candidate outputs. Update validation/native-cohort.py only as a bound launcher/result retainer: it must not apply an outer sandbox, duplicate controller authority, or block based solely on a historical failure filename. Existing freeze/preservation helpers may be adapted for the new approved source fingerprints and explicit output exclusions, without weakening their checks. Never revise original observations or executed-wrapper copies.
+
+Canonical generation uses its existing owners. Only diagnosed source_snapshot_changed permits a new deterministic compatibility observation and owned docs refresh; do not replace historical observations, native inputs, suffixed foreign files or policy/manifest baselines. Other mismatch/collision stops transfer. Canonical writers may change this Run's state, mappings/receipts and selected MASTER_BACKLOG row. No VCS operation is included.
+
+### Retained proof and fresh obligations
+
+The existing complete MCP suite (mcp-server-01), Core command flow (run-command-flow-01), CLI (control-inspect-01), actual protocols (protocol-02), matrix/replay, installed renderer capture, normal-build-02, profile/payload and original fixed-fixture performance are candidates for reuse after exact applicability assessment. Preserve failed protocol-01, normal-build-01 and every preflight/setup result. No deletion or relabeling makes them pass. The retained complete MCP suite includes performance; its one fixed run is not replaced by favorable resampling.
+
+Guard integration, inherited protection, fail-closed classification, owned-tree lifecycle, final-source fingerprints, fresh guarded preflight and both native sessions have no reusable final acceptance and must be verified fresh. Run affected build/compatibility, profile or regression routes when a changed input invalidates them; do not blindly repeat 23-minute/8-minute unchanged suites. Every retained route below is an executable obligation with applicability assessment, not automatic fulfillment or mandatory redundant execution. Table evidence names identify the retained files; all fresh repeat outputs use a new unique label under E/reassessment or E/qualification/renewed, referenced by applicability.json, never overwrite those retained logs. If unchanged product inputs cannot be proven, rerun the relevant route once on the actual final candidate and retain the reason/result.
+
+### R-RET: immutable study retention
+
+Use the existing V/retain-study.mjs selection and retention index to verify explicit-path copying, raw-byte hash verification and a new retention index. It must not execute original drivers, change their outputs or copy entire temporary checkouts/dependencies. Retain these source groups:
+
+- /private/tmp/agdf-inspect-evaluation: REPORT.md, DECISION-NOTES.md, summary.json, final-candidate.patch, original artifact-manifest.json, experiment.json, v2-selection.json, v2-frozen-sources.json, v2-static-invariants.json; baseline.json, guided.json and guided-v2.json; parity/replay scripts and JSON reports; protocol/cold/historical/budget evidence; session plans, launch ledgers and initial/v2 result lists.
+- All files under its consolidated evidence/v1-session-1 and evidence/v2-session-2 through v2-session-5, including original per-session retention manifests, observations, raw events/rollouts, effective configuration and final responses.
+- /private/tmp/agdf-inspect-agent-ab: REPORT.md, experiment.json, summary.json, native/preflight/launch records and all files under evidence/A1, A2, B1 and B2. Keep the schema-only failures and the unqualified baseline wrapper case labeled as originally observed.
+- /private/tmp/agdf-inspect-projection: the original baseline/candidate definitions, parity/replay reports and original renderer declarations/request/IPC evidence needed to reproduce the source of the projection diagnosis.
+- The two original c2-native events/rollouts referenced by replay remain read-only sources under the completed contract-completeness Run. Copy their exact selected input bytes and source hashes into the retention bundle if needed for portable replay; never rerun those sessions or mutate their original files.
+
+Enumerate the actual selected files and sizes before copying, reject symlinks/unsafe paths, verify each original manifest relationship that applies, and record source path, raw hash, destination and original cohort/candidate. Preserve original manifest bytes separately from the new selected-bundle manifest; do not imply that every dependency or unrelated scratch file named in a whole-study manifest was copied. No auth.json, credential value or unrelated scratch/index dump is a permitted retention input. Missing original evidence blocks that obligation rather than authorizing reconstruction.
+
+### R-SCHEMA and R-RENDER: contract proof
+
+Assess the existing V/inspect-contract-checks.mjs, which reuses the retained matrix/replay logic with explicit source/evidence arguments. Freeze its matrix, original validator side and parser/predicate source before testing the changed candidate. Preserve all 247,003 generated cases, the 160 original accepted Core expectations, the 24 original inspection inputs and their 15 observed SDK rejections. The comparator must exit nonzero on any acceptance/outcome mismatch. It uses the actual installed locked SDK validator; it is neither another production validator nor permission to widen acceptance.
+
+Assess the existing V/codex-render-check.py and its final E/renderer/capture outputs. Read the actual CANDIDATE definition, start the installed CLI app-server with a fresh scratch CODEX_HOME and deterministic loopback-only response stub, and record the declaration actually sent by that CLI. Disable external networking, omit account/API credentials and execute no real model. Scope the argument declaration when checking all 14 fields/11 operations; the ordinary Promise<unknown> return type is not the hidden-input intersection defect. Retain raw request/IPC evidence so a field-name string elsewhere in prose cannot be mistaken for visible argument types. If CI lacks this installed host, local bound rendering evidence remains required; a structural assertion alone is not a replacement.
+
+### R-CLI, R-NAV and R-CORE: implementation and regressions
+
+Assess the retained implementation of SDD-001 through SDD-004 in the existing Core files. Retain the original condition nodes, explicit provenance, revision and selector rules. Keep gate-check report/presentation construction separate from guarded optional navigation and avoid duplicate legacy return paths. Use existing evaluator/fixture seams for failure injection rather than adding a new public input or weakening the SDK boundary.
+
+Assess the existing registered tests for real returned-argument execution, disclosed current-gate catalog scope, valid known-binding reads despite ambiguous discovery, missing/corrupt/unbound/foreign cases, historical/current revision separation, stale/foreign approval refusal and immutable control snapshots. Inject an advisory-only failure and compare the complete original report/presentation; independently confirm that an original evaluator error remains an error. Update the obsolete bootstrap-description expectation for the new sequential navigation wording only; retain all original behavioral parity, blocked-read, output and preview assertions.
+
+Use retained passing evidence only after the documented input/coverage assessment; run the following affected routes on the final candidate when an actual change, failure or applicability gap requires it:
+
+```text
+npm --prefix packages/cli run test:control-inspect
+NODE packages/mcp-server/test/protocol.test.js
+npm --prefix packages/cli run test:run-command-flow
+```
+
+R-MCP is `npm --prefix packages/mcp-server test`, retaining all existing contract, protocol, command, safety, provenance, generation, package, SDK-digest and performance coverage. Retain or freshly save complete outputs and exit status, plus named scenario assertions in E/checks/navigation.json and historical.json. Expected negative-test errors are labeled separately from forbidden errors in the normal native task.
+
+### R-BUILD and R-BUDGET: canonical propagation
+
+Use `npm run build:prepare` for canonical prerequisites/assets and `npm run build` for the normal build in CANDIDATE. Install only lockfile-bound local dependencies needed by these existing routes. If and only if compatibility:check diagnoses source_snapshot_changed, use the existing documented sequence: build:prepare, ensure locked MCP test dependencies, `npm run compatibility:record`, inspect the newly generated deterministic facts/observation, `npm run compatibility:check`, and rerun the normal build. Other compatibility failures are blockers, not permission to record replacement evidence. This records adapter facts, never a new native-host claim or a native rerun.
+
+When the relevant inputs change, run `npm --prefix packages/cli run test:copilot-profile`, `NODE scripts/payload-budget.js`, R-CLI, R-CORE and R-MCP on the actual built candidate. Keep the normal profile budget checks enabled; do not pass --accept or change baseline/limit constants. Retain actual definition bytes/digests, all command/decision aggregate bytes, output/input limits, exact profile inventory and source mappings. Inspect generated differences before copying only their reviewed canonical outputs to ROOT.
+
+Assess the retained original packages/mcp-server/test/performance.test.js unchanged for the approved fixed-fixture ceilings: 20 fresh-process tools/list measurements including startup/handshake, and 20 warm agdf_dispatch calls. Their p95 limits remain 1,500/1,000 ms. Run it without concurrent heavy suites/native generation. Supplemental F3 Inspect navigation timings may be recorded with their own method but cannot replace this original test or be relabeled as its cold/warm metric. Do not raise thresholds or repeat unchanged sampling merely to select a green result.
+
+Before native qualification, preserve E/build/source-bindings.json and write E/qualification/renewed/final-bindings.json covering ROOT's reviewed source patch, baseline HEAD, exact intended source file hashes, resolved workspace Core, assembled MCP/Core payload, locked SDK versions/digests and relevant generated UI inputs. Both source and assembly must match the reviewed candidate. Freeze the candidate after these checks. A later product/test/harness change invalidates affected evidence; no mixed-candidate two-session result can pass.
+
+### R-GUARD: integrated guard and lifecycle
+
+The existing T7 branch is the sole controller. Its private worker contains the existing preflight/repetition flow; runFocusedTask spawns Codex directly under inherited protection for commandTask, and other native modes keep their existing behavior. A helper, if extracted, belongs only to this owner. Keep the existing public T7 arguments/dry-run tuple. A contained execution input supplied via child environment AGDF_T7_GUARD_INPUT identifies schema_version 1, canonical original Root, candidate, existing personal CODEX_HOME, owned output/ledger path, source/assembly hashes and cohort deadline. A path or flag grants neither a gate nor proof of OS protection. Validate real paths/containment, reject Root/candidate overlap and unexpected source/policy bindings, record effective input and digest without credential values.
+
+Before spawning the worker, build one policy containing deny file-write* for the entire original Root subtree and exact literals CODEX_HOME/config.toml, plugins/installed_plugins.json and plugins/known_marketplaces.json (all three even if absent). Apply /usr/bin/sandbox-exec exactly once to the full worker process tree. Never wrap this controller or already guarded worker in another OS sandbox. The Root deny covers the whole tree; snapshot inventory may exclude ignored foreign trees for bounded collection but cannot narrow OS protection. Snapshot every tracked/nonignored Root file, complete .agdf/control, exact staging entries, known foreign files and settings; freeze all candidate implementation/build files with only explicitly owned output paths excluded.
+
+Worker checks canonical policy bytes/digest and binding before account, fixture/MCP or model activity. Safe append-open probes use O_WRONLY|O_APPEND on existing Root/config files, no create/truncate/data write; denied EPERM/EACCES is required. Check owned temporary write/read/cleanup succeeds. Keep absent settings literal protection and exact before/after absence. A required existing-file probe unavailable is a stop, not assumed protection. Do not probe auth.json. The synthetic R-GUARD tests create owned settings/config sentinels and test direct/atomic replacement denial for every literal without touching personal settings. Cover direct unguarded worker/flag-only, tampered input/digest, negative/positive-control failure, application failure and actually executed account failure. Verify these fail before any model; unguarded/invalid protection must fail before account/MCP too.
+
+Extend the existing codex-command-task-test.mjs and run NODE --test scripts/native-probes/codex-command-task-test.mjs. Use only synthetic host programs for targeted tests; preserve original tuple/account-home/API-exclusion/two-fixture assertions and label mock outcomes model-free. Add short-deadline fixtures for hanging setup, worker/model-like child and teardown, with a separately owned unrelated sentinel. The controller deadline includes setup and teardown; asynchronous owned process-group termination and final bounded reap must leave no owned active child and must leave the unrelated sentinel alive. Keep application, protection-verification, timeout and executed account failures distinct. Retain raw per-case output and a focused summary, not a new product error contract.
+
+### R-NATIVE: exact real-agent budget and one protected cohort
+
+Use darwin x64 OS 24.6.0, Node 22.22.3, Codex CLI 0.163.0 and /usr/bin/sandbox-exec, freshly observed again in preflight. Existing ChatGPT account/quota only, USD 0 additional API spend; no credential copy, login, API/provider fallback, usage reset, plugin installation or global setting change. Remove API-key/provider overrides from child environment. Normal host-owned account/session persistence outside protected targets remains allowed.
+
+Exactly the same two unused sessions remain authorized; no additional/replacement session, resume or hidden retry. Model gpt-6.1-sol and Reasoning low must match observed metadata. Preserve original/strict T7 predicates, full trace, task/prompt/parser/wrapper audit, exactly one intended fixture UR approval, at most four MCP calls and zero SDK/other errors per session. Keep native-run.js/native-tasks.js hashes above; no AGDF_AB_REPETITION or custom task text. A normal task failure may be followed by the other already planned repetition only under the existing semantics and same frozen sources; infrastructure failure stops the cohort. Mixed candidates never satisfy two-success acceptance.
+
+Each actual model session retains 600,000 ms timeout; total model allowance 1,200,000 ms. One whole-controller/worker deadline of 1,500,000 ms covers setup, both sessions and teardown, with at most 5,000 ms bounded forced termination/reap included in that deadline. Preserve owned-tree isolation; no foreign-process kill. All preparation operations inside this window must be asynchronous/bounded or run in the owned worker so the controller deadline stays effective.
+
+After integrated targeted tests and source/evidence assessment pass, freeze final inputs in E/qualification/renewed/final-bindings.json: actual reviewed Root/candidate harness/helper/test hashes, unchanged task/audit/performance/baseline, loaded Core/assembly, guard policy, Node/CLI/OS, launcher and snapshot method. Record E/reassessment/applicability.json and any affected fresh build/provenance checks. No source change is allowed between final preflight and either repetition.
+
+Create the bound input under the isolated candidate qualification-wrapper/renewed directory and launch the integrated controller directly from CANDIDATE, with child-only CODEX_BIN=CODEX and AGDF_T7_GUARD_INPUT pointing to that input. No outer sandbox wrapper:
+
+```text
+NODE scripts/native-probes/codex-host-e2e.mjs --command-task T7 --repetitions 2 --model gpt-6.1-sol --reasoning-effort low --preflight-only
+```
+
+Preflight must pass guard binding/actual controls, host/account, source/assembly and actual MCP discovery with session_invocations 0. It reserves zero model slots. Preserve its original observation and current successful binding. The previous combined-policy Python proof is planning evidence only; old guard-stack diagnostics and failed preflights remain immutable but are not a permanent file-presence launch veto. Current successful bound prerequisites determine readiness. A scoped model-free failure may be corrected/retested with all attempts retained; any changed material source returns to its owner.
+
+After fresh successful preflight, snapshot/revalidate unchanged prerequisites and reserve exactly two slots in candidate output renewed/ledger.json before one actual cohort launch. The controller owns the write-ahead reservation and per-session launch observations; the Run-local launcher only supplies bound inputs and retains results. Refuse an existing reservation or changed preflight/source binding; uncertainty never causes another launch. Record reserved/attempted/executed separately. Use exactly this once, without preflight-only:
+
+```text
+NODE scripts/native-probes/codex-host-e2e.mjs --command-task T7 --repetitions 2 --model gpt-6.1-sol --reasoning-effort low
+```
+
+Keep all output and reservation files in the isolated candidate while original Root is protected. Immediately after worker exit compare Root/control/staging/settings and frozen candidate before any import. On mismatch retain and report the observation without repair/restore. Then copy exact original observations/events/rollouts/effective-config/final-responses and retention manifests under E/qualification/renewed/native/session-01 and session-02. Retain policy, actual guard input/digests, raw startup output, ledger, snapshots, controller lifecycle and strict summary separately. Do not overwrite earlier E/qualification/native-summary.json or failed preflight bundles.
+
+Both original and strict success are required for each actual final-candidate session. Missing trace, guard, source, protected-byte or launch-count evidence leaves acceptance unmet. No failure, exhausted quota or unused second slot authorizes a new/resumed/replacement cohort. Further real execution requires an explicit renewed TP through the existing source owner and human approval. Keep every failure and remaining evidence gap visible; no model or host substitution.
+
+### R-SCOPE and completion
+
+Before/after comparisons include exact staged Git entries, foreign tracked/untracked file content, the selected protected global settings and original control state during the native window. Do not restore a changed foreign file or hide a concurrent change; report it and establish whose evidence remains valid. Preserve original study directories and all completed native records. Clean up only test-owned transient fixtures through their existing planned lifecycle; do not manually clean completed evidence or other users' leftovers.
+
+Record actual CD+Tests and the required review dimensions through their canonical owners. qa-gate alone decides pass/revise/block, and cannot pass without the PRD's required evidence. Present QA/UAT only when fresh canonical readiness allows it. Later OR/closeout must state exact delivery/qualification limits. No commit, push, PR, merge, installation or publication is authorized by this TP.
+
+## Planning Decisions
+
+| Decision | Source | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Concrete tasks, scenarios and retained input set | SD: Detailed task/scenario mapping and retention inventory | resolved | Stable original tasks/20 scenarios retained, T-GUARD plus four focused guard scenarios added. Explicit retention inventory and E/reassessment/applicability.json bind exact logs/source/environment and affected fresh routes; no blanket transfer of pass labels. | Codex |
+| Candidate-bound native cohort | SD: Bounded real-agent execution plan | resolved | Same two unused sessions on one frozen candidate; CLI 0.163.0/macOS x64, gpt-6.1-sol/low, 600,000 ms each, 1,500,000 ms complete cohort, existing account, USD 0 additional API spend; exact final hashes before fresh zero-model preflight; no retry/resume/replacement. | Codex |
+| One existing guard execution owner | TP | resolved | Existing T7 entry controls one combined profile and private worker; one optional test-only helper. Launcher supplies input/retains results without outer sandbox; inherited full Root and three-setting protection is verified before account/MCP/model. | Codex |
+| Model-free tests and prerequisites | TP | resolved | Extend existing codex-command-task-test.mjs, actual OS negative/positive controls, flag/tamper/startup/account classification and owned-tree short-deadline tests. Fresh final integrated preflight is mandatory; old diagnostics retained without permanent veto. | Codex |
+| Candidate and evidence applicability | TP | resolved | Reuse existing isolated checkout only after exact retained-source/SDK/build/host assessment. Final guarded native proof is always fresh. Run only changed/failed/unresolved routes; preserve original complete suites and fixed-fixture performance sampling. | Codex |
+| Guard input, ledger and import | TP | resolved | Child-only bound input, controller-owned reservation of two slots before one actual launch, output outside Root, complete before/after verification before import; no duplicate guard registry or false zero-model labeling of real sessions. | Codex |
+| Build freshness and limits | TP | resolved | Canonical builders; source_snapshot_changed-only deterministic compatibility refresh, unchanged MCP ceilings and Copilot 397 files/3,509,461 bytes. No old observation or baseline replacement. | Codex |
+| Failure and completion boundary | TP | resolved | Failures remain failed, source/guard/budget uncertainty stops model work; fresh canonical reviews and QA/UAT/OR remain required. No installation, release or VCS action. | Codex |
+
+No material planning question remains. Future account/host availability is a checked prerequisite, not consent to acquire credentials or waive evidence. No Clarification Requests/Details sections apply.
+
+## 4. Brownfield Scope
+
+Reinspect the approved source owners and actual baseline through brownfield-analysis before implementation. Preserve the existing Core contract/service, target identity, command descriptors, presentation catalog/document and approval/recovery ownership. Do not move policy into transport, a host adapter, an async executor or a new operation registry. Check real source resolution, all public/blocked read behavior, output envelopes, snapshot/cursor constraints and canonical generation before CD+Tests.
+
+This renewal adds the SDD-009 guard correction at the existing T7 execution owner while preserving the implemented optional-navigation/report boundary. Reassess historical fulfillment explicitly and test the changed guard/lifecycle fresh. Budget-preserving reuse and equivalent concise help must retain every material constraint. If that cannot be achieved within the approved design/ceilings, stop at SD/PRD as appropriate rather than silently narrowing acceptance.
+
+## 5. Out Of Scope
+
+New tools/operations/input selectors, changed approval or recovery authority, concurrency architecture, SDK/private patches, relaxed validators, new persistent schema, human UI or previews, modified native task/prompt/predicates/parser/audit, alternative model/effort, extra model sessions, credential handling, global/plugin installation or upgrades, limit/baseline increases, unrelated worktree repair, edits to prior Runs/native evidence and automatic Git/release actions.
+
+## 6. Risks And Blockers
+
+- Missing or stale approved inputs, dirty intended product paths, source/provenance mismatch, unsafe retention input or a changed exact baseline block dependent execution until the appropriate owner resolves the actual fact.
+- Any input-acceptance difference, weakened output/approval behavior, report/presentation regression, implicit document choice or failure-containment defect blocks quality readiness.
+- Definition/profile growth beyond the existing ceilings and original fixed-fixture performance failure remain failures. Do not delete required files/tests or select favorable repeated timings.
+- Missing original evidence cannot be reconstructed by rerunning completed native cases. Non-comparable cohorts are labeled rather than merged.
+- Either failed/incomplete/unqualified real session, wrong model/effort, forbidden detour, missing trace, unexpected setting change or more than four/erroneous normal-scenario calls leaves native acceptance unmet. Budget exhaustion does not grant another attempt.
+- Other-host qualification, native UI consent and full release readiness remain outside the observed proof. The existing account/host can become unavailable; the declared recovery is an explicit evidence gap and bounded user-visible next action.
+
+## 7. Next Step
+
+Review this task and test plan and approve only with:
+
+`Approval: TP`
+
+After approval, redispatch the same Run, perform implementation-preparation Brownfield Analysis, then execute only this bounded source/test/evidence plan. Retain actual outcomes and continue through the existing review, QA and UAT gates. TP preparation itself grants no implementation, model execution or approval.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: Den freigegebenen MCP-Ablauf fertig qualifizieren und die Schutzverschachtelung im bestehenden T7-Harness korrigieren. Die bestehende Core-Umsetzung bleibt erhalten; Quellen und frühere Prüfergebnisse werden ausdrücklich neu bewertet.
+- Umfang: Nach erneuter Implementierungsvorbereitung nur Schutzkomposition, Worker-Prüfung, Fehlerzuordnung und Lebenszyklus am vorhandenen Test-Owner ändern und dessen vorhandene Tests erweitern. Optional ein zugehöriger Test-Helfer; der Launcher legt keine zweite Sandbox mehr darüber. Alle acht PRD-Kriterien, bisherigen Aufgaben und zwanzig Szenarien bleiben abgedeckt; vier gezielte Schutzszenarien kommen hinzu.
+- Schutzprüfung: Genau ein Profil schützt den vollständigen Original-ROOT und dieselben drei globalen Einstellungsdateien für Harness, MCP und Codex-Kinder. Vor Konto-, MCP- und Modellzugriff müssen gebundene Profilangaben, sichere verweigerte Schreiböffnungen und ein erlaubter eigener temporärer Schreibzugriff passen. Ungeschützter Direktstart, bloße Flags, falsche Bindungen und fehlerhafte Kontrollen stoppen. Schutzstart, Schutzprüfung und echte Kontofehler werden getrennt berichtet; kurze modellfreie Tests prüfen außerdem Abbruch eigener Prozessbäume ohne fremde Prozesse zu beenden.
+- Vorhandene Nachweise: Vollständige MCP-/Core-/CLI-Prüfungen, 247.003 SDK-Vergleichsfälle, 160 Core-Erwartungen, Fehlerwiedergabe, tatsächliche Codex-Typanzeige, Build, Profil und ursprüngliche Leistungsmessung bleiben erhalten. Quellen, SDK, Umgebung und Abdeckung entscheiden über ihre weitere Gültigkeit. Nur betroffene oder ungeklärte Prüfungen werden wiederholt; die integrierte Schutzprüfung und frische modellfreie Vorprüfung sind zwingend neu.
+- Echte Agenten: Dieselben zwei noch ungenutzten normalen T7-Sitzungen am unverändert eingefrorenen Endkandidaten mit Codex CLI 0.163.0, gpt-6.1-sol und Reasoning low. Zehn Minuten je Sitzung, höchstens zwanzig Minuten Modellzeit und fünfundzwanzig Minuten für den gesamten Ablauf einschließlich Aufbau und Abbau. Startzählung und Reservierung erfolgen vor einem einzigen Kohortenstart. Keine Zusatz-/Ersatzsitzung, kein Resume, keine geänderten Prompts oder Prüfer. Beide müssen ursprünglich und streng bestanden sein, je höchstens vier MCP-Aufrufe und null SDK- oder sonstige Fehler.
+- Quellen, Grenzen und Kosten: Finale Harness-/Guard-/Kandidaten-Hashes werden vor der Vorprüfung eingefroren; Aufgabe, Parser und Audit bleiben unverändert. Alle MCP-Limits und Copilot 397 Dateien/3.509.461 Byte bleiben verbindlich. Nur bestehendes ChatGPT-Konto und Kontingent, keine zusätzlichen API-Ausgaben, Zugangsdatenkopie, Anmeldung, globale Änderung oder Plugin-Installation.
+- Nachweise und Stoppregeln: Vormerkungen, fremde Dateien, vollständiger Kontrollbestand und globale Einstellungen bleiben geschützt. Ergebnisse bleiben bis zum Vorher-/Nachher-Vergleich außerhalb des Original-ROOT. Alle früheren Erfolge und Fehler sowie neue Spuren, Richtlinien und Startzählungen bleiben erhalten. Alte Fehlversuchsdateien sind keine dauerhafte Startsperre; aktuelle gebundene Prüfungen entscheiden. Fehler, unvollständige Spuren oder erschöpftes Budget bleiben offene Abnahmepunkte; zusätzliche echte Läufe brauchen erneuten TP.
+- Nächster Schritt: Nach Approval: TP folgen Brownfield Analysis, Schutzintegration, gezielte modellfreie Tests und Vorprüfung, dann die zwei echten Läufe und die vorgesehenen Reviews. QA entscheidet allein pass, revise oder block. QA/UAT/OR, Installation, Veröffentlichung und Git-Aktionen sind hier nicht freigegeben.

@@ -1,0 +1,444 @@
+{
+  "tp_digest": "sha256:42289c6e277849e0a634e582870bc9fcb3f7cef116b6bccea7ab26f3817ad597",
+  "source_binding_evidence": [
+    {
+      "path": "evidence/build/source-bindings.json",
+      "sha256": "80864ac5d9c25f3e132cd5cbd4929b2e876ad421f222d481d468ffeccba5c1d1"
+    },
+    {
+      "path": "evidence/build/frozen-candidate.json",
+      "sha256": "7866ae22073f0a84454547553c324036a8cdcabd91f7642bcaa31a44bf9e4d1c"
+    },
+    {
+      "path": "evidence/reassessment/retained-inputs.json",
+      "sha256": "8eb30f73f0b9f1cc275f32a39bf72a933c4bc469a36a0aac04b251227548f050"
+    }
+  ],
+  "scenarios": [
+    {
+      "criterion_id": "AC-001",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-CORE",
+      "scenario_id": "SCN-CONTRACT-VISIBILITY",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/contract.json",
+          "sha256": "02df13f8b6d6091d4b8d639a09321a89c5f3da3e28d2e6f035148b0718ec27da"
+        },
+        {
+          "path": "evidence/checks/control-inspect-01.log",
+          "sha256": "021e8ca249f8e9816e87247d9911718ed93823781325d3abc6fc5c981a108b7c"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-001",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-RENDER",
+      "scenario_id": "SCN-HOST-TYPES",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/renderer/capture/visibility.json",
+          "sha256": "941e3f66992cdf6bfcc1fae2f8daf1a0260ea0432e8b42a403cfcd577dcb2726"
+        },
+        {
+          "path": "evidence/renderer/capture/signature.ts",
+          "sha256": "6ec176d73b286c871a6653b1bc36a1b3a890f396aa02c734120feb36c224ef4e"
+        },
+        {
+          "path": "evidence/renderer/capture/requests.json",
+          "sha256": "21e66412fdc6a828078c01b59f6b6370369d48ca4f09bd6e98792fc578deeed7"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-002",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-SCHEMA",
+      "scenario_id": "SCN-ACCEPTANCE",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/schema-parity.json",
+          "sha256": "2c02b269ec0105be0c382b5a4dada2fbcea152c8740fe1796e4f10c207a1eef0"
+        },
+        {
+          "path": "evidence/checks/schema-parity-02.log",
+          "sha256": "3dbacd4a1db5180f81b581bc6354353b7502b5dddca60b9af223621b6db9d818"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-002",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-SCHEMA",
+      "scenario_id": "SCN-CORE-REPLAY",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/core-parity.json",
+          "sha256": "b14668fd35bb3f56115f45e5cddd21430e7ed824baa725a864d0b16b85687d8f"
+        },
+        {
+          "path": "evidence/checks/replay.json",
+          "sha256": "380658fe4ef73ad2ee60c2a7b33d320b654926fa7d583e36f192bc1f1928f891"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-002",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-NAV-VALID",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/navigation.json",
+          "sha256": "3d67200772893777e75d412830b56044bd444e23abe8fb13caec5f96468e0ab5"
+        },
+        {
+          "path": "evidence/checks/historical.json",
+          "sha256": "8c0e006b67ef8e9b7fe138e78a75437071d2fe9c902bf8416723ac7ed1c85a10"
+        },
+        {
+          "path": "evidence/checks/protocol-02.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-003",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-NAV-FAULT",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/navigation.json",
+          "sha256": "3d67200772893777e75d412830b56044bd444e23abe8fb13caec5f96468e0ab5"
+        },
+        {
+          "path": "evidence/checks/historical.json",
+          "sha256": "8c0e006b67ef8e9b7fe138e78a75437071d2fe9c902bf8416723ac7ed1c85a10"
+        },
+        {
+          "path": "evidence/checks/protocol-02.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-004",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-NAV-PRECEDENCE",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/navigation.json",
+          "sha256": "3d67200772893777e75d412830b56044bd444e23abe8fb13caec5f96468e0ab5"
+        },
+        {
+          "path": "evidence/checks/historical.json",
+          "sha256": "8c0e006b67ef8e9b7fe138e78a75437071d2fe9c902bf8416723ac7ed1c85a10"
+        },
+        {
+          "path": "evidence/checks/protocol-02.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-004",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-DOC-BINDINGS",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/navigation.json",
+          "sha256": "3d67200772893777e75d412830b56044bd444e23abe8fb13caec5f96468e0ab5"
+        },
+        {
+          "path": "evidence/checks/historical.json",
+          "sha256": "8c0e006b67ef8e9b7fe138e78a75437071d2fe9c902bf8416723ac7ed1c85a10"
+        },
+        {
+          "path": "evidence/checks/protocol-02.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-DOC-STDIO",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/mcp-server-01.log",
+          "sha256": "d24242c8649bcfc17794965ee31e379c7e841a34111c0cca4ad863ee89556a0b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-APPROVAL-REFUSAL",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/historical.json",
+          "sha256": "8c0e006b67ef8e9b7fe138e78a75437071d2fe9c902bf8416723ac7ed1c85a10"
+        },
+        {
+          "path": "evidence/checks/run-command-flow-01.log",
+          "sha256": "0b6f827e10f245a1b5081bfcf436e759718a4cb74260f862730382de7ea7e7fc"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-NATIVE",
+      "scenario_id": "SCN-NATIVE-T7",
+      "applicability": "fresh obligation pending",
+      "rationale": "Guard/source binding and two final native sessions are not transferable.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/renewed/final-bindings.json",
+          "sha256": "278fe92e1689ebe13560ff01fae92ee40ee1c751d711ee3e0168e418bce21f2b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-NATIVE",
+      "scenario_id": "SCN-NATIVE-GUARD",
+      "applicability": "fresh obligation pending",
+      "rationale": "Guard/source binding and two final native sessions are not transferable.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/renewed/final-bindings.json",
+          "sha256": "278fe92e1689ebe13560ff01fae92ee40ee1c751d711ee3e0168e418bce21f2b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-006",
+      "design_decision_id": "SDD-007",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-BUDGET-LATENCY",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/budget.json",
+          "sha256": "63299ae718ee9f8a0afedf4e46a5e378d8fcd1256f718a516ef534ecf434c022"
+        },
+        {
+          "path": "evidence/checks/performance.json",
+          "sha256": "c33d1c6dac7c0f252ba84f9680b54c73addd607e76c8b1130c2483b3784c9c4a"
+        },
+        {
+          "path": "evidence/checks/copilot-profile-01.log",
+          "sha256": "4f964f09f5eaa647aae559fa4937704706fc10cfa5ef90760d0c1fa9c0912682"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-003",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-LEGACY-FAULT",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/control-inspect-01.log",
+          "sha256": "021e8ca249f8e9816e87247d9911718ed93823781325d3abc6fc5c981a108b7c"
+        },
+        {
+          "path": "evidence/checks/protocol-02.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-PROTOCOL-REGRESSION",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/control-inspect-01.log",
+          "sha256": "021e8ca249f8e9816e87247d9911718ed93823781325d3abc6fc5c981a108b7c"
+        },
+        {
+          "path": "evidence/checks/mcp-server-01.log",
+          "sha256": "d24242c8649bcfc17794965ee31e379c7e841a34111c0cca4ad863ee89556a0b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-WRITER-RECOVERY",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/run-command-flow-01.log",
+          "sha256": "0b6f827e10f245a1b5081bfcf436e759718a4cb74260f862730382de7ea7e7fc"
+        },
+        {
+          "path": "evidence/checks/mcp-server-01.log",
+          "sha256": "d24242c8649bcfc17794965ee31e379c7e841a34111c0cca4ad863ee89556a0b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-RET",
+      "scenario_id": "SCN-RETENTION",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/prestudy/retention-index.json",
+          "sha256": "21d03d2f7b5f46d74bb4f40ab1c3a271d9ef6872321ed487fc1c48c67bd11a62"
+        },
+        {
+          "path": "evidence/prestudy/projection-captures/supplement-index.json",
+          "sha256": "30df65b49fbfa1e45610269169763787da9f9105e7ac27cb6dd94a2f2007921a"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-CANDIDATE-PROVENANCE",
+      "applicability": "fresh obligation pending",
+      "rationale": "Guard/source binding and two final native sessions are not transferable.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/renewed/final-bindings.json",
+          "sha256": "278fe92e1689ebe13560ff01fae92ee40ee1c751d711ee3e0168e418bce21f2b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-007",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-DERIVED-SOURCE",
+      "applicability": "retained evidence applicable",
+      "rationale": "Exact product/test/SDK/assembly inputs verified against 19,336-file prior passing snapshot; only separate T7 execution owner/test changed. Coverage and full exit/log retained.",
+      "evidence": [
+        {
+          "path": "evidence/checks/normal-build-02.log",
+          "sha256": "948675cc3699d2a69179a06dd79d9c289afaabb46b3dab84ef2136def0bcc426"
+        },
+        {
+          "path": "evidence/build/derived-source-bindings.json",
+          "sha256": "482bb87f03b519b8d3904b42cf389114df5f2c2a8623d6b6ce43ed9ca99c51c6"
+        },
+        {
+          "path": "evidence/checks/compatibility-guard-01.log",
+          "sha256": "26a6166ed812425a7d6ce5728706fb68424b39cf2cde7d7653a009968eb5b9e8"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-CLOSE",
+      "scenario_id": "SCN-SCOPE-PRESERVATION",
+      "applicability": "fresh obligation pending",
+      "rationale": "Guard/source binding and two final native sessions are not transferable.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/renewed/final-bindings.json",
+          "sha256": "278fe92e1689ebe13560ff01fae92ee40ee1c751d711ee3e0168e418bce21f2b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-GUARD",
+      "scenario_id": "SCN-GUARD-INHERITANCE",
+      "applicability": "fresh guard tests pass",
+      "rationale": "Actual OS mock-host/control/deadline assertions passed on current integrated source.",
+      "evidence": [
+        {
+          "path": "evidence/checks/guard-integration-03.log",
+          "sha256": "f2a193c408ca62500763e8da17ce7d0cca267846cf2fffbe87fcdd9f13b4170f"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-GUARD",
+      "scenario_id": "SCN-GUARD-FAIL-CLOSED",
+      "applicability": "fresh guard tests pass",
+      "rationale": "Actual OS mock-host/control/deadline assertions passed on current integrated source.",
+      "evidence": [
+        {
+          "path": "evidence/checks/guard-integration-03.log",
+          "sha256": "f2a193c408ca62500763e8da17ce7d0cca267846cf2fffbe87fcdd9f13b4170f"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-GUARD",
+      "scenario_id": "SCN-GUARD-DEADLINE",
+      "applicability": "fresh guard tests pass",
+      "rationale": "Actual OS mock-host/control/deadline assertions passed on current integrated source.",
+      "evidence": [
+        {
+          "path": "evidence/checks/guard-integration-03.log",
+          "sha256": "f2a193c408ca62500763e8da17ce7d0cca267846cf2fffbe87fcdd9f13b4170f"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-NATIVE",
+      "scenario_id": "SCN-GUARD-PREFLIGHT",
+      "applicability": "fresh obligation pending",
+      "rationale": "Guard/source binding and two final native sessions are not transferable.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/renewed/final-bindings.json",
+          "sha256": "278fe92e1689ebe13560ff01fae92ee40ee1c751d711ee3e0168e418bce21f2b"
+        }
+      ]
+    }
+  ],
+  "model_invocations": 0
+}

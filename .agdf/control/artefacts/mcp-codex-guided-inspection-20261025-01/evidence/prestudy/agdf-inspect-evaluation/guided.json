@@ -1,0 +1,452 @@
+{
+  "name": "agdf_inspect",
+  "description": "Read-only. Start gate-check with language, cwd, target pair and Run; omit gate/module. Copy report.next_calls; read every document page.",
+  "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "operation",
+      "presentation_language",
+      "working_directory"
+    ],
+    "$defs": {
+      "i": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "b": {
+        "not": {
+          "enum": [
+            "doctor",
+            "gate-check",
+            "delivery-map",
+            "contract"
+          ]
+        }
+      },
+      "d": {
+        "enum": [
+          "presentation-document",
+          "presentation-preview"
+        ]
+      },
+      "m": {
+        "enum": [
+          "contract",
+          "operation-contract",
+          "operation-status"
+        ]
+      }
+    },
+    "properties": {
+      "operation": {
+        "enum": [
+          "doctor",
+          "gate-check",
+          "delivery-map",
+          "contract",
+          "artifact-readiness",
+          "operation-contract",
+          "operation-status",
+          "native-qualification",
+          "presentation-document",
+          "presentation-preview",
+          "runtime-generations"
+        ],
+        "description": "Read action."
+      },
+      "presentation_language": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$",
+        "description": "Reply BCP47 tag."
+      },
+      "working_directory": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "description": "Context; not target authority."
+      },
+      "target_source": {
+        "enum": [
+          "explicit_target",
+          "continued_target",
+          "current_repository"
+        ],
+        "description": "Paired target provenance."
+      },
+      "primary_target": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "description": "Confirmed root."
+      },
+      "run_id": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$",
+        "description": "Confirmed run."
+      },
+      "gate": {
+        "enum": [
+          "UR",
+          "PRD",
+          "SD",
+          "TP",
+          "QA",
+          "UAT"
+        ],
+        "description": "Document gate. Never with gate-check."
+      },
+      "expected_revision_id": {
+        "$ref": "#/$defs/i",
+        "description": "gate-check revision; original for reads."
+      },
+      "presentation_id": {
+        "$ref": "#/$defs/i",
+        "description": "ID from catalog/conversation."
+      },
+      "target_id": {
+        "type": "string",
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "description": "Target hash: operation-contract."
+      },
+      "cursor": {
+        "type": "string",
+        "maxLength": 80,
+        "pattern": "^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$",
+        "description": "Copy next_cursor."
+      },
+      "variant": {
+        "enum": [
+          "status-card",
+          "approval-envelope"
+        ],
+        "description": "gate-check view."
+      },
+      "module": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "Contract, group/kind or receipt UUID."
+      },
+      "all_active": {
+        "type": "boolean",
+        "description": "All runs: doctor/delivery-map."
+      }
+    },
+    "dependentRequired": {
+      "target_source": [
+        "primary_target"
+      ],
+      "primary_target": [
+        "target_source"
+      ]
+    },
+    "dependentSchemas": {
+      "gate": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "artifact-readiness",
+              "operation-contract",
+              "presentation-document",
+              "presentation-preview"
+            ]
+          }
+        }
+      },
+      "expected_revision_id": {
+        "properties": {
+          "operation": {
+            "$ref": "#/$defs/b"
+          }
+        }
+      },
+      "presentation_id": {
+        "properties": {
+          "operation": {
+            "$ref": "#/$defs/d"
+          }
+        }
+      },
+      "target_id": {
+        "properties": {
+          "operation": {
+            "$ref": "#/$defs/d"
+          }
+        }
+      },
+      "cursor": {
+        "anyOf": [
+          {
+            "properties": {
+              "operation": {
+                "$ref": "#/$defs/d"
+              }
+            }
+          },
+          {
+            "properties": {
+              "operation": {
+                "const": "operation-contract"
+              },
+              "module": {
+                "const": "agdf_prepare/presentation.prepare"
+              }
+            }
+          }
+        ]
+      },
+      "variant": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "gate-check"
+            ]
+          }
+        }
+      },
+      "module": {
+        "properties": {
+          "operation": {
+            "$ref": "#/$defs/m"
+          }
+        }
+      },
+      "operation": {
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "properties": {
+                  "all_active": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "operation": {
+                    "enum": [
+                      "doctor",
+                      "delivery-map"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "$ref": "#/$defs/m"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "module"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "$ref": "#/$defs/b"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "run_id",
+                "expected_revision_id",
+                "target_source"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "artifact-readiness"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "gate"
+              ],
+              "properties": {
+                "gate": {
+                  "enum": [
+                    "UR",
+                    "PRD",
+                    "SD",
+                    "TP"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "$ref": "#/$defs/d"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "gate",
+                "presentation_id",
+                "target_id"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "outcome",
+      "terminal",
+      "authorizes",
+      "operation",
+      "report",
+      "presentation",
+      "host_action",
+      "target",
+      "recovery"
+    ],
+    "properties": {
+      "schema_version": {
+        "const": "1"
+      },
+      "contract_version": {
+        "const": 1
+      },
+      "authorizes": {
+        "const": false
+      },
+      "operation": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "runtime": {
+        "type": "object"
+      },
+      "target": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "recovery": {
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "presentation": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "required": [
+          "markdown"
+        ],
+        "properties": {
+          "markdown": {
+            "type": "string"
+          }
+        }
+      },
+      "timing": {
+        "type": "object"
+      },
+      "diagnostics": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "host_action": {
+        "type": "object",
+        "required": [
+          "mode",
+          "source",
+          "allow_surrounding_text",
+          "may_request_run_or_evidence"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "may_request_run_or_evidence": {
+            "const": false
+          }
+        }
+      },
+      "outcome": {
+        "enum": [
+          "inspect_result",
+          "target_unresolved",
+          "invalid_input",
+          "evaluator_error"
+        ]
+      }
+    },
+    "if": {
+      "properties": {
+        "outcome": {
+          "const": "inspect_result"
+        }
+      }
+    },
+    "then": {
+      "properties": {
+        "terminal": {
+          "const": false
+        },
+        "report": {
+          "type": "object"
+        },
+        "recovery": {
+          "type": "null"
+        }
+      }
+    },
+    "else": {
+      "properties": {
+        "terminal": {
+          "const": true
+        },
+        "report": {
+          "type": "null"
+        },
+        "recovery": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

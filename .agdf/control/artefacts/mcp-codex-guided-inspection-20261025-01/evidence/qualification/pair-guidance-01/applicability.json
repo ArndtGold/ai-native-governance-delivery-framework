@@ -1,0 +1,488 @@
+{
+  "tp_digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+  "frozen_manifest_sha256": "4f1a322276e4a2a68f74a5939bebc9fa63433179c8582c8725bbdfd879650f2c",
+  "frozen_files": 19339,
+  "prior_frozen_inputs_checked": 19336,
+  "documented_changed_paths": [
+    "dist/npm/create-agdf/generated/plugins/agdf/runtime/create-agdf/runtime/core/lib/control-inspect/contract.js",
+    "dist/npm/create-agdf/generated/plugins/agdf/runtime/runtime-manifest.json",
+    "dist/npm/create-agdf/generated/plugins/copilot/agdf/.agdf-payload-inventory.json",
+    "dist/npm/create-agdf/generated/plugins/copilot/agdf/runtime/create-agdf/runtime/core/lib/control-inspect/contract.js",
+    "dist/npm/create-agdf/generated/plugins/copilot/agdf/runtime/runtime-manifest.json",
+    "dist/npm/create-agdf/runtime/core/lib/control-inspect/contract.js",
+    "docs/compatibility/HOST_COMPATIBILITY.md",
+    "docs/compatibility/evidence/facts.json",
+    "docs/compatibility/evidence/snapshot.json",
+    "packages/cli/generated/plugins/agdf/runtime/create-agdf/runtime/core/lib/control-inspect/contract.js",
+    "packages/cli/generated/plugins/agdf/runtime/runtime-manifest.json",
+    "packages/cli/generated/plugins/copilot/agdf/.agdf-payload-inventory.json",
+    "packages/cli/generated/plugins/copilot/agdf/runtime/create-agdf/runtime/core/lib/control-inspect/contract.js",
+    "packages/cli/generated/plugins/copilot/agdf/runtime/runtime-manifest.json",
+    "packages/core/lib/control-inspect/contract.js",
+    "scripts/native-probes/codex-command-task-test.mjs",
+    "scripts/native-probes/codex-host-e2e.mjs"
+  ],
+  "new_frozen_sources": [
+    "evals/host-compatibility/observations/768616783fc3d522cd85c864c013dca842039e9cfc72fe74f15b559e491d853e.json",
+    "evals/host-compatibility/observations/770b48e9498b8233ec2f6b2acd4b8cf03e1e88ed935b0f5e08273b156a0de31e.json",
+    "scripts/native-probes/lib/codex-command-guard.mjs"
+  ],
+  "scenarios": [
+    {
+      "criterion_id": "AC-001",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-CORE",
+      "scenario_id": "SCN-CONTRACT-VISIBILITY",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/pair-guidance/checks/candidate-definition.json",
+          "sha256": "fdf0a447a76049bd936665492d7e53e3c6d93fb1455597a5f399bca6d15a2780"
+        },
+        {
+          "path": "evidence/checks/pair-cli-01.log",
+          "sha256": "eca9f4f76d01d9f28ee46047d5e6de5147bc6ef37f3ae48c70fa6c29d17385a9"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-001",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-RENDER",
+      "scenario_id": "SCN-HOST-TYPES",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/pair-guidance/renderer/capture/signature.ts",
+          "sha256": "5adb0b0188262f7f2b07848fce0e90d3158c054931c8a3253042f743764e7b5e"
+        },
+        {
+          "path": "evidence/pair-guidance/renderer/capture/visibility.json",
+          "sha256": "941e3f66992cdf6bfcc1fae2f8daf1a0260ea0432e8b42a403cfcd577dcb2726"
+        },
+        {
+          "path": "evidence/pair-guidance/renderer/capture/requests.json",
+          "sha256": "1fec073e05ca8ccf6dd0ec59689bddc4c467bb5fb8574d66276a9ed4c150a70a"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-002",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-SCHEMA",
+      "scenario_id": "SCN-ACCEPTANCE",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/pair-guidance/checks/schema-parity.json",
+          "sha256": "5b152aec89317b1692befe3a6b84d472545469fe8c594863b16a4082473d7482"
+        },
+        {
+          "path": "evidence/checks/pair-schema-01.log",
+          "sha256": "ad2ea77678b2b76b412e45c4a5e2495b318ab8a922bcb61f6e3c01153056493a"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-002",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-SCHEMA",
+      "scenario_id": "SCN-CORE-REPLAY",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/baseline/core-expectations.json",
+          "sha256": "bf19f3f11c309ba1e6f449ebce08723f57395d0af5aaa76f4df351110bab838e"
+        },
+        {
+          "path": "evidence/pair-guidance/checks/replay.json",
+          "sha256": "380658fe4ef73ad2ee60c2a7b33d320b654926fa7d583e36f192bc1f1928f891"
+        },
+        {
+          "path": "evidence/checks/pair-schema-01.log",
+          "sha256": "ad2ea77678b2b76b412e45c4a5e2495b318ab8a922bcb61f6e3c01153056493a"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-002",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-NAV-VALID",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/navigation.json",
+          "sha256": "3d67200772893777e75d412830b56044bd444e23abe8fb13caec5f96468e0ab5"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-003",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-NAV-FAULT",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/navigation.json",
+          "sha256": "3d67200772893777e75d412830b56044bd444e23abe8fb13caec5f96468e0ab5"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-004",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-NAV-PRECEDENCE",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/navigation.json",
+          "sha256": "3d67200772893777e75d412830b56044bd444e23abe8fb13caec5f96468e0ab5"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-004",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-DOC-BINDINGS",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/historical.json",
+          "sha256": "8c0e006b67ef8e9b7fe138e78a75437071d2fe9c902bf8416723ac7ed1c85a10"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-DOC-STDIO",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/mcp-server-01.log",
+          "sha256": "d24242c8649bcfc17794965ee31e379c7e841a34111c0cca4ad863ee89556a0b"
+        },
+        {
+          "path": "evidence/checks/run-command-flow-01.log",
+          "sha256": "0b6f827e10f245a1b5081bfcf436e759718a4cb74260f862730382de7ea7e7fc"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-APPROVAL-REFUSAL",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/historical.json",
+          "sha256": "8c0e006b67ef8e9b7fe138e78a75437071d2fe9c902bf8416723ac7ed1c85a10"
+        },
+        {
+          "path": "evidence/checks/run-command-flow-01.log",
+          "sha256": "0b6f827e10f245a1b5081bfcf436e759718a4cb74260f862730382de7ea7e7fc"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-NATIVE",
+      "scenario_id": "SCN-NATIVE-T7",
+      "applicability": "fresh_obligation_pending",
+      "rationale": "Fresh preflight/native/preservation must be observed on this exact frozen final candidate; no historical native success is transferred.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/pair-guidance-01/final-bindings.json",
+          "sha256": "0dce10f3e44fd368ab4afc803c08f8551db9d94ac03d4bd4656d1e49b685ee1f"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-NATIVE",
+      "scenario_id": "SCN-NATIVE-GUARD",
+      "applicability": "fresh_obligation_pending",
+      "rationale": "Fresh preflight/native/preservation must be observed on this exact frozen final candidate; no historical native success is transferred.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/pair-guidance-01/final-bindings.json",
+          "sha256": "0dce10f3e44fd368ab4afc803c08f8551db9d94ac03d4bd4656d1e49b685ee1f"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-006",
+      "design_decision_id": "SDD-007",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-BUDGET-LATENCY",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/pair-guidance/checks/budget.json",
+          "sha256": "cd268ae252c2b9da3fcf4a0232d9079873ec783b6cc942b923078e256394637b"
+        },
+        {
+          "path": "evidence/pair-guidance/checks/performance.json",
+          "sha256": "5cd379b89ad6c9bd31b4e3aa0b324608b17c3132d5aa6797116df5ecba8233a6"
+        },
+        {
+          "path": "evidence/checks/pair-copilot-01.log",
+          "sha256": "e94dd11c5922a481583b7f930f32a2dccee4da9c29b8839afd462cc441d10b41"
+        },
+        {
+          "path": "evidence/checks/pair-performance-01.log",
+          "sha256": "b8690ef337437cb47d801f16419c994165500bdbeb84066f619e686011e8c0e1"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-003",
+      "task_id": "T-NAV",
+      "scenario_id": "SCN-LEGACY-FAULT",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/pair-cli-01.log",
+          "sha256": "eca9f4f76d01d9f28ee46047d5e6de5147bc6ef37f3ae48c70fa6c29d17385a9"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-PROTOCOL-REGRESSION",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/pair-cli-01.log",
+          "sha256": "eca9f4f76d01d9f28ee46047d5e6de5147bc6ef37f3ae48c70fa6c29d17385a9"
+        },
+        {
+          "path": "evidence/checks/pair-protocol-01.log",
+          "sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+        },
+        {
+          "path": "evidence/checks/mcp-server-01.log",
+          "sha256": "d24242c8649bcfc17794965ee31e379c7e841a34111c0cca4ad863ee89556a0b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-WRITER-RECOVERY",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/checks/run-command-flow-01.log",
+          "sha256": "0b6f827e10f245a1b5081bfcf436e759718a4cb74260f862730382de7ea7e7fc"
+        },
+        {
+          "path": "evidence/checks/mcp-server-01.log",
+          "sha256": "d24242c8649bcfc17794965ee31e379c7e841a34111c0cca4ad863ee89556a0b"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-RET",
+      "scenario_id": "SCN-RETENTION",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/prestudy/retention-index.json",
+          "sha256": "21d03d2f7b5f46d74bb4f40ab1c3a271d9ef6872321ed487fc1c48c67bd11a62"
+        },
+        {
+          "path": "evidence/qualification/pair-guidance-01/retention-verification.json",
+          "sha256": "f4b66bfdaeb69ab435476f4ac577996cd958bd18f86fb05057ec586ab21a7692"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-CANDIDATE-PROVENANCE",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/pair-guidance/build/source-bindings.json",
+          "sha256": "9f15594259153dbe98f28cb4460db8fe4c92fae5dbd50ebbf91d6f9f291ab543"
+        },
+        {
+          "path": "evidence/qualification/pair-guidance-01/final-bindings.json",
+          "sha256": "0dce10f3e44fd368ab4afc803c08f8551db9d94ac03d4bd4656d1e49b685ee1f"
+        },
+        {
+          "path": "evidence/qualification/pair-guidance-01/frozen-candidate.json",
+          "sha256": "4f1a322276e4a2a68f74a5939bebc9fa63433179c8582c8725bbdfd879650f2c"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-007",
+      "task_id": "T-BUILD",
+      "scenario_id": "SCN-DERIVED-SOURCE",
+      "applicability": "retained_applicable",
+      "rationale": "Current paired-guidance source/assembly/SDK/UI verified. Current pair-* checks cover affected definition/render/protocol/build/profile/performance; full prior SDK/Core suite evidence is retained for reviewed unchanged subpaths. All old frozen inputs except the documented 17 canonical changes match; no blanket source-revision pass transfer.",
+      "evidence": [
+        {
+          "path": "evidence/pair-guidance/build/derived-review.json",
+          "sha256": "837c93617a4a20cea6b480060d1d7e09b6ead8b8d2d3dce9b5c1cab7e30ea741"
+        },
+        {
+          "path": "evidence/pair-guidance/build/final-source-scope.json",
+          "sha256": "d196acd654186f7b6d9132d2cb0fd16b253b48069056e02ba38e5c4c219dad8b"
+        },
+        {
+          "path": "evidence/checks/pair-normal-build-01.log",
+          "sha256": "4480b1626dcb1323bc076fe82d169003508ae9c034e5e938916ee8cbb71b6a95"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-CLOSE",
+      "scenario_id": "SCN-SCOPE-PRESERVATION",
+      "applicability": "fresh_obligation_pending",
+      "rationale": "Fresh preflight/native/preservation must be observed on this exact frozen final candidate; no historical native success is transferred.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/pair-guidance-01/final-bindings.json",
+          "sha256": "0dce10f3e44fd368ab4afc803c08f8551db9d94ac03d4bd4656d1e49b685ee1f"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-GUARD",
+      "scenario_id": "SCN-GUARD-INHERITANCE",
+      "applicability": "retained_applicable",
+      "rationale": "Exact guard/entry/test sources unchanged. Actual OS negative/positive, flag/tamper/weaker-profile/application and owned-tree deadline assertions passed. One-byte product description change affects none of these guard branches; current protocol and fresh native preflight separately validate new discovery.",
+      "evidence": [
+        {
+          "path": "evidence/checks/guard-integration-03.log",
+          "sha256": "f2a193c408ca62500763e8da17ce7d0cca267846cf2fffbe87fcdd9f13b4170f"
+        },
+        {
+          "path": "evidence/preparation-tp-03.json",
+          "sha256": "fcaab5cff0d7cc6ad4224713e2bce1b4e7ce73151930e0327f8ff68f2c935f9e"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-GUARD",
+      "scenario_id": "SCN-GUARD-FAIL-CLOSED",
+      "applicability": "retained_applicable",
+      "rationale": "Exact guard/entry/test sources unchanged. Actual OS negative/positive, flag/tamper/weaker-profile/application and owned-tree deadline assertions passed. One-byte product description change affects none of these guard branches; current protocol and fresh native preflight separately validate new discovery.",
+      "evidence": [
+        {
+          "path": "evidence/checks/guard-integration-03.log",
+          "sha256": "f2a193c408ca62500763e8da17ce7d0cca267846cf2fffbe87fcdd9f13b4170f"
+        },
+        {
+          "path": "evidence/preparation-tp-03.json",
+          "sha256": "fcaab5cff0d7cc6ad4224713e2bce1b4e7ce73151930e0327f8ff68f2c935f9e"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-GUARD",
+      "scenario_id": "SCN-GUARD-DEADLINE",
+      "applicability": "retained_applicable",
+      "rationale": "Exact guard/entry/test sources unchanged. Actual OS negative/positive, flag/tamper/weaker-profile/application and owned-tree deadline assertions passed. One-byte product description change affects none of these guard branches; current protocol and fresh native preflight separately validate new discovery.",
+      "evidence": [
+        {
+          "path": "evidence/checks/guard-integration-03.log",
+          "sha256": "f2a193c408ca62500763e8da17ce7d0cca267846cf2fffbe87fcdd9f13b4170f"
+        },
+        {
+          "path": "evidence/preparation-tp-03.json",
+          "sha256": "fcaab5cff0d7cc6ad4224713e2bce1b4e7ce73151930e0327f8ff68f2c935f9e"
+        }
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-NATIVE",
+      "scenario_id": "SCN-GUARD-PREFLIGHT",
+      "applicability": "fresh_obligation_pending",
+      "rationale": "Fresh preflight/native/preservation must be observed on this exact frozen final candidate; no historical native success is transferred.",
+      "evidence": [
+        {
+          "path": "evidence/qualification/pair-guidance-01/final-bindings.json",
+          "sha256": "0dce10f3e44fd368ab4afc803c08f8551db9d94ac03d4bd4656d1e49b685ee1f"
+        }
+      ]
+    }
+  ],
+  "spent_prior_sessions": 2,
+  "new_model_invocations": 0,
+  "guard_helper_source_unchanged": true,
+  "sdk_runtime_digest_verified": true
+}

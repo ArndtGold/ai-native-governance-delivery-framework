@@ -1,0 +1,53 @@
+
+> build
+> node scripts/verify-ci.mjs --profile build
+
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages in 4s
+
+107 packages are looking for funding
+  run `npm fund` for details
+[verify-ci] ui-dependencies passed (4.1s)
+[verify-ci] ui-build
+
+> agdf-control-ui@0.0.0 build:mcp
+> node scripts/build-mcp.mjs
+
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+✓ built in 1.43s
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1249259,"digest":"sha256:17eb8a4185a76c9aa8bdea6dbe0d2405f0fa4276d4223f437c8c99bc9c9a2d82","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 1.03s
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":945815,"digest":"sha256:0cda3ead4c112991f697ae967bc0692dee465ef9e6f794ca7d43937f326ee7b6","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[verify-ci] ui-build passed (3.8s)
+[verify-ci] generate
+[verify-ci] generate passed (1.9s)
+[verify-ci] build-contracts
+Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).
+[verify-ci] build-contracts passed (28.4s)
+[verify-ci] evals
+
+> create-agdf@0.20.1 eval:skills
+> node ../../evals/scripts/run-skill-evals.js
+
+AGDF skill evals: pass (113/113 cases; 14 skills; deterministic replay, not live host execution)
+[verify-ci] evals passed (0.9s)
+[verify-ci] compatibility-freshness
+
+> compatibility:check
+> node scripts/host-compatibility/run.mjs check
+
+{
+  "status": "fail",
+  "diagnostic": "source_snapshot_changed"
+}
+Verification failed at compatibility-freshness: npm run compatibility:check (1)
+Inspect the diagnostic. For source_snapshot_changed, run npm run build:prepare, then npm run compatibility:record with MCP dependencies installed; review the evidence and rerun npm run build. Other evidence errors require repair, not automatic recording.

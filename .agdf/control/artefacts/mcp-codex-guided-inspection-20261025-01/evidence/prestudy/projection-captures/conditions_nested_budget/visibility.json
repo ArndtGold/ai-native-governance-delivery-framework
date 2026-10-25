@@ -1,0 +1,20 @@
+{
+  "variant": "conditions_nested_budget",
+  "input_unknowns": 0,
+  "visible_fields": 14,
+  "missing_fields": [],
+  "visible_operations": [
+    "doctor",
+    "gate-check",
+    "delivery-map",
+    "contract",
+    "artifact-readiness",
+    "operation-contract",
+    "operation-status",
+    "native-qualification",
+    "presentation-document",
+    "presentation-preview",
+    "runtime-generations"
+  ],
+  "signature": "declare const tools: { inspect_probe(args: {\n  // All runs: doctor/delivery-map.\n  all_active?: boolean;\n  // Next cursor; omit initially.\n  cursor?: string;\n  // gate-check revision; original for reads.\n  expected_revision_id?: string;\n  // Draft/read gate; catalog filter.\n  gate?: \"UR\" | \"PRD\" | \"SD\" | \"TP\" | \"QA\" | \"UAT\";\n  // Contract, group/kind or receipt UUID.\n  module?: string;\n  // Read action.\n  operation: \"doctor\" | \"gate-check\" | \"delivery-map\" | \"contract\" | \"artifact-readiness\" | \"operation-contract\" | \"operation-status\" | \"native-qualification\" | \"presentation-document\" | \"presentation-preview\" | \"runtime-generations\";\n  // ID from catalog/conversation.\n  presentation_id?: string;\n  // Reply BCP47 tag.\n  presentation_language: string;\n  // Confirmed root.\n  primary_target?: string;\n  // Confirmed run.\n  run_id?: string;\n  // Target hash: operation-contract.\n  target_id?: string;\n  // Paired target provenance.\n  target_source?: \"explicit_target\" | \"continued_target\" | \"current_repository\";\n  // gate-check view.\n  variant?: \"status-card\" | \"approval-envelope\";\n  // Context; not target authority.\n  working_directory: string;\n}): Promise<unknown>; };"
+}

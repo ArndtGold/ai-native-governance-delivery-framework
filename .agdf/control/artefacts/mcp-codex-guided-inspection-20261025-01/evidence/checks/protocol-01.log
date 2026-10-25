@@ -1,0 +1,25 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"content":[{"type":"text","text":"{\n  \"schema_version\": \"1\",\n  \"contract_version\": 1,\n  \"outcome\": \"inspect_result\",\n  \"terminal\": false,\n  \"authorizes\": false,\n  \"operation\": \"presentation-document\",\n  \"runtime\": {\n    \"machine_validation\": \"test_fixture\",\n    \"expected_version\": \"0.20.1\",\n    \"plugin_root\": null,\n    \"runtime_digest\": null,\n    \"provenance_status\": \"matched\"\n  },\n  \"target\": {\n    \"schema_version\": \"1\",\n    \"resolution_state\": \"resolved\",\n    \"reason_code\": \"explicit_target\",\n    \"primary_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-ergonomics-f3-mn8dGG\",\n    \"evidence_sources\": [],\n    \"working_directory\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-ergonomics-f3-mn8dGG\",\n    \"governance_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-ergonomics-f3-mn8dGG\",\n    \"target_source\": \"explicit_target\",\n    \"target_changed\": false,\n    \"next_action\": \"\",\n    \"authorizes\": false\n  },\n  \"report\": {\n    \"available\": false,\n    \"reason\": \"presentation_binding_invalid\",\n    \"authorizes\": false\n  },\n  \"presentation\": null,\n  \"recovery\": null,\n  \"host_action\": {\n    \"mode\": \"consume_report_and_continue\",\n    \"source\": \"report\",\n    \"allow_surrounding_text\": true,\n    \"may_request_run_or_evidence\": false\n  },\n  \"timing\": {\n    \"wrapper_ms\": 0,\n    \"input_ms\": 0.066,\n    \"target_ms\": 0.343,\n    \"control_ms\": 0.787,\n    \"render_ms\": 0,\n    \"total_ms\": 1.213\n  },\n  \"diagnostics\": []\n}"},{"type":"text","text":"AGDF-Tool fehlgeschlagen: read_unavailable. Das fachliche Ergebnis bleibt für Zustand und Wirkung maßgeblich. Aktuellen Stand lesen und Bindung oder Vorlage erneuern; nötige Freigabe neu einholen."}],"structuredContent":{"schema_version":"1","contract_version":1,"outcome":"inspect_result","terminal":false,"authorizes":false,"operation":"presentation-document","runtime":{"machine_validation":"test_fixture","expected_version":"0.20.1","plugin_root":null,"runtime_digest":null,"provenance_status":"matched"},"target":{"schema_version":"1","resolution_state":"resolved","reason_code":"explicit_target","primary_target":"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-ergonomics-f3-mn8dGG","evidence_sources":[],"working_directory":"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-ergonomics-f3-mn8dGG","governance_target":"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-ergonomics-f3-mn8dGG","target_source":"explicit_target","target_changed":false,"next_action":"","authorizes":false},"report":{"available":false,"reason":"presentation_binding_invalid","authorizes":false},"presentation":null,"recovery":null,"host_action":{"mode":"consume_report_and_continue","source":"report","allow_surrounding_text":true,"may_request_run_or_evidence":false},"timing":{"wrapper_ms":0,"input_ms":0.066,"target_ms":0.343,"control_ms":0.787,"render_ms":0,"total_ms":1.213},"diagnostics":[]},"isError":true}
++ actual - expected
+
++ true
+- undefined
+
+    at call (file:///private/tmp/agdf-guided-implementation-5cu6sw88/candidate/packages/mcp-server/test/protocol.test.js:24:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async assertGuidedInspection (file:///private/tmp/agdf-guided-implementation-5cu6sw88/candidate/packages/mcp-server/test/protocol.test.js:55:25)
+    at async file:///private/tmp/agdf-guided-implementation-5cu6sw88/candidate/packages/mcp-server/test/protocol.test.js:138:5
+    at async withStdioClient (file:///private/tmp/agdf-guided-implementation-5cu6sw88/candidate/packages/mcp-server/test/helpers.js:53:5)
+    at async file:///private/tmp/agdf-guided-implementation-5cu6sw88/candidate/packages/mcp-server/test/protocol.test.js:114:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: undefined,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

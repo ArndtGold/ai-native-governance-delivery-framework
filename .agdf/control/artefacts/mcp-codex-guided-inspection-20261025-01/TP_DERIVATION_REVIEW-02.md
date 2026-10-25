@@ -1,0 +1,19 @@
+# Renewed TP derivation review
+
+Decision: pass
+
+Reviewer: Codex; cooperative semantic assessment, not independent human proof.
+
+Approved SD: sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6. Renewed TP: sha256:42289c6e277849e0a634e582870bc9fcb3f7cef116b6bccea7ab26f3817ad597. Retained PRD remains bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0; fresh Brownfield Review is 9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118. New deliberate SD approval is recorded at revision 17. This review creates no implementation, native session or gate approval.
+
+All eight PRD criteria and all nine SDD decisions map to stable tasks/scenarios. The original twenty scenarios remain, with four additional SDD-009 cases for inherited protection, fail-closed binding/control/startup classification, owned-tree deadlines and fresh zero-model preflight. Both exact SD later_tp labels are each resolved once. Every scenario retains its executable route, environment, permissions, owner, observable evidence and unavailable action. No product acceptance text or authority is replaced.
+
+The existing T7 entry remains sole controller; it applies one combined profile to the whole guarded worker. The bounded launcher never adds a second sandbox. Protected scope remains complete original Root plus all three global-setting literals, including absent files. Safe append-open checks do not create/truncate/write protected data; a temporary positive control is required. Direct worker/flag-only and wrong binding/digest must fail before account/MCP/models. Targeted tests use owned synthetic files/hosts, preserve original two-fixture/API exclusion/account-home assertions and distinguish actual OS proof from genuine native acceptance. Whole-window deadline includes bounded setup/teardown and kills only owned trees.
+
+Core/test source, task/parser/audit/performance/baseline and lockfile hashes were checked unchanged against evidence/build/source-bindings.json during this preparation. The current guarded integration is not implemented. Retained complete functional suites/build/renderer/matrix/timings are only candidates for explicit source/environment applicability, not transferred fulfillment; all affected routes remain executable. Fresh guard tests, final bindings, integrated guarded preflight and both real T7 sessions are required. All prior failures remain immutable, and none is a permanent filename-based launch veto.
+
+The same two unused sessions are bound to one final candidate, gpt-6.1-sol/low, CLI 0.163.0 on observed macOS x64. Existing task/prompt/original and strict predicates, four-call ceiling, zero errors, parser/audit and repetition semantics remain unchanged. Final harness/guard/assembly fingerprints are frozen before preflight/model calls. Write-ahead controller ledger distinguishes reserved/attempted/executed, refuses reuse and grants no retry/resume/replacement. Timeouts remain 600,000 ms each, 1,200,000 ms total model time, 1,500,000 ms complete cohort. Only existing ChatGPT account/quota, USD 0 additional API spend; no auth copy/login/global change/install/fallback.
+
+The write boundary is existing guard entry/test plus an optional subordinate test helper and contained Run qualification glue; no new production policy or registry. Canonical build freshness ownership and every MCP/Copilot limit remain unchanged. Preservation check evidence/checks/preservation-renewed-tp-17.json passed for exact staged entries, 14 foreign staged files, five foreign untracked files, 11,129 other-control files, HEAD and protected settings. Original evidence output paths are retained; fresh outputs use new labels. No Git/install/release action is authorized.
+
+Formal summary/criteria-chain authoring checks passed. This semantic review supports typed registration, not human approval; fresh presentation and a new deliberate Approval: TP remain required.

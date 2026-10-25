@@ -1,0 +1,23 @@
+{
+  "classification": "model_free_exact_guard_stack_login_status_diagnostic",
+  "argv": [
+    "/usr/bin/sandbox-exec",
+    "-f",
+    "/private/tmp/agdf-guided-implementation-5cu6sw88/candidate/qualification-wrapper/preflight-02/original-root-read-only.sb",
+    "/usr/bin/sandbox-exec",
+    "-f",
+    "/private/tmp/agdf-guided-implementation-5cu6sw88/candidate/qualification-wrapper/preflight-02/immutable-settings-expected.sb",
+    "/Users/arndtgold/.npm-global/bin/codex",
+    "login",
+    "status"
+  ],
+  "exit_code": 71,
+  "chatgpt_detected": false,
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "guard_diagnostic": [
+    "sandbox-exec: sandbox_apply: Operation not permitted"
+  ],
+  "model_invocations": 0,
+  "credential_values_retained": false
+}

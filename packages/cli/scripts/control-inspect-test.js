@@ -37,7 +37,7 @@ assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.oper
 assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /module=agdf_prepare\/presentation\.prepare/);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially/);
 
 // Published operation dependencies agree with the shared runtime policy.
 const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
@@ -207,6 +207,25 @@ try {
   execFileSync(process.execPath, [cli, "run-step", "--dir", root, "--run", "inspect-run", "--revision", revision, "--step", "ur", "--title", "Inspect run"]);
 
   const base = { workingDirectory: root, targetSource: "explicit_target", primaryTarget: root, interactionLocales, expectedVersion: pluginDefinition.version };
+  // Advisory composition failure cannot turn a readable report into an evaluator error.
+  const originalReport = inspect({ ...base, operation: 'gate-check', presentationLanguage: 'de', runId: 'inspect-run' }).report;
+  for (const status of [originalReport.status, 'blocked']) {
+    const report = { ...originalReport, status, status_card: { ...originalReport.status_card } };
+    Object.defineProperty(report.status_card, 'runState', { get() { throw new Error('injected advisory failure'); } });
+    const faultyNavigation = createControlInspectService({ evaluateGateCheck: () => report });
+    const isolated = faultyNavigation({ ...base, operation: 'gate-check', presentationLanguage: 'de', runId: 'inspect-run' });
+    assert.equal(isolated.outcome, 'inspect_result');
+    assert.equal(isolated.report, report, 'complete original report object retained');
+    assert.deepEqual(isolated.presentation, originalReport.status_presentation);
+    assert.equal(isolated.navigation, undefined);
+    assert.equal(isolated.authorizes, false);
+    assert.equal(validateOutput(isolated), true, JSON.stringify(validateOutput.errors));
+  }
+  const failingEvaluator = createControlInspectService({ evaluateGateCheck() { throw new Error('injected evaluator failure'); } });
+  const evaluatorFailure = failingEvaluator({ ...base, operation: 'gate-check', presentationLanguage: 'de', runId: 'inspect-run' });
+  assert.equal(evaluatorFailure.outcome, 'evaluator_error', 'original evaluation errors are never swallowed');
+  assert.equal(evaluatorFailure.navigation, undefined);
+
   const before = snapshot(join(root, ".agdf", "control"));
   const controlTreeBefore = readdirSync(join(root, ".agdf", "control")).sort();
 

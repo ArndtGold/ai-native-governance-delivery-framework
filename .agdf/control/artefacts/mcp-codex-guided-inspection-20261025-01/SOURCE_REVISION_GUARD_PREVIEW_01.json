@@ -1,0 +1,790 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": "The user explicitly requested fixing the introduced guard composition after the prototype comparison. Current protected preflight stops before any model invocation with nested sandbox_apply exit 71. A combined one-layer policy passes read-only account and protection controls with unchanged targets.",
+  "operation_id": "b1c5f54c-c386-4b49-8a11-ed0a925852a4",
+  "request_digest": "sha256:88ba63d8caa9d76f6cb48337ad183e1eb6b6e1ef3431b83b5739c9c2b0eb86e2",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-codex-guided-inspection-20261025-01",
+    "expected_revision_id": "369522fc-4274-481b-8897-6d0cf0ae9469",
+    "kind": "source_revision.preview"
+  },
+  "effect": null,
+  "receipt": null,
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 13,
+    "revision_id": "369522fc-4274-481b-8897-6d0cf0ae9469",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "outcome": "preview",
+    "authority": "proposed_only",
+    "authorizes": false,
+    "schema_version": "2",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-codex-guided-inspection-20261025-01",
+    "expected_revision_id": "369522fc-4274-481b-8897-6d0cf0ae9469",
+    "operation_id": "b1c5f54c-c386-4b49-8a11-ed0a925852a4",
+    "request_digest": "sha256:4e454e10c1e40dbdbbfea3b9fa9d69d0014bb7b169e48e7963fb14aac177991f",
+    "reason": "The user explicitly requested fixing the introduced guard composition after the prototype comparison. Current protected preflight stops before any model invocation with nested sandbox_apply exit 71. A combined one-layer policy passes read-only account and protection controls with unchanged targets.",
+    "intended_change": "Correct only native guard execution composition at its existing harness owner. Reopen SD and dependent TP; retain UR/PRD intent/acceptance, code/test bytes, fixed gpt-6.1-sol/low and the same two unused real-session slots, all limits and every task/audit predicate. Archive and reassess affected/unknown fulfillment; no gate approval or model launch is granted by source revision.",
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+        "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67"
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+        "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0"
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+        "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5"
+      },
+      {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+        "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6"
+      }
+    ],
+    "impact": {
+      "source_gate": "SD",
+      "retained": [
+        "UR",
+        "PRD"
+      ],
+      "superseded": [
+        "SD",
+        "TP"
+      ],
+      "invalidated_bindings": [
+        "45aceb47-7153-4828-9ddc-36773445d619",
+        "a07be470-d4b4-4b30-80cd-f858ee402631"
+      ],
+      "analyses": [
+        {
+          "type": "Brownfield Review",
+          "disposition": "reassess",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+          "reason": "Reassess exact applicability to the changed native execution guard; unknown original association cannot preserve fulfillment. The same UR/PRD outcome and structured route remain intended."
+        }
+      ],
+      "invalidated_steps": [
+        "Brownfield Analysis",
+        "CD+Tests",
+        "CR",
+        "Brownfield Review"
+      ],
+      "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+      "next_gate": "Brownfield Review",
+      "implementation_authority": false,
+      "policy_version": 2,
+      "initiating_phase": "CD+Tests",
+      "changed_statements": [
+        {
+          "type": "SD",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+          "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+          "statement": "The native guard, task predicate, trace parser and wrapper audit remain unchanged.",
+          "intended_change": "Keep every existing protected target, native task, predicate, trace parser and wrapper audit unchanged. Adapt only the existing native-harness execution guard composition: apply one combined macOS sandbox to the complete candidate cohort, and inherit it in the harness, MCP and Codex children without nested sandbox application. Fail closed on missing protection; require zero-model negative/positive controls and before/after provenance before either real session.",
+          "reason": "Native preflight and exact-stack diagnostic establish that the newly added outer sandbox prevents the unchanged inner sandbox from applying. One combined policy passes the zero-model controls with the same protection targets and ChatGPT status."
+        },
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+          "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+          "statement": "An outer sandbox-exec policy additionally denies file-write* under the original ROOT during the entire candidate cohort.",
+          "intended_change": "Use exactly one combined sandbox-exec policy for the whole cohort, retaining original-ROOT subtree denial and all three existing immutable-settings literals. The existing harness execution owner verifies/inherits this policy and must not apply another sandbox inside it. Only guard execution composition and its verified fingerprints may change; the task, prompt, native-run/native-tasks audit files, two-session budget, model/effort, all ceilings and account restrictions remain fixed.",
+          "reason": "Native preflight and exact-stack diagnostic establish that the newly added outer sandbox prevents the unchanged inner sandbox from applying. One combined policy passes the zero-model controls with the same protection targets and ChatGPT status."
+        },
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+          "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+          "statement": "Keep scripts/native-probes/codex-host-e2e.mjs, native-run.js and native-tasks.js at the inspected source fingerprints above.",
+          "intended_change": "Retain the inspected harness fingerprint as the pre-change baseline. Permit only its reviewed one-layer guard composition and guarded-child prerequisite checks; bind the actual final harness/guard source and assembly hashes after implementation before any model session. Keep native-run.js and native-tasks.js at their inspected fingerprints, with no prompt, parser, predicate, retry/resume or repetition override change.",
+          "reason": "Native preflight and exact-stack diagnostic establish that the newly added outer sandbox prevents the unchanged inner sandbox from applying. One combined policy passes the zero-model controls with the same protection targets and ChatGPT status."
+        }
+      ],
+      "quality_assessment": [
+        {
+          "record": {
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+            "status": "done"
+          },
+          "record_digest": "sha256:d6a3a7566b0a8feb140b8adf2bb1b370007945d1a3e448c8eddc71d5bf8e82b6",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "Brownfield Analysis",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+            "status": "done"
+          },
+          "record_digest": "sha256:79a75b9c292e69892ebe830cef08032f35c83d3a97531f7fab69a7824aae7fe7",
+          "operation_id": "cb81a1e9-a748-42fe-aaee-7dc124fe1489",
+          "source_set_digest": "sha256:eb1c4ab190ed1e1e9f30c777978b2f3d3927d47bae4348b3c171b051afe9eabb",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "CD+Tests",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:652addf6a762af7615235a45a2198ee32d55881c4e19af0c8f9079440753a491",
+            "status": "revise"
+          },
+          "record_digest": "sha256:39924edd99d975d3b4498a197f364d75785cabe8eddcde260cfa1049ce5f07a7",
+          "operation_id": "ad90f829-776b-42c3-8685-b08b316f55c8",
+          "source_set_digest": "sha256:eae756223378bcf9b38e08e952d2e5855fb37487a78e059bf75b0eb3df289c5c",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+            "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+            "status": "documented"
+          },
+          "record_digest": "sha256:e26bf43638c66966f19c8513b2aafd56c9e678d552ab7caed73c72badddfb722",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+            "status": "documented"
+          },
+          "record_digest": "sha256:48897804a75edb3d34f4370c66580dd8bd1cfae3fda858b179805365545c13c3",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD_MAPPING-01.json",
+            "digest": "sha256:2092f70bce2f505df5d2aca291c91491e2b6bb32f6c4a91f68574991cf6269d7",
+            "status": "documented"
+          },
+          "record_digest": "sha256:1eee1ba8c6c1ca0a1f14e3aceeb6078d44346389ee8b65c2c8c81f4c44117603",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-01.json",
+            "digest": "sha256:e0511cefb8c848e12d73980f96a5e71711087a340d1fe37b5b459d3be9713b1a",
+            "status": "documented"
+          },
+          "record_digest": "sha256:ddd444ed9b5845de81a5758fa15bcd86c17f85bc8626828bb90fe058839f93b5",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-01.json",
+            "digest": "sha256:ad68e455a9c6a64194664db50c6548915aa0943e44cebaa5c6c24f8ca731e460",
+            "status": "documented"
+          },
+          "record_digest": "sha256:04d2b6ea14bb5be61182087c43c41d41fccf573830563e68b54dcff982946bad",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+            "status": "documented"
+          },
+          "record_digest": "sha256:740177fab83a785d4080d6ab8408c3e4e715305968af54266ff4a5981f9d3314",
+          "operation_id": "cb81a1e9-a748-42fe-aaee-7dc124fe1489",
+          "source_set_digest": "sha256:eb1c4ab190ed1e1e9f30c777978b2f3d3927d47bae4348b3c171b051afe9eabb",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:d2b79d15ec940395ab1e220990f4b291475b5e05641f1a6db21e5f28a4403280",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:652addf6a762af7615235a45a2198ee32d55881c4e19af0c8f9079440753a491",
+            "status": "documented"
+          },
+          "record_digest": "sha256:3765c20e51e68771727f754756ef03a9b5187a355cf3fd1672f8787b0b713935",
+          "operation_id": "ad90f829-776b-42c3-8685-b08b316f55c8",
+          "source_set_digest": "sha256:eae756223378bcf9b38e08e952d2e5855fb37487a78e059bf75b0eb3df289c5c",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        }
+      ],
+      "invalidated_quality": [
+        {
+          "record": {
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+            "status": "done"
+          },
+          "record_digest": "sha256:d6a3a7566b0a8feb140b8adf2bb1b370007945d1a3e448c8eddc71d5bf8e82b6",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "Brownfield Analysis",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+            "status": "done"
+          },
+          "record_digest": "sha256:79a75b9c292e69892ebe830cef08032f35c83d3a97531f7fab69a7824aae7fe7",
+          "operation_id": "cb81a1e9-a748-42fe-aaee-7dc124fe1489",
+          "source_set_digest": "sha256:eb1c4ab190ed1e1e9f30c777978b2f3d3927d47bae4348b3c171b051afe9eabb",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "CD+Tests",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:652addf6a762af7615235a45a2198ee32d55881c4e19af0c8f9079440753a491",
+            "status": "revise"
+          },
+          "record_digest": "sha256:39924edd99d975d3b4498a197f364d75785cabe8eddcde260cfa1049ce5f07a7",
+          "operation_id": "ad90f829-776b-42c3-8685-b08b316f55c8",
+          "source_set_digest": "sha256:eae756223378bcf9b38e08e952d2e5855fb37487a78e059bf75b0eb3df289c5c",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+            "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+            "status": "documented"
+          },
+          "record_digest": "sha256:e26bf43638c66966f19c8513b2aafd56c9e678d552ab7caed73c72badddfb722",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+            "status": "documented"
+          },
+          "record_digest": "sha256:48897804a75edb3d34f4370c66580dd8bd1cfae3fda858b179805365545c13c3",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD_MAPPING-01.json",
+            "digest": "sha256:2092f70bce2f505df5d2aca291c91491e2b6bb32f6c4a91f68574991cf6269d7",
+            "status": "documented"
+          },
+          "record_digest": "sha256:1eee1ba8c6c1ca0a1f14e3aceeb6078d44346389ee8b65c2c8c81f4c44117603",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-01.json",
+            "digest": "sha256:e0511cefb8c848e12d73980f96a5e71711087a340d1fe37b5b459d3be9713b1a",
+            "status": "documented"
+          },
+          "record_digest": "sha256:ddd444ed9b5845de81a5758fa15bcd86c17f85bc8626828bb90fe058839f93b5",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-01.json",
+            "digest": "sha256:ad68e455a9c6a64194664db50c6548915aa0943e44cebaa5c6c24f8ca731e460",
+            "status": "documented"
+          },
+          "record_digest": "sha256:04d2b6ea14bb5be61182087c43c41d41fccf573830563e68b54dcff982946bad",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+            "status": "documented"
+          },
+          "record_digest": "sha256:740177fab83a785d4080d6ab8408c3e4e715305968af54266ff4a5981f9d3314",
+          "operation_id": "cb81a1e9-a748-42fe-aaee-7dc124fe1489",
+          "source_set_digest": "sha256:eb1c4ab190ed1e1e9f30c777978b2f3d3927d47bae4348b3c171b051afe9eabb",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:f99f48801820f7c4761ee07665f1e975e6e1f508d9d9d5167aa710eb429c1966",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:d2b79d15ec940395ab1e220990f4b291475b5e05641f1a6db21e5f28a4403280",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:652addf6a762af7615235a45a2198ee32d55881c4e19af0c8f9079440753a491",
+            "status": "documented"
+          },
+          "record_digest": "sha256:3765c20e51e68771727f754756ef03a9b5187a355cf3fd1672f8787b0b713935",
+          "operation_id": "ad90f829-776b-42c3-8685-b08b316f55c8",
+          "source_set_digest": "sha256:eae756223378bcf9b38e08e952d2e5855fb37487a78e059bf75b0eb3df289c5c",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d85eae3c81e85ea570dfb5e872e5dfd3cf3189f6a1dcf44de203d64b8f5a61a5",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:2706131b0f394014da3f346cac51fd446dbe009211a077612b49e497301fc1e9",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Retain the original bytes as historical evidence, but reassess fulfillment and exact source applicability after SD/TP renewal. No existing or missing native result is treated as fresh qualification."
+        }
+      ],
+      "renewed_approvals": [
+        "SD",
+        "TP",
+        "QA",
+        "UAT"
+      ],
+      "pending_presentations": "superseded by exact material-version guard"
+    },
+    "archive_digest": "sha256:4106362b77d2591fbb4e3d4ffdf3b87090ff7f780edcc1a3772801c2157476cc",
+    "current_run_digest": "sha256:02815711ce0f0619a496d366ffd8ddd15d2b73fc06b4f93838b9f8c6a2dddc9b",
+    "preview_digest": "sha256:30f5c27006431bc6e1f3b1b190a1f4e49598b97075b0f4bbac463ce3ce7eb519",
+    "confirmation_selector": "Apply source revision: mcp-codex-guided-inspection-20261025-01 369522fc-4274-481b-8897-6d0cf0ae9469 b1c5f54c-c386-4b49-8a11-ed0a925852a4 SD sha256:30f5c27006431bc6e1f3b1b190a1f4e49598b97075b0f4bbac463ce3ce7eb519",
+    "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+  }
+}

@@ -8,7 +8,7 @@ import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTa
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
 import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, PRESENTATION_CATALOG_MODULE } from "./contract.js";
-import { operationContract } from '../control-state/run-command-contract.js';
+import { RUN_COMMAND_DESCRIPTORS, operationContract } from '../control-state/run-command-contract.js';
 import { inspectRunOperation } from '../control-state/run-operation-status.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { readRunState } from '../control-evaluation/run-state.js';
@@ -22,11 +22,8 @@ import { sourceRevisionBoundary } from '../control-state/run-revision-boundary.j
 import { sourceRevisionQualityFacts } from '../control-state/run-source-revisions.js';
 import { readHistoryBytes } from '../control-state/run-revision-history.js';
 
-// The MCP read tool is a projection over the existing evaluators. It calls exactly the functions the
-// CLI handlers call and returns their --json report. Draft preflight additionally composes those
-// existing content validators through its read-only Core owner; it adds no CLI command. It never writes,
-// never selects a run on its own and never prepares an approval binding. Evaluators run with the
-// dispatcher's dependency set: no git child process, so verified_change git observation is absent.
+// Read-only projection of canonical CLI evaluators and Core validators. It never
+// writes, selects a Run or prepares approval. Git observations are unavailable.
 
 const defaultNow = () => process.hrtime.bigint();
 const milliseconds = (start, end) => Number(end - start) / 1_000_000;
@@ -200,7 +197,7 @@ export function createControlInspectService(dependencies = {}) {
         return bindHostAction(result);
       }
       const controlStarted = now();
-      const { report, presentation, invalidModule } = stage(DISPATCH_RECOVERY.control_evaluation_failed, () => {
+      const { report, presentation, invalidModule, navigation } = stage(DISPATCH_RECOVERY.control_evaluation_failed, () => {
         validateControlReadBoundary?.(target.governance_target);
         const selection = {
           ...(input.run_id ? { runId: input.run_id } : {}),
@@ -270,7 +267,27 @@ export function createControlInspectService(dependencies = {}) {
           case "gate-check": {
             const evaluate = () => gateCheck(target.governance_target, { ...selection, presentationLanguage: input.presentation_language });
             const evaluated = evaluate();
-            return { report: evaluated, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
+            let navigation;
+            // Optional hints never replace the canonical report.
+            try {
+              if (input.run_id && input.target_source && input.primary_target && evaluated.status_card?.run_id === input.run_id) {
+                const revisionId = evaluated.status_card.runState?.meta?.revision_id;
+                const targetId = resolveControlCommandTarget(target.governance_target).target_id;
+                const common = Object.fromEntries(['presentation_language', 'working_directory', 'target_source', 'primary_target', 'run_id'].map(key => [key, input[key]]));
+                common.expected_revision_id = revisionId;
+                const catalog = readPresentationCatalog(target.governance_target, { runId: input.run_id, revisionId, targetId,
+                  gate: evaluated.current_gate, workingDirectory: input.working_directory, targetSource: input.target_source,
+                  primaryTarget: input.primary_target, language: input.presentation_language });
+                const kind = evaluated.next_operation?.operation_key;
+                const group = RUN_COMMAND_DESCRIPTORS[kind]?.group;
+                const nextCalls = catalog.state !== 'unavailable' && group ? [{ tool: 'agdf_inspect', arguments: {
+                  operation: 'operation-contract', ...common, module: `${group}/${kind}` } }] : [];
+                if (catalog.state === 'unique' && catalog.complete_scan && catalog.page_complete)
+                  nextCalls.push({ tool: 'agdf_inspect', arguments: catalog.candidates[0].read_arguments });
+                navigation = { presentation_catalog: catalog, next_calls: nextCalls };
+              }
+            } catch { /* Advisory navigation unavailable. */ }
+            return { report: evaluated, navigation, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
           }
           case "delivery-map": {
             const evaluated = deliveryMap(target.governance_target, selection, deliveryMapDependencies);
@@ -299,6 +316,7 @@ export function createControlInspectService(dependencies = {}) {
       result.target = target;
       result.report = report;
       result.presentation = presentation;
+      if (navigation) result.navigation = navigation;
       timing.total_ms = round(milliseconds(started, now()));
       return bindHostAction(result);
     } catch (error) {

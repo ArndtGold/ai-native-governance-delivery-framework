@@ -1,0 +1,132 @@
+# Brownfield Review: Reliable Codex MCP inspection and bound approval navigation
+
+Gate: Brownfield Review
+Type: Brownfield Review
+Mode: post_ur_review
+Status: done
+Decision: pass
+
+## Run
+
+- run_id: mcp-codex-guided-inspection-20261025-01
+- related_ur: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md
+- current_gate: Brownfield Review
+- reviewer: Codex
+- reviewed_at: 2026-10-25
+- source_revision: c87fd9c4-c1ae-420b-a443-40e11350f861
+
+## Objective
+
+Size and route the approved UR for transferring the evaluated Codex-visible schema and bound sequential read navigation into the existing MCP inspection path. UR approval was recorded against presentation cc115f1f-6c12-4063-9695-6887221a93c6 with receipt operation df3f7919-ecd6-4c3c-bf16-cffd42ac283d. This is post-UR routing, not implementation-preparation Brownfield Analysis or permission to apply the prototype.
+
+- current_coverage: partially_done
+- reuse_strategy: extend existing Core inspection projection; reuse existing validators, command descriptors, catalog/document owners and test/build infrastructure
+- workstream: bounded follow-up to completed MCP contract completeness; independent final-candidate qualification of the approved Codex/T7 outcome
+
+## UI / UX Impact Routing
+
+- delivery_context: brownfield
+- ui_ux_impact: none
+- ui_ux_impact_reason: The change concerns agent-visible MCP discovery and advisory read arguments. Human gate decisions, document content, displayed approval interaction, working modes, activation and recovery authority remain unchanged. No human UI or preview is requested.
+- ux_intent_definition_required: no
+- ux_intent_definition_result: not_applicable
+
+## Existing-System View
+
+| Area | Existing owner or artefact | Evidence | Impact |
+|---|---|---|---|
+| Product semantics | Approved UR; existing T7 presented-UR approval task | UR CGI-01 through CGI-07; evals/mcp-ergonomics/lib/native-tasks.js | medium: improve successful agent use without changing the human decision |
+| Source of truth | Core inspection field model and normalizer; command descriptors; presentation owner | packages/core/lib/control-inspect/contract.js; packages/core/lib/control-state/run-command-contract.js; packages/core/lib/control-state/run-presentation.js | medium: reuse canonical owners; no second registry |
+| Runtime path | Core inspection service projected by MCP adapter | packages/core/lib/control-inspect/service.js currently returns canonical gate-check report without navigation; packages/mcp-server/src/server.js | medium: additive external read-envelope metadata and changed discovery projection |
+| UI / UX | Existing gate-check presentation and approval owner | gateCheckPresentation in service.js and existing CLI parity assertions | none: preserve human-facing presentation and report |
+| Persistence / data | Existing sealed Run, presentations, receipts and command transaction owners | readPresentationCatalog validates exact target, revision, seal and record bytes; historical-v2.json | none: no persistent product schema or migration |
+| Tests / QA | Existing CLI parity, modern/legacy MCP suites and guarded native T7 harness | packages/cli/scripts/control-inspect-test.js; packages/mcp-server/test/protocol.test.js and run-command.test.js; scripts/native-probes/codex-host-e2e.mjs | medium: regressions and fresh candidate-bound evidence required |
+| Release / operations | Canonical projection, assembly and Copilot budget owners | scripts/core-projection.mjs; scripts/assemble-npm.mjs; scripts/sync-package-assets.js; plugins/agdf/meta/copilot-payload-baseline.json | low: regenerate and measure; no installation, activation or release |
+
+## Architecture Impact
+
+- architecture_relevance: relevant
+- architecture_impact: medium
+- architecture_reason: An externally consumed MCP discovery shape and optional read-result navigation are changed. SDK validation, Core product authority, CLI report semantics and persistent state remain owned by the existing components. A public integration-contract effect requires explicit PRD/SD treatment even though the implementation footprint is bounded.
+- architecture_evidence: Main contract.js contains root allOf beside properties; main service.js returns report/presentation only. The evaluated final-candidate.patch changes those two owners and keeps navigation outside report. The current listed agdf_inspect signature still shows the collapsed conditional intersection. Schema equivalence, CLI report parity and real-agent observations exist for the isolated prototype.
+- architecture_missing_evidence: none for route selection; implementation-candidate regressions, native traces and final package measurements remain future delivery obligations
+- architecture_next_owner_and_action: prd-definition defines the additive behavior and acceptance; sd-definition binds the exact Core owner, advisory-failure compatibility and revision/selection rules; tp-definition binds evidence and execution budgets
+
+## Reuse And Parallel-Structure Risk
+
+| Finding | Evidence | Risk | Required action |
+|---|---|---|---|
+| problem: correct validation is not fully visible in the native Codex projection | Main contract.js root allOf; installed-host loopback traces and failed schema-only native comparison | warn | Extend the same Core field model and preserve acceptance equivalence; do not create a host-specific parallel schema owner |
+| problem: callers reconstruct module and binding arguments despite existing validated owners | Main service.js; existing readPresentationCatalog and RUN_COMMAND_DESCRIPTORS; retained real input errors | warn | Derive read navigation from these owners; forbid guessed IDs, implicit target selection and a second operation map |
+| problem: optional navigation must not turn a successful blocked-state read into failure or replace a conversation binding | Proposed service composition adds catalog observation to gate-check; UR CGI-03/06 | warn | PRD preserves report behavior and explicit binding precedence; SD decides failure containment and exact eligibility before TP |
+| trade-off: sequence follow-up reads under the existing single-in-flight runtime | First guided prototype produced dispatch_busy during parallel reads; unchanged strict audit rejected its unsupported wrapper | warn | Keep guidance sequential in this slice; do not broaden runtime concurrency or weaken the audit to pass |
+| problem: budgets leave little space for a careless transfer | Existing Copilot baseline is 397 files/3,509,461 bytes; final prototype 3,509,443 bytes; definition 4,992/5,000 bytes | warn | Reuse selector conversion and remove redundant help without losing meaning; measure normal generated payload and all current limits |
+| problem: prototype evidence is not final delivery evidence | Five fresh evaluation sessions, four strict successes only on final prototype; temporary report and manifests | warn | Preserve every original observation and hash; plan fresh candidate-bound sessions; never relabel failed or earlier results |
+
+### Retained Debt Detail
+
+- finding: trade-off: sequence follow-up reads under the existing single-in-flight runtime
+- rationale: The approved scope preserves execution and transaction boundaries. Explicit sequential read guidance addresses the observed busy failure without introducing a new concurrency architecture.
+- accountable_owner: Core inspection/MCP maintainer, reviewed through sd-definition and qa-gate in this Run
+- mitigation: Explicit guidance, purely advisory read calls, actual STDIO checks, negative binding cases and fresh native traces with no busy result; unchanged audit and approval predicates
+- review_date_or_exit_condition: Reassess at this Run's QA before UAT. A remaining busy failure in the approved normal scenario prevents pass; any need for new concurrency behavior returns to SD and scope review instead of being silently accepted.
+
+## Mode / Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: external_contract_depth: public MCP discovery and additive result navigation change a compatibility-sensitive client contract. Reject quick_task and verified_change because their no-contract-impact conditions fail. Reject structured_slice because the externally consumed contract effect is a decisive full-depth trigger; file counts do not select the mode.
+- evidence: Approved UR; canonical contract.js/service.js; existing presentation and command owners; /private/tmp/agdf-inspect-evaluation/final-candidate.patch and summary.json; Structured Depth Evidence below
+- transparency_note: Keep PRD, SD and TP focused on this outcome and its affected boundary. Their approvals, implementation-preparation Brownfield Analysis, implementation/tests, reviews, QA, UAT and closeout remain required. No product change is authorized by this review.
+
+## Structured Depth Evidence
+
+- depth_policy_version: 1
+- depth_facts_status: complete
+- primary_reason_code: external_contract_depth
+- decisive_full_depth_triggers: External or public contract: model-visible MCP schema projection and additive read-envelope navigation are consumed outside the Core owner.
+- rejected_alternative: structured_slice; full_depth_impacts_absent fails on an evidenced public integration-contract change. Compact paths fail their contract-impact restrictions.
+- missing_or_conflicting_facts: none for depth selection
+- depth_evidence_refs: UR Scope 1-3 and CGI-01/03/06; contract.js and service.js current behavior; evaluated final-candidate.patch; existing CLI/MCP protocol tests
+
+| check_id | result | evidence |
+|---|---|---|
+| coherent_outcome | pass | Approved UR goal: reliable, explicitly bound Codex approval workflow; CGI-01 through CGI-07 bound its acceptance |
+| authority_boundary | pass | Existing Core command, presentation and target/revision owners remain authoritative; navigation contains reads only and authorizes false remains intact |
+| owner_consumer_coordination | pass | Core generates definitions and read projection; existing CLI/MCP/build owners propagate them. No shared external cutover is planned |
+| full_depth_impacts_absent | fail | Public MCP discovery and additive navigation fields are externally consumed; decisive external_contract_depth trigger |
+| migration_propagation_bounded | pass | No persistent schema change; canonical projection/assembly and generated profile budget checks support local rollback of source changes |
+| failure_recovery_local | pass | Existing Core validation and command recovery remain unchanged; optional guidance must be contained by the current read owner |
+| independently_acceptable | pass | Candidate-bound normal T7 outcome, deterministic compatibility/negative tests and fixed package/performance ceilings form an independently reviewable acceptance boundary |
+
+## PRD / SD Open Questions
+
+| Question | Required gate | Impact |
+|---|---|---|
+| How are advisory current-gate hints distinguished from an exact presentation binding already supplied by the conversation? | PRD | warn: exact existing binding and explicit scope must retain precedence; hints never select another document or infer approval |
+| How is catalog/navigation failure contained without changing a valid gate-check report, presentation or blocked-state read? | SD | warn: use existing owner and preserve legacy behavior; no new fallback authority |
+| What exact candidate/CLI tuple, normal and wording-variant tasks, finite session budget, stop rules and call-count acceptance apply? | TP | warn: gpt-6.1-sol/low and protected existing-account execution already belong to the UR; bind the remaining execution choices before any new model call |
+| How are immutable temporary evaluation observations retained durably and distinguished from final-candidate evidence? | TP | warn: preserve bytes, hashes and negative results; do not replay completed cases to reconstruct evidence |
+
+These are downstream specification/verification decisions with known owners, not missing routing facts or a new human approval of this internal review.
+
+## Context Graph Impact
+
+- context_graph_impact: none
+- context_graph_refs: none
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: Existing semantic owners and authority stay unchanged; the selected Run's UR/review and later evidence are sufficient. No new reusable graph node or SoT replacement is claimed.
+- context_graph_reconciliation: not_applicable
+- memory_target: scope_artifact
+- memory_reason: Findings and native evidence concern this bounded implementation candidate; retain them in the selected Run without creating a second policy or global-memory owner.
+- memory_refs: UR.md; BROWNFIELD_REVIEW.md; later approved evidence retention
+
+## Next Permissible Step
+
+- next_allowed_action: Record Brownfield Review and this structured_delivery route together through the canonical writer, then dispatch gate-check continue_delivery for the same Run and prepare PRD through its bound owner.
+- forbidden_until_then: Product implementation, later-gate approvals, new native agent sessions and changes to prior Runs or evidence.
+
+## Quality Outlook
+
+- quality_outlook: Reuse path and ownership are evidenced. Keep schema equivalence, exact binding precedence, optional-navigation failure isolation, strict native audit and unchanged size/performance ceilings visible in PRD/SD/TP; prototype success alone is insufficient for QA.

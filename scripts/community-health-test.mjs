@@ -23,7 +23,6 @@ const fixturePaths = [
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
   ".agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md",
-  "docs/agenten-handbuch",
   "docs/handbook",
   "docs/compatibility",
   "docs/architecture",
@@ -91,6 +90,8 @@ async function replace(root, relativePath, from, to) {
 
 const baselineRoot = await makeFixture();
 try {
+  await assert.rejects(fs.access(path.join(baselineRoot, "docs/agenten-handbuch")), { code: "ENOENT" },
+    "the active handbook must validate without the retired compatibility directory");
   const baseline = await validateCommunityHealth(baselineRoot, { checkCompatibility: () => ({ status: "pass" }) });
   assert.deepEqual(baseline, [], `Reviewed fixture baseline must pass: ${JSON.stringify(baseline)}`);
   const missingCompatibility = await validateCommunityHealth(baselineRoot);
@@ -243,8 +244,8 @@ await withFixture(
 );
 
 await withFixture(
-  (root) => fs.appendFile(path.join(root, "docs/agenten-handbuch/README.md"), "\nApproval: <GateName>\n"),
-  "AGDF_HANDBOOK_COMPATIBILITY_INVALID",
+  (root) => fs.rm(path.join(root, "docs/handbook/de/01-schnellstart.md")),
+  "REQUIRED_FILE_MISSING",
 );
 
 await withFixture(

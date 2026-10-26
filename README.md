@@ -302,7 +302,6 @@ verbindet Architekturentscheidungen mit ihren Quellen und dokumentierten Grenzen
 │  │  ├─ README.md
 │  │  ├─ de/  (kanonische deutsche Fassung)
 │  │  └─ en/  (abgeleitete englische Übersetzung)
-│  ├─ agenten-handbuch/  (Kompatibilitätsverweise)
 │  └─ glossar.md
 ├─ ...
 ```

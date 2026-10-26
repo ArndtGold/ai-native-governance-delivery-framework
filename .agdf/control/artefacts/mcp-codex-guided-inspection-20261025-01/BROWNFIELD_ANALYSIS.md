@@ -1,0 +1,19 @@
+# Brownfield Analysis: current paired-guidance qualification
+
+Decision: pass
+Mode: pre_implementation_analysis
+
+- mode_slice_decision: structured_delivery
+- run_id: mcp-codex-guided-inspection-20261025-01
+- scope: newly approved TP sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb; retained exact UR/PRD/SD and post-UR Review. Approval is current revision 24. This is preparation, not native acceptance.
+- evidence: evidence/preparation-tp-03.json records verified nine Root/candidate source hashes, actual assembly/SDK/UI and lockfile/invariant identity, retained passing check metadata, base HEAD, unchanged settings and exact consumed prior ledger. Both new W/Q namespaces are absent. Prior two real sessions are consumed; PRD call/error acceptance is only 1/2 on the older source, never final qualification of corrected source.
+- current_coverage: partially_done. Current paired descriptions, root-visible schema and read-only navigation are implemented and model-free tested. One-profile guard/worker inheritance, fail-closed controls and owned-tree lifecycle are implemented/tested. Final-source native preflight and two new sessions are not done.
+- reuse_strategy: reuse current product/guard/task/audit code unchanged. Adapt only a new contained Run launcher/freezer/retainer for distinct paths, latest source/evidence inputs and truthful prior/new ledger linkage. Existing T7 entry remains sole policy/reservation/controller owner; no new outer guard, task/parser/predicate fork or product authority.
+- existing owners: Core contract/service own schema/navigation; immutable presentation/command owners remain unchanged. codex-host-e2e.mjs and subordinate codex-command-guard.mjs own inherited OS protection/repetition/session accounting; existing native-run.js/native-tasks.js own original task/parser/audit. Existing builders/profile and registered tests remain their owners.
+- interfaces/data: no new public MCP field/tool/state/UI, migration, host/provider or approval semantics. New input/output paths and raw qualification evidence are Run-local execution detail. No existing ledger/result or foreign data is overwritten.
+- minimal implementation: new native-pair-cohort.py supplies current bound inputs and separate Q/W outputs; full candidate freeze includes canonical tracked/generated/runtime/dependency inputs and new guard helper. Reassess exact current script evidence; fresh integrated model-free preflight then one two-session cohort only after passing prerequisites. Same Node/CLI/model/effort, account restrictions, whole-Root/three-setting targets and limits.
+- regression risk: helper output/prerequisite adaptation must not change native prompt/audit or drop a failure counter. Preserve raw observations and check original/strict predicates plus four-call/zero-error acceptance separately. Verify current source/discovery and every protected snapshot before import. Unknown launch count or drift stops rather than retries.
+- parallel_structure_risk: none planned; existing guard controller alone reserves/applies policy. Run helper only binds/freezes/retains and exposes original counters; no independent runtime registry or approval logic.
+- context_graph_impact: none; context_graph_reconciliation: not_applicable; memory_target: scope_artifact. No global memory or domain-node change.
+- missing_evidence: fresh complete final freeze/applicability, guarded preflight and exactly two final-candidate native sessions remain explicit authorized delivery obligations. Retained code/test input is not fulfillment across source revision.
+- required_next_step: record this fresh analysis via internal-step writer, redispatch the same Run and execute only the new TP qualification scope. Model calls wait for all prerequisites; no further session beyond the new two is authorized.

@@ -313,8 +313,9 @@ for (const outcome of ["inspect_result", "target_unresolved", "invalid_input", "
 }
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Read-only/u);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /gate-check -> operation-contract module=agdf_prepare\/presentation\.prepare -> catalog read_arguments -> presentation-document\/next_cursor/u);
-assert.match(inspectContractHelp().parameters.module.description, /operation-status uses the original operation_id from the saved command receipt/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /target_source\+primary_target.*omit gate\/module/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially; read all pages/u);
+assert.match(inspectContractHelp().parameters.module.description, /operation-status: original operation UUID from saved receipt, never a new UUID/u);
 assert.match(definition.outputSchema.properties.presentation.description, /approval_preview/u);
 assert.match(definition.outputSchema.properties.presentation.description, /only after its presentation_id exists/u);
 console.log("agdf_inspect function contract pins passed.");

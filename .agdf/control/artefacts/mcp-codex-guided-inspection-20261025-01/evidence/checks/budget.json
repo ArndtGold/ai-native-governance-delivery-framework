@@ -1,0 +1,82 @@
+{
+  "tools": [
+    {
+      "name": "agdf_dispatch",
+      "bytes": 10045,
+      "sha256": "15a2daa44446ae153f9b6d4faaa05d9f6da3438089b7174ddc00df9de093eaa3"
+    },
+    {
+      "name": "agdf_inspect",
+      "bytes": 4992,
+      "sha256": "952736b76bf9c7a2e9d8fa638479d4f9e009c06c1268e4d29c7e9f001f8ee8be"
+    },
+    {
+      "name": "agdf_prepare",
+      "bytes": 3268,
+      "sha256": "c9d01b29a2e1ebc456bb6d241229dc6ff5902ef305cc0ffb532f7b2e9682b1ab"
+    },
+    {
+      "name": "agdf_record",
+      "bytes": 7083,
+      "sha256": "1992b6ea149e55c63d52ec914d99b5a471a6542fc70c54f357dc0463c057c332"
+    },
+    {
+      "name": "agdf_approve",
+      "bytes": 3389,
+      "sha256": "98a8de39ca66693b98d1aaea0fd1db03d8d7aa6bd27c30de614ec4107f529928"
+    },
+    {
+      "name": "agdf_revise",
+      "bytes": 5517,
+      "sha256": "e964612b34f15401d6a97f70c6590d8b4da46a8b679bcfffed62bb41c03cd3eb"
+    },
+    {
+      "name": "agdf_closeout",
+      "bytes": 3997,
+      "sha256": "b66820dfc689bf0b667df25a717996a080e341b5f7368fa2ec3ea057752be89d"
+    }
+  ],
+  "command_aggregate_bytes": 23254,
+  "decision_definitions": [
+    {
+      "name": "agdf_prepare",
+      "bytes": 3357
+    },
+    {
+      "name": "agdf_record",
+      "bytes": 7083
+    },
+    {
+      "name": "agdf_approve",
+      "bytes": 3389
+    },
+    {
+      "name": "agdf_revise",
+      "bytes": 5517
+    },
+    {
+      "name": "agdf_closeout",
+      "bytes": 3997
+    },
+    {
+      "name": "agdf_decision_action",
+      "bytes": 1166
+    }
+  ],
+  "command_and_decision_bytes": 24509,
+  "limits": {
+    "inspect_definition": 5000,
+    "each_command": 8192,
+    "command_aggregate": 24576,
+    "input": 65536,
+    "output": 1048576,
+    "copilot_files": 397,
+    "copilot_bytes": 3509461
+  },
+  "copilot": {
+    "files": 397,
+    "bytes": 3509460
+  },
+  "normal_build_profile_enforces_budget": true,
+  "model_invocations": 0
+}

@@ -1,0 +1,12 @@
+file:///private/tmp/agdf-inspect-agent-ab/baseline/scripts/assemble-npm.mjs:36
+        if (!existsSync(join(source, entry))) throw new Error(`AGDF_ASSEMBLY_SOURCE_MISSING: ${name}/${entry}`);
+                                                    ^
+
+Error: AGDF_ASSEMBLY_SOURCE_MISSING: create-agdf/runtime/core
+    at assembleNpm (file:///private/tmp/agdf-inspect-agent-ab/baseline/scripts/assemble-npm.mjs:36:53)
+    at file:///private/tmp/agdf-inspect-agent-ab/baseline/scripts/assemble-npm.mjs:69:162
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

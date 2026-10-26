@@ -1,0 +1,1275 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": "The newly authorized final native cohort passed 2/2, each four MCP calls and zero errors, with preserved source/protection and exactly four total consumed real sessions. A final model-free unsupported-platform branch diagnostic found one incorrect stdout expectation in the changed guard test; actual guard-unavailable error is on stderr. Current TP expressly freezes test edits. Prepare a test-only scope exception for deliberate human decision, with zero further real model sessions.",
+  "operation_id": "b18c40cf-57b6-4396-bfbe-b8611c06c1cc",
+  "request_digest": "sha256:a68f3619c276023e3a3917a4f3c6c0277f57f47e2531e96686cc889f7ef2fa21",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-codex-guided-inspection-20261025-01",
+    "expected_revision_id": "39c3dd19-950b-4f7f-a51f-866771e38a9b",
+    "kind": "source_revision.preview"
+  },
+  "effect": null,
+  "receipt": null,
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 26,
+    "revision_id": "39c3dd19-950b-4f7f-a51f-866771e38a9b",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "outcome": "preview",
+    "authority": "proposed_only",
+    "authorizes": false,
+    "schema_version": "2",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-codex-guided-inspection-20261025-01",
+    "expected_revision_id": "39c3dd19-950b-4f7f-a51f-866771e38a9b",
+    "operation_id": "b18c40cf-57b6-4396-bfbe-b8611c06c1cc",
+    "request_digest": "sha256:69bb83ece4faaf3795e2dde68c97b59e708287c43abca76f3f6b2ade129016ce",
+    "reason": "The newly authorized final native cohort passed 2/2, each four MCP calls and zero errors, with preserved source/protection and exactly four total consumed real sessions. A final model-free unsupported-platform branch diagnostic found one incorrect stdout expectation in the changed guard test; actual guard-unavailable error is on stderr. Current TP expressly freezes test edits. Prepare a test-only scope exception for deliberate human decision, with zero further real model sessions.",
+    "intended_change": "Reopen only TP to authorize exactly the prepared one-line result.stdout -> result.stderr assertion correction in the non-darwin negative test, affected model-free verification and reviewed applicability of the already passing native runtime proof. Preserve actual four consumed real sessions/ledgers and two current qualified observations; grant zero new real sessions. Product/runtime/harness/guard/task/prompt/parser/audit, all acceptance and limits remain unchanged. Revision alone grants no implementation or gate approval.",
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+        "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67"
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+        "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0"
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+        "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6"
+      },
+      {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+        "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb"
+      }
+    ],
+    "impact": {
+      "source_gate": "TP",
+      "retained": [
+        "UR",
+        "PRD",
+        "SD"
+      ],
+      "superseded": [
+        "TP"
+      ],
+      "invalidated_bindings": [
+        "c4b3835e-b3ad-4f58-9a0c-9600f5976cca"
+      ],
+      "analyses": [
+        {
+          "type": "Brownfield Review",
+          "disposition": "retain",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+          "reason": "Exact current writer-owned post-UR Review binds unchanged UR only. Same product outcome, owners, structured route and protection design remain; the only proposed change is a downstream single test assertion and zero-model verification scope."
+        }
+      ],
+      "invalidated_steps": [
+        "Brownfield Analysis",
+        "CD+Tests",
+        "CR"
+      ],
+      "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+      "next_gate": "TP",
+      "implementation_authority": false,
+      "policy_version": 2,
+      "initiating_phase": "CD+Tests",
+      "changed_statements": [
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+          "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+          "statement": "Keep all seven current product/test/guard files above unchanged in this qualification renewal.",
+          "intended_change": "Add one explicit narrow exception: scripts/native-probes/codex-command-task-test.mjs may change only the non-darwin T7_GUARD_APPLICATION_UNAVAILABLE assertion from result.stdout to result.stderr, preserving nonzero exit and exact typed error check. All other source/runtime/guard/task/parser/predicate/audit files remain fixed. Freeze/review that sole test delta, run affected model-free verification and reassess unchanged-runtime native evidence. Four real sessions stay consumed and no new model call is authorized.",
+          "reason": "Exact current negative-branch simulation returns exit 1, empty stdout and the expected guard error on stderr. The proposed assertion matches that actual stream and does not change any product/model behavior; the explicit TP test-edit freeze is the earliest changed approved planning statement."
+        },
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+          "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+          "statement": "Unplanned product/harness/test/audit changes are not authorized by this TP.",
+          "intended_change": "Add one explicit narrow exception: scripts/native-probes/codex-command-task-test.mjs may change only the non-darwin T7_GUARD_APPLICATION_UNAVAILABLE assertion from result.stdout to result.stderr, preserving nonzero exit and exact typed error check. All other source/runtime/guard/task/parser/predicate/audit files remain fixed. Freeze/review that sole test delta, run affected model-free verification and reassess unchanged-runtime native evidence. Four real sessions stay consumed and no new model call is authorized.",
+          "reason": "Exact current negative-branch simulation returns exit 1, empty stdout and the expected guard error on stderr. The proposed assertion matches that actual stream and does not change any product/model behavior; the explicit TP test-edit freeze is the earliest changed approved planning statement."
+        },
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+          "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+          "statement": "New product/harness/task/test/audit/parser/predicate changes",
+          "intended_change": "Add one explicit narrow exception: scripts/native-probes/codex-command-task-test.mjs may change only the non-darwin T7_GUARD_APPLICATION_UNAVAILABLE assertion from result.stdout to result.stderr, preserving nonzero exit and exact typed error check. All other source/runtime/guard/task/parser/predicate/audit files remain fixed. Freeze/review that sole test delta, run affected model-free verification and reassess unchanged-runtime native evidence. Four real sessions stay consumed and no new model call is authorized.",
+          "reason": "Exact current negative-branch simulation returns exit 1, empty stdout and the expected guard error on stderr. The proposed assertion matches that actual stream and does not change any product/model behavior; the explicit TP test-edit freeze is the earliest changed approved planning statement."
+        }
+      ],
+      "quality_assessment": [
+        {
+          "record": {
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+            "status": "done"
+          },
+          "record_digest": "sha256:edef0128265447898cf36691932daa3b1d301c2c41e80ecc90ebc8bfe9057ae8",
+          "operation_id": "63e08959-41e4-4c38-914c-99cd14cf7d28",
+          "source_set_digest": "sha256:baa8ee131b3e3d23d02a57246665d180b67f54f4e62c329508118e073a14e1a6",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            }
+          ],
+          "association": "current",
+          "disposition": "retain",
+          "reason": "Exact current writer-owned unchanged-UR analytical source-set; retain routing/owner applicability."
+        },
+        {
+          "record": {
+            "type": "Brownfield Analysis",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "done"
+          },
+          "record_digest": "sha256:0b50e25c7ff455549edbb55eb52928f03422d5286704e17fdfe52f41d8aa3f27",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "CD+Tests",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "revise"
+          },
+          "record_digest": "sha256:44f6a2879bb0364d7c3c3b12b58df0105a581b5c5fd48e27c5092b586eeb83d6",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+            "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+            "status": "documented"
+          },
+          "record_digest": "sha256:e26bf43638c66966f19c8513b2aafd56c9e678d552ab7caed73c72badddfb722",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+            "status": "documented"
+          },
+          "record_digest": "sha256:48897804a75edb3d34f4370c66580dd8bd1cfae3fda858b179805365545c13c3",
+          "operation_id": "63e08959-41e4-4c38-914c-99cd14cf7d28",
+          "source_set_digest": "sha256:baa8ee131b3e3d23d02a57246665d180b67f54f4e62c329508118e073a14e1a6",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            }
+          ],
+          "association": "current",
+          "disposition": "retain",
+          "reason": "Exact current writer-owned unchanged-UR analytical source-set; retain routing/owner applicability."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD_MAPPING-01.json",
+            "digest": "sha256:2092f70bce2f505df5d2aca291c91491e2b6bb32f6c4a91f68574991cf6269d7",
+            "status": "documented"
+          },
+          "record_digest": "sha256:1eee1ba8c6c1ca0a1f14e3aceeb6078d44346389ee8b65c2c8c81f4c44117603",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-01.json",
+            "digest": "sha256:e0511cefb8c848e12d73980f96a5e71711087a340d1fe37b5b459d3be9713b1a",
+            "status": "documented"
+          },
+          "record_digest": "sha256:ddd444ed9b5845de81a5758fa15bcd86c17f85bc8626828bb90fe058839f93b5",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-01.json",
+            "digest": "sha256:ad68e455a9c6a64194664db50c6548915aa0943e44cebaa5c6c24f8ca731e460",
+            "status": "documented"
+          },
+          "record_digest": "sha256:04d2b6ea14bb5be61182087c43c41d41fccf573830563e68b54dcff982946bad",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "documented"
+          },
+          "record_digest": "sha256:740177fab83a785d4080d6ab8408c3e4e715305968af54266ff4a5981f9d3314",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:d2b79d15ec940395ab1e220990f4b291475b5e05641f1a6db21e5f28a4403280",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "documented"
+          },
+          "record_digest": "sha256:3765c20e51e68771727f754756ef03a9b5187a355cf3fd1672f8787b0b713935",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+            "status": "documented"
+          },
+          "record_digest": "sha256:48897804a75edb3d34f4370c66580dd8bd1cfae3fda858b179805365545c13c3",
+          "operation_id": "63e08959-41e4-4c38-914c-99cd14cf7d28",
+          "source_set_digest": "sha256:baa8ee131b3e3d23d02a57246665d180b67f54f4e62c329508118e073a14e1a6",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            }
+          ],
+          "association": "current",
+          "disposition": "retain",
+          "reason": "Exact current writer-owned unchanged-UR analytical source-set; retain routing/owner applicability."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-02.json",
+            "digest": "sha256:7705a9a13f84742826acbf383affccf144fb99306f2328b1b47a4d9e1fb8acd2",
+            "status": "documented"
+          },
+          "record_digest": "sha256:a41d3d0608b17178caa3a4c83566cddd6376fdba8b563c74497f530bc3646de1",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-02.json",
+            "digest": "sha256:3d5f0ccbb0706c4a1d4dc4bb5768f7192d71d6087c2e5226666c0b4aaea47a71",
+            "status": "documented"
+          },
+          "record_digest": "sha256:7320ffe872da4f33aab18b86050cad72497e8132c73b04f470a3b17904c4359b",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "documented"
+          },
+          "record_digest": "sha256:76e51951369ab2a73b43c8ce3242e97205cfa8eb134e1f104ab5c714c6ee2f7f",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "documented"
+          },
+          "record_digest": "sha256:d6c3a8f9c41baf8fa4e298093b8a5539c0b793081c912f8cf024dd7dfff803fb",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-03.json",
+            "digest": "sha256:6fdec3fd6ff8f83c53a24003e83a1c6be588c7940cc817539f16b133ad495cf2",
+            "status": "documented"
+          },
+          "record_digest": "sha256:2f18453fb4aea33b736428fa789083ab92dab3a25075014710cc4d534afe3cea",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "documented"
+          },
+          "record_digest": "sha256:7a171a35e5167bb770d4c5f512f012abbd74a229c8b324aefb571141f172baee",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "documented"
+          },
+          "record_digest": "sha256:325c961a621ba2817f3dafe51fa780dd39a781fca6888d5813aae25211b23b5a",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        }
+      ],
+      "invalidated_quality": [
+        {
+          "record": {
+            "type": "Brownfield Analysis",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "done"
+          },
+          "record_digest": "sha256:0b50e25c7ff455549edbb55eb52928f03422d5286704e17fdfe52f41d8aa3f27",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "CD+Tests",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "revise"
+          },
+          "record_digest": "sha256:44f6a2879bb0364d7c3c3b12b58df0105a581b5c5fd48e27c5092b586eeb83d6",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+            "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+            "status": "documented"
+          },
+          "record_digest": "sha256:e26bf43638c66966f19c8513b2aafd56c9e678d552ab7caed73c72badddfb722",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD_MAPPING-01.json",
+            "digest": "sha256:2092f70bce2f505df5d2aca291c91491e2b6bb32f6c4a91f68574991cf6269d7",
+            "status": "documented"
+          },
+          "record_digest": "sha256:1eee1ba8c6c1ca0a1f14e3aceeb6078d44346389ee8b65c2c8c81f4c44117603",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-01.json",
+            "digest": "sha256:e0511cefb8c848e12d73980f96a5e71711087a340d1fe37b5b459d3be9713b1a",
+            "status": "documented"
+          },
+          "record_digest": "sha256:ddd444ed9b5845de81a5758fa15bcd86c17f85bc8626828bb90fe058839f93b5",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-01.json",
+            "digest": "sha256:ad68e455a9c6a64194664db50c6548915aa0943e44cebaa5c6c24f8ca731e460",
+            "status": "documented"
+          },
+          "record_digest": "sha256:04d2b6ea14bb5be61182087c43c41d41fccf573830563e68b54dcff982946bad",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "documented"
+          },
+          "record_digest": "sha256:740177fab83a785d4080d6ab8408c3e4e715305968af54266ff4a5981f9d3314",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:d2b79d15ec940395ab1e220990f4b291475b5e05641f1a6db21e5f28a4403280",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "documented"
+          },
+          "record_digest": "sha256:3765c20e51e68771727f754756ef03a9b5187a355cf3fd1672f8787b0b713935",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-02.json",
+            "digest": "sha256:7705a9a13f84742826acbf383affccf144fb99306f2328b1b47a4d9e1fb8acd2",
+            "status": "documented"
+          },
+          "record_digest": "sha256:a41d3d0608b17178caa3a4c83566cddd6376fdba8b563c74497f530bc3646de1",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-02.json",
+            "digest": "sha256:3d5f0ccbb0706c4a1d4dc4bb5768f7192d71d6087c2e5226666c0b4aaea47a71",
+            "status": "documented"
+          },
+          "record_digest": "sha256:7320ffe872da4f33aab18b86050cad72497e8132c73b04f470a3b17904c4359b",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "documented"
+          },
+          "record_digest": "sha256:76e51951369ab2a73b43c8ce3242e97205cfa8eb134e1f104ab5c714c6ee2f7f",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "documented"
+          },
+          "record_digest": "sha256:d6c3a8f9c41baf8fa4e298093b8a5539c0b793081c912f8cf024dd7dfff803fb",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-03.json",
+            "digest": "sha256:6fdec3fd6ff8f83c53a24003e83a1c6be588c7940cc817539f16b133ad495cf2",
+            "status": "documented"
+          },
+          "record_digest": "sha256:2f18453fb4aea33b736428fa789083ab92dab3a25075014710cc4d534afe3cea",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Unknown association cannot retain fulfillment; preserve bytes and reassess exact applicability under the narrow renewed TP."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+            "status": "documented"
+          },
+          "record_digest": "sha256:7a171a35e5167bb770d4c5f512f012abbd74a229c8b324aefb571141f172baee",
+          "operation_id": "507600ce-9ba3-4b6e-9a0d-960ea4e0f476",
+          "source_set_digest": "sha256:d924792282315175845cd424897ef8fec6e16e99b8fc5b43d150dac7ef713062",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:9f9c261dd8db0c9dca12cb119538eea8c9b3fb158dcfacb338914f2d2f8e5118",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": null,
+              "path": "",
+              "status": "missing",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md",
+            "digest": "sha256:295bff87341e58e59adad3173eac111786fcb46203b86ef93d38ea282aeb1a18",
+            "status": "documented"
+          },
+          "record_digest": "sha256:325c961a621ba2817f3dafe51fa780dd39a781fca6888d5813aae25211b23b5a",
+          "operation_id": "71879246-83b1-42fb-a8f5-e583d74c8471",
+          "source_set_digest": "sha256:cb223bf030a7a43a38ae80273649bf070b4a29bc1a1bad7c172f68a0adb98014",
+          "sources": [
+            {
+              "digest": "sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:bbfa5c7931f9b6617489d90c4ec4bc26a85c3bd5fd5b6b3239c5152a259249c0",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:c5705b70b0f45c58273acd4bdc7a142da286c48b63973f98718581dd18600762",
+              "path": ".agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "type": "Brownfield Analysis"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Record depends on prior TP or downstream preparation/result; preserve actual successful/failed evidence and reassess applicability, especially unchanged-runtime native proof; no automatic fulfillment transfer or new model session."
+        }
+      ],
+      "renewed_approvals": [
+        "TP",
+        "QA",
+        "UAT"
+      ],
+      "pending_presentations": "superseded by exact material-version guard"
+    },
+    "archive_digest": "sha256:8ad99f3d1dae1e34cc922106d44afce2b12a31ab139564b5136b2a0b9986c8d7",
+    "current_run_digest": "sha256:196d60a61b85a22ce3e0307b5dd77888fe25664e414d2ee671a89e4c226da3cb",
+    "preview_digest": "sha256:2f66e55b9a0f9e60463e2e1d56f06ec1c89a1dd195e717ae07bb2c8c502168da",
+    "confirmation_selector": "Apply source revision: mcp-codex-guided-inspection-20261025-01 39c3dd19-950b-4f7f-a51f-866771e38a9b b18c40cf-57b6-4396-bfbe-b8611c06c1cc TP sha256:2f66e55b9a0f9e60463e2e1d56f06ec1c89a1dd195e717ae07bb2c8c502168da",
+    "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+  }
+}

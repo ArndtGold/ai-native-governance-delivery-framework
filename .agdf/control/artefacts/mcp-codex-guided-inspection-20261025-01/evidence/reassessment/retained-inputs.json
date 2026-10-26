@@ -1,0 +1,73 @@
+{
+  "decision": "retained functional inputs applicable; final guard/native obligations pending",
+  "source_revision": "b1c5f54c-c386-4b49-8a11-ed0a925852a4",
+  "tp_digest": "sha256:42289c6e277849e0a634e582870bc9fcb3f7cef116b6bccea7ab26f3817ad597",
+  "old_frozen_manifest_sha256": "7866ae22073f0a84454547553c324036a8cdcabd91f7642bcaa31a44bf9e4d1c",
+  "checked_frozen_files": 19336,
+  "changed_existing_candidate_files": [
+    "scripts/native-probes/codex-command-task-test.mjs",
+    "scripts/native-probes/codex-host-e2e.mjs"
+  ],
+  "new_test_only_guard_helper": {
+    "path": "scripts/native-probes/lib/codex-command-guard.mjs",
+    "sha256": "a00baf673c5acaac598dd152b8a9c773098e65126479f29b6bb776574d558aea"
+  },
+  "rationale": "All retained product, test, SDK/dependency, assembly, UI and original fixed-fixture performance inputs match the prior passing candidate. Only the approved T7 guard entry/test changed; optional helper is outside packaged runtime. Their fresh tests, source/build-freshness assessment and fresh native qualification cannot reuse old guard outcomes.",
+  "retained_checks": {
+    "control-inspect-01": {
+      "metadata": "evidence/checks/control-inspect-01.json",
+      "metadata_sha256": "b84d77b4e19769a3bf76df1102db0c81be75fd7a3d5329a9da03b67060e5c8a2",
+      "log_sha256": "021e8ca249f8e9816e87247d9911718ed93823781325d3abc6fc5c981a108b7c",
+      "elapsed_seconds": 56.83044672012329
+    },
+    "protocol-02": {
+      "metadata": "evidence/checks/protocol-02.json",
+      "metadata_sha256": "a357c7972240b386707d73fb916f18fe92246a855997db75ba137452b7e23686",
+      "log_sha256": "8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4",
+      "elapsed_seconds": 22.24755597114563
+    },
+    "schema-parity-02": {
+      "metadata": "evidence/checks/schema-parity-02.json",
+      "metadata_sha256": "fff3644b4062d9e9884f09d99383f4d61dead99bf3fcbb28e1e655a3763ce3a6",
+      "log_sha256": "3dbacd4a1db5180f81b581bc6354353b7502b5dddca60b9af223621b6db9d818",
+      "elapsed_seconds": 9.968998908996582
+    },
+    "mcp-server-01": {
+      "metadata": "evidence/checks/mcp-server-01.json",
+      "metadata_sha256": "8e7f4c86055f4b8d41f9390ef865ecb32d30288aef528efe7be7786b8d2434d5",
+      "log_sha256": "d24242c8649bcfc17794965ee31e379c7e841a34111c0cca4ad863ee89556a0b",
+      "elapsed_seconds": 1386.489042043686
+    },
+    "run-command-flow-01": {
+      "metadata": "evidence/checks/run-command-flow-01.json",
+      "metadata_sha256": "1cd36c0e5b8bdd2e202f4deb9589c53856e7469547fdda4d2f8b998dc8f35e31",
+      "log_sha256": "0b6f827e10f245a1b5081bfcf436e759718a4cb74260f862730382de7ea7e7fc",
+      "elapsed_seconds": 503.80770993232727
+    },
+    "normal-build-02": {
+      "metadata": "evidence/checks/normal-build-02.json",
+      "metadata_sha256": "d0988a9bc412d3a14a43796a6e17b47b938f38b6fc219b028e237d6781bd4a98",
+      "log_sha256": "948675cc3699d2a69179a06dd79d9c289afaabb46b3dab84ef2136def0bcc426",
+      "elapsed_seconds": 48.08958101272583
+    },
+    "compatibility-check-01": {
+      "metadata": "evidence/checks/compatibility-check-01.json",
+      "metadata_sha256": "b36518d44cdacb4e9a24a44caabbf8179d29fea2aa144078dcc2eea8023b76aa",
+      "log_sha256": "ac4ec027059901a7552b11449d397c9f539abb93ca8f3bd044abae6543ac27b0",
+      "elapsed_seconds": 2.4166250228881836
+    },
+    "copilot-profile-01": {
+      "metadata": "evidence/checks/copilot-profile-01.json",
+      "metadata_sha256": "94a7f66d3614184320aad1f41ff350df58fcfd609e6584feaa53da1596639779",
+      "log_sha256": "4f964f09f5eaa647aae559fa4937704706fc10cfa5ef90760d0c1fa9c0912682",
+      "elapsed_seconds": 4.157459020614624
+    },
+    "payload-budget-01": {
+      "metadata": "evidence/checks/payload-budget-01.json",
+      "metadata_sha256": "472fcd5d40cda600ff4a08d4b9c86ec3684f3c943b8f77e26f772b4f14b6e1e7",
+      "log_sha256": "e0e7e2e75e553acbab858f2617173aac4400815e0667721dbe2978784bf29366",
+      "elapsed_seconds": 0.2791707515716553
+    }
+  },
+  "model_invocations": 0
+}

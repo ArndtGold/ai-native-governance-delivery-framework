@@ -1,0 +1,41 @@
+# CD+Tests: Codex MCP guided inspection
+
+Decision: revise
+
+Implementation is complete for the approved Core slice; native qualification is blocked by the approved execution guard composition. This is not a QA pass.
+
+## Implementation and source binding
+
+The shared inspection contract exposes its unchanged conditions under dependentSchemas.operation, reuses one selector conversion map and preserves required operation/unknown-field rejection. Core service constructs explicitly bound sequential read hints from existing command/catalog owners, preserves original document revisions, keeps current contract revisions, and contains only advisory navigation failures through one legacy report/presentation path. Production changes stay in contract.js and service.js; regressions use the two registered CLI/protocol test files.
+
+The original source base is 5046858826f3bca7922c14ef402b095feca8b6fb. evidence/build/source-bindings.json proves actual workspace Core resolution and exact assembled Core bytes. evidence/build/frozen-candidate.json binds 19,336 candidate files. The retained preflight confirms that candidate remains unchanged. Canonical generated compatibility changes contain 56 deterministic scenarios with zero unexpected failures and no new native qualification claims.
+
+## Executed checks
+
+| Check | Actual result | Evidence |
+|---|---|---|
+| Canonical build:prepare and normal build | pass; initial normal build diagnosed only source_snapshot_changed, then canonical deterministic recording/check and normal rebuild passed | evidence/checks/build-prepare-02.json; normal-build-01/02.json; compatibility-record-01.json; compatibility-check-01.json |
+| Registered CLI inspection/read-only/preview/readiness suites | pass | evidence/checks/control-inspect-01.json |
+| Real SDK/STDIO guided arguments, ambiguity, known-binding precedence, missing/corrupt/unbound/foreign cases and historical/current revision refusal | pass in both protocol eras; original negative assertion helper failure retained separately | evidence/checks/protocol-01/02.json; navigation.json; historical.json; transport/ |
+| Frozen original acceptance/Core/native-argument replay | 247,003 SDK cases, 160 frozen Core outcomes and 24 retained inputs with all 15 observed SDK failures still rejected; zero acceptance differences | evidence/checks/schema-parity.json; core-parity.json; replay.json; schema-parity-02.json |
+| Actual installed Codex type renderer; no model/auth, loopback only | all 14 fields and 11 operations visible in argument types | evidence/renderer/capture/visibility.json; signature.ts; requests.json; protocol.json; launch.json |
+| Complete MCP test suite | pass, 1,386.489 seconds | evidence/checks/mcp-server-01.json and .log |
+| Core run-command-flow, 20 test files plus preview suites | pass, 503.808 seconds | evidence/checks/run-command-flow-01.json and .log |
+| Original fixed-fixture performance, once without concurrent heavy tests | 20 samples each; cold tools/list p95 725.369 ms <= 1,500; warm dispatch p95 506.150 ms <= 1,000 | evidence/checks/performance.json; original full MCP log |
+| Copilot and discovery budgets | pass: 397 files / 3,509,460 bytes <= 3,509,461; Inspect 4,992 <= 5,000; command plus decision aggregate 24,509 <= 24,576 | evidence/checks/copilot-profile-01.json; payload-budget-01.log; budget.json |
+| Original study success/failure retention | selected originals copied exactly, including manifests and raw traces; not reused as fresh qualification | evidence/prestudy/retention-index.json; evidence/prestudy/projection-captures/supplement-index.json |
+| Original worktree/control/settings preservation | 14 staged foreign files, 5 untracked foreign files and 11,129 other control files unchanged; staged entries and HEAD match baseline | evidence/checks/preservation-before-native.json |
+
+## Native execution and concrete blocker
+
+The first model-free wrapper attempt timed out in an overbroad Root filesystem snapshot before guard/harness launch. Its setup failure is retained. The corrected snapshot covers tracked/nonignored Root files and the complete control tree required by TP; the whole-ROOT OS write denial is unchanged. The corrected preflight actually verifies ROOT write denial, then the unchanged native harness fails before Codex login status can execute: nested sandbox application is refused with exit 71. The original broad account-error observation and the independent exact-stack diagnostic are retained unchanged/separately. No discovery result or account invalidity is inferred from that error.
+
+Both before/after snapshots match across 14,038 Root files, global settings and staging. All 19,336 frozen candidate files match. No credentials were copied or inspected, no login, plugin/global installation or global-setting change occurred, no API provider fallback was used, and no model session or cohort slot was consumed/reserved. Exactly two fresh qualifying sessions remain required and unfulfilled. No additional launch is attempted under a weaker or substituted guard.
+
+## Task fulfillment and routing
+
+T-BASE, T-RET, T-CORE, T-NAV, T-SCHEMA, T-RENDER and T-BUILD have their above evidence. T-NATIVE is blocked before model execution. Dependent review/QA/UAT/OR readiness is not asserted. No commit, push, PR, merge, installation or release occurred.
+
+Finding NATIVE-GUARD-001: emergent_risk; routing_target: SD; owner: existing native-harness execution owner / sd-definition. The approved outer-plus-existing-inner guard is incompatible with this host. GUARD_REVISION_PROPOSAL.md describes a single combined OS policy retaining every denial, unchanged task/audit and the same two-session budget. SD's unchanged-guard statement and dependent TP/fingerprints require deliberate canonical renewal before native qualification. UR/PRD acceptance is not narrowed.
+
+Read BROWNFIELD_ANALYSIS_CLARIFICATION.md with the original analysis: the selected route remains structured_delivery. The analysis's slice label was a transcription error, not a route change or omitted gate.

@@ -1,0 +1,376 @@
+diff --git a/packages/cli/scripts/control-inspect-test.js b/packages/cli/scripts/control-inspect-test.js
+index d527e9e6..7239299a 100644
+--- a/packages/cli/scripts/control-inspect-test.js
++++ b/packages/cli/scripts/control-inspect-test.js
+@@ -37,7 +37,7 @@ assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.oper
+ assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations"]);
+ assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
+ assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
+-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /module=agdf_prepare\/presentation\.prepare/);
++assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially/);
+ 
+ // Published operation dependencies agree with the shared runtime policy.
+ const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+@@ -207,6 +207,25 @@ try {
+   execFileSync(process.execPath, [cli, "run-step", "--dir", root, "--run", "inspect-run", "--revision", revision, "--step", "ur", "--title", "Inspect run"]);
+ 
+   const base = { workingDirectory: root, targetSource: "explicit_target", primaryTarget: root, interactionLocales, expectedVersion: pluginDefinition.version };
++  // Advisory composition failure cannot turn a readable report into an evaluator error.
++  const originalReport = inspect({ ...base, operation: 'gate-check', presentationLanguage: 'de', runId: 'inspect-run' }).report;
++  for (const status of [originalReport.status, 'blocked']) {
++    const report = { ...originalReport, status, status_card: { ...originalReport.status_card } };
++    Object.defineProperty(report.status_card, 'runState', { get() { throw new Error('injected advisory failure'); } });
++    const faultyNavigation = createControlInspectService({ evaluateGateCheck: () => report });
++    const isolated = faultyNavigation({ ...base, operation: 'gate-check', presentationLanguage: 'de', runId: 'inspect-run' });
++    assert.equal(isolated.outcome, 'inspect_result');
++    assert.equal(isolated.report, report, 'complete original report object retained');
++    assert.deepEqual(isolated.presentation, originalReport.status_presentation);
++    assert.equal(isolated.navigation, undefined);
++    assert.equal(isolated.authorizes, false);
++    assert.equal(validateOutput(isolated), true, JSON.stringify(validateOutput.errors));
++  }
++  const failingEvaluator = createControlInspectService({ evaluateGateCheck() { throw new Error('injected evaluator failure'); } });
++  const evaluatorFailure = failingEvaluator({ ...base, operation: 'gate-check', presentationLanguage: 'de', runId: 'inspect-run' });
++  assert.equal(evaluatorFailure.outcome, 'evaluator_error', 'original evaluation errors are never swallowed');
++  assert.equal(evaluatorFailure.navigation, undefined);
++
+   const before = snapshot(join(root, ".agdf", "control"));
+   const controlTreeBefore = readdirSync(join(root, ".agdf", "control")).sort();
+ 
+diff --git a/packages/core/lib/control-inspect/contract.js b/packages/core/lib/control-inspect/contract.js
+index d132fb2e..13a0c1ac 100644
+--- a/packages/core/lib/control-inspect/contract.js
++++ b/packages/core/lib/control-inspect/contract.js
+@@ -14,7 +14,7 @@ import { ALL_ACTIVE_OPERATIONS, VARIANT_OPERATION, MODULE_OPERATION, CONTROL_INS
+ 
+ export const CONTROL_INSPECT_SCHEMA_VERSION = "1";
+ export const CONTROL_INSPECT_CONTRACT_VERSION = 1;
+-// Every byte of this definition is loaded into every session on every host (SDD-005).
++// Shared discovery budget across hosts (SDD-005).
+ export const CONTROL_INSPECT_MAX_DEFINITION_BYTES = 5000;
+ export const OPERATION_CONTRACT_MODULES = Object.freeze(Object.entries(RUN_COMMAND_GROUPS)
+   .flatMap(([group, kinds]) => kinds.map(kind => `${group}/${kind}`)));
+@@ -25,28 +25,29 @@ function deepFreeze(value) {
+   return Object.freeze(value);
+ }
+ 
+-// One field model supplies discovery, applicability guards and on-demand help.
++// Shared discovery, selector guards and on-demand help.
+ export const PRESENTATION_OPERATIONS = Object.freeze(['presentation-document', 'presentation-preview']);
+ export const BOUND_INSPECT_OPERATIONS = Object.freeze(['artifact-readiness', 'operation-contract', 'operation-status', 'native-qualification', ...PRESENTATION_OPERATIONS, 'runtime-generations']);
+ export const PRESENTATION_CATALOG_MODULE = 'agdf_prepare/presentation.prepare';
+ const uuidSchema = { type: 'string', pattern: REVISION_ID_PATTERN.source };
+ const cursorSchema = { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$' };
+ const fieldModel = {
+-  operation: { help: 'Read-only operation; requirements below. Reads never prepare or approve a gate.', schema: { enum: [...CONTROL_INSPECT_OPERATIONS] }, description: 'Read action.' },
+-  presentation_language: { help: 'Required BCP47 tag; valid unsupported languages use the complete English pack.', schema: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE }, description: 'Reply BCP47 tag.' },
+-  working_directory: { help: 'Absolute execution context; it does not select a target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Absolute context; not target authority.' },
+-  target_source: { help: 'explicit_target: directly specified target; continued_target: confirmed continuation; current_repository: unambiguous current repository. Use actual provenance.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Paired target provenance.' },
+-  primary_target: { help: 'Confirmed absolute project root, paired with target_source. working_directory never selects the target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Confirmed absolute root.' },
+-  run_id: { help: 'Use the named or unambiguously confirmed run; never select by recency.', schema: { type: 'string', pattern: RUN_ID_PATTERN.source }, description: 'Confirmed run.' },
+-  gate: { help: 'Use the requested document gate; it is an optional catalog filter, not a selection heuristic. artifact-readiness accepts UR, PRD, SD or TP drafts only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Draft/read gate; catalog filter.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
+-  expected_revision_id: { help: 'For bound current-state inspections use the current gate-check revision. For document/preview reads preserve the selected prepared record original revision from catalog read_arguments or the original conversation binding.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
+-  presentation_id: { help: 'Use the exact prepared ID from a validated catalog candidate or the existing conversation binding. Never guess a UUID, choose by timestamp, or prepare another presentation to pass a read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
+-  target_id: { help: 'Copy binding.target_id from operation-contract or the selected catalog read_arguments; this digest identifies a target and grants no authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Target hash: operation-contract.', operations: PRESENTATION_OPERATIONS },
+-  cursor: { help: 'Omit on the first page, then copy next_cursor unchanged. Catalog cursors are accepted only on operation-contract module=agdf_prepare/presentation.prepare. Never exchange document, preview or catalog cursors.', schema: cursorSchema, description: 'Next cursor; omit initially.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract'] },
+-  variant: { help: 'gate-check only: status-card or approval-envelope. Neither variant records an approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
+-  module: { help: 'contract uses an advertised runtime module; operation-contract uses group/kind; operation-status uses the original operation_id from the saved command receipt, never a newly generated UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
+-  all_active: { help: 'Only doctor and delivery-map accept true. False retains the selected-run read behavior.', schema: { type: 'boolean' }, description: 'All runs: doctor/delivery-map.' },
++  operation: { help: 'Read only; never prepare or approve.', schema: { enum: [...CONTROL_INSPECT_OPERATIONS] }, description: 'Read action.' },
++  presentation_language: { help: 'Required BCP47 tag; unsupported valid languages fall back to complete English.', schema: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE }, description: 'Reply BCP47 tag.' },
++  working_directory: { help: 'Absolute context; never selects a target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Context; not target authority.' },
++  target_source: { help: 'Actual provenance: explicit_target = specified; continued_target = confirmed; current_repository = unambiguous.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Paired target provenance.' },
++  primary_target: { help: 'Confirmed absolute root paired with target_source; cwd is not target authority.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Confirmed root.' },
++  run_id: { help: 'Named or confirmed Run; never select by recency.', schema: { type: 'string', pattern: RUN_ID_PATTERN.source }, description: 'Confirmed run.' },
++  gate: { help: 'Requested document gate or catalog filter, never a selection heuristic. artifact-readiness: UR/PRD/SD/TP only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Document gate. Never with gate-check.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
++  expected_revision_id: { help: 'Bound inspections use current gate-check revision. Document/preview reads preserve the original selected catalog or conversation revision.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
++  presentation_id: { help: 'Exact prepared ID from validated catalog or conversation. Never guess, select by timestamp, or prepare a replacement to read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
++  target_id: { help: 'Copy target hash from operation-contract binding or catalog read_arguments; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Target hash: operation-contract.', operations: PRESENTATION_OPERATIONS },
++  cursor: { help: 'Omit initially; copy next_cursor. Catalog cursors: only operation-contract module=agdf_prepare/presentation.prepare. Never exchange cursor types.', schema: cursorSchema, description: 'Copy next_cursor.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract'] },
++  variant: { help: 'gate-check view only; never records approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
++  module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
++  all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'All runs: doctor/delivery-map.' },
+ };
++const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule' };
+ const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-status'];
+ const inputSchema = {
+   type: 'object', additionalProperties: false,
+@@ -69,9 +70,12 @@ const inputSchema = {
+   ],
+ };
+ 
++inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
++delete inputSchema.allOf;
++
+ const inspectContract = {
+   name: "agdf_inspect",
+-  description: "Read-only: gate-check -> operation-contract module=agdf_prepare/presentation.prepare -> catalog read_arguments -> presentation-document/next_cursor.",
++  description: "Read-only. Start gate-check with language, cwd, target pair and Run; omit gate/module. Use navigation.next_calls sequentially; read every document page.",
+   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+   inputSchema,
+   outputSchema: {
+@@ -103,10 +107,7 @@ const inspectContract = {
+   },
+ };
+ 
+-// Detailed result semantics remain owned here. The discovered tool advertises the
+-// bounded envelope; repeating every forwarding branch in each model session is
+-// unnecessary. Both declarations derive from this same contract, without a
+-// second evaluator or a larger discovery budget.
++// Core retains full result validation; discovery advertises the bounded envelope.
+ export const CONTROL_INSPECT_OUTPUT_SCHEMA = deepFreeze(inspectContract.outputSchema);
+ export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
+   ...inspectContract,
+@@ -134,7 +135,7 @@ export function inspectContractHelp() {
+     examples: [ { ...base, operation: 'gate-check' },
+       { ...base, operation: 'operation-contract', module: PRESENTATION_CATALOG_MODULE, expected_revision_id: revision, gate: 'UR' },
+       { ...base, operation: 'presentation-document', expected_revision_id: revision, gate: 'UR', presentation_id: '00000000-0000-4000-8000-000000000002', target_id: `sha256:${'0'.repeat(64)}` } ],
+-    provenance: 'Keep exact conversation bindings. Otherwise use catalog read_arguments only after unique complete discovery or explicit selection. Document revision is original, not current. Prepared is not human-viewed or approved. Other modules reject catalog cursors.',
++    provenance: 'Preserve exact conversation bindings; otherwise require unique complete catalog discovery or explicit selection. Reads keep original revisions. Prepared proves neither viewing nor approval. Catalog cursors require the catalog module.',
+     catalog_limits: { page_candidates: 16, record_files: 256, record_bytes: 1048576, directory_entries: 1024 },
+   });
+ }
+@@ -172,13 +173,7 @@ export function parseControlInspectFunctionArguments(argumentsValue, trustedCont
+     targetSource: argumentsValue.target_source,
+     primaryTarget: argumentsValue.primary_target,
+     runId: argumentsValue.run_id,
+-    ...(argumentsValue.gate !== undefined ? { gate: argumentsValue.gate } : {}),
+-    ...(argumentsValue.expected_revision_id !== undefined ? { expectedRevisionId: argumentsValue.expected_revision_id } : {}),
+-    ...(argumentsValue.presentation_id !== undefined ? { presentationId: argumentsValue.presentation_id } : {}),
+-    ...(argumentsValue.target_id !== undefined ? { targetId: argumentsValue.target_id } : {}),
+-    ...(argumentsValue.cursor !== undefined ? { cursor: argumentsValue.cursor } : {}),
+-    ...(argumentsValue.variant !== undefined ? { variant: argumentsValue.variant } : {}),
+-    ...(argumentsValue.module !== undefined ? { contractModule: argumentsValue.module } : {}),
++    ...Object.fromEntries(Object.entries(selectorKeys).filter(([field]) => argumentsValue[field] !== undefined).map(([field, key]) => [key, argumentsValue[field]])),
+     ...(argumentsValue.all_active !== undefined ? { allActive: argumentsValue.all_active } : {}),
+     surface: trustedContext.surface,
+     expectedVersion: trustedContext.expectedVersion,
+@@ -186,8 +181,7 @@ export function parseControlInspectFunctionArguments(argumentsValue, trustedCont
+   });
+ }
+ 
+-// Normalizes a raw inspect input with the dispatcher's language and target rules and the shared
+-// read-selection rules. Throws SkillDispatchInputError or ReadSelectionError; both carry `field`.
++// Shared language, target and read-selection rules; errors carry the invalid field.
+ export function normalizeControlInspectInput(input) {
+   const operation = requireText(input.operation, "operation", 64);
+   if (!CONTROL_INSPECT_OPERATIONS.includes(operation)) throw new SkillDispatchInputError("operation", `Unsupported inspect operation: ${operation}`);
+@@ -240,7 +234,6 @@ export function normalizeControlInspectInput(input) {
+     contractModule: input.contractModule,
+     variant: input.variant,
+   });
+-  const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule' };
+   for (const [field, key] of Object.entries(selectorKeys)) {
+     if (input[key] !== undefined && !fieldModel[field].operations.includes(operation)) throw new SkillDispatchInputError(field, `Unsupported selector for ${operation}`);
+   }
+@@ -269,8 +262,7 @@ export { ReadSelectionError };
+ 
+ export const CONTROL_INSPECT_OUTPUT_TOO_LARGE_RECOVERY = "The inspect result exceeds the 1 MiB MCP output limit. Narrow the selection (one run_id instead of all_active) or use the CLI with --json.";
+ 
+-// Same 1 MiB ceiling as the dispatcher, but the fallback keeps the inspect result shape so the host
+-// receives a schema-valid recovery instead of a schema error.
++// Preserve the result envelope when enforcing the shared 1 MiB output ceiling.
+ export function serializeControlInspectResult(result) {
+   const output = JSON.stringify(result, null, 2);
+   if (Buffer.byteLength(output, "utf8") <= SKILL_DISPATCH_MAX_OUTPUT_BYTES) return output;
+diff --git a/packages/core/lib/control-inspect/service.js b/packages/core/lib/control-inspect/service.js
+index a8cf665d..689c943a 100644
+--- a/packages/core/lib/control-inspect/service.js
++++ b/packages/core/lib/control-inspect/service.js
+@@ -8,7 +8,7 @@ import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTa
+ import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
+ import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
+ import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, PRESENTATION_CATALOG_MODULE } from "./contract.js";
+-import { operationContract } from '../control-state/run-command-contract.js';
++import { RUN_COMMAND_DESCRIPTORS, operationContract } from '../control-state/run-command-contract.js';
+ import { inspectRunOperation } from '../control-state/run-operation-status.js';
+ import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
+ import { readRunState } from '../control-evaluation/run-state.js';
+@@ -22,11 +22,8 @@ import { sourceRevisionBoundary } from '../control-state/run-revision-boundary.j
+ import { sourceRevisionQualityFacts } from '../control-state/run-source-revisions.js';
+ import { readHistoryBytes } from '../control-state/run-revision-history.js';
+ 
+-// The MCP read tool is a projection over the existing evaluators. It calls exactly the functions the
+-// CLI handlers call and returns their --json report. Draft preflight additionally composes those
+-// existing content validators through its read-only Core owner; it adds no CLI command. It never writes,
+-// never selects a run on its own and never prepares an approval binding. Evaluators run with the
+-// dispatcher's dependency set: no git child process, so verified_change git observation is absent.
++// Read-only projection of canonical CLI evaluators and Core validators. It never
++// writes, selects a Run or prepares approval. Git observations are unavailable.
+ 
+ const defaultNow = () => process.hrtime.bigint();
+ const milliseconds = (start, end) => Number(end - start) / 1_000_000;
+@@ -200,7 +197,7 @@ export function createControlInspectService(dependencies = {}) {
+         return bindHostAction(result);
+       }
+       const controlStarted = now();
+-      const { report, presentation, invalidModule } = stage(DISPATCH_RECOVERY.control_evaluation_failed, () => {
++      const { report, presentation, invalidModule, navigation } = stage(DISPATCH_RECOVERY.control_evaluation_failed, () => {
+         validateControlReadBoundary?.(target.governance_target);
+         const selection = {
+           ...(input.run_id ? { runId: input.run_id } : {}),
+@@ -270,7 +267,27 @@ export function createControlInspectService(dependencies = {}) {
+           case "gate-check": {
+             const evaluate = () => gateCheck(target.governance_target, { ...selection, presentationLanguage: input.presentation_language });
+             const evaluated = evaluate();
+-            return { report: evaluated, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
++            let navigation;
++            // Optional hints never replace the canonical report.
++            try {
++              if (input.run_id && input.target_source && input.primary_target && evaluated.status_card?.run_id === input.run_id) {
++                const revisionId = evaluated.status_card.runState?.meta?.revision_id;
++                const targetId = resolveControlCommandTarget(target.governance_target).target_id;
++                const common = Object.fromEntries(['presentation_language', 'working_directory', 'target_source', 'primary_target', 'run_id'].map(key => [key, input[key]]));
++                common.expected_revision_id = revisionId;
++                const catalog = readPresentationCatalog(target.governance_target, { runId: input.run_id, revisionId, targetId,
++                  gate: evaluated.current_gate, workingDirectory: input.working_directory, targetSource: input.target_source,
++                  primaryTarget: input.primary_target, language: input.presentation_language });
++                const kind = evaluated.next_operation?.operation_key;
++                const group = RUN_COMMAND_DESCRIPTORS[kind]?.group;
++                const nextCalls = catalog.state !== 'unavailable' && group ? [{ tool: 'agdf_inspect', arguments: {
++                  operation: 'operation-contract', ...common, module: `${group}/${kind}` } }] : [];
++                if (catalog.state === 'unique' && catalog.complete_scan && catalog.page_complete)
++                  nextCalls.push({ tool: 'agdf_inspect', arguments: catalog.candidates[0].read_arguments });
++                navigation = { presentation_catalog: catalog, next_calls: nextCalls };
++              }
++            } catch { /* Advisory navigation unavailable. */ }
++            return { report: evaluated, navigation, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
+           }
+           case "delivery-map": {
+             const evaluated = deliveryMap(target.governance_target, selection, deliveryMapDependencies);
+@@ -299,6 +316,7 @@ export function createControlInspectService(dependencies = {}) {
+       result.target = target;
+       result.report = report;
+       result.presentation = presentation;
++      if (navigation) result.navigation = navigation;
+       timing.total_ms = round(milliseconds(started, now()));
+       return bindHostAction(result);
+     } catch (error) {
+diff --git a/packages/mcp-server/test/protocol.test.js b/packages/mcp-server/test/protocol.test.js
+index d115c252..0feaf7d9 100644
+--- a/packages/mcp-server/test/protocol.test.js
++++ b/packages/mcp-server/test/protocol.test.js
+@@ -1,5 +1,10 @@
+ import assert from "node:assert/strict";
+-import { readFileSync, rmSync, writeFileSync } from "node:fs";
++import { createHash } from 'node:crypto';
++import { spawnSync } from 'node:child_process';
++import { join } from 'node:path';
++import { buildFixture, writeEvidenceNote, CLI } from '../../../evals/mcp-ergonomics/lib/fixtures.js';
++import { createCoreServices } from '../../core/lib/index.js';
++import { readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+ import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
+ import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from "../../cli/lib/mcp-dispatch-runtime.js";
+ import {
+@@ -9,6 +14,103 @@ import {
+ } from "../../cli/scripts/fixtures/skill-dispatch-language.js";
+ import { unresolvedArguments, withStdioClient } from "./helpers.js";
+ 
++// Execute the Core-returned arguments through both negotiated SDK transports.
++async function assertGuidedInspection(client) {
++  const fixture = buildFixture('F3');
++  const base = { presentation_language: 'de', working_directory: fixture.root,
++    target_source: 'explicit_target', primary_target: fixture.root, run_id: fixture.runId };
++  const call = async (args, unavailable = false) => {
++    const response = await client.callTool({ name: 'agdf_inspect', arguments: args });
++    assert.equal(response.isError, unavailable ? true : undefined, JSON.stringify(response));
++    assert.equal(response.structuredContent.outcome, 'inspect_result');
++    assert.equal(response.structuredContent.authorizes, false);
++    return response.structuredContent;
++  };
++  const read = () => call({ ...base, operation: 'gate-check' });
++  const snapshot = () => {
++    const rows = [];
++    const visit = (directory) => { for (const entry of readdirSync(directory, { withFileTypes: true })) {
++      const path = join(directory, entry.name);
++      if (entry.isDirectory()) visit(path);
++      else rows.push([path, createHash('sha256').update(readFileSync(path)).digest('hex')]);
++    } };
++    visit(join(fixture.root, '.agdf/control')); return rows.sort();
++  };
++  try {
++    const before = snapshot();
++    const first = await read(); const navigation = first.navigation;
++    assert.equal(navigation.presentation_catalog.state, 'unique');
++    assert.equal(navigation.presentation_catalog.requested_gate, first.report.current_gate, 'discovery discloses current-gate scope');
++    assert.equal(navigation.presentation_catalog.complete_scan, true);
++    assert.equal(navigation.presentation_catalog.page_complete, true);
++    assert.equal(navigation.next_calls.length, 2);
++    for (const next of navigation.next_calls) {
++      assert.equal(next.tool, 'agdf_inspect');
++      assert.equal((await call(next.arguments)).report.available, true);
++    }
++    const document = navigation.next_calls.find(next => next.arguments.operation === 'presentation-document').arguments;
++    for (const override of [
++      { expected_revision_id: '00000000-0000-4000-8000-000000000000' },
++      { target_id: `sha256:${'0'.repeat(64)}` }, { gate: 'PRD' }, { run_id: 'foreign-run' },
++    ]) assert.notEqual((await call({ ...document, ...override }, true)).report.available, true);
++    const unbound = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'gate-check', presentation_language: 'de', working_directory: fixture.root, run_id: fixture.runId } });
++    assert.equal(unbound.structuredContent.navigation, undefined, 'working directory never supplies target authority');
++    assert.equal(unbound.structuredContent.authorizes, false);
++    assert.deepEqual(snapshot(), before, 'all reads preserve every control byte');
++
++    const second = spawnSync(process.execPath, [CLI, 'run-present', '--dir', fixture.root,
++      '--run', fixture.runId, '--revision', fixture.revision(), '--gate', 'UR', '--language', 'de', '--json'], { encoding: 'utf8' });
++    assert.equal(second.status, 0, second.stdout + second.stderr);
++    const ambiguousBefore = snapshot();
++    const ambiguous = (await read()).navigation;
++    assert.equal(ambiguous.presentation_catalog.state, 'ambiguous');
++    assert.equal(ambiguous.next_calls.some(next => next.arguments.operation === 'presentation-document'), false);
++    assert.equal((await call(document)).report.available, true, 'exact conversation binding remains readable despite ambiguous discovery');
++    assert.deepEqual(snapshot(), ambiguousBefore);
++
++    fixture.restore();
++    rmSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'presentations'), { recursive: true });
++    const missingBefore = snapshot(); const missing = (await read()).navigation;
++    assert.equal(missing.presentation_catalog.state, 'none');
++    assert.equal(missing.next_calls.some(next => next.arguments.operation === 'presentation-document'), false);
++    assert.deepEqual(snapshot(), missingBefore, 'missing documents are never prepared by a read');
++
++    fixture.restore();
++    writeFileSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'presentations', `${fixture.presentationId}.json`), '{}');
++    const corruptBefore = snapshot(); const corrupt = (await read()).navigation;
++    assert.equal(corrupt.presentation_catalog.state, 'unavailable');
++    assert.deepEqual(corrupt.next_calls, []);
++    assert.deepEqual(snapshot(), corruptBefore);
++
++    fixture.restore(); const original = fixture.revision();
++    const common = { schema_version: '1', ...base, target_id: fixture.targetId,
++      expected_revision_id: original, assurance: 'cooperative_local' };
++    const source = writeEvidenceNote(fixture, 'ADDITIONAL.md', '# Additional evidence\n\nSynthetic check passed.\n');
++    const record = createCoreServices().command('agdf_record', { ...common,
++      operation_id: '00000000-0000-4000-8000-000000000001', command: { kind: 'step.record',
++        payload: { step: 'evidence', source, reason: 'Synthetic check passed', covers: 'UR' } } });
++    assert.equal(record.outcome, 'accepted', record.reason);
++    const current = fixture.revision(); assert.notEqual(current, original);
++    const historicalBefore = snapshot(); const historical = (await read()).navigation;
++    assert.equal(historical.presentation_catalog.state, 'unique');
++    assert.equal(historical.presentation_catalog.candidates[0].applicability, 'historical');
++    const historicalDocument = historical.next_calls.find(next => next.arguments.operation === 'presentation-document');
++    const currentContract = historical.next_calls.find(next => next.arguments.operation === 'operation-contract');
++    assert.equal(historicalDocument.arguments.expected_revision_id, original);
++    assert.equal(currentContract.arguments.expected_revision_id, current);
++    assert.equal((await call(historicalDocument.arguments)).report.applicability, 'historical');
++    assert.equal((await call(currentContract.arguments)).report.available, true);
++    for (const [index, revision] of [original, current].entries()) {
++      const rejected = await client.callTool({ name: 'agdf_approve', arguments: { ...common,
++        expected_revision_id: revision, operation_id: `00000000-0000-4000-8000-00000000000${index + 2}`,
++        command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: fixture.presentationId, response: 'Approval: UR' } } } });
++      assert.equal(rejected.structuredContent.outcome, 'rejected', 'historical reads never renew approval authority');
++    }
++    assert.equal(fixture.revision(), current);
++    assert.deepEqual(snapshot(), historicalBefore, 'rejected approvals and historical reads do not mutate control');
++  } finally { fixture.dispose(); }
++}
++
+ for (const modern of [false, true]) {
+   await withStdioClient({ modern }, async (client) => {
+     const protocol = modern ? "2026-07-28" : "2025-11-25";
+@@ -34,6 +136,7 @@ for (const modern of [false, true]) {
+     for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.description?.length > 10);
+     assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
+     assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
++    await assertGuidedInspection(client);
+     const draft = artifactReadinessFixture();
+     try {
+       writeFileSync(draft.path, readyPrd);

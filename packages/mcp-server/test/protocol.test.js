@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
-import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { join } from 'node:path';
+import { buildFixture, writeEvidenceNote, CLI } from '../../../evals/mcp-ergonomics/lib/fixtures.js';
+import { createCoreServices } from '../../core/lib/index.js';
+import { readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
 import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from "../../cli/lib/mcp-dispatch-runtime.js";
 import {
@@ -8,6 +13,103 @@ import {
   argumentsForLanguageCase,
 } from "../../cli/scripts/fixtures/skill-dispatch-language.js";
 import { unresolvedArguments, withStdioClient } from "./helpers.js";
+
+// Execute the Core-returned arguments through both negotiated SDK transports.
+async function assertGuidedInspection(client) {
+  const fixture = buildFixture('F3');
+  const base = { presentation_language: 'de', working_directory: fixture.root,
+    target_source: 'explicit_target', primary_target: fixture.root, run_id: fixture.runId };
+  const call = async (args, unavailable = false) => {
+    const response = await client.callTool({ name: 'agdf_inspect', arguments: args });
+    assert.equal(response.isError, unavailable ? true : undefined, JSON.stringify(response));
+    assert.equal(response.structuredContent.outcome, 'inspect_result');
+    assert.equal(response.structuredContent.authorizes, false);
+    return response.structuredContent;
+  };
+  const read = () => call({ ...base, operation: 'gate-check' });
+  const snapshot = () => {
+    const rows = [];
+    const visit = (directory) => { for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else rows.push([path, createHash('sha256').update(readFileSync(path)).digest('hex')]);
+    } };
+    visit(join(fixture.root, '.agdf/control')); return rows.sort();
+  };
+  try {
+    const before = snapshot();
+    const first = await read(); const navigation = first.navigation;
+    assert.equal(navigation.presentation_catalog.state, 'unique');
+    assert.equal(navigation.presentation_catalog.requested_gate, first.report.current_gate, 'discovery discloses current-gate scope');
+    assert.equal(navigation.presentation_catalog.complete_scan, true);
+    assert.equal(navigation.presentation_catalog.page_complete, true);
+    assert.equal(navigation.next_calls.length, 2);
+    for (const next of navigation.next_calls) {
+      assert.equal(next.tool, 'agdf_inspect');
+      assert.equal((await call(next.arguments)).report.available, true);
+    }
+    const document = navigation.next_calls.find(next => next.arguments.operation === 'presentation-document').arguments;
+    for (const override of [
+      { expected_revision_id: '00000000-0000-4000-8000-000000000000' },
+      { target_id: `sha256:${'0'.repeat(64)}` }, { gate: 'PRD' }, { run_id: 'foreign-run' },
+    ]) assert.notEqual((await call({ ...document, ...override }, true)).report.available, true);
+    const unbound = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'gate-check', presentation_language: 'de', working_directory: fixture.root, run_id: fixture.runId } });
+    assert.equal(unbound.structuredContent.navigation, undefined, 'working directory never supplies target authority');
+    assert.equal(unbound.structuredContent.authorizes, false);
+    assert.deepEqual(snapshot(), before, 'all reads preserve every control byte');
+
+    const second = spawnSync(process.execPath, [CLI, 'run-present', '--dir', fixture.root,
+      '--run', fixture.runId, '--revision', fixture.revision(), '--gate', 'UR', '--language', 'de', '--json'], { encoding: 'utf8' });
+    assert.equal(second.status, 0, second.stdout + second.stderr);
+    const ambiguousBefore = snapshot();
+    const ambiguous = (await read()).navigation;
+    assert.equal(ambiguous.presentation_catalog.state, 'ambiguous');
+    assert.equal(ambiguous.next_calls.some(next => next.arguments.operation === 'presentation-document'), false);
+    assert.equal((await call(document)).report.available, true, 'exact conversation binding remains readable despite ambiguous discovery');
+    assert.deepEqual(snapshot(), ambiguousBefore);
+
+    fixture.restore();
+    rmSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'presentations'), { recursive: true });
+    const missingBefore = snapshot(); const missing = (await read()).navigation;
+    assert.equal(missing.presentation_catalog.state, 'none');
+    assert.equal(missing.next_calls.some(next => next.arguments.operation === 'presentation-document'), false);
+    assert.deepEqual(snapshot(), missingBefore, 'missing documents are never prepared by a read');
+
+    fixture.restore();
+    writeFileSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'presentations', `${fixture.presentationId}.json`), '{}');
+    const corruptBefore = snapshot(); const corrupt = (await read()).navigation;
+    assert.equal(corrupt.presentation_catalog.state, 'unavailable');
+    assert.deepEqual(corrupt.next_calls, []);
+    assert.deepEqual(snapshot(), corruptBefore);
+
+    fixture.restore(); const original = fixture.revision();
+    const common = { schema_version: '1', ...base, target_id: fixture.targetId,
+      expected_revision_id: original, assurance: 'cooperative_local' };
+    const source = writeEvidenceNote(fixture, 'ADDITIONAL.md', '# Additional evidence\n\nSynthetic check passed.\n');
+    const record = createCoreServices().command('agdf_record', { ...common,
+      operation_id: '00000000-0000-4000-8000-000000000001', command: { kind: 'step.record',
+        payload: { step: 'evidence', source, reason: 'Synthetic check passed', covers: 'UR' } } });
+    assert.equal(record.outcome, 'accepted', record.reason);
+    const current = fixture.revision(); assert.notEqual(current, original);
+    const historicalBefore = snapshot(); const historical = (await read()).navigation;
+    assert.equal(historical.presentation_catalog.state, 'unique');
+    assert.equal(historical.presentation_catalog.candidates[0].applicability, 'historical');
+    const historicalDocument = historical.next_calls.find(next => next.arguments.operation === 'presentation-document');
+    const currentContract = historical.next_calls.find(next => next.arguments.operation === 'operation-contract');
+    assert.equal(historicalDocument.arguments.expected_revision_id, original);
+    assert.equal(currentContract.arguments.expected_revision_id, current);
+    assert.equal((await call(historicalDocument.arguments)).report.applicability, 'historical');
+    assert.equal((await call(currentContract.arguments)).report.available, true);
+    for (const [index, revision] of [original, current].entries()) {
+      const rejected = await client.callTool({ name: 'agdf_approve', arguments: { ...common,
+        expected_revision_id: revision, operation_id: `00000000-0000-4000-8000-00000000000${index + 2}`,
+        command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: fixture.presentationId, response: 'Approval: UR' } } } });
+      assert.equal(rejected.structuredContent.outcome, 'rejected', 'historical reads never renew approval authority');
+    }
+    assert.equal(fixture.revision(), current);
+    assert.deepEqual(snapshot(), historicalBefore, 'rejected approvals and historical reads do not mutate control');
+  } finally { fixture.dispose(); }
+}
 
 for (const modern of [false, true]) {
   await withStdioClient({ modern }, async (client) => {
@@ -34,6 +136,7 @@ for (const modern of [false, true]) {
     for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.description?.length > 10);
     assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
     assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+    await assertGuidedInspection(client);
     const draft = artifactReadinessFixture();
     try {
       writeFileSync(draft.path, readyPrd);

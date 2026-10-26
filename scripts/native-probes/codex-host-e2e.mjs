@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { runGuardedCohort, verifyGuardedWorker, recordGuardedSession } from './lib/codex-command-guard.mjs';
 import { mcpCalls as capturedCodexCalls } from './lib/codex-trace.mjs';
 // Host end-to-end check for AGDF under Codex with exactly one recorded tuple:
 // host version, model, discovery, one agdf_dispatch call, one defined failure case and removal.
@@ -57,8 +58,14 @@ if (args.includes('--command-task')) {
   const plan = { task: 'T7', sessions: 2, repetitions: 2, model, reasoning_effort: 'low', timeout_ms: 600000,
     additional_api_spend_authorized_usd: 0, auth: 'existing_chatgpt_account', credential_copy: false, plugin_install: false, executes: false };
   if (args.includes('--dry-run')) console.log(JSON.stringify(plan));
-  else if (args.includes('--preflight-only')) await runFocusedTask(model, process.env.CODEX_BIN || 'codex', { commandTask: true, preflightOnly: true });
+  else if (!process.env.AGDF_T7_GUARD_WORKER) {
+    const candidate = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+    const result = await runGuardedCohort({ candidate, entry: fileURLToPath(import.meta.url), args });
+    console.log(JSON.stringify({ cohort: result })); process.exitCode = result.exit_code;
+  }
+  else if (args.includes('--preflight-only')) { verifyGuardedWorker(resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')); await runFocusedTask(model, process.env.CODEX_BIN || 'codex', { commandTask: true, preflightOnly: true }); }
   else {
+    verifyGuardedWorker(resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'));
     for (let repetition = 1; repetition <= 2; repetition++) {
       const report = await runFocusedTask(model, process.env.CODEX_BIN || 'codex', { commandTask: true, repetition });
       if (!report.infrastructure_ok) break;
@@ -368,16 +375,8 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
   for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.once(signal, onSignal);
   try {
     if (commandTask) {
-      // --ignore-user-config controls loading, not every host-owned write.
-      // Enforce the approved immutable settings boundary for preflight and exec;
-      // normal account/session files remain owned by Codex. No fallback guard.
-      if (process.platform !== 'darwin' || !existsSync('/usr/bin/sandbox-exec')) throw Error('CONFIG_WRITE_GUARD_UNAVAILABLE');
-      const files = ['config.toml', 'plugins/installed_plugins.json', 'plugins/known_marketplaces.json'];
-      const policy = `(version 1)\n(allow default)\n(deny file-write* ${files.map(file => `(literal ${JSON.stringify(join(realpathSync(personalHome), file))})`).join(' ')})\n`;
-      const policyPath = join(taskWork, 'immutable-settings.sb');
-      writeFileSync(policyPath, policy, { mode: 0o600 });
-      hostExecutable = '/usr/bin/sandbox-exec'; hostPrefix = ['-f', policyPath, executable];
-      report.host_guard = { owner: 'macos_sandbox_exec', immutable_settings: files, policy_digest: createHash('sha256').update(policy).digest('hex') };
+      // The whole T7 worker cohort already inherits one combined OS profile.
+      report.host_guard = verifyGuardedWorker(taskRepo).controls;
     }
     // No credential value is included in output. The fresh isolated login must
     // confirm account auth; API-key fallback is disabled in config and environment.
@@ -452,16 +451,18 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
     }
     if (preflightOnly) { report.preflight_only = true; report.preflight_status = 'pass'; report.infrastructure_ok = true; return report; }
     // This is the only model invocation in this mode. It is never retried/resumed.
+    if (commandTask) recordGuardedSession(taskRepo, 'attempted');
     ++report.session_invocations;
     const sessionStarted = performance.now();
     const output = await new Promise((resolveSession, rejectSession) => {
-      const child = spawn(hostExecutable, [...hostPrefix, ...argv], { cwd: fixture.root, env: taskEnv, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
-      const kill = signal => { try { if (process.platform !== 'win32') process.kill(-child.pid, signal); else child.kill(signal); } catch {} };
+      const child = spawn(hostExecutable, [...hostPrefix, ...argv], { cwd: fixture.root, env: taskEnv, detached: !commandTask && process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
+      const kill = signal => { try { if (!commandTask && process.platform !== 'win32') process.kill(-child.pid, signal); else child.kill(signal); } catch {} };
       let stdout = '', stderr = '', timedOut = false, bytes = 0;
       session = { kill };
       const timer = setTimeout(() => { timedOut = true; kill('SIGKILL'); }, report.timeout_ms);
       const collect = stream => data => { bytes += data.length; if (bytes > 64 * 1024 * 1024) kill('SIGKILL'); else if (stream === 'stdout') stdout += data; else stderr += data; };
       child.stdout.on('data', collect('stdout')); child.stderr.on('data', collect('stderr'));
+      if (commandTask) child.once('spawn', () => recordGuardedSession(taskRepo, 'executed', child.pid));
       child.once('error', error => { clearTimeout(timer); rejectSession(error); });
       child.once('close', code => { clearTimeout(timer); session = null; resolveSession({ code, stdout, stderr, timedOut, output_limit: bytes > 64 * 1024 * 1024 }); });
     });

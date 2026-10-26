@@ -1,0 +1,167 @@
+
+> create-agdf@0.20.1 test:run-command-flow
+> node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/decision-content-test.js ../core/test/run-command-contract-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js ../core/test/approval-chain-defects-test.js ../core/test/review-findings-correction-test.js && node ../core/test/preview-material-test.js && node ../core/test/preview-render-test.js && node ../core/test/preview-presentation-test.js && node ../core/test/preview-session-test.js
+
+TAP version 13
+# Approval-chain defects D1, D2 and D4 regressions passed.
+# Subtest: ../core/test/approval-chain-defects-test.js
+ok 1 - ../core/test/approval-chain-defects-test.js
+  ---
+  duration_ms: 40294.028697
+  type: 'test'
+  ...
+# Approval v3 journal: 22 actual child-process interruption points, identical original-command recovery/replay, one receipt and changed-envelope rejection passed; no power-loss claim.
+# Subtest: ../core/test/approval-command-recovery-test.js
+ok 2 - ../core/test/approval-command-recovery-test.js
+  ---
+  duration_ms: 26394.104174
+  type: 'test'
+  ...
+# Private facade qualification/groups, inert comments, exact replay/conflict, unknown acknowledgement and actual opposed text/App processes passed (24420 definition bytes; synthetic targets only).
+# Subtest: ../core/test/decision-action-test.js
+ok 3 - ../core/test/decision-action-test.js
+  ---
+  duration_ms: 43995.602018
+  type: 'test'
+  ...
+# Closed authored-content contexts, field-local placeholder boundaries, current source/localization and historical/read-only limits passed.
+# Actual UR registration/replacement writer projection, custom preservation and read-only missing-content recovery passed (synthetic only).
+# Subtest: ../core/test/decision-content-test.js
+ok 4 - ../core/test/decision-content-test.js
+  ---
+  duration_ms: 1589.88341
+  type: 'test'
+  ...
+# Private qualification tuple/evidence containment, exact host/candidate/hash binding and unknown/missing/tampered/symlink rejection passed (synthetic contract only).
+# Subtest: ../core/test/decision-qualification-test.js
+ok 5 - ../core/test/decision-qualification-test.js
+  ---
+  duration_ms: 237.569896
+  type: 'test'
+  ...
+# Existing early PRD boundary, concrete confirmation, immutable exact archive, replay/conflict and v3 pre/post-commit process recovery passed (synthetic only).
+# Subtest: ../core/test/early-prd-command-test.js
+ok 6 - ../core/test/early-prd-command-test.js
+  ---
+  duration_ms: 40680.129493
+  type: 'test'
+  ...
+# Exact current/superseded/unknown evidence associations, immutable archive reads, writer guards and orphan rejection passed (synthetic only).
+# Subtest: ../core/test/evidence-bindings-test.js
+ok 7 - ../core/test/evidence-bindings-test.js
+  ---
+  duration_ms: 12102.056824
+  type: 'test'
+  ...
+# Shared material-version rejection/change guard, inert comments, replay/conflict, renewed material, exact approval and historical presentation passed (synthetic only).
+# Subtest: ../core/test/presentation-decision-test.js
+ok 8 - ../core/test/presentation-decision-test.js
+  ---
+  duration_ms: 9244.747697
+  type: 'test'
+  ...
+# Bound immutable document chunks, UTF-8 boundaries, exact-byte digest, shared Inspect projection and tamper/symlink approval denial passed (synthetic only).
+# Subtest: ../core/test/presentation-document-test.js
+ok 9 - ../core/test/presentation-document-test.js
+  ---
+  duration_ms: 8418.80764
+  type: 'test'
+  ...
+# QA deviations: de/en Chat and assembled decision-session parity, one-effect/legacy guards, immutable report and UAT disclosure, exact revision archive, approved-update rejection, truthful OR closeout, refresh and stale/critical/malformed negatives passed (disposable only; no native qualification).
+# Subtest: ../core/test/qa-deviation-acceptance-test.js
+ok 10 - ../core/test/qa-deviation-acceptance-test.js
+  ---
+  duration_ms: 18236.795375
+  type: 'test'
+  ...
+# Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+# Subtest: ../core/test/quick-closeout-command-test.js
+ok 11 - ../core/test/quick-closeout-command-test.js
+  ---
+  duration_ms: 6844.406187
+  type: 'test'
+  ...
+# Shared report-result compatibility, consistent duplicates, aliases, lifecycle metadata and conflict/unknown/missing refusal passed (19 cases).
+# Authored report contexts and code/quote/HTML exclusion passed (139 context cases, 6 internal cases, canonical template and default-domain check).
+# Subtest: ../core/test/report-decision-test.js
+ok 12 - ../core/test/report-decision-test.js
+  ---
+  duration_ms: 255.945331
+  type: 'test'
+  ...
+# Review finding detection and OR correction (D5) passed.
+# Subtest: ../core/test/review-findings-correction-test.js
+ok 13 - ../core/test/review-findings-correction-test.js
+  ---
+  duration_ms: 44084.031194
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-command-test.js
+ok 14 - ../core/test/run-closeout-command-test.js
+  ---
+  duration_ms: 52319.299721
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-slice-test.js
+ok 15 - ../core/test/run-closeout-slice-test.js
+  ---
+  duration_ms: 52624.481202
+  type: 'test'
+  ...
+# Bounded command schema/groups, side-effect annotations, accessor/injection rejection and generated definition budgets passed (23254 bytes; facade not yet included).
+# Expanded/compact SDK parity (70 cases), direct field help, five output schemas and legitimate/malformed result variants passed.
+# Subtest: ../core/test/run-command-contract-test.js
+ok 16 - ../core/test/run-command-contract-test.js
+  ---
+  duration_ms: 586.219842
+  type: 'test'
+  ...
+# Shared revision preview, exact confirmation boundary, original receipt/archive and immutable historical request replay passed (synthetic only).
+# Subtest: ../core/test/run-command-revision-test.js
+ok 17 - ../core/test/run-command-revision-test.js
+  ---
+  duration_ms: 57950.699746
+  type: 'test'
+  ...
+# Shared service target/group confinement, source recording, historical replay/conflict and post-dispatch lost-result acknowledgement passed (synthetic only).
+# Actual English UAT over German defaults: bound locale for text/native approval, replay and rejection observation; protected sources unchanged.
+# Subtest: ../core/test/run-command-service-test.js
+ok 18 - ../core/test/run-command-service-test.js
+  ---
+  duration_ms: 17494.079272
+  type: 'test'
+  ...
+# SCN-004: English/German/misleading display wording leaves full reader and writer policy unchanged; missing prerequisite changes eligibility; stale write rejected without mutation.
+# Shared full-state/writer renewal, bounded internal recording/replay, invalid completion and shared criteria grammar passed (synthetic only).
+# Subtest: ../core/test/run-flow-coherence-test.js
+ok 19 - ../core/test/run-flow-coherence-test.js
+  ---
+  duration_ms: 22361.952777
+  type: 'test'
+  ...
+# Strict v3 owned-output process interruption, pre-commit rollback, post-commit forward recovery, receipt replay and interference rejection passed (no power-loss claim).
+# Subtest: ../core/test/run-owned-output-recovery-test.js
+ok 20 - ../core/test/run-owned-output-recovery-test.js
+  ---
+  duration_ms: 30908.85372
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 486646.209549
+SCN-023: descriptor bytes, file count, per-file and total raw-byte exact boundaries passed.
+SCN-001/006/007: real preview requirement/descriptor/source/file and containment checks passed.
+CR-001/002: bounded acyclic CSS expansion, imported relative images and distinct inline styles passed.
+SCN-019/023: isolated shipped parser closure and exact 2 MiB safe-output boundary passed.
+SCN-003/008/023: static resources, binary embedding, CSP, unsupported syntax, cycles and encoding checks passed.
+SCN-012/027: actual early PRD revision archives v5 files/chunks, ignores later live history changes, renews presentation and rejects old replies; native facade approval/replay passed.
+SCN-009/010/011/015/018/021/025/030: exact preview preparation, interruption, actual approval denial/race, receipt and current proof passed (synthetic runs).
+SCN-004/013/020/026: exact selectors, actual session/Inspect UTF-8 chunk assembly, source denial, retirement and expiry passed (synthetic session).

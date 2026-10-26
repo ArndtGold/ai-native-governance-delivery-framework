@@ -14,7 +14,7 @@ import { ALL_ACTIVE_OPERATIONS, VARIANT_OPERATION, MODULE_OPERATION, CONTROL_INS
 
 export const CONTROL_INSPECT_SCHEMA_VERSION = "1";
 export const CONTROL_INSPECT_CONTRACT_VERSION = 1;
-// Every byte of this definition is loaded into every session on every host (SDD-005).
+// Shared discovery budget across hosts (SDD-005).
 export const CONTROL_INSPECT_MAX_DEFINITION_BYTES = 5000;
 export const OPERATION_CONTRACT_MODULES = Object.freeze(Object.entries(RUN_COMMAND_GROUPS)
   .flatMap(([group, kinds]) => kinds.map(kind => `${group}/${kind}`)));
@@ -25,28 +25,29 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
-// One field model supplies discovery, applicability guards and on-demand help.
+// Shared discovery, selector guards and on-demand help.
 export const PRESENTATION_OPERATIONS = Object.freeze(['presentation-document', 'presentation-preview']);
 export const BOUND_INSPECT_OPERATIONS = Object.freeze(['artifact-readiness', 'operation-contract', 'operation-status', 'native-qualification', ...PRESENTATION_OPERATIONS, 'runtime-generations']);
 export const PRESENTATION_CATALOG_MODULE = 'agdf_prepare/presentation.prepare';
 const uuidSchema = { type: 'string', pattern: REVISION_ID_PATTERN.source };
 const cursorSchema = { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$' };
 const fieldModel = {
-  operation: { help: 'Read-only operation; requirements below. Reads never prepare or approve a gate.', schema: { enum: [...CONTROL_INSPECT_OPERATIONS] }, description: 'Read action.' },
-  presentation_language: { help: 'Required BCP47 tag; valid unsupported languages use the complete English pack.', schema: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE }, description: 'Reply BCP47 tag.' },
-  working_directory: { help: 'Absolute execution context; it does not select a target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Absolute context; not target authority.' },
-  target_source: { help: 'explicit_target: directly specified target; continued_target: confirmed continuation; current_repository: unambiguous current repository. Use actual provenance.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Paired target provenance.' },
-  primary_target: { help: 'Confirmed absolute project root, paired with target_source. working_directory never selects the target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Confirmed absolute root.' },
-  run_id: { help: 'Use the named or unambiguously confirmed run; never select by recency.', schema: { type: 'string', pattern: RUN_ID_PATTERN.source }, description: 'Confirmed run.' },
-  gate: { help: 'Use the requested document gate; it is an optional catalog filter, not a selection heuristic. artifact-readiness accepts UR, PRD, SD or TP drafts only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Draft/read gate; catalog filter.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
-  expected_revision_id: { help: 'For bound current-state inspections use the current gate-check revision. For document/preview reads preserve the selected prepared record original revision from catalog read_arguments or the original conversation binding.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
-  presentation_id: { help: 'Use the exact prepared ID from a validated catalog candidate or the existing conversation binding. Never guess a UUID, choose by timestamp, or prepare another presentation to pass a read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
-  target_id: { help: 'Copy binding.target_id from operation-contract or the selected catalog read_arguments; this digest identifies a target and grants no authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Target hash: operation-contract.', operations: PRESENTATION_OPERATIONS },
-  cursor: { help: 'Omit on the first page, then copy next_cursor unchanged. Catalog cursors are accepted only on operation-contract module=agdf_prepare/presentation.prepare. Never exchange document, preview or catalog cursors.', schema: cursorSchema, description: 'Next cursor; omit initially.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract'] },
-  variant: { help: 'gate-check only: status-card or approval-envelope. Neither variant records an approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
-  module: { help: 'contract uses an advertised runtime module; operation-contract uses group/kind; operation-status uses the original operation_id from the saved command receipt, never a newly generated UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
-  all_active: { help: 'Only doctor and delivery-map accept true. False retains the selected-run read behavior.', schema: { type: 'boolean' }, description: 'All runs: doctor/delivery-map.' },
+  operation: { help: 'Read only; never prepare or approve.', schema: { enum: [...CONTROL_INSPECT_OPERATIONS] }, description: 'Read action.' },
+  presentation_language: { help: 'Required BCP47 tag; unsupported valid languages fall back to complete English.', schema: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE }, description: 'Reply BCP47 tag.' },
+  working_directory: { help: 'Absolute context; never selects a target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Context; not target authority.' },
+  target_source: { help: 'Actual provenance: explicit_target = specified; continued_target = confirmed; current_repository = unambiguous.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Requires primary_target.' },
+  primary_target: { help: 'Confirmed absolute root paired with target_source; cwd is not target authority.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Pair: target_source.' },
+  run_id: { help: 'Named or confirmed Run; never select by recency.', schema: { type: 'string', pattern: RUN_ID_PATTERN.source }, description: 'Confirmed run.' },
+  gate: { help: 'Requested document gate or catalog filter, never a selection heuristic. artifact-readiness: UR/PRD/SD/TP only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Document gate. Never with gate-check.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
+  expected_revision_id: { help: 'Bound inspections use current gate-check revision. Document/preview reads preserve the original selected catalog or conversation revision.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
+  presentation_id: { help: 'Exact prepared ID from validated catalog or conversation. Never guess, select by timestamp, or prepare a replacement to read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
+  target_id: { help: 'Copy target hash from operation-contract binding or catalog read_arguments; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Target hash: operation-contract.', operations: PRESENTATION_OPERATIONS },
+  cursor: { help: 'Omit initially; copy next_cursor. Catalog cursors: only operation-contract module=agdf_prepare/presentation.prepare. Never exchange cursor types.', schema: cursorSchema, description: 'Copy next_cursor.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract'] },
+  variant: { help: 'gate-check view only; never records approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
+  module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
+  all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'All runs: doctor/delivery-map.' },
 };
+const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule' };
 const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-status'];
 const inputSchema = {
   type: 'object', additionalProperties: false,
@@ -69,9 +70,12 @@ const inputSchema = {
   ],
 };
 
+inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
+delete inputSchema.allOf;
+
 const inspectContract = {
   name: "agdf_inspect",
-  description: "Read-only: gate-check -> operation-contract module=agdf_prepare/presentation.prepare -> catalog read_arguments -> presentation-document/next_cursor.",
+  description: "Read-only. gate-check: language, cwd, target_source+primary_target, Run; omit gate/module. Follow navigation.next_calls sequentially; read all pages.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema,
   outputSchema: {
@@ -103,10 +107,7 @@ const inspectContract = {
   },
 };
 
-// Detailed result semantics remain owned here. The discovered tool advertises the
-// bounded envelope; repeating every forwarding branch in each model session is
-// unnecessary. Both declarations derive from this same contract, without a
-// second evaluator or a larger discovery budget.
+// Core retains full result validation; discovery advertises the bounded envelope.
 export const CONTROL_INSPECT_OUTPUT_SCHEMA = deepFreeze(inspectContract.outputSchema);
 export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
   ...inspectContract,
@@ -134,7 +135,7 @@ export function inspectContractHelp() {
     examples: [ { ...base, operation: 'gate-check' },
       { ...base, operation: 'operation-contract', module: PRESENTATION_CATALOG_MODULE, expected_revision_id: revision, gate: 'UR' },
       { ...base, operation: 'presentation-document', expected_revision_id: revision, gate: 'UR', presentation_id: '00000000-0000-4000-8000-000000000002', target_id: `sha256:${'0'.repeat(64)}` } ],
-    provenance: 'Keep exact conversation bindings. Otherwise use catalog read_arguments only after unique complete discovery or explicit selection. Document revision is original, not current. Prepared is not human-viewed or approved. Other modules reject catalog cursors.',
+    provenance: 'Preserve exact conversation bindings; otherwise require unique complete catalog discovery or explicit selection. Reads keep original revisions. Prepared proves neither viewing nor approval. Catalog cursors require the catalog module.',
     catalog_limits: { page_candidates: 16, record_files: 256, record_bytes: 1048576, directory_entries: 1024 },
   });
 }
@@ -172,13 +173,7 @@ export function parseControlInspectFunctionArguments(argumentsValue, trustedCont
     targetSource: argumentsValue.target_source,
     primaryTarget: argumentsValue.primary_target,
     runId: argumentsValue.run_id,
-    ...(argumentsValue.gate !== undefined ? { gate: argumentsValue.gate } : {}),
-    ...(argumentsValue.expected_revision_id !== undefined ? { expectedRevisionId: argumentsValue.expected_revision_id } : {}),
-    ...(argumentsValue.presentation_id !== undefined ? { presentationId: argumentsValue.presentation_id } : {}),
-    ...(argumentsValue.target_id !== undefined ? { targetId: argumentsValue.target_id } : {}),
-    ...(argumentsValue.cursor !== undefined ? { cursor: argumentsValue.cursor } : {}),
-    ...(argumentsValue.variant !== undefined ? { variant: argumentsValue.variant } : {}),
-    ...(argumentsValue.module !== undefined ? { contractModule: argumentsValue.module } : {}),
+    ...Object.fromEntries(Object.entries(selectorKeys).filter(([field]) => argumentsValue[field] !== undefined).map(([field, key]) => [key, argumentsValue[field]])),
     ...(argumentsValue.all_active !== undefined ? { allActive: argumentsValue.all_active } : {}),
     surface: trustedContext.surface,
     expectedVersion: trustedContext.expectedVersion,
@@ -186,8 +181,7 @@ export function parseControlInspectFunctionArguments(argumentsValue, trustedCont
   });
 }
 
-// Normalizes a raw inspect input with the dispatcher's language and target rules and the shared
-// read-selection rules. Throws SkillDispatchInputError or ReadSelectionError; both carry `field`.
+// Shared language, target and read-selection rules; errors carry the invalid field.
 export function normalizeControlInspectInput(input) {
   const operation = requireText(input.operation, "operation", 64);
   if (!CONTROL_INSPECT_OPERATIONS.includes(operation)) throw new SkillDispatchInputError("operation", `Unsupported inspect operation: ${operation}`);
@@ -240,7 +234,6 @@ export function normalizeControlInspectInput(input) {
     contractModule: input.contractModule,
     variant: input.variant,
   });
-  const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule' };
   for (const [field, key] of Object.entries(selectorKeys)) {
     if (input[key] !== undefined && !fieldModel[field].operations.includes(operation)) throw new SkillDispatchInputError(field, `Unsupported selector for ${operation}`);
   }
@@ -269,8 +262,7 @@ export { ReadSelectionError };
 
 export const CONTROL_INSPECT_OUTPUT_TOO_LARGE_RECOVERY = "The inspect result exceeds the 1 MiB MCP output limit. Narrow the selection (one run_id instead of all_active) or use the CLI with --json.";
 
-// Same 1 MiB ceiling as the dispatcher, but the fallback keeps the inspect result shape so the host
-// receives a schema-valid recovery instead of a schema error.
+// Preserve the result envelope when enforcing the shared 1 MiB output ceiling.
 export function serializeControlInspectResult(result) {
   const output = JSON.stringify(result, null, 2);
   if (Buffer.byteLength(output, "utf8") <= SKILL_DISPATCH_MAX_OUTPUT_BYTES) return output;

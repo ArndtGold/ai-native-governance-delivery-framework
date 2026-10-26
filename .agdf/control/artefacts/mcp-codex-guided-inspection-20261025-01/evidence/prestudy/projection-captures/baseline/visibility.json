@@ -1,0 +1,24 @@
+{
+  "variant": "baseline",
+  "input_unknowns": 4,
+  "visible_fields": 2,
+  "missing_fields": [
+    "presentation_language",
+    "working_directory",
+    "target_source",
+    "primary_target",
+    "run_id",
+    "gate",
+    "expected_revision_id",
+    "presentation_id",
+    "target_id",
+    "cursor",
+    "variant",
+    "module"
+  ],
+  "visible_operations": [
+    "doctor",
+    "delivery-map"
+  ],
+  "signature": "declare const tools: { inspect_probe(args: ({ all_active?: false; } | { operation?: \"doctor\" | \"delivery-map\"; }) & unknown & unknown & unknown & unknown): Promise<unknown>; };"
+}

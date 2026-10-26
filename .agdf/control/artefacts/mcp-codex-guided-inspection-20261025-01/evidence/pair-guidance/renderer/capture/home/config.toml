@@ -1,0 +1,18 @@
+model = "gpt-6.1-sol"
+model_provider = "offline"
+model_reasoning_effort = "low"
+project_doc_max_bytes = 0
+web_search = "disabled"
+[model_providers.offline]
+name = "Loopback schema capture; no model"
+base_url = "http://127.0.0.1:63778/v1"
+wire_api = "responses"
+requires_openai_auth = false
+[features]
+code_mode = true
+code_mode_only = true
+code_mode_host = true
+shell_tool = false
+plugins = false
+hooks = false
+memories = false

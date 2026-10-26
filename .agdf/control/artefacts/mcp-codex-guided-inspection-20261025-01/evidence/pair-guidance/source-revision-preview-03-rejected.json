@@ -1,0 +1,54 @@
+{
+  "schema_version": "1",
+  "outcome": "rejected",
+  "reason": "analysis_applicability_unresolved",
+  "operation_id": "69a6e94f-c39b-4c20-a722-817af626905c",
+  "request_digest": "sha256:4bc81021a7026167a352b7732f0edea0a53bb0fe228b7ebd1d7c31ff5314f7ec",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-codex-guided-inspection-20261025-01",
+    "expected_revision_id": "f6bdbaf4-313b-494b-bc4c-abf567ab3a42",
+    "kind": "source_revision.preview"
+  },
+  "effect": null,
+  "receipt": null,
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 21,
+    "revision_id": "f6bdbaf4-313b-494b-bc4c-abf567ab3a42",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "rejected",
+    "run_id": "mcp-codex-guided-inspection-20261025-01",
+    "reason": "analysis_applicability_unresolved",
+    "recovery": "Inspect the exact current run, correct the facts and prepare a fresh reviewed preview.",
+    "authorizes": false
+  }
+}

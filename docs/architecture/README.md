@@ -1,4 +1,4 @@
-# Architektur von AGDF
+![Intro : AI-native Governance & Delivery Framework](assets/intro.png)
 
 AGDF hilft einem Coding-Agenten, einen Softwareauftrag nachvollziehbar zu bearbeiten: Ziel und
 Umfang klären, den nächsten erlaubten Schritt bestimmen, Entscheidungen einholen und Ergebnisse

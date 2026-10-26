@@ -35,6 +35,7 @@ import { validateMcpDirectEvidenceResult } from "../lib/mcp-lifecycle/evidence.j
 import { validateMcpCapabilityProfile } from "../lib/mcp-lifecycle/profile.js";
 import { mcpCapabilityProfile } from "../lib/mcp-lifecycle/profile-context.js";
 import { pluginDefinition } from '../lib/cli/runtime-context.js';
+import { createMcpDispatchRuntime } from '../lib/mcp-dispatch-runtime.js';
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 import {
   MCP_DISPATCHER_RUNTIME_ENTRIES,
@@ -356,7 +357,7 @@ assert.deepEqual(copilotConfig.mcpServers.agdf, {
     AGDF_MCP_VERSION: VERSION,
     AGDF_MCP_DIGEST: sharedCopilot.runtime.digest,
   },
-  tools: ["agdf_dispatch", "agdf_inspect"],
+  tools: createMcpDispatchRuntime({ surface: 'copilot' }).tools.map(tool => tool.name),
 });
 const sharedRoot = mcpRuntimeDataRoot({ dataRoot: sharedFixture.dataRoot, scope: "project", target: sharedFixture.target });
 const sharedReferences = inspectMcpServerPackage({ dataRoot: sharedRoot, expectedVersion: VERSION }).references;

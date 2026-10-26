@@ -65,23 +65,14 @@ const REQUIRED_FILES = Object.freeze([
   "docs/handbook/en/04-multiple-runs.md",
   "docs/handbook/en/05-closeout-and-delivery.md",
   "docs/handbook/en/06-troubleshooting.md",
-  "docs/agenten-handbuch/README.md",
-  "docs/agenten-handbuch/01-schnellstart.md",
-  "docs/agenten-handbuch/02-gates-und-freigaben.md",
-  "docs/agenten-handbuch/03-typische-arbeitsablaeufe.md",
-  "docs/agenten-handbuch/04-mehrere-runs.md",
-  "docs/agenten-handbuch/05-abschluss-und-auslieferung.md",
-  "docs/agenten-handbuch/06-fehlerbehebung.md",
 ]);
 
-const LEGACY_HANDBOOK_FILES = Object.freeze(REQUIRED_FILES.filter((entry) => entry.startsWith("docs/agenten-handbuch/")));
 const GERMAN_HANDBOOK_FILES = Object.freeze(REQUIRED_FILES.filter((entry) => entry.startsWith("docs/handbook/de/")));
 const ENGLISH_HANDBOOK_FILES = Object.freeze(REQUIRED_FILES.filter((entry) => entry.startsWith("docs/handbook/en/")));
 const HANDBOOK_FILES = Object.freeze([
   "docs/handbook/README.md",
   ...GERMAN_HANDBOOK_FILES,
   ...ENGLISH_HANDBOOK_FILES,
-  ...LEGACY_HANDBOOK_FILES,
 ]);
 
 const HANDBOOK_CHAPTERS = Object.freeze([
@@ -542,14 +533,6 @@ async function validateHandbookInvariants(root, findings) {
     }
   }
 
-  for (const relativePath of LEGACY_HANDBOOK_FILES) {
-    const content = await readText(root, relativePath);
-    const links = [...content.matchAll(MARKDOWN_LINK_PATTERN)];
-    if (content.length > 700 || !content.includes("Kompatibilitätsverweis") || links.length < 1
-      || includesAny(content, requiredGermanMeaning)) {
-      findings.push(finding("AGDF_HANDBOOK_COMPATIBILITY_INVALID", relativePath, "Legacy handbook file must contain navigation only and no duplicate handbook semantics."));
-    }
-  }
 }
 
 function localLinkTarget(relativePath, rawTarget) {

@@ -5,15 +5,10 @@ und den ausgewählten Run abschließt. CLI und MCP verwenden dafür dieselben Co
 Der Core prüft die Zulässigkeit und delegiert Änderungen an die zuständigen Writer;
 der Transport und die UI besitzen keine eigene Gate-Policy.
 
-**Dokumentrolle: Vertiefung des Befehls- und Entscheidungsablaufs, nicht normativ.**
-**Abgleich: 12. Oktober 2026, Repository und gespeicherte Run-Nachweise.** Die fünf begrenzten
-Befehlsgruppen und die Decision App sind im Entwicklungsstand vorhanden. Für isolierte
-Testkandidaten liegen native Freigabe-/Fortsetzungsbeobachtungen und ein deutscher iPad-Chatfall vor;
-die vollständige Qualifizierung der aktuellen Fassung
-und die Gesamtabnahme sind offen. Abschnitt 5 ordnet die jeweiligen Nachweise ein. Diese Beschreibung
-bestätigt keine Veröffentlichung oder Installation. Klickentscheidungen bleiben ohne passende
-native Qualifizierung deaktiviert; isolierte experimentelle Bedienprüfungen sind eigene Nachweise.
-Das allgemeine Cockpit bleibt eine Leseansicht.
+**Dokumentrolle:** Ablaufreferenz, nicht normativ. Beginne mit dem Beispiel in Abschnitt 1.
+Abschnitt 2 ordnet Operationen den Werkzeugen zu, Abschnitt 3 erklärt die Entscheidungsansicht,
+Abschnitt 4 die Wiederherstellung. Die [datierten Prüfstände](#datierter-abgleich-und-nachführungen)
+und ihre Grenzen stehen bei den Nachweisen in Abschnitt 5.
 
 Der [Architektur-Einstieg](README.md) ordnet diese Seite ein. Die
 [Systemarchitektur](01-systemarchitektur.md#32-mcp-werkzeugweg) beschreibt den Aufrufweg, der
@@ -22,6 +17,8 @@ Erfassung und Entscheidung. Die [Cockpit-Referenz](06-agdf-cockpit.md) erklärt 
 Leseansicht; die [MCP-Schnittstellenfragen](04-mcp-schnittstellen.md) behandeln die verbleibenden
 Fragen des [gemeinsamen Zielbilds](03-agentenkontrolle-zielbild.md).
 Verbindliche Semantik bleibt bei den unten verlinkten Verträgen und Core-Diensten.
+Neue oder überarbeitete Schnittstellen verwenden ergänzend die
+[MCP-Integrationsrichtlinien](09-mcp-integrationsrichtlinien.md) als Entwicklungs- und Review-Raster.
 
 Das [UI-Zielkonzept für Hub und Run-Cockpit](07-ui-konzept.md) ordnet die Entscheidungskarte
 in den gemeinsamen Arbeitsbereich des Anwenders ein. Es verbindet den Einstieg im bestehenden
@@ -112,6 +109,53 @@ grenzt die Erstellungsformate ein. Die Inspect-Operation `operation-status` verw
 `module: "<original UUID>"`. Beide erfordern ein explizites Ziel, einen ausgewählten Run und die
 erwartete Revision. Das Lesen eines Vertrags zeigt unterstützte Formen, Quellenbindungen, Grenzen
 und den aktuellen Zustand, ohne eine Bestätigung `reviewed=true` oder eine Reparatur auszuführen.
+
+### Gebundene Lesefolge vor einer Entscheidung
+
+Diese Anfrage zeigt eine gültige Eingabeform. Das Projekt und der Run müssen zuvor ausdrücklich
+benannt oder eindeutig bestätigt sein; die Beispielwerte wählen keinen echten Run aus.
+
+```json
+{
+  "operation": "gate-check",
+  "presentation_language": "de",
+  "working_directory": "/workspace/projekt",
+  "target_source": "explicit_target",
+  "primary_target": "/workspace/projekt",
+  "run_id": "demo-run-01"
+}
+```
+
+Bei `gate-check` bleiben `gate`, `module` und `expected_revision_id` weg. Das Zielpaar
+`target_source`/`primary_target` ist zusammen anzugeben; cwd allein ist keine Zielautorität.
+`contract` liest angebotene Runtime-Module, etwa `quality`, ohne Run-/Revisionsselektor.
+`operation-contract` liest dagegen einen Gruppen-/Operationsvertrag wie `agdf_record/step.record`
+mit der aktuellen Run-Revision. Ein Tool-Name wie `agdf_dispatch` ist kein solcher Operationsname.
+Die gültigen Feldkombinationen besitzt allein der [Inspect-Vertrag](../../packages/core/lib/control-inspect/contract.js).
+
+Nach ausdrücklich gebundenem `gate-check` kann der [Inspect-Service](../../packages/core/lib/control-inspect/service.js)
+`navigation.presentation_catalog` und `navigation.next_calls` ergänzen:
+
+1. Einen vorhandenen exakten Dokumentbezug aus dem Gespräch bewahren. Der Service kennt die
+   Gesprächshistorie nicht; aktuelle Workflow-Hinweise ersetzen diese Auswahl nicht.
+2. Angebotene `next_calls` in Reihenfolge ausführen und Argumente unverändert übernehmen:
+   passender Operationsvertrag vor Dokument-Read. Parallele Reads führten im ersten Prototyp
+   tatsächlich zu `dispatch_busy`; die Leseempfehlung ist deshalb sequenziell.
+3. Einen Dokumenthinweis nur bei eindeutiger, vollständig geprüfter Katalogauswahl verwenden.
+   `requested_gate`, `complete_scan` und `page_complete` begrenzen diese Aussage auf den
+   ausgewiesenen Katalogumfang; die Auswahl geschieht nicht nach Zeitstempel.
+4. Dokumente behalten ihre ursprüngliche Datensatzrevision; aktuelle Operationsverträge nutzen
+   die aktuelle Run-Revision. Alle Dokumentseiten über den jeweiligen `next_cursor` lesen und
+   Cursor-Typen nicht austauschen.
+5. Danach die vorhandene Schreiboperation für die neue bewusste Antwort anfordern. Navigation
+   erstellt weder Präsentation noch Freigabe und ersetzt keine Writer-Prüfung.
+
+Fehlende, beschädigte oder mehrdeutige Präsentationen erzeugen kein Ersatzdokument. Fehler allein
+in der optionalen Navigation lassen ursprünglichen Bericht und Präsentation erhalten;
+ursprüngliche Evaluatorfehler bleiben Fehler. Zwischenzeitliche Run-Änderungen können spätere
+Reads oder Befehle wegen veralteter Bindung ablehnen. Ein Hinweis ist keine dauerhaft gültige
+Berechtigung. [Code, Tests und Originalnachweise](04-mcp-schnittstellen.md#nachweiskette-und-qualifikationsgrenzen)
+belegen diese Grenzen getrennt von der tatsächlichen Modellaufgabe.
 
 Jede Anfrage an die fünf Befehlsgruppen verwendet dieselbe strikt definierte Anfragestruktur
 der Version 1:
@@ -347,6 +391,28 @@ unklaren Ausgang mit der ursprünglichen UUID, keinen Rollback. Die tatsächlich
 Quelle, Build und ausgelieferter Resource, die gerenderte Sprachabdeckung sowie native Beobachtungen
 zu Berechtigungen, Aktionen und Teardown müssen vor der QA des gesamten Ablaufs separat erfasst
 werden. Aus Unit-Tests wird kein Leistungsvorteil für schwächere Modelle abgeleitet.
+
+### Datierter Abgleich und Nachführungen
+
+Die redaktionelle Neuordnung vom 26. Oktober 2026 erhält die folgenden Standangaben und
+Qualifikationsgrenzen. Sie erzeugt keine neue Host-Beobachtung.
+
+**Dokumentrolle: Vertiefung des Befehls- und Entscheidungsablaufs, nicht normativ.**
+**Abgleich: 12. Oktober 2026, Repository und gespeicherte Run-Nachweise.** Die fünf begrenzten
+Befehlsgruppen und die Decision App sind im Entwicklungsstand vorhanden. Für isolierte
+Testkandidaten liegen native Freigabe-/Fortsetzungsbeobachtungen und ein deutscher iPad-Chatfall vor;
+die vollständige Qualifizierung der aktuellen Fassung
+und die Gesamtabnahme sind offen. Abschnitt 5 ordnet die jeweiligen Nachweise ein. Diese Beschreibung
+bestätigt keine Veröffentlichung oder Installation. Klickentscheidungen bleiben ohne passende
+native Qualifizierung deaktiviert; isolierte experimentelle Bedienprüfungen sind eigene Nachweise.
+Das allgemeine Cockpit bleibt eine Leseansicht.
+
+**Ergänzung vom 26. Oktober 2026:** Zwei echte normale T7-Läufe belegen die UR-Freigabe
+mit jeweils vier MCP-Aufrufen und null SDK-/sonstigen Fehlern auf dem benannten Codex-Kandidaten.
+Der [konkrete Leseablauf](#gebundene-lesefolge-vor-einer-entscheidung) und die
+[Erkenntnis- und Nachweiskette](04-mcp-schnittstellen.md#belegte-erkenntnisse-zur-codex-mcp-inspektion)
+ordnen diesen gemergten Umfang ein. Die weitergehenden offenen UI-/Host-Verpflichtungen des
+älteren Coherence-Runs in Abschnitt 5 werden dadurch nicht pauschal erfüllt.
 
 ## 6. Maßgebliche Quellen und weiterer Leseweg
 

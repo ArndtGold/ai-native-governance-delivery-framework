@@ -1,13 +1,13 @@
 # Gesamtkonzept zur Kontrolle des Coding-Agenten: Dispatcher, MCP und Hosts
 
-Datum: 2026-10-02
-Run: agent-control-dispatcher-mcp-concept-20261002-01
-Verantwortlicher: Arndt Gold
-Typ: Konzeptartefakt; vorgeschlagene Zielarchitektur, keine installierte Laufzeitrichtlinie
-Kanonisches Dokument: docs/architecture/03-agentenkontrolle-zielbild.md
-Integration in die Dokumentation: 2026-10-02, ausdrücklich vom Nutzer beauftragt; Inhalt und Governance-Grenzen beibehalten
-Grundlage: freigegebene [UR](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/UR.md), [PRD](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/PRD.md), [SD](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/SD.md) und [TP](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/TP.md) des verknüpften Runs
-Ausgangsstand: Repository-Commit a6ba40c64a77bbb490519e978a5a30cd73be2d1a; installierte AGDF-Laufzeit für Dispatch und Freigaben 0.14.5
+Diese Seite beschreibt die vorgeschlagene Weiterentwicklung der Agentenkontrolle. Für das
+bestehende System beginne im [Architektur-Einstieg](README.md), für eine Änderung im
+[Entwicklereinstieg](entwickler-einstieg.md).
+
+**Leseweg:** Ziel und Grenzen in Abschnitt 1 und 2, Verantwortlichkeiten in Abschnitt 3,
+Kontroll- und Operationsdetails in Abschnitt 4 bis 9, Roadmap und Belege in Abschnitt 10 und 11.
+Der [historische Dokumentbezug](#historischer-dokumentbezug) hält Auftrag, Ausgangsstand und
+freigegebene Quellen dieses Konzepts fest. Die Neuordnung vom 26. Oktober 2026 ist redaktionell.
 
 ## 1. Ziel, Übersicht und Begriffe zur Nachweisstärke
 
@@ -355,3 +355,14 @@ Dies sind ausdrücklich benannte Grenzen des Ausgangsstands und Bedingungen für
 ### Was bereits jetzt geprüft werden kann
 
 Zuständigkeiten laut Quellen und begrenzte bestehende Prüfungen, konzeptionelle Vollständigkeit, Szenariokonsistenz, Abdeckung von Kriterien, Entscheidungen und Quellen sowie der auf Dokumentation begrenzte Erstellungsumfang können jetzt untersucht werden. Laufzeit-Abfangen, unabhängige Bestätigung nativer Anzeige und Antworten, unabhängige Prüfung sowie hostübergreifende Wiederherstellung benötigen gesondert implementierte und qualifizierte Tests. [CD_TESTS.md](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/CD_TESTS.md) dokumentiert die durchgeführten Konzeptprüfungen; Review-/QA-Berichte bewerten dieses konkrete Artefakt. Aus der Konzeptabnahme folgt keine automatische Veröffentlichung oder externe Änderung.
+
+## Historischer Dokumentbezug
+
+Datum: 2026-10-02
+Run: agent-control-dispatcher-mcp-concept-20261002-01
+Verantwortlicher: Arndt Gold
+Typ: Konzeptartefakt; vorgeschlagene Zielarchitektur, keine installierte Laufzeitrichtlinie
+Kanonisches Dokument: docs/architecture/03-agentenkontrolle-zielbild.md
+Integration in die Dokumentation: 2026-10-02, ausdrücklich vom Nutzer beauftragt; Inhalt und Governance-Grenzen beibehalten
+Grundlage: freigegebene [UR](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/UR.md), [PRD](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/PRD.md), [SD](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/SD.md) und [TP](../../.agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/TP.md) des verknüpften Runs
+Ausgangsstand: Repository-Commit a6ba40c64a77bbb490519e978a5a30cd73be2d1a; installierte AGDF-Laufzeit für Dispatch und Freigaben 0.14.5

@@ -22,6 +22,30 @@ Der [Befehlsfluss zwischen Core und MCP](core-mcp-command-flow.md) beschreibt er
 11. Oktober 2026 abgeglichenen Entwicklungsstand der Erfassungs-, Entscheidungs- und Abschlussoperationen.
 Diese Operationen delegieren an eigene Core-Dienste; sie erweitern nicht die Zuständigkeit des Dispatchers.
 
+## Lesepfade auf dieser Seite
+
+- **Den normalen Ablauf verstehen:** die drei Beispiele direkt im Anschluss, dann die Zuständigkeiten.
+- **Einen Aufruf implementieren:** [Bindung](#bindung-vor-fortsetzung), [Schrittklassen](#schrittklassen) und [Ergebnisbehandlung](#ergebnisbehandlung).
+- **Einen Sonderfall prüfen:** [Use-Case-Katalog](#use-case-katalog), [Fortsetzung im Detail](#fortsetzung-im-detail) und [Quellenrevision](#späte-quellenrevision).
+
+## Drei typische Abläufe
+
+**Neuer Auftrag:** Der erste Intake liefert `resolve_delivery_run`. Nach dem Vergleich mit den
+referenzierten URs wählt der Agent bei eigenständigem Umfang eine unbenutzte Run-ID. Der nächste
+Intake im Modus `new` liefert `run_missing`. Der Agent erstellt den Run und setzt mit dessen
+Revision im Modus `resume` fort. `ur_definition` delegiert den gebundenen Entwurf an `ur-definition`. Der Skill
+klärt materielle Lücken und erfasst den unfreigegebenen UR über die bestehenden Writer. Erst die erneute Prüfung dieses Zustands kann `presentation_required` liefern. Auf
+`run-present`, Anzeige und die neue menschliche Antwort folgt ein gesonderter Freigabevorgang.
+
+**Bestehender Auftrag:** Der Agent liest die referenzierte vollständige UR-Fassung und bindet
+den passenden Run mit ihrer aktuellen Revision. Hat sich die Revision geändert, folgt erneut der
+Umfangsvergleich. Ein jüngerer Run oder ein ähnlicher Titel überspringt diesen Schritt nicht.
+
+**Nächstes Gate vorbereiten:** `gate-check` mit `continue_delivery` prüft den gebundenen Run.
+Wenn der Evaluator beispielsweise das aktuelle PRD zur Vorbereitung benennt, erstellt der Agent
+dieses Artefakt aus den gelieferten Quellpfaden. Eine erneute Prüfung entscheidet, ob weitere Arbeit
+oder `presentation_required` folgt. Die menschliche Freigabe bleibt ein eigener Schritt.
+
 ## Zuständigkeiten und Aufrufwege
 
 | Beteiligter | Verantwortung |
@@ -295,23 +319,7 @@ beschreibt die eng begrenzte Beziehungskorrektur **vor** der Ausgabe; sie ist ke
 | **UC-D16 · Erlaubte Umsetzung fortsetzen** | Gebundenes `continue_delivery`, strukturierter Pfad an offenem `CD+Tests`, TP erfüllt, keine fehlende Freigabe und kanonische Umsetzungs-/Testaktion. | `skill_continuation`, Phase `implementation`, mit Ziel, Run, aktueller Revision und Runtime-Verträgen. | Agent setzt nur den genehmigten TP-Umfang um, führt Tests und Evidenzpflege aus und prüft nach aufgezeichneten Kontrolländerungen erneut. Routinearbeit braucht keine zusätzliche Statuskarte; Entscheidungen und Blocker bleiben sichtbar. |
 | **UC-D17 · Eine fehlende Beziehung korrigieren** | Beauftragte gebundene Fortsetzung; genau eine fehlende Beziehung als entscheidender Befund, unveränderter versiegelter Zuordnungsbeleg und keine unabhängigen Blocker. | Die Fortsetzungsorchestrierung koordiniert höchstens einen Korrekturversuch über den Core-Dienst vor Ausgabe; bei Erfolg neue Revision, Audit und frisches Routing. Das Ergebnis folgt der danach gültigen Route und enthält `relationship_correction`. | Agent nennt die belegte Korrektur im nächsten knappen Ergebnis. Fehlender oder unklarer Beleg bleibt ein konkreter Blocker. Keine Freigabe, Umfangsänderung oder allgemeine Reparatur wird daraus abgeleitet. |
 
-## Drei typische Abläufe
-
-**Neuer Auftrag:** Der erste Intake liefert `resolve_delivery_run`. Nach dem Vergleich mit den
-referenzierten URs wählt der Agent bei eigenständigem Umfang eine unbenutzte Run-ID. Der nächste
-Intake im Modus `new` liefert `run_missing`. Der Agent erstellt den Run und setzt mit dessen
-Revision im Modus `resume` fort. `ur_definition` delegiert den gebundenen Entwurf an `ur-definition`. Der Skill
-klärt materielle Lücken und erfasst den unfreigegebenen UR über die bestehenden Writer. Erst die erneute Prüfung dieses Zustands kann `presentation_required` liefern. Auf
-`run-present`, Anzeige und die neue menschliche Antwort folgt ein gesonderter Freigabevorgang.
-
-**Bestehender Auftrag:** Der Agent liest die referenzierte vollständige UR-Fassung und bindet
-den passenden Run mit ihrer aktuellen Revision. Hat sich die Revision geändert, folgt erneut der
-Umfangsvergleich. Ein jüngerer Run oder ein ähnlicher Titel überspringt diesen Schritt nicht.
-
-**Nächstes Gate vorbereiten:** `gate-check` mit `continue_delivery` prüft den gebundenen Run.
-Wenn der Evaluator beispielsweise das aktuelle PRD zur Vorbereitung benennt, erstellt der Agent
-dieses Artefakt aus den gelieferten Quellpfaden. Eine erneute Prüfung entscheidet, ob weitere Arbeit
-oder `presentation_required` folgt. Die menschliche Freigabe bleibt ein eigener Schritt.
+## Fortsetzung im Detail
 
 ### Routinearbeit und sichtbare Ereignisse
 

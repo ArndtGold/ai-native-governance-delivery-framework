@@ -1,11 +1,12 @@
 # @agdf/mcp-server
 
-Local STDIO MCP adapter for AGDF dispatch and control inspection.
+Local STDIO MCP adapter.
 
 MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 
-The bounded write groups, selected contract/status reads, original-operation recovery and
-focused app-only decision facade are described in [Core and MCP command flow](../../docs/architecture/core-mcp-command-flow.md).
+[Integration guide](../../docs/architecture/09-mcp-integrationsrichtlinien.md).
+[Command flow](../../docs/architecture/core-mcp-command-flow.md): bounded writes,
+contract/status reads, original-operation recovery and the app-only decision facade.
 Host tool permission is separate from a deliberate gate decision. The source candidate's
 click actions remain disabled while native app-only mediation is unqualified.
 

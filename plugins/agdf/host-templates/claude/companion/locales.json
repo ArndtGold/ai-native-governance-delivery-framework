@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "fallbackLocale": "en",
+  "locales": {
+    "en": {
+      "title": "AGDF Companion",
+      "states": {
+        "laeuft": "working",
+        "wartet": "waiting for approval",
+        "blockiert": "blocked",
+        "fertig": "done",
+        "neutral": "idle"
+      },
+      "reasons": {
+        "turnActive": "Claude is working on this turn",
+        "done": "Run completed",
+        "blocked": "{gate}: {decision}",
+        "waitingApproval": "Approval pending: {gate}",
+        "waitingDecision": "Decision pending: {gate}",
+        "working": "Next: {gate}"
+      },
+      "decisions": {
+        "revise": "revision needed",
+        "block": "blocked",
+        "blocked": "blocked",
+        "decline": "declined"
+      },
+      "unreadable": {
+        "missing": "run state file missing or not readable",
+        "too_large": "run state file too large",
+        "format": "unknown run state format",
+        "unknownState": "run state matches no known state",
+        "failed": "control folder could not be read"
+      },
+      "messages": {
+        "reading": "Reading run state …",
+        "noControl": "No AGDF control folder in “{folder}”.",
+        "noControlHint": "Checked project folder: {path}",
+        "noOpenRuns": "No open runs in this project.",
+        "noRunAssigned": "No run assigned",
+        "noRunAssignedHint": "No run changed in this session. Choose an open run to show it here.",
+        "unreadable": "Run state not readable: {reason}",
+        "stale": "Read failed at {time}; showing the state from {readAt}."
+      },
+      "origin": {
+        "session": "Changed in this session",
+        "selected": "Selected by you"
+      },
+      "fields": {
+        "nextStep": "Next step",
+        "objective": "Objective",
+        "lastRead": "As of {time}",
+        "openRuns": "{count} open runs",
+        "position": "{position} of {count} open runs"
+      },
+      "actions": {
+        "retry": "Read again",
+        "stillOn": "Stop motion",
+        "stillOff": "Start motion",
+        "expand": "More",
+        "collapse": "Less",
+        "previous": "Previous run",
+        "next": "Next run"
+      },
+      "command": {
+        "description": "Switch the AGDF companion on or off",
+        "enabled": "AGDF companion switched on.",
+        "disabled": "AGDF companion switched off.",
+        "waiting": "AGDF companion is switched on and waits for space: {reason}"
+      }
+    },
+    "de": {
+      "title": "AGDF-Begleiter",
+      "states": {
+        "laeuft": "läuft",
+        "wartet": "wartet auf Freigabe",
+        "blockiert": "blockiert",
+        "fertig": "fertig",
+        "neutral": "bereit"
+      },
+      "reasons": {
+        "turnActive": "Claude arbeitet gerade an diesem Turn",
+        "done": "Run abgeschlossen",
+        "blocked": "{gate}: {decision}",
+        "waitingApproval": "Freigabe ausstehend: {gate}",
+        "waitingDecision": "Entscheidung ausstehend: {gate}",
+        "working": "Als Nächstes: {gate}"
+      },
+      "decisions": {
+        "revise": "Überarbeitung nötig",
+        "block": "blockiert",
+        "blocked": "blockiert",
+        "decline": "abgelehnt"
+      },
+      "unreadable": {
+        "missing": "Run-Datei fehlt oder ist nicht lesbar",
+        "too_large": "Run-Datei ist zu groß",
+        "format": "unbekanntes Format der Run-Datei",
+        "unknownState": "Run-Zustand passt zu keiner bekannten Regel",
+        "failed": "Kontrollordner konnte nicht gelesen werden"
+      },
+      "messages": {
+        "reading": "Run-Status wird gelesen …",
+        "noControl": "Kein AGDF-Kontrollordner in „{folder}“.",
+        "noControlHint": "Geprüfter Projektordner: {path}",
+        "noOpenRuns": "Keine offenen Runs in diesem Projekt.",
+        "noRunAssigned": "Kein Run zugeordnet",
+        "noRunAssignedHint": "In dieser Sitzung hat sich kein Run geändert. Wähle einen offenen Run, um ihn hier zu zeigen.",
+        "unreadable": "Run-Status nicht lesbar: {reason}",
+        "stale": "Lesen um {time} fehlgeschlagen; angezeigt wird der Stand von {readAt}."
+      },
+      "origin": {
+        "session": "In dieser Sitzung geändert",
+        "selected": "Von dir ausgewählt"
+      },
+      "fields": {
+        "nextStep": "Nächster Schritt",
+        "objective": "Ziel",
+        "lastRead": "Stand {time}",
+        "openRuns": "{count} offene Runs",
+        "position": "{position} von {count} offenen Runs"
+      },
+      "actions": {
+        "retry": "Neu lesen",
+        "stillOn": "Bewegung aus",
+        "stillOff": "Bewegung an",
+        "expand": "Mehr",
+        "collapse": "Weniger",
+        "previous": "Vorheriger Run",
+        "next": "Nächster Run"
+      },
+      "command": {
+        "description": "AGDF-Begleiter ein- oder ausschalten",
+        "enabled": "AGDF-Begleiter eingeschaltet.",
+        "disabled": "AGDF-Begleiter ausgeschaltet.",
+        "waiting": "AGDF-Begleiter ist eingeschaltet und wartet auf Platz: {reason}"
+      }
+    }
+  }
+}

@@ -107,7 +107,7 @@ export function validateCopilotPayload({ profileRoot, repoRoot, expectedVersion,
   const excluded = actualFiles.filter((path) => path === "copilot-skills" || path.startsWith("copilot-skills/")
     || path.startsWith(".codex-plugin/") || path.startsWith(".claude-plugin/")
     || path === "hooks/hooks.json" || path === "hooks/session-start.sh"
-    || path.startsWith("submission/"));
+    || path.startsWith("companion/") || path.startsWith("submission/"));
   if (excluded.length) throw new Error(`AGDF_COPILOT_PAYLOAD_EXCLUDED_SURFACE: ${excluded.join(", ")}`);
   const skillFiles = actualFiles.filter((path) => /^skills\/agdf-[^/]+\/SKILL\.md$/.test(path));
   const expectedSkillFiles = expectedSkills.map((slug) => `skills/agdf-${slug}/SKILL.md`).sort();

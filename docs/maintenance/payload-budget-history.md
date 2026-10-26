@@ -499,3 +499,31 @@ plugin definition grows by 460 bytes without another file. Merged with the worke
 reserve above and the longer combined baseline rationale, the generated Copilot inventory measures
 397 files / 3491406 bytes. This records the exact generated payload without spare headroom;
 no payload checks, test coverage or CI timeout limits are removed or relaxed.
+
+## Brownfield Analysis as a source-revision initiating phase (2026-10-25)
+
+A design or plan gap found by implementation-preparation Brownfield Analysis can now reach its
+approved source: the gate-transition contract and the shared runtime core accept Brownfield
+Analysis as an initiating phase for UR, PRD, SD and TP revisions. The contract text and the core
+copy in the generated Copilot inventory grow by 406 bytes to 397 files / 3495539 bytes, up from
+397 / 3495133. This records the exact generated payload without spare headroom; no payload checks,
+test coverage or CI timeout limits are removed or relaxed.
+
+## Claude companion in the shared runtime plugin (2026-10-26)
+
+The opt-in AGDF companion (`/agdf-companion`) is a Claude Code hooks module declared only by the
+runtime Claude manifest from its build-only descriptor. It adds 12 files / 41864 bytes under
+`generated/plugins/agdf/companion/` of the shared runtime plugin. Codex sees the files there but
+never references them. The shared plugin definition, `hooks/hooks.json` and the Codex manifest are
+unchanged. `companion/` is now also an excluded Copilot surface beside its absence from the inventory
+mappings. The generated Copilot inventory stays at 397 files / 3495539 bytes, so the reviewed Copilot
+baseline is unchanged; no payload checks, test coverage or CI timeout limits are removed or relaxed.
+
+## Mixed-version limit for Brownfield Analysis-initiated revisions (2026-10-26)
+
+Code Review of the companion run (CR-F11) found that a source-revision receipt initiated from
+Brownfield Analysis keeps receipt schema 3, so runtimes released before that initiating phase read
+such a Run as damaged. The gate-transition contract now states that all hosts of a repository need
+the same or newer AGDF. The contract copies in the generated Copilot inventory grow by 362 bytes to
+397 files / 3495901 bytes, up from 397 / 3495539. This records the exact generated payload without
+spare headroom; no payload checks, test coverage or CI timeout limits are removed or relaxed.

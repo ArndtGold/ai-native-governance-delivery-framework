@@ -33,7 +33,24 @@ try {
     assert.equal(service('agdf_revise',applied).outcome,'already_applied');assert.equal(readSourceRevisions(state().content).receipts.length,1);cells++;
     const tampered={...receipt,initiating_phase:phase==='QA'?'CD+Tests':'QA'};assert.equal(validateRevisionHistory(root,tampered),false,'Archive pins original phase');
   }
-  assert.equal(cells,18);
+  assert.equal(cells,22);
+  // A design gap found by implementation-preparation Brownfield Analysis reaches its SD source and resets the analysis.
+  restore('Brownfield Analysis');
+  {
+    const path=f.prefix+randomUUID()+'.md';writeFileSync(join(root,path),'# Brownfield Analysis\n- decision: revise\nSynthetic design gap routed to SD.\n');
+    const analysed=service('agdf_record',{...envelope(),command:{kind:'step.record',payload:{step:'internal',internal_step:'Brownfield Analysis',decision:'revise',source:{path,digest:artefactFileDigest(root,path)}}}});
+    assert.equal(analysed.outcome,'accepted',JSON.stringify(analysed));assert.equal(state().current_gate,'Brownfield Analysis');
+    assert.equal(state().artefacts.get('Brownfield Analysis').status,'revise');
+    const {input,preview}=prepare('SD');assert.equal(preview.outcome,'accepted',JSON.stringify(preview));
+    const result=service('agdf_revise',{...input,command:{kind:'source_revision.apply',payload:{...input.command.payload,
+      preview_digest:preview.family_result.preview_digest,confirmation:preview.family_result.confirmation_selector}}});
+    assert.equal(result.outcome,'accepted',JSON.stringify(result));
+    const after=state(), receipt=readSourceRevisions(after.content).receipts.at(-1);
+    assert.equal(receipt.initiating_phase,'Brownfield Analysis');assert.equal(validateRevisionHistory(root,receipt),true);
+    assert.notEqual(after.artefacts.get('Brownfield Analysis')?.status,'revise','The revise analysis no longer blocks the renewed source');
+    assert.equal(after.approvals.get('SD').status,'missing');assert.equal(after.approvals.get('TP').status,'missing');
+    assert.equal(after.approvals.get('PRD').status,'approved');
+  }
   for(const mutate of [p=>p.initiating_phase='QA',p=>p.policy_version=1,p=>p.changed_statements[0].statement='Not in source',p=>p.changed_statements=[],p=>p.quality_assessment=[],p=>p.quality_assessment[0].disposition='retain',p=>p.impact_assessment.upstream[0].rationale='',p=>p.impact_assessment.earliest_source='UR']){
     restore('CD+Tests');const {p,input}=prepare('TP');mutate(p.value);writeFileSync(join(root,p.input.evidence),JSON.stringify(p.value));input.command.payload.proposal.digest=artefactFileDigest(root,p.input.evidence);
     const before=readFileSync(f.state,'utf8');assert.equal(service('agdf_revise',input).outcome,'rejected');assert.equal(readFileSync(f.state,'utf8'),before);
@@ -80,5 +97,5 @@ try {
     assert.equal(state().evidence_applicability.by_step.get('QA').applicability,'current');
   }
   restore('UAT');approve('UAT');const denied=prepare('TP');assert.equal(denied.preview.outcome,'rejected','Deliberate UAT prohibits revision');
-  console.log('SCN-069/070/072/073/074: all 18 canonical phase/source cells, exact upstream retention, post-QA withdrawal, version-pinned archive/replay and invalid proof rejection passed (synthetic only).');
+  console.log('SCN-069/070/072/073/074: all 22 canonical phase/source cells, Brownfield Analysis design-gap revision, exact upstream retention, post-QA withdrawal, version-pinned archive/replay and invalid proof rejection passed (synthetic only).');
 } finally {rmSync(root,{recursive:true,force:true});rmSync(seeds,{recursive:true,force:true});}

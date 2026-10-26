@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { buildPublicPluginCandidate } from "../../../scripts/public-plugin/builder.js";
 import { LISTING_LIMITS, loadJson, unicodeLength, validatePublicPluginContract } from "../../../scripts/public-plugin/contract.js";
 import {
+  createClaudePluginManifest,
   renderClaudePluginManifest,
   renderCodexPluginManifest,
   renderCopilotPluginManifest,
@@ -78,6 +79,17 @@ const sourceManifest = readFileSync(join(pluginRoot, ".codex-plugin", "plugin.js
 assert.equal(sourceManifest, renderCodexPluginManifest(definition), "source Codex manifest must be a canonical projection");
 const claudeManifest = readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8");
 assert.equal(claudeManifest, renderClaudePluginManifest(definition), "source Claude manifest must be a canonical projection");
+// The companion is Claude-only: the build-only companion descriptor owns its declaration, which only
+// the runtime projection carries; the shared definition also ships to Copilot and must not name it.
+const claudeCompanion = loadJson(join(pluginRoot, "host-templates", "claude", "companion", "companion.json"));
+const runtimeClaudeManifest = createClaudePluginManifest(definition, { runtimeProfile: true, companion: claudeCompanion });
+assert.equal(JSON.parse(claudeManifest).hooks, undefined, "source Claude manifest must not declare the companion");
+assert.equal(Object.hasOwn(definition.claude, "hooks"), false, "shared definition must not carry the Claude-only companion");
+assert.equal(runtimeClaudeManifest.hooks, "./companion/hooks.json", "runtime Claude manifest must declare the companion from its descriptor");
+assert.equal(runtimeClaudeManifest.mcpServers, definition.claude.mcpServers);
+for (const companion of [undefined, { ...claudeCompanion, hooks: "./hooks/hooks.json" }, { ...claudeCompanion, extra: true }]) {
+  assert.throws(() => createClaudePluginManifest(definition, { runtimeProfile: true, companion }), /AGDF_CLAUDE_COMPANION_DESCRIPTOR_INVALID/);
+}
 const localManifest = JSON.parse(sourceManifest);
 const localClaudeManifest = JSON.parse(claudeManifest);
 assert.equal(existsSync(join(repoRoot, ".agents", "plugins", "marketplace.json")), false, "source checkout must not expose a runtime-free Codex marketplace");

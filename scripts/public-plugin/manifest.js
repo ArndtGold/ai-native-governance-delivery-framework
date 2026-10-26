@@ -80,8 +80,21 @@ export function selectOpenAISettings(portable, fallback) {
     ? portable.extensions["com.openai"] : fallback;
 }
 
-// The runtime plugin declares the plugin-local AGDF MCP server; the source plugin ships no runtime.
-export function createClaudePluginManifest(definition, { runtimeProfile = false } = {}) {
+// The Claude companion descriptor (plugins/agdf/host-templates/claude/companion/companion.json) owns the
+// companion hooks declaration. It is never part of the shared definition, which also ships to Copilot.
+export function validateClaudeCompanionDescriptor(descriptor) {
+  const keys = descriptor && typeof descriptor === "object" && !Array.isArray(descriptor) ? Object.keys(descriptor).sort() : [];
+  if (keys.join(",") !== "hooks,schema_version" || descriptor.schema_version !== 1
+      || !/^\.\/companion\/[a-z0-9-]+\.json$/u.test(descriptor.hooks)) {
+    throw new Error("AGDF_CLAUDE_COMPANION_DESCRIPTOR_INVALID: schema_version 1 and a ./companion/ hooks file are required");
+  }
+  return descriptor;
+}
+
+// The runtime plugin declares the plugin-local AGDF MCP server and the Claude-only companion hooks
+// module; the source plugin ships no runtime and declares neither.
+export function createClaudePluginManifest(definition, { runtimeProfile = false, companion } = {}) {
+  const companionHooks = runtimeProfile ? validateClaudeCompanionDescriptor(companion).hooks : undefined;
   return {
     name: definition.id,
     version: definition.version,
@@ -91,7 +104,7 @@ export function createClaudePluginManifest(definition, { runtimeProfile = false 
     repository: definition.repository,
     license: definition.license,
     author: definition.author,
-    ...(runtimeProfile ? { mcpServers: definition.claude.mcpServers } : {}),
+    ...(runtimeProfile ? { mcpServers: definition.claude.mcpServers, hooks: companionHooks } : {}),
   };
 }
 

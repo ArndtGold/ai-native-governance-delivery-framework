@@ -2,6 +2,11 @@
 
 Local STDIO MCP adapter for AGDF dispatch and control inspection.
 
+For new or revised interfaces, start with the shared
+[MCP integration guidelines](../../docs/architecture/09-mcp-integrationsrichtlinien.md).
+They map canonical owners, host-visible schemas, bound follow-up calls, error boundaries and
+task/host evidence to ten review criteria; existing Core contracts retain semantic authority.
+
 MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 
 The bounded write groups, selected contract/status reads, original-operation recovery and

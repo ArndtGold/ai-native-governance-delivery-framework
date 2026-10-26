@@ -20,6 +20,18 @@ Projektspezifische Produktoberflächen, Vorschau-Server und Testanwendungen geh�
 bearbeiteten Projekt. Vorhandene Ergebniszugänge werden zugeordnet angezeigt und über
 unterstützte Hostwege geöffnet; die App bildet die Zielanwendung nicht nach.
 
+## Orientierung nach Aufgabe
+
+| Du arbeitest an … | Beginne hier |
+|---|---|
+| Texten und Orientierung | [Sprache](#1-verständliche-sprache) und [Vorhabenbezug](#2-orientierung-am-aktuellen-vorhaben) |
+| Entscheidungen und Aktionen | [Entscheidungsgrundlage](#3-entscheidungen-mit-klarer-grundlage-und-wirkung) und [Aktionen](#4-aktionen-nach-aufgabe-und-verfügbarkeit) |
+| Darstellung und Bedienbarkeit | [Gemeinsamem Bedienmodell](#5-gemeinsames-bedienmodell-für-chat-und-große-ansicht), [Gestaltung](#7-gemeinsame-gestaltung-und-bestehende-komponenten) und [Zugänglichkeit](#8-zugängliche-bedienung-und-kleine-flächen) |
+| Fehlern, Aktualität und Prüfung | [Host-Grenzen](#6-grenzen-der-host-integration), [Zuständen](#9-aktualität-laden-leere-ergebnisse-und-fehler) und [Nachweisen](#10-prüfung-nachweise-und-pflege) |
+
+Die nachfolgende Bestandsregel gilt für jede dieser Aufgaben. Der
+[nummerierte Nutzerweg](07-ui-konzept.md#1-nutzerabsicht-und-einstieg) zeigt den Zusammenhang.
+
 ## Bestand übernehmen, Ergänzungen gezielt prüfen
 
 Die [Umsetzungszuordnung im Konzept](07-ui-konzept.md#9-bestand-und-erforderliche-weiterentwicklung)

@@ -92,6 +92,11 @@ steht in den [Gate-Regeln](../02-gates.md) und [Runtime-Verträgen](../../plugin
 
 ## Bestehender Stand und Weiterentwicklung
 
+MCP-Werkzeuge des regulären Servers: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+
+Das Inventar beschreibt die Standardkonfiguration im Repository. Aktivierte Befehlsgruppen
+und hostabhängige App-Werkzeuge bestimmen die tatsächlich sichtbare Liste einer Verbindung.
+
 Die Fachkapitel unterscheiden **Bestand** (im benannten Quellstand vorhanden), **Zielbild**
 (vorgeschlagenes Verhalten) und **Nachweis** (tatsächlich geprüfte Eigenschaft). Ein vorhandener
 Codepfad kann noch offene Host-Nachweise haben. Ein Zielbild ist keine Lieferzusage.

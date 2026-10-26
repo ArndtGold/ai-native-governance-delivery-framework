@@ -3,8 +3,8 @@
 Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
 
 AGDF canonical version: **0.20.1**.
-Observation dates: 2026-10-24T07:50:45.438Z to 2026-10-26T07:57:49.461Z.
-Source fingerprint: `2f96e623ba977c0566093ff1fbe920eb132b804bf8ccda776e06446857879479`.
+Observation dates: 2026-10-24T07:50:45.438Z to 2026-10-26T13:02:19.237Z.
+Source fingerprint: `35fed0b752a0f99577207382be3f4cd6556a9673403888628c0e818f04ff3d5d`.
 Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
 
 These scenario results describe isolated production fixtures. Expected negative cases can pass the test while the observed capability is failed. They provide no fresh-host or human-UAT proof.

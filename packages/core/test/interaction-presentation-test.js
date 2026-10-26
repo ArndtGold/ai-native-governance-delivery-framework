@@ -210,7 +210,7 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     mode_slice_decision: "structured_delivery",
     breadcrumb: [{ gate: "UR", status: "fulfilled" }, { gate: "QA", status: "current" }],
     delivery_state: "active",
-    allowed_now: ["review <evidence>", "keep a | literal"],
+    allowed_now: ["review <evidence>", "keep a | literal", "line one\r\nline two\rline three\nline four"],
     forbidden_now: ["release"],
     blocking_condition: "missing evidence",
     missing_approval: "none",
@@ -235,7 +235,9 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   assert.equal(presentation.authorizes, false);
   assert.equal(Object.isFrozen(presentation), true);
   assert.match(presentation.markdown, /^## AGDF status-card/);
-  assert.match(presentation.markdown, /review &lt;evidence&gt;<br>keep a \\\| literal/);
+  assert.match(presentation.markdown, /review &lt;evidence&gt; · keep a \\\| literal · line one · line two · line three · line four/);
+  assert.doesNotMatch(presentation.markdown, /<\/?[a-z][^>]*>|\r/iu,
+    "status tables preserve multiline content without HTML or stray carriage returns");
   assert.match(presentation.markdown, /Forbidden now \| release/);
   assert.doesNotMatch(presentation.markdown, /Direct fixture/);
   assert.equal(renderOperationalStatusCard(null, { registry, humanPresentation: {} }), null);

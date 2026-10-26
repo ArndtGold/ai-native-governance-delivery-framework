@@ -471,6 +471,14 @@ ${approvals}
     const reviewable = evaluateGateCheck(readyRoot, { runId, presentationLanguage: "en" });
     assert.equal(reviewable.approval_presentation?.markdown, prepared.text,
       `${gate} gate-check and run-present must show the same artefact-bound review text`);
+    for (const text of [prepared.text, prepared.companion_text]) {
+      assert.doesNotMatch(text, /<\/?(?:details|summary|br)\b[^>]*>/iu,
+        `${gate} decision and companion text use portable Markdown without HTML`);
+      assert.match(text, /^### Details and evidence\n\n/mu);
+      assert.match(text, /^### Version and sources\n\n/mu);
+      assert.ok(text.includes(prepared.summary), `${gate} keeps the complete review summary visible`);
+      assert.ok(text.includes(prepared.artefact_digest), `${gate} retains the artefact digest`);
+    }
     const statusLines = [];
     assert.equal(printGateCheckReport(reviewable, false, true, { log: (line) => statusLines.push(line) }), true);
     assert.equal(statusLines.join("\n"), reviewable.approval_presentation.preview_markdown,
@@ -500,6 +508,11 @@ ${approvals}
         "the approval-ready detail card omits repeated transition and no-op quality rows");
       const germanPrepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id, language: "de" }, { evaluateGateCheck });
       assert.equal(germanPrepared.outcome, "prepared", `German PRD summary must prepare: ${JSON.stringify(germanPrepared)}`);
+      for (const text of [germanPrepared.text, germanPrepared.companion_text]) {
+        assert.doesNotMatch(text, /<\/?(?:details|summary|br)\b[^>]*>/iu);
+        assert.match(text, /^### Details und Nachweise\n\n/mu);
+        assert.match(text, /^### Fassung und Quellen\n\n/mu);
+      }
       assert.match(germanPrepared.text, /Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen/u,
         "German card offers the complete presented document before approval");
       assert.ok(germanPrepared.text.includes("Freigeben kannst du diese Fassung im Chat mit Approval: PRD."),

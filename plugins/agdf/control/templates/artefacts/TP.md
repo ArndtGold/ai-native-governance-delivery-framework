@@ -30,6 +30,10 @@ boundary or failure scenarios where they matter to the criterion.
 
 ## 3. Test Plan
 
+Apply quality.md Proportionate Tests And Evidence and Verification Effectiveness And
+Completion. Reuse applicable proof before planning new collection; record grouped
+scope/risk, validity and timing rationale here or in existing evidence fields. Derive
+expected outcomes from requirements, retain gaps and define when checking is sufficient.
 For each applicable verification scenario name its concrete execution prerequisites and failure action.
 
 | criterion_id | scenario_id | test_route | environment | prerequisites_permissions | owner | expected_evidence | unavailable_action |

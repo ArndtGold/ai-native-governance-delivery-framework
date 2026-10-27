@@ -67,6 +67,7 @@ zeigen die genaue Zuordnung; der [Befehlsfluss](core-mcp-command-flow.md) erklä
 | Core | Gemeinsame Fachlogik für Zustand, Prüfung und zulässige Operationen. |
 | Dispatcher | Ermittelt den nächsten begrenzten Arbeitsschritt aus Auftrag und geprüftem Zustand. |
 | Writer | Zuständiger Schreibdienst, der eine erlaubte Änderung und ihren Beleg speichert. |
+| Qualitätsvertrag | [quality.md](../../plugins/agdf/meta/contracts/quality.md) besitzt die gemeinsamen Qualitäts-, Test-/Nachweis- und Befundregeln. SD/TP und Reviews wenden sie an; qa-gate entscheidet technisch, menschliche Freigaben bleiben gesondert. |
 | Kanonischer Owner | Die maßgebliche Quelle beziehungsweise Komponente für eine Regel oder Wirkung. Andere Zugänge verwenden sie mit. |
 | Bindung | Geprüfter Bezug auf genau das gemeinte Projekt, den Run und gegebenenfalls Revision oder Dokument. |
 

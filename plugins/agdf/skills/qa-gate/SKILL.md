@@ -74,12 +74,11 @@ evidence into `pass`, or claim native qualification. Only a deliberate human dec
 new exact presentation can accept deviations through the existing approval owner. The technical
 QA result and open findings remain unchanged and accompany UAT and OR.
 
-When post-CD+Tests review evidence exists, present the Runtime Contract's derived Quality
-Readiness projection before the detailed QA report: Plan coverage, Solution integrity, Code
-quality and QA decision in that order. Name `qa-gate` as the sole decision owner, show one
-decisive reason and one permissible next action, and keep detailed reports as evidence links or
-on-demand detail. The projection is non-authorizing and must not replace the Run Status Card,
-Gate Transition Card or the durable QA report.
+For routine technical pass, use quality.md Quality Readiness Projection's concise result
+and report reference. At revise/block show its four dimensions in the canonical order,
+with the decisive source/reason and next permissible action. Explicit detail/status
+requests may show the full overview even at pass. This derived, non-authorizing output
+never replaces durable reports, complete gate material or deliberate human decisions.
 
 ## Resolved Target Run And Evidence Discovery
 
@@ -106,6 +105,8 @@ that target instead of asking the user to reconstruct repository evidence:
 QA owns the Quality Readiness and QA decision only. It must not reconstruct or promise a Run Status
 Card, Gate Transition Card, native QA card or interactive QA card. Operational run status and gate
 approval orientation remain owned by gate-check and the Interaction Contract.
+
+Apply quality.md Proportionate Tests And Evidence and Verification Effectiveness And Completion. Assess evidence applicability and targeted finding re-verification; sufficient checking ends redundant collection, never required reviews or approvals. Missing proof and accepted deviations retain their original technical effect.
 
 ## Rules
 1. No QA pass without strong evidence.
@@ -183,9 +184,9 @@ If Context Graph impact is relevant, include the fields from `../../meta/contrac
 
 ### Compact Chat Output
 
-At `pass`: one line — `QA: pass — <one-line summary>`. Reference the durable QA report
-path. Do not show the Quality Readiness projection or evidence inventory in chat.
-At `revise`/`block`: show the decisive dimension, reason and next action.
+Follow quality.md Quality Readiness Projection: routine `pass` is one concise line
+with the durable report reference; explicit detail requests may show the overview.
+At `revise`/`block`, show its four dimensions and the decisive source/reason/next action.
 
 ## Decision Guidance
 - `pass`: required TP tasks are done, evidence is strong, no blocking Brownfield or solution-integrity risk remains.

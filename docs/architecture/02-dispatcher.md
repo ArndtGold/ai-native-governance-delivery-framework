@@ -274,6 +274,12 @@ Welche Schritte zu welcher Art gehören, steht im Code: `userGateOrder`, `intern
 Die Regeln, wann ein Schritt nötig ist, stehen im
 [Gate-Übergangsvertrag](../../plugins/agdf/meta/contracts/gate-transition.md).
 
+Der [zentrale Qualitätsvertrag](../../plugins/agdf/meta/contracts/quality.md) liefert
+die gemeinsamen Test-/Nachweis- und Befundregeln. Die bestehenden SD-/TP- und Review-Skills
+wenden sie an; ihre Ausgabe und ein technisches QA-Ergebnis ersetzen keine menschliche
+Freigabe. Die [Systemarchitektur](01-systemarchitektur.md#gemeinsamer-qualitätsvertrag)
+erklärt diese Zuständigkeit und ihre Grenzen.
+
 ## Bekannte Grenzen: Wo der Agent sich selbst kontrolliert
 
 Die folgenden Grenzen erklären das aktuelle Routing. Sie werden im

@@ -42,7 +42,26 @@ try {
   assert.equal(initial.continuation.approval_summary_heading, "AGDF Approval Summary (de; source=en)");
   assert.equal(initial.control.next_operation.skill_id, "sd-definition");
   assert.equal(initial.continuation.sources[0].type, "PRD");
-  assert.deepEqual(initial.continuation.runtime_contracts.map(c => c.module), ["sd-definition", "gate-artifact-preparation"]);
+  assert.deepEqual(initial.continuation.runtime_contracts.map(c => c.module), ["sd-definition", "gate-artifact-preparation", "quality"]);
+  const quality = initial.continuation.runtime_contracts.find(c => c.module === "quality");
+  const canonicalQuality = readFileSync(new URL("../../../plugins/agdf/meta/contracts/quality.md", import.meta.url), "utf8").replaceAll("\r\n", "\n");
+  assert.equal(quality.content, canonicalQuality, "bound SD receives the canonical shared policy, not a prose reminder");
+  assert.equal(quality.sha256, createHash("sha256").update(canonicalQuality).digest("hex"));
+  const qualityPath = join(plugin, "runtime/create-agdf/generated/plugins/agdf/meta/contracts/quality.md");
+  const qualityBytes = readFileSync(qualityPath);
+  unlinkSync(qualityPath);
+  try {
+    const before = bytes();
+    const missing = spawnSync(process.execPath, [validator, "skill-dispatch", "--json", "--skill", "gate-check", "--surface", "codex",
+      "--language", "de", "--working-directory", root, "--target-source", "explicit_target", "--primary-target", root,
+      "--run", f.runId, "--continue-delivery"], { env, encoding: "utf8" });
+    assert.equal(missing.error, undefined);
+    assert.ok(Number.isInteger(missing.status) && missing.status !== 0, "missing packaged quality refuses startup before authoring");
+    assert.match(missing.stderr, /quality\.md|runtime|integrity/iu);
+    assert.equal(bytes(), before, "early missing-resource refusal preserves all fixture runs");
+  } finally { writeFileSync(qualityPath, qualityBytes); }
+  assert.equal(bound("--continue-delivery").continuation.runtime_contracts.find(c => c.module === "quality").content, canonicalQuality);
+
   env.AGDF_RUN_ID=f.runId; assert.equal(dispatch("sd-definition").continuation.phase,"resolve_delivery_run"); delete env.AGDF_RUN_ID;
   assert.equal(dispatch("sd-definition","--run",f.runId).continuation.phase,"sd_definition");
   const valid=["--intake","--intake-mode","resume","--revision",f.revision(),"--sd-action","revise"];

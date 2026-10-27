@@ -8,7 +8,8 @@ description: "Use this skill for this scope: bound SD content. Boundary: content
 ## Runtime Contract
 
 Use the returned `continuation.runtime_contracts` after `skill_continuation`. If absent, load
-`../../meta/contracts/sd-definition.md` and `../../meta/contracts/gate-artifact-preparation.md`
+`../../meta/contracts/sd-definition.md`, `../../meta/contracts/gate-artifact-preparation.md`
+and `../../meta/contracts/quality.md`
 through the supplied contract reader or bundled files.
 Missing contract or invalid binding: stop. This skill owns SD content; gate-check owns readiness.
 

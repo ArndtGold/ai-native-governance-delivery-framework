@@ -1,0 +1,366 @@
+=== Original /tmp/agdf-quality-prepare.log ===
+npm notice run build:prepare
+npm notice run node scripts/verify-ci.mjs --profile prepare
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages in 13s
+
+107 packages are looking for funding
+  run `npm fund` for details
+[verify-ci] ui-dependencies passed (13.2s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+✓ built in 663ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1249259,"digest":"sha256:17eb8a4185a76c9aa8bdea6dbe0d2405f0fa4276d4223f437c8c99bc9c9a2d82","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 471ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":945815,"digest":"sha256:0cda3ead4c112991f697ae967bc0692dee465ef9e6f794ca7d43937f326ee7b6","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[verify-ci] ui-build passed (3.2s)
+[verify-ci] generate
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/public-plugin/copilot-profile.js:122
+    throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}`);
+          ^
+
+Error: AGDF_COPILOT_PAYLOAD_GROWTH: observed 397 files/3522782 bytes; baseline 397/3509461
+    at validateCopilotPayload (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/public-plugin/copilot-profile.js:122:11)
+    at syncPackageAssets (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:676:5)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:698:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3
+Verification failed at generate: node scripts/sync-package-assets.js (1)
+
+=== Original /tmp/agdf-quality-prepare-final.log ===
+npm notice run build:prepare
+npm notice run node scripts/verify-ci.mjs --profile prepare
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages in 14s
+
+107 packages are looking for funding
+  run `npm fund` for details
+[verify-ci] ui-dependencies passed (16.5s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+✓ built in 1.25s
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1249259,"digest":"sha256:17eb8a4185a76c9aa8bdea6dbe0d2405f0fa4276d4223f437c8c99bc9c9a2d82","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 900ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":945815,"digest":"sha256:0cda3ead4c112991f697ae967bc0692dee465ef9e6f794ca7d43937f326ee7b6","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[verify-ci] ui-build passed (6.4s)
+[verify-ci] generate
+[verify-ci] generate passed (7.2s)
+[verify-ci] assemble
+node:fs:440
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/assembly.json'
+    at readFileSync (node:fs:440:20)
+    at assembleNpm (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/assemble-npm.mjs:15:40)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/assemble-npm.mjs:69:162
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/assembly.json'
+}
+
+Node.js v22.22.3
+Verification failed at assemble: node scripts/assemble-npm.mjs (1)
+
+=== Original /tmp/agdf-quality-assemble.log ===
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.2",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.2",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.2",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+
+=== Original /tmp/agdf-quality-budget-review.log ===
+{
+  "profile": "copilot-runtime-plugin",
+  "observed": {
+    "files": 397,
+    "bytes": 3522782
+  },
+  "limits": {
+    "files": 397,
+    "bytes": 3509461
+  },
+  "headroom": {
+    "files": 0,
+    "bytes": -13321
+  },
+  "components": {
+    "license": {
+      "files": 1,
+      "bytes": 11357
+    },
+    "hook": {
+      "files": 1,
+      "bytes": 273
+    },
+    "control_scaffold": {
+      "files": 16,
+      "bytes": 50582
+    },
+    "mcp_runtime": {
+      "files": 17,
+      "bytes": 71996
+    },
+    "mcp_declaration": {
+      "files": 1,
+      "bytes": 322
+    },
+    "runtime_support": {
+      "files": 5,
+      "bytes": 48580
+    },
+    "manifest": {
+      "files": 1,
+      "bytes": 526
+    },
+    "runtime": {
+      "files": 325,
+      "bytes": 2873138
+    },
+    "skill": {
+      "files": 14,
+      "bytes": 109366
+    },
+    "locale_registry": {
+      "files": 1,
+      "bytes": 155991
+    },
+    "runtime_contract": {
+      "files": 1,
+      "bytes": 2094
+    },
+    "runtime_contract_module": {
+      "files": 14,
+      "bytes": 198557
+    }
+  },
+  "largest": [
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+      "bytes": 173107
+    },
+    {
+      "destination": "skills/agdf-interaction-locales.json",
+      "bytes": 155991
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/cjs/parser/index.js",
+      "bytes": 116660
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/cjs/tokenizer/index.js",
+      "bytes": 107434
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/parser/index.js",
+      "bytes": 107124
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/tokenizer/index.js",
+      "bytes": 98124
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+      "bytes": 67932
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/interaction.md",
+      "bytes": 57920
+    }
+  ]
+}
+Reviewed budget saved. Run sync-package-assets again to bind the inventory to the new limits.
+
+=== Original /tmp/agdf-quality-budget-final.log ===
+{
+  "profile": "copilot-runtime-plugin",
+  "observed": {
+    "files": 397,
+    "bytes": 3522791
+  },
+  "limits": {
+    "files": 397,
+    "bytes": 3522782
+  },
+  "headroom": {
+    "files": 0,
+    "bytes": -9
+  },
+  "components": {
+    "license": {
+      "files": 1,
+      "bytes": 11357
+    },
+    "hook": {
+      "files": 1,
+      "bytes": 273
+    },
+    "control_scaffold": {
+      "files": 16,
+      "bytes": 50582
+    },
+    "mcp_runtime": {
+      "files": 17,
+      "bytes": 71996
+    },
+    "mcp_declaration": {
+      "files": 1,
+      "bytes": 322
+    },
+    "runtime_support": {
+      "files": 5,
+      "bytes": 48580
+    },
+    "manifest": {
+      "files": 1,
+      "bytes": 526
+    },
+    "runtime": {
+      "files": 325,
+      "bytes": 2873138
+    },
+    "skill": {
+      "files": 14,
+      "bytes": 109375
+    },
+    "locale_registry": {
+      "files": 1,
+      "bytes": 155991
+    },
+    "runtime_contract": {
+      "files": 1,
+      "bytes": 2094
+    },
+    "runtime_contract_module": {
+      "files": 14,
+      "bytes": 198557
+    }
+  },
+  "largest": [
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+      "bytes": 173107
+    },
+    {
+      "destination": "skills/agdf-interaction-locales.json",
+      "bytes": 155991
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/cjs/parser/index.js",
+      "bytes": 116660
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/cjs/tokenizer/index.js",
+      "bytes": 107434
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/parser/index.js",
+      "bytes": 107124
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/tokenizer/index.js",
+      "bytes": 98124
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+      "bytes": 67932
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/interaction.md",
+      "bytes": 57920
+    }
+  ]
+}
+Reviewed budget saved. Run sync-package-assets again to bind the inventory to the new limits.
+
+=== Original /tmp/agdf-quality-c00-final.log ===
+COMMAND node scripts/sync-package-assets.js
+RESULT 0 
+COMMAND node scripts/assemble-npm.mjs
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.2",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.2",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.2",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+RESULT 0 
+COMMAND npm --prefix packages/cli run release:prepare
+npm notice run create-agdf@0.20.2 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.20.2 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.20.2 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (11 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.20.2 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.20.2 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (49 surfaces at 0.20.2; 11 profile snapshots)
+npm notice run create-agdf@0.20.2 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+warning: Empty last update token.
+Public plugin tests passed (63 inventoried candidate files; digest 2040ebb0706cc87fdc305250e40996bfcca3e6673b3bbc6946120802b851acd1)
+npm notice run create-agdf@0.20.2 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest 2040ebb0706cc87fdc305250e40996bfcca3e6673b3bbc6946120802b851acd1
+RESULT 0 

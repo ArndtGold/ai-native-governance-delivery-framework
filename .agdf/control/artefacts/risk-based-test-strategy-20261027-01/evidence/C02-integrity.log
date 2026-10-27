@@ -1,0 +1,364 @@
+=== Original /tmp/agdf-quality-c02.log ===
+COMMAND npm --prefix packages/cli run test:instruction-footprint
+npm notice run create-agdf@0.20.2 test:instruction-footprint
+npm notice run node scripts/instruction-footprint-test.js
+{
+  "status": "pass",
+  "evidence_plane": "source_composed",
+  "profile_surface": "generated_and_temporary_install_fixture",
+  "evaluator_surface": "node_deterministic",
+  "loaded_host_evidence": false,
+  "generated_digest": "3fec6dc489358fb5c905f6ae82b8f81968f905265c2784d934d962085a0e406d",
+  "canonical_kernel_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
+  "measurements": [
+    {
+      "surface_id": "activationKernel",
+      "instance_id": "canonical",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-path-search",
+      "raw_bytes": 281,
+      "normalized_bytes": 281,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "brownfield-analysis",
+      "raw_bytes": 287,
+      "normalized_bytes": 287,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ux-intent-definition",
+      "raw_bytes": 278,
+      "normalized_bytes": 278,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "clean-implementation-review",
+      "raw_bytes": 231,
+      "normalized_bytes": 231,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "code-review",
+      "raw_bytes": 243,
+      "normalized_bytes": 243,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-closeout",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ur-definition",
+      "raw_bytes": 191,
+      "normalized_bytes": 191,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "prd-definition",
+      "raw_bytes": 192,
+      "normalized_bytes": 192,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "sd-definition",
+      "raw_bytes": 163,
+      "normalized_bytes": 163,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "tp-definition",
+      "raw_bytes": 164,
+      "normalized_bytes": 164,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "gate-check",
+      "raw_bytes": 190,
+      "normalized_bytes": 190,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "qa-gate",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "release-or",
+      "raw_bytes": 168,
+      "normalized_bytes": 168,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "task-plan-review",
+      "raw_bytes": 227,
+      "normalized_bytes": 227,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "allSkillDiscoveryDescriptions",
+      "instance_id": "definition-order",
+      "raw_bytes": 2987,
+      "normalized_bytes": 2987,
+      "max_normalized_bytes": 3000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "codex",
+      "raw_bytes": 2041,
+      "normalized_bytes": 1910,
+      "max_normalized_bytes": 1912,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "claude",
+      "raw_bytes": 2042,
+      "normalized_bytes": 1911,
+      "max_normalized_bytes": 1912,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "copilot",
+      "raw_bytes": 2043,
+      "normalized_bytes": 1912,
+      "max_normalized_bytes": 1912,
+      "status": "pass"
+    },
+    {
+      "surface_id": "runtimeCheckSupplement",
+      "instance_id": "codex-consented",
+      "raw_bytes": 1303,
+      "normalized_bytes": 771,
+      "max_normalized_bytes": 1200,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "repository",
+      "raw_bytes": 1496,
+      "normalized_bytes": 1496,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "global-installed",
+      "raw_bytes": 1572,
+      "normalized_bytes": 1572,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeActiveDynamicContext",
+      "instance_id": "active",
+      "raw_bytes": 887,
+      "normalized_bytes": 760,
+      "max_normalized_bytes": 1000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeInactiveDynamicContext",
+      "instance_id": "inactive",
+      "raw_bytes": 0,
+      "normalized_bytes": 0,
+      "max_normalized_bytes": 0,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "repository",
+      "raw_bytes": 2384,
+      "normalized_bytes": 2257,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "global-installed",
+      "raw_bytes": 2460,
+      "normalized_bytes": 2333,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeCompactionAddition",
+      "instance_id": "active",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "canonical-generated",
+      "raw_bytes": 5594,
+      "normalized_bytes": 5594,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "global-installed",
+      "raw_bytes": 6897,
+      "normalized_bytes": 6897,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    }
+  ]
+}
+Instruction-footprint tests passed
+RESULT 0 
+COMMAND node plugins/agdf/scripts/check-runtime-integrity.mjs
+[agdf-runtime-integrity] ok (mode=source; 14 skills and 16 control files checked)
+RESULT 0 
+COMMAND npm --prefix packages/cli run test:runtime-integrity-layout
+npm notice run create-agdf@0.20.2 test:runtime-integrity-layout
+npm notice run node scripts/runtime-integrity-layout-test.js
+Runtime integrity layout tests passed
+RESULT 0 
+COMMAND npm --prefix packages/cli run test:copilot-profile
+npm notice run create-agdf@0.20.2 test:copilot-profile
+npm notice run node ../../scripts/skill-name-projection-test.mjs && node scripts/copilot-profile-test.js
+skill name projections passed
+Copilot profile tests passed (inventory, drift, exclusions and growth fail closed)
+RESULT 0 
+COMMAND node scripts/payload-budget.js
+{
+  "profile": "copilot-runtime-plugin",
+  "observed": {
+    "files": 397,
+    "bytes": 3522791
+  },
+  "limits": {
+    "files": 397,
+    "bytes": 3522791
+  },
+  "headroom": {
+    "files": 0,
+    "bytes": 0
+  },
+  "components": {
+    "license": {
+      "files": 1,
+      "bytes": 11357
+    },
+    "hook": {
+      "files": 1,
+      "bytes": 273
+    },
+    "control_scaffold": {
+      "files": 16,
+      "bytes": 50582
+    },
+    "mcp_runtime": {
+      "files": 17,
+      "bytes": 71996
+    },
+    "mcp_declaration": {
+      "files": 1,
+      "bytes": 322
+    },
+    "runtime_support": {
+      "files": 5,
+      "bytes": 48580
+    },
+    "manifest": {
+      "files": 1,
+      "bytes": 526
+    },
+    "runtime": {
+      "files": 325,
+      "bytes": 2873138
+    },
+    "skill": {
+      "files": 14,
+      "bytes": 109375
+    },
+    "locale_registry": {
+      "files": 1,
+      "bytes": 155991
+    },
+    "runtime_contract": {
+      "files": 1,
+      "bytes": 2094
+    },
+    "runtime_contract_module": {
+      "files": 14,
+      "bytes": 198557
+    }
+  },
+  "largest": [
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+      "bytes": 173107
+    },
+    {
+      "destination": "skills/agdf-interaction-locales.json",
+      "bytes": 155991
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/cjs/parser/index.js",
+      "bytes": 116660
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/cjs/tokenizer/index.js",
+      "bytes": 107434
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/parser/index.js",
+      "bytes": 107124
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/node_modules/parse5/dist/tokenizer/index.js",
+      "bytes": 98124
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+      "bytes": 67932
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/interaction.md",
+      "bytes": 57920
+    }
+  ]
+}
+RESULT 0 

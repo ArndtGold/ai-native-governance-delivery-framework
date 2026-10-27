@@ -1,5 +1,68 @@
 # AGDF Runtime Contract — Quality
 
+This is the shared normative quality contract. SD defines strategy, TP plans executable
+checks, reviews assess their dimensions, and `qa-gate` alone decides final technical QA.
+Human approvals, mode/depth, recording and presentation retain their existing owners.
+Graph, registry and architecture entries explain and reference this contract; they do
+not own parallel rules. These instructions guide assessment, not universal enforcement.
+
+## Proportionate Tests And Evidence
+
+Before adding tests, evidence documents or repeat executions, assess approved criteria,
+changed behavior, affected interfaces/dependencies, regression risks and existing coverage.
+Choose the smallest sufficient checks for those claims; file locality alone is no impact
+assessment. Unknown reach requires broader checking or an explicit evidence gap.
+
+Distinguish targeted Run checks, required PR/merge CI and, where actually available,
+full nightly checks. Explain placement and the decision point by which results are needed.
+Verify actual automated coverage against the authoritative test inventory: a CI label
+does not prove a full suite, and an undeclared or pending nightly supplies no result.
+Essential change-specific proof must exist before the decision it supports. Preserve
+complete required regression coverage; no dropping tests, weakening assertions or raising
+timeouts merely to shorten execution.
+
+For each obligation or coherent group, identify the claim, acceptance/risk/rule basis
+and required decision point in existing planning/review records. Reuse before collection:
+reference retrievable authoritative results with their tested revision, environment and
+justified applicability to the current claim. One result may support multiple mapped
+criteria, tasks or reviews. Never relabel an older result as execution on a newer revision.
+Changed behavior/dependencies, incompatible environments, expired sources, contradictions
+or uncertain applicability require new proof or a visible gap.
+
+Additional files, source/log copies and repeated runs need concrete added value, such as
+an uncovered claim, changed conditions, reproducibility or required independent review.
+A later gate alone supplies none. Use compact references and grouped explanations in
+existing records; no separate registry, mandatory per-proof form, fixed file budget or
+report about overhead. A summary never replaces the underlying proof. Technical binding,
+approval and history records stay with their existing writers and retention rules;
+this policy authorizes no deletion or rewriting. Required reviews retain their own
+assessment and accountable owner even when they share evidence.
+
+## Verification Effectiveness And Completion
+
+Derive expected results from approved requirements and domain rules, not copied
+implementation logic. For a defect fix, where feasible, show the targeted regression
+check failing on the original defect for the intended reason and passing with the fix.
+Critical new rules need an applicable negative case. Empty assertions or infrastructure
+failure do not establish defect detection. Unsafe or impractical replay needs a concrete
+reason and an adequate alternative with visible limits in the existing test/review record;
+this is no blanket mutation-testing or historical-replay obligation.
+
+Resolve a finding only after targeted re-verification of its original failure condition
+and relevant side effects, or a justified adequate alternative within the existing owner.
+A code edit, status change or green aggregate build alone is insufficient. Missing or
+inadequate re-verification remains a gap through Normalized Review Gaps below; deviation
+acceptance never converts a gap into technical resolution or pass.
+
+Technical verification is complete when required claims/coverage have valid proof,
+applicable findings are resolved and contradictions are cleared. Stop redundant collection
+then. Further checks need a concrete trigger: changed conditions, invalidated evidence,
+an uncovered obligation or a new contradiction. Recheck affected obligations, broadening
+when impact is uncertain. Mandatory reviews, required independent assessments, human gates
+and closeout still apply; verification completion is no delivery approval. Record what
+was actually observed: structural checks, semantic self-review, package parity and native
+host behavior are distinct evidence classes. Claim savings or compliance only as measured.
+
 ## Quality Readiness Projection
 
 When `qa-gate` authors or refines `QA_REPORT.md`, it uses only the bound absolute plugin-owned
@@ -23,8 +86,11 @@ decision authority.
 - The projection is derived, non-persistent and non-authorizing. It cannot accept an approval,
   advance a gate, suppress a report or replace the Run Status Card, Gate Transition Card, JSON
   projection or durable review artefacts.
-- Show compact rows on `pass`. On `revise` or `block`, expand only the decisive row with its
-  canonical report reference; do not paste complete reports into chat.
+- Routine `pass` output is one concise result line with its report reference, without
+  automatic four-row expansion. At `revise` or `block`, show the four dimensions and
+  expand only the decisive reason with its source and next permissible action. Full
+  reports and the derived overview remain available on explicit detail/status requests,
+  including at `pass`; human gate presentations retain their existing complete material.
 
 
 ## Chat Output Discipline
@@ -52,9 +118,10 @@ the agent makes fewer calls and produces less text around them.
 Skill output compaction:
 
 - QA, Code Review, TP Review and Clean Implementation Review output is 1 line at `pass`:
-  `<skill>: pass — <one-line summary>`.
+  `<skill>: pass — <one-line summary>; <report reference>`.
 - At `revise`/`block`: the decisive dimension, reason and next action. The Quality
-  Readiness projection is shown only at `revise`/`block`, not at `pass`.
+  Readiness projection follows Quality Readiness Projection above; routine `pass`
+  never expands it automatically. Explicit requests may show full detail.
 - Full reports remain in durable files; the chat references the path.
 
 Tool-call batching:

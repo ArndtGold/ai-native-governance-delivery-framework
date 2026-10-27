@@ -1,0 +1,50 @@
+=== Original /tmp/agdf-quality-c01.log ===
+Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).
+
+=== Original /tmp/agdf-quality-sd.log ===
+npm notice run create-agdf@0.20.2 test:sd-definition
+npm notice run node scripts/sd-definition-test.js
+<anonymous_script>:1
+
+
+SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at dispatch (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/sd-definition-test.js:31:24)
+    at bound (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/sd-definition-test.js:34:30)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/sd-definition-test.js:53:22
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3
+
+=== Original /tmp/agdf-quality-tp.log ===
+npm notice run create-agdf@0.20.2 test:tp-definition
+npm notice run node scripts/tp-definition-test.js && node scripts/tp-clarification-test.js && node ../core/test/tp-readiness-test.js
+<anonymous_script>:1
+
+
+SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at dispatch (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/fixtures/tp-definition.js:69:26)
+    at Object.bound (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/fixtures/tp-definition.js:84:27)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/tp-definition-test.js:19:24
+    at withTpFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/fixtures/tp-definition.js:83:20)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/tp-definition-test.js:7:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3
+
+=== Original /tmp/agdf-quality-sd-final.log ===
+npm notice run create-agdf@0.20.2 test:sd-definition
+npm notice run node scripts/sd-definition-test.js
+SD assembled authoring/source/readiness/revision/approval boundaries passed (synthetic fixtures).
+
+=== Original /tmp/agdf-quality-tp-final.log ===
+npm notice run create-agdf@0.20.2 test:tp-definition
+npm notice run node scripts/tp-definition-test.js && node scripts/tp-clarification-test.js && node ../core/test/tp-readiness-test.js
+TP assembled assignment, ready-draft/revision, protected-source, recording and approval boundaries passed.
+TP production clarification routing, blocked approval, no-write status and source-bound answer resumption passed.
+TP declared decisions, typed deferred sources, material routing and stale/premature closure checks passed.

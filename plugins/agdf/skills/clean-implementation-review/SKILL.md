@@ -59,6 +59,8 @@ Clean-review-specific output must make the primary solution, fallbacks, workarou
 Applicable findings must use `../../meta/contracts/quality.md` §Normalized Review Gaps. This skill
 must distinguish a missing upstream decision from implementation that violates an approved decision.
 
+Apply quality.md Proportionate Tests And Evidence and Verification Effectiveness And Completion when assessing reuse and parallel structures. Reject unnecessary duplicated proof and status-only finding closure; shared evidence preserves this review responsibility.
+
 ## Rules
 1. Clean primary solution before fallback.
 2. Root cause before symptom masking.

@@ -1,0 +1,137 @@
+# UR: Proportionate run tests with complete regression evidence
+
+Status: draft
+Gate: UR
+Gate approval: open
+Requirements clarification: complete
+Preview requirement: none
+Date: 2026-10-27
+Owner: agent
+
+## 1. Problem
+
+The user experiences long waits for all test cases to finish during delivery work.
+The framework does not yet centrally require an explicit assessment of which tests
+are necessary for the current Run, which existing tests already cover the need,
+and which broader regression checks are executed in CI or a Nightly Build.
+Without this distinction, repeated broad local execution can add waiting time,
+while a reduced selection can leave its coverage and outstanding evidence unclear.
+The reported waiting time is a user observation; its causes and magnitude have not
+been measured in this Run.
+
+## 2. Goal
+
+Make test planning and execution proportionate to the approved change and its risks,
+so delivery agents obtain targeted feedback during the Run and can explain where
+complete required regression coverage is obtained. Reduce avoidable repeated full
+test execution without weakening acceptance, quality decisions or evidence integrity.
+
+## Affected Users
+
+- Maintainers and delivery agents who design tests, implement changes and review results.
+- The human deciding whether the presented evidence is sufficient for acceptance.
+
+## 3. Scope
+
+- Establish one central policy in `plugins/agdf/meta/contracts/quality.md` for assessing
+  test necessity and execution placement before new tests or test commands are planned.
+- Require consideration of approved acceptance criteria, changed behavior, affected
+  interfaces, dependencies and regression risks, including existing reusable tests.
+- Distinguish targeted checks during the Run, required PR/merge CI checks and, where
+  applicable, a full Nightly Build (NB). Define how the plan explains what runs where,
+  why that selection is sufficient, and when its results are required.
+- Require verification of the actual CI coverage rather than assuming that a CI
+  build executes the full suite. Missing or unavailable automation stays explicit.
+- Apply the central policy through SD test/evidence strategy and TP executable test
+  planning, with QA consuming the resulting evidence. Keep one normative policy owner.
+- Preserve complete required regression coverage across the declared execution paths.
+  Deferring an essential change-specific check to a future nightly run cannot supply
+  evidence for the present decision. Reused CI evidence must match the tested revision
+  and relevant environment; unavailable results remain outstanding.
+- Bound this first slice to the policy and its consistent integration into existing
+  authoring/review guidance, templates and proportionate verification. The design must
+  assess whether a nightly split is applicable; this UR does not prescribe one.
+
+## 4. Non-Goals
+
+- Implement a Nightly Build, change required branch checks or relocate existing CI jobs
+  in this first slice.
+- Delete test coverage, relax assertions or raise timeouts to shorten execution.
+- Create a second quality policy, an additional approval gate or an automatic waiver
+  of missing evidence.
+- Claim measured speed improvements, native-host qualification or a successful CI run
+  from policy text or repository tests alone.
+- Rewrite historical approved Run artefacts.
+
+## 5. Acceptance Signals
+
+- A maintainer can locate the test-selection rule in the existing central quality
+  contract; SD, TP and QA apply it without maintaining competing complete policies.
+- Before designing new tests, the agent identifies existing relevant coverage and
+  explains the additional tests or evidence needed for the approved Run.
+- A test strategy makes the targeted Run checks, required CI checks and any applicable
+  full nightly checks distinguishable, with a reason for their placement and the
+  decision point by which required evidence must exist.
+- A reviewer can determine whether the actual declared CI/nightly paths cover the
+  required regression inventory and which results are still missing. A CI label alone
+  is not treated as proof of full coverage.
+- Reduced local execution has a visible scope/risk justification. Uncertain impact,
+  uncovered interfaces or insufficient existing evidence require a broader selection
+  or an explicit evidence gap.
+- A future nightly run or an older green build cannot be presented as a passing test
+  of the current change. Required missing results remain visible to QA.
+- The policy permits avoiding redundant full-suite repetitions while retaining the
+  existing complete CI coverage unless a separately approved change alters it.
+
+## 6. Existing Source Of Truth
+
+- `plugins/agdf/meta/contracts/quality.md`: central quality/evidence contract, normalized
+  review gaps and QA decision boundaries.
+- `plugins/agdf/meta/contracts/sd-definition.md` and
+  `plugins/agdf/control/templates/artefacts/SD.md`: solution-design authoring and the
+  existing Test And Evidence Strategy section.
+- `plugins/agdf/meta/contracts/tp-definition.md` and
+  `plugins/agdf/control/templates/artefacts/TP.md`: executable task/test mapping and
+  scenario evidence obligations.
+- Existing review and `qa-gate` guidance: consumers of evidence and outstanding gaps.
+- `scripts/ci-plan.mjs`, `scripts/ci-plan-test.mjs`, `scripts/verify-ci.mjs`, canonical
+  package scripts and `.github/workflows/agdf-guardrails.yml` / `verify-agdf.yml`:
+  current executable CI inventory, partitioning and coverage checks. Policy prose
+  must not introduce a competing test inventory.
+- Current repository inspection shows PR/main CI partitioning and no scheduled nightly
+  trigger. This is a source-level observation, not an executed CI result.
+
+## 7. Risks And Unknowns
+
+- Test duration and redundant execution have not been baselined; later work must not
+  promise a numerical speedup without measurements.
+- Brownfield Review and PRD must identify the existing authoring/review consumers that
+  need a central-policy reference without broad unrelated cleanup.
+- SD must resolve how sufficient targeted coverage is justified and when uncertainty
+  requires escalation to broader testing. File locality alone may miss dependencies.
+- Nightly execution is a possible placement for expensive regression checks, not an
+  existing guaranteed service. Introducing it requires a separate CI scope decision.
+- Evidence may differ by revision, platform, runtime and execution path. Reuse must
+  retain those limits, and repository tests cannot establish native-host behavior.
+- A documentation rule guides agent behavior; any claim of machine enforcement must
+  be bounded to the validation actually implemented and tested.
+
+## 8. Next Step
+
+Review this UR and approve only with:
+
+`Approval: UR`
+
+After deliberate UR approval, continue through existing Brownfield Review and
+Mode/Slice routing, then derive the PRD. Later gate artefacts and implementation
+require their existing prerequisites and approvals.
+
+## AGDF Approval Summary (de; source=en)
+
+- Problem: Vollständige Testläufe verursachen lange Wartezeiten. Eine zentrale Regel zur gezielten Testauswahl und zur nachgewiesenen CI-Abdeckung fehlt bislang.
+- Ziel: Unnötige Wiederholungen vollständiger Tests vermeiden und die erforderliche Abdeckung sowie offene Nachweise sichtbar halten. Betroffen sind Maintainer, umsetzende und prüfende Agenten sowie der freigebende Mensch.
+- Umfang: quality.md wird zentraler Regelgeber. Vor der Testplanung sind vorhandene Tests, Akzeptanzkriterien, Änderungen, Schnittstellen und Risiken zu prüfen. SD legt die Strategie fest, TP konkretisiert die Ausführung, QA bewertet Nachweise. Gezielte Run-Tests, verpflichtende CI und gegebenenfalls vollständige Nightly-Tests werden mit Begründung und erforderlichem Nachweiszeitpunkt unterschieden.
+- Erfolg: Relevante vorhandene Tests werden wiederverwendet, zusätzliche Tests begründet und die tatsächliche vollständige Regressionsabdeckung überprüft. Fehlende Ergebnisse bleiben offen; ältere oder zukünftige Läufe belegen die aktuelle Änderung nicht automatisch.
+- Grenzen: Dieser erste Umfang ändert keine CI-Workflows, führt keinen Nightly Build ein, entfernt keine Testabdeckung und schafft keine zusätzliche Freigabe. Bestehende Verträge und das ausführbare CI-Inventar bleiben maßgeblich.
+- Risiken: Laufzeitgewinn ist noch ungemessen; indirekte Auswirkungen und Grenzen der Nachweiswiederverwendung sind im Design zu klären. Nightly ist eine Option.
+- Nächster Schritt: UR prüfen und mit Approval: UR freigeben; danach Brownfield Review, Mode/Slice und PRD nach bestehendem Verfahren.

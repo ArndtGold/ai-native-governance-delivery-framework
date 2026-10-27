@@ -134,6 +134,19 @@ Die zweite wichtige Regel lautet: **Ein Adapter besitzt nur die Besonderheiten s
 kennt Konfigurationsorte, Prioritäten und native Scopes. Paketbeschaffung, Dispatcher-Semantik,
 Gate-Auswertung und gemeinsame Ergebnisdarstellung bleiben außerhalb des Adapters.
 
+### Gemeinsamer Qualitätsvertrag
+
+Der [zentrale Qualitätsvertrag](../../plugins/agdf/meta/contracts/quality.md) ist die
+maßgebliche Quelle für gemeinsame Qualitäts- und Nachweisregeln: proportionale
+Testauswahl, gültige Wiederverwendung, wirksame Prüfung, Befundnachprüfung und Prüfabschluss.
+SD legt die Strategie fest, TP konkretisiert sie; die vorhandenen Reviews bewerten ihre
+Dimensionen. `qa-gate` trifft die technische QA-Entscheidung. Menschliche Gate-Freigaben
+bleiben eigene Entscheidungen. Moduswahl, Aufzeichnung und Darstellung behalten ihre
+bestehenden Zuständigkeiten. Die [SoT-Registry](../../.agdf/control/SOT_REGISTRY.md) und
+[der Qualitätsknoten](../../.agdf/control/CONTEXT_GRAPH.md#cg-quality-contract) verweisen
+auf diesen Owner. Die Dokumentation und Vertragslieferung belegen für sich keine
+universelle technische Durchsetzung oder Befolgung durch einen nativen Agenten.
+
 ## 3. Zwei Wege zum gemeinsamen Dispatcher
 
 ![Aufruffluss: Skill und MCP erreichen denselben Dispatcher. Nach Zielbindung und gegebenenfalls Run-Zuordnung folgen Gate-Auswertung, terminale Antwort oder begrenzte Agentenfortsetzung einschließlich Präsentationsvorbereitung.](diagrams/03-dispatch.svg)

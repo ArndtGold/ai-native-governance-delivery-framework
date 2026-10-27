@@ -36,7 +36,10 @@ Which constraints must implementation preserve?
 
 ## 6. Test And Evidence Strategy
 
-Which evidence must TP and QA later collect?
+Apply quality.md Proportionate Tests And Evidence and Verification Effectiveness And
+Completion. What existing coverage can be reused, what risks/interfaces need new proof,
+and which Run/CI/available-nightly checks must finish before which decision? Explain
+applicability, uncertainty and gaps proportionately here; do not create a second policy.
 
 ## 7. Acceptance Traceability
 

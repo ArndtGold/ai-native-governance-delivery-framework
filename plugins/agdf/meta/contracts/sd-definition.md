@@ -18,6 +18,12 @@ approved bindings or unrelated prerequisite/integrity/source blockers require fr
 
 ## Draft and clarify
 
+Apply quality.md Proportionate Tests And Evidence and Verification Effectiveness And
+Completion from the bound contracts (or existing declared contract-reader fallback).
+In Test And Evidence Strategy, assess risk/dependencies and reusable coverage before new
+checks; place Run/CI/available-nightly proof with decision timing and visible gaps. Use
+existing sections and grouped references, not another evidence schema or policy copy.
+
 Use the existing SD format and one canonical unapproved design: draft/open metadata, named Owner,
 Solution Overview, Ownership And Source Of Truth, Architecture Decisions, Integration Points,
 Constraints And Compatibility, Test And Evidence Strategy, Acceptance Traceability, Risks And

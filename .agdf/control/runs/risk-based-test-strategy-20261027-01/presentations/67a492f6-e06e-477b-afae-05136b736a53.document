@@ -1,0 +1,41 @@
+## Kurzfassung · UAT
+
+Run: `risk-based-test-strategy-20261027-01` · Gate: `UAT` · Revision: `2b3afc7e-455d-449a-8d61-41b684d972e1`
+
+- Ziel: Für jede Entscheidung die kleinste ausreichende Menge an Tests und Nachweisen verwenden. Maintainer, Agenten und freigebende Menschen sollen weniger suchen, zuordnen und vergleichen müssen; Abdeckung und offene Lücken bleiben sichtbar.
+- Geliefertes Ergebnis: quality.md ist erweitert und wird SD/TP tatsächlich mitgeliefert; bestehende Vorlagen und Reviews wenden den Vertrag an. Context Graph, SoT-Registry und Architektur verweisen auf denselben Owner. Alle 8 Aufgaben, 12 Kriterien und 19 geplanten Szenarien sind abgedeckt. TP-, Clean- und Code-Review sind erfasst; technisches QA-Ergebnis: pass.
+- Technische QA: pass
+- Nachweisgrenzen: Quellen-/Szenariobewertung, Vertragslieferung und Paketintegrität sind belegt. Keine native Agentenbefolgung, unabhängige Prüfung, entfernte CI-Ausführung oder gemessene Zeitersparnis; keine Installation erfolgt.
+- Risiken und offene Punkte: Kooperative Regeln bleiben auf korrekte Anwendung und bestehende Kontrollen angewiesen. Das exakt geprüfte Payload-Budget enthält keinen Spielraum. Keine offene blockierende Abweichung im freigegebenen Umfang festgestellt.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 8
+
+- QA: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/QA_REPORT.md · sha256:0549633a8a338d6290c298d7d37a117133e54581719c70c6e259eabb5c86a709
+- Review: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/TP_REVIEW.md · sha256:7a21056be49c7996919a1faf497e931504b7a1f5b57b70598eb5dfd15bb35e15
+- Review: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:16b8f8a77edd96efc979518e95370047716c9c11ab3343f282f225fd25e2ffbd
+- Review: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/CODE_REVIEW.md · sha256:62e7cdc21754e735fb24f06458df93348c63633ecc9d9f8e7040f34066df51ab
+- UR: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/UR.md · sha256:680afdfada2f352cb010db4d0305629c8faa26846e5c5729aa6693b0907c6f0d
+
+## Vorliegende UAT-Evidenz
+
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/risk-based-test-strategy-20261027-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/risk-based-test-strategy-20261027-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/PRD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/SD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/TP_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/risk-based-test-strategy-20261027-01/QA_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

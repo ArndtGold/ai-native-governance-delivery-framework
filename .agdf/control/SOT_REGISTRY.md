@@ -7,6 +7,7 @@
 | Portable plugin identity/profile projection, repository source root and build-only schema validation | plugins/agdf/meta/agdf-plugin.definition.json; scripts/public-plugin/source-root.js; scripts/public-plugin/manifest.js; scripts/public-plugin/validator.js; scripts/support/portable-schema.js; plugins/agdf/meta/schemas/agent-plugins/1.0.0/ | active | AGDF; Arndt Gold accountable | 2026-10-01 |
 | Shared hook source templates | plugins/agdf/host-templates/shared/hooks/; scripts/sync-package-assets.js | active | AGDF | 2026-10-01 |
 | Runtime contracts | plugins/agdf/meta/contracts/ | active | AGDF | 2026-07-18 |
+| Shared quality, proportionate tests/evidence and normalized finding rules | [quality.md](../../plugins/agdf/meta/contracts/quality.md); [context](CONTEXT_GRAPH.md#cg-quality-contract) | active | AGDF quality contract; SD/TP and reviews apply it; qa-gate owns technical QA, human approvals remain separate | 2026-10-27 |
 | Core rule evaluation and CLI composition | packages/core/lib/control-evaluation/; packages/cli/lib/cli/validation-handlers.js | active | AGDF | 2026-07-18 |
 | Surface-local validator resolution and generation | packages/cli/lib/runtime/; scripts/sync-plugin-runtime.js | active | AGDF | 2026-07-18 |
 | Release-built plugin composition and durable marketplace staging | scripts/sync-package-assets.js; packages/cli/lib/installers/local-marketplace.js; packages/cli/lib/installers/plugin-installers.js; packages/cli/lib/host-adapters/ (native mechanisms) | active | AGDF | 2026-09-05 |

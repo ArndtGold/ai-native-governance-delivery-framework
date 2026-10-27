@@ -1,0 +1,49 @@
+=== Original /tmp/agdf-quality-c03.log ===
+COMMAND test:interaction-presentation
+npm notice run create-agdf@0.20.2 test:interaction-presentation
+npm notice run node ../core/test/interaction-presentation-test.js
+interaction presentation tests passed
+gate rationale and why tests passed
+scope classification card tests passed
+task target orientation tests passed
+RESULT test:interaction-presentation 0
+COMMAND test:skill-evals
+npm notice run create-agdf@0.20.2 test:skill-evals
+npm notice run node scripts/skill-evals-test.js
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'block' !== 'pass'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/skill-evals-test.js:14:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'block',
+  expected: 'pass',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+RESULT test:skill-evals 1
+
+=== Original /tmp/agdf-quality-evals-final.log ===
+npm notice run create-agdf@0.20.2 test:skill-evals
+npm notice run node scripts/skill-evals-test.js
+AGDF skill eval tests passed
+
+=== Original /tmp/agdf-quality-replay-final.log ===
+npm notice run create-agdf@0.20.2 eval:skills
+npm notice run node ../../evals/scripts/run-skill-evals.js
+AGDF skill evals: pass (113/113 cases; 14 skills; deterministic replay, not live host execution)
+
+=== Original /tmp/agdf-quality-package-final.log ===
+npm notice run create-agdf@0.20.2 test:package-contents
+npm notice run node scripts/package-contents-test.js
+Package contents tests passed (1355 files; complete release-built plugin present)

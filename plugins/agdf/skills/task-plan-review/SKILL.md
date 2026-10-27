@@ -62,6 +62,8 @@ If `context_graph_required_action` is not `none`, the affected task is complete 
 Applicable review gaps must use `../../meta/contracts/quality.md` §Normalized Review Gaps. This skill
 must not maintain its own type-to-route mapping.
 
+Verify scoped coverage, reuse applicability and remaining obligations under quality.md Proportionate Tests And Evidence and Verification Effectiveness And Completion. Reuse valid results without replacing this review assessment; a later gate alone requires no recollection.
+
 ## Rules
 1. The Task Plan is the reference, not plausible code.
 2. No assumptions without evidence.

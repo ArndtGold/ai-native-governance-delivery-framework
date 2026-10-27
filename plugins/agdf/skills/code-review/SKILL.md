@@ -58,6 +58,8 @@ Code-review-specific output must make actual findings, missing review scope, evi
 Applicable findings must use `../../meta/contracts/quality.md` §Normalized Review Gaps. Concrete diff
 defects remain Code Review findings; missing upstream constraints route to their authoritative owner.
 
+Apply quality.md Proportionate Tests And Evidence and Verification Effectiveness And Completion to actual changed behavior: check requirement-derived expectations, meaningful defect detection and targeted re-verification of findings, including relevant side effects or justified alternatives.
+
 ## Rules
 1. Review the actual diff and impacted code, not intent alone.
 2. Findings require concrete evidence.

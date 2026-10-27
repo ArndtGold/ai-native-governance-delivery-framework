@@ -11,6 +11,12 @@ writing; repository scaffold copies are no fallback. Unbound invocation uses the
 inventory, then revision-bound gate-check intake. Ambient runs, cwd, selection and discovery grant
 no assignment or editing intent. Keep approved sources and foreign runs protected.
 
+Apply the bound quality.md Proportionate Tests And Evidence and Verification
+Effectiveness And Completion; use the declared reader fallback only if needed. Resolve
+strategy into executable checks, justified reuse/applicability, requirement-derived
+expected results and decision timing in existing Test Plan/evidence fields or grouped
+prose. Do not create a per-proof form; retain missing results and mandatory reviews.
+
 Preserve criteria-chain-v1, stable task/scenario IDs and the existing TP template. Map every PRD
 criterion and associated SD decision to tasks, dependencies, boundary/error scenarios, observable
 expected results and exact evidence sources. Reference acceptance IDs; never copy or rename their

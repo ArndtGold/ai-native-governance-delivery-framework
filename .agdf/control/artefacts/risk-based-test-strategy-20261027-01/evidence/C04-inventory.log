@@ -1,0 +1,70 @@
+=== Original /tmp/agdf-quality-c04.log ===
+TAP version 13
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 1 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 418.762561
+  type: 'test'
+  ...
+# Subtest: the workflow matrix exposes functional labels for repository, release and published MCP callers
+ok 2 - the workflow matrix exposes functional labels for repository, release and published MCP callers
+  ---
+  duration_ms: 1818.862489
+  type: 'test'
+  ...
+# Subtest: compact graph names retain purpose, platform, partition and revision scenario
+ok 3 - compact graph names retain purpose, platform, partition and revision scenario
+  ---
+  duration_ms: 28.734127
+  type: 'test'
+  ...
+# Subtest: measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+ok 4 - measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+  ---
+  duration_ms: 15.742367
+  type: 'test'
+  ...
+# Subtest: measured packed control-command parts run in separate Windows partitions
+ok 5 - measured packed control-command parts run in separate Windows partitions
+  ---
+  duration_ms: 17.806755
+  type: 'test'
+  ...
+# Subtest: graph matrices route every existing partition exactly once for every caller
+ok 6 - graph matrices route every existing partition exactly once for every caller
+  ---
+  duration_ms: 2327.243154
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 7 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 9.973417
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 8 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 12184.181722
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 9 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 195.090925
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17038.901501
+
+Source-reference audit: six canonical quality links resolve; general node and UX relation reviewed.
+Protected-source audit: all ten captured SHA-256 values match.
+Final diff whitespace check: pass.
+Final eval fixture diff audit: all fields other than source_fingerprint/source_fingerprints equal baseline; deterministic expectations and native observations unchanged.

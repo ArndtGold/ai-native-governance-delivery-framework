@@ -1,14 +1,34 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, writeFileSync, symlinkSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { withTpFixture, syntheticTp } from './fixtures/tp-definition.js';
 
 withTpFixture(f => {
   const initial = f.bound('--continue-delivery');
   assert.equal(initial.continuation?.phase, 'tp_definition', JSON.stringify(initial));
   assert.deepEqual(initial.continuation.sources.map(s => s.type), ['PRD', 'SD', 'Brownfield Review']);
-  assert.deepEqual(initial.continuation.runtime_contracts.map(c => c.module), ['tp-definition', 'gate-artifact-preparation']);
+  assert.deepEqual(initial.continuation.runtime_contracts.map(c => c.module), ['tp-definition', 'gate-artifact-preparation', 'quality']);
+  const quality = initial.continuation.runtime_contracts.find(c => c.module === 'quality');
+  const canonicalQuality = readFileSync(new URL('../../../plugins/agdf/meta/contracts/quality.md', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
+  assert.equal(quality.content, canonicalQuality, 'bound TP receives the canonical shared policy');
+  assert.equal(quality.sha256, createHash('sha256').update(canonicalQuality).digest('hex'));
+  const qualityPath = join(f.plugin, 'runtime/create-agdf/generated/plugins/agdf/meta/contracts/quality.md');
+  const qualityBytes = readFileSync(qualityPath);
+  unlinkSync(qualityPath);
+  try {
+    const before = f.bytes();
+    const missing = spawnSync(process.execPath, [join(f.plugin, 'runtime/agdf-local.js'), 'skill-dispatch', '--json', '--skill', 'gate-check', '--surface', 'codex',
+      '--language', 'de', '--working-directory', f.root, '--target-source', 'explicit_target', '--primary-target', f.root,
+      '--run', f.runId, '--continue-delivery'], { env: f.env, encoding: 'utf8' });
+    assert.equal(missing.error, undefined);
+    assert.ok(Number.isInteger(missing.status) && missing.status !== 0, 'missing packaged quality refuses startup before authoring');
+    assert.match(missing.stderr, /quality\.md|runtime|integrity/iu);
+    assert.equal(f.bytes(), before, 'early missing-resource refusal preserves fixture state');
+  } finally { writeFileSync(qualityPath, qualityBytes); }
+  assert.equal(f.bound('--continue-delivery').continuation.runtime_contracts.find(c => c.module === 'quality').content, canonicalQuality);
+
   const sharedContract = initial.continuation.runtime_contracts.find(c => c.module === 'gate-artifact-preparation');
   const packagedReadiness = sharedContract.content.match(/packaged as\n`([^`]+)`/u)?.[1];
   assert.ok(packagedReadiness && existsSync(join(f.plugin, packagedReadiness)),

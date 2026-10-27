@@ -1,0 +1,19 @@
+# Final native qualification TP derivation review
+
+Decision: pass
+
+Reviewer: Codex; cooperative semantic assessment, not independent human proof.
+
+Exact SD source: sha256:76847b3b3dc81bc8250b2c11a5b86b1e711a7a6d40ee5df76477b970e631acb6; new TP: sha256:094ac6cef506aa40ccfb04cfc88056420c15f65963d650847f27d1c3bdcd04bb. The confirmed source-revision application f2e43645-4e34-46bd-adbf-1ca5039b3783 retains exact UR/PRD/SD and current post-UR Review, reopens only TP at revision 22 and clears affected preparation/quality fulfillment. The latest human reply confirmed that presented source revision; it is not reused as approval of this subsequently authored TP.
+
+All eight PRD criteria and all nine SDD decisions map through eleven stable tasks and 24 stable scenarios. Every scenario has route, environment, prerequisites, owner, observable evidence and unavailable action. Both exact SD later_tp labels are resolved once. Current fixed Core/guard/test/task hashes (nine source rows) were checked against actual files. Product acceptance remains solely in PRD; paired guidance and one inherited-profile architecture remain unchanged approved design.
+
+The two consumed original sessions remain immutable with actual 5-call/1-SDK-error and 4-call/0-error outcomes. Both broad original/strict predicates passed but only one met separate PRD call/error acceptance; no observation is rewritten. Current corrected source has zero native sessions and old-source successes cannot qualify it. The new plan proposes exactly two additional sessions only after a new deliberate Approval: TP, under a distinct W/Q cohort namespace and exclusive new reservation linked to Run slots 3/4. No reset/refill, automatic retry/resume/replacement, mixed candidate or third new session is permitted.
+
+The actual current paired-target source, source/assembly/SDK/UI and new passing pair-* evidence are explicit. Old full suites/guard tests are exact-input assessment candidates; fresh implementation preparation, complete final freeze/binding, integrated protected zero-model preflight and both final-candidate sessions remain mandatory. Missing access or drift stops dependent work; no unplanned product/harness/task/test/parser/predicate change is authorized. Only Run-local paths/binding/freeze/retention glue may adapt while retaining one existing T7 controller as sole policy/reservation owner.
+
+The same full original Root and three-setting literal deny, negative/positive checks before account/MCP/model, 600,000 ms per model and 1,500,000 ms whole-window owned-tree lifecycle remain. Existing ChatGPT quota and USD 0 additional API authority, gpt-6.1-sol/low, CLI 0.163.0, Node 22.22.3/macOS x64, no auth copy/login/global change/install/reset/provider fallback. Exact model metadata, original/strict success, one intended approval, complete trace, at most four calls and zero SDK/other failure counters are required in each session. Current Copilot at its exact existing ceiling is explicit, with all limits and original performance/coverage unchanged.
+
+All past source-revision records, studies, failures, native originals/ledgers and foreign/staging/global data remain protected; compare complete Root/control/settings/staging and frozen candidate before importing new results. Existing canonical review and sole QA owners remain required after actual evidence; later human QA/UAT/OR and Git/release actions are not inferred. No material planning question is hidden as future work. Host/account availability is a checked prerequisite with a concrete stop, not consent to acquire access or waive evidence.
+
+Formal authoring summary/traceability checks passed with no open items. This review supports atomic typed registration, never model authority or a human gate. Fresh presentation and a NEW deliberate Approval: TP are required next.

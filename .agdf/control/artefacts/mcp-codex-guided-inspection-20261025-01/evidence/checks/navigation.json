@@ -1,0 +1,33 @@
+{
+  "classification": "deterministic_actual_sdk_stdio_assertions",
+  "model_invocations": 0,
+  "protocols": [
+    "2025-11-25",
+    "2026-07-28"
+  ],
+  "passing_attempt": "protocol-02",
+  "retained_failed_attempt": "protocol-01: test helper expected success on deliberate negative read; corrected only assertion helper",
+  "raw_transport": [
+    {
+      "path": "checks/transport/protocol.test.js-88028.jsonl",
+      "sha256": "a863036eb0f3a8a12a7e6c31f355dbd10f790acc5035860e58b37e6f78dbe009",
+      "rows": 82,
+      "historical_reads": 2
+    }
+  ],
+  "assertions": {
+    "bound_returned_arguments_execute": true,
+    "current_gate_scope_disclosed": true,
+    "complete_scan_and_page_required": true,
+    "ambiguous_discovery_no_document_selection": true,
+    "exact_known_binding_read_despite_ambiguity": true,
+    "missing_does_not_prepare": true,
+    "corrupt_catalog_no_hints": true,
+    "unbound_no_target_inference": true,
+    "stale_revision_foreign_target_gate_run_refused": true,
+    "read_control_byte_snapshots_unchanged": true,
+    "historical_document_original_revision": true,
+    "current_contract_current_revision": true,
+    "historical_and_stale_approvals_refused": true
+  }
+}

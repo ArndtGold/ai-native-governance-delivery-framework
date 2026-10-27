@@ -1,0 +1,65 @@
+{
+  "node": "v22.22.3",
+  "platform": "darwin-x64",
+  "runs": 20,
+  "fixture": {
+    "control": "hermetic",
+    "control_runs": [
+      "agdf-mcp-dispatch-server"
+    ],
+    "control_files": 31,
+    "control_bytes": 755377
+  },
+  "cold_tools_list_ms": [
+    723.958,
+    723.348,
+    704.11,
+    708.959,
+    697.993,
+    701.474,
+    706.776,
+    687.328,
+    725.369,
+    691.173,
+    725.92,
+    695.544,
+    704.331,
+    702.276,
+    691.034,
+    712.487,
+    696.152,
+    702.877,
+    694.899,
+    724.794
+  ],
+  "cold_p95_ms": 725.369,
+  "warm_dispatch_ms": [
+    497.338,
+    419.421,
+    425.966,
+    446.475,
+    413.694,
+    418.075,
+    434.384,
+    435.48,
+    418.028,
+    434.795,
+    506.15,
+    425.382,
+    435.984,
+    495.527,
+    437.944,
+    532.018,
+    427.43,
+    421.265,
+    427.713,
+    448.901
+  ],
+  "warm_p95_ms": 506.15,
+  "classification": "unchanged_original_fixed_fixture_performance_test",
+  "limits": {
+    "cold_p95_ms": 1500,
+    "warm_p95_ms": 1000
+  },
+  "model_invocations": 0
+}

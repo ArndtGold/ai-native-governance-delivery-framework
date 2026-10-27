@@ -1,0 +1,92 @@
+# Snapshot file
+# Unset all aliases to avoid conflicts with functions
+unalias -a 2>/dev/null || true
+shopt -u cdable_vars
+shopt -u cdspell
+shopt -u checkhash
+shopt -u checkwinsize
+shopt -s cmdhist
+shopt -u compat31
+shopt -u dotglob
+shopt -u execfail
+shopt -u expand_aliases
+shopt -u extdebug
+shopt -u extglob
+shopt -s extquote
+shopt -u failglob
+shopt -s force_fignore
+shopt -u gnu_errfmt
+shopt -u histappend
+shopt -u histreedit
+shopt -u histverify
+shopt -s hostcomplete
+shopt -u huponexit
+shopt -s interactive_comments
+shopt -u lithist
+shopt -s login_shell
+shopt -u mailwarn
+shopt -u no_empty_cmd_completion
+shopt -u nocaseglob
+shopt -u nocasematch
+shopt -u nullglob
+shopt -s progcomp
+shopt -s promptvars
+shopt -u restricted_shell
+shopt -u shift_verbose
+shopt -s sourcepath
+shopt -u xpg_echo
+# Functions
+
+# setopts 3
+set -o braceexpand
+set -o hashall
+set -o interactive-comments
+
+# aliases 0
+
+# exports (native declarations)
+declare -x BROWSER_USE_ACCESS_VERIFYING_IDENTITY="MCowBQYDK2VwAyEACFF8fJ6CxDLxESwqFK3YP9fhGpSXaViYXQRGYJxuM50="
+declare -x CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS="1"
+declare -x CODEX_APP_RUNTIME_CLI_PATH="/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
+declare -x CODEX_APP_TOOLS_PIPE_PATH="/tmp/codex-app-tools/a9955024-356d-48fa-b25c-ef9d67f02e99.sock"
+declare -x CODEX_CI="1"
+declare -x CODEX_HOME="/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/evidence/render/final/home"
+declare -x CODEX_INTERNAL_ORIGINATOR_OVERRIDE="Codex Desktop"
+declare -x CODEX_MANAGED_BY_NPM="1"
+declare -x CODEX_MANAGED_PACKAGE_ROOT="/Users/arndtgold/.npm-global/lib/node_modules/@openai/codex"
+declare -x CODEX_MCP_NODE_PATH="/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+declare -x CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE="1"
+declare -x CODEX_SANDBOX_NETWORK_DISABLED="1"
+declare -x CODEX_SESSION_ID="01a1724f-2246-7390-bf0e-d9285f8d9410"
+declare -x CODEX_SHELL="1"
+declare -x CODEX_TASK_WORKSPACE_VERIFYING_IDENTITY="MCowBQYDK2VwAyEACFF8fJ6CxDLxESwqFK3YP9fhGpSXaViYXQRGYJxuM50="
+declare -x CODEX_TECTONIC_PATH="/Applications/ChatGPT.app/Contents/Resources/tectonic/tectonic"
+declare -x CODEX_VERSION="0.164.0-alpha.11.1"
+declare -x COLORTERM=""
+declare -x COMMAND_MODE="unix2003"
+declare -x DISABLE_AUTO_UPDATE="true"
+declare -x GH_PAGER="cat"
+declare -x GIT_PAGER="cat"
+declare -x HOME="/Users/arndtgold"
+declare -x LANG="C.UTF-8"
+declare -x LC_ALL="C.UTF-8"
+declare -x LC_CTYPE="C.UTF-8"
+declare -x LOGNAME="arndtgold"
+declare -x LOG_FORMAT="json"
+declare -x MallocNanoZone="0"
+declare -x NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S="14e425736668bf21b5b39f2cc022ee8684728617fb5c49f35533c2e349f47193"
+declare -x NO_COLOR="1"
+declare -x PAGER="cat"
+declare -x PATH="/Users/arndtgold/.local/bin:/Users/arndtgold/.npm-global/bin:/Users/arndtgold/.local/bin:/Users/arndtgold/.npm-global/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin:/usr/local/MacGPG2/bin:/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/evidence/render/final/home/tmp/arg0-macos/codex-arg0ARDRrG:/Users/arndtgold/.npm-global/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-x64/vendor/x86_64-apple-darwin/codex-path:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/arndtgold/.local/bin:/Users/arndtgold/.npm-global/bin:/Users/arndtgold/.codex/tmp/arg0-macos/codex-arg0Ify9Md:/Users/arndtgold/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/arndtgold/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS"
+declare -x RUST_LOG="error"
+declare -x SHELL="/bin/bash"
+declare -x SHLVL="3"
+declare -x SSH_AUTH_SOCK="/private/tmp/com.apple.launchd.TP5RPx10Zq/Listeners"
+declare -x TERM="dumb"
+declare -x TMPDIR="/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/"
+declare -x USER="arndtgold"
+declare -x XPC_FLAGS="0x0"
+declare -x XPC_SERVICE_NAME="0"
+declare -x ZSH_TMUX_AUTOSTART="false"
+declare -x ZSH_TMUX_AUTOSTARTED="true"
+declare -x __CF_USER_TEXT_ENCODING="0x1F6:0x0:0x3"

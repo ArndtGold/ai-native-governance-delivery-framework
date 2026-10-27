@@ -20,7 +20,7 @@ import { CONTROL_INSPECT_FUNCTION_DEFINITION, parseControlInspectFunctionArgumen
 import { createInspectFailureResult } from "#agdf-core/control-inspect/service.js";
 import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.js";
 import { interactionLocales, packageRoot, pluginDefinition } from "./cli/runtime-context.js";
-import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, validateRunCommand, runCommandRequestDigest } from '#agdf-core/control-state/run-command-contract.js';
+import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, validateRunCommand, validateRunCommandResult, runCommandRequestDigest } from '#agdf-core/control-state/run-command-contract.js';
 import {
   digestDirectory,
   digestMcpDispatcherPackage,
@@ -30,11 +30,19 @@ import {
 
 const MCP_RUNTIME_OWNER = "create-agdf:mcp-runtime";
 
+// Compose the canonical structural contract at the existing producing/consuming
+// boundary. The descriptor projector stays dependency-free and policy-pure.
+function checkCommandResult(name, result) {
+  if (Object.hasOwn(RUN_COMMAND_GROUPS, name) && validateRunCommandResult(result).length) {
+    throw Object.assign(new Error('tool_result_invalid'), { facts: { code: 'tool_result_invalid', dispatch: 'unknown' } });
+  }
+}
 function errorSupport(cockpit = false) {
   return {
     toolErrorContract: TOOL_ERROR_CONTRACT, responseLimit: SKILL_DISPATCH_MAX_OUTPUT_BYTES,
     projectToolResult(name, input = {}, result, facts) {
       const pack = localePack(interactionLocales, input.presentation_language ?? (cockpit ? 'de' : 'en'));
+      checkCommandResult(name, result);
       const { _meta, ...domain } = result;
       const serialize = name === 'agdf_dispatch' ? serializeSkillDispatchResult : name === 'agdf_inspect' ? serializeControlInspectResult : JSON.stringify;
       const checked = JSON.parse(serialize(domain));
@@ -47,7 +55,7 @@ function errorSupport(cockpit = false) {
       }
       return projected;
     },
-    consumeToolResult,
+    consumeToolResult(name, result) { checkCommandResult(name, result); return consumeToolResult(name, result); },
     normalizeFailure(error, { phase = 'execute' } = {}) {
       if (phase === 'parse' && (error instanceof SkillDispatchInputError || error instanceof TaskTargetInputError || error instanceof ReadSelectionError)) {
         const facts = { code: error instanceof ReadSelectionError ? 'inspect_input_invalid' : 'dispatch_input_invalid', dispatch: 'not_dispatched', ...(error.field ? { field: error.field } : {}) };

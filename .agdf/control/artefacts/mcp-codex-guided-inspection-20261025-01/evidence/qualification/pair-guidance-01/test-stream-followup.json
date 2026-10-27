@@ -1,0 +1,14 @@
+{
+  "native_final_qualification": "2/2 pass",
+  "current_new_model_calls": 2,
+  "run_real_sessions_total": 4,
+  "future_models_requested": 0,
+  "finding": "non-darwin negative test inspects stdout; unchanged T7 guard rejects on stderr",
+  "reproduction": "model-free process.platform=linux branch simulation on darwin; no native Linux claim",
+  "proposed_patch_sha256": "94b04a10fb7f662014ae48a9cb4d2b9bd970ecc0f423761885018887c2d213b9",
+  "source_sha256": "9bb38b89a60e696cbab733edcd3724e1f4ccd15dd8f369e90e3b1367d3ed9560",
+  "source_unchanged": true,
+  "proposed_stderr_assertion_matches_actual_error": true,
+  "required_scope_owner": "TP: explicit test-file freeze must allow this one-line test correction",
+  "runtime_product_guard_task_parser_audit_change": false
+}

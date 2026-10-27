@@ -350,3 +350,31 @@ test('empty host catalog discovery cannot supply bindings or admit resource read
   assert.equal(pureInspectWrapper('text(await tools.read_mcp_resource({uri:"file:///control"}));'), false);
   assert.deepEqual(parse({ ...listing, tool: 'read_mcp_resource' }).detours, ['read_mcp_resource']);
 });
+
+test('Codex command qualification retains T4 boundaries and requires prior MCP bindings and one original approval', async () => {
+  const { parseCodexCommandTrace, parseCodexT4Trace, strictCommandFlow, pureInspectWrapper } = await import('../lib/native-run.js');
+  const binding = { target_id: 'sha256:' + 'a'.repeat(64), run_id: 'demo-run-01', expected_revision_id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', presentation_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' };
+  const input = { target_id: binding.target_id, run_id: binding.run_id, expected_revision_id: binding.expected_revision_id,
+    operation_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: binding.presentation_id, response: 'Approval: UR' } } };
+  const item = (id, tool, args, result) => ({ type: 'item.completed', item: { id, type: 'mcp_tool_call', server: 'agdf', tool, arguments: args, status: 'completed', result: { structuredContent: result } } });
+  const read = item('read', 'agdf_inspect', { operation: 'operation-contract' }, { outcome: 'inspect_result', report: { binding } });
+  const write = item('write', 'agdf_approve', input, { outcome: 'accepted', operation_id: input.operation_id, receipt: {} });
+  const trace = rows => [...rows, { type: 'turn_context', payload: { model: 'gpt-6.1-sol', effort: 'low' } }, { type: 'turn.completed', usage: { input_tokens: 42, output_tokens: 7 } }].map(value => JSON.stringify(value)).join('\n');
+  const parsed = parseCodexCommandTrace(trace([read, write]));
+  assert.equal(strictCommandFlow({ parsed, binding }).success, true);
+  const sdkRejected = { name: 'mcp__plugin_agdf_agdf__agdf_inspect', input: {}, result: { is_error: true, text: 'Input validation error: missing operation' } };
+  assert.equal(strictCommandFlow({ parsed: { ...parsed, calls: [sdkRejected, ...parsed.calls] }, binding }).success, true, 'observed SDK rejections remain counted and may be corrected');
+  assert.equal(strictCommandFlow({ parsed: { ...parsed, calls: [{ ...sdkRejected, result: { is_error: true, text: 'unreadable executor failure' } }, ...parsed.calls] }, binding }).reason, 'unreadable_domain_result');
+  assert.deepEqual(parsed.observed_efforts, ['low']);
+  assert.equal(strictCommandFlow({ parsed: parseCodexCommandTrace(trace([write])), binding }).reason, 'bindings_not_retrieved_through_mcp');
+  assert.equal(strictCommandFlow({ parsed: parseCodexCommandTrace(trace([read, write, { ...write, item: { ...write.item, id: 'duplicate' } }])), binding }).reason, 'expected_one_approval');
+  const wrong = structuredClone(write); wrong.item.arguments.command.payload.presentation_id = 'foreign';
+  assert.equal(strictCommandFlow({ parsed: parseCodexCommandTrace(trace([read, wrong])), binding }).success, false);
+  assert.ok(parseCodexT4Trace(trace([read, write])).detours.includes('agdf_approve'), 'T4 does not gain a writer');
+  assert.equal(pureInspectWrapper('text(await tools.mcp__agdf__agdf_approve({}));'), false);
+  const promiseWrapper = 'text(await tools.mcp__agdf__agdf_inspect({...load("b"),operation:"operation-contract",module:"agdf_prepare/presentation.prepare"}).then(r=>r.structuredContent||r));';
+  assert.equal(pureInspectWrapper(promiseWrapper), true, 'observed local Promise projection is not a tool detour');
+  assert.equal(pureInspectWrapper('text(await tools.mcp__agdf__agdf_inspect({}).then(r=>process.exit(1)));'), false);
+  const shell = item('shell', 'exec_command', {}, {});
+  assert.equal(strictCommandFlow({ parsed: parseCodexCommandTrace(trace([read, write, shell])), binding }).success, false);
+});

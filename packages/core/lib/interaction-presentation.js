@@ -409,7 +409,7 @@ function markdownCell(value) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
-    .replace(/\r?\n/g, "<br>");
+    .replace(/\r\n?|\n/g, " · ");
 }
 
 function localizedOperationalValue(value, pack, fallbackPack, fallbackLocale) {

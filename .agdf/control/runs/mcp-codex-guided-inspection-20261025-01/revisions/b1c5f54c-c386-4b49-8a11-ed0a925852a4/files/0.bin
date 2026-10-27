@@ -1,0 +1,14 @@
+# Brownfield Analysis
+
+- mode: pre_implementation_analysis
+- decision: pass
+- mode_slice_decision: structured_slice
+- scope: T-BASE through T-CLOSE of approved TP sha256:d320f37fbe04568c675d071e4895e62a6b959706aa847fd1c85e0ed3a46e4de6.
+- evidence: evidence/baseline/source-bindings.json, preservation.json, index-entries.z and candidate.json; baseline HEAD 5046858826f3bca7922c14ef402b095feca8b6fb. Existing intended source hashes match the approved baseline and staged entries plus five foreign files are unchanged. Isolated clone has the same HEAD.
+- current_coverage: shared input contract, selector parser, report evaluator, command descriptors, immutable presentation catalog/document validation and approval writer already exist. Codex projection and sequential hints are partially covered only by retained study evidence.
+- reuse_strategy: extend packages/core/lib/control-inspect/contract.js and service.js only; retain parser/normalizer constraints, existing readPresentationCatalog, RUN_COMMAND_DESCRIPTORS and all canonical write owners. Add regressions in the registered CLI inspection and MCP protocol tests. Guard only optional navigation, with a single original report/presentation return path.
+- risks: rendering combinators, original versus current revision confusion, implicit selection, advisory failures and tight unchanged payload budgets. Each has an explicit approved regression or qualification task. No second validator, registry, approval path or adapter policy is introduced.
+- runtime/source drift: original root builds are not repaired. Canonical generation and dependency resolution are verified in the isolated candidate, then only reviewed owned outputs return. Existing native harness/task/audit fingerprints remain fixed.
+- context_graph_impact: no new domain or ownership boundary; existing Core read contract remains owner. No automatic graph node.
+- missing_evidence: implementation and fresh qualification evidence are pending tasks, not prior acceptance. Native execution waits for the build, model-free checks and protected preflight.
+- required_next_step: record this analysis through step.record; continue the same Run, then execute the approved CD+Tests scope.

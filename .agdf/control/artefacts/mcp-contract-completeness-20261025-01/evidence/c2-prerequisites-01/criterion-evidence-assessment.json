@@ -1,0 +1,91 @@
+{
+  "classification": "current_tp_evidence_assessment",
+  "tp_digest": "sha256:52f644123916ad5db5b102d8508d094db110a6e3d032e3ed23a2febdec7f0adb",
+  "acceptance_owner": "approved PRD.md; this report supplies evidence status only",
+  "rows": [
+    {
+      "criterion_id": "AC-001",
+      "scenario_ids": [
+        "SCN-001",
+        "SCN-002"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-02/capability-wire.json; mcp cockpit-gating/contract/protocol logs",
+      "basis": "Actual modern frames/IDs/code/data, SDK-priority cases and one supported execution; exact source applicability from c2-prerequisites-01"
+    },
+    {
+      "criterion_id": "AC-002",
+      "scenario_ids": [
+        "SCN-003",
+        "SCN-004",
+        "SCN-005",
+        "SCN-006"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-02/mcp-results.json; core-results.json; structured/decision/error flow logs",
+      "basis": "Dual-era valid callers, input parity, full/minimal result variants and postprocessing remain checked against unchanged product inputs"
+    },
+    {
+      "criterion_id": "AC-003",
+      "scenario_ids": [
+        "SCN-007",
+        "SCN-008"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-02/discovery-sizes.json; core command-contract and actual MCP run-command logs",
+      "basis": "Five command definitions each have eleven documented properties and valid output schemas; local refs/examples/operation detail checked"
+    },
+    {
+      "criterion_id": "AC-004",
+      "scenario_ids": [
+        "SCN-009",
+        "SCN-010"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-02/core-results.json; mcp tool-errors/run-command/structured flow logs",
+      "basis": "Legitimate result variants, malformed positive/negative outputs, bounded fallback and single-effect faults checked"
+    },
+    {
+      "criterion_id": "AC-005",
+      "scenario_ids": [
+        "SCN-011"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-02/build-final.log; pack-02.log; package-consumers-02.log; c2-prerequisites-01/archive-applicability.json",
+      "basis": "Metadata and actual generated/packed consumers agree; Copilot exactly 397 files / 3509461 bytes"
+    },
+    {
+      "criterion_id": "AC-006",
+      "scenario_ids": [
+        "SCN-012",
+        "SCN-013",
+        "SCN-014"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-02/mcp-results.json; core-results.json; capability-wire.json; c2-prerequisites-01/runtime-freeze.json",
+      "basis": "Bindings, receipt/replay/source-revision states, lifecycle/locks and generation/provenance remain verified"
+    },
+    {
+      "criterion_id": "AC-007",
+      "scenario_ids": [
+        "SCN-015",
+        "SCN-016",
+        "SCN-017",
+        "SCN-018"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-02/discovery-sizes.json; performance-final.log; contract/error tests; c2-prerequisites-01/source-freeze.json",
+      "basis": "All fixed size/result/performance budgets pass on exact retained inputs; full 20+20 samples and failed first/contended attempts retained"
+    },
+    {
+      "criterion_id": "AC-008",
+      "scenario_ids": [
+        "SCN-019",
+        "SCN-020"
+      ],
+      "status": "fulfilled",
+      "evidence": "implementation-03/; c2-prerequisites-01/guarded-preflight/; c2-native/summary.json and both immutable raw observations",
+      "basis": "Corrected auditor/guard checked offline and current preflight; two additional real low sessions each approve one bound fixture UR with complete trace and unchanged protected manifests"
+    }
+  ]
+}

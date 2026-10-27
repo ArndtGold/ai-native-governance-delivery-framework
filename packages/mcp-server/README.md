@@ -1,11 +1,12 @@
 # @agdf/mcp-server
 
-Local STDIO MCP adapter for AGDF dispatch and control inspection.
+Local STDIO MCP adapter.
 
 MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 
-The bounded write groups, selected contract/status reads, original-operation recovery and
-focused app-only decision facade are described in [Core and MCP command flow](../../docs/architecture/core-mcp-command-flow.md).
+[Integration guide](../../docs/architecture/09-mcp-integrationsrichtlinien.md).
+[Command flow](../../docs/architecture/core-mcp-command-flow.md): bounded writes,
+contract/status reads, original-operation recovery and the app-only decision facade.
 Host tool permission is separate from a deliberate gate decision. The source candidate's
 click actions remain disabled while native app-only mediation is unqualified.
 
@@ -53,8 +54,7 @@ service itself remains read-only. Accordingly, `agdf_dispatch` declares `readOnl
 
 > [!IMPORTANT]
 > This package documents the repository development build. The previously published AGDF 0.14.5 release
-> did not include the MCP support described here. Repository assemblies and local plugin builds still
-> carry the canonical version `0.14.5`, but can contain these newer MCP features. The version alone
+> did not include the MCP support described here. Current assemblies and local plugin builds take their version from the canonical package manifests. The version alone
 > does not identify the payload: verify the assembly or installed runtime digests and the loaded session.
 > These development instructions do not establish what a current npm `@latest` resolution contains.
 

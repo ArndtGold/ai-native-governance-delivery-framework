@@ -6,28 +6,15 @@ Der [Dispatcher-Katalog](02-dispatcher.md) vertieft die Zuordnung und Fortsetzun
 die [Paketstruktur](05-paketstruktur.md) zeigt die zugehörigen Quell- und Auslieferungsgrenzen.
 Die Weiterentwicklung wird im [gemeinsamen Zielbild](03-agentenkontrolle-zielbild.md) beschrieben.
 
-**Dokumentrolle: Bestandsbeschreibung.** Der beschriebene Repository-Quellstand wurde am
-3. Oktober 2026 um Umsetzungsfortsetzung, atomare Artefakterfassung und begrenzte
-Beziehungskorrektur nachgeführt. Die Paketmetadaten von
-[`create-agdf`](../../packages/cli/package.json) und
-[`@agdf/mcp-server`](../../packages/mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein
-belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets
-oder einer geladenen Host-Installation. Quelle, Paket und frische Sitzung benötigen eigene Nachweise.
-Historische Host-Beobachtungen stehen in Abschnitt 7; diese Dokumentationsänderung aktualisiert sie nicht.
-Die separate lokale Cockpit-Integration wurde am 6. Oktober 2026 ergänzt. Ihre Ansichten,
-Quellbindungen und noch offenen Host-Nachweise beschreibt die [Cockpit-Referenz](06-agdf-cockpit.md).
-Der Abgleich vom 11. Oktober 2026 ergänzt die im Repository vorhandenen begrenzten Befehlsgruppen
-und die getrennte Decision App. Der [Befehlsfluss](core-mcp-command-flow.md) vertieft ihre Erfassung,
-Entscheidungen und Wiederherstellung. Diese Nachführung aktualisiert keine historischen Host-Nachweise.
+**Dokumentrolle: Bestandsbeschreibung.** Beginne mit Systemkontext, Bausteinen und Aufrufwegen
+(Abschnitte 1 bis 3). Installation und MCP-Lebenszyklus folgen in Abschnitt 4 und 6; Prüfgrenzen
+und Code-Einstiege in Abschnitt 5, 7 und 8. Der [Entwicklereinstieg](entwickler-einstieg.md)
+verfolgt zusätzlich einen konkreten Auftrag durch diese Komponenten.
 
-Die normativen Regeln stehen in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
-Die technische Ausgestaltung des MCP-Lebenszyklus steht im
-[Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md), seine
-geführte Komposition mit der Installation im
-[Setup-Solution-Design](../../.agdf/control/artefacts/agdf-guided-mcp-activation/SD.md).
-Zuständigkeiten sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und
-[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Seite erklärt diese
-Quellen und erzeugt keine eigenen Regeln.
+**Lesestand:** Die fachlichen Angaben beziehen sich auf die unten dokumentierten Quellstände.
+[Datierte Ausgangsstände und Nachführungen](#datierte-ausgangsstände-und-nachführungen) bleiben
+zusammen mit ihren Quellen erhalten. Die [Nachweis-Lesehilfe](lesestand-und-nachweise.md)
+erklärt, wie Quellstand, Paket und tatsächliche Host-Beobachtung zusammengehören.
 
 ## Orientierung auf dieser Seite
 
@@ -637,6 +624,34 @@ Die Gliederung orientiert sich in reduziertem Umfang an [arc42](https://arc42.or
 Kontext, Bausteinen, Laufzeit, Verteilung, Entscheidungen und Qualität. Die Diagramme verwenden die
 Idee mehrerer Betrachtungsebenen aus [C4](https://c4model.com/diagrams), ohne AGDF-Module als
 getrennte Remote-Dienste oder formale C4-Container darzustellen.
+
+### Datierte Ausgangsstände und Nachführungen
+
+Der folgende Standtext ist die bisherige Quellenzuordnung dieser Seite. Die redaktionelle
+Neuordnung vom 26. Oktober 2026 verändert diese historischen Nachweisgrenzen nicht.
+
+**Dokumentrolle: Bestandsbeschreibung.** Der beschriebene Repository-Quellstand wurde am
+3. Oktober 2026 um Umsetzungsfortsetzung, atomare Artefakterfassung und begrenzte
+Beziehungskorrektur nachgeführt. Die Paketmetadaten von
+[`create-agdf`](../../packages/cli/package.json) und
+[`@agdf/mcp-server`](../../packages/mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein
+belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets
+oder einer geladenen Host-Installation. Quelle, Paket und frische Sitzung benötigen eigene Nachweise.
+Historische Host-Beobachtungen stehen in Abschnitt 7; diese Dokumentationsänderung aktualisiert sie nicht.
+Die separate lokale Cockpit-Integration wurde am 6. Oktober 2026 ergänzt. Ihre Ansichten,
+Quellbindungen und noch offenen Host-Nachweise beschreibt die [Cockpit-Referenz](06-agdf-cockpit.md).
+Der Abgleich vom 11. Oktober 2026 ergänzt die im Repository vorhandenen begrenzten Befehlsgruppen
+und die getrennte Decision App. Der [Befehlsfluss](core-mcp-command-flow.md) vertieft ihre Erfassung,
+Entscheidungen und Wiederherstellung. Diese Nachführung aktualisiert keine historischen Host-Nachweise.
+
+Die normativen Regeln stehen in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
+Die technische Ausgestaltung des MCP-Lebenszyklus steht im
+[Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md), seine
+geführte Komposition mit der Installation im
+[Setup-Solution-Design](../../.agdf/control/artefacts/agdf-guided-mcp-activation/SD.md).
+Zuständigkeiten sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und
+[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Seite erklärt diese
+Quellen und erzeugt keine eigenen Regeln.
 
 ### Diagramme bearbeiten
 

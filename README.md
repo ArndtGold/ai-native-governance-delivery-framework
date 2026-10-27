@@ -263,9 +263,10 @@ Empfohlene Reihenfolge:
 8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
 9. [Glossar](docs/glossar.md)
 
-Der [Architektur-Einstieg](docs/architecture/README.md) erklärt den gemeinsamen Arbeitsablauf
-und führt zur bestehenden Systemarchitektur, zum Dispatcher und zum vorgeschlagenen Zielbild.
-Paketstruktur, Diagramme und Quellenreferenzen vertiefen die jeweiligen Bausteine.
+Der [Architektur-Einstieg](docs/architecture/README.md) erklärt Ablauf und Grundbegriffe.
+Der [Entwicklereinstieg](docs/architecture/entwickler-einstieg.md) führt von einem Auftrag zu
+Komponenten, Code und Prüfungen. Die [Nachweis-Lesehilfe](docs/architecture/lesestand-und-nachweise.md)
+verbindet Architekturentscheidungen mit ihren Quellen und dokumentierten Grenzen.
 
 ## Projektstruktur
 
@@ -289,12 +290,18 @@ Paketstruktur, Diagramme und Quellenreferenzen vertiefen die jeweiligen Baustein
 │  │  ├─ 03-agentenkontrolle-zielbild.md  (gemeinsames Zielbild)
 │  │  ├─ 04-mcp-schnittstellen.md  (ergänzende MCP-Fragen)
 │  │  ├─ 05-paketstruktur.md  (Quell- und Paketgrenzen)
+│  │  ├─ 06-agdf-cockpit.md  (technische Cockpit-Referenz)
+│  │  ├─ 07-ui-konzept.md  (Nutzerweg und UI-Zielbild)
+│  │  ├─ 08-ui-richtlinien.md  (Gestaltungs- und Prüfkriterien)
+│  │  ├─ 09-mcp-integrationsrichtlinien.md  (MCP entwickeln und prüfen)
+│  │  ├─ entwickler-einstieg.md  (vom Auftrag zum Code)
+│  │  ├─ lesestand-und-nachweise.md  (Aussagen und Belege einordnen)
+│  │  ├─ core-mcp-command-flow.md  (Speicherung und Entscheidungen)
 │  │  └─ diagrams/  (SVG-Abbildungen und DOT-Quellen)
 │  ├─ handbook/
 │  │  ├─ README.md
 │  │  ├─ de/  (kanonische deutsche Fassung)
 │  │  └─ en/  (abgeleitete englische Übersetzung)
-│  ├─ agenten-handbuch/  (Kompatibilitätsverweise)
 │  └─ glossar.md
 ├─ ...
 ```

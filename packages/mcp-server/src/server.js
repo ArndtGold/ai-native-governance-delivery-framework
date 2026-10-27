@@ -5,7 +5,8 @@ import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.js";
 import { loadCockpitResource } from './cockpit-resource.js';
-import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabilities } from "./ui-capability.js";
+import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabilities, requiresMcpAppUi,
+  missingMcpAppUi, capabilityTransport, modernToolUiDenial } from "./ui-capability.js";
 
 export const SERVER_NAME = "agdf-mcp";
 
@@ -38,7 +39,7 @@ function toolResult(runtime, name, input, result, serialize = runtime.serialize,
   return response;
 }
 
-export function buildAgdfServer({ runtime, executor } = {}) {
+export function buildAgdfServer({ runtime, executor, era } = {}) {
   if (!runtime?.definition || typeof runtime.serialize !== "function") {
     throw new TypeError("AGDF MCP runtime is required");
   }
@@ -57,7 +58,14 @@ export function buildAgdfServer({ runtime, executor } = {}) {
     },
     close: async () => runtime.close?.(),
   };
-  const server = new McpServer(
+  const registrations = new Map();
+  class AgdfServer extends McpServer {
+    async connect(transport) {
+      return super.connect(capabilityTransport(transport, message => modernToolUiDenial(message,
+        { era: era ?? (this.server.getNegotiatedProtocolVersion() === '2026-07-28' ? 'modern' : 'legacy'), runtime, registrations })));
+    }
+  }
+  const server = new AgdfServer(
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
     { capabilities: { tools: {}, ...(runtime.ui ? { resources: {} } : {}) } },
   );
@@ -87,12 +95,13 @@ export function buildAgdfServer({ runtime, executor } = {}) {
   } };
   for (const tool of tools) {
     const { name, definition, serialize } = tool;
-    server.registerTool(
+    const schema = fromJsonSchema(definition.inputSchema, deferredSchemas);
+    const registered = server.registerTool(
       name,
       {
         description: definition.description,
         annotations: definition.annotations,
-        inputSchema: fromJsonSchema(definition.inputSchema, deferredSchemas),
+        inputSchema: schema,
         ...(definition.outputSchema ? { outputSchema: fromJsonSchema(definition.outputSchema, deferredSchemas) } : {}),
         ...(definition._meta ? { _meta: definition._meta } : {}),
       },
@@ -125,12 +134,16 @@ export function buildAgdfServer({ runtime, executor } = {}) {
         }
       },
     );
+    registrations.set(name, { tool, schema, registered });
   }
   if (runtime.ui) {
     const resource = loadCockpitResource(runtime.ui);
     server.registerResource(runtime.mode === 'decision' ? 'AGDF Gate Decision' : runtime.ui.label ?? 'AGDF Cockpit', resource.uri, { mimeType: resource.mimeType, _meta: resource._meta },
       async (_uri, context) => {
-        if (!uiAllowed(context) || runtime.mode === 'decision' && !supportsUi(context)) throw new ProtocolError(ProtocolErrorCode.InvalidParams, "resource_denied");
+        if (requiresMcpAppUi(runtime, { requiresUi: runtime.mode === 'decision' }) && !supportsUi(context)) {
+          if ((era ?? (server.server.getNegotiatedProtocolVersion() === '2026-07-28' ? 'modern' : 'legacy')) === 'modern') throw missingMcpAppUi(runtime.ui.mimeType);
+          throw new ProtocolError(ProtocolErrorCode.InvalidParams, "resource_denied");
+        }
         return { contents: [resource] };
       });
     if (gated || runtime.mode === 'decision') {
@@ -155,8 +168,8 @@ export function buildAgdfServer({ runtime, executor } = {}) {
 
 export function serveAgdfStdio({ runtime, executor, onerror } = {}) {
   const instances = new Set();
-  const handle = serveStdio(() => {
-    const server = buildAgdfServer({ runtime, executor });
+  const handle = serveStdio(({ era }) => {
+    const server = buildAgdfServer({ runtime, executor, era });
     instances.add(server);
     return server;
   }, {

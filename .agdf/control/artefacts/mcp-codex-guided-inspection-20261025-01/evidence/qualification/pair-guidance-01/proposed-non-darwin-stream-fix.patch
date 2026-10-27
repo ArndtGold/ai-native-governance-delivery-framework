@@ -1,0 +1,11 @@
+--- a/scripts/native-probes/codex-command-task-test.mjs
++++ b/scripts/native-probes/codex-command-task-test.mjs
+@@ -64,7 +64,7 @@
+ test('offline mock host proves two fresh fixtures, account-home reuse, low overrides and API exclusion', () => {
+   if (process.platform !== 'darwin') {
+     const result = run(args, { CODEX_BIN: '/absent/no-host' });
+-    assert.notEqual(result.status, 0); assert.match(result.stdout, /T7_GUARD_APPLICATION_UNAVAILABLE/);
++    assert.notEqual(result.status, 0); assert.match(result.stderr, /T7_GUARD_APPLICATION_UNAVAILABLE/);
+     return;
+   }
+   const dir = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-t7-offline-'))), log = join(dir, 'calls.jsonl'), mock = join(dir, 'codex.mjs');

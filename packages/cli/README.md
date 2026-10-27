@@ -298,11 +298,16 @@ The adapters keep native configuration ownership and precedence visible:
 
 - Codex uses project `.codex/config.toml` or user `$CODEX_HOME/config.toml`.
 - Claude Code maps AGDF project scope to native `local` and user scope to native `user`.
-- OpenCode uses project `opencode.json` or user `$OPENCODE_CONFIG_DIR/opencode.json`.
+- OpenCode reads project and user `opencode.json` / `opencode.jsonc`, plus custom and inline
+  configuration. JSONC overrides conflicting JSON entries; updates retain comments and foreign
+  servers in the existing owning file instead of creating a parallel registration.
 - The GitHub Copilot CLI contract manages project `.github/mcp.json` or user `~/.copilot/mcp-config.json` and treats
   a project `.mcp.json` entry as higher priority. A higher-priority entry blocks mutation until the
   conflict is resolved. Copilot Desktop, IDE integrations and cloud agents are separate client
   variants and require their own direct evidence.
+
+The manual Copilot adapter accepts both wrapped and bare project configurations and derives its
+tool allowlist from the Core contracts. The normal Copilot installation remains plugin-managed.
 
 Machine-readable lifecycle output separates capability, selected registration, effective source,
 discovery and final result. A matched configuration is not reported as discovered. Plugin install,

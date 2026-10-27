@@ -1,0 +1,53 @@
+## Kurzfassung · UAT
+
+Run: `mcp-codex-guided-inspection-20261025-01` · Gate: `UAT` · Revision: `95e3e4ed-36c3-445b-8dc5-93f800ae95be`
+
+- Ziel: Nutzer können ihre bewusste Antwort zur vorgelegten UR zuverlässig erfassen lassen. Coding-Agenten erhalten ein verständliches Werkzeug und genaue, autoritative Leseangaben; Maintainer erhalten reproduzierbare Nachweise.
+- Geliefertes Ergebnis: QA bewertet den begrenzten Lieferumfang mit pass. CD+Tests, TP-, Clean- und Code-Review sind bestanden und registriert; alle acht Kriterien und 24 Szenarien sind belegt. Codex zeigt alle 14 Parameter und elf Operationen. Der Agent erhält genaue, nacheinander auszuführende Leseangaben aus den bestehenden Ownern. Zwei echte normale T7-Sitzungen mit gpt-6.1-sol/Reasoning low bestanden jeweils ursprünglichen und strengen Prüfer mit genau einer beabsichtigten UR-Freigabe, vier MCP-Aufrufen und null SDK- oder sonstigen Fehlern. Die direkt von dir autorisierte einzelne Testkorrektur prüft stderr; vier macOS-Testgruppen und der simulierte nicht unterstützte Plattformzweig bestehen. Der Vergleich aller 19.339 Kandidatenpfade bestätigt unveränderte Laufzeitquellen und Originalnachweise; es gab keine weiteren echten Modellläufe.
+- Technische QA: pass
+- Nachweisgrenzen: Echte Qualifikation gilt nur für diesen normalen T7-Ablauf mit Codex CLI 0.163.0, Node 22.22.3 auf darwin x64/24.6.0 im bestehenden ChatGPT-Konto. Andere Hosts, natives Linux, menschliche Sichtung/UAT, Installation und Veröffentlichung sind nicht nachgewiesen oder freigegeben. Zwei Erfolge sind keine allgemeine Zuverlässigkeitsgarantie; ursprünglich nicht verfügbare Kosten-/Berechtigungskennzahlen bleiben unbekannt. Die historischen nativen Läufe bleiben Nachweise für die unveränderte Laufzeit, keine neu ausgeführten Läufe des geänderten Teststands.
+- Risiken und offene Punkte: Inspect liegt mit 4.993 Byte sieben Byte unter seiner Grenze; Copilot liegt mit 397 Dateien und 3.509.461 Byte exakt an seiner unveränderten Grenze. Künftige Änderungen müssen die normalen Budgetprüfungen bestehen. Keine offene Pflichtlücke oder bekannte kritische Fehlerstelle verbleibt; Reviews sind Agentenprüfungen und keine unabhängige menschliche Sicherheitszertifizierung.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- route · UR (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 18
+
+- QA: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/QA_REPORT.md · sha256:7bdd52c58f47daa52faf109f6d0614e0e4c919e89ac629bc5263aa0f67b3b2a2
+- Review: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_REVIEW.md · sha256:ca21deb3238c33d248bbdb70420c7a225c9fbafecfe5a0e00927ea0d9e6eba90
+- Review: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:8f03d9232005ba3ef139f1d285dfb4c005e8f43a3f93f45d7f56d75aa82934b5
+- Review: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CODE_REVIEW.md · sha256:538eda3288815a493d7e33c03d3a2bd93aed002d1f63dfec116e5dfef8ca9771
+- UR: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md · sha256:3bec8527f67feafcc467d1b1d4e684b6a20a41ddf15f6bf630ad0202dac4dd67
+
+## Vorliegende UAT-Evidenz
+
+- route · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_REVIEW.md · Deckt ab: UR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- CR · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS_CLARIFICATION.md · Deckt ab: source_version_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/PRD_MAPPING-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/BROWNFIELD_ANALYSIS_CLARIFICATION.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/SD_MAPPING-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/TP_MAPPING-03.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/QA_MAPPING_DIRECT_FIX_04.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/QA_MAPPING_DIRECT_FIX_05.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

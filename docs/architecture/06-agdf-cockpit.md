@@ -24,50 +24,17 @@ technischen Zuständigkeiten. Die Oberfläche verwendet Aufgaben wie „Ziel und
 „Verhalten festlegen“ und „Lösung planen“; die technischen Kürzel stehen in Details.
 Die folgenden Abschnitte bleiben die Referenz des Bestands.
 
-## Plugin-Integration in Codex: Entwicklungsstand vom 16. Oktober 2026
+## Orientierung auf dieser Seite
 
-Der aktuelle Codex-Laufzeitbuild liefert das **Cockpit** im AGDF-Plugin mit. Intern gehören
-`agdf` und `agdf-cockpit` zum selben Plugin; sie verwenden denselben Launcher und geprüften
-Paketbestand, behalten aber eigene Verbindungen und Sitzungszustände. Die normale Codex-Paketierung
-enthält die exakten geprüften UI-Dateien. Die folgenden historischen Hostnachweise qualifizieren
-diesen neuen Stand nicht automatisch.
+| Deine Frage | Abschnitt |
+|---|---|
+| Wie arbeiten UI und Core zusammen? | [Einordnung und Zuständigkeiten](#1-einordnung-und-zuständigkeiten) |
+| Wie bleiben Vorhaben, Quellen und aktuelle Fassung zusammen? | [Run-Bindung](#2-run-bindung-beim-öffnen), [Ansichten](#3-fachlicher-fokus-in-allen-ansichten) und [Aktualität](#4-aktualität-und-lebenszyklus) |
+| Wie wird die App im Plugin ausgeliefert? | [Codex-Integration vom 16. Oktober](#plugin-integration-in-codex-entwicklungsstand-vom-16-oktober-2026) |
+| Welche Eigenschaften sind tatsächlich geprüft? | [Vorbereitung und Nachweise](#6-vorbereitung-nachweise-und-offene-grenzen) |
 
-Der Codex-Plugin-Server liefert seine Werkzeugbeschreibungen bereits bei der Discovery,
-auch wenn diese Anfrage noch keine MCP-App-UI-Fähigkeit meldet. Erst so kann der Host den
-passenden UI-Aufruf auswählen. Das Anzeigen der Beschreibungen öffnet keine Ansicht:
-Rendern, Lesen und Zugriff auf die UI-Ressource prüfen weiterhin die deklarierte UI-Fähigkeit
-der tatsächlichen Anfrage. Ohne sie wird kein Ansichtsplatz angelegt. Die bestehende
-Discovery-Sperre des optionalen Claude-Profils bleibt erhalten.
-
-Beim Plugin-Aufruf von `agdf_cockpit` sind `working_directory`, `target_source` und `primary_target`
-verpflichtend. Core prüft das bestätigte Projekt und bindet es unveränderlich an die neue Ansicht.
-`run_id` bleibt der explizite optionale Run-Selektor. Die vier Ansichtsplätze und der exklusive
-Kontext-Eigentümer gelten gemeinsam über alle Projekte einer Verbindung. Nachfolgende Leseaufrufe
-akzeptieren weiterhin nur die vorhandenen Sitzungs-/Snapshot-Selektoren. Alte verzeichnisgebundene
-Codex-/Claude-Aufrufe behalten ihr Schema; das Plugin führt keine aktuelle globale Projektauswahl ein.
-
-Der sichtbare Name ist Cockpit, die technische Kennung `agdf-cockpit`. Unverändert bleiben
-`agdf_cockpit`, `agdf_cockpit_read` und `ui://agdf/cockpit/v1.html`. Pluginzugehörigkeit allein
-beweist keine Namensisolierung im Host. Deklarationsherkunft, mögliche Namensangleichungen und
-tatsächliche Verbindungs-/Werkzeugzuordnung müssen beobachtet werden. Das allgemeine Cockpit
-ersetzt den begrenzten Decision-App-Reader des `agdf`-Servers nicht.
-
-Die bestehende Lifecycle-Verwaltung prüft konkurrierende lokale Kennungen vor Veröffentlichung
-des Installationskandidaten. Zur Ablösung braucht sie exakte Besitz-/Laufzeitnachweise, den
-unveränderten Konfigurationsstand und passende native Discovery-, UI-Initialisierungs-, Rendering-,
-Interaktions- und Teardown-Beobachtungen. Bei vorhandenem Altzugang behält der Installer seinen bestehenden Paket-Rückstand im eigenen Journal bis zur nativen Qualifikation; eine weitere Installation darf ihn nicht verwerfen. Es entsteht keine zweite Migrationsdatenbank. Der Abschluss desselben Journals verlangt den normalen nativen Kontext und die beobachtete Abwesenheit des alten Providers. Die eigene alte Sektion wird gezielt auf `enabled = false`
-gesetzt; Konfiguration und Laufzeit bleiben als Rückweg erhalten. Bei gleicher Kennung ist zuerst
-ein unterstützter isolierter nativer Kontext für dasselbe Projekt erforderlich. Ein fehlender
-Nachweis lässt die alte Verbindung bestehen. Der Rückweg prüft zuerst den früheren Pluginzustand
-und danach die unveränderte deaktivierte Sektion; fremde oder zwischenzeitlich geänderte Bytes
-werden nicht überschrieben. Der abschließende normale frische Hostkontext muss genau einen
-eindeutig zugeordneten Cockpit-Zugang samt sichtbarer Interaktion zeigen.
-
-Die normale Nutzung verlangt keine separate Einrichtung. Agenteninterne Wartungsoptionen und
-Grenzen stehen in [INSTALL.md](../../INSTALL.md#cockpit-in-the-codex-plugin-development-integration).
-Öffnen/Lesen schreibt weder Hostkonfiguration noch kanonischen Kontrollzustand. Fehlende
-UI-Unterstützung, unklare Herkunft und ausstehender Neustart bleiben benannte Grenzen; Quell- und
-Protokollprüfungen gelten nicht als native Codex-Qualifikation oder Veröffentlichung.
+Die Neuordnung vom 26. Oktober 2026 ändert die Reihenfolge der Erklärung; die datierten
+Implementierungs- und Host-Beobachtungen behalten ihren jeweiligen Geltungsbereich.
 
 ## 1. Einordnung und Zuständigkeiten
 
@@ -588,6 +555,51 @@ Lesekapazität bleibt nutzbar. Ein noch aktiver Eigentümer kann seinen bereits 
 Host-bestätigten Abschluss beenden; nach Eigentümerverlust sind eine neue Verbindung und eine
 tatsächliche Host-Kontextprüfung erforderlich. Zeitablauf erlaubt keine Übernahme. Diese
 kooperative Bestätigung erteilt keine menschliche Freigabe und löscht keine früheren Chat-Inhalte.
+
+## Plugin-Integration in Codex: Entwicklungsstand vom 16. Oktober 2026
+
+Der aktuelle Codex-Laufzeitbuild liefert das **Cockpit** im AGDF-Plugin mit. Intern gehören
+`agdf` und `agdf-cockpit` zum selben Plugin; sie verwenden denselben Launcher und geprüften
+Paketbestand, behalten aber eigene Verbindungen und Sitzungszustände. Die normale Codex-Paketierung
+enthält die exakten geprüften UI-Dateien. Die folgenden historischen Hostnachweise qualifizieren
+diesen neuen Stand nicht automatisch.
+
+Der Codex-Plugin-Server liefert seine Werkzeugbeschreibungen bereits bei der Discovery,
+auch wenn diese Anfrage noch keine MCP-App-UI-Fähigkeit meldet. Erst so kann der Host den
+passenden UI-Aufruf auswählen. Das Anzeigen der Beschreibungen öffnet keine Ansicht:
+Rendern, Lesen und Zugriff auf die UI-Ressource prüfen weiterhin die deklarierte UI-Fähigkeit
+der tatsächlichen Anfrage. Ohne sie wird kein Ansichtsplatz angelegt. Die bestehende
+Discovery-Sperre des optionalen Claude-Profils bleibt erhalten.
+
+Beim Plugin-Aufruf von `agdf_cockpit` sind `working_directory`, `target_source` und `primary_target`
+verpflichtend. Core prüft das bestätigte Projekt und bindet es unveränderlich an die neue Ansicht.
+`run_id` bleibt der explizite optionale Run-Selektor. Die vier Ansichtsplätze und der exklusive
+Kontext-Eigentümer gelten gemeinsam über alle Projekte einer Verbindung. Nachfolgende Leseaufrufe
+akzeptieren weiterhin nur die vorhandenen Sitzungs-/Snapshot-Selektoren. Alte verzeichnisgebundene
+Codex-/Claude-Aufrufe behalten ihr Schema; das Plugin führt keine aktuelle globale Projektauswahl ein.
+
+Der sichtbare Name ist Cockpit, die technische Kennung `agdf-cockpit`. Unverändert bleiben
+`agdf_cockpit`, `agdf_cockpit_read` und `ui://agdf/cockpit/v1.html`. Pluginzugehörigkeit allein
+beweist keine Namensisolierung im Host. Deklarationsherkunft, mögliche Namensangleichungen und
+tatsächliche Verbindungs-/Werkzeugzuordnung müssen beobachtet werden. Das allgemeine Cockpit
+ersetzt den begrenzten Decision-App-Reader des `agdf`-Servers nicht.
+
+Die bestehende Lifecycle-Verwaltung prüft konkurrierende lokale Kennungen vor Veröffentlichung
+des Installationskandidaten. Zur Ablösung braucht sie exakte Besitz-/Laufzeitnachweise, den
+unveränderten Konfigurationsstand und passende native Discovery-, UI-Initialisierungs-, Rendering-,
+Interaktions- und Teardown-Beobachtungen. Bei vorhandenem Altzugang behält der Installer seinen bestehenden Paket-Rückstand im eigenen Journal bis zur nativen Qualifikation; eine weitere Installation darf ihn nicht verwerfen. Es entsteht keine zweite Migrationsdatenbank. Der Abschluss desselben Journals verlangt den normalen nativen Kontext und die beobachtete Abwesenheit des alten Providers. Die eigene alte Sektion wird gezielt auf `enabled = false`
+gesetzt; Konfiguration und Laufzeit bleiben als Rückweg erhalten. Bei gleicher Kennung ist zuerst
+ein unterstützter isolierter nativer Kontext für dasselbe Projekt erforderlich. Ein fehlender
+Nachweis lässt die alte Verbindung bestehen. Der Rückweg prüft zuerst den früheren Pluginzustand
+und danach die unveränderte deaktivierte Sektion; fremde oder zwischenzeitlich geänderte Bytes
+werden nicht überschrieben. Der abschließende normale frische Hostkontext muss genau einen
+eindeutig zugeordneten Cockpit-Zugang samt sichtbarer Interaktion zeigen.
+
+Die normale Nutzung verlangt keine separate Einrichtung. Agenteninterne Wartungsoptionen und
+Grenzen stehen in [INSTALL.md](../../INSTALL.md#cockpit-in-the-codex-plugin-development-integration).
+Öffnen/Lesen schreibt weder Hostkonfiguration noch kanonischen Kontrollzustand. Fehlende
+UI-Unterstützung, unklare Herkunft und ausstehender Neustart bleiben benannte Grenzen; Quell- und
+Protokollprüfungen gelten nicht als native Codex-Qualifikation oder Veröffentlichung.
 
 ## 6. Vorbereitung, Nachweise und offene Grenzen
 

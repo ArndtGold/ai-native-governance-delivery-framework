@@ -1,0 +1,38 @@
+{
+  "experiment": "fresh guarded T7 A/B; separate from completed AGDF Run",
+  "authority": "Direct user: Mit echte Agenten testen; ohne AGDF preference retained",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "low",
+  "order": [
+    [
+      "baseline",
+      1
+    ],
+    [
+      "candidate",
+      1
+    ],
+    [
+      "candidate",
+      2
+    ],
+    [
+      "baseline",
+      2
+    ]
+  ],
+  "maximum_real_sessions": 4,
+  "timeout_ms_per_session": 600000,
+  "retry_or_resume": false,
+  "auth": "existing ChatGPT account; no credential copy, no API-key fallback",
+  "prompt": "Unchanged CODEX_COMMAND_TASK T7",
+  "preflight_required": true,
+  "stop_on": "Any host/trace/model/isolation infrastructure failure; task failure retained and no replacement",
+  "protected_config_before": {
+    "config.toml": "5fb125af92a084d8636e589b1a6af8e7875c206c920ae90c4edf2f5892b89de8",
+    "plugins/installed_plugins.json": null,
+    "plugins/known_marketplaces.json": null
+  },
+  "original_head": "5046858826f3bca7922c14ef402b095feca8b6fb",
+  "original_index_sha256": "3e920896a1946dccf9df5fa9953e7b736f520508a4ee39c89080e12840ec16fb"
+}

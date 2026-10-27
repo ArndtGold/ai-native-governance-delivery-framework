@@ -39,6 +39,648 @@ vergleichen, gezielt entscheiden und das gelieferte Ergebnis selbst überprüfen
 sichtbarer Verfahrensschritt allein erfüllt dieses Ziel nicht. Jede Entscheidung bereitet die
 konkrete Prüfaufgabe vor; jeder Wechsel erhält oder klärt den tatsächlichen Arbeitsgegenstand.
 
+## Lesepfade durch das Konzept
+
+Beginne mit dem nummerierten Nutzerweg. Technische Entscheidungen, Praxisreferenzen und
+historische Mockups stehen anschließend als Vertiefung. Der redaktionelle Umzug vom
+26. Oktober 2026 ändert keine Produktanforderung und keinen Qualifikationsstand.
+
+| Du möchtest … | Lies … |
+|---|---|
+| Den durchgehenden Nutzerweg verstehen | [Einstieg](#1-nutzerabsicht-und-einstieg), [Hub](#2-hub-für-überblick-und-wiederaufnahme) und [Run-Cockpit](#3-run-cockpit-als-gemeinsamer-arbeitsbereich) |
+| Entscheidungen und Dokumentarbeit gestalten | [Entscheidungskarte](#5-entscheidungskarte-und-menschliche-entscheidung), [Dokumente](#6-dokumente-und-nachweise-im-arbeitszusammenhang) und [UI-Richtlinien](08-ui-richtlinien.md) |
+| Bestand und geplante Ergänzung unterscheiden | [Bestandsabgleich](#9-bestand-und-erforderliche-weiterentwicklung), danach die [technische Referenz](06-agdf-cockpit.md) |
+| Den Entwurf prüfen | [Beobachtbare Nutzererlebnisse](#10-beobachtbare-nutzererlebnisse) und [Praxisfälle](#verbindliche-praxisfälle-für-konzept--und-implementierungsreview) |
+| Die Host-Architekturentscheidung nachvollziehen | [Gemeinsame Host-Schnittstelle](#architekturentscheidung-zur-gemeinsamen-host-schnittstelle) und [Codex-Integration](#integration-in-den-bestehenden-codex-chat) |
+| Beispiele und frühere Darstellungen vergleichen | [Vier echte Vorhaben](#praxisreferenz-vier-echte-vorhaben-in-derselben-mcp-app) und [historische fünf Ansichten](#nutzerweg-und-historische-fünf-ansichten) |
+
+## 1 Nutzerabsicht und Einstieg
+
+Der normale Einstieg ist ein Auftrag im Gespräch, zum Beispiel: „Verbessere die Anmeldung.“
+AGDF ordnet den Änderungswunsch dem richtigen Projekt und Arbeitsumfang zu. Bei einem neuen
+Vorhaben klärt und formuliert es die Anforderung. Sobald sie zur Entscheidung bereitsteht,
+erscheint das Run-Cockpit mit der Frage „Haben wir deinen Wunsch richtig verstanden?“ im Chat.
+Der Anwender muss vorher keinen Run in einer Übersicht suchen und keine Abkürzungen lernen.
+
+Solange Angaben fehlen, benennt AGDF die konkrete Frage. Eine noch unvollständige Anforderung
+wird als Klärungsstand gezeigt; eine Freigabeaktion setzt die bestehenden Voraussetzungen voraus.
+Passt der Auftrag eindeutig zu einem bestehenden Run, führt der Einstieg zu dessen aktuellem
+Schritt. Ist die Zuordnung unklar, wird sie vor einer Entscheidung geklärt.
+
+Der Hub ist der zweite Einstieg. Er dient dem Wiederaufnehmen, Vergleichen und Nachlesen
+vorhandener Arbeit. Beide Einstiege führen in denselben Arbeitsbereich für das ausgewählte
+Vorhaben.
+
+### Welche Aktion führt zu welcher Ansicht?
+
+Die Kästen zeigen die sichtbaren Ansichten; die Pfeile benennen die auslösende Aktion oder
+die erforderliche bestätigte Rückmeldung. Die Nummern entsprechen den [fünf historischen Mockups](#nutzerweg-und-historische-fünf-ansichten).
+Der graue Kasten ist der vorhandene Codex-Chat. Die anderen Kästen sind AGDF-Inhalte.
+
+```mermaid
+flowchart TB
+    CHAT["Bestehender Codex-Chat<br/>Auftrag, Fragen und bewusste Antwort"]
+    CARD["1 · Chatkarte<br/>Aktuelle Aufgabe und Entscheidungsfrage"]
+    LARGE["2 · Großes Run-Cockpit<br/>Orientierung und Entscheidungsgrundlage"]
+    DOC["3 · Dokumentansicht<br/>Konkrete Fassung lesen"]
+    RESULT["4 · Bestätigung im Run-Cockpit<br/>Gespeicherte Entscheidung und nächster Schritt"]
+    HUB["5 · Hub<br/>Vorhaben suchen und Verlauf ansehen"]
+    HANDOFF["Arbeitsübergabe<br/>Run, Quelle und Arbeitsziel ausdrücklich beauftragen"]
+    ACCEPT["Ergebnisprüfung<br/>Prüfbare Fassung, Prüfschritte und Restgrenzen"]
+    END["Abnahme bestätigt<br/>Nächster Abschlussbedarf und belegter Lieferzustand"]
+
+    CHAT -->|"Änderungsauftrag; Anforderung geklärt und entscheidungsbereit"| CARD
+    CARD -->|"Groß öffnen; Host bestätigt den Anzeigemodus"| LARGE
+    CARD -->|"Anforderung lesen"| DOC
+    LARGE -->|"Anforderung lesen"| DOC
+    DOC -->|"Zur Entscheidung; zuvor kompakt"| CARD
+    DOC -->|"Zur Entscheidung; zuvor groß"| LARGE
+    CARD -->|"Frage oder Änderungswunsch im bestehenden Chat besprechen"| CHAT
+    LARGE -->|"Frage oder Änderungswunsch im bestehenden Chat besprechen"| CHAT
+    CHAT -->|"Gebundene Fassung bewusst bestätigen; Speicherung bestätigt"| RESULT
+    RESULT -->|"Bestätigte Anforderung lesen"| DOC
+    LARGE -->|"Alle Vorhaben"| HUB
+    RESULT -->|"Alle Vorhaben"| HUB
+    CHAT -->|"Übersicht über Vorhaben anfordern; MCP-UI verfügbar"| HUB
+    HUB -->|"Vorhaben ansehen oder Zur aktuellen Aufgabe; lesender Wechsel"| LARGE
+    LARGE -->|"Dieses Vorhaben im Gespräch weiterbearbeiten; bewusster Auftrag"| HANDOFF
+    HANDOFF -->|"Unterstützte Übergabe; angenommene Nachricht, Übernahme gesondert prüfen"| CHAT
+    CHAT -->|"Umsetzung und Qualitätsprüfung belegt; Abnahme bereit"| ACCEPT
+    ACCEPT -->|"Ergebnis ansehen; konkrete Prüfschritte ausführen"| ACCEPT
+    ACCEPT -->|"Mangel oder Änderungswunsch besprechen; Quelle ausdrücklich benennen"| CHAT
+    ACCEPT -->|"Gebundene Ergebnisfassung bewusst abnehmen; Speicherung bestätigt"| END
+
+    classDef host fill:#f6f6f6,stroke:#66686a,color:#3c3e40;
+    classDef agdf fill:#fcfcfc,stroke:#0f766e,color:#3c3e40;
+    class CHAT host;
+    class CARD,LARGE,DOC,RESULT,HUB,HANDOFF,ACCEPT,END agdf;
+```
+
+Die Dokumentansicht kehrt zur auslösenden Darstellung und deren aktuellem Inhalt zurück.
+Nach dem Lesen einer bestätigten Anforderung ist das die Bestätigung beziehungsweise die
+nächste Aufgabe, keine erneute Entscheidung über dieselbe alte Fassung. Ein überarbeiteter
+Vorschlag erscheint ebenfalls in der bisher verwendeten Cockpit-Darstellung; der Flow zeigt
+den Einstieg über die Chatkarte exemplarisch.
+
+| Aktion des Anwenders | Ausgangspunkt | Sichtbares Ergebnis | Wirkung und Voraussetzung |
+|---|---|---|---|
+| Änderungswunsch formulieren | Bestehender Codex-Chat | Chatkarte mit „Haben wir deinen Wunsch richtig verstanden?“ — Ansicht 1 | Erst nach notwendiger Klärung und gebundener Entscheidungsbereitschaft; fehlende Angaben führen zunächst zu einer konkreten Rückfrage |
+| Groß öffnen | Chatkarte | Großes Run-Cockpit — Ansicht 2 | Host muss den angebotenen Modus bestätigen; ohne Unterstützung bleibt die kompakte Karte verfügbar |
+| Anforderung lesen | Chatkarte oder großes Cockpit | Dokumentansicht — Ansicht 3 | Liest die konkret zugeordnete Fassung innerhalb der App; ein erforderlicher größerer Anzeigemodus bleibt hostabhängig |
+| Zur Entscheidung | Dokumentansicht | Auslösende Chatkarte oder großes Cockpit — Ansicht 1 beziehungsweise 2 | Erhält Vorhaben, Fassung und Zusammenhang; bei inzwischen geänderter Quelle wird der aktuelle Stand erklärt |
+| Frage stellen oder Änderung nötig | Aktuelle Entscheidung oder Dokument | Diskussion im bestehenden Codex-Chat; danach überarbeitete Entscheidungskarte | Öffnet keinen eigenen Chat. Im gezeigten Zustand erfolgt der Änderungswunsch direkt im bestehenden Gespräch; eine Ersatzfassung benötigt erneut eine Entscheidung |
+| Entscheidung bewusst bestätigen | Bestehender Codex-Chat; künftig auch qualifizierte Klickaktion | Bestätigung und nächste Aufgabe im Cockpit — Ansicht 4 | Erst nach bestätigter Erfassung; „So stimmt es“ ist in den historischen v4-Mocks deaktiviert. Ist der Chat der einzige Weg, steht die exakte Antwort direkt beim Handlungshinweis; bei qualifiziertem Klickweg darf das Protokoll in Details stehen |
+| Bestätigte Anforderung lesen | Bestätigung | Dokumentansicht — Ansicht 3 | Zeigt die bestätigte historische Fassung mit ihrem belegten Status; zurück geht es zum auslösenden Aufgabenstand |
+| Alle Vorhaben oder Übersicht anfordern | Großes Cockpit oder bestehender Chat | Hub — Ansicht 5 | Zeigt den definierten Projektumfang; Darstellung über MCP-UI setzt die entsprechende Host-Fähigkeit voraus |
+| Suchen, filtern oder Verlauf aufklappen | Hub | Treffer und Verlauf innerhalb des Hubs — Ansicht 5 | Ändert die Leseauswahl; bestätigt keine Fassung und beauftragt keine Arbeit |
+| Vorhaben ansehen oder Zur aktuellen Aufgabe | Hub | Aktueller Aufgabenstand im großen Cockpit — Ansicht 2 beziehungsweise 4 | Lesender Wechsel zum ausgewählten Run; erhält den bestehenden Codex-Chat und startet keine automatische Fortsetzung |
+| Dieses Vorhaben im Gespräch weiterbearbeiten | Geöffneter Run oder Dokument | Gebundene Arbeitsübergabe mit Run, Quelle und Arbeitsziel | Bewusster Auftrag; Annahme der Nachricht und tatsächliche Übernahme bleiben getrennt. Fehlende Fähigkeit bietet einen ausdrücklich zugeordneten Textauftrag. |
+| Ergebnis ansehen und prüfen | Abnahmebereites Run-Cockpit | Zugeordnete Ergebnisfassung mit Umgebung und Prüfschritten | Technische Nachweise erklären Aussagebereich und Grenzen; das Öffnen nimmt nichts ab. |
+| Ergebnis abnehmen | Abnahmebereites Cockpit oder exakter Chatweg | Bestätigte Abnahme und nächste Abschlussverpflichtung | Erst mit passendem Speicherbeleg; keine Behauptung von Integration oder Veröffentlichung. |
+| Änderung oder Unterbrechung verlangen | Aktuell beauftragter Run | Gebundener Änderungswunsch oder unterstützte Unterbrechungsanforderung | Neue Freigabebedarfe werden geprüft; Halt wird erst nach Hostbestätigung behauptet. |
+| Aktuellen Stand laden | Cockpit mit veralteter oder bewusst manuell zu aktualisierender Beobachtung | Frisch gelesener Aufgabenstand in derselben Darstellung | Erscheint nur bei erforderlicher bewusster Neuladung; kann Inhalt und Handlungserwartung ändern, erzeugt aber keine Entscheidung und keinen neuen Chat |
+
+Die große Ansicht kann je nach Host rechts, bildschirmfüllend oder in einem anderen
+angebotenen Modus erscheinen. Der Flow beschreibt die Navigation innerhalb des Konzepts,
+keine garantierte Codex-Fensteraufteilung. Bei fehlender MCP-App-UI bleiben die gebundenen
+Informationen und der unterstützte Entscheidungsweg vollständig als Portable Markdown im
+bestehenden Chat verfügbar.
+
+## 2 Hub für Überblick und Wiederaufnahme
+
+Der Hub beantwortet: **„Was läuft, wo werde ich gebraucht und was ist bisher passiert?“**
+Er macht die Runs des ausdrücklich ausgewählten Projekts auffindbar. Das Projekt steht
+sichtbar im Kopf; ein Projektwechsel ist bewusst. Eine projektübergreifende Gesamtübersicht
+benötigt einen gesondert definierten Umfang.
+
+Die Übersicht unterscheidet aktive Runs, abgeschlossene Runs und historische abgelöste oder
+abgebrochene Arbeit entsprechend dem gespeicherten Lebenszyklus. Geplante Backlog-Vorhaben
+ohne eigenen Run können daneben erscheinen und sind ausdrücklich als geplant erkennbar.
+Sie erhalten keine erfundenen Gate-, Freigabe- oder Verlaufsangaben.
+
+### Einträge und Suchmöglichkeiten
+
+Ein Run-Eintrag führt mit dem verständlichen Namen des Vorhabens. Dazu zeigt er den aktuellen
+Schritt, den gespeicherten Lebenszyklus, einen möglichen Klärungsbedarf und die nächste
+erwartete Handlung. Der letzte verfügbare Datenstand ist zugänglich. Technische IDs und
+Quellenpfade stehen in den Herkunftsangaben, damit ähnliche Vorhaben unterscheidbar bleiben.
+
+Die Suche umfasst Namen und Run-ID; Filter helfen nach Lebenszyklus, Schritt und erforderlicher
+Aufmerksamkeit. „Meine Entscheidung erforderlich“ und „Klärung erforderlich“ bieten direkte
+Zugänge. Ihre Bedeutung wird aus aktuellen Core-Angaben abgeleitet. Ein gespeicherter
+Backlog-Status allein bestätigt keine aktuelle Entscheidungsbereitschaft.
+
+Der Einstieg priorisiert „Meine Entscheidung erforderlich“, „Klärung erforderlich“ und
+blockierte Vorhaben; zuletzt bearbeitete Runs unterstützen die Wiederaufnahme. „Meine“ wird
+nur aus einer belegten Zuordnung zur Person abgeleitet. Fehlt diese, heißt der Zugang neutral
+„Entscheidung erforderlich“. Die gesamte Run-Liste bleibt erreichbar. Die Priorisierung
+nennt die tatsächliche nächste Handlung und verwandelt einen geplanten Eintrag nicht in
+einen entscheidungsreifen Run.
+
+Der Hub muss auch Runs ohne Backlog-Eintrag auffindbar machen. Die vorhandene
+Masterbacklog-Projektion wird dafür durch einen gesondert definierten, begrenzten Run-Leseumfang
+ergänzt. Inventar, Suchabdeckung und Aktualisierung müssen zusammenpassen. Wurde nur ein Teil
+gelesen, wird dieser Umfang genannt; „keine Treffer“ darf dann keine vollständige Projektsuche
+behaupten. Dieses Ziel erweitert die heutige, zunächst auf Backlog-Einträge begrenzte Übersicht.
+
+### Statuskonflikte und offene Arbeit einordnen
+
+Der gespeicherte Lebenszyklus, die aktuelle Bewertung und beobachtete Agentenarbeit werden
+nicht zu einem einzigen Fortschrittsindikator zusammengezogen. Eine historische offene
+QA-Aufforderung in einem abgeschlossenen Run erzeugt keine Aufgabe im Hub. Ein Backlog-Eintrag
+mit „Awaiting UAT“ überstimmt keine dokumentierte Rücksetzung. Ein Abschluss mit angenommenen
+Abweichungen bleibt als Abschluss sichtbar und trägt seine Nutzungsgrenze.
+
+Bei abweichenden Angaben führt der Eintrag mit dem belegten Stand und einer verständlichen
+Begründung. Details zeigen die abweichende Quelle, deren Zeitbezug und den kanonischen Bezug.
+Die App bereinigt diese Quelldaten nicht eigenständig. Fehlt eine aktuelle Auswertung, darf
+„gespeichert offen“ nicht in „deine Entscheidung jetzt erforderlich“ umbenannt werden.
+
+### Öffnen und Zurückkehren
+
+Das Öffnen eines Eintrags lädt das Run-Cockpit mit dem aktuellen Stand dieses Runs. Historische
+Runs öffnen zunächst ihren Abschluss und Verlauf; daraus entsteht keine neue Arbeitsfreigabe.
+Die Rückkehr zum Hub erhält Suche, Filter und Listenposition. Der Anwender kann zwischen
+Vorhaben wechseln, ohne seine Orientierung in der Übersicht zu verlieren.
+
+## 3 Run Cockpit als gemeinsamer Arbeitsbereich
+
+Das Run-Cockpit verbindet drei Aufgaben: **Orientierung behalten, den aktuellen Gegenstand
+bearbeiten und den bisherigen Verlauf nachvollziehen.** Die vorbereitete Entscheidung mit dem relevanten Dokumentausschnitt ist sein zentraler
+Inhalt, wenn eine menschliche Entscheidung ansteht. Während interner Arbeit zeigt derselbe
+Bereich die laufende Aufgabe, das letzte bestätigte Ergebnis und mögliche Hindernisse.
+
+Die kompakte und die große Darstellung verwenden dieselbe Run-Identität, dieselbe
+Entscheidungsgrundlage und dieselbe Bedeutung der Zustände. Mehr Platz verändert die
+Darstellungstiefe. Er erzeugt keine zusätzliche Freigabe, keinen zweiten Run und keine
+abweichende Gate-Policy.
+
+### Dauerhafte Orientierung
+
+In der großen Ansicht bleibt ein Orientierungskopf sichtbar, während Dokumente, Nachweise
+oder der Verlauf gescrollt werden. Er beantwortet vier Fragen:
+
+| Frage des Anwenders | Sichtbare Antwort |
+|---|---|
+| Welches Vorhaben bearbeite ich? | Fachlicher Titel und ausgewähltes Projekt; Run-ID bei Bedarf in den Herkunftsangaben |
+| Wo stehe ich? | Aktueller Schritt und Einordnung in den für diesen Run geltenden Ablauf |
+| Wer ist jetzt dran? | Erwartete Handlung des Anwenders, nächste Arbeit der KI oder konkret benannter Klärungsbedarf |
+| Was muss passieren, damit es weitergeht? | Eine verständliche Hauptaussage mit passender Aktion und erklärter Wirkung |
+
+Der auf Wunsch geöffnete Ablauf zeigt erledigte, aktuelle und noch anstehende Schritte. Er folgt dem tatsächlichen
+Delivery-Weg des Runs, einschließlich Analysen, Umsetzung und Reviews. Nicht jedes Element
+ist ein menschliches Gate. Kürzere Wege werden entsprechend kürzer dargestellt. Eine
+Anforderungskarte, ein bestandenes Review und ein freigegebenes Gate bleiben unterscheidbar.
+Die UI berechnet daraus keinen pauschalen Fertigstellungsprozentsatz.
+
+Ein beispielhafter Orientierungskopf lautet:
+
+```text
+Anmeldung verbessern · Anforderung, Fassung 2           Hub öffnen
+Deine Entscheidung: Soll bei falschen Zugangsdaten die Meldung
+„E-Mail oder Passwort ist nicht korrekt“ erscheinen?
+
+Geändert: Die Meldung wurde auf deinen Wunsch präzisiert.
+Danach: Bestehendes System untersuchen. Umsetzung bleibt gesperrt.
+
+Anforderung bestätigen · Änderung besprechen
+Anforderung und Entscheidungsgrundlage ansehen
+Ablauf, Herkunft und bisherige Entscheidungen ansehen
+```
+
+Die gezeigten Entscheidungsaktionen setzen die jeweilige Host-Unterstützung voraus. In den
+historischen v4-Mocks bleibt „So stimmt es“ deaktiviert. Die v3-Mocks zeigen qualifizierten
+Klickweg und Textweg getrennt. Dieses Textbeispiel zeigt den Kopf und die Handlungszugänge;
+belegte Vorprüfung und relevante Risiken folgen im Hauptinhalt derselben Karte.
+
+Während der Umsetzung lautet die Einordnung beispielsweise:
+
+```text
+Anmeldung verbessern
+Aktueller Schritt: Umsetzung und Tests
+
+Als Nächstes ist die KI dran
+Den freigegebenen Plan umsetzen und Ergebnisse prüfen.
+Du musst jetzt nichts entscheiden.
+```
+
+„Die KI arbeitet“ wird nur angezeigt, wenn der Host tatsächliche laufende Arbeit bestätigt.
+Der kanonische nächste Schritt allein belegt keine laufende Ausführung. Ohne entsprechende
+Beobachtung lautet die Aussage „Als Nächstes ist die KI dran“ oder „Weiterarbeit beauftragen“.
+
+### Erwartung am aktuellen Schritt
+
+Der Schrittname allein erklärt noch nicht, was der Anwender tun soll. Deshalb gehört eine
+konkrete Erwartung zum Orientierungskopf. Sie bleibt auch sichtbar, wenn gerade ein
+Unterdokument gelesen wird.
+
+| Situation | Aussage im Cockpit | Passende Handlung |
+|---|---|---|
+| Eine Anforderung braucht Klärung | „Bitte kläre, welche Nutzer die Änderung betrifft.“ | Die konkrete Frage im Chat beantworten |
+| Eine Gate-Fassung ist entscheidungsbereit | Konkrete Prüfaufgabe: „Bestätige, ob dieses Verhalten fachlich gewünscht ist.“ | Relevante Änderung und Nachweise prüfen; gebundene Fassung bestätigen, Änderung besprechen oder ablehnen |
+| Die nächste interne Aufgabe ist zulässig | „Als Nächstes wird das bestehende System untersucht.“ | Bereits beauftragte Arbeit fortsetzen lassen oder die erforderliche Fortsetzung beauftragen |
+| Ein konkreter Blocker verhindert Fortschritt | Ursache und die zu ihrer Auflösung erforderliche Handlung | Benannte Quelle prüfen oder die zuständige Klärung anstoßen |
+| Der aktuelle Stand ist nicht bestätigt | „Diese Beobachtung ist nicht mehr aktuell.“ | Aktuellen Stand laden; bis dahin keine aktuelle Entscheidung behaupten |
+| Der Run ist abgeschlossen | Ergebnis, Abschlussgrundlage und mögliche Restgrenzen | Ergebnis und Verlauf ansehen; neue Arbeit ausdrücklich beauftragen |
+
+„Du bist dran“ setzt eine tatsächliche Handlung des Anwenders voraus. Ein bloßer interner
+Zwischenschritt wird nicht als zusätzliche Nutzerentscheidung dargestellt. Bei mehreren
+offenen Punkten führt die wichtigste aktuell erforderliche Handlung; weitere Punkte bleiben
+als zugehörige Nachweise und Klärungen erreichbar.
+
+### Hauptbereich und Vertiefung
+
+Der Hauptbereich zeigt die gegenwärtige Aufgabe. Bei einem entscheidungsreifen Gate führt
+er mit dem Vorschlag und den erwarteten Nutzeraktionen. Bei fehlenden Voraussetzungen
+führt er mit dem konkreten Klärungsbedarf. Ein technischer Fehler wird mit verständlicher
+Ursache und einer passenden Wiederherstellungsaktion erklärt.
+
+Dokumente und Nachweise öffnen aus diesem Zusammenhang heraus. Der Orientierungskopf
+bleibt sichtbar; die Rückkehr führt zur auslösenden Karte oder Quelle und erhält deren Fokus.
+Der Anwender soll beim Lesen jederzeit erkennen, wozu das Dokument gehört und welche
+Entscheidung oder Arbeit es unterstützt.
+
+## 4 Run Cockpit als Teil des Chats
+
+Im Chat ist das Run-Cockpit eine kompakte Gesprächskarte. Jede Karte ist für sich verständlich:
+Sie enthält Vorhaben, aktuellen Schritt, erwartete Handlung und Datenstand. Die wichtigsten
+Aktionen sind unmittelbar erreichbar. Details zu Quellen und technischen Bindungen können
+aufgeklappt oder in der großen Ansicht gelesen werden.
+
+Die kompakte Karte kann denselben Gate-Gegenstand entscheiden, sofern der Host die
+qualifizierte Aktion unterstützt. Sie verlangt keinen Wechsel in die große Ansicht, um eine
+bewusste Entscheidung abzugeben. „Groß öffnen“ dient der ausführlichen Prüfung und
+dauerhaften Orientierung. Umgekehrt kann der Anwender zur Diskussion im bestehenden Codex-Chat zurückkehren,
+ohne einen neuen Entscheidungsgegenstand zu erzeugen.
+
+### Gesprächsverlauf und Aktualität
+
+Eine Chat-Karte gehört zum Gespräch und zeigt einen beobachteten Stand. Frühere Karten
+bleiben als damalige Stände nachvollziehbar. Das Konzept verlangt keine nachträgliche
+Umschreibung alter Chatnachrichten durch die App. Eine Karte führt ihren Datenstand mit;
+bei erneuter Interaktion wird ihre Gültigkeit geprüft.
+
+Nach einer bestätigten Entscheidung, einem wesentlichen Ergebnis oder einem neuen Blocker
+zeigt AGDF den relevanten aktuellen Stand. Routineprüfungen benötigen keine eigene neue
+Karte. Dadurch bleibt der Gesprächsverlauf lesbar und der nächste menschliche Entscheidungspunkt
+sichtbar. Alte Karten werden nicht allein wegen ihres Alters als ungültig behandelt; entscheidend
+ist die Übereinstimmung mit dem aktuellen Run und der gebundenen Dokumentfassung.
+
+### Wechsel in die große Ansicht
+
+Beim Vergrößern wird der ausgewählte Run ausdrücklich übernommen. Vor einer Handlung
+prüft AGDF den aktuellen Stand. Ist die Fassung inzwischen verändert, erklärt die Ansicht
+diese Änderung und zeigt den aktuellen Gegenstand; eine alte Freigabeaktion wird nicht
+stillschweigend auf die neue Fassung übertragen. Ein gültiger Wechsel erhält die Auswahl
+und den Lesezusammenhang, soweit die Host-Fähigkeiten dies ermöglichen.
+
+Unterstützt der Host die Vergrößerung nicht, bleibt die kompakte
+Ansicht verwendbar und erklärt ihre Möglichkeiten. Eine angeforderte Vergrößerung darf erst
+nach Host-Bestätigung als erfolgt gelten. Fehlt MCP-UI vollständig, zeigt AGDF die gebundene
+Entscheidung als verständlichen Chat-Text mit dem bestehenden exakten Antwortweg.
+
+## 5 Entscheidungskarte und menschliche Entscheidung
+
+Die Entscheidungskarte beantwortet: **„Was entscheide ich hier, auf welcher Grundlage und mit welcher
+Wirkung?“** Sie enthält eine verständliche Zusammenfassung der konkreten Fassung, den
+vereinbarten Umfang, entscheidungsrelevante Risiken und offene Punkte sowie den Zugang zum
+exakten Dokument. Die [Entscheidungsvorbereitung](#konkrete-prüfaufgabe-und-zuständigkeit)
+bestimmt die konkrete Prüfaufgabe und belegte Vorprüfungen. Bei einer Überarbeitung zeigt sie
+den relevanten Vergleich, sobald eine belastbare Grundlage vorliegt; andernfalls benennt sie
+die fehlende Vergleichbarkeit und den erforderlichen Leseumfang.
+
+Die Karte erklärt, was eine Freigabe ermöglicht und welche Verpflichtungen danach noch
+bestehen. Beispielsweise erlaubt die bestätigte Anforderung die nächste vorgesehene Untersuchung;
+sie ist keine pauschale Freigabe für Umsetzung, Veröffentlichung oder weitere Vorhaben.
+
+| Handlung | Bedeutung und sichtbare Rückmeldung |
+|---|---|
+| Anforderung, beschriebenes Verhalten oder Lösung lesen | Die genaue zur Entscheidung gehörende Fassung öffnen und zur Karte zurückkehren |
+| Im bestehenden Codex-Chat besprechen | Fragen klären, Alternativen erörtern und Änderungen präzisieren; eine Diskussion entscheidet das Gate nicht. Eine ausdrückliche Kontextübergabe aus der App setzt die entsprechende Host-Fähigkeit voraus. |
+| Anforderung, Verhalten, Lösungsentwurf oder Umsetzungsplan bestätigen | Die konkret angezeigte Fassung bewusst bestätigen; erst nach bestätigter Erfassung den Effekt und nächsten Schritt zeigen |
+| Änderung nötig | Den konkreten Änderungswunsch klären und den unterstützten Überarbeitungsweg erklären; die Ersatzfassung bleibt erneut zu entscheiden |
+| Diese Fassung ablehnen | Diese Fassung nicht freigeben und die tatsächliche Wirkung im bestehenden Ablauf erklären; den Run nicht automatisch löschen oder abbrechen |
+
+### Fortschritt nach der Entscheidung
+
+Während der Erfassung zeigt die Karte „Entscheidung wird gespeichert“. Anschließend zeigt
+sie das bestätigte Ergebnis und die frisch bestimmte nächste Aktion. Bei verlorener Antwort
+bleibt das Ergebnis unklar, bis der ursprüngliche Vorgang geprüft wurde. Wiederholung oder
+Vergrößerung darf keine zweite wirksame Entscheidung erzeugen.
+
+Bei unbestätigter Fortsetzung lautet die Aussage: „Deine Freigabe ist gespeichert. Der Beginn
+der nächsten Aufgabe ist noch nicht bestätigt.“ Das System gleicht den ursprünglichen
+Vorgang, aktuellen Run und verfügbare Hostnachweise selbst ab, soweit dies unterstützt wird.
+Ist eine bewusste Prüfung erforderlich, führt „Status prüfen“ genau diesen Abgleich aus.
+Die Aktion erfasst weder eine neue Freigabe noch einen weiteren Arbeitsauftrag. Sie erklärt
+das Ergebnis als gespeichert, angefordert, tatsächlich übernommen oder weiterhin unbestätigt.
+Fehlt ein technischer Prüfweg, wird diese Grenze mit einem konkret zugeordneten Prüfauftrag
+im bestehenden Gespräch erklärt. Eine nicht beobachtbare Wirkung wird nicht als Erfolg
+ausgegeben. Der Anwender muss keine Operations-IDs oder verstreuten Protokolle vergleichen.
+
+Der nächste zulässige Arbeitsschritt wird sichtbar von der Gate-Freigabe unterschieden.
+Wo die bestehende Beauftragung die Fortsetzung bereits umfasst, arbeitet AGDF innerhalb
+dieses Umfangs weiter. Benötigt die Fortsetzung einen neuen Auftrag, bietet das Cockpit
+eine entsprechende Aktion an. Eine solche Beauftragung ersetzt keine spätere Gate-Entscheidung.
+
+Klick und exakte Textantwort beziehen sich auf denselben Entscheidungsgegenstand. Technische
+Host-Berechtigung, bewusste Nutzerentscheidung und bestätigte Speicherung bleiben getrennt.
+MCP-UI-Unterstützung allein reicht für eine Freigabe per Klick nicht aus; die im
+[Befehlsfluss](core-mcp-command-flow.md#3-wie-der-mensch-die-gebundene-entscheidung-sieht)
+beschriebenen Voraussetzungen gelten weiterhin.
+
+### Vom Freigabeklick bis zur erneuten Übernahme durch die KI
+
+Ein Klick auf „Anforderung bestätigen“ startet bei verfügbarem, qualifiziertem Klickweg die gebundene
+Erfassung dieser konkreten Entscheidung. Erst der passende Speicherbeleg bestätigt die
+Freigabe. Danach wird der nächste erlaubte Schritt frisch geprüft und bei unterstützter
+Host-Übergabe die Fortsetzung im bestehenden Codex-Chat angefordert. Läuft dort noch eine
+KI-Antwort, kann der Host den Start bis zu deren Ende zurückstellen.
+
+![Freigabe- und Fortsetzungsablauf: bewusster Klick, gebundene Prüfung und Speicherung, bestätigter Beleg, frische Bestimmung des nächsten Schritts, Host-Übergabe und erneute Übernahme durch die KI; getrennte Wege für Ablehnung, unklare Speicherung und fehlende Fortsetzung](diagrams/10-freigabe-ki-fortsetzung.svg)
+
+[SVG groß ansehen](diagrams/10-freigabe-ki-fortsetzung.svg) ·
+[Bearbeitbare DOT-Quelle](diagrams/10-freigabe-ki-fortsetzung.dot)
+
+| Sichtbarer Zustand | Was tatsächlich bestätigt ist | Was der Anwender tun muss |
+|---|---|---|
+| Entscheidung wird gespeichert | Die bewusste Entscheidung wurde übermittelt; Speicherung noch nicht bestätigt | Ergebnis abwarten; nicht erneut freigeben |
+| Anforderung bestätigt · Fassung 2 | Ein passender Speicherbeleg bestätigt genau diese Entscheidung | Die Freigabe nicht wiederholen; den angezeigten nächsten Schritt beachten |
+| Fortsetzung wird angefordert oder wartet | Die App vermittelt die bereits zulässige Fortsetzung; der Host kann auf das Ende der laufenden Antwort warten | Bei bestätigter Übergabe ist kein zweiter Freigabeklick nötig |
+| Fortsetzung wurde im Chat angefordert | Der Host hat die Nachricht angenommen; der Arbeitsbeginn ist damit noch nicht belegt | Weiteren Aufgabenstand verfolgen |
+| KI arbeitet an der nächsten Aufgabe | Der tatsächliche Arbeitsbeginn wurde beobachtet | Auf Ergebnis, nächste Entscheidung oder konkreten Klärungsbedarf warten |
+| Freigabe gespeichert, Fortsetzung unbestätigt | Die Entscheidung ist gespeichert; Übergabe oder Arbeitsbeginn sind unklar | Unterstützten Abgleich abwarten oder „Status prüfen“ verwenden; bei fehlendem Prüfweg den konkret vorbereiteten Prüfauftrag im Gespräch verwenden |
+| Ergebnis der Speicherung unklar | Es fehlt ein bestätigter passender Beleg; daraus folgt weder Erfolg noch sichere Nichtausführung | Den ursprünglichen Vorgang prüfen; keine neue Entscheidung mit neuer Operations-ID erzeugen |
+
+Die KI übernimmt, sobald der Host die Fortsetzung im bestehenden Chat tatsächlich startet.
+Sie prüft den ursprünglichen Freigabebeleg und den aktuellen Run erneut, bestimmt den nächsten
+zulässigen Schritt und arbeitet innerhalb des bestehenden Auftrags. Bei der nächsten nötigen
+menschlichen Entscheidung zeigt sie deren Karte und führt diese Entscheidung nicht selbst aus.
+Fehlt eine Voraussetzung oder verlangt die Weiterarbeit einen neuen Auftrag, wird diese
+konkrete Verpflichtung sichtbar. Eine bloß gespeicherte Freigabe reicht für „KI arbeitet“ nicht aus.
+
+Die [Erfassung und Zustände der Entscheidungskarte](../../packages/control-ui/src/mcp/DecisionCard.tsx)
+und ihre [gebundene Kontext- und Nachrichtenübergabe](../../packages/control-ui/src/mcp/DecisionEntry.tsx)
+bilden die technische Grundlage. Die historischen v4-Mocks zeigen einen deaktivierten
+Klickweg; das Diagramm erläutert zusätzlich den Ablauf bei qualifizierter Klickunterstützung.
+Es bestätigt keine native Codex-Qualifizierung. Ohne Klickunterstützung bleibt die gebundene
+Entscheidung im bestehenden Chat verfügbar; ihre genaue Antwortregel steht unmittelbar bei
+der Handlungsanweisung, während technische Bindungsangaben in Details zugänglich bleiben.
+
+Der SVG-Export erfolgt aus dem Repository-Wurzelverzeichnis:
+
+```sh
+dot -Tsvg docs/architecture/diagrams/10-freigabe-ki-fortsetzung.dot -o docs/architecture/diagrams/10-freigabe-ki-fortsetzung.svg
+```
+
+## 6 Dokumente und Nachweise im Arbeitszusammenhang
+
+Dokumente werden mit verständlichem Namen und belegtem Zustand angeboten. Die vorhandenen
+Zustände wie „Entwurf“, „Entwurf geprüft“, „Überarbeitung nötig“ und „Freigabe dieser Fassung
+nicht bestätigt“ behalten ihre Bedeutung. Ein gespeicherter Freigabevermerk allein belegt
+nicht, dass die heute gelesenen Bytes die damalige freigegebene Fassung sind.
+
+Die Dokumentansicht führt mit verständlichem Inhalt. Sie zeigt passende Prüfbefunde und
+vorhandene ursprüngliche Freigabeangaben, während Originaltext und Herkunft zugänglich
+bleiben. Fehlende oder nicht bestätigte Versionszuordnung wird ausdrücklich genannt.
+Eine Entwurfsprüfung kontrolliert die vorhandenen Autorenregeln; sie ersetzt keine
+fachliche Entscheidung, semantische Prüfung oder abschließende Qualitätsprüfung.
+
+Die Diskussion bleibt im bestehenden Codex-Chat. Die tatsächlich ausgewählte Quelle kann
+über „Kontext übergeben“ bereitgestellt werden, sofern der Host die Capability anbietet
+und den Empfang bestätigt. Eine ausdrücklich beauftragte Nachricht kann über den getrennten
+Nachrichtenweg folgen, sofern auch dieser unterstützt wird. Öffnen oder Lesen erzeugt
+weder eine Frage noch eine Freigabe und legt keinen neuen Chat an.
+
+### Umfangreiche Quellen und Abschnittsbezug
+
+Eine Aufgabenansicht zeigt zunächst die zugehörige Prüfgrundlage und einschlägige Nachweise.
+Weitere registrierte Quellen und Historie sind nach Rolle erreichbar. Die physische Zahl der
+Dateien bestimmt nicht die Zahl gleichrangiger Einstiegslinks. Die Einordnung wird aus den
+vorhandenen registrierten Beziehungen übernommen, nicht aus Dateinamen erraten.
+
+Die vollständige Dokumentansicht besitzt eine Inhaltsübersicht und eine Suche mit ausdrücklich
+benanntem Umfang. Treffer führen zur Originalstelle; sie ersetzen den Rest des Dokuments nicht.
+Bei begrenztem oder nicht verfügbarem Inhalt werden Grenze und verbleibende Lesewege genannt.
+Ein zugänglicher Rückweg führt zur auslösenden Aufgabe und zum passenden Fokus. Breite Tabellen
+dürfen lokal scrollen; Überschrift, Lesetext und Aktionen bleiben ohne Seitenüberlauf bedienbar.
+
+„Zu diesem Abschnitt fragen“ bindet die Rückfrage an Run, konkrete Quelle, deren Identität und
+Abschnitt. Der Originaltext bleibt passiv. Die Einordnung darüber erklärt bei Bedarf, warum
+eine frühere Aussage nicht den heutigen Stand wiedergibt. Die Quelle selbst wird dabei nicht
+redaktionell überschrieben. Auf schmaler Fläche stehen Inhaltsauswahl und Suche untereinander.
+
+## 7 Verlauf der zurückgelegten Runden
+
+Der Verlauf zeigt, wie das Vorhaben den heutigen Stand erreicht hat. Ein Run umfasst die
+gesamte abgegrenzte Arbeit; eine „Runde“ ist hier ein anschauliches Bild für einen durchlaufenen
+Arbeits- und Entscheidungsabschnitt. Sie ist kein zusätzlicher technischer Zustand und kein
+neues Gate.
+
+Zum Verlauf gehören beobachtete Arbeitsschritte, Artefaktfassungen, tatsächlich gespeicherte
+Entscheidungen, Reviews, Testergebnisse und der Abschluss. Quellenrevisionen bleiben
+nachvollziehbar: Frühere Zustimmung gehört zur früheren Fassung und bestätigt keine geänderte
+Ersatzfassung. Fehlende historische Angaben werden als Lücke gezeigt.
+
+Der Anwender kann vom aktuellen Schritt in einen früheren Abschnitt wechseln und anschließend
+„Zum aktuellen Schritt“ zurückkehren. Die frühere Ansicht ist deutlich als Historie bezeichnet.
+Sie bietet keine aktuelle Entscheidung für eine abgelöste Fassung. Das Öffnen eines vergangenen
+Abschnitts verändert den Run nicht und setzt ihn nicht zurück.
+
+## 8 Gemeinsame Zuständigkeiten und Datenbasis
+
+Die einheitliche Bedienung verbindet vorhandene Lese- und Entscheidungsfunktionen. Ihre
+technischen Zuständigkeiten bleiben erhalten. Das allgemeine Cockpit liefert weiterhin
+lesenden Zugriff. Eine zulässige Entscheidung wird über die eigene gebundene Fassade an
+die bestehende Core-Operation vermittelt. Die visuelle Zusammenführung darf dem allgemeinen
+Lesedienst keine beliebigen Schreibrechte geben.
+
+| Verantwortung | Zuständiger Baustein |
+|---|---|
+| Wirksamer Run-Zustand, Voraussetzungen, Dokumentzuordnung und nächste erlaubte Aktion | Bestehende Core-Auswertung und kanonischer Zustand unter `.agdf/control/` |
+| Erfassung von Artefakten und bewussten Entscheidungen | Bestehende gebundene Core-Operationen und Writer |
+| Orientierung, Navigation, Darstellung und Fokus | Gemeinsames UI-Modell für Hub und beide Cockpit-Darstellungen |
+| Darstellungsmöglichkeiten, tatsächliche Agentenaktivität und technische Berechtigung | Host und seine jeweils belegten Fähigkeiten |
+| Abruf, Identitätsprüfung und Sitzungsgrenzen | Bestehende MCP- beziehungsweise Browser-Adapter mit den dafür zulässigen Operationen |
+
+Die UI benötigt zusammengehörige Angaben zu Projekt, Run, Revision, aktuellem Schritt,
+Entscheidungsgrundlage und Datenstand. Eine alte Dokumentfassung darf nicht mit einem neuen
+Freigabestatus als scheinbar aktueller Gesamtstand kombiniert werden. Kompakte und große
+Ansichten können eigene Lesesitzungen besitzen; ihre Aussagen müssen dennoch dieselbe
+gebundene fachliche Grundlage besitzen. Sitzungsablauf, Quellenänderung und unsichere
+Ergebnisse bleiben sichtbar.
+
+Für den Hub müssen auch die Herkunft und Aktualität seiner Inventar- und Suchdaten festgelegt
+werden. Gespeicherte Backlog-Beobachtung, aktuell geprüfter Run und bestätigte laufende
+Agentenarbeit sind unterschiedliche Aussagen. Die Oberfläche darf sie zusammen erklären,
+aber nicht gegenseitig als Beweis verwenden.
+
+Eine spätere lesende Anbindung von GitHub Projects kann Planung, Priorität, Zuständigkeit und
+verknüpfte Issues oder Pull Requests ergänzen. Sie benötigt explizite stabile Zuordnungen und
+sichtbare Herkunft. Ein Board-Status „Done“ ist keine AGDF-Freigabe. Die Anbindung gehört zur
+weiteren Entwicklung und ist keine Voraussetzung für dieses Bedienmodell.
+
+## 9 Bestand und erforderliche Weiterentwicklung
+
+### Abgeglichene Grundlage
+
+**Stand: 14. Oktober 2026, Repository-Arbeitsstand einschließlich vorhandener Änderungen.**
+Die folgende Tabelle ist die maßgebliche Umsetzungszuordnung dieses Konzepts. „Bereits
+umgesetzt“ bezeichnet die genannte Fähigkeit, nicht automatisch das vollständige Layout eines
+Mocks oder ihre native Qualifizierung in jedem Host. Die von Anwenderseite gezeigte SD-Karte
+„Lösungsdesign prüfen und entscheiden“ ist eine vorhandene Entscheidungsdarstellung und bleibt
+Referenz für deren behutsame Weiterentwicklung.
+
+| Bereich | Bereits umgesetzt und wiederzuverwenden | Noch ergänzen |
+|---|---|---|
+| **Entscheiden und fortsetzen** | [DecisionCard](../../packages/control-ui/src/mcp/DecisionCard.tsx) zeigt Kurzfassung, Wirkung, Quellen und vollständige Entscheidungsgrundlage. Sie verarbeitet passende Speicherbelege, veraltete Bindungen und unklare Ergebnisse; Wiederholung verwendet den ursprünglichen Vorgang. [DecisionEntry](../../packages/control-ui/src/mcp/DecisionEntry.tsx) bindet qualifizierte Klicks und unterstützte Fortsetzung an den bestehenden Core-/Host-Weg. Die exakte Chatantwort bleibt verfügbar. | Benennung und Informationsgewichtung verfeinern; vorhandene Entscheidung und Dokumentnavigation konsistent verbinden. Keine neue Freigabe-, Beleg- oder Fortsetzungslogik. |
+| **Fassungen vergleichen** | [presentationVersionComparison](../../packages/core/lib/control-state/run-presentation-render.js) liest eine tatsächlich geprüfte archivierte Vorfassung. Die Karte zeigt geändert/unverändert, Herkunft und früheren Volltext; fehlende Grundlagen haben einen eigenen Zustand. | Relevante Änderungen innerhalb des vorhandenen Vorher-/Nachher-Paars hervorheben. Redaktionelle Erläuterung bleibt von einem maschinell festgestellten Unterschied unterscheidbar. |
+| **Dokumente lesen und prüfen** | [RunDocuments](../../packages/control-ui/src/RunDocuments.tsx) wählt registrierte Hauptdokumente aus. [DocumentView](../../packages/control-ui/src/DocumentView.tsx) bietet Einordnung, Original, Quellenbindung und getrennte Statusaussagen. [App](../../packages/control-ui/src/App.tsx) und die Entscheidungskarte besitzen Rückwege und Fokuswiederherstellung; bewusste Entwurfsprüfung ist vorhanden. | Gemeinsame Lesebausteine für beide Dokumentwege, Inhaltsübersicht, Suche, Abschnittszugänge und erhaltene Leseposition. Der Zugriff auf exakt vorgelegte Entscheidungsdokumente bleibt geschützt. |
+| **Stand und Nachweise verstehen** | [RunDetail](../../packages/control-ui/src/RunDetail.tsx) trennt gespeicherten Run und aktuelle Auswertung. [FlowEvidence](../../packages/control-ui/src/FlowEvidence.tsx) gruppiert aktuelle, abgelöste und nicht sicher zuordenbare Nachweise. Der [Core-Vergleich](../../packages/core/lib/control-inspect/cockpit.js) erkennt Abweichungen von einer verifizierbaren gespeicherten Backlog-Beobachtung. | Gründe und Folgen eines belegten Widerspruchs verständlich anzeigen und vorhandene Belege als nachvollziehbaren Verlauf verbinden. Ältere freie Backlog-Texte ohne verifizierbare Vergleichsbasis bleiben ungeklärt; keine automatische Konflikterkennung aus beliebiger Prosa behaupten. |
+| **Vorhaben finden** | [Overview](../../packages/control-ui/src/Overview.tsx), [BacklogRows](../../packages/control-ui/src/BacklogRows.tsx) und [projectCockpitList](../../packages/core/lib/control-inspect/cockpit-list.js) bieten Bereichsauswahl, Suche, Zähler, Herkunft und Teilmengenhinweise. Die Auswahl bleibt beim Lesen erhalten. Core besitzt bereits eine Run-Ermittlung. | Einen begrenzten vollständigen Run-Leseumfang einschließlich Runs ohne Backlog-Eintrag bereitstellen; Aufmerksamkeitsfilter auf verlässlich beobachteten Daten ergänzen. Die vorhandene Projektion erweitern, keinen zweiten Inventar- oder Statusdienst im Frontend aufbauen. |
+| **Eine Rückfrage stellen** | [ContextPanel](../../packages/control-ui/src/ContextPanel.tsx) und [HandoffController](../../packages/control-ui/src/mcp/handoff.ts) bereiten gebundenen Kontext vor, prüfen ihn und übermitteln bei unterstütztem Host anschließend eine vorgegebene allgemeine Frage. Kontextaufnahme, Nachrichtenannahme und Ungewissheit sind getrennte Zustände. | Eigenen Fragetext und Abschnittsbezug ergänzen; Entwürfe bei Navigation und Quellenänderung erhalten. Die spätere Umsetzung nutzt denselben Host-Adapter. Manuelle Textübernahme bleibt ein Ausweichweg für fehlende Nachrichtenfähigkeit. |
+| **Ergebnis und Abnahme beurteilen** | [Decision Content Readiness](../../packages/core/lib/control-evaluation/decision-content-readiness.js) prüft konkrete Ergebnisse, Grenzen und Risiken aus maßgeblichen Quellen. Die Präsentation verwendet diese Inhalte für QA/UAT. [QA-Abweichungsannahme](../../packages/core/lib/control-state/qa-deviation-acceptance.js) bewahrt ursprüngliches `revise`, Nutzungsumfang, Risiko, Folgen und Nacharbeit. | Ergebnis, vorhandene Prüfschritte, Nachweise und gegebenenfalls belegten Ergebniszugang übersichtlich verbinden. Kein zweiter Abnahmebericht und keine neue QA- oder Freigabesemantik. |
+| **Im Host arbeiten** | MCP-App-Ressourcen, Host-Adapter, Fähigkeitsprüfung, unterstützte Anzeigemodi und Portable Markdown sind vorhanden. Darstellung und fachliche Entscheidungswirkung haben getrennte Zuständigkeiten. | Die ergänzten Nutzerwege an der konkreten ausgelieferten Fassung und den unterstützten Hosts qualifizieren. Fehlender Nachweis ist zunächst eine Prüfaufgabe; erst ein Befund begründet eine Reparatur. |
+| **Agentenübernahme und Halt beobachten** | Bestehende Übergabezustände zeigen Kontextaufnahme und Nachrichtenannahme; sie bestätigen keinen Arbeitsbeginn oder Halt. | Noch konzeptionell: belegter Arbeitsauftragsstatus, laufende Aktivität und Halt. Dafür sind eine unterstützte Hostintegration und eigene Nachweise nötig. Kein Auftrag zum Bau dieser Funktionen im Rahmen der vier folgenden Ergänzungen. |
+
+### Begrenzter Umfang der Weiterentwicklung
+
+1. **Lesen erleichtern:** Die bestehenden Dokumentwege mit gemeinsamen Lesebausteinen,
+   Suche und Abschnittsnavigation erweitern. Quellenbindung, Rückweg und Entscheidungszustand
+   übernehmen. Einen Änderungsvergleich ausschließlich auf der bestehenden Core-Basis darstellen.
+2. **Rückfragen vervollständigen:** Eigene Frage, gewählten Abschnitt und Entwurfserhalt ergänzen.
+   Kontextprüfung, Nachrichtenweg und Rückmeldungen des vorhandenen Handoff verwenden.
+3. **Vorhabenübersicht vervollständigen:** Run-Ermittlung und vorhandene Listenprojektion um den
+   fehlenden begrenzten Inventar-Leseumfang und nachvollziehbare Aufmerksamkeitsfilter erweitern.
+4. **Vorhandene Aussagen verbinden:** Entscheidungskarte beibehalten; Orientierung, Konfliktgründe,
+   Nachweisverlauf und Ergebniszugänge mit konsistenter Sprache und Navigation zusammenführen.
+
+Diese vier Ergänzungen sind keine neuen Backlog-IDs oder Gate-Aufträge. Es entstehen weder ein
+zweites Cockpit-Produkt noch ein eigener Statusrechner, Freigabespeicher, Versionsarchiv oder
+Chat-Transport. Die eigenständige HTML-Referenz enthält lokale Beispieldaten und Interaktionen;
+Produktcode entsteht durch Weiterentwicklung der oben genannten Komponenten. Core bleibt
+für Auswertung und gespeicherte Entscheidungen zuständig, MCP vermittelt, die App stellt dar.
+
+### Was der Abgleich tatsächlich belegt
+
+| Nachweisebene | Festgestellter Stand am 14. Oktober 2026 | Aussagegrenze |
+|---|---|---|
+| Quellcode und Komponentenprüfung | Die genannten Funktionen sind implementiert. Beim vorausgehenden Implementierungsabgleich bestanden 116 vorhandene Tests in acht UI-Testdateien zu Dokumenten, Entscheidungskarte, Nachweisen, Hauptdokumenten, Handoff, Lesen und Backlog-Zusammenfassung. | Kein Test der noch fehlenden Ergänzungen und keine Messung der Anwenderentlastung. |
+| Gebautes Paket und Installation | `run-presentation-render.js`, `decision-content-readiness.js`, `qa-deviation-acceptance.js` und `control-inspect/cockpit.js` waren zwischen Quelle, gebautem Paket und installiertem Plugin `0.14.5+codex.local-a90b74966806` bytegleich. Das Decision-HTML-Bundle war zwischen Paket und Installation identisch. | Gezielter Dateiabgleich, kein vollständiger Installationsaudit und kein Beleg, welche Fassung eine bereits geöffnete Host-Sitzung geladen hat. |
+| Abgeschlossene Inhaltsverbesserung | [Run „Aussagekräftige Run- und Abnahmeinhalte“](../../.agdf/control/runs/run-uat-content-readiness-20261014-01/RUN_STATE.md) war in Revision 21 abgeschlossen. Sein [OR](../../.agdf/control/artefacts/run-uat-content-readiness-20261014-01/OR.md) dokumentiert installierte CLI-/STDIO- und Ausgabeprüfung. | Neue native Modell-, UI- und Buttonprüfung war dort nicht enthalten. |
+| Native Beobachtungen | Die Praxisquellen enthalten datierte native Nachweise. Der [Core-/MCP-Abschluss](../../.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/OR.md) bewahrt vier angenommene offene Nachweisgruppen und technische QA `revise`. | In diesem Konzeptabgleich wurde keine neue native Bedienprüfung durchgeführt; Abschluss bedeutet keine umfassende Host- oder Produktionsqualifizierung. |
+| HTML- und SVG-Mocks | Zeigen Gestaltung und die ausdrücklich markierten Ergänzungen; die vier realen Fälle behalten ihren eingefrorenen Quellenstand. | Kein Nachweis einer ausgelieferten Funktion, Nachrichtenzustellung oder wirksamen Entscheidung. |
+
+Spätere Runtime- oder Installationsänderungen sind gegen ihre eigene Fassung zu prüfen. Sie
+aktualisieren weder diesen datierten Abgleich noch die eingefrorenen Praxisdaten automatisch.
+
+## 10 Beobachtbare Nutzererlebnisse
+
+### Entlastung am durchgängigen Weg prüfen
+
+Die Nutzerprüfung erfolgt in einem unterstützten Host mit dem installierten Plugin. Der
+lokale HTML-Mock dient nur der gestalterischen Vorbereitung. Entscheidend ist, ob der Anwender
+im vorhandenen Gespräch mit weniger Suche und Zuordnungsarbeit zu einer verstandenen
+Entscheidung kommt.
+
+| Aufgabe ohne Anleitung von außen | Erfolgskriterium |
+|---|---|
+| Eine überarbeitete Fassung öffnen | Vorhaben, relevante Änderung, eigene Prüfaufgabe und Folge sind ohne Suche in der Gesprächschronologie verständlich. |
+| Eine Korrektur besprechen | Die ausgewählte Stelle und Fassung kommen über den unterstützten Weg im bestehenden Gespräch an; sie müssen nicht erneut manuell zugeordnet werden. |
+| Entscheiden | Die verfügbare Klickaktion oder exakte Textantwort ist unmittelbar auffindbar; Speicherung und Fortsetzung werden richtig unterschieden. |
+| Wiederaufnehmen | Aktueller Stand und nächste erforderliche Handlung sind ohne Rekonstruktion des gesamten Verlaufs erkennbar. |
+| Eine Abnahme vorbereiten | Gelieferte Änderung, Fassung, Nachweise, offene Grenzen und vorhandener oder fehlender Ergebniszugang sind verständlich. Das Projekt wird am tatsächlichen Ergebnis geprüft. |
+
+Verglichen werden nötige Such- und Dokumentwechsel, Wiederholung bereits bekannter Angaben,
+Zeit bis zur begründeten Entscheidung und falsche Zuordnungen. Weniger Klicks bei schlechterem
+Verständnis gelten als Rückschritt. Ein Browser-Mock belegt weder Installation noch Hostfähigkeit
+oder wahrgenommene Entlastung. Die Prüfung verlangt keine in AGDF nachgebildete Zielanwendung.
+
+### Verbindliche Praxisfälle für Konzept- und Implementierungsreview
+
+Die vier eingefrorenen Runs bilden konkrete Referenzfälle. Der Mock prüft deren Darstellung;
+eine spätere Prüfung mit aktuellem Plugin und echten Teilnehmern muss dieselben Aufgaben im
+qualifizierten Host abdecken. Änderungen am realen Bestand verlangen einen neu dokumentierten
+Stand, kein stilles Aktualisieren der Beispieldaten.
+
+| Aufgabe | Beobachtbares Kriterium |
+|---|---|
+| In der Auswahl ein Vorhaben suchen und zurückkehren | Suche, Filter und Listenposition bleiben erhalten. Kein Treffer behauptet nur für den tatsächlich durchsuchten Bestand Abwesenheit. |
+| Host-Adapter-Run trotz Backlog-Angabe öffnen | Der Anwender erklärt die Rücksetzung und verwechselt sie nicht mit einer offenen UAT. Die Ansicht bietet keine UAT-Entscheidung. |
+| Im Cockpit-PRD AC-003 finden und eine Rückfrage formulieren | Inhaltsübersicht oder Suche erreicht die Originalstelle. Frage, Quellenfassung und Abschnitt bleiben zusammen; Rückkehr und Run-Wechsel verlieren den Entwurf nicht. |
+| Beim Cockpit-Run heutige Grundlage und alte Nachweise unterscheiden | Fünf eingeordnete Einträge und 113 historische Zeilen bleiben unterscheidbar; damalige offene Lücken erscheinen nicht als neue Aufgaben. |
+| Fehlenden Fassungsvergleich öffnen | Die UI erklärt die fehlende Bindung und bietet die vollständige Quelle. Es erscheint kein aus Run-Revisionen abgeleiteter Dokument-Diff. |
+| Den Core-/MCP-Abschluss beurteilen | Der Anwender benennt interne Erprobung, ursprüngliches `revise` und die vier offenen Nachweisgruppen; Abschluss wird nicht mit Produktionsreife verwechselt. |
+| Im abgeschlossenen Inhalts-Run den QA-Bericht lesen | „Gate approval: open“ bleibt als historische Aussage erhalten und führt zu keiner erneuten Freigabeaufforderung. |
+| Während einer Rückfrage eine Quellenänderung sehen | Der Entwurf bleibt lesbar, die alte Bindung wird benannt und eine ungeprüfte Weitergabe gesperrt. |
+
+Diese Fälle sind in normaler und vergrößerter Schrift, schmaler Fläche, Hell/Dunkel und per
+Tastatur zu prüfen. Ein erfolgreich durchlaufener Mock ist noch kein Nachweis für Nachrichten-
+zustellung, Freigabewirkung, native Darstellung oder wahrgenommene Zeitersparnis.
+
+### Zustände und Grenzen prüfen
+
+Das Konzept ist in folgenden Situationen nachvollziehbar zu prüfen:
+
+1. Ein neuer Änderungsauftrag führt nach der erforderlichen Klärung zur Karte „Haben wir deinen
+   Wunsch richtig verstanden?“ im Schritt „Ziel und Umfang klären“.
+   Der Anwender erkennt Vorhaben, offene Fragen und Wirkung einer möglichen Freigabe.
+2. Ein bestehender Run ist im Hub auffindbar, auch wenn kein Backlog-Eintrag vorhanden ist.
+   Unvollständige Suchabdeckung wird erklärt; ein geplantes Vorhaben wird nicht als aktiver Run gezeigt.
+3. Beim Lesen eines langen Dokuments in der großen Appfläche bleiben aktueller Schritt und erwartete Handlung
+   sichtbar. Die Rückkehr erhält den Entscheidungsgegenstand und den auslösenden Fokus.
+4. Vergrößern aus dem Chat erhält Run und geprüfte Fassung. Eine inzwischen geänderte Quelle
+   führt zu einer Erklärung und erneuter aktueller Darstellung, nicht zur Übertragung alter Zustimmung.
+5. Freigabe, Änderungswunsch und Ablehnung haben die jeweils unterstützten, verständlich
+   bestätigten Wirkungen. Doppelklick und verlorene Antwort erzeugen keinen zweiten Effekt.
+6. Nach einer Entscheidung zeigt AGDF die nächste tatsächliche Verpflichtung. Interne Arbeit
+   erzeugt keine zusätzlichen menschlichen Gates und behauptet ohne Host-Beobachtung keine Aktivität.
+7. Frühere Chat-Karten und ältere Dokumente bleiben als damalige Stände lesbar. Aus dem Verlauf
+   führt ein klarer Weg zur aktuellen Aufgabe.
+8. Fehlende UI-Fähigkeit, abgelaufene Sitzung und fehlende aktuelle Quelle bieten verständliche
+   Wiederherstellung. Der gebundene Weg bleibt vollständig als Portable Markdown verfügbar,
+   soweit ihn der bestehende Ablauf unterstützt; der Fallback-Grund ist sichtbar.
+9. Die Auswahl eines anderen Runs im Hub erzeugt keinen Chat und keine automatische
+   Fortsetzung. Eine neue Arbeitsbeauftragung benennt den ausgewählten Run und sein Ziel.
+10. Die App gestaltet keine Host-Nachrichten, kein natives Eingabefeld und kein Host-Schließen.
+    Kontextaufnahme, Nachrichtenzustellung und bestätigte Entscheidung bleiben getrennte beobachtbare Wirkungen.
+11. Eine gebundene Entscheidung wird einmal als MCP-App-UI und einmal als Portable Markdown
+    dargestellt. Run, Gate, Revision, Digests, Zusammenfassung, Folgen und zulässige Antwort
+    stimmen überein; nur Darstellung und verfügbare Interaktion unterscheiden sich.
+12. Nach einem lesenden Wechsel von A zu B erkennt der Anwender ohne Erklärung von außen,
+    welches Vorhaben er liest und ob ein Arbeitsauftrag für B bestätigt ist. Ein mehrdeutiger
+    Änderungsauftrag wird vor der Änderung geklärt. Der unterstützte Übergabeweg wird zusätzlich
+    mit fehlender Fähigkeit und unklarer Zustellung geprüft.
+13. Vor der Entscheidung erklärt der Anwender in eigenen Worten, was er beurteilen soll,
+    was bereits mit welcher Grenze geprüft ist, was danach erlaubt wird und was weiterhin
+    unbestätigt bleibt. Bei technischer Zuständigkeit wird die passende Person einbezogen.
+14. Bei einer Überarbeitung findet der Anwender die relevante Änderung und die Behandlung
+    seiner Rückmeldung, ohne beide Dokumente vollständig erneut zu lesen. Fehlende Vergleichbarkeit
+    wird verstanden; die vollständigen Fassungen bleiben zugänglich.
+15. Nach gespeicherter Freigabe und unklarer Fortsetzung prüft der unterstützte Weg den ursprünglichen
+    Vorgang ohne erneute Freigabe oder doppelte Beauftragung. Der Anwender erkennt, ob er etwas tun muss.
+16. Zur Abnahme erreicht der Anwender die konkrete Ergebnisfassung, versteht die Umgebung und
+    führt die vereinbarten Prüfschritte aus. Ein Mangel ist besprechbar. Technischer Pass,
+    fachliche Abnahme, Integration und Veröffentlichung werden nicht verwechselt.
+17. Ein Änderungswunsch während der Umsetzung erklärt die Auswirkungen auf vorhandene Freigaben.
+    Bei Unterbrechung erkennt der Anwender angeforderten und bestätigten Halt sowie fehlende
+    Hostfähigkeit. Die Wiederaufnahme prüft den tatsächlichen Stand erneut.
+
+Für diese Aufgaben werden Zeit bis zur richtigen Handlung, Fehlzuordnungen, unnötige
+Dokumentwechsel und Verständnisfehler beobachtet. Ein Vergleich mit dem bisherigen Nutzerweg
+zeigt, ob Suchen, Zuordnen und Vergleichen tatsächlich abnehmen. Die Zielwerte werden vor der
+Nutzerprüfung festgelegt; die Mocks allein belegen keine Zeitersparnis. Ein Abnicken ohne
+Verständnis oder eine Änderung am falschen Vorhaben gilt nicht als erfolgreicher Durchlauf.
+
+Tastaturbedienung, Fokus, schmale und große Flächen sowie tatsächliches Host-Verhalten gehören
+zur Prüfung dieser Situationen. Sichtbarer Fortschritt, wirksame menschliche Entscheidung und
+technische Ausführung werden dabei jeweils anhand ihrer eigenen Grundlage beurteilt.
+
+## Vertiefungen, Architekturentscheidungen und historische Entwürfe
+
+Die folgenden Abschnitte liefern die Grundlagen und Beispiele zum Nutzerweg. Ihre jeweiligen
+Bestands-, Zielbild- und Nachweiskennzeichnungen gelten unverändert.
+
 ## Produktgrenze: MCP-App und MCP-Server im Plugin
 
 Die MCP-App ist die generische AGDF-Oberfläche des Plugins. Der MCP-Server liefert ihre
@@ -943,7 +1585,7 @@ Der Wechsel der Fläche allein verändert weder Fassung noch Freigabe.
 | Hub-Verlauf zur aktuellen Aufgabe | Ausgewählter Run und nachvollziehbare Historie | Im Cockpit wieder an der heutigen Aufgabe weiterarbeiten |
 | MCP-App-UI zu Portable Markdown | Run, Gate, Revision, Digests, Zusammenfassung, Folgen und zulässige Antwort | Andere Darstellung und Interaktion; keine andere fachliche Bedeutung |
 
-Die folgenden Abschnitte vertiefen die Bedienung und ihre architektonischen Zuständigkeiten.
+Die [nummerierten Abschnitte](#1-nutzerabsicht-und-einstieg) erklären die Bedienung und ihre architektonischen Zuständigkeiten.
 Die [Prompts der verständlichen Mockups](mockups/07-ui-prompts-v4.md) halten die Bildvorgaben
 und gezielten Präzisierungen der gerenderten v4-Serie fest. Die dortige Vorgabe, die exakte
 Antwort stets hinter geschlossenen Details zu halten, ist für einen allein verfügbaren
@@ -973,625 +1615,3 @@ Bei der Umsetzung werden vorhandene React-Bausteine und Bindungen erweitert; die
 HTML-Logik der Entwurfsreferenz wird nicht zur zweiten Runtime. Die
 [UI-Richtlinien](08-ui-richtlinien.md) liefern die Gestaltungs- und Prüfkriterien. Der
 [Aktionsfluss](#welche-aktion-führt-zu-welcher-ansicht) bleibt das Ziel für die Integration.
-
-## 1 Nutzerabsicht und Einstieg
-
-Der normale Einstieg ist ein Auftrag im Gespräch, zum Beispiel: „Verbessere die Anmeldung.“
-AGDF ordnet den Änderungswunsch dem richtigen Projekt und Arbeitsumfang zu. Bei einem neuen
-Vorhaben klärt und formuliert es die Anforderung. Sobald sie zur Entscheidung bereitsteht,
-erscheint das Run-Cockpit mit der Frage „Haben wir deinen Wunsch richtig verstanden?“ im Chat.
-Der Anwender muss vorher keinen Run in einer Übersicht suchen und keine Abkürzungen lernen.
-
-Solange Angaben fehlen, benennt AGDF die konkrete Frage. Eine noch unvollständige Anforderung
-wird als Klärungsstand gezeigt; eine Freigabeaktion setzt die bestehenden Voraussetzungen voraus.
-Passt der Auftrag eindeutig zu einem bestehenden Run, führt der Einstieg zu dessen aktuellem
-Schritt. Ist die Zuordnung unklar, wird sie vor einer Entscheidung geklärt.
-
-Der Hub ist der zweite Einstieg. Er dient dem Wiederaufnehmen, Vergleichen und Nachlesen
-vorhandener Arbeit. Beide Einstiege führen in denselben Arbeitsbereich für das ausgewählte
-Vorhaben.
-
-### Welche Aktion führt zu welcher Ansicht?
-
-Die Kästen zeigen die sichtbaren Ansichten; die Pfeile benennen die auslösende Aktion oder
-die erforderliche bestätigte Rückmeldung. Die Nummern entsprechen den fünf Mockups oben.
-Der graue Kasten ist der vorhandene Codex-Chat. Die anderen Kästen sind AGDF-Inhalte.
-
-```mermaid
-flowchart TB
-    CHAT["Bestehender Codex-Chat<br/>Auftrag, Fragen und bewusste Antwort"]
-    CARD["1 · Chatkarte<br/>Aktuelle Aufgabe und Entscheidungsfrage"]
-    LARGE["2 · Großes Run-Cockpit<br/>Orientierung und Entscheidungsgrundlage"]
-    DOC["3 · Dokumentansicht<br/>Konkrete Fassung lesen"]
-    RESULT["4 · Bestätigung im Run-Cockpit<br/>Gespeicherte Entscheidung und nächster Schritt"]
-    HUB["5 · Hub<br/>Vorhaben suchen und Verlauf ansehen"]
-    HANDOFF["Arbeitsübergabe<br/>Run, Quelle und Arbeitsziel ausdrücklich beauftragen"]
-    ACCEPT["Ergebnisprüfung<br/>Prüfbare Fassung, Prüfschritte und Restgrenzen"]
-    END["Abnahme bestätigt<br/>Nächster Abschlussbedarf und belegter Lieferzustand"]
-
-    CHAT -->|"Änderungsauftrag; Anforderung geklärt und entscheidungsbereit"| CARD
-    CARD -->|"Groß öffnen; Host bestätigt den Anzeigemodus"| LARGE
-    CARD -->|"Anforderung lesen"| DOC
-    LARGE -->|"Anforderung lesen"| DOC
-    DOC -->|"Zur Entscheidung; zuvor kompakt"| CARD
-    DOC -->|"Zur Entscheidung; zuvor groß"| LARGE
-    CARD -->|"Frage oder Änderungswunsch im bestehenden Chat besprechen"| CHAT
-    LARGE -->|"Frage oder Änderungswunsch im bestehenden Chat besprechen"| CHAT
-    CHAT -->|"Gebundene Fassung bewusst bestätigen; Speicherung bestätigt"| RESULT
-    RESULT -->|"Bestätigte Anforderung lesen"| DOC
-    LARGE -->|"Alle Vorhaben"| HUB
-    RESULT -->|"Alle Vorhaben"| HUB
-    CHAT -->|"Übersicht über Vorhaben anfordern; MCP-UI verfügbar"| HUB
-    HUB -->|"Vorhaben ansehen oder Zur aktuellen Aufgabe; lesender Wechsel"| LARGE
-    LARGE -->|"Dieses Vorhaben im Gespräch weiterbearbeiten; bewusster Auftrag"| HANDOFF
-    HANDOFF -->|"Unterstützte Übergabe; angenommene Nachricht, Übernahme gesondert prüfen"| CHAT
-    CHAT -->|"Umsetzung und Qualitätsprüfung belegt; Abnahme bereit"| ACCEPT
-    ACCEPT -->|"Ergebnis ansehen; konkrete Prüfschritte ausführen"| ACCEPT
-    ACCEPT -->|"Mangel oder Änderungswunsch besprechen; Quelle ausdrücklich benennen"| CHAT
-    ACCEPT -->|"Gebundene Ergebnisfassung bewusst abnehmen; Speicherung bestätigt"| END
-
-    classDef host fill:#f6f6f6,stroke:#66686a,color:#3c3e40;
-    classDef agdf fill:#fcfcfc,stroke:#0f766e,color:#3c3e40;
-    class CHAT host;
-    class CARD,LARGE,DOC,RESULT,HUB,HANDOFF,ACCEPT,END agdf;
-```
-
-Die Dokumentansicht kehrt zur auslösenden Darstellung und deren aktuellem Inhalt zurück.
-Nach dem Lesen einer bestätigten Anforderung ist das die Bestätigung beziehungsweise die
-nächste Aufgabe, keine erneute Entscheidung über dieselbe alte Fassung. Ein überarbeiteter
-Vorschlag erscheint ebenfalls in der bisher verwendeten Cockpit-Darstellung; der Flow zeigt
-den Einstieg über die Chatkarte exemplarisch.
-
-| Aktion des Anwenders | Ausgangspunkt | Sichtbares Ergebnis | Wirkung und Voraussetzung |
-|---|---|---|---|
-| Änderungswunsch formulieren | Bestehender Codex-Chat | Chatkarte mit „Haben wir deinen Wunsch richtig verstanden?“ — Ansicht 1 | Erst nach notwendiger Klärung und gebundener Entscheidungsbereitschaft; fehlende Angaben führen zunächst zu einer konkreten Rückfrage |
-| Groß öffnen | Chatkarte | Großes Run-Cockpit — Ansicht 2 | Host muss den angebotenen Modus bestätigen; ohne Unterstützung bleibt die kompakte Karte verfügbar |
-| Anforderung lesen | Chatkarte oder großes Cockpit | Dokumentansicht — Ansicht 3 | Liest die konkret zugeordnete Fassung innerhalb der App; ein erforderlicher größerer Anzeigemodus bleibt hostabhängig |
-| Zur Entscheidung | Dokumentansicht | Auslösende Chatkarte oder großes Cockpit — Ansicht 1 beziehungsweise 2 | Erhält Vorhaben, Fassung und Zusammenhang; bei inzwischen geänderter Quelle wird der aktuelle Stand erklärt |
-| Frage stellen oder Änderung nötig | Aktuelle Entscheidung oder Dokument | Diskussion im bestehenden Codex-Chat; danach überarbeitete Entscheidungskarte | Öffnet keinen eigenen Chat. Im gezeigten Zustand erfolgt der Änderungswunsch direkt im bestehenden Gespräch; eine Ersatzfassung benötigt erneut eine Entscheidung |
-| Entscheidung bewusst bestätigen | Bestehender Codex-Chat; künftig auch qualifizierte Klickaktion | Bestätigung und nächste Aufgabe im Cockpit — Ansicht 4 | Erst nach bestätigter Erfassung; „So stimmt es“ ist in den historischen v4-Mocks deaktiviert. Ist der Chat der einzige Weg, steht die exakte Antwort direkt beim Handlungshinweis; bei qualifiziertem Klickweg darf das Protokoll in Details stehen |
-| Bestätigte Anforderung lesen | Bestätigung | Dokumentansicht — Ansicht 3 | Zeigt die bestätigte historische Fassung mit ihrem belegten Status; zurück geht es zum auslösenden Aufgabenstand |
-| Alle Vorhaben oder Übersicht anfordern | Großes Cockpit oder bestehender Chat | Hub — Ansicht 5 | Zeigt den definierten Projektumfang; Darstellung über MCP-UI setzt die entsprechende Host-Fähigkeit voraus |
-| Suchen, filtern oder Verlauf aufklappen | Hub | Treffer und Verlauf innerhalb des Hubs — Ansicht 5 | Ändert die Leseauswahl; bestätigt keine Fassung und beauftragt keine Arbeit |
-| Vorhaben ansehen oder Zur aktuellen Aufgabe | Hub | Aktueller Aufgabenstand im großen Cockpit — Ansicht 2 beziehungsweise 4 | Lesender Wechsel zum ausgewählten Run; erhält den bestehenden Codex-Chat und startet keine automatische Fortsetzung |
-| Dieses Vorhaben im Gespräch weiterbearbeiten | Geöffneter Run oder Dokument | Gebundene Arbeitsübergabe mit Run, Quelle und Arbeitsziel | Bewusster Auftrag; Annahme der Nachricht und tatsächliche Übernahme bleiben getrennt. Fehlende Fähigkeit bietet einen ausdrücklich zugeordneten Textauftrag. |
-| Ergebnis ansehen und prüfen | Abnahmebereites Run-Cockpit | Zugeordnete Ergebnisfassung mit Umgebung und Prüfschritten | Technische Nachweise erklären Aussagebereich und Grenzen; das Öffnen nimmt nichts ab. |
-| Ergebnis abnehmen | Abnahmebereites Cockpit oder exakter Chatweg | Bestätigte Abnahme und nächste Abschlussverpflichtung | Erst mit passendem Speicherbeleg; keine Behauptung von Integration oder Veröffentlichung. |
-| Änderung oder Unterbrechung verlangen | Aktuell beauftragter Run | Gebundener Änderungswunsch oder unterstützte Unterbrechungsanforderung | Neue Freigabebedarfe werden geprüft; Halt wird erst nach Hostbestätigung behauptet. |
-| Aktuellen Stand laden | Cockpit mit veralteter oder bewusst manuell zu aktualisierender Beobachtung | Frisch gelesener Aufgabenstand in derselben Darstellung | Erscheint nur bei erforderlicher bewusster Neuladung; kann Inhalt und Handlungserwartung ändern, erzeugt aber keine Entscheidung und keinen neuen Chat |
-
-Die große Ansicht kann je nach Host rechts, bildschirmfüllend oder in einem anderen
-angebotenen Modus erscheinen. Der Flow beschreibt die Navigation innerhalb des Konzepts,
-keine garantierte Codex-Fensteraufteilung. Bei fehlender MCP-App-UI bleiben die gebundenen
-Informationen und der unterstützte Entscheidungsweg vollständig als Portable Markdown im
-bestehenden Chat verfügbar.
-
-## 2 Hub für Überblick und Wiederaufnahme
-
-Der Hub beantwortet: **„Was läuft, wo werde ich gebraucht und was ist bisher passiert?“**
-Er macht die Runs des ausdrücklich ausgewählten Projekts auffindbar. Das Projekt steht
-sichtbar im Kopf; ein Projektwechsel ist bewusst. Eine projektübergreifende Gesamtübersicht
-benötigt einen gesondert definierten Umfang.
-
-Die Übersicht unterscheidet aktive Runs, abgeschlossene Runs und historische abgelöste oder
-abgebrochene Arbeit entsprechend dem gespeicherten Lebenszyklus. Geplante Backlog-Vorhaben
-ohne eigenen Run können daneben erscheinen und sind ausdrücklich als geplant erkennbar.
-Sie erhalten keine erfundenen Gate-, Freigabe- oder Verlaufsangaben.
-
-### Einträge und Suchmöglichkeiten
-
-Ein Run-Eintrag führt mit dem verständlichen Namen des Vorhabens. Dazu zeigt er den aktuellen
-Schritt, den gespeicherten Lebenszyklus, einen möglichen Klärungsbedarf und die nächste
-erwartete Handlung. Der letzte verfügbare Datenstand ist zugänglich. Technische IDs und
-Quellenpfade stehen in den Herkunftsangaben, damit ähnliche Vorhaben unterscheidbar bleiben.
-
-Die Suche umfasst Namen und Run-ID; Filter helfen nach Lebenszyklus, Schritt und erforderlicher
-Aufmerksamkeit. „Meine Entscheidung erforderlich“ und „Klärung erforderlich“ bieten direkte
-Zugänge. Ihre Bedeutung wird aus aktuellen Core-Angaben abgeleitet. Ein gespeicherter
-Backlog-Status allein bestätigt keine aktuelle Entscheidungsbereitschaft.
-
-Der Einstieg priorisiert „Meine Entscheidung erforderlich“, „Klärung erforderlich“ und
-blockierte Vorhaben; zuletzt bearbeitete Runs unterstützen die Wiederaufnahme. „Meine“ wird
-nur aus einer belegten Zuordnung zur Person abgeleitet. Fehlt diese, heißt der Zugang neutral
-„Entscheidung erforderlich“. Die gesamte Run-Liste bleibt erreichbar. Die Priorisierung
-nennt die tatsächliche nächste Handlung und verwandelt einen geplanten Eintrag nicht in
-einen entscheidungsreifen Run.
-
-Der Hub muss auch Runs ohne Backlog-Eintrag auffindbar machen. Die vorhandene
-Masterbacklog-Projektion wird dafür durch einen gesondert definierten, begrenzten Run-Leseumfang
-ergänzt. Inventar, Suchabdeckung und Aktualisierung müssen zusammenpassen. Wurde nur ein Teil
-gelesen, wird dieser Umfang genannt; „keine Treffer“ darf dann keine vollständige Projektsuche
-behaupten. Dieses Ziel erweitert die heutige, zunächst auf Backlog-Einträge begrenzte Übersicht.
-
-### Statuskonflikte und offene Arbeit einordnen
-
-Der gespeicherte Lebenszyklus, die aktuelle Bewertung und beobachtete Agentenarbeit werden
-nicht zu einem einzigen Fortschrittsindikator zusammengezogen. Eine historische offene
-QA-Aufforderung in einem abgeschlossenen Run erzeugt keine Aufgabe im Hub. Ein Backlog-Eintrag
-mit „Awaiting UAT“ überstimmt keine dokumentierte Rücksetzung. Ein Abschluss mit angenommenen
-Abweichungen bleibt als Abschluss sichtbar und trägt seine Nutzungsgrenze.
-
-Bei abweichenden Angaben führt der Eintrag mit dem belegten Stand und einer verständlichen
-Begründung. Details zeigen die abweichende Quelle, deren Zeitbezug und den kanonischen Bezug.
-Die App bereinigt diese Quelldaten nicht eigenständig. Fehlt eine aktuelle Auswertung, darf
-„gespeichert offen“ nicht in „deine Entscheidung jetzt erforderlich“ umbenannt werden.
-
-### Öffnen und Zurückkehren
-
-Das Öffnen eines Eintrags lädt das Run-Cockpit mit dem aktuellen Stand dieses Runs. Historische
-Runs öffnen zunächst ihren Abschluss und Verlauf; daraus entsteht keine neue Arbeitsfreigabe.
-Die Rückkehr zum Hub erhält Suche, Filter und Listenposition. Der Anwender kann zwischen
-Vorhaben wechseln, ohne seine Orientierung in der Übersicht zu verlieren.
-
-## 3 Run Cockpit als gemeinsamer Arbeitsbereich
-
-Das Run-Cockpit verbindet drei Aufgaben: **Orientierung behalten, den aktuellen Gegenstand
-bearbeiten und den bisherigen Verlauf nachvollziehen.** Die vorbereitete Entscheidung mit dem relevanten Dokumentausschnitt ist sein zentraler
-Inhalt, wenn eine menschliche Entscheidung ansteht. Während interner Arbeit zeigt derselbe
-Bereich die laufende Aufgabe, das letzte bestätigte Ergebnis und mögliche Hindernisse.
-
-Die kompakte und die große Darstellung verwenden dieselbe Run-Identität, dieselbe
-Entscheidungsgrundlage und dieselbe Bedeutung der Zustände. Mehr Platz verändert die
-Darstellungstiefe. Er erzeugt keine zusätzliche Freigabe, keinen zweiten Run und keine
-abweichende Gate-Policy.
-
-### Dauerhafte Orientierung
-
-In der großen Ansicht bleibt ein Orientierungskopf sichtbar, während Dokumente, Nachweise
-oder der Verlauf gescrollt werden. Er beantwortet vier Fragen:
-
-| Frage des Anwenders | Sichtbare Antwort |
-|---|---|
-| Welches Vorhaben bearbeite ich? | Fachlicher Titel und ausgewähltes Projekt; Run-ID bei Bedarf in den Herkunftsangaben |
-| Wo stehe ich? | Aktueller Schritt und Einordnung in den für diesen Run geltenden Ablauf |
-| Wer ist jetzt dran? | Erwartete Handlung des Anwenders, nächste Arbeit der KI oder konkret benannter Klärungsbedarf |
-| Was muss passieren, damit es weitergeht? | Eine verständliche Hauptaussage mit passender Aktion und erklärter Wirkung |
-
-Der auf Wunsch geöffnete Ablauf zeigt erledigte, aktuelle und noch anstehende Schritte. Er folgt dem tatsächlichen
-Delivery-Weg des Runs, einschließlich Analysen, Umsetzung und Reviews. Nicht jedes Element
-ist ein menschliches Gate. Kürzere Wege werden entsprechend kürzer dargestellt. Eine
-Anforderungskarte, ein bestandenes Review und ein freigegebenes Gate bleiben unterscheidbar.
-Die UI berechnet daraus keinen pauschalen Fertigstellungsprozentsatz.
-
-Ein beispielhafter Orientierungskopf lautet:
-
-```text
-Anmeldung verbessern · Anforderung, Fassung 2           Hub öffnen
-Deine Entscheidung: Soll bei falschen Zugangsdaten die Meldung
-„E-Mail oder Passwort ist nicht korrekt“ erscheinen?
-
-Geändert: Die Meldung wurde auf deinen Wunsch präzisiert.
-Danach: Bestehendes System untersuchen. Umsetzung bleibt gesperrt.
-
-Anforderung bestätigen · Änderung besprechen
-Anforderung und Entscheidungsgrundlage ansehen
-Ablauf, Herkunft und bisherige Entscheidungen ansehen
-```
-
-Die gezeigten Entscheidungsaktionen setzen die jeweilige Host-Unterstützung voraus. In den
-historischen v4-Mocks bleibt „So stimmt es“ deaktiviert. Die v3-Mocks zeigen qualifizierten
-Klickweg und Textweg getrennt. Dieses Textbeispiel zeigt den Kopf und die Handlungszugänge;
-belegte Vorprüfung und relevante Risiken folgen im Hauptinhalt derselben Karte.
-
-Während der Umsetzung lautet die Einordnung beispielsweise:
-
-```text
-Anmeldung verbessern
-Aktueller Schritt: Umsetzung und Tests
-
-Als Nächstes ist die KI dran
-Den freigegebenen Plan umsetzen und Ergebnisse prüfen.
-Du musst jetzt nichts entscheiden.
-```
-
-„Die KI arbeitet“ wird nur angezeigt, wenn der Host tatsächliche laufende Arbeit bestätigt.
-Der kanonische nächste Schritt allein belegt keine laufende Ausführung. Ohne entsprechende
-Beobachtung lautet die Aussage „Als Nächstes ist die KI dran“ oder „Weiterarbeit beauftragen“.
-
-### Erwartung am aktuellen Schritt
-
-Der Schrittname allein erklärt noch nicht, was der Anwender tun soll. Deshalb gehört eine
-konkrete Erwartung zum Orientierungskopf. Sie bleibt auch sichtbar, wenn gerade ein
-Unterdokument gelesen wird.
-
-| Situation | Aussage im Cockpit | Passende Handlung |
-|---|---|---|
-| Eine Anforderung braucht Klärung | „Bitte kläre, welche Nutzer die Änderung betrifft.“ | Die konkrete Frage im Chat beantworten |
-| Eine Gate-Fassung ist entscheidungsbereit | Konkrete Prüfaufgabe: „Bestätige, ob dieses Verhalten fachlich gewünscht ist.“ | Relevante Änderung und Nachweise prüfen; gebundene Fassung bestätigen, Änderung besprechen oder ablehnen |
-| Die nächste interne Aufgabe ist zulässig | „Als Nächstes wird das bestehende System untersucht.“ | Bereits beauftragte Arbeit fortsetzen lassen oder die erforderliche Fortsetzung beauftragen |
-| Ein konkreter Blocker verhindert Fortschritt | Ursache und die zu ihrer Auflösung erforderliche Handlung | Benannte Quelle prüfen oder die zuständige Klärung anstoßen |
-| Der aktuelle Stand ist nicht bestätigt | „Diese Beobachtung ist nicht mehr aktuell.“ | Aktuellen Stand laden; bis dahin keine aktuelle Entscheidung behaupten |
-| Der Run ist abgeschlossen | Ergebnis, Abschlussgrundlage und mögliche Restgrenzen | Ergebnis und Verlauf ansehen; neue Arbeit ausdrücklich beauftragen |
-
-„Du bist dran“ setzt eine tatsächliche Handlung des Anwenders voraus. Ein bloßer interner
-Zwischenschritt wird nicht als zusätzliche Nutzerentscheidung dargestellt. Bei mehreren
-offenen Punkten führt die wichtigste aktuell erforderliche Handlung; weitere Punkte bleiben
-als zugehörige Nachweise und Klärungen erreichbar.
-
-### Hauptbereich und Vertiefung
-
-Der Hauptbereich zeigt die gegenwärtige Aufgabe. Bei einem entscheidungsreifen Gate führt
-er mit dem Vorschlag und den erwarteten Nutzeraktionen. Bei fehlenden Voraussetzungen
-führt er mit dem konkreten Klärungsbedarf. Ein technischer Fehler wird mit verständlicher
-Ursache und einer passenden Wiederherstellungsaktion erklärt.
-
-Dokumente und Nachweise öffnen aus diesem Zusammenhang heraus. Der Orientierungskopf
-bleibt sichtbar; die Rückkehr führt zur auslösenden Karte oder Quelle und erhält deren Fokus.
-Der Anwender soll beim Lesen jederzeit erkennen, wozu das Dokument gehört und welche
-Entscheidung oder Arbeit es unterstützt.
-
-## 4 Run Cockpit als Teil des Chats
-
-Im Chat ist das Run-Cockpit eine kompakte Gesprächskarte. Jede Karte ist für sich verständlich:
-Sie enthält Vorhaben, aktuellen Schritt, erwartete Handlung und Datenstand. Die wichtigsten
-Aktionen sind unmittelbar erreichbar. Details zu Quellen und technischen Bindungen können
-aufgeklappt oder in der großen Ansicht gelesen werden.
-
-Die kompakte Karte kann denselben Gate-Gegenstand entscheiden, sofern der Host die
-qualifizierte Aktion unterstützt. Sie verlangt keinen Wechsel in die große Ansicht, um eine
-bewusste Entscheidung abzugeben. „Groß öffnen“ dient der ausführlichen Prüfung und
-dauerhaften Orientierung. Umgekehrt kann der Anwender zur Diskussion im bestehenden Codex-Chat zurückkehren,
-ohne einen neuen Entscheidungsgegenstand zu erzeugen.
-
-### Gesprächsverlauf und Aktualität
-
-Eine Chat-Karte gehört zum Gespräch und zeigt einen beobachteten Stand. Frühere Karten
-bleiben als damalige Stände nachvollziehbar. Das Konzept verlangt keine nachträgliche
-Umschreibung alter Chatnachrichten durch die App. Eine Karte führt ihren Datenstand mit;
-bei erneuter Interaktion wird ihre Gültigkeit geprüft.
-
-Nach einer bestätigten Entscheidung, einem wesentlichen Ergebnis oder einem neuen Blocker
-zeigt AGDF den relevanten aktuellen Stand. Routineprüfungen benötigen keine eigene neue
-Karte. Dadurch bleibt der Gesprächsverlauf lesbar und der nächste menschliche Entscheidungspunkt
-sichtbar. Alte Karten werden nicht allein wegen ihres Alters als ungültig behandelt; entscheidend
-ist die Übereinstimmung mit dem aktuellen Run und der gebundenen Dokumentfassung.
-
-### Wechsel in die große Ansicht
-
-Beim Vergrößern wird der ausgewählte Run ausdrücklich übernommen. Vor einer Handlung
-prüft AGDF den aktuellen Stand. Ist die Fassung inzwischen verändert, erklärt die Ansicht
-diese Änderung und zeigt den aktuellen Gegenstand; eine alte Freigabeaktion wird nicht
-stillschweigend auf die neue Fassung übertragen. Ein gültiger Wechsel erhält die Auswahl
-und den Lesezusammenhang, soweit die Host-Fähigkeiten dies ermöglichen.
-
-Unterstützt der Host die Vergrößerung nicht, bleibt die kompakte
-Ansicht verwendbar und erklärt ihre Möglichkeiten. Eine angeforderte Vergrößerung darf erst
-nach Host-Bestätigung als erfolgt gelten. Fehlt MCP-UI vollständig, zeigt AGDF die gebundene
-Entscheidung als verständlichen Chat-Text mit dem bestehenden exakten Antwortweg.
-
-## 5 Entscheidungskarte und menschliche Entscheidung
-
-Die Entscheidungskarte beantwortet: **„Was entscheide ich hier, auf welcher Grundlage und mit welcher
-Wirkung?“** Sie enthält eine verständliche Zusammenfassung der konkreten Fassung, den
-vereinbarten Umfang, entscheidungsrelevante Risiken und offene Punkte sowie den Zugang zum
-exakten Dokument. Die [Entscheidungsvorbereitung](#konkrete-prüfaufgabe-und-zuständigkeit)
-bestimmt die konkrete Prüfaufgabe und belegte Vorprüfungen. Bei einer Überarbeitung zeigt sie
-den relevanten Vergleich, sobald eine belastbare Grundlage vorliegt; andernfalls benennt sie
-die fehlende Vergleichbarkeit und den erforderlichen Leseumfang.
-
-Die Karte erklärt, was eine Freigabe ermöglicht und welche Verpflichtungen danach noch
-bestehen. Beispielsweise erlaubt die bestätigte Anforderung die nächste vorgesehene Untersuchung;
-sie ist keine pauschale Freigabe für Umsetzung, Veröffentlichung oder weitere Vorhaben.
-
-| Handlung | Bedeutung und sichtbare Rückmeldung |
-|---|---|
-| Anforderung, beschriebenes Verhalten oder Lösung lesen | Die genaue zur Entscheidung gehörende Fassung öffnen und zur Karte zurückkehren |
-| Im bestehenden Codex-Chat besprechen | Fragen klären, Alternativen erörtern und Änderungen präzisieren; eine Diskussion entscheidet das Gate nicht. Eine ausdrückliche Kontextübergabe aus der App setzt die entsprechende Host-Fähigkeit voraus. |
-| Anforderung, Verhalten, Lösungsentwurf oder Umsetzungsplan bestätigen | Die konkret angezeigte Fassung bewusst bestätigen; erst nach bestätigter Erfassung den Effekt und nächsten Schritt zeigen |
-| Änderung nötig | Den konkreten Änderungswunsch klären und den unterstützten Überarbeitungsweg erklären; die Ersatzfassung bleibt erneut zu entscheiden |
-| Diese Fassung ablehnen | Diese Fassung nicht freigeben und die tatsächliche Wirkung im bestehenden Ablauf erklären; den Run nicht automatisch löschen oder abbrechen |
-
-### Fortschritt nach der Entscheidung
-
-Während der Erfassung zeigt die Karte „Entscheidung wird gespeichert“. Anschließend zeigt
-sie das bestätigte Ergebnis und die frisch bestimmte nächste Aktion. Bei verlorener Antwort
-bleibt das Ergebnis unklar, bis der ursprüngliche Vorgang geprüft wurde. Wiederholung oder
-Vergrößerung darf keine zweite wirksame Entscheidung erzeugen.
-
-Bei unbestätigter Fortsetzung lautet die Aussage: „Deine Freigabe ist gespeichert. Der Beginn
-der nächsten Aufgabe ist noch nicht bestätigt.“ Das System gleicht den ursprünglichen
-Vorgang, aktuellen Run und verfügbare Hostnachweise selbst ab, soweit dies unterstützt wird.
-Ist eine bewusste Prüfung erforderlich, führt „Status prüfen“ genau diesen Abgleich aus.
-Die Aktion erfasst weder eine neue Freigabe noch einen weiteren Arbeitsauftrag. Sie erklärt
-das Ergebnis als gespeichert, angefordert, tatsächlich übernommen oder weiterhin unbestätigt.
-Fehlt ein technischer Prüfweg, wird diese Grenze mit einem konkret zugeordneten Prüfauftrag
-im bestehenden Gespräch erklärt. Eine nicht beobachtbare Wirkung wird nicht als Erfolg
-ausgegeben. Der Anwender muss keine Operations-IDs oder verstreuten Protokolle vergleichen.
-
-Der nächste zulässige Arbeitsschritt wird sichtbar von der Gate-Freigabe unterschieden.
-Wo die bestehende Beauftragung die Fortsetzung bereits umfasst, arbeitet AGDF innerhalb
-dieses Umfangs weiter. Benötigt die Fortsetzung einen neuen Auftrag, bietet das Cockpit
-eine entsprechende Aktion an. Eine solche Beauftragung ersetzt keine spätere Gate-Entscheidung.
-
-Klick und exakte Textantwort beziehen sich auf denselben Entscheidungsgegenstand. Technische
-Host-Berechtigung, bewusste Nutzerentscheidung und bestätigte Speicherung bleiben getrennt.
-MCP-UI-Unterstützung allein reicht für eine Freigabe per Klick nicht aus; die im
-[Befehlsfluss](core-mcp-command-flow.md#3-wie-der-mensch-die-gebundene-entscheidung-sieht)
-beschriebenen Voraussetzungen gelten weiterhin.
-
-### Vom Freigabeklick bis zur erneuten Übernahme durch die KI
-
-Ein Klick auf „Anforderung bestätigen“ startet bei verfügbarem, qualifiziertem Klickweg die gebundene
-Erfassung dieser konkreten Entscheidung. Erst der passende Speicherbeleg bestätigt die
-Freigabe. Danach wird der nächste erlaubte Schritt frisch geprüft und bei unterstützter
-Host-Übergabe die Fortsetzung im bestehenden Codex-Chat angefordert. Läuft dort noch eine
-KI-Antwort, kann der Host den Start bis zu deren Ende zurückstellen.
-
-![Freigabe- und Fortsetzungsablauf: bewusster Klick, gebundene Prüfung und Speicherung, bestätigter Beleg, frische Bestimmung des nächsten Schritts, Host-Übergabe und erneute Übernahme durch die KI; getrennte Wege für Ablehnung, unklare Speicherung und fehlende Fortsetzung](diagrams/10-freigabe-ki-fortsetzung.svg)
-
-[SVG groß ansehen](diagrams/10-freigabe-ki-fortsetzung.svg) ·
-[Bearbeitbare DOT-Quelle](diagrams/10-freigabe-ki-fortsetzung.dot)
-
-| Sichtbarer Zustand | Was tatsächlich bestätigt ist | Was der Anwender tun muss |
-|---|---|---|
-| Entscheidung wird gespeichert | Die bewusste Entscheidung wurde übermittelt; Speicherung noch nicht bestätigt | Ergebnis abwarten; nicht erneut freigeben |
-| Anforderung bestätigt · Fassung 2 | Ein passender Speicherbeleg bestätigt genau diese Entscheidung | Die Freigabe nicht wiederholen; den angezeigten nächsten Schritt beachten |
-| Fortsetzung wird angefordert oder wartet | Die App vermittelt die bereits zulässige Fortsetzung; der Host kann auf das Ende der laufenden Antwort warten | Bei bestätigter Übergabe ist kein zweiter Freigabeklick nötig |
-| Fortsetzung wurde im Chat angefordert | Der Host hat die Nachricht angenommen; der Arbeitsbeginn ist damit noch nicht belegt | Weiteren Aufgabenstand verfolgen |
-| KI arbeitet an der nächsten Aufgabe | Der tatsächliche Arbeitsbeginn wurde beobachtet | Auf Ergebnis, nächste Entscheidung oder konkreten Klärungsbedarf warten |
-| Freigabe gespeichert, Fortsetzung unbestätigt | Die Entscheidung ist gespeichert; Übergabe oder Arbeitsbeginn sind unklar | Unterstützten Abgleich abwarten oder „Status prüfen“ verwenden; bei fehlendem Prüfweg den konkret vorbereiteten Prüfauftrag im Gespräch verwenden |
-| Ergebnis der Speicherung unklar | Es fehlt ein bestätigter passender Beleg; daraus folgt weder Erfolg noch sichere Nichtausführung | Den ursprünglichen Vorgang prüfen; keine neue Entscheidung mit neuer Operations-ID erzeugen |
-
-Die KI übernimmt, sobald der Host die Fortsetzung im bestehenden Chat tatsächlich startet.
-Sie prüft den ursprünglichen Freigabebeleg und den aktuellen Run erneut, bestimmt den nächsten
-zulässigen Schritt und arbeitet innerhalb des bestehenden Auftrags. Bei der nächsten nötigen
-menschlichen Entscheidung zeigt sie deren Karte und führt diese Entscheidung nicht selbst aus.
-Fehlt eine Voraussetzung oder verlangt die Weiterarbeit einen neuen Auftrag, wird diese
-konkrete Verpflichtung sichtbar. Eine bloß gespeicherte Freigabe reicht für „KI arbeitet“ nicht aus.
-
-Die [Erfassung und Zustände der Entscheidungskarte](../../packages/control-ui/src/mcp/DecisionCard.tsx)
-und ihre [gebundene Kontext- und Nachrichtenübergabe](../../packages/control-ui/src/mcp/DecisionEntry.tsx)
-bilden die technische Grundlage. Die historischen v4-Mocks zeigen einen deaktivierten
-Klickweg; das Diagramm erläutert zusätzlich den Ablauf bei qualifizierter Klickunterstützung.
-Es bestätigt keine native Codex-Qualifizierung. Ohne Klickunterstützung bleibt die gebundene
-Entscheidung im bestehenden Chat verfügbar; ihre genaue Antwortregel steht unmittelbar bei
-der Handlungsanweisung, während technische Bindungsangaben in Details zugänglich bleiben.
-
-Der SVG-Export erfolgt aus dem Repository-Wurzelverzeichnis:
-
-```sh
-dot -Tsvg docs/architecture/diagrams/10-freigabe-ki-fortsetzung.dot -o docs/architecture/diagrams/10-freigabe-ki-fortsetzung.svg
-```
-
-## 6 Dokumente und Nachweise im Arbeitszusammenhang
-
-Dokumente werden mit verständlichem Namen und belegtem Zustand angeboten. Die vorhandenen
-Zustände wie „Entwurf“, „Entwurf geprüft“, „Überarbeitung nötig“ und „Freigabe dieser Fassung
-nicht bestätigt“ behalten ihre Bedeutung. Ein gespeicherter Freigabevermerk allein belegt
-nicht, dass die heute gelesenen Bytes die damalige freigegebene Fassung sind.
-
-Die Dokumentansicht führt mit verständlichem Inhalt. Sie zeigt passende Prüfbefunde und
-vorhandene ursprüngliche Freigabeangaben, während Originaltext und Herkunft zugänglich
-bleiben. Fehlende oder nicht bestätigte Versionszuordnung wird ausdrücklich genannt.
-Eine Entwurfsprüfung kontrolliert die vorhandenen Autorenregeln; sie ersetzt keine
-fachliche Entscheidung, semantische Prüfung oder abschließende Qualitätsprüfung.
-
-Die Diskussion bleibt im bestehenden Codex-Chat. Die tatsächlich ausgewählte Quelle kann
-über „Kontext übergeben“ bereitgestellt werden, sofern der Host die Capability anbietet
-und den Empfang bestätigt. Eine ausdrücklich beauftragte Nachricht kann über den getrennten
-Nachrichtenweg folgen, sofern auch dieser unterstützt wird. Öffnen oder Lesen erzeugt
-weder eine Frage noch eine Freigabe und legt keinen neuen Chat an.
-
-### Umfangreiche Quellen und Abschnittsbezug
-
-Eine Aufgabenansicht zeigt zunächst die zugehörige Prüfgrundlage und einschlägige Nachweise.
-Weitere registrierte Quellen und Historie sind nach Rolle erreichbar. Die physische Zahl der
-Dateien bestimmt nicht die Zahl gleichrangiger Einstiegslinks. Die Einordnung wird aus den
-vorhandenen registrierten Beziehungen übernommen, nicht aus Dateinamen erraten.
-
-Die vollständige Dokumentansicht besitzt eine Inhaltsübersicht und eine Suche mit ausdrücklich
-benanntem Umfang. Treffer führen zur Originalstelle; sie ersetzen den Rest des Dokuments nicht.
-Bei begrenztem oder nicht verfügbarem Inhalt werden Grenze und verbleibende Lesewege genannt.
-Ein zugänglicher Rückweg führt zur auslösenden Aufgabe und zum passenden Fokus. Breite Tabellen
-dürfen lokal scrollen; Überschrift, Lesetext und Aktionen bleiben ohne Seitenüberlauf bedienbar.
-
-„Zu diesem Abschnitt fragen“ bindet die Rückfrage an Run, konkrete Quelle, deren Identität und
-Abschnitt. Der Originaltext bleibt passiv. Die Einordnung darüber erklärt bei Bedarf, warum
-eine frühere Aussage nicht den heutigen Stand wiedergibt. Die Quelle selbst wird dabei nicht
-redaktionell überschrieben. Auf schmaler Fläche stehen Inhaltsauswahl und Suche untereinander.
-
-## 7 Verlauf der zurückgelegten Runden
-
-Der Verlauf zeigt, wie das Vorhaben den heutigen Stand erreicht hat. Ein Run umfasst die
-gesamte abgegrenzte Arbeit; eine „Runde“ ist hier ein anschauliches Bild für einen durchlaufenen
-Arbeits- und Entscheidungsabschnitt. Sie ist kein zusätzlicher technischer Zustand und kein
-neues Gate.
-
-Zum Verlauf gehören beobachtete Arbeitsschritte, Artefaktfassungen, tatsächlich gespeicherte
-Entscheidungen, Reviews, Testergebnisse und der Abschluss. Quellenrevisionen bleiben
-nachvollziehbar: Frühere Zustimmung gehört zur früheren Fassung und bestätigt keine geänderte
-Ersatzfassung. Fehlende historische Angaben werden als Lücke gezeigt.
-
-Der Anwender kann vom aktuellen Schritt in einen früheren Abschnitt wechseln und anschließend
-„Zum aktuellen Schritt“ zurückkehren. Die frühere Ansicht ist deutlich als Historie bezeichnet.
-Sie bietet keine aktuelle Entscheidung für eine abgelöste Fassung. Das Öffnen eines vergangenen
-Abschnitts verändert den Run nicht und setzt ihn nicht zurück.
-
-## 8 Gemeinsame Zuständigkeiten und Datenbasis
-
-Die einheitliche Bedienung verbindet vorhandene Lese- und Entscheidungsfunktionen. Ihre
-technischen Zuständigkeiten bleiben erhalten. Das allgemeine Cockpit liefert weiterhin
-lesenden Zugriff. Eine zulässige Entscheidung wird über die eigene gebundene Fassade an
-die bestehende Core-Operation vermittelt. Die visuelle Zusammenführung darf dem allgemeinen
-Lesedienst keine beliebigen Schreibrechte geben.
-
-| Verantwortung | Zuständiger Baustein |
-|---|---|
-| Wirksamer Run-Zustand, Voraussetzungen, Dokumentzuordnung und nächste erlaubte Aktion | Bestehende Core-Auswertung und kanonischer Zustand unter `.agdf/control/` |
-| Erfassung von Artefakten und bewussten Entscheidungen | Bestehende gebundene Core-Operationen und Writer |
-| Orientierung, Navigation, Darstellung und Fokus | Gemeinsames UI-Modell für Hub und beide Cockpit-Darstellungen |
-| Darstellungsmöglichkeiten, tatsächliche Agentenaktivität und technische Berechtigung | Host und seine jeweils belegten Fähigkeiten |
-| Abruf, Identitätsprüfung und Sitzungsgrenzen | Bestehende MCP- beziehungsweise Browser-Adapter mit den dafür zulässigen Operationen |
-
-Die UI benötigt zusammengehörige Angaben zu Projekt, Run, Revision, aktuellem Schritt,
-Entscheidungsgrundlage und Datenstand. Eine alte Dokumentfassung darf nicht mit einem neuen
-Freigabestatus als scheinbar aktueller Gesamtstand kombiniert werden. Kompakte und große
-Ansichten können eigene Lesesitzungen besitzen; ihre Aussagen müssen dennoch dieselbe
-gebundene fachliche Grundlage besitzen. Sitzungsablauf, Quellenänderung und unsichere
-Ergebnisse bleiben sichtbar.
-
-Für den Hub müssen auch die Herkunft und Aktualität seiner Inventar- und Suchdaten festgelegt
-werden. Gespeicherte Backlog-Beobachtung, aktuell geprüfter Run und bestätigte laufende
-Agentenarbeit sind unterschiedliche Aussagen. Die Oberfläche darf sie zusammen erklären,
-aber nicht gegenseitig als Beweis verwenden.
-
-Eine spätere lesende Anbindung von GitHub Projects kann Planung, Priorität, Zuständigkeit und
-verknüpfte Issues oder Pull Requests ergänzen. Sie benötigt explizite stabile Zuordnungen und
-sichtbare Herkunft. Ein Board-Status „Done“ ist keine AGDF-Freigabe. Die Anbindung gehört zur
-weiteren Entwicklung und ist keine Voraussetzung für dieses Bedienmodell.
-
-## 9 Bestand und erforderliche Weiterentwicklung
-
-### Abgeglichene Grundlage
-
-**Stand: 14. Oktober 2026, Repository-Arbeitsstand einschließlich vorhandener Änderungen.**
-Die folgende Tabelle ist die maßgebliche Umsetzungszuordnung dieses Konzepts. „Bereits
-umgesetzt“ bezeichnet die genannte Fähigkeit, nicht automatisch das vollständige Layout eines
-Mocks oder ihre native Qualifizierung in jedem Host. Die von Anwenderseite gezeigte SD-Karte
-„Lösungsdesign prüfen und entscheiden“ ist eine vorhandene Entscheidungsdarstellung und bleibt
-Referenz für deren behutsame Weiterentwicklung.
-
-| Bereich | Bereits umgesetzt und wiederzuverwenden | Noch ergänzen |
-|---|---|---|
-| **Entscheiden und fortsetzen** | [DecisionCard](../../packages/control-ui/src/mcp/DecisionCard.tsx) zeigt Kurzfassung, Wirkung, Quellen und vollständige Entscheidungsgrundlage. Sie verarbeitet passende Speicherbelege, veraltete Bindungen und unklare Ergebnisse; Wiederholung verwendet den ursprünglichen Vorgang. [DecisionEntry](../../packages/control-ui/src/mcp/DecisionEntry.tsx) bindet qualifizierte Klicks und unterstützte Fortsetzung an den bestehenden Core-/Host-Weg. Die exakte Chatantwort bleibt verfügbar. | Benennung und Informationsgewichtung verfeinern; vorhandene Entscheidung und Dokumentnavigation konsistent verbinden. Keine neue Freigabe-, Beleg- oder Fortsetzungslogik. |
-| **Fassungen vergleichen** | [presentationVersionComparison](../../packages/core/lib/control-state/run-presentation-render.js) liest eine tatsächlich geprüfte archivierte Vorfassung. Die Karte zeigt geändert/unverändert, Herkunft und früheren Volltext; fehlende Grundlagen haben einen eigenen Zustand. | Relevante Änderungen innerhalb des vorhandenen Vorher-/Nachher-Paars hervorheben. Redaktionelle Erläuterung bleibt von einem maschinell festgestellten Unterschied unterscheidbar. |
-| **Dokumente lesen und prüfen** | [RunDocuments](../../packages/control-ui/src/RunDocuments.tsx) wählt registrierte Hauptdokumente aus. [DocumentView](../../packages/control-ui/src/DocumentView.tsx) bietet Einordnung, Original, Quellenbindung und getrennte Statusaussagen. [App](../../packages/control-ui/src/App.tsx) und die Entscheidungskarte besitzen Rückwege und Fokuswiederherstellung; bewusste Entwurfsprüfung ist vorhanden. | Gemeinsame Lesebausteine für beide Dokumentwege, Inhaltsübersicht, Suche, Abschnittszugänge und erhaltene Leseposition. Der Zugriff auf exakt vorgelegte Entscheidungsdokumente bleibt geschützt. |
-| **Stand und Nachweise verstehen** | [RunDetail](../../packages/control-ui/src/RunDetail.tsx) trennt gespeicherten Run und aktuelle Auswertung. [FlowEvidence](../../packages/control-ui/src/FlowEvidence.tsx) gruppiert aktuelle, abgelöste und nicht sicher zuordenbare Nachweise. Der [Core-Vergleich](../../packages/core/lib/control-inspect/cockpit.js) erkennt Abweichungen von einer verifizierbaren gespeicherten Backlog-Beobachtung. | Gründe und Folgen eines belegten Widerspruchs verständlich anzeigen und vorhandene Belege als nachvollziehbaren Verlauf verbinden. Ältere freie Backlog-Texte ohne verifizierbare Vergleichsbasis bleiben ungeklärt; keine automatische Konflikterkennung aus beliebiger Prosa behaupten. |
-| **Vorhaben finden** | [Overview](../../packages/control-ui/src/Overview.tsx), [BacklogRows](../../packages/control-ui/src/BacklogRows.tsx) und [projectCockpitList](../../packages/core/lib/control-inspect/cockpit-list.js) bieten Bereichsauswahl, Suche, Zähler, Herkunft und Teilmengenhinweise. Die Auswahl bleibt beim Lesen erhalten. Core besitzt bereits eine Run-Ermittlung. | Einen begrenzten vollständigen Run-Leseumfang einschließlich Runs ohne Backlog-Eintrag bereitstellen; Aufmerksamkeitsfilter auf verlässlich beobachteten Daten ergänzen. Die vorhandene Projektion erweitern, keinen zweiten Inventar- oder Statusdienst im Frontend aufbauen. |
-| **Eine Rückfrage stellen** | [ContextPanel](../../packages/control-ui/src/ContextPanel.tsx) und [HandoffController](../../packages/control-ui/src/mcp/handoff.ts) bereiten gebundenen Kontext vor, prüfen ihn und übermitteln bei unterstütztem Host anschließend eine vorgegebene allgemeine Frage. Kontextaufnahme, Nachrichtenannahme und Ungewissheit sind getrennte Zustände. | Eigenen Fragetext und Abschnittsbezug ergänzen; Entwürfe bei Navigation und Quellenänderung erhalten. Die spätere Umsetzung nutzt denselben Host-Adapter. Manuelle Textübernahme bleibt ein Ausweichweg für fehlende Nachrichtenfähigkeit. |
-| **Ergebnis und Abnahme beurteilen** | [Decision Content Readiness](../../packages/core/lib/control-evaluation/decision-content-readiness.js) prüft konkrete Ergebnisse, Grenzen und Risiken aus maßgeblichen Quellen. Die Präsentation verwendet diese Inhalte für QA/UAT. [QA-Abweichungsannahme](../../packages/core/lib/control-state/qa-deviation-acceptance.js) bewahrt ursprüngliches `revise`, Nutzungsumfang, Risiko, Folgen und Nacharbeit. | Ergebnis, vorhandene Prüfschritte, Nachweise und gegebenenfalls belegten Ergebniszugang übersichtlich verbinden. Kein zweiter Abnahmebericht und keine neue QA- oder Freigabesemantik. |
-| **Im Host arbeiten** | MCP-App-Ressourcen, Host-Adapter, Fähigkeitsprüfung, unterstützte Anzeigemodi und Portable Markdown sind vorhanden. Darstellung und fachliche Entscheidungswirkung haben getrennte Zuständigkeiten. | Die ergänzten Nutzerwege an der konkreten ausgelieferten Fassung und den unterstützten Hosts qualifizieren. Fehlender Nachweis ist zunächst eine Prüfaufgabe; erst ein Befund begründet eine Reparatur. |
-| **Agentenübernahme und Halt beobachten** | Bestehende Übergabezustände zeigen Kontextaufnahme und Nachrichtenannahme; sie bestätigen keinen Arbeitsbeginn oder Halt. | Noch konzeptionell: belegter Arbeitsauftragsstatus, laufende Aktivität und Halt. Dafür sind eine unterstützte Hostintegration und eigene Nachweise nötig. Kein Auftrag zum Bau dieser Funktionen im Rahmen der vier folgenden Ergänzungen. |
-
-### Begrenzter Umfang der Weiterentwicklung
-
-1. **Lesen erleichtern:** Die bestehenden Dokumentwege mit gemeinsamen Lesebausteinen,
-   Suche und Abschnittsnavigation erweitern. Quellenbindung, Rückweg und Entscheidungszustand
-   übernehmen. Einen Änderungsvergleich ausschließlich auf der bestehenden Core-Basis darstellen.
-2. **Rückfragen vervollständigen:** Eigene Frage, gewählten Abschnitt und Entwurfserhalt ergänzen.
-   Kontextprüfung, Nachrichtenweg und Rückmeldungen des vorhandenen Handoff verwenden.
-3. **Vorhabenübersicht vervollständigen:** Run-Ermittlung und vorhandene Listenprojektion um den
-   fehlenden begrenzten Inventar-Leseumfang und nachvollziehbare Aufmerksamkeitsfilter erweitern.
-4. **Vorhandene Aussagen verbinden:** Entscheidungskarte beibehalten; Orientierung, Konfliktgründe,
-   Nachweisverlauf und Ergebniszugänge mit konsistenter Sprache und Navigation zusammenführen.
-
-Diese vier Ergänzungen sind keine neuen Backlog-IDs oder Gate-Aufträge. Es entstehen weder ein
-zweites Cockpit-Produkt noch ein eigener Statusrechner, Freigabespeicher, Versionsarchiv oder
-Chat-Transport. Die eigenständige HTML-Referenz enthält lokale Beispieldaten und Interaktionen;
-Produktcode entsteht durch Weiterentwicklung der oben genannten Komponenten. Core bleibt
-für Auswertung und gespeicherte Entscheidungen zuständig, MCP vermittelt, die App stellt dar.
-
-### Was der Abgleich tatsächlich belegt
-
-| Nachweisebene | Festgestellter Stand am 14. Oktober 2026 | Aussagegrenze |
-|---|---|---|
-| Quellcode und Komponentenprüfung | Die genannten Funktionen sind implementiert. Beim vorausgehenden Implementierungsabgleich bestanden 116 vorhandene Tests in acht UI-Testdateien zu Dokumenten, Entscheidungskarte, Nachweisen, Hauptdokumenten, Handoff, Lesen und Backlog-Zusammenfassung. | Kein Test der noch fehlenden Ergänzungen und keine Messung der Anwenderentlastung. |
-| Gebautes Paket und Installation | `run-presentation-render.js`, `decision-content-readiness.js`, `qa-deviation-acceptance.js` und `control-inspect/cockpit.js` waren zwischen Quelle, gebautem Paket und installiertem Plugin `0.14.5+codex.local-a90b74966806` bytegleich. Das Decision-HTML-Bundle war zwischen Paket und Installation identisch. | Gezielter Dateiabgleich, kein vollständiger Installationsaudit und kein Beleg, welche Fassung eine bereits geöffnete Host-Sitzung geladen hat. |
-| Abgeschlossene Inhaltsverbesserung | [Run „Aussagekräftige Run- und Abnahmeinhalte“](../../.agdf/control/runs/run-uat-content-readiness-20261014-01/RUN_STATE.md) war in Revision 21 abgeschlossen. Sein [OR](../../.agdf/control/artefacts/run-uat-content-readiness-20261014-01/OR.md) dokumentiert installierte CLI-/STDIO- und Ausgabeprüfung. | Neue native Modell-, UI- und Buttonprüfung war dort nicht enthalten. |
-| Native Beobachtungen | Die Praxisquellen enthalten datierte native Nachweise. Der [Core-/MCP-Abschluss](../../.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/OR.md) bewahrt vier angenommene offene Nachweisgruppen und technische QA `revise`. | In diesem Konzeptabgleich wurde keine neue native Bedienprüfung durchgeführt; Abschluss bedeutet keine umfassende Host- oder Produktionsqualifizierung. |
-| HTML- und SVG-Mocks | Zeigen Gestaltung und die ausdrücklich markierten Ergänzungen; die vier realen Fälle behalten ihren eingefrorenen Quellenstand. | Kein Nachweis einer ausgelieferten Funktion, Nachrichtenzustellung oder wirksamen Entscheidung. |
-
-Spätere Runtime- oder Installationsänderungen sind gegen ihre eigene Fassung zu prüfen. Sie
-aktualisieren weder diesen datierten Abgleich noch die eingefrorenen Praxisdaten automatisch.
-
-## 10 Beobachtbare Nutzererlebnisse
-
-### Entlastung am durchgängigen Weg prüfen
-
-Die Nutzerprüfung erfolgt in einem unterstützten Host mit dem installierten Plugin. Der
-lokale HTML-Mock dient nur der gestalterischen Vorbereitung. Entscheidend ist, ob der Anwender
-im vorhandenen Gespräch mit weniger Suche und Zuordnungsarbeit zu einer verstandenen
-Entscheidung kommt.
-
-| Aufgabe ohne Anleitung von außen | Erfolgskriterium |
-|---|---|
-| Eine überarbeitete Fassung öffnen | Vorhaben, relevante Änderung, eigene Prüfaufgabe und Folge sind ohne Suche in der Gesprächschronologie verständlich. |
-| Eine Korrektur besprechen | Die ausgewählte Stelle und Fassung kommen über den unterstützten Weg im bestehenden Gespräch an; sie müssen nicht erneut manuell zugeordnet werden. |
-| Entscheiden | Die verfügbare Klickaktion oder exakte Textantwort ist unmittelbar auffindbar; Speicherung und Fortsetzung werden richtig unterschieden. |
-| Wiederaufnehmen | Aktueller Stand und nächste erforderliche Handlung sind ohne Rekonstruktion des gesamten Verlaufs erkennbar. |
-| Eine Abnahme vorbereiten | Gelieferte Änderung, Fassung, Nachweise, offene Grenzen und vorhandener oder fehlender Ergebniszugang sind verständlich. Das Projekt wird am tatsächlichen Ergebnis geprüft. |
-
-Verglichen werden nötige Such- und Dokumentwechsel, Wiederholung bereits bekannter Angaben,
-Zeit bis zur begründeten Entscheidung und falsche Zuordnungen. Weniger Klicks bei schlechterem
-Verständnis gelten als Rückschritt. Ein Browser-Mock belegt weder Installation noch Hostfähigkeit
-oder wahrgenommene Entlastung. Die Prüfung verlangt keine in AGDF nachgebildete Zielanwendung.
-
-### Verbindliche Praxisfälle für Konzept- und Implementierungsreview
-
-Die vier eingefrorenen Runs bilden konkrete Referenzfälle. Der Mock prüft deren Darstellung;
-eine spätere Prüfung mit aktuellem Plugin und echten Teilnehmern muss dieselben Aufgaben im
-qualifizierten Host abdecken. Änderungen am realen Bestand verlangen einen neu dokumentierten
-Stand, kein stilles Aktualisieren der Beispieldaten.
-
-| Aufgabe | Beobachtbares Kriterium |
-|---|---|
-| In der Auswahl ein Vorhaben suchen und zurückkehren | Suche, Filter und Listenposition bleiben erhalten. Kein Treffer behauptet nur für den tatsächlich durchsuchten Bestand Abwesenheit. |
-| Host-Adapter-Run trotz Backlog-Angabe öffnen | Der Anwender erklärt die Rücksetzung und verwechselt sie nicht mit einer offenen UAT. Die Ansicht bietet keine UAT-Entscheidung. |
-| Im Cockpit-PRD AC-003 finden und eine Rückfrage formulieren | Inhaltsübersicht oder Suche erreicht die Originalstelle. Frage, Quellenfassung und Abschnitt bleiben zusammen; Rückkehr und Run-Wechsel verlieren den Entwurf nicht. |
-| Beim Cockpit-Run heutige Grundlage und alte Nachweise unterscheiden | Fünf eingeordnete Einträge und 113 historische Zeilen bleiben unterscheidbar; damalige offene Lücken erscheinen nicht als neue Aufgaben. |
-| Fehlenden Fassungsvergleich öffnen | Die UI erklärt die fehlende Bindung und bietet die vollständige Quelle. Es erscheint kein aus Run-Revisionen abgeleiteter Dokument-Diff. |
-| Den Core-/MCP-Abschluss beurteilen | Der Anwender benennt interne Erprobung, ursprüngliches `revise` und die vier offenen Nachweisgruppen; Abschluss wird nicht mit Produktionsreife verwechselt. |
-| Im abgeschlossenen Inhalts-Run den QA-Bericht lesen | „Gate approval: open“ bleibt als historische Aussage erhalten und führt zu keiner erneuten Freigabeaufforderung. |
-| Während einer Rückfrage eine Quellenänderung sehen | Der Entwurf bleibt lesbar, die alte Bindung wird benannt und eine ungeprüfte Weitergabe gesperrt. |
-
-Diese Fälle sind in normaler und vergrößerter Schrift, schmaler Fläche, Hell/Dunkel und per
-Tastatur zu prüfen. Ein erfolgreich durchlaufener Mock ist noch kein Nachweis für Nachrichten-
-zustellung, Freigabewirkung, native Darstellung oder wahrgenommene Zeitersparnis.
-
-### Zustände und Grenzen prüfen
-
-Das Konzept ist in folgenden Situationen nachvollziehbar zu prüfen:
-
-1. Ein neuer Änderungsauftrag führt nach der erforderlichen Klärung zur Karte „Haben wir deinen
-   Wunsch richtig verstanden?“ im Schritt „Ziel und Umfang klären“.
-   Der Anwender erkennt Vorhaben, offene Fragen und Wirkung einer möglichen Freigabe.
-2. Ein bestehender Run ist im Hub auffindbar, auch wenn kein Backlog-Eintrag vorhanden ist.
-   Unvollständige Suchabdeckung wird erklärt; ein geplantes Vorhaben wird nicht als aktiver Run gezeigt.
-3. Beim Lesen eines langen Dokuments in der großen Appfläche bleiben aktueller Schritt und erwartete Handlung
-   sichtbar. Die Rückkehr erhält den Entscheidungsgegenstand und den auslösenden Fokus.
-4. Vergrößern aus dem Chat erhält Run und geprüfte Fassung. Eine inzwischen geänderte Quelle
-   führt zu einer Erklärung und erneuter aktueller Darstellung, nicht zur Übertragung alter Zustimmung.
-5. Freigabe, Änderungswunsch und Ablehnung haben die jeweils unterstützten, verständlich
-   bestätigten Wirkungen. Doppelklick und verlorene Antwort erzeugen keinen zweiten Effekt.
-6. Nach einer Entscheidung zeigt AGDF die nächste tatsächliche Verpflichtung. Interne Arbeit
-   erzeugt keine zusätzlichen menschlichen Gates und behauptet ohne Host-Beobachtung keine Aktivität.
-7. Frühere Chat-Karten und ältere Dokumente bleiben als damalige Stände lesbar. Aus dem Verlauf
-   führt ein klarer Weg zur aktuellen Aufgabe.
-8. Fehlende UI-Fähigkeit, abgelaufene Sitzung und fehlende aktuelle Quelle bieten verständliche
-   Wiederherstellung. Der gebundene Weg bleibt vollständig als Portable Markdown verfügbar,
-   soweit ihn der bestehende Ablauf unterstützt; der Fallback-Grund ist sichtbar.
-9. Die Auswahl eines anderen Runs im Hub erzeugt keinen Chat und keine automatische
-   Fortsetzung. Eine neue Arbeitsbeauftragung benennt den ausgewählten Run und sein Ziel.
-10. Die App gestaltet keine Host-Nachrichten, kein natives Eingabefeld und kein Host-Schließen.
-    Kontextaufnahme, Nachrichtenzustellung und bestätigte Entscheidung bleiben getrennte beobachtbare Wirkungen.
-11. Eine gebundene Entscheidung wird einmal als MCP-App-UI und einmal als Portable Markdown
-    dargestellt. Run, Gate, Revision, Digests, Zusammenfassung, Folgen und zulässige Antwort
-    stimmen überein; nur Darstellung und verfügbare Interaktion unterscheiden sich.
-12. Nach einem lesenden Wechsel von A zu B erkennt der Anwender ohne Erklärung von außen,
-    welches Vorhaben er liest und ob ein Arbeitsauftrag für B bestätigt ist. Ein mehrdeutiger
-    Änderungsauftrag wird vor der Änderung geklärt. Der unterstützte Übergabeweg wird zusätzlich
-    mit fehlender Fähigkeit und unklarer Zustellung geprüft.
-13. Vor der Entscheidung erklärt der Anwender in eigenen Worten, was er beurteilen soll,
-    was bereits mit welcher Grenze geprüft ist, was danach erlaubt wird und was weiterhin
-    unbestätigt bleibt. Bei technischer Zuständigkeit wird die passende Person einbezogen.
-14. Bei einer Überarbeitung findet der Anwender die relevante Änderung und die Behandlung
-    seiner Rückmeldung, ohne beide Dokumente vollständig erneut zu lesen. Fehlende Vergleichbarkeit
-    wird verstanden; die vollständigen Fassungen bleiben zugänglich.
-15. Nach gespeicherter Freigabe und unklarer Fortsetzung prüft der unterstützte Weg den ursprünglichen
-    Vorgang ohne erneute Freigabe oder doppelte Beauftragung. Der Anwender erkennt, ob er etwas tun muss.
-16. Zur Abnahme erreicht der Anwender die konkrete Ergebnisfassung, versteht die Umgebung und
-    führt die vereinbarten Prüfschritte aus. Ein Mangel ist besprechbar. Technischer Pass,
-    fachliche Abnahme, Integration und Veröffentlichung werden nicht verwechselt.
-17. Ein Änderungswunsch während der Umsetzung erklärt die Auswirkungen auf vorhandene Freigaben.
-    Bei Unterbrechung erkennt der Anwender angeforderten und bestätigten Halt sowie fehlende
-    Hostfähigkeit. Die Wiederaufnahme prüft den tatsächlichen Stand erneut.
-
-Für diese Aufgaben werden Zeit bis zur richtigen Handlung, Fehlzuordnungen, unnötige
-Dokumentwechsel und Verständnisfehler beobachtet. Ein Vergleich mit dem bisherigen Nutzerweg
-zeigt, ob Suchen, Zuordnen und Vergleichen tatsächlich abnehmen. Die Zielwerte werden vor der
-Nutzerprüfung festgelegt; die Mocks allein belegen keine Zeitersparnis. Ein Abnicken ohne
-Verständnis oder eine Änderung am falschen Vorhaben gilt nicht als erfolgreicher Durchlauf.
-
-Tastaturbedienung, Fokus, schmale und große Flächen sowie tatsächliches Host-Verhalten gehören
-zur Prüfung dieser Situationen. Sichtbarer Fortschritt, wirksame menschliche Entscheidung und
-technische Ausführung werden dabei jeweils anhand ihrer eigenen Grundlage beurteilt.

@@ -1,0 +1,560 @@
+{
+  "name": "agdf_inspect",
+  "description": "Read-only: gate-check -> operation-contract module=agdf_prepare/presentation.prepare -> catalog read_arguments -> presentation-document/next_cursor.",
+  "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "operation",
+      "presentation_language",
+      "working_directory"
+    ],
+    "$defs": {
+      "t": {
+        "enum": [
+          "explicit_target",
+          "continued_target",
+          "current_repository"
+        ],
+        "description": "Paired target provenance."
+      },
+      "p": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "description": "Confirmed absolute root."
+      },
+      "r": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$",
+        "description": "Confirmed run."
+      },
+      "i": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "description": "gate-check revision; original for reads."
+      }
+    },
+    "dependentRequired": {
+      "target_source": [
+        "primary_target"
+      ],
+      "primary_target": [
+        "target_source"
+      ]
+    },
+    "dependentSchemas": {
+      "cursor": {
+        "anyOf": [
+          {
+            "properties": {
+              "operation": {
+                "$ref": "#/$defs/d"
+              }
+            }
+          },
+          {
+            "properties": {
+              "operation": {
+                "const": "operation-contract"
+              },
+              "module": {
+                "const": "agdf_prepare/presentation.prepare"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "unevaluatedProperties": false,
+    "allOf": [
+      {
+        "type": "object",
+        "properties": {
+          "presentation_language": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$",
+            "description": "Reply BCP47 tag."
+          },
+          "working_directory": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "Absolute context; not target authority."
+          }
+        },
+        "required": [
+          "presentation_language",
+          "working_directory"
+        ]
+      },
+      {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "doctor",
+                  "delivery-map"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "all_active": {
+                "type": "boolean",
+                "description": "All runs: doctor/delivery-map."
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "gate-check"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "variant": {
+                "enum": [
+                  "status-card",
+                  "approval-envelope"
+                ],
+                "description": "gate-check view."
+              },
+              "all_active": {
+                "const": false
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "contract"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "module": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "description": "Contract, group/kind or receipt UUID."
+              },
+              "all_active": {
+                "const": false
+              }
+            },
+            "required": [
+              "operation",
+              "module"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "artifact-readiness"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "gate": {
+                "enum": [
+                  "UR",
+                  "PRD",
+                  "SD",
+                  "TP"
+                ],
+                "description": "Draft/read gate; catalog filter."
+              },
+              "expected_revision_id": {
+                "$ref": "#/$defs/i"
+              },
+              "all_active": {
+                "const": false
+              }
+            },
+            "required": [
+              "operation",
+              "run_id",
+              "expected_revision_id",
+              "target_source",
+              "primary_target",
+              "gate"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "operation-contract"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "gate": {
+                "enum": [
+                  "UR",
+                  "PRD",
+                  "SD",
+                  "TP",
+                  "QA",
+                  "UAT"
+                ],
+                "description": "Draft/read gate; catalog filter."
+              },
+              "expected_revision_id": {
+                "$ref": "#/$defs/i"
+              },
+              "cursor": {
+                "type": "string",
+                "maxLength": 80,
+                "pattern": "^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$",
+                "description": "Next cursor; omit initially."
+              },
+              "module": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "description": "Contract, group/kind or receipt UUID."
+              },
+              "all_active": {
+                "const": false
+              }
+            },
+            "required": [
+              "operation",
+              "run_id",
+              "expected_revision_id",
+              "target_source",
+              "primary_target",
+              "module"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "operation-status"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "expected_revision_id": {
+                "$ref": "#/$defs/i"
+              },
+              "module": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "description": "Contract, group/kind or receipt UUID."
+              },
+              "all_active": {
+                "const": false
+              }
+            },
+            "required": [
+              "operation",
+              "run_id",
+              "expected_revision_id",
+              "target_source",
+              "primary_target",
+              "module"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "native-qualification",
+                  "runtime-generations"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "expected_revision_id": {
+                "$ref": "#/$defs/i"
+              },
+              "all_active": {
+                "const": false
+              }
+            },
+            "required": [
+              "operation",
+              "run_id",
+              "expected_revision_id",
+              "target_source",
+              "primary_target"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "presentation-document",
+                  "presentation-preview"
+                ]
+              },
+              "target_source": {
+                "$ref": "#/$defs/t"
+              },
+              "primary_target": {
+                "$ref": "#/$defs/p"
+              },
+              "run_id": {
+                "$ref": "#/$defs/r"
+              },
+              "gate": {
+                "enum": [
+                  "UR",
+                  "PRD",
+                  "SD",
+                  "TP",
+                  "QA",
+                  "UAT"
+                ],
+                "description": "Draft/read gate; catalog filter."
+              },
+              "expected_revision_id": {
+                "$ref": "#/$defs/i"
+              },
+              "presentation_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "description": "gate-check revision; original for reads."
+              },
+              "target_id": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "description": "Target hash: operation-contract."
+              },
+              "cursor": {
+                "type": "string",
+                "maxLength": 80,
+                "pattern": "^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$",
+                "description": "Next cursor; omit initially."
+              },
+              "all_active": {
+                "const": false
+              }
+            },
+            "required": [
+              "operation",
+              "run_id",
+              "expected_revision_id",
+              "target_source",
+              "primary_target",
+              "gate",
+              "presentation_id",
+              "target_id"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "outcome",
+      "terminal",
+      "authorizes",
+      "operation",
+      "report",
+      "presentation",
+      "host_action",
+      "target",
+      "recovery"
+    ],
+    "properties": {
+      "schema_version": {
+        "const": "1"
+      },
+      "contract_version": {
+        "const": 1
+      },
+      "authorizes": {
+        "const": false
+      },
+      "operation": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "runtime": {
+        "type": "object"
+      },
+      "target": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "recovery": {
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "presentation": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "required": [
+          "markdown"
+        ],
+        "properties": {
+          "markdown": {
+            "type": "string"
+          }
+        }
+      },
+      "timing": {
+        "type": "object"
+      },
+      "diagnostics": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "host_action": {
+        "type": "object",
+        "required": [
+          "mode",
+          "source",
+          "allow_surrounding_text",
+          "may_request_run_or_evidence"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "may_request_run_or_evidence": {
+            "const": false
+          }
+        }
+      },
+      "outcome": {
+        "enum": [
+          "inspect_result",
+          "target_unresolved",
+          "invalid_input",
+          "evaluator_error"
+        ]
+      }
+    },
+    "if": {
+      "properties": {
+        "outcome": {
+          "const": "inspect_result"
+        }
+      }
+    },
+    "then": {
+      "properties": {
+        "terminal": {
+          "const": false
+        },
+        "report": {
+          "type": "object"
+        },
+        "recovery": {
+          "type": "null"
+        }
+      }
+    },
+    "else": {
+      "properties": {
+        "terminal": {
+          "const": true
+        },
+        "report": {
+          "type": "null"
+        },
+        "recovery": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

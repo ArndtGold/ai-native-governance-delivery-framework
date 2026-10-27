@@ -1,0 +1,13 @@
+
+> build:prepare
+> node scripts/verify-ci.mjs --profile prepare
+
+[verify-ci] ui-dependencies
+npm error code ENOTEMPTY
+npm error syscall rmdir
+npm error path /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/node_modules/entities/dist 3/esm
+npm error errno -66
+npm error ENOTEMPTY: directory not empty, rmdir '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/node_modules/entities/dist 3/esm'
+npm error Log files were not written due to an error writing to the directory: /Users/arndtgold/.npm/_logs
+npm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal
+Verification failed at ui-dependencies: npm ci --ignore-scripts (190)

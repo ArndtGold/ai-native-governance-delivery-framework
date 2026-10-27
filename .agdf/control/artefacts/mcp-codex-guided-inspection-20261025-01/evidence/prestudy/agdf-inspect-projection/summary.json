@@ -1,0 +1,81 @@
+{
+  "test": "Installed Codex input-signature projection; deterministic loopback Responses stub; no LLM",
+  "codex_version": "0.163.0",
+  "repository_head": "5046858826f3bca7922c14ef402b095feca8b6fb",
+  "baseline": {
+    "variant": "baseline",
+    "input_unknowns": 4,
+    "visible_fields": 2,
+    "missing_fields": [
+      "presentation_language",
+      "working_directory",
+      "target_source",
+      "primary_target",
+      "run_id",
+      "gate",
+      "expected_revision_id",
+      "presentation_id",
+      "target_id",
+      "cursor",
+      "variant",
+      "module"
+    ],
+    "visible_operations": [
+      "doctor",
+      "delivery-map"
+    ],
+    "signature": "declare const tools: { inspect_probe(args: ({ all_active?: false; } | { operation?: \"doctor\" | \"delivery-map\"; }) & unknown & unknown & unknown & unknown): Promise<unknown>; };"
+  },
+  "candidate": {
+    "variant": "conditions_nested_budget",
+    "input_unknowns": 0,
+    "visible_fields": 14,
+    "missing_fields": [],
+    "visible_operations": [
+      "doctor",
+      "gate-check",
+      "delivery-map",
+      "contract",
+      "artifact-readiness",
+      "operation-contract",
+      "operation-status",
+      "native-qualification",
+      "presentation-document",
+      "presentation-preview",
+      "runtime-generations"
+    ],
+    "signature": "declare const tools: { inspect_probe(args: {\n  // All runs: doctor/delivery-map.\n  all_active?: boolean;\n  // Next cursor; omit initially.\n  cursor?: string;\n  // gate-check revision; original for reads.\n  expected_revision_id?: string;\n  // Draft/read gate; catalog filter.\n  gate?: \"UR\" | \"PRD\" | \"SD\" | \"TP\" | \"QA\" | \"UAT\";\n  // Contract, group/kind or receipt UUID.\n  module?: string;\n  // Read action.\n  operation: \"doctor\" | \"gate-check\" | \"delivery-map\" | \"contract\" | \"artifact-readiness\" | \"operation-contract\" | \"operation-status\" | \"native-qualification\" | \"presentation-document\" | \"presentation-preview\" | \"runtime-generations\";\n  // ID from catalog/conversation.\n  presentation_id?: string;\n  // Reply BCP47 tag.\n  presentation_language: string;\n  // Confirmed root.\n  primary_target?: string;\n  // Confirmed run.\n  run_id?: string;\n  // Target hash: operation-contract.\n  target_id?: string;\n  // Paired target provenance.\n  target_source?: \"explicit_target\" | \"continued_target\" | \"current_repository\";\n  // gate-check view.\n  variant?: \"status-card\" | \"approval-envelope\";\n  // Context; not target authority.\n  working_directory: string;\n}): Promise<unknown>; };"
+  },
+  "parity": {
+    "classification": "offline_schema_acceptance_parity",
+    "definition_bytes": {
+      "baseline": 4998,
+      "candidate": 4994
+    },
+    "cases": 247003,
+    "accepted": 160,
+    "rejected": 246843,
+    "differences": 0,
+    "examples": [],
+    "model_invocations": 0,
+    "product_files_changed": false
+  },
+  "replay": {
+    "classification": "offline_replay_of_retained_native_arguments",
+    "inspect_calls": 24,
+    "observed_sdk_errors": 15,
+    "sdk_errors_still_rejected": 15,
+    "acceptance_differences": 0,
+    "model_invocations": 0
+  },
+  "limits": [
+    "Dynamic-tool input uses the actual installed Codex renderer; no new native MCP/model session or installation qualification.",
+    "No claim of reduced agent error rate; no model was called.",
+    "Conditional rules are still enforced by the SDK JSON Schema validator; TypeScript display is descriptive."
+  ],
+  "model_invocations": 0,
+  "external_network": "denied in child; Responses endpoint bound to loopback only",
+  "auth": "Fresh temporary CODEX_HOME; no auth file or API key supplied",
+  "product_files_changed": false,
+  "index_and_foreign_content_preserved": true
+}

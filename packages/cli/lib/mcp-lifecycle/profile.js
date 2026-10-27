@@ -1,4 +1,5 @@
 import { mcpQualificationFields, validateMcpQualificationRecord } from "./evidence.js";
+import { SKILL_DISPATCH_FUNCTION_DEFINITION } from '#agdf-core/skill-dispatch/contract.js';
 
 const CAPABILITY_STATES = new Set(["supported", "manual_compatible", "unavailable", "unsupported", "unverified"]);
 const REGISTRATION_STATES = new Set(["absent", "matched", "foreign", "owned_mismatch", "precedence_conflict", "invalid"]);
@@ -26,7 +27,7 @@ export function validateMcpCapabilityProfile(profile, { expectedVersion } = {}) 
   if (profile?.tool?.semantic_owner !== "packages/core/lib/skill-dispatch/contract.js") errors.push("semantic_owner");
   if (Object.hasOwn(profile?.tool ?? {}, "description") || Object.hasOwn(profile?.tool ?? {}, "input_schema")
       || Object.hasOwn(profile?.tool ?? {}, "output_schema")) errors.push("duplicated_tool_semantics");
-  if (profile?.tool?.authorizes !== false || profile?.tool?.read_only !== true) errors.push("tool_boundary");
+  if (profile?.tool?.authorizes !== false || profile?.tool?.read_only !== SKILL_DISPATCH_FUNCTION_DEFINITION.annotations.readOnlyHint) errors.push("tool_boundary");
   if (profile?.package?.name !== "@agdf/mcp-server" || profile?.package?.sdk_server !== "2.0.0") errors.push("package");
   if (profile?.lifecycle?.owner !== "create-agdf" || profile?.lifecycle?.default_scope !== "project") errors.push("lifecycle");
   if (profile?.lifecycle?.result_contract_version !== 2) errors.push("result_contract_version");

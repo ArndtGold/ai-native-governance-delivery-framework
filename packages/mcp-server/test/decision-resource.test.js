@@ -69,9 +69,10 @@ try {
     await withStdioClient({ ...fixture, modern }, async client => {
       assert.equal((await client.listTools()).tools.some(tool => tool.name === 'agdf_decision_action'), false);
       assert.equal((await client.listResources()).resources.length, 0);
-      const result = await client.callTool({ name: 'agdf_decision_action', arguments: { session_id: randomUUID(), operation_id: randomUUID(),
-        presentation_id: randomUUID(), expected_revision_id: f.revision(), action: 'reject' } });
-      assert.equal(result.structuredContent.outcome, 'rejected'); assert.equal(result.structuredContent.reason, 'host_ui_unsupported');
+      const request = { name: 'agdf_decision_action', arguments: { session_id: randomUUID(), operation_id: randomUUID(),
+        presentation_id: randomUUID(), expected_revision_id: f.revision(), action: 'reject' } };
+      if (modern) await assert.rejects(client.callTool(request), error => { assert.equal(error.code, -32021); assert.deepEqual(error.data, { requiredCapabilities: ui }); return true; });
+      else { const result = await client.callTool(request); assert.equal(result.structuredContent.outcome, 'rejected'); assert.equal(result.structuredContent.reason, 'host_ui_unsupported'); }
     });
   }
   await withStdioClient({ ...fixture, capabilities: ui, env: { AGDF_MCP_COMMAND_GROUPS: '' } }, async client => {

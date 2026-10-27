@@ -1,0 +1,235 @@
+{
+  "decision": "Visible root properties, precise field applicability and explicitly bound sequential read navigation from existing Core owners",
+  "classification": "Isolated prototype evaluation; no AGDF activation; main unchanged; no release or cross-host qualification",
+  "base_head": "5046858826f3bca7922c14ef402b095feca8b6fb",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "low",
+  "maximum_new_sessions": 6,
+  "actual_new_sessions": 5,
+  "final_candidate_sessions": 4,
+  "final_candidate_qualified": 4,
+  "final_candidate_sdk_errors": 0,
+  "final_candidate_all_error_results": 0,
+  "calls_per_final_session": 4,
+  "candidate_observations": [
+    {
+      "session": 1,
+      "candidate_version": 1,
+      "cohort": "initial",
+      "qualified": false,
+      "task_effect": true,
+      "strict": {
+        "check": "strict_t7_command_flow_v1",
+        "success": false,
+        "reason": "incomplete_trace_or_forbidden_detour"
+      },
+      "trace_complete": false,
+      "detours": [
+        "unverified_code_mode_wrapper"
+      ],
+      "calls": 5,
+      "sdk_errors": 0,
+      "all_error_results": 1,
+      "wall_time_ms": 36467,
+      "usage": {
+        "input_tokens": 138713,
+        "cached_input_tokens": 111488,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 852,
+        "reasoning_output_tokens": 9
+      },
+      "evidence": "/private/tmp/agdf-inspect-evaluation/evidence/v1-session-1",
+      "observation_sha256": "57a4bcfcec1f2f7ce178dbabfceb0fdcc549b2bb1024068ff6b40111ada300eb"
+    },
+    {
+      "session": 2,
+      "candidate_version": 2,
+      "cohort": "initial",
+      "qualified": true,
+      "task_effect": true,
+      "strict": {
+        "check": "strict_t7_command_flow_v1",
+        "success": true,
+        "approvals": 1
+      },
+      "trace_complete": true,
+      "detours": [],
+      "calls": 4,
+      "sdk_errors": 0,
+      "all_error_results": 0,
+      "wall_time_ms": 56351,
+      "usage": {
+        "input_tokens": 138993,
+        "cached_input_tokens": 114560,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 693,
+        "reasoning_output_tokens": 0
+      },
+      "evidence": "/private/tmp/agdf-inspect-evaluation/evidence/v2-session-2",
+      "observation_sha256": "40ff80d8b1d0c803d81841a2cafb3179af9db64d86a3888e0037a15e1e6173a1"
+    },
+    {
+      "session": 3,
+      "candidate_version": 2,
+      "cohort": "initial",
+      "qualified": true,
+      "task_effect": true,
+      "strict": {
+        "check": "strict_t7_command_flow_v1",
+        "success": true,
+        "approvals": 1
+      },
+      "trace_complete": true,
+      "detours": [],
+      "calls": 4,
+      "sdk_errors": 0,
+      "all_error_results": 0,
+      "wall_time_ms": 37244,
+      "usage": {
+        "input_tokens": 137492,
+        "cached_input_tokens": 112768,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 761,
+        "reasoning_output_tokens": 0
+      },
+      "evidence": "/private/tmp/agdf-inspect-evaluation/evidence/v2-session-3",
+      "observation_sha256": "ab66f05843257b2f3681bc01b07266b4891eadef37a88fa3ec4412d1dd7db809"
+    },
+    {
+      "session": 4,
+      "candidate_version": 2,
+      "cohort": "heldout",
+      "qualified": true,
+      "task_effect": true,
+      "strict": {
+        "check": "strict_t7_command_flow_v1",
+        "success": true,
+        "approvals": 1
+      },
+      "trace_complete": true,
+      "detours": [],
+      "calls": 4,
+      "sdk_errors": 0,
+      "all_error_results": 0,
+      "wall_time_ms": 52780,
+      "usage": {
+        "input_tokens": 141755,
+        "cached_input_tokens": 119808,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 758,
+        "reasoning_output_tokens": 0
+      },
+      "evidence": "/private/tmp/agdf-inspect-evaluation/evidence/v2-session-4",
+      "observation_sha256": "ccb222d0d717bb735394b50155faf7fc9d408d76c7cd3cbbc554fca02196ff40"
+    },
+    {
+      "session": 5,
+      "candidate_version": 2,
+      "cohort": "heldout",
+      "qualified": true,
+      "task_effect": true,
+      "strict": {
+        "check": "strict_t7_command_flow_v1",
+        "success": true,
+        "approvals": 1
+      },
+      "trace_complete": true,
+      "detours": [],
+      "calls": 4,
+      "sdk_errors": 0,
+      "all_error_results": 0,
+      "wall_time_ms": 29939,
+      "usage": {
+        "input_tokens": 141364,
+        "cached_input_tokens": 116096,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 727,
+        "reasoning_output_tokens": 0
+      },
+      "evidence": "/private/tmp/agdf-inspect-evaluation/evidence/v2-session-5",
+      "observation_sha256": "8fe4031e91307ebc73fd0f088eab54e5fd7609e9e1ac455bcb46b5f50637348c"
+    }
+  ],
+  "prior_fresh_baseline": [
+    {
+      "session": "A1",
+      "task_success": true,
+      "fully_qualified": true,
+      "calls": 13,
+      "sdk_input_errors": 7,
+      "is_error_results": 9,
+      "wall_time_ms": 82841
+    },
+    {
+      "session": "A2",
+      "task_success": true,
+      "fully_qualified": false,
+      "calls": 15,
+      "sdk_input_errors": 9,
+      "is_error_results": 10,
+      "wall_time_ms": 143199
+    }
+  ],
+  "limits": {
+    "inspect_definition": {
+      "observed": 4992,
+      "ceiling": 5000
+    },
+    "command_definitions_and_limits": "Unchanged; actual modern/legacy STDIO command suite passes",
+    "input_bytes": 65536,
+    "output_bytes": 1048576,
+    "copilot": {
+      "files": 397,
+      "bytes": 3509443,
+      "ceiling_bytes": 3509461,
+      "headroom_bytes": 18
+    },
+    "local_cold_p95_ms": 1246.2595280000023,
+    "local_warm_p95_ms": 767.7089059999998,
+    "cold_ceiling_ms": 1500,
+    "warm_ceiling_ms": 1000
+  },
+  "parity": {
+    "classification": "offline_schema_acceptance_parity",
+    "definition_bytes": {
+      "baseline": 4998,
+      "candidate": 4992
+    },
+    "cases": 247003,
+    "core_translation_cases": 160,
+    "accepted": 160,
+    "rejected": 246843,
+    "differences": 0,
+    "examples": [],
+    "model_invocations": 0,
+    "product_files_changed": false
+  },
+  "historical": {
+    "model_invocations": 0,
+    "historical_read_keeps_original_revision": true,
+    "contract_read_keeps_current_revision": true,
+    "stale_and_historical_approval_rejected": [
+      "stale_revision",
+      "presentation_binding_invalid"
+    ],
+    "no_approval_mutation": true
+  },
+  "preservation": {
+    "index_entries_sha256": "3e920896a1946dccf9df5fa9953e7b736f520508a4ee39c89080e12840ec16fb",
+    "foreign_files_unchanged": true,
+    "unstaged_product_changes": false,
+    "protected_settings_equal": true
+  },
+  "source_hashes": {
+    "packages/core/lib/control-inspect/contract.js": "73519532b325310d67f9724e945111053213c818d76a2cd9ec1f25742b51ed2f",
+    "packages/core/lib/control-inspect/service.js": "70adf760d97a4ab350dc735ead95a3eca04f7ff96d80660ca954b1e61d53d8ab",
+    "scripts/native-probes/codex-host-e2e.mjs": "f6c32efca96aa07bbc2a1c2ce24a9ac49123c36eafb9e745daaf7d7854fb66f3",
+    "evals/mcp-ergonomics/lib/native-run.js": "0241b7687a599cf64d646409466d6bcebdad0a08b51e0ebb1997d266edd67a1d"
+  },
+  "limitations": [
+    "Four sessions for one UR approval workflow: two original prompts and two predeclared German/English paraphrases.",
+    "Earlier failed schema-only and first guided candidate runs remain retained; no replacement or reclassification.",
+    "Local protocol performance only; built assets reuse retained UI/dependency inputs; no full release-build or other-host claim.",
+    "Original unit suite has one obsolete description assertion; a temporary copy updates only that assertion. All behavioral assertions remain unchanged."
+  ]
+}

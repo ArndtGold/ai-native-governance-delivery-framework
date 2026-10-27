@@ -1,0 +1,28 @@
+{
+  "evidence_class": "deterministic_candidate_validation",
+  "tp_digest": "sha256:b928e629d5073e5faf23fb8bf869d73135314303f89411afc8aee8ae6331e2f6",
+  "mcp_test_files_passed": 20,
+  "cli_retry_checks_passed": 10,
+  "initial_cli_check_passed": 1,
+  "core_and_focused_offline_groups_passed": 6,
+  "ergonomics_unit_tests_passed": 45,
+  "focused_native_harness_offline_tests_passed": 24,
+  "compatibility_scenarios_passed": 56,
+  "canonical_prepare_pass": true,
+  "canonical_build_pass": true,
+  "archive_consumers_pass": true,
+  "copilot_baseline": {
+    "files": 397,
+    "bytes": 3509461,
+    "headroom": 0
+  },
+  "native_evidence": "pending; separate real session records required",
+  "retained_failed_attempts": [
+    "cli-1-plugin-mcp-runtime-test.js.log",
+    "pack.log",
+    "package-consumers.log",
+    "build-renewed.log",
+    "performance-contended-attempt.log"
+  ],
+  "qualification": "Current final passes and source-bound applicability; failed attempts are retained and explained, never omitted. No real native success follows from deterministic/offline checks."
+}

@@ -431,8 +431,8 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
     german ? 'Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.'
       : 'Reply “Read document” to read this complete version in Chat. Discuss questions and requested changes here. This step remains open until you approve.',
     pack.decisionCard.chatApprovalHint.replace('{gate}', gate),
-    `<details><summary>${german ? 'Details und Nachweise' : 'Details and evidence'}</summary>\n\n${summaryMarkdown}\n\n</details>`,
-    `<details><summary>${german ? 'Fassung und Quellen' : 'Version and sources'}</summary>\n\nRun: \`${runId}\` · ${pack.gateTitles[gate]} · Revision: \`${revisionId}\`\n\nSHA-256: \`${artefactDigest}\`\n\n</details>`];
+    `### ${german ? 'Details und Nachweise' : 'Details and evidence'}\n\n${summaryMarkdown}`,
+    `### ${german ? 'Fassung und Quellen' : 'Version and sources'}\n\nRun: \`${runId}\` · ${pack.gateTitles[gate]} · Revision: \`${revisionId}\`\n\nSHA-256: \`${artefactDigest}\``];
   return parts.every((part) => typeof part === "string" && part.trim())
     ? { markdown: parts.join("\n\n"), companion_markdown: [german
           ? `Die AGDF-Karte ist geöffnet. Du kannst dort „${qaAcceptance?.approve_label || 'Freigeben'}“ klicken oder hier \`Approval: ${gate}\` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.`

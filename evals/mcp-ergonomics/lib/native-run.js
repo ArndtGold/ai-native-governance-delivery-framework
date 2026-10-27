@@ -186,7 +186,7 @@ export function assertCodexT4HostReady(result) {
 
 // Audit the code-mode wrapper, without evaluating model code. Only metadata,
 // local computation and the existing inspect tool may supply data in this task.
-export function pureInspectWrapper(code, earlierBindings = new Set()) {
+export function pureInspectWrapper(code, earlierBindings = new Set(), allowedTools = ['agdf_inspect']) {
   let tree;
   try { tree = parseJavaScript(code, { ecmaVersion: 'latest', sourceType: 'module', allowAwaitOutsideFunction: true }); } catch { return false; }
   const globals = new Set(['ALL_TOOLS', 'tools', 'text', 'notify', 'store', 'load', 'JSON', 'Object', 'Promise', 'String', 'undefined']);
@@ -204,9 +204,9 @@ export function pureInspectWrapper(code, earlierBindings = new Set()) {
     'ArrowFunctionExpression', 'FunctionExpression', 'BinaryExpression', 'LogicalExpression', 'AwaitExpression', 'ObjectExpression', 'Property', 'ArrayExpression',
     'TemplateLiteral', 'TemplateElement', 'UnaryExpression', 'ConditionalExpression', 'BlockStatement', 'ReturnStatement', 'ChainExpression', 'SpreadElement',
     'IfStatement', 'WhileStatement', 'ForOfStatement', 'AssignmentExpression', 'UpdateExpression', 'BreakStatement']);
-  const methods = new Set(['filter', 'find', 'map', 'includes', 'endsWith', 'startsWith', 'test', 'join', 'slice', 'split', 'push', 'parse', 'stringify', 'keys', 'values', 'entries', 'fromEntries', 'all', 'resolve']);
+  const methods = new Set(['filter', 'find', 'map', 'includes', 'endsWith', 'startsWith', 'test', 'join', 'slice', 'split', 'push', 'parse', 'stringify', 'keys', 'values', 'entries', 'fromEntries', 'all', 'resolve', 'then']);
   const memberName = node => node?.computed ? node.property?.type === 'Literal' ? node.property.value : null : node?.property?.name;
-  const admittedTool = name => /^mcp__(?:agdf|plugin_agdf_agdf)__agdf_inspect$/u.test(name ?? '') || ['list_mcp_resources', 'list_mcp_resource_templates'].includes(name);
+  const admittedTool = name => allowedTools.some(tool => name === `mcp__agdf__${tool}` || name === `mcp__plugin_agdf_agdf__${tool}`) || ['list_mcp_resources', 'list_mcp_resource_templates'].includes(name);
   for (const { node, parent, key } of nodes) {
     if (!types.has(node.type)) return false;
     const dataKey = parent?.type === 'Property' && key === 'key' && !parent.computed && !parent.shorthand;
@@ -232,7 +232,8 @@ export function pureInspectWrapper(code, earlierBindings = new Set()) {
 }
 
 // Supplemental qualification only. The original task/predicate/baseline stay unchanged.
-export function parseCodexT4Trace(jsonl, rolloutTexts = []) {
+export function parseCodexT4Trace(jsonl, rolloutTexts = [], allowedTools = ['agdf_inspect']) {
+  const efforts = new Set();
   const streams = [], detours = [], models = new Set(), wrapperBindings = new Set(), wrappers = new Set(), warnings = [];
   let complete = false, valid = true, usage = null;
   for (const [index, text] of [jsonl, ...rolloutTexts].entries()) {
@@ -243,12 +244,13 @@ export function parseCodexT4Trace(jsonl, rolloutTexts = []) {
     if (index === 0 && event.type === 'turn.completed') { complete = true; usage = event.usage ?? null; }
     if (index === 0 && ['turn.failed', 'error'].includes(event.type)) valid = false;
     if (event.type === 'turn_context' && event.payload?.model) models.add(event.payload.model);
+    if (event.type === 'turn_context' && (event.payload?.effort ?? event.payload?.reasoning_effort)) efforts.add(event.payload.effort ?? event.payload.reasoning_effort);
     const payload = event.payload;
     if (event.type === 'response_item' && ['function_call', 'custom_tool_call'].includes(payload?.type)) {
       if (['exec', 'functions.exec'].includes(payload.name)) {
-        if (!pureInspectWrapper(payload.input ?? payload.arguments ?? '', wrapperBindings)) detours.push('unverified_code_mode_wrapper');
+        if (!pureInspectWrapper(payload.input ?? payload.arguments ?? '', wrapperBindings, allowedTools)) detours.push('unverified_code_mode_wrapper');
         wrappers.add(payload.call_id ?? payload.id);
-      } else if (!/^mcp__(?:agdf|plugin_agdf_agdf)__agdf_inspect$/u.test(payload.name ?? '')
+      } else if (!allowedTools.some(tool => payload.name === `mcp__agdf__${tool}` || payload.name === `mcp__plugin_agdf_agdf__${tool}`)
         && !/^(?:functions\.)?(?:update_plan|tool_search)$/u.test(payload.name ?? '')) detours.push(payload.name ?? 'unknown_function');
     }
     const item = event.item ?? payload?.item;
@@ -323,11 +325,44 @@ export function parseCodexT4Trace(jsonl, rolloutTexts = []) {
         metadataDiscovery.push({ tool: invocation.tool, empty: data[metadataKey]?.length === 0 });
         continue;
       }
-      if (invocation.tool !== 'agdf_inspect' || invocation.server && !['agdf', 'plugin:agdf:agdf'].includes(invocation.server)) detours.push(invocation.tool ?? 'unknown_mcp');
-      calls.push({ id: item.id, name: 'mcp__plugin_agdf_agdf__agdf_inspect', input, result });
+      if (!allowedTools.includes(invocation.tool) || invocation.server && !['agdf', 'plugin:agdf:agdf'].includes(invocation.server)) detours.push(invocation.tool ?? 'unknown_mcp');
+      calls.push({ id: item.id, name: `mcp__plugin_agdf_agdf__${invocation.tool}`, input, result });
     } catch { valid = false; }
   }
-  return { calls, detours, trace_complete: complete && valid, observed_models: [...models], usage, wrappers: wrappers.size, warnings, metadata_discovery: metadataDiscovery };
+  return { calls, detours, trace_complete: complete && valid, observed_models: [...models], observed_efforts: [...efforts], usage, wrappers: wrappers.size, warnings, metadata_discovery: metadataDiscovery };
+}
+
+export const parseCodexCommandTrace = (jsonl, rollouts = []) => parseCodexT4Trace(jsonl, rollouts, ['agdf_inspect', 'agdf_approve']);
+export function strictCommandFlow({ parsed, binding }) {
+  const fail = reason => ({ check: 'strict_t7_command_flow_v1', success: false, reason });
+  if (!parsed.trace_complete || parsed.detours.length) return fail('incomplete_trace_or_forbidden_detour');
+  const observed = new Set(); let approved = 0;
+  const values = value => {
+    if (typeof value === 'string') observed.add(value);
+    else if (value && typeof value === 'object') for (const child of Object.values(value)) values(child);
+  };
+  for (const call of parsed.calls) {
+    let result;
+    try { result = JSON.parse(call.result.text); }
+    catch {
+      // SDK argument rejection precedes execution and is intentionally plain
+      // text. Retain/count it without turning a corrected call into a detour.
+      if (call.result.is_error && isSdkInputValidationText(call.result.text)) continue;
+      return fail('unreadable_domain_result');
+    }
+    if (call.name.endsWith('__agdf_inspect') && !call.result.is_error && result.outcome === 'inspect_result') values(result);
+    if (call.name.endsWith('__agdf_approve') && ['accepted', 'already_applied'].includes(result.outcome)) {
+      const input = call.input;
+      if (!['target_id', 'run_id', 'expected_revision_id', 'presentation_id'].every(key => observed.has(binding[key]))) return fail('bindings_not_retrieved_through_mcp');
+      if (call.result.is_error || result.outcome !== 'accepted' || input.target_id !== binding.target_id || input.run_id !== binding.run_id
+        || input.expected_revision_id !== binding.expected_revision_id || input.command?.kind !== 'approval.record'
+        || input.command.payload.gate !== 'UR' || input.command.payload.presentation_id !== binding.presentation_id
+        || input.command.payload.response !== 'Approval: UR' || result.operation_id !== input.operation_id
+        || !result.receipt) return fail('wrong_approval_binding_or_replay');
+      approved++;
+    }
+  }
+  return approved === 1 ? { check: 'strict_t7_command_flow_v1', success: true, approvals: approved } : fail('expected_one_approval');
 }
 
 export function strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText }) {

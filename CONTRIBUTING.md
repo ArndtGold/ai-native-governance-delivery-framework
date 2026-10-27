@@ -37,9 +37,68 @@ identifiers, commands and exact AGDF approval values remain unchanged.
 When a change affects canonical and derived files, use the existing synchronization process and
 inspect the exact diff afterward.
 
+## Verify the change proportionately
+
+The [shared Quality Contract](plugins/agdf/meta/contracts/quality.md) owns test selection,
+evidence reuse and verification completion. This guide applies that contract to contributions;
+the canonical npm scripts and `scripts/ci-plan.mjs` own the executable inventory.
+
+Before running checks, identify the changed behavior, acceptance criteria, affected consumers,
+shared fixtures or harnesses, and existing coverage. Choose the smallest sufficient local checks
+and explain their scope in the PR. Unknown impact requires broader checking or a visible gap.
+Changing test files alone does not require every test suite: run those tests and the relevant
+consumer or harness checks. Test-file locality alone does not establish that impact is bounded.
+
+| Decision point | Expected verification |
+|---|---|
+| Local feedback | Run the relevant existing tests and affected generation, contract or documentation checks. |
+| Push / PR creation | Include all intended sources and fixtures; report local results, failures and pending CI honestly. A local full-suite pass is not a routine prerequisite. |
+| Merge | All required CI jobs must pass for the current PR head or the merge candidate associated with that head. Check actual coverage against the canonical inventory. |
+| Additional local full run | Use when it answers a concrete unresolved question, reproduces a broad regression or supports an explicitly required acceptance. Explain the added value. |
+
+Reuse applicable results with their tested source identity, environment and accessible evidence.
+A new commit requires assessing what changed, not automatically repeating the full local plan.
+Rerun affected checks when their inputs change; retain an explicit gap when applicability is
+uncertain. CI for an older head does not establish the result for the current head.
+
+For example, a contributor-guide-only change can use the existing community-health checks and
+local link/diff review. Runtime or shared harness changes need their relevant consumer and
+failure-path checks. Host-facing claims still require suitable host evidence.
+
+### Before pushing
+
+Review the staged diff, including new scripts, fixtures and required derived files. Working-copy
+success can depend on untracked files or ignored build output; include every required input in
+the commit. Then push the branch and open the PR with the selected checks and their results.
+Full required regression remains in PR/merge CI; pending, failed or unavailable CI is not a pass
+and must be resolved before merge. Do not remove tests or weaken checks to shorten execution.
+
+### Optional full snapshot verification
+
+Both commands below run the **full** shared verification plan in a disposable checkout:
+
+```bash
+# Check the staged index when an isolated index check is specifically needed.
+npm run verify:commit
+
+# Check a concrete commit when full local reproduction is specifically needed.
+npm run verify:commit -- --ref HEAD
+```
+
+Choose the input that answers the question; there is no default requirement to run both.
+These are not quick commit-completeness checks. They reinstall dependencies, build payloads,
+verify evidence, test packages and run smoke suites. They do not modify the source checkout or
+index, install Git hooks or change Git configuration. A pass proves the selected snapshot on
+that Node/OS only; required CI coverage and any native qualification remain separate.
+
+[Verification reference](docs/development/verification.md) explains setup, build versus prepare,
+SDK updates, compatibility evidence and reproduction of individual CI partitions. Set up only
+the prerequisites needed by the selected checks. A documentation edit does not automatically
+require building every distribution or installing the plugin into a host.
+
 ## Install the current checkout for local testing
 
-From this repository root, install the current checkout into the agent you want to test:
+Use a local install only when testing the selected host is part of the change:
 
 ```bash
 npm run install:codex
@@ -48,249 +107,17 @@ npm run install:copilot
 npm run install:opencode
 ```
 
-Node.js 22 or later, npm and the selected agent CLI are required. Copilot installation also requires
-Git. Run only the command for the selected agent. Each command validates and prepares the current
-checkout before changing that agent's global AGDF installation. Local preparation generates the
-selected host assets plus the shared CLI/runtime bundle and validates their runtime identity.
-Unrelated Copilot, OpenCode and public-submission builds do not run. `release:prepare` and
-`prepack` still build and check every distribution profile. Codex receives a content-derived
-local version so a changed checkout is not mistaken for the previous cache entry. Claude Code uses
-the same local marketplace with the canonical project version. Copilot installs the generated profile
-through its AGDF-owned canonical marketplace root using native Git transport and a content-derived ref. If its CLI is unavailable, the command runs a pinned
-official `@github/copilot` npm package. It verifies plugin identity, skill discovery and installed
-package content, then requires an app restart. The npm
-fallback requires Node.js 22 or later. OpenCode installs a marker-owned
-local package built from this checkout instead of resolving the public npm package.
+Node.js 22 or later, npm and the selected agent CLI are required; Copilot also requires Git.
+Run only the command for that host. It prepares the checkout and changes the selected host's
+AGDF installation. Use the guided setup described in [INSTALL.md](INSTALL.md#guided-plugin-and-mcp-setup-unreleased-development-preview)
+when MCP registration is needed; plugin installation and MCP registration are separate effects.
+Do not register the runtime-free repository root or `plugins/agdf/` as a plugin marketplace.
 
-On an interactive terminal, each local install command first shows the plugin state, the target
-proposed from npm's invocation directory and read-only MCP status for project and user scope. It
-then asks whether AGDF should set up the local MCP server. The choices are **Complete setup**,
-**Plugin only** and **Cancel**; none is preselected. Complete setup opens a separate **Project**,
-**User** or **Back** choice with no default. Back returns without mutation, and only the selected
-available scope is registered. The command installs and verifies the plugin, then packs
-`create-agdf` and `@agdf/mcp-server` from this checkout and registers that exact local runtime. It
-does not resolve either AGDF package from the npm registry. Plugin only,
-non-interactive installation without `--with-mcp`, and cancel do not prepare or register MCP.
-Use `--with-mcp --dir /absolute/path/to/repository` only when a non-interactive local test should
-perform the complete setup explicitly.
-
-The local wrapper treats a present `INIT_CWD` as authoritative only when it is an absolute existing
-directory. It resolves the real path before host-specific preparation. If `INIT_CWD` is absent, the process
-working directory is validated the same way. Invalid invocation context stops with
-`AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before generated files or host configuration can change.
-
-Do not register the repository root or `plugins/agdf/` directly as a Codex or Claude marketplace. The
-commands above build one complete runtime-bearing plugin, stage it in the AGDF-owned durable
-marketplace and attach installation provenance before invoking the host CLI.
-
-After a successful command, fully restart the selected host and start a fresh task or session so the
-host loads the new plugin content. A restored session can retain a stale skill registry. The command proves checkout preparation and the existing
-installation verification only. It does not prove restarted-host loading, repository activation or
-UAT. A later public OpenCode installation replaces the development-local file dependency through
-the normal registry path.
-
-Upgrade recovery remains deliberately narrow. Only exact catalogue records for the verified
-AGDF-owned four-profile releases `0.13.6`, `0.13.7`, `0.13.8` and `0.14.1` may use
-historical-profile rebuilding; current-shape `0.14.2` and `0.14.3` remain on current validation.
-`agdf-v0.14.0` is explicitly ineligible because its internal version surfaces identify `0.13.8`.
-Claude's Windows recovery may remove only the one
-contained `temp_local_*` directory named by the current install command's `EPERM` rename failure and
-retry once. Do not add cache enumeration, wildcard cleanup or manual broad-cache deletion to tests or
-recovery instructions.
-
-These contributor commands are for local development validation. Published installation remains
-the `npx --yes @agdf/cli@latest ...` path documented in [INSTALL.md](INSTALL.md).
-
-## Local validation
-
-Install repository dependencies, prepare the CLI payload, then install MCP dependencies
-before running full-source fixture checks:
-
-```bash
-npm ci --ignore-scripts
-npm run build && npm --prefix packages/cli run release:prepare
-npm --prefix packages/mcp-server ci --ignore-scripts
-```
-
-The repository install covers the Core/CLI workspace. The separate MCP lock supplies the SDK
-also copied by host-compatibility fixtures and used by the CLI smoke suite. Its development
-lock packs `file:../cli`, which must already contain the generated plugin payload at installation.
-
-`npm run build` installs the separate Control UI lock and builds its MCP resources before
-generating any profiles, so clean checkouts do not depend on ignored local UI build files.
-The same prerequisite runs in the CI and preparation profiles. It then checks source and generated gate-contract references,
-runs the 14 late-gate transition scenarios and deterministic skill evals, and verifies the stored
-host-compatibility snapshot before assembling the npm packages. Any failure returns a nonzero
-exit code and stops before assembly. Guardrails uses these same commands before its installer,
-archive and full smoke suites. The build never records or refreshes evidence automatically.
-
-If a source change invalidates evidence, use `npm run build:prepare` to produce the candidate
-without claiming verification, then follow the existing evidence-recording procedure below.
-This preparation profile is also used by the compatibility-evidence workflow. It is not a
-successful checked build; finish with `npm run build` after reviewing the refreshed evidence.
-
-### Updating the MCP SDK
-
-`packages/mcp-server/package-lock.json` is the reviewed SDK tree that the Claude Code and Codex
-plugins install. `packages/mcp-server/sdk-runtime-digest.json` holds its expected digest; the build
-derives `mcp/sdk/` in the plugin payload from both files. After changing the SDK version or its lock:
-
-```bash
-npm --prefix packages/mcp-server ci --ignore-scripts
-npm run mcp:sdk-digest
-npm run build
-npm --prefix packages/mcp-server run test:sdk-digest
-```
-
-Commit the lockfile and `sdk-runtime-digest.json` together. The build refuses a digest file whose
-package list no longer matches the lock, and `test:sdk-digest` fails when the committed digest does not
-match the installed tree. Never edit the digest by hand.
-
-### Check the exact commit before pushing
-
-Stage the complete intended change, then run:
-
-```bash
-npm run verify:commit
-```
-
-This exports the Git index into a disposable repository and runs the same ordered verification
-plan as Guardrails. Unstaged edits, untracked files, existing dependencies and generated assets
-cannot repair the snapshot. Your working copy and index remain unchanged. A missing new script
-must be staged along with its callers; rerunning a test against the working copy is insufficient.
-After committing and before pushing, use `npm run verify:commit -- --ref HEAD` to check the
-actual commit being pushed. Any change or new commit after verification requires another check.
-These commands do not install Git hooks or change your Git configuration.
-
-The full plan installs locked repository dependencies, prepares all payloads before installing
-the MCP `file:` dependency, verifies contracts and current compatibility evidence, packs and
-tests the three actual archives, runs both CLI smoke suites, and checks Pages. A stale evidence
-snapshot fails; refresh it through the existing procedure below and stage the resulting files
-before rerunning. Verification never raises payload limits or refreshes evidence automatically.
-
-For diagnosis in the current working copy, `npm run verify:ci` runs the same plan in place;
-it does not establish that the staged commit is complete. Node 22 is the local baseline.
-Guardrails also runs Windows with Node 22 and Linux with Node 24. The reusable `verify-agdf.yml`
-workflow derives its matrix from the canonical npm test chains through `scripts/ci-plan.mjs`.
-Compound CLI and MCP suites are expanded to test files; the 18 MCP source/phase cases use the
-shared fixture inventory and run one source/phase cell per dedicated job, including its full
-fixture setup and CLI/STDIO assertions. The packed control-command suite runs its core, plugin
-MCP runtime and runtime integrity parts as separate planned commands, each with its own isolated
-snapshot; its default local invocation still runs every part. Every platform/Node lane retains the full
-test multiset. New tests are assigned automatically; unsupported commands, lifecycle hooks and
-oversized individual tests fail planning rather than disappear from CI.
-
-The matrix groups tests by functional responsibility before balancing durations: activation and
-skills, installation and hosts, delivery readiness, Run commands and recovery, source revisions,
-MCP and Cockpit, presentation and language, and packages and integrity. The classification in
-`scripts/ci-test-domains.mjs` annotates canonical npm suites; it does not add executable tests.
-New nested tests inherit their suite's area. A new top-level CLI suite without an owner fails
-planning and must be classified. Cross-cutting files have explicit overrides. Only an area that
-exceeds the budget receives local `Part 1 of N` subdivisions; unrelated areas never share a
-test partition. The 18 isolated revision jobs name the changed source and execution phase,
-for example `Source revision / UR changed during QA / Windows / Node 22`.
-
-The former combined checks job is split into repository contracts, runtime and host compatibility,
-distribution and package consumers, Run persistence and delivery map, and documentation and
-community. These select stages from the same local verification plan, preserving their order and
-preparation requirements. Repository-only stages remain on Linux/Node 22. Summaries and timing
-artifacts include the functional job label; machine IDs remain available for local reproduction.
-
-The Actions graph has a separate matrix block for each of the eight test areas and one for
-repository checks. All nine blocks depend only on `plan` and execute in parallel. The planner's
-`--matrix github` output groups the existing partitions without changing their commands, IDs or
-budgets; areas absent from a caller's suite are skipped before matrix expansion. YAML anchors
-share the same execution steps and shell configuration across every block. GitHub chooses the
-visual placement of the blocks; graph layout does not add execution dependencies.
-
-Graph group IDs spell out their responsibilities in English, for example
-`Activation-Skills`, `Run-Control`, `Source-Revisions`,
-and `MCP-Cockpit`. GitHub uses these IDs as the matrix group headings when leaf names
-depend on matrix values. IDs use ASCII letters and hyphens because workflow job IDs cannot
-contain spaces or ampersands. The planning node is displayed as `Create test plan`;
-the Guardrails caller is displayed as `CI`. Group IDs are limited to 19 characters so the
-functional name fits GitHub's matrix heading tab.
-
-Leaf jobs use compact graph labels such as `Skills · Linux22`, `MCP · Win22 4of5`,
-and `UR→QA · Win22`. The number after the platform is the Node major version.
-These labels avoid slash-separated name hierarchies, which GitHub compresses by hiding the
-functional name. Full labels remain in command summaries and timing artifacts; machine IDs
-continue to select the same executable partitions.
-
-Each executing job has a ten-minute ceiling. Test groups budget at most six estimated minutes,
-including 50% headroom over the recorded suite durations; preparation and cleanup have separate
-reserve. `scripts/ci-duration-baseline.json` contains scheduling estimates, not a test inventory
-or proof of current performance. Verification itself stops with a failure after eight minutes;
-timing out never counts as passing the tests. Each job uploads `ci-timings.json` and adds command
-durations to its summary, including failures. Actual GitHub job timestamps, including setup and
-cleanup, are the duration evidence. Queue time and total workflow duration are separate.
-
-Inspect or reproduce an individual partition with:
-
-```bash
-node scripts/ci-plan.mjs --matrix true
-node scripts/ci-plan.mjs --job linux-22-activation
-node scripts/ci-plan.mjs --job linux-22-revision-ur-during-qa
-node scripts/ci-plan.mjs --job linux-22-checks-distribution
-```
-
-Tests within a group execute serially in their canonical order. Each group prepares its own
-platform-specific payloads from the checkout; generated output is not shared across runners.
-Local success proves only the current Node/OS lane; every required GitHub job must pass before
-merge. The repository lane retains
-Pages, community and compatibility checks; both runtime lanes retain package consumers and smoke
-tests. The compatibility-evidence workflow shares the same dependency preparation stages.
-
-Release validation uses the same Linux partitions. Publication, exact-version propagation,
-published-dependency MCP tests, latest-tag propagation and bootstrap verification are separate
-dependent jobs, preserving package publication order. The 0.20.0 publication gate requires reviewed candidate-bound Codex Desktop and Windows Claude
-Desktop session, upgrade and recovery evidence. Human reports remain separately attributed and
-cannot satisfy those required cases. Codex CLI Windows/Linux remains unqualified; its pinned native
-workflow is optional diagnostics with unchanged strict checks. Ordinary Linux/Windows regression
-coverage and timeout budgets remain mandatory. Protected workflows still require their existing
-trusted events and any credentials actually needed by the invoked path.
-
-For targeted debugging, the commands below are still available:
-
-```bash
-node plugins/agdf/scripts/check-runtime-integrity.mjs
-npm --prefix packages/cli run smoke-test
-npm --prefix packages/cli/distribution/agdf run smoke-test
-npm --prefix pages run check
-git diff --check
-```
-
-Community-health files are additionally checked with:
-
-```bash
-npm run build && npm --prefix packages/cli run release:prepare
-npm run test:community-health
-npm run check:community-health
-```
-
-`Refresh host compatibility evidence` runs on pushes to `main` and can also be started manually
-from the Actions tab on `main`. When the source fingerprint has changed, it reruns the 56 adapter
-scenarios, checks the new evidence and community health, and creates or updates a PR from the
-workflow-owned `codex/host-compatibility-evidence` branch. Current evidence produces no update.
-Other evidence errors fail the workflow rather than being overwritten. The verified patch is
-available as the `host-compatibility-update` artifact for 14 days.
-
-Runtime-selected module imports need an exact reviewed `dynamic_imports` binding in
-`evals/host-compatibility/manifest.json`. Each binding names the source expression and its
-canonical entrypoints; the source snapshot follows their transitive dependencies. Unknown,
-changed, duplicate or unused bindings fail rather than silently omitting runtime code.
-
-Enable **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create
-and approve pull requests** for automatic PR creation. The workflow uses `GITHUB_TOKEN` and
-explicitly starts Guardrails on its update branch; no additional token secret is required.
-Review and merge the evidence PR normally. Guardrails continues to reject stale checked-in
-evidence. For a source-changing PR that needs current evidence before merge, refresh it locally
-with `npm run compatibility:record` after `release:prepare`, and commit the generated report,
-snapshot, facts and new observation JSON together. CI fixture evidence does not establish native
-host compatibility or human UAT.
-
-Document the tests performed, visible evidence and deliberately omitted checks. A green test does
-not replace required host or UI observation.
+After a successful install, restart the selected host and start a fresh task or session.
+Installation verification does not prove restarted-host loading, repository activation or
+UAT. Report those observations separately when required. [INSTALL.md](INSTALL.md) owns setup,
+consent, upgrade recovery and published host-support statements; [RELEASE.md](RELEASE.md) owns
+release qualification and publication.
 
 ## Pull requests
 

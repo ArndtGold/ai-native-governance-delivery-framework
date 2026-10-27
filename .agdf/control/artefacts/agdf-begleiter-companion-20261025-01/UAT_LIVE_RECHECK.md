@@ -67,4 +67,19 @@ Neither correction is recorded in the AGDF run. The recorded CD+Tests, Code Revi
 
 A first `npm run verify:ci` on the tree with only the stepping-row fix was interrupted: the machine went to standby at 20:10 on critical battery and resumed at 06:47. No stage had failed until then. It was stopped for the footer fix.
 
-`npm run verify:ci` on the tree with both layout fixes: VERIFY_RESULT
+On 2026-10-27 the owner chose a targeted check instead of a complete run, because the layout fixes touch only the companion. A second full `npm run verify:ci` on the tree with both layout fixes passed 23 of 27 stages, from `dependencies` through `archives`, including `runtime`, `built-runtime` and `cli-package`, before it was stopped. The companion suites, which are part of cli-smoke, passed separately. `cli-smoke`, `wrapper-smoke` and `pages` were not rerun on this tree; the PR CI covers them.
+
+### Merge With Main
+
+PR 36 reported merge conflicts, so `origin/main` (99aaf01b, 18 commits) was merged into the branch. Git combined all code automatically. Four generated evidence files conflicted, and none of them was merged by hand:
+
+- `plugins/agdf/meta/copilot-payload-baseline.json`: the merged payload measures 397 files and 3,510,143 bytes, 682 bytes above main's reviewed budget because of the Brownfield Analysis revision initiator. The budget was recorded again through `scripts/payload-budget.js` with a combined reason.
+- `docs/compatibility/HOST_COMPATIBILITY.md`, `facts.json`, `snapshot.json`: rebuilt with `npm run build:prepare` and re-recorded with `npm run compatibility:record` (56 scenarios, 0 failed). The new observation is `47edc090…`, and `compatibility:check` passes.
+
+Checks on the merged tree:
+
+- `build:prepare` passes.
+- verify:ci stages run one by one: `maintenance`, `shell`, `build-contracts`, `evals`, `compatibility-freshness`, `mcp-dependencies`, `runtime`, `community`, `host-compatibility`, `mcp-ergonomics`, `built-runtime`, `cli-package`, `wrapper-package`, `transactions`, `delivery-map`, `mcp-package` and `archives`. All 17 pass, and the eval fingerprints stay unchanged.
+- Suites where main's changes meet this branch: `test:claude-companion`, `test:skill-dispatch`, `test:control-inspect`, `test:mcp-lifecycle`, `test:plugin-mcp-runtime`, `test:control-state`, `test:run-revision`, `test:late-source-revision`, `test:interaction-presentation` and `test:mcp-server` pass, as do the core tests `run-command-contract-test.js` and `expanded-source-revision-test.js`. Main's command contract builds its revision help from `recording-formats.js`, which this branch extends.
+
+`cli-smoke` as a whole, `wrapper-smoke` and `pages` were not run on the merged tree. The PR CI runs the complete verification on Linux Node 22/24 and Windows Node 22.

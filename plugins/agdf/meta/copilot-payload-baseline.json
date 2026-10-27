@@ -2,6 +2,6 @@
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
   "max_files": 397,
-  "max_bytes": 3523559,
-  "rationale": "Merge the approved risk-based-test-strategy-20261027-01 baseline (397 files, 3522791 bytes) with Brownfield Analysis as a source-revision initiating phase in the gate-transition contract and runtime core and its mixed-version limit note (768 additional payload bytes); exact measured 397-file payload, 3523559 bytes with verified source mappings and digests, zero headroom; no Copilot runtime behavior change beyond accepting the new initiating phase; preserve exclusions, permissions and instruction budgets."
+  "max_bytes": 3523757,
+  "rationale": "Merge the approved risk-based-test-strategy-20261027-01 baseline (397 files, 3522791 bytes) with Brownfield Analysis as a source-revision initiating phase in the gate-transition contract and runtime core and its mixed-version limit note (768 additional payload bytes); exact measured 397-file payload, 3523559 bytes with verified source mappings and digests, zero headroom; no Copilot runtime behavior change beyond accepting the new initiating phase. Session start runs doctor beside the repository compatibility inspection so the shared deadline no longer starves it: +198 to 397 files/3523757 bytes. Preserve exclusions, permissions and instruction budgets."
 }

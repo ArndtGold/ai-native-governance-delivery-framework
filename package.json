@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:maintenance-contracts": "npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs && npm run test:release-qualification",
+    "test:maintenance-contracts": "npm run test:verification && npm run test:codex-review && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs && npm run test:release-qualification",
     "check:community-health": "node scripts/check-community-health.mjs",
     "install:claude": "npm --prefix packages/cli run install:claude",
     "install:codex": "npm --prefix packages/cli run install:codex",
@@ -26,6 +26,8 @@
     "eval:mcp-ergonomics:native": "node evals/scripts/run-mcp-ergonomics-native.js",
     "eval:mcp-ergonomics:compare": "node evals/scripts/compare-mcp-ergonomics.js",
     "test:mcp-ergonomics": "node --test \"evals/mcp-ergonomics/test/*.test.mjs\"",
+    "eval:codex-review": "node evals/scripts/run-codex-review.js",
+    "test:codex-review": "node --test \"evals/codex-review/test/*.test.mjs\"",
     "build": "node scripts/verify-ci.mjs --profile build",
     "build:prepare": "node scripts/verify-ci.mjs --profile prepare",
     "sync-package-assets": "node scripts/sync-package-assets.js",

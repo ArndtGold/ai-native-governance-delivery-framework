@@ -26,7 +26,7 @@ Status: `pass`
   - **Stepping buttons.** They keep their key and `onPress` and draw the same glyph as a child. Their label is now the localized accessible name; the 2.1.308 `ButtonProps` documents this as "the label then names the control". The engine keeps both under 2.1.302 (native test). Removing the unused `actions.show` keeps the en/de key parity.
   - **Read-only.** The corrections add no write path, no host call and no gating hook. `claude plugin validate` lists the same six hooks and calls.
   - **Tests.** The new assertions fail on each old behaviour (mutation check 10/10).
-- verification: VERIFY_RESULT
+- verification: `npm run verify:ci` on the final tree passed all 27 stages (exit 0, 2026-10-26; cli-smoke 4926 s), including the three companion suites and all 22 source/phase cells of the MCP source-revision test
 - missing_evidence: a live spot check of the corrected build in the desktop app, planned before UAT; Linux and macOS in pull-request CI.
 - risks: The companion still mirrors the core run-state format by design (SDD-04). Its lifecycle vocabulary is now bound to the core set. A new core lifecycle fails the logic suite instead of reading as unreadable.
 - required_next_step: Record the TP Review and Clean Implementation Review for the corrections, then rerun QA.

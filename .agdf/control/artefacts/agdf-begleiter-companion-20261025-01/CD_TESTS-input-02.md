@@ -57,7 +57,7 @@ Two more corrections came from the owner's comparison of the companion with `doc
   - A new native case starts a session without a control folder and finds "No AGDF control folder in “live-project”." and "Checked project folder: C:/live-project" in the desktop pane.
   - In the selected-run pane the engine reports both stepping buttons with drawn text ◀ / ▶ and label „Vorheriger Run“ / „Nächster Run“.
 - `npm run verify:ci` on the tree before requests 3 and 4: 23 of 27 stages passed. cli-smoke failed once in `packages/mcp-server/test/expanded-source-revision.test.js`, cell PRD/QA: the CLI replay returned `effect_unknown` instead of `already_applied`. The same cell passed alone (`--source-gate PRD --phase QA`). The corrections do not touch the core, and the cell predates the Brownfield Analysis core fix.
-- `npm run verify:ci` on the final tree: VERIFY_RESULT
+- `npm run verify:ci` on the final tree: passed all 27 stages (exit 0, 2026-10-26; cli-smoke 4926 s), including the three companion suites and all 22 source/phase cells of the MCP source-revision test
 
 ## Missing Evidence
 

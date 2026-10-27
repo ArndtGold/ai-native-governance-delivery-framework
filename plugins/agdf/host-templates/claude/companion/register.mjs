@@ -114,18 +114,22 @@ function body($, e, view) {
     const next = stepSelection(view.openRuns, view.runId ?? selection(), offset);
     if (next) await select(next)();
   });
-  const actions = h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-    h(Button, { key: 'still', label: session.choices.still ? t('actions.stillOff') : t('actions.stillOn'),
-      onPress: press($, async () => { const still = !session.choices.still; await persist($, choices => { choices.still = still; }); }) }),
-    h(Button, { key: 'retry', label: t('actions.retry'), onPress: press($, () => refresh($)) }),
+  // The read time has its own line below the two buttons, so neither wraps at the default width.
+  const actions = h(Box, { flexDirection: 'column' },
+    h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
+      h(Button, { key: 'still', label: session.choices.still ? t('actions.stillOff') : t('actions.stillOn'),
+        onPress: press($, async () => { const still = !session.choices.still; await persist($, choices => { choices.still = still; }); }) }),
+      h(Button, { key: 'retry', label: t('actions.retry'), onPress: press($, () => refresh($)) })),
     view.readAt ? h(Text, { dimColor: true }, view.readAt) : null);
   const runList = view.originKind !== 'session' && view.openRuns.length
     ? (view.runId
-      ? h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-        // The label names the control (its accessible name); the glyph child is what is drawn.
-        h(Button, { key: 'previous', label: t('actions.previous'), onPress: step(-1) }, '◀'),
+      // The count has its own line, so the two stepping buttons fit the default width. The desktop
+      // draws a Button's label, which also names it, so the label is the visible localized text.
+      ? h(Box, { flexDirection: 'column' },
         h(Text, { dimColor: true }, view.openCount),
-        h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) }, '▶'))
+        h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
+          h(Button, { key: 'previous', label: t('actions.previous'), onPress: step(-1) }),
+          h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) })))
       : h(Box, { flexDirection: 'column' },
         h(Text, { dimColor: true }, view.openCount),
         ...view.openRuns.slice(0, LISTED_RUNS).map(run => h(Button, { key: `run-${run.id}`, plain: true, label: run.id, onPress: select(run.id) }))))

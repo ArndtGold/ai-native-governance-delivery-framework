@@ -130,15 +130,40 @@ try {
   tree = await render(first);
   assert.ok(texts(tree).includes("Selected by you") && texts(tree).includes("waiting for approval"));
   assert.ok(texts(find(tree, node => node.tag === "Text" && node.props.mono)[0])[0].length <= 40);
-  // The stepping buttons draw ◀ and ▶; their label is the localized accessible name.
+  // The stepping buttons show their localized label, which the desktop draws and which names them.
+  // They share a row of their own; the count sits on the line above, so the row fits 40 columns
+  // even as the terminal's `[ label ]` (live finding of 2026-10-26: the count wrapped between them).
   const steppers = tree => buttons(tree).filter(button => ["previous", "next"].includes(button.props.key)).map(button => [button.props.label, texts(button)]);
-  assert.deepEqual(steppers(tree), [["Previous run", ["◀"]], ["Next run", ["▶"]]]);
+  const stepRow = tree => find(tree, node => node.tag === "Box" && node.children.some(child => child.props?.key === "previous"))[0];
+  const checkStepping = (tree, names) => {
+    assert.deepEqual(steppers(tree), names.map(name => [name, []]));
+    const row = stepRow(tree);
+    assert.deepEqual(row.children.map(child => child.props.key), ["previous", "next"], "the stepping row holds only the two buttons");
+    assert.ok(names.map(name => `[ ${name} ]`).join(" ").length <= 40, "the stepping row fits the default width");
+    const column = find(tree, node => node.tag === "Box" && node.children.includes(row))[0];
+    assert.match(texts(column.children[0])[0], /\d+ (of|von) \d+/u, "the count stands on its own line above the buttons");
+  };
+  // The footer buttons share a row of their own as well; the read time sits on the line below
+  // (live finding of 2026-10-27: „Stand 18:41“ wrapped onto two lines beside them).
+  const checkFooter = (tree, names) => {
+    const row = find(tree, node => node.tag === "Box" && node.children.some(child => child.props?.key === "still"))[0];
+    assert.deepEqual(row.children.map(child => [child.props.key, child.props.label]), [["still", names[0]], ["retry", names[1]]], "the footer row holds only the two buttons");
+    assert.ok(names.map(name => `[ ${name} ]`).join(" ").length <= 40, "the footer row fits the default width");
+    const column = find(tree, node => node.tag === "Box" && node.children.includes(row))[0];
+    assert.equal(column.children.indexOf(row), 0);
+    assert.match(texts(column.children[1])[0], /^(As of|Stand) \d/u, "the read time stands on its own line below the buttons");
+  };
+  checkStepping(tree, ["Previous run", "Next run"]);
+  checkFooter(tree, ["Stop motion", "Read again"]);
+  checkFooter(await render(first, "terminal"), ["Stop motion", "Read again"]);
   const configText = readFileSync(configPath, "utf8");
   writeFileSync(configPath, `${JSON.stringify({ ...JSON.parse(configText), chat_language: "de" }, null, 2)}\n`);
   const german = await session();
   await german.fire("session.start");
   writeFileSync(configPath, configText);
-  assert.deepEqual(steppers(await render(german)), [["Vorheriger Run", ["◀"]], ["Nächster Run", ["▶"]]]);
+  const germanTree = await render(german);
+  checkStepping(germanTree, ["Vorheriger Run", "Nächster Run"]);
+  checkFooter(germanTree, ["Bewegung aus", "Neu lesen"]);
 
   // SCN-006: main-loop turns drive läuft; subagent turns change nothing; completion re-reads.
   await first.fire("turn.start", { agentId: "sub" });

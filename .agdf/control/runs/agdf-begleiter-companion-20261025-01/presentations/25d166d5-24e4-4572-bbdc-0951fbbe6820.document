@@ -1,0 +1,88 @@
+## Kurzfassung · UAT
+
+Run: `agdf-begleiter-companion-20261025-01` · Gate: `UAT` · Revision: `60cdf5e8-1f60-4bd5-801f-2a13c5acd581`
+
+- Ziel: Während AGDF-Arbeit in Claude Code läuft, ist der Zustand eines Runs (aktuelles Gate, offene Freigabe, blockierende Entscheidung, Abschluss) nur sichtbar, wenn der Agent eine Statuskarte zeigt oder der Anwender nachfragt. Gewünscht ist ein ständig sichtbarer Begleiter wie die Codex Pets, der diesen Zustand pro Run zeigt. Codex Pets können das nicht: Ihre Zustände gehören Codex, und es gibt keine dokumentierte Schnittstelle für Plugins, Hooks oder MCP. Claude-Code-Mods können dagegen in der Claude-Desktop-App ein Seitenpanel mit animierter SVG-Figur zeigen. Ein Prototyp außerhalb des Repositorys wurde am 2026-10-25 gebaut, geprüft (Validierung, Typprüfung, 5 von 5 Tests) und in einer Desktop-Testsession mit den echten Runs gesehen. Der Panel-Test zeigte fünf Befunde: Die Gate-Leiste bricht um, die Sanduhr überdeckt das rechte Ohr, Panel-Texte sind deutsch und Run-Texte englisch, das Panel zeigt den zuletzt geänderten offenen Run statt des Runs der Session, und das Ziel belegt drei Zeilen. Der Anwender hat entschieden, den Begleiter im AGDF-Plugin für Claude auszuliefern statt als eigenes Plugin, und Codex auszuschließen.
+- Geliefertes Ergebnis: Das AGDF-Plugin für Claude bringt den abschaltbaren Begleiter mit. `/agdf-companion` schaltet ihn ein und aus, und die Wahl liegt im AGDF-Plugin-Datenordner, den die Deinstallation entfernt. Das Panel zeigt die vier Zustände mit Figur, einzeiliger Gate-Leiste, Herkunft, einzeiligem Ziel und lokalisiertem nächstem Schritt. Ohne beobachteten Turn nennt „läuft“ den nächsten Schritt. Nur aktive Runs gelten als offen. Ohne Kontrollordner nennt das Panel den geprüften Ordner, und die Blätter-Buttons ◀ ▶ haben lokalisierte Namen. Der Begleiter liest nur und isoliert Fehler. Der AGDF-Kern akzeptiert zusätzlich die Brownfield Analysis als auslösende Phase einer Quellrevision. Alle neun Aufgaben sind erledigt, die vier Befunde der ersten QA-Runde gelöst, und `npm run verify:ci` ist mit allen 27 Stufen grün.
+- Technische QA: pass
+- Nachweisgrenzen: Der Live-Test im Desktop lief mit einem Stand vor den CR- und QA-Korrekturen; Begründungstext, Ordnermeldung und Button-Namen sind automatisiert und nativ geprüft, aber noch nicht live, und ein kurzer Live-Test des korrigierten Stands ist vor der UAT-Freigabe geplant. Linux und macOS laufen erst in der PR-CI; Mobile und andere Claude-Code-Versionen als 2.1.302 sind nicht qualifiziert.
+- Risiken und offene Punkte: Die Mod-API ist Early Access, ein Claude-Update kann die nativen Prüfungen erneut nötig machen. Nach einer Revision aus der Brownfield Analysis brauchen alle Hosts dieselbe oder eine neuere AGDF-Version. Der eigene Leser des Begleiters ist nur durch Tests an den Kern gebunden. Eine CLI-Wiederholung im MCP-Revisionstest schlug einmal unter Last fehl und war nicht reproduzierbar. Die Pflege des Kontextgraphen steht bis zum OR aus.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- route · UR (exact cooperative association)
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- evidence · UR, PRD, SD, TP (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 46
+
+- QA: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_REPORT.md · sha256:35842247e8e4478cad4f412b1ccab244ff043163579e2451cb4286c5bae533b2
+- Review: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_REVIEW.md · sha256:16019b0819191c8789197afb2023bc769a923ad1c0300b209e9d624897314b27
+- Review: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:9b4d99127e0785801d9258f6ff60737a6970153f06325567e003b4d3fe2c7f8c
+- Review: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CODE_REVIEW.md · sha256:fb221d7533705767d02f798e0353ece097a6e20465d92ee4cf62e2021ec4078e
+- Review: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_REVIEW-input-02.md · sha256:16019b0819191c8789197afb2023bc769a923ad1c0300b209e9d624897314b27
+- Review: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CLEAN_IMPLEMENTATION_REVIEW-input-02.md · sha256:9b4d99127e0785801d9258f6ff60737a6970153f06325567e003b4d3fe2c7f8c
+- Review: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CODE_REVIEW-input-03.md · sha256:fb221d7533705767d02f798e0353ece097a6e20465d92ee4cf62e2021ec4078e
+- UR: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md · sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b
+
+## Vorliegende UAT-Evidenz
+
+- route · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md · Deckt ab: UR · Stärke: exact cooperative association
+- UX Intent Definition · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-009_EVIDENCE.md · Deckt ab: UR, PRD, SD, TP · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- CR · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- UX Intent Definition · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-001_HOST_PROBE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-001_HOST_PROBE-02.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-002_EVIDENCE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-003_EVIDENCE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-004_EVIDENCE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-005_EVIDENCE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-006_EVIDENCE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-007_EVIDENCE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-008_EVIDENCE.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- review · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CODE_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- TP Review · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- review · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/CODE_REVIEW.md · Deckt ab: recorded_report_unavailable_or_changed · Stärke: Zuordnung unbekannt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD_MAPPING_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_MAPPING_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-001_HOST_PROBE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD_MAPPING_REVIEW-03.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_MAPPING_REVIEW-03.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_MAPPING_REVIEW-04.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-001_HOST_PROBE-02.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-002_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-003_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-004_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-005_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-006_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-007_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-008_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/T-009_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_MAPPING_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_MAPPING_REVIEW-03.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_MAPPING_REVIEW-04.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

@@ -1,0 +1,146 @@
+# UR: AGDF Companion as an Optional Claude Plugin
+
+Status: draft
+Gate: UR
+Gate approval: open
+Requirements clarification: complete
+Preview requirement: none
+Date: 2026-10-25
+Owner: Arndt Gold
+Run: agdf-begleiter-companion-20261025-01
+Language: en
+
+## 1. Problem
+
+While AGDF delivery runs in Claude Code, the state of a run (current gate, pending approval, blocking decision, completion) is visible only when the agent renders a status card or the user asks for it. The user wants a glanceable, always-visible companion comparable to Codex Pets that shows this state per run. Codex Pets cannot carry AGDF state: their states are owned by Codex and no plugin, hook or MCP interface is documented. Claude Code mods (function hooks modules) can draw a side panel with an animated SVG figure in the Claude desktop app.
+
+A prototype mod `agdf-begleiter` was built outside this repository on 2026-10-25. It passed `claude plugin validate`, a TypeScript check and 5 of 5 `claude plugin test` cases, and it was seen working in a Claude desktop test session against this repository's real runs. The panel test showed five findings:
+
+1. The gate bar wraps onto a second line (monospace font plus separators).
+2. The hourglass accessory of the "waiting" figure overlaps the figure's right ear.
+3. The panel mixes languages: German labels, English texts taken from `RUN_STATE.md`.
+4. The panel shows the most recently updated open run ("1 of 56 open runs"), not the run the session works on.
+5. The run objective takes three lines of the panel.
+
+The prototype is not part of AGDF and is not distributed.
+
+## 2. Goal
+
+A Claude Code user working with AGDF can install an optional companion plugin from the AGDF marketplace. In the Claude desktop app it shows a side panel with an animated figure and a compact status for the run worked on in that session, updated after each turn. The AGDF core plugin and other hosts stay unaffected, and users who do not install the companion notice no change.
+
+## Affected Users
+
+The user working on AGDF delivery in Claude Code, primarily in the Code tab of the Claude desktop app and secondarily in the terminal, starting with the current Windows environment. Users without the companion are unaffected. Codex, Copilot and OpenCode users are not addressed.
+
+## 3. Scope
+
+- A separate, optional companion plugin (working name `agdf-begleiter`; final name decided in PRD) offered in the AGDF marketplace beside `agdf`, installable and removable independently. The AGDF core plugin under `plugins/agdf/` keeps its payload, contracts and behavior.
+- A side panel in the Claude desktop app drawn by a mod: an animated SVG figure with four states, state label, one-line reason, one-line gate bar, run identity, objective and next allowed step. The states are:
+  - **läuft**: a main-loop turn is active, or the run is in progress without a pending approval;
+  - **wartet auf Freigabe**: the run names a pending gate approval such as `Approval: QA`, or awaits a decision;
+  - **blockiert**: the run's decision is `revise`, `block`, `blocked` or `decline`;
+  - **fertig**: the run's lifecycle is `completed`.
+- A control to switch the figure to a still pose, a text fallback for the terminal surface, and a slash command that reopens the panel.
+- Status is read only from `.agdf/control/runs/*/RUN_STATE.md` of the session's project. It refreshes after each main-loop turn, on demand and on a bounded timer. The companion never writes control state, never requests or records approvals and never continues a run.
+- Run assignment for display: the panel follows the run whose `RUN_STATE.md` changes during the current session; otherwise it shows the user's explicit selection, remembered per project. The user can step through open runs. This assignment is for display only and never binds AGDF delivery.
+- Resolve or explicitly decide each of the five panel findings: a single-line gate bar at the default panel width, accessories that do not overlap the figure, a defined language policy for panel labels versus run-derived texts, the run assignment above, and a one-line objective with optional expansion.
+- Automated checks for parsing, state rules, run assignment and rendering on the desktop and terminal surfaces, integrated into the repository's verification, plus a live check in the Claude desktop app.
+- Documentation of installation, removal, supported surfaces and limits.
+
+## 4. Non-Goals
+
+- No change to the AGDF core plugin, its contracts, dispatcher, MCP server, hooks or the `RUN_STATE.md` format. A session-to-run binding inside the AGDF core is a possible later run, not part of this one.
+- No companion for Codex, Copilot or OpenCode, no integration with Codex Pets and no Stop-hook status line in the AGDF core.
+- No approvals, gate actions, run continuation or writes to `.agdf/control` from the companion.
+- No overview of all runs or the master backlog beyond stepping through open runs.
+- No public plugin directory submission, npm publication or release. Delivery ends with a pull request from branch `feat/agdf-begleiter`; merging is not part of this scope.
+- No transfer of approvals or evidence from other runs.
+
+## 5. Acceptance Signals
+
+1. The AGDF marketplace lists the companion as a separate optional plugin. Installing it in Claude Code makes the panel available; removing it leaves no plugin, data directory or settings entry behind. Installation, removal and existing checks of the AGDF core plugin are unaffected.
+2. In a real Claude desktop session on the user's Windows machine, the panel shows the animated figure, state label, reason, a single-line gate bar, run identity, a one-line objective and the next step. All four states are reproducible from test fixtures, and the still pose works.
+3. With several open runs in the project, the panel follows the run changed in the current session, and an explicit selection persists per project across sessions. Run state files stay byte-identical over a test window.
+4. Each of the five panel findings is resolved, or decided with a recorded rationale, and evidenced by a screenshot at the default panel width.
+5. Plugin validation, type checking and the companion's tests run in the repository's verification and pass; existing repository checks still pass.
+6. Documentation states setup, supported surfaces and limits (Claude desktop focus, terminal fallback, early-access mod API) and keeps live-host evidence separate from automated evidence.
+
+## 6. Existing Source Of Truth
+
+- The user's requests in this conversation: a Codex-Pets-like per-run status, the desktop mod prototype, the panel screenshot and its findings, and the decision for an optional separate plugin with the stated run-assignment rule, a feature branch and a pull request at the end.
+- The prototype outside the repository (`agdf-begleiter` in the session's Claude dev-mods folder: hooks module, `RUN_STATE.md` parser, figure renderer, state contract and tests) as reference implementation only.
+- The Claude Code mod API as declared by Claude Code 2.1.308 (plugin-authoring reference and type declarations; marked early access).
+- The AGDF Claude marketplace and installer: `packages/cli/lib/installers/local-marketplace.js`, `packages/cli/lib/host-adapters/claude/marketplace.js` and `packages/cli/lib/host-adapters/claude/plugin.js`; the canonical plugin source `plugins/agdf/`; the generated marketplace manifest `.claude-plugin/marketplace.json` under the AGDF data root, which currently lists only `agdf`.
+- The `RUN_STATE.md` format written by the AGDF core under `packages/core/`, consumed read-only.
+- Native observations of 2026-10-25 (Stop-hook `systemMessage` rendering in Claude, Codex Pets capabilities) as background evidence.
+- Normative contracts under `plugins/agdf/meta/contracts/` for activation, approvals and run binding.
+
+## 7. Risks And Unknowns
+
+- The mod API is early access and may change between Claude Code releases; supported versions and behavior on an incompatible host must be defined.
+- A second plugin in the AGDF marketplace touches marketplace generation, ownership and digest validation, payload budgets and possibly the Codex and Copilot marketplace projections. Brownfield Review must establish these boundaries.
+- Reliable detection of "the run that changes in this session": comparison against session start, several sessions on the same repository, and runs changed by another session.
+- Language policy for English run-derived texts in a German panel (for example localized summaries or status-card fields); a UX and PRD decision.
+- Whether the AGDF CLI installer offers the companion as an opt-in, or the user installs it from the marketplace manually.
+- Refresh cost with many runs: the prototype read 144 `RUN_STATE.md` files in about 240 ms at session start.
+- Visual behavior is verifiable only in the desktop app; SMIL animation does not follow the operating system's reduced-motion setting, so the still pose is the accessible fallback.
+- Loading behavior of mods (hot-reload consent versus installed plugin) and possible trust prompts.
+
+## 8. Next Step
+
+Review this UR and approve only with:
+
+`Approval: UR`
+
+## AGDF Approval Summary (de; source=en)
+
+Während AGDF-Arbeit in Claude Code läuft, ist der Zustand eines Runs (aktuelles Gate, offene Freigabe, blockierende Entscheidung, Abschluss) nur sichtbar, wenn der Agent eine Statuskarte zeigt oder der Anwender nachfragt. Gewünscht ist ein ständig sichtbarer Begleiter wie die Codex Pets, der diesen Zustand pro Run zeigt. Codex Pets können das nicht: Ihre Zustände gehören Codex, und es gibt keine dokumentierte Schnittstelle für Plugins, Hooks oder MCP. Claude-Code-Mods können dagegen in der Claude-Desktop-App ein Seitenpanel mit animierter SVG-Figur zeigen. Ein Prototyp außerhalb des Repositorys wurde am 2026-10-25 gebaut, geprüft (Validierung, Typprüfung, 5 von 5 Tests) und in einer Desktop-Testsession mit den echten Runs gesehen. Der Panel-Test zeigte fünf Befunde: Die Gate-Leiste bricht um, die Sanduhr überdeckt das rechte Ohr, Panel-Texte sind deutsch und Run-Texte englisch, das Panel zeigt den zuletzt geänderten offenen Run statt des Runs der Session, und das Ziel belegt drei Zeilen.
+
+Ziel ist ein optionales Begleiter-Plugin aus dem AGDF-Marketplace. Es zeigt in der Claude-Desktop-App ein Seitenpanel mit animierter Figur und kompaktem Status für den Run, an dem in der Session gearbeitet wird, aktualisiert nach jedem Turn. Das AGDF-Kernplugin und andere Hosts bleiben unberührt. Betroffen ist der Anwender, der in Claude Code mit AGDF arbeitet, vor allem im Code-Tab der Desktop-App unter Windows, nachrangig im Terminal. Wer den Begleiter nicht installiert, merkt keinen Unterschied.
+
+Zum Umfang gehören:
+- ein eigenes, optionales Plugin (Arbeitsname `agdf-begleiter`, endgültiger Name in der PRD) im AGDF-Marketplace neben `agdf`, unabhängig installier- und entfernbar; `plugins/agdf/` bleibt unverändert;
+- ein Seitenpanel per Mod mit animierter Figur und vier Zuständen: „läuft“ (Turn aktiv oder Run in Arbeit ohne offene Freigabe), „wartet auf Freigabe“ (offene Gate-Freigabe wie `Approval: QA` oder ausstehende Entscheidung), „blockiert“ (Entscheidung `revise`, `block`, `blocked` oder `decline`) und „fertig“ (Lebenszyklus `completed`); dazu Zustandsname, einzeilige Begründung, einzeilige Gate-Leiste, Run-Kennung, Ziel und nächster erlaubter Schritt;
+- ein Schalter für ein Standbild, eine Textdarstellung im Terminal und ein Slash-Befehl zum erneuten Öffnen;
+- rein lesender Zugriff auf `.agdf/control/runs/*/RUN_STATE.md` des Projekts der Session, aktualisiert nach jedem Turn, auf Knopfdruck und in begrenztem Takt; kein Schreiben von Kontrollzustand, keine Freigaben, keine Run-Fortsetzung;
+- eine Run-Zuordnung nur für die Anzeige: Das Panel folgt dem Run, dessen `RUN_STATE.md` sich in der laufenden Session ändert, sonst der pro Projekt gemerkten Auswahl; offene Runs lassen sich durchblättern; die Zuordnung bindet keine AGDF-Lieferung;
+- die fünf Panel-Befunde: einzeilige Gate-Leiste bei Standardbreite, keine Überdeckung der Figur, eine festgelegte Sprachregel für Panel- und Run-Texte, die Run-Zuordnung wie oben und ein einzeiliges, aufklappbares Ziel;
+- automatische Prüfungen (Auslesen, Zustandsregeln, Zuordnung, Darstellung auf Desktop und Terminal) in der Repository-Verifikation sowie ein Live-Test in der Desktop-App;
+- Dokumentation von Installation, Entfernung, unterstützten Oberflächen und Grenzen.
+
+Nicht enthalten sind:
+- Änderungen am AGDF-Kern (Verträge, Dispatcher, MCP-Server, Hooks, Format von `RUN_STATE.md`); eine Zuordnung von Session zu Run im Kern wäre ein späterer Run;
+- Begleiter für Codex, Copilot oder OpenCode, eine Anbindung an Codex Pets und eine Stop-Hook-Statuszeile im Kern;
+- Freigaben, Gate-Aktionen, Run-Fortsetzung oder Schreibzugriffe auf `.agdf/control` durch den Begleiter;
+- eine Übersicht über alle Runs oder das Master-Backlog über das Durchblättern offener Runs hinaus;
+- Einreichung in ein öffentliches Plugin-Verzeichnis, npm-Veröffentlichung oder Release; die Lieferung endet mit einem Pull Request vom Branch `feat/agdf-begleiter`, ohne Merge;
+- eine Übernahme von Freigaben oder Nachweisen aus anderen Runs.
+
+Abnahmefähig ist der Umfang unter sechs Bedingungen:
+- Der AGDF-Marketplace listet den Begleiter als eigenes, optionales Plugin. Die Installation stellt das Panel bereit, die Entfernung hinterlässt weder Plugin noch Datenordner noch Einstellungseintrag. Installation, Entfernung und Prüfungen des AGDF-Kerns bleiben unberührt.
+- In einer echten Desktop-Session unter Windows zeigt das Panel die animierte Figur, Zustandsname, Begründung, eine einzeilige Gate-Leiste, Run-Kennung, ein einzeiliges Ziel und den nächsten Schritt. Alle vier Zustände sind aus Testdaten reproduzierbar, das Standbild funktioniert.
+- Bei mehreren offenen Runs folgt das Panel dem in der Session geänderten Run, eine ausdrückliche Auswahl bleibt pro Projekt über Sessions erhalten. Die Run-Dateien bleiben über ein Testfenster byteidentisch.
+- Jeder der fünf Panel-Befunde ist behoben oder mit Begründung entschieden und per Screenshot bei Standardbreite belegt.
+- Plugin-Validierung, Typprüfung und die Tests des Begleiters laufen in der Repository-Verifikation und bestehen; die bestehenden Prüfungen bestehen weiterhin.
+- Die Dokumentation nennt Einrichtung, unterstützte Oberflächen und Grenzen (Schwerpunkt Desktop-App, Text im Terminal, Early-Access-API) und trennt Live-Nachweise von automatischen Nachweisen.
+
+Maßgebliche Quellen sind:
+- die Anforderungen des Anwenders aus diesem Gespräch: Status pro Run wie Codex Pets, der Desktop-Mod-Prototyp, der Panel-Screenshot mit den Befunden und die Entscheidung für ein optionales eigenes Plugin mit der genannten Zuordnungsregel, Feature-Branch und Pull Request;
+- der Prototyp im Mod-Ordner der Session, nur als Referenz;
+- die Mod-API von Claude Code 2.1.308 (Early Access);
+- Marketplace und Installer in `packages/cli/lib/installers/local-marketplace.js`, `packages/cli/lib/host-adapters/claude/marketplace.js` und `packages/cli/lib/host-adapters/claude/plugin.js`, die Plugin-Quelle `plugins/agdf/` und das erzeugte Marketplace-Manifest, das heute nur `agdf` enthält;
+- das Format von `RUN_STATE.md` aus `packages/core/`, nur lesend genutzt;
+- die nativen Beobachtungen vom 2026-10-25 zu Stop-Hook und Codex Pets als Hintergrund;
+- die Runtime-Verträge unter `plugins/agdf/meta/contracts/`.
+
+Offene Punkte für Brownfield Review, PRD und SD:
+- Die Mod-API ist Early Access; unterstützte Versionen und das Verhalten auf inkompatiblen Hosts sind festzulegen.
+- Ein zweites Plugin im Marketplace berührt Marketplace-Erzeugung, Eigentums- und Digest-Prüfung, Payload-Budgets und womöglich die Codex- und Copilot-Projektionen.
+- Wie „der Run, der sich in der Session ändert“ verlässlich erkannt wird, auch bei mehreren Sessions im selben Repository oder Änderungen durch eine andere Session.
+- Die Sprachregel für englische Run-Texte im deutschen Panel ist eine UX- und PRD-Entscheidung.
+- Offen ist, ob der AGDF-Installer den Begleiter als Opt-in anbietet oder ob er manuell aus dem Marketplace installiert wird.
+- Der Lesezeitbedarf bei vielen Runs: Der Prototyp las 144 Dateien in etwa 240 ms.
+- Die Darstellung ist nur in der Desktop-App prüfbar; SMIL-Animationen folgen nicht der Systemeinstellung „Bewegung reduzieren“, daher ist das Standbild der barrierearme Rückfall.
+- Das Ladeverhalten von Mods (Freischaltung beim Nachladen gegenüber installiertem Plugin) und mögliche Vertrauensabfragen.
+
+Nächster Schritt nach `Approval: UR` ist Brownfield Review mit Mode/Slice Decision, danach UX-Intent-Klärung für die Oberfläche und die erforderliche Produkt- und Lösungsplanung vor der Umsetzung.

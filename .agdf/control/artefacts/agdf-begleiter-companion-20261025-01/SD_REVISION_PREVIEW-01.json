@@ -1,0 +1,631 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": "Brownfield Analysis BA-F01 (design_gap): SDD-01 puts the Claude-only companion declaration into plugins/agdf/meta/agdf-plugin.definition.json, which ships in the Copilot payload and contradicts SDD-02, AC-009 and SCN-016.",
+  "operation_id": "93755ce3-f8b3-488f-a157-8b915ec0a7f6",
+  "request_digest": "sha256:610fe18e8ed7edc01b22164975f47fac3ef7f6ba160f926c1b258d12563fb579",
+  "binding": {
+    "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+    "run_id": "agdf-begleiter-companion-20261025-01",
+    "expected_revision_id": "5fefa1ac-972d-4351-bcc3-2bdc87d47a18",
+    "kind": "source_revision.preview"
+  },
+  "effect": null,
+  "receipt": null,
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 14,
+    "revision_id": "5fefa1ac-972d-4351-bcc3-2bdc87d47a18",
+    "lifecycle": "active",
+    "gate": "Brownfield Analysis",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_implementation",
+      "skill_id": "brownfield-analysis",
+      "operation_key": "analysis.brownfield_implementation",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "Brownfield Analysis"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "outcome": "preview",
+    "authority": "proposed_only",
+    "authorizes": false,
+    "schema_version": "2",
+    "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+    "run_id": "agdf-begleiter-companion-20261025-01",
+    "expected_revision_id": "5fefa1ac-972d-4351-bcc3-2bdc87d47a18",
+    "operation_id": "93755ce3-f8b3-488f-a157-8b915ec0a7f6",
+    "request_digest": "sha256:1477b7f1abbda7eb460ef96723583083e9ea4cd28e932ee602f9bc9e2e09b83e",
+    "reason": "Brownfield Analysis BA-F01 (design_gap): SDD-01 puts the Claude-only companion declaration into plugins/agdf/meta/agdf-plugin.definition.json, which ships in the Copilot payload and contradicts SDD-02, AC-009 and SCN-016.",
+    "intended_change": "Own the Claude-only companion declaration in the runtime-profile Claude manifest projection (a companion descriptor under plugins/agdf/host-templates/claude/companion/ read by createClaudePluginManifest); keep the shared plugin definition and the Copilot payload unchanged; align TP task T-002 accordingly.",
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+        "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b"
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD.md",
+        "digest": "sha256:f0d1d17780912408d10100eba78f448f79ab85156f4b0b876ac2f620344fbdf0"
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD.md",
+        "digest": "sha256:d399bd56461113eeb81038ab8289a54af513eb16612b8dfdfb246acadea1a5c7"
+      },
+      {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP.md",
+        "digest": "sha256:4e77ce3739f390f5d28e3392432107074542c7aab2c91c5a89e20337cd988233"
+      }
+    ],
+    "impact": {
+      "source_gate": "SD",
+      "retained": [
+        "UR",
+        "PRD"
+      ],
+      "superseded": [
+        "SD",
+        "TP"
+      ],
+      "invalidated_bindings": [
+        "08f2f376-6ec7-4d53-a225-23669240d22a",
+        "27cec7e0-082e-4a4d-ad44-1c6cf7115051"
+      ],
+      "analyses": [
+        {
+          "type": "Brownfield Review",
+          "disposition": "reassess",
+          "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+          "reason": "Recorded without a bound operation; reassess the routing review under the corrected design before PRD/SD continuation."
+        },
+        {
+          "type": "UX Intent Definition",
+          "disposition": "retain",
+          "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md",
+          "digest": "sha256:aab5713fbe4b715a372af01fb84bd8ca01c10163a40d6f800df830da9c2700ad",
+          "reason": "UX intent is unaffected: only the Claude-only wiring mechanism changes, not the panel behaviour."
+        }
+      ],
+      "invalidated_steps": [
+        "Brownfield Analysis",
+        "CD+Tests",
+        "CR",
+        "Brownfield Review"
+      ],
+      "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+      "next_gate": "Brownfield Review",
+      "implementation_authority": false,
+      "policy_version": 2,
+      "initiating_phase": "Brownfield Analysis",
+      "changed_statements": [
+        {
+          "type": "SD",
+          "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD.md",
+          "digest": "sha256:d399bd56461113eeb81038ab8289a54af513eb16612b8dfdfb246acadea1a5c7",
+          "statement": "- SDD-01: Wire the companion only through the runtime-profile Claude manifest: `definition.claude.hooks: \"./companion/hooks.json\"` projected by `createClaudePluginManifest` (runtime profile only); `companion/hooks.json` declares `{ \"modules\": [\"./register.mjs\"] }`; the source manifest declares none, as for `mcpServers`; rationale: the probe proved manifest-referenced modules load and merge with `hooks/hooks.json`, so the shared file and Codex hook trust stay untouched; consequence: companion files are physically present but inert in the Codex view of the shared runtime folder.",
+          "intended_change": "Declare the companion hooks file only through the runtime-profile Claude manifest projection from a Claude companion descriptor, not through the shared plugin definition.",
+          "reason": "The shared definition ships in the Copilot payload (BA-F01)."
+        },
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP.md",
+          "digest": "sha256:4e77ce3739f390f5d28e3392432107074542c7aab2c91c5a89e20337cd988233",
+          "statement": "| T-002 | Plugin definition and manifest projection: add `claude.hooks: \"./companion/hooks.json\"` to `plugins/agdf/meta/agdf-plugin.definition.json`; project it in `createClaudePluginManifest` for the runtime profile only; update `packages/cli/scripts/public-plugin-test.js` | Claude Code implementing agent | T-001 |",
+          "intended_change": "Implement the declaration in the manifest projection from the Claude companion descriptor; leave plugins/agdf/meta/agdf-plugin.definition.json unchanged.",
+          "reason": "Follows the corrected SDD-01."
+        }
+      ],
+      "quality_assessment": [
+        {
+          "record": {
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+            "status": "done"
+          },
+          "record_digest": "sha256:249ae202cd795dbdef8537812a59ac615205bd6b63d72cdfb56c2c052ffcaa0a",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "Brownfield Analysis",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:8c5e3d65985de36872922bbdcd1e4f847fc08451e0a667eef47fbd9a67b4314c",
+            "status": "revise"
+          },
+          "record_digest": "sha256:9b73e4a61a914a82605f8a4604874a659224c67405f5c679c2b366370d7129fe",
+          "operation_id": "b17e4a92-6c3d-4f05-8a1b-9d2e7c4f6a58",
+          "source_set_digest": "sha256:703ffb3570e696049f5dc4f009fb7dc4be19630ffbbd2e45468d5e37b44b1bd2",
+          "sources": [
+            {
+              "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:f0d1d17780912408d10100eba78f448f79ab85156f4b0b876ac2f620344fbdf0",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d399bd56461113eeb81038ab8289a54af513eb16612b8dfdfb246acadea1a5c7",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:4e77ce3739f390f5d28e3392432107074542c7aab2c91c5a89e20337cd988233",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": "sha256:aab5713fbe4b715a372af01fb84bd8ca01c10163a40d6f800df830da9c2700ad",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md",
+              "status": "done",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "UX Intent Definition",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md",
+            "digest": "sha256:aab5713fbe4b715a372af01fb84bd8ca01c10163a40d6f800df830da9c2700ad",
+            "status": "done"
+          },
+          "record_digest": "sha256:89109c3f69ef4681e60cd069e2f9ccd2b3d22ab57df97a6d2690247b694f5f0f",
+          "operation_id": "7a2c94e1-5b3d-4f68-a1c0-9e8d2b6f4c35",
+          "source_set_digest": "sha256:ddcc182edf3043408d8d75a33cf4295705e02812f8686e6ba0d7f3316097152a",
+          "sources": [
+            {
+              "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            }
+          ],
+          "association": "current",
+          "disposition": "retain",
+          "reason": "Exact current UX intent consumes only the unchanged approved UR and Brownfield Review; the wiring correction changes no user-facing semantics."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+            "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+            "status": "documented"
+          },
+          "record_digest": "sha256:40a834bbeab38bd1493c48bc765c97d328b5163462c4a56745aeb4e93e63bd13",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+            "status": "documented"
+          },
+          "record_digest": "sha256:5a8ef1f098868b2ce40cf0f88f6a22c6daec5218228047af28f2cea0d41f3302",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md",
+            "digest": "sha256:aab5713fbe4b715a372af01fb84bd8ca01c10163a40d6f800df830da9c2700ad",
+            "status": "documented"
+          },
+          "record_digest": "sha256:8b9df0f1970347bea9017b73670db0903610365350092641a4c5e881fa4669db",
+          "operation_id": "7a2c94e1-5b3d-4f68-a1c0-9e8d2b6f4c35",
+          "source_set_digest": "sha256:ddcc182edf3043408d8d75a33cf4295705e02812f8686e6ba0d7f3316097152a",
+          "sources": [
+            {
+              "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            }
+          ],
+          "association": "current",
+          "disposition": "retain",
+          "reason": "Exact current UX intent consumes only the unchanged approved UR and Brownfield Review; the wiring correction changes no user-facing semantics."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD_MAPPING_REVIEW-01.json",
+            "digest": "sha256:10cdf1f326c7f5aa23f08773fa511f712c1450a0dd09c1c697daf61031e84d9b",
+            "status": "documented"
+          },
+          "record_digest": "sha256:a8f4e1e3a736b6c7011fe94d220754186baa3104b5cd23efc996ed614ff0d926",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD_MAPPING_REVIEW-01.json",
+            "digest": "sha256:73f8177c87c31da0fc2ed69aa87971f61f73f5f2a948a201c803ac102a75a5c3",
+            "status": "documented"
+          },
+          "record_digest": "sha256:85c4161d3a028f302857da0c2a8bc34247bdf5146c17e7f7d1a8e3adf55607a2",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_MAPPING_REVIEW-01.json",
+            "digest": "sha256:12d4daa16ad3539c0fc3bad644f02fd5d0dfc280366e6f50061d4bb122214054",
+            "status": "documented"
+          },
+          "record_digest": "sha256:282f60284e579340b7fc138383a5afee8e94ae47a934c2f20b9aee1f76955672",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:8c5e3d65985de36872922bbdcd1e4f847fc08451e0a667eef47fbd9a67b4314c",
+            "status": "documented"
+          },
+          "record_digest": "sha256:46b737332eb130d4e9a5f1f3892777abaf372abbf4ea6b280f86c87fb3468919",
+          "operation_id": "b17e4a92-6c3d-4f05-8a1b-9d2e7c4f6a58",
+          "source_set_digest": "sha256:703ffb3570e696049f5dc4f009fb7dc4be19630ffbbd2e45468d5e37b44b1bd2",
+          "sources": [
+            {
+              "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:f0d1d17780912408d10100eba78f448f79ab85156f4b0b876ac2f620344fbdf0",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d399bd56461113eeb81038ab8289a54af513eb16612b8dfdfb246acadea1a5c7",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:4e77ce3739f390f5d28e3392432107074542c7aab2c91c5a89e20337cd988233",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": "sha256:aab5713fbe4b715a372af01fb84bd8ca01c10163a40d6f800df830da9c2700ad",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md",
+              "status": "done",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        }
+      ],
+      "invalidated_quality": [
+        {
+          "record": {
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+            "status": "done"
+          },
+          "record_digest": "sha256:249ae202cd795dbdef8537812a59ac615205bd6b63d72cdfb56c2c052ffcaa0a",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "Brownfield Analysis",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:8c5e3d65985de36872922bbdcd1e4f847fc08451e0a667eef47fbd9a67b4314c",
+            "status": "revise"
+          },
+          "record_digest": "sha256:9b73e4a61a914a82605f8a4604874a659224c67405f5c679c2b366370d7129fe",
+          "operation_id": "b17e4a92-6c3d-4f05-8a1b-9d2e7c4f6a58",
+          "source_set_digest": "sha256:703ffb3570e696049f5dc4f009fb7dc4be19630ffbbd2e45468d5e37b44b1bd2",
+          "sources": [
+            {
+              "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:f0d1d17780912408d10100eba78f448f79ab85156f4b0b876ac2f620344fbdf0",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d399bd56461113eeb81038ab8289a54af513eb16612b8dfdfb246acadea1a5c7",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:4e77ce3739f390f5d28e3392432107074542c7aab2c91c5a89e20337cd988233",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": "sha256:aab5713fbe4b715a372af01fb84bd8ca01c10163a40d6f800df830da9c2700ad",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md",
+              "status": "done",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": "",
+            "digest": null,
+            "status": "documented"
+          },
+          "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+            "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+            "status": "documented"
+          },
+          "record_digest": "sha256:40a834bbeab38bd1493c48bc765c97d328b5163462c4a56745aeb4e93e63bd13",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+            "status": "documented"
+          },
+          "record_digest": "sha256:5a8ef1f098868b2ce40cf0f88f6a22c6daec5218228047af28f2cea0d41f3302",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD_MAPPING_REVIEW-01.json",
+            "digest": "sha256:10cdf1f326c7f5aa23f08773fa511f712c1450a0dd09c1c697daf61031e84d9b",
+            "status": "documented"
+          },
+          "record_digest": "sha256:a8f4e1e3a736b6c7011fe94d220754186baa3104b5cd23efc996ed614ff0d926",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD_MAPPING_REVIEW-01.json",
+            "digest": "sha256:73f8177c87c31da0fc2ed69aa87971f61f73f5f2a948a201c803ac102a75a5c3",
+            "status": "documented"
+          },
+          "record_digest": "sha256:85c4161d3a028f302857da0c2a8bc34247bdf5146c17e7f7d1a8e3adf55607a2",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP_MAPPING_REVIEW-01.json",
+            "digest": "sha256:12d4daa16ad3539c0fc3bad644f02fd5d0dfc280366e6f50061d4bb122214054",
+            "status": "documented"
+          },
+          "record_digest": "sha256:282f60284e579340b7fc138383a5afee8e94ae47a934c2f20b9aee1f76955672",
+          "operation_id": null,
+          "source_set_digest": null,
+          "sources": [],
+          "association": "applicability_unknown",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        },
+        {
+          "record": {
+            "type": "evidence",
+            "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:8c5e3d65985de36872922bbdcd1e4f847fc08451e0a667eef47fbd9a67b4314c",
+            "status": "documented"
+          },
+          "record_digest": "sha256:46b737332eb130d4e9a5f1f3892777abaf372abbf4ea6b280f86c87fb3468919",
+          "operation_id": "b17e4a92-6c3d-4f05-8a1b-9d2e7c4f6a58",
+          "source_set_digest": "sha256:703ffb3570e696049f5dc4f009fb7dc4be19630ffbbd2e45468d5e37b44b1bd2",
+          "sources": [
+            {
+              "digest": "sha256:336e861fadbe3a95a53198f6a25b8c38d213d2c2e56ad91772188a2a79d3664b",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UR.md",
+              "status": "approved",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:f0d1d17780912408d10100eba78f448f79ab85156f4b0b876ac2f620344fbdf0",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/PRD.md",
+              "status": "approved",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:d399bd56461113eeb81038ab8289a54af513eb16612b8dfdfb246acadea1a5c7",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD.md",
+              "status": "approved",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:4e77ce3739f390f5d28e3392432107074542c7aab2c91c5a89e20337cd988233",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP.md",
+              "status": "approved",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:60455ae8eebda1cd7b9823cd0d19fca813bc1d2fdcb7ef63f3fe0939c69f33b1",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "type": "Brownfield Review"
+            },
+            {
+              "digest": "sha256:aab5713fbe4b715a372af01fb84bd8ca01c10163a40d6f800df830da9c2700ad",
+              "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/UX_INTENT_DEFINITION.md",
+              "status": "done",
+              "type": "UX Intent Definition"
+            }
+          ],
+          "association": "current",
+          "disposition": "reassess",
+          "reason": "Renew or reassess this record under the corrected SD and TP; its association is not proven independent of the changed sources."
+        }
+      ],
+      "renewed_approvals": [
+        "SD",
+        "TP",
+        "QA",
+        "UAT"
+      ],
+      "pending_presentations": "superseded by exact material-version guard"
+    },
+    "archive_digest": "sha256:c5967489e4b9c1f4a14e89b19fb6c19591254494b50be37e9a00291395aaa870",
+    "current_run_digest": "sha256:6fe6a881ffca9e009e03af4855891736f0ef47b5ae2d9f543f45f6c5cefe99d8",
+    "preview_digest": "sha256:ed542ac9e19ed976bb0b4c0488f4f9e625a55a596c7ac12277e35dc2e4b18d28",
+    "confirmation_selector": "Apply source revision: agdf-begleiter-companion-20261025-01 5fefa1ac-972d-4351-bcc3-2bdc87d47a18 93755ce3-f8b3-488f-a157-8b915ec0a7f6 SD sha256:ed542ac9e19ed976bb0b4c0488f4f9e625a55a596c7ac12277e35dc2e4b18d28",
+    "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+  }
+}

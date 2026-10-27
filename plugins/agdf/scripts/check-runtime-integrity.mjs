@@ -1632,7 +1632,37 @@ if (pluginDefinition) {
   }
 }
 
-if (!sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugin") {
+// The AGDF companion is Claude-only (SDD-01, SDD-02): its build-only descriptor owns the runtime Claude
+// manifest's hooks declaration; the Codex manifest, the shared hooks, the shared definition and the
+// Copilot profile never reference it.
+const companionFiles = ["companion.json", "hooks.json", "register.mjs", "assignment.mjs", "figure.mjs", "gate-bar.mjs",
+  "localization.mjs", "persistence.mjs", "run-state.mjs", "state.mjs", "view.mjs", "locales.json"];
+const copilotRuntimeProfile = !sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugin";
+const companionRoot = sourceMode ? join(pluginRoot, "host-templates", "claude", "companion") : join(pluginRoot, "companion");
+const mentionsCompanion = (value) => /companion/iu.test(JSON.stringify(value ?? null));
+if (copilotRuntimeProfile) {
+  if (isDirectory(join(pluginRoot, "companion"))) failures.push("Copilot runtime plugin must not contain the Claude companion");
+} else {
+  for (const file of companionFiles) assertFile(join(companionRoot, file), `Claude companion file ${file}`);
+  const descriptorPath = join(companionRoot, "companion.json");
+  const descriptor = isFile(descriptorPath) ? readJson(descriptorPath, "Claude companion descriptor") : null;
+  if (JSON.stringify(descriptor) !== JSON.stringify({ schema_version: 1, hooks: "./companion/hooks.json" })) {
+    failures.push("Claude companion descriptor must declare exactly ./companion/hooks.json");
+  }
+  const companionHooksPath = join(companionRoot, "hooks.json");
+  const companionHooks = isFile(companionHooksPath) ? readJson(companionHooksPath, "Claude companion hooks") : null;
+  if (JSON.stringify(companionHooks) !== JSON.stringify({ modules: ["./register.mjs"] })) {
+    failures.push("Claude companion hooks must load only ./register.mjs");
+  }
+  if (claudePlugin && (sourceMode ? Object.hasOwn(claudePlugin, "hooks") : claudePlugin.hooks !== descriptor?.hooks)) {
+    failures.push("Claude plugin manifest must declare the companion only in the runtime profile, from its descriptor");
+  }
+}
+if (mentionsCompanion(codexPlugin)) failures.push("Codex plugin manifest must not reference the Claude companion");
+if (mentionsCompanion(hooksConfig)) failures.push("shared plugin hooks must not reference the Claude companion");
+if (mentionsCompanion(pluginDefinition)) failures.push("shared AGDF plugin definition must not reference the Claude companion");
+
+if (copilotRuntimeProfile) {
   const copilotPlugin = isFile(copilotPluginPath) ? readJson(copilotPluginPath, "Copilot plugin manifest") : null;
   const copilotHooks = isFile(copilotHooksPath) ? readJson(copilotHooksPath, "Copilot plugin hooks") : null;
   if (!copilotPlugin) failures.push("installed runtime plugin must include root plugin.json for GitHub Copilot");

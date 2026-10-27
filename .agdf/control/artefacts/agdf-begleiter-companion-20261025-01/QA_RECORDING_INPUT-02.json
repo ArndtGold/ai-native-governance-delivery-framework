@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "agdf-begleiter-companion-20261025-01",
+  "expected_revision_id": "db6c7ea5-2c7e-4d8a-b9d0-7c96d2279218",
+  "destination": {
+    "type": "QA_REPORT",
+    "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_REPORT.md",
+    "digest": "sha256:15e4adcc209090c0e2ad7af69ffc9989129d3fc9d9459c783d79a36a6e1cc7d6",
+    "status": "pass"
+  },
+  "source": {
+    "type": "TP",
+    "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/TP.md",
+    "digest": "sha256:ba67b295c6cacbb71338663a0b0e6ae99f03b30c83983cf79d64ea51ef96ca5b"
+  },
+  "relationship": {
+    "from": "QA_REPORT",
+    "relationship": "tests",
+    "to": "TP"
+  },
+  "review": {
+    "reviewer": "Claude Code implementing agent; cooperative QA-to-TP mapping review, not independent proof",
+    "path": ".agdf/control/artefacts/agdf-begleiter-companion-20261025-01/QA_MAPPING_REVIEW-02.json",
+    "digest": "sha256:9afc28a1016acdeabb97665d1ef221da3d6c7c2e89618764d4625ef3399cf71c"
+  },
+  "update_draft": true
+}

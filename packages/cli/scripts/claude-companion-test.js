@@ -1,0 +1,301 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, relative } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { approvalFixture, fixture } from "../../core/test/control-cockpit-fixtures.js";
+import { readRunState } from "../../core/lib/control-evaluation/run-state.js";
+import { LIFECYCLES as CORE_LIFECYCLES } from "../../core/lib/control-state/run-state-parser.js";
+import { replaceFirstScalar } from "../../core/lib/control-state/run-state-edits.js";
+import { createRun } from "../../core/lib/control-state/run-state-repository.js";
+import { recordRunPresentationDecision, recordRunStep } from "../../core/lib/control-state/run-steps.js";
+import { evaluateGateCheck } from "../../core/lib/control-evaluation/gate-check.js";
+import { policyForRunContent } from "../../core/lib/control-evaluation/run-step-policy.js";
+import { sealRunState } from "../../core/lib/control-state/run-seal.js";
+import { isOperationalValueRenderable } from "../../core/lib/interaction-presentation.js";
+import { resolveConfiguredChatLanguage } from "../../core/lib/resources/context.js";
+import { claudePluginDataRoot } from "../lib/mcp-lifecycle/plugin-runtime.js";
+
+// The Claude companion's logic and host adapter (T-006): parity with the canonical writers and the
+// core reader, state rules, assignment, localization, gate bar, figure, terminal text, persistence
+// and the adapter against a fake host. The companion source is host-independent ES modules.
+const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
+const companionDir = join(repoRoot, "plugins", "agdf", "host-templates", "claude", "companion");
+const companion = name => import(pathToFileURL(join(companionDir, name)).href);
+const { LIFECYCLES, MAX_RUN_STATE_BYTES, parseRunState, readSnapshot, settleSnapshot } = await companion("run-state.mjs");
+const { displayState, runState } = await companion("state.mjs");
+const { assignRun, openRuns, stepSelection } = await companion("assignment.mjs");
+const { chatLocale, label, localizeNextStep } = await companion("localization.mjs");
+const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
+const { ACCESSORY_BOUNDS, ACCESSORY_REGION, FIGURE_BOX, FIGURE_TEXT, figureSvg } = await companion("figure.mjs");
+const { buildPanelView, terminalText } = await companion("view.mjs");
+const { STATE_FILE, parseCompanionState, pluginDataDir, serializeCompanionState } = await companion("persistence.mjs");
+const registry = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
+const labels = JSON.parse(readFileSync(join(companionDir, "locales.json"), "utf8"));
+
+const nodeFs = {
+  exists: async path => existsSync(path),
+  list: async path => readdirSync(path).map(name => ({ name, kind: lstatSync(join(path, name)).isDirectory() ? "dir" : "file", isLink: lstatSync(join(path, name)).isSymbolicLink() })),
+  read: async path => readFileSync(path, "utf8"),
+};
+const runFile = (root, id) => join(root, ".agdf", "control", "runs", id, "RUN_STATE.md");
+const parsed = (root, id) => parseRunState(id, readFileSync(runFile(root, id), "utf8"));
+function setScalar(root, id, key, value) {
+  writeFileSync(runFile(root, id), sealRunState(root, replaceFirstScalar(readFileSync(runFile(root, id), "utf8"), key, value)));
+}
+const run = (overrides = {}) => ({ id: "r", lifecycle: "active", gate: "SD", decision: "in_progress", updatedAt: "2026-10-26T08:00:00.000Z",
+  missing: "No approval is pending.", next: "Draft the UR.", approved: ["UR", "PRD"], objective: "Show the run state.", ...overrides });
+function treeDigest(root) {
+  const hash = createHash("sha256");
+  const walk = path => { for (const name of readdirSync(path).sort()) {
+    const file = join(path, name);
+    if (lstatSync(file).isDirectory()) walk(file); else hash.update(relative(root, file)).update(readFileSync(file));
+  } };
+  walk(join(root, ".agdf", "control"));
+  return hash.digest("hex");
+}
+
+// SCN-005: fixtures written by the canonical writers parse to the core reader's values and moods.
+const created = fixture();
+const approval = await approvalFixture();
+try {
+  const states = [];
+  for (const [rootFixture, id, expectedMood, label] of [
+    [created, "fixture-a", "laeuft", "created"],
+    [created, "fixture-completed", "fertig", "completed"],
+    [approval, "fixture-a", "wartet", "UR open"],
+  ]) states.push({ root: rootFixture.root, id, expectedMood, label });
+  // Revise, block and awaiting states: a canonical run with the decision set by the core test builders.
+  for (const [decision, expectedMood] of [["revise", "blockiert"], ["block", "blockiert"], ["blocked", "blockiert"], ["decline", "blockiert"],
+    ["pending", "wartet"], ["awaiting_uat", "wartet"]]) {
+    const id = `fixture-${decision.replace("_", "-")}`;
+    createRun(created.root, id);
+    setScalar(created.root, id, "decision", decision);
+    states.push({ root: created.root, id, expectedMood, label: decision });
+  }
+  const checkParity = ({ root, id, expectedMood, label: name }) => {
+    const result = parsed(root, id);
+    assert.equal(result.ok, true, `${name}: canonical run state must parse`);
+    const core = readRunState(root, { runId: id });
+    for (const [mine, theirs] of [["lifecycle", "lifecycle"], ["gate", "current_gate"], ["decision", "decision"], ["updatedAt", "updated_at"]]) {
+      assert.equal(result.run[mine], String(core.meta[theirs] ?? "").replace(/`/gu, "").trim(), `${name}: ${theirs} parity`);
+    }
+    const approvedByCore = [...core.approvals.entries()].filter(([, row]) => row.status === "approved").map(([gate]) => gate);
+    assert.deepEqual([...result.run.approved].sort(), approvedByCore.sort(), `${name}: approved gates parity`);
+    if (expectedMood !== null) assert.equal(runState(result.run).mood, expectedMood, `${name}: mood`);
+    return { result, core };
+  };
+  for (const state of states) checkParity(state);
+  // Run steps keep the control table's next step equal to the core's next allowed action.
+  assert.equal(checkParity(states[2]).result.run.next, readRunState(approval.root, { runId: "fixture-a" }).next_allowed_action);
+  assert.equal(approval.approve().outcome, "approved");
+  const approved = checkParity({ root: approval.root, id: "fixture-a", expectedMood: "laeuft", label: "UR approved" });
+  assert.deepEqual(approved.result.run.approved, ["UR"]);
+  assert.equal(approved.result.run.next, approved.core.next_allowed_action);
+  assert.deepEqual(gateMarks(approved.result.run).map(mark => mark.mark), ["done", "open", "open", "open", "open", "open", "open"]);
+
+  // CR-F02: the canonical writers keep a review result in the step's Artefacts row and a declined
+  // presentation in the control table; the Run Meta decision stays `in_progress`. Both read as blockiert.
+  const review = recordRunStep(approval.root, { runId: "fixture-a", revisionId: approval.revision(), step: "review", decision: "revise", evidence: "review found a defect" },
+    { policy: policyForRunContent, date: "2026-10-26" });
+  assert.equal(review.outcome, "recorded", JSON.stringify(review));
+  const revised = checkParity({ root: approval.root, id: "fixture-a", expectedMood: "blockiert", label: "Quick Task review revise" });
+  assert.deepEqual([revised.result.run.decision, revised.result.run.gate, revised.result.run.gateResult], ["in_progress", "Quick Task Execution", "revise"]);
+  assert.equal(revised.result.run.gateResult, revised.core.artefacts.get("CR").status, "the CR row status equals the core reader's");
+  assert.deepEqual(runState(revised.result.run).reason, { key: "blocked", gate: "Quick Task Execution", decision: "revise" });
+  const declined = await approvalFixture();
+  try {
+    const rejected = recordRunPresentationDecision(declined.root, { runId: "fixture-a", revisionId: declined.revision(), operationId: "0b7b0c1e-4f2a-4d1b-9c3e-2a6f8d9e1b47",
+      gate: "UR", presentationId: declined.presentationId, action: "reject", comment: "", requestDigest: `sha256:${"a".repeat(64)}` }, { evaluateGateCheck });
+    assert.equal(rejected.outcome, "recorded", JSON.stringify(rejected));
+    const decline = checkParity({ root: declined.root, id: "fixture-a", expectedMood: "blockiert", label: "UR declined" });
+    assert.deepEqual([decline.result.run.gateDecision, runState(decline.result.run).reason.decision], ["reject", "decline"]);
+  } finally {
+    declined.close();
+  }
+
+  // TPR-F01, CIR-F01: the companion accepts exactly the core lifecycles. Superseded and abandoned
+  // runs parse with core parity, are closed, are never assigned (even when changed in this session)
+  // and drop a remembered selection.
+  assert.deepEqual([...LIFECYCLES].sort(), [...CORE_LIFECYCLES].sort(), "companion lifecycles equal the core set");
+  for (const lifecycle of ["superseded", "abandoned"]) {
+    const id = `fixture-${lifecycle}`;
+    createRun(created.root, id);
+    setScalar(created.root, id, "lifecycle", lifecycle);
+    const { result } = checkParity({ root: created.root, id, expectedMood: null, label: lifecycle });
+    assert.equal(result.run.lifecycle, lifecycle);
+    const shown = assignRun({ runs: [result.run], sessionStartedAt: 0, selection: id });
+    assert.deepEqual([shown.run, shown.origin, shown.open, shown.dropSelection], [null, "none", [], true], `${lifecycle}: closed and never assigned`);
+  }
+
+  // SCN-009 / SCN-006 inputs: reader conditions on the fixture targets.
+  const noControl = mkdtempSync(join(tmpdir(), "agdf-companion-plain-"));
+  assert.deepEqual(await readSnapshot(nodeFs, noControl, { now: 1 }), { status: "no_control", root: noControl, runs: [], unreadable: [], readAt: 1 });
+  mkdirSync(join(noControl, ".agdf", "control"), { recursive: true });
+  const empty = await readSnapshot(nodeFs, noControl, { now: 1 });
+  assert.deepEqual([empty.status, empty.runs.length], ["ok", 0]);
+  mkdirSync(join(noControl, ".agdf", "control", "runs", "broken"), { recursive: true });
+  writeFileSync(runFile(noControl, "broken"), "# not a run state\n");
+  mkdirSync(join(noControl, ".agdf", "control", "runs", "missing"), { recursive: true });
+  const broken = await readSnapshot(nodeFs, noControl, { now: 1 });
+  assert.deepEqual(broken.unreadable.sort((a, b) => a.id.localeCompare(b.id)), [{ id: "broken", reason: "format" }, { id: "missing", reason: "missing" }]);
+  assert.deepEqual(parseRunState("big", "x".repeat(MAX_RUN_STATE_BYTES + 1)), { ok: false, id: "big", reason: "too_large" });
+  assert.equal(parseRunState("other", readFileSync(runFile(created.root, "fixture-a"), "utf8")).ok, false, "run id must match its folder");
+  const failing = await readSnapshot({ ...nodeFs, list: async () => { throw new Error("EIO"); } }, created.root, { now: 2 });
+  assert.equal(failing.status, "failed");
+  const good = await readSnapshot(nodeFs, created.root, { now: 1 });
+  const stale = settleSnapshot(good, failing);
+  assert.deepEqual([stale.status, stale.stale.failedAt, stale.runs.length], ["ok", 2, good.runs.length]);
+  assert.equal(settleSnapshot(null, failing), failing);
+  rmSync(noControl, { recursive: true, force: true });
+
+  // SCN-006: a main-loop turn shows läuft; the run-derived state returns afterwards.
+  const waiting = run({ missing: "Exact Approval: SD." });
+  assert.deepEqual(displayState(waiting, { isTurnActive: true }), { mood: "laeuft", reason: { key: "turnActive" } });
+  assert.deepEqual(displayState(waiting), { mood: "wartet", reason: { key: "waitingApproval", gate: "SD" } });
+  assert.deepEqual(runState(run({ decision: "mystery" })), { mood: null, reason: { key: "unknownState" } });
+  assert.equal(displayState(run({ decision: "mystery" }), { isTurnActive: true }).mood, null, "a turn never hides an unreadable state");
+  assert.equal(runState(run({ lifecycle: "completed", decision: "revise" })).mood, "fertig");
+
+  // SCN-007: assignment per session.
+  const start = Date.parse("2026-10-26T08:00:00.000Z");
+  const before = run({ id: "before", updatedAt: "2026-10-26T07:59:59.000Z" });
+  const changedA = run({ id: "a", updatedAt: "2026-10-26T08:00:00.000Z" });
+  const changedB = run({ id: "b", updatedAt: "2026-10-26T08:05:00.000Z" });
+  const legacy = run({ id: "legacy", updatedAt: "" });
+  const doneInSession = run({ id: "done", lifecycle: "completed", updatedAt: "2026-10-26T08:06:00.000Z" });
+  assert.deepEqual(assignRun({ runs: [before, changedA, changedB], sessionStartedAt: start }).run.id, "b");
+  assert.equal(assignRun({ runs: [before, changedA, changedB, doneInSession], sessionStartedAt: start }).run.id, "done", "a run completed in this session stays assigned");
+  const remembered = assignRun({ runs: [before, legacy], sessionStartedAt: start, selection: "before" });
+  assert.deepEqual([remembered.run.id, remembered.origin, remembered.dropSelection], ["before", "selected", false]);
+  assert.equal(assignRun({ runs: [before, changedA], sessionStartedAt: start, selection: "before" }).origin, "session", "a change in this session wins over the selection");
+  const none = assignRun({ runs: [before, legacy], sessionStartedAt: start });
+  assert.deepEqual([none.run, none.origin, none.open.map(item => item.id)], [null, "none", ["before", "legacy"]]);
+  assert.equal(assignRun({ runs: [before], sessionStartedAt: start, selection: "gone" }).dropSelection, true);
+  assert.equal(assignRun({ runs: [before, doneInSession], sessionStartedAt: Date.parse("2026-10-26T09:00:00Z"), selection: "done" }).dropSelection, true, "a remembered run that is no longer open is dropped");
+  assert.deepEqual(openRuns([doneInSession, legacy, before]).map(item => item.id), ["before", "legacy"]);
+  assert.equal(stepSelection(openRuns([before, changedA, changedB]), "b", 1), "a");
+  assert.equal(stepSelection(openRuns([before, changedA, changedB]), "b", -1), "before");
+  assert.equal(stepSelection([], "x", 1), null);
+} finally {
+  created.close();
+  approval.close();
+}
+
+// SCN-008: localization parity with the status-card lookup and the core chat-language rule.
+const configRoot = mkdtempSync(join(tmpdir(), "agdf-companion-locale-"));
+try {
+  for (const config of [null, "{", JSON.stringify({ chat_language: "de" }), JSON.stringify({ chat_language: "de-AT" }), JSON.stringify({ chat_language: "fr" }), JSON.stringify({ chat_language: "not a tag" })]) {
+    rmSync(join(configRoot, ".agdf"), { recursive: true, force: true });
+    if (config !== null) { mkdirSync(join(configRoot, ".agdf", "control"), { recursive: true }); writeFileSync(join(configRoot, ".agdf", "control", "config.json"), config); }
+    assert.equal(chatLocale(registry, config), resolveConfiguredChatLanguage(configRoot), `chat language parity for ${config}`);
+  }
+} finally {
+  rmSync(configRoot, { recursive: true, force: true });
+}
+const fallback = registry.locales[registry.fallbackLocale];
+const sources = [...Object.values(fallback.operationalValues ?? {}), ...Object.values(fallback.primary.actions ?? {}),
+  ...Object.values(fallback.primary.afterApproval ?? {}), fallback.primary.quality, "A free text the status card does not know."].filter(Boolean);
+for (const source of sources) {
+  const localized = localizeNextStep(registry, "de", source);
+  assert.equal(localized.isLocalized, isOperationalValueRenderable(source, { registry, requestedLocale: "de" }), `next-step parity: ${source}`);
+  if (!localized.isLocalized) assert.equal(localized.text, source, "an unlocalized next step keeps its source text");
+}
+assert.equal(localizeNextStep(registry, "en", "Draft the UR.").text, "Draft the UR.");
+assert.equal(localizeNextStep(registry, "de", "none").text, registry.locales.de.primary.none);
+assert.deepEqual(Object.keys(labels.locales).sort(), Object.keys(registry.locales).sort(), "companion locale set equals the core registry");
+assert.equal(labels.fallbackLocale, registry.fallbackLocale);
+const leaves = (node, prefix = "") => Object.entries(node).flatMap(([key, value]) => (value && typeof value === "object" ? leaves(value, `${prefix}${key}.`) : [[`${prefix}${key}`, value]]));
+const enLeaves = new Map(leaves(labels.locales.en));
+for (const locale of Object.keys(labels.locales)) assert.deepEqual(leaves(labels.locales[locale]).map(([key]) => key).sort(), [...enLeaves.keys()].sort(), `label keys of ${locale}`);
+assert.equal(label(labels, "de", "fields.position", { position: 2, count: 5 }), "2 von 5 offenen Runs");
+assert.equal(label(labels, "de", "missing.key"), "missing.key");
+
+// AC-005 / SCN-003: German views carry no English label; gate bar and fields per width.
+const englishOnly = new Set([...enLeaves].filter(([key, value]) => new Map(leaves(labels.locales.de)).get(key) !== value).map(([, value]) => value));
+const snapshot = runs => ({ status: "ok", runs, unreadable: [], readAt: Date.parse("2026-10-26T08:10:00Z") });
+const viewOf = (runs, extra = {}) => buildPanelView({ snapshot: snapshot(runs), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null,
+  isTurnActive: false, registry, labels, locale: "de", columns: 40, ...extra });
+const germanViews = [
+  viewOf([run({ id: "w", missing: "Exact Approval: SD.", updatedAt: "2026-10-26T08:01:00Z" })]),
+  viewOf([run({ id: "b", decision: "revise", updatedAt: "2026-10-26T08:01:00Z" })]),
+  viewOf([run({ id: "f", lifecycle: "completed", updatedAt: "2026-10-26T08:01:00Z" })]),
+  viewOf([run({ id: "l", updatedAt: "2026-10-26T08:01:00Z" })], { isTurnActive: true }),
+  viewOf([run({ id: "o", updatedAt: "2026-10-26T07:00:00Z" })]),
+  viewOf([]),
+  buildPanelView({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 }, registry, labels, locale: "de", columns: 40 }),
+  buildPanelView({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 }, registry, labels, locale: "de", columns: 40 }),
+  buildPanelView({ snapshot: { ...snapshot([]), unreadable: [{ id: "x", reason: "format" }] }, selection: "x", sessionStartedAt: 0, registry, labels, locale: "de", columns: 40 }),
+];
+assert.deepEqual(germanViews.map(view => view.stateLabel), ["wartet auf Freigabe", "blockiert", "fertig", "läuft", "bereit", "bereit", "bereit", "bereit", "bereit"]);
+assert.equal(germanViews[1].reason, "Lösungsdesign: Überarbeitung nötig");
+// A run-derived läuft names the next step; only a host-observed main-loop turn says that Claude is
+// working (docs/architecture/07-ui-konzept.md: no "working" claim without observed activity).
+const runningView = locale => buildPanelView({ snapshot: snapshot([run({ id: "r", updatedAt: "2026-10-26T08:01:00Z" })]),
+  sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, isTurnActive: false, registry, labels, locale, columns: 40 });
+assert.deepEqual([runningView("de").stateLabel, runningView("de").reason, runningView("en").reason], ["läuft", "Als Nächstes: Lösungsdesign", "Next: Solution design"]);
+assert.equal(germanViews[3].reason, "Claude arbeitet gerade an diesem Turn");
+assert.equal(germanViews[4].message, "Kein Run zugeordnet");
+assert.deepEqual([germanViews[5].message, germanViews[6].message, germanViews[6].hint],
+  ["Keine offenen Runs in diesem Projekt.", "Kein AGDF-Kontrollordner in „voice-projekt“.", "Geprüfter Projektordner: C:\\Workspace\\voice-projekt"]);
+// TPR-F02: the missing-control message names the checked folder in either path form; the terminal shows both lines.
+const noControlView = root => buildPanelView({ snapshot: { status: "no_control", root, runs: [], unreadable: [], readAt: 1 }, registry, labels, locale: "en", columns: 40 });
+assert.deepEqual([noControlView("/home/a/app/").message, noControlView("/home/a/app/").hint], ["No AGDF control folder in “app”.", "Checked project folder: /home/a/app/"]);
+assert.ok(terminalText(germanViews[6], { labels, locale: "de" }).includes("Kein AGDF-Kontrollordner in „voice-projekt“.\nGeprüfter Projektordner: C:\\Workspace\\voice-projekt\n"));
+assert.match(germanViews[7].message, /nicht lesbar: Kontrollordner/u);
+assert.match(germanViews[8].message, /unbekanntes Format/u);
+for (const view of germanViews) {
+  for (const field of ["title", "stateLabel", "reason", "message", "hint", "origin", "openCount", "readAt", "stale"]) {
+    if (view[field]) assert.equal(englishOnly.has(view[field]), false, `German panel shows English ${field}: ${view[field]}`);
+  }
+}
+const assigned = germanViews[0];
+assert.deepEqual([assigned.gateBar, assigned.origin, assigned.isObjectiveExpanded, Boolean(assigned.readAt)], ["✓UR ✓PRD ●SD ○TP ○QA ○UAT ○OR", "In dieser Sitzung geändert", false, true]);
+for (const columns of [40, 60]) assert.ok(viewOf([run({ updatedAt: "2026-10-26T08:01:00Z" })], { columns }).gateBar.length <= columns, `gate bar fits ${columns} columns`);
+const marks = gateMarks(run());
+assert.equal(fullGateBar(marks).length, 29);
+assert.deepEqual([gateBar(marks, 29), gateBar(marks, 28)], [fullGateBar(marks), "✓✓●○○○○ SD"]);
+assert.equal(condensedGateBar(gateMarks(run({ gate: "CD+Tests" }))), "✓✓○○○○○");
+assert.equal(fullGateBar(gateMarks(run({ lifecycle: "completed" }))), "✓UR ✓PRD ✓SD ✓TP ✓QA ✓UAT ✓OR");
+assert.ok(!/\n/u.test(gateBar(marks, 10)), "the gate bar never wraps into two lines");
+
+// SCN-018: figure geometry, still pose and terminal text.
+const disjoint = (a, b) => a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
+assert.ok(disjoint(FIGURE_BOX, ACCESSORY_REGION), "accessory region lies outside the figure box");
+for (const [mood, bounds] of Object.entries(ACCESSORY_BOUNDS)) {
+  if (!bounds) continue;
+  assert.ok(bounds.x >= 0 && bounds.y >= 0 && bounds.x + bounds.width <= ACCESSORY_REGION.width && bounds.y + bounds.height <= ACCESSORY_REGION.height, `${mood} accessory stays in its region`);
+}
+const wellFormed = svg => { const stack = []; for (const match of svg.matchAll(/<(\/?)([a-zA-Z]+)[^>]*?(\/?)>/gu)) {
+  const [, close, name, self] = match; if (self) continue; if (close) { if (stack.pop() !== name) return false; } else stack.push(name); } return stack.length === 0; };
+for (const mood of ["laeuft", "wartet", "blockiert", "fertig", "neutral"]) {
+  const moving = figureSvg(mood, { title: "AGDF <x> & \"y\"" });
+  const still = figureSvg(mood, { still: true, title: "AGDF" });
+  assert.ok(wellFormed(moving) && wellFormed(still), `${mood} SVG is well-formed`);
+  assert.equal(/<animate|<set\b/u.test(still), false, `${mood} still pose has no animation`);
+  assert.ok(moving.length < 131072, "Svg source stays below the host limit");
+  assert.ok(moving.includes("AGDF &lt;x&gt; &amp; &quot;y&quot;"), "title is escaped");
+  if (mood !== "neutral") assert.ok(/<animate/u.test(moving), `${mood} moves when not still`);
+  assert.ok(FIGURE_TEXT[mood], `${mood} has a terminal face`);
+}
+const text = terminalText(assigned, { labels, locale: "de" });
+for (const required of ["AGDF-Begleiter", "wartet auf Freigabe", "✓UR ✓PRD ●SD", "Nächster Schritt: ", "Stand "]) assert.ok(text.includes(required), `terminal text carries ${required}`);
+
+// SDD-07: persistence location and format.
+const configDir = join(tmpdir(), "claude-config");
+assert.equal(pluginDataDir({ configDir }).replaceAll("\\", "/"), claudePluginDataRoot({ claudeConfigDir: configDir }).replaceAll("\\", "/"));
+assert.equal(pluginDataDir({ userProfile: "C:/Users/a" }), "C:/Users/a/.claude/plugins/data/agdf-agdf");
+assert.equal(pluginDataDir({ home: "/home/a" }), "/home/a/.claude/plugins/data/agdf-agdf");
+assert.equal(pluginDataDir({}), null);
+assert.equal(STATE_FILE, "companion-state.json");
+assert.deepEqual(parseCompanionState(serializeCompanionState({ enabled: true, still: false, selections: { "/p": "run-1" } })), { enabled: true, still: false, selections: { "/p": "run-1" } });
+for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"schema_version\":1,\"enabled\":\"yes\",\"selections\":{\"/p\":\"../x\"}}"]) {
+  const parsedState = parseCompanionState(invalid);
+  assert.deepEqual(parsedState, { enabled: false, still: false, selections: {} }, `invalid state ${invalid}`);
+  // CR-F03: the defaults must accept a selection; a frozen object would silently drop it.
+  parsedState.selections["/p"] = "run-1";
+  assert.equal(parsedState.selections["/p"], "run-1", `defaults for ${invalid} are mutable`);
+}
+
+console.log("Claude companion logic tests passed");

@@ -1074,6 +1074,107 @@ Then start with:
 
 *UI example: Claude Code shows the installed AGDF plugin and its provided surface. It does not replace `claude plugin list` as installation/version evidence or establish repository-local control state.*
 
+### Optional AGDF companion panel
+
+The Claude Code projection of the AGDF runtime plugin includes an opt-in companion: a panel beside the chat with
+a small figure and a compact status of the run you work on in the session. It shows:
+
+- the state: working, waiting for approval, blocked or done;
+- a one-line reason and a single-line gate bar (`✓UR ✓PRD ●SD ○TP ○QA ○UAT ○OR`);
+- the run id, its objective (one line, expandable) and the next step;
+- why this run is shown and when it was last read.
+
+The companion only reads `.agdf/control/config.json` and `.agdf/control/runs/*/RUN_STATE.md`. It never writes
+control state, never asks for or records an approval and selects no delivery run. Approvals stay in chat with the
+AGDF status and approval cards.
+
+**Switching it on and off.** The companion is off after installation. Run this to switch it on and open the panel:
+
+```text
+/agdf-companion
+```
+
+Run it again to switch the companion off and close the panel. The choice applies to new sessions too. Closing the
+panel with its own close mark hides it for the current session only. The desktop app's slash-command menu does not
+list `/agdf-companion`: type it in full and send it.
+
+**What it keeps and where.** It keeps three things together in `companion-state.json`:
+
+- on or off;
+- the still pose;
+- one remembered run per project.
+
+The file lives in Claude Code's AGDF plugin data directory, `plugins/data/agdf-agdf/` in the Claude Code
+configuration directory (`CLAUDE_CONFIG_DIR`, otherwise `.claude` in your home folder). If that directory does not
+exist yet (the AGDF MCP server creates it on its first start), the choices last for the session only and nothing
+is created.
+
+`claude plugin uninstall agdf@agdf` removes the directory and with it the companion's choices. The companion does
+not use Claude Code's plugin store, because Claude Code keeps that store after uninstalling a plugin.
+
+**Which run it shows.** It picks the first that applies:
+
+1. The run whose `RUN_STATE.md` changed during this session. The most recently changed one wins, and it stays
+   shown with "done" once completed.
+2. The run you selected in this project.
+3. Otherwise the panel says "No run assigned" and lists the open runs to choose from.
+
+Only active runs are open. Superseded and abandoned runs are closed: the panel never shows them, and it forgets a
+selected run once that run is superseded or abandoned. It never guesses the newest run. While a main-loop turn runs, the figure shows "working" with the reason that
+Claude is working on this turn. Without an observed turn, the reason names what comes next ("Next: …"), because the
+run state alone does not show that work is running. The panel reads the run
+states again after each turn, every 30 seconds and on "Read again". A failed read keeps the last state visible with
+a marker. In a project folder without `.agdf/control`, the panel names the folder it checked, so you can see when
+the session runs in another folder.
+
+**Language.** The panel follows `chat_language` in `.agdf/control/config.json`:
+
+- Labels exist in English and German.
+- Gate titles and the next step use the AGDF locale packs where a localized value exists, otherwise the source text.
+- The objective stays in the artefact language.
+
+**Surfaces.**
+
+| Surface | Companion |
+|---|---|
+| Claude Code desktop app (Code tab) | Panel with an animated SVG figure; "Stop motion" switches to a still pose that persists |
+| Claude Code in the terminal | The same panel as text, without the figure |
+| Other Claude Code surfaces (IDE extensions, mobile) | Not tested |
+| Codex, GitHub Copilot, OpenCode | No companion. Codex sees the files in the shared runtime folder but never loads them; the Copilot payload does not contain them |
+
+**Early-access API.** The companion is a Claude Code hooks module (a "mod"). This plugin API is early access and
+may change between Claude Code releases. The companion was checked with these versions:
+
+- Claude Code 2.1.302: `claude plugin validate`, `claude plugin test`, loading from an installed plugin, failure
+  isolation, and the desktop app (Code tab) on Windows.
+- Claude Code 2.1.308: an earlier prototype was observed in the desktop app.
+
+Claude Code loads hooks modules of installed plugins only where it has enabled that feature.
+
+**Behaviour on an incompatible host.** If Claude Code does not load the module, refuses it, or the module fails,
+the companion is absent or shows a neutral message. The AGDF SessionStart hook, the AGDF MCP server,
+`agdf_dispatch` and the skills keep working. This was checked with deliberately failing modules on Claude Code
+2.1.302. `/agdf-companion` exists only when the module has loaded.
+
+**Known limits.**
+
+- Another session changing a run of the same repository at the same time can take over the panel.
+- Older run states without `updated_at` never count as changed in the session; select them instead.
+- Each refresh reads every run state of the project.
+- The data directory follows Claude Code's naming of plugin data directories. If that naming changes, the choices
+  last for the session only.
+- The panel shows no approval controls and no artefact content.
+
+**Evidence status.**
+
+- Automated: the companion's logic, host adapter and integrity checks run as Node tests in `npm run verify:ci`.
+- Native: `claude plugin validate`, `claude plugin test` and the load and isolation probes ran with Claude Code
+  2.1.302 on Windows.
+- Live: on 2026-10-26 the panel was checked in the Claude desktop app (Code tab) on Windows with Claude Code 2.1.302.
+  The check covered the four states, "No run assigned", the single-line gate bar, the still pose, switching off and
+  on, and a new session reopening the panel with the kept choice. The run states it read stayed byte-identical. The
+  short switch to "working" during a turn was not observed live; automated tests cover it.
+
 Codex and Claude Code plugin skill names are intentionally unprefixed because the plugin itself provides the `agdf` namespace.
 
 This avoids labels such as:

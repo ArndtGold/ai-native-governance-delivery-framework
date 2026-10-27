@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
@@ -109,6 +109,35 @@ try {
   const openCodeFacts = JSON.parse(openCode.stdout.match(/AGDF runtime facts: (.+)/u)[1]);
   assert.equal(openCodeFacts.repository_control.target, realpathSync(a));
   assert.equal(openCodeFacts.repository_control.status, "migration_required");
+  // Doctor and compatibility inspection share one startup deadline: a slow doctor must not starve the inspection.
+  // The stub doctor only reports pass after it has observed the inspection while it was still running itself.
+  const concurrentRoot = join(base, "concurrent plugin");
+  cpSync(join(pluginRoot, "runtime"), join(concurrentRoot, "runtime"), { recursive: true });
+  writeFileSync(join(concurrentRoot, "package.json"), JSON.stringify({ type: "module" }));
+  const inspected = join(base, "inspection-started");
+  const maintenanceReport = join(base, "maintenance-report.json");
+  writeFileSync(maintenanceReport, JSON.stringify(await runControlMaintenance(realpathSync(a))));
+  writeFileSync(join(concurrentRoot, "runtime/agdf-local.js"), `import { existsSync, readFileSync, writeFileSync } from "node:fs";
+const { AGDF_TEST_INSPECTED: inspected, AGDF_TEST_MAINTENANCE_REPORT: report } = process.env;
+if (process.argv[2] === "control-maintenance") {
+  writeFileSync(inspected, "");
+  process.stdout.write(readFileSync(report, "utf8"));
+  process.exitCode = 2;
+} else if (process.argv[2] === "doctor") {
+  const until = Date.now() + 5000;
+  while (!existsSync(inspected) && Date.now() < until) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
+  process.stdout.write(JSON.stringify({ status: existsSync(inspected) ? "pass" : "block", summary: { findings: 0 } }));
+}
+`);
+  const concurrent = spawnSync(process.execPath, [join(concurrentRoot, "runtime/agdf-session-check.js")], { cwd: b,
+    input: JSON.stringify({ cwd: nested }), encoding: "utf8", timeout: 15000,
+    env: { ...process.env, AGDF_SURFACE: "claude", CLAUDE_PLUGIN_ROOT: concurrentRoot, AGDF_DATA_DIR: data,
+      AGDF_TEST_INSPECTED: inspected, AGDF_TEST_MAINTENANCE_REPORT: maintenanceReport } });
+  assert.equal(concurrent.status, 0, concurrent.stderr);
+  const concurrentFacts = JSON.parse(concurrent.stdout.match(/AGDF runtime facts: (.+)/u)[1]);
+  assert.equal(concurrentFacts.automatic_check.status, "pass", "doctor runs beside the compatibility inspection");
+  assert.equal(concurrentFacts.repository_control.inspection_state, "complete");
+  assert.equal(concurrentFacts.repository_control.status, "migration_required");
   assert.equal(treeDigest(a), beforeA); assert.equal(treeDigest(b), beforeB);
   assert.equal(treeDigest(c), beforeC); assert.equal(treeDigest(d), beforeD);
   console.log("Repository control bounded startup, consent and reentry tests passed.");

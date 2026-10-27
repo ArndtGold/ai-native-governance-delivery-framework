@@ -42,6 +42,8 @@ const sourceContractsRoot = join(getPluginSourceRoot(repoRoot), "meta", "contrac
 const sourceInteractionLocalesPath = join(getPluginSourceRoot(repoRoot), "meta", "agdf-interaction-locales.json");
 const pluginDefinitionPath = join(getPluginSourceRoot(repoRoot), "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(read(pluginDefinitionPath));
+// Claude-only companion declaration; kept out of the shared definition, which also ships to Copilot.
+const claudeCompanionDescriptor = JSON.parse(read(join(sourcePluginRoot, "host-templates", "claude", "companion", "companion.json")));
 const sourceRuntimeContractPath = join(sourcePluginRoot, pluginDefinition.runtimeContract.manifestPath);
 const contractModules = getRuntimeContractModulePaths(pluginDefinition)
   .map((modulePath) => modulePath.slice("meta/contracts/".length));
@@ -184,8 +186,9 @@ function syncDirectory(sourceRoot, targetRoot) {
 
 function syncPluginDirectory(sourceRoot, targetRoot) {
   prepareGeneratedDirectory(targetRoot, "generated plugin directory");
-  // runtime/ and mcp/ are generated into the runtime plugin only and never come from the source plugin.
-  const generatedOnly = new Set(["runtime", "mcp", ...(sourceRoot === sourcePluginRoot ? ["hooks"] : [])]);
+  // runtime/ and mcp/ are generated into the runtime plugin only and never come from the source plugin;
+  // hooks/ and the Claude-only companion/ come from build-only host templates.
+  const generatedOnly = new Set(["runtime", "mcp", ...(sourceRoot === sourcePluginRoot ? ["hooks", "companion"] : [])]);
   const buildOnly = sourceRoot === sourcePluginRoot ? new Set(["host-templates"]) : new Set();
   const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => !generatedOnly.has(entry) && !buildOnly.has(entry)));
   for (const entry of readdirSync(targetRoot)) {
@@ -613,6 +616,8 @@ export function syncPackageAssets({
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
   syncDirectory(join(sourcePluginRoot, "host-templates", "shared", "hooks"), join(generatedCodexPluginRoot, "hooks"));
+  // Only the runtime Claude manifest declares it; Codex sees the files inert, Copilot never receives them.
+  syncDirectory(join(sourcePluginRoot, "host-templates", "claude", "companion"), join(generatedCodexPluginRoot, "companion"));
   // Shared bundle identity is also used by the CLI and its offline validator.
   writeCodexMarketplace();
   if (opencode) {
@@ -630,7 +635,7 @@ export function syncPackageAssets({
   syncPluginMcp({ pluginRoot: generatedCodexPluginRoot, surface, decisionUi: readDecisionUiBuild(), cockpitUi: ['all', 'codex', 'claude'].includes(surface)
     ? readCockpitUiBuild({ failure: `AGDF_COCKPIT_UI_BUILD_REQUIRED: run ${COCKPIT_UI_BUILD_COMMAND}, then retry the ${surface} build.` })
     : undefined });
-  write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
+  write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true, companion: claudeCompanionDescriptor }));
   write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
   // Codex 0.160.0 selects portable mode when root plugin.json has $schema and then
   // loses SessionStart hooks, including the compatibility manifest's declaration.

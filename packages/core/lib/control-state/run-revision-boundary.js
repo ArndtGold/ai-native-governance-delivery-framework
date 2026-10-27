@@ -7,8 +7,10 @@ export function sourceRevisionBoundary(state, sourceGate, policyVersion = 1) {
   const current = transitionDecisionForRunState(state);
   if (policyVersion === 2) {
     // Version selection comes from the exact proposal/receipt, never current defaults.
-    const phases = { UR: ["PRD", "SD", "TP", "CD+Tests", "QA", "UAT"],
-      PRD: ["SD", "TP", "CD+Tests", "QA", "UAT"], SD: ["TP", "CD+Tests", "QA", "UAT"], TP: ["CD+Tests", "QA", "UAT"] };
+    // Brownfield Analysis follows the approved TP; a design or plan gap it finds must reach its source.
+    const phases = { UR: ["PRD", "SD", "TP", "Brownfield Analysis", "CD+Tests", "QA", "UAT"],
+      PRD: ["SD", "TP", "Brownfield Analysis", "CD+Tests", "QA", "UAT"], SD: ["TP", "Brownfield Analysis", "CD+Tests", "QA", "UAT"],
+      TP: ["Brownfield Analysis", "CD+Tests", "QA", "UAT"] };
     if (state.meta.lifecycle !== "active" || current.status !== "open"
         || !["structured_delivery", "structured_slice"].includes(state.mode_slice_decision.decision)
         || state.approvals.get("UAT")?.status === "approved" || state.artefacts.get("OR")?.status === "done"

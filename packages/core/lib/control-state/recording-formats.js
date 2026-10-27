@@ -20,7 +20,7 @@ export const REVIEWED_REQUEST_FORMAT = Object.freeze({ schema_version: '1', fiel
 export const REVISION_PROPOSAL_FORMAT = Object.freeze({ schema_version: '1', fields: REVISION_PROPOSAL_FIELDS,
   supported_versions: ['1', '2'], expanded: { schema_version: '2', policy_version: 2, fields: REVISION_PROPOSAL_V2_FIELDS,
     changed_statements: REVISION_STATEMENT_FIELDS, quality_assessment: REVISION_QUALITY_FIELDS,
-    initiating_phase: 'Actual current PRD/SD/TP/CD+Tests/QA/pending UAT; choose the earliest approved changed source, never by phase alone.',
+    initiating_phase: 'Actual current PRD/SD/TP/Brownfield Analysis/CD+Tests/QA/pending UAT; choose the earliest approved changed source, never by phase alone.',
     quality: 'Cover every current registered analysis/result and evidence row exactly; bind report, source set, original operation and record digest. Unknown associations require reassess. Use the inspected current facts; no invented dependency proof.' },
   impact_assessment: { fields: REVISION_IMPACT_FIELDS, upstream: REVISION_UPSTREAM_FIELDS, analyses: REVISION_ANALYSIS_FIELDS,
     dispositions: ['retain', 'reassess'], unresolved: [], earliest_source: 'Must match source_gate; unchanged upstream needs actual rationale. UR requires reassess for both applicable analyses.' },

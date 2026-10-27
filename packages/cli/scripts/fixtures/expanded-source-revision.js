@@ -38,7 +38,7 @@ export function createExpandedSourceRevisionFixture(root, cli, seeds) {
     const r=service('agdf_approve',{...envelope(),command:{kind:'approval.record',payload:{gate,presentation_id:p.family_result.presentation_id,response:'Approval: '+gate}}});assert.equal(r.outcome,'accepted',JSON.stringify(r));};
   const save = phase => { assert.equal(state().current_gate,phase);cpSync(join(root,'.agdf'),join(seeds,phase.replace('+','_')),{recursive:true}); };
   const restore = phase => {rmSync(join(root,'.agdf'),{recursive:true});cpSync(join(seeds,phase.replace('+','_')),join(root,'.agdf'),{recursive:true});};
-  save('PRD');record('PRD',syntheticPrd());approve('PRD');save('SD');record('SD',syntheticSd());approve('SD');save('TP');record('TP',syntheticTp());approve('TP');
+  save('PRD');record('PRD',syntheticPrd());approve('PRD');save('SD');record('SD',syntheticSd());approve('SD');save('TP');record('TP',syntheticTp());approve('TP');save('Brownfield Analysis');
   for (const step of ['Brownfield Analysis','CD+Tests','TP Review','Clean Implementation Review','CR']) {
     const path=f.prefix+randomUUID()+'.md';writeFileSync(join(root,path),'# '+step+'\n- decision: pass\nSynthetic actual fixture result.\n');
     const r=service('agdf_record',{...envelope(),command:{kind:'step.record',payload:{step:'internal',internal_step:step,decision:'pass',source:{path,digest:artefactFileDigest(root,path)}}}});

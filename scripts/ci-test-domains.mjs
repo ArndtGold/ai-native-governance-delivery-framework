@@ -12,7 +12,7 @@ export const TEST_DOMAINS = {
     'test:canonical-init', 'test:install-setup-contract', 'test:install-setup-interaction',
     'test:install-setup-service', 'test:install-control-migration', 'test:install-control-repair',
     'test:control-maintenance', 'test:runtime-check-consent', 'test:local-marketplace',
-    'test:claude-cache-recovery', 'test:claude-packaged-app-copy', 'test:claude-install-hardening',
+    'test:claude-cache-recovery', 'test:claude-packaged-app-copy', 'test:claude-install-hardening', 'test:claude-companion',
     'test:copilot-profile', 'test:copilot-installer', 'test:local-preparation',
     'test:local-development-install', 'test:lifecycle', 'test:copilot-repository-retention',
     'test:opencode-hardening',

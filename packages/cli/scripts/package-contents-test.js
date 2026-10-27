@@ -36,6 +36,9 @@ const required = [
   "generated/.opencode/agdf-agent-router.md",
   "generated/plugins/agdf/.codex-plugin/plugin.json",
   "generated/plugins/agdf/.claude-plugin/plugin.json",
+  "generated/plugins/agdf/companion/companion.json",
+  "generated/plugins/agdf/companion/hooks.json",
+  "generated/plugins/agdf/companion/register.mjs",
   "generated/plugins/copilot/agdf/plugin.json",
   "generated/plugins/copilot/agdf/com.github.copilot/hooks/hooks.json",
   "generated/plugins/copilot/agdf/skills/agdf-gate-check/SKILL.md",
@@ -78,6 +81,9 @@ for (const excluded of [
   "generated/plugins/agdf/hooks/copilot-hooks.json",
   "generated/plugins/agdf/copilot-skills/agdf-gate-check/SKILL.md",
 ]) assert.equal(files.includes(excluded), false, `shared plugin package must exclude Copilot-only path ${excluded}`);
+// The companion ships only in the shared runtime plugin, never as a build template or in Copilot.
+assert.deepEqual(files.filter((path) => path.includes("/companion/") && !path.startsWith("generated/plugins/agdf/companion/")), [],
+  "package must carry the Claude companion only under generated/plugins/agdf/companion/");
 assert.equal(new Set(files).size, files.length, "package file inventory must not contain duplicate paths");
 assert.equal(packageManifest.files.includes("generated"), false, "package manifest must not include the unbounded generated tree");
 assert.equal(

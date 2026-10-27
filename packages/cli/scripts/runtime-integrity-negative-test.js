@@ -393,6 +393,30 @@ try {
   );
   expectIntegrityFailure(/clean-implementation-review SKILL\.md must not duplicate the complete normalized gap mapping/);
 
+  // The Claude companion stays Claude-only and runtime-only (SDD-01, SDD-02).
+  const companionRoot = join(fixtureRoot, "plugins", "agdf", "host-templates", "claude", "companion");
+  const sourceClaudeManifestPath = join(fixtureRoot, "plugins", "agdf", ".claude-plugin", "plugin.json");
+  resetPluginFixture();
+  writeFileSync(sourceClaudeManifestPath, `${JSON.stringify({ ...JSON.parse(readFileSync(sourceClaudeManifestPath, "utf8")), hooks: "./companion/hooks.json" }, null, 2)}\n`);
+  expectIntegrityFailure(/Claude plugin manifest must declare the companion only in the runtime profile/);
+  resetPluginFixture();
+  writeFileSync(join(companionRoot, "companion.json"), `${JSON.stringify({ schema_version: 1, hooks: "./hooks/hooks.json" }, null, 2)}\n`);
+  expectIntegrityFailure(/Claude companion descriptor must declare exactly \.\/companion\/hooks\.json/);
+  resetPluginFixture();
+  unlinkSync(join(companionRoot, "register.mjs"));
+  expectIntegrityFailure(/Claude companion file register\.mjs/);
+  resetPluginFixture();
+  writeFileSync(join(companionRoot, "hooks.json"), `${JSON.stringify({ modules: ["./register.mjs", "./extra.mjs"] }, null, 2)}\n`);
+  expectIntegrityFailure(/Claude companion hooks must load only \.\/register\.mjs/);
+  resetPluginFixture();
+  const companionDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+  companionDefinition.claude.hooks = "./companion/hooks.json";
+  writeFileSync(pluginDefinitionPath, `${JSON.stringify(companionDefinition, null, 2)}\n`, "utf8");
+  expectIntegrityFailure(/shared AGDF plugin definition must not reference the Claude companion/);
+  resetPluginFixture();
+  replaceRequired(join(fixtureRoot, "plugins", "agdf", "host-templates", "shared", "hooks", "hooks.json"), "\"SessionStart\"", "\"companion\": true, \"SessionStart\"");
+  expectIntegrityFailure(/shared plugin hooks must not reference the Claude companion/);
+
   console.log("Runtime integrity negative tests passed");
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });

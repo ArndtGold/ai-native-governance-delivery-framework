@@ -3,7 +3,7 @@ import { isDeepStrictEqual } from "node:util";
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { LISTING_LIMITS, unicodeLength } from "./contract.js";
-import { createCodexPluginManifest, createPortablePluginManifest, selectOpenAISettings } from "./manifest.js";
+import { createClaudePluginManifest, createCodexPluginManifest, createPortablePluginManifest, selectOpenAISettings } from "./manifest.js";
 import { renderCodexPluginMcpConfig } from "../../packages/core/lib/runtime/plugin-provenance.js";
 
 function inside(root, candidate) {
@@ -131,6 +131,13 @@ export function validatePortableProfile(root, { profile, validateSchema } = {}) 
     if (cockpit) for (const path of ['mcp/server/ui/cockpit.html', 'mcp/server/ui/manifest.json']) declaredPath(root, `./${path}`, path);
     for (const path of ["mcp/claude.mcp.json", "mcp/agdf-mcp-launch.js", "runtime/agdf-session-check.js"]) declaredPath(root, `./${path}`, path);
     if (!isDeepStrictEqual(fallback, createCodexPluginManifest(definition, { runtimeProfile: true }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: runtime fallback differs from canonical projection");
+    // The Claude-only companion: its shipped descriptor drives the runtime Claude manifest projection.
+    declaredPath(root, "./companion/companion.json", "Claude companion descriptor");
+    const companion = JSON.parse(readFileSync(join(root, "companion", "companion.json"), "utf8"));
+    const claude = JSON.parse(readFileSync(join(root, ".claude-plugin", "plugin.json"), "utf8"));
+    if (!isDeepStrictEqual(claude, createClaudePluginManifest(definition, { runtimeProfile: true, companion }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: runtime Claude manifest differs from canonical projection");
+    declaredPath(root, claude.hooks, "Claude companion hooks");
+    for (const module of JSON.parse(readFileSync(join(root, claude.hooks), "utf8")).modules ?? []) declaredPath(root, `./companion/${String(module).replace(/^[.][/]/u, "")}`, "Claude companion module");
   } else {
     const claudePath = join(root, ".claude-plugin", "plugin.json");
     const hosts = [settings, fallback, ...(existsSync(claudePath) ? [JSON.parse(readFileSync(claudePath, "utf8"))] : [])];

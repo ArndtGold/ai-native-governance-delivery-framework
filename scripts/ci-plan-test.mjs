@@ -54,7 +54,7 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
   const selected = inventory.filter(c => c.args.includes('--source-gate'));
   const cells = Object.entries(SOURCE_PHASE_MATRIX).flatMap(([gate, phases]) => phases.map(phase => [gate, phase]));
   assert.deepEqual(selected.map(c => [c.args[c.args.indexOf('--source-gate') + 1], c.args[c.args.indexOf('--phase') + 1]]).sort(), cells.sort());
-  assert.equal(selected.length, 18);
+  assert.equal(selected.length, 22);
   const packageParts = inventory.filter(c => c.args[0] === 'scripts/control-command-package-test.js');
   assert.deepEqual(packageParts.map(c => c.args.slice(1)), Object.keys(CONTROL_COMMAND_PACKAGE_PARTS).map(part => ['--part', part]));
   assert.ok(packageParts.every(c => c.domain === 'packages' && !c.isolated));
@@ -103,6 +103,7 @@ test('compact graph names retain purpose, platform, partition and revision scena
   assert.equal(label('windows-22-mcp-part-4'), `MCP · Win22 4of${mcpParts}`);
   assert.equal(label('windows-22-revision-ur-during-qa'), 'UR→QA · Win22');
   assert.equal(label('linux-24-revision-prd-during-cd-tests'), 'PRD→CD+Tests · Linux24');
+  assert.equal(label('windows-22-revision-sd-during-brownfield-analysis'), 'SD→BA · Win22');
   assert.equal(label('linux-22-checks-contracts'), 'Contracts · Linux22');
   for (const suite of ['cli', 'mcp']) {
     const rows = ciJobs({ suite });

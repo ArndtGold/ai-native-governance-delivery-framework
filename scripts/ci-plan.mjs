@@ -27,6 +27,8 @@ const checkAreas = {
   documentation: { label: 'Documentation & community', shortLabel: 'Docs', stages: ['community', 'pages-install', 'pages'] },
 };
 
+// Graph names are limited to 24 characters; long phase names get a short form there only.
+const PHASE_GRAPH_LABELS = Object.freeze({ 'Brownfield Analysis': 'BA' });
 const identity = c => JSON.stringify([c.cwd, c.tool, c.args, c.env ?? {}]);
 const packageAt = (repository, cwd) => JSON.parse(readFileSync(join(repository, cwd, 'package.json'), 'utf8'));
 const requireTestFile = (repository, cwd, file) => {
@@ -89,7 +91,7 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
   const commands = expand(suite === 'cli' ? 'smoke-test' : 'test', `packages/${suite === 'cli' ? 'cli' : 'mcp-server'}`);
   // Each cell or part pays its own fixture setup on top of its share of the measured file.
   const share = (seconds, count) => Object.fromEntries(Object.entries(seconds ?? {}).map(([key, value]) => [key, value / count + (key === 'windows' ? 60 : 15)]));
-  // This file exercises 18 independent source/phase cells. Preserve the full
+  // This file exercises 22 independent source/phase cells. Preserve the full
   // default invocation locally; CI executes each validated source/phase cell.
   return commands.flatMap(command => {
     if (command.tool === 'node') {
@@ -169,8 +171,8 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
       const phase = command.args[command.args.indexOf('--phase') + 1];
       const [group] = partitionTests([command], platform.speed);
       groups.push(group);
-      rows.push({ ...platform, id: `${prefix}-revision-${gate.toLowerCase()}-during-${phase.toLowerCase().replaceAll('+', '-')}`,
-        graphLabel: `${gate}→${phase} · ${graphPlatform}`,
+      rows.push({ ...platform, id: `${prefix}-revision-${gate.toLowerCase()}-during-${phase.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        graphLabel: `${gate}→${PHASE_GRAPH_LABELS[phase] ?? phase} · ${graphPlatform}`,
         label: `Source revision / ${gate} changed during ${phase} / ${suffix}`, area: 'revisions', kind: 'tests', ...group });
     }
     // Multiset equality catches missing *and* duplicate assignments, even if a

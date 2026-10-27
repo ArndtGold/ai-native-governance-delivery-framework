@@ -129,7 +129,7 @@ export function validSourceRevision(row) {
     || !exactObject(row.producer, ['contract', 'package_version']) || row.producer.contract !== 'run-command/1' || typeof row.producer.package_version !== 'string'
     || canonicalJson(row.assurance) !== canonicalJson(COOPERATIVE_ASSURANCE)
     || row.confirmation_digest !== digest(sourceRevisionConfirmation({ runId: row.run_id, revisionId: row.previous_revision_id, operationId: row.operation_id, sourceGate: row.source_gate, previewDigest: row.preview_digest })))) return false;
-  if (row.schema_version === '3' && (row.policy_version !== 2 || !['PRD', 'SD', 'TP', 'CD+Tests', 'QA', 'UAT'].includes(row.initiating_phase)
+  if (row.schema_version === '3' && (row.policy_version !== 2 || !['PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'QA', 'UAT'].includes(row.initiating_phase)
     || ![row.impact_digest, row.quality_digest].every(hashes))) return false;
   return row.source_gate !== "UR" || row.analyses.every(item => item.disposition === "reassess");
 }

@@ -37,6 +37,8 @@ try {
     ["runtime manifest without the companion", root => edit(claudeManifest(root), manifest => { delete manifest.hooks; }), /declare the companion only in the runtime profile/u],
     ["runtime manifest pointing at the shared hooks", root => edit(claudeManifest(root), manifest => { manifest.hooks = "./hooks/hooks.json"; }), /declare the companion only in the runtime profile/u],
     ["companion module missing", root => rmSync(join(root, "companion", "register.mjs")), /Claude companion file register\.mjs/u],
+    // Follow-up SCN-024: the notice module the adapter imports is part of the checked file set.
+    ["notice module missing", root => rmSync(join(root, "companion", "notice.mjs")), /Claude companion file notice\.mjs/u],
     ["descriptor redirected", root => save(join(root, "companion", "companion.json"), { schema_version: 1, hooks: "./companion/other.json" }), /descriptor must declare exactly/u],
     ["companion hooks with a second module", root => save(join(root, "companion", "hooks.json"), { modules: ["./register.mjs", "./extra.mjs"] }), /hooks must load only/u],
     ["Codex manifest referencing the companion", root => edit(join(root, ".codex-plugin", "plugin.json"), manifest => { manifest.companion = "./companion/hooks.json"; }), /Codex plugin manifest must not reference/u],

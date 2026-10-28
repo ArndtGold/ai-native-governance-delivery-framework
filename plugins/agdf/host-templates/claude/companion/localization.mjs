@@ -24,9 +24,24 @@ export function resolveLocale(registry, requested) {
   return registry.fallbackLocale;
 }
 
-// configText: content of .agdf/control/config.json, or null when absent.
-export function chatLocale(registry, configText) {
-  if (typeof configText !== 'string') return registry.fallbackLocale;
+// Claude's own `language` setting is free text: a supported language tag (exact or base language)
+// or one of a locale's `languageNames` in the companion's locales.json, compared without case;
+// anything else names no locale (null).
+export function settingLocale(registry, labels, value) {
+  const text = typeof value === 'string' ? value.trim() : '';
+  if (!text) return null;
+  const tag = canonicalLanguageTag(text);
+  if (tag && (registry.locales[tag] || registry.locales[tag.split('-')[0]])) return resolveLocale(registry, tag);
+  const name = text.toLowerCase();
+  const match = Object.entries(labels?.locales ?? {})
+    .find(([locale, pack]) => registry.locales[locale] && (pack.languageNames ?? []).some(entry => entry.toLowerCase() === name));
+  return match?.[0] ?? null;
+}
+
+// configText: content of .agdf/control/config.json, or null when absent. Only without it, Claude's
+// `language` setting (follow-up SDD-11) chooses the locale before the registry's fallback.
+export function chatLocale(registry, configText, { setting = null, labels = null } = {}) {
+  if (typeof configText !== 'string') return settingLocale(registry, labels, setting) ?? registry.fallbackLocale;
   try {
     return resolveLocale(registry, JSON.parse(configText).chat_language);
   } catch {

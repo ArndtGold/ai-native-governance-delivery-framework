@@ -1,12 +1,14 @@
-// AGDF companion host adapter (SDD-07 to SDD-10): the `/agdf-companion` command, the persisted
-// choices, main-loop turn observation, the refresh cadence and the own pane. Observation only: no
-// gating hook, every hook passes its event on through a catch path, and nothing is written under
-// .agdf/control. Session state lives in this module and is redrawn through `$.ui.invalidate`.
-// Elements come from the surface table and are built with the host's global `h`.
+// AGDF Companion host adapter (SDD-07 to SDD-10; follow-up SDD-05 to SDD-12): the `/agdf-companion`
+// command, the persisted choices, main-loop turn observation, the refresh cadence, the own pane, the
+// status line and toasts. Observation only: no gating hook, every hook passes its event on through a
+// catch path, and nothing is written under .agdf/control. Session state lives in this module and is
+// redrawn through `$.ui.invalidate`. Elements come from the surface table and are built with the
+// host's global `h`.
 
-import { assignRun, stepSelection } from './assignment.mjs';
+import { assignRun, namedRun, openRuns, stepSelection } from './assignment.mjs';
 import { figureSvg } from './figure.mjs';
 import { chatLocale, label } from './localization.mjs';
+import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
 import { STATE_FILE, defaultCompanionState, parseCompanionState, pluginDataDir, serializeCompanionState } from './persistence.mjs';
 import { readSnapshot, settleSnapshot } from './run-state.mjs';
 import { buildPanelView, terminalText } from './view.mjs';
@@ -14,13 +16,30 @@ import { buildPanelView, terminalText } from './view.mjs';
 export const PANE = 'agdf-companion';
 export const COMMAND = 'agdf-companion';
 export const REFRESH_MS = 30_000;
+export const MENU = 'menu';
+export const ABOUT_URL = 'https://agdf.iself.eu';
 const LISTED_RUNS = 6;
-const COLOR = Object.freeze({ laeuft: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
+// The surfaces whose element table has a picker; the mobile app draws none and turns one into an empty
+// box (`claude plugin test` 2.1.302), so its table entry alone does not decide.
+const PICKER_SURFACES = new Set(['terminal', 'desktop', 'vscode']);
+// Body rows the desktop spends around the run list, measured live on 2026-10-28 (a body row is about
+// 28 px): the figure with its state and reason, the framed footer with its picker, the About block,
+// the space between two blocks, and one spare row, since a body taller than the pane scrolls.
+const DESKTOP_ROWS = Object.freeze({ figure: 7, footer: 2, about: 7, gap: 0.6, spare: 1 });
+// Rows the desktop body leaves below the pane's body rows. The T-001 probe of 2026-10-28 showed no
+// scrollbar for a framed footer at 0, 0.25, 0.5 and 1 row in the narrow, widened and taller pane, so
+// the smallest reserve applies (chat-run navigation SDD-08).
+const BODY_RESERVE = 0;
+// Listed runs show their condensed gate bars beside the ids while at least this many characters of an id
+// stay beside the widest bar (owner request of 2026-10-28); a narrower pane lists the ids alone.
+const ID_ROOM = 18;
+const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
 
 function createSession() {
-  return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null,
+  return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, version: null, icon: null,
     choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
-    timer: null, reads: 0, appliedRead: 0 };
+    isAboutShown: false, isMenuOpen: false, timer: null, reads: 0, appliedRead: 0, observation: null,
+    chatMention: null, isBrowsing: false, conversation: null };
 }
 
 // One companion per session: the module is loaded once per session.
@@ -45,6 +64,38 @@ async function persist($, change) {
   await $.fs.write(session.statePath, serializeCompanionState(stored));
 }
 
+// The status line and toasts follow the run-derived state of the run the panel shows without browsing,
+// so browsing never changes them (follow-up SDD-05 to SDD-07; chat-run navigation SDD-06). A stale snapshot keeps the last observation, so a failed read never
+// announces anything. Each host call has its own catch path: a missing channel stays silent (SDD-12).
+function announce($) {
+  const observed = observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
+    mention: session.chatMention });
+  // Every applied read sets the line again, unchanged text included: the desktop dropped the one set
+  // during session start, before its surface was attached (live finding of 2026-10-27).
+  try { $.ui.status(statusText(observed, { labels: session.labels, locale: session.locale })); } catch { /* no status line on this host */ }
+  if (session.snapshot?.stale) return;
+  const { observation, notice } = observeNotice(session.observation, observed);
+  session.observation = observation;
+  if (!notice || !session.choices.notice) return;
+  try {
+    $.ui.toast(noticeText(observed.runId, notice, { registry: session.registry, labels: session.labels, locale: session.locale }));
+  } catch {
+    return; // no toast on this host, and so no chime either (CR-F01)
+  }
+  // The chime plays only with a shown toast; a host without a player skips it, a failure stays silent.
+  if (session.choices.sound) {
+    try { $.audio.play(chimeClip(), { gain: CHIME.gain }).catch(() => {}); } catch { /* no audio on this host */ }
+  }
+}
+
+// Switching off clears the status line, forgets the observation and discards reads still running, so
+// switching on starts from a fresh baseline without a toast (CR-F02).
+function silence($) {
+  session.observation = null;
+  session.appliedRead = session.reads + 1;
+  try { $.ui.status(undefined); } catch { /* no status line on this host */ }
+}
+
 // Reads the run states of the current project root, which `/cd` or a worktree move can change.
 // Only the newest of overlapping reads is applied. A snapshot without any runs, as during a branch
 // switch, never drops the remembered selection.
@@ -52,6 +103,7 @@ async function refresh($) {
   const read = ++session.reads;
   try {
     const root = await $.session.root();
+    await followConversation($);
     const next = await readSnapshot(files($), root, { now: await $.clock.now() });
     if (read < session.appliedRead) return;
     session.appliedRead = read;
@@ -67,7 +119,33 @@ async function refresh($) {
     session.appliedRead = read;
     session.snapshot = settleSnapshot(session.snapshot, { status: 'failed', runs: [], unreadable: [], readAt: Date.now(), error: String(error?.message ?? error) });
   }
+  if (session.choices.enabled) announce($);
   redraw($);
+}
+
+// Takes the last open run a main-loop text names as the chat's run at host time `at` (chat-run navigation
+// SDD-01, SDD-02). Returns whether a mention was recorded: a repeated name can still move the chat's run
+// back from a later change, so every recorded mention is announced (CR-F02).
+function noteMention(text, at) {
+  const runs = session.snapshot?.status === 'ok' ? session.snapshot.runs : [];
+  const runId = namedRun(text, openRuns(runs).map(run => run.id));
+  if (!runId) return false;
+  session.chatMention = { runId, at };
+  return true;
+}
+
+// A `/clear` or a resumed transcript starts a new conversation without `session.start`: it starts without
+// a chat run and counts changes from its own start (CR-F03). A host without the id keeps the session's.
+async function followConversation($) {
+  let conversation = session.conversation;
+  try { conversation = await $.session.id(); } catch { /* no conversation id on this host */ }
+  if (session.conversation && conversation !== session.conversation) {
+    session.chatMention = null;
+    session.isBrowsing = false;
+    session.observation = null;
+    session.startedAt = await $.clock.now();
+  }
+  session.conversation = conversation;
 }
 
 function stopRefreshing() {
@@ -91,10 +169,44 @@ async function loadSession($) {
   session.labels = JSON.parse(await $.fs.read(`${$.plugin.root}/companion/locales.json`));
   session.registry = JSON.parse(await $.fs.read(`${$.plugin.root}/meta/agdf-interaction-locales.json`));
   const config = `${session.root}/.agdf/control/config.json`;
-  session.locale = chatLocale(session.registry, (await $.fs.exists(config)) ? await $.fs.read(config) : null);
+  const configText = (await $.fs.exists(config)) ? await $.fs.read(config) : null;
+  // Without AGDF control, Claude's own `language` setting chooses the language (follow-up SDD-11).
+  let setting = null;
+  if (configText === null) {
+    try { setting = await $.settings.read({ key: 'language' }); } catch { /* no setting: the fallback locale */ }
+  }
+  session.locale = chatLocale(session.registry, configText, { setting, labels: session.labels });
+  // The About entry names the plugin version; a missing or unreadable manifest only leaves it out.
+  try {
+    const { version } = JSON.parse(await $.fs.read(`${$.plugin.root}/.claude-plugin/plugin.json`));
+    session.version = typeof version === 'string' ? version : null;
+  } catch { /* no version shown */ }
+  // The footer shows the plugin's own AGDF icon; without it the footer starts with the name.
+  try {
+    const icon = await $.fs.read(`${$.plugin.root}/assets/agdf-icon.svg`);
+    session.icon = icon.trimStart().startsWith('<svg') ? icon : null;
+  } catch { /* no icon shown */ }
   const dir = pluginDataDir({ configDir: await $.env.get('CLAUDE_CONFIG_DIR'), userProfile: await $.env.get('USERPROFILE'), home: await $.env.get('HOME') });
   session.statePath = dir ? `${dir}/${STATE_FILE}` : null;
   if (session.statePath && (await $.fs.exists(session.statePath))) session.choices = parseCompanionState(await $.fs.read(session.statePath));
+}
+
+const wrappedRows = (value, columns) => (value ? Math.ceil(value.length / Math.max(columns, 10)) : 0);
+
+// How many open runs the desktop list shows: the body rows left beside the other blocks, never fewer
+// than the terminal's six (the pane then scrolls). One row of them goes to "+ N more" when runs remain.
+export function listCapacity(view, { rows, columns, isAboutShown = false }) {
+  const blocks = [view.message, view.hint, view.stale].filter(Boolean);
+  const fixed = DESKTOP_ROWS.figure + DESKTOP_ROWS.footer + DESKTOP_ROWS.spare + (isAboutShown ? DESKTOP_ROWS.about : 0) + 1
+    + blocks.reduce((sum, value) => sum + wrappedRows(value, columns), 0) + DESKTOP_ROWS.gap * (blocks.length + 3);
+  return Math.max(LISTED_RUNS, Math.floor(rows - fixed));
+}
+
+// A run id shortened in the middle to `room` characters, so its date and sequence stay readable.
+export function fitRunId(id, room) {
+  if (id.length <= room) return id;
+  const tail = Math.min(12, Math.floor((room - 1) / 2));
+  return `${id.slice(0, room - 1 - tail)}…${id.slice(id.length - tail)}`;
 }
 
 const press = ($, action) => async () => {
@@ -103,10 +215,15 @@ const press = ($, action) => async () => {
 };
 
 function body($, e, view) {
-  const { Box, Text, Button, Svg } = $.ui.resolve(e);
+  const { Box, Text, Button, Svg, Link, Select } = $.ui.resolve(e);
   const isTerminal = e.surface === 'terminal' || !Svg;
+  const rows = e.props?.scroll?.bodyRows;
+  const fits = Number.isInteger(rows) && rows > 0;
+  const columns = Number.isInteger(e.props?.bodyColumns) ? e.props.bodyColumns : 40;
   const select = runId => press($, async () => {
     const root = session.root;
+    // A pick of another run than the chat's browses until the next main-loop turn (SDD-04, CR-F07).
+    if (view.chatRunId) session.isBrowsing = runId !== view.chatRunId;
     await persist($, choices => { choices.selections[root] = runId; });
     await refresh($);
   });
@@ -114,14 +231,67 @@ function body($, e, view) {
     const next = stepSelection(view.openRuns, view.runId ?? selection(), offset);
     if (next) await select(next)();
   });
-  // The read time has its own line below the two buttons, so neither wraps at the default width.
-  const actions = h(Box, { flexDirection: 'column' },
-    h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-      h(Button, { key: 'still', label: session.choices.still ? t('actions.stillOff') : t('actions.stillOn'),
-        onPress: press($, async () => { const still = !session.choices.still; await persist($, choices => { choices.still = still; }); }) }),
-      h(Button, { key: 'retry', label: t('actions.retry'), onPress: press($, () => refresh($)) })),
-    view.readAt ? h(Text, { dimColor: true }, view.readAt) : null);
-  const runList = view.originKind !== 'session' && view.openRuns.length
+  const toggle = key => async () => { const value = !session.choices[key]; await persist($, choices => { choices[key] = value; }); };
+  // While another run than the chat's run is shown, the menu offers the way back first (SDD-05).
+  const canReturn = Boolean(view.chatRunId) && view.runId !== view.chatRunId;
+  const back = async () => { session.isBrowsing = false; };
+  const commands = [
+    ...(canReturn ? [['chat', t('actions.backToChat'), back]] : []),
+    ['still', session.choices.still ? t('actions.stillOff') : t('actions.stillOn'), toggle('still')],
+    ['retry', t('actions.retry'), () => refresh($)],
+    ['notice', session.choices.notice ? t('actions.noticeOff') : t('actions.noticeOn'), toggle('notice')],
+    ['sound', session.choices.sound ? t('actions.soundOff') : t('actions.soundOn'), toggle('sound')],
+    ['about', t('actions.about'), async () => { session.isAboutShown = true; }],
+  ];
+  // The actions open from the panel's foot (owner requests of 2026-10-28): the AGDF icon, the menu and
+  // the read time at the right edge, set off by a dim frame (a dim line on the terminal). Where the
+  // surface has a picker, the app draws the open menu itself as a popover above the footer; the picker
+  // always shows its neutral entry, the name, so every pick runs its action. The mobile app draws no
+  // picker and gets the name as a plain button that opens the entries above the footer.
+  const hasPicker = Boolean(Select) && PICKER_SURFACES.has(e.surface);
+  const run = action => press($, async () => { session.isMenuOpen = false; await action(); });
+  const trigger = hasPicker
+    ? h(Select, { key: MENU, value: MENU, options: [{ value: MENU, label: t('title') }, ...commands.map(([value, text]) => ({ value, label: text }))],
+      onSelect: value => { const command = commands.find(([key]) => key === value); return command ? run(command[2])() : undefined; } })
+    : h(Button, { key: MENU, plain: true, label: `${t('title')} ${session.isMenuOpen ? '▴' : '▾'}`,
+      onPress: press($, async () => { session.isMenuOpen = !session.isMenuOpen; }) });
+  const entries = !hasPicker && session.isMenuOpen
+    ? h(Box, { flexDirection: 'column', alignItems: 'flex-start', ...(isTerminal ? {} : { borderStyle: 'single', borderDimColor: true, paddingX: 1 }) },
+      ...commands.map(([key, text, action]) => h(Button, { key, plain: true, label: text, onPress: run(action) })))
+    : null;
+  const footer = h(Box, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 1,
+    ...(isTerminal ? {} : { borderStyle: 'single', borderDimColor: true, paddingX: 1 }) },
+    h(Box, { flexDirection: 'row', alignItems: 'center', gap: 1, flexShrink: 1 },
+      !isTerminal && session.icon ? h(Svg, { source: session.icon, alt: 'AGDF', width: 20, height: 20 }) : null,
+      trigger),
+    view.readAt ? h(Box, { flexShrink: 0 }, h(Text, { dimColor: true }, view.readAt)) : null);
+  const actions = h(Box, { flexDirection: 'column', gap: isTerminal ? 0 : 1, flexShrink: 0 }, entries,
+    isTerminal ? h(Text, { dimColor: true }, '─'.repeat(Math.min(columns, 40))) : null, footer);
+  const about = session.isAboutShown ? h(Box, { flexDirection: 'column' },
+    h(Text, { weight: 'semibold' }, t('title')),
+    h(Text, { dimColor: true }, t('about.text')),
+    session.version ? h(Text, { dimColor: true }, t('about.version', { version: session.version })) : null,
+    Link ? h(Link, { href: ABOUT_URL, label: ABOUT_URL.slice('https://'.length) }) : h(Text, {}, ABOUT_URL),
+    h(Button, { key: 'about-close', plain: true, label: t('actions.closeAbout'), onPress: press($, async () => { session.isAboutShown = false; }) })) : null;
+  const capacity = !isTerminal && fits ? listCapacity(view, { rows: rows - BODY_RESERVE, columns, isAboutShown: session.isAboutShown }) : LISTED_RUNS;
+  // The terminal keeps its six; the desktop lists as many as fit and gives the last row to "+ N more".
+  const listed = isTerminal ? view.openRuns.slice(0, LISTED_RUNS)
+    : view.openRuns.length <= capacity ? view.openRuns : view.openRuns.slice(0, capacity - 1);
+  // One listed run: the id as a plain button and, where the pane has room for the widest listed bar, its
+  // condensed gate bar at the right edge, every id shortened to the same room (the same rule for all rows,
+  // live check of 2026-10-28). The bar keeps its width; an id that still runs over is cut by the surface.
+  const widest = Math.max(0, ...listed.map(run => run.bar?.length ?? 0));
+  const room = columns - widest - 2;
+  const withBars = widest > 0 && room >= ID_ROOM;
+  const runRow = run => {
+    const id = h(Button, { key: `run-${run.id}`, plain: true, label: withBars ? fitRunId(run.id, room) : run.id, onPress: select(run.id) });
+    return withBars && run.bar
+      ? h(Box, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 1 },
+        h(Box, { flexShrink: 1 }, id), h(Box, { flexShrink: 0 }, h(Text, { dimColor: true, mono: true }, run.bar)))
+      : id;
+  };
+  // The stepping row stands under every shown run, the chat's run included (SDD-04).
+  const runList = view.openRuns.length
     ? (view.runId
       // The count has its own line, so the two stepping buttons fit the default width. The desktop
       // draws a Button's label, which also names it, so the label is the visible localized text.
@@ -129,18 +299,23 @@ function body($, e, view) {
         h(Text, { dimColor: true }, view.openCount),
         h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
           h(Button, { key: 'previous', label: t('actions.previous'), onPress: step(-1) }),
-          h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) })))
+          h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) })),
+        canReturn ? h(Button, { key: 'chat-return', plain: true, label: t('actions.backToChat'), onPress: press($, back) }) : null)
       : h(Box, { flexDirection: 'column' },
         h(Text, { dimColor: true }, view.openCount),
-        ...view.openRuns.slice(0, LISTED_RUNS).map(run => h(Button, { key: `run-${run.id}`, plain: true, label: run.id, onPress: select(run.id) }))))
+        ...listed.map(runRow),
+        !isTerminal && view.openRuns.length > listed.length ? h(Text, { dimColor: true }, t('fields.moreRuns', { count: view.openRuns.length - listed.length })) : null))
     : null;
   if (isTerminal) {
     return h(Box, { flexDirection: 'column', gap: 1 },
-      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, actions);
+      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, about, actions);
   }
   const figure = h(Svg, { source: figureSvg(view.mood, { still: session.choices.still, title: `${view.title}: ${view.stateLabel}` }),
     alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !session.choices.still });
-  return h(Box, { flexDirection: 'column', gap: 1 },
+  // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
+  // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of
+  // 2026-10-28: a cell count sizes the body, a percentage does not; SDD-08).
+  return h(Box, { flexDirection: 'column', gap: 1, ...(fits ? { minHeight: rows - BODY_RESERVE } : {}) }, h(Box, { flexDirection: 'column', gap: 1, flexGrow: 1 },
     h(Box, { flexDirection: 'column', alignItems: 'center' },
       figure,
       h(Text, { color: COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
@@ -160,6 +335,7 @@ function body($, e, view) {
       h(Text, {}, view.nextStep)) : null,
     runList,
     view.stale ? h(Text, { color: 'warning' }, view.stale) : null,
+    about),
     actions);
 }
 
@@ -185,12 +361,19 @@ export const register = on => {
         return { text: openedText(await startRefreshing($)) };
       }
       const enabled = !session.choices.enabled;
-      await persist($, choices => { choices.enabled = enabled; });
       if (!enabled) {
+        // Reading, the status line and the pane stop before the choice is stored, so a failing write
+        // leaves none of them running (CR-F03); the choice is stored even if closing the pane fails.
         stopRefreshing();
-        await $.ui.close({ id: PANE });
+        silence($);
+        try {
+          await $.ui.close({ id: PANE });
+        } finally {
+          await persist($, choices => { choices.enabled = false; });
+        }
         return { text: t('command.disabled') };
       }
+      await persist($, choices => { choices.enabled = true; });
       session.isHidden = false;
       return { text: openedText(await startRefreshing($)) };
     } catch (error) {
@@ -200,9 +383,14 @@ export const register = on => {
 
   on('turn.start', async ($, e, next) => {
     try {
-      if (e.agentId === undefined && session.choices.enabled && !session.isHidden) {
-        session.isTurnActive = true;
+      if (e.agentId === undefined && session.choices.enabled) {
+        // A main-loop turn ends browsing and may name the chat's run (chat-run navigation SDD-02, SDD-04);
+        // the host clock is read beside the event, never before it is passed on (SDD-11).
+        session.isBrowsing = false;
+        if (!session.isHidden) session.isTurnActive = true;
         redraw($);
+        const prompt = e.text;
+        void $.clock.now().then(at => { if (noteMention(prompt, at)) { announce($); redraw($); } }).catch(() => {});
       }
     } catch { /* observation only */ }
     return next(e);
@@ -214,21 +402,29 @@ export const register = on => {
       if (e.agentId === undefined) {
         // Cleared on every main-loop completion, also while switched off, so no stale overlay remains.
         session.isTurnActive = false;
-        // The read runs after the host has its answer, never inside the hook.
-        if (session.choices.enabled && !session.isHidden) void refresh($);
+        // The read runs after the host has its answer, never inside the hook; a hidden pane keeps
+        // the status line and toasts current (follow-up SDD-08). The turn's final answer (`e.answer`,
+        // else the text `next(e)` returned) is matched against that read at the turn's end time, so a
+        // run created during the turn counts (CR-F05, CR-F06).
+        if (session.choices.enabled) {
+          const answer = typeof e.answer === 'string' ? e.answer : answered?.text;
+          void (async () => {
+            const at = await $.clock.now();
+            await refresh($);
+            if (session.choices.enabled && noteMention(answer, at)) { announce($); redraw($); }
+          })().catch(() => {});
+        }
       }
     } catch { /* observation only */ }
     return answered;
   }).catch(passOn);
 
-  // Closing the pane by its own mark hides it for this session only (SDD-07). The host stamps
-  // `origin` as `{ kind: 'plugin' | 'person' | 'unload' }`.
+  // Closing the pane by its own mark hides only the pane for this session (SDD-07); reading goes on
+  // for the status line and toasts until the companion is switched off (follow-up SDD-08). The host
+  // stamps `origin` as `{ kind: 'plugin' | 'person' | 'unload' }`.
   on('ui.close', { id: PANE }, async ($, e, next) => {
     try {
-      if (e.origin?.kind === 'person') {
-        session.isHidden = true;
-        stopRefreshing();
-      }
+      if (e.origin?.kind === 'person') session.isHidden = true;
     } catch { /* observation only */ }
     return next(e);
   }).catch(passOn);
@@ -237,11 +433,12 @@ export const register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     try {
       return body($, e, buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
+        mention: session.chatMention, isBrowsing: session.isBrowsing,
         isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
         columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded }));
     } catch (error) {
       const { Text } = $.ui.resolve(e);
-      return h(Text, { dimColor: true }, `AGDF companion: ${String(error?.message ?? error).slice(0, 200)}`);
+      return h(Text, { dimColor: true }, `AGDF Companion: ${String(error?.message ?? error).slice(0, 200)}`);
     }
   });
 };

@@ -1,0 +1,44 @@
+## Kurzfassung · UAT
+
+Run: `agdf-companion-chat-run-navigation-20261028-01` · Gate: `UAT` · Revision: `eb5a0098-376d-41dc-9f18-a65c69fdaf05`
+
+- Ziel: Der Begleiter folgt dem Run, den der Chat nennt, lässt freies Blättern zu und bringt dich mit dem nächsten Chat-Turn oder per Klick zum Chat-Run zurück. Wartet der gezeigte Run auf dich, sagt das Panel das, im Einklang mit der Statuszeile, und das Fußzeilenmenü sitzt am unteren Rand. Die Panel-Änderungen sind mit Nachweisen in einem AGDF-Run erfasst. Er bleibt Opt-in, rein lesend, beobachtend, fehlerisoliert und nur für Claude.
+- Geliefertes Ergebnis: Der AGDF Companion folgt jetzt dem Run, an dem der Chat arbeitet: Nennt ein Prompt oder die letzte Antwort eines Haupt-Turns die ID eines offenen Runs, zeigt das Panel ihn mit „Im Chat genannt“; Blättern zeigt andere Runs mit „Von dir ausgewählt“, der nächste Turn springt von selbst zurück, und „Zurück zum Chat-Run“ steht als Button unter den Blätter-Buttons und als erster Menüeintrag; Statuszeile und Meldungen bleiben beim Blättern beim Chat-Run, wartende Runs zeigen während eines Turns „wartet auf Freigabe“, die Fußzeile sitzt bündig am unteren Rand; die Panel-Änderungen der Commits 3444befe und 2f54fbcc sind miterfasst; alle neun Aufgaben und 23 Szenarien sind belegt, das unabhängige Code Review ist mit zehn korrigierten Befunden und einer von dir akzeptierten Abweichung bestanden, Suiten, 12 Mutationstests, native Prüfungen 6 von 6 und der Live-Test im Desktop sind grün.
+- Technische QA: pass
+- Nachweisgrenzen: Die Live-Aufnahmen entstanden vor den Code-Review-Korrekturen, der korrigierte Stand ist automatisiert, nativ und durch die byte-gleiche Installation belegt; Statuszeile und Meldungen beim Blättern sind automatisiert belegt; Text zwischen Werkzeugaufrufen zählt erst, wenn die letzte Antwort oder der nächste Prompt den Run nennt; Linux und macOS laufen erst in der PR-CI, das Terminal ist nur nativ geprüft, andere Claude-Code-Versionen sind nicht qualifiziert.
+- Risiken und offene Punkte: Die Mod-API ist Early Access; die Erkennung braucht die Run-ID als ganzes Wort, auch eine zitierte ID zählt; der Chat-Run lebt nur im Sitzungsspeicher und beginnt nach einem Neuladen des Mods oder einem neuen Gespräch leer; die Pflege des Kontextgraphen steht bis zum OR aus.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 8
+
+- QA: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/QA_REPORT.md · sha256:51585aa7ffd1427132757628eb30a62de054fdcbd56beebf16d6392558e516ae
+- Review: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/TP_REVIEW.md · sha256:6cfdea9e1c7cc12ebf1e58fb2c62407c01ae9aed9ddebe029f9189974d07478a
+- Review: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:f05cca24ff279c5ad8bfbc331841425fb28ba8b61308ba0b9b69d5d8851c89bc
+- Review: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/CODE_REVIEW.md · sha256:d686a6389e98c9769c5fec2ce5ebd3bec053476794475cc62c9ee98611a240a8
+- Review: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/TP_REVIEW-input-01.md · sha256:6cfdea9e1c7cc12ebf1e58fb2c62407c01ae9aed9ddebe029f9189974d07478a
+- Review: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/CLEAN_IMPLEMENTATION_REVIEW-input-01.md · sha256:f05cca24ff279c5ad8bfbc331841425fb28ba8b61308ba0b9b69d5d8851c89bc
+- Review: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/CODE_REVIEW-input-01.md · sha256:d686a6389e98c9769c5fec2ce5ebd3bec053476794475cc62c9ee98611a240a8
+- UR: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/UR.md · sha256:eeb30cf95b1eaf9cc19fd66f7d2f69ca2ac1eeb09011cc52715d1347772012db
+
+## Vorliegende UAT-Evidenz
+
+- UX Intent Definition · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- CR · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/PRD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/SD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/TP_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/QA_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/QA_MAPPING_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

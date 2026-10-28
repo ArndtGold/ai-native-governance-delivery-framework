@@ -1,7 +1,10 @@
-// State rules (AC-003): which of the four moods a run shows and why, as a reason descriptor the view
-// localizes. A run matching no rule is reported unreadable rather than guessed (SDD-04).
+// State rules (AC-003, AC-002 of the follow-up): which of the five moods a run shows and why, as a
+// reason descriptor the view localizes. A run matching no rule is reported unreadable rather than
+// guessed (SDD-04).
 
-export const MOODS = Object.freeze(['laeuft', 'wartet', 'blockiert', 'fertig']);
+import { BUILD_GATES, isStructured } from './run-state.mjs';
+
+export const MOODS = Object.freeze(['laeuft', 'baut', 'wartet', 'blockiert', 'fertig']);
 const BLOCKING = new Set(['revise', 'block', 'blocked', 'decline']);
 const AWAITING = new Set(['pending', 'awaiting_uat']);
 const WORKING = new Set(['in_progress', 'pass', 'qa_approved', 'completed']);
@@ -18,6 +21,7 @@ function blockingOutcome(run) {
 }
 
 // { mood, reason: { key, gate?, decision? } } or { mood: null, reason: { key: 'unknownState' } }.
+// A structured run between an approved TP and QA (Brownfield Analysis, CD+Tests, CR) is being built.
 export function runState(run) {
   if (run.lifecycle === 'completed') return { mood: 'fertig', reason: { key: 'done' } };
   const outcome = blockingOutcome(run);
@@ -25,13 +29,20 @@ export function runState(run) {
   const approval = pendingApproval(run.missing);
   if (approval) return { mood: 'wartet', reason: { key: 'waitingApproval', gate: approval } };
   if (AWAITING.has(run.decision)) return { mood: 'wartet', reason: { key: 'waitingDecision', gate: run.gate } };
+  if (WORKING.has(run.decision) && isStructured(run.route) && BUILD_GATES.includes(run.gate)) return { mood: 'baut', reason: { key: 'building', gate: run.gate } };
   if (WORKING.has(run.decision)) return { mood: 'laeuft', reason: { key: 'working', gate: run.gate } };
   return { mood: null, reason: { key: 'unknownState' } };
 }
 
-// A main-loop turn in progress shows läuft whatever the run says; the run-derived state returns after it.
+// Moods a main-loop turn does not cover: a run being built stays baut, and a run waiting for an
+// approval or a decision stays wartet, since the chat usually asks for it during that turn (chat-run
+// navigation SDD-07). A blocked run shows läuft, since the chat usually resolves it.
+const THROUGH_TURN = new Set(['baut', 'wartet']);
+
+// A main-loop turn in progress shows läuft for every other mood; the run-derived state returns after
+// the turn.
 export function displayState(run, { isTurnActive = false } = {}) {
   const derived = runState(run);
-  if (isTurnActive && derived.mood !== null) return { mood: 'laeuft', reason: { key: 'turnActive' } };
+  if (isTurnActive && derived.mood !== null && !THROUGH_TURN.has(derived.mood)) return { mood: 'laeuft', reason: { key: 'turnActive' } };
   return derived;
 }

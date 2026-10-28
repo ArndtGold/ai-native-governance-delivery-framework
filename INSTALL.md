@@ -1074,19 +1074,35 @@ Then start with:
 
 *UI example: Claude Code shows the installed AGDF plugin and its provided surface. It does not replace `claude plugin list` as installation/version evidence or establish repository-local control state.*
 
-### Optional AGDF companion panel
+### Optional AGDF Companion panel
 
-The Claude Code projection of the AGDF runtime plugin includes an opt-in companion: a panel beside the chat with
-a small figure and a compact status of the run you work on in the session. It shows:
+The Claude Code projection of the AGDF runtime plugin includes the opt-in AGDF Companion: a panel beside the chat
+with a small figure and a compact status of the run you work on in the session, a short entry in Claude's status
+line and a short notice when that run starts waiting for an approval or becomes blocked. The panel shows:
 
-- the state: working, waiting for approval, blocked or done;
-- a one-line reason and a single-line gate bar (`✓UR ✓PRD ●SD ○TP ○QA ○UAT ○OR`);
+- the state: working, building, waiting for approval, blocked or done;
+- a one-line reason and a single-line gate bar along the run's path (`✓UR ✓PRD ✓SD ✓TP ●CD+Tests ○QA ○UAT ○OR`);
 - the run id, its objective (one line, expandable) and the next step;
 - why this run is shown and when it was last read.
 
-The companion only reads `.agdf/control/config.json` and `.agdf/control/runs/*/RUN_STATE.md`. It never writes
-control state, never asks for or records an approval and selects no delivery run. Approvals stay in chat with the
-AGDF status and approval cards.
+The companion only reads `.agdf/control/config.json`, `.agdf/control/runs/*/RUN_STATE.md` and Claude's `language`
+setting. It never writes control state, never asks for or records an approval and selects no delivery run. Its
+notices and status line carry text only. Approvals stay in chat with the AGDF status and approval cards.
+
+**Gate bar and build phase.** The gate bar follows the path the AGDF status card shows for the run's mode:
+
+| Mode | Gate bar |
+|---|---|
+| Structured delivery or slice | `UR PRD SD TP CD+Tests QA UAT OR` |
+| Verified change | `UR Verified Change OR` |
+| Quick task | `UR Compact Delivery` |
+| Blocked route | `UR Block` |
+| Not decided yet | `UR` |
+
+In structured runs the `CD+Tests` mark stands for the implementation phase: it is current during Brownfield Analysis,
+CD+Tests and Code Review and done from QA on. In these phases the figure builds (a hammer and stacking bricks) and
+the state reads "building", also while Claude works on a turn. "Waiting for approval" and "blocked" take precedence.
+In a narrow panel the bar condenses to its marks and the name of the current one.
 
 **Switching it on and off.** The companion is off after installation. Run this to switch it on and open the panel:
 
@@ -1094,14 +1110,35 @@ AGDF status and approval cards.
 /agdf-companion
 ```
 
-Run it again to switch the companion off and close the panel. The choice applies to new sessions too. Closing the
-panel with its own close mark hides it for the current session only. The desktop app's slash-command menu does not
-list `/agdf-companion`: type it in full and send it.
+Run it again to switch the companion off: the panel closes, the status line entry disappears and no notices come.
+The choice applies to new sessions too. Closing the panel with its own close mark hides only the panel for the
+current session; the status line and notices continue until you switch the companion off. The desktop app's
+slash-command menu does not list `/agdf-companion`: type it in full and send it.
 
-**What it keeps and where.** It keeps three things together in `companion-state.json`:
+**Notices and status line.** While the companion is on:
+
+- A notice such as "… wartet auf Freigabe: Qualitätssicherung" appears when the run the panel shows without
+  browsing (see below) starts waiting for an approval or a decision, becomes blocked, or moves to another pending gate or decision. The first read after
+  switching on, a change to another run, repeated reads of the same state, turns and failed reads raise none.
+  "Notices off" in the panel's menu switches notices off.
+- "Sound on" adds a short, soft chime to each notice. Sound is off by default and plays only with a notice.
+  Claude Code plays it only where it has an audio player; on Windows it stays silent.
+- Claude's status line shows the run's gate and short state, for example `AGDF · QA · wartet`, `AGDF · CR · baut`
+  or `AGDF · fertig`. Claude puts the plugin name `agdf` in front of it. Turns do not change it.
+
+**Menu.** The panel's last row holds the AGDF icon, the menu "AGDF Companion" and, at the right edge, the time of
+the last read. On the desktop a dim frame sets it off and it sits at the panel's bottom edge; on the terminal a dim
+line stands above it. The menu opens Claude's own list above the row: "Stop motion", "Read again", "Notices off",
+"Sound on" and "About". Picking an entry runs it, and the menu shows "AGDF Companion" again. "About" shows what the
+companion does, the AGDF plugin version and a link to [agdf.iself.eu](https://agdf.iself.eu); "Close" hides it
+again. The mobile app draws no such list, so there the name is a button that opens the entries above the row.
+
+**What it keeps and where.** It keeps five things together in `companion-state.json`:
 
 - on or off;
 - the still pose;
+- notices on or off (on by default);
+- sound on or off (off by default);
 - one remembered run per project.
 
 The file lives in Claude Code's AGDF plugin data directory, `plugins/data/agdf-agdf/` in the Claude Code
@@ -1114,22 +1151,39 @@ not use Claude Code's plugin store, because Claude Code keeps that store after u
 
 **Which run it shows.** It picks the first that applies:
 
-1. The run whose `RUN_STATE.md` changed during this session. The most recently changed one wins, and it stays
-   shown with "done" once completed.
-2. The run you selected in this project.
-3. Otherwise the panel says "No run assigned" and lists the open runs to choose from.
+1. The chat's run, unless you browse. A run becomes the chat's run when your prompt or Claude's final answer in a
+   main-loop turn names its id (the last open run named counts; an id inside a longer id does not), or when its
+   `RUN_STATE.md` changes during this session; the more recent of the two counts. The origin reads "Named in the
+   chat" or "Changed in this session". A run changed in this session stays shown with "done" once completed. The
+   chat's run lives for the conversation only: a new session, `/clear` or a resumed transcript starts without one
+   and counts changes from its own start.
+2. The run you selected in this project, also while you browse: "Previous run", "Next run" or a pick from the list
+   shows another run with "Selected by you" and remembers it as before. While you browse, "Back to chat run" ("Zurück
+   zum Chat-Run") stands below the stepping buttons and first in the menu, and the next main-loop turn (a message
+   you send, or a continuation without typed text) brings the panel back to the chat's run by itself. Subagent
+   turns do not. The status line and notices stay with
+   the chat's run while you browse.
+3. Otherwise the panel says "No run assigned" and lists the open runs to choose from. On the desktop the list
+   fills the panel's height and ends with "+ N more" when runs remain; the terminal lists six. Where the panel is
+   wide enough, each listed run shows its condensed gate bar at the right edge, for example `✓✓✓✓✓●○○ QA`, and
+   long run ids are shortened in the middle; a narrower panel lists the ids alone.
 
 Only active runs are open. Superseded and abandoned runs are closed: the panel never shows them, and it forgets a
 selected run once that run is superseded or abandoned. It never guesses the newest run. While a main-loop turn runs, the figure shows "working" with the reason that
-Claude is working on this turn. Without an observed turn, the reason names what comes next ("Next: …"), because the
-run state alone does not show that work is running. The panel reads the run
-states again after each turn, every 30 seconds and on "Read again". A failed read keeps the last state visible with
-a marker. In a project folder without `.agdf/control`, the panel names the folder it checked, so you can see when
-the session runs in another folder.
+Claude is working on this turn, except that a run in its build phase keeps "building" and a run waiting for an
+approval or a decision keeps "waiting", since Claude usually asks for it in that turn; panel and status line then
+name the same state. Without an observed turn, the reason
+names what comes next ("Next: …"), because the run state alone does not show that work is running. The companion
+reads the run states again after each turn, every 30 seconds and on "Read again", also while the panel is hidden. A
+failed read keeps the last state visible with a marker. A run objective that is still the template text ("Describe
+the trustworthy outcome.") is not shown. In a project folder without `.agdf/control`, the panel names the folder it
+checked, so you can see when the session runs in another folder.
 
-**Language.** The panel follows `chat_language` in `.agdf/control/config.json`:
+**Language.** The panel, notices and status line follow `chat_language` in `.agdf/control/config.json`. Without
+that file they follow Claude's own `language` setting when it names a supported language (a tag such as `de`, or a
+name such as `German` or `Deutsch`), otherwise English:
 
-- Labels exist in English and German.
+- Labels exist in English and German. The name "AGDF Companion" is the same in every language.
 - Gate titles and the next step use the AGDF locale packs where a localized value exists, otherwise the source text.
 - The objective stays in the artefact language.
 
@@ -1137,8 +1191,8 @@ the session runs in another folder.
 
 | Surface | Companion |
 |---|---|
-| Claude Code desktop app (Code tab) | Panel with an animated SVG figure; "Stop motion" switches to a still pose that persists |
-| Claude Code in the terminal | The same panel as text, without the figure |
+| Claude Code desktop app (Code tab) | Panel with an animated SVG figure; "Stop motion" switches to a still pose that persists; notices at the bottom right; status line entry in the footer beside the model |
+| Claude Code in the terminal | The same panel as text, without the figure and the icon; status line under the prompt |
 | Other Claude Code surfaces (IDE extensions, mobile) | Not tested |
 | Codex, GitHub Copilot, OpenCode | No companion. Codex sees the files in the shared runtime folder but never loads them; the Copilot payload does not contain them |
 
@@ -1146,8 +1200,10 @@ the session runs in another folder.
 may change between Claude Code releases. The companion was checked with these versions:
 
 - Claude Code 2.1.302: `claude plugin validate`, `claude plugin test`, loading from an installed plugin, failure
-  isolation, and the desktop app (Code tab) on Windows.
-- Claude Code 2.1.308: an earlier prototype was observed in the desktop app.
+  isolation, and the desktop app (Code tab) on Windows. Its test engine has no `$.settings`, so there the companion
+  keeps its English fallback without AGDF control.
+- Claude Code 2.1.308 (desktop app engine on Windows, 2026-10-27): notices, the status line without an open panel and
+  reading the `language` setting were observed with a probe; an audio clip resolved without being audible.
 
 Claude Code loads hooks modules of installed plugins only where it has enabled that feature.
 
@@ -1163,7 +1219,10 @@ the companion is absent or shows a neutral message. The AGDF SessionStart hook, 
 - Each refresh reads every run state of the project.
 - The data directory follows Claude Code's naming of plugin data directories. If that naming changes, the choices
   last for the session only.
-- The panel shows no approval controls and no artefact content.
+- The panel shows no approval controls and no artefact content; notices and the status line carry text only.
+- Several sessions each announce their own shown run, so the same change can raise a notice in more than one session.
+- A companion of an earlier version that writes the state file drops the notice and sound choices; they return to
+  their defaults.
 
 **Evidence status.**
 
@@ -1174,6 +1233,18 @@ the companion is absent or shows a neutral message. The AGDF SessionStart hook, 
   The check covered the four states, "No run assigned", the single-line gate bar, the still pose, switching off and
   on, and a new session reopening the panel with the kept choice. The run states it read stayed byte-identical. The
   short switch to "working" during a turn was not observed live; automated tests cover it.
+- Live, 2026-10-27, desktop app (Code tab) on Windows with the desktop engine 2.1.308: the AGDF Companion name and
+  the second button row; a structured run at CD+Tests showing "baut" with the build figure and the CD+Tests mark;
+  a notice and the status line `AGDF · QA · wartet` after the run moved to a pending QA approval; a quick-task run
+  with `✓UR ●Compact Delivery`; German panel text in a folder without `.agdf/control`; the status line staying with
+  the panel closed. At the default panel width the structured bar shows its condensed form; a wider panel shows the
+  full bar. The chime was not audible on Windows. The run states the companion read stayed byte-identical.
+- Live, 2026-10-28, desktop app (Code tab) on Windows with the desktop engine 2.1.308, using a copy of the companion
+  loaded as a session mod: the framed footer with the menu and About; the run list filling the panel with "+ N more"
+  and the gate bars beside listed runs in a widened panel; a run named in Claude's answer shown with "Named in the
+  chat" and, during the next turn, "waiting for approval" instead of "working"; browsing with "Back to chat run" in
+  the panel and the menu; the automatic return at the next turn; the footer at the bottom edge in the narrow and
+  widened panel. The 150 run states read stayed byte-identical.
 
 Codex and Claude Code plugin skill names are intentionally unprefixed because the plugin itself provides the `agdf` namespace.
 

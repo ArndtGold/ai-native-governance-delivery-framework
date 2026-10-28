@@ -1,10 +1,12 @@
-// The three persisted user choices (SDD-07): one JSON file in the AGDF plugin data directory, which
-// `claude plugin uninstall` removes; never `$.store`, which Claude keeps after uninstall (T-001).
-// Host-independent: the adapter supplies the environment values and file access.
+// The persisted user choices (SDD-07; follow-up SDD-09): one JSON file in the AGDF plugin data
+// directory, which `claude plugin uninstall` removes; never `$.store`, which Claude keeps after
+// uninstall (T-001). Toasts default on and their sound off; a state file without these fields, as
+// the first companion version wrote it, reads with those defaults. Host-independent: the adapter
+// supplies the environment values and file access.
 
 export const STATE_FILE = 'companion-state.json';
 const PLUGIN_ID = 'agdf@agdf';
-const DEFAULT_STATE = Object.freeze({ enabled: false, still: false, selections: Object.freeze({}) });
+const DEFAULT_STATE = Object.freeze({ enabled: false, still: false, notice: true, sound: false, selections: Object.freeze({}) });
 
 // Mirrors claudePluginDataRoot (packages/cli/lib/mcp-lifecycle/plugin-runtime.js): the plugin id with
 // every character outside [A-Za-z0-9_-] replaced by "-" below <config dir>/plugins/data.
@@ -22,13 +24,13 @@ export function parseCompanionState(text) {
     for (const [root, runId] of Object.entries(value.selections ?? {})) {
       if (typeof root === 'string' && typeof runId === 'string' && /^[A-Za-z0-9._-]{1,200}$/u.test(runId)) selections[root] = runId;
     }
-    return { enabled: value.enabled === true, still: value.still === true, selections };
+    return { enabled: value.enabled === true, still: value.still === true, notice: value.notice !== false, sound: value.sound === true, selections };
   } catch {
     return defaultCompanionState();
   }
 }
 
-export const serializeCompanionState = ({ enabled, still, selections }) =>
-  `${JSON.stringify({ schema_version: 1, enabled: Boolean(enabled), still: Boolean(still), selections: { ...selections } }, null, 2)}\n`;
+export const serializeCompanionState = ({ enabled, still, notice, sound, selections }) =>
+  `${JSON.stringify({ schema_version: 1, enabled: Boolean(enabled), still: Boolean(still), notice: notice !== false, sound: Boolean(sound), selections: { ...selections } }, null, 2)}\n`;
 
 export const defaultCompanionState = () => ({ ...DEFAULT_STATE, selections: {} });

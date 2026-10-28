@@ -9,14 +9,22 @@ export const ACCESSORY_REGION = Object.freeze({ x: 148, y: 8, width: 48, height:
 // Each accessory's extent in region coordinates, including its strokes and motion.
 export const ACCESSORY_BOUNDS = Object.freeze({
   laeuft: { x: 8, y: 20, width: 32, height: 8 },
+  baut: { x: 1, y: 16, width: 45, height: 31 },
   wartet: { x: 8, y: 8, width: 32, height: 32 },
   blockiert: { x: 6, y: 6, width: 36, height: 36 },
   fertig: { x: 1, y: 1, width: 46, height: 46 },
   neutral: null,
 });
+// The build accessory in region coordinates: a hammer swinging around the end of its handle between
+// the two angles (degrees, clockwise positive), and three bricks; strokes are at most 1.5 px wide.
+export const HAMMER = Object.freeze({ pivot: Object.freeze({ x: 36, y: 44 }), swing: Object.freeze([-55, 5]),
+  head: Object.freeze({ x: -6, y: -26, width: 12, height: 6 }), handle: Object.freeze({ x: -1.5, y: -20, width: 3, height: 20 }) });
+export const BRICKS = Object.freeze([{ x: 2, y: 38 }, { x: 17, y: 38 }, { x: 9.5, y: 30 }].map(Object.freeze));
+export const BRICK_SIZE = Object.freeze({ width: 14, height: 7 });
 
 const BODY = Object.freeze({
   laeuft: { fill: '#4F7FD9', stroke: '#2D4E8F' },
+  baut: { fill: '#3E8FB0', stroke: '#235A70' },
   wartet: { fill: '#E0A030', stroke: '#9A6A12' },
   blockiert: { fill: '#D9534F', stroke: '#8F2D2A' },
   fertig: { fill: '#3FA66A', stroke: '#23663F' },
@@ -40,12 +48,15 @@ function eyes(mood, isMoving) {
   const look = mood === 'laeuft'
     ? loop(isMoving, '<animateTransform attributeName="transform" type="translate" values="-3 0;3 0;-3 0" dur="1.6s" repeatCount="indefinite"/>')
     : '';
-  const eye = x => `<ellipse cx="${x}" cy="72" rx="9" ry="9" fill="#FFFFFF">${blink}</ellipse><g>${look}<circle cx="${x}" cy="73" r="4" fill="${INK}"/></g>`;
+  // A figure that builds looks down at its work on the right.
+  const [dx, dy] = mood === 'baut' ? [3, 2] : [0, 0];
+  const eye = x => `<ellipse cx="${x}" cy="72" rx="9" ry="9" fill="#FFFFFF">${blink}</ellipse><g>${look}<circle cx="${x + dx}" cy="${73 + dy}" r="4" fill="${INK}"/></g>`;
   return eye(64) + eye(96);
 }
 
 const MOUTH = Object.freeze({
   laeuft: `<ellipse cx="80" cy="96" rx="4" ry="5" fill="${INK}"/>`,
+  baut: `<path d="M74 97 q6 4 12 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
   wartet: `<path d="M72 97 h16" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
   blockiert: `<path d="M70 101 q10 -9 20 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
   fertig: `<path d="M68 93 q12 12 24 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
@@ -54,6 +65,8 @@ const MOUTH = Object.freeze({
 
 const MOTION = Object.freeze({
   laeuft: '<animateTransform attributeName="transform" type="translate" values="0 0;0 -7;0 0" dur="0.7s" repeatCount="indefinite"/>',
+  // A slow bob in time with the hammer.
+  baut: '<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" keyTimes="0;0.35;1" dur="0.9s" repeatCount="indefinite"/>',
   wartet: '<animateTransform attributeName="transform" type="rotate" values="-4 80 124;4 80 124;-4 80 124" dur="2.6s" repeatCount="indefinite"/>',
   blockiert: '<animateTransform attributeName="transform" type="translate" values="0 0;-4 0;4 0;-4 0;4 0;0 0;0 0" keyTimes="0;0.04;0.08;0.12;0.16;0.2;1" dur="2.2s" repeatCount="indefinite"/>',
   fertig: '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -10;0 0" keyTimes="0;0.6;0.8;1" dur="2s" repeatCount="indefinite"/>',
@@ -65,6 +78,17 @@ function accessory(mood, isMoving) {
   if (mood === 'laeuft') {
     const dot = (x, begin) => `<circle cx="${x}" cy="24" r="4" fill="#4F7FD9">${loop(isMoving, `<animate attributeName="opacity" values="0.2;1;0.2" dur="1.2s" begin="${begin}" repeatCount="indefinite"/>`)}</circle>`;
     return dot(12, '0s') + dot(24, '0.2s') + dot(36, '0.4s');
+  }
+  if (mood === 'baut') {
+    // One brick appears per hammer stroke; the still pose shows all three and the raised hammer.
+    const brick = ({ x, y }, begin) => `<rect x="${x}" y="${y}" width="${BRICK_SIZE.width}" height="${BRICK_SIZE.height}" rx="1" fill="#C8643C" stroke="#7A3A1E" stroke-width="1.5" opacity="${isMoving ? 0 : 1}">`
+      + `${loop(isMoving, `<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.9;1" dur="2.7s" begin="${begin}" repeatCount="indefinite"/>`)}</rect>`;
+    const { pivot: { x: px, y: py }, swing: [strike, raised], head, handle } = HAMMER;
+    const swing = loop(isMoving, `<animateTransform attributeName="transform" type="rotate" values="${raised} ${px} ${py};${strike} ${px} ${py};${raised} ${px} ${py}" keyTimes="0;0.35;1" dur="0.9s" repeatCount="indefinite"/>`);
+    return BRICKS.map((position, index) => brick(position, `${index * 0.9}s`)).join('')
+      + `<g transform="rotate(${raised} ${px} ${py})">${swing}`
+      + `<rect x="${px + handle.x}" y="${py + handle.y}" width="${handle.width}" height="${handle.height}" rx="1" fill="#A0703C" stroke="#5C3A1A" stroke-width="1"/>`
+      + `<rect x="${px + head.x}" y="${py + head.y}" width="${head.width}" height="${head.height}" rx="1" fill="#8A93A3" stroke="#374151" stroke-width="1.5"/></g>`;
   }
   if (mood === 'wartet') {
     const turn = loop(isMoving, '<animateTransform attributeName="transform" type="rotate" values="0 24 24;0 24 24;180 24 24" keyTimes="0;0.7;1" dur="2.4s" repeatCount="indefinite"/>');
@@ -84,7 +108,7 @@ function accessory(mood, isMoving) {
   return '';
 }
 
-// mood: one of the four moods or 'neutral' (no run assigned, status unreadable).
+// mood: one of the five moods or 'neutral' (no run assigned, status unreadable).
 export function figureSvg(mood, { still = false, title = '' } = {}) {
   const isMoving = !still;
   const { fill, stroke } = BODY[mood];
@@ -105,6 +129,7 @@ export function figureSvg(mood, { still = false, title = '' } = {}) {
 // The terminal has no Svg: a short face stands for the figure there.
 export const FIGURE_TEXT = Object.freeze({
   laeuft: '(o_o) …',
+  baut: '(o_o) ⚒',
   wartet: '(-_-) ⧗',
   blockiert: '(x_x) !',
   fertig: '(^_^) ✓',

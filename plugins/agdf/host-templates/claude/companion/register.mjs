@@ -16,13 +16,22 @@ import { buildPanelView, terminalText } from './view.mjs';
 export const PANE = 'agdf-companion';
 export const COMMAND = 'agdf-companion';
 export const REFRESH_MS = 30_000;
+export const MENU = 'menu';
+export const ABOUT_URL = 'https://agdf.iself.eu';
 const LISTED_RUNS = 6;
+// The surfaces whose element table has a picker; the mobile app draws none and turns one into an empty
+// box (`claude plugin test` 2.1.302), so its table entry alone does not decide.
+const PICKER_SURFACES = new Set(['terminal', 'desktop', 'vscode']);
+// Body rows the desktop spends around the run list, measured live on 2026-10-28 (a body row is about
+// 28 px): the figure with its state and reason, the framed footer with its picker, the About block,
+// the space between two blocks, and one spare row, since a body taller than the pane scrolls.
+const DESKTOP_ROWS = Object.freeze({ figure: 7, footer: 2, about: 7, gap: 0.6, spare: 1 });
 const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
 
 function createSession() {
-  return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null,
+  return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, version: null, icon: null,
     choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
-    timer: null, reads: 0, appliedRead: 0, observation: null };
+    isAboutShown: false, isMenuOpen: false, timer: null, reads: 0, appliedRead: 0, observation: null };
 }
 
 // One companion per session: the module is loaded once per session.
@@ -132,9 +141,30 @@ async function loadSession($) {
     try { setting = await $.settings.read({ key: 'language' }); } catch { /* no setting: the fallback locale */ }
   }
   session.locale = chatLocale(session.registry, configText, { setting, labels: session.labels });
+  // The About entry names the plugin version; a missing or unreadable manifest only leaves it out.
+  try {
+    const { version } = JSON.parse(await $.fs.read(`${$.plugin.root}/.claude-plugin/plugin.json`));
+    session.version = typeof version === 'string' ? version : null;
+  } catch { /* no version shown */ }
+  // The footer shows the plugin's own AGDF icon; without it the footer starts with the name.
+  try {
+    const icon = await $.fs.read(`${$.plugin.root}/assets/agdf-icon.svg`);
+    session.icon = icon.trimStart().startsWith('<svg') ? icon : null;
+  } catch { /* no icon shown */ }
   const dir = pluginDataDir({ configDir: await $.env.get('CLAUDE_CONFIG_DIR'), userProfile: await $.env.get('USERPROFILE'), home: await $.env.get('HOME') });
   session.statePath = dir ? `${dir}/${STATE_FILE}` : null;
   if (session.statePath && (await $.fs.exists(session.statePath))) session.choices = parseCompanionState(await $.fs.read(session.statePath));
+}
+
+const wrappedRows = (value, columns) => (value ? Math.ceil(value.length / Math.max(columns, 10)) : 0);
+
+// How many open runs the desktop list shows: the body rows left beside the other blocks, never fewer
+// than the terminal's six (the pane then scrolls). One row of them goes to "+ N more" when runs remain.
+export function listCapacity(view, { rows, columns, isAboutShown = false }) {
+  const blocks = [view.message, view.hint, view.stale].filter(Boolean);
+  const fixed = DESKTOP_ROWS.figure + DESKTOP_ROWS.footer + DESKTOP_ROWS.spare + (isAboutShown ? DESKTOP_ROWS.about : 0) + 1
+    + blocks.reduce((sum, value) => sum + wrappedRows(value, columns), 0) + DESKTOP_ROWS.gap * (blocks.length + 3);
+  return Math.max(LISTED_RUNS, Math.floor(rows - fixed));
 }
 
 const press = ($, action) => async () => {
@@ -143,8 +173,11 @@ const press = ($, action) => async () => {
 };
 
 function body($, e, view) {
-  const { Box, Text, Button, Svg } = $.ui.resolve(e);
+  const { Box, Text, Button, Svg, Link, Select } = $.ui.resolve(e);
   const isTerminal = e.surface === 'terminal' || !Svg;
+  const rows = e.props?.scroll?.bodyRows;
+  const fits = Number.isInteger(rows) && rows > 0;
+  const columns = Number.isInteger(e.props?.bodyColumns) ? e.props.bodyColumns : 40;
   const select = runId => press($, async () => {
     const root = session.root;
     await persist($, choices => { choices.selections[root] = runId; });
@@ -154,17 +187,48 @@ function body($, e, view) {
     const next = stepSelection(view.openRuns, view.runId ?? selection(), offset);
     if (next) await select(next)();
   });
-  // Each row holds two buttons labelled with their action, and the read time has its own line below,
-  // so nothing wraps at the default width (the desktop draws a Button's label).
-  const toggle = key => press($, async () => { const value = !session.choices[key]; await persist($, choices => { choices[key] = value; }); });
-  const actions = h(Box, { flexDirection: 'column' },
-    h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-      h(Button, { key: 'still', label: session.choices.still ? t('actions.stillOff') : t('actions.stillOn'), onPress: toggle('still') }),
-      h(Button, { key: 'retry', label: t('actions.retry'), onPress: press($, () => refresh($)) })),
-    h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-      h(Button, { key: 'notice', label: session.choices.notice ? t('actions.noticeOff') : t('actions.noticeOn'), onPress: toggle('notice') }),
-      h(Button, { key: 'sound', label: session.choices.sound ? t('actions.soundOff') : t('actions.soundOn'), onPress: toggle('sound') })),
-    view.readAt ? h(Text, { dimColor: true }, view.readAt) : null);
+  const toggle = key => async () => { const value = !session.choices[key]; await persist($, choices => { choices[key] = value; }); };
+  const commands = [
+    ['still', session.choices.still ? t('actions.stillOff') : t('actions.stillOn'), toggle('still')],
+    ['retry', t('actions.retry'), () => refresh($)],
+    ['notice', session.choices.notice ? t('actions.noticeOff') : t('actions.noticeOn'), toggle('notice')],
+    ['sound', session.choices.sound ? t('actions.soundOff') : t('actions.soundOn'), toggle('sound')],
+    ['about', t('actions.about'), async () => { session.isAboutShown = true; }],
+  ];
+  // The actions open from the panel's foot (owner requests of 2026-10-28): the AGDF icon, the menu and
+  // the read time at the right edge, set off by a dim frame (a dim line on the terminal). Where the
+  // surface has a picker, the app draws the open menu itself as a popover above the footer; the picker
+  // always shows its neutral entry, the name, so every pick runs its action. The mobile app draws no
+  // picker and gets the name as a plain button that opens the entries above the footer.
+  const hasPicker = Boolean(Select) && PICKER_SURFACES.has(e.surface);
+  const run = action => press($, async () => { session.isMenuOpen = false; await action(); });
+  const trigger = hasPicker
+    ? h(Select, { key: MENU, value: MENU, options: [{ value: MENU, label: t('title') }, ...commands.map(([value, text]) => ({ value, label: text }))],
+      onSelect: value => { const command = commands.find(([key]) => key === value); return command ? run(command[2])() : undefined; } })
+    : h(Button, { key: MENU, plain: true, label: `${t('title')} ${session.isMenuOpen ? '▴' : '▾'}`,
+      onPress: press($, async () => { session.isMenuOpen = !session.isMenuOpen; }) });
+  const entries = !hasPicker && session.isMenuOpen
+    ? h(Box, { flexDirection: 'column', alignItems: 'flex-start', ...(isTerminal ? {} : { borderStyle: 'single', borderDimColor: true, paddingX: 1 }) },
+      ...commands.map(([key, text, action]) => h(Button, { key, plain: true, label: text, onPress: run(action) })))
+    : null;
+  const footer = h(Box, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 1,
+    ...(isTerminal ? {} : { borderStyle: 'single', borderDimColor: true, paddingX: 1 }) },
+    h(Box, { flexDirection: 'row', alignItems: 'center', gap: 1, flexShrink: 1 },
+      !isTerminal && session.icon ? h(Svg, { source: session.icon, alt: 'AGDF', width: 20, height: 20 }) : null,
+      trigger),
+    view.readAt ? h(Box, { flexShrink: 0 }, h(Text, { dimColor: true }, view.readAt)) : null);
+  const actions = h(Box, { flexDirection: 'column', gap: isTerminal ? 0 : 1, flexShrink: 0 }, entries,
+    isTerminal ? h(Text, { dimColor: true }, '─'.repeat(Math.min(columns, 40))) : null, footer);
+  const about = session.isAboutShown ? h(Box, { flexDirection: 'column' },
+    h(Text, { weight: 'semibold' }, t('title')),
+    h(Text, { dimColor: true }, t('about.text')),
+    session.version ? h(Text, { dimColor: true }, t('about.version', { version: session.version })) : null,
+    Link ? h(Link, { href: ABOUT_URL, label: ABOUT_URL.slice('https://'.length) }) : h(Text, {}, ABOUT_URL),
+    h(Button, { key: 'about-close', plain: true, label: t('actions.closeAbout'), onPress: press($, async () => { session.isAboutShown = false; }) })) : null;
+  const capacity = !isTerminal && fits ? listCapacity(view, { rows, columns, isAboutShown: session.isAboutShown }) : LISTED_RUNS;
+  // The terminal keeps its six; the desktop lists as many as fit and gives the last row to "+ N more".
+  const listed = isTerminal ? view.openRuns.slice(0, LISTED_RUNS)
+    : view.openRuns.length <= capacity ? view.openRuns : view.openRuns.slice(0, capacity - 1);
   const runList = view.originKind !== 'session' && view.openRuns.length
     ? (view.runId
       // The count has its own line, so the two stepping buttons fit the default width. The desktop
@@ -176,15 +240,19 @@ function body($, e, view) {
           h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) })))
       : h(Box, { flexDirection: 'column' },
         h(Text, { dimColor: true }, view.openCount),
-        ...view.openRuns.slice(0, LISTED_RUNS).map(run => h(Button, { key: `run-${run.id}`, plain: true, label: run.id, onPress: select(run.id) }))))
+        ...listed.map(run => h(Button, { key: `run-${run.id}`, plain: true, label: run.id, onPress: select(run.id) })),
+        !isTerminal && view.openRuns.length > listed.length ? h(Text, { dimColor: true }, t('fields.moreRuns', { count: view.openRuns.length - listed.length })) : null))
     : null;
   if (isTerminal) {
     return h(Box, { flexDirection: 'column', gap: 1 },
-      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, actions);
+      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, about, actions);
   }
   const figure = h(Svg, { source: figureSvg(view.mood, { still: session.choices.still, title: `${view.title}: ${view.stateLabel}` }),
     alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !session.choices.still });
-  return h(Box, { flexDirection: 'column', gap: 1 },
+  // The body is one row less than the pane's body rows (all of them overflow it by a few pixels) and the
+  // content grows, so the footer sits at the bottom edge; a taller body scrolls with the footer last (live
+  // probe of 2026-10-28: a cell count sizes the body, a percentage does not).
+  return h(Box, { flexDirection: 'column', gap: 1, ...(fits ? { minHeight: rows - 1 } : {}) }, h(Box, { flexDirection: 'column', gap: 1, flexGrow: 1 },
     h(Box, { flexDirection: 'column', alignItems: 'center' },
       figure,
       h(Text, { color: COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
@@ -204,6 +272,7 @@ function body($, e, view) {
       h(Text, {}, view.nextStep)) : null,
     runList,
     view.stale ? h(Text, { color: 'warning' }, view.stale) : null,
+    about),
     actions);
 }
 

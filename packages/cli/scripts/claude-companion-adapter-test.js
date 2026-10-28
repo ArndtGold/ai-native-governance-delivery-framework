@@ -23,7 +23,17 @@ let instance = 0;
 const freshModule = () => import(`${pathToFileURL(join(companionDir, "register.mjs")).href}?session=${++instance}`);
 const { COMMAND, PANE, REFRESH_MS } = await freshModule();
 const hostPath = path => (path.startsWith(`${pluginRoot}/companion/`) ? join(companionDir, path.slice(pluginRoot.length + 11))
-  : path.startsWith(`${pluginRoot}/meta/`) ? join(repoRoot, "plugins", "agdf", "meta", path.slice(pluginRoot.length + 6)) : path);
+  : path.startsWith(`${pluginRoot}/meta/`) ? join(repoRoot, "plugins", "agdf", "meta", path.slice(pluginRoot.length + 6))
+    : path === `${pluginRoot}/.claude-plugin/plugin.json` ? join(repoRoot, "plugins", "agdf", ".claude-plugin", "plugin.json")
+      : path === `${pluginRoot}/assets/agdf-icon.svg` ? join(repoRoot, "plugins", "agdf", "assets", "agdf-icon.svg") : path);
+const pluginVersion = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", ".claude-plugin", "plugin.json"), "utf8")).version;
+// The surface tables. The mobile app draws no picker, yet the 2.1.302 test engine hands one out there and
+// draws it as an empty box, so the fake mobile table carries one too and the companion must not use it.
+const SURFACES = {
+  desktop: { Box: "Box", Text: "Text", Button: "Button", Svg: "Svg", Select: "Select", Link: "Link" },
+  terminal: { Box: "Box", Text: "Text", Button: "Button", Select: "Select", Link: "Link" },
+  mobile: { Box: "Box", Text: "Text", Button: "Button", Svg: "Svg", Select: "Select", Link: "Link" },
+};
 
 // failChannels: toast and status throw, audio is missing and the settings read rejects (SDD-12).
 // failToast: only the toast throws, so a chime without a shown toast would be visible (CR-F01).
@@ -46,7 +56,7 @@ function fakeHost({ projectRoot, configDir, failRoot = false, settings = {}, fai
     },
     command: { register: async spec => { log.commands.push(spec); } },
     ui: {
-      resolve: e => (e.surface === "terminal" ? { Box: "Box", Text: "Text", Button: "Button" } : { Box: "Box", Text: "Text", Button: "Button", Svg: "Svg" }),
+      resolve: e => SURFACES[e.surface],
       invalidate: () => { log.invalidations++; },
       open: async args => { log.opened.push(args); return { isPlaced: true }; },
       close: async args => { log.closed.push(args); },
@@ -76,7 +86,19 @@ async function waitFor(condition, label = "condition") {
 const texts = node => (typeof node === "string" ? [node] : node?.children ? node.children.flatMap(texts) : []);
 const find = (node, predicate) => (predicate(node) ? [node] : []).concat(node?.children ? node.children.filter(child => typeof child === "object").flatMap(child => find(child, predicate)) : []);
 const buttons = tree => find(tree, node => node.tag === "Button");
-const render = (host, surface = "desktop") => host.fire("ui.render", { surface, props: { bodyColumns: 40 } });
+const button = (tree, key) => buttons(tree).find(node => node.props.key === key);
+const menu = tree => find(tree, node => node.tag === "Select")[0];
+// Picks one entry from the footer menu, as the host's `ui.select` chain ends in the picker's `onSelect`;
+// hands back the pick unstarted, so a caller may hold it like a button's press.
+async function entry(host, key) {
+  const picker = menu(await render(host));
+  return () => picker.props.onSelect(key, { element: "menu", value: key });
+}
+// The entry's label as the footer menu offers it.
+async function entryLabel(host, key) {
+  return menu(await render(host)).props.options.find(option => option.value === key)?.label;
+}
+const render = (host, surface = "desktop", props = {}) => host.fire("ui.render", { surface, props: { bodyColumns: 40, ...props } });
 function controlDigest(root) {
   const hash = createHash("sha256");
   const walk = path => { for (const name of readdirSync(path).sort()) {
@@ -152,29 +174,117 @@ try {
     const column = find(tree, node => node.tag === "Box" && node.children.includes(row))[0];
     assert.match(texts(column.children[0])[0], /\d+ (of|von) \d+/u, "the count stands on its own line above the buttons");
   };
-  // The footer buttons share rows of two (motion and reading; toast and sound), and the read time
-  // sits on the line below them (live finding of 2026-10-27: „Stand 18:41“ wrapped beside them).
-  const checkFooter = (tree, names) => {
-    const row = find(tree, node => node.tag === "Box" && node.children.some(child => child.props?.key === "still"))[0];
-    const switches = find(tree, node => node.tag === "Box" && node.children.some(child => child.props?.key === "notice"))[0];
-    assert.deepEqual(row.children.map(child => [child.props.key, child.props.label]), [["still", names[0]], ["retry", names[1]]], "the first footer row holds motion and reading");
-    assert.deepEqual(switches.children.map(child => [child.props.key, child.props.label]), [["notice", names[2]], ["sound", names[3]]], "the second footer row holds toast and sound");
-    for (const pair of [names.slice(0, 2), names.slice(2)]) assert.ok(pair.map(name => `[ ${name} ]`).join(" ").length <= 40, "each footer row fits the default width");
-    const column = find(tree, node => node.tag === "Box" && node.children.includes(row))[0];
-    assert.deepEqual([column.children.indexOf(row), column.children.indexOf(switches)], [0, 1]);
-    assert.match(texts(column.children.at(-1))[0], /^(As of|Stand) \d/u, "the read time stands on its own line below the buttons");
+  // The actions open from the panel's foot (owner requests of 2026-10-28): the footer holds the AGDF icon
+  // (not on the terminal), the menu and the read time at the right edge, and is the last row. A dim frame
+  // sets it off on the desktop, a dim line on the terminal. Where the surface has a picker the menu is one,
+  // always showing its neutral entry, the name; the mobile app gets a plain button that opens the entries.
+  const ACTIONS = ["still", "retry", "notice", "sound", "about"];
+  const parentOf = (tree, node) => find(tree, candidate => candidate.tag === "Box" && candidate.children.includes(node))[0];
+  const checkFooter = async (host, surface, names) => {
+    const tree = await render(host, surface);
+    const trigger = find(tree, node => node.props?.key === "menu")[0];
+    const left = parentOf(tree, trigger);
+    const footer = parentOf(tree, left);
+    const readAt = footer.children[1];
+    assert.deepEqual([footer.props.flexDirection, footer.props.justifyContent, footer.children.length], ["row", "space-between", 2]);
+    assert.deepEqual([footer.props.borderStyle, footer.props.borderDimColor], surface === "terminal" ? [undefined, undefined] : ["single", true], "a dim frame sets the footer off");
+    assert.deepEqual(left.children.map(child => child.tag), { desktop: ["Svg", "Select"], terminal: ["Select"], mobile: ["Svg", "Button"] }[surface]);
+    if (surface !== "terminal") assert.equal(left.children[0].props.source, readFileSync(join(repoRoot, "plugins", "agdf", "assets", "agdf-icon.svg"), "utf8"));
+    assert.match(texts(readAt)[0], /^(As of|Stand) \d{2}:\d{2}$/u, "the read time stands at the footer's right edge");
+    assert.equal(readAt.props.flexShrink, 0, "the read time keeps its width");
+    const actions = parentOf(tree, footer);
+    assert.deepEqual([actions.children.at(-1), tree.children.at(-1)], [footer, actions], "the footer is the last row");
+    if (surface === "terminal") assert.deepEqual(texts(actions.children.at(-2)), ["─".repeat(40)], "a dim line sets the terminal footer off");
+    assert.deepEqual(buttons(tree).filter(node => ACTIONS.includes(node.props.key)), [], "no entry is drawn beside the closed menu");
+    if (surface !== "mobile") {
+      assert.equal(trigger.props.value, "menu", "the menu shows its neutral entry");
+      assert.deepEqual(trigger.props.options.map(option => [option.value, option.label]), [["menu", names[0]], ...ACTIONS.map((value, index) => [value, names[index + 1]])]);
+      return;
+    }
+    assert.deepEqual([trigger.props.label, trigger.props.plain], [`${names[0]} ▾`, true]);
+    await trigger.props.onPress();
+    const open = await render(host, surface);
+    const listed = buttons(open).filter(node => ACTIONS.includes(node.props.key));
+    assert.deepEqual(listed.map(node => [node.props.key, node.props.label, node.props.plain]), ACTIONS.map((key, index) => [key, names[index + 1], true]));
+    const entries = parentOf(open, listed[0]);
+    assert.deepEqual([entries.props.borderStyle, entries.props.borderDimColor], ["single", true], "the open entries stand out as a menu");
+    assert.equal(parentOf(open, entries), parentOf(open, parentOf(open, parentOf(open, button(open, "menu")))), "the entries stand directly above the footer");
+    await button(open, "menu").props.onPress();
+    assert.deepEqual(buttons(await render(host, surface)).filter(node => ACTIONS.includes(node.props.key)), [], "the name closes the menu again");
   };
   checkStepping(tree, ["Previous run", "Next run"]);
-  checkFooter(tree, ["Stop motion", "Read again", "Notices off", "Sound on"]);
-  checkFooter(await render(first, "terminal"), ["Stop motion", "Read again", "Notices off", "Sound on"]);
+  for (const surface of ["desktop", "terminal", "mobile"]) {
+    await checkFooter(first, surface, ["AGDF Companion", "Stop motion", "Read again", "Notices off", "Sound on", "About"]);
+  }
   const configText = readFileSync(configPath, "utf8");
   writeFileSync(configPath, `${JSON.stringify({ ...JSON.parse(configText), chat_language: "de" }, null, 2)}\n`);
   const german = await session();
   await german.fire("session.start");
   writeFileSync(configPath, configText);
-  const germanTree = await render(german);
-  checkStepping(germanTree, ["Vorheriger Run", "Nächster Run"]);
-  checkFooter(germanTree, ["Bewegung aus", "Neu lesen", "Meldung aus", "Ton an"]);
+  checkStepping(await render(german), ["Vorheriger Run", "Nächster Run"]);
+  await checkFooter(german, "desktop", ["AGDF Companion", "Bewegung aus", "Neu lesen", "Meldung aus", "Ton an", "About"]);
+
+  // On the desktop the body is one row less than the pane's body rows and the content grows, so the
+  // footer sits at the bottom edge (live probe of 2026-10-28); without body rows nothing is sized.
+  const sized = await render(first, "desktop", { scroll: { offset: 0, bodyRows: 30 } });
+  assert.deepEqual([sized.props.minHeight, sized.children[0].props.flexGrow, sized.children.length], [29, 1, 2]);
+  assert.equal((await render(first)).props.minHeight, undefined);
+  assert.equal((await render(first, "terminal", { scroll: { offset: 0, bodyRows: 30 } })).props.minHeight, undefined, "the terminal keeps its layout");
+
+  // A pick runs its entry, and the menu shows its neutral entry again. About shows the name, the
+  // purpose, the plugin version and the link to agdf.iself.eu on desktop and terminal; its plain button
+  // closes it again. The neutral entry and an unknown value run nothing.
+  const drawn = first.log.invalidations;
+  assert.equal(menu(await render(first)).props.onSelect("menu", { element: "menu", value: "menu" }), undefined);
+  assert.equal(menu(await render(first)).props.onSelect("unknown", { element: "menu", value: "unknown" }), undefined);
+  assert.equal(first.log.invalidations, drawn, "neither the neutral entry nor an unknown value redraws");
+  assert.equal(find(await render(first), node => node.tag === "Link").length, 0, "About is closed by default");
+  await (await entry(first, "about"))();
+  for (const surface of ["desktop", "terminal"]) {
+    const aboutTree = await render(first, surface);
+    assert.deepEqual(find(aboutTree, node => node.tag === "Link").map(node => node.props), [{ href: "https://agdf.iself.eu", label: "agdf.iself.eu" }]);
+    assert.ok(texts(aboutTree).includes("Shows the state of your AGDF runs beside the chat. Read-only: approvals stay in the chat."));
+    assert.ok(texts(aboutTree).includes(`AGDF plugin ${pluginVersion}`));
+    assert.equal(menu(aboutTree).props.value, "menu", "the menu shows its neutral entry again after a pick");
+  }
+  await button(await render(first), "about-close").props.onPress();
+  assert.equal(find(await render(first), node => node.tag === "Link").length, 0, "the close button hides About");
+
+
+  // The desktop run list fills the room the body rows leave (owner request of 2026-10-28): as many open
+  // runs as fit, the last row "+ N more" when runs remain, never fewer than six; the terminal keeps six.
+  const { listCapacity } = await freshModule();
+  const listView = { message: "No run assigned", hint: "No run changed in this session. Choose an open run to show it here." };
+  assert.equal(listCapacity(listView, { rows: 10, columns: 40 }), 6, "never fewer than six");
+  assert.equal(listCapacity(listView, { rows: 50, columns: 40 }) - listCapacity(listView, { rows: 40, columns: 40 }), 10, "each body row adds a run");
+  assert.equal(listCapacity(listView, { rows: 50, columns: 40 }) - listCapacity(listView, { rows: 50, columns: 40, isAboutShown: true }), 7, "About takes its rows");
+  assert.ok(listCapacity({ ...listView, hint: "x".repeat(400) }, { rows: 50, columns: 40 }) < listCapacity(listView, { rows: 50, columns: 40 }), "a longer hint takes rows");
+  const many = await approvalFixture();
+  try {
+    const manyConfig = join(many.root, ".agdf", "control", "config.json");
+    writeFileSync(manyConfig, `${JSON.stringify({ ...JSON.parse(readFileSync(manyConfig, "utf8")), chat_language: "en" }, null, 2)}\n`);
+    const runText = readFileSync(many.runPath, "utf8");
+    for (let index = 1; index <= 12; index += 1) {
+      const id = `extra-${String(index).padStart(2, "0")}`;
+      mkdirSync(join(many.root, ".agdf", "control", "runs", id), { recursive: true });
+      writeFileSync(join(many.root, ".agdf", "control", "runs", id, "RUN_STATE.md"), sealRunState(many.root, runText.replaceAll("fixture-a", id)));
+    }
+    const lister = await session({ projectRoot: many.root });
+    await lister.fire("session.start");
+    const runsOf = tree => buttons(tree).filter(node => node.props.key.startsWith("run-")).length;
+    const moreOf = tree => texts(tree).filter(text => /^\+ \d+ more$/u.test(text));
+    const roomy = await render(lister, "desktop", { scroll: { offset: 0, bodyRows: 60 } });
+    assert.ok(texts(roomy).includes("13 open runs"));
+    assert.deepEqual([runsOf(roomy), moreOf(roomy)], [13, []], "all runs fit a tall pane");
+    const rows = 26;
+    const capacity = listCapacity({ message: "No run assigned", hint: "No run changed in this session. Choose an open run to show it here." }, { rows, columns: 40 });
+    const tight = await render(lister, "desktop", { scroll: { offset: 0, bodyRows: rows } });
+    assert.ok(capacity < 13 && capacity > 6, "the tight pane shows more than six and fewer than all");
+    assert.deepEqual([runsOf(tight), moreOf(tight)], [capacity - 1, [`+ ${13 - capacity + 1} more`]], "the last row says how many remain");
+    assert.deepEqual([runsOf(await render(lister, "terminal", { scroll: { offset: 0, bodyRows: rows } })), moreOf(await render(lister, "terminal"))], [6, []], "the terminal keeps six");
+  } finally {
+    many.close();
+  }
 
   // SCN-006: main-loop turns drive läuft; subagent turns change nothing; completion re-reads.
   await first.fire("turn.start", { agentId: "sub" });
@@ -205,16 +315,16 @@ try {
   // CR-F07: of overlapping reads, an older one that finishes last never replaces the newer one.
   let releaseEmpty = null;
   first.$.fs.list = () => new Promise(resolve => { releaseEmpty = () => resolve([]); });
-  const slowRead = buttons(await render(first)).find(button => button.props.key === "retry").props.onPress();
+  const slowRead = (await entry(first, "retry"))();
   await waitFor(() => releaseEmpty, "the slow read");
   first.$.fs.list = realList;
-  await buttons(await render(first)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(first, "retry"))();
   releaseEmpty();
   await slowRead;
   assert.ok(texts(await render(first)).includes("waiting for approval"), "the newer read stays on screen");
 
   // AC-010: the still pose persists and removes all motion; the terminal draws text.
-  await buttons(await render(first)).find(button => button.props.key === "still").props.onPress();
+  await (await entry(first, "still"))();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).still, true);
   const svg = find(await render(first), node => node.tag === "Svg")[0];
   assert.equal(/<animate|<set\b/u.test(svg.props.source), false);
@@ -225,7 +335,7 @@ try {
 
   // A change in this session takes over from the selection (most recent wins).
   assert.equal(target.approve().outcome, "approved");
-  await buttons(await render(first)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(first, "retry"))();
   tree = await render(first);
   assert.ok(texts(tree).includes("Changed in this session") && texts(tree).includes("working"));
 
@@ -233,7 +343,7 @@ try {
   // run-derived state. Selecting the waiting run was a baseline and its approval to working raised
   // nothing; a review result that blocks it raises exactly one toast, repeated reads none.
   const lastStatus = () => first.log.status.at(-1);
-  const reread = async host => buttons(await render(host)).find(button => button.props.key === "retry").props.onPress();
+  const reread = async host => (await entry(host, "retry"))();
   const review = decision => {
     const result = recordRunStep(target.root, { runId: "fixture-a", revisionId: target.revision(), step: "review", decision, evidence: `companion adapter test: ${decision}` },
       { policy: policyForRunContent, date: "2026-10-27" });
@@ -259,22 +369,22 @@ try {
   assert.equal(first.log.status.length, statusCount + 1, "the post-turn read sets the status line again");
   assert.deepEqual([first.log.status.at(-1), first.log.toasts.length], ["AGDF · Quick Task Execution · blocked", 1], "a turn changes neither the status text nor toasts");
   // With the sound switched on, the next transition also plays the generated chime once.
-  await buttons(await render(first)).find(button => button.props.key === "sound").props.onPress();
+  await (await entry(first, "sound"))();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).sound, true);
   review("block");
   await reread(first);
   assert.equal(first.log.toasts.at(-1), "fixture-a is blocked: Quick Task Execution – blocked");
   assert.deepEqual(first.log.audio.map(({ clip, options }) => [clip.mime, options.gain, clip.base64.slice(0, 5)]), [["audio/wav", 0.35, "UklGR"]]);
   // With toasts switched off, a transition raises neither toast nor sound; the choice persists.
-  await buttons(await render(first)).find(button => button.props.key === "notice").props.onPress();
+  await (await entry(first, "notice"))();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).notice, false);
-  assert.equal(buttons(await render(first)).find(button => button.props.key === "notice").props.label, "Notices on");
+  assert.equal(await entryLabel(first, "notice"), "Notices on");
   review("revise");
   await reread(first);
   assert.deepEqual([first.log.toasts.length, first.log.audio.length], [2, 1], "no toast and no sound while toasts are off");
   assert.equal(lastStatus(), "AGDF · Quick Task Execution · blocked", "the status line still follows the run");
-  await buttons(await render(first)).find(button => button.props.key === "notice").props.onPress();
-  await buttons(await render(first)).find(button => button.props.key === "sound").props.onPress();
+  await (await entry(first, "notice"))();
+  await (await entry(first, "sound"))();
   assert.deepEqual([JSON.parse(readFileSync(statePath, "utf8")).notice, JSON.parse(readFileSync(statePath, "utf8")).sound], [true, false]);
 
   // SDD-07 / CR-F01, follow-up SDD-08: the person's close mark (the host's `origin: { kind: "person" }`)
@@ -328,7 +438,7 @@ try {
   // CR-F04: a session writes only its own change into the freshly read file, so a choice another
   // session stored meanwhile survives.
   const stillBefore = JSON.parse(readFileSync(statePath, "utf8")).still;
-  await buttons(await render(first)).find(button => button.props.key === "still").props.onPress();
+  await (await entry(first, "still"))();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).still, !stillBefore);
   await second.fire("command.run", { command: COMMAND });
   const stored = JSON.parse(readFileSync(statePath, "utf8"));
@@ -339,7 +449,7 @@ try {
   // CR-F09: a snapshot without any runs (a missing runs folder) never drops the selection.
   const realExists = second.$.fs.exists;
   second.$.fs.exists = async path => (path.endsWith("/.agdf/control/runs") ? false : realExists(path));
-  await buttons(await render(second)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(second, "retry"))();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[target.root], "fixture-a");
   second.$.fs.exists = realExists;
 
@@ -347,10 +457,10 @@ try {
   const otherProject = mkdtempSync(join(tmpdir(), "agdf-companion-other-"));
   mkdirSync(join(otherProject, ".agdf", "control", "runs"), { recursive: true });
   second.where.root = otherProject;
-  await buttons(await render(second)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(second, "retry"))();
   assert.ok(texts(await render(second)).includes("No open runs in this project."));
   second.where.root = target.root;
-  await buttons(await render(second)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(second, "retry"))();
   assert.ok(texts(await render(second)).includes("fixture-a"));
   rmSync(otherProject, { recursive: true, force: true });
 
@@ -361,12 +471,12 @@ try {
     const closingHost = await session();
     await closingHost.fire("session.start");
     closingHost.where.root = closing.root;
-    await buttons(await render(closingHost)).find(button => button.props.key === "retry").props.onPress();
+    await (await entry(closingHost, "retry"))();
     await buttons(await render(closingHost)).find(button => button.props.key === "run-fixture-a").props.onPress();
     assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[closing.root], "fixture-a");
     const runPath = join(closing.root, ".agdf", "control", "runs", "fixture-a", "RUN_STATE.md");
     writeFileSync(runPath, sealRunState(closing.root, replaceFirstScalar(readFileSync(runPath, "utf8"), "lifecycle", "superseded")));
-    await buttons(await render(closingHost)).find(button => button.props.key === "retry").props.onPress();
+    await (await entry(closingHost, "retry"))();
     assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[closing.root], undefined, "a selection on a superseded run is dropped");
     tree = await render(closingHost);
     assert.ok(texts(tree).includes("No open runs in this project."));
@@ -377,12 +487,12 @@ try {
 
   // SCN-010: a transient read failure keeps the last state with a marker; retry restores it.
   second.$.fs.list = async () => { throw new Error("EIO"); };
-  await buttons(await render(second)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(second, "retry"))();
   tree = await render(second);
   assert.ok(texts(tree).some(line => line.startsWith("Read failed at")) && texts(tree).includes("fixture-a"));
   delete second.$.fs.list;
   second.$.fs.list = async path => readdirSync(path).map(name => ({ name, kind: lstatSync(join(path, name)).isDirectory() ? "dir" : "file", isLink: false }));
-  await buttons(await render(second)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(second, "retry"))();
   assert.ok(!texts(await render(second)).some(line => line.startsWith("Read failed at")));
 
   // SCN-014: failure injection. A failing session start passes its event on and registers nothing;
@@ -410,14 +520,14 @@ try {
   const silent = await session({ failChannels: true });
   assert.deepEqual(await silent.fire("session.start", { marker: 2 }), { passed: { marker: 2 } });
   assert.equal(silent.log.opened.length, 1, "the enabled companion opens its pane despite failing channels");
-  await buttons(await render(silent)).find(button => button.props.key === "sound").props.onPress();
+  await (await entry(silent, "sound"))();
   review("revise");
   await reread(silent);
   assert.ok(texts(await render(silent)).includes("fixture-a"), "the pane still draws the run");
   assert.deepEqual(await silent.fire("turn.complete", { marker: 3 }), { passed: { marker: 3 } });
   assert.equal((await silent.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
   assert.equal((await silent.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
-  await buttons(await render(silent)).find(button => button.props.key === "sound").props.onPress();
+  await (await entry(silent, "sound"))();
 
   // Follow-up SCN-021 (adapter part): without AGDF control the companion speaks the language of
   // Claude's `language` setting; with a config the AGDF chat language wins; a failing read is English.
@@ -458,8 +568,8 @@ try {
     await host.fire("session.start");
     if (!JSON.parse(readFileSync(statePath, "utf8")).enabled) await host.fire("command.run", { command: COMMAND });
     await buttons(await render(host)).find(button => button.props.key === "run-fixture-a").props.onPress();
-    if (buttons(await render(host)).find(button => button.props.key === "sound").props.label === "Sound on") {
-      await buttons(await render(host)).find(button => button.props.key === "sound").props.onPress();
+    if (await entryLabel(host, "sound") === "Sound on") {
+      await (await entry(host, "sound"))();
     }
     assert.equal(JSON.parse(readFileSync(statePath, "utf8")).sound, true, "the sound is on for the toast-failure check");
     assert.equal(race.approve().outcome, "approved");
@@ -467,7 +577,7 @@ try {
     raceReview("revise");
     await reread(host);
     assert.deepEqual([host.log.toasts.length, host.log.audio.length], [0, 0], "no chime when the toast could not be shown");
-    await buttons(await render(host)).find(button => button.props.key === "sound").props.onPress();
+    await (await entry(host, "sound"))();
 
     // A read that captured the run state before the switch-off finishes after the switch-on.
     const toastsBefore = first.log.toasts.length;
@@ -531,7 +641,7 @@ try {
   const third = await session();
   await third.fire("session.start");
   await render(third);
-  await buttons(await render(third)).find(button => button.props.key === "retry").props.onPress();
+  await (await entry(third, "retry"))();
   assert.equal(controlDigest(target.root), controlAfterApproval, "companion reads leave the control state byte-identical");
 } finally {
   target.close();

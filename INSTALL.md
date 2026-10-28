@@ -1120,11 +1120,18 @@ slash-command menu does not list `/agdf-companion`: type it in full and send it.
 - A notice such as "… wartet auf Freigabe: Qualitätssicherung" appears when the shown run starts waiting for an
   approval or a decision, becomes blocked, or moves to another pending gate or decision. The first read after
   switching on, a change to another run, repeated reads of the same state, turns and failed reads raise none.
-  "Notices off" in the panel switches notices off.
+  "Notices off" in the panel's menu switches notices off.
 - "Sound on" adds a short, soft chime to each notice. Sound is off by default and plays only with a notice.
   Claude Code plays it only where it has an audio player; on Windows it stays silent.
 - Claude's status line shows the run's gate and short state, for example `AGDF · QA · wartet`, `AGDF · CR · baut`
   or `AGDF · fertig`. Claude puts the plugin name `agdf` in front of it. Turns do not change it.
+
+**Menu.** The panel's last row holds the AGDF icon, the menu "AGDF Companion" and, at the right edge, the time of
+the last read. On the desktop a dim frame sets it off and it sits at the panel's bottom edge; on the terminal a dim
+line stands above it. The menu opens Claude's own list above the row: "Stop motion", "Read again", "Notices off",
+"Sound on" and "About". Picking an entry runs it, and the menu shows "AGDF Companion" again. "About" shows what the
+companion does, the AGDF plugin version and a link to [agdf.iself.eu](https://agdf.iself.eu); "Close" hides it
+again. The mobile app draws no such list, so there the name is a button that opens the entries above the row.
 
 **What it keeps and where.** It keeps five things together in `companion-state.json`:
 
@@ -1147,7 +1154,8 @@ not use Claude Code's plugin store, because Claude Code keeps that store after u
 1. The run whose `RUN_STATE.md` changed during this session. The most recently changed one wins, and it stays
    shown with "done" once completed.
 2. The run you selected in this project.
-3. Otherwise the panel says "No run assigned" and lists the open runs to choose from.
+3. Otherwise the panel says "No run assigned" and lists the open runs to choose from. On the desktop the list
+   fills the panel's height and ends with "+ N more" when runs remain; the terminal lists six.
 
 Only active runs are open. Superseded and abandoned runs are closed: the panel never shows them, and it forgets a
 selected run once that run is superseded or abandoned. It never guesses the newest run. While a main-loop turn runs, the figure shows "working" with the reason that
@@ -1171,7 +1179,7 @@ name such as `German` or `Deutsch`), otherwise English:
 | Surface | Companion |
 |---|---|
 | Claude Code desktop app (Code tab) | Panel with an animated SVG figure; "Stop motion" switches to a still pose that persists; notices at the bottom right; status line entry in the footer beside the model |
-| Claude Code in the terminal | The same panel as text, without the figure; status line under the prompt |
+| Claude Code in the terminal | The same panel as text, without the figure and the icon; status line under the prompt |
 | Other Claude Code surfaces (IDE extensions, mobile) | Not tested |
 | Codex, GitHub Copilot, OpenCode | No companion. Codex sees the files in the shared runtime folder but never loads them; the Copilot payload does not contain them |
 

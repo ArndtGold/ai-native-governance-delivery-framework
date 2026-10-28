@@ -4,7 +4,7 @@
 
 import { assignRun } from './assignment.mjs';
 import { FIGURE_TEXT } from './figure.mjs';
-import { gateBar, gateMarks } from './gate-bar.mjs';
+import { condensedGateBar, gateBar, gateMarks } from './gate-bar.mjs';
 import { gateTitle, label, localizeNextStep } from './localization.mjs';
 import { displayState } from './state.mjs';
 
@@ -33,7 +33,8 @@ export function buildPanelView(input) {
   }
 
   const { run, origin, open } = assignRun({ runs: snapshot.runs, sessionStartedAt: input.sessionStartedAt, selection: input.selection });
-  const openRuns = open.map(item => ({ id: item.id, objective: item.objective }));
+  // Each open run carries its condensed gate bar for the list (owner request of 2026-10-28).
+  const openRuns = open.map(item => ({ id: item.id, objective: item.objective, bar: condensedGateBar(gateMarks(item)) }));
   if (!run) {
     const broken = input.selection && snapshot.unreadable.find(item => item.id === input.selection);
     if (broken) return { ...unreadable(broken.reason), openRuns };

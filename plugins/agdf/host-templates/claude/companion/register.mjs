@@ -26,6 +26,9 @@ const PICKER_SURFACES = new Set(['terminal', 'desktop', 'vscode']);
 // 28 px): the figure with its state and reason, the framed footer with its picker, the About block,
 // the space between two blocks, and one spare row, since a body taller than the pane scrolls.
 const DESKTOP_ROWS = Object.freeze({ figure: 7, footer: 2, about: 7, gap: 0.6, spare: 1 });
+// Listed runs show their condensed gate bars beside the ids while at least this many characters of an id
+// stay beside the widest bar (owner request of 2026-10-28); a narrower pane lists the ids alone.
+const ID_ROOM = 18;
 const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
 
 function createSession() {
@@ -167,6 +170,13 @@ export function listCapacity(view, { rows, columns, isAboutShown = false }) {
   return Math.max(LISTED_RUNS, Math.floor(rows - fixed));
 }
 
+// A run id shortened in the middle to `room` characters, so its date and sequence stay readable.
+export function fitRunId(id, room) {
+  if (id.length <= room) return id;
+  const tail = Math.min(12, Math.floor((room - 1) / 2));
+  return `${id.slice(0, room - 1 - tail)}…${id.slice(id.length - tail)}`;
+}
+
 const press = ($, action) => async () => {
   try { await action(); } catch { /* a failed action leaves the last drawing */ }
   redraw($);
@@ -229,6 +239,19 @@ function body($, e, view) {
   // The terminal keeps its six; the desktop lists as many as fit and gives the last row to "+ N more".
   const listed = isTerminal ? view.openRuns.slice(0, LISTED_RUNS)
     : view.openRuns.length <= capacity ? view.openRuns : view.openRuns.slice(0, capacity - 1);
+  // One listed run: the id as a plain button and, where the pane has room for the widest listed bar, its
+  // condensed gate bar at the right edge, every id shortened to the same room (the same rule for all rows,
+  // live check of 2026-10-28). The bar keeps its width; an id that still runs over is cut by the surface.
+  const widest = Math.max(0, ...listed.map(run => run.bar?.length ?? 0));
+  const room = columns - widest - 2;
+  const withBars = widest > 0 && room >= ID_ROOM;
+  const runRow = run => {
+    const id = h(Button, { key: `run-${run.id}`, plain: true, label: withBars ? fitRunId(run.id, room) : run.id, onPress: select(run.id) });
+    return withBars && run.bar
+      ? h(Box, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 1 },
+        h(Box, { flexShrink: 1 }, id), h(Box, { flexShrink: 0 }, h(Text, { dimColor: true, mono: true }, run.bar)))
+      : id;
+  };
   const runList = view.originKind !== 'session' && view.openRuns.length
     ? (view.runId
       // The count has its own line, so the two stepping buttons fit the default width. The desktop
@@ -240,7 +263,7 @@ function body($, e, view) {
           h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) })))
       : h(Box, { flexDirection: 'column' },
         h(Text, { dimColor: true }, view.openCount),
-        ...listed.map(run => h(Button, { key: `run-${run.id}`, plain: true, label: run.id, onPress: select(run.id) })),
+        ...listed.map(runRow),
         !isTerminal && view.openRuns.length > listed.length ? h(Text, { dimColor: true }, t('fields.moreRuns', { count: view.openRuns.length - listed.length })) : null))
     : null;
   if (isTerminal) {

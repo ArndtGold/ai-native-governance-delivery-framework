@@ -276,6 +276,28 @@ try {
     const roomy = await render(lister, "desktop", { scroll: { offset: 0, bodyRows: 60 } });
     assert.ok(texts(roomy).includes("13 open runs"));
     assert.deepEqual([runsOf(roomy), moreOf(roomy)], [13, []], "all runs fit a tall pane");
+    // Beside each listed id its condensed gate bar, the id shortened in the middle to the room the bar
+    // leaves (owner request of 2026-10-28); a pane too narrow for both lists the ids alone.
+    const rowsOf = tree => find(tree, node => node.tag === "Box" && node.children[0]?.children?.[0]?.props?.key?.startsWith("run-"));
+    const barRows = rowsOf(roomy);
+    assert.equal(barRows.length, 13, "every listed run has its bar row");
+    const widest = Math.max(...barRows.map(row => texts(row.children[1])[0].length));
+    for (const row of barRows) {
+      const [idBox, barBox] = row.children;
+      const [id, bar] = [idBox.children[0], barBox.children[0]];
+      assert.deepEqual([row.props.flexDirection, row.props.justifyContent, idBox.props.flexShrink, barBox.props.flexShrink], ["row", "space-between", 1, 0], "the bar keeps its width");
+      assert.deepEqual([bar.tag, bar.props.dimColor, bar.props.mono], ["Text", true, true]);
+      assert.match(texts(bar)[0], /^[✓●○]+ \S/u);
+      assert.ok(id.props.label.length <= 40 - widest - 2, "every id fits beside the widest bar");
+    }
+    assert.deepEqual(texts(barRows[0].children[1]), ["●● UR"], "a quick task at UR shows its own path");
+    const narrow = await render(lister, "desktop", { bodyColumns: 24, scroll: { offset: 0, bodyRows: 60 } });
+    assert.deepEqual([rowsOf(narrow).length, runsOf(narrow)], [0, 13], "a narrow pane lists the ids alone");
+    assert.ok(buttons(narrow).filter(node => node.props.key.startsWith("run-")).every(node => !node.props.label.includes("…")));
+    const { fitRunId } = await freshModule();
+    assert.equal(fitRunId("repository-control-compatibility-20260930-01", 29), "repository-contr…-20260930-01");
+    assert.equal(fitRunId("extra-01", 20), "extra-01");
+    assert.equal(fitRunId("gate-internal-continuation-recovery-20261008-01", 20).length, 20);
     const rows = 26;
     const capacity = listCapacity({ message: "No run assigned", hint: "No run changed in this session. Choose an open run to show it here." }, { rows, columns: 40 });
     const tight = await render(lister, "desktop", { scroll: { offset: 0, bodyRows: rows } });

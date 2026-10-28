@@ -1155,7 +1155,9 @@ not use Claude Code's plugin store, because Claude Code keeps that store after u
    shown with "done" once completed.
 2. The run you selected in this project.
 3. Otherwise the panel says "No run assigned" and lists the open runs to choose from. On the desktop the list
-   fills the panel's height and ends with "+ N more" when runs remain; the terminal lists six.
+   fills the panel's height and ends with "+ N more" when runs remain; the terminal lists six. Where the panel is
+   wide enough, each listed run shows its condensed gate bar at the right edge, for example `✓✓✓✓✓●○○ QA`, and
+   long run ids are shortened in the middle; a narrower panel lists the ids alone.
 
 Only active runs are open. Superseded and abandoned runs are closed: the panel never shows them, and it forgets a
 selected run once that run is superseded or abandoned. It never guesses the newest run. While a main-loop turn runs, the figure shows "working" with the reason that

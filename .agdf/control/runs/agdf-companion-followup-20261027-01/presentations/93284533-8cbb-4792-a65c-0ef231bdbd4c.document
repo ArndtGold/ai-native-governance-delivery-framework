@@ -1,0 +1,48 @@
+## Kurzfassung · UAT
+
+Run: `agdf-companion-followup-20261027-01` · Gate: `UAT` · Revision: `08498b58-3ee3-45c7-ad36-d0fb8da6d054`
+
+- Ziel: Der Run `agdf-begleiter-companion-20261025-01` hat den optionalen AGDF-Begleiter als Seitenpanel für Claude geliefert (PR #36, am 2026-10-27 in `main` gemergt). Einige Punkte hat der Owner bewusst aus diesem Run herausgehalten und nach dem Live-Test vom 2026-10-26/27 ergänzt. Heute fehlen: eine Marke für die Umsetzungsphase in der Gate-Leiste (bei Brownfield Analysis, CD+Tests und CR ist kein Punkt aktuell), eine sichtbare Bau-Aktivität der Figur, eine Gate-Leiste je Modus (Quick-Task-Runs zeigen `○PRD ○SD ○TP` und nach Abschluss Häkchen für nie vorhandene Gates, die Statuskarte dagegen `UR → Compact Delivery`), ein Hinweis beim Wechsel auf „wartet auf Freigabe“ oder „blockiert“, ein Status außerhalb des Panels, ein einheitlicher Markenname statt „AGDF-Begleiter“/„AGDF Companion“ sowie zwei Live-Befunde: Das Vorlagenziel „Describe the trustworthy outcome.“ wird angezeigt, und in einem Ordner ohne `.agdf/control` spricht das Panel Englisch.
+- Geliefertes Ergebnis: Der eingeschaltete AGDF Companion zeigt in strukturierten Runs die Marke `CD+Tests` und während Brownfield Analysis, CD+Tests und CR den Zustand „baut“ mit Hammer und Ziegeln; die Gate-Leiste folgt dem Pfad der Statuskarte je Modus, etwa `✓UR ●Compact Delivery`; beim Wechsel auf „wartet auf Freigabe“ oder „blockiert“ kommt genau eine Meldung, der leise Ton ist aus und spielt nur mit Meldung; die Claude-Statuszeile zeigt `AGDF · {Gate} · {Zustand}` auch bei geschlossenem Panel; überall heißt er „AGDF Companion“, Vorlagenziele sind ausgeblendet, ohne Kontrollordner gilt Claudes Spracheinstellung; alle neun Aufgaben und 26 Szenarien sind belegt, das unabhängige Code Review ist mit fünf korrigierten Befunden und einer von dir akzeptierten Abweichung bestanden, Suiten, Mutationstests, native Prüfungen und die Windows-Lanes sind grün, der Live-Test im Desktop belegt Bauphase, Meldung, Statuszeile, Quick-Task-Leiste und Deutsch ohne Kontrollordner.
+- Technische QA: pass
+- Nachweisgrenzen: Der Ton des Begleiters war live nicht zu hören bzw. nicht beobachtet, unter Windows bleibt er stumm; die Statuszeile beim Start einer untätigen Session nach der Korrektur ist automatisiert und nativ belegt, live hast du auf die Nachprüfung verzichtet; Linux und macOS laufen erst in der PR-CI, das Terminal ist nur nativ geprüft, andere Claude-Code-Versionen sind nicht qualifiziert.
+- Risiken und offene Punkte: Die Mod-API ist Early Access; drei gespiegelte Kernregeln sind nur durch Paritätstests gebunden; die Statuszeile hängt am erneuten Setzen nach jedem Lesen; abgeschlossene Alt-Runs können OR früher als erledigt zeigen als die Statuskarte; bei Standardbreite des Panels erscheint die Gate-Leiste in Kurzform (Entscheidung bei der UAT); die Pflege des Kontextgraphen steht bis zum OR aus.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- evidence · UR, PRD, SD, TP (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 10
+
+- QA: .agdf/control/artefacts/agdf-companion-followup-20261027-01/QA_REPORT.md · sha256:58f16ed972c6ec5c9b87a4738e2041e185425c93560c25517a99d1be24a67714
+- Review: .agdf/control/artefacts/agdf-companion-followup-20261027-01/TP_REVIEW.md · sha256:aaccca7b4417b2b74efc8e7c98d163d2cfe5d006735684958c0c7274641903e2
+- Review: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:96159d5db62222ca4a15e95fed49ec5b39bedd2aeb2607f4d6f995b1ef7abfb6
+- Review: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CODE_REVIEW.md · sha256:90e89e32bbd40f67cddf5dc806fcd3ed87496797e9b2b677de86a11a9321ce44
+- Review: .agdf/control/artefacts/agdf-companion-followup-20261027-01/TP_REVIEW-input-02.md · sha256:aaccca7b4417b2b74efc8e7c98d163d2cfe5d006735684958c0c7274641903e2
+- Review: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CLEAN_IMPLEMENTATION_REVIEW-input-01.md · sha256:96159d5db62222ca4a15e95fed49ec5b39bedd2aeb2607f4d6f995b1ef7abfb6
+- Review: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CODE_REVIEW-input-01.md · sha256:90e89e32bbd40f67cddf5dc806fcd3ed87496797e9b2b677de86a11a9321ce44
+- UR: .agdf/control/artefacts/agdf-companion-followup-20261027-01/UR.md · sha256:6f509aebbe16a0c12d90291591cc596726a97cdd6f3ea47160acf6d1e183caa8
+
+## Vorliegende UAT-Evidenz
+
+- UX Intent Definition · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- evidence · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CODE_REVIEW_VERIFICATION.md · Deckt ab: UR, PRD, SD, TP · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/TP_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/agdf-companion-followup-20261027-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/agdf-companion-followup-20261027-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/PRD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/SD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/TP_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/agdf-companion-followup-20261027-01/CODE_REVIEW_VERIFICATION.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/agdf-companion-followup-20261027-01/QA_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

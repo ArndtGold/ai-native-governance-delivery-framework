@@ -56,6 +56,19 @@
 
 - companion_projection_20261027: The Claude companion is a third, read-only projection of the same run state beside the status card and the cockpit: it reads `RUN_STATE.md` through its own parser, whose lifecycle set is bound to the core reader by tests (only `active` runs are open; `superseded`/`abandoned` are never offered), derives läuft / wartet auf Freigabe / blockiert / fertig including revise/block results in the Artefacts row, mirrors the status-card breadcrumb as a one-line gate bar and takes localized labels and the next step from the status-card fields. It never approves, continues or writes run state; its only write is its own companion state file. Known limits for a follow-up: internal steps (Brownfield Analysis, CD+Tests, CR) mark no gate as current, the gate bar uses the fixed seven-gate path for every mode, a template placeholder objective is shown, and a folder without control state falls back to English. Evidence: .agdf/control/artefacts/agdf-begleiter-companion-20261025-01/SD.md, CODE_REVIEW.md, TP_REVIEW.md, UAT_LIVE_RECHECK.md.
 
+- companion_followup_20261028: The four known limits above are removed. The AGDF Companion (one brand in every language) now:
+  - mirrors the status card's path per Mode/Slice Decision (`modeSliceDecision`, `buildBreadcrumbPath`, parity-tested) and adds a `CD+Tests` mark between TP and QA on structured paths only. The core status card itself still has no implementation mark, so the companion deliberately shows one mark more than the card.
+  - shows a fifth mood „baut“ during Brownfield Analysis, CD+Tests and CR, kept during turns.
+  - hides decision-content placeholder objectives.
+  - falls back to Claude's `language` setting without AGDF config.
+
+  Outside the pane it raises one toast per transition of the shown run into or within „wartet“ and „blockiert“, judged on the run-derived state and never on the turn overlay; an optional chime plays only with a shown toast. It keeps a status line `AGDF · {gate} · {state}` that is set again after every read, because the Windows desktop drops the set made during session start. It keeps reading while the pane is hidden. Known limits:
+  - completed historical runs can show OR done where the card waits for its completion check;
+  - at the default docked panel width the 39-column structured bar condenses (accepted by the owner at UAT);
+  - the chime is silent on Windows.
+
+  Evidence: .agdf/control/artefacts/agdf-companion-followup-20261027-01/SD.md, CODE_REVIEW.md, T-009_EVIDENCE.md, QA_REPORT.md.
+
 - summary_readability_and_review_status_20261019: The localized approval summary reader skips unknown and qualified labelled lines; UR and QA presentation and readiness reject an unreadable required field (`approval_summary_field_unreadable` with the expected `- Label:` line) through the same `localizedDecisionFields` owner that UAT observation uses. Quality Readiness maps the canonical writer status `done` to pass. Evidence: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/CD_TESTS.md, .agdf/control/artefacts/core-approval-lock-defects-20261017-01/QA_REPORT.md.
 
 - situation: AGDF has machine-readable gate and delivery-map outputs, but needs a compact human/agent status projection that includes the next permissible step and the next meaningful quality outlook.

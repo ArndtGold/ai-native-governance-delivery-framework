@@ -1,12 +1,14 @@
-// AGDF companion host adapter (SDD-07 to SDD-10): the `/agdf-companion` command, the persisted
-// choices, main-loop turn observation, the refresh cadence and the own pane. Observation only: no
-// gating hook, every hook passes its event on through a catch path, and nothing is written under
-// .agdf/control. Session state lives in this module and is redrawn through `$.ui.invalidate`.
-// Elements come from the surface table and are built with the host's global `h`.
+// AGDF Companion host adapter (SDD-07 to SDD-10; follow-up SDD-05 to SDD-12): the `/agdf-companion`
+// command, the persisted choices, main-loop turn observation, the refresh cadence, the own pane, the
+// status line and toasts. Observation only: no gating hook, every hook passes its event on through a
+// catch path, and nothing is written under .agdf/control. Session state lives in this module and is
+// redrawn through `$.ui.invalidate`. Elements come from the surface table and are built with the
+// host's global `h`.
 
 import { assignRun, stepSelection } from './assignment.mjs';
 import { figureSvg } from './figure.mjs';
 import { chatLocale, label } from './localization.mjs';
+import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
 import { STATE_FILE, defaultCompanionState, parseCompanionState, pluginDataDir, serializeCompanionState } from './persistence.mjs';
 import { readSnapshot, settleSnapshot } from './run-state.mjs';
 import { buildPanelView, terminalText } from './view.mjs';
@@ -15,12 +17,12 @@ export const PANE = 'agdf-companion';
 export const COMMAND = 'agdf-companion';
 export const REFRESH_MS = 30_000;
 const LISTED_RUNS = 6;
-const COLOR = Object.freeze({ laeuft: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
+const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
 
 function createSession() {
   return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null,
     choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
-    timer: null, reads: 0, appliedRead: 0 };
+    timer: null, reads: 0, appliedRead: 0, observation: null };
 }
 
 // One companion per session: the module is loaded once per session.
@@ -45,6 +47,37 @@ async function persist($, change) {
   await $.fs.write(session.statePath, serializeCompanionState(stored));
 }
 
+// The status line and toasts follow the shown run's run-derived state after each applied read
+// (follow-up SDD-05 to SDD-07). A stale snapshot keeps the last observation, so a failed read never
+// announces anything. Each host call has its own catch path: a missing channel stays silent (SDD-12).
+function announce($) {
+  const observed = observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection() });
+  // Every applied read sets the line again, unchanged text included: the desktop dropped the one set
+  // during session start, before its surface was attached (live finding of 2026-10-27).
+  try { $.ui.status(statusText(observed, { labels: session.labels, locale: session.locale })); } catch { /* no status line on this host */ }
+  if (session.snapshot?.stale) return;
+  const { observation, notice } = observeNotice(session.observation, observed);
+  session.observation = observation;
+  if (!notice || !session.choices.notice) return;
+  try {
+    $.ui.toast(noticeText(observed.runId, notice, { registry: session.registry, labels: session.labels, locale: session.locale }));
+  } catch {
+    return; // no toast on this host, and so no chime either (CR-F01)
+  }
+  // The chime plays only with a shown toast; a host without a player skips it, a failure stays silent.
+  if (session.choices.sound) {
+    try { $.audio.play(chimeClip(), { gain: CHIME.gain }).catch(() => {}); } catch { /* no audio on this host */ }
+  }
+}
+
+// Switching off clears the status line, forgets the observation and discards reads still running, so
+// switching on starts from a fresh baseline without a toast (CR-F02).
+function silence($) {
+  session.observation = null;
+  session.appliedRead = session.reads + 1;
+  try { $.ui.status(undefined); } catch { /* no status line on this host */ }
+}
+
 // Reads the run states of the current project root, which `/cd` or a worktree move can change.
 // Only the newest of overlapping reads is applied. A snapshot without any runs, as during a branch
 // switch, never drops the remembered selection.
@@ -67,6 +100,7 @@ async function refresh($) {
     session.appliedRead = read;
     session.snapshot = settleSnapshot(session.snapshot, { status: 'failed', runs: [], unreadable: [], readAt: Date.now(), error: String(error?.message ?? error) });
   }
+  if (session.choices.enabled) announce($);
   redraw($);
 }
 
@@ -91,7 +125,13 @@ async function loadSession($) {
   session.labels = JSON.parse(await $.fs.read(`${$.plugin.root}/companion/locales.json`));
   session.registry = JSON.parse(await $.fs.read(`${$.plugin.root}/meta/agdf-interaction-locales.json`));
   const config = `${session.root}/.agdf/control/config.json`;
-  session.locale = chatLocale(session.registry, (await $.fs.exists(config)) ? await $.fs.read(config) : null);
+  const configText = (await $.fs.exists(config)) ? await $.fs.read(config) : null;
+  // Without AGDF control, Claude's own `language` setting chooses the language (follow-up SDD-11).
+  let setting = null;
+  if (configText === null) {
+    try { setting = await $.settings.read({ key: 'language' }); } catch { /* no setting: the fallback locale */ }
+  }
+  session.locale = chatLocale(session.registry, configText, { setting, labels: session.labels });
   const dir = pluginDataDir({ configDir: await $.env.get('CLAUDE_CONFIG_DIR'), userProfile: await $.env.get('USERPROFILE'), home: await $.env.get('HOME') });
   session.statePath = dir ? `${dir}/${STATE_FILE}` : null;
   if (session.statePath && (await $.fs.exists(session.statePath))) session.choices = parseCompanionState(await $.fs.read(session.statePath));
@@ -114,12 +154,16 @@ function body($, e, view) {
     const next = stepSelection(view.openRuns, view.runId ?? selection(), offset);
     if (next) await select(next)();
   });
-  // The read time has its own line below the two buttons, so neither wraps at the default width.
+  // Each row holds two buttons labelled with their action, and the read time has its own line below,
+  // so nothing wraps at the default width (the desktop draws a Button's label).
+  const toggle = key => press($, async () => { const value = !session.choices[key]; await persist($, choices => { choices[key] = value; }); });
   const actions = h(Box, { flexDirection: 'column' },
     h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-      h(Button, { key: 'still', label: session.choices.still ? t('actions.stillOff') : t('actions.stillOn'),
-        onPress: press($, async () => { const still = !session.choices.still; await persist($, choices => { choices.still = still; }); }) }),
+      h(Button, { key: 'still', label: session.choices.still ? t('actions.stillOff') : t('actions.stillOn'), onPress: toggle('still') }),
       h(Button, { key: 'retry', label: t('actions.retry'), onPress: press($, () => refresh($)) })),
+    h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
+      h(Button, { key: 'notice', label: session.choices.notice ? t('actions.noticeOff') : t('actions.noticeOn'), onPress: toggle('notice') }),
+      h(Button, { key: 'sound', label: session.choices.sound ? t('actions.soundOff') : t('actions.soundOn'), onPress: toggle('sound') })),
     view.readAt ? h(Text, { dimColor: true }, view.readAt) : null);
   const runList = view.originKind !== 'session' && view.openRuns.length
     ? (view.runId
@@ -185,12 +229,19 @@ export const register = on => {
         return { text: openedText(await startRefreshing($)) };
       }
       const enabled = !session.choices.enabled;
-      await persist($, choices => { choices.enabled = enabled; });
       if (!enabled) {
+        // Reading, the status line and the pane stop before the choice is stored, so a failing write
+        // leaves none of them running (CR-F03); the choice is stored even if closing the pane fails.
         stopRefreshing();
-        await $.ui.close({ id: PANE });
+        silence($);
+        try {
+          await $.ui.close({ id: PANE });
+        } finally {
+          await persist($, choices => { choices.enabled = false; });
+        }
         return { text: t('command.disabled') };
       }
+      await persist($, choices => { choices.enabled = true; });
       session.isHidden = false;
       return { text: openedText(await startRefreshing($)) };
     } catch (error) {
@@ -214,21 +265,20 @@ export const register = on => {
       if (e.agentId === undefined) {
         // Cleared on every main-loop completion, also while switched off, so no stale overlay remains.
         session.isTurnActive = false;
-        // The read runs after the host has its answer, never inside the hook.
-        if (session.choices.enabled && !session.isHidden) void refresh($);
+        // The read runs after the host has its answer, never inside the hook; a hidden pane keeps
+        // the status line and toasts current (follow-up SDD-08).
+        if (session.choices.enabled) void refresh($);
       }
     } catch { /* observation only */ }
     return answered;
   }).catch(passOn);
 
-  // Closing the pane by its own mark hides it for this session only (SDD-07). The host stamps
-  // `origin` as `{ kind: 'plugin' | 'person' | 'unload' }`.
+  // Closing the pane by its own mark hides only the pane for this session (SDD-07); reading goes on
+  // for the status line and toasts until the companion is switched off (follow-up SDD-08). The host
+  // stamps `origin` as `{ kind: 'plugin' | 'person' | 'unload' }`.
   on('ui.close', { id: PANE }, async ($, e, next) => {
     try {
-      if (e.origin?.kind === 'person') {
-        session.isHidden = true;
-        stopRefreshing();
-      }
+      if (e.origin?.kind === 'person') session.isHidden = true;
     } catch { /* observation only */ }
     return next(e);
   }).catch(passOn);
@@ -241,7 +291,7 @@ export const register = on => {
         columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded }));
     } catch (error) {
       const { Text } = $.ui.resolve(e);
-      return h(Text, { dimColor: true }, `AGDF companion: ${String(error?.message ?? error).slice(0, 200)}`);
+      return h(Text, { dimColor: true }, `AGDF Companion: ${String(error?.message ?? error).slice(0, 200)}`);
     }
   });
 };

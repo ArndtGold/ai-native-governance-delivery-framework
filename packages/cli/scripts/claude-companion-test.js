@@ -12,6 +12,11 @@ import { createRun } from "../../core/lib/control-state/run-state-repository.js"
 import { recordRunPresentationDecision, recordRunStep } from "../../core/lib/control-state/run-steps.js";
 import { evaluateGateCheck } from "../../core/lib/control-evaluation/gate-check.js";
 import { policyForRunContent } from "../../core/lib/control-evaluation/run-step-policy.js";
+import { modeSliceDecision } from "../../core/lib/control-evaluation/run-state-policy.js";
+import { isDecisionContentPlaceholder } from "../../core/lib/control-evaluation/decision-content-readiness.js";
+import { parseRunState as parseCoreRunState } from "../../core/lib/control-state/run-state-parser.js";
+import { prepareRunPresentation } from "../../core/lib/control-state/run-presentation.js";
+import { approveRunGate } from "../../core/lib/control-state/run-recording.js";
 import { sealRunState } from "../../core/lib/control-state/run-seal.js";
 import { isOperationalValueRenderable } from "../../core/lib/interaction-presentation.js";
 import { resolveConfiguredChatLanguage } from "../../core/lib/resources/context.js";
@@ -23,12 +28,13 @@ import { claudePluginDataRoot } from "../lib/mcp-lifecycle/plugin-runtime.js";
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const companionDir = join(repoRoot, "plugins", "agdf", "host-templates", "claude", "companion");
 const companion = name => import(pathToFileURL(join(companionDir, name)).href);
-const { LIFECYCLES, MAX_RUN_STATE_BYTES, parseRunState, readSnapshot, settleSnapshot } = await companion("run-state.mjs");
+const { BUILD_GATES, LIFECYCLES, MAX_RUN_STATE_BYTES, isPlaceholderText, parseRunState, readSnapshot, settleSnapshot } = await companion("run-state.mjs");
 const { displayState, runState } = await companion("state.mjs");
 const { assignRun, openRuns, stepSelection } = await companion("assignment.mjs");
-const { chatLocale, label, localizeNextStep } = await companion("localization.mjs");
+const { chatLocale, label, localizeNextStep, settingLocale } = await companion("localization.mjs");
 const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
-const { ACCESSORY_BOUNDS, ACCESSORY_REGION, FIGURE_BOX, FIGURE_TEXT, figureSvg } = await companion("figure.mjs");
+const { ACCESSORY_BOUNDS, ACCESSORY_REGION, BRICKS, BRICK_SIZE, FIGURE_BOX, FIGURE_TEXT, HAMMER, figureSvg } = await companion("figure.mjs");
+const { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } = await companion("notice.mjs");
 const { buildPanelView, terminalText } = await companion("view.mjs");
 const { STATE_FILE, parseCompanionState, pluginDataDir, serializeCompanionState } = await companion("persistence.mjs");
 const registry = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
@@ -44,7 +50,7 @@ const parsed = (root, id) => parseRunState(id, readFileSync(runFile(root, id), "
 function setScalar(root, id, key, value) {
   writeFileSync(runFile(root, id), sealRunState(root, replaceFirstScalar(readFileSync(runFile(root, id), "utf8"), key, value)));
 }
-const run = (overrides = {}) => ({ id: "r", lifecycle: "active", gate: "SD", decision: "in_progress", updatedAt: "2026-10-26T08:00:00.000Z",
+const run = (overrides = {}) => ({ id: "r", lifecycle: "active", gate: "SD", decision: "in_progress", route: "structured_delivery", updatedAt: "2026-10-26T08:00:00.000Z",
   missing: "No approval is pending.", next: "Draft the UR.", approved: ["UR", "PRD"], objective: "Show the run state.", ...overrides });
 function treeDigest(root) {
   const hash = createHash("sha256");
@@ -93,7 +99,8 @@ try {
   const approved = checkParity({ root: approval.root, id: "fixture-a", expectedMood: "laeuft", label: "UR approved" });
   assert.deepEqual(approved.result.run.approved, ["UR"]);
   assert.equal(approved.result.run.next, approved.core.next_allowed_action);
-  assert.deepEqual(gateMarks(approved.result.run).map(mark => mark.mark), ["done", "open", "open", "open", "open", "open", "open"]);
+  // The approval fixture is routed as a quick task: its bar is the status card's compact path.
+  assert.deepEqual(gateMarks(approved.result.run), [{ gate: "UR", mark: "done" }, { gate: "Compact Delivery", mark: "current" }]);
 
   // CR-F02: the canonical writers keep a review result in the step's Artefacts row and a declined
   // presentation in the control table; the Run Meta decision stays `in_progress`. Both read as blockiert.
@@ -183,6 +190,96 @@ try {
   approval.close();
 }
 
+// Follow-up SCN-006: for runs routed by the canonical writers, the companion reads the route like
+// `modeSliceDecision` and draws the status card's path and marks (without its own CD+Tests mark),
+// active and after completion; no compact or blocked route shows a structured gate.
+const UR_TEXT = "# UR: Route fixture\n\n## Problem\nShow the path of each route.\n\n## Goal\nKeep the companion's bar equal to the status card.\n\n## Scope\nDisposable fixture only.\n\n"
+  + "## AGDF Approval Summary (de; source=en)\n- Problem: Pfad je Route zeigen.\n- Ziel: Die Leiste des Begleiters gleicht der Statuskarte.\n- Umfang: Nur isolierter Test.\n";
+function routedRun(route) {
+  const target = fixture();
+  const id = "fixture-a";
+  try {
+    writeFileSync(join(target.root, target.documentPath), UR_TEXT);
+    writeFileSync(target.runPath, sealRunState(target.root, readFileSync(target.runPath, "utf8")));
+    writeFileSync(join(target.root, ".agdf", "control", "artefacts", id, "BROWNFIELD_REVIEW.md"), "# Brownfield Review\n");
+    const revision = () => parseCoreRunState(readFileSync(target.runPath, "utf8"), id).meta.revision_id;
+    const step = values => {
+      const result = recordRunStep(target.root, { runId: id, revisionId: revision(), ...values }, { policy: policyForRunContent, date: "2026-10-27" });
+      assert.equal(result.outcome, "recorded", JSON.stringify(result));
+    };
+    step({ step: "ur", title: "Route fixture" });
+    if (route) step({ step: "route", route, reason: `route fixture ${route}`, evidence: "companion parity test" });
+    const presentation = prepareRunPresentation(target.root, { runId: id, gate: "UR", revisionId: revision() }, { evaluateGateCheck });
+    assert.equal(presentation.outcome, "prepared", JSON.stringify(presentation));
+    const approvedUr = approveRunGate(target.root, { runId: id, gate: "UR", revisionId: revision(), response: "Approval: UR", presentationId: presentation.presentation_id }, { evaluateGateCheck });
+    assert.equal(approvedUr.outcome, "approved", JSON.stringify(approvedUr));
+    return target;
+  } catch (error) {
+    target.close();
+    throw error;
+  }
+}
+const CARD_MARK = Object.freeze({ fulfilled: "done", current: "current", open: "open" });
+const cardPath = root => evaluateGateCheck(root, { runId: "fixture-a" }).status_card.breadcrumb.map(({ gate, status }) => ({ gate, mark: CARD_MARK[status] }));
+const companionPath = runState => gateMarks(runState).filter(({ gate }) => gate !== "CD+Tests");
+for (const route of [null, "quick_task", "verified_change", "structured_slice", "structured_delivery", "block"]) {
+  const target = routedRun(route);
+  try {
+    const name = route ?? "undecided";
+    const result = parsed(target.root, "fixture-a");
+    assert.equal(result.ok, true, `${name}: parses`);
+    assert.equal(result.run.route, modeSliceDecision(readRunState(target.root, { runId: "fixture-a" })), `${name}: route parity`);
+    assert.deepEqual(companionPath(result.run), cardPath(target.root), `${name}: path parity`);
+    setScalar(target.root, "fixture-a", "lifecycle", "completed");
+    setScalar(target.root, "fixture-a", "current_gate", "OR");
+    const completed = parsed(target.root, "fixture-a").run;
+    if (!["structured_slice", "structured_delivery"].includes(route)) {
+      assert.ok(!gateMarks(completed).some(({ gate }) => ["PRD", "SD", "TP", "CD+Tests"].includes(gate)), `${name}: completed run shows no structured gate`);
+    }
+    assert.deepEqual(companionPath(completed).map(({ gate }) => gate), cardPath(target.root).map(({ gate }) => gate), `${name}: completed path parity`);
+  } finally {
+    target.close();
+  }
+}
+// Format variants of the Mode/Slice Decision read like the core: backticks, a template value, a
+// missing scope reason or evidence, and the spaced heading.
+const variants = routedRun("quick_task");
+try {
+  const runPath = runFile(variants.root, "fixture-a");
+  const original = readFileSync(runPath, "utf8");
+  for (const [name, edit] of [
+    ["backticked decision", text => text.replace(/^- decision: quick_task$/mu, "- decision: `quick_task`")],
+    ["empty evidence", text => text.replace(/^(- evidence:).*$/mu, "$1")],
+    ["template scope reason", text => text.replace(/^(- scope_reason:).*$/mu, "$1 `a | b`")],
+    ["template decision", text => text.replace(/^- decision: quick_task$/mu, "- decision: `quick_task | verified_change | block`")],
+    ["spaced heading", text => text.replace(/^## Mode\/Slice Decision$/mu, "## Mode / Slice Decision")],
+  ]) {
+    const edited = edit(original);
+    assert.notEqual(edited, original, `${name}: the variant changes the run state`);
+    writeFileSync(runPath, sealRunState(variants.root, edited));
+    const variantRun = parsed(variants.root, "fixture-a").run;
+    assert.equal(variantRun.route, modeSliceDecision(readRunState(variants.root, { runId: "fixture-a" })), `${name}: route parity`);
+  }
+} finally {
+  variants.close();
+}
+// CR-F04: an Approvals status in backticks counts as approved, as the core reader strips them; the
+// marks then still equal the status card.
+const backticked = routedRun("structured_delivery");
+try {
+  const runPath = runFile(backticked.root, "fixture-a");
+  const original = readFileSync(runPath, "utf8");
+  const edited = original.replace(/^\| UR \| approved \|/mu, "| UR | `approved` |");
+  assert.notEqual(edited, original, "the UR approval row is rewritten with backticks");
+  writeFileSync(runPath, sealRunState(backticked.root, edited));
+  const tickedRun = parsed(backticked.root, "fixture-a").run;
+  const coreApproved = [...readRunState(backticked.root, { runId: "fixture-a" }).approvals.entries()].filter(([, row]) => row.status === "approved").map(([gate]) => gate);
+  assert.deepEqual(tickedRun.approved, coreApproved, "backticked approval parity");
+  assert.deepEqual(companionPath(tickedRun), cardPath(backticked.root), "backticked approval: path parity");
+} finally {
+  backticked.close();
+}
+
 // SCN-008: localization parity with the status-card lookup and the core chat-language rule.
 const configRoot = mkdtempSync(join(tmpdir(), "agdf-companion-locale-"));
 try {
@@ -251,14 +348,56 @@ for (const view of germanViews) {
   }
 }
 const assigned = germanViews[0];
-assert.deepEqual([assigned.gateBar, assigned.origin, assigned.isObjectiveExpanded, Boolean(assigned.readAt)], ["✓UR ✓PRD ●SD ○TP ○QA ○UAT ○OR", "In dieser Sitzung geändert", false, true]);
+assert.deepEqual([assigned.gateBar, assigned.origin, assigned.isObjectiveExpanded, Boolean(assigned.readAt)], ["✓UR ✓PRD ●SD ○TP ○CD+Tests ○QA ○UAT ○OR", "In dieser Sitzung geändert", false, true]);
 for (const columns of [40, 60]) assert.ok(viewOf([run({ updatedAt: "2026-10-26T08:01:00Z" })], { columns }).gateBar.length <= columns, `gate bar fits ${columns} columns`);
 const marks = gateMarks(run());
-assert.equal(fullGateBar(marks).length, 29);
-assert.deepEqual([gateBar(marks, 29), gateBar(marks, 28)], [fullGateBar(marks), "✓✓●○○○○ SD"]);
-assert.equal(condensedGateBar(gateMarks(run({ gate: "CD+Tests" }))), "✓✓○○○○○");
-assert.equal(fullGateBar(gateMarks(run({ lifecycle: "completed" }))), "✓UR ✓PRD ✓SD ✓TP ✓QA ✓UAT ✓OR");
+assert.equal(fullGateBar(marks).length, 39);
+assert.deepEqual([gateBar(marks, 39), gateBar(marks, 38)], [fullGateBar(marks), "✓✓●○○○○○ SD"]);
 assert.ok(!/\n/u.test(gateBar(marks, 10)), "the gate bar never wraps into two lines");
+
+// Follow-up SCN-001: the build phase as `CD+Tests` between TP and QA on structured paths.
+const structured = (gate, extra = {}) => run({ gate, approved: ["UR", "PRD", "SD", "TP"], ...extra });
+for (const route of ["structured_delivery", "structured_slice"]) {
+  for (const gate of BUILD_GATES) {
+    assert.equal(fullGateBar(gateMarks(structured(gate, { route }))), "✓UR ✓PRD ✓SD ✓TP ●CD+Tests ○QA ○UAT ○OR", `${route} at ${gate}`);
+  }
+  assert.equal(fullGateBar(gateMarks(structured("TP", { route, approved: ["UR", "PRD", "SD"] }))), "✓UR ✓PRD ✓SD ●TP ○CD+Tests ○QA ○UAT ○OR");
+  assert.equal(fullGateBar(gateMarks(structured("QA", { route }))), "✓UR ✓PRD ✓SD ✓TP ✓CD+Tests ●QA ○UAT ○OR");
+  assert.equal(fullGateBar(gateMarks(structured("UAT", { route, approved: ["UR", "PRD", "SD", "TP", "QA"] }))), "✓UR ✓PRD ✓SD ✓TP ✓CD+Tests ✓QA ●UAT ○OR");
+}
+const completedStructured = gateMarks(structured("OR", { lifecycle: "completed", approved: ["UR", "PRD", "SD", "TP", "QA", "UAT"] }));
+assert.equal(fullGateBar(completedStructured), "✓UR ✓PRD ✓SD ✓TP ✓CD+Tests ✓QA ✓UAT ✓OR");
+const buildMarks = gateMarks(structured("CD+Tests"));
+assert.ok(fullGateBar(buildMarks).length <= 40 && gateBar(buildMarks, 40) === fullGateBar(buildMarks), "the full structured bar fits 40 columns");
+assert.equal(gateBar(buildMarks, 38), "✓✓✓✓●○○○ CD+Tests", "below its width the condensed form names the current mark");
+// Follow-up SCN-006 (unit part): the other routes show the status card's path only.
+const compact = (route, gate, extra = {}) => fullGateBar(gateMarks(run({ route, gate, approved: ["UR"], ...extra })));
+assert.equal(compact("quick_task", "Quick Task Execution"), "✓UR ●Compact Delivery");
+assert.equal(compact("quick_task", "OR", { lifecycle: "completed" }), "✓UR ✓Compact Delivery");
+assert.equal(compact("verified_change", "Verified Change Execution"), "✓UR ●Verified Change ○OR");
+assert.equal(compact("verified_change", "OR"), "✓UR ✓Verified Change ●OR");
+assert.equal(compact("verified_change", "OR", { lifecycle: "completed" }), "✓UR ✓Verified Change ✓OR");
+assert.equal(compact("block", "Mode/Slice Decision"), "✓UR ●Block");
+assert.equal(compact("undecided", "UR", { approved: [] }), "●UR");
+assert.equal(compact("undecided", "Brownfield Review"), "✓UR");
+for (const route of ["mystery", "constructor", "toString"]) assert.equal(compact(route, "UR", { approved: [] }), "●UR", `unknown route ${route} reads as undecided`);
+for (const route of ["quick_task", "verified_change", "block"]) {
+  assert.ok(!/PRD|SD|TP|CD\+Tests/u.test(compact(route, "OR", { lifecycle: "completed", approved: ["UR", "PRD", "SD", "TP"] })), `${route} never shows structured gates`);
+}
+
+// Follow-up SCN-003: the build mood, its precedence and the turn overlay.
+for (const gate of BUILD_GATES) assert.deepEqual(runState(structured(gate)), { mood: "baut", reason: { key: "building", gate } });
+assert.equal(runState(structured("CR", { gateResult: "revise" })).mood, "blockiert", "blocked wins over building");
+assert.equal(runState(structured("CD+Tests", { missing: "Exact Approval: QA." })).mood, "wartet", "waiting wins over building");
+assert.equal(runState(structured("CD+Tests", { route: "quick_task" })).mood, "laeuft", "only structured runs build");
+assert.equal(runState(structured("QA")).mood, "laeuft");
+assert.deepEqual(displayState(structured("CD+Tests"), { isTurnActive: true }), { mood: "baut", reason: { key: "building", gate: "CD+Tests" } }, "a turn keeps the build state");
+assert.deepEqual(displayState(structured("QA"), { isTurnActive: true }), { mood: "laeuft", reason: { key: "turnActive" } });
+const buildView = locale => buildPanelView({ snapshot: snapshot([structured("CD+Tests", { id: "build", updatedAt: "2026-10-26T08:01:00Z" })]),
+  sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, isTurnActive: true, registry, labels, locale, columns: 40 });
+assert.deepEqual([buildView("de").stateLabel, buildView("de").reason, buildView("en").stateLabel, buildView("en").reason],
+  ["baut", "In Arbeit: Implementierung und Tests", "building", "In progress: Implementation and tests"]);
+assert.ok(terminalText(buildView("de"), { labels, locale: "de" }).includes("(o_o) ⚒ baut · In Arbeit: Implementierung und Tests"));
 
 // SCN-018: figure geometry, still pose and terminal text.
 const disjoint = (a, b) => a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
@@ -269,7 +408,7 @@ for (const [mood, bounds] of Object.entries(ACCESSORY_BOUNDS)) {
 }
 const wellFormed = svg => { const stack = []; for (const match of svg.matchAll(/<(\/?)([a-zA-Z]+)[^>]*?(\/?)>/gu)) {
   const [, close, name, self] = match; if (self) continue; if (close) { if (stack.pop() !== name) return false; } else stack.push(name); } return stack.length === 0; };
-for (const mood of ["laeuft", "wartet", "blockiert", "fertig", "neutral"]) {
+for (const mood of ["laeuft", "baut", "wartet", "blockiert", "fertig", "neutral"]) {
   const moving = figureSvg(mood, { title: "AGDF <x> & \"y\"" });
   const still = figureSvg(mood, { still: true, title: "AGDF" });
   assert.ok(wellFormed(moving) && wellFormed(still), `${mood} SVG is well-formed`);
@@ -280,7 +419,117 @@ for (const mood of ["laeuft", "wartet", "blockiert", "fertig", "neutral"]) {
   assert.ok(FIGURE_TEXT[mood], `${mood} has a terminal face`);
 }
 const text = terminalText(assigned, { labels, locale: "de" });
-for (const required of ["AGDF-Begleiter", "wartet auf Freigabe", "✓UR ✓PRD ●SD", "Nächster Schritt: ", "Stand "]) assert.ok(text.includes(required), `terminal text carries ${required}`);
+for (const required of ["AGDF Companion", "wartet auf Freigabe", "✓UR ✓PRD ●SD", "Nächster Schritt: ", "Stand "]) assert.ok(text.includes(required), `terminal text carries ${required}`);
+
+// Follow-up SCN-004: the hammer's swing and the bricks stay inside the declared bounds, which lie in
+// the accessory region; the strokes add at most 0.75 px on each side.
+const rotate = ({ x, y }, degrees) => {
+  const angle = (degrees * Math.PI) / 180;
+  return { x: HAMMER.pivot.x + x * Math.cos(angle) - y * Math.sin(angle), y: HAMMER.pivot.y + x * Math.sin(angle) + y * Math.cos(angle) };
+};
+const corners = ({ x, y, width, height }) => [[x, y], [x + width, y], [x, y + height], [x + width, y + height]].map(([cx, cy]) => ({ x: cx, y: cy }));
+const inBounds = ({ x, y }, bounds) => x - 0.75 >= bounds.x && x + 0.75 <= bounds.x + bounds.width && y - 0.75 >= bounds.y && y + 0.75 <= bounds.y + bounds.height;
+for (let degrees = HAMMER.swing[0]; degrees <= HAMMER.swing[1]; degrees += 0.5) {
+  for (const corner of [...corners(HAMMER.head), ...corners(HAMMER.handle)]) assert.ok(inBounds(rotate(corner, degrees), ACCESSORY_BOUNDS.baut), `hammer at ${degrees}° stays in its bounds`);
+}
+for (const brick of BRICKS) for (const corner of corners({ ...brick, ...BRICK_SIZE })) assert.ok(inBounds(corner, ACCESSORY_BOUNDS.baut), "bricks stay in their bounds");
+const building = figureSvg("baut");
+const pivot = `${HAMMER.pivot.x} ${HAMMER.pivot.y}`;
+assert.ok(building.includes(`values="${HAMMER.swing[1]} ${pivot};${HAMMER.swing[0]} ${pivot};${HAMMER.swing[1]} ${pivot}"`), "the drawn swing uses the tested angles");
+assert.ok(figureSvg("baut", { still: true }).includes(`rotate(${HAMMER.swing[1]} ${pivot})`), "the still pose holds the raised hammer");
+assert.equal(FIGURE_TEXT.baut, "(o_o) ⚒");
+
+// Follow-up SCN-008: toasts only for transitions of the same run into or within wartet and blockiert.
+const seen = (runId, state) => ({ kind: "run", runId, state });
+const working = runState(run());
+const waitingSd = runState(run({ missing: "Exact Approval: SD." }));
+const waitingQa = runState(run({ gate: "QA", missing: "Exact Approval: QA." }));
+const blockedRevise = runState(structured("CR", { gateResult: "revise" }));
+const blockedBlock = runState(structured("CR", { gateResult: "block" }));
+const steps = [];
+let observation = null;
+for (const [observed, name] of [[seen("a", waitingSd), "baseline"], [seen("a", waitingSd), "equal read"], [seen("a", working), "approved"],
+  [seen("a", waitingQa), "waiting"], [seen("a", waitingQa), "equal read"], [{ kind: "unreadable" }, "unreadable"], [seen("a", waitingQa), "same after unreadable"],
+  [seen("a", blockedRevise), "blocked"], [seen("a", blockedBlock), "decision changed"], [seen("b", waitingSd), "run switch"],
+  [seen("b", runState(structured("CD+Tests"))), "building"], [seen("b", runState(run({ lifecycle: "completed" }))), "done"], [{ kind: "idle" }, "no run"],
+  [seen("b", waitingSd), "baseline after no run"]]) {
+  const result = observeNotice(observation, observed);
+  observation = result.observation;
+  steps.push([name, result.notice?.mood ?? null]);
+}
+assert.deepEqual(steps, [["baseline", null], ["equal read", null], ["approved", null], ["waiting", "wartet"], ["equal read", null], ["unreadable", null],
+  ["same after unreadable", null], ["blocked", "blockiert"], ["decision changed", "blockiert"], ["run switch", null], ["building", null], ["done", null],
+  ["no run", null], ["baseline after no run", null]]);
+assert.equal(observeNotice(null, seen("a", waitingQa)).notice, null, "the first observation is a baseline");
+assert.notEqual(observeNotice(observeNotice(null, seen("a", waitingSd)).observation, seen("a", waitingQa)).notice, null, "a new pending gate is announced");
+// The observation is the run-derived state: the turn overlay never reaches it.
+const overlaySnapshot = snapshot([run({ id: "o", missing: "Exact Approval: SD.", updatedAt: "2026-10-26T08:01:00Z" })]);
+assert.deepEqual(observedRun({ snapshot: overlaySnapshot, sessionStartedAt: Date.parse("2026-10-26T08:00:00Z") }), seen("o", waitingSd));
+assert.deepEqual(observedRun({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "unreadable" });
+assert.deepEqual(observedRun({ snapshot: { ...snapshot([]), unreadable: [{ id: "x", reason: "format" }] }, sessionStartedAt: 0, selection: "x" }), { kind: "unreadable" });
+assert.deepEqual(observedRun({ snapshot: null, sessionStartedAt: 0 }), { kind: "idle" });
+assert.deepEqual(observedRun({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "idle" });
+assert.deepEqual(observedRun({ snapshot: snapshot([run({ id: "m", decision: "mystery", updatedAt: "2026-10-26T08:01:00Z" })]), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z") }), { kind: "unreadable" });
+assert.equal(noticeText("r1", waitingSd, { registry, labels, locale: "de" }), "r1 wartet auf Freigabe: Lösungsdesign");
+assert.equal(noticeText("r1", blockedRevise, { registry, labels, locale: "de" }), "r1 ist blockiert: Code-Review – Überarbeitung nötig");
+assert.equal(noticeText("r1", runState(run({ decision: "awaiting_uat", gate: "UAT" })), { registry, labels, locale: "de" }), "r1 wartet auf Entscheidung: Nutzerabnahme");
+assert.equal(noticeText("r1", waitingQa, { registry, labels, locale: "en" }), "r1 is waiting for approval: Quality assurance");
+assert.equal(noticeText("r1", blockedBlock, { registry, labels, locale: "en" }), "r1 is blocked: Code review – blocked");
+
+// Follow-up SCN-013: status-line texts per state and locale.
+const status = (observed, locale = "de") => statusText(observed, { labels, locale });
+assert.deepEqual([status(seen("a", waitingQa)), status(seen("a", runState(structured("CR")))), status(seen("a", working)), status(seen("a", blockedRevise)),
+  status(seen("a", runState(run({ lifecycle: "completed" })))), status({ kind: "idle" }), status({ kind: "unreadable" })],
+["AGDF · QA · wartet", "AGDF · CR · baut", "AGDF · SD · läuft", "AGDF · CR · blockiert", "AGDF · fertig", "AGDF · bereit", "AGDF · nicht lesbar"]);
+assert.deepEqual([status(seen("a", waitingQa), "en"), status({ kind: "idle" }, "en"), status({ kind: "unreadable" }, "en")], ["AGDF · QA · waiting", "AGDF · idle", "AGDF · unreadable"]);
+
+// Follow-up SCN-011 (logic part): the generated chime is a short 8 kHz, 8-bit mono WAV.
+const clip = chimeClip();
+const wav = Buffer.from(clip.base64, "base64");
+assert.equal(clip.mime, "audio/wav");
+assert.equal(chimeClip(), clip, "the chime is generated once");
+assert.deepEqual([wav.toString("ascii", 0, 4), wav.toString("ascii", 8, 12), wav.toString("ascii", 12, 16), wav.toString("ascii", 36, 40)], ["RIFF", "WAVE", "fmt ", "data"]);
+assert.deepEqual([wav.readUInt16LE(20), wav.readUInt16LE(22), wav.readUInt32LE(24), wav.readUInt16LE(34)], [1, 1, CHIME.rate, 8], "PCM, mono, 8 kHz, 8 bit");
+assert.equal(wav.readUInt32LE(40), wav.length - 44);
+assert.equal(wav.readUInt32LE(4), wav.length - 8);
+assert.ok(Math.abs((wav.length - 44) / CHIME.rate - 0.3) < 0.001, "about 0.3 s");
+assert.equal(Buffer.from(wav).toString("base64"), clip.base64, "the module's encoder equals standard base64");
+assert.equal(CHIME.gain, 0.35);
+
+// Follow-up SCN-018: one brand name in every locale; the command name is unchanged.
+for (const [locale, pack] of Object.entries(labels.locales)) {
+  assert.equal(pack.title, "AGDF Companion", `${locale} title`);
+  for (const key of ["description", "enabled", "disabled", "waiting"]) assert.ok(pack.command[key].includes("AGDF Companion"), `${locale} command.${key} names the brand`);
+}
+assert.ok(!/Begleiter|companion\b/u.test(JSON.stringify(labels)), "no other brand spelling in the companion's texts");
+
+// Follow-up SCN-020: the placeholder rule equals the core's; a template objective is not shown.
+for (const value of ["Describe the trustworthy outcome.", "  describe   the TRUSTWORTHY outcome. ", "`TBD`", "todo", "<goal>", "draft | done", "pass | revise | block",
+  "What outcome should become possible?", "", "   ", "done", "Show the run state.", "A user who has switched the AGDF Companion on sees the build phase.", undefined]) {
+  assert.equal(isPlaceholderText(value), isDecisionContentPlaceholder(value), `placeholder parity for ${JSON.stringify(value)}`);
+}
+const freshTarget = fixture();
+const freshRoot = freshTarget.root;
+try {
+  createRun(freshRoot, "fresh-run");
+  assert.match(readFileSync(runFile(freshRoot, "fresh-run"), "utf8"), /Describe the trustworthy outcome\./u, "the canonical template objective");
+  const fresh = parsed(freshRoot, "fresh-run");
+  assert.equal(fresh.run.objective, "");
+  const freshView = buildPanelView({ snapshot: snapshot([{ ...fresh.run, updatedAt: "2026-10-26T08:01:00.000Z" }]), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"),
+    selection: null, isTurnActive: false, registry, labels, locale: "de", columns: 40 });
+  assert.ok(!freshView.objective && !terminalText(freshView, { labels, locale: "de" }).includes("Ziel:"), "no objective line for a template objective");
+} finally {
+  freshTarget.close();
+}
+
+// Follow-up SCN-021 (logic part): Claude's language setting chooses the locale only without AGDF
+// config: a supported tag or a language name, else the fallback.
+for (const [setting, expected] of [["de", "de"], ["de-AT", "de"], ["German", "de"], ["deutsch", "de"], [" Deutsch ", "de"], ["English", "en"], ["en-GB", "en"],
+  ["japanese", "en"], ["fr", "en"], ["", "en"], [null, "en"], [42, "en"]]) {
+  assert.equal(chatLocale(registry, null, { setting, labels }), expected, `setting ${JSON.stringify(setting)}`);
+}
+assert.equal(settingLocale(registry, labels, "Klingon"), null);
+assert.equal(chatLocale(registry, JSON.stringify({ chat_language: "en" }), { setting: "de", labels }), "en", "an AGDF config wins over the setting");
 
 // SDD-07: persistence location and format.
 const configDir = join(tmpdir(), "claude-config");
@@ -289,10 +538,15 @@ assert.equal(pluginDataDir({ userProfile: "C:/Users/a" }), "C:/Users/a/.claude/p
 assert.equal(pluginDataDir({ home: "/home/a" }), "/home/a/.claude/plugins/data/agdf-agdf");
 assert.equal(pluginDataDir({}), null);
 assert.equal(STATE_FILE, "companion-state.json");
-assert.deepEqual(parseCompanionState(serializeCompanionState({ enabled: true, still: false, selections: { "/p": "run-1" } })), { enabled: true, still: false, selections: { "/p": "run-1" } });
+assert.deepEqual(parseCompanionState(serializeCompanionState({ enabled: true, still: false, notice: false, sound: true, selections: { "/p": "run-1" } })),
+  { enabled: true, still: false, notice: false, sound: true, selections: { "/p": "run-1" } });
+// Follow-up SCN-011: a state file of the first companion version reads with toasts on and sound off.
+assert.deepEqual(parseCompanionState("{\"schema_version\":1,\"enabled\":true,\"still\":true,\"selections\":{\"/p\":\"run-1\"}}"),
+  { enabled: true, still: true, notice: true, sound: false, selections: { "/p": "run-1" } });
+assert.deepEqual(parseCompanionState("{\"schema_version\":1,\"notice\":\"no\",\"sound\":1}"), { enabled: false, still: false, notice: true, sound: false, selections: {} });
 for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"schema_version\":1,\"enabled\":\"yes\",\"selections\":{\"/p\":\"../x\"}}"]) {
   const parsedState = parseCompanionState(invalid);
-  assert.deepEqual(parsedState, { enabled: false, still: false, selections: {} }, `invalid state ${invalid}`);
+  assert.deepEqual(parsedState, { enabled: false, still: false, notice: true, sound: false, selections: {} }, `invalid state ${invalid}`);
   // CR-F03: the defaults must accept a selection; a frozen object would silently drop it.
   parsedState.selections["/p"] = "run-1";
   assert.equal(parsedState.selections["/p"], "run-1", `defaults for ${invalid} are mutable`);

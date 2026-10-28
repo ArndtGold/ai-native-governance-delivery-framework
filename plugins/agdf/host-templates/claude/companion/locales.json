@@ -4,12 +4,23 @@
   "locales": {
     "en": {
       "title": "AGDF Companion",
+      "languageNames": ["English", "Englisch"],
       "states": {
         "laeuft": "working",
+        "baut": "building",
         "wartet": "waiting for approval",
         "blockiert": "blocked",
         "fertig": "done",
         "neutral": "idle"
+      },
+      "statusStates": {
+        "laeuft": "working",
+        "baut": "building",
+        "wartet": "waiting",
+        "blockiert": "blocked",
+        "fertig": "done",
+        "neutral": "idle",
+        "unreadable": "unreadable"
       },
       "reasons": {
         "turnActive": "Claude is working on this turn",
@@ -17,7 +28,13 @@
         "blocked": "{gate}: {decision}",
         "waitingApproval": "Approval pending: {gate}",
         "waitingDecision": "Decision pending: {gate}",
-        "working": "Next: {gate}"
+        "working": "Next: {gate}",
+        "building": "In progress: {gate}"
+      },
+      "notices": {
+        "waitingApproval": "{run} is waiting for approval: {gate}",
+        "waitingDecision": "{run} is waiting for a decision: {gate}",
+        "blocked": "{run} is blocked: {gate} – {decision}"
       },
       "decisions": {
         "revise": "revision needed",
@@ -57,26 +74,41 @@
         "retry": "Read again",
         "stillOn": "Stop motion",
         "stillOff": "Start motion",
+        "noticeOff": "Notices off",
+        "noticeOn": "Notices on",
+        "soundOn": "Sound on",
+        "soundOff": "Sound off",
         "expand": "More",
         "collapse": "Less",
         "previous": "Previous run",
         "next": "Next run"
       },
       "command": {
-        "description": "Switch the AGDF companion on or off",
-        "enabled": "AGDF companion switched on.",
-        "disabled": "AGDF companion switched off.",
-        "waiting": "AGDF companion is switched on and waits for space: {reason}"
+        "description": "Switch the AGDF Companion on or off",
+        "enabled": "AGDF Companion switched on.",
+        "disabled": "AGDF Companion switched off.",
+        "waiting": "AGDF Companion is switched on and waits for space: {reason}"
       }
     },
     "de": {
-      "title": "AGDF-Begleiter",
+      "title": "AGDF Companion",
+      "languageNames": ["German", "Deutsch"],
       "states": {
         "laeuft": "läuft",
+        "baut": "baut",
         "wartet": "wartet auf Freigabe",
         "blockiert": "blockiert",
         "fertig": "fertig",
         "neutral": "bereit"
+      },
+      "statusStates": {
+        "laeuft": "läuft",
+        "baut": "baut",
+        "wartet": "wartet",
+        "blockiert": "blockiert",
+        "fertig": "fertig",
+        "neutral": "bereit",
+        "unreadable": "nicht lesbar"
       },
       "reasons": {
         "turnActive": "Claude arbeitet gerade an diesem Turn",
@@ -84,7 +116,13 @@
         "blocked": "{gate}: {decision}",
         "waitingApproval": "Freigabe ausstehend: {gate}",
         "waitingDecision": "Entscheidung ausstehend: {gate}",
-        "working": "Als Nächstes: {gate}"
+        "working": "Als Nächstes: {gate}",
+        "building": "In Arbeit: {gate}"
+      },
+      "notices": {
+        "waitingApproval": "{run} wartet auf Freigabe: {gate}",
+        "waitingDecision": "{run} wartet auf Entscheidung: {gate}",
+        "blocked": "{run} ist blockiert: {gate} – {decision}"
       },
       "decisions": {
         "revise": "Überarbeitung nötig",
@@ -124,16 +162,20 @@
         "retry": "Neu lesen",
         "stillOn": "Bewegung aus",
         "stillOff": "Bewegung an",
+        "noticeOff": "Meldung aus",
+        "noticeOn": "Meldung an",
+        "soundOn": "Ton an",
+        "soundOff": "Ton aus",
         "expand": "Mehr",
         "collapse": "Weniger",
         "previous": "Vorheriger Run",
         "next": "Nächster Run"
       },
       "command": {
-        "description": "AGDF-Begleiter ein- oder ausschalten",
-        "enabled": "AGDF-Begleiter eingeschaltet.",
-        "disabled": "AGDF-Begleiter ausgeschaltet.",
-        "waiting": "AGDF-Begleiter ist eingeschaltet und wartet auf Platz: {reason}"
+        "description": "AGDF Companion ein- oder ausschalten",
+        "enabled": "AGDF Companion eingeschaltet.",
+        "disabled": "AGDF Companion ausgeschaltet.",
+        "waiting": "AGDF Companion ist eingeschaltet und wartet auf Platz: {reason}"
       }
     }
   }

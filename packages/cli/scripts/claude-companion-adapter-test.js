@@ -7,6 +7,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { approvalFixture, fixture } from "../../core/test/control-cockpit-fixtures.js";
 import { replaceFirstScalar } from "../../core/lib/control-state/run-state-edits.js";
 import { sealRunState } from "../../core/lib/control-state/run-seal.js";
+import { recordRunStep } from "../../core/lib/control-state/run-steps.js";
+import { policyForRunContent } from "../../core/lib/control-evaluation/run-step-policy.js";
 
 // The Claude companion host adapter against a fake host (T-006; SCN-001, SCN-006, SCN-010, SCN-011,
 // SCN-014): command toggling and persistence, turn observation, refresh and stale marking, the pane per
@@ -23,14 +25,19 @@ const { COMMAND, PANE, REFRESH_MS } = await freshModule();
 const hostPath = path => (path.startsWith(`${pluginRoot}/companion/`) ? join(companionDir, path.slice(pluginRoot.length + 11))
   : path.startsWith(`${pluginRoot}/meta/`) ? join(repoRoot, "plugins", "agdf", "meta", path.slice(pluginRoot.length + 6)) : path);
 
-function fakeHost({ projectRoot, configDir, failRoot = false }) {
-  const log = { writes: [], opened: [], closed: [], commands: [], invalidations: 0, timers: [], passed: 0 };
+// failChannels: toast and status throw, audio is missing and the settings read rejects (SDD-12).
+// failToast: only the toast throws, so a chime without a shown toast would be visible (CR-F01).
+function fakeHost({ projectRoot, configDir, failRoot = false, settings = {}, failChannels = false, failToast = false }) {
+  const log = { writes: [], opened: [], closed: [], commands: [], invalidations: 0, timers: [], passed: 0, toasts: [], status: [], audio: [] };
   const where = { root: projectRoot };
+  const fail = () => { throw new Error("channel unavailable"); };
   const $ = {
     plugin: { name: "agdf", root: pluginRoot },
     clock: { now: async () => Date.now(), every: (ms, fn) => { const timer = { ms, fn, cancelled: false, cancel() { this.cancelled = true; } }; log.timers.push(timer); return timer; } },
     session: { root: async () => { if (failRoot) throw new Error("root unavailable"); return where.root; } },
     env: { get: async name => ({ CLAUDE_CONFIG_DIR: configDir })[name] },
+    settings: { read: async ({ key }) => { if (failChannels) throw new Error("settings unavailable"); return settings[key]; } },
+    ...(failChannels ? {} : { audio: { play: async (clip, options) => { log.audio.push({ clip, options }); } } }),
     fs: {
       exists: async path => existsSync(hostPath(path)),
       list: async path => readdirSync(hostPath(path)).map(name => ({ name, kind: lstatSync(join(hostPath(path), name)).isDirectory() ? "dir" : "file", isLink: false })),
@@ -43,6 +50,8 @@ function fakeHost({ projectRoot, configDir, failRoot = false }) {
       invalidate: () => { log.invalidations++; },
       open: async args => { log.opened.push(args); return { isPlaced: true }; },
       close: async args => { log.closed.push(args); },
+      toast: failChannels || failToast ? fail : text => { log.toasts.push(text); },
+      status: failChannels ? fail : text => { log.status.push(text); },
     },
   };
   const hooks = [];
@@ -111,10 +120,10 @@ try {
 
   // SCN-001: off by default; the command switches on and off, persists and a new session keeps it.
   await first.fire("session.start", { start: 1 });
-  assert.deepEqual([first.log.commands[0].name, first.log.commands[0].description, first.log.commands[0].immediate], [COMMAND, "Switch the AGDF companion on or off", true]);
+  assert.deepEqual([first.log.commands[0].name, first.log.commands[0].description, first.log.commands[0].immediate], [COMMAND, "Switch the AGDF Companion on or off", true]);
   assert.deepEqual([first.log.opened.length, first.log.writes.length, first.log.timers.length], [0, 0, 0]);
   const on = await first.fire("command.run", { command: COMMAND });
-  assert.equal(on.text, "AGDF companion switched on.");
+  assert.equal(on.text, "AGDF Companion switched on.");
   assert.deepEqual(first.log.opened.at(-1), { id: PANE, title: "AGDF Companion" });
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).enabled, true);
   assert.equal(first.log.timers.at(-1).ms, REFRESH_MS);
@@ -143,19 +152,21 @@ try {
     const column = find(tree, node => node.tag === "Box" && node.children.includes(row))[0];
     assert.match(texts(column.children[0])[0], /\d+ (of|von) \d+/u, "the count stands on its own line above the buttons");
   };
-  // The footer buttons share a row of their own as well; the read time sits on the line below
-  // (live finding of 2026-10-27: „Stand 18:41“ wrapped onto two lines beside them).
+  // The footer buttons share rows of two (motion and reading; toast and sound), and the read time
+  // sits on the line below them (live finding of 2026-10-27: „Stand 18:41“ wrapped beside them).
   const checkFooter = (tree, names) => {
     const row = find(tree, node => node.tag === "Box" && node.children.some(child => child.props?.key === "still"))[0];
-    assert.deepEqual(row.children.map(child => [child.props.key, child.props.label]), [["still", names[0]], ["retry", names[1]]], "the footer row holds only the two buttons");
-    assert.ok(names.map(name => `[ ${name} ]`).join(" ").length <= 40, "the footer row fits the default width");
+    const switches = find(tree, node => node.tag === "Box" && node.children.some(child => child.props?.key === "notice"))[0];
+    assert.deepEqual(row.children.map(child => [child.props.key, child.props.label]), [["still", names[0]], ["retry", names[1]]], "the first footer row holds motion and reading");
+    assert.deepEqual(switches.children.map(child => [child.props.key, child.props.label]), [["notice", names[2]], ["sound", names[3]]], "the second footer row holds toast and sound");
+    for (const pair of [names.slice(0, 2), names.slice(2)]) assert.ok(pair.map(name => `[ ${name} ]`).join(" ").length <= 40, "each footer row fits the default width");
     const column = find(tree, node => node.tag === "Box" && node.children.includes(row))[0];
-    assert.equal(column.children.indexOf(row), 0);
-    assert.match(texts(column.children[1])[0], /^(As of|Stand) \d/u, "the read time stands on its own line below the buttons");
+    assert.deepEqual([column.children.indexOf(row), column.children.indexOf(switches)], [0, 1]);
+    assert.match(texts(column.children.at(-1))[0], /^(As of|Stand) \d/u, "the read time stands on its own line below the buttons");
   };
   checkStepping(tree, ["Previous run", "Next run"]);
-  checkFooter(tree, ["Stop motion", "Read again"]);
-  checkFooter(await render(first, "terminal"), ["Stop motion", "Read again"]);
+  checkFooter(tree, ["Stop motion", "Read again", "Notices off", "Sound on"]);
+  checkFooter(await render(first, "terminal"), ["Stop motion", "Read again", "Notices off", "Sound on"]);
   const configText = readFileSync(configPath, "utf8");
   writeFileSync(configPath, `${JSON.stringify({ ...JSON.parse(configText), chat_language: "de" }, null, 2)}\n`);
   const german = await session();
@@ -163,7 +174,7 @@ try {
   writeFileSync(configPath, configText);
   const germanTree = await render(german);
   checkStepping(germanTree, ["Vorheriger Run", "Nächster Run"]);
-  checkFooter(germanTree, ["Bewegung aus", "Neu lesen"]);
+  checkFooter(germanTree, ["Bewegung aus", "Neu lesen", "Meldung aus", "Ton an"]);
 
   // SCN-006: main-loop turns drive läuft; subagent turns change nothing; completion re-reads.
   await first.fire("turn.start", { agentId: "sub" });
@@ -185,9 +196,9 @@ try {
 
   // CR-F05: switching off during a turn and on again leaves no stale "working" overlay.
   await first.fire("turn.start", {});
-  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF companion switched off.");
+  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
   await first.fire("turn.complete", {});
-  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF companion switched on.");
+  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"));
   assert.equal(first.liveTimers(), 1, "exactly one refresh timer after switching off and on");
 
@@ -218,15 +229,72 @@ try {
   tree = await render(first);
   assert.ok(texts(tree).includes("Changed in this session") && texts(tree).includes("working"));
 
-  // SDD-07 / CR-F01: the person's close mark (the host's `origin: { kind: "person" }`) hides the pane
-  // for this session and stops reading; a close by the plugin itself does not hide it.
+  // Follow-up SCN-009, SCN-011, SCN-013, SCN-014: toasts and the status line follow the shown run's
+  // run-derived state. Selecting the waiting run was a baseline and its approval to working raised
+  // nothing; a review result that blocks it raises exactly one toast, repeated reads none.
+  const lastStatus = () => first.log.status.at(-1);
+  const reread = async host => buttons(await render(host)).find(button => button.props.key === "retry").props.onPress();
+  const review = decision => {
+    const result = recordRunStep(target.root, { runId: "fixture-a", revisionId: target.revision(), step: "review", decision, evidence: `companion adapter test: ${decision}` },
+      { policy: policyForRunContent, date: "2026-10-27" });
+    assert.equal(result.outcome, "recorded", JSON.stringify(result));
+  };
+  assert.equal(lastStatus(), "AGDF · Quick Task Execution · working");
+  assert.deepEqual(first.log.toasts, [], "no toast for baselines, run switching or a working run");
+  review("revise");
+  await reread(first);
+  await reread(first);
+  assert.deepEqual(first.log.toasts, ["fixture-a is blocked: Quick Task Execution – revision needed"]);
+  assert.equal(lastStatus(), "AGDF · Quick Task Execution · blocked");
+  assert.deepEqual(first.log.audio, [], "the sound is off by default");
+  // A main-loop turn shows its overlay in the pane but changes neither the status line nor toasts.
+  // Every applied read sets the status line again (live finding: the desktop dropped the one set
+  // during session start), so the post-turn read repeats the same text.
+  const statusCount = first.log.status.length;
+  await first.fire("turn.start", {});
+  assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
+  const beforeTurnRead = first.log.invalidations;
+  await first.fire("turn.complete", {});
+  await waitFor(() => first.log.invalidations > beforeTurnRead, "the post-turn read");
+  assert.equal(first.log.status.length, statusCount + 1, "the post-turn read sets the status line again");
+  assert.deepEqual([first.log.status.at(-1), first.log.toasts.length], ["AGDF · Quick Task Execution · blocked", 1], "a turn changes neither the status text nor toasts");
+  // With the sound switched on, the next transition also plays the generated chime once.
+  await buttons(await render(first)).find(button => button.props.key === "sound").props.onPress();
+  assert.equal(JSON.parse(readFileSync(statePath, "utf8")).sound, true);
+  review("block");
+  await reread(first);
+  assert.equal(first.log.toasts.at(-1), "fixture-a is blocked: Quick Task Execution – blocked");
+  assert.deepEqual(first.log.audio.map(({ clip, options }) => [clip.mime, options.gain, clip.base64.slice(0, 5)]), [["audio/wav", 0.35, "UklGR"]]);
+  // With toasts switched off, a transition raises neither toast nor sound; the choice persists.
+  await buttons(await render(first)).find(button => button.props.key === "notice").props.onPress();
+  assert.equal(JSON.parse(readFileSync(statePath, "utf8")).notice, false);
+  assert.equal(buttons(await render(first)).find(button => button.props.key === "notice").props.label, "Notices on");
+  review("revise");
+  await reread(first);
+  assert.deepEqual([first.log.toasts.length, first.log.audio.length], [2, 1], "no toast and no sound while toasts are off");
+  assert.equal(lastStatus(), "AGDF · Quick Task Execution · blocked", "the status line still follows the run");
+  await buttons(await render(first)).find(button => button.props.key === "notice").props.onPress();
+  await buttons(await render(first)).find(button => button.props.key === "sound").props.onPress();
+  assert.deepEqual([JSON.parse(readFileSync(statePath, "utf8")).notice, JSON.parse(readFileSync(statePath, "utf8")).sound], [true, false]);
+
+  // SDD-07 / CR-F01, follow-up SDD-08: the person's close mark (the host's `origin: { kind: "person" }`)
+  // hides the pane for this session but keeps reading, so the status line and toasts stay current; a
+  // close by the plugin itself does not hide it.
   await first.fire("ui.close", { id: PANE, origin: { kind: "plugin" } });
   assert.equal(first.liveTimers(), 1, "a plugin close leaves the refresh running");
   await first.fire("ui.close", { id: PANE, origin: { kind: "person" } });
-  assert.equal(first.liveTimers(), 0, "the person's close stops the refresh");
+  assert.equal(first.liveTimers(), 1, "the person's close keeps the refresh running");
+  await first.fire("turn.start", {});
+  assert.ok(!texts(await render(first)).includes("Claude is working on this turn"), "no turn overlay is tracked for a hidden pane");
+  review("block");
+  const beforeHiddenRead = first.log.invalidations;
+  await first.fire("turn.complete", {});
+  await waitFor(() => first.log.invalidations > beforeHiddenRead, "the post-turn read with the pane hidden");
+  assert.equal(first.log.toasts.at(-1), "fixture-a is blocked: Quick Task Execution – blocked", "a hidden pane still raises toasts");
+  assert.equal(first.log.toasts.length, 3);
   // CR-F06: the command brings a hidden pane back without changing the stored choice.
   const opensBefore = first.log.opened.length;
-  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF companion switched on.");
+  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).enabled, true, "showing a hidden pane keeps the stored choice");
   assert.equal(first.log.opened.length, opensBefore + 1);
   assert.equal(first.liveTimers(), 1);
@@ -244,9 +312,11 @@ try {
   await Promise.all([reopenA, reopenB]);
   assert.equal(first.liveTimers(), 1, "overlapping starts leave one refresh timer");
   const off = await first.fire("command.run", { command: COMMAND });
-  assert.equal(off.text, "AGDF companion switched off.");
+  assert.equal(off.text, "AGDF Companion switched off.");
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).enabled, false);
   assert.deepEqual(first.log.closed.at(-1), { id: PANE });
+  assert.equal(first.log.status.at(-1), undefined, "switching off clears the status line");
+  assert.equal(first.liveTimers(), 0, "switching off stops reading");
   await first.fire("command.run", { command: COMMAND });
 
   // A new session keeps the choice and the remembered selection.
@@ -322,7 +392,7 @@ try {
   assert.equal(broken.log.commands.length, 0);
   const renderFailure = await render(broken);
   assert.equal(renderFailure.tag, "Text");
-  assert.match(texts(renderFailure)[0], /^AGDF companion: /u);
+  assert.match(texts(renderFailure)[0], /^AGDF Companion: /u);
   broken.$.ui.open = async () => { throw new Error("no surface"); };
   assert.match((await broken.fire("command.run", { command: COMMAND })).text, /^agdf-companion: /u);
   assert.deepEqual(await broken.hooks.find(item => item.event === "command.run").catch(), { text: "agdf-companion: unavailable" });
@@ -335,12 +405,119 @@ try {
   await buttons(await render(recovered)).find(button => button.props.key === "run-fixture-a").props.onPress();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[target.root], "fixture-a", "a selection after an invalid state file is stored");
 
+  // Follow-up SCN-023: throwing toast and status channels, a missing audio channel and a rejecting
+  // settings read stay silent; the pane, reading, switches and the event chain keep working.
+  const silent = await session({ failChannels: true });
+  assert.deepEqual(await silent.fire("session.start", { marker: 2 }), { passed: { marker: 2 } });
+  assert.equal(silent.log.opened.length, 1, "the enabled companion opens its pane despite failing channels");
+  await buttons(await render(silent)).find(button => button.props.key === "sound").props.onPress();
+  review("revise");
+  await reread(silent);
+  assert.ok(texts(await render(silent)).includes("fixture-a"), "the pane still draws the run");
+  assert.deepEqual(await silent.fire("turn.complete", { marker: 3 }), { passed: { marker: 3 } });
+  assert.equal((await silent.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
+  assert.equal((await silent.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
+  await buttons(await render(silent)).find(button => button.props.key === "sound").props.onPress();
+
+  // Follow-up SCN-021 (adapter part): without AGDF control the companion speaks the language of
+  // Claude's `language` setting; with a config the AGDF chat language wins; a failing read is English.
+  const plain = mkdtempSync(join(tmpdir(), "agdf-companion-plain-"));
+  try {
+    const languageOf = async (projectRoot, settings, failChannels = false) => {
+      const host = await session({ projectRoot, settings, failChannels });
+      await host.fire("session.start");
+      await reread(host);
+      return texts(await render(host));
+    };
+    assert.ok((await languageOf(plain, { language: "Deutsch" })).some(line => line.startsWith("Kein AGDF-Kontrollordner")), "German from the setting");
+    assert.ok((await languageOf(plain, { language: "de" })).some(line => line.startsWith("Kein AGDF-Kontrollordner")), "German from the tag");
+    assert.ok((await languageOf(plain, {})).some(line => line.startsWith("No AGDF control folder")), "English without a setting");
+    assert.ok((await languageOf(plain, { language: "Deutsch" }, true)).some(line => line.startsWith("No AGDF control folder")), "English when the read fails");
+    // CR-F05: an English label of the shown run proves that the config (en) wins over the setting (de).
+    const configured = await languageOf(target.root, { language: "de" });
+    assert.ok(configured.includes("fixture-a") && configured.includes("Next step") && !configured.includes("Nächster Schritt"),
+      "the AGDF config (en) wins over the setting");
+  } finally {
+    rmSync(plain, { recursive: true, force: true });
+  }
+
+  // CR-F01, CR-F02, CR-F03 on a run of their own: a chime never plays without a shown toast; a read
+  // still running when the companion is switched off is discarded, so switching on stays a fresh
+  // baseline; a failing state-file write while switching off still stops reading, clears the status
+  // line and closes the pane.
+  const race = await approvalFixture();
+  try {
+    const raceConfig = join(race.root, ".agdf", "control", "config.json");
+    writeFileSync(raceConfig, `${JSON.stringify({ ...JSON.parse(readFileSync(raceConfig, "utf8")), chat_language: "en" }, null, 2)}\n`);
+    const raceReview = decision => {
+      const result = recordRunStep(race.root, { runId: "fixture-a", revisionId: race.revision(), step: "review", decision, evidence: `companion race test: ${decision}` },
+        { policy: policyForRunContent, date: "2026-10-27" });
+      assert.equal(result.outcome, "recorded", JSON.stringify(result));
+    };
+    const host = await session({ projectRoot: race.root, failToast: true });
+    await host.fire("session.start");
+    if (!JSON.parse(readFileSync(statePath, "utf8")).enabled) await host.fire("command.run", { command: COMMAND });
+    await buttons(await render(host)).find(button => button.props.key === "run-fixture-a").props.onPress();
+    if (buttons(await render(host)).find(button => button.props.key === "sound").props.label === "Sound on") {
+      await buttons(await render(host)).find(button => button.props.key === "sound").props.onPress();
+    }
+    assert.equal(JSON.parse(readFileSync(statePath, "utf8")).sound, true, "the sound is on for the toast-failure check");
+    assert.equal(race.approve().outcome, "approved");
+    await reread(host);
+    raceReview("revise");
+    await reread(host);
+    assert.deepEqual([host.log.toasts.length, host.log.audio.length], [0, 0], "no chime when the toast could not be shown");
+    await buttons(await render(host)).find(button => button.props.key === "sound").props.onPress();
+
+    // A read that captured the run state before the switch-off finishes after the switch-on.
+    const toastsBefore = first.log.toasts.length;
+    const raceHost = await session({ projectRoot: race.root });
+    await raceHost.fire("session.start");
+    await reread(raceHost);
+    const realRead = raceHost.$.fs.read;
+    // Reads of the shown run's state are held with the content they captured. The read started before
+    // the switch-off finishes first, the read of the switch-on second.
+    const held = [];
+    raceHost.$.fs.read = async path => {
+      if (!/[\\/]runs[\\/]fixture-a[\\/]RUN_STATE\.md$/u.test(path)) return realRead(path);
+      const captured = await realRead(path);
+      return new Promise(resolve => { held.push(() => resolve(captured)); });
+    };
+    const oldRead = reread(raceHost);
+    await waitFor(() => held.length === 1, "the held read");
+    raceReview("block");
+    assert.equal((await raceHost.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
+    const switchOn = raceHost.fire("command.run", { command: COMMAND });
+    await waitFor(() => held.length === 2, "the switch-on read");
+    held[0]();
+    await oldRead;
+    held[1]();
+    assert.equal((await switchOn).text, "AGDF Companion switched on.");
+    raceHost.$.fs.read = realRead;
+    await reread(raceHost);
+    assert.deepEqual(raceHost.log.toasts, [], "switching on stays a fresh baseline although an older read finished later");
+    assert.equal(first.log.toasts.length, toastsBefore);
+
+    // Switching off with a failing state-file write.
+    const realWrite = raceHost.$.fs.write;
+    raceHost.$.fs.write = async () => { throw new Error("read-only"); };
+    const closedBefore = raceHost.log.closed.length;
+    assert.match((await raceHost.fire("command.run", { command: COMMAND })).text, /read-only/u);
+    assert.deepEqual([raceHost.log.status.at(-1), raceHost.liveTimers(), raceHost.log.closed.length], [undefined, 0, closedBefore + 1],
+      "a failing write still clears the status line, stops reading and closes the pane");
+    raceHost.$.fs.write = realWrite;
+    await raceHost.fire("command.run", { command: COMMAND });
+    assert.equal(JSON.parse(readFileSync(statePath, "utf8")).enabled, true);
+  } finally {
+    race.close();
+  }
+
   // SDD-07: without the plugin data directory the choices last for the session only.
   const noData = mkdtempSync(join(tmpdir(), "agdf-companion-nodata-"));
   const sessionOnly = fakeHost({ projectRoot: target.root, configDir: noData });
   (await freshModule()).register(sessionOnly.on);
   await sessionOnly.fire("session.start");
-  assert.equal((await sessionOnly.fire("command.run", { command: COMMAND })).text, "AGDF companion switched on.");
+  assert.equal((await sessionOnly.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
   assert.deepEqual([sessionOnly.log.writes.length, existsSync(join(noData, "plugins"))], [0, false]);
   rmSync(noData, { recursive: true, force: true });
 

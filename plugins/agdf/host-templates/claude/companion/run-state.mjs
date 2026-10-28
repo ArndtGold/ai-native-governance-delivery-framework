@@ -1,8 +1,12 @@
 // Bounded, read-only parser for the RUN_STATE.md sections the companion shows (SDD-04). It reads only
-// Run Meta, Objective, Current Control State and Approvals; parity tests bind it to the canonical
-// writers and the core control-state reader. Host-independent: file access is injected.
+// Run Meta, Objective, Current Control State, Approvals, Artefacts and the Mode/Slice Decision; parity
+// tests bind it to the canonical writers and the core control-state reader. Host-independent: file
+// access is injected.
 
 export const GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT', 'OR']);
+// The internal steps between an approved TP and QA, shown as the build phase (SDD-02, SDD-03).
+export const BUILD_GATES = Object.freeze(['Brownfield Analysis', 'CD+Tests', 'CR']);
+export const isStructured = route => route === 'structured_delivery' || route === 'structured_slice';
 // The host rejects reads over 4 MiB; the largest observed run state is about 280 KB.
 export const MAX_RUN_STATE_BYTES = 1024 * 1024;
 const TEXT_LIMIT = 240;
@@ -31,7 +35,9 @@ function answer(body, question) {
   return plain(body.match(new RegExp(`^\\| ${escaped} \\| (.*) \\|$`, 'mu'))?.[1]);
 }
 
-const approvedGates = body => [...body.matchAll(/^\| ([A-Z]+) \| approved \|/gmu)].map(row => row[1]);
+// The core reader strips backticks from the status cell (`clean` in run-state-document.js), so a
+// backticked `approved` counts as approved here too (CR-F04).
+const approvedGates = body => [...body.matchAll(/^\| ([A-Z]+) \| `?approved`? \|/gmu)].map(row => row[1]);
 
 // Canonical writers keep a review or gate result in the Artefacts row of the step that produced it
 // (`CR | … | revise`, `QA | … | block`); a Quick Task's Code Review is the CR row. The Run Meta
@@ -46,6 +52,29 @@ const presentationDecision = (known, gate) => {
   const match = known.match(/^(reject|request_change) recorded for current (.+) material\.$/u);
   return match && match[2] === gate ? match[1] : null;
 };
+
+// The run's route as the status card chooses its path (`modeSliceDecision`, run-state-policy.js):
+// the decision counts only with a filled scope reason and evidence, and a template value
+// (backticked alternatives) counts as empty. Anything else reads `undecided`.
+const templateValue = value => !value || (value.startsWith('`') && value.includes('|'));
+const filled = value => !templateValue(value) && value.trim() !== '';
+function route(text) {
+  const body = section(text, 'Mode/Slice Decision').trim() ? section(text, 'Mode/Slice Decision') : section(text, 'Mode / Slice Decision');
+  const raw = key => body.match(new RegExp(`^- ${key}:[ \\t]*(.*)$`, 'mu'))?.[1]?.trim() ?? '';
+  const decision = raw('decision').replace(/^`|`$/gu, '').trim();
+  return decision && !templateValue(decision) && filled(raw('scope_reason')) && filled(raw('evidence')) ? decision : 'undecided';
+}
+
+// The core's decision-content placeholder rule (`isDecisionContentPlaceholder`,
+// decision-content-readiness.js), so a template objective is never shown as the run's goal.
+const PROMPTS = new Set(['describe the trustworthy outcome.', 'what outcome should become possible?',
+  'which tp tasks are fully done, partially done or not done?', 'what remains unverified?', 'which risks remain and what is their impact?']);
+export function isPlaceholderText(value) {
+  if (typeof value !== 'string') return true;
+  const text = value.trim().replace(/^`([^`]+)`$/u, '$1').replace(/\s+/gu, ' ').toLowerCase();
+  return !text || PROMPTS.has(text)
+    || /^(?:todo|tbd|<[^>]+>|(?:draft|done|ready|blocked|pass|revise|block)(?:\s*\|\s*(?:draft|done|ready|blocked|pass|revise|block))+)$/u.test(text);
+}
 
 // Returns { ok: true, run } or { ok: false, id, reason } with reason missing | too_large | format.
 // Older run states lack `updated_at` (never "changed in this session") or the control table (no
@@ -70,13 +99,14 @@ export function parseRunState(id, text) {
     lifecycle,
     gate,
     decision,
+    route: route(normalized),
     gateResult,
     gateDecision: presentationDecision(answer(control, 'What is known?'), gate),
     updatedAt,
     missing: clip(answer(control, 'What is missing?')),
     next: clip(answer(control, 'What is the next allowed action?')),
     approved: Object.freeze(approvedGates(section(normalized, 'Approvals'))),
-    objective: clip(objective),
+    objective: isPlaceholderText(objective) ? '' : clip(objective),
   }) };
 }
 

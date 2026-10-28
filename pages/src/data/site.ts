@@ -163,7 +163,7 @@ export const landingPage = {
             "Restart the coding agent so it can find the plugin. Then check the visible plugin and version instead of assuming that a completed command proves activation.",
             "When you start work in a repository, ask AGDF to inspect existing control files or create the required setup. AGDF will show the current approval point and what may happen next.",
         ],
-        command: "npx --yes @agdf/cli@latest codex\nnpx --yes @agdf/cli@latest copilot",
+        command: "npx --yes @agdf/cli@latest codex\nnpx --yes @agdf/cli@latest claude",
         nextStep: "Then ask AGDF to check the current gate for a real repository request.",
         alternatives: { label: "See every installation path", href: repoDocument("INSTALL.md") },
     },

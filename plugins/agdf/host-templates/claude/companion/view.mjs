@@ -14,8 +14,8 @@ const folderName = root => String(root ?? '').replace(/[\\/]+$/u, '').split(/[\\
 // Host-local wall-clock time, HH:MM.
 export const clockText = ms => { const at = new Date(ms); return `${two(at.getHours())}:${two(at.getMinutes())}`; };
 
-// input: { snapshot, sessionStartedAt, selection, isTurnActive, registry, labels, locale, columns,
-// isObjectiveExpanded }. Display only: the adapter persists selection changes.
+// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, isTurnActive, registry, labels,
+// locale, columns, isObjectiveExpanded }. Display only: the adapter persists selection changes.
 export function buildPanelView(input) {
   const { snapshot, registry, labels, locale } = input;
   const t = (path, params) => label(labels, locale, path, params);
@@ -32,21 +32,24 @@ export function buildPanelView(input) {
     return neutral(t('messages.noControl', { folder: folderName(snapshot.root) }), { hint: t('messages.noControlHint', { path: snapshot.root ?? '' }) });
   }
 
-  const { run, origin, open } = assignRun({ runs: snapshot.runs, sessionStartedAt: input.sessionStartedAt, selection: input.selection });
+  const { run, origin, open, chatRunId } = assignRun({ runs: snapshot.runs, sessionStartedAt: input.sessionStartedAt, selection: input.selection,
+    mention: input.mention ?? null, isBrowsing: Boolean(input.isBrowsing) });
   // Each open run carries its condensed gate bar for the list (owner request of 2026-10-28).
   const openRuns = open.map(item => ({ id: item.id, objective: item.objective, bar: condensedGateBar(gateMarks(item)) }));
   if (!run) {
     const broken = input.selection && snapshot.unreadable.find(item => item.id === input.selection);
-    if (broken) return { ...unreadable(broken.reason), openRuns };
+    if (broken) return { ...unreadable(broken.reason), openRuns, chatRunId };
     if (!open.length) return neutral(t('messages.noOpenRuns'));
-    return neutral(t('messages.noRunAssigned'), { hint: t('messages.noRunAssignedHint'), openRuns,
+    return neutral(t('messages.noRunAssigned'), { hint: t('messages.noRunAssignedHint'), openRuns, chatRunId,
       openCount: t('fields.openRuns', { count: open.length }) });
   }
 
-  const state = displayState(run, { isTurnActive: input.isTurnActive });
-  if (state.mood === null) return { ...unreadable('unknownState'), runId: run.id, openRuns };
-  const reasonParams = { gate: gateTitle(registry, locale, state.reason.gate), decision: t(`decisions.${state.reason.decision}`) };
   const position = open.findIndex(item => item.id === run.id);
+  const openCount = position >= 0 ? t('fields.position', { position: position + 1, count: open.length }) : t('fields.openRuns', { count: open.length });
+  const state = displayState(run, { isTurnActive: input.isTurnActive });
+  // A run in an unknown state keeps stepping and the way back to the chat's run (CR-F01).
+  if (state.mood === null) return { ...unreadable('unknownState'), runId: run.id, openRuns, chatRunId, openCount };
+  const reasonParams = { gate: gateTitle(registry, locale, state.reason.gate), decision: t(`decisions.${state.reason.decision}`) };
   return {
     ...base,
     mood: state.mood,
@@ -59,8 +62,9 @@ export function buildPanelView(input) {
     nextStep: run.lifecycle === 'completed' ? null : localizeNextStep(registry, locale, run.next).text,
     origin: t(`origin.${origin}`),
     originKind: origin,
+    chatRunId,
     openRuns,
-    openCount: position >= 0 ? t('fields.position', { position: position + 1, count: open.length }) : t('fields.openRuns', { count: open.length }),
+    openCount,
   };
 }
 

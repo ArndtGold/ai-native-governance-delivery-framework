@@ -1117,8 +1117,8 @@ slash-command menu does not list `/agdf-companion`: type it in full and send it.
 
 **Notices and status line.** While the companion is on:
 
-- A notice such as "… wartet auf Freigabe: Qualitätssicherung" appears when the shown run starts waiting for an
-  approval or a decision, becomes blocked, or moves to another pending gate or decision. The first read after
+- A notice such as "… wartet auf Freigabe: Qualitätssicherung" appears when the run the panel shows without
+  browsing (see below) starts waiting for an approval or a decision, becomes blocked, or moves to another pending gate or decision. The first read after
   switching on, a change to another run, repeated reads of the same state, turns and failed reads raise none.
   "Notices off" in the panel's menu switches notices off.
 - "Sound on" adds a short, soft chime to each notice. Sound is off by default and plays only with a notice.
@@ -1151,9 +1151,18 @@ not use Claude Code's plugin store, because Claude Code keeps that store after u
 
 **Which run it shows.** It picks the first that applies:
 
-1. The run whose `RUN_STATE.md` changed during this session. The most recently changed one wins, and it stays
-   shown with "done" once completed.
-2. The run you selected in this project.
+1. The chat's run, unless you browse. A run becomes the chat's run when your prompt or Claude's final answer in a
+   main-loop turn names its id (the last open run named counts; an id inside a longer id does not), or when its
+   `RUN_STATE.md` changes during this session; the more recent of the two counts. The origin reads "Named in the
+   chat" or "Changed in this session". A run changed in this session stays shown with "done" once completed. The
+   chat's run lives for the conversation only: a new session, `/clear` or a resumed transcript starts without one
+   and counts changes from its own start.
+2. The run you selected in this project, also while you browse: "Previous run", "Next run" or a pick from the list
+   shows another run with "Selected by you" and remembers it as before. While you browse, "Back to chat run" ("Zurück
+   zum Chat-Run") stands below the stepping buttons and first in the menu, and the next main-loop turn (a message
+   you send, or a continuation without typed text) brings the panel back to the chat's run by itself. Subagent
+   turns do not. The status line and notices stay with
+   the chat's run while you browse.
 3. Otherwise the panel says "No run assigned" and lists the open runs to choose from. On the desktop the list
    fills the panel's height and ends with "+ N more" when runs remain; the terminal lists six. Where the panel is
    wide enough, each listed run shows its condensed gate bar at the right edge, for example `✓✓✓✓✓●○○ QA`, and
@@ -1161,7 +1170,9 @@ not use Claude Code's plugin store, because Claude Code keeps that store after u
 
 Only active runs are open. Superseded and abandoned runs are closed: the panel never shows them, and it forgets a
 selected run once that run is superseded or abandoned. It never guesses the newest run. While a main-loop turn runs, the figure shows "working" with the reason that
-Claude is working on this turn (a run in its build phase keeps "building"). Without an observed turn, the reason
+Claude is working on this turn, except that a run in its build phase keeps "building" and a run waiting for an
+approval or a decision keeps "waiting", since Claude usually asks for it in that turn; panel and status line then
+name the same state. Without an observed turn, the reason
 names what comes next ("Next: …"), because the run state alone does not show that work is running. The companion
 reads the run states again after each turn, every 30 seconds and on "Read again", also while the panel is hidden. A
 failed read keeps the last state visible with a marker. A run objective that is still the template text ("Describe
@@ -1228,6 +1239,12 @@ the companion is absent or shows a neutral message. The AGDF SessionStart hook, 
   with `✓UR ●Compact Delivery`; German panel text in a folder without `.agdf/control`; the status line staying with
   the panel closed. At the default panel width the structured bar shows its condensed form; a wider panel shows the
   full bar. The chime was not audible on Windows. The run states the companion read stayed byte-identical.
+- Live, 2026-10-28, desktop app (Code tab) on Windows with the desktop engine 2.1.308, using a copy of the companion
+  loaded as a session mod: the framed footer with the menu and About; the run list filling the panel with "+ N more"
+  and the gate bars beside listed runs in a widened panel; a run named in Claude's answer shown with "Named in the
+  chat" and, during the next turn, "waiting for approval" instead of "working"; browsing with "Back to chat run" in
+  the panel and the menu; the automatic return at the next turn; the footer at the bottom edge in the narrow and
+  widened panel. The 150 run states read stayed byte-identical.
 
 Codex and Claude Code plugin skill names are intentionally unprefixed because the plugin itself provides the `agdf` namespace.
 

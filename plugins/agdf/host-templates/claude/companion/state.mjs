@@ -34,10 +34,15 @@ export function runState(run) {
   return { mood: null, reason: { key: 'unknownState' } };
 }
 
-// A main-loop turn in progress shows läuft whatever the run says, except that a run being built
-// stays baut; the run-derived state returns after the turn.
+// Moods a main-loop turn does not cover: a run being built stays baut, and a run waiting for an
+// approval or a decision stays wartet, since the chat usually asks for it during that turn (chat-run
+// navigation SDD-07). A blocked run shows läuft, since the chat usually resolves it.
+const THROUGH_TURN = new Set(['baut', 'wartet']);
+
+// A main-loop turn in progress shows läuft for every other mood; the run-derived state returns after
+// the turn.
 export function displayState(run, { isTurnActive = false } = {}) {
   const derived = runState(run);
-  if (isTurnActive && derived.mood !== null && derived.mood !== 'baut') return { mood: 'laeuft', reason: { key: 'turnActive' } };
+  if (isTurnActive && derived.mood !== null && !THROUGH_TURN.has(derived.mood)) return { mood: 'laeuft', reason: { key: 'turnActive' } };
   return derived;
 }

@@ -11,11 +11,12 @@ const NOTICE_MOODS = new Set(['wartet', 'blockiert']);
 
 // What the status line and the detector observe: { kind: 'run', runId, state } with the run-derived
 // state, { kind: 'unreadable' } or { kind: 'idle' } (nothing read yet, no control, no shown run).
-export function observedRun({ snapshot, sessionStartedAt, selection = null }) {
+// mention: the chat's named run (chat-run navigation SDD-06); browsing never changes what is observed.
+export function observedRun({ snapshot, sessionStartedAt, selection = null, mention = null }) {
   if (!snapshot) return { kind: 'idle' };
   if (snapshot.status === 'failed') return { kind: 'unreadable' };
   if (snapshot.status !== 'ok') return { kind: 'idle' };
-  const { run } = assignRun({ runs: snapshot.runs, sessionStartedAt, selection });
+  const { run } = assignRun({ runs: snapshot.runs, sessionStartedAt, selection, mention });
   if (!run) return selection && snapshot.unreadable.some(item => item.id === selection) ? { kind: 'unreadable' } : { kind: 'idle' };
   const state = runState(run);
   return state.mood === null ? { kind: 'unreadable' } : { kind: 'run', runId: run.id, state };

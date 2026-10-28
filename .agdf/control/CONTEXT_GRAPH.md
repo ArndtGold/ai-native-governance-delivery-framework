@@ -69,6 +69,22 @@
 
   Evidence: .agdf/control/artefacts/agdf-companion-followup-20261027-01/SD.md, CODE_REVIEW.md, T-009_EVIDENCE.md, QA_REPORT.md.
 
+- companion_chat_run_navigation_20261028: The companion shows the run the chat works on, the "chat run".
+  - **How a run becomes the chat run.** `namedRun` in `assignment.mjs` finds the last open run id that a main-loop prompt (`turn.start` `e.text`) or final answer (`turn.complete` `e.answer`, else `next(e).text`) names as a whole token. `assignRun` takes the later of that mention and the newest change in this session. No new hook is needed. Subagent turns and completed runs never count.
+  - **Browsing.** Stepping or picking another run is browsing, shown as "Selected by you". The next main-loop turn or "Back to chat run" (a button under the stepping row and the first menu entry) shows the chat run again.
+  - **Status line and toasts.** They follow the chat run while browsing.
+  - **Lifetime.** The chat run lives in session memory only. A new `$.session.id()` (`/clear`, resume) clears it.
+  - **Turn rule.** During a turn, waiting and building runs keep their state, so the panel and the status line agree.
+  - **Footer.** The body fills `bodyRows` with no reserve, and the footer sits at the bottom edge.
+  - **Panel baseline.** The panel changes of 3444befe and 2f54fbcc are the delivered baseline: framed footer menu, About, a run list sized to the pane, and gate bars per run.
+  - **Deviation.** Reading `e.answer` before `next(e).text` deviates from the SDD-02 wording; the owner accepted it.
+  - **Known limits.**
+    - A run named only between tool calls counts once the final answer or the next prompt names it.
+    - A quoted id counts too.
+    - A mod reload starts without a chat run.
+
+  Evidence: .agdf/control/artefacts/agdf-companion-chat-run-navigation-20261028-01/SD.md, CODE_REVIEW.md, T-009_EVIDENCE.md, QA_REPORT.md.
+
 - summary_readability_and_review_status_20261019: The localized approval summary reader skips unknown and qualified labelled lines; UR and QA presentation and readiness reject an unreadable required field (`approval_summary_field_unreadable` with the expected `- Label:` line) through the same `localizedDecisionFields` owner that UAT observation uses. Quality Readiness maps the canonical writer status `done` to pass. Evidence: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/CD_TESTS.md, .agdf/control/artefacts/core-approval-lock-defects-20261017-01/QA_REPORT.md.
 
 - situation: AGDF has machine-readable gate and delivery-map outputs, but needs a compact human/agent status projection that includes the next permissible step and the next meaningful quality outlook.

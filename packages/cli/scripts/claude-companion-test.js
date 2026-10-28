@@ -30,7 +30,7 @@ const companionDir = join(repoRoot, "plugins", "agdf", "host-templates", "claude
 const companion = name => import(pathToFileURL(join(companionDir, name)).href);
 const { BUILD_GATES, LIFECYCLES, MAX_RUN_STATE_BYTES, isPlaceholderText, parseRunState, readSnapshot, settleSnapshot } = await companion("run-state.mjs");
 const { displayState, runState } = await companion("state.mjs");
-const { assignRun, openRuns, stepSelection } = await companion("assignment.mjs");
+const { assignRun, namedRun, openRuns, stepSelection } = await companion("assignment.mjs");
 const { chatLocale, label, localizeNextStep, settingLocale } = await companion("localization.mjs");
 const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
 const { ACCESSORY_BOUNDS, ACCESSORY_REGION, BRICKS, BRICK_SIZE, FIGURE_BOX, FIGURE_TEXT, HAMMER, figureSvg } = await companion("figure.mjs");
@@ -157,9 +157,15 @@ try {
   assert.equal(settleSnapshot(null, failing), failing);
   rmSync(noControl, { recursive: true, force: true });
 
-  // SCN-006: a main-loop turn shows läuft; the run-derived state returns afterwards.
+  // SCN-006 and chat-run navigation SCN-012: a main-loop turn shows läuft, except that a run waiting for
+  // an approval or a decision stays wartet (the chat asks for it during that turn) and a run being built
+  // stays baut; blocked, working and done runs show läuft; the run-derived state returns afterwards.
   const waiting = run({ missing: "Exact Approval: SD." });
-  assert.deepEqual(displayState(waiting, { isTurnActive: true }), { mood: "laeuft", reason: { key: "turnActive" } });
+  assert.deepEqual(displayState(waiting, { isTurnActive: true }), { mood: "wartet", reason: { key: "waitingApproval", gate: "SD" } });
+  assert.deepEqual(displayState(run({ decision: "pending" }), { isTurnActive: true }), { mood: "wartet", reason: { key: "waitingDecision", gate: "SD" } });
+  for (const overrides of [{ decision: "revise" }, { decision: "in_progress" }, { lifecycle: "completed" }]) {
+    assert.deepEqual(displayState(run(overrides), { isTurnActive: true }), { mood: "laeuft", reason: { key: "turnActive" } }, JSON.stringify(overrides));
+  }
   assert.deepEqual(displayState(waiting), { mood: "wartet", reason: { key: "waitingApproval", gate: "SD" } });
   assert.deepEqual(runState(run({ decision: "mystery" })), { mood: null, reason: { key: "unknownState" } });
   assert.equal(displayState(run({ decision: "mystery" }), { isTurnActive: true }).mood, null, "a turn never hides an unreadable state");
@@ -550,6 +556,54 @@ for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"
   // CR-F03: the defaults must accept a selection; a frozen object would silently drop it.
   parsedState.selections["/p"] = "run-1";
   assert.equal(parsedState.selections["/p"], "run-1", `defaults for ${invalid} are mutable`);
+}
+
+// Chat-run navigation SCN-001 (run agdf-companion-chat-run-navigation-20261028-01): a run counts as named
+// only as a whole token; the last one named wins; a long text is read from its end.
+{
+  const ids = ["run-a", "run-b", "run-a-extra"];
+  assert.equal(namedRun("work on run-a now", ids), "run-a");
+  assert.equal(namedRun("run-a then run-b", ids), "run-b");
+  assert.equal(namedRun("run-b then run-a", ids), "run-a");
+  assert.equal(namedRun("run-a-extra is next", ids), "run-a-extra", "the longer id wins its own token");
+  assert.equal(namedRun("run-a-extra is next", ["run-a"]), null, "an id inside a longer id does not count");
+  assert.equal(namedRun("xrun-a and run-ab", ["run-a"]), null);
+  assert.equal(namedRun("Weiter mit run-a.", ["run-a"]), "run-a", "a sentence may end with a run id");
+  assert.equal(namedRun("see run-a.md", ["run-a"]), null, "a dot followed by an id character continues the token");
+  assert.equal(namedRun("Ausgewählter Run · `run-b` and .agdf/control/runs/run-a/RUN_STATE.md", ["run-a", "run-b"]), "run-a");
+  assert.equal(namedRun("run_a run.a", ["run"]), null, "underscore and dot belong to ids");
+  for (const text of [42, null, undefined, "", "nothing here"]) assert.equal(namedRun(text, ids), null, String(text));
+  assert.equal(namedRun(`run-a ${"x ".repeat(40_000)}`, ids), null, "a mention beyond the scanned end is not read");
+  assert.equal(namedRun(`run-a ${"x ".repeat(40_000)} run-b`, ids), "run-b");
+  // Code Review CR-F08: a window that starts inside a longer id does not turn its tail into a mention.
+  const cut = `pre-run-a ${"x".repeat(65_536 - 6)}`;
+  assert.equal(cut.length - 65_536, 4, "the window starts at run-a");
+  assert.equal(namedRun(cut, ["run-a"]), null);
+  assert.equal(namedRun(`pre run-a ${"x".repeat(65_536 - 6)}`, ["run-a"]), "run-a");
+}
+
+// Chat-run navigation SCN-004: the chat's run is the later of the mention and the newest change in the
+// session; browsing shows the remembered selection; without a mention the rule is unchanged.
+{
+  const start = Date.parse("2026-10-28T08:00:00.000Z");
+  const at = iso => Date.parse(iso);
+  const runs = [
+    run({ id: "named", updatedAt: "2026-10-28T07:00:00.000Z" }),
+    run({ id: "changed", updatedAt: "2026-10-28T08:05:00.000Z" }),
+    run({ id: "picked", updatedAt: "2026-10-28T07:30:00.000Z" }),
+    run({ id: "done", lifecycle: "completed", updatedAt: "2026-10-28T07:10:00.000Z" }),
+  ];
+  const pick = (input) => { const result = assignRun({ runs, sessionStartedAt: start, ...input }); return [result.run?.id ?? null, result.origin, result.chatRunId]; };
+  assert.deepEqual(pick({ mention: { runId: "named", at: at("2026-10-28T08:10:00Z") } }), ["named", "named", "named"], "a later mention wins");
+  assert.deepEqual(pick({ mention: { runId: "named", at: at("2026-10-28T08:01:00Z") } }), ["changed", "session", "changed"], "a later change wins");
+  assert.deepEqual(pick({ mention: { runId: "named", at: at("2026-10-28T08:05:00Z") } }), ["named", "named", "named"], "a mention at the same time wins");
+  assert.deepEqual(pick({ mention: { runId: "done", at: at("2026-10-28T08:10:00Z") } }), ["changed", "session", "changed"], "a completed run is never named");
+  assert.deepEqual(pick({ selection: "picked" }), ["changed", "session", "changed"], "without browsing the chat's run beats the selection");
+  assert.deepEqual(pick({ selection: "picked", isBrowsing: true }), ["picked", "selected", "changed"], "browsing shows the selection");
+  assert.deepEqual(pick({ selection: "gone", isBrowsing: true }), ["changed", "session", "changed"], "browsing without a valid selection keeps the chat's run");
+  const quiet = runs.filter(item => item.id !== "changed");
+  assert.deepEqual([assignRun({ runs: quiet, sessionStartedAt: start, selection: "picked" }).origin, assignRun({ runs: quiet, sessionStartedAt: start, selection: "picked" }).chatRunId], ["selected", null], "no chat run: the selection as today");
+  assert.deepEqual(assignRun({ runs: quiet, sessionStartedAt: start, mention: { runId: "named", at: start }, selection: "picked", isBrowsing: true }).chatRunId, "named");
 }
 
 console.log("Claude companion logic tests passed");

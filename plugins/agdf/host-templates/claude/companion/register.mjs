@@ -5,7 +5,7 @@
 // redrawn through `$.ui.invalidate`. Elements come from the surface table and are built with the
 // host's global `h`.
 
-import { assignRun, stepSelection } from './assignment.mjs';
+import { assignRun, namedRun, openRuns, stepSelection } from './assignment.mjs';
 import { figureSvg } from './figure.mjs';
 import { chatLocale, label } from './localization.mjs';
 import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
@@ -26,6 +26,10 @@ const PICKER_SURFACES = new Set(['terminal', 'desktop', 'vscode']);
 // 28 px): the figure with its state and reason, the framed footer with its picker, the About block,
 // the space between two blocks, and one spare row, since a body taller than the pane scrolls.
 const DESKTOP_ROWS = Object.freeze({ figure: 7, footer: 2, about: 7, gap: 0.6, spare: 1 });
+// Rows the desktop body leaves below the pane's body rows. The T-001 probe of 2026-10-28 showed no
+// scrollbar for a framed footer at 0, 0.25, 0.5 and 1 row in the narrow, widened and taller pane, so
+// the smallest reserve applies (chat-run navigation SDD-08).
+const BODY_RESERVE = 0;
 // Listed runs show their condensed gate bars beside the ids while at least this many characters of an id
 // stay beside the widest bar (owner request of 2026-10-28); a narrower pane lists the ids alone.
 const ID_ROOM = 18;
@@ -34,7 +38,8 @@ const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 
 function createSession() {
   return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, version: null, icon: null,
     choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
-    isAboutShown: false, isMenuOpen: false, timer: null, reads: 0, appliedRead: 0, observation: null };
+    isAboutShown: false, isMenuOpen: false, timer: null, reads: 0, appliedRead: 0, observation: null,
+    chatMention: null, isBrowsing: false, conversation: null };
 }
 
 // One companion per session: the module is loaded once per session.
@@ -59,11 +64,12 @@ async function persist($, change) {
   await $.fs.write(session.statePath, serializeCompanionState(stored));
 }
 
-// The status line and toasts follow the shown run's run-derived state after each applied read
-// (follow-up SDD-05 to SDD-07). A stale snapshot keeps the last observation, so a failed read never
+// The status line and toasts follow the run-derived state of the run the panel shows without browsing,
+// so browsing never changes them (follow-up SDD-05 to SDD-07; chat-run navigation SDD-06). A stale snapshot keeps the last observation, so a failed read never
 // announces anything. Each host call has its own catch path: a missing channel stays silent (SDD-12).
 function announce($) {
-  const observed = observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection() });
+  const observed = observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
+    mention: session.chatMention });
   // Every applied read sets the line again, unchanged text included: the desktop dropped the one set
   // during session start, before its surface was attached (live finding of 2026-10-27).
   try { $.ui.status(statusText(observed, { labels: session.labels, locale: session.locale })); } catch { /* no status line on this host */ }
@@ -97,6 +103,7 @@ async function refresh($) {
   const read = ++session.reads;
   try {
     const root = await $.session.root();
+    await followConversation($);
     const next = await readSnapshot(files($), root, { now: await $.clock.now() });
     if (read < session.appliedRead) return;
     session.appliedRead = read;
@@ -114,6 +121,31 @@ async function refresh($) {
   }
   if (session.choices.enabled) announce($);
   redraw($);
+}
+
+// Takes the last open run a main-loop text names as the chat's run at host time `at` (chat-run navigation
+// SDD-01, SDD-02). Returns whether a mention was recorded: a repeated name can still move the chat's run
+// back from a later change, so every recorded mention is announced (CR-F02).
+function noteMention(text, at) {
+  const runs = session.snapshot?.status === 'ok' ? session.snapshot.runs : [];
+  const runId = namedRun(text, openRuns(runs).map(run => run.id));
+  if (!runId) return false;
+  session.chatMention = { runId, at };
+  return true;
+}
+
+// A `/clear` or a resumed transcript starts a new conversation without `session.start`: it starts without
+// a chat run and counts changes from its own start (CR-F03). A host without the id keeps the session's.
+async function followConversation($) {
+  let conversation = session.conversation;
+  try { conversation = await $.session.id(); } catch { /* no conversation id on this host */ }
+  if (session.conversation && conversation !== session.conversation) {
+    session.chatMention = null;
+    session.isBrowsing = false;
+    session.observation = null;
+    session.startedAt = await $.clock.now();
+  }
+  session.conversation = conversation;
 }
 
 function stopRefreshing() {
@@ -190,6 +222,8 @@ function body($, e, view) {
   const columns = Number.isInteger(e.props?.bodyColumns) ? e.props.bodyColumns : 40;
   const select = runId => press($, async () => {
     const root = session.root;
+    // A pick of another run than the chat's browses until the next main-loop turn (SDD-04, CR-F07).
+    if (view.chatRunId) session.isBrowsing = runId !== view.chatRunId;
     await persist($, choices => { choices.selections[root] = runId; });
     await refresh($);
   });
@@ -198,7 +232,11 @@ function body($, e, view) {
     if (next) await select(next)();
   });
   const toggle = key => async () => { const value = !session.choices[key]; await persist($, choices => { choices[key] = value; }); };
+  // While another run than the chat's run is shown, the menu offers the way back first (SDD-05).
+  const canReturn = Boolean(view.chatRunId) && view.runId !== view.chatRunId;
+  const back = async () => { session.isBrowsing = false; };
   const commands = [
+    ...(canReturn ? [['chat', t('actions.backToChat'), back]] : []),
     ['still', session.choices.still ? t('actions.stillOff') : t('actions.stillOn'), toggle('still')],
     ['retry', t('actions.retry'), () => refresh($)],
     ['notice', session.choices.notice ? t('actions.noticeOff') : t('actions.noticeOn'), toggle('notice')],
@@ -235,7 +273,7 @@ function body($, e, view) {
     session.version ? h(Text, { dimColor: true }, t('about.version', { version: session.version })) : null,
     Link ? h(Link, { href: ABOUT_URL, label: ABOUT_URL.slice('https://'.length) }) : h(Text, {}, ABOUT_URL),
     h(Button, { key: 'about-close', plain: true, label: t('actions.closeAbout'), onPress: press($, async () => { session.isAboutShown = false; }) })) : null;
-  const capacity = !isTerminal && fits ? listCapacity(view, { rows, columns, isAboutShown: session.isAboutShown }) : LISTED_RUNS;
+  const capacity = !isTerminal && fits ? listCapacity(view, { rows: rows - BODY_RESERVE, columns, isAboutShown: session.isAboutShown }) : LISTED_RUNS;
   // The terminal keeps its six; the desktop lists as many as fit and gives the last row to "+ N more".
   const listed = isTerminal ? view.openRuns.slice(0, LISTED_RUNS)
     : view.openRuns.length <= capacity ? view.openRuns : view.openRuns.slice(0, capacity - 1);
@@ -252,7 +290,8 @@ function body($, e, view) {
         h(Box, { flexShrink: 1 }, id), h(Box, { flexShrink: 0 }, h(Text, { dimColor: true, mono: true }, run.bar)))
       : id;
   };
-  const runList = view.originKind !== 'session' && view.openRuns.length
+  // The stepping row stands under every shown run, the chat's run included (SDD-04).
+  const runList = view.openRuns.length
     ? (view.runId
       // The count has its own line, so the two stepping buttons fit the default width. The desktop
       // draws a Button's label, which also names it, so the label is the visible localized text.
@@ -260,7 +299,8 @@ function body($, e, view) {
         h(Text, { dimColor: true }, view.openCount),
         h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
           h(Button, { key: 'previous', label: t('actions.previous'), onPress: step(-1) }),
-          h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) })))
+          h(Button, { key: 'next', label: t('actions.next'), onPress: step(1) })),
+        canReturn ? h(Button, { key: 'chat-return', plain: true, label: t('actions.backToChat'), onPress: press($, back) }) : null)
       : h(Box, { flexDirection: 'column' },
         h(Text, { dimColor: true }, view.openCount),
         ...listed.map(runRow),
@@ -272,10 +312,10 @@ function body($, e, view) {
   }
   const figure = h(Svg, { source: figureSvg(view.mood, { still: session.choices.still, title: `${view.title}: ${view.stateLabel}` }),
     alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !session.choices.still });
-  // The body is one row less than the pane's body rows (all of them overflow it by a few pixels) and the
-  // content grows, so the footer sits at the bottom edge; a taller body scrolls with the footer last (live
-  // probe of 2026-10-28: a cell count sizes the body, a percentage does not).
-  return h(Box, { flexDirection: 'column', gap: 1, ...(fits ? { minHeight: rows - 1 } : {}) }, h(Box, { flexDirection: 'column', gap: 1, flexGrow: 1 },
+  // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
+  // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of
+  // 2026-10-28: a cell count sizes the body, a percentage does not; SDD-08).
+  return h(Box, { flexDirection: 'column', gap: 1, ...(fits ? { minHeight: rows - BODY_RESERVE } : {}) }, h(Box, { flexDirection: 'column', gap: 1, flexGrow: 1 },
     h(Box, { flexDirection: 'column', alignItems: 'center' },
       figure,
       h(Text, { color: COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
@@ -343,9 +383,14 @@ export const register = on => {
 
   on('turn.start', async ($, e, next) => {
     try {
-      if (e.agentId === undefined && session.choices.enabled && !session.isHidden) {
-        session.isTurnActive = true;
+      if (e.agentId === undefined && session.choices.enabled) {
+        // A main-loop turn ends browsing and may name the chat's run (chat-run navigation SDD-02, SDD-04);
+        // the host clock is read beside the event, never before it is passed on (SDD-11).
+        session.isBrowsing = false;
+        if (!session.isHidden) session.isTurnActive = true;
         redraw($);
+        const prompt = e.text;
+        void $.clock.now().then(at => { if (noteMention(prompt, at)) { announce($); redraw($); } }).catch(() => {});
       }
     } catch { /* observation only */ }
     return next(e);
@@ -358,8 +403,17 @@ export const register = on => {
         // Cleared on every main-loop completion, also while switched off, so no stale overlay remains.
         session.isTurnActive = false;
         // The read runs after the host has its answer, never inside the hook; a hidden pane keeps
-        // the status line and toasts current (follow-up SDD-08).
-        if (session.choices.enabled) void refresh($);
+        // the status line and toasts current (follow-up SDD-08). The turn's final answer (`e.answer`,
+        // else the text `next(e)` returned) is matched against that read at the turn's end time, so a
+        // run created during the turn counts (CR-F05, CR-F06).
+        if (session.choices.enabled) {
+          const answer = typeof e.answer === 'string' ? e.answer : answered?.text;
+          void (async () => {
+            const at = await $.clock.now();
+            await refresh($);
+            if (session.choices.enabled && noteMention(answer, at)) { announce($); redraw($); }
+          })().catch(() => {});
+        }
       }
     } catch { /* observation only */ }
     return answered;
@@ -379,6 +433,7 @@ export const register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     try {
       return body($, e, buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
+        mention: session.chatMention, isBrowsing: session.isBrowsing,
         isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
         columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded }));
     } catch (error) {

@@ -39,12 +39,12 @@ const SURFACES = {
 // failToast: only the toast throws, so a chime without a shown toast would be visible (CR-F01).
 function fakeHost({ projectRoot, configDir, failRoot = false, settings = {}, failChannels = false, failToast = false }) {
   const log = { writes: [], opened: [], closed: [], commands: [], invalidations: 0, timers: [], passed: 0, toasts: [], status: [], audio: [] };
-  const where = { root: projectRoot };
+  const where = { root: projectRoot, conversation: "conversation-1" };
   const fail = () => { throw new Error("channel unavailable"); };
   const $ = {
     plugin: { name: "agdf", root: pluginRoot },
     clock: { now: async () => Date.now(), every: (ms, fn) => { const timer = { ms, fn, cancelled: false, cancel() { this.cancelled = true; } }; log.timers.push(timer); return timer; } },
-    session: { root: async () => { if (failRoot) throw new Error("root unavailable"); return where.root; } },
+    session: { root: async () => { if (failRoot) throw new Error("root unavailable"); return where.root; }, id: async () => where.conversation },
     env: { get: async name => ({ CLAUDE_CONFIG_DIR: configDir })[name] },
     settings: { read: async ({ key }) => { if (failChannels) throw new Error("settings unavailable"); return settings[key]; } },
     ...(failChannels ? {} : { audio: { play: async (clip, options) => { log.audio.push({ clip, options }); } } }),
@@ -224,10 +224,11 @@ try {
   checkStepping(await render(german), ["Vorheriger Run", "Nächster Run"]);
   await checkFooter(german, "desktop", ["AGDF Companion", "Bewegung aus", "Neu lesen", "Meldung aus", "Ton an", "About"]);
 
-  // On the desktop the body is one row less than the pane's body rows and the content grows, so the
-  // footer sits at the bottom edge (live probe of 2026-10-28); without body rows nothing is sized.
+  // On the desktop the body is as tall as the pane's body rows less the probed reserve (0 rows, T-001 of
+  // run agdf-companion-chat-run-navigation-20261028-01) and the content grows, so the footer sits at the
+  // bottom edge (SCN-015); without body rows nothing is sized.
   const sized = await render(first, "desktop", { scroll: { offset: 0, bodyRows: 30 } });
-  assert.deepEqual([sized.props.minHeight, sized.children[0].props.flexGrow, sized.children.length], [29, 1, 2]);
+  assert.deepEqual([sized.props.minHeight, sized.children[0].props.flexGrow, sized.children.length], [30, 1, 2]);
   assert.equal((await render(first)).props.minHeight, undefined);
   assert.equal((await render(first, "terminal", { scroll: { offset: 0, bodyRows: 30 } })).props.minHeight, undefined, "the terminal keeps its layout");
 
@@ -267,7 +268,13 @@ try {
     for (let index = 1; index <= 12; index += 1) {
       const id = `extra-${String(index).padStart(2, "0")}`;
       mkdirSync(join(many.root, ".agdf", "control", "runs", id), { recursive: true });
-      writeFileSync(join(many.root, ".agdf", "control", "runs", id, "RUN_STATE.md"), sealRunState(many.root, runText.replaceAll("fixture-a", id)));
+      const extraText = runText.replaceAll("fixture-a", id);
+      // extra-12 is blocked, so the status line tells the chat's run from a browsed one (chat-run navigation).
+      // extra-11 is in an unknown state (Code Review CR-F01).
+      const stateText = index === 12 ? extraText.replace(/^- decision: in_progress$/mu, "- decision: revise")
+        : index === 11 ? extraText.replace(/^- decision: in_progress$/mu, "- decision: mystery").replace("| What is missing? | Exact Approval: UR. |", "| What is missing? | No approval is pending. |") : extraText;
+      if (index >= 11) assert.notEqual(stateText, extraText, "the fixture is derived");
+      writeFileSync(join(many.root, ".agdf", "control", "runs", id, "RUN_STATE.md"), sealRunState(many.root, stateText));
     }
     const lister = await session({ projectRoot: many.root });
     await lister.fire("session.start");
@@ -304,15 +311,165 @@ try {
     assert.ok(capacity < 13 && capacity > 6, "the tight pane shows more than six and fewer than all");
     assert.deepEqual([runsOf(tight), moreOf(tight)], [capacity - 1, [`+ ${13 - capacity + 1} more`]], "the last row says how many remain");
     assert.deepEqual([runsOf(await render(lister, "terminal", { scroll: { offset: 0, bodyRows: rows } })), moreOf(await render(lister, "terminal"))], [6, []], "the terminal keeps six");
+
+    // Chat-run navigation (run agdf-companion-chat-run-navigation-20261028-01). extra-12 is blocked, the
+    // other runs wait for an approval, so the status line tells the chat's run from a browsed one.
+    const settle = async () => { for (let turn = 0; turn < 60; turn += 1) await new Promise(resolve => setImmediate(resolve)); };
+    const ORIGINS = ["Named in the chat", "Changed in this session", "Selected by you"];
+    const look = async (host, surface = "desktop") => {
+      const tree = await render(host, surface);
+      const all = texts(tree);
+      return { tree, runId: all.find(text => /^(extra-\d{2}|fixture-a)$/u.test(text)) ?? null, origin: ORIGINS.find(text => all.includes(text)) ?? null };
+    };
+    const turnComplete = (host, text, extra = {}) => host.hooks.find(item => item.event === "turn.complete").hook(host.$, extra, async () => ({ text }));
+    const optionValues = tree => menu(tree).props.options.map(option => option.value);
+
+    // SCN-002: a subagent turn names nothing; a main-loop prompt or answer names the chat's run, the
+    // last named wins and the answer counts after the prompt. SCN-019: a non-string answer changes nothing.
+    await lister.fire("turn.start", { agentId: "sub", text: "look at extra-05" });
+    assert.equal((await look(lister)).runId, null, "a subagent turn names no chat run");
+    await lister.fire("turn.start", { text: "Weiter mit extra-05." });
+    assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-05", "Named in the chat"]);
+    assert.deepEqual(await turnComplete(lister, "Next is extra-07, then extra-12."), { text: "Next is extra-07, then extra-12." }, "the answer passes through unchanged");
+    await settle();
+    assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-12", "Named in the chat"]);
+    await turnComplete(lister, 42);
+    await settle();
+    assert.equal((await look(lister)).runId, "extra-12", "a non-string answer leaves the chat's run");
+    assert.equal(lister.log.status.at(-1), "AGDF · UR · blocked", "the status line names the chat's run");
+
+    // SCN-006 and SCN-009: the stepping row stands under the chat's run, without a return control; a
+    // step browses, stores the selection and offers the return control in the panel and as first menu entry.
+    let chatView = await look(lister);
+    assert.ok(button(chatView.tree, "previous") && button(chatView.tree, "next"), "stepping from the chat's run");
+    assert.deepEqual([button(chatView.tree, "chat-return"), optionValues(chatView.tree).includes("chat")], [undefined, false]);
+    const toastsBefore = lister.log.toasts.length;
+    await button(chatView.tree, "next").props.onPress();
+    await settle();
+    let browsed = await look(lister);
+    assert.deepEqual([browsed.runId, browsed.origin], ["fixture-a", "Selected by you"]);
+    assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[many.root], "fixture-a", "the pick is remembered as today");
+    assert.deepEqual([button(browsed.tree, "chat-return")?.props.label, button(browsed.tree, "chat-return")?.props.plain], ["Back to chat run", true]);
+    assert.deepEqual([optionValues(browsed.tree)[1], menu(browsed.tree).props.options[1].label], ["chat", "Back to chat run"]);
+    const steppingColumn = find(browsed.tree, node => node.tag === "Box" && node.children.includes(button(browsed.tree, "chat-return")))[0];
+    assert.equal(steppingColumn.children.at(-1), button(browsed.tree, "chat-return"), "the return control stands below the stepping buttons");
+
+    // SCN-011: browsing never moves the status line or raises a toast for the browsed run.
+    assert.equal(lister.log.status.at(-1), "AGDF · UR · blocked");
+    assert.equal(lister.log.toasts.length, toastsBefore, "no toast for a browsed run");
+
+    // SCN-009: the return control shows the chat's run again; the menu entry does the same.
+    await button(browsed.tree, "chat-return").props.onPress();
+    assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-12", "Named in the chat"]);
+    await button((await look(lister)).tree, "next").props.onPress();
+    await settle();
+    await (await entry(lister, "chat"))();
+    assert.equal((await look(lister)).runId, "extra-12", "the menu entry returns to the chat's run");
+
+    // SCN-007: the next main-loop turn returns from browsing; a subagent turn does not.
+    await button((await look(lister)).tree, "next").props.onPress();
+    await settle();
+    await lister.fire("turn.start", { agentId: "sub", text: "subagent work" });
+    assert.equal((await look(lister)).runId, "fixture-a", "a subagent turn keeps the browsed run");
+    await lister.fire("turn.start", { text: "no run named here" });
+    chatView = await look(lister);
+    assert.deepEqual([chatView.runId, chatView.origin], ["extra-12", "Named in the chat"], "the main-loop turn returns to the chat's run");
+    await turnComplete(lister, "done");
+    await settle();
+
+    // SCN-005: the German texts.
+    const englishConfig = readFileSync(manyConfig, "utf8");
+    writeFileSync(manyConfig, `${JSON.stringify({ ...JSON.parse(englishConfig), chat_language: "de" }, null, 2)}\n`);
+    const germanLister = await session({ projectRoot: many.root });
+    await germanLister.fire("session.start");
+    writeFileSync(manyConfig, englishConfig);
+    await germanLister.fire("turn.start", { text: "Weiter mit extra-03" });
+    assert.ok(texts(await render(germanLister)).includes("Im Chat genannt"));
+    await button(await render(germanLister), "next").props.onPress();
+    await settle();
+    assert.equal(button(await render(germanLister), "chat-return")?.props.label, "Zurück zum Chat-Run");
+    await turnComplete(germanLister, "fertig");
+    await settle();
+
+    // Code Review corrections. CR-F07: stepping onto the chat's run follows it again.
+    await lister.fire("turn.start", { text: "extra-12" });
+    await settle();
+    await button((await look(lister)).tree, "next").props.onPress();
+    await settle();
+    assert.equal((await look(lister)).origin, "Selected by you");
+    await button((await look(lister)).tree, "previous").props.onPress();
+    await settle();
+    assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-12", "Named in the chat"], "a step onto the chat's run is no browsing");
+
+    // CR-F01: a chat run or a browsed run in an unknown state keeps stepping and the way back.
+    await lister.fire("turn.start", { text: "Weiter mit extra-11." });
+    await settle();
+    let odd = await look(lister);
+    assert.ok(texts(odd.tree).includes("Run state not readable: run state matches no known state"));
+    assert.ok(button(odd.tree, "next"), "stepping from an unknown-state chat run");
+    await button(odd.tree, "next").props.onPress();
+    await settle();
+    odd = await look(lister);
+    assert.deepEqual([odd.runId, odd.origin, Boolean(button(odd.tree, "chat-return"))], ["extra-12", "Selected by you", true], "a step from it browses");
+    await lister.fire("turn.start", { text: "extra-12" });
+    await settle();
+    await button((await look(lister)).tree, "previous").props.onPress();
+    await settle();
+    odd = await look(lister);
+    assert.deepEqual([texts(odd.tree).includes("Run state not readable: run state matches no known state"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an unknown-state run offers the way back");
+
+    // CR-F02: every recorded mention is announced, also one that names the chat's run again.
+    const announced = lister.log.status.length;
+    await lister.fire("turn.start", { text: "extra-12 again" });
+    await settle();
+    assert.ok(lister.log.status.length > announced, "a repeated mention sets the status line");
+
+    // CR-F06 and CR-F05: the turn's own answer (e.answer) counts before the text next(e) returns, and it
+    // is matched after the post-turn read, so a run created during the turn counts.
+    await turnComplete(lister, "a summary that names extra-04", { answer: "Weiter mit extra-03." });
+    await settle();
+    assert.equal((await look(lister)).runId, "extra-03", "e.answer is the turn's answer");
+    mkdirSync(join(many.root, ".agdf", "control", "runs", "extra-13"), { recursive: true });
+    writeFileSync(join(many.root, ".agdf", "control", "runs", "extra-13", "RUN_STATE.md"), sealRunState(many.root, runText.replaceAll("fixture-a", "extra-13")));
+    await turnComplete(lister, "", { answer: "Created extra-13." });
+    await settle();
+    assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-13", "Named in the chat"], "a run created during the turn counts");
+
+    // CR-F04: browsing to a run whose state changes raises no toast and keeps the status line on the
+    // chat's run; without a chat run neither the return button nor the menu entry appears.
+    await lister.fire("turn.start", { text: "extra-12" });
+    await settle();
+    await turnComplete(lister, "");
+    await settle();
+    await button((await look(lister)).tree, "next").props.onPress();
+    await settle();
+    assert.equal((await look(lister)).runId, "extra-13");
+    const quietToasts = lister.log.toasts.length;
+    const quietStatus = lister.log.status.at(-1);
+    writeFileSync(join(many.root, ".agdf", "control", "runs", "extra-13", "RUN_STATE.md"),
+      sealRunState(many.root, runText.replaceAll("fixture-a", "extra-13").replace(/^- decision: in_progress$/mu, "- decision: revise")));
+    await (await entry(lister, "retry"))();
+    await settle();
+    assert.equal(texts((await look(lister)).tree).includes("blocked"), true, "the browsed run is now blocked");
+    assert.deepEqual([lister.log.toasts.length, lister.log.status.at(-1)], [quietToasts, quietStatus], "no toast and an unchanged status line for the browsed run");
+
+    // CR-F03: a new conversation (a /clear) starts without a chat run.
+    lister.where.conversation = "conversation-2";
+    await (await entry(lister, "retry"))();
+    await settle();
+    const cleared = await look(lister);
+    assert.deepEqual([cleared.origin === "Named in the chat", Boolean(button(cleared.tree, "chat-return")), optionValues(cleared.tree).includes("chat")], [false, false, false], "a new conversation has no chat run and no way back");
   } finally {
     many.close();
   }
 
-  // SCN-006: main-loop turns drive läuft; subagent turns change nothing; completion re-reads.
+  // SCN-006 with chat-run navigation SCN-012: a main-loop turn keeps a waiting run's state, since the chat
+  // asks for the approval during that turn (a working run shows the overlay further below); subagent
+  // turns change nothing; completion re-reads.
   await first.fire("turn.start", { agentId: "sub" });
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"));
   await first.fire("turn.start", {});
-  assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
+  assert.deepEqual([texts(await render(first)).includes("waiting for approval"), texts(await render(first)).includes("Claude is working on this turn")], [true, false], "a waiting run stays waiting during a turn");
   // CR-F10: turn.complete answers the host before the post-turn read has finished.
   const reads = first.log.invalidations;
   const realList = first.$.fs.list;
@@ -390,6 +547,16 @@ try {
   await waitFor(() => first.log.invalidations > beforeTurnRead, "the post-turn read");
   assert.equal(first.log.status.length, statusCount + 1, "the post-turn read sets the status line again");
   assert.deepEqual([first.log.status.at(-1), first.log.toasts.length], ["AGDF · Quick Task Execution · blocked", 1], "a turn changes neither the status text nor toasts");
+  // CR-F04: the overlay checks on a blocked run, which the overlay covers: a subagent turn shows none, and
+  // switching off during a main-loop turn and on again leaves no stale overlay.
+  await first.fire("turn.start", { agentId: "sub" });
+  assert.ok(!texts(await render(first)).includes("Claude is working on this turn"), "a subagent turn shows no overlay");
+  await first.fire("turn.start", {});
+  assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
+  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
+  await first.fire("turn.complete", {});
+  assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
+  assert.ok(!texts(await render(first)).includes("Claude is working on this turn"), "no stale overlay after switching off and on");
   // With the sound switched on, the next transition also plays the generated chime once.
   await (await entry(first, "sound"))();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).sound, true);

@@ -68,7 +68,7 @@ for (const phase of ['beforeProspectiveReceipt', 'afterProspectiveReceipt', 'bef
   }));
 
 test('fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity', () => fixture(({ root, run }) => {
-  assert.equal(run().outcome, 'accepted');
+  const initialized = run(); assert.equal(initialized.outcome, 'accepted', JSON.stringify(initialized));
   const path = join(root, '.agdf/control'), binding = ownerPlacement(path, 'canonical-control');
   const copy = path + '-copy'; cpSync(path, copy, { recursive: true });
   assert.throws(() => assertOwnerPlacement(binding, copy, 'canonical-control', path), /owner_placement_changed/);
@@ -83,7 +83,7 @@ test('fixed owner anchors reject copied objects, links, absent/rounded identifie
 }));
 
 test('device-only remount simulation preserves new receipts while legacy receipt predicates reject drift', () => fixture(({ root, run, input }) => {
-  assert.equal(run().outcome, 'accepted');
+  const initialized = run(); assert.equal(initialized.outcome, 'accepted', JSON.stringify(initialized));
   const module = new URL('../lib/control-state/canonical-initialization.js', import.meta.url).href;
   const observe = () => spawnSync(process.execPath, ['--input-type=module', '--eval', `
     import fs from 'node:fs'; import { syncBuiltinESMExports } from 'node:module';
@@ -145,7 +145,7 @@ test('the existing caller stage2 format completes through its original receipt1 
 }));
 
 test('full-width filesystem inode values remain strings above Number precision', () => fixture(({ root, run }) => {
-  assert.equal(run().outcome, 'accepted');
+  const initialized = run(); assert.equal(initialized.outcome, 'accepted', JSON.stringify(initialized));
   const control = join(root, '.agdf/control'), actual = lstatSync(control, { bigint: true }).ino;
   const helper = new URL('../lib/owner-placement.js', import.meta.url).href;
   const result = spawnSync(process.execPath, ['--input-type=module', '--eval', `

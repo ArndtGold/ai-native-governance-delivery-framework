@@ -95,17 +95,17 @@ export function payloadSchema(group, kind) {
 }
 // Canonical help is shared by expanded Core validation and operation help.
 const fieldHelp = Object.freeze({
-  schema_version: 'Contract version 1.',
-  presentation_language: 'Response BCP 47 language, e.g. de.',
-  working_directory: 'Absolute task directory for target resolution.',
-  target_source: 'Human task basis for this target; cwd alone is not authority.',
-  primary_target: 'Confirmed absolute target from resolution.',
-  target_id: 'Exact hash from current MCP target inspection; never guess.',
-  run_id: 'Scope-matching Run from inspection; recency is not authority.',
-  expected_revision_id: 'Current inspected revision; recovery retains original binding.',
-  operation_id: 'New command UUID; after handoff reuse original UUID/exact payload.',
-  assurance: 'Cooperative intent, not human proof or approval.',
-  command: 'Kind/payload; nested help: operation-contract.',
+  schema_version: 'Contract v1.',
+  presentation_language: 'Reply language (BCP 47).',
+  working_directory: 'Absolute task directory.',
+  target_source: 'Human target basis; cwd is no authority.',
+  primary_target: 'Confirmed absolute target.',
+  target_id: 'Exact hash from target inspection; never guess.',
+  run_id: 'Run from inspection; recency is no authority.',
+  expected_revision_id: 'Inspected revision; recovery keeps original.',
+  operation_id: 'New UUID; retry with same UUID/payload.',
+  assurance: 'Cooperative intent, not human proof.',
+  command: 'Kind and payload; help: operation-contract.',
   path: 'Contained Run-local source path; read the actual file before recording.',
   digest: 'Canonical SHA-256 of the exact source bytes; never guess or reseal unrelated edits.',
   gate: 'Exact gate named by current control, not permission to advance it.',
@@ -163,6 +163,10 @@ export function compactCommandSchema(expanded) {
     primary_target: 'Project dir.', target_id: 'Target hash.', run_id: 'Bound Run ID.', expected_revision_id: 'Current rev.',
     operation_id: 'Replay UUID.', assurance: 'Cooperative.', command: 'Typed input.' };
   for (const [key, description] of Object.entries(brief)) if (discovery.properties[key]) discovery.properties[key].description = description;
+  // Self-describing envelope names retain their full field help on operation-contract.
+  // Avoid repeating that prose in every tool; preserve every structural constraint.
+  for (const key of ['schema_version', 'working_directory', 'primary_target', 'target_id', 'command'])
+    if (discovery.properties[key]) delete discovery.properties[key].description;
   // Factor a closed object's common shape out of its mutually exclusive variants.
   // Every key remains declared at the closed parent; branch constraints/requirements
   // are preserved exactly, including rejection of foreign payload fields.

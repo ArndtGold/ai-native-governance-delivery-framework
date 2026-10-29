@@ -577,3 +577,5 @@ The generation previously imported the public MCP server solely for its worker f
 ## PR42 integration with main356cc4ee
 
 The current generated Copilot closure adds mains canonical Run closure and Git identity source files and their full-factory projection, while preserving the owner-thread/MCP lifecycle source. Actual CI on head1a586afe (run40900239878, job123540385315) measured430files/4571563bytes. Prior baseline428/4482711 is retained above. The reviewed delta is2files/88852bytes with no spare allowance. Runtime, transport and request/schema/time limits are unchanged. This is package-size evidence, not a passing performance measurement or native qualification.
+
+PR42 schema-composition repair: the full command plus decision tool set was25314bytes and refused startup against24576. Omitting only redundant discovery descriptions while retaining full operation help yields24299bytes with every validation rule and the original limit intact. Generated payload430/4571756 adds193source bytes over the integrated baseline, no reserve.

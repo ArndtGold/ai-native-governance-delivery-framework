@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { decisionActionDefinition, DECISION_VIEW_DEFINITION } from '../lib/control-state/decision-action-contract.js';
 import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, commandGroupSchema, validateRunCommand, operationContract } from '../lib/control-state/run-command-contract.js';
 import * as contractFacade from '../lib/control-state/run-command-contract.js';
 import * as structuralContract from '../lib/control-state/run-command-schema.js';
@@ -37,7 +38,9 @@ for (const group of Object.keys(RUN_COMMAND_GROUPS)) {
   assert.ok(bytes <= RUN_COMMAND_LIMITS.definition_bytes); assert.equal(definition.annotations.readOnlyHint, false); assert.equal(definition.annotations.destructiveHint, group !== 'agdf_prepare');
   assert.equal(definition.annotations.idempotentHint, false); assert.equal(definition.annotations.openWorldHint, false);
 }
-assert.ok(aggregate < RUN_COMMAND_LIMITS.aggregate_definition_bytes);
+const decisionDefinitions = [decisionActionDefinition(Object.keys(RUN_COMMAND_GROUPS)), DECISION_VIEW_DEFINITION];
+const composedBytes = aggregate + decisionDefinitions.reduce((n, definition) => n + Buffer.byteLength(JSON.stringify(definition)), 0);
+assert.ok(composedBytes <= RUN_COMMAND_LIMITS.aggregate_definition_bytes, `complete published command/decision composition: ${composedBytes}`);
 // Run closure: two target-scoped kinds of agdf_closeout; every per-run kind keeps its Run binding.
 const { run_id: _run, expected_revision_id: _revision, ...targetEnvelope } = input;
 const preview = { ...targetEnvelope, command: { kind: 'closure.preview', payload: { entries: [{ run_id: 'old-run', outcome: 'superseded', reason: 'Replaced', successor_run: 'new-run' },
@@ -53,7 +56,13 @@ const { run_id: _r, expected_revision_id: _e, ...unboundCloseout } = closeoutRec
 assert.deepEqual(validateRunCommand('agdf_closeout', unboundCloseout), [{ path: '$.run_id', code: 'field_required' }, { path: '$.expected_revision_id', code: 'field_required' }]);
 const recoveryWithoutRun = { ...targetEnvelope, command: { kind: 'operation.recover', payload: { original_kind: 'lifecycle_close.record', pending_digest: 'sha256:' + 'd'.repeat(64), recovery_revision_id: input.expected_revision_id } } };
 assert.equal(validateRunCommand('agdf_closeout', recoveryWithoutRun).length, 2, 'operation.recover keeps the Run binding');
-for (const group of Object.keys(RUN_COMMAND_GROUPS).filter(group => group !== 'agdf_closeout')) assert.ok(commandGroupSchema(group).required.includes('run_id'), group);
+for (const group of Object.keys(RUN_COMMAND_GROUPS).filter(group => group !== 'agdf_closeout')) {
+  const preRun = ['agdf_project', 'agdf_run'].includes(group), schema = commandGroupSchema(group);
+  for (const field of ['run_id', 'expected_revision_id']) {
+    assert.equal(schema.required.includes(field), !preRun, `${group}/${field}`);
+    if (preRun) assert.equal(Object.hasOwn(schema.properties, field), false, `${group} forbids a premature Run binding`);
+  }
+}
 assert.ok(!commandGroupSchema('agdf_closeout').required.includes('run_id'));
 for (const entries of [[], Array.from({ length: 65 }, (_, i) => ({ run_id: `run-${i}`, outcome: 'abandoned', reason: 'x' })),
   [{ run_id: 'a', outcome: 'completed', reason: 'x' }], [{ run_id: 'a', outcome: 'abandoned' }], [{ run_id: 'a', outcome: 'abandoned', reason: 'x', approve: true }]])
@@ -103,7 +112,12 @@ const sample = (schema) => {
   if (Object.hasOwn(schema, 'const')) return schema.const;
   if (schema.enum) return schema.enum[0];
   if (schema.type === 'object') return Object.fromEntries(schema.required.map(key => [key, sample(schema.properties[key])]));
+  if (schema.type === 'array') return Array.from({ length: schema.minItems ?? 1 }, () => sample(schema.items));
+  if (schema.type === 'integer') return schema.minimum ?? 0;
+  if (schema.type === 'boolean') return true;
+  if (schema.type === 'null') return null;
   if (schema.pattern?.includes('sha256')) return 'sha256:' + 'c'.repeat(64);
+  if (schema.pattern === '^[0-9a-f]{8}$') return 'abcdef01';
   if (schema.pattern?.includes('[0-9a-f]{8}')) return 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
   return 'fixture';
 };
@@ -111,11 +125,17 @@ let parityCases = 0;
 for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
   const expanded = commandGroupSchema(group), definition = commandGroupDefinition(group);
   assert.ok(definition.outputSchema);
-  for (const field of Object.values(definition.inputSchema.properties)) assert.ok(field.description?.length > 10);
+  // Full field guidance stays with operation-contract; discovery need not repeat self-describing names.
+  for (const field of Object.values(expanded.properties)) assert.ok(field.description?.length > 10);
+  for (const field of ['operation_id', 'target_source', 'assurance', 'run_id', 'expected_revision_id'])
+    if (definition.inputSchema.properties[field]) assert.ok(definition.inputSchema.properties[field].description?.length > 10);
   const sdk = fromJsonSchema(definition.inputSchema)['~standard'];
   for (const kind of kinds) {
-    const payload = sample(operationContract(group, kind).payload_schema);
+    const contract = operationContract(group, kind), payload = sample(contract.payload_schema);
     const valid = { ...input, command: { kind, payload } };
+    for (const field of ['run_id', 'expected_revision_id']) if (!Object.hasOwn(contract.schema.properties, field)) delete valid[field];
+    assert.deepEqual(validateRunCommand(group, valid), [], `${group}/${kind}: positive input is valid`);
+    assert.equal(sdk.validate(valid).issues, undefined, `${group}/${kind}: SDK positive input is valid`);
     for (const value of [valid, { ...valid, injected: 'effect' }, { ...valid, operation_id: 'not-a-uuid' },
       { ...valid, assurance: 'permission' }, { ...valid, command: { ...valid.command, payload: { ...payload, injected: true } } }]) {
       const actual = sdk.validate(value);

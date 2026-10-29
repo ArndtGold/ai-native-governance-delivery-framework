@@ -22,7 +22,9 @@ test('Git facts disable filesystem monitors and preserve the actual changed path
     git(['config','core.fsmonitor','false']); git(['config','maintenance.auto','false']); git(['config','gc.auto','0']);
     writeFileSync(join(root,'README.md'),'Before\n'); git(['add','README.md']); git(['commit','-qm','Disposable baseline']);
     const canary = join(root,'.git','helper-invoked'), helper = join(root,'.git','monitor.cjs');
-    writeFileSync(helper, `require('node:fs').writeFileSync(${JSON.stringify(canary)}, 'unexpected configured helper'); process.stdout.write('token\\0\\0');`);
+    // Valid fsmonitor v2 response: NUL-terminated token, then '/' invalidates the whole tree.
+    // https://git-scm.com/docs/githooks#_fsmonitor_watchman
+    writeFileSync(helper, `require('node:fs').writeFileSync(${JSON.stringify(canary)}, 'unexpected configured helper'); process.stdout.write('token\\0/\\0');`);
     git(['config','core.fsmonitor',`"${process.execPath}" "${helper}"`]);
     writeFileSync(join(root,'README.md'),'After\n');
     git(['diff','HEAD','--name-only']);

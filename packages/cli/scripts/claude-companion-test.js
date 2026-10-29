@@ -18,6 +18,7 @@ import { parseRunState as parseCoreRunState } from "../../core/lib/control-state
 import { prepareRunPresentation } from "../../core/lib/control-state/run-presentation.js";
 import { approveRunGate } from "../../core/lib/control-state/run-recording.js";
 import { sealRunState } from "../../core/lib/control-state/run-seal.js";
+import { previewRunClosure, applyRunClosure } from "../../core/lib/control-state/run-closure.js";
 import { isOperationalValueRenderable } from "../../core/lib/interaction-presentation.js";
 import { resolveConfiguredChatLanguage } from "../../core/lib/resources/context.js";
 import { claudePluginDataRoot } from "../lib/mcp-lifecycle/plugin-runtime.js";
@@ -135,6 +136,16 @@ try {
     const shown = assignRun({ runs: [result.run], sessionStartedAt: 0, selection: id });
     assert.deepEqual([shown.run, shown.origin, shown.open, shown.dropSelection], [null, "none", [], true], `${lifecycle}: closed and never assigned`);
   }
+  // AC-010 (run closure): a run closed through the real closure operation leaves the open-run list.
+  createRun(created.root, "fixture-closed");
+  const closurePreview = previewRunClosure(created.root, { entries: [{ run_id: "fixture-closed", outcome: "abandoned", reason: "Companion regression" }] });
+  assert.equal(applyRunClosure(created.root, { previewId: closurePreview.preview_id, confirmation: closurePreview.confirmation_phrase },
+    { readIdentity: () => ({ statement: "unknown" }) }).results[0].result, "closed");
+  const afterClosure = await readSnapshot(nodeFs, created.root, { now: 1 });
+  assert.equal(afterClosure.runs.find(entry => entry.id === "fixture-closed")?.lifecycle, "abandoned");
+  assert.ok(!openRuns(afterClosure.runs).some(entry => entry.id === "fixture-closed"), "a closed run is not an open run");
+  const closedSelection = assignRun({ runs: afterClosure.runs, sessionStartedAt: 0, selection: "fixture-closed" });
+  assert.notEqual(closedSelection.run?.id, "fixture-closed"); assert.equal(closedSelection.dropSelection, true);
 
   // SCN-009 / SCN-006 inputs: reader conditions on the fixture targets.
   const noControl = mkdtempSync(join(tmpdir(), "agdf-companion-plain-"));

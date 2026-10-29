@@ -52,6 +52,8 @@ export const commandRegistry = Object.freeze([
   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
   command("run-recovery", { local: [" --run <run_id> --action <inspect|preview>", " --run <run_id> --action apply --preview-id <uuid> --recovery-confirmation \"RECOVER <run_id> <preview_id>\""] }),
+  command("run-close", { local: [" --action preview --closure-file <entries.json> [--json]", " --action preview --run <run_id> --outcome <superseded|abandoned> --reason <text> [--successor-run <run_id>|--successor-ref <text>] [--json]",
+    " --action apply --preview-id <8-hex> --confirmation \"Close runs: <preview_id>\" [--json]"] }),
   command("run-render-legacy", { local: [" --run <run_id>"] }),
   ...Object.keys(commandGroupRoutes).map(name => command(name, { local: [' --command-file <bounded-command.json>'] })),
 ]);
@@ -155,8 +157,24 @@ export function validateCommandOptions(options) {
     if (options.recoveryAction !== "apply" && (options.recoveryPreviewId || options.recoveryConfirmation)) {
       throw new Error("--preview-id and --recovery-confirmation are supported only by run-recovery apply");
     }
+  } else if (options.target === "run-close") {
+    const single = [options.runId, options.closureOutcome, options.stepFields?.reason, options.successorRun, options.successorReference].some(value => value !== undefined);
+    if (options.recoveryConfirmation !== undefined || options.allActive || Object.keys(options.stepFields ?? {}).some(key => key !== "reason")) throw new Error("run-close accepts only its preview or apply fields");
+    if (options.recoveryAction === "preview") {
+      if (options.recoveryPreviewId !== undefined || options.closureConfirmation !== undefined) throw new Error("--preview-id and --confirmation require run-close --action apply");
+      if (Boolean(options.closureFile) === single) throw new Error("run-close preview requires either --closure-file or --run, --outcome and --reason");
+      if (single && (!options.runId || !options.closureOutcome || options.stepFields?.reason === undefined)) throw new Error("run-close preview requires --run, --outcome and --reason");
+      if (options.successorRun !== undefined && options.successorReference !== undefined) throw new Error("--successor-run and --successor-ref are mutually exclusive");
+    } else if (options.recoveryAction === "apply") {
+      if (!options.recoveryPreviewId || options.closureConfirmation === undefined) throw new Error("run-close apply requires --preview-id and --confirmation");
+      if (single || options.closureFile) throw new Error("run-close apply accepts only --preview-id and --confirmation");
+    } else throw new Error("run-close requires --action preview or apply");
   } else if (options.recoveryAction || options.recoveryPreviewId || options.recoveryConfirmation) {
     throw new Error("--action, --preview-id and --recovery-confirmation are supported only by run-recovery");
+  }
+  if ((options.closureFile || options.closureOutcome || options.successorRun !== undefined || options.successorReference !== undefined
+      || options.closureConfirmation !== undefined) && options.target !== "run-close") {
+    throw new Error("--closure-file, --outcome, --successor-run, --successor-ref and --confirmation are supported only by run-close");
   }
   if ((options.gate && !["run-approve", "run-present"].includes(options.target)
       && !(options.target === "run-step" && options.runStep === "artefact")) || (options.response !== undefined && options.target !== "run-approve")) {
@@ -166,6 +184,7 @@ export function validateCommandOptions(options) {
     throw new Error("--revision is supported only by run-update, run-revise, run-present, run-approve, run-step and skill-dispatch");
   }
   if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step"
+      && !(options.target === "run-close" && !options.runStep)
       && !(options.target === "run-revise" && ["preview", "apply"].includes(options.revisionMode)
         && !options.runStep && Object.keys(options.stepFields).every(key => key === "evidence"))
       && !(options.target === 'mcp' && (options.retireCockpit || options.restoreCockpit)
@@ -313,6 +332,19 @@ Options:
                  Bind run-recovery apply to one stored read-only preview
   --recovery-confirmation <text>
                  Exact confirmation printed by run-recovery preview
+  run-close --action <preview|apply>
+                 Close active runs as superseded or abandoned. Preview changes no run and prints the
+                 exact phrase "Close runs: <preview_id>"; apply closes each listed run that is still
+                 active and unchanged, gives each its own receipt and reports every run. A closed run
+                 is final: it rejects every further delivery operation; continuing needs a new run.
+  --closure-file <entries.json>
+                 run-close preview list: {"entries":[{"run_id","outcome","reason","successor_run"|"successor_reference"}]}
+  --outcome <superseded|abandoned>
+                 run-close preview of one --run; --reason is required, superseded needs a successor
+  --successor-run <run_id> | --successor-ref <text>
+                 Existing successor run (verified) or free reference such as a pull request (unverified)
+  --confirmation <text>
+                 The owner's verbatim reply for run-close apply: Close runs: <preview_id>
   --module <runtime-contract-module>
                  Runtime-contract module for contract, for example gate-transition
   --step <ur|route|review|evidence|closeout|artefact>

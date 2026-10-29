@@ -197,6 +197,7 @@ This table is the canonical transition model. Skills may reference it, but must 
 | QA report is `revise` with an eligible explicit evidence-only deviation proposal and no QA acceptance | `QA` | present the exact scope, risks, consequences and follow-up; request contextual acceptance under quality.md | UAT, release and treating missing tests as passed | `Approval: QA` |
 | QA approved with report `pass`/`passed` or a current exact human deviation-acceptance receipt, UAT not approved | `UAT` | request `Approval: UAT`, carry accepted deviations and original QA result into the non-operative summary | release and automatic VCS actions | `Approval: UAT` |
 | UAT approved | `OR` | produce OR or delivery closeout; prepare VCS handoff only when requested | automatic commit, push, PR or release | none |
+| Run lifecycle `superseded` or `abandoned` | closed at its last gate | read its history; start a new run that may reference it | every run write, approval, presentation, revision, recovery and delivery continuation | none |
 
 
 ## Brownfield Modes

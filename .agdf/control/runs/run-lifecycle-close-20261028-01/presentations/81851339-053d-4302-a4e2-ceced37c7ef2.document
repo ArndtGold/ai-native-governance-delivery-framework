@@ -1,0 +1,42 @@
+## Kurzfassung · UAT
+
+Run: `run-lifecycle-close-20261028-01` · Gate: `UAT` · Revision: `a43d787b-47aa-46fb-8421-cf3de8536b5b`
+
+- Ziel: Du kannst einen oder mehrere aktive Runs mit einer geprüften Entscheidung als `superseded` mit Nachfolger oder als `abandoned` mit Grund beenden. Jeder beendete Run behält alle Artefakte und seine Geschichte, trägt die Entscheidung als versiegelten, zuordenbaren Beleg, verschwindet aus allen Listen aktiver Runs und bleibt als Historie mit Ergebnis und Grund lesbar. Der Abschluss ist endgültig.
+- Geliefertes Ergebnis: Aktive Runs lassen sich über `run-close` und die `agdf_closeout`-Vorgänge `closure.preview` und `closure.apply` als `superseded` (geprüfte Run-ID oder ungeprüfter Verweis, mit Grund) oder `abandoned` (mit Grund) beenden; eine gespeicherte Vorschau mit Digest wird nur mit deinem genauen Satz `Close runs: <Vorschau-ID>` angewendet; jeder unveränderte Run erhält einen eigenen versiegelten Beleg mit Git-Identität; eine offene Wiederherstellung blockiert alles; beendete Runs lehnen jeden weiteren Schritt ab, erscheinen als Historie, und ihre Backlog-Zeile wandert ins Archiv; Verträge, READMEs und Handbuch beschreiben das. Alle neun Aufgaben und 28 Szenarien sind erfüllt, das unabhängige Code-Review ist nach Korrektur von sieben Befunden bestanden, die native Probe in Claude Code war erfolgreich.
+- Technische QA: pass
+- Nachweisgrenzen: Nativ beobachtet nur in Claude Code Desktop unter Windows; Codex, Copilot und OpenCode stützen sich auf die MCP-Protokolltests; die volle CI im Pull Request steht noch aus.
+- Risiken und offene Punkte: Im MCP-Byte-Budget bleiben etwa 100 Byte Luft; ältere AGDF-Laufzeiten lehnen die neue Belegart ab; wer die Vorschaudatei schreiben kann, könnte sie ändern, was der angezeigte Digest sichtbar macht, aber nicht verhindert.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 9
+
+- QA: .agdf/control/artefacts/run-lifecycle-close-20261028-01/QA_REPORT.md · sha256:c90e11e5c7cad90e2e4fba612a9699197f2a8622ff2c580df9946d25acb2c2ca
+- Review: .agdf/control/artefacts/run-lifecycle-close-20261028-01/TP_REVIEW.md · sha256:8a5ce6bdbafdba61d52be0ba01dc6371de7d661d5c4fe9e1385c963753beed77
+- Review: .agdf/control/artefacts/run-lifecycle-close-20261028-01/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:655df643a666726f0663ce6bdf9031e45e54c8a69633a795deef762e05a80b41
+- Review: .agdf/control/artefacts/run-lifecycle-close-20261028-01/CODE_REVIEW.md · sha256:641b1720c0f9db5db37e52e8f099a3f416eda0f2d7e9bce2ad2cd6f10330828e
+- UR: .agdf/control/artefacts/run-lifecycle-close-20261028-01/UR.md · sha256:bec18d50b2b71a37c7c1c6bfceecb0c675082d2900e045dbabf870259386dda1
+
+## Vorliegende UAT-Evidenz
+
+- UX Intent Definition · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- CR · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/run-lifecycle-close-20261028-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/run-lifecycle-close-20261028-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/PRD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Superseded PRD approval · Quelle: `Approval: PRD` · 2026-10-28 · revision 6 · `.agdf/control/artefacts/run-lifecycle-close-20261028-01/PRD.md` sha256:e18698da65ce9b20 · presentation 4f4e9ad1-dfd9-4769-a2d6-ef374658fcb7 sha256:d51a45c1d7e270927100108119c822953b983fd6a068cb4ec6dd8ea3bb3bf88e · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/PRD_MAPPING_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/SD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/TP_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-lifecycle-close-20261028-01/QA_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

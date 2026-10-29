@@ -48,7 +48,7 @@ const expectedCommands = [
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
-  "run-migrate", "run-recovery", "run-render-legacy",
+  "run-migrate", "run-recovery", "run-close", "run-render-legacy",
   "agdf-prepare", "agdf-record", "agdf-approve", "agdf-revise", "agdf-closeout",
 ];
 

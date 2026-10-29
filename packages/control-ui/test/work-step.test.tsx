@@ -71,3 +71,32 @@ it('shows an out-of-scope evaluation as unconfirmed without presenting the saved
  expect(screen.getAllByText('Nicht ausgewertet').length).toBeGreaterThan(0);
  expect(screen.getByText('evaluation_out_of_scope')).toBeTruthy();
 });
+it('an ended run shows its closure history from Core and offers no next delivery action',async()=>{
+ const { RunDetail } = await import('../src/RunDetail');
+ const closure={outcome:'superseded' as const,reason:'Replaced by the successor run',successor:{kind:'run' as const,value:'run-next',verified:true},
+   confirmed_by:{name:'Synthetic Owner',email:'owner@example.invalid',statement:'cooperative' as const},closed_at:'2026-10-28T10:00:00.000Z',operation_id:'00000000-0000-4000-8000-000000000001',receipt:'recorded' as const,authorizes:false as const};
+ const ended:Detail={...data,lifecycle:'superseded',closure,persisted:{...data.persisted!,decision:'superseded',next_allowed_action:'none, run ended'},
+   work_summary:{kind:'run_ended',phase:'CD+Tests',qa_outcome:'not_applicable',lifecycle:'superseded',recorded_approvals:['TP'],decisive_obligation:null,open_obligation_count:0,
+     display_action:'Run ended as superseded; start a new run to continue the work.',sources:[],limitations:[],authorizes:false},
+   evaluation:{...data.evaluation!,status:'closed',control_assessment:{state:'ended',authorizes:false},next_allowed_action:'Run ended as superseded; start a new run to continue the work.',
+     next_action_de:'Run als ersetzt beendet; für weitere Arbeit einen neuen Run starten.',next_operation:null,completion:{status:'superseded',gate:'OR',fulfilled:false},missing_evidence:[]}};
+ const envelope={schema_version:'1' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:ended};
+ expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:ended}})).not.toThrow();
+ for(const broken of [{...closure,outcome:'abandoned'},{...closure,authorizes:true},{...closure,successor:{kind:'reference',value:'PR',verified:true}},{...closure,receipt:'invented'}])
+   expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:{...ended,closure:broken}}})).toThrow('dto_invalid');
+ expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:{...ended,closure:null}}})).toThrow('dto_invalid');
+ render(<RunDetail result={envelope} onOpen={vi.fn()}/>);
+ expect(screen.getByText('Vorhaben beendet · Ersetzt')).toBeTruthy();
+ expect(screen.getByText('Replaced by the successor run')).toBeTruthy();expect(screen.getByText('run-next · geprüfte Run-ID')).toBeTruthy();
+ expect(screen.getByText('Synthetic Owner <owner@example.invalid> · kooperative Angabe')).toBeTruthy();expect(screen.getByText('2026-10-28T10:00:00.000Z')).toBeTruthy();
+ expect(screen.queryByText('Weiterarbeit offen')).toBeNull();expect(document.querySelector('.work-step-action')).toBeNull();
+ expect(screen.queryByText(/Die gespeicherte Angabe weicht von der Core-Auswertung ab/)).toBeNull();
+ expect(screen.queryByRole('region',{name:'Offene Aufgabe'})).toBeNull();
+ cleanup();
+ render(<WorkStep data={{...ended,lifecycle:'abandoned',closure:{...closure,outcome:'abandoned',successor:null,confirmed_by:{statement:'unknown'}}}}/>);
+ expect(screen.getByText('Vorhaben beendet · Beendet')).toBeTruthy();expect(screen.getByText('Kein Nachfolger')).toBeTruthy();
+ expect(screen.getByText('Unbekannt (keine lokale Git-Identität)')).toBeTruthy();
+ cleanup();
+ render(<WorkStep data={{...ended,closure:undefined}}/>);
+ expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();
+});

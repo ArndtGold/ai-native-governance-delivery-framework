@@ -692,6 +692,9 @@ assert.equal(reconciliation.matches[0].run_id, "beta-run");
 assert.equal(reconcileRunScope({ scopeKey: "Closed title", runs: [
   { run_id: "closed", valid: true, meta: { lifecycle: "completed", current_gate: "OR" }, ur_heading: "# Closed title" },
 ] }).outcome, "completed_match");
+for (const lifecycle of ["superseded", "abandoned"]) assert.equal(reconcileRunScope({ scopeKey: "Ended title", runs: [
+  { run_id: "ended", valid: true, meta: { lifecycle, current_gate: "PRD" }, ur_heading: "# Ended title" },
+] }).outcome, "completed_match", `${lifecycle} history never matches as active work`);
 const approvalTransitionForGate = (gate) => postApprovalTransition(`Approval: ${gate}`);
 let nativeCalls = 0;
 let fallbackCalls = 0;

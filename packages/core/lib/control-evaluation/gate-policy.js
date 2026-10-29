@@ -400,6 +400,11 @@ function semanticOperation(decision) {
 export function transitionDecisionForRunState(runState, verifiedChange = null) {
   const decision = gateDecisionForRunState(runState, verifiedChange);
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || runState.meta?.lifecycle || "unknown";
+  // A superseded or abandoned Run is final history: closed, nothing allowed, no next operation.
+  if (["superseded", "abandoned"].includes(lifecycle)) return { ...decision, status: "closed", missing_approval: "none", blocking_reason: "none",
+    allowed: [], forbidden: ["continue or reopen an ended Run"],
+    next_allowed_action: `Run ended as ${lifecycle}; start a new run to continue the work.`,
+    next_operation: null, completion: { status: lifecycle, gate: "OR", fulfilled: false } };
   if (runState.approval_material_findings?.length) return { ...decision, status: 'blocked', missing_approval: 'none', blocking_reason: 'approved_material_sources_changed',
     allowed: ['inspect the changed approved sources through their existing revision/recovery owner'], forbidden: [...decision.forbidden, 'continue from an unconfirmed old approval'],
     next_allowed_action: 'Resolve the changed approved material through its existing source/recovery owner; do not infer a fresh approval.',

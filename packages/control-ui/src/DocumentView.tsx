@@ -33,7 +33,8 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true 
   const presentation = documentPresentation(state, data?.resource.type ?? '', !!confirmed, !!approval);
   const assessment = bound && detail?.data ? observedAssessment(detail.data, !!confirmed) : 'unconfirmed';
   const assessmentName = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
-    : assessment === 'completed' ? 'Vorhaben abgeschlossen' : 'Aktuelle Voraussetzungen nicht bestätigt';
+    : assessment === 'completed' ? 'Vorhaben abgeschlossen'
+    : assessment === 'ended' && detail?.data?.closure ? `Vorhaben beendet · ${label(detail.data.closure.outcome)}` : 'Aktuelle Voraussetzungen nicht bestätigt';
   const summary = readable && data?.format === 'markdown' ? sourceSummary(data.content!) : null;
   return <>
     <section className="document-context" aria-label="Einordnung des Dokuments">

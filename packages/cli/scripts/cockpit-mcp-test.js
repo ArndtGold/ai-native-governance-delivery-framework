@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { withStdioClient } from '../../mcp-server/test/helpers.js';
 import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
 import { COCKPIT_UI_URI, COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
 import { evaluateGateCheck } from '../../core/lib/control-evaluation/gate-check.js';
-import { projectCockpitAssessment } from '../../core/lib/control-inspect/cockpit.js';
+import { projectCockpitAssessment, createCockpitReader } from '../../core/lib/control-inspect/cockpit.js';
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
+import { previewRunClosure, applyRunClosure } from '../../core/lib/control-state/run-closure.js';
 
 // Tests can qualify an independently prepared owned runtime without replacing a
 // runtime currently registered by the host. Startup still verifies its markers.
@@ -107,6 +110,42 @@ for (const modern of [false, true]) {
       assert.deepEqual((await client.listResources()).resources, [], 'Without a UI capability, the basic control connection advertises no rendered App resource.');
     });
   } finally { f.close(); }
+  // SCN-016, SCN-027: a closed Run is history with its receipt facts and its archive row.
+  const g = fixture();
+  try {
+  createRun(g.root, 'fixture-ended'); createRun(g.root, 'fixture-successor');
+  const backlogPath = join(g.root, '.agdf', 'control', 'MASTER_BACKLOG.md'), header = '|---:|---|---|---|---|---|---|\n';
+  writeFileSync(backlogPath, readFileSync(backlogPath, 'utf8').replace(header, `${header}| P1 | fixture-ended | Ended fixture work | Needs UR | | | Write the UR |\n`));
+  const closurePreview = previewRunClosure(g.root, { entries: [{ run_id: 'fixture-ended', outcome: 'superseded', reason: 'Replaced by the successor fixture', successor_run: 'fixture-successor' }] });
+  assert.equal(applyRunClosure(g.root, { previewId: closurePreview.preview_id, confirmation: closurePreview.confirmation_phrase },
+    { readIdentity: () => ({ name: 'Cockpit Owner', email: null, statement: 'cooperative' }) }).results[0].result, 'closed');
+  const expectEnded = (run, archive) => {
+    assert.equal(run.lifecycle, 'superseded'); assert.equal(run.evaluation.control_assessment.state, 'ended');
+    assert.equal(run.evaluation.next_operation, null); assert.deepEqual(run.evaluation.allowed, []);
+    assert.deepEqual({ ...run.closure, closed_at: Boolean(run.closure.closed_at), operation_id: Boolean(run.closure.operation_id) }, { outcome: 'superseded',
+      reason: 'Replaced by the successor fixture', successor: { kind: 'run', value: 'fixture-successor', verified: true },
+      confirmed_by: { name: 'Cockpit Owner', email: null, statement: 'cooperative' }, closed_at: true, operation_id: true, receipt: 'recorded', authorizes: false });
+    const row = archive.entries.find(entry => entry.key === 'fixture-ended');
+    assert.equal(row.section, 'Completed / Superseded Pointers'); assert.equal(row.stored_status, 'Superseded');
+    assert.equal(row.stored_next_step, 'Superseded by fixture-successor: Replaced by the successor fixture');
+    assert.equal(archive.entries.filter(entry => entry.key === 'fixture-ended').length, 1);
+  };
+  const reader = createCockpitReader(g.root);
+  expectEnded(reader.snapshot('fixture-ended').data.run, reader.snapshot().data);
+  assert.equal(createCockpitReader(g.root).snapshot('fixture-a').data.run.closure, null);
+    const endedBefore = treeBytes(g.root);
+    await withStdioClient({ modern, command: preparation.node,
+      args: [preparation.entrypoint, '--surface', 'codex', '--cockpit-dir', g.root] }, async client => {
+      const session_id = (await client.callTool({ name: 'agdf_cockpit', arguments: {} }))._meta.agdf_cockpit.session_id;
+      const read = args => client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id, ...args } });
+      const inventory = (await read({ operation: 'snapshot' })).structuredContent;
+      const detail = (await read({ operation: 'run', snapshot_id: inventory.snapshot_id, run_id: 'fixture-ended' })).structuredContent;
+      assert.equal(detail.state, 'available', JSON.stringify(detail).slice(0, 400));
+      expectEnded(detail.data.run, inventory.data);
+      await read({ operation: 'close' });
+    });
+    assert.deepEqual(treeBytes(g.root), endedBefore, 'The cockpit reads the ended run without writing');
+  } finally { g.close(); }
 }
 console.log(JSON.stringify({ status: 'pass', evidence_class: 'actual_stdio_protocol_not_host_ui', observations,
   server_digest: preparation.server_digest, ui_digest: preparation.ui.digest }));

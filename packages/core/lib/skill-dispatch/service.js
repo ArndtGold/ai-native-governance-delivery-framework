@@ -750,7 +750,7 @@ export function createSkillDispatchService(dependencies = {}) {
       const nextSkillId = control.status_card?.next_skill;
       const routeNextSkill = input.continue_delivery && !control.approval_presentation?.markdown
         && !control.completion?.fulfilled
-        && extractField(control.status_card?.runState?.content ?? "", "lifecycle") !== "completed"
+        && extractField(control.status_card?.runState?.content ?? "", "lifecycle") === "active"
         && nextSkillId && nextSkillId !== "none"
         && (control.current_gate !== "QA" || control.missing_approval === "Approval: QA");
       if (routeNextSkill) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get(nextSkillId) ?? skill;

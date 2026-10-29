@@ -47,6 +47,27 @@ Neue Arbeit verwendet nicht still den abgeschlossenen Zustand. Sie benötigt ein
 anderen ausdrücklich ausgewählten aktiven Run. Historische Evidenz kann verlinkt werden, ohne den
 abgeschlossenen Run umzuschreiben.
 
+## Runs ohne Lieferung beenden
+
+Nicht jeder Run wird geliefert. Wurde ein Vorhaben durch einen anderen Run ersetzt oder wird es
+nicht weiterverfolgt, beendest du ihn ausdrücklich:
+
+- **superseded**: ersetzt, mit Nachfolger und Grund. Der Nachfolger ist eine bestehende Run-ID oder
+  ein freier Verweis, etwa ein Pull Request, der als ungeprüft vermerkt wird.
+- **abandoned**: nicht weiterverfolgt, mit Grund.
+
+Der Ablauf hat zwei Schritte. Zuerst zeigt eine Vorschau jeden gewählten Run mit Gate, offenen
+Freigaben, letzter Aktivität und Warnungen; sie ändert nichts. Dann bestätigst du genau diese
+Vorschau mit dem Satz `Close runs: <preview_id>`. Ein Agent bereitet die Vorschau vor und reicht
+nur deine wörtliche Antwort weiter. Jeder Run, der sich seit der Vorschau nicht geändert hat, wird
+geschlossen und erhält einen eigenen Beleg mit Grund, Zeitpunkt und deiner Git-Identität. Das
+Ergebnis nennt jeden Run einzeln. Wartet irgendwo im Repository eine unterbrochene Schreiboperation
+auf Wiederherstellung, wird nichts geschlossen.
+
+Ein beendeter Run ist endgültig. Er verschwindet aus allen Listen aktiver Runs, bleibt als Historie
+lesbar und nimmt keine weiteren Schritte, Freigaben oder Fortsetzungen an. Soll die Arbeit doch
+weitergehen, legst du einen neuen Run an, der auf den alten verweisen kann.
+
 ## Wie die CLI einen Run auswählt
 
 Diese Auswahl brauchst du normalerweise nur, wenn mehrere Runs aktiv sind. Die Run-ID steht im

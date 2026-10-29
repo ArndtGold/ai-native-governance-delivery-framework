@@ -65,7 +65,7 @@ function journalState(root, runId, { readJournal } = {}) {
       || ![journal.request_digest, journal.preview_digest].every(value => DIGEST_PATTERN.test(value))
       || invalidJournalArchive(journal, runId))) throw recoveryError(runId);
   if (journal.schema_version === 3 && (!exactObject(journal, ["schema_version", "run_id", "operation_id", "old_revision_id", "next_revision_id", "old_run_digest", "backlog", "or", "kind", "target_id", "request_digest", "outputs", ...(journal.kind === "prd_revision.reopen" ? ["archive"] : [])])
-      || !["step.record", "artefact.record", "approval.record", "presentation_decision.record", "prd_revision.reopen", "closeout.record"].includes(journal.kind)
+      || !["step.record", "artefact.record", "approval.record", "presentation_decision.record", "prd_revision.reopen", "closeout.record", "lifecycle_close.record"].includes(journal.kind)
       || journal.or !== null || ![journal.operation_id, journal.old_revision_id, journal.next_revision_id].every(value => REVISION_ID_PATTERN.test(value))
       || !/^[a-f0-9]{64}$/u.test(journal.old_run_digest) || journal.target_id !== resolveControlCommandTarget(root).target_id
       || !DIGEST_PATTERN.test(journal.request_digest) || !validOwnedOutputs(runId, journal.outputs)
@@ -275,7 +275,7 @@ export function commitRunStepLocked(root, { runId, runPath, content, revisionId,
     if (or || history && operationContext.kind !== "prd_revision.reopen") throw recoveryError(runId);
     Object.assign(journal, { kind: operationContext.kind, target_id: operationContext.target_id, request_digest: operationContext.request_digest, outputs });
     // Validate the strict descriptor and ownership before publishing intent or any output.
-    const allowed = ["step.record", "artefact.record", "approval.record", "presentation_decision.record", "prd_revision.reopen", "closeout.record"];
+    const allowed = ["step.record", "artefact.record", "approval.record", "presentation_decision.record", "prd_revision.reopen", "closeout.record", "lifecycle_close.record"];
     if (!allowed.includes(journal.kind) || !REVISION_ID_PATTERN.test(journal.operation_id) || !DIGEST_PATTERN.test(journal.request_digest)
         || journal.target_id !== resolveControlCommandTarget(root).target_id || !validOwnedOutputs(runId, outputs)
         || journal.kind === "step.record" && outputs.some(row => row.path.endsWith("/OR.md"))

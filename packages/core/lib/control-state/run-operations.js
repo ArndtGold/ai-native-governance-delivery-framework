@@ -5,12 +5,21 @@ import { REVISION_ID_PATTERN, RUN_ID_PATTERN, APPROVAL_GATES } from './run-ident
 import { isSafeControlRelativePath } from './contained-file.js';
 
 const fields = ['schema_version', 'kind', 'operation_id', 'request_digest', 'target_id', 'run_id', 'expected_revision_id', 'created_at', 'producer', 'assurance', 'effect'];
-export const RUN_OPERATION_KINDS = Object.freeze(['step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record']);
+export const RUN_OPERATION_KINDS = Object.freeze(['step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record']);
+export const ENDED_LIFECYCLES = Object.freeze(['superseded', 'abandoned']);
 const uuid = value => typeof value === 'string' && REVISION_ID_PATTERN.test(value);
 const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
 const text = (value, max = 8192) => typeof value === 'string' && value.length <= max && !/\0/u.test(value);
 const source = (value, runId) => exactObject(value, ['path', 'digest']) && isSafeControlRelativePath(value.path)
   && value.path.startsWith(`.agdf/control/artefacts/${runId}/`) && hash(value.digest);
+// One trimmed table-safe line; closure texts reach the Evidence table and the backlog row.
+export const closureLine = (value, max) => text(value, max) && value.trim() === value && Boolean(value) && !/[|\u0000-\u001f\u007f]/u.test(value);
+const validSuccessor = (value, runId) => exactObject(value, ['kind', 'value', 'verified']) && (value.kind === 'run'
+  ? value.verified === true && RUN_ID_PATTERN.test(value.value) && value.value !== runId : value.kind === 'reference' && value.verified === false && closureLine(value.value, 512));
+// The confirming person is a cooperative local Git statement, never proof of a human identity.
+const validConfirmer = value => exactObject(value, ['statement']) ? value.statement === 'unknown'
+  : exactObject(value, ['name', 'email', 'statement']) && value.statement === 'cooperative' && (value.name !== null || value.email !== null)
+    && [value.name, value.email].every(item => item === null || closureLine(item, 256));
 function validRecord(receipt) {
   const r = receipt.effect.record;
   if (receipt.kind === 'step.record') return exactObject(r, ['step', 'source', 'status', 'covers', 'source_set_digest'])
@@ -24,6 +33,10 @@ function validRecord(receipt) {
   if (receipt.kind === 'closeout.record') return exactObject(r, ['or', 'lifecycle', 'context_evidence_digest', 'confirmation_digest'])
     && source(r.or, receipt.run_id) && r.or.path === `.agdf/control/artefacts/${receipt.run_id}/OR.md`
     && r.lifecycle === 'completed' && hash(r.context_evidence_digest) && hash(r.confirmation_digest);
+  if (receipt.kind === 'lifecycle_close.record') return exactObject(r, ['lifecycle', 'reason', 'successor', 'confirmed_by', 'preview'])
+    && ENDED_LIFECYCLES.includes(r.lifecycle) && closureLine(r.reason, 1024)
+    && (r.lifecycle === 'abandoned' ? r.successor === null : validSuccessor(r.successor, receipt.run_id)) && validConfirmer(r.confirmed_by)
+    && exactObject(r.preview, ['id', 'digest']) && /^[0-9a-f]{8}$/u.test(r.preview.id) && hash(r.preview.digest);
   if (receipt.kind === 'prd_revision.reopen') return exactObject(r, ['prd', 'archive', 'confirmation_digest']) && source(r.prd, receipt.run_id)
     && r.prd.path === `.agdf/control/artefacts/${receipt.run_id}/PRD.md`
     && exactObject(r.archive, ['path', 'digest']) && r.archive.path === `.agdf/control/runs/${receipt.run_id}/revisions/${receipt.operation_id}/manifest.json`
@@ -77,4 +90,30 @@ export function assertRunOperationsChange(current, candidate, appended) {
   const before = readRunOperations(current), after = readRunOperations(candidate);
   if (!before.valid || !after.valid || after.present !== (before.present || Boolean(appended))
     || canonicalJson(after.receipts) !== canonicalJson(appended ? [...before.receipts, appended] : before.receipts)) throw Error('AGDF_RUN_OPERATIONS_CHANGED');
+}
+
+// Lifecycle and closure facts of an ended Run. The sealed receipt is the record; a missing or
+// unreadable receipt still leaves the Run ended and is reported as unavailable.
+const lifecycleOf = content => String(content).match(/^- lifecycle:[ \t]*(\S+)[ \t]*\r?$/mu)?.[1] ?? null;
+export function runClosure(content) {
+  const lifecycle = lifecycleOf(content);
+  if (!ENDED_LIFECYCLES.includes(lifecycle)) return null;
+  const operations = readRunOperations(content), receipt = operations.valid ? operations.receipts.filter(row => row.kind === 'lifecycle_close.record').at(-1) : undefined;
+  const r = receipt?.effect.record;
+  return { outcome: lifecycle, closed_at: receipt?.created_at ?? null, reason: r?.reason ?? null, successor: r?.successor ?? null,
+    confirmed_by: r?.confirmed_by ?? null, operation_id: receipt?.operation_id ?? null, preview: r?.preview ?? null, receipt: receipt ? 'recorded' : 'unavailable' };
+}
+export const RUN_ENDED_NEXT_ACTION = 'Start a new run; it may reference the ended run.';
+export const closureSuccessorText = successor => successor ? ` by ${successor.value}${successor.verified ? '' : ' (unverified reference)'}` : '';
+// The archived backlog outcome of an ended Run: successor and reason, or the reason alone.
+export const closureOutcomeText = (outcome, successor, reason) => outcome === 'superseded'
+  ? `Superseded${closureSuccessorText(successor)}: ${reason ?? 'reason unavailable'}` : `Abandoned: ${reason ?? 'reason unavailable'}`;
+export const closureBacklogRecord = runId => `[RUN_STATE](runs/${runId}/RUN_STATE.md)`;
+export function endedRunMessage(runId, closure) {
+  const successor = closure.successor ? ` by ${closure.successor.value}${closure.successor.verified ? '' : ' (unverified reference)'}` : '';
+  return `Run ${runId} was closed as ${closure.outcome}${successor}${closure.closed_at ? ` on ${closure.closed_at.slice(0, 10)}` : ''}; it accepts no further delivery operation. ${RUN_ENDED_NEXT_ACTION}`;
+}
+export function assertRunNotEnded(content) {
+  const closure = runClosure(content);
+  if (closure) throw Object.assign(Error('AGDF_RUN_LIFECYCLE_ENDED'), { closure });
 }

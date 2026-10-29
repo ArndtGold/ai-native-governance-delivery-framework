@@ -3,7 +3,7 @@ import { canonicalJson } from "./approval-command-contract.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { exactApprovedArtefacts, validateBindingProof } from "./artefact-binding-proof.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
-import { readRun, appendTableRow, guardedWrite, rejected } from "./run-state-edits.js";
+import { readRun, appendTableRow, guardedWrite, rejected, endedRunRejection } from "./run-state-edits.js";
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { parseControlState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
@@ -18,6 +18,8 @@ export function correctRunRelationship(root, { runId, revisionId }, { evaluateGa
   const locked = guardedWrite(runId, () => withRunLock(runPath(root, runId), () => {
     const run = readRun(root, runId);
     if (run.rejection) return run.rejection;
+    const ended = endedRunRejection(runId, run.content);
+    if (ended) return ended;
     if (run.meta.revision_id !== revisionId) return rejected(runId, "stale_revision");
     if (runSealState(root, run.content).status !== "valid") return rejected(runId, "seal_invalid");
     const report = evaluateGateCheck(root, { runId });

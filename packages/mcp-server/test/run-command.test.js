@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { EventEmitter } from 'node:events';
@@ -47,7 +47,7 @@ for (const modern of [false, true]) {
         assert.deepEqual(tool.inputSchema, definition.inputSchema); assert.deepEqual(tool.annotations, definition.annotations);
       }
       const before = readFileSync(f.state, 'utf8');
-      const recoveryGroups = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['prd_revision.reopen'], agdf_closeout: ['closeout.record'] };
+      const recoveryGroups = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['prd_revision.reopen'], agdf_closeout: ['closeout.record', 'lifecycle_close.record'] };
       for (const [group, allowed] of Object.entries(recoveryGroups)) {
         const recovery = tools.find(tool => tool.name === group).inputSchema.properties.command.oneOf.find(row => row.properties.kind.const === 'operation.recover');
         assert.deepEqual(recovery.properties.payload.properties.original_kind.enum, allowed);
@@ -114,6 +114,71 @@ for (const modern of [false, true]) {
       const failure = initialRuntime.failure('dispatch_timeout', 'agdf_record', input);
       assert.equal(failure.outcome, 'effect_unknown'); assert.equal(failure.operation_id, input.operation_id);
       assert.equal(initialRuntime.failure('dispatch_busy', 'agdf_record', input, { dispatch: 'not_dispatched' }).outcome, 'rejected');
+    });
+  } finally { fixture.dispose(); }
+}
+// SCN-018, AC-013: closure.preview and closure.apply are target-scoped kinds of agdf_closeout;
+// every per-run kind still requires its Run binding. Only synthetic runs of the temporary copy are closed.
+{
+  const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
+  try {
+    const cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
+    mkdirSync(join(root, '.agdf', 'control', 'runs'), { recursive: true });
+    for (const id of ['mcp-close-a', 'mcp-close-b', 'mcp-close-c']) execFileSync(process.execPath, [cli, 'run-create', '--dir', root, '--run', id]);
+    const state = id => readFileSync(join(root, '.agdf', 'control', 'runs', id, 'RUN_STATE.md'), 'utf8');
+    const revision = id => state(id).match(/^- revision_id: (.+)$/mu)[1];
+    const previewsCreated = () => { try { return readdirSync(join(root, '.agdf', 'control', 'closure-previews')).length; } catch { return 0; } };
+    const envelope = { schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
+      target_id: resolveControlCommandTarget(root).target_id, assurance: 'cooperative_local' };
+    const entries = [{ run_id: 'mcp-close-a', outcome: 'superseded', reason: 'Replaced by c', successor_run: 'mcp-close-c' },
+      { run_id: 'mcp-close-b', outcome: 'abandoned', reason: 'Not continued' }];
+    await withStdioClient({ ...fixture, modern: true }, async client => {
+      const { tools } = await client.listTools();
+      assert.equal(tools.length, 7, 'The MCP tool count stays seven');
+      const closeout = tools.find(tool => tool.name === 'agdf_closeout');
+      assert.deepEqual(closeout.inputSchema.properties.command.oneOf.map(row => row.properties.kind.const), ['closeout.record', 'closure.preview', 'closure.apply', 'operation.recover']);
+      assert.ok(!closeout.inputSchema.required.includes('run_id') && !closeout.inputSchema.required.includes('expected_revision_id'));
+      assert.ok(Buffer.byteLength(JSON.stringify(commandGroupDefinition('agdf_closeout'))) <= 8192);
+      assert.ok(groups.reduce((sum, group) => sum + Buffer.byteLength(JSON.stringify(commandGroupDefinition(group))), 0) <= 24576);
+      for (const group of groups.filter(group => group !== 'agdf_closeout')) assert.ok(tools.find(tool => tool.name === group).inputSchema.required.includes('run_id'), group);
+      // Per-run kinds still need run_id and expected_revision_id; closure kinds refuse them.
+      const unbound = await client.callTool({ name: 'agdf_closeout', arguments: { ...envelope, operation_id: randomUUID(),
+        command: { kind: 'closeout.record', payload: { or: { path: '.agdf/control/artefacts/x/OR.md', digest: 'sha256:' + 'a'.repeat(64) }, confirmation: 'x' } } } });
+      // The adapter refuses at parse time with the same Core validation (field diagnostics: run-command-contract-test).
+      assert.equal(unbound.isError, true); assert.match(JSON.stringify(unbound.structuredContent), /command_schema_invalid/u);
+      const bound = await client.callTool({ name: 'agdf_closeout', arguments: { ...envelope, run_id: 'mcp-close-a', expected_revision_id: revision('mcp-close-a'),
+        operation_id: randomUUID(), command: { kind: 'closure.preview', payload: { entries } } } });
+      assert.equal(bound.isError, true); assert.match(JSON.stringify(bound.structuredContent), /command_schema_invalid/u);
+      assert.equal(previewsCreated(), 0, 'A refused call stores no preview');
+      const before = ['mcp-close-a', 'mcp-close-b'].map(state);
+      const preview = await client.callTool({ name: 'agdf_closeout', arguments: { ...envelope, operation_id: randomUUID(), command: { kind: 'closure.preview', payload: { entries } } } });
+      assert.equal(preview.structuredContent.outcome, 'accepted', JSON.stringify(preview).slice(0, 2000));
+      assert.deepEqual(preview.structuredContent.binding, { target_id: envelope.target_id, run_id: null, expected_revision_id: null, kind: 'closure.preview' });
+      assert.equal(preview.structuredContent.authorizes, false);
+      const family = preview.structuredContent.family_result;
+      assert.match(family.preview_id, /^[0-9a-f]{8}$/u);
+      assert.ok(family.text.includes(`reply exactly: Close runs: ${family.preview_id}`));
+      assert.ok(family.text.includes('cannot be reopened, and continuing the work needs a new run'));
+      assert.deepEqual(['mcp-close-a', 'mcp-close-b'].map(state), before);
+      const apply = confirmation => client.callTool({ name: 'agdf_closeout', arguments: { ...envelope, operation_id: randomUUID(),
+        command: { kind: 'closure.apply', payload: { preview_id: family.preview_id, confirmation } } } });
+      const wrong = await apply('Close runs');
+      assert.equal(wrong.isError, true); assert.equal(wrong.structuredContent.reason, 'confirmation_mismatch');
+      assert.deepEqual(['mcp-close-a', 'mcp-close-b'].map(state), before);
+      const applied = await apply(family.confirmation_phrase);
+      assert.equal(applied.structuredContent.outcome, 'accepted', JSON.stringify(applied).slice(0, 2000));
+      assert.deepEqual(applied.structuredContent.family_result.results.map(row => row.result), ['closed', 'closed']);
+      assert.ok(applied.structuredContent.family_result.text.includes('1. `mcp-close-a`: closed as superseded by mcp-close-c'));
+      assert.match(state('mcp-close-a'), /^- lifecycle: superseded$/mu); assert.match(state('mcp-close-b'), /^- lifecycle: abandoned$/mu);
+      // SCN-010 through MCP: an ended run rejects further delivery operations with its closure.
+      const closed = state('mcp-close-b');
+      const denied = await client.callTool({ name: 'agdf_prepare', arguments: { ...envelope, run_id: 'mcp-close-b', expected_revision_id: revision('mcp-close-b'),
+        operation_id: randomUUID(), command: { kind: 'presentation.prepare', payload: { gate: 'UR' } } } });
+      assert.equal(denied.isError, true); assert.equal(denied.structuredContent.reason, 'lifecycle_ended');
+      assert.equal(denied.structuredContent.family_result.closure.outcome, 'abandoned');
+      assert.equal(state('mcp-close-b'), closed);
+      const repeated = await apply(family.confirmation_phrase);
+      assert.deepEqual(repeated.structuredContent.family_result.results.map(row => row.result), ['already_closed', 'already_closed']);
     });
   } finally { fixture.dispose(); }
 }

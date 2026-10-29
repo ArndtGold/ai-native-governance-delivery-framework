@@ -4,6 +4,7 @@ import { runPath } from "./run-state-reader.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
 import { existsSync } from "node:fs";
 import { authoredGoal, isDecisionContentPlaceholder } from '../control-evaluation/decision-content-readiness.js';
+import { runClosure, endedRunMessage, RUN_ENDED_NEXT_ACTION } from './run-operations.js';
 
 // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
 // addressed section or table row and keep every other byte of the run state.
@@ -33,10 +34,18 @@ const WRITE_REJECTIONS = new Map([
   ["AGDF_RUN_STATE_INVALID", "run_state_invalid"],
   ["AGDF_ARTEFACT_ROW_DUPLICATE", "artefact_row_duplicate"],
   ["AGDF_RUN_STEP_RECOVERY_REQUIRED", "run_step_recovery_required"],
+  ["AGDF_RUN_LIFECYCLE_ENDED", "lifecycle_ended"],
 ]);
 
 export function rejected(runId, reason, details = {}) {
   return Object.freeze({ schema_version: "1", outcome: "rejected", run_id: runId ?? null, reason, ...details });
+}
+
+// Readable refusal for every operation on a superseded or abandoned Run; nothing is written.
+const endedDetails = (runId, closure) => ({ closure, message: endedRunMessage(runId, closure), next_action: RUN_ENDED_NEXT_ACTION });
+export function endedRunRejection(runId, content) {
+  const closure = runClosure(content);
+  return closure ? rejected(runId, "lifecycle_ended", endedDetails(runId, closure)) : null;
 }
 
 export function readRun(root, runId) {
@@ -72,6 +81,7 @@ export function guardedWrite(runId, write) {
       ...(error.lock_path ? { lock_path: error.lock_path } : {}),
       ...(error.pending_run_id ? { pending_run_id: error.pending_run_id } : {}),
       ...(error.committed_revision_id ? { committed: true, revision_id: error.committed_revision_id } : {}),
+      ...(error.closure ? endedDetails(runId, error.closure) : {}),
     }) };
   }
 }

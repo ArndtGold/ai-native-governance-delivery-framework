@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { firstSection, tableCells, tableLine, tableLineIndexes } from "./run-state-edits.js";
+import { firstSection, removeTableRows, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
+import { runClosure, closureOutcomeText, closureBacklogRecord } from "./run-operations.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 import { policyForRunContent } from "../control-evaluation/run-step-policy.js";
 import { runWorkSummary } from "../control-evaluation/run-work-summary.js";
@@ -33,8 +34,9 @@ export function backlogStatusForPolicy(after) {
   if (["Brownfield Analysis", "CD+Tests", "CR", "Quick Task Execution", "Verified Change Execution", "Mode/Slice Decision"].includes(after.current_gate)) return `${after.current_gate} work pending`;
   return "In Progress";
 }
-export const backlogStatusForSummary = (summary, after) =>
-  ["work_pending", "approval_pending", "closeout_pending"].includes(summary.kind)
+// An ended Run keeps its final archive status (Superseded or Abandoned) in every backlog section.
+export const backlogStatusForSummary = (summary, after) => summary.kind === "run_ended" ? (summary.lifecycle === "superseded" ? "Superseded" : "Abandoned")
+  : ["work_pending", "approval_pending", "closeout_pending"].includes(summary.kind)
     ? backlogStatusForPolicy(after) : summary.status_label;
 
 export function assertBacklogPath(root) {
@@ -70,6 +72,14 @@ export function prepareRunBacklog(root, runId, content, runPath, revisionId = pa
   const after = policyForRunContent(root, content, runPath);
   const summary = runWorkSummary(root, content, runPath, after);
   const status = backlogStatusForSummary(summary, after);
+  const closure = summary.kind === "run_ended" ? runClosure(content) : null;
+  if (closure) {
+    const moved = upsertTableRow(removeTableRows(old, "Active Backlog", 1, cells[1]) ?? old, "Completed / Superseded Pointers", 0, runId,
+      [runId, cells[2], status, closureBacklogRecord(runId), closureOutcomeText(closure.outcome, closure.successor, closure.reason)]);
+    if (moved === null) throw Error("AGDF_BACKLOG_LAYOUT_UNSUPPORTED");
+    const updated = recordBacklogSummary(root, moved, runId, "Completed / Superseded Pointers", summary, revisionId);
+    return { status: "updated", summary, update: { old, next: updated } };
+  }
   const next = summary.display_action;
   cells[3] = status; cells[width - 1] = next;
   lines[index] = tableLine(cells);

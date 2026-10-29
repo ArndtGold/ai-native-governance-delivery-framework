@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "created_at": "2026-10-29T07:09:00.789Z",
+  "target_id": "sha256:e9d382c3fc952d409b271c9c6c929417712cd620b270c3c9d2630af858604fbf",
+  "blocked": null,
+  "entries": [
+    {
+      "run_id": "probe-alpha",
+      "outcome": "abandoned",
+      "reason": "native Probe",
+      "successor": null,
+      "revision_id": "4842824c-2dcd-478b-b479-cca177b5053f",
+      "closable": true,
+      "not_closable": null,
+      "facts": {
+        "title": "Describe the trustworthy outcome.",
+        "lifecycle": "active",
+        "current_gate": "UR",
+        "approved_gates": [],
+        "open_approvals": [
+          "UR",
+          "PRD",
+          "SD",
+          "TP",
+          "QA",
+          "UAT"
+        ],
+        "last_activity": "2026-10-29T07:01:16.846Z",
+        "artefact_count": 0
+      },
+      "warnings": []
+    },
+    {
+      "run_id": "probe-beta",
+      "outcome": "superseded",
+      "reason": "native Probe",
+      "successor": {
+        "kind": "reference",
+        "value": "PR #41",
+        "verified": false
+      },
+      "revision_id": "744fd5a7-122c-4830-8743-57e8218a7820",
+      "closable": true,
+      "not_closable": null,
+      "facts": {
+        "title": "Describe the trustworthy outcome.",
+        "lifecycle": "active",
+        "current_gate": "UR",
+        "approved_gates": [],
+        "open_approvals": [
+          "UR",
+          "PRD",
+          "SD",
+          "TP",
+          "QA",
+          "UAT"
+        ],
+        "last_activity": "2026-10-29T07:01:17.498Z",
+        "artefact_count": 0
+      },
+      "warnings": [
+        "successor_unverified"
+      ]
+    }
+  ],
+  "preview_id": "68826cf4",
+  "preview_digest": "sha256:e250e4b4a43d613176a879574d681604d4208b36c3a4fd4768e718246d670fee"
+}

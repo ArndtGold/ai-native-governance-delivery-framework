@@ -10,6 +10,13 @@ contract/status reads, original-operation recovery and the app-only decision fac
 Host tool permission is separate from a deliberate gate decision. The source candidate's
 click actions remain disabled while native app-only mediation is unqualified.
 
+`agdf_closeout` also ends active runs as `superseded` or `abandoned`. Kind `closure.preview` takes
+`{"entries":[{"run_id","outcome","reason","successor_run"|"successor_reference"}]}` and returns the
+preview text with the phrase `Close runs: <preview_id>`; kind `closure.apply` takes `preview_id`
+and the owner's verbatim `confirmation`. Both use a target-bound envelope without `run_id` or
+`expected_revision_id`; every other `agdf_closeout` kind keeps the per-run envelope. The agent
+forwards only the owner's reply and never supplies the phrase itself.
+
 `agdf_inspect` also exposes read-only draft preflight through `operation: artifact-readiness`:
 
 ```json

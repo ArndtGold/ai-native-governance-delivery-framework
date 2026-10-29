@@ -430,7 +430,23 @@ agdf run-present --run <run_id> --gate <gate> --revision <revision_id>
 agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response "Approval: <gate>"
 agdf run-migrate [--run <run_id>]
 agdf run-render-legacy --run <run_id>
+agdf run-close --action preview --run <run_id> --outcome <superseded|abandoned> --reason "<text>" [--successor-run <run_id> | --successor-ref "<text>"]
+agdf run-close --action preview --closure-file <entries.json>
+agdf run-close --action apply --preview-id <preview_id> --confirmation "Close runs: <preview_id>"
 ```
+
+`run-close` ends active runs that will not be completed. The preview lists each run with its gate,
+open approvals, last activity, artefact count, outcome and warnings, stores an immutable file under
+`.agdf/control/closure-previews/` and changes no run. `--closure-file` takes
+`{"entries":[{"run_id","outcome","reason","successor_run"|"successor_reference"}]}`. `superseded`
+needs a successor: `--successor-run` must name an existing run, `--successor-ref` is a free
+reference recorded as unverified. Apply requires the exact phrase printed by the preview; each
+listed run that is still active, sealed and unchanged since the preview is closed with its own
+receipt, and the result names every run. A pending run-step recovery anywhere in the repository
+blocks the whole closure. The receipt records the local Git `user.name` and `user.email` as a
+cooperative statement (include directives are not followed; otherwise `unknown`). An ended run
+rejects every further run write, approval, presentation, revision, recovery and continuation; a
+closure cannot be reopened.
 
 `run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
 Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state

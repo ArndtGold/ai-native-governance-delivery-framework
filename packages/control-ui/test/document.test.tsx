@@ -62,3 +62,11 @@ it('ignores fenced, ambiguous and oversized summary declarations',()=>{
   expect(sourceSummary(content+'\n## AGDF Approval Summary (de; source=en)\n\nConflicting.')).toBeNull();
   expect(sourceSummary('## AGDF Approval Summary (de; source=en)\n\n'+'x'.repeat(1201))).toBeNull();
 });
+it('a document of an ended run names the closure instead of an open or unconfirmed step',()=>{
+  const closure={outcome:'abandoned' as const,reason:'Not continued',successor:null,confirmed_by:{statement:'unknown' as const},closed_at:'2026-10-28T10:00:00.000Z',operation_id:null,receipt:'recorded' as const,authorizes:false as const};
+  const ended={...detail,data:{...detail.data!,lifecycle:'abandoned',closure,persisted:{...detail.data!.persisted!,next_allowed_action:'none, run ended'},
+    evaluation:{...detail.data!.evaluation!,status:'closed',control_assessment:{state:'ended' as const,authorizes:false as const},next_allowed_action:'Run ended as abandoned; start a new run to continue the work.'}}};
+  render(<DocumentView result={result} detail={ended} onOpen={vi.fn()}/>);
+  expect(screen.getByText('Vorhaben beendet · Beendet')).toBeTruthy();
+  expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
+});

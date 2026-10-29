@@ -1,7 +1,7 @@
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { parseControlState, parseRunState } from "./run-state-parser.js";
-import { appendTableRow, firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, replaceSectionScalar, removeTableRows, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
+import { appendTableRow, endedRunRejection, firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, replaceSectionScalar, removeTableRows, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, listedArtefactPaths, pendingArtefactPaths, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
 import { withOwnedFileLock } from "./run-state-writer.js";
@@ -27,7 +27,7 @@ import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 import { sourceRevisionBoundary } from "./run-revision-boundary.js";
 import { readOperationSource } from './run-operation-proof.js';
 import { COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
-import { appendRunOperation, readRunOperations, earlyPrdConfirmation } from './run-operations.js';
+import { appendRunOperation, readRunOperations, earlyPrdConfirmation, assertRunNotEnded } from './run-operations.js';
 import { operationReceipt } from './run-operation-proof.js';
 import { readPendingRunStepJournal } from './run-step-transaction.js';
 import { earlyPrdRevisionBoundary } from './run-revision-boundary.js';
@@ -115,6 +115,7 @@ function prepareSourceRevision(root, input) {
   if (pendingRunStepIds(root).length) throw revisionError("run_step_recovery_required");
   const run = readRun(root, runId);
   if (run.rejection) throw revisionError(run.rejection.reason);
+  assertRunNotEnded(run.content);
   assertRunOperationIdentity(root, run, operationId, "source_revision.apply");
   if (run.meta.revision_id !== revisionId) throw revisionError("stale_revision");
   if (runSealState(root, run.content).status !== "valid") throw revisionError("seal_invalid");
@@ -259,6 +260,7 @@ export function applySourceRevision(root, input, { afterWrite } = {}) {
       return { outcome: "replayed", authorizes: false, run_id: runId, operation_id: operationId,
         resulting_revision_id: prior.resulting_revision_id, current_revision_id: run.meta.revision_id, historical_effect: true };
     }
+    assertRunNotEnded(run.content);
     const work = prepareSourceRevision(root, input);
     if (input.previewDigest !== work.previewDigest) throw revisionError("revision_preview_stale");
     if (input.commandContext && input.confirmation !== sourceRevisionConfirmation(input)) throw revisionError('confirmation_required', 'Obtain a deliberate confirmation of the exact current preview selector; host tool consent alone is insufficient.');
@@ -405,6 +407,7 @@ export function reopenPrdRevision(root, input, { afterWrite = () => {} } = {}) {
       if (previous.request_digest !== commandContext.request_digest) throw revisionError('operation_payload_conflict');
       return { schema_version: '1', outcome: 'replayed', run_id: runId, receipt: previous, historical_effect: true, authorizes: false };
     }
+    assertRunNotEnded(run.content);
     if (run.meta.revision_id !== revisionId) throw revisionError('stale_revision');
     if (runSealState(root, run.content).status !== 'valid') throw revisionError('seal_invalid');
     const prepared = earlyPrdReopenCandidate(root, run);
@@ -438,6 +441,8 @@ export function reopenPrdRevision(root, input, { afterWrite = () => {} } = {}) {
 function reopenPrdRevisionLegacy(root, { runId, revisionId }) {
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
+  const ended = endedRunRejection(runId, run.content);
+  if (ended) return ended;
   if (run.meta.revision_id !== revisionId) return rejected(runId, "stale_revision");
   if (runSealState(root, run.content).status !== "valid") return rejected(runId, "seal_invalid");
   const prepared = earlyPrdReopenCandidate(root, run);

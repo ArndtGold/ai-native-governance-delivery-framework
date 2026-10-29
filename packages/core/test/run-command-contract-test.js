@@ -4,7 +4,7 @@ const input = { schema_version: '1', presentation_language: 'de', working_direct
   target_id: 'sha256:' + 'a'.repeat(64), run_id: 'bounded-run', expected_revision_id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', operation_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', assurance: 'cooperative_local',
   command: { kind: 'approval.record', payload: { gate: 'TP', presentation_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', response: 'Approval: TP' } } };
 assert.deepEqual(validateRunCommand('agdf_approve', input), []);
-const recoveries = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['prd_revision.reopen'], agdf_closeout: ['closeout.record'] };
+const recoveries = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['prd_revision.reopen'], agdf_closeout: ['closeout.record', 'lifecycle_close.record'] };
 for (const [group, allowed] of Object.entries(recoveries)) {
   const definition = commandGroupSchema(group).properties.command.oneOf.find(row => row.properties.kind.const === 'operation.recover');
   assert.deepEqual(definition.properties.payload.properties.original_kind.enum, allowed);
@@ -31,6 +31,35 @@ for (const group of Object.keys(RUN_COMMAND_GROUPS)) {
   assert.equal(definition.annotations.idempotentHint, false); assert.equal(definition.annotations.openWorldHint, false);
 }
 assert.ok(aggregate < RUN_COMMAND_LIMITS.aggregate_definition_bytes);
+// Run closure: two target-scoped kinds of agdf_closeout; every per-run kind keeps its Run binding.
+const { run_id: _run, expected_revision_id: _revision, ...targetEnvelope } = input;
+const preview = { ...targetEnvelope, command: { kind: 'closure.preview', payload: { entries: [{ run_id: 'old-run', outcome: 'superseded', reason: 'Replaced', successor_run: 'new-run' },
+  { run_id: 'dropped-run', outcome: 'abandoned', reason: 'Not continued' }, { run_id: 'moved-run', outcome: 'superseded', reason: 'Moved', successor_reference: 'PR #41' }] } } };
+assert.deepEqual(validateRunCommand('agdf_closeout', preview), []);
+assert.deepEqual(validateRunCommand('agdf_closeout', { ...targetEnvelope, command: { kind: 'closure.apply', payload: { preview_id: '0a1b2c3d', confirmation: 'Close runs: 0a1b2c3d' } } }), []);
+assert.deepEqual(validateRunCommand('agdf_closeout', { ...preview, run_id: input.run_id }), [{ path: '$.run_id', code: 'field_forbidden' }]);
+assert.deepEqual(validateRunCommand('agdf_closeout', { ...preview, expected_revision_id: input.expected_revision_id }), [{ path: '$.expected_revision_id', code: 'field_forbidden' }]);
+const closeoutRecord = { ...input, command: { kind: 'closeout.record', payload: { or: { path: '.agdf/control/artefacts/bounded-run/OR.md', digest: 'sha256:' + 'e'.repeat(64) }, confirmation: 'x' } } };
+assert.deepEqual(validateRunCommand('agdf_closeout', closeoutRecord), []);
+assert.deepEqual(validateRunCommand('agdf_closeout', { ...closeoutRecord, run_id: undefined, expected_revision_id: undefined }).length > 0, true);
+const { run_id: _r, expected_revision_id: _e, ...unboundCloseout } = closeoutRecord;
+assert.deepEqual(validateRunCommand('agdf_closeout', unboundCloseout), [{ path: '$.run_id', code: 'field_required' }, { path: '$.expected_revision_id', code: 'field_required' }]);
+const recoveryWithoutRun = { ...targetEnvelope, command: { kind: 'operation.recover', payload: { original_kind: 'lifecycle_close.record', pending_digest: 'sha256:' + 'd'.repeat(64), recovery_revision_id: input.expected_revision_id } } };
+assert.equal(validateRunCommand('agdf_closeout', recoveryWithoutRun).length, 2, 'operation.recover keeps the Run binding');
+for (const group of Object.keys(RUN_COMMAND_GROUPS).filter(group => group !== 'agdf_closeout')) assert.ok(commandGroupSchema(group).required.includes('run_id'), group);
+assert.ok(!commandGroupSchema('agdf_closeout').required.includes('run_id'));
+for (const entries of [[], Array.from({ length: 65 }, (_, i) => ({ run_id: `run-${i}`, outcome: 'abandoned', reason: 'x' })),
+  [{ run_id: 'a', outcome: 'completed', reason: 'x' }], [{ run_id: 'a', outcome: 'abandoned' }], [{ run_id: 'a', outcome: 'abandoned', reason: 'x', approve: true }]])
+  assert.ok(validateRunCommand('agdf_closeout', { ...preview, command: { kind: 'closure.preview', payload: { entries } } }).length, JSON.stringify(entries).slice(0, 80));
+for (const payload of [{ preview_id: 'ABCDEFGH', confirmation: 'x' }, { preview_id: '0a1b2c3d' }, { preview_id: '0a1b2c3d', confirmation: 'x', run_id: 'a' }])
+  assert.ok(validateRunCommand('agdf_closeout', { ...targetEnvelope, command: { kind: 'closure.apply', payload } }).length);
+for (const kind of ['closure.preview', 'closure.apply']) {
+  const contract = operationContract('agdf_closeout', kind);
+  assert.equal(contract.available, true); assert.equal(contract.authorizes, false);
+  assert.ok(!Object.hasOwn(contract.schema.properties, 'run_id') && !contract.schema.required.includes('expected_revision_id'));
+  assert.equal(operationContract('agdf_record', kind).available, false);
+}
+assert.ok(operationContract('agdf_closeout', 'closeout.record').schema.required.includes('run_id'));
 const nonapproval = { ...input, command: { kind: 'presentation_decision.record', payload: {
   gate: 'TP', presentation_id: input.command.payload.presentation_id, action: 'request_change', comment: 'Approval: TP is a quotation.' } } };
 assert.deepEqual(validateRunCommand('agdf_record', nonapproval), []);

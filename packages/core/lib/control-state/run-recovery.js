@@ -1,4 +1,5 @@
 import { assertRecoveryOperationsTrusted } from "./run-state-writer.js";
+import { assertRunNotEnded } from "./run-operations.js";
 import { createHash, randomUUID } from "node:crypto";
 import {
   closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, writeFileSync, fsyncSync,
@@ -129,6 +130,7 @@ export function inspectRunRecovery(root, runId, { inspectHistory = true, readGit
   const content = readFileSync(path, "utf8");
   const state = parseRunState(content, runId);
   if (!state.valid) throw new Error("AGDF_RUN_STATE_INVALID");
+  assertRunNotEnded(content);
   if (state.meta.lifecycle !== "active") throw new Error("AGDF_RECOVERY_LIFECYCLE_UNSUPPORTED");
   if (duplicateArtefactRowTypes(content).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
   const seal = runSealState(root, content);

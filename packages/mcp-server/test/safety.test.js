@@ -85,6 +85,9 @@ const continuationWriteOwners = new Map([
   ["runtime/core/lib/control-state/preview-snapshot.js", ["writeFileSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/control-state/run-step-transaction.js", ["renameSync", "unlinkSync", "rmSync", "mkdirSync"]],
   ["runtime/core/lib/control-state/run-owned-outputs.js", ["unlinkSync"]],
+  // Closure previews: only the preview directory is created here; each preview file is
+  // published through run-state-writer atomicWrite under its exclusive owned-file lock.
+  ["runtime/core/lib/control-state/run-closure.js", ["mkdirSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],

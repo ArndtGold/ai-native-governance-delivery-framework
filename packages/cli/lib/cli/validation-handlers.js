@@ -32,6 +32,9 @@ import { policyForRunContent } from "#agdf-core/control-evaluation/run-step-poli
 import { cliGitObservation } from "../control-evaluation/git-observation.js";
 import { resolveRepositoryContext } from "../repository-context.js";
 import { applyRunRecovery, inspectRunRecovery, previewRunRecovery } from "../control-state/run-recovery.js";
+import { previewRunClosure, applyRunClosure } from "#agdf-core/control-state/run-closure.js";
+import { endedRunMessage } from "#agdf-core/control-state/run-operations.js";
+import { resolveConfiguredChatLanguage } from "#agdf-core/resources/context.js";
 
 const evaluateDoctorWithCliGit = (target, selection) => evaluateDoctor(target, selection, cliGitObservation);
 const evaluateGateWithCliGit = (target, selection) => evaluateGateCheck(target, selection, cliGitObservation);
@@ -227,9 +230,32 @@ export function createValidationHandlers(io = console) {
         return 0;
       } catch (error) {
         io.log(JSON.stringify({ schema_version: "1", outcome: "blocked", run_id: options.runId,
-          action: options.recoveryAction, reason: error instanceof Error ? error.message : String(error) }, null, 2));
+          action: options.recoveryAction, reason: error instanceof Error ? error.message : String(error),
+          ...(error?.closure ? { closure: error.closure, message: endedRunMessage(options.runId, error.closure) } : {}) }, null, 2));
         return 2;
       }
+    }],
+    ["run-close", (options) => {
+      // Like gate-check: an explicit --language wins, otherwise the repository chat language.
+      const language = options.languageExplicit ? options.language?.chat_language : resolveConfiguredChatLanguage(options.dir);
+      let result;
+      if (options.recoveryAction === "apply") {
+        result = applyRunClosure(options.dir, { previewId: options.recoveryPreviewId, confirmation: options.closureConfirmation, language }, { packageVersion: pluginDefinition.version });
+      } else {
+        let entries;
+        if (options.closureFile) {
+          try {
+            const stat = lstatSync(options.closureFile);
+            if (!stat.isFile() || stat.isSymbolicLink() || stat.size > RUN_COMMAND_LIMITS.input_bytes) throw Error("closure_file_invalid");
+            entries = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(readFileSync(options.closureFile)))?.entries;
+          } catch { io.error("closure_file_invalid: --closure-file must name a JSON file of at most 64 KiB with an entries array"); return 1; }
+        } else entries = [{ run_id: options.runId, outcome: options.closureOutcome, reason: options.stepFields.reason,
+          ...(options.successorRun !== undefined ? { successor_run: options.successorRun } : {}),
+          ...(options.successorReference !== undefined ? { successor_reference: options.successorReference } : {}) }];
+        result = previewRunClosure(options.dir, { entries, language });
+      }
+      io.log(options.json ? JSON.stringify(result, null, 2) : result.text);
+      return result.outcome === "rejected" ? 2 : 0;
     }],
     ["delivery-path-search", async (options) => {
       try {

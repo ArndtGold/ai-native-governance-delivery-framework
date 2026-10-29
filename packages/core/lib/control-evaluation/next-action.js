@@ -23,7 +23,9 @@ export function storedNextActionStale(runState, decision) {
 }
 
 // A stored next step refines the evaluated gate unless it is a stale generated step.
+// An ended Run stores the marker "none, run ended"; its evaluated next step names the outcome.
 export function storedNextActionApplies(runState, decision) {
+  if (["superseded", "abandoned"].includes(extractField(runState.content ?? "", "lifecycle"))) return false;
   return !isPlaceholderValue(runState.next_allowed_action) && !storedNextActionStale(runState, decision);
 }
 

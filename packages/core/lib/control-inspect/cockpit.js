@@ -17,6 +17,7 @@ import { canonicalJson } from '../control-state/approval-command-contract.js';
 import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactReadiness } from './artifact-readiness.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
+import { runClosure, ENDED_LIFECYCLES } from '../control-state/run-operations.js';
 
 const CONTROL = '.agdf/control/';
 const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
@@ -29,11 +30,18 @@ function boundedCode(error) {
   return ['resource_denied', 'source_changed', 'timeout', 'resource_limit', 'read_failed'].includes(error.code) ? error.code : 'read_failed';
 }
 const objective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
+// History of an ended Run, read only from its sealed closure receipt; null for every other Run.
+export function projectRunClosure(content) {
+  const closure = runClosure(content);
+  return closure && { outcome: closure.outcome, reason: closure.reason, successor: closure.successor, confirmed_by: closure.confirmed_by,
+    closed_at: closure.closed_at, operation_id: closure.operation_id, receipt: closure.receipt, authorizes: false };
+}
 
 // Read-only projection of the evaluated decision, never a second gate evaluator.
 // Doctor warnings are already considered by evaluateGateCheck; they are not a UI veto.
 export function projectCockpitAssessment(report, lifecycle) {
-  const state = lifecycle === 'completed' ? report.completion?.fulfilled === true ? 'completed' : 'unconfirmed'
+  const state = ENDED_LIFECYCLES.includes(lifecycle) ? 'ended'
+    : lifecycle === 'completed' ? report.completion?.fulfilled === true ? 'completed' : 'unconfirmed'
     : lifecycle !== 'active' ? 'unconfirmed'
     : report.status === 'blocked' || (report.blocking_reason && report.blocking_reason !== 'none')
       || (report.missing_approval && report.missing_approval !== 'none') ? 'blocked'
@@ -132,7 +140,7 @@ export function createCockpitReader(root, options = {}) {
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
-      work_summary, backlog_comparison: { state: comparison, reason: comparison_reason,
+      closure: projectRunClosure(run.content), work_summary, backlog_comparison: { state: comparison, reason: comparison_reason,
         saved_revision_id: saved?.revision_id ?? null, authorizes: false },
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
       objective: objective(run.content), title: resolveHumanRunTitle({

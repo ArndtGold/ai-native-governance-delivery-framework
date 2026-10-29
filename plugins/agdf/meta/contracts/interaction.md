@@ -457,6 +457,11 @@ Before presenting `gate_approval`, the agent must:
    work even when it awaits evidence, approval, or repair; it is not evidence that a previous gate was
    approved. Stop at the next decision or blocker in the same turn. Do not wait for “continue”.
 
+A run closure follows the same deliberate-reply rule without being a gate approval. Show the
+returned `run-close` or `closure.preview` text verbatim, wait for the owner's reply and apply only
+with that verbatim reply as the confirmation; the agent never supplies `Close runs: <preview_id>`
+itself, and the receipt records the same cooperative assurance as an approval.
+
 For a ready `gate_approval`, interaction kind and native capability are separate. Evaluate callability,
 deliberate wait safety and canonical approval-value transport before invocation. `native_attempt_required`
 is true only when current evidence proves `exact_option_value` or `separate_label_and_value` transport

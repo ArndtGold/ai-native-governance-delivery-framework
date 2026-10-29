@@ -1,4 +1,4 @@
-import { assertRunOperationsChange, validRunOperation } from "./run-operations.js";
+import { assertRunOperationsChange, assertRunNotEnded, validRunOperation } from "./run-operations.js";
 import { assertEvidenceBindingsChange, validEvidenceBinding } from './evidence-bindings.js';
 import { validateEarlyPrdHistory, validEarlyPrdEffect, earlyPrdHistoryReference } from './run-revision-history.js';
 import { assertApprovalOperationsChange, readApprovalOperations, validApprovalReceipt } from "./approval-operations.js";
@@ -309,6 +309,8 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
     const currentContent = readFileSync(path, "utf8");
     const current = parseRunState(currentContent);
     if (!current.valid) throw new Error("AGDF_RUN_STATE_INVALID");
+    // A superseded or abandoned Run is final; its own closure write starts from active.
+    assertRunNotEnded(currentContent);
     if (current.meta.revision_id !== expectedRevisionId
         || (expectedContent !== undefined && currentContent !== expectedContent)) {
       throw new Error("AGDF_STALE_RUN_REVISION");
@@ -433,6 +435,7 @@ export function writeRunRecoveryLocked(path, candidateContent, {
   const current = parseRunState(currentContent);
   if (!current.valid) throw new Error("AGDF_RUN_STATE_INVALID");
   if (current.meta.run_id !== basename(dirname(path))) throw new Error("AGDF_RUN_PATH_INVALID");
+  assertRunNotEnded(currentContent);
   if (current.meta.lifecycle !== "active") throw new Error("AGDF_RECOVERY_LIFECYCLE_UNSUPPORTED");
   if (current.meta.revision_id !== expectedRevisionId || currentContent !== expectedContent) {
     throw new Error("AGDF_STALE_RUN_REVISION");

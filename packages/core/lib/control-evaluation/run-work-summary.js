@@ -22,13 +22,14 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
     sources: [], limitations: [], authorizes: false };
   summary.evidence_applicability = Object.fromEntries(['current', 'superseded', 'applicability_unknown'].map(group => [group,
     state.evidence_applicability[group].map(row => ({ path: row.report?.path ?? row.source, step: row.step ?? null, reason: row.reason, available: row.available }))]));
-  if (lifecycle === 'completed') summary.kind = decision.completion?.fulfilled ? 'completed' : 'unconfirmed';
+  if (['superseded', 'abandoned'].includes(lifecycle)) { summary.kind = 'run_ended'; summary.display_action = decision.next_allowed_action; }
+  else if (lifecycle === 'completed') summary.kind = decision.completion?.fulfilled ? 'completed' : 'unconfirmed';
   else if (decision.status === 'blocked') summary.kind = 'unconfirmed';
   else if (decision.current_gate === 'OR') summary.kind = 'closeout_pending';
   else if (decision.missing_approval !== 'none') summary.kind = 'approval_pending';
   const qa = state.artefacts.get('QA');
   const structured = ['structured_slice', 'structured_delivery'].includes(modeSliceDecision(state));
-  const qaRelevant = structured && (qa?.path || ['QA', 'UAT', 'OR'].includes(decision.current_gate));
+  const qaRelevant = summary.kind !== 'run_ended' && structured && (qa?.path || ['QA', 'UAT', 'OR'].includes(decision.current_gate));
   const unconfirmed = reason => { summary.kind = 'source_unconfirmed'; summary.limitations.push(reason);
     summary.display_action = decision.next_allowed_action; };
   if (qaRelevant) {

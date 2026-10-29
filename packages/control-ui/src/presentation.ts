@@ -1,4 +1,4 @@
-import type { Run, Detail } from './types';
+import type { Run, Detail, RunClosure } from './types';
 import { label } from './feedback';
 
 // Display wording only. Core owns evaluation, permission and source identity.
@@ -23,6 +23,8 @@ export const documentPurpose = (type?: string) => type ? documents[type]?.[1] ??
 // Presentation of the existing Core assessment, never a second gate evaluator.
 export function observedAssessment(data: Detail, current: boolean) {
   const e = data.evaluation;
+  // An ended Run stores "none, run ended"; Core evaluates its outcome. Both describe the same final history.
+  if (current && e?.control_assessment?.state === 'ended' && data.closure && (!data.persisted || data.persisted.current_gate === e.current_gate)) return 'ended';
   const matches = !data.persisted || data.persisted.current_gate === e?.current_gate && data.persisted.next_allowed_action === e?.next_allowed_action;
   return current && matches ? e?.control_assessment?.state ?? 'unconfirmed' : 'unconfirmed';
 }
@@ -51,6 +53,10 @@ export function runAttention(run: Run): string[] {
   if (run.attention.missing_evidence_count) result.push(`${run.attention.missing_evidence_count} offene Nachweise`);
   return result.length ? result : ['Keine offenen Punkte ausgewiesen'];
 }
+export const closurePerson = (closure: RunClosure) => !closure.confirmed_by || closure.confirmed_by.statement === 'unknown' ? 'Unbekannt (keine lokale Git-Identität)'
+  : `${[closure.confirmed_by.name, closure.confirmed_by.email && `<${closure.confirmed_by.email}>`].filter(Boolean).join(' ')} · kooperative Angabe`;
+export const closureSuccessor = (closure: RunClosure) => !closure.successor ? 'Kein Nachfolger'
+  : `${closure.successor.value}${closure.successor.verified ? ' · geprüfte Run-ID' : ' · ungeprüfter Verweis'}`;
 export const runStatus = (run: Run) => !run.valid || run.code ? 'Quelle prüfen' : run.lifecycle !== 'active' ? label(run.lifecycle) : label(run.status);
 export function reportFindingsLabel(count: number) {
   return `${count} ${count === 1 ? 'offener Berichtsbefund' : 'offene Berichtsbefunde'}`;

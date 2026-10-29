@@ -301,7 +301,8 @@ export function reconcileRunScope({ requestText = "", scopeKey = "", runs = [] }
   const requested = normalizeReconciliationText(scopeKey || requestText);
   if (!requested) return Object.freeze({ outcome: "match_uncertain", matches: [], reason: "scope_input_missing" });
   const matches = [...(runs ?? [])]
-    .filter((run) => run?.valid && ["active", "completed"].includes(run?.meta?.lifecycle) && typeof run.run_id === "string")
+    // A superseded or abandoned Run is history like a completed one: it can match, never as active work.
+    .filter((run) => run?.valid && ["active", "completed", "superseded", "abandoned"].includes(run?.meta?.lifecycle) && typeof run.run_id === "string")
     .filter((run) => {
       const keys = [run.scope_key, run.display_title, run.current_artefact_heading, run.ur_heading]
         .map(normalizeReconciliationText)

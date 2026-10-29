@@ -1,0 +1,21 @@
+# SCN-012 before: node packages/core/test/run-lifecycle-guard-test.js against the unchanged writer
+# git HEAD: af0634d39aac070ffbd0e2af77aec3f0fd2591e6; captured 2026-10-28T14:24:28Z
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Missing expected exception: writeRunLocked must refuse a superseded Run
+    at file:///C:/Workspace/ai-native-governance-delivery-framework/packages/core/test/run-lifecycle-guard-test.js:24:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: /AGDF_RUN_LIFECYCLE_ENDED/u,
+  operator: 'throws',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+# exit code: 1

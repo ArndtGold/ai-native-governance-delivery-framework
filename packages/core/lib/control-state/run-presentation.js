@@ -6,7 +6,7 @@ import { fsyncDirectory } from "./run-state-writer.js";
 import { dirname, join } from "node:path";
 import { TextDecoder } from 'node:util';
 import { runPath } from "./run-state-reader.js";
-import { readRun, rejected } from "./run-state-edits.js";
+import { readRun, rejected, endedRunRejection } from "./run-state-edits.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
 import { hash } from "./run-presentation-render.js";
 import { resolveControlCommandTarget } from './approval-command-contract.js';
@@ -101,6 +101,8 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
           text, summary, companion_text: companion, historical_effect: true, next_action: text ? "Show the exact current text before waiting for a new deliberate reply." : "Observe current control; this historical preparation cannot authorize a current decision." });
       }
     }
+    const current = readRun(root, runId), ended = current.rejection ? null : endedRunRejection(runId, current.content);
+    if (ended) return ended;
     const prepared = binding(root, input, evaluateGateCheck);
     const dir = join(checkedRunDirectory(root, runId), "presentations");
     try { mkdirSync(dir); } catch (error) { if (error.code !== "EEXIST") throw error; }

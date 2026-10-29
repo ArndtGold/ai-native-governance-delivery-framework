@@ -112,13 +112,20 @@ export const graphReferences = (v: unknown) => Array.isArray(v) && v.length <= 6
   && ['node_id', 'graph_digest', 'content_digest', 'content', 'code'].every(k => nullableText(r[k]))
   && ['available', 'unresolved', 'missing', 'blocked', 'unsupported'].includes(String(r.state))
   && (r.state !== 'available' || text(r.node_id) && text(r.content_digest) && text(r.graph_digest) && text(r.content)));
+const closureData = (value: unknown, lifecycle: unknown): boolean => value === undefined || value === null && !['superseded', 'abandoned'].includes(String(lifecycle))
+  || object(value) && value.outcome === lifecycle && ['superseded', 'abandoned'].includes(String(value.outcome)) && nullableText(value.reason)
+    && (value.successor === null || object(value.successor) && ['run', 'reference'].includes(String(value.successor.kind)) && text(value.successor.value)
+      && value.successor.verified === (value.successor.kind === 'run'))
+    && (value.confirmed_by === null || object(value.confirmed_by) && (value.confirmed_by.statement === 'unknown'
+      || value.confirmed_by.statement === 'cooperative' && nullableText(value.confirmed_by.name) && nullableText(value.confirmed_by.email)))
+    && nullableText(value.closed_at) && nullableText(value.operation_id) && ['recorded', 'unavailable'].includes(String(value.receipt)) && value.authorizes === false;
 const detailData = (data: unknown, allowInvalid = false): boolean => {
   if (!object(data) || !text(data.run_id) || !nullableText(data.revision_id) || !nullableText(data.lifecycle)
     || !Array.isArray(data.resources) || !resources(data.resources) || data.resources.some((r: unknown) => !object(r) || r.run_id !== data.run_id)
     || data.title !== undefined && !text(data.title) || data.diagnostics !== undefined && !diagnostics(data.diagnostics)
     || data.work_summary !== undefined && data.work_summary !== null && !workSummary(data.work_summary, data.run_id)
     || data.draft_check !== undefined && !validDraftCheck(data.draft_check, data.run_id, data.revision_id)
-    || !validDocumentStates(data)
+    || !validDocumentStates(data) || !closureData(data.closure, data.lifecycle)
     || data.evidence_applicability !== undefined && !evidenceAssociations(data.evidence_applicability)
     || data.backlog_comparison !== undefined && !(object(data.backlog_comparison)
       && ['matching', 'different', 'unavailable'].includes(String(data.backlog_comparison.state))
@@ -127,10 +134,10 @@ const detailData = (data: unknown, allowInvalid = false): boolean => {
   const e = data.evaluation, p = data.persisted;
   return object(e) && ['status', 'current_gate', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'doctor_status', 'git_evidence'].every(k => text(e[k]))
     && (e.next_operation === undefined || e.next_operation === null || nextOperation(e.next_operation))
-    && (e.completion === undefined || object(e.completion) && ['pending', 'completed', 'unconfirmed'].includes(String(e.completion.status))
+    && (e.completion === undefined || object(e.completion) && ['pending', 'completed', 'unconfirmed', 'superseded', 'abandoned'].includes(String(e.completion.status))
       && text(e.completion.gate) && typeof e.completion.fulfilled === 'boolean' && (e.completion.status === 'completed') === e.completion.fulfilled)
     && nullableText(e.next_action_de) && diagnostics(e.diagnostics) && Array.isArray(e.missing_evidence)
-    && (e.control_assessment === undefined || object(e.control_assessment) && ['open', 'blocked', 'unconfirmed', 'completed'].includes(String(e.control_assessment.state)) && e.control_assessment.authorizes === false)
+    && (e.control_assessment === undefined || object(e.control_assessment) && ['open', 'blocked', 'unconfirmed', 'completed', 'ended'].includes(String(e.control_assessment.state)) && e.control_assessment.authorizes === false)
     && Array.isArray(e.approvals) && e.approvals.every(a => object(a) && ['gate', 'status', 'evidence'].every(k => text(a[k])))
     && object(p) && ['current_gate', 'next_allowed_action', 'decision'].every(k => text(p[k]));
 };

@@ -73,6 +73,7 @@ export function parseArgs(argv, dependencies = {}) {
   let recoveryAction;
   let recoveryPreviewId;
   let recoveryConfirmation;
+  let closureFile, closureOutcome, successorRun, successorReference, closureConfirmation;
   const stepFields = {};
   let allActive = false;
   let scope;
@@ -171,6 +172,16 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (["--closure-file", "--outcome", "--successor-run", "--successor-ref", "--confirmation"].includes(arg)) {
+      const value = requiredValue(args, i, arg);
+      if (arg === "--closure-file") closureFile = resolve(cwd, value);
+      else if (arg === "--outcome") closureOutcome = value;
+      else if (arg === "--successor-run") successorRun = value;
+      else if (arg === "--successor-ref") successorReference = value;
+      else closureConfirmation = value;
+      i += 1;
+      continue;
+    }
     if (arg === '--retire-cockpit' || arg === '--restore-cockpit') {
       const value = requiredValue(args, i, arg);
       if (retireCockpit !== undefined || restoreCockpit !== undefined) throw new CliUsageError('Cockpit transition selector may not repeat');
@@ -340,6 +351,9 @@ export function parseArgs(argv, dependencies = {}) {
   if (revisionMode && ["--dir", "--run", "--revision", "--operation", "--source-gate", "--evidence", "--preview-digest"].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError("Source revision identity and evidence flags may not repeat");
   }
+  if (target === "run-close" && ["--action", "--run", "--outcome", "--reason", "--successor-run", "--successor-ref", "--closure-file", "--preview-id", "--confirmation"].some(flag => flagCounts.get(flag) > 1)) {
+    throw new CliUsageError("run-close fields may not repeat");
+  }
   if ((retireCockpit !== undefined || restoreCockpit !== undefined)
     && ['--dir', '--surface', '--scope', '--evidence'].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError('Cockpit transition identity and evidence flags may not repeat');
@@ -393,6 +407,11 @@ export function parseArgs(argv, dependencies = {}) {
       recoveryAction,
       recoveryPreviewId,
       recoveryConfirmation,
+      ...(closureFile !== undefined ? { closureFile } : {}),
+      ...(closureOutcome !== undefined ? { closureOutcome } : {}),
+      ...(successorRun !== undefined ? { successorRun } : {}),
+      ...(successorReference !== undefined ? { successorReference } : {}),
+      ...(closureConfirmation !== undefined ? { closureConfirmation } : {}),
       stepFields,
       allActive,
       scope,

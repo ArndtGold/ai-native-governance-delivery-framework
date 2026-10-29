@@ -20,7 +20,7 @@ const enumeration = values => ({ enum: [...values] });
 export const strictObject = (properties, required = Object.keys(properties)) => ({ type: 'object', additionalProperties: false, properties, required });
 const source = strictObject({ path: string(), digest: hash });
 const recoveryGroups = Object.freeze({ 'step.record': 'agdf_record', 'artefact.record': 'agdf_record',
-  'presentation_decision.record': 'agdf_record', 'prd_revision.reopen': 'agdf_revise', 'closeout.record': 'agdf_closeout' });
+  'presentation_decision.record': 'agdf_record', 'prd_revision.reopen': 'agdf_revise', 'closeout.record': 'agdf_closeout', 'lifecycle_close.record': 'agdf_closeout' });
 const recovery = strictObject({ original_kind: enumeration(Object.keys(recoveryGroups)), pending_digest: hash, recovery_revision_id: identity });
 const recordStep = { oneOf: [
   strictObject({ step: { const: 'ur' }, source, title: string(1024) }),
@@ -39,6 +39,12 @@ const spec = (group, payload, owner, effects, confirmation = 'authorized_recordi
 const proposal = strictObject({ source_gate: enumeration(['UR', 'PRD', 'SD', 'TP']), proposal: source });
 const apply = strictObject({ ...proposal.properties, preview_digest: hash, confirmation: string(8192) });
 const closeout = strictObject({ or: source, confirmation: string(8192) });
+const runId = { type: 'string', pattern: RUN_ID_PATTERN.source };
+// Reason and reference lengths are bounded by run-closure.js; the schema keeps only the shape.
+const text = { type: 'string', minLength: 1 };
+const closureEntry = strictObject({ run_id: runId, outcome: enumeration(['superseded', 'abandoned']), reason: text, successor_run: runId, successor_reference: text }, ['run_id', 'outcome', 'reason']);
+// Closure decides over several Runs of one target: its envelope omits run_id and expected_revision_id.
+export const TARGET_SCOPED_COMMAND_KINDS = Object.freeze(['closure.preview', 'closure.apply']);
 const descriptors = {
   'runtime_generation.replace': spec('agdf_record', strictObject({ candidate: source, confirmation: string(256) }), 'owned-runtime-generation.replace', ['replace only the serving facade own runtime; no Run or gate write'], 'concrete_candidate_digest'),
   'presentation.prepare': spec('agdf_prepare', strictObject({ gate: enumeration(APPROVAL_GATES) }), 'run-presentation.prepareRunPresentation', ['create immutable exact presentation'], 'no_gate_approval'),
@@ -52,15 +58,17 @@ const descriptors = {
   'source_revision.apply': spec('agdf_revise', apply, 'run-revision.applySourceRevision', ['archive selected material; invalidate affected decisions; reopen earliest source'], 'exact_material_confirmation'),
   'source_revision.recover': spec('agdf_revise', strictObject({ proposal: source, source_gate: enumeration(['UR', 'PRD', 'SD', 'TP']), recovery_revision_id: identity, pending_digest: hash }), 'run-revision.recoverSourceRevision', ['recover original bounded source revision'], 'original_confirmed_effect'),
   'prd_revision.reopen': spec('agdf_revise', strictObject({ prd: source, confirmation: string(8192) }), 'run-revision.reopenPrdRevision', ['reopen existing early PRD boundary preserving history'], 'exact_material_confirmation'),
-  'closeout.record': spec('agdf_closeout', closeout, 'run-steps.recordRunStep', ['publish exact OR; complete selected Run; synchronize selected backlog'], 'exact_material_confirmation'),
-  'operation.recover': { ...spec(null, recovery, 'run-step-transaction.recoverPendingRunStep', ['recover original bounded owned outputs and selected backlog'], 'original_confirmed_effect'), groups: ['agdf_record', 'agdf_revise', 'agdf_closeout'] },
+  'closeout.record': spec('agdf_closeout', closeout, 'run-steps.recordRunStep', ['publish exact OR; complete Run; sync backlog'], 'exact_material_confirmation'),
+  'closure.preview': spec('agdf_closeout', strictObject({ entries: { type: 'array', minItems: 1, maxItems: 64, items: closureEntry } }), 'run-closure.previewRunClosure', ['no run_id/revision; show text verbatim'], 'no_mutation'),
+  'closure.apply': spec('agdf_closeout', strictObject({ preview_id: { type: 'string', pattern: '^[0-9a-f]{8}$' }, confirmation: string(256) }), 'run-closure.applyRunClosure', ["no run_id/revision; owner's verbatim reply; final"], 'exact_owner_phrase'),
+  'operation.recover': { ...spec(null, recovery, 'run-step-transaction.recoverPendingRunStep', ['recover the original pending operation'], 'original_confirmed_effect'), groups: ['agdf_record', 'agdf_revise', 'agdf_closeout'] },
 };
 function freeze(value) { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
 export const RUN_COMMAND_DESCRIPTORS = freeze(descriptors);
 export const RUN_COMMAND_GROUPS = freeze({
   agdf_prepare: ['presentation.prepare'], agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record', 'runtime_generation.replace', 'operation.recover'],
   agdf_approve: ['approval.record'], agdf_revise: ['source_revision.preview', 'source_revision.apply', 'source_revision.recover', 'prd_revision.reopen', 'operation.recover'],
-  agdf_closeout: ['closeout.record', 'operation.recover'],
+  agdf_closeout: ['closeout.record', 'closure.preview', 'closure.apply', 'operation.recover'],
 });
 const envelope = {
   schema_version: { const: RUN_COMMAND_VERSION }, presentation_language: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE },
@@ -75,17 +83,17 @@ function payloadSchema(group, kind) {
 }
 // Canonical help is shared by expanded Core validation and operation help.
 const fieldHelp = Object.freeze({
-  schema_version: 'Contract version 1.',
-  presentation_language: 'Response BCP 47 language, e.g. de.',
-  working_directory: 'Absolute task directory for target resolution.',
-  target_source: 'Human task basis for this target; cwd alone is not authority.',
-  primary_target: 'Confirmed absolute target from resolution.',
-  target_id: 'Exact hash from current MCP target inspection; never guess.',
-  run_id: 'Scope-matching Run from inspection; recency is not authority.',
-  expected_revision_id: 'Current inspected revision; recovery retains original binding.',
-  operation_id: 'New command UUID; after handoff reuse original UUID/exact payload.',
-  assurance: 'Cooperative intent, not human proof or approval.',
-  command: 'Kind/payload; nested help: operation-contract.',
+  schema_version: 'Contract v1.',
+  presentation_language: 'Reply language (BCP 47).',
+  working_directory: 'Absolute task directory.',
+  target_source: 'Human target basis; cwd is no authority.',
+  primary_target: 'Confirmed absolute target.',
+  target_id: 'Exact hash from target inspection; never guess.',
+  run_id: 'Run from inspection; recency is no authority.',
+  expected_revision_id: 'Inspected revision; recovery keeps original.',
+  operation_id: 'New UUID; retry with same UUID/payload.',
+  assurance: 'Cooperative intent, not human proof.',
+  command: 'Kind and payload; help: operation-contract.',
   path: 'Contained Run-local source path; read the actual file before recording.',
   digest: 'Canonical SHA-256 of the exact source bytes; never guess or reseal unrelated edits.',
   gate: 'Exact gate named by current control, not permission to advance it.',
@@ -109,9 +117,12 @@ function commandSchema(group) {
   return { oneOf: RUN_COMMAND_GROUPS[group].map(kind => strictObject({ kind: { const: kind },
     payload: { ...payloadSchema(group, kind), description: RUN_COMMAND_DESCRIPTORS[kind].effects.join('; ') } })) };
 }
+const runFields = ['run_id', 'expected_revision_id'];
+const envelopeKeys = scoped => [...Object.keys(envelope).filter(key => !scoped || !runFields.includes(key)), 'command'];
 export function commandGroupSchema(group) {
   if (!RUN_COMMAND_GROUPS[group]) throw Error('command_group_unsupported');
-  return describeFields(strictObject({ ...envelope, command: commandSchema(group) }));
+  // Core validation requires the Run binding for every per-run kind of a group with target-scoped kinds.
+  return describeFields(strictObject({ ...envelope, command: commandSchema(group) }, envelopeKeys(RUN_COMMAND_GROUPS[group].some(kind => TARGET_SCOPED_COMMAND_KINDS.includes(kind)))));
 }
 // Repeated immutable schema nodes become deterministic local references. Only
 // schema positions are traversed: a properties map is never itself a schema.
@@ -161,7 +172,7 @@ const nullableString = { type: ['string', 'null'] };
 const resultProperties = {
   schema_version: { const: '1' }, outcome: enumeration(['accepted', 'already_applied', 'rejected', 'recovery_required', 'effect_unknown']), authorizes: { const: false },
   reason: { ...nullableString, minLength: 1 }, operation_id: { ...identity, type: ['string', 'null'] }, request_digest: { ...hash, type: ['string', 'null'] },
-  binding: { ...nullableObject, properties: { target_id: hash, run_id: envelope.run_id, expected_revision_id: identity, kind: string() }, required: ['target_id', 'run_id', 'expected_revision_id', 'kind'] },
+  binding: { ...nullableObject, properties: { target_id: hash, run_id: { ...envelope.run_id, type: ['string', 'null'] }, expected_revision_id: { ...identity, type: ['string', 'null'] }, kind: string() }, required: ['target_id', 'run_id', 'expected_revision_id', 'kind'] },
   receipt: nullableObject, effect: nullableObject,
   current: { ...nullableObject, properties: { available: { type: 'boolean' }, revision: { type: 'integer' }, revision_id: identity }, required: ['available'] },
   assurance: { ...openObject, properties: Object.fromEntries(Object.entries(COOPERATIVE_ASSURANCE).map(([key, value]) => [key, { const: value }])), required: Object.keys(COOPERATIVE_ASSURANCE) }, family_result: openObject,
@@ -192,7 +203,7 @@ export function commandResultSchema() {
 export function validateRunCommandResult(value) { return schemaDiagnostics(value, RUN_COMMAND_RESULT_SCHEMA); }
 export function commandGroupDefinition(group) {
   const definition = { name: group,
-    description: `${group}: ${RUN_COMMAND_GROUPS[group]?.join(', ')}. Inspect operation-contract for payloads/bindings. Cooperative intent never approves a gate. After uncertainty inspect operation-status with original UUID/payload. No VCS.`,
+    description: `${group}: ${RUN_COMMAND_GROUPS[group]?.join(', ')}. Payloads: operation-contract. Never approves a gate. If uncertain: operation-status with original UUID/payload. No VCS.`,
     annotations: { readOnlyHint: false, destructiveHint: group !== 'agdf_prepare', idempotentHint: false, openWorldHint: false },
     inputSchema: compactCommandSchema(commandGroupSchema(group)), outputSchema: commandResultSchema() };
   if (Buffer.byteLength(JSON.stringify(definition)) > RUN_COMMAND_LIMITS.definition_bytes) throw Error('command_definition_budget_exceeded');
@@ -213,6 +224,7 @@ export function schemaDiagnostics(value, schema, path = '$') {
   if (schema.type === 'boolean' && typeof value !== 'boolean') errors.push({ path, code: 'boolean_required' });
   if (schema.type === 'array') {
     if (!Array.isArray(value)) return [...errors, { path, code: 'array_required' }];
+    if (schema.minItems !== undefined && value.length < schema.minItems || schema.maxItems !== undefined && value.length > schema.maxItems) errors.push({ path, code: 'array_length_invalid' });
     for (let i = 0; i < value.length; i++) {
       const field = Object.getOwnPropertyDescriptor(value, String(i));
       if (!field || !Object.hasOwn(field, 'value')) errors.push({ path, code: 'accessor_forbidden' });
@@ -247,13 +259,15 @@ export function validateRunCommand(group, input) {
   if (Buffer.byteLength(canonicalJson(input)) > RUN_COMMAND_LIMITS.input_bytes) return [{ path: '$', code: 'command_input_budget_exceeded' }];
   const kind = input.command.kind;
   if (kind === 'operation.recover' && group !== recoveryGroups[input.command.payload.original_kind]) return [{ path: '$.command.payload.original_kind', code: 'command_group_effect_mismatch' }];
-  return [];
+  const scoped = TARGET_SCOPED_COMMAND_KINDS.includes(kind);
+  return runFields.filter(key => Object.hasOwn(input, key) === scoped).map(key => ({ path: `$.${key}`, code: scoped ? 'field_forbidden' : 'field_required' }));
 }
 export const runCommandRequestDigest = input => digest(`agdf-run-command/1\0${canonicalJson(input)}`);
 export function operationContract(group, kind, { gate } = {}) {
   if (!RUN_COMMAND_GROUPS[group]?.includes(kind)) return { available: false, reason: 'command_group_unsupported' };
   return { schema_version: RUN_COMMAND_VERSION, available: true, group, kind, ...RUN_COMMAND_DESCRIPTORS[kind], payload_schema: payloadSchema(group, kind),
-    schema: describeFields(strictObject({ ...envelope, command: strictObject({ kind: { const: kind }, payload: { ...payloadSchema(group, kind), description: RUN_COMMAND_DESCRIPTORS[kind].effects.join('; ') } }) })), result_schema: RUN_COMMAND_RESULT_SCHEMA, retry_class: 'inspect_original_operation_after_dispatch', assurance: 'cooperative_local',
+    schema: describeFields(strictObject({ ...Object.fromEntries(Object.entries(envelope).filter(([key]) => !TARGET_SCOPED_COMMAND_KINDS.includes(kind) || !runFields.includes(key))),
+      command: strictObject({ kind: { const: kind }, payload: { ...payloadSchema(group, kind), description: RUN_COMMAND_DESCRIPTORS[kind].effects.join('; ') } }) })), result_schema: RUN_COMMAND_RESULT_SCHEMA, retry_class: 'inspect_original_operation_after_dispatch', assurance: 'cooperative_local',
     reference_limits: { input_bytes: RUN_COMMAND_LIMITS.input_bytes, source_file_bytes: 131072, result_bytes: RUN_COMMAND_LIMITS.result_bytes },
     internal_result_formats: kind === 'step.record' ? { 'UX Intent Definition': UX_DECISION_FORMAT,
       reviews: { declaration: '- decision: pass | revise | block | not_applicable', result_scope: 'actual current owner report; no generated judgement or approval' } } : undefined,

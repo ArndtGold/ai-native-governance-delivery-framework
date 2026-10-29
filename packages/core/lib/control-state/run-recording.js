@@ -11,7 +11,7 @@ import { storedNextActionStale } from "../control-evaluation/next-action.js";
 import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
 import { backlogSkip } from "./run-backlog.js";
 import { runPath } from "./run-state-reader.js";
-import { projectUrObjective } from './run-state-edits.js';
+import { projectUrObjective, endedRunRejection } from './run-state-edits.js';
 import { readFileSync } from 'node:fs';
 import { containedRegularFile } from './contained-file.js';
 
@@ -124,6 +124,8 @@ export function recordRunRevision(root, { runId, revisionId }) {
       revision: run.meta.revision, revision_id: run.meta.revision_id, run_state: "unchanged", backlog: synced.state.backlog,
       ...backlogSkip({ status: synced.state.backlog, reason: synced.state.backlog_reason }) });
   }
+  const ended = endedRunRejection(runId, run.content);
+  if (ended) return ended;
   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
   if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
   let content = refreshMovedGateFields(root, run.content, run.path);
@@ -153,6 +155,8 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
   if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
+  const ended = endedRunRejection(runId, run.content);
+  if (ended) return ended;
   const state = prepareRunContentState(root, run.content, run.path);
   const material = decisionMaterial(root, state, gate);
   const decided = presentationDecisionState(root, state, gate);

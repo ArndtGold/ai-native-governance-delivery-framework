@@ -2,7 +2,7 @@
 language: en
 chapter_role: index
 translation_of: ../de/README.md
-source_revision: sha256:24dbb11de34e168d0fca8c75959c361b8f97e23ff738856b686c234ad9212128
+source_revision: sha256:473096d82164812e737e59f91cff34a2c0c54869eb3cacb393c5780025523b90
 translation_status: reviewed
 ---
 
@@ -59,6 +59,34 @@ Continue with the chapter that matches your question:
 4. [Multiple runs](04-multiple-runs.md) — parallel work, run selection and what runs do—or do not—isolate
 5. [Closeout and delivery](05-closeout-and-delivery.md) — reviews, QA, UAT, Git and release boundaries
 6. [Troubleshooting](06-troubleshooting.md) — activation, ambiguity, missing approvals and drift
+
+## Reading paths by role
+
+Not every role needs every chapter:
+
+- **You work with a coding agent:** [Quickstart](01-quickstart.md),
+  [Common workflows](03-common-workflows.md) and [Multiple runs](04-multiple-runs.md); when
+  something goes wrong, [Troubleshooting](06-troubleshooting.md).
+- **You give approvals, for example as product owner or tech lead:**
+  [Gates and approvals](02-gates-and-approvals.md) and
+  [Closeout and delivery](05-closeout-and-delivery.md).
+- **You check results in review or QA:** [Gates and approvals](02-gates-and-approvals.md),
+  [Closeout and delivery](05-closeout-and-delivery.md) and the
+  [evidence reading guide](../../architecture/lesestand-und-nachweise.md) (German).
+- **You install or operate AGDF:** [Installation](../../../INSTALL.md), then
+  [Troubleshooting](06-troubleshooting.md).
+
+## For technically interested readers
+
+This handbook deliberately stays with working through the agent. To go deeper:
+
+- The [developer introduction](../../architecture/entwickler-einstieg.md) (German) for system
+  structure, code entry points and the path from request to code.
+- The [AGDF CLI README](../../../packages/cli/distribution/agdf/README.md) for all commands,
+  including the run commands from `run-create` to `run-close`.
+- The [control scaffold](../../../plugins/agdf/control/README.md) for the structure and seal of
+  `RUN_STATE.md`.
+- The [Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md) for the normative rules.
 
 ## What this handbook does not replace
 

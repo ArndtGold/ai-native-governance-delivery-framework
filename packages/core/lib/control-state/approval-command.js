@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { prepareGateApproval } from "./run-recording.js";
 import { validateRunPresentationRecord } from './run-presentation.js';
-import { readRun } from "./run-state-edits.js";
+import { readRun, endedRunRejection } from "./run-state-edits.js";
 import { parseControlState, parseRunState } from "./run-state-parser.js";
 import { runSealState } from "./run-seal.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
@@ -80,6 +80,8 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
         flush(path);
         return result("already_applied", null, existing);
       }
+      const ended = endedRunRejection(command.run_id, run.content);
+      if (ended) return result("rejected", ended.reason, null, { closure: ended.closure, message: ended.message, next_action: ended.next_action });
       const prepared = prepareGateApproval(target.root, {
         runId: command.run_id, gate: command.gate, revisionId: command.expected_revision_id,
         presentationId: command.presentation_id, response: command.response,

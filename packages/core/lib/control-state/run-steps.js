@@ -3,7 +3,7 @@ import { policyForRunContent as policyForDecision } from '../control-evaluation/
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
-import { appendRunOperation, readRunOperations } from "./run-operations.js";
+import { appendRunOperation, readRunOperations, closureSuccessorText, closureOutcomeText, closureBacklogRecord } from "./run-operations.js";
 import { readOperationSource, operationSourceSetDigest, operationSources, operationReceipt, internalStepEligibility, reviewCorrectionRefusal, reviewCorrectionAvailable } from "./run-operation-proof.js";
 import { appendEvidenceBinding, evidenceSourceSetDigest, CORRECTABLE_REVIEWS } from './evidence-bindings.js';
 import { reviewFindingDiagnostics } from '../control-evaluation/normalized-gaps.js';
@@ -22,6 +22,7 @@ import {
   guardedWrite,
   readRun,
   rejected,
+  endedRunRejection,
   removeTableRows,
   replaceFirstScalar,
   replaceSectionScalar,
@@ -57,6 +58,10 @@ import { readReportDecision } from '../control-evaluation/report-decision.js';
 // pointer and the policy-derived next action so no hand edit of the control state is needed.
 export const RUN_STEPS = Object.freeze(["ur", "route", "review", "evidence", "closeout", "artefact", "internal"]);
 export const RUN_STEP_ROUTES = Object.freeze(["quick_task", "verified_change", "structured_slice", "structured_delivery", "block"]);
+// Internal steps are reachable only from their owning Core operation, never from run-step or step.record.
+const INTERNAL_STEP_KINDS = Object.freeze({ lifecycle_close: "lifecycle_close.record" });
+const knownStep = (step, operationContext) => RUN_STEPS.includes(step) || Object.hasOwn(INTERNAL_STEP_KINDS, step) && INTERNAL_STEP_KINDS[step] === operationContext?.kind;
+export const RUN_CLOSED_NEXT_ACTION = "none, run ended";
 const REVIEW_DECISIONS = new Set(["pass", "revise", "block"]);
 const NEXT_GATE_BY_ROUTE = Object.freeze({
   quick_task: "Quick Task Execution",
@@ -148,8 +153,11 @@ function prepareBacklog(root, key, { title, status, links, next, closeout }) {
     : undefined;
   const rowTitle = oneLine(title) || existing?.[2] || key;
   if (closeout) {
+    const archived = firstSection(lines, "Completed / Superseded Pointers");
+    // A closure moves only an existing pointer; a Run without a row stays unlinked.
+    if (closeout.linkedOnly && !existing && !(archived && tableLineIndexes(lines, archived).slice(2).some(index => tableCells(lines[index])[0]?.replaceAll("`", "").trim() === key))) return { status: "unlinked", update: null };
     text = removeTableRows(text, "Active Backlog", 1, existing?.[1] ?? key) ?? text;
-    text = upsertTableRow(text, "Completed / Superseded Pointers", 0, key, [key, rowTitle, "Completed", closeout.record, oneLine(closeout.outcome)]);
+    text = upsertTableRow(text, "Completed / Superseded Pointers", 0, key, [key, rowTitle, closeout.status ?? "Completed", closeout.record, oneLine(closeout.outcome)]);
   } else {
     text = upsertTableRow(text, "Active Backlog", 1, existing?.[1] ?? key, [
       existing?.[0] || "P1",
@@ -195,9 +203,26 @@ function closeoutRecord({ title, runId, date, result, evidence, risk, next }) {
   ].join("\n");
 }
 
+// A closure must never stop on the derived pointer: every backlog problem becomes a reported skip.
+function closureBacklogPlan(root, key, backlog, summary, nextRevisionId) {
+  try {
+    assertBacklogPath(root);
+    const plan = prepareBacklog(root, key, backlog);
+    if (plan.status === "missing") return { status: "skipped", reason: "backlog_missing", update: null };
+    if (["layout_legacy", "layout_unsupported"].includes(plan.status)) return { status: "skipped", reason: `backlog_${plan.status}`, update: null };
+    if (plan.update) plan.update.next = recordBacklogSummary(root, plan.update.next, key, "Completed / Superseded Pointers", summary, nextRevisionId);
+    return plan;
+  } catch (error) {
+    const reason = { AGDF_BACKLOG_PATH_INVALID: "backlog_path_invalid", AGDF_BACKLOG_IDENTITY_AMBIGUOUS: "backlog_identity_ambiguous",
+      AGDF_BACKLOG_LAYOUT_UNSUPPORTED: "backlog_layout_unsupported", AGDF_BACKLOG_SUMMARY_INVALID: "backlog_summary_invalid" }[error?.message];
+    if (!reason) throw error;
+    return { status: "skipped", reason, update: null };
+  }
+}
+
 function recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion }) {
   const { runId, revisionId, step } = input;
-  if (!RUN_STEPS.includes(step)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
+  if (!knownStep(step, operationContext)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
   if (operationContext) {
@@ -211,6 +236,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
         receipt: previous.original ?? previous, revision_id: run.meta.revision_id, authorizes: false };
     }
   }
+  const ended = endedRunRejection(runId, run.content);
+  if (ended) return ended;
   if (run.meta.revision_id !== revisionId) return rejected(runId, "stale_revision");
 
   const key = runId;
@@ -234,7 +261,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     return null;
   };
 
-  if (operationContext && step !== "internal" && step !== "artefact" && step !== "closeout") {
+  if (operationContext && !["internal", "artefact", "closeout", "lifecycle_close"].includes(step)) {
     if (!input.sourceBinding || control.meta.lifecycle !== "active") return rejected(runId, "operation_source_required");
     operationSource = readOperationSource(root, runId, input.sourceBinding);
     const canonicalFile = { ur: "UR.md", route: "BROWNFIELD_REVIEW.md", review: INTERNAL_STEP_FILES.CR }[step];
@@ -250,7 +277,21 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       status: step === "review" && input.decision !== "pass" ? input.decision : "done", covers: oneLine(input.covers) || "selected Run scope",
       source_set_digest: operationSourceSetDigest(root, control, step) };
   }
-  if (step === "internal") {
+  if (step === "lifecycle_close") {
+    // Only an active, validly sealed Run closes; the closure keeps its gate and every artefact byte.
+    const closure = input.closure;
+    if (control.meta.lifecycle !== "active") return rejected(runId, "not_active");
+    if (runSealState(root, run.content).status !== "valid") return rejected(runId, "seal_invalid");
+    for (const fn of [value => replaceFirstScalar(value, "lifecycle", closure.lifecycle), value => replaceFirstScalar(value, "decision", closure.lifecycle)]) {
+      const failed = edit(fn); if (failed) return failed;
+    }
+    const successor = closureSuccessorText(closure.successor);
+    const confirmer = closure.confirmed_by.statement === "unknown" ? "unknown person" : [closure.confirmed_by.name, closure.confirmed_by.email && `<${closure.confirmed_by.email}>`].filter(Boolean).join(" ");
+    known = `Run closed as ${closure.lifecycle}${successor}: ${closure.reason}`;
+    evidenceRow = ["Run closure", `preview ${closure.preview.id}`, `${closure.lifecycle}${successor}; reason: ${closure.reason}; confirmed by ${confirmer}`, "cooperative local confirmation"];
+    operationRecord = closure;
+    backlog = { closeout: { linkedOnly: true, record: closureBacklogRecord(key), outcome: closureOutcomeText(closure.lifecycle, closure.successor, closure.reason) } };
+  } else if (step === "internal") {
     const ux = input.internalStep === 'UX Intent Definition';
     if (!operationContext || !internalStepEligibility(control, before, input, root) || !(ux ? ['ready', 'blocked', 'not_applicable'] : ["pass", "revise", "block", "not_applicable"]).includes(input.decision)
         || ["CD+Tests", "CR", "TP Review", "Clean Implementation Review"].includes(input.internalStep) && input.decision === "not_applicable"
@@ -436,13 +477,14 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
   }
   const after = policy(root, text, run.path, { proposedArtefacts });
   const approvedGates = APPROVAL_GATES.filter((gate) => parseControlState(text, { userGates: APPROVAL_GATES }).approvals.get(gate)?.status === "approved");
+  const closing = step === "lifecycle_close", nextAction = closing ? RUN_CLOSED_NEXT_ACTION : after.next_allowed_action;
   for (const fn of [
-    (value) => replaceFirstScalar(value, "current_gate", after.current_gate),
-    (value) => replaceFirstScalar(value, "next_allowed_action", after.next_allowed_action),
+    (value) => closing ? value : replaceFirstScalar(value, "current_gate", after.current_gate),
+    (value) => replaceFirstScalar(value, "next_allowed_action", nextAction),
     (value) => upsertTableRow(value, "Current Control State", 0, "What is known?", ["What is known?", known]),
     (value) => upsertTableRow(value, "Current Control State", 0, "What is approved?", ["What is approved?", approvedGates.length ? approvedGates.map((gate) => `Approval: ${gate}`).join(", ") : "Nothing yet."]),
     (value) => upsertTableRow(value, "Current Control State", 0, "What is missing?", ["What is missing?", after.missing_approval !== "none" ? `Exact ${after.missing_approval}.` : "No approval is pending."]),
-    (value) => upsertTableRow(value, "Current Control State", 0, "What is the next allowed action?", ["What is the next allowed action?", after.next_allowed_action]),
+    (value) => upsertTableRow(value, "Current Control State", 0, "What is the next allowed action?", ["What is the next allowed action?", nextAction]),
     (value) => upsertTableRow(value, "Current Control State", 0, "What is explicitly forbidden right now?", ["What is explicitly forbidden right now?", after.forbidden.join("; ") || "none"]),
   ]) {
     const failed = edit(fn);
@@ -452,15 +494,16 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
   // Owned outputs are published before the precommit source check, so the summary reads them as proposed.
   const summary = runWorkSummary(root, text, run.path, after, { proposed: new Map([...proposedArtefacts].map(([path, row]) => [path, row.content])) });
   const statusLabel = backlogStatusForSummary(summary, after);
-  let backlogPlan = backlog
-    ? prepareBacklog(root, key, { ...backlog, status: statusLabel, links: backlogLinks(text), next: summary.display_action })
+  if (closing) backlog.closeout.status = statusLabel;
+  let backlogPlan = closing ? closureBacklogPlan(root, key, { ...backlog, links: backlogLinks(text), next: summary.display_action }, summary, nextRevisionId)
+    : backlog ? prepareBacklog(root, key, { ...backlog, status: statusLabel, links: backlogLinks(text), next: summary.display_action })
     : prepareRunBacklog(root, key, text, run.path, nextRevisionId);
   // Legacy rows keep their title and per-gate link columns. Status and next step still follow
   // the Run where the row exists; a closeout move is left to the maintainer.
   if (backlogPlan.status === "layout_legacy") backlogPlan = { ...(backlog.closeout ? { status: "skipped", update: null }
     : prepareRunBacklog(root, key, text, run.path, nextRevisionId)), reason: "backlog_layout_legacy" };
   if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
-  if (backlog && backlogPlan.update) backlogPlan.update.next = recordBacklogSummary(root, backlogPlan.update.next, key,
+  if (backlog && !closing && backlogPlan.update) backlogPlan.update.next = recordBacklogSummary(root, backlogPlan.update.next, key,
     backlog.closeout ? "Completed / Superseded Pointers" : "Active Backlog", summary, nextRevisionId);
   const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update || operationContext)
     ? commitRunStepLocked(root, {
@@ -484,8 +527,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     previous_revision_id: revisionId,
     revision: written.state.meta.revision,
     revision_id: written.state.meta.revision_id,
-    current_gate: after.current_gate,
-    next_allowed_action: after.next_allowed_action,
+    current_gate: closing ? run.meta.current_gate : after.current_gate,
+    next_allowed_action: nextAction,
     backlog: backlogPlan.status,
     ...(backlogPlan.reason ? { backlog_reason: backlogPlan.reason } : {}),
     ...(appendedOperation ? { operation_id: appendedOperation.operation_id, receipt: appendedOperation }
@@ -495,12 +538,12 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
 
 export function recordRunStep(root, input, { policy, date = new Date().toISOString().slice(0, 10), afterWrite, operationContext, packageVersion = "0.14.5" } = {}) {
   const { runId, step } = input;
-  if (!RUN_STEPS.includes(step)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
+  if (!knownStep(step, operationContext)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
   let path;
   try { path = runPath(root, runId); } catch { return rejected(runId, "run_id_invalid"); }
   const backlogPath = join(root, BACKLOG_PATH);
   const locked = guardedWrite(runId, () => withOwnedFileLock(path, () => {
-    assertBacklogPath(root);
+    if (step !== "lifecycle_close") assertBacklogPath(root);
     return withOwnedFileLock(backlogPath, () => {
     const otherPending = pendingRunStepIds(root).find((id) => id !== runId);
     if (otherPending) return rejected(runId, "run_step_recovery_required", { pending_run_id: otherPending });
@@ -539,6 +582,7 @@ export function recordRunPresentationDecision(root, input, { evaluateGateCheck, 
     if (previous) return previous.kind === context.kind && previous.request_digest === requestDigest
       ? { outcome: 'already_applied', receipt: previous, historical_effect: true, authorizes: false }
       : rejected(runId, 'operation_payload_conflict');
+    const ended = endedRunRejection(runId, run.content); if (ended) return ended;
     if (run.meta.revision_id !== revisionId) return rejected(runId, 'stale_revision');
     if (runSealState(root, run.content).status !== 'valid') return rejected(runId, 'seal_invalid');
     const state = prepareRunContentState(root, run.content, run.path);

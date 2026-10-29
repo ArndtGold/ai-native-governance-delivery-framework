@@ -1,0 +1,307 @@
+# PRD: Close Active Runs as Superseded or Abandoned
+
+Status: draft
+Gate: PRD
+Gate approval: open
+Based on: UR (`.agdf/control/artefacts/run-lifecycle-close-20261028-01/UR.md`, approved revision 3)
+Date: 2026-10-28
+Owner: Arndt Gold
+Traceability contract: criteria-chain-v1
+
+## 1. Product Scope
+
+Deliver a run closure operation for active runs with two final outcomes:
+
+- `superseded`: the run is replaced; a successor and a reason are required. A successor is either an
+  existing run id, which is verified, or a free reference such as a pull request or package, which is
+  marked unverified.
+- `abandoned`: the run will not be continued; a reason is required.
+
+The operation works in two steps. A preview lists one or more runs with their intended outcome and
+changes nothing. The owner then confirms that exact preview with the fixed phrase `Close runs:
+<preview id>`. Each listed run that is still eligible and unchanged since the preview is closed and
+receives its own receipt; the result reports every listed run as closed or not closed with a reason.
+Ended runs reject every further delivery operation, disappear from all active-run lists and remain
+readable as history. A closure is final.
+
+The operation is available as the CLI command `run-close` with a preview and an apply action, and
+through MCP, so that agents on Claude Code, Codex, Copilot and OpenCode can prepare the preview and
+forward the owner's verbatim confirmation. Contract text, CLI help and the handbook describe it.
+
+## 2. UX Intent And Success
+
+- ui_ux_impact: high
+- ux_intent_definition: ready — `.agdf/control/artefacts/run-lifecycle-close-20261028-01/UX_INTENT_DEFINITION.md` (recorded 2026-10-28, revision 5)
+- primary_user_intent: As the owner I want to end runs that will not be continued, cleanly and traceably, so that every list of open runs shows only real work and later readers can see why, when and by whom a run ended.
+- success_signal: After one confirmation, every listed run that was unchanged since the preview no longer appears as active in `doctor --all-active`, the companion and the cockpit; its history shows outcome, reason or successor, confirming person and time; every run not closed is named with its reason.
+- primary_decision_or_action: Confirm one previewed closure list with the exact phrase `Close runs: <preview id>`.
+
+The UX analysis used an illustrative text walkthrough of a three-run preview (agent inspection, no
+user observation). Its confirmed findings are adopted in AC-001 to AC-005 and AC-007. No preview was
+required by the UR.
+
+## 3. Working Modes And Effective State
+
+| working_mode | effective_state | visible_state_types | effective_state_authority | primary_state_presentation_owner |
+|---|---|---|---|---|
+| Prepare | Runs unchanged; a stored, non-authorizing preview with an id, a digest and each listed run's revision, usable while the listed runs are unchanged | Refusal for missing reason or successor, or a wrong successor run id | Stored preview, authorizing nothing | CLI output, or the agent's verbatim rendering in chat |
+| Review | Unchanged | Header with run count, finality notice and confirmation phrase; per run title, run id, gate, open approvals, last activity, artefact count, outcome, reason or successor, warnings; "not closable" with reason and next action | Stored preview | CLI output, or the agent's verbatim rendering in chat |
+| Confirm and apply | Per listed run closed (lifecycle `superseded` or `abandoned` with own receipt) or not closed; unlisted runs untouched | Per run "closed as superseded by <successor>", "closed as abandoned" or "not closed: <reason>" with next action | Lifecycle in each sealed `RUN_STATE.md` and its closure receipt | CLI output, or the agent's verbatim rendering in chat |
+| History | Final ended state | "Superseded by <successor>" or "Abandoned", with reason, date and confirming person | Run lifecycle and closure receipt | Cockpit archive and run detail; absence in `doctor --all-active`, delivery-map and the companion |
+| Attempted continuation | Operation rejected; nothing written | Rejection naming the closure and, for `superseded`, the successor | Run lifecycle | Message of the rejected command |
+
+## 4. Activation, Blockers, Recovery And Transitions
+
+- activation_and_deactivation: Only an explicit `run-close` preview or the equivalent MCP operation starts a closure; only the owner's exact phrase for that preview applies it. Agents may propose candidates and prepare previews, and forward only the owner's verbatim reply. Nothing activates automatically, and there is no deactivation: a closure is final.
+- blockers_and_visible_next_actions: Missing reason (refused; add the reason); `superseded` without successor (refused; add a successor or choose `abandoned`); successor run id unknown or equal to the run (refused; correct it or give a free reference); run completed or already ended (not closable; none); invalid seal or pending run-step recovery (not closable; run recovery first, then a new preview); missing or different phrase (nothing applied; repeat with the exact phrase); unknown preview (nothing applied; create a new preview).
+- recovery_paths: A run changed after the preview is not closed while the others are, and the result names it with "create a new preview"; an interrupted apply is completed or rolled back per run through the existing operation recovery and the result states which runs are closed; a transient lock conflict offers a visible retry with the same preview while the listed runs are unchanged.
+- relevant_state_transitions: Trigger: the exact phrase for a valid preview. Source: `active`. Target: `superseded` or `abandoned`. Visible feedback: per-run result and history entry. Next action: none; continuing the work needs a new run that may reference the ended one. Failure or rollback: a failed run write leaves that run `active` and is reported; `completed` runs are never affected; there is no transition out of `superseded` or `abandoned`.
+
+## 5. Acceptance Criteria
+
+### Preview
+
+- criterion_id: AC-001
+- working_mode: Prepare and Review
+- source_state: Several active runs, one completed run and one active run with approved gates.
+- action: Request a preview listing these runs with outcomes, reasons and successors.
+- expected_effective_state: A stored preview exists; no run, receipt or backlog row changes.
+- visible_feedback: Per run title, run id, current gate, open approvals, last activity, number of registered artefacts, outcome with reason or successor, and warnings: approved gates exist, implementation has started (CD+Tests or later), the successor is an unverified free reference; the completed run is shown as not closable with its reason.
+- blocker_failure_behavior: An unreadable run is shown as not closable with the reason.
+- recovery_next_action: Correct the inputs and request a new preview.
+- observable_success: The preview shows all fields and warnings, and the run files are byte-identical before and after.
+- required_evidence: Automated tests of preview content and of unchanged run, receipt and backlog bytes.
+
+- criterion_id: AC-002
+- working_mode: Review
+- source_state: A stored preview.
+- action: Read the preview header.
+- expected_effective_state: Unchanged.
+- visible_feedback: Number of listed runs, the notice that an ended run cannot be reopened and continuing needs a new run, and the exact phrase `Close runs: <preview id>`.
+- blocker_failure_behavior: none
+- recovery_next_action: none
+- observable_success: Finality notice and exact phrase appear in CLI and MCP output.
+- required_evidence: Automated tests of CLI and MCP preview output.
+
+- criterion_id: AC-003
+- working_mode: Prepare
+- source_state: Active runs.
+- action: Request a preview with a run without reason, a `superseded` run without successor, a successor run id that does not exist, and a successor equal to the run itself.
+- expected_effective_state: No preview is stored; nothing changes.
+- visible_feedback: The refusal names each affected run and its problem.
+- blocker_failure_behavior: Refused before any write.
+- recovery_next_action: Add the reason, add or correct the successor, give a free reference, or choose `abandoned`.
+- observable_success: Each case is refused with its specific reason and no file changes.
+- required_evidence: Automated negative tests for each case.
+
+### Confirm and apply
+
+- criterion_id: AC-004
+- working_mode: Confirm and apply
+- source_state: A stored preview for three active, unchanged runs.
+- action: Apply with no phrase, with a different phrase, with the phrase of another preview, and with an unknown preview id; then apply with the exact phrase.
+- expected_effective_state: Only the exact phrase of this preview closes the runs; every other attempt changes nothing.
+- visible_feedback: Rejected attempts state why and that nothing was applied.
+- blocker_failure_behavior: Nothing is applied on a missing, different or foreign phrase or an unknown preview.
+- recovery_next_action: Repeat with the exact phrase, or create a new preview.
+- observable_success: Run files are unchanged after each rejected attempt and closed after the exact one.
+- required_evidence: Automated tests through CLI and MCP.
+
+- criterion_id: AC-005
+- working_mode: Confirm and apply
+- source_state: A stored preview for runs A, B and C; B changes after the preview; C has a pending run-step recovery.
+- action: Apply with the exact phrase.
+- expected_effective_state: A is closed; B and C stay `active`.
+- visible_feedback: Result per run: A "closed as abandoned" or "closed as superseded by <successor>"; B "not closed: changed since preview"; C "not closed: recovery pending", each with the next action.
+- blocker_failure_behavior: A failure on one run does not prevent or undo the closure of another.
+- recovery_next_action: A new preview for B; recovery, then a new preview for C.
+- observable_success: Exactly the unchanged eligible runs are closed and the result names every listed run.
+- required_evidence: Automated tests with a changed run and a recovery-pending run in the list.
+
+- criterion_id: AC-006
+- working_mode: Confirm and apply
+- source_state: A closed run.
+- action: Read its `RUN_STATE.md`.
+- expected_effective_state: Lifecycle `superseded` or `abandoned`; one closure receipt with creation time, operation id, outcome, reason, successor (verified run id or free reference marked unverified), confirming person from the local Git name and e-mail marked as a cooperative statement, the preview digest and the same cooperative assurance as approvals.
+- visible_feedback: The receipt fields are readable in the run file and in the cockpit run detail.
+- blocker_failure_behavior: Without a local Git identity the confirming person is recorded as unknown and the result says so.
+- recovery_next_action: none
+- observable_success: The receipt contains every field and validates.
+- required_evidence: Automated tests of receipt shape and validation, with and without Git identity.
+
+- criterion_id: AC-007
+- working_mode: Prepare and Confirm and apply
+- source_state: A completed run, an already ended run and a run with an invalid seal.
+- action: List them in a preview and apply it.
+- expected_effective_state: None of them changes.
+- visible_feedback: Each is shown as not closable in preview and result, with its reason; the seal-invalid run names run recovery as next action.
+- blocker_failure_behavior: Never closed.
+- recovery_next_action: Run recovery for the seal-invalid run, then a new preview.
+- observable_success: Their files are byte-identical and the reasons appear.
+- required_evidence: Automated tests for each case.
+
+### Ended runs
+
+- criterion_id: AC-008
+- working_mode: Attempted continuation
+- source_state: A run closed as `superseded` and one closed as `abandoned`.
+- action: Attempt a run step, artefact recording, approval, presentation, presentation decision, revise, update, recovery and a delivery continuation through CLI and MCP.
+- expected_effective_state: Every attempt is rejected; nothing is written.
+- visible_feedback: The rejection names the closure, its date and, for `superseded`, the successor, and states that continuing needs a new run.
+- blocker_failure_behavior: Rejected before any write.
+- recovery_next_action: Start a new run that may reference the ended one.
+- observable_success: Every listed operation is rejected with the closure reason and the run file is unchanged.
+- required_evidence: Automated tests per operation.
+
+- criterion_id: AC-009
+- working_mode: Confirm and apply
+- source_state: A run with registered artefacts before closure.
+- action: Close it.
+- expected_effective_state: The seal is valid; every registered artefact and every existing receipt is byte-identical.
+- visible_feedback: `doctor` reports no seal or integrity finding for the run.
+- blocker_failure_behavior: An integrity failure during the write leaves the run `active` and is reported.
+- recovery_next_action: Existing operation recovery.
+- observable_success: Seal state `valid`, artefact digests unchanged.
+- required_evidence: Automated tests of seal state and artefact digests.
+
+### Readers
+
+- criterion_id: AC-010
+- working_mode: History
+- source_state: Two ended runs among active runs.
+- action: Run `doctor --all-active` and `delivery-map --all-active`, and open the companion's open-run list.
+- expected_effective_state: The ended runs are not listed as active anywhere.
+- visible_feedback: Counts and lists contain only active runs.
+- blocker_failure_behavior: none
+- recovery_next_action: none
+- observable_success: The ended runs are absent from all three outputs.
+- required_evidence: Automated tests of doctor and delivery-map selection and of the companion list.
+
+- criterion_id: AC-011
+- working_mode: History
+- source_state: An ended run with a backlog row.
+- action: Open the cockpit overview archive and the run detail.
+- expected_effective_state: Unchanged.
+- visible_feedback: The archive shows the run with "Superseded" or "Abandoned" and the reason or successor; the run detail shows outcome, reason, successor, confirming person and time, and offers no next delivery action.
+- blocker_failure_behavior: Without a backlog row the run detail still shows the closure.
+- recovery_next_action: none
+- observable_success: Outcome and reason are visible in both views.
+- required_evidence: Automated cockpit projection and UI tests.
+
+- criterion_id: AC-012
+- working_mode: Confirm and apply
+- source_state: Runs with an Active Backlog row, without a row, and a backlog that cannot be updated.
+- action: Close them.
+- expected_effective_state: Existing rows move to Completed / Superseded Pointers with final status `Superseded` or `Abandoned` and the successor or reason; runs without a row and a backlog that cannot be updated do not block the closure.
+- visible_feedback: The result states per run whether the backlog was updated, unlinked or skipped with the reason.
+- blocker_failure_behavior: A backlog problem never stops a closure.
+- recovery_next_action: Repair the backlog through `run-update` for that run, as today.
+- observable_success: Rows sit in the archive section with the final status; `doctor` reports no backlog status finding.
+- required_evidence: Automated tests of the three backlog cases.
+
+### Hosts and documentation
+
+- criterion_id: AC-013
+- working_mode: Prepare and Confirm and apply, through MCP
+- source_state: An MCP host connected to the AGDF server.
+- action: An agent prepares a preview and forwards the owner's verbatim reply `Close runs: <preview id>`.
+- expected_effective_state: The same preview, apply and result semantics as the CLI; the receipt records the cooperative assurance with caller-forwarded reply.
+- visible_feedback: The agent shows the Core preview and result text verbatim.
+- blocker_failure_behavior: The same refusals as the CLI.
+- recovery_next_action: The same as the CLI.
+- observable_success: An MCP preview and apply produce the same run state as the CLI.
+- required_evidence: Automated MCP protocol tests and one native observation on Claude Code.
+
+- criterion_id: AC-014
+- working_mode: not_applicable (documentation)
+- source_state: Current contracts, CLI help and handbook.
+- action: Read the updated texts.
+- expected_effective_state: Unchanged.
+- visible_feedback: They describe both outcomes, preview and confirmation phrase, per-run results, finality and the rejection of operations on ended runs.
+- blocker_failure_behavior: none
+- recovery_next_action: none
+- observable_success: Texts are present and generated payloads, fingerprints and compatibility records are refreshed.
+- required_evidence: Documentation diff plus green payload, eval-fingerprint and compatibility checks.
+
+## 6. Non-Goals
+
+- Reopening an ended run.
+- Automatic closure or automatic candidate selection.
+- Deleting runs or artefacts, or editing approved artefacts.
+- Retroactively recording the reset approvals of the legacy runs.
+- Any change to OR closeout and `completed`.
+- A chat decision card for closures; the exact phrase suffices in this slice.
+- The shared run inventory, hub supplement 3 and the backlog role change.
+- Deciding which current runs to close.
+
+## 7. Users And Roles
+
+- Owner (Arndt Gold in this repository): decides and confirms closures; the only role that supplies the phrase.
+- Coding agents on Claude Code, Codex, Copilot and OpenCode: propose candidates, prepare previews, forward the owner's verbatim reply and render results.
+- Readers of run lists and reviewers: see ended runs as history with outcome and reason.
+
+## 8. Constraints
+
+- Writes only through the existing canonical run writer, its locks, seal and journal; no hand edits.
+- Same cooperative assurance lane as approvals; no claim of independent human proof.
+- Backlog synchronization must never block a closure.
+- Must work on Windows, macOS and Linux and across the four MCP hosts.
+- Contract text changes refresh the Copilot payload baseline, eval fingerprints and compatibility records.
+
+## 9. Evidence Requirements
+
+- Automated Core, CLI and MCP tests for AC-001 to AC-013, including negative cases.
+- Cockpit projection and UI tests for AC-011, companion tests for AC-010.
+- One native observation of preview and apply through MCP on Claude Code (AC-013).
+- Green payload, eval-fingerprint and compatibility checks for AC-014.
+
+## 10. Risks And Open Questions
+
+- The batch design (sequential per-run operations or a batch journal) belongs to SD.
+- The MCP tool placement (extend `agdf_closeout` or a new tool) and the receipt shape belong to SD.
+- Every writer path must reject ended runs; Brownfield Analysis lists them.
+- An agent could type the phrase itself; this is the same cooperative limit as for approvals and stays visible in the receipt.
+
+## Approval Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Closing several runs | before_prd | resolved | One preview list and one confirmation; each run gets its own receipt | Arndt Gold, PRD Owner |
+| Access paths | before_prd | resolved | CLI `run-close` and MCP in this slice | Arndt Gold, PRD Owner |
+| Finality | before_prd | resolved | Final; continuing needs a new run that may reference the ended one | Arndt Gold, PRD Owner |
+| A listed run changed after the preview | before_prd | resolved | The other eligible runs are closed; the result names every run; the changed run needs a new preview | Arndt Gold, PRD Owner |
+| Successor forms | before_prd | resolved | Existing run id, verified, or free reference marked unverified | Arndt Gold, PRD Owner |
+| Confirming person | before_prd | resolved | Local Git name and e-mail, marked as cooperative statement | Arndt Gold, PRD Owner |
+| Runs with invalid seal | before_prd | resolved | Not closable until repaired through run recovery | Arndt Gold, PRD Owner |
+| Chat decision card | before_prd | resolved | Not in this slice; the exact phrase suffices | Arndt Gold, PRD Owner |
+| Confirmation phrase | before_prd | resolved | Fixed, language-independent `Close runs: <preview id>` | Arndt Gold, PRD Owner |
+| Batch transaction design | later_sd | open | Sequential per-run operations or a batch journal | SD author through gate-check |
+| MCP tool placement and receipt shape | later_sd | open | Extend `agdf_closeout` or add a tool; receipt fields per AC-006 | SD author through gate-check |
+
+## 11. Next Step
+
+Review this PRD and approve only with:
+
+`Approval: PRD`
+
+The approval confirms the specified behavior, scope and criteria and permits the SD step.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: Runs, die nicht weitergehen, mit einer geprüften Entscheidung sauber und nachvollziehbar beenden, damit alle Listen offener Runs nur echte Arbeit zeigen und später sichtbar ist, warum, wann und durch wen ein Run endete.
+- Umfang: Neuer Abschluss für aktive Runs mit zwei endgültigen Ergebnissen: `superseded` mit Nachfolger (geprüfte Run-ID oder als ungeprüft markierter freier Verweis) und Grund, `abandoned` mit Grund. Erst eine Vorschau, die nichts ändert, dann die Bestätigung mit dem festen Satz `Close runs: <Vorschau-ID>`. Jeder noch passende, seit der Vorschau unveränderte Run wird geschlossen und erhält einen eigenen Beleg; das Ergebnis nennt jeden Run. Beendete Runs lehnen alles Weitere ab, verschwinden aus allen Listen aktiver Runs und bleiben als Historie lesbar. Zugang über den CLI-Befehl `run-close` und über MCP für Claude Code, Codex, Copilot und OpenCode; Verträge, CLI-Hilfe und Handbuch werden ergänzt.
+- AC-001: Die Vorschau zeigt je Run Titel, Run-ID, Gate, offene Freigaben, letzte Aktivität, Artefaktzahl, Ergebnis mit Grund oder Nachfolger und Warnungen (Freigaben vorhanden, Umsetzung begonnen, ungeprüfter Verweis); nicht schließbare Runs stehen mit Grund da; nichts ändert sich.
+- AC-002: Der Kopf der Vorschau nennt die Zahl der Runs, dass ein beendeter Run nicht wieder geöffnet werden kann, und den genauen Satz `Close runs: <Vorschau-ID>`.
+- AC-003: Fehlender Grund, `superseded` ohne Nachfolger, unbekannte Nachfolger-Run-ID und der Run als eigener Nachfolger werden vor jedem Schreiben mit konkretem Grund abgelehnt.
+- AC-004: Nur der genaue Satz genau dieser Vorschau schließt; fehlender, abweichender oder fremder Satz und unbekannte Vorschau ändern nichts.
+- AC-005: Ändert sich ein gelisteter Run nach der Vorschau oder hängt bei ihm eine Wiederherstellung, bleibt er aktiv, die übrigen werden geschlossen, und das Ergebnis nennt jeden Run mit Grund und nächstem Schritt.
+- AC-006: Jeder geschlossene Run trägt einen Beleg mit Zeitpunkt, Vorgangs-ID, Ergebnis, Grund, Nachfolger, bestätigender Person aus der lokalen Git-Identität als kooperative Angabe, Vorschau-Digest und derselben Zusicherung wie Freigaben; ohne Git-Identität steht dort „unbekannt“.
+- AC-007: Abgeschlossene, schon beendete und Runs mit ungültigem Seal werden nie geschlossen und mit Grund angezeigt; beim ungültigen Seal ist der nächste Schritt run-recovery.
+- AC-008: Ein beendeter Run lehnt Run-Schritt, Artefakterfassung, Freigabe, Präsentation, Präsentationsentscheidung, Revision, Update, Recovery und Fortsetzung über CLI und MCP ab, mit Hinweis auf Abschluss, Datum und gegebenenfalls Nachfolger.
+- AC-009: Nach dem Abschluss ist das Seal gültig, und alle registrierten Artefakte und Belege sind bytegleich.
+- AC-010: `doctor --all-active`, `delivery-map --all-active` und der Begleiter listen beendete Runs nicht mehr.
+- AC-011: Das Cockpit zeigt beendete Runs im Archiv mit „Superseded“ oder „Abandoned“ und Grund oder Nachfolger, die Run-Ansicht zusätzlich Person und Zeitpunkt und keinen nächsten Lieferschritt.
+- AC-012: Eine vorhandene Backlog-Zeile wandert mit Endstatus nach Completed / Superseded Pointers; fehlende Zeile oder nicht aktualisierbares Backlog blockieren nicht, das Ergebnis nennt den Fall.
+- AC-013: Über MCP bereitet ein Agent die Vorschau vor und reicht deine wörtliche Antwort weiter; Verhalten und Ergebnis entsprechen der CLI, belegt durch Protokolltests und eine native Beobachtung in Claude Code.
+- AC-014: Verträge, CLI-Hilfe und Handbuch beschreiben beide Ergebnisse, Vorschau, Bestätigungssatz, Ergebnis je Run, Endgültigkeit und die Ablehnung weiterer Schritte; Payload, Fingerprints und Kompatibilitätsnachweise sind erneuert.
+- Entscheidungen: Mit dir am 2026-10-28 festgelegt: eine Liste mit einer Bestätigung; CLI und MCP; endgültig; geänderte Runs bleiben aktiv, die übrigen werden geschlossen; Nachfolger als Run-ID oder freier Verweis; Person aus der Git-Identität; ungültiges Seal erst reparieren; keine Chat-Karte in diesem Schnitt; fester Satz `Close runs: <Vorschau-ID>`. Offen für das SD: Transaktionsform des Sammelabschlusses sowie MCP-Werkzeug und Belegform.

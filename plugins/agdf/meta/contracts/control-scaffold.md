@@ -66,6 +66,16 @@ Keep one `Artefacts` row per type: update the existing placeholder row instead o
 extra row and retry `run-update` to record the correction. Duplicate rows in older sealed runs also
 block `doctor` and gate presentation.
 
+An active run that will not be completed ends as `superseded` (successor and reason) or `abandoned`
+(reason) only through `run-close` or the MCP `agdf_closeout` kinds `closure.preview` and
+`closure.apply`. The preview changes no run and is stored under `.agdf/control/closure-previews/`;
+the owner applies it with the exact phrase `Close runs: <preview_id>`. Each eligible run that is
+unchanged since the preview receives its own sealed `lifecycle_close.record` receipt; the result
+names every listed run. A pending run-step journal anywhere in the repository blocks the whole
+closure. An ended run is final: every run writer, approval, presentation, revision, recovery and
+delivery continuation rejects it with `lifecycle_ended`; `run-update` on an unchanged ended run only
+synchronizes its backlog row. Continuing the work needs a new run.
+
 When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
 
 - `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts. `chat_language` is the direct-command presentation default; dispatcher calls supply `presentation_language` under their current-request language contract. This presentation override never changes `artifact_language`. Runtime rules remain English. Authoring continuations supply the resolved languages and any required localized approval-summary heading before drafting.

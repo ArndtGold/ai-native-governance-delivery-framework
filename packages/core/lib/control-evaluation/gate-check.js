@@ -646,7 +646,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     : null);
   const completion = status === "pass" && transitionDecision.completion?.fulfilled
     ? transitionDecision.completion : { ...transitionDecision.completion, fulfilled: false,
-      status: extractField(runState.content ?? "", "lifecycle") === "completed" ? "unconfirmed" : "pending" };
+      status: { completed: "unconfirmed", superseded: "superseded", abandoned: "abandoned" }[extractField(runState.content ?? "", "lifecycle")] ?? "pending" };
   const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
 
   const report = {

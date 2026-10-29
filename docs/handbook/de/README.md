@@ -56,6 +56,36 @@ Danach kannst du gezielt weiterlesen:
    Release-Grenzen
 6. [Fehlerbehebung](06-fehlerbehebung.md) – Aktivierung, Ambiguität, fehlende Freigaben und Drift
 
+## Lesewege nach Rolle
+
+Nicht jede Rolle braucht jedes Kapitel:
+
+- **Du arbeitest mit einem Coding-Agenten:** [Schnellstart](01-schnellstart.md),
+  [Typische Arbeitsabläufe](03-typische-arbeitsablaeufe.md) und [Mehrere Runs](04-mehrere-runs.md);
+  bei Problemen die [Fehlerbehebung](06-fehlerbehebung.md).
+- **Du gibst Freigaben, etwa als Product Owner oder Tech Lead:**
+  [Gates und Freigaben](02-gates-und-freigaben.md) und
+  [Abschluss und Auslieferung](05-abschluss-und-auslieferung.md).
+- **Du prüfst Ergebnisse in Review oder QA:** [Gates und Freigaben](02-gates-und-freigaben.md),
+  [Abschluss und Auslieferung](05-abschluss-und-auslieferung.md) und die
+  [Nachweis-Lesehilfe](../../architecture/lesestand-und-nachweise.md).
+- **Du installierst oder betreibst AGDF:** [Installation](../../../INSTALL.md), danach die
+  [Fehlerbehebung](06-fehlerbehebung.md).
+
+## Für technisch Interessierte
+
+Dieses Handbuch bleibt bewusst bei der Arbeit mit dem Agenten. Wer tiefer einsteigen möchte,
+findet hier die nächsten Schritte:
+
+- Den [Entwicklereinstieg](../../architecture/entwickler-einstieg.md) für Systemaufbau, Code-Einstiege
+  und den Weg vom Auftrag zum Code.
+- Die [AGDF CLI README](../../../packages/cli/distribution/agdf/README.md) für alle Befehle,
+  einschließlich der Run-Befehle von `run-create` bis `run-close`.
+- Den [Control-Scaffold](../../../plugins/agdf/control/README.md) für Aufbau und Siegel von
+  `RUN_STATE.md`.
+- Den [Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md) für die normativen
+  Regeln.
+
 ## Was dieses Handbuch nicht ersetzt
 
 Das Handbuch erklärt die Anwendung. Verbindlich bleiben die jeweils aktuellen Quellen:

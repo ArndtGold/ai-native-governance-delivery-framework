@@ -4,7 +4,8 @@ import { resolveTaskTarget } from '../task-target-resolution.js';
 import { withLiveControlReads } from '../control-read/fs.js';
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { policyForRunContent } from '../control-evaluation/run-step-policy.js';
-import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, runCommandRequestDigest, validateRunCommand } from './run-command-contract.js';
+import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, TARGET_SCOPED_COMMAND_KINDS, runCommandRequestDigest, validateRunCommand } from './run-command-contract.js';
+import { previewRunClosure, applyRunClosure } from './run-closure.js';
 import { COOPERATIVE_ASSURANCE, canonicalJson, digest, resolveControlCommandTarget } from './approval-command-contract.js';
 import { readRun } from './run-state-edits.js';
 import { runSealState } from './run-seal.js';
@@ -82,14 +83,16 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
       const diagnostics = validateRunCommand(group, input);
       if (diagnostics.length) return { schema_version: '1', outcome: 'rejected', reason: 'command_schema_invalid', diagnostics, authorizes: false };
       const requestDigest = runCommandRequestDigest(input);
+      // A target-scoped closure binds no single Run; its per-run receipts are in each Run.
+      const scoped = TARGET_SCOPED_COMMAND_KINDS.includes(input.command.kind);
       let root, dispatched = false;
       const result = (outcome, reason, family = {}, extra = {}) => {
-        const status = root ? safeOperationStatus(root, input) : null;
+        const status = root && !scoped ? safeOperationStatus(root, input) : null;
         const receipt = family.receipt ?? status?.receipt ?? null;
         const response = { schema_version: '1', outcome, reason: reason ?? null, operation_id: input.operation_id,
-          request_digest: requestDigest, binding: { target_id: input.target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id, kind: input.command.kind },
+          request_digest: requestDigest, binding: { target_id: input.target_id, run_id: input.run_id ?? null, expected_revision_id: input.expected_revision_id ?? null, kind: input.command.kind },
           effect: receipt?.effect ?? null, receipt, historical_effect: Boolean(family.historical_effect || outcome === 'already_applied'),
-          current: root ? observeCurrentRunCommand(root, input) : { available: false, reason: 'target_unavailable' },
+          current: scoped ? { available: false, reason: 'target_scoped_command' } : root ? observeCurrentRunCommand(root, input) : { available: false, reason: 'target_unavailable' },
           assurance: COOPERATIVE_ASSURANCE, authorizes: false,
           recovery: ['effect_unknown', 'recovery_required'].includes(outcome) ? 'Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer absence or create another decision.' : null,
           family_result: family, ...extra };
@@ -107,7 +110,7 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
         const payload = input.command.payload, kind = input.command.kind;
         const context = { kind, operation_id: input.operation_id, target_id: input.target_id, request_digest: requestDigest };
         const bound = { runId: input.run_id, revisionId: input.expected_revision_id, operationId: input.operation_id };
-        assertCommandRunPath(root, input);
+        if (!scoped) assertCommandRunPath(root, input);
         let family;
         if (kind === 'runtime_generation.replace') {
           const current = observeCurrentRunCommand(root, input);
@@ -155,15 +158,18 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
             recoveryRevisionId: payload.recovery_revision_id, pendingDigest: payload.pending_digest });
         } else if (kind === 'prd_revision.reopen') {
           family = reopenPrdRevision(root, { ...bound, prdBinding: payload.prd, confirmation: payload.confirmation, commandContext: context, packageVersion }, { afterWrite: checkpoint });
+        } else if (kind === 'closure.preview') family = previewRunClosure(root, { entries: payload.entries, language: input.presentation_language });
+        else if (kind === 'closure.apply') {
+          family = applyRunClosure(root, { previewId: payload.preview_id, confirmation: payload.confirmation, language: input.presentation_language }, { packageVersion, afterWrite: checkpoint });
         } else if (kind === 'closeout.record') {
           family = recordRunStep(root, { ...bound, step: 'closeout', sourceBinding: payload.or, confirmation: payload.confirmation },
             { policy: policyForRunContent, packageVersion, operationContext: context, afterWrite: checkpoint });
         }
         checkpoint('before_result');
-        const accepted = ['prepared', 'recorded', 'accepted', 'preview', 'recovered', 'reopened'].includes(family?.outcome);
+        const accepted = ['prepared', 'recorded', 'accepted', 'preview', 'recovered', 'reopened', 'applied'].includes(family?.outcome);
         const repeated = ['already_applied', 'already_prepared', 'replayed'].includes(family?.outcome);
-        const status = safeOperationStatus(root, input);
-        if (family?.outcome === 'rejected' && ['pending', 'unknown', 'committed_recovery_required'].includes(status.status)) return result('effect_unknown', family.reason, family);
+        const status = scoped ? null : safeOperationStatus(root, input);
+        if (family?.outcome === 'rejected' && ['pending', 'unknown', 'committed_recovery_required'].includes(status?.status)) return result('effect_unknown', family.reason, family);
         return result(repeated ? 'already_applied' : accepted ? 'accepted' : family?.outcome === 'recovery_required' ? 'recovery_required' : 'rejected', family?.reason, family ?? {});
       } catch (error) {
         if (error.message === 'AGDF_OPERATION_PAYLOAD_CONFLICT') return result('rejected', 'operation_payload_conflict');

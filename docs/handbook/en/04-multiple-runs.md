@@ -2,7 +2,7 @@
 language: en
 chapter_role: multiple_runs
 translation_of: ../de/04-mehrere-runs.md
-source_revision: sha256:f7e0284c5923d5e21ee7989c9f8bb6bc6815e57f355b390af4cb33b017469831
+source_revision: sha256:9ff856097d47cffdbf51579c48b97d4759e33499fe9900d754ecbe2063ccbb99
 translation_status: reviewed
 ---
 
@@ -52,6 +52,39 @@ A completed run remains as evidence. It can later show:
 
 New work does not silently reuse state from a completed run. It needs a new run or another explicitly
 selected active run. Historical evidence may be linked without rewriting the completed run.
+
+## Ending runs without delivery
+
+Not every run is delivered. When another run replaces a piece of work, or it will not be pursued,
+end it explicitly:
+
+- **superseded**: replaced, with a successor and a reason. The successor is an existing run id or a
+  free reference, such as a pull request, recorded as unverified.
+- **abandoned**: not pursued, with a reason.
+
+There are two steps. First a preview shows each selected run with its gate, open approvals, last
+activity and warnings; it changes nothing. Then you confirm exactly that preview with the phrase
+`Close runs: <preview_id>`. An agent prepares the preview and forwards only your verbatim reply.
+Every run that has not changed since the preview is closed and receives its own receipt with the
+reason, the time and your Git identity. The result names every run. While an interrupted write
+anywhere in the repository waits for recovery, nothing is closed.
+
+An ended run is final. It leaves every list of active runs, stays readable as history and accepts no
+further steps, approvals or continuations. To continue the work, start a new run that may reference
+the old one.
+
+In the shell you do the same with `run-close`. The preview prints the preview id and the exact
+phrase; only the second command closes:
+
+```bash
+agdf run-close --action preview --run payment-limit-v1 --outcome superseded --reason "Replaced by the limit redesign" --successor-run payment-limit-v2
+agdf run-close --action apply --preview-id 3f2a9c1e --confirmation "Close runs: 3f2a9c1e"
+```
+
+`--successor-run` requires an existing run id. For a free reference such as a pull request use
+`--successor-ref`; for `abandoned` leave the successor out. To close several runs at once, describe
+them in a JSON file and pass it with `--closure-file`. Replace the run ids and the preview id with
+the values AGDF shows you.
 
 ## How the CLI chooses a run
 

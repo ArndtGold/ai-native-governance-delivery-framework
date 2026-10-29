@@ -1,9 +1,19 @@
 import { useId, type ReactNode } from 'react';
-import type { Detail, Resource } from './types';
+import type { Detail, Resource, RunClosure } from './types';
 import { label } from './feedback';
-import { documentName, phaseName, observedAssessment, reportFindingsLabel } from './presentation';
+import { documentName, phaseName, observedAssessment, reportFindingsLabel, closurePerson, closureSuccessor } from './presentation';
 import { RunDocuments } from './RunDocuments';
 
+// The closure receipt, as Core projects it; the confirming person is a cooperative statement.
+export function RunClosureFacts({ closure }: { closure: RunClosure }) {
+  return <dl className="work-step-facts run-closure" aria-label="Abschluss des Runs">
+    <dt>Ergebnis</dt><dd>{label(closure.outcome)}</dd>
+    <dt>Grund</dt><dd>{closure.reason ?? 'Nicht verfügbar'}</dd>
+    <dt>Nachfolger</dt><dd>{closureSuccessor(closure)}</dd>
+    <dt>Bestätigt durch</dt><dd>{closurePerson(closure)}</dd>
+    <dt>Zeitpunkt</dt><dd>{closure.closed_at ?? 'Nicht verfügbar'}</dd>
+  </dl>;
+}
 // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
 export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
   data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; children?: ReactNode;
@@ -14,11 +24,13 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
   const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
+  const closure = assessment === 'ended' ? data.closure ?? null : null;
   const title = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
-    : assessment === 'completed' ? 'Vorhaben abgeschlossen' : 'Aktuelle Voraussetzungen nicht bestätigt';
+    : assessment === 'completed' ? 'Vorhaben abgeschlossen' : closure ? `Vorhaben beendet · ${label(closure.outcome)}` : 'Aktuelle Voraussetzungen nicht bestätigt';
   const explanation = assessment === 'open' ? 'Laut aktueller Kontrollauswertung. Die Weiterarbeit bleibt auf den freigegebenen Umfang begrenzt.'
     : assessment === 'blocked' ? e.missing_approval !== 'none' ? 'Die Kontrollauswertung weist eine ausstehende Freigabe aus.' : 'Die Kontrollauswertung weist einen Blocker aus.'
     : assessment === 'completed' ? 'Dieser Run ist als abgeschlossen gespeichert. Daraus folgt keine Freigabe für neue Arbeit.'
+    : closure ? 'Dieser Run ist endgültig beendet und nimmt keinen weiteren Lieferschritt an. Für weitere Arbeit braucht es einen neuen Run.'
     : 'Aus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.';
   const count = e.missing_evidence.length;
   const reportCount = data.work_summary?.open_obligation_count ?? 0;
@@ -30,6 +42,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
       <h3>{title}</h3><p>{explanation}</p>
       {assessment === 'open' && <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>}
       {assessment === 'blocked' && <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>}
+      {closure && <RunClosureFacts closure={closure}/>}
       {onOpen && primarySource && <button className="primary work-step-primary" data-focus-id={`step:${primarySource.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(primarySource, `step:${primarySource.resource_id}`)}>{documentName(primarySource.type)} öffnen</button>}
       {onOpen && !primarySource && <p className="muted">Keine registrierte Nachweisquelle für diesen Schritt verfügbar.</p>}
       {children}

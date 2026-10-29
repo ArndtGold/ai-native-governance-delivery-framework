@@ -21,3 +21,9 @@ Canonical sources are `packages/core/`, `packages/cli/`, `packages/mcp-server/`,
 Existing reviews are Code Review pass and Clean Implementation Review pass within their reviewed scopes, Task Plan Review revise and technical QA revise. The Owner explicitly accepted the documented runtime and evidence limitations. The installed Core refused formal QA preparation; no QA gate receipt, UAT, OR, merge or release approval is inferred.
 
 No new local runtime measurement, optimization or full regression was performed for this handoff. The later integration commit has a new source identity; older observations are not relabeled as its execution. Current PR CI is reported separately with its exact head SHA and cannot establish native host acceptance. Missing local raw evidence remains a public-review limitation.
+
+## PR integration metadata repair
+
+Initial CI on head `1a586afe50749f2f3060a1637fcbe564e556c6e0` stopped at generation because the integrated closure measured430files/4571563bytes against the earlier428/4482711 baseline. Linux22, Linux24 and Windows22 reported identical sizes. The exact new baseline has zero spare allowance and preserves all runtime/request/schema/time limits. The existing preparation path then generated the integrated package successfully.
+
+The canonical compatibility check diagnosed `source_snapshot_changed`. After reviewing the integrated owners, the existing recorder regenerated its adapter-fixture evidence:56evaluated,0failed, fingerprint `b50d1da84d61fadde4fe77b0ea367806048836cb300c6715814d22f1cac28102`. This is simulated adapter evidence; retained native inputs were not turned into new host qualification. Deterministic replay source bindings were refreshed through the existing fingerprint owner while preserving113case definitions, observation contents, provenance and100percent thresholds. No new native model session or runtime benchmark was run.

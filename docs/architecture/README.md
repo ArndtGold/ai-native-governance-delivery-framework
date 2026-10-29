@@ -93,7 +93,7 @@ steht in den [Gate-Regeln](../02-gates.md) und [Runtime-Verträgen](../../plugin
 
 ## Bestehender Stand und Weiterentwicklung
 
-MCP-Werkzeuge des regulären Servers: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+MCP-Werkzeuge des regulären Servers: `agdf_dispatch`, `agdf_inspect`, `agdf_project`, `agdf_run`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 
 Das Inventar beschreibt die Standardkonfiguration im Repository. Aktivierte Befehlsgruppen
 und hostabhängige App-Werkzeuge bestimmen die tatsächlich sichtbare Liste einer Verbindung.

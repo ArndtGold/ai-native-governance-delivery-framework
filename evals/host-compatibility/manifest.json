@@ -43,10 +43,18 @@
   },
   "dynamic_imports": [
     {
-      "file": "packages/cli/lib/mcp-lifecycle/facade-entry.js",
+      "file": "packages/cli/lib/mcp-lifecycle/facade-runtime.js",
       "expression": "pathToFileURL(join(runtime.packageRoot, 'src/main.js'))",
       "entrypoints": [
         "packages/mcp-server/src/main.js"
+      ]
+    },
+    {
+      "file": "packages/mcp-server/src/main.js",
+      "expression": "thin ? 'create-agdf/mcp-protocol-runtime' : 'create-agdf/mcp-dispatch-runtime'",
+      "entrypoints": [
+        "packages/cli/lib/mcp-protocol-runtime.js",
+        "packages/cli/lib/mcp-dispatch-runtime.js"
       ]
     }
   ],
@@ -58,7 +66,12 @@
     "scripts/host-compatibility/render.mjs",
     "scripts/host-compatibility/run.mjs",
     "packages/cli/scripts/host-compatibility-test.js",
-    "scripts/host-compatibility/native-release.mjs"
+    "scripts/host-compatibility/native-release.mjs",
+    "packages/cli/lib/mcp-lifecycle/facade-thread-entry.js",
+    "packages/mcp-server/src/generation-entry.js",
+    "packages/mcp-server/src/generation-thread-entry.js",
+    "packages/core/lib/runtime/mcp-owner-protocol.js",
+    "packages/cli/lib/mcp-worker-runtime.js"
   ],
   "extra_sources": [
     "package.json",
@@ -70,7 +83,8 @@
     "scripts/host-compatibility/test.mjs",
     "plugins/agdf/meta/copilot-payload-baseline.json",
     "packages/core/package.json",
-    "plugins/agdf/meta/agdf-interaction-locales.json"
+    "plugins/agdf/meta/agdf-interaction-locales.json",
+    "packages/mcp-server/package.json"
   ],
   "historical_sources": [
     {

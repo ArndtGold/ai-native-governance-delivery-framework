@@ -48,13 +48,14 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
   cpSync(join(coreRoot, 'lib'), join(target, 'lib'), { recursive: true });
   projectCoreDependencies(target);
   // Copilot exposes the default dispatcher/inspector, never the private Codex cockpit.
-  // Keep the shared snapshot owner: default artifact-readiness imports it too.
+  // Keep snapshot and the shared worker pool: default readiness and doctor use
+  // these owners too. The diagnostic worker has no private cockpit dependency.
   // The Claude Code installation drift check has no Copilot consumer either.
   if (copilot) for (const module of [
     'runtime/host-installation.js',
     'control-inspect/cockpit.js', 'control-inspect/cockpit-backlog.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
     'control-inspect/cockpit-list.js', 'control-inspect/cockpit-list.d.ts',
-    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js', 'control-read/control-changes.js',
+    'control-read/cockpit-worker.js', 'control-read/control-changes.js',
     'control-inspect/decision-session.js',
     'control-state/decision-action-service.js',
     'control-state/decision-action-contract.js', 'interaction-catalog.d.ts',

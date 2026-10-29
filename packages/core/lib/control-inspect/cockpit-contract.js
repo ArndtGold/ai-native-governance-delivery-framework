@@ -1,9 +1,10 @@
 // One wire-schema owner for the bounded cockpit connection. No filesystem selectors.
 import { COCKPIT_UI_URI } from '../mcp-resource-contract.js';
+import { READ_SESSION_CAPACITY } from '../control-read/cockpit-pool.js';
 export { COCKPIT_UI_URI, DECISION_UI_URI } from '../mcp-resource-contract.js';
 export const COCKPIT_MIME = 'text/html;profile=mcp-app';
 export const COCKPIT_LIMITS = Object.freeze({ html: 4 * 1024 ** 2, idle: 30 * 60_000, lifetime: 8 * 60 * 60_000,
-  sessions: 4, capture: 64 * 1024 ** 2, workerOldGeneration: 256 });
+  sessions: READ_SESSION_CAPACITY, capture: 64 * 1024 ** 2, workerOldGeneration: 256 });
 const id = { type: 'string', format: 'uuid' };
 const run = { type: 'string', pattern: '^[A-Za-z0-9_-]{1,128}$' };
 function operation(name, fields = {}, optional = []) {
@@ -19,6 +20,9 @@ export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
   operation('preview', { snapshot_id: id, run_id: run, resource_id: id }),
   operation('freshness', { snapshot_id: id }),
   operation('changes', { snapshot_id: id }),
+  operation('decision_display', { owner_epoch: id, nonce: id, surface_id: id,
+    document_digest: { type: 'string', pattern: '^sha256:[a-f0-9]{64}$' }, visible: { const: true } }),
+  operation('decision_state'),
   operation('context', { snapshot_id: id, run_id: run }),
   operation('prepare_context', { snapshot_id: id, run_id: run, revision_id: id, resource_id: id,
     graph_ids: { type: 'array', maxItems: 16, uniqueItems: true, items: id },

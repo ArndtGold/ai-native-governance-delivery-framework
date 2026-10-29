@@ -12,7 +12,7 @@ export { UUID as PRESENTATION_ID_PATTERN, recovery as PRESENTATION_RECOVERY };
 // Pure record check is also consumed inside captured read-only observations.
 export function validateRunPresentationEnvelope(envelope, { runId, gate, revisionId, presentationId }) {
   const { record, digest } = envelope ?? {};
-  if (!record || ![1, 2, 3, 4, 5].includes(record.schema_version) || record.presentation_id !== presentationId
+  if (!record || ![1, 2, 3, 4, 5, 6].includes(record.schema_version) || record.presentation_id !== presentationId
       || record.run_id !== runId || record.gate !== gate || record.revision_id !== revisionId
       || digest !== hash(JSON.stringify(record)) || !Number.isFinite(Date.parse(record.created_at))) {
     return { reason: "presentation_binding_invalid", recovery };
@@ -20,17 +20,18 @@ export function validateRunPresentationEnvelope(envelope, { runId, gate, revisio
   if (record.schema_version === 2 && (!exactObject(envelope, ['record', 'digest'])
     || !exactObject(record, ['schema_version', 'presentation_id', 'operation_id', 'request_digest', 'created_at', 'run_id', 'gate', 'revision_id', 'content_digest', 'artefact_digest', 'summary_digest', 'presentation_language', 'presentation_digest'])
     || record.operation_id !== presentationId || !UUID.test(record.operation_id) || !DIGEST_PATTERN.test(record.request_digest ?? ''))) return { reason: 'presentation_binding_invalid', recovery };
-  if ([3, 4, 5].includes(record.schema_version) && (!exactObject(envelope, ['record', 'digest'])
+  if ([3, 4, 5, 6].includes(record.schema_version) && (!exactObject(envelope, ['record', 'digest'])
     || !exactObject(record, ['schema_version', 'presentation_id', ...(record.operation_id ? ['operation_id', 'request_digest'] : []),
       'created_at', 'run_id', 'gate', 'revision_id', 'content_digest', 'artefact_digest', 'summary_digest', 'presentation_language',
-      'presentation_digest', 'document_digest', 'document_bytes', 'document_language', ...(record.schema_version === 4 ? ['qa_acceptance'] : []), ...(record.schema_version === 5 ? ['preview_review'] : [])])
+      'presentation_digest', 'document_digest', 'document_bytes', 'document_language', ...(record.schema_version === 4 || record.schema_version === 6 && record.qa_acceptance ? ['qa_acceptance'] : []), ...(record.schema_version === 5 || record.schema_version === 6 && record.preview_review ? ['preview_review'] : [])])
     || record.operation_id && (record.operation_id !== presentationId || !UUID.test(record.operation_id) || !DIGEST_PATTERN.test(record.request_digest ?? ''))
     || !/^[a-z]{2}(?:-[A-Za-z0-9]{2,8})*$/u.test(record.document_language ?? '')
     || !DIGEST_PATTERN.test(record.document_digest ?? '') || !Number.isInteger(record.document_bytes)
     || record.document_bytes < 1 || record.document_bytes > 131072)) return { reason: 'presentation_binding_invalid', recovery };
-  if (record.schema_version === 4 && (gate !== 'QA' || !exactObject(record.qa_acceptance, ['kind', 'digest'])
+  if ((record.schema_version === 4 || record.schema_version === 6 && record.qa_acceptance) && (gate !== 'QA' || !exactObject(record.qa_acceptance, ['kind', 'digest'])
     || record.qa_acceptance.kind !== 'accepted_with_deviations' || !DIGEST_PATTERN.test(record.qa_acceptance.digest ?? ''))) return { reason: 'presentation_binding_invalid', recovery };
-  if (record.schema_version === 5 && (gate !== 'PRD' || !validPreviewSnapshot(record.preview_review, runId, presentationId))) return { reason: 'presentation_binding_invalid', recovery };
+  if ((record.schema_version === 5 || record.schema_version === 6 && record.preview_review) && (gate !== 'PRD' || !validPreviewSnapshot(record.preview_review, runId, presentationId))) return { reason: 'presentation_binding_invalid', recovery };
+  if (record.schema_version === 6 && record.presentation_digest !== record.document_digest) return { reason: 'presentation_binding_invalid', recovery };
   return { presentationId, digest, record };
 }
 

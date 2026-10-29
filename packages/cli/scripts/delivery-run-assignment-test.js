@@ -86,11 +86,20 @@ try {
   assert.deepEqual(snapshot(), before, "gate preview neither records approval nor prepares a binding");
 
   const fresh = dispatch({ runId: "independent", intakeMode: "new" });
-  assert.equal(fresh.continuation.phase, "run_missing", JSON.stringify(fresh));
+  assert.equal(fresh.continuation?.phase, "run_missing", JSON.stringify(fresh));
   assert.deepEqual(fresh.continuation.steps.map((step) => step.id), ["create_run", "dispatch_again"]);
   assert.deepEqual(fresh.continuation.steps[0].argv, ["run-create", "--dir", root, "--run", "independent"]);
   assert.doesNotMatch(JSON.stringify(fresh.continuation), /<run_id>|<revision_id/);
   assert.deepEqual(snapshot(), before, "new-scope dispatch plans concrete bookkeeping only");
+
+  const policyPath = join(root, '.agdf/control/AGENT_QUALITY_CONTRACTS.json'), policy = readFileSync(policyPath, 'utf8');
+  try {
+    writeFileSync(policyPath, '{invalid current shared policy');
+    const damaged = snapshot(), blocked = dispatch({ runId: 'independent', intakeMode: 'new' });
+    assert.equal(blocked.terminal, true, JSON.stringify(blocked));
+    assert.equal(blocked.continuation, null, 'a missing new Run cannot bypass a real shared policy blocker');
+    assert.deepEqual(snapshot(), damaged, 'blocked intake preserves the damaged evidence for its existing owner');
+  } finally { writeFileSync(policyPath, policy); }
 
   writeFileSync(join(root, urPath), `${readFileSync(join(root, urPath), "utf8")}\nRecorded scope clarification.\n`);
   assert.equal(recordRunRevision(root, { runId: "requested", revisionId: candidate.revision_id }).outcome, "updated");

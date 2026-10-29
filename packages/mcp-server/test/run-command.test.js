@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, readdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { EventEmitter } from 'node:events';
@@ -16,7 +16,7 @@ import { OPERATION_CONTRACT_MODULES, CONTROL_INSPECT_FUNCTION_DEFINITION } from 
 import { createWorkerDispatchExecutor } from '../src/worker.js';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 
-const groups = ['agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout'];
+const groups = ['agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout'];
 assert.deepEqual(Object.keys(RUN_COMMAND_GROUPS), groups);
 assert.deepEqual(configuredMcpCommandGroups({}), groups);
 assert.deepEqual(configuredMcpCommandGroups({ AGDF_MCP_COMMAND_GROUPS: '' }), []);
@@ -30,7 +30,7 @@ assert.deepEqual(disabled.tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_
 assert.equal(disabled.tool('agdf_approve'), null);
 
 for (const modern of [false, true]) {
-  const fixture = createOwnedRuntimeFixture(), root = fixture.governanceTarget;
+  const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
   try {
     const cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
     const f = createLateSourceRevisionTestRun(root, cli), path = f.prefix + 'MCP_CD_CANDIDATE.md';
@@ -46,8 +46,28 @@ for (const modern of [false, true]) {
         const tool = tools.find(tool => tool.name === group), definition = commandGroupDefinition(group);
         assert.deepEqual(tool.inputSchema, definition.inputSchema); assert.deepEqual(tool.annotations, definition.annotations);
       }
+      const uninitialized = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-mcp-pre-run-empty-')));
+      try {
+        execFileSync('git', ['init', '-q', uninitialized]);
+        const originalId = randomUUID();
+        const rejected = await client.callTool({ name: 'agdf_run', arguments: {
+          schema_version: '1', presentation_language: 'en', working_directory: uninitialized,
+          target_source: 'explicit_target', primary_target: uninitialized,
+          target_id: resolveControlCommandTarget(uninitialized).target_id,
+          operation_id: originalId, assurance: 'cooperative_local',
+          command: { kind: 'run.create', payload: { title: 'Reject absent canonical setup explicitly' } },
+        } });
+        assert.equal(rejected.isError, true);
+        const result = rejected.structuredContent;
+        assert.equal(result.outcome, 'rejected', JSON.stringify(rejected));
+        assert.equal(result.dispatch, 'not_dispatched');
+        assert.equal(result.operation_id, originalId);
+        assert.equal(result.reason, 'AGDF_CANONICAL_SCAFFOLD_REQUIRED');
+        assert.equal(result.next_calls[0].arguments.operation, 'project-state');
+        assert.equal(existsSync(join(uninitialized, '.agdf')), false);
+      } finally { rmSync(uninitialized, { recursive: true, force: true }); }
       const before = readFileSync(f.state, 'utf8');
-      const recoveryGroups = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['prd_revision.reopen'], agdf_closeout: ['closeout.record', 'lifecycle_close.record'] };
+      const recoveryGroups = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['ur_draft.replace', 'prd_revision.reopen'], agdf_closeout: ['closeout.record', 'lifecycle_close.record'] };
       for (const [group, allowed] of Object.entries(recoveryGroups)) {
         const recovery = tools.find(tool => tool.name === group).inputSchema.properties.command.oneOf.find(row => row.properties.kind.const === 'operation.recover');
         assert.deepEqual(recovery.properties.payload.properties.original_kind.enum, allowed);

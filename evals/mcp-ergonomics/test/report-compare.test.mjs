@@ -7,6 +7,7 @@ import { aggregateNative, compareNative, compareProtocol, compareToolCaptures } 
 import { claudeProjectSlug, redactionViolations, sanitizeTranscript } from "../lib/redaction.js";
 import { loadMatrix, resolveTemplate } from "../lib/protocol-run.js";
 import { promote } from "../../scripts/compare-mcp-ergonomics.js";
+import { RUN_COMMAND_GROUPS } from '../../../packages/core/lib/control-state/run-command-contract.js';
 
 const row = (id, bytes, extra = {}) => ({ id, tool: "agdf_inspect", call_class: "valid", class: "ok", outcome: "inspect_result", is_error: false,
   failure_without_isError: false, text_bytes: bytes, structured_bytes: bytes, est_tokens: Math.ceil(bytes / 4), latency_ms: { median: 1, p95: 2, samples: [1] }, ...extra });
@@ -149,9 +150,9 @@ test("findings map covers the twelve review findings with a metric or a reason (
   for (const entry of map.findings) assert.ok(entry.metrics.length || entry.not_measurable, entry.id);
 });
 
-test("call matrix v1 covers valid, schema-invalid and semantic calls for all seven agdf tools (SCN-001)", () => {
+test("call matrix covers valid, schema-invalid and semantic calls for every canonical MCP command group (SCN-001)", () => {
   const matrix = loadMatrix();
-  const tools = ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"];
+  const tools = ['agdf_dispatch', 'agdf_inspect', ...Object.keys(RUN_COMMAND_GROUPS)];
   for (const tool of tools) {
     const classes = new Set(matrix.calls.filter(entry => entry.tool === tool).map(entry => entry.call_class));
     assert.deepEqual([...classes].sort(), ["schema_invalid", "semantic_failure", "valid"], tool);

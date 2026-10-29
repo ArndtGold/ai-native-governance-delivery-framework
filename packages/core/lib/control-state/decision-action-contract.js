@@ -1,4 +1,4 @@
-import { strictObject, schemaDiagnostics, RUN_COMMAND_LIMITS, RUN_COMMAND_GROUPS } from './run-command-contract.js';
+import { strictObject, schemaDiagnostics, RUN_COMMAND_LIMITS, RUN_COMMAND_GROUPS } from './run-command-schema.js';
 import { REVISION_ID_PATTERN } from './run-identity.js';
 import { canonicalJson, digest } from './approval-command-contract.js';
 
@@ -30,3 +30,12 @@ export function decisionActionDefinition(groups) {
     inputSchema: decisionActionSchema(actions), _meta: { ui: { resourceUri: DECISION_UI_URI, visibility: ['app'] } } });
 }
 export const decisionActionRequestDigest = (binding, input) => digest(`agdf-app-decision/1\0${canonicalJson({ binding, input })}`);
+
+export const DECISION_VIEW_SCHEMA = strictObject({ primary_target: { type: 'string', minLength: 1, maxLength: 4096 },
+  target_id: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, run_id: { type: 'string', pattern: '^[A-Za-z0-9_-]{1,128}$' },
+  expected_revision_id: uuid, gate: { enum: ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'] }, presentation_id: uuid });
+export const DECISION_VIEW_DEFINITION = Object.freeze({ name: 'agdf_decision_view',
+  description: 'Optional non-primary preview of a prepared decision. Display is unconfirmed until the bound live view is observed. Then call presentation.deliver; absent current-surface proof selects Markdown.',
+  annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false }, inputSchema: DECISION_VIEW_SCHEMA,
+  _meta: { ui: { resourceUri: DECISION_UI_URI, visibility: ['model', 'app'] } } });
+export function validateDecisionView(input) { return schemaDiagnostics(input, DECISION_VIEW_SCHEMA); }

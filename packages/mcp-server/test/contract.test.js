@@ -1,12 +1,15 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { SKILL_DISPATCH_FUNCTION_DEFINITION, createMcpDispatchRuntime } from "../../cli/lib/mcp-dispatch-runtime.js";
+import { createAgdfWorkerExecutor as workerFactory } from "../src/worker.js";
+import { createAgdfWorkerExecutor as serverFactory } from "../src/server.js";
+assert.equal(workerFactory, serverFactory, "the public server reexports its one canonical worker factory");
 import { buildAgdfServer } from "../src/server.js";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
@@ -14,8 +17,38 @@ import {
 } from "../../cli/scripts/fixtures/skill-dispatch-language.js";
 import { unresolvedArguments } from "./helpers.js";
 import { createTestRuntime } from "./runtime-fixture.js";
+import { createMcpTransportRuntime, DECISION_UI_URI } from '../../cli/lib/mcp-protocol-runtime.js';
+import { composeMcpDecisionProtocol } from '../../cli/lib/mcp-decision-protocol.js';
+import { createMcpDecisionRuntime } from '../../cli/lib/mcp-dispatch-runtime.js';
+import { generationManifest } from '../src/generation-protocol.js';
 
 const runtime = createTestRuntime();
+const inspected = { expectedVersion: runtime.trustedContext.expectedVersion, skillSet: runtime.trustedContext.skillSet,
+  interactionLocales: runtime.trustedContext.interactionLocales, provenanceStatus: 'matched',
+  runtimeEvidence: { machine_validation: 'test_fixture', plugin_root: null, runtime_digest: null, provenance_status: 'matched' } };
+const thin = createMcpTransportRuntime({ surface: 'codex', inspected });
+assert.deepEqual(thin.tools.map(t => t.definition), runtime.tools.map(t => t.definition));
+assert.deepEqual(thin.tool('agdf_dispatch').parse(unresolvedArguments), runtime.tool('agdf_dispatch').parse(unresolvedArguments));
+assert.throws(() => thin.execute(unresolvedArguments), error => error.code === 'generation_unavailable' && error.dispatch === 'not_dispatched');
+for (const code of ['dispatch_busy', 'dispatch_timeout', 'runtime_provenance_invalid'])
+  assert.deepEqual(thin.failure(code, 'agdf_inspect', unresolvedArguments, { elapsed_ms: 42 }),
+    runtime.failure(code, 'agdf_inspect', unresolvedArguments, { elapsed_ms: 42 }));
+const ui = { uri: DECISION_UI_URI, mimeType: 'text/html;profile=mcp-app', limit: 4194304, kind: 'decision', digest: 'structural-fixture' };
+const thinDecision = composeMcpDecisionProtocol({ runtime: thin, ui });
+const fullDecision = await createMcpDecisionRuntime({ runtime: createMcpDispatchRuntime({ surface: 'codex', inspected, verifyRuntime: () => {} }), ui });
+assert.deepEqual(generationManifest(thinDecision, ui.digest, 'sdk-fixture'), generationManifest(fullDecision, ui.digest, 'sdk-fixture'));
+assert.equal(thinDecision.delivery, undefined, 'a protocol front does not own decision or material sessions');
+await fullDecision.close();
+const frontUrl = new URL('../../cli/lib/mcp-protocol-runtime.js', import.meta.url).href;
+const frontImport = spawnSync(process.execPath, ['--input-type=module', '--eval', `
+  import { register } from 'node:module';
+  const loader = "export async function load(url, context, next) { const forbidden = ['/lib/mcp-dispatch-runtime.js', '/control-inspect/decision-session.js', '/control-inspect/doctor-observation.js', '/control-inspect/cockpit-session.js', '/lib/mcp-decision-protocol.js', '/control-state/decision-action-contract.js', '/control-inspect/cockpit-contract.js', '/control-evaluation/doctor.js', '/control-evaluation/gate-check.js', '/control-inspect/artifact-readiness.js', '/control-state/run-command-contract.js']; if (url.endsWith('/lib/index.js') && url.includes('/core/') || forbidden.some(path => url.endsWith(path))) throw Error('duplicate_domain_runtime_import: ' + url); return next(url, context); }";
+  register('data:text/javascript,' + encodeURIComponent(loader));
+  const front = await import(${JSON.stringify(frontUrl)});
+  console.log(front.createMcpTransportRuntime({ surface: 'codex' }).tools.length);
+`], { encoding: 'utf8' });
+assert.equal(frontImport.status, 0, frontImport.stderr);
+assert.equal(frontImport.stdout.trim(), '9', 'thin import starts no Core/decision/diagnostic service composition');
 assert.throws(
   () => buildAgdfServer({ runtime: createMcpDispatchRuntime({ surface: "codex" }) }),
   /owned runtime is required/,
@@ -37,7 +70,7 @@ await server.connect(serverTransport);
 await client.connect(clientTransport);
 
 const { tools } = await client.listTools();
-assert.equal(tools.length, 7);
+assert.equal(tools.length, 9);
 assert.equal(tools[1].name, "agdf_inspect");
 assert.equal(tools[1].annotations.readOnlyHint, true);
 assert.equal(tools[0].name, SKILL_DISPATCH_FUNCTION_DEFINITION.name);
@@ -105,7 +138,7 @@ for (const selection of [
   assert.equal(accepted.structuredContent.authorizes, false);
   assert.equal(accepted.structuredContent.terminal, true, "unresolved targets stop");
   assert.equal(accepted.structuredContent.host_action.mode, "transmit_presentation_verbatim_and_stop");
-  assert.equal(calls, before + 1);
+  assert.equal(calls, before + (selection.operation === 'doctor' ? 0 : 1), 'diagnostic observations use the isolated parent read owner');
 }
 const inspectRepository = mkdtempSync(join(tmpdir(), "agdf-inspect-result-contract-"));
 try {
@@ -133,6 +166,25 @@ try {
   const args = { operation: 'artifact-readiness', presentation_language: 'de', working_directory: draft.root,
     target_source: 'explicit_target', primary_target: draft.root, run_id: draft.runId, gate: 'PRD', expected_revision_id: draft.revision };
   const stateBefore = readFileSync(draft.runPath, 'utf8');
+  const continuing = { skill_id: 'gate-check', presentation_language: 'de', working_directory: draft.root,
+    target_source: 'explicit_target', primary_target: draft.root, run_id: draft.runId, continue_delivery: true };
+  const disabled = createTestRuntime('codex', { commandGroups: [] });
+  try {
+    const fallback = disabled.execute(disabled.parse(continuing));
+    const typed = runtime.execute(runtime.parse(continuing));
+    assert.equal(fallback.continuation?.control_transport, 'cli_fallback', JSON.stringify(fallback));
+    assert.equal(fallback.continuation.transport_reason, 'required_mcp_group_unavailable');
+    assert.ok(fallback.continuation.missing_mcp_groups.every(group => !disabled.tools.some(tool => tool.name === group)));
+    assert.equal(fallback.continuation.next_calls, undefined, 'disabled writers cannot be advertised as callable MCP operations');
+    assert.equal(typed.continuation?.control_transport, 'typed_mcp', JSON.stringify(typed));
+    assert.ok(typed.continuation.next_calls.length > 0);
+    for (const call of typed.continuation.next_calls) {
+      const next = await client.callTool({name:call.tool,arguments:call.arguments});
+      assert.equal(next.isError,undefined,JSON.stringify(next));
+      assert.equal(next.structuredContent.report.authorizes,false);
+    }
+    assert.equal(readFileSync(draft.runPath, 'utf8'), stateBefore);
+  } finally { await disabled.close(); }
   const checked = await client.callTool({ name: 'agdf_inspect', arguments: args });
   assert.equal(checked.isError, undefined, JSON.stringify(checked));
   assert.equal(checked.structuredContent.outcome, 'inspect_result', JSON.stringify(checked));

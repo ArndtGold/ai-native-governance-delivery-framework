@@ -64,7 +64,7 @@ deaktiviert. Details: [MCP und UI je Host](INSTALL.md#claude-code-and-codex-mcp-
 
 GitHub Copilot erhält MCP ebenfalls über sein Runtime-Plugin. Für OpenCode kann der lokale
 MCP-Server separat registriert werden; beide Integrationen bleiben experimentell in 0.20.x.
-MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`, `agdf_project`, `agdf_run`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 `agdf_dispatch` verwendet dieselbe kanonische
 Funktionsbeschreibung und Gate-Auswertung wie die CLI; `agdf_inspect` bietet lesenden Zugriff auf
 Doctor, Gate-Check, Delivery-Map und Runtime-Verträge. Der Server läuft lokal über STDIO, arbeitet

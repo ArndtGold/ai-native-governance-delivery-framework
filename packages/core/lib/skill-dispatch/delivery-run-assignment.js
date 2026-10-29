@@ -1,4 +1,4 @@
-import { discoverRuns } from "../control-state/run-state-reader.js";
+import { discoverRuns, readSelectedRun } from "../control-state/run-state-reader.js";
 import { assertCanonicalRunStore } from "../control-state/run-store-inspection.js";
 import { artefactFileDigest, runSealState } from "../control-state/run-seal.js";
 import { containedRegularFile } from "../control-state/contained-file.js";
@@ -8,9 +8,9 @@ import { buildRunCandidates } from "../interaction-presentation.js";
 
 // Scope matching belongs to the coding agent. This leaf supplies canonical evidence only;
 // neither candidate count, recency nor AGDF_RUN_ID binds a delivery request to a run.
-export function readDeliveryRunInventory(targetDir) {
+export function readDeliveryRunInventory(targetDir, { runId } = {}) {
   assertCanonicalRunStore(targetDir);
-  const runs = discoverRuns(targetDir);
+  const runs = runId ? [readSelectedRun(targetDir, runId)] : discoverRuns(targetDir);
   const findings = runs.filter((run) => !run.valid)
     .flatMap((run) => run.findings.map((finding) => ({ ...finding, run_id: run.run_id })));
   const candidates = [];

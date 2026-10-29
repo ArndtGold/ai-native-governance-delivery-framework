@@ -45,7 +45,10 @@ test.afterAll(async () => { if(server?.listening) await new Promise(resolve=>ser
 for (const width of [736,360,320]) test(`Bound preview, missing proof and isolation at ${width}px (synthetic browser)`, async ({page}) => {
   const errors=[];page.on('pageerror',e=>errors.push(e.message));requests=[]; await page.setViewportSize({width,height:900}); await page.goto(origin); await expect.poll(()=>errors).toEqual([]);
   const open = page.getByRole('button',{name:/Vorschau.*review-v1/}); await expect(open).toBeVisible({timeout:5000});
-  for (const question of fixture.preview.descriptor.open_questions) await expect(page.getByRole('listitem').filter({hasText:question})).toBeVisible();await expect(page.getByText(registry.locales.de.decisionCard.previewTask+': '+view.preview.task,{exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:evidencePath(`agdf-preview-decision-${width}.png`),fullPage:true}); await open.click();
+  for (const question of fixture.preview.descriptor.open_questions) await expect(page.getByText(question,{exact:true})).toBeVisible();
+  await expect(page.getByText(view.preview.task,{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:registry.locales.de.decisionCard.approve,exact:true})).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:evidencePath(`agdf-preview-decision-${width}.png`),fullPage:true}); await open.click();
   const outer = page.frameLocator('iframe'), child = outer.frameLocator('iframe');
   await expect(child.locator('#case')).toBeVisible();
   await expect(page.getByText(registry.locales.de.decisionCard.previewLoading, {exact:true})).toHaveCount(0);

@@ -1,6 +1,7 @@
 // Shared read-only selection policy for CLI and MCP; evaluation never writes control state.
 
-export const CONTROL_INSPECT_OPERATIONS = Object.freeze(["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations"]);
+export const ARTIFACT_READINESS_GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP']);
+export const CONTROL_INSPECT_OPERATIONS = Object.freeze(["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state"]);
 export const ALL_ACTIVE_OPERATIONS = Object.freeze(["doctor", "delivery-map"]);
 export const VARIANT_OPERATION = "gate-check";
 export const MODULE_OPERATION = "contract";

@@ -170,7 +170,7 @@ native MCP registration path and effective source.
 
 The optional registered MCP path configures one local STDIO server for OpenCode. Codex, Claude Code
 and GitHub Copilot instead discover the same server from their installed runtime plugin.
-MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_project`, `agdf_run`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 Dispatch uses the same canonical semantic definition and
 dispatcher as the CLI; inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
 Both tools are read-only, offline while serving and non-authorizing. Host permission, registration and

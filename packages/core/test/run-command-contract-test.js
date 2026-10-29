@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict';
 import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, commandGroupSchema, validateRunCommand, operationContract } from '../lib/control-state/run-command-contract.js';
+import * as contractFacade from '../lib/control-state/run-command-contract.js';
+import * as structuralContract from '../lib/control-state/run-command-schema.js';
+import { ARTIFACT_READINESS_GATES as selectedGates } from '../lib/control-inspect/selection.js';
+import { ARTIFACT_READINESS_GATES as evaluatedGates } from '../lib/control-inspect/artifact-readiness.js';
+for (const name of Object.keys(contractFacade).filter(name => name !== 'operationContract'))
+  assert.equal(contractFacade[name], structuralContract[name], `one canonical structural owner: ${name}`);
+assert.equal(selectedGates, evaluatedGates, 'the evaluator reexports the canonical selector values');
 const input = { schema_version: '1', presentation_language: 'de', working_directory: '/tmp/project', target_source: 'explicit_target', primary_target: '/tmp/project',
   target_id: 'sha256:' + 'a'.repeat(64), run_id: 'bounded-run', expected_revision_id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', operation_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', assurance: 'cooperative_local',
   command: { kind: 'approval.record', payload: { gate: 'TP', presentation_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', response: 'Approval: TP' } } };
 assert.deepEqual(validateRunCommand('agdf_approve', input), []);
-const recoveries = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['prd_revision.reopen'], agdf_closeout: ['closeout.record', 'lifecycle_close.record'] };
+const recoveries = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['ur_draft.replace', 'prd_revision.reopen'], agdf_closeout: ['closeout.record', 'lifecycle_close.record'] };
 for (const [group, allowed] of Object.entries(recoveries)) {
   const definition = commandGroupSchema(group).properties.command.oneOf.find(row => row.properties.kind.const === 'operation.recover');
   assert.deepEqual(definition.properties.payload.properties.original_kind.enum, allowed);

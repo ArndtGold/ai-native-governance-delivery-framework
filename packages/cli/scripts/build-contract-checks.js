@@ -43,13 +43,13 @@ export function checkGeneratedGateContracts() {
     const content = readFileSync(path, "utf8");
     const hasSingleInteractionReference = (text) => text.split(interactionReference).length - 1 === 1;
     if (!content.includes("Dispatch is non-authorizing.")
-      || !content.includes("`skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.")
-      || !content.includes("`delivery.start`: resolve target once; unresolved: orient and stop.")
+      || !content.includes("`skill.gate-check`: dispatch before inspection; changes: `intake`.")
+      || !content.includes("`delivery.start`: resolve target once; unresolved/mismatch: orient and stop.")
       || !content.includes("For a result with `terminal: true`")
       || !content.includes("the entire assistant response must consist only of host_action.text, copied verbatim")
       || !content.includes("Add no question, explanation, heading, citation, link or other surrounding text")
-      || !content.includes("Only explicit trusted `instruction_only` runtime evidence enables fallback.")
-      || !content.includes("Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope")
+      || !content.includes("Fallback requires trusted explicit `instruction_only` runtime evidence.")
+      || !content.includes("Bind Run only by explicit selection, confirmed continuation or unequivocal UR scope.")
       || !content.includes("`expected_revision_id`")
       || !content.includes("`continue_delivery: true`")
       || !hasSingleInteractionReference(content)
@@ -72,10 +72,12 @@ export function checkGeneratedGateContracts() {
 
   for (const path of transitionContractPaths) {
     const content = readFileSync(path, "utf8");
-    if (!content.includes("## Gate Transition Card")
-      || !content.includes("answers exactly three user questions")
-      || !content.includes("Run Status Card remains the operational,")
-      || !content.includes("must not be a Markdown table or dashboard")
+    if (!content.includes("## Prepared decision presentation")
+      || !content.includes("one immutable Markdown decision document")
+      || !content.includes("presentation.deliver")
+      || !content.includes("full_markdown")
+      || !content.includes("current-surface")
+      || content.includes("answers exactly three user questions")
       || !content.includes("never bind an earlier reply to a subsequently prepared revision.")) {
       throw new Error(`Generated runtime contract must preserve the transition-card and status-projection boundary: ${path}`);
     }

@@ -1,21 +1,35 @@
 import { Worker } from 'node:worker_threads';
 import { READ_LIMITS, ControlReadError } from './snapshot.js';
+export const READ_SESSION_CAPACITY = 4;
+export function createReadWorkerBudget(maximum = READ_SESSION_CAPACITY) {
+  if (!Number.isSafeInteger(maximum) || maximum < 1 || maximum > READ_SESSION_CAPACITY) throw Error('read_capacity_invalid');
+  const owners = new Set();
+  return Object.freeze({ acquire(owner) { if (owners.size >= maximum) return false; owners.add(owner); return true; },
+    release(owner) { owners.delete(owner); }, inspect() { return { occupied: owners.size, maximum }; } });
+}
 
 export class ReadWorkerPool {
   constructor(root, { timeout = READ_LIMITS.timeout, workerURL = new URL('./cockpit-worker.js', import.meta.url),
-    limits, maxOldGenerationSizeMb = 768 } = {}) {
+    limits, maxOldGenerationSizeMb = 768, budget } = {}) {
     this.root = root; this.timeout = timeout; this.workerURL = workerURL;
     this.limits = limits; this.maxOldGenerationSizeMb = maxOldGenerationSizeMb;
+    this.budget = budget;
     this.retiring = null; this.scope = null; this.changed = null; this.changeWaiter = null;
     this.worker = null; this.active = null; this.waiting = null; this.closed = false; this.sequence = 0;
   }
   #spawn() {
+    const token = {};
+    if (this.budget && !this.budget.acquire(token)) throw new ControlReadError('resource_limit');
     const env = { ...process.env }; delete env.AGDF_RUN_ID;
-    const worker = new Worker(this.workerURL, { workerData: { root: this.root, limits: this.limits }, env, execArgv: [],
-      resourceLimits: { maxOldGenerationSizeMb: this.maxOldGenerationSizeMb } });
+    let worker;
+    try { worker = new Worker(this.workerURL, { workerData: { root: this.root, limits: this.limits }, env, execArgv: [],
+      resourceLimits: { maxOldGenerationSizeMb: this.maxOldGenerationSizeMb } }); }
+    catch (e) { this.budget?.release(token); throw e; }
+    worker.once('exit', () => this.budget?.release(token));
     this.worker = worker;
-    worker.on('message', ({ id, result, error, changed }) => {
+    worker.on('message', ({ id, result, error, changed, phase }) => {
       if (this.worker !== worker) return;
+      if (phase === 'read_worker_ready') { if (this.active) this.active.startup_ms = performance.now() - this.active.started; return; }
       if (changed) {
         if (changed === this.scope?.snapshot_id) { this.changed = changed; this.changeWaiter?.finish(true); }
         return;
@@ -34,6 +48,7 @@ export class ReadWorkerPool {
     clearTimeout(job.timer); job.signal?.removeEventListener('abort', job.abort);
     if (this.active === job) this.active = null;
     if (this.waiting === job) this.waiting = null;
+    this.lastTiming = { elapsed_ms: performance.now() - job.started, startup_ms: job.startup_ms ?? (job.reused ? 0 : null) };
     error ? job.reject(error) : job.resolve(result);
     this.#pump();
   }
@@ -59,21 +74,22 @@ export class ReadWorkerPool {
     try {
       if (!this.worker) this.#spawn();
       this.worker.postMessage({ id: job.id, ...job.request });
-    } catch { this.#reset('read_failed'); }
+    } catch (e) { this.#reset(e.code === 'resource_limit' ? 'resource_limit' : 'read_failed'); }
   }
-  request(request, signal) {
+  request(request, signal, { timeout = this.timeout } = {}) {
+    if (!Number.isFinite(timeout) || timeout <= 0) return Promise.reject(new ControlReadError('timeout'));
     if (this.closed) return Promise.reject(new ControlReadError('read_failed'));
     if (this.waiting) return Promise.reject(new ControlReadError('busy'));
     if (signal?.aborted) return Promise.reject(new ControlReadError('cancelled'));
     return new Promise((resolve, reject) => {
-      const job = { id: ++this.sequence, request, signal, resolve, reject };
+      const job = { id: ++this.sequence, request, signal, resolve, reject, started: performance.now(), reused: Boolean(this.worker) };
       job.abort = () => {
         if (this.active === job) {
           // The bounded read finishes inside its deadline; retain the immutable view for other readers.
           job.reject(new ControlReadError('cancelled'));
         } else this.#finish(job, new ControlReadError('cancelled'));
       };
-      job.timer = setTimeout(() => this.active === job ? this.#reset('timeout') : this.#finish(job, new ControlReadError('timeout')), this.timeout);
+      job.timer = setTimeout(() => this.active === job ? this.#reset('timeout') : this.#finish(job, new ControlReadError('timeout')), Math.min(timeout, this.timeout));
       signal?.addEventListener('abort', job.abort, { once: true });
       this.waiting = job; this.#pump();
     });

@@ -20,26 +20,29 @@ try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const f = createSdDefinitionTestRun(root, cli, 'remote-document', process.env, { typedApprovals: true });
-  const original = syntheticSd() + '\n## Synthetic exact-byte appendix\n' + '🙂'.repeat(9000) + 'x'.repeat(40000);
+  const original = syntheticSd().replace('Reuse the existing user-owned filter store.', 'Reuse the existing user-owned filter store. ' + '🙂'.repeat(9000) + 'x'.repeat(40000));
   writeFileSync(f.file('SD.md'), original); assert.equal(f.recordSd().value.outcome, 'recorded');
   const command = createCoreServices().command;
-  const input = { schema_version: '1', presentation_language: 'de', working_directory: root,
+  const input = { schema_version: '1', presentation_language: 'en', working_directory: root,
     target_source: 'explicit_target', primary_target: root, target_id: resolveControlCommandTarget(root).target_id,
     run_id: f.runId, expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local',
     command: { kind: 'presentation.prepare', payload: { gate: 'SD' } } };
   const prepared = command('agdf_prepare', input); assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
+  const exactDocument = prepared.family_result.text;
+  assert.equal(exactDocument.split(prepared.family_result.summary).length - 1, 1, 'the complete authored summary occurs once');
+  assert.ok(!prepared.family_result.companion_text.includes(prepared.family_result.summary));
   const binding = { runId: f.runId, gate: 'SD', revisionId: f.revision(), presentationId: prepared.family_result.presentation_id, targetId: input.target_id };
   let cursor, content = '', offset = 0, parts = 0;
   do {
     const page = readPresentationDocument(root, { ...binding, cursor });
     assert.equal(page.available, true, JSON.stringify(page)); assert.equal(page.byte_start, offset);
     assert.equal(Buffer.byteLength(page.content), page.byte_end - page.byte_start);
-    assert.equal(page.content_digest, digest(Buffer.from(original)));
+    assert.equal(page.content_digest, digest(Buffer.from(exactDocument)));
     assert.equal(page.authorizes, false); assert.equal(page.document_language, 'en'); assert.equal(page.applicability, 'current'); assert.ok(page.byte_end - page.byte_start <= 32768);
     content += page.content; offset = page.byte_end; cursor = page.next_cursor ?? undefined; ++parts;
     assert.equal(page.complete, cursor === undefined);
   } while (cursor);
-  assert.ok(parts > 2); assert.equal(content, original); assert.equal(offset, Buffer.byteLength(original));
+  assert.ok(parts > 2); assert.equal(content, exactDocument); assert.equal(offset, Buffer.byteLength(exactDocument));
   const inspect = createControlInspectService({ env: {} });
   const readInput = { operation: 'presentation-document', presentationLanguage: 'de', workingDirectory: root,
     targetSource: 'explicit_target', primaryTarget: root, runId: f.runId, gate: 'SD', expectedRevisionId: f.revision(),
@@ -159,10 +162,10 @@ try {
   assert.equal(command('agdf_prepare', alteredInput).reason, 'presentation_document_invalid');
   assert.equal(readFileSync(alteredSnapshot, 'utf8'), 'unconfirmed partial bytes');
   writeFileSync(f.file('SD.md'), 'Later mutable source');
-  assert.equal(readPresentationDocument(root, binding).content_digest, digest(Buffer.from(original)));
+  assert.equal(readPresentationDocument(root, binding).content_digest, digest(Buffer.from(exactDocument)));
   writeFileSync(f.file('SD.md'), original);
   const snapshot = join(root, `.agdf/control/runs/${f.runId}/presentations/${binding.presentationId}.document`);
-  writeFileSync(snapshot, original.replace('Synthetic', 'SynthetiX'));
+  writeFileSync(snapshot, exactDocument.replace('SHA-256', 'SHA-25X'));
   assert.equal(readPresentationDocument(root, binding).reason, 'presentation_document_digest_mismatch');
   const approve = { ...input, operation_id: randomUUID(), command: { kind: 'approval.record', payload: {
     gate: 'SD', presentation_id: binding.presentationId, response: 'Approval: SD' } } };

@@ -29,7 +29,8 @@ export const INSTRUCTION_FOOTPRINT_SURFACE_IDS = Object.freeze([
 // irrelevant to the schema digest. A semantic change requires an explicitly reviewed validator
 // update, not a silent limit increase, condition weakening or dispatch rewrite.
 const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "43d1bbd0760fd6957676ca8f31995411be3cfa76a7d9fd064d56d8d0676478a7";
-const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "a6c88ba3da4a022d0910f59b0bbf1d88726dcbc8077bba0ae6bd00b3bfd9b9e0";
+// UR MCP-R02/MCP-R03: typed transport guidance changes; terminal stop semantics remain exact.
+const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "4ace6aaf4412e09ac7b350e62bd20d575e8f61eea816db71a9eb47492d7142c4";
 const AUTHORIZED_OPENCODE_EAGER_FINGERPRINTS = Object.freeze({
   canonical: "f4241ee566b2e2528a6c031281135561b411ac14602958bfdc3219a28db52f3f",
   global: "166e07d217fd8d8e7f6734c0c8e509e59b09d24828a5dd6132f546b55d99629c",

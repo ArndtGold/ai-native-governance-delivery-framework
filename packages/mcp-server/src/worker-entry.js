@@ -1,6 +1,6 @@
 import { subscribe } from "node:diagnostics_channel";
 import { parentPort, workerData } from "node:worker_threads";
-import { OWNED_LOCK_CHANNEL, createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+import { OWNED_LOCK_CHANNEL, createMcpDispatchRuntime } from "#agdf-dispatch-worker";
 import { ownedLockForwarder } from "./worker.js";
 
 function send(message) {
@@ -14,7 +14,7 @@ subscribe(OWNED_LOCK_CHANNEL, ownedLockForwarder(send));
 let runtime, phase = 'setup';
 try {
   send({ type: 'phase', phase: 'runtime_provenance' });
-  runtime = createMcpDispatchRuntime({ surface: workerData.surface, ...(workerData.commandGroups !== undefined ? { commandGroups: workerData.commandGroups } : {}) });
+  runtime = createMcpDispatchRuntime({ surface: workerData.surface, materialGrants: workerData.materialGrants, ...(workerData.commandGroups !== undefined ? { commandGroups: workerData.commandGroups } : {}) });
   if (runtime.trustedContext.provenanceStatus !== "matched") {
     send({ type: "failure", code: "runtime_provenance_invalid", dispatch: "not_dispatched" });
   } else if (runtime.trustedContext.expectedVersion !== workerData.expectedVersion) {

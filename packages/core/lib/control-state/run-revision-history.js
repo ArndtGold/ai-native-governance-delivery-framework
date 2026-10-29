@@ -29,12 +29,14 @@ export function readHistoryBytes(root, path) {
   return readBoundedHistoryBytes(root, path, historyLimit(path));
 }
 
-export function collectRevisionHistory(root, runId, operationId, paths) {
+export function collectRevisionHistory(root, runId, operationId, paths, { proposalMaterial } = {}) {
   const prefix = revisionHistoryPrefix(runId, operationId);
   const files = [...new Set(paths)].sort().map((path, i) => {
     if (!isSafeControlRelativePath(path) || !path.startsWith(".agdf/control/")) throw Error("AGDF_REVISION_HISTORY_INVALID");
-    const bytes = readBoundedHistoryBytes(root, path,
+    const bytes = proposalMaterial?.path === path ? Buffer.from(proposalMaterial.content) : readBoundedHistoryBytes(root, path,
       path === `.agdf/control/runs/${runId}/RUN_STATE.md` ? CONTROL_STATE_LIMIT : DOCUMENT_LIMIT);
+    if (proposalMaterial?.path === path && (bytes.length > DOCUMENT_LIMIT || byteDigest(Buffer.from(canonicalRunText(bytes.toString('utf8')))) !== proposalMaterial.digest
+      || path !== `.agdf/control/artefacts/${runId}/EVIDENCE-${proposalMaterial.digest.slice(7)}.json`)) throw Error('AGDF_REVISION_HISTORY_INVALID');
     return { path, snapshot: `${prefix}files/${i}.bin`, bytes, digest: byteDigest(bytes),
       canonical_digest: byteDigest(Buffer.from(canonicalRunText(bytes.toString("utf8")), "utf8")) };
   });
@@ -42,7 +44,7 @@ export function collectRevisionHistory(root, runId, operationId, paths) {
     files: files.map(({ path, snapshot, bytes, digest, canonical_digest }) => ({ path, snapshot, length: bytes.length, digest, canonical_digest })) };
   const text = canonicalJson(manifest) + "\n";
   if (Buffer.byteLength(text) > 131072) throw Error("AGDF_REVISION_HISTORY_INVALID");
-  return { manifest, text, digest: byteDigest(Buffer.from(text)), files };
+  return { manifest, text, digest: byteDigest(Buffer.from(text)), files, ...(proposalMaterial ? { proposalMaterial } : {}) };
 }
 
 export function readValidatedRevisionArchive(root, receipt) {

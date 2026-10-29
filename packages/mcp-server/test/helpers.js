@@ -17,6 +17,7 @@ export async function withStdioClient({
   capabilities,
   env,
   root: ownedRuntimeRoot,
+  onFailure,
 } = {}, callback) {
   const transport = new StdioClientTransport({
     command,
@@ -41,10 +42,16 @@ export async function withStdioClient({
       native_qualified: false, authorizes: false }) + "\n");
     const original = client.callTool.bind(client);
     client.callTool = async (...parameters) => {
-      const result = await original(...parameters);
+      const started=performance.now(); let result;
+      try { result = await original(...parameters); }
+      catch(error) {
+        appendFileSync(file,JSON.stringify({observed_at:new Date().toISOString(),evidence_class:'synthetic_actual_stdio_failure',
+          request:parameters[0],elapsed_ms:performance.now()-started,error:{code:error.code??null,message:error.message},native_qualified:false,authorizes:false})+'\n');
+        throw error;
+      }
       appendFileSync(file, JSON.stringify({ observed_at: new Date().toISOString(),
         evidence_class: "synthetic_actual_stdio_exchange", protocol: modern ? "2026-07-28" : "legacy_negotiation",
-        request: parameters[0], result, native_qualified: false, authorizes: false }) + "\n");
+        request: parameters[0], elapsed_ms:performance.now()-started, result, native_qualified: false, authorizes: false }) + "\n");
       return result;
     };
   }
@@ -53,6 +60,7 @@ export async function withStdioClient({
     await callback(client);
     assert.equal(stderr, "", "STDERR must remain empty during a successful protocol exchange");
   } catch (error) {
+    await onFailure?.(error);
     if (stderr) error.message = `${error.message}; server stderr: ${stderr.trim()}`;
     throw error;
   } finally {

@@ -62,7 +62,7 @@ const commandResult = (runId, work) => {
   }
 };
 
-function collectRunRevisionClosure(root, run, state, operationId, approvedGates, extra = []) {
+function collectRunRevisionClosure(root, run, state, operationId, approvedGates, extra = [], options = {}) {
   const runId = run.meta.run_id;
   const pendingPaths = pendingArtefactPaths(run.content);
   const paths = [...listedArtefactPaths(run.content).filter(path => !pendingPaths.includes(path) || existsSync(join(root, path))),
@@ -84,14 +84,14 @@ function collectRunRevisionClosure(root, run, state, operationId, approvedGates,
     paths.push(path);
     let envelope;
     try { envelope = JSON.parse(readHistoryBytes(root, path).toString('utf8')); } catch { continue; }
-    if ([3, 4, 5].includes(envelope.record?.schema_version)) {
+    if ([3, 4, 5, 6].includes(envelope.record?.schema_version)) {
       const record = envelope.record;
       if (!APPROVAL_GATES.includes(record.gate) || validateRunPresentationEnvelope(envelope,
         { runId, gate: record.gate, revisionId: record.revision_id, presentationId: name.slice(0, -5) }).reason) throw revisionError('presentation_binding_invalid');
       const documentPath = `${presentations}/${record.presentation_id}.document`, bytes = readHistoryBytes(root, documentPath);
       if (bytes.length !== record.document_bytes || byteDigest(bytes) !== record.document_digest) throw revisionError('presentation_document_digest_mismatch');
       paths.push(documentPath);
-      if (record.schema_version === 5) {
+      if ([5, 6].includes(record.schema_version) && record.preview_review) {
         for (const file of [...record.preview_review.files, ...record.preview_review.chunks]) {
           const bytes = readHistoryBytes(root, file.snapshot);
           if (bytes.length !== file.bytes || byteDigest(bytes) !== file.digest) throw revisionError('preview_snapshot_changed');
@@ -105,7 +105,7 @@ function collectRunRevisionClosure(root, run, state, operationId, approvedGates,
       }
     }
   }
-  return collectRevisionHistory(root, runId, operationId, paths);
+  return collectRevisionHistory(root, runId, operationId, paths, options);
 }
 
 function prepareSourceRevision(root, input) {
@@ -120,7 +120,7 @@ function prepareSourceRevision(root, input) {
   if (run.meta.revision_id !== revisionId) throw revisionError("stale_revision");
   if (runSealState(root, run.content).status !== "valid") throw revisionError("seal_invalid");
   const state = { ...prepareRunContentState(root, run.content, run.path), meta: run.meta };
-  const proposal = readContainedJson(root, evidence), requestDigest = digest(canonicalJson(proposal));
+  const proposal = input.proposalMaterial ? JSON.parse(input.proposalMaterial.content) : readContainedJson(root, evidence), requestDigest = digest(canonicalJson(proposal));
   if (!['1', '2'].includes(proposal.schema_version)) throw revisionError('revision_version_unsupported');
   const expanded = proposal.schema_version === '2';
   if (expanded && !input.commandContext) throw revisionError('revision_command_required', 'Use the existing bound source_revision command with exact proposal and deliberate confirmation.');
@@ -135,7 +135,7 @@ function prepareSourceRevision(root, input) {
   if (sources.some(row => row.path !== `.agdf/control/artefacts/${runId}/${row.type}.md`
       || boundary.approved.includes(row.type) && state.approvals.get(row.type)?.status !== "approved")) throw revisionError("approved_source_invalid");
   if (input.commandContext && input.proposalBinding?.path !== evidence) throw revisionError('revision_source_binding_invalid');
-  const boundProposal = input.proposalBinding ? readOperationSource(root, runId, input.proposalBinding) : null;
+  const boundProposal = input.proposalMaterial ? { validate: () => {} } : input.proposalBinding ? readOperationSource(root, runId, input.proposalBinding) : null;
   if (!exactObject(proposal, expanded ? REVISION_PROPOSAL_V2_FIELDS : REVISION_PROPOSAL_FIELDS)
       || proposal.target_id !== resolveControlCommandTarget(root).target_id
       || proposal.run_id !== runId || proposal.expected_revision_id !== revisionId || proposal.operation_id !== operationId
@@ -159,7 +159,7 @@ function prepareSourceRevision(root, input) {
     throw revisionError('revision_impact_proof_invalid', 'Bind concrete changed statements, earliest source, actual phase and every exact quality record; unknown or affected associations require reassessment.');
   const affected = SOURCE_GATES.slice(index);
   const qualityPaths = expanded ? proposal.quality_assessment.map(row => row.record.path).filter(Boolean) : [];
-  const history = collectRunRevisionClosure(root, run, state, operationId, boundary.approved, [evidence, ...qualityPaths]);
+  const history = collectRunRevisionClosure(root, run, state, operationId, boundary.approved, [evidence, ...qualityPaths], { proposalMaterial: input.proposalMaterial });
   const impact = sourceRevisionImpact(proposal, bindings.active);
   const preview = { schema_version: expanded ? "2" : "1", target_id: proposal.target_id, run_id: runId, expected_revision_id: revisionId,
     operation_id: operationId, request_digest: requestDigest, reason: proposal.reason, intended_change: proposal.intended_change,
@@ -227,7 +227,7 @@ export function inspectSourceRevision(root, { runId, operationId, revisionId }) 
     if (!parsed.valid || !REVISION_ID_PATTERN.test(operationId ?? "")) throw revisionError("revision_input_invalid");
     if (existsSync(pending)) {
       const journal = readPendingSourceRevisionJournal(root, runId);
-      if (journal.schema_version !== 2 || journal.operation_id !== operationId
+      if (![2, 5].includes(journal.schema_version) || journal.operation_id !== operationId
           || journal.target_id !== resolveControlCommandTarget(root).target_id) throw revisionError("revision_recovery_binding_invalid");
       return { outcome: "recovery_required", run_id: runId, operation_id: operationId, revision_id: parsed.meta.revision_id, authorizes: false,
         next_action: "Inspect the exact pending operation and use explicit recovery; do not blindly repeat apply." };
@@ -299,12 +299,12 @@ function prepareSourceRevisionIgnoringPending(root, input) {
   // The exact pending operation is owned by the caller under both locks. Revalidation reads
   // the unchanged pre-commit state without allowing ordinary readRun to bypass a pending write.
   const pending = readPendingSourceRevisionJournal(root, input.runId);
-  if (pending.schema_version !== 2 || pending.operation_id !== input.operationId) throw Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
-  const proposal = readContainedJson(root, input.evidence);
+  if (![2, 5].includes(pending.schema_version) || pending.operation_id !== input.operationId) throw Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
+  const proposal = input.proposalMaterial ? JSON.parse(input.proposalMaterial.content) : readContainedJson(root, input.evidence);
   const text = readHistoryBytes(root, `.agdf/control/runs/${input.runId}/RUN_STATE.md`).toString("utf8");
   if (parseRunState(text).meta.revision_id !== input.revisionId || runSealState(root, text).status !== "valid") throw Error("AGDF_STALE_RUN_REVISION");
   const paths = readContainedJson(root, pending.archive.path).files;
-  if (paths.some(row => byteDigest(readHistoryBytes(root, row.path)) !== row.digest)) throw Error("AGDF_STALE_RUN_REVISION");
+  if (paths.some(row => byteDigest(input.proposalMaterial?.path === row.path ? Buffer.from(input.proposalMaterial.content) : readHistoryBytes(root, row.path)) !== row.digest)) throw Error("AGDF_STALE_RUN_REVISION");
   return { previewDigest: digest(canonicalJson(proposal)) === pending.request_digest ? pending.preview_digest : null };
 }
 
@@ -316,7 +316,7 @@ export function recoverSourceRevision(root, input) {
       return inspected.outcome === "historical" ? { ...inspected, outcome: "recovered", status: "already_completed" } : inspected;
     }
     const pending = readPendingSourceRevisionJournal(root, input.runId);
-    if (pending.schema_version !== 2 || pending.operation_id !== input.operationId
+    if (![2, 5].includes(pending.schema_version) || pending.operation_id !== input.operationId
         || pending.target_id !== resolveControlCommandTarget(root).target_id
         || ![pending.old_revision_id, pending.next_revision_id].includes(input.revisionId)) throw revisionError("revision_recovery_binding_invalid");
     if (input.pendingDigest) {
@@ -331,7 +331,7 @@ export function recoverSourceRevision(root, input) {
           || canonicalJson(receipt.proposal_reference) !== canonicalJson(input.proposalBinding)
           || receipt.request_digest !== pending.request_digest || receipt.preview_digest !== pending.preview_digest) throw revisionError('revision_recovery_binding_invalid');
       } else {
-        const source = readOperationSource(root, input.runId, input.proposalBinding), proposal = JSON.parse(source.content);
+        const source = input.proposalMaterial ?? readOperationSource(root, input.runId, input.proposalBinding), proposal = JSON.parse(source.content);
         if (digest(canonicalJson(proposal)) !== pending.request_digest || proposal.source_gate !== input.sourceGate) throw revisionError('revision_recovery_binding_invalid');
       }
     }

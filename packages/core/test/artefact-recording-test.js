@@ -19,6 +19,7 @@ import { approveRunGate, recordRunRevision } from "../lib/control-state/run-reco
 import { correctRunRelationship } from "../lib/control-state/run-relationship-correction.js";
 import { createSkillDispatchService } from "../lib/skill-dispatch/service.js";
 import { createCoreServices } from "../lib/index.js";
+import { createRunCommandService } from '../lib/control-state/run-command-service.js';
 import { relationshipForGate } from "../lib/control-evaluation/delivery-relationships.js";
 import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
 import { interactionLocales, pluginDefinition } from "../../cli/lib/runtime/control-context.js";
@@ -78,6 +79,31 @@ function fixture(gate = "SD") {
 }
 
 try {
+  {
+    const f = fixture('SD');
+    execFileSync('git', ['init', '-q', f.root]);
+    const recordMaterial = (content, updateDraft) => {
+      const material = { material_id: randomUUID(), digest: digest(content.replace(/\r\n?/gu, '\n').replace(/^\ufeff/u, '')) };
+      const input = { schema_version: '1', presentation_language: 'en', working_directory: f.root, primary_target: f.root,
+        target_source: 'explicit_target', target_id: resolveControlCommandTarget(f.root).target_id, run_id: runId,
+        expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local',
+        command: { kind: 'artefact.record', payload: { gate: 'SD', material, reviewer: 'Synthetic cooperative material reviewer', reviewed: true, update_draft: updateDraft } } };
+      const grant = { ...material, content, slot: 'SD', target_id: input.target_id, run_id: runId, expected_revision_id: input.expected_revision_id };
+      return createRunCommandService({ packageVersion: '0.20.2', materialGrants: [grant] })('agdf_record', input);
+    };
+    const sourceBefore = readFileSync(join(f.root, f.prefix + 'PRD.md'), 'utf8');
+    const content = readFileSync(join(f.root, f.prefix + 'SD.md'), 'utf8') + '\nStaged initial design.\n';
+    const first = recordMaterial(content, false);
+    assert.equal(first.outcome, 'accepted', JSON.stringify(first));
+    const proofBefore = readFileSync(join(f.root, first.receipt.review.path), 'utf8');
+    assert.equal(readFileSync(join(f.root, f.prefix + 'SD.md'), 'utf8'), content);
+    const second = recordMaterial(content + '\nExplicit permitted draft update.\n', true);
+    assert.equal(second.outcome, 'accepted', JSON.stringify(second));
+    assert.equal(second.receipt.supersedes, first.receipt.binding_id);
+    assert.equal(readFileSync(join(f.root, first.receipt.review.path), 'utf8'), proofBefore);
+    assert.equal(readFileSync(join(f.root, f.prefix + 'PRD.md'), 'utf8'), sourceBefore);
+    assert.equal(runSealState(f.root, readFileSync(f.state, 'utf8')).status, 'valid');
+  }
   for (const gate of ["PRD", "SD", "TP", "QA"]) {
     const f = fixture(gate), before = readFileSync(f.state, "utf8"), approvals = approvalSeal(before);
     assert.equal(evaluateGateCheck(f.root, { runId }).current_gate, gate);

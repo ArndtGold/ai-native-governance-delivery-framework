@@ -38,6 +38,12 @@ approval and history records stay with their existing writers and retention rule
 this policy authorizes no deletion or rewriting. Required reviews retain their own
 assessment and accountable owner even when they share evidence.
 
+For Run control, follow the bound typed MCP continuation and operation-contract.
+Authoring inputs, material staging and recording use the existing owners described in
+gate-artifact-preparation.md, section Typed MCP control transport. Local path/validator
+examples are fallback only when the required MCP group is unavailable; they never require
+a shell switch when the current host exposes the corresponding typed operation.
+
 ## Verification Effectiveness And Completion
 
 Derive expected results from approved requirements and domain rules, not copied
@@ -65,7 +71,9 @@ host behavior are distinct evidence classes. Claim savings or compliance only as
 
 ## Quality Readiness Projection
 
-When `qa-gate` authors or refines `QA_REPORT.md`, it uses only the bound absolute plugin-owned
+When `qa-gate` authors or refines `QA_REPORT.md`, it uses the version-matched `QA_REPORT`
+template from bound `authoring-inputs` at the current QA gate. Follow every cursor and preserve
+the manifest/digest binding. CLI fallback uses only the supplied absolute plugin-owned
 `template_path`. Repository scaffold copies are derived review references, not an authoring source.
 An unavailable or unsafe template blocks QA report authoring without mutation or success-shaped
 fallback; it does not turn missing evidence into a QA decision.

@@ -9,6 +9,8 @@ import {
   digestMcpSdkRuntime,
 } from "../../core/lib/runtime/plugin-provenance.js";
 import { readDecisionUiBuild } from '../../../scripts/cockpit-ui-build.mjs';
+import { ensurePluginMcpRuntime } from '../../cli/lib/mcp-lifecycle/plugin-runtime.js';
+import { offlineNpm } from '../../../scripts/support/plugin-mcp-fixture.js';
 
 const serverSourceRoot = resolve(fileURLToPath(new URL("../", import.meta.url)));
 const defaultDispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
@@ -20,6 +22,7 @@ const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.ur
 function copyHermeticControl(destination, runIds) {
   const source = join(repositoryRoot, ".agdf", "control");
   mkdirSync(destination, { recursive: true });
+  for (const area of ['runs','artefacts']) mkdirSync(join(destination,area),{recursive:true});
   for (const entry of readdirSync(source, { withFileTypes: true })) {
     if (entry.isFile() && entry.name !== "AGDF_RUN.md") cpSync(join(source, entry.name), join(destination, entry.name));
   }
@@ -29,7 +32,32 @@ function copyHermeticControl(destination, runIds) {
 }
 
 export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? defaultDispatcherSourceRoot,
-  candidateServerRoot = process.env.AGDF_TEST_CANDIDATE_MCP_ROOT, controlRuns } = {}) {
+  candidateServerRoot = process.env.AGDF_TEST_CANDIDATE_MCP_ROOT, controlRuns,
+  pluginSourceRoot = process.env.AGDF_TEST_CANDIDATE_PLUGIN_ROOT } = {}) {
+  if (pluginSourceRoot) {
+    const work = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-plugin-owned-'))), frozen = join(work, 'plugin');
+    let failed = false;
+    try {
+      cpSync(pluginSourceRoot, frozen, { recursive: true });
+      const dataRoot = join(work, 'data');
+      const runtime = ensurePluginMcpRuntime({ pluginRoot: frozen, dataRoot, exec: offlineNpm });
+      const governanceTarget = join(work, 'governance-target');
+      mkdirSync(join(governanceTarget,'.git'),{recursive:true});
+      writeFileSync(join(governanceTarget,'.git/HEAD'),'ref: refs/heads/main\n');
+      if (controlRuns) copyHermeticControl(join(governanceTarget,'.agdf/control'),controlRuns);
+      else cpSync(join(repositoryRoot,'.agdf/control'),join(governanceTarget,'.agdf/control'),{recursive:true});
+      return Object.freeze({ root:runtime.root, serverRoot:runtime.packageRoot, dispatcherRoot:runtime.dispatcherRoot,
+        governanceTarget, command:process.execPath,
+        args:[join(frozen,'mcp/agdf-mcp-launch.js'),'--surface','codex','--data',dataRoot],
+        onFailure(){failed=true;},
+        dispose(){
+          if(failed && process.env.AGDF_TEST_EVIDENCE_DIR) {
+            mkdirSync(process.env.AGDF_TEST_EVIDENCE_DIR,{recursive:true});
+            writeFileSync(join(process.env.AGDF_TEST_EVIDENCE_DIR,`retained-${work.split('/').at(-1)}.json`),JSON.stringify({work,root:runtime.root,governance_target:governanceTarget,native_qualified:false,authorizes:false},null,2)+'\n');
+          } else rmSync(work,{recursive:true,force:true});
+        } });
+    } catch(error) { rmSync(work,{recursive:true,force:true}); throw error; }
+  }
   const root = realpathSync(mkdtempSync(join(tmpdir(), "agdf-mcp-owned-")));
   const nodeModules = join(root, "node_modules");
   mkdirSync(nodeModules, { recursive: true });
@@ -80,6 +108,7 @@ export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.A
     schema_version: 1,
     owner: "create-agdf:mcp-runtime",
     version: manifest.version,
+    node_executable: process.execPath,
     server_digest: digestDirectory(serverRoot),
     dispatcher_digest: digestMcpDispatcherPackage(dispatcherRoot),
     sdk_digest: digestMcpSdkRuntime(root),

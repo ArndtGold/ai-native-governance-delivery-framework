@@ -1,5 +1,6 @@
 import { DECISION_CARD_LABEL_KEYS } from '../../../core/lib/interaction-catalog.js';
 export interface DecisionBootstrap {
+  delivery_state?: 'preview' | 'ui_primary' | 'retired'; display_nonce?: string; surface_id?: string | null; source_digest?: string;
   schema_version: '1'; session_id: string; read_session_id: string; owner_epoch: string; generation: number; expires_at: number;
   target: { target_id: string; display_path: string }; title: string; labels: Record<string, string>;
   binding: { target_id: string; run_id: string; gate: string; expected_revision_id: string; presentation_id: string;
@@ -16,6 +17,9 @@ const hash = (value: unknown) => typeof value === 'string' && /^sha256:[a-f0-9]{
 export function readDecisionBootstrap(result: unknown): DecisionBootstrap | null {
   if (!object(result) || result.isError === true || !object(result._meta) || !object(result._meta.agdf_decision)) return null;
   const row = result._meta.agdf_decision, b = row.binding, target = row.target;
+  if (row.delivery_state !== undefined && (row.delivery_state !== 'preview' || !uuid(row.display_nonce)
+    || row.surface_id !== null && !uuid(row.surface_id) || !Array.isArray(row.enabled_actions) || row.enabled_actions.length)) return null;
+  if (row.source_digest !== undefined && !hash(row.source_digest)) return null;
   if (!object(b) || !object(target) || !object(row.labels) || !object(row.comparison)) return null;
   if (row.preview !== undefined) {
     const p = row.preview;
@@ -46,7 +50,7 @@ export function readDecisionBootstrap(result: unknown): DecisionBootstrap | null
     || !['available', 'not_qualified'].includes(String(row.capability)) || row.capability === 'not_qualified' && row.enabled_actions.length > 0
     || !(row.comparison.state === 'unavailable' && typeof row.comparison.reason === 'string'
       || row.comparison.state === 'available' && uuid(row.comparison.previous_revision_id) && hash(row.comparison.previous_digest)
-        && row.comparison.current_digest === row.document_digest && typeof row.comparison.unchanged === 'boolean'
+        && row.comparison.current_digest === (row.source_digest ?? row.document_digest) && typeof row.comparison.unchanged === 'boolean'
         && row.comparison.unchanged === (row.comparison.previous_digest === row.comparison.current_digest)
         && typeof row.comparison.previous_text === 'string' && new TextEncoder().encode(row.comparison.previous_text).length <= 131072)
     || DECISION_CARD_LABEL_KEYS.some(key => typeof (row.labels as Record<string, unknown>)[key] !== 'string' || !(row.labels as Record<string, string>)[key].trim())) return null;

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -9,8 +9,10 @@ import { repoRoot, coreRoot } from './core-projection.mjs';
 import { createOwnedRuntimeFixture } from '../packages/mcp-server/test/owned-runtime.js';
 import { withStdioClient } from '../packages/mcp-server/test/helpers.js';
 import { digestDirectory, digestMcpDispatcherPackage, digestMcpSdkRuntime, digestNormalizedPluginSource } from '../packages/core/lib/runtime/plugin-provenance.js';
+import { RUN_COMMAND_GROUPS } from '../packages/core/lib/control-state/run-command-contract.js';
+import { resolveControlCommandTarget } from '../packages/core/lib/control-state/approval-command-contract.js';
 const version = JSON.parse(readFileSync(join(repoRoot, 'plugins/agdf/meta/agdf-plugin.definition.json'))).version;
-const fixture = createOwnedRuntimeFixture();
+const fixture = createOwnedRuntimeFixture({ controlRuns: [] });
 const evidence = { node: process.version, platform: process.platform, archive_packages: [], cli: [], exports: [], offline: [], mcp: [] };
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 try {
@@ -60,10 +62,10 @@ try {
 for(const name of ['writeFileSync','mkdirSync','renameSync','unlinkSync','rmSync']) fs[name]=()=>{throw Error('unexpected import write '+name)};
 for(const name of ['spawn','spawnSync','exec','execSync','execFile','execFileSync','fork']) cp[name]=()=>{throw Error('unexpected import process '+name)};
 syncBuiltinESMExports();
-for(const specifier of ['create-agdf','create-agdf/control-command','create-agdf/mcp-dispatch-runtime','create-agdf/opencode-plugin']) await import(specifier);
+for(const specifier of ['create-agdf','create-agdf/control-command','create-agdf/mcp-dispatch-runtime','create-agdf/mcp-protocol-runtime','create-agdf/opencode-plugin']) await import(specifier);
 console.log('public imports passed');`);
   assert.match(node([auditPath]), /public imports passed/u);
-  evidence.exports = ['.', './control-command', './mcp-dispatch-runtime', './opencode-plugin', './cli (--version/--help)'];
+  evidence.exports = ['.', './control-command', './mcp-dispatch-runtime', './mcp-protocol-runtime', './opencode-plugin', './cli (--version/--help)'];
   const guard = join(fixture.root, 'offline-guard.cjs');
   writeFileSync(guard, `const fs=require('node:fs'),cp=require('node:child_process'),moduleAPI=require('node:module');
 for(const name of ['net','http','https','tls','dgram','dns']) {const api=require('node:'+name); for(const key of ['connect','createConnection','request','get','lookup','resolve']) if(typeof api[key]==='function') api[key]=()=>{throw Error('offline network forbidden')};}
@@ -82,10 +84,12 @@ for(const key of ['spawn','exec','execSync','execFile','execFileSync','fork']) c
     const negative = spawnSync(process.execPath, ['--require', guard, validator, 'contract', '--module', '../../secret', '--json'], { cwd: fixture.root, env: { ...environment, PATH: '' }, encoding: 'utf8' });
     assert.notEqual(negative.status, 0); evidence.offline.push({ profile, network_and_non_node_processes_blocked: true, quality: 'pass', invalid_module: 'rejected' });
   }
-  writeFileSync(join(fixture.root, '.agdf-mcp-owned.json'), JSON.stringify({ schema_version: 1, owner: 'create-agdf:mcp-runtime', version: version, server_digest: digestDirectory(fixture.serverRoot), dispatcher_digest: digestMcpDispatcherPackage(fixture.dispatcherRoot), sdk_digest: digestMcpSdkRuntime(fixture.root), references: [] }));
+  writeFileSync(join(fixture.root, '.agdf-mcp-owned.json'), JSON.stringify({ schema_version: 1, owner: 'create-agdf:mcp-runtime', version: version,
+    node_executable: process.execPath, server_digest: digestDirectory(fixture.serverRoot),
+    dispatcher_digest: digestMcpDispatcherPackage(fixture.dispatcherRoot), sdk_digest: digestMcpSdkRuntime(fixture.root), references: [] }));
   for (const modern of [false, true]) await withStdioClient({ command: process.execPath, args: fixture.args, cwd: fixture.root, modern }, async client => {
     const { tools } = await client.listTools();
-    assert.deepEqual(tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+    assert.deepEqual(tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect', ...Object.keys(RUN_COMMAND_GROUPS)]);
     const dispatch = await client.callTool({ name: 'agdf_dispatch', arguments: { skill_id: 'gate-check', presentation_language: 'de', working_directory: fixture.root } });
     assert.equal(dispatch.structuredContent.authorizes, false); assert.equal(dispatch.structuredContent.runtime.provenance_status, 'matched');
     const inspect = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'de', working_directory: fixture.root } });
@@ -93,9 +97,24 @@ for(const key of ['spawn','exec','execSync','execFile','execFileSync','fork']) c
     const boundInspect = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'de', working_directory: target, target_source: 'explicit_target', primary_target: target, run_id: 'archive-parity' } });
     assert.equal(boundInspect.structuredContent.outcome, 'inspect_result');
     assert.equal(boundInspect.structuredContent.authorizes, false);
-    const stable = value => JSON.stringify(value, (key, item) => key === 'checked_at' ? undefined : item);
-    assert.equal(stable(boundInspect.structuredContent.report), stable(JSON.parse(node([bin, 'doctor', '--dir', target, '--run', 'archive-parity', '--json']))));
-    evidence.mcp.push({ protocol: client.getNegotiatedProtocolVersion(), names: tools.map(tool => tool.name), dispatch: dispatch.structuredContent.outcome, inspect: inspect.structuredContent.outcome, bound_inspect: 'inspect_result', cli_report_parity: 'pass', provenance: 'matched' });
+    const report = boundInspect.structuredContent.report;
+    const cliReport = JSON.parse(node([bin, 'doctor', '--dir', target, '--run', 'archive-parity', '--json']));
+    for (const [key, value] of Object.entries(cliReport)) if (key !== 'checked_at') assert.deepEqual(report[key], value, key);
+    assert.equal(report.available, true); assert.equal(report.completeness, 'complete');
+    assert.match(report.source_digest, /^[0-9a-f]{64}$/u);
+    const creation = { schema_version: '1', presentation_language: 'de', working_directory: target,
+      target_source: 'explicit_target', primary_target: target, target_id: resolveControlCommandTarget(target).target_id,
+      operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind: 'run.create', payload: { title: 'Archive creation and exact replay' } } };
+    const created = await client.callTool({ name: 'agdf_run', arguments: creation });
+    assert.equal(created.structuredContent.outcome, 'accepted'); assert.equal(created.structuredContent.authorizes, false);
+    assert.equal(created.structuredContent.receipt.effect.revision, 1);
+    const createdPath = join(target, '.agdf/control/runs', created.structuredContent.family_result.run_id, 'RUN_STATE.md');
+    const createdBytes = readFileSync(createdPath);
+    const replay = await client.callTool({ name: 'agdf_run', arguments: creation });
+    assert.equal(replay.structuredContent.outcome, 'already_applied');
+    assert.deepEqual(replay.structuredContent.receipt, created.structuredContent.receipt);
+    assert.deepEqual(readFileSync(createdPath), createdBytes);
+    evidence.mcp.push({ protocol: client.getNegotiatedProtocolVersion(), names: tools.map(tool => tool.name), dispatch: dispatch.structuredContent.outcome, inspect: inspect.structuredContent.outcome, bound_inspect: 'inspect_result', cli_report_parity: 'pass', creation_and_exact_replay: 'pass', provenance: 'matched' });
   });
   if (process.env.AGDF_MIGRATION_EVIDENCE) writeFileSync(join(process.env.AGDF_MIGRATION_EVIDENCE, 'ARCHIVE_CONSUMERS.json'), JSON.stringify(evidence, null, 2)+'\n');
   console.log('Three normal archives: manifests, Core bytes, CLI/bootstrap, exports, blocked-network offline profiles and both MCP protocols passed.');

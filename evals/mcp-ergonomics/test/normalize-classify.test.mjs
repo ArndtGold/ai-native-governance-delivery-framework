@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, existsSync, lstatSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -76,4 +76,31 @@ test("a failing fixture build leaves no temporary directory behind", async () =>
   const matrix = { executions_per_call: 1, calls: [{ id: "X-1", tool: "agdf_inspect", fixture: "F2" }, { id: "X-2", tool: "agdf_inspect", fixture: "F9" }] };
   await assert.rejects(runProtocolMatrix({ roots: [] }, { matrix }), /unknown fixture: F9/u);
   assert.deepEqual(leftovers(), before);
+});
+
+test('fixture reset preserves original initialization ownership and receipt while restoring authored bytes', async () => {
+  const { buildFixture } = await import('../lib/fixtures.js');
+  const { inspectCanonicalProject } = await import('../../../packages/core/lib/control-state/canonical-initialization.js');
+  const fixture = buildFixture('F1');
+  try {
+    const before = inspectCanonicalProject(fixture.root);
+    assert.equal(before.status, 'initialized'); assert.ok(before.receipt);
+    const receipt = join(fixture.root, '.agdf/control/.agdf-canonical-init.json');
+    const receiptBefore = readFileSync(receipt), receiptInode = lstatSync(receipt, { bigint: true }).ino;
+    const config = join(fixture.root, '.agdf/control/config.json'), bytes = readFileSync(config, 'utf8');
+    const extra = join(fixture.root, '.agdf/owned-fixture-extra');
+    writeFileSync(config, '{owned fixture mutation'); writeFileSync(extra, 'owned fixture only');
+    fixture.restore();
+    const after = inspectCanonicalProject(fixture.root);
+    assert.equal(after.status, 'initialized'); assert.deepEqual(after.receipt, before.receipt);
+    assert.equal(readFileSync(config, 'utf8'), bytes); assert.equal(existsSync(extra), false);
+    fixture.restore();
+    assert.equal(lstatSync(receipt, { bigint: true }).ino, receiptInode);
+    assert.deepEqual(readFileSync(receipt), receiptBefore);
+    writeFileSync(receipt, '{changed ownership anchor');
+    writeFileSync(config, '{must not be reset after ownership drift');
+    assert.throws(() => fixture.restore(), /fixture initialization ownership changed before reset/);
+    assert.equal(readFileSync(config, 'utf8'), '{must not be reset after ownership drift');
+    assert.equal(readFileSync(receipt, 'utf8'), '{changed ownership anchor');
+  } finally { fixture.dispose(); }
 });

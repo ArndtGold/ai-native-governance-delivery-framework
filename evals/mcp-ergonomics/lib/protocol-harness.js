@@ -23,7 +23,7 @@ export function createProtocolRuntime() {
     catch { throw new Error("MCP_ERGONOMICS_BUILD_REQUIRED: run npm run build first"); }
     const ui = readCockpitUiBuild({ failure: "MCP_ERGONOMICS_COCKPIT_UI_REQUIRED: run npm run build first" });
     for (const name of ["manifest.json", "cockpit.html"]) cpSync(join(ui.root, name), join(candidate, "ui", name));
-    fixture = createOwnedRuntimeFixture({ candidateServerRoot: candidate });
+    fixture = createOwnedRuntimeFixture({ candidateServerRoot: candidate, controlRuns: [] });
   } catch (error) {
     rmSync(staging, { recursive: true, force: true });
     throw error;

@@ -103,11 +103,18 @@ try {
   assert.equal(JSON.parse(readFileSync(lock, "utf8")).token, foreign.token, "A live writer's lock is never removed.");
 } finally { rmSync(root, { recursive: true, force: true }); }
 
-// Every production executor is created with the Core release function (bin and owned generation child).
-for (const entry of ["main.js", "generation-entry.js"]) {
+// Every production executor uses the Core release function. Both actual
+// generation entry adapters delegate to that same shared composition.
+for (const entry of ["main.js", "generation-runtime.js"]) {
   const source = readFileSync(new URL(`../src/${entry}`, import.meta.url), "utf8");
   const calls = source.match(/createAgdfWorkerExecutor\([^;]*/gu) ?? [];
   assert.ok(calls.length > 0 && calls.every(call => call.includes("releaseOwnedLock")), `${entry} passes releaseOwnedLock to every worker executor`);
+}
+
+for (const entry of ['generation-entry.js', 'generation-thread-entry.js']) {
+  const source = readFileSync(new URL(`../src/${entry}`, import.meta.url), 'utf8');
+  assert.ok(source.includes("from './generation-runtime.js'") && /startGenerationRuntime\(/u.test(source), `${entry} uses the shared lock-aware generation composition`);
+  assert.equal(source.includes('createAgdfWorkerExecutor'), false, `${entry} cannot introduce an executor outside the shared owner`);
 }
 
 console.log("Abandoned-worker lock release passed: unconfirmed and late exit, hung worker, drained messages, release failure, real terminated thread and foreign lock.");

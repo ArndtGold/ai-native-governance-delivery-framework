@@ -1,3 +1,4 @@
+import { Worker } from 'node:worker_threads';
 import { ChildProcess, execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import {
@@ -16,16 +17,17 @@ import {
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
 import {
+  MCP_RUNTIME_OWNER as OWNER,
+  MCP_RUNTIME_MARKER as MARKER,
+  inspectOwnedMcpRuntimeRoot as inspectPackageRoot,
   digestDirectory,
   digestMcpDispatcherPackage,
   digestMcpSdkRuntime,
 } from "#agdf-core/runtime/plugin-provenance.js";
 import { defaultNpmInstallRoot, npmInvocation } from "../npm-invocation.js";
 import { renameSyncWithRetry } from "#agdf-core/fs-swap.js";
-import { fsyncDirectory, withOwnedFileLock } from '#agdf-core/control-state/run-state-writer.js';
+import { fsyncDirectory, withOwnedFileLock } from '#agdf-core/owned-file-lock.js';
 
-const OWNER = "create-agdf:mcp-runtime";
-const MARKER = ".agdf-mcp-owned.json";
 const CLAIMS = '.agdf-executable-claims';
 
 // Claims are package-local retention evidence, never a PID liveness ledger.
@@ -62,7 +64,7 @@ export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), 
     if (realpathSync(root) !== root || lstatSync(root).isSymbolicLink()) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
     const fresh = inspectMcpServerPackage({ dataRoot: dirname(root), expectedVersion: runtime.version });
     if (fresh.status !== 'matched' || fresh.digest !== runtime.digest || fresh.dispatcherDigest !== runtime.dispatcherDigest
-      || fresh.sdkDigest !== runtime.sdkDigest) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+      || fresh.sdkDigest !== runtime.sdkDigest || fresh.markerPath !== runtime.markerPath) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
     const marker = readJson(runtime.markerPath, 'AGDF_MCP_RUNTIME_MARKER_INVALID');
     if (marker.owner !== OWNER || marker.executable_retention !== 'claimed_immutable'
       || marker.server_digest !== runtime.digest || marker.dispatcher_digest !== runtime.dispatcherDigest
@@ -96,7 +98,14 @@ export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), 
         }
       }
     };
-    return Object.freeze({ token, owner_epoch: ownerEpoch, generation,
+    // Reuse this actual, lock-bound inspection in the supervising owner. It
+    // is an observation from this acquisition, never caller-supplied trust.
+    return Object.freeze({ token, owner_epoch: ownerEpoch, generation, verifiedRuntime: fresh,
+      bindOwnedWorker(worker, { confirmedEnd = () => false } = {}) {
+        if (bound || !(worker instanceof Worker) || worker.threadId <= 0) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+        bound = true;
+        worker.once('exit', code => { try { if (code === 0 && confirmedEnd() === true) releaseConfirmed(); } catch {} });
+      },
       bindOwnedChild(child, { confirmedEnd = () => true } = {}) {
         if (bound || !(child instanceof ChildProcess)) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
         bound = true;
@@ -166,81 +175,6 @@ export function inspectMcpExecutableRoot({ root, expectedVersion } = {}) {
 
 // Retirement checks the same verified package after its owned atomic rename.
 // It must not accidentally inspect a new package at the former version path.
-function inspectPackageRoot(root, expectedVersion) {
-  const markerPath = join(root, MARKER);
-  if (!existsSync(root)) return Object.freeze({ status: "absent", root, entrypoint: null, digest: null });
-  if (!lstatSync(root).isDirectory() || lstatSync(root).isSymbolicLink() || !existsSync(markerPath)) {
-    return Object.freeze({ status: "foreign", root, entrypoint: null, digest: null });
-  }
-  try {
-    const marker = readJson(markerPath, "AGDF_MCP_RUNTIME_MARKER_INVALID");
-    const packageRoot = join(root, "node_modules", "@agdf", "mcp-server");
-    const dispatcherRoot = join(root, "node_modules", "create-agdf");
-    const sdkServerRoot = join(root, "node_modules", "@modelcontextprotocol", "server");
-    const sdkCoreRoot = join(root, "node_modules", "@modelcontextprotocol", "core");
-    const sdkClientRoot = join(root, "node_modules", "@modelcontextprotocol", "client");
-    const sdkV1Root = join(root, "node_modules", "@modelcontextprotocol", "sdk");
-    const manifestPath = join(packageRoot, "package.json");
-    const dispatcherManifestPath = join(dispatcherRoot, "package.json");
-    if (marker.owner !== OWNER || marker.version !== expectedVersion
-        || !existsSync(manifestPath) || !existsSync(dispatcherManifestPath)) {
-      return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
-    }
-    for (const ownedRoot of [packageRoot, dispatcherRoot, sdkServerRoot, sdkCoreRoot]) {
-      if (!existsSync(ownedRoot) || !lstatSync(ownedRoot).isDirectory() || lstatSync(ownedRoot).isSymbolicLink()) {
-        return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
-      }
-    }
-    const manifest = readJson(manifestPath, "AGDF_MCP_SERVER_MANIFEST_INVALID");
-    const dispatcherManifest = readJson(dispatcherManifestPath, "AGDF_MCP_DISPATCHER_MANIFEST_INVALID");
-    const sdkServerManifest = readJson(join(sdkServerRoot, "package.json"), "AGDF_MCP_SDK_MANIFEST_INVALID");
-    const sdkCoreManifest = readJson(join(sdkCoreRoot, "package.json"), "AGDF_MCP_SDK_MANIFEST_INVALID");
-    const entrypoint = join(packageRoot, "bin", "agdf-mcp.js");
-    const serverDigest = digestDirectory(packageRoot);
-    const dispatcherDigest = digestMcpDispatcherPackage(dispatcherRoot);
-    const sdkDigest = digestMcpSdkRuntime(root);
-    const valid = [1, 2].includes(marker.schema_version)
-      && typeof marker.node_executable === "string"
-      && isAbsolute(marker.node_executable)
-      && manifest.name === "@agdf/mcp-server"
-      && manifest.version === expectedVersion
-      && manifest.dependencies?.["create-agdf"] === expectedVersion
-      && manifest.dependencies?.["@modelcontextprotocol/server"] === "2.0.0"
-      && manifest.engines?.node === ">=22"
-      && dispatcherManifest.name === "create-agdf"
-      && dispatcherManifest.version === expectedVersion
-      && sdkServerManifest.name === "@modelcontextprotocol/server"
-      && sdkServerManifest.version === "2.0.0"
-      && sdkCoreManifest.name === "@modelcontextprotocol/core"
-      && sdkCoreManifest.version === "2.0.0"
-      && !existsSync(sdkClientRoot)
-      && !existsSync(sdkV1Root)
-      && existsSync(entrypoint)
-      && lstatSync(entrypoint).isFile()
-      && !lstatSync(entrypoint).isSymbolicLink()
-      && marker.server_digest === serverDigest
-      && marker.dispatcher_digest === dispatcherDigest
-      && marker.sdk_digest === sdkDigest;
-    return Object.freeze({
-      status: valid ? "matched" : "mismatch",
-      version: expectedVersion,
-      root,
-      packageRoot,
-      dispatcherRoot,
-      markerPath,
-      entrypoint: valid ? entrypoint : null,
-      digest: serverDigest,
-      dispatcherDigest,
-      sdkDigest,
-      nodeExecutable: typeof marker.node_executable === "string" ? marker.node_executable : null,
-      references: Object.freeze(Array.isArray(marker.references) ? marker.references : []),
-      markerSchemaVersion: marker.schema_version,
-      sdkVerification: typeof marker.sdk_verification === "string" ? marker.sdk_verification : null,
-    });
-  } catch {
-    return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
-  }
-}
 
 // Names of all packages installed under root/node_modules, scoped included; npm's dot entries
 // (.bin, .package-lock.json) are bookkeeping, not packages.

@@ -83,6 +83,9 @@ try {
   await holderEnded;
   assert.equal(mcpRuntimeRetirementState(runtime.root), 'eligible');
   const first = acquireMcpExecutableClaim(runtime), second = acquireMcpExecutableClaim(runtime);
+  assert.equal(Object.isFrozen(first.verifiedRuntime), true);
+  for (const key of ['root', 'entrypoint', 'packageRoot', 'dispatcherRoot', 'markerPath', 'version', 'digest', 'dispatcherDigest', 'sdkDigest'])
+    assert.equal(first.verifiedRuntime[key], runtime[key], `claim retains its actual canonical inspection: ${key}`);
   assert.equal(mcpRuntimeRetirementState(runtime.root), 'retained');
   assert.equal(inspectPluginMcpDataRoot(dataRoot), 'protected');
   assert.throws(() => createMcpRuntimeRetirementTransaction(runtime).apply(), /AGDF_MCP_RUNTIME_RETAINED/u);

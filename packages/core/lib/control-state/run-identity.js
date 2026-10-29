@@ -8,3 +8,5 @@ export function validateRunIdentity({ runId, revisionId } = {}) {
   if (!REVISION_ID_PATTERN.test(String(revisionId ?? ""))) findings.push({ code: "AGDF_RUN_REVISION_ID_INVALID" });
   return findings;
 }
+
+export const creationRunId = operationId => `run-${operationId}`;

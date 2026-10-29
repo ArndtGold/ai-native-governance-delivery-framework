@@ -34,7 +34,7 @@ export function createWorkerDispatchExecutor({
     try { onEvent({ phase, elapsed_ms: performance.now() - started }); } catch {}
   };
   return Object.freeze({
-    async execute(argumentsValue, { signal, toolName } = {}) {
+    async execute(argumentsValue, { signal, toolName, trusted } = {}) {
       if (active) throw new DispatchExecutionError("dispatch_busy", 'not_dispatched');
       if (signal?.aborted) throw new DispatchExecutionError("dispatch_cancelled", 'not_dispatched');
       return new Promise((resolve, reject) => {
@@ -44,7 +44,7 @@ export function createWorkerDispatchExecutor({
         const started = performance.now(), deadline = started + timeoutMs;
         let worker;
         try { worker = new WorkerClass(WORKER_URL, {
-          workerData: { surface, expectedVersion, commandGroups, argumentsValue, toolName: toolName ?? null },
+          workerData: { surface, expectedVersion, commandGroups, argumentsValue, toolName: toolName ?? null, materialGrants: trusted?.materialGrants },
         }); } catch { reject(new DispatchExecutionError('dispatch_worker_failed', 'not_dispatched')); return; }
         event('worker_start', started);
         const current = { worker, timer: null, cleanupSignal: null, cancel: () => finish(reject, new DispatchExecutionError("dispatch_cancelled")) };
@@ -130,5 +130,14 @@ export function createWorkerDispatchExecutor({
     },
     async close() { await active?.cancel(); },
     get active() { return Boolean(active); },
+  });
+}
+
+export function createAgdfWorkerExecutor(runtime, options = {}) {
+  return createWorkerDispatchExecutor({
+    surface: runtime.trustedContext.surface,
+    expectedVersion: runtime.trustedContext.expectedVersion,
+    commandGroups: runtime.trustedContext.commandGroups,
+    ...options,
   });
 }

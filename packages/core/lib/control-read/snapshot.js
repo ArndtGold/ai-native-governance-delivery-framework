@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { resolve, join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
-import { withControlReadView } from './fs.js';
+import { withControlReadView, inheritControlReadMemo } from './fs.js';
 
 export const READ_LIMITS = Object.freeze({ files: 20_000, total: 256 * 1024 ** 2, file: 32 * 1024 ** 2,
   preview: 2 * 1024 ** 2, response: 8 * 1024 ** 2, timeout: 10_000 });
@@ -182,7 +182,8 @@ export function captureControlScope(rootInput, project, options = {}) {
   const input = resolve(rootInput), root = fs.realpathSync(input);
   if (!fs.lstatSync(input).isDirectory() || fs.lstatSync(input).isSymbolicLink()) fail('resource_denied');
   const control = join(root, '.agdf', 'control'), limits = { ...READ_LIMITS, ...options.limits };
-  const deadline = Date.now() + limits.timeout, entries = new Map();
+  let deadline = Date.now() + limits.timeout;
+  const entries = new Map();
   let total = 0, files = 0, frozen = false, building = true, fatal = null, sourceDigest = null;
   const absentError = code => Object.assign(Error('Observed entry absent'), { code });
   const guard = work => {
@@ -199,7 +200,10 @@ export function captureControlScope(rootInput, project, options = {}) {
   };
   function check() { if (building && Date.now() > deadline) fail('timeout'); }
   function pathOf(value) {
-    check(); const path = keyOf(value);
+    check(); let path = keyOf(value);
+    // The verified input root may use an OS alias (macOS /var -> /private/var).
+    // Normalize that root prefix only; never resolve arbitrary descendant symlinks.
+    if (path === input || path.startsWith(input + sep)) path = join(root, relative(input, path));
     if (path !== root && path !== join(root, '.agdf') && path !== control && !path.startsWith(control + sep)) fail('resource_denied');
     if (relative(control, path).split(sep).length > 128) fail('resource_limit');
     return path;
@@ -361,18 +365,29 @@ export function captureControlScope(rootInput, project, options = {}) {
     for (const [name, method] of Object.entries(methods)) view[name] = (...args) => guard(() => method(...args));
     return Object.freeze(view);
   }
-  const recording = makeView();
-  const recorded = withControlReadView(recording, () => project(recording));
-  if (recorded?.then) fail('read_failed');
-  recording.assertBoundary(); options.checkpoint?.('captured', root);
-  frozen = true; revalidate(deadline);
-  sourceDigest = hash(JSON.stringify([...entries].sort(([a], [b]) => a.localeCompare(b))
-    .map(([path, entry]) => [relative(root, path), entry.kind, entry.signature ?? entry.code, entry.digest ?? null, entry.children ?? null])));
-  // New view identity also gives the replay a fresh memo cache in the FS seam.
-  const view = makeView(); options.checkpoint?.('replay', root);
-  const data = withControlReadView(view, () => project(view));
-  if (data?.then) fail('read_failed');
-  view.assertBoundary(); options.checkpoint?.('published', root); revalidate(deadline);
-  building = false;
-  return Object.freeze({ view, data });
+  let previousView = null;
+  function capture(project) {
+    if (previousView) {
+      deadline = Date.now() + limits.timeout;
+      revalidate(deadline);
+    }
+    building = true; frozen = false;
+    const recording = makeView();
+    if (options.retain && previousView) inheritControlReadMemo(previousView, recording);
+    const recorded = withControlReadView(recording, () => project(recording));
+    if (recorded?.then) fail('read_failed');
+    recording.assertBoundary(); options.checkpoint?.('captured', root);
+    frozen = true; revalidate(deadline);
+    sourceDigest = hash(JSON.stringify([...entries].sort(([a], [b]) => a.localeCompare(b))
+      .map(([path, entry]) => [relative(root, path), entry.kind, entry.signature ?? entry.code, entry.digest ?? null, entry.children ?? null])));
+    const view = makeView(); options.checkpoint?.('replay', root);
+    if (options.retain) inheritControlReadMemo(recording, view);
+    const data = withControlReadView(view, () => project(view));
+    if (data?.then) fail('read_failed');
+    view.assertBoundary(); options.checkpoint?.('published', root); revalidate(deadline);
+    building = false; previousView = view;
+    return Object.freeze({ view, data });
+  }
+  const initial = capture(project);
+  return options.retain ? Object.freeze({ ...initial, extend: capture }) : initial;
 }

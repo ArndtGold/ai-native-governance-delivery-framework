@@ -278,7 +278,10 @@ test('a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git 
     execFileSync('git', ['init', '-q', foreign]);
     rmSync(join(root, '.git'), { recursive: true }); mkdirSync(join(root, '.git'));
     process.env.GIT_DIR = join(foreign, '.git'); process.env.GIT_WORK_TREE = root;
-    assert.equal(execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: root, encoding: 'utf8' }).trim(), root, 'the original inherited environment falsely reports the requested root');
+    const reportedRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: root, encoding: 'utf8' }).trim();
+    const reported = lstatSync(realpathSync(reportedRoot), { bigint: true }), requested = lstatSync(root, { bigint: true });
+    assert.equal(reported.dev, requested.dev, 'the inherited environment reports the requested directory device');
+    assert.equal(reported.ino, requested.ino, 'the inherited environment falsely reports the same requested directory, including Windows short/long path aliases');
     const rejected = run(); assert.equal(rejected.outcome, 'rejected', JSON.stringify(rejected));
     assert.equal(rejected.reason, 'target_not_in_repository', 'the existing canonical target resolver rejects before Git-provider or setup dispatch');
     assert.equal(rejected.dispatch, 'not_dispatched'); assert.equal(existsSync(join(root, '.agdf')), false);

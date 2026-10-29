@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
-import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { MessageChannel, Worker } from 'node:worker_threads';
@@ -151,6 +151,7 @@ async function stdioCase() {
   const { withStdioClient, unresolvedArguments } = await import('./helpers.js');
   const fixture = createOwnedRuntimeFixture({ pluginSourceRoot: pluginRoot, controlRuns: [] });
   createRun(fixture.governanceTarget, 'mcp-owner-thread-fixture');
+  mkdirSync(join(fixture.governanceTarget, '.agdf/control/artefacts/mcp-owner-thread-fixture'), { recursive: true });
   const candidateSource = mkdtempSync(join(tmpdir(), 'agdf-owner-replacement-source-'));
   cpSync(pluginRoot, candidateSource, { recursive: true });
   writeFileSync(join(candidateSource, 'mcp/server/NOTICE'), readFileSync(join(candidateSource, 'mcp/server/NOTICE'), 'utf8') + '\nSynthetic owner-thread replacement candidate.\n');

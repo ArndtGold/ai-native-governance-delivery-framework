@@ -68,6 +68,19 @@ Ein beendeter Run ist endgültig. Er verschwindet aus allen Listen aktiver Runs,
 lesbar und nimmt keine weiteren Schritte, Freigaben oder Fortsetzungen an. Soll die Arbeit doch
 weitergehen, legst du einen neuen Run an, der auf den alten verweisen kann.
 
+In der Shell erledigst du dasselbe mit `run-close`. Die Vorschau gibt die Vorschau-ID und den
+genauen Satz aus; erst der zweite Befehl schließt:
+
+```bash
+agdf run-close --action preview --run payment-limit-v1 --outcome superseded --reason "Replaced by the limit redesign" --successor-run payment-limit-v2
+agdf run-close --action apply --preview-id 3f2a9c1e --confirmation "Close runs: 3f2a9c1e"
+```
+
+`--successor-run` verlangt eine bestehende Run-ID. Für einen freien Verweis wie einen Pull Request
+nimmst du `--successor-ref`, für `abandoned` lässt du den Nachfolger weg. Mehrere Runs auf einmal
+beschreibst du in einer JSON-Datei und übergibst sie mit `--closure-file`. Ersetze die Run-IDs und
+die Vorschau-ID durch die Werte, die AGDF dir anzeigt.
+
 ## Wie die CLI einen Run auswählt
 
 Diese Auswahl brauchst du normalerweise nur, wenn mehrere Runs aktiv sind. Die Run-ID steht im

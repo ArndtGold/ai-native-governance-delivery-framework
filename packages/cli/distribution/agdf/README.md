@@ -199,6 +199,12 @@ authoritative reusable format, not AGDF's internal project backlog.
 | `run-create --run <run_id>` | Create a canonical run-scoped `RUN_STATE.md`. |
 | `run-migrate [--run <run_id>]` | Explicitly migrate legacy run state into the canonical run-scoped layout. |
 | `run-render-legacy --run <run_id>` | Render the selected canonical run as a non-authoritative legacy projection. |
+| `run-update --run <run_id> --revision <revision_id>` | Record a deliberate edit of the run state or its artefacts as a new sealed revision. |
+| `run-step --run <run_id> --revision <revision_id> --step <step>` | Record one standard transition such as UR registration, Mode/Slice route, evidence or Code Review. |
+| `run-present --run <run_id> --gate <gate> --revision <revision_id>` | Prepare the exact approval presentation for the current gate. |
+| `run-approve --run <run_id> --gate <gate> --revision <revision_id> --presentation <id> --response "Approval: <gate>"` | Record a deliberate gate approval for the presented revision. |
+| `run-recovery --run <run_id> --action <inspect\|preview\|apply>` | Inspect, preview and apply recovery of a run whose seal no longer matches. |
+| `run-close --action <preview\|apply>` | End active runs as `superseded` or `abandoned`: preview first, then apply with the exact phrase `Close runs: <preview_id>`; closures are final. |
 
 Examples:
 
@@ -214,6 +220,8 @@ npx --yes @agdf/cli@latest gate-check --json
 npx --yes @agdf/cli@latest delivery-map --json
 npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
 npx --yes @agdf/cli@latest delivery-path-search --surface codex --generate-candidates --json
+agdf run-close --action preview --run payment-limit-v1 --outcome superseded --reason "Replaced by the limit redesign" --successor-run payment-limit-v2
+agdf run-close --action apply --preview-id 3f2a9c1e --confirmation "Close runs: 3f2a9c1e"
 ```
 
 The CLI validators provide deterministic evidence for agents and automation.

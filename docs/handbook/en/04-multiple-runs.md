@@ -2,7 +2,7 @@
 language: en
 chapter_role: multiple_runs
 translation_of: ../de/04-mehrere-runs.md
-source_revision: sha256:d6dc75268678f53a59653cf5b90c6615c9909adefa81549279066d4f963481c5
+source_revision: sha256:9ff856097d47cffdbf51579c48b97d4759e33499fe9900d754ecbe2063ccbb99
 translation_status: reviewed
 ---
 
@@ -72,6 +72,19 @@ anywhere in the repository waits for recovery, nothing is closed.
 An ended run is final. It leaves every list of active runs, stays readable as history and accepts no
 further steps, approvals or continuations. To continue the work, start a new run that may reference
 the old one.
+
+In the shell you do the same with `run-close`. The preview prints the preview id and the exact
+phrase; only the second command closes:
+
+```bash
+agdf run-close --action preview --run payment-limit-v1 --outcome superseded --reason "Replaced by the limit redesign" --successor-run payment-limit-v2
+agdf run-close --action apply --preview-id 3f2a9c1e --confirmation "Close runs: 3f2a9c1e"
+```
+
+`--successor-run` requires an existing run id. For a free reference such as a pull request use
+`--successor-ref`; for `abandoned` leave the successor out. To close several runs at once, describe
+them in a JSON file and pass it with `--closure-file`. Replace the run ids and the preview id with
+the values AGDF shows you.
 
 ## How the CLI chooses a run
 

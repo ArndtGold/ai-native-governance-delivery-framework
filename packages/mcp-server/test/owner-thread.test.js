@@ -17,6 +17,7 @@ import { readRunOperations } from '../../core/lib/control-state/run-operations.j
 import { digestDirectory, digestMcpDispatcherPackage } from '../../core/lib/runtime/plugin-provenance.js';
 import { pluginRoot, offlineNpm } from '../../../scripts/support/plugin-mcp-fixture.js';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 
 // One canonical owner-thread test owner. Selectors are for focused engineering;
 // the canonical MCP runner supplies no selector and executes every case.
@@ -148,7 +149,8 @@ async function claimsCase() {
 
 async function stdioCase() {
   const { withStdioClient, unresolvedArguments } = await import('./helpers.js');
-  const fixture = createOwnedRuntimeFixture({ pluginSourceRoot: pluginRoot, controlRuns: ['mcp-diagnostic-runtime-reliability-20261027-01'] });
+  const fixture = createOwnedRuntimeFixture({ pluginSourceRoot: pluginRoot, controlRuns: [] });
+  createRun(fixture.governanceTarget, 'mcp-owner-thread-fixture');
   const candidateSource = mkdtempSync(join(tmpdir(), 'agdf-owner-replacement-source-'));
   cpSync(pluginRoot, candidateSource, { recursive: true });
   writeFileSync(join(candidateSource, 'mcp/server/NOTICE'), readFileSync(join(candidateSource, 'mcp/server/NOTICE'), 'utf8') + '\nSynthetic owner-thread replacement candidate.\n');
@@ -163,11 +165,11 @@ async function stdioCase() {
         assert.equal(claims.length, 2, 'actual owned facade and generation retain independent claims');
         const result = await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments });
         assert.equal(result.structuredContent.outcome, 'target_unresolved');
-        const inspection = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'runtime-generations', presentation_language: 'en', working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target', run_id: 'mcp-diagnostic-runtime-reliability-20261027-01', expected_revision_id: readFileSync(join(fixture.governanceTarget, '.agdf/control/runs/mcp-diagnostic-runtime-reliability-20261027-01/RUN_STATE.md'), 'utf8').match(/^- revision_id: (.+)$/mu)[1] } });
+        const inspection = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'runtime-generations', presentation_language: 'en', working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target', run_id: 'mcp-owner-thread-fixture', expected_revision_id: readFileSync(join(fixture.governanceTarget, '.agdf/control/runs/mcp-owner-thread-fixture/RUN_STATE.md'), 'utf8').match(/^- revision_id: (.+)$/mu)[1] } });
         assert.ok(inspection.structuredContent, JSON.stringify(inspection));
         assert.equal(inspection.structuredContent.report.occupancy, 1);
         assert.equal(inspection.structuredContent.report.generations[0].usable, true);
-        const runId = 'mcp-diagnostic-runtime-reliability-20261027-01';
+        const runId = 'mcp-owner-thread-fixture';
         const revision = readFileSync(join(fixture.governanceTarget, `.agdf/control/runs/${runId}/RUN_STATE.md`), 'utf8').match(/^- revision_id: (.+)$/mu)[1];
         const path = `.agdf/control/artefacts/${runId}/OWNER_CANDIDATE.json`;
         writeFileSync(join(fixture.governanceTarget, path), JSON.stringify(publicationSelector(candidate)));

@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
@@ -19,7 +20,7 @@ for (const modern of [false, true]) {
       original = { ...h.bound(), command: { kind: 'step.record', payload: { step: 'ur', title: 'Synthetic exact staged intent', source: firstReference } } };
     }); // No canonical record call: this serving generation and its buffers are gone.
     const entry = join(fixture.root, 'drop-one-ack.mjs');
-    writeFileSync(entry, `import {runMcpServer} from ${JSON.stringify(join(fixture.serverRoot, 'src/main.js'))};
+    writeFileSync(entry, `import {runMcpServer} from ${JSON.stringify(pathToFileURL(join(fixture.serverRoot, 'src/main.js')).href)};
 const originalWrite=process.stdout.write.bind(process.stdout);let dropped=false;
 process.stdout.write=function(chunk,...args){let packet;try{packet=JSON.parse(String(chunk))}catch{}
 if(!dropped&&packet?.result?.structuredContent?.operation_id===${JSON.stringify(original.operation_id)}&&packet.result.structuredContent.outcome==='accepted'&&packet.result.structuredContent.binding?.kind==='step.record'){

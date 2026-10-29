@@ -109,12 +109,12 @@ try {
     const trace = join(directory, 'trace.jsonl'), preload = join(directory, 'preload.mjs');
     writeFileSync(preload, `
       import fs from 'node:fs';import cp from 'node:child_process';import wt from 'node:worker_threads';
-      import {syncBuiltinESMExports} from 'node:module';import {basename} from 'node:path';
+      import {syncBuiltinESMExports} from 'node:module';import {basename,dirname} from 'node:path';
       const trace=${JSON.stringify(trace)},append=kind=>fs.appendFileSync(trace,JSON.stringify({kind,ns:process.hrtime.bigint().toString()})+'\\n');
       const read=fs.readFileSync;let held=false;
       if(basename(process.argv[1]??'')==='agdf-mcp-launch.js'){
         fs.readFileSync=function(path,...args){
-          if(!held&&String(path).endsWith('/runtime/runtime-manifest.json')){
+          if(!held&&basename(String(path))==='runtime-manifest.json'&&basename(dirname(String(path)))==='runtime'){
             held=true;append('preparation_wait');const until=Date.now()+10000;
             while(!(fs.existsSync(trace)&&read(trace,'utf8').includes('"kind":"owner_ready"'))){
               if(Date.now()>=until)throw Error('owner_boot_did_not_overlap_preparation');
@@ -125,8 +125,8 @@ try {
           return Reflect.apply(read,this,[path,...args]);
         };
       }
-      const NativeWorker=wt.Worker;wt.Worker=class ObservedWorker extends NativeWorker{constructor(...args){super(...args);if(String(args[0]).endsWith('/facade-thread-entry.js'))append('facade_worker')}};
-      const fork=cp.fork;cp.fork=function(...args){if(String(args[0]).endsWith('/facade-entry.js'))append('facade_fork');return Reflect.apply(fork,this,args)};
+      const NativeWorker=wt.Worker;wt.Worker=class ObservedWorker extends NativeWorker{constructor(...args){super(...args);if(basename(String(args[0]))==='facade-thread-entry.js')append('facade_worker')}};
+      const fork=cp.fork;cp.fork=function(...args){if(basename(String(args[0]))==='facade-entry.js')append('facade_fork');return Reflect.apply(fork,this,args)};
       const send=process.send;if(send)process.send=function(message,...args){if(['owner_ready','owner_closed'].includes(message?.kind))append(message.kind);return Reflect.apply(send,this,[message,...args])};
       syncBuiltinESMExports();
     `);
@@ -143,7 +143,7 @@ try {
       } else await withStdioClient({ ...fixture, env }, async client => assert.ok((await client.listTools()).tools.length));
       const events = readFileSync(trace, 'utf8').trim().split('\n').map(line => JSON.parse(line));
       const position = kind => events.findIndex(event => event.kind === kind);
-      assert.ok(position('preparation_wait') >= 0 && position('owner_ready') > position('preparation_wait'));
+      assert.ok(position('preparation_wait') >= 0 && position('owner_ready') > position('preparation_wait'), JSON.stringify(events));
       assert.ok(position('preparation_resume') > position('owner_ready'), 'actual owner boot completes while actual launcher preparation is held');
       assert.ok(position('owner_closed') > position('preparation_resume'), 'both activation and refused preparation observe orderly owner exit');
       if (invalidSource) { assert.equal(position('facade_fork'), -1); assert.equal(position('facade_worker'), -1); }

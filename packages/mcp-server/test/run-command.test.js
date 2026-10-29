@@ -154,13 +154,21 @@ for (const modern of [false, true]) {
       { run_id: 'mcp-close-b', outcome: 'abandoned', reason: 'Not continued' }];
     await withStdioClient({ ...fixture, modern: true }, async client => {
       const { tools } = await client.listTools();
-      assert.equal(tools.length, 7, 'The MCP tool count stays seven');
+      assert.deepEqual(tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect', ...groups], 'Run closure adds command kinds to the existing tool set');
       const closeout = tools.find(tool => tool.name === 'agdf_closeout');
       assert.deepEqual(closeout.inputSchema.properties.command.oneOf.map(row => row.properties.kind.const), ['closeout.record', 'closure.preview', 'closure.apply', 'operation.recover']);
       assert.ok(!closeout.inputSchema.required.includes('run_id') && !closeout.inputSchema.required.includes('expected_revision_id'));
       assert.ok(Buffer.byteLength(JSON.stringify(commandGroupDefinition('agdf_closeout'))) <= 8192);
       assert.ok(groups.reduce((sum, group) => sum + Buffer.byteLength(JSON.stringify(commandGroupDefinition(group))), 0) <= 24576);
-      for (const group of groups.filter(group => group !== 'agdf_closeout')) assert.ok(tools.find(tool => tool.name === group).inputSchema.required.includes('run_id'), group);
+      for (const group of groups.filter(group => !['agdf_project', 'agdf_run', 'agdf_closeout'].includes(group))) {
+        const required = tools.find(tool => tool.name === group).inputSchema.required;
+        assert.ok(required.includes('run_id') && required.includes('expected_revision_id'), group);
+      }
+      for (const group of ['agdf_project', 'agdf_run']) {
+        const properties = tools.find(tool => tool.name === group).inputSchema.properties;
+        assert.equal(Object.hasOwn(properties, 'run_id'), false, group);
+        assert.equal(Object.hasOwn(properties, 'expected_revision_id'), false, group);
+      }
       // Per-run kinds still need run_id and expected_revision_id; closure kinds refuse them.
       const unbound = await client.callTool({ name: 'agdf_closeout', arguments: { ...envelope, operation_id: randomUUID(),
         command: { kind: 'closeout.record', payload: { or: { path: '.agdf/control/artefacts/x/OR.md', digest: 'sha256:' + 'a'.repeat(64) }, confirmation: 'x' } } } });

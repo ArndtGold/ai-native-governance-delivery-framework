@@ -8,12 +8,17 @@ export { projectOperationStatusCall };
 
 export function assertProjectGitRoot(root, gitObservation) {
   const gitRoot = gitObservation?.gitValue(root, ['rev-parse', '--show-toplevel']);
-  if (!gitRoot || realpathSync(gitRoot) !== realpathSync(root)) throw Error('confirmed_git_project_required');
-  const path = join(root, '.git'), stat = lstatSync(path);
-  if (stat.isSymbolicLink() || !stat.isDirectory() && !stat.isFile() || stat.isFile() && stat.size > 4096)
+  if (!gitRoot) throw Error('confirmed_git_project_required');
+  const confirmedRoot = realpathSync(root), reportedRoot = realpathSync(gitRoot);
+  const rootStat = lstatSync(confirmedRoot, { bigint: true }), reportedStat = lstatSync(reportedRoot, { bigint: true });
+  // Windows realpath preserves spelling/case. Prove the same directory object,
+  // without case folding or rounding its filesystem identity through Number.
+  if (!rootStat.isDirectory() || !reportedStat.isDirectory() || rootStat.ino <= 0n
+    || rootStat.dev !== reportedStat.dev || rootStat.ino !== reportedStat.ino) throw Error('confirmed_git_project_required');
+  const path = join(root, '.git'), stat = lstatSync(path, { bigint: true });
+  if (stat.isSymbolicLink() || !stat.isDirectory() && !stat.isFile() || stat.isFile() && stat.size > 4096n)
     throw Error('confirmed_git_project_required');
-  const rootStat = lstatSync(realpathSync(root));
-  return { root: realpathSync(root), root_dev: String(rootStat.dev), root_ino: String(rootStat.ino), git: realpathSync(path), dev: String(stat.dev), ino: String(stat.ino),
+  return { root: confirmedRoot, root_dev: String(rootStat.dev), root_ino: String(rootStat.ino), git: realpathSync(path), dev: String(stat.dev), ino: String(stat.ino),
     content: stat.isFile() ? readFileSync(path, 'utf8') : null };
 }
 

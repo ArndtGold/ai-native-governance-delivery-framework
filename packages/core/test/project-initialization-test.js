@@ -10,7 +10,7 @@ import { validateRunCommandResult } from '../lib/control-state/run-command-contr
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { inspectCanonicalProject, initializeCanonicalProject, initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
-import { inspectProjectState } from '../lib/control-inspect/project-state.js';
+import { inspectProjectState, assertProjectGitRoot } from '../lib/control-inspect/project-state.js';
 import { cliGitObservation } from '../../cli/lib/control-evaluation/git-observation.js';
 import { ownerPlacement, assertOwnerPlacement } from '../lib/owner-placement.js';
 import { canonicalJson, digest } from '../lib/control-state/approval-command-contract.js';
@@ -27,6 +27,16 @@ function fixture(work) {
 }
 const files = root => Object.fromEntries(readdirSync(root, { recursive: true, withFileTypes: true }).filter(e => e.isFile())
   .map(e => [join(e.parentPath, e.name).slice(root.length), readFileSync(join(e.parentPath, e.name), 'utf8')]));
+
+test('Git project confirmation accepts the same directory spelling alias and rejects another directory', () => fixture(({ root }) => {
+  const alias = process.platform === 'win32' ? root[0].toLowerCase() + root.slice(1) : join(root, '.');
+  const proof = assertProjectGitRoot(root, { gitValue: () => alias });
+  assert.equal(proof.root_ino, String(lstatSync(root, { bigint: true }).ino));
+  assert.equal(proof.root_dev, String(lstatSync(root, { bigint: true }).dev));
+  const other = join(root, 'other-project'); mkdirSync(other);
+  assert.throws(() => assertProjectGitRoot(root, { gitValue: () => other }), /confirmed_git_project_required/);
+  assert.throws(() => assertProjectGitRoot(root, { gitValue: () => null }), /confirmed_git_project_required/);
+}));
 
 test('prospective receipt is private until the same directory and anchor are atomically published', () => fixture(({ root, input }) => {
   const original = { operationId: input.operation_id, requestDigest: digest('prospective'), targetId: input.target_id, language: 'en', producer: 'test' };

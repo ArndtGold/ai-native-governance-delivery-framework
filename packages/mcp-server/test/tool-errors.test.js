@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { Client } from '@modelcontextprotocol/client';
 import { InMemoryTransport } from '@modelcontextprotocol/server';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 import { withStdioClient, unresolvedArguments } from './helpers.js';
 import { createTestRuntime } from './runtime-fixture.js';
 import { buildAgdfServer } from '../src/server.js';
@@ -22,8 +23,9 @@ function failed(reply, code) {
   assert.ok(reply.content[1].text.length <= 1200);
 }
 for (const modern of [false, true]) {
-  const fixture = createOwnedRuntimeFixture({controlRuns:['mcp-diagnostic-runtime-reliability-20261027-01']});
+  const fixture = createOwnedRuntimeFixture({ controlRuns: [] });
   try {
+    createRun(fixture.governanceTarget, 'mcp-tool-error-fixture');
     await withStdioClient({ ...fixture, modern }, async client => {
       failed(await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments }), 'no_reliable_target');
       failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: tmpdir() } }), 'no_reliable_target');
@@ -49,7 +51,7 @@ for (const modern of [false, true]) {
         failed(reply, 'target_binding_mismatch'); assert.equal(reply.structuredContent.outcome, 'rejected');
       }
       const ok = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en',
-        working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target', run_id:'mcp-diagnostic-runtime-reliability-20261027-01' } });
+        working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target', run_id: 'mcp-tool-error-fixture' } });
       assert.equal(ok.isError, undefined, JSON.stringify(ok)); assert.equal(ok.content.length, 1); assert.equal(ok.structuredContent.outcome, 'inspect_result');
       const schema = await client.callTool({ name: 'agdf_dispatch', arguments: {} });
       assert.equal(schema.isError, true); assert.equal(schema.structuredContent, undefined, 'SDK input errors keep their own contract');

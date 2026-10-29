@@ -108,7 +108,7 @@ test('device-only remount simulation preserves new receipts while legacy receipt
   const newer = observe(); assert.equal(newer.status, 0, newer.stderr);
   assert.equal(JSON.parse(newer.stdout).operation_status, 'recorded');
   const control = join(root, '.agdf/control'), path = join(control, '.agdf-canonical-init.json');
-  const receipt = JSON.parse(readFileSync(path)), stat = lstatSync(control);
+  const receipt = JSON.parse(readFileSync(path)), stat = lstatSync(control, { bigint: true });
   const legacy = { schema_version: 1, owner: receipt.owner, kind: receipt.kind, operation: receipt.operation,
     target_id: receipt.target_id, control: { realpath: control, dev: String(stat.dev), ino: String(stat.ino) },
     status: 'recorded', created_run: false, created_gate_approval: false };
@@ -142,7 +142,7 @@ test('the existing caller stage2 format completes through its original receipt1 
   const original = { operationId: input.operation_id, requestDigest: digest('legacy-stage'), targetId: input.target_id, language: 'en', producer: 'test' };
   assert.throws(() => initializeCanonicalProject(root, original, { beforePublish: () => { throw Error('owned-stage'); } }), /owned-stage/);
   const stage = join(root, '.agdf', `.control-stage-${input.operation_id}`), path = join(stage, '.agdf-canonical-init-stage.json');
-  const current = JSON.parse(readFileSync(path)), target = lstatSync(root), agdf = lstatSync(join(root, '.agdf'));
+  const current = JSON.parse(readFileSync(path)), target = lstatSync(root, { bigint: true }), agdf = lstatSync(join(root, '.agdf'), { bigint: true });
   const legacy = { schema_version: 2, operation: current.operation, owner: current.owner, stage_name: current.stage_name, mode: current.mode,
     target: { realpath: root, dev: String(target.dev), ino: String(target.ino) },
     agdf: { realpath: join(root, '.agdf'), dev: String(agdf.dev), ino: String(agdf.ino) },
@@ -151,7 +151,7 @@ test('the existing caller stage2 format completes through its original receipt1 
   assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).status, 'pending');
   const result = initializeCanonicalProject(root, original);
   assert.equal(result.receipt.schema_version, 1); assert.equal(result.status, 'created');
-  assert.deepEqual(result.receipt.control, { realpath: join(root, '.agdf/control'), dev: String(agdf.dev), ino: String(lstatSync(join(root, '.agdf/control')).ino) });
+  assert.deepEqual(result.receipt.control, { realpath: join(root, '.agdf/control'), dev: String(agdf.dev), ino: String(lstatSync(join(root, '.agdf/control'), { bigint: true }).ino) });
 }));
 
 test('full-width filesystem inode values remain strings above Number precision', () => fixture(({ root, run }) => {
@@ -176,7 +176,7 @@ test('legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup
   const original = { operationId: input.operation_id, requestDigest: digest('legacy-cli'), targetId: input.target_id, language: 'en', producer: 'test' };
   assert.throws(() => initializeCanonicalProject(root, original, { beforePublish: () => { throw Error('owned-stage'); } }), /owned-stage/);
   const stage = join(root, '.agdf', `.control-stage-${input.operation_id}`), path = join(stage, '.agdf-canonical-init-stage.json');
-  const current = JSON.parse(readFileSync(path)), target = lstatSync(root), agdf = lstatSync(join(root, '.agdf'));
+  const current = JSON.parse(readFileSync(path)), target = lstatSync(root, { bigint: true }), agdf = lstatSync(join(root, '.agdf'), { bigint: true });
   const legacy = { schema_version: 1, owner: current.owner, stage_name: current.stage_name, mode: current.mode,
     target: { realpath: root, dev: String(target.dev), ino: String(target.ino) },
     agdf: { realpath: join(root, '.agdf'), dev: String(agdf.dev), ino: String(agdf.ino) },

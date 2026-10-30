@@ -48,6 +48,36 @@
       "seconds": {
         "packages/cli/scripts/control-command-package-test.js": 356.3
       }
+    },
+    {
+      "source_run": 41017974003,
+      "source_job": 123938610737,
+      "recorded_at": "2026-10-30",
+      "platform": "windows",
+      "note": "Retained completed CI command intervals only. The shared 480-second job budget expired during performance.test.js; that incomplete invocation is neither a completed duration nor evidence of a runtime-target pass or failure.",
+      "seconds": {
+        "packages/cli/scripts/mcp-host-config-test.js": 0.5,
+        "packages/cli/scripts/mcp-runtime-retention-test.js": 35.5,
+        "packages/cli/scripts/codex-plugin-mcp-test.js": 65.3,
+        "packages/cli/scripts/codex-cockpit-config-test.js": 1.6,
+        "packages/mcp-server/test/worker-build.test.js": 12.7,
+        "packages/mcp-server/test/contract.test.js": 2.9,
+        "packages/mcp-server/test/protocol.test.js": 11,
+        "packages/mcp-server/test/skill-names.test.js": 54.2,
+        "packages/mcp-server/test/doctor-observation.test.js": 43.7,
+        "packages/mcp-server/test/startup.test.js": 68.6,
+        "packages/mcp-server/test/generation.test.js": 64.9,
+        "packages/mcp-server/test/safety.test.js": 7.4
+      }
+    },
+    {
+      "source_run": 41017974003,
+      "source_job": 123938610347,
+      "recorded_at": "2026-10-30",
+      "platform": "windows",
+      "seconds": {
+        "packages/mcp-server/test/package.test.js": 134.5
+      }
     }
   ],
   "files": {
@@ -60,16 +90,25 @@
     "packages/mcp-server/test/revision-command.test.js": { "windows": 137 },
     "packages/mcp-server/test/expanded-source-revision.test.js": { "windows": 509 },
     "packages/cli/scripts/plugin-mcp-runtime-test.js": { "windows": 138 },
-    "packages/cli/scripts/mcp-runtime-retention-test.js": { "windows": 30 },
+    "packages/cli/scripts/mcp-runtime-retention-test.js": { "windows": 36 },
     "packages/core/test/mcp-tool-errors-test.js": { "windows": 1 },
-    "packages/mcp-server/test/contract.test.js": { "windows": 2 },
+    "packages/mcp-server/test/contract.test.js": { "windows": 3 },
     "packages/mcp-server/test/continuation.test.js": { "windows": 50 },
     "packages/mcp-server/test/tool-errors.test.js": { "windows": 60 },
-    "packages/mcp-server/test/safety.test.js": { "windows": 1 },
+    "packages/mcp-server/test/safety.test.js": { "windows": 8 },
     "packages/mcp-server/test/worker-lock-release.test.js": { "windows": 5 },
     "packages/mcp-server/test/performance.test.js": { "windows": 33 },
-    "packages/mcp-server/test/package.test.js": { "windows": 36 },
-    "packages/cli/scripts/control-command-package-test.js": { "windows": 357 }
+    "packages/mcp-server/test/package.test.js": { "windows": 135 },
+    "packages/cli/scripts/control-command-package-test.js": { "windows": 357 },
+    "packages/cli/scripts/mcp-host-config-test.js": { "windows": 28 },
+    "packages/cli/scripts/codex-plugin-mcp-test.js": { "windows": 66 },
+    "packages/cli/scripts/codex-cockpit-config-test.js": { "windows": 2 },
+    "packages/mcp-server/test/worker-build.test.js": { "windows": 13 },
+    "packages/mcp-server/test/protocol.test.js": { "windows": 19 },
+    "packages/mcp-server/test/skill-names.test.js": { "windows": 55 },
+    "packages/mcp-server/test/doctor-observation.test.js": { "windows": 44 },
+    "packages/mcp-server/test/startup.test.js": { "windows": 69 },
+    "packages/mcp-server/test/generation.test.js": { "windows": 65 }
   },
   "suites": {
     "create-agdf:test:distribution-profile-history": {

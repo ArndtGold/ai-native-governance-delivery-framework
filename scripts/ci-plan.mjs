@@ -23,7 +23,11 @@ const prerequisites = new Set(['dependencies', 'ui-dependencies', 'ui-build', 'g
 const checkAreas = {
   contracts: { label: 'Repository contracts', shortLabel: 'Contracts', stages: ['maintenance', 'shell'] },
   compatibility: { label: 'Runtime & host compatibility', shortLabel: 'Compat', stages: ['compatibility-freshness', 'runtime', 'built-runtime', 'host-compatibility', 'mcp-ergonomics'] },
-  distribution: { label: 'Distribution & package consumers', shortLabel: 'Archives', stages: ['cli-package', 'wrapper-package', 'mcp-package', 'archives', 'wrapper-smoke'] },
+  // Keep one ownership list. Nested groups reserve independent Windows budgets
+  // for packing/consumers instead of timing out a later stage after earlier passes.
+  distribution: { label: 'Distribution & package consumers', shortLabel: 'Archives', stages: [
+    ['cli-package', 'wrapper-package', 'mcp-package'], ['archives'], ['wrapper-smoke'],
+  ] },
   'run-safety': { label: 'Run persistence & delivery map', shortLabel: 'Run safety', stages: ['transactions', 'delivery-map'] },
   documentation: { label: 'Documentation & community', shortLabel: 'Docs', stages: ['community', 'pages-install', 'pages'] },
 };
@@ -156,14 +160,19 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
     if (suite === 'cli') {
       const checks = verificationPlan({ lane: platform.lane }).filter(stage => !prerequisites.has(stage.id) && stage.id !== 'cli-smoke');
       for (const stage of checks) {
-        const owners = Object.values(checkAreas).filter(area => area.stages.includes(stage.id));
+        const owners = Object.values(checkAreas).filter(area => area.stages.flat().includes(stage.id));
         if (owners.length !== 1) throw Error(`CI check needs exactly one owner: ${stage.id}`);
       }
       for (const [area, { label, shortLabel, stages }] of Object.entries(checkAreas)) {
-        const checkStages = checks.filter(stage => stages.includes(stage.id)).map(stage => stage.id);
-        if (checkStages.length) rows.push({ ...platform, id: `${prefix}-checks-${area}`, label: `${label} / ${suffix}`,
-          graphLabel: `${shortLabel} · ${graphPlatform}`,
-          area, kind: 'checks', checkStages, seconds: null });
+        const stageGroups = platform.speed === 'windows' && Array.isArray(stages[0]) ? stages : [stages.flat()];
+        const partitions = stageGroups.map(group => checks.filter(stage => group.includes(stage.id)).map(stage => stage.id)).filter(group => group.length);
+        for (const [index, checkStages] of partitions.entries()) {
+          const part = partitions.length > 1 ? `-part-${index + 1}` : '';
+          const partLabel = partitions.length > 1 ? ` / Part ${index + 1} of ${partitions.length}` : '';
+          rows.push({ ...platform, id: `${prefix}-checks-${area}${part}`, label: `${label}${partLabel} / ${suffix}`,
+            graphLabel: `${shortLabel} · ${graphPlatform}${part ? ` ${index + 1}of${partitions.length}` : ''}`,
+            area, kind: 'checks', checkStages, seconds: null });
+        }
       }
     }
     const groups = [];

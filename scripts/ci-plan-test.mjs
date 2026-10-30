@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { parse } from 'yaml';
-import { ciJobs, ciJobPlan, ciGraphMatrices, testInventory, partitionTests, CI_TEST_BUDGET_SECONDS } from './ci-plan.mjs';
+import { ciJobs, ciJobPlan, ciGraphMatrices, testInventory, partitionTests, CI_TEST_BUDGET_SECONDS, CI_EXECUTION_BUDGET_MS } from './ci-plan.mjs';
 import { verificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
 import { CONTROL_COMMAND_PACKAGE_PARTS } from '../packages/cli/scripts/control-command-package-parts.js';
@@ -141,6 +141,45 @@ test('measured Windows MCP lifecycle and whole-flow costs prevent the exhausted 
   assert.notEqual(lifecycle.id, wholeFlow.id, 'run 39142873658 exhausted its budget when both heavy fixtures shared one job');
   assert.ok(lifecycle.seconds <= CI_TEST_BUDGET_SECONDS);
   assert.ok(wholeFlow.seconds <= CI_TEST_BUDGET_SECONDS);
+});
+
+test('Windows package, archive and wrapper consumers keep independent budgets and complete ownership', () => {
+  const jobs = ciJobs();
+  const distribution = jobs.filter(row => row.kind === 'checks' && row.area === 'distribution');
+  const windows = distribution.filter(row => row.os === 'windows-latest');
+  assert.deepEqual(windows.map(row => row.checkStages), [
+    ['cli-package', 'wrapper-package', 'mcp-package'], ['archives'], ['wrapper-smoke'],
+  ]);
+  for (const node of [22, 24]) {
+    const linux = distribution.filter(row => row.os === 'ubuntu-latest' && row.node === node);
+    assert.equal(linux.length, 1, 'the passing Linux check groups retain their existing composition');
+    assert.deepEqual(linux[0].checkStages, windows.flatMap(row => row.checkStages));
+  }
+  for (const row of windows) {
+    const plan = ciJobPlan(row);
+    assert.ok(plan.findIndex(stage => stage.id === 'assemble') < plan.findIndex(stage => row.checkStages.includes(stage.id)));
+  }
+  assert.equal(CI_EXECUTION_BUDGET_MS, 480000);
+});
+
+test('retained Main-CI Windows costs cannot rebuild the exhausted MCP partition', () => {
+  const baseline = JSON.parse(readFileSync(new URL('./ci-duration-baseline.json', import.meta.url), 'utf8'));
+  const observations = baseline.file_observations.filter(row => row.source_run === 41017974003);
+  assert.deepEqual(observations.map(row => row.source_job), [123938610737, 123938610347]);
+  const observed = Object.assign({}, ...observations.map(row => row.seconds));
+  const path = command => `${command.cwd}/${command.args.find(arg => !arg.startsWith('--')).replace(/^\.\//, '')}`;
+  const windows = ciJobs().filter(row => row.os === 'windows-latest' && row.area === 'mcp');
+  const owners = new Set();
+  for (const row of windows) {
+    const seconds = row.commands.reduce((total, command) => {
+      const cost = observed[path(command)];
+      if (cost !== undefined) owners.add(row.id);
+      return total + (cost ?? 0);
+    }, 0);
+    assert.ok(seconds <= CI_TEST_BUDGET_SECONDS, `${row.id} repeats more than the unchanged 360-second payload budget in retained observations`);
+  }
+  assert.ok(owners.size > 1, 'the completed expensive fixtures and packed-package check cannot share the old exhausted job');
+  for (const [file, seconds] of Object.entries(observed)) assert.ok(baseline.files[file].windows >= Math.ceil(seconds), file);
 });
 
 test('measured packed control-command parts run in separate Windows partitions', () => {

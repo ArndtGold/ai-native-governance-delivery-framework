@@ -1,3 +1,5 @@
+import { bindInputResolution } from './input-resolution.js';
+import { resolutionRecordVersion } from './input-resolution.js';
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { parseControlState, parseRunState } from "./run-state-parser.js";
@@ -84,14 +86,14 @@ function collectRunRevisionClosure(root, run, state, operationId, approvedGates,
     paths.push(path);
     let envelope;
     try { envelope = JSON.parse(readHistoryBytes(root, path).toString('utf8')); } catch { continue; }
-    if ([3, 4, 5, 6].includes(envelope.record?.schema_version)) {
+    if ([3, 4, 5, 6].includes(resolutionRecordVersion(envelope.record))) {
       const record = envelope.record;
       if (!APPROVAL_GATES.includes(record.gate) || validateRunPresentationEnvelope(envelope,
         { runId, gate: record.gate, revisionId: record.revision_id, presentationId: name.slice(0, -5) }).reason) throw revisionError('presentation_binding_invalid');
       const documentPath = `${presentations}/${record.presentation_id}.document`, bytes = readHistoryBytes(root, documentPath);
       if (bytes.length !== record.document_bytes || byteDigest(bytes) !== record.document_digest) throw revisionError('presentation_document_digest_mismatch');
       paths.push(documentPath);
-      if ([5, 6].includes(record.schema_version) && record.preview_review) {
+      if ([5, 6].includes(resolutionRecordVersion(record)) && record.preview_review) {
         for (const file of [...record.preview_review.files, ...record.preview_review.chunks]) {
           const bytes = readHistoryBytes(root, file.snapshot);
           if (bytes.length !== file.bytes || byteDigest(bytes) !== file.digest) throw revisionError('preview_snapshot_changed');
@@ -188,7 +190,7 @@ function revisedRun(root, work, receipt) {
     if (work.state.artefacts.has(type) || ["Brownfield Analysis", "CD+Tests", "CR"].includes(type))
       next = upsertTableRow(next, "Artefacts", 0, type, [type, "", "missing", "Renewed evidence required after source revision"]);
   }
-  if (receipt.schema_version === '3') {
+  if (resolutionRecordVersion(receipt) === '3') {
     for (const gate of ['QA', 'UAT']) {
       for (const section of ['Approvals', 'Gate Checklist']) next = replaceGateRow(next, section, gate, cells => [gate, 'missing', '', ...cells.slice(3)]);
       if (work.state.artefacts.has(gate)) next = upsertTableRow(next, 'Artefacts', 0, gate, [gate, '', 'missing', 'Renewed decision and evidence required after source revision']);
@@ -227,7 +229,7 @@ export function inspectSourceRevision(root, { runId, operationId, revisionId }) 
     if (!parsed.valid || !REVISION_ID_PATTERN.test(operationId ?? "")) throw revisionError("revision_input_invalid");
     if (existsSync(pending)) {
       const journal = readPendingSourceRevisionJournal(root, runId);
-      if (![2, 5].includes(journal.schema_version) || journal.operation_id !== operationId
+      if (![2, 5].includes(resolutionRecordVersion(journal)) || journal.operation_id !== operationId
           || journal.target_id !== resolveControlCommandTarget(root).target_id) throw revisionError("revision_recovery_binding_invalid");
       return { outcome: "recovery_required", run_id: runId, operation_id: operationId, revision_id: parsed.meta.revision_id, authorizes: false,
         next_action: "Inspect the exact pending operation and use explicit recovery; do not blindly repeat apply." };
@@ -249,7 +251,7 @@ export function applySourceRevision(root, input, { afterWrite } = {}) {
     if (prior) {
       if (runSealState(root, run.content).status !== "valid") throw revisionError("seal_invalid");
       if (input.commandContext) {
-        if (!['2', '3'].includes(prior.schema_version) || prior.command_digest !== input.commandContext.request_digest) throw revisionError('revision_operation_conflict');
+        if (!['2', '3'].includes(resolutionRecordVersion(prior)) || prior.command_digest !== input.commandContext.request_digest) throw revisionError('revision_operation_conflict');
         return { outcome: 'replayed', authorizes: false, historical_effect: true, receipt: prior, run_id: runId,
           operation_id: operationId, resulting_revision_id: prior.resulting_revision_id, current_revision_id: run.meta.revision_id };
       }
@@ -264,7 +266,7 @@ export function applySourceRevision(root, input, { afterWrite } = {}) {
     const work = prepareSourceRevision(root, input);
     if (input.previewDigest !== work.previewDigest) throw revisionError("revision_preview_stale");
     if (input.commandContext && input.confirmation !== sourceRevisionConfirmation(input)) throw revisionError('confirmation_required', 'Obtain a deliberate confirmation of the exact current preview selector; host tool consent alone is insufficient.');
-    const receipt = { schema_version: work.proposal.schema_version === '2' ? '3' : input.commandContext ? '2' : "1", operation_id: operationId, target_id: work.proposal.target_id, run_id: runId,
+    let receipt = { schema_version: work.proposal.schema_version === '2' ? '3' : input.commandContext ? '2' : "1", operation_id: operationId, target_id: work.proposal.target_id, run_id: runId,
       source_gate: input.sourceGate, request_digest: work.requestDigest, preview_digest: work.previewDigest,
       previous_revision_id: revisionId, resulting_revision_id: randomUUID(), revision: Number(run.meta.revision) + 1,
       invalidated_bindings: work.preview.impact.invalidated_bindings, analyses: work.proposal.impact_assessment.analyses,
@@ -272,8 +274,9 @@ export function applySourceRevision(root, input, { afterWrite } = {}) {
       archive: { path: `${revisionHistoryPrefix(runId, operationId)}manifest.json`, digest: work.history.digest }, reason: work.proposal.reason };
     if (input.commandContext) Object.assign(receipt, { command_digest: input.commandContext.request_digest, confirmation_digest: digest(input.confirmation),
       proposal_reference: input.proposalBinding, producer: { contract: 'run-command/1', package_version: input.packageVersion }, assurance: COOPERATIVE_ASSURANCE });
-    if (receipt.schema_version === '3') Object.assign(receipt, { policy_version: 2, initiating_phase: work.proposal.initiating_phase,
+    if (resolutionRecordVersion(receipt) === '3') Object.assign(receipt, { policy_version: 2, initiating_phase: work.proposal.initiating_phase,
       impact_digest: digest(canonicalJson(work.preview.impact)), quality_digest: digest(canonicalJson(work.proposal.quality_assessment)) });
+    receipt = bindInputResolution(receipt);
     const { next, after } = revisedRun(root, work, receipt);
     const backlogPath = join(root, ".agdf/control/MASTER_BACKLOG.md");
     if (hasSymlinkComponent(root, ".agdf/control/MASTER_BACKLOG.md") || containedRegularFile(root, ".agdf/control/MASTER_BACKLOG.md").status !== "valid") throw revisionError("backlog_path_invalid");
@@ -299,7 +302,7 @@ function prepareSourceRevisionIgnoringPending(root, input) {
   // The exact pending operation is owned by the caller under both locks. Revalidation reads
   // the unchanged pre-commit state without allowing ordinary readRun to bypass a pending write.
   const pending = readPendingSourceRevisionJournal(root, input.runId);
-  if (![2, 5].includes(pending.schema_version) || pending.operation_id !== input.operationId) throw Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
+  if (![2, 5].includes(resolutionRecordVersion(pending)) || pending.operation_id !== input.operationId) throw Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
   const proposal = input.proposalMaterial ? JSON.parse(input.proposalMaterial.content) : readContainedJson(root, input.evidence);
   const text = readHistoryBytes(root, `.agdf/control/runs/${input.runId}/RUN_STATE.md`).toString("utf8");
   if (parseRunState(text).meta.revision_id !== input.revisionId || runSealState(root, text).status !== "valid") throw Error("AGDF_STALE_RUN_REVISION");
@@ -316,7 +319,7 @@ export function recoverSourceRevision(root, input) {
       return inspected.outcome === "historical" ? { ...inspected, outcome: "recovered", status: "already_completed" } : inspected;
     }
     const pending = readPendingSourceRevisionJournal(root, input.runId);
-    if (![2, 5].includes(pending.schema_version) || pending.operation_id !== input.operationId
+    if (![2, 5].includes(resolutionRecordVersion(pending)) || pending.operation_id !== input.operationId
         || pending.target_id !== resolveControlCommandTarget(root).target_id
         || ![pending.old_revision_id, pending.next_revision_id].includes(input.revisionId)) throw revisionError("revision_recovery_binding_invalid");
     if (input.pendingDigest) {
@@ -327,7 +330,7 @@ export function recoverSourceRevision(root, input) {
         // Once the Run committed, its sealed receipt owns the effect. The proposal
         // is mutable authoring input and cannot veto forward backlog recovery.
         const receipt = readSourceRevisions(current.content).receipts.find(row => row.operation_id === input.operationId);
-        if (!['2', '3'].includes(receipt?.schema_version) || receipt.source_gate !== input.sourceGate
+        if (!['2', '3'].includes(resolutionRecordVersion(receipt)) || receipt.source_gate !== input.sourceGate
           || canonicalJson(receipt.proposal_reference) !== canonicalJson(input.proposalBinding)
           || receipt.request_digest !== pending.request_digest || receipt.preview_digest !== pending.preview_digest) throw revisionError('revision_recovery_binding_invalid');
       } else {
@@ -394,7 +397,7 @@ export function reopenPrdRevision(root, input, { afterWrite = () => {} } = {}) {
     if (pendingRunStepIds(root).some(id => id !== runId)) throw revisionError('run_step_recovery_required');
     if (existsSync(pendingRunStepPath(root, runId))) {
       const pending = readPendingRunStepJournal(root, runId);
-      if (pending.schema_version !== 3 || pending.kind !== commandContext.kind || pending.operation_id !== operationId
+      if (resolutionRecordVersion(pending) !== 3 || pending.kind !== commandContext.kind || pending.operation_id !== operationId
         || pending.target_id !== commandContext.target_id || pending.request_digest !== commandContext.request_digest
         || pending.old_revision_id !== revisionId) throw revisionError('run_step_recovery_required');
       recoverPendingRunStepLocked(root, runId);

@@ -86,7 +86,7 @@
     "test:next-action": "node ../core/test/next-action-test.js",
     "test:cli-gates": "node scripts/cli-gate-scenarios-test.js",
     "test:intake-continuation": "node scripts/intake-continuation-test.js",
-    "test:artifact-language": "node scripts/artifact-language-test.js",
+    "test:artifact-language": "node ../core/test/configuration-defaults-test.js && node scripts/artifact-language-test.js",
     "test:parent-reconciliation": "node ../core/test/parent-reconciliation-test.js",
     "test:interaction-presentation": "node ../core/test/interaction-presentation-test.js",
     "test:operational-localization": "node scripts/operational-localization-test.js",

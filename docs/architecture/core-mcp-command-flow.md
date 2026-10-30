@@ -17,6 +17,9 @@ Erfassung und Entscheidung. Die [Cockpit-Referenz](06-agdf-cockpit.md) erklärt 
 Leseansicht; die [MCP-Schnittstellenfragen](04-mcp-schnittstellen.md) behandeln die verbleibenden
 Fragen des [gemeinsamen Zielbilds](03-agentenkontrolle-zielbild.md).
 Verbindliche Semantik bleibt bei den unten verlinkten Verträgen und Core-Diensten.
+Der bestehende Context-Graph-Knoten `CG-MCP-DISPATCH-ADAPTER` verweist auf diese
+Ablaufreferenz; die unten beschriebenen Default-, Auflösungs- und Replay-Owner
+konkretisieren denselben Adapter. Dafür entsteht kein zusätzlicher Wissens- oder Policy-Owner.
 Neue oder überarbeitete Schnittstellen verwenden ergänzend die
 [MCP-Integrationsrichtlinien](09-mcp-integrationsrichtlinien.md) als Entwicklungs- und Review-Raster.
 
@@ -157,7 +160,7 @@ Reads oder Befehle wegen veralteter Bindung ablehnen. Ein Hinweis ist keine daue
 Berechtigung. [Code, Tests und Originalnachweise](04-mcp-schnittstellen.md#nachweiskette-und-qualifikationsgrenzen)
 belegen diese Grenzen getrennt von der tatsächlichen Modellaufgabe.
 
-Jede Anfrage an die fünf Befehlsgruppen verwendet dieselbe strikt definierte Anfragestruktur
+Die vollständige Core-Anfrage der sieben Befehlsgruppen verwendet die strikt definierte Struktur
 der Version 1:
 `schema_version`, `presentation_language`, `working_directory`, `target_source`, `primary_target`,
 `target_id`, `run_id`, `expected_revision_id`, `operation_id`, `assurance: "cooperative_local"` und
@@ -166,6 +169,17 @@ und unsichere oder fremde Quellpfade werden abgewiesen. Referenzen enthalten ein
 des zulässigen Run-Verzeichnisses und dessen kanonischen Text-Digest; Nachweise über das Lesen von
 Dokumenten binden die Rohbytes separat. Beliebiger Run-Text, Shell-Befehle, Callbacks oder Validatoren
 werden nicht als Eingabe zugelassen.
+
+Vor der Core-Validierung ergänzt der MCP-Adapter geeignete Auslassungen: Sprache aus gültiger
+expliziter Angabe, bestätigter Projektkonfiguration oder versionierter Plugin-Vorgabe; Version und
+Assurance aus ihren Verträgen. Die Darstellungsroute gilt nur für `presentation.deliver`, die
+Statusvariante nur für lesendes `gate-check`. Vorgaben liegen in `plugins/agdf/meta/agdf-defaults.json`,
+Projektwerte weiterhin in `.agdf/control/config.json`; Hilfe/Inspektion zeigen Wert und Herkunft.
+Das Arbeitsverzeichnis bleibt auf derzeit belegten nativen Adaptern ausdrücklich nötig. Ungültige
+Werte werden nicht ersetzt und Defaults aktivieren keine Projektsteuerung. Die bestehenden
+Operations- und Recovery-Owner speichern ursprüngliche Auflösung in versionierten Belegen;
+`resolved/1` trägt die ursprüngliche Familienversion und beide Request-Digests. Replay übernimmt
+keine späteren Konfigurationswerte, vorbereitete Entscheidungen bleiben unverändert.
 
 ### CLI, verfügbare Gruppen und Berechtigungen
 

@@ -1,0 +1,25 @@
+## Aufgaben- und Testplan prüfen und entscheiden
+
+TP: Versioned defaults and immediate MCP input relief
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Die freigegebene SD wird in konkrete Umsetzung und Nachweise übersetzt. Plugin-Defaults und tatsächlich verkürzte MCP-Eingaben bleiben eine gemeinsame Lieferung.
+- Umfang und Reihenfolge: Zwölf Aufgaben führen von der erforderlichen Brownfield-Vorbereitung über Defaults/Resolver, Beleg- und Replay-Kompatibilität, öffentliche Schemata und Adapter bis zu Darstellung/Diagnose, Generatoren, Prüfungen und den bestehenden Reviews/QA. Alle zwölf PRD-Kriterien und ihre acht Designentscheidungen sind 25 konkreten Szenarien zugeordnet.
+- Umsetzung: Eine kanonische JSON-Quelle mit Schema, die vorhandene Projektdatei und ein gemeinsamer Resolver liefern die vier freigegebenen Einstellungen. Der Adapter ergänzt geeignete Auslassungen vor strenger Core-Validierung. Das Arbeitsverzeichnis bleibt auf den derzeit belegten nativen Adaptern ausdrücklich nötig. Ziele, Runs, Revisionen, Digests und Freigaben bleiben gebunden.
+- Replay und Risiken: Die bestehenden Beleg-/Transaktions-Owner behalten ursprünglich aufgelöste Werte auch bei geänderter oder ungültiger Konfiguration. Geprüft werden unterbrochene Transaktionen, Wiederanlauf, dieselbe UUID mit abweichender Anfrage, alte Belegformate und unveränderte Präsentationen. Belegbreite und knappe Schema-/Paketbudgets sind die größten technischen Risiken; Limits werden nicht erhöht.
+- Prüfungen: Vorhandene Sprach-, Core-, Recovery-, Darstellungs- und SDK-Suiten werden erweitert und wiederverwendet. Neue gezielte Tests prüfen Konfiguration und verkürzte MCP-Aufrufe. Beide SDK-Protokollvarianten, Parent-/Worker-Pfade, ungültige Eingaben, Projekttrennung und echte Wirkung beziehungsweise Wirkungslosigkeit sind verbindlich. Alte und neue Aufrufformen werden am selben Kandidaten verglichen; keine Live-Freigabe dient als Test.
+- Codex CLI: Ein begrenzter Probe nutzt laut lokalem API-Schema direkte MCP-Aufrufe der CLI 0.163.0. Temporäres Profil und synthetische Projekte prüfen Discovery, verkürztes Lesen und Schreiben sowie explizite Vergleichsaufrufe. Dafür sind keine Modellaufrufe, kopierten Zugangsdaten, zusätzlichen API-Ausgaben oder globale Installation vorgesehen. Die Ausführung ist noch nicht nachgewiesen; bei fehlender API/Fähigkeit bleibt eine sichtbare native Nachweislücke.
+- Nachweise und Arbeitsgrenze: Geprüft wird ein exakt gebundener Kandidat mit ausschließlich beabsichtigten Änderungen. Fremde staged/unstaged Installer- und Control-Arbeit bleibt erhalten. Gezielte Prüfungen sind vor QA erforderlich; ein vollständiger lokaler Lauf braucht einen konkreten zusätzlichen Prüfgrund. Spätere CI ist nur für ihren tatsächlich geprüften SHA aussagekräftig. Repository-, native CLI-, UI- und menschliche Abnahme bleiben getrennt; Effizienzgewinne werden nicht behauptet.
+- Entscheidungen und nächster Schritt: Die offene SD-Planungsentscheidung und die lokalen Prüfentscheidungen sind aufgelöst. Noch keine Umsetzung oder Feature-Prüfung erfolgt. Approval: TP erlaubt die erforderliche Vorbereitung und anschließend die vom aktuellen Gate erlaubte Umsetzung. QA/UAT, Git-Aktionen, Installation und Veröffentlichung benötigen weiterhin ihre jeweils erforderliche Freigabe.
+
+Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.
+
+### Fassung und Quellen
+
+Run: `run-3ab79b5a-f1d0-425e-9e1e-2dd3fbffbc53` · Aufgaben- und Testplan · Revision: `c772e455-555c-4576-9e60-f47386af0464`
+
+SHA-256: `sha256:5256fc869495413d7806da6e4ba0f30b238205d947fbbf6b25216bf8392aaeda`

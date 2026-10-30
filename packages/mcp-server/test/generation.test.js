@@ -85,7 +85,8 @@ try {
   writeFileSync(join(target, alternatePath), JSON.stringify(candidate) + '\n');
   const replace = (id = randomUUID(), alternate = false) => {
     const path = alternate ? alternatePath : candidatePath, digest = artefactFileDigest(target, path);
-    return invoke('agdf_record', { ...envelope(), operation_id: id, command: { kind: 'runtime_generation.replace',
+    const { schema_version, presentation_language, assurance, ...shortened } = envelope();
+    return invoke('agdf_record', { ...shortened, operation_id: id, command: { kind: 'runtime_generation.replace',
       payload: { candidate: { path, digest }, confirmation: `Replace owned runtime: ${digest}` } } });
   };
   const first = await open(); assert.ok(first._meta?.agdf_decision, JSON.stringify(first));
@@ -97,7 +98,11 @@ try {
   assert.ok(statuses.every(value => value.report?.available), JSON.stringify(statuses));
   const firstSession = first._meta.agdf_decision;
   const operation = randomUUID(), second = await replace(operation); assert.equal(second.outcome, 'accepted', JSON.stringify(second));
+  const configPath = join(target, '.agdf/control/config.json'), configBefore = readFileSync(configPath);
+  writeFileSync(configPath, '{');
   assert.equal((await replace(operation)).outcome, 'already_applied');
+  assert.equal(readFileSync(configPath, 'utf8'), '{', 'historical runtime replacement does not repair current configuration');
+  writeFileSync(configPath, configBefore);
   assert.equal((await replace(operation, true)).reason, 'operation_payload_conflict');
   assert.equal((await invoke('agdf_prepare', { ...envelope(), operation_id: operation,
     command: { kind: 'presentation.prepare', payload: { gate: 'SD' } } })).reason, 'operation_payload_conflict');
@@ -180,19 +185,30 @@ try {
   // A real child acknowledges orderly shutdown but deliberately keeps its own
   // event loop alive. No forced signal may substitute for actual exit.
   const wrapper = join(root, 'delayed-owned-exit.mjs');
-  writeFileSync(wrapper, `process.on('message', message => { if (message?.kind === 'shutdown') setTimeout(() => {}, 800); });\nawait import(process.env.AGDF_SYNTHETIC_ENTRY);\n`);
-  const delayedFork = (entry, args, options) => fork(wrapper, args, { ...options,
+  const exitRelease = join(root, 'allow-owned-natural-exit'); let delayedChild;
+  writeFileSync(wrapper, `import {existsSync} from 'node:fs';\nprocess.on('message', message => { if (message?.kind === 'shutdown') { const hold=setInterval(()=>{if(existsSync(${JSON.stringify(exitRelease)}))clearInterval(hold);},10); } });\nawait import(process.env.AGDF_SYNTHETIC_ENTRY);\n`);
+  const delayedFork = (entry, args, options) => delayedChild = fork(wrapper, args, { ...options,
     env: { ...process.env, AGDF_SYNTHETIC_ENTRY: pathToFileURL(entry).href } });
   const headless = dispatcher.createMcpDispatchRuntime({ surface: 'copilot' });
   const delayed = await createOwnedGenerationFacade({ runtime: headless, publisher, surface: 'copilot', closeMs: 40, Fork: delayedFork,
     createControlRuntime: runtimeControl => dispatcher.createMcpDispatchRuntime({ surface: 'copilot', runtimeControl }),
     onEvent: event => trace.push(event) });
   await delayed.close();
+  try {
   assert.equal(delayed.runtimeControl.status().occupancy, 1);
   assert.equal(delayed.runtimeControl.status().generations[0].state, 'close_unconfirmed');
   assert.equal(delayed.runtimeControl.status().generations[0].confirmed_exit, false);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // Release only after observing retention. The same one-second observation
+  // bound now waits for actual exit, rather than racing an 800 ms child timer.
+  let exitTimer;
+  const naturalExit = new Promise((resolve, reject) => {
+    delayedChild.once('exit', resolve);
+    exitTimer = setTimeout(() => reject(Error('owned_natural_exit_unconfirmed')), 1000);
+  });
+  writeFileSync(exitRelease, 'release\n');
+  try { await naturalExit; } finally { clearTimeout(exitTimer); }
   assert.equal(delayed.runtimeControl.status().occupancy, 0, 'Acknowledgement retained the slot; actual natural owned exit released it.');
+  } finally { writeFileSync(exitRelease, 'release\n'); }
 
   // Independent real connections retain distinct direct handles. Corrupt one
   // candidate's actual qualification reply, then race two valid replacements.

@@ -2,6 +2,8 @@ import { runCommandRequestDigest } from './run-command-contract.js';
 import { resolveControlCommandTarget } from './approval-command-contract.js';
 import { readRun } from './run-state-edits.js';
 import { runSealState } from './run-seal.js';
+import { currentInputResolution } from './input-resolution.js';
+import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 
 export const presentationDeliveryKey = input => [input.target_id, input.run_id, input.expected_revision_id,
   input.command?.payload?.presentation_id ?? input.presentation_id ?? input.operation_id].join(':');
@@ -23,11 +25,16 @@ export function createPresentationDelivery({ now = Date.now } = {}) {
       if (closed || !['accepted', 'already_applied'].includes(result.outcome) || !result.family_result?.text) return;
       const prepared = result.family_result, key = presentationDeliveryKey({ ...input, operation_id: prepared.presentation_id });
       if (rows.has(key)) return;
-      if (rows.size >= 64 || [...rows.values()].reduce((n, d) => n + Buffer.byteLength(d.result.family_result.text), 0)
+      if (rows.size >= 64 || [...rows.values()].reduce((n, d) => n + Buffer.byteLength(d.result.family_result.text) + d.resolutionBytes, 0)
         + Buffer.byteLength(prepared.text) > 8 * 1024 ** 2) return;
-      rows.set(key, { input, result, created: now(), selected: null, view: null, pending: false });
+      rows.set(key, { input, result, created: now(), selected: null, view: null, pending: false, resolutions: new Map(), resolutionBytes: 0 });
     },
     prepared(input) { return rows.get(presentationDeliveryKey(input)) ?? null; },
+    originalInput(input) {
+      expire();
+      const resolution = rows.get(presentationDeliveryKey(input))?.resolutions.get(input.operation_id);
+      return resolution ? { known: true, resolution } : null;
+    },
     async deliver(input, host = {}) {
       const payload = input.command.payload, row = rows.get(presentationDeliveryKey(input));
       const runKey = `${input.target_id}:${input.run_id}`;
@@ -44,10 +51,19 @@ export function createPresentationDelivery({ now = Date.now } = {}) {
         cleanup_state: row.cleanup ?? 'not_required',
         instruction: historical ? 'Already delivered. Do not repeat the summary or decision question.' : 'Forward this exact text once; append no second summary or decision request.', authorizes: false } });
       if (selected && !(payload.route === 'fallback' && selected.mode === 'ui_primary')) return emit(selected.mode, '', true);
+      const resolution = currentInputResolution();
+      if (resolution && !row.resolutions.has(input.operation_id)) {
+        const bytes = Buffer.byteLength(JSON.stringify(resolution));
+        if (row.resolutions.size >= 4 || [...rows.values()].reduce((n, d) => n + Buffer.byteLength(d.result.family_result.text) + d.resolutionBytes, bytes) > 8 * 1024 ** 2)
+          return { ...base, ...failure('resource_limit') };
+        row.resolutions.set(input.operation_id, resolution);
+        row.resolutionBytes += bytes;
+      }
       row.pending = true; pendingRuns.add(runKey);
       try {
         const root = resolveControlCommandTarget(input.primary_target).root;
         if (resolveControlCommandTarget(root).target_id !== input.target_id || row.input.command.payload.gate !== payload.gate) return { ...base, ...failure('presentation_binding_changed') };
+        assertInputConfigurationCurrent(root);
         const run = readRun(root, input.run_id);
         if (run.rejection || run.meta.revision_id !== input.expected_revision_id || runSealState(root, run.content).status !== 'valid') {
           await row.view?.retire().catch(() => {}); return { ...base, ...failure('presentation_binding_changed') };

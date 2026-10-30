@@ -1,3 +1,4 @@
+import { resolutionRecordVersion } from './input-resolution.js';
 import { resolveControlCommandTarget } from './approval-command-contract.js';
 import { policyForRunContent as policyForDecision } from '../control-evaluation/run-step-policy.js';
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
@@ -592,7 +593,7 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
     if (otherPending) return rejected(runId, "run_step_recovery_required", { pending_run_id: otherPending });
     if (operationContext && existsSync(pendingRunStepPath(root, runId))) {
       const pending = readPendingRunStepJournal(root, runId);
-      if (![3, 4].includes(pending.schema_version) || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
+      if (![3, 4].includes(resolutionRecordVersion(pending)) || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
           || pending.request_digest !== operationContext.request_digest || pending.old_revision_id !== input.revisionId) return rejected(runId, "original_operation_recovery_required");
       recoverPendingRunStepLocked(root, runId);
       return recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation });

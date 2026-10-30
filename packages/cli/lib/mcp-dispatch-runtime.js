@@ -5,6 +5,7 @@ import { createReadWorkerBudget } from '#agdf-core/control-read/cockpit-pool.js'
 import { createDoctorObservationService } from '#agdf-core/control-inspect/doctor-observation.js';
 import { createPresentationDelivery } from '#agdf-core/control-state/presentation-delivery.js';
 import { mcpControlContinuation } from '#agdf-core/skill-dispatch/mcp-continuation.js';
+import { inspectRunInputResolution } from '#agdf-core/control-state/run-input-resolution.js';
 import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.js";
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
@@ -48,7 +49,7 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
   });
 }
 
-export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), runtimeControl, materialGrants, verifyRuntime } = {}) {
+export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), runtimeControl, materialGrants, verifyRuntime, inputContext, executionContext } = {}) {
   const readBudget = createReadWorkerBudget();
   const delivery = createPresentationDelivery();
   const verifyProducer = verifyRuntime ?? (() => {
@@ -67,15 +68,20 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
   } });
   const execute = input => mcpControlContinuation(input, services.dispatch(input), commandGroups);
   const executeInspect = services.inspect;
-  const protocol = composeMcpProtocolRuntime({ surface, inspected, commandGroups, execute, executeInspect,
+  const protocol = composeMcpProtocolRuntime({ surface, inspected, commandGroups, execute, executeInspect, inputContext, executionContext,
+    lookupOriginal: (root, input) => input.command?.kind === 'material.stage' ? services.material.originalInput(input)
+      : input.command?.kind === 'presentation.deliver' ? delivery.originalInput(input)
+        : runtimeControl?.originalInput?.(input) ?? inspectRunInputResolution(root, input),
     executeCommand: (group, input, signal, host) => input.command.kind === 'material.stage' ? services.material.stage(input)
       : input.command.kind === 'presentation.deliver' ? delivery.deliver(input, host) : services.command(group, input) });
   return Object.freeze({ ...protocol,
     verifyProducer,
-    prepareDispatch(name, input) { return { materialGrants: ['agdf_record', 'agdf_revise', 'agdf_closeout'].includes(name) ? services.material.grants(input) : [] }; },
+    prepareDispatch(name, input) { return { inputContext: protocol.inputContextFor(input), materialGrants: ['agdf_record', 'agdf_revise', 'agdf_closeout'].includes(name) ? services.material.grants(input) : [] }; },
     readBudget,
     delivery,
     async postprocessToolResult(name, input, result) {
+      const configuration = protocol.configurationProjection(input);
+      if (configuration && name === 'agdf_inspect' && result.report) result = { ...result, report: { ...result.report, effective_configuration: configuration } };
       if (['agdf_record', 'agdf_revise', 'agdf_closeout'].includes(name)) services.material.settle(input, result);
       if (name !== 'agdf_prepare' || input.command?.kind !== 'presentation.prepare' || !result.family_result?.text) return result;
       delivery.remember(input, result);

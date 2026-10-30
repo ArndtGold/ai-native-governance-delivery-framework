@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "preferences"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chat_language", "artifact_language", "presentation_route", "gate_check_variant"],
+      "properties": {
+        "chat_language": { "type": "string", "maxLength": 64, "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$" },
+        "artifact_language": { "type": "string", "maxLength": 64, "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$" },
+        "presentation_route": { "enum": ["markdown", "automatic", "fallback"] },
+        "gate_check_variant": { "enum": [null, "status-card", "approval-envelope"] }
+      }
+    }
+  }
+}

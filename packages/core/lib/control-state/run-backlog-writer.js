@@ -1,3 +1,4 @@
+import { resolutionRecordVersion } from './input-resolution.js';
 import { readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { parseRunState } from "./run-state-parser.js";
@@ -25,7 +26,7 @@ export function withRunBacklogLock(root, path, work, options = {}) {
       if (other) { const error = Error("AGDF_RUN_STEP_RECOVERY_REQUIRED"); error.pending_run_id = other; throw error; }
       if (options.operationContext && existsSync(pendingRunStepPath(root, run.meta.run_id))) {
         const pending = readPendingRunStepJournal(root, run.meta.run_id), expected = options.operationContext;
-        if (![3, 4].includes(pending.schema_version) || pending.operation_id !== expected.operation_id || pending.kind !== expected.kind
+        if (![3, 4].includes(resolutionRecordVersion(pending)) || pending.operation_id !== expected.operation_id || pending.kind !== expected.kind
           || pending.target_id !== expected.target_id || pending.request_digest !== expected.request_digest) throw Error('AGDF_RUN_STEP_RECOVERY_REQUIRED');
       }
       recoverPendingRunStepLocked(root, run.meta.run_id);

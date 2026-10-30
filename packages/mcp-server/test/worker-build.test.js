@@ -41,6 +41,13 @@ try {
     assert.throws(() => worker.verifyProducer(), /runtime_provenance_invalid/u, 'compiled bytes are freshly checked, never trusted through a prior observation');
   } finally { writeFileSync(entry, bytes); await worker.close(); await original.close(); }
 
+  for (const name of ['agdf-defaults.json', 'agdf-defaults.schema.json']) {
+    const path = join(fixture.dispatcherRoot, 'generated/plugins/agdf/meta', name), resource = readFileSync(path);
+    unlinkSync(path);
+    try { assert.equal(inspectOwnedMcpRuntimeRoot(fixture.root, '0.20.2').status, 'mismatch', 'a missing default resource cannot select a historical inventory'); }
+    finally { writeFileSync(path, resource); }
+  }
+
   unlinkSync(entry);
   try {
     assert.equal(inspectOwnedMcpRuntimeRoot(fixture.root, '0.20.2').status, 'mismatch', 'a missing declared worker cannot downgrade to the historical entry set');

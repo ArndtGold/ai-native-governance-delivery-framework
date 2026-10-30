@@ -1,3 +1,4 @@
+import { resolutionRecordVersion } from './input-resolution.js';
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "../control-read/fs.js";
@@ -101,7 +102,7 @@ export function validateRevisionHistory(root, receipt) {
     const closure = readValidatedRevisionArchive(root, receipt);
     if (!closure) return false;
     const { original, parsed, archived, digests, names, readers, control } = closure;
-    const expanded = receipt.schema_version === '3';
+    const expanded = resolutionRecordVersion(receipt) === '3';
     const boundary = sourceRevisionBoundary(control, receipt.source_gate, expanded ? 2 : 1);
     if (!boundary || !boundary.sources.every(type => names.has(`.agdf/control/artefacts/${receipt.run_id}/${type}.md`))) return false;
     const bindings = readArtefactBindings(original);
@@ -111,7 +112,7 @@ export function validateRevisionHistory(root, receipt) {
       try { const row = JSON.parse(bytes.toString("utf8")); return digest(canonicalJson(row)) === receipt.request_digest ? [row] : []; } catch { return []; }
     });
     const proposal = proposals[0];
-    if (['2', '3'].includes(receipt.schema_version)) {
+    if (['2', '3'].includes(resolutionRecordVersion(receipt))) {
       const bytes = archived.get(receipt.proposal_reference.path);
       if (!bytes || digest(canonicalRunText(bytes.toString('utf8'))) !== receipt.proposal_reference.digest) return false;
     }

@@ -1,3 +1,4 @@
+import { projectMcpInputSchema } from '../mcp-input-schema.js';
 import { DIGEST_PATTERN, COOPERATIVE_ASSURANCE, canonicalJson, digest } from './approval-command-contract.js';
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN, APPROVAL_GATES } from './run-identity.js';
 import { TASK_TARGET_SOURCES } from '../task-target-resolution.js';
@@ -375,7 +376,7 @@ export function commandGroupDefinition(group) {
       agdf_closeout: 'Record closeout or preview/apply Run closure.',
     }[group],
     annotations: { readOnlyHint: false, destructiveHint: group !== 'agdf_prepare', idempotentHint: false, openWorldHint: false },
-    inputSchema: compactCommandSchema(commandGroupSchema(group)), outputSchema: commandResultDiscoverySchema() };
+    inputSchema: compactCommandSchema(projectMcpInputSchema(commandGroupSchema(group))), outputSchema: commandResultDiscoverySchema() };
   if (Buffer.byteLength(JSON.stringify(definition)) > RUN_COMMAND_LIMITS.definition_bytes) throw Error('command_definition_budget_exceeded');
   return freeze(definition);
 }

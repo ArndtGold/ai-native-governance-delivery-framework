@@ -1,3 +1,4 @@
+import { resolutionRecordVersion } from './input-resolution.js';
 import { readFileSync, statSync } from "../control-read/fs.js";
 import { canonicalJson, digest, exactObject } from "./approval-command-contract.js";
 import { readApprovalOperations } from "./approval-operations.js";
@@ -62,14 +63,14 @@ export function inspectApprovedArtefact(root, control, gate, { fileDigest = path
       const record = envelope.record;
       // Preserve the existing aggregate's v1 proof checks. New v2/v3/v4 envelopes have the
       // complete command grammar; older minimal proofs are not retroactively v2.
-      if (!record || ![1, 2, 3, 4, 5, 6].includes(record.schema_version)
-          || record.schema_version >= 2 && validateRunPresentationEnvelope(envelope, { runId: control.meta.run_id, gate, revisionId: record.revision_id, presentationId: presentation[1] }).reason
+      if (!record || ![1, 2, 3, 4, 5, 6].includes(resolutionRecordVersion(record))
+          || resolutionRecordVersion(record) >= 2 && validateRunPresentationEnvelope(envelope, { runId: control.meta.run_id, gate, revisionId: record.revision_id, presentationId: presentation[1] }).reason
           || record.presentation_id !== presentation[1] || record.run_id !== control.meta.run_id
           || record.gate !== gate || record.artefact_digest !== (observedRaw = rawFileDigest(row.path)) || envelope.digest !== presentation[2]
           || receipt.length === 1 && record.revision_id !== receipt[0].binding.expected_revision_id
           || digest(JSON.stringify(record)) !== envelope.digest) return unconfirmed();
-      if ([3, 4, 5, 6].includes(record.schema_version) && rawFileDigest(`.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.document`) !== record.document_digest) return unconfirmed();
-      if ((record.schema_version === 5 || record.schema_version === 6 && record.preview_review) && !previewProof(record, { rawFileDigest, fileDigest })) return unconfirmed();
+      if ([3, 4, 5, 6].includes(resolutionRecordVersion(record)) && rawFileDigest(`.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.document`) !== record.document_digest) return unconfirmed();
+      if ((resolutionRecordVersion(record) === 5 || resolutionRecordVersion(record) === 6 && record.preview_review) && !previewProof(record, { rawFileDigest, fileDigest })) return unconfirmed();
     } catch { return unconfirmed(); }
   return { confirmed: true, reason: null, path: row.path, artefact_digest: actual, raw_digest: observedRaw };
 }

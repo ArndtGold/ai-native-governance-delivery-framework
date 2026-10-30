@@ -1,3 +1,4 @@
+import { projectMcpInputSchema } from '../mcp-input-schema.js';
 import { isAbsolute } from "node:path";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "../control-state/run-identity.js";
 import {
@@ -25,7 +26,8 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
-export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION = "Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.";
+export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION = "MCP reply-language override (BCP 47). Omit for a matching configured preference; otherwise supply the current request's language (explicit instruction, then dominant language, en if ambiguous). Invalid explicit tags fail; valid unsupported tags use the complete English pack. Core input remains complete.";
+const COMPLETE_DISPATCH_REQUIRED = Object.freeze(['skill_id', 'presentation_language', 'working_directory']);
 export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY = "Provide one well-formed BCP 47 presentation_language tag and retry once.";
 export const SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.";
 export const SKILL_DISPATCH_INTAKE_DESCRIPTION = "Set true only with skill_id gate-check when the governed delivery intake (catalog delivery.start) is the active route; delivery wins mixed intent, so a gate-check invocation that asks for a change also sets it. Omit it for status, approval or next-step questions. It never grants approval or delivery authority.";
@@ -48,9 +50,9 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
     idempotentHint: true,
     openWorldHint: false,
   },
-  inputSchema: visibleDispatchInput({
+  inputSchema: projectMcpInputSchema(visibleDispatchInput({
     type: "object", additionalProperties: false,
-    required: ["skill_id", "presentation_language", "working_directory"],
+    required: COMPLETE_DISPATCH_REQUIRED,
     properties: {
       skill_id: { type: "string", minLength: 1, maxLength: 240, description: "Canonical AGDF skill slug or exact catalog-registered skill name for the calling host; normalized internally to the stable canonical ID." },
       presentation_language: {
@@ -89,7 +91,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       if: { required: ["continue_delivery"], properties: { continue_delivery: { const: true } } },
       then: { required: ["run_id"], properties: { intake: { const: false } }, not: { required: ["intake_mode"] } },
     }],
-  }),
+  })),
   outputSchema: {
     type: "object",
     additionalProperties: false,
@@ -156,7 +158,7 @@ export function renderSkillDispatchSemanticProjection() {
 
 export function renderSkillDispatchLanguageProjection() {
   const description = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.description;
-  return `For \`--language\`: ${description}`;
+  return `MCP: ${description}\nFor \`--language\`: Required; apply the same current-request selection and locale validation.`;
 }
 
 export function renderSkillDispatchTerminalProjection() {
@@ -306,7 +308,7 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
   const allowed = new Set(Object.keys(schema.properties));
   const unknown = Object.keys(argumentsValue).find((key) => !allowed.has(key));
   if (unknown) throw new SkillDispatchInputError(unknown, "unsupported argument");
-  const missing = schema.required.find((key) => !Object.hasOwn(argumentsValue, key));
+  const missing = COMPLETE_DISPATCH_REQUIRED.find((key) => !Object.hasOwn(argumentsValue, key));
   if (missing) throw new SkillDispatchInputError(missing, "required argument is missing");
   if (!trustedContext || typeof trustedContext !== "object") {
     throw new SkillDispatchInputError("trusted_context", "trusted context is required");

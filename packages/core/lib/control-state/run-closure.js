@@ -15,6 +15,10 @@ import { policyForRunContent } from '../control-evaluation/run-step-policy.js';
 import { readArtefactHeading } from '../control-evaluation/run-state.js';
 import { resolveHumanRunTitle } from '../interaction-presentation.js';
 import { readGitIdentity } from './git-identity.js';
+import { bindInputResolution, currentInputResolution, recordedInputResolution, resolutionRecord } from './input-resolution.js';
+import { inspectRunOperation } from './run-operation-status.js';
+import { readPendingRunStepJournal } from './run-step-transaction.js';
+import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 
 // Closure of active Runs as superseded or abandoned. A preview is a stored, immutable and
 // non-authorizing working file; only the owner's exact phrase applies it, one Run at a time,
@@ -130,13 +134,20 @@ function previewEntry(root, entry) {
 
 // Exclusive creation of one immutable preview file per random 8-hex id, written atomically.
 function storePreview(root, body) {
+  assertInputConfigurationCurrent(root);
   if (hasSymlinkComponent(root, CLOSURE_PREVIEW_DIRECTORY)) throw Error('AGDF_RUN_PATH_INVALID');
   const directory = join(root, CLOSURE_PREVIEW_DIRECTORY);
   try { mkdirSync(directory); } catch (error) { if (error.code !== 'EEXIST') throw error; }
   if (!statSync(directory).isDirectory()) throw Error('AGDF_RUN_PATH_INVALID');
   for (let attempt = 0; attempt < 16; attempt++) {
-    const id = randomBytes(4).toString('hex'), path = join(directory, `${id}.json`);
-    const preview = { ...body, preview_id: id };
+    const resolution = currentInputResolution();
+    const id = resolution?.operation_id?.slice(0, 8) ?? randomBytes(4).toString('hex'), path = join(directory, `${id}.json`);
+    if (resolution && existsSync(path)) {
+      const loaded = readPreview(root, id);
+      if (loaded.reason || recordedInputResolution(loaded.preview)?.logical_digest !== resolution.logical_digest) throw Error('operation_payload_conflict');
+      return loaded.preview;
+    }
+    const preview = bindInputResolution({ ...body, preview_id: id });
     const stored = { ...preview, preview_digest: previewDigest(preview) };
     if (withOwnedFileLock(path, () => existsSync(path) ? false : (atomicWrite(path, `${JSON.stringify(stored, null, 2)}\n`), true))) return stored;
   }
@@ -154,13 +165,35 @@ function readPreview(root, previewId) {
   const file = hasSymlinkComponent(root, relative) ? { status: 'invalid' } : containedRegularFile(root, relative);
   if (file.status !== 'valid' || statSync(file.path).size > CLOSURE_LIMITS.preview_bytes) return { reason: 'preview_invalid' };
   try {
-    const stored = JSON.parse(readFileSync(file.path, 'utf8')), { preview_digest: recorded, ...body } = stored;
+    const raw = JSON.parse(readFileSync(file.path, 'utf8')), { preview_digest: recorded, ...body } = raw;
+    const stored = resolutionRecord(raw);
+    if (!stored) return { reason: 'preview_invalid' };
     if (!exactObject(stored, ['schema_version', 'preview_id', 'created_at', 'target_id', 'blocked', 'entries', 'preview_digest'])
       || stored.schema_version !== '1' || stored.preview_id !== previewId || !DIGEST_PATTERN.test(recorded ?? '') || recorded !== previewDigest(body)
       || stored.target_id !== resolveControlCommandTarget(root).target_id || !Array.isArray(stored.entries)
       || !stored.entries.length || stored.entries.length > CLOSURE_LIMITS.entries || !stored.entries.every(validStoredEntry)) return { reason: 'preview_invalid' };
-    return { preview: stored };
+    return { preview: raw };
   } catch { return { reason: 'preview_invalid' }; }
+}
+
+// Existing preview/per-Run records remain the only closure persistence owners.
+export function inspectClosureInputResolution(root, input) {
+  if (input.command.kind === 'closure.preview') {
+    const loaded = readPreview(root, input.operation_id.slice(0, 8));
+    if (loaded.reason === 'preview_unknown') return null;
+    if (loaded.reason) throw Error('original_operation_unconfirmed');
+    return { known: true, resolution: recordedInputResolution(loaded.preview) };
+  }
+  const loaded = readPreview(root, input.command.payload.preview_id);
+  if (loaded.reason) return null; // The existing apply owner reports selector errors.
+  for (const entry of loaded.preview.entries) {
+    const id = closureOperationId(loaded.preview.preview_id, entry.run_id);
+    const observed = inspectRunOperation(root, { runId: entry.run_id, operationId: id, targetId: input.target_id });
+    let resolution = recordedInputResolution(observed.receipt);
+    if (observed.status === 'pending') resolution = recordedInputResolution(readPendingRunStepJournal(root, entry.run_id));
+    if (resolution?.operation_id === input.operation_id && resolution.kind === 'closure.apply') return { known: true, resolution };
+  }
+  return null;
 }
 
 function safePreviewEntry(root, entry, beforeFacts) {

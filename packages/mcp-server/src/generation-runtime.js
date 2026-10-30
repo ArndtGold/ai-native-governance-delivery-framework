@@ -56,13 +56,18 @@ export function startGenerationRuntime({ epoch, generation, channel }) {
         channel.close(); // Natural exit, no kill, after all owned work is closed.
       } else {
         if (!runtime || closing) throw Error('generation_unavailable');
-        const { name, arguments: args } = input.payload, tool = runtime.tool?.(name) ?? runtime.tools.find(t => t.name === name);
+        const { name } = input.payload;
+        let args = input.payload.arguments;
+        const tool = runtime.tool?.(name) ?? runtime.tools.find(t => t.name === name);
         if (!tool || tool.requiresUi && input.context.uiSupported !== true) throw Error('resource_denied');
         ++inflight;
         const parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(args) : tool.parentOwned;
         const started = performance.now();
         let result, phase = parentOwned || !executor ? 'parse' : 'execute';
         try {
+          phase = 'parse';
+          args = runtime.prepareInput?.(name, args) ?? args;
+          phase = parentOwned || !executor ? 'parse' : 'execute';
           if (parentOwned || !executor) {
             const parsed = tool.parse(args); phase = 'execute';
             result = await tool.execute(parsed, undefined, input.context);

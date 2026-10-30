@@ -20,9 +20,9 @@ for (const modern of [false, true]) {
     const early = createSdDefinitionTestRun(root, cli, 'mcp-early-prd', process.env, { typedApprovals: true });
     const late = createLateSourceRevisionTestRun(root, cli, 'mcp-late-source');
     const earlyUr = createEarlyUrRevisionTestRun(root, cli, 'mcp-early-ur');
-    const bound = f => ({ schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target',
+    const bound = f => ({ working_directory: root, target_source: 'explicit_target',
       primary_target: root, target_id: resolveControlCommandTarget(root).target_id, run_id: f.runId,
-      expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local' });
+      expected_revision_id: f.revision(), operation_id: randomUUID() });
     await withStdioClient({ ...fixture, modern }, async client => {
       const call = async input => { const result = await client.callTool({ name: 'agdf_revise', arguments: input });
         assert.ok(result.structuredContent, JSON.stringify(result)); return result.structuredContent; };
@@ -44,10 +44,13 @@ for (const modern of [false, true]) {
         preview_digest: preview.family_result.preview_digest, confirmation: 'Technical permission only' } } };
       assert.equal((await call(apply)).reason, 'confirmation_required'); assert.equal(readFileSync(late.state, 'utf8'), old);
       apply.command.payload.confirmation = preview.family_result.confirmation_selector;
-      assert.equal((await call(apply)).outcome, 'accepted'); assert.equal((await call(apply)).outcome, 'already_applied');
+      assert.equal((await call(apply)).outcome, 'accepted');
+      const configPath = join(root, '.agdf/control/config.json'), configBefore = readFileSync(configPath); writeFileSync(configPath, '{');
+      assert.equal((await call(apply)).outcome, 'already_applied');
+      assert.equal(readFileSync(configPath, 'utf8'), '{'); writeFileSync(configPath, configBefore);
       assert.equal(readSourceRevisions(readFileSync(late.state, 'utf8')).receipts.length, 1);
       assert.equal(runSealState(root, readFileSync(late.state, 'utf8')).status, 'valid');
-      assert.equal((await call({ ...apply, presentation_language: 'de' })).reason, 'revision_operation_conflict');
+      assert.equal((await call({ ...apply, presentation_language: 'de' })).reason, 'operation_payload_conflict');
       // Exercise the already-supported UR-at-SD boundary through the generated
       // command group, rather than treating earlier CLI/source proof as MCP proof.
       const urProposal = earlyUr.proposal(), urBefore = readFileSync(earlyUr.state, 'utf8');
@@ -90,7 +93,7 @@ for (const modern of [false, true]) {
       const urReplay = await call(urApply);
       assert.equal(urReplay.outcome, 'already_applied');
       assert.equal(urReplay.current.gate, 'UR');
-      assert.equal((await call({ ...urApply, presentation_language: 'de' })).reason, 'revision_operation_conflict');
+      assert.equal((await call({ ...urApply, presentation_language: 'de' })).reason, 'operation_payload_conflict');
       const oldApproval = oldApprovals.find(row => row.binding.gate === 'UR');
       const staleApproval = await client.callTool({ name: 'agdf_approve', arguments: {
         ...urEnvelope, operation_id: randomUUID(), expected_revision_id: oldApproval.binding.expected_revision_id,

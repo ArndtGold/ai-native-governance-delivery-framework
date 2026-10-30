@@ -1,3 +1,4 @@
+import { resolutionRecord } from './input-resolution.js';
 import { TextDecoder } from "node:util";
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject } from "./approval-command-contract.js";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
@@ -15,6 +16,8 @@ export const artefactBindingDigest = receipt => digest(`agdf-artefact-binding/1\
 export const artefactBindingKey = receipt => canonicalJson([receipt.run_id, receipt.relationship]);
 
 export function validArtefactBinding(receipt) {
+  receipt = resolutionRecord(receipt);
+  if (!receipt) return false;
   if (!exactObject(receipt, fields) || !["1", "2"].includes(receipt.schema_version) || !uuid(receipt.binding_id)
       || !DIGEST_PATTERN.test(receipt.target_id ?? "") || !RUN_ID_PATTERN.test(receipt.run_id ?? "")
       || !exactObject(receipt.relationship, ["from", "relationship", "to"])

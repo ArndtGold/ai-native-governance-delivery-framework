@@ -1,3 +1,4 @@
+import { projectMcpInputSchema } from '../mcp-input-schema.js';
 // Compatibility facade: existing exports retain the same schema/validator objects.
 export { RUN_COMMAND_VERSION, RUN_COMMAND_LIMITS, TARGET_SCOPED_COMMAND_KINDS, strictObject, MATERIAL_REFERENCE_SCHEMA, RUN_COMMAND_DESCRIPTORS, RUN_COMMAND_GROUPS, commandGroupSchema, compactCommandSchema, RUN_COMMAND_RESULT_SCHEMA, commandResultSchema, validateRunCommandResult, commandGroupDefinition, schemaDiagnostics, validateRunCommand, runCommandRequestDigest } from './run-command-schema.js';
 import { RUN_COMMAND_GROUPS, RUN_COMMAND_VERSION, RUN_COMMAND_DESCRIPTORS, payloadSchema, describeFields, strictObject, commandEnvelope, RUN_COMMAND_RESULT_SCHEMA, RUN_COMMAND_LIMITS } from './run-command-schema.js';
@@ -14,8 +15,8 @@ import { closeoutConfirmation, QUICK_CLOSEOUT_AUTHORING_FORMAT } from '../contro
 
 export function operationContract(group, kind, { gate } = {}) {
   if (!RUN_COMMAND_GROUPS[group]?.includes(kind)) return { available: false, reason: 'command_group_unsupported' };
-  return { schema_version: RUN_COMMAND_VERSION, available: true, group, kind, ...RUN_COMMAND_DESCRIPTORS[kind], payload_schema: payloadSchema(group, kind),
-    schema: describeFields(strictObject({ ...commandEnvelope(group, kind), command: strictObject({ kind: { const: kind }, payload: { ...payloadSchema(group, kind), description: RUN_COMMAND_DESCRIPTORS[kind].effects.join('; ') } }) })), result_schema: RUN_COMMAND_RESULT_SCHEMA, retry_class: 'inspect_original_operation_after_dispatch', assurance: 'cooperative_local',
+  return { schema_version: RUN_COMMAND_VERSION, available: true, group, kind, ...RUN_COMMAND_DESCRIPTORS[kind], payload_schema: projectMcpInputSchema(payloadSchema(group, kind)),
+    schema: projectMcpInputSchema(describeFields(strictObject({ ...commandEnvelope(group, kind), command: strictObject({ kind: { const: kind }, payload: { ...payloadSchema(group, kind), description: RUN_COMMAND_DESCRIPTORS[kind].effects.join('; ') } }) }))), input_completion: { precedence: 'explicit > confirmed project config > versioned plugin defaults', constants: ['schema_version', 'assurance'], cwd: 'Explicit unless private trustworthy task context exists; current native adapters require it.', core: 'The adapter validates a complete envelope before dispatch; target/Run/revision/UUID/material/reply bindings remain explicit.' }, result_schema: RUN_COMMAND_RESULT_SCHEMA, retry_class: 'inspect_original_operation_after_dispatch', assurance: 'cooperative_local',
     reference_limits: { input_bytes: RUN_COMMAND_LIMITS.input_bytes, source_file_bytes: 131072, result_bytes: RUN_COMMAND_LIMITS.result_bytes },
     ...(kind === 'material.stage' ? { material_transport: { part_bytes: 16384, file_bytes: 131072, set_bytes: 524288, max_sets: 4,
       total_bytes: 2097152, lifetime_ms: 600000, idle_ms: 120000, effect: 'private transfer only; no canonical files or gate decision',

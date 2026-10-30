@@ -8,7 +8,7 @@ import { containedRegularFile, hasSymlinkComponent } from '../control-state/cont
 // Fixed canonical seeds; callers supply only language.
 export function canonicalInitPlan(languagePreference, context = resources) {
   const language = typeof languagePreference === 'object' && languagePreference !== null
-    ? languagePreference : resolveLanguagePreference(languagePreference);
+    ? languagePreference : resolveLanguagePreference(languagePreference, undefined, context);
   const root = context.templatesRoot;
   if (!root || lstatSync(root).isSymbolicLink()) throw Error('canonical_init_resources_unavailable');
   const load = (base, relative) => {

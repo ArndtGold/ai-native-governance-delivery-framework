@@ -1,0 +1,34 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Versioned defaults with immediate MCP input relief
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Plugin-Defaults und Projektwerte werden gemeinsam mit einer tatsächlichen Entlastung der MCP-Aufrufe geliefert. Die notwendigen Governance-Bindungen bleiben erhalten.
+- Umfang: Eine versionierte JSON-Quelle im Plugin und die vorhandene .agdf/control/config.json. Vorgeschlagene Vorgaben: Chat- und Artefaktsprache Englisch, Darstellungsroute markdown, Statusvariante null für das bisherige Verhalten. Vorhandene Projektwerte wie Chat Deutsch und Artefakte Englisch bleiben erhalten. Gültige explizite Angaben haben Vorrang vor Projektwerten und Plugin-Defaults.
+- Entscheidungen: Geeignete Sprachangaben, schema_version, assurance und die Darstellungsroute sollen im selben Kandidaten entfallen können. Das Arbeitsverzeichnis wird nur bei vertrauenswürdigem Adapterkontext ergänzt; andernfalls bleibt eine ausdrückliche Angabe nötig. Ziele, Runs, Revisionen, Digests und Freigaben werden niemals aus Konfiguration ausgewählt. Die vorgeschlagenen Einzelwerte werden mit dieser PRD entschieden; SD klärt die technische Einbindung.
+- AC-001: Eine kanonische, validierte Defaults-Quelle wird über bestehende Generatoren ausgeliefert; Projektkonfiguration, Locale-Registry und Vertragskonstanten behalten eindeutige Owner.
+- AC-002: Explizite Angabe, Projektwert und Plugin-Default werden in dieser Reihenfolge aufgelöst; Chat- und Artefaktsprache bleiben getrennt.
+- AC-003: Dieselbe Lieferung vereinfacht sichtbare MCP-Pflichteingaben und tatsächliche Ausführung. Bestehende explizite Aufrufe bleiben kompatibel; ungültige Werte werden weiter abgewiesen.
+- AC-004: Das Arbeitsverzeichnis wird ausschließlich aus vertrauenswürdigem Ausführungskontext übernommen. Ohne diesen Kontext erfolgt eine handlungsleitende Fehlermeldung vor jeder Wirkung.
+- AC-005: Darstellungs- und Statuspräferenzen verwenden die bestehenden Owner und Fallbacks. Eine lesende Abfrage erzeugt keine Freigabeanfrage.
+- AC-006: Ungültige Einstellungen werden mit Quelle, Feld und Korrekturschritt gemeldet. Fehlende oder ungültige Projektsteuerung wird durch Defaults nicht aktiviert oder repariert.
+- AC-007: Wirksame Einstellungen und ihre Herkunft sind über vorhandene Hilfe-/Inspektionsflächen nachvollziehbar; ein zusätzlicher Konfigurationsaufruf vor jeder Operation ist nicht erforderlich.
+- AC-008: Ziel-, Run-, Revisions-, Präsentations-, Digest-, UUID- und Freigabeprüfungen bleiben verbindlich. Der Core erhält vollständige validierte Eingaben.
+- AC-009: Replay und vorbereitete Entscheidungen behalten ihre ursprünglich gebundenen Werte und Identitäten auch nach einer Konfigurationsänderung; keine doppelte Schreibwirkung.
+- AC-010: Gültige Alt-Konfigurationen, vorhandene Projektwerte und explizite Clients bleiben nutzbar. Projekte und parallele Sitzungen sind getrennt; Updates überschreiben keine Projektwerte.
+- AC-011: Dokumentation, Anleitung, sichtbare Schemata und Fehlerverhalten stimmen überein. Bestehende Grenzen bleiben erhalten; Repository-, Codex-CLI- und UI-/Host-Nachweise werden getrennt bewertet.
+- AC-012: Abnahme nur mit Defaults-Auflösung und tatsächlicher MCP-Entlastung im selben geprüften Kandidaten. Eine JSON-Datei oder grüne CI allein genügt nicht; Effizienzgewinne werden nur bei Messung behauptet.
+- Grenzen: Keine neue Konfigurationsoberfläche, erweiterten Rechte, automatische Projektaktivierung, Cockpit-Neugestaltung, fremden Installer-Änderungen, Installation, Git-Aktionen oder Veröffentlichung. Umsetzung und Prüfungen sind noch nicht erfolgt.
+- Nächster Schritt: Approval: PRD erlaubt das Solution Design. Die weiteren erforderlichen Freigaben und Prüfungen bleiben bestehen.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-3ab79b5a-f1d0-425e-9e1e-2dd3fbffbc53` · Produktanforderungen · Revision: `2ec3282c-437a-49ac-a052-4f217d51bc43`
+
+SHA-256: `sha256:81229effc36ffb32a5606bb7b666ecada7de9f747e4901bba7082f1f79d51dc8`

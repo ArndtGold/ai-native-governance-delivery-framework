@@ -49,9 +49,10 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 ## Executable Dispatch
 
-Use listed MCP `agdf_dispatch` (load deferred; host prefix allowed): `skill_id` `brownfield-analysis`, `presentation_language`, `working_directory`, and only bound `target_source`/`primary_target` and `run_id`. Never search unlisted tools.
+Use listed MCP `agdf_dispatch` (load deferred; host prefix allowed): `skill_id` `brownfield-analysis`, `presentation_language` (optional override), `working_directory`, and only bound `target_source`/`primary_target` and `run_id`. Never search unlisted tools.
 If absent/failing: supplied schema-2 executable, child-only environment, immutable argv_prefix, declared arguments; `--skill brownfield-analysis`, language and working directory.
-For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
+MCP: MCP reply-language override (BCP 47). Omit for a matching configured preference; otherwise supply the current request's language (explicit instruction, then dominant language, en if ambiguous). Invalid explicit tags fail; valid unsupported tags use the complete English pack. Core input remains complete.
+For `--language`: Required; apply the same current-request selection and locale validation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.

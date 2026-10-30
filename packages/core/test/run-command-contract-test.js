@@ -107,6 +107,7 @@ assert.equal(operationContract('agdf_prepare', 'presentation.prepare').presentat
 // own-data model. Cover every kind, not just a hand-written happy path.
 const { fromJsonSchema } = await import('../../mcp-server/node_modules/@modelcontextprotocol/server/dist/index.mjs');
 const { schemaDiagnostics, validateRunCommandResult, commandResultSchema } = await import('../lib/control-state/run-command-contract.js');
+const { projectMcpInputSchema } = await import('../lib/mcp-input-schema.js');
 const sample = (schema) => {
   if (schema.oneOf) return sample(schema.oneOf[0]);
   if (Object.hasOwn(schema, 'const')) return schema.const;
@@ -123,7 +124,7 @@ const sample = (schema) => {
 };
 let parityCases = 0;
 for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
-  const expanded = commandGroupSchema(group), definition = commandGroupDefinition(group);
+  const expanded = commandGroupSchema(group), publicExpanded = projectMcpInputSchema(expanded), definition = commandGroupDefinition(group);
   assert.ok(definition.outputSchema);
   // Detailed field guidance stays with operation-contract; discovery must expose
   // usable types rather than unresolved references or empty payload definitions.
@@ -140,6 +141,7 @@ for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
   const sdk = fromJsonSchema(definition.inputSchema)['~standard'];
   for (const kind of kinds) {
     const contract = operationContract(group, kind), payload = sample(contract.payload_schema);
+    if (kind === 'presentation.deliver') payload.route = 'markdown';
     const valid = { ...input, command: { kind, payload } };
     for (const field of ['run_id', 'expected_revision_id']) if (!Object.hasOwn(contract.schema.properties, field)) delete valid[field];
     assert.deepEqual(validateRunCommand(group, valid), [], `${group}/${kind}: positive input is valid`);
@@ -153,7 +155,7 @@ for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
     // A merged visible payload must not admit a missing field, a field from a
     // different kind, or the wrong value type. The expanded owner is the oracle.
     const check = value => {
-      assert.equal(Boolean(sdk.validate(value).issues?.length), schemaDiagnostics(value, expanded).length > 0, `${group}/${kind}: mutation parity`);
+      assert.equal(Boolean(sdk.validate(value).issues?.length), schemaDiagnostics(value, publicExpanded).length > 0, `${group}/${kind}: mutation parity`);
       parityCases++;
     };
     for (const field of Object.keys(valid)) {

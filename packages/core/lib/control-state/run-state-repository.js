@@ -205,7 +205,7 @@ export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
 
 // Recovery is confined to a single original creation identity under its store lock.
 // The creation owner must verify the staged sealed receipt and exact request first.
-export function recoverRunCreationStage(root, id, validate) {
+export function recoverRunCreationStage(root, id, validate, { inspectOnly = false } = {}) {
   const store = assertCanonicalRunStore(root), destination = dirname(runPath(root, id));
   const stages = readdirSync(store.path).filter(name => name.startsWith(`.run-stage-${id}-`));
   if (!stages.length) return null;
@@ -216,6 +216,7 @@ export function recoverRunCreationStage(root, id, validate) {
   const receipt = validate(file.content.toString('utf8'));
   if (!sameCanonicalRunStore(store)) throw Error('AGDF_RUN_TARGET_DRIFT');
   ensureStagedRunUnchanged(stage, file);
+  if (inspectOnly) return receipt;
   renameSyncWithRetry(directory, destination);
   fsyncDirectory(store.path);
   return receipt;

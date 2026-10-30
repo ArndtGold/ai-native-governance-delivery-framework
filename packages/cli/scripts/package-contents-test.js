@@ -72,6 +72,11 @@ for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "UX_INTENT_DEFINITION.m
   required.push(`generated/plugins/copilot/agdf/control/templates/artefacts/${name}`);
   required.push(`generated/plugins/agdf/control/templates/artefacts/${name}`);
 }
+for (const name of ['agdf-defaults.json', 'agdf-defaults.schema.json']) {
+  required.push(`generated/plugins/agdf/meta/${name}`);
+  for (const profile of ['generated/plugins/agdf', 'generated/plugins/copilot/agdf'])
+    required.push(`${profile}/runtime/create-agdf/generated/plugins/agdf/meta/${name}`);
+}
 for (const path of required) {
   assert.equal(files.filter((candidate) => candidate === path).length, 1, `package must contain ${path} exactly once`);
 }

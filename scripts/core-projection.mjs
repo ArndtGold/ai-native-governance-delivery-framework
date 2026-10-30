@@ -107,7 +107,7 @@ export function renderProjectedBinding({ copilot = false } = {}) {
 export function projectPrivateCoreResources() {
   const target = join(coreRoot, 'generated', 'plugins', 'agdf', 'meta');
   mkdirSync(target, { recursive: true });
-  for (const name of ['agdf-plugin.definition.json', 'agdf-interaction-locales.json']) cpSync(join(repoRoot, 'plugins', 'agdf', 'meta', name), join(target, name));
+  for (const name of ['agdf-plugin.definition.json', 'agdf-interaction-locales.json', 'agdf-defaults.json', 'agdf-defaults.schema.json']) cpSync(join(repoRoot, 'plugins', 'agdf', 'meta', name), join(target, name));
   rmSync(join(target, 'contracts'), { recursive: true, force: true });
   cpSync(join(repoRoot, 'plugins', 'agdf', 'meta', 'contracts'), join(target, 'contracts'), { recursive: true });
 }

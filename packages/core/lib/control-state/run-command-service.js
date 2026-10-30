@@ -1,3 +1,5 @@
+import { resolutionRecordVersion, currentInputResolution } from './input-resolution.js';
+import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { initializeCanonicalProject, inspectCanonicalProject } from './canonical-initialization.js';
 import { assertProjectGitRoot, inspectProjectState, projectOperationStatusCall } from '../control-inspect/project-state.js';
 import { canonicalInitPlan } from '../resources/canonical-init-plan.js';
@@ -66,7 +68,7 @@ function boundedRecover(root, input) {
         : { outcome: 'recovery_required', reason: 'original_operation_unconfirmed' };
     }
     const pending = readPendingRunStepJournal(root, input.run_id);
-    if (![3, 4].includes(pending.schema_version) || pending.kind !== payload.original_kind || pending.operation_id !== input.operation_id
+    if (![3, 4].includes(resolutionRecordVersion(pending)) || pending.kind !== payload.original_kind || pending.operation_id !== input.operation_id
       || pending.target_id !== input.target_id || digest(canonicalJson(pending)) !== payload.pending_digest
       || ![pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
       || payload.recovery_revision_id !== input.expected_revision_id) return { outcome: 'rejected', reason: 'recovery_binding_invalid' };
@@ -178,8 +180,9 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           const candidate = JSON.parse(source.content);
           // The shared Core validates the current binding and contained manifest;
           // only the serving facade owns an actual process handle. No Run write.
-          return Promise.resolve(runtimeControl.replace({ input, candidate, requestDigest,
+          return Promise.resolve(runtimeControl.replace({ input, candidate, requestDigest, resolution: currentInputResolution(),
             revalidate: () => {
+              assertInputConfigurationCurrent(root);
               source.validate(); const fresh = observeCurrentRunCommand(root, input);
               if (!fresh.available || fresh.revision_id !== input.expected_revision_id) throw Error('stale_revision');
             } })).then(family => result(family.outcome, family.reason, family, { runtime_control: true }),
@@ -234,6 +237,8 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
         if (family?.outcome === 'rejected' && ['pending', 'unknown', 'committed_recovery_required'].includes(status?.status)) return result('effect_unknown', family.reason, family);
         return result(repeated ? 'already_applied' : accepted ? 'accepted' : family?.outcome === 'recovery_required' ? 'recovery_required' : 'rejected', family?.reason, family ?? {});
       } catch (error) {
+        if (input.command.kind !== 'closure.apply' && error.facts?.code === 'snapshot_stale' && error.facts.dispatch === 'not_dispatched')
+          return result('rejected', 'snapshot_stale', {}, { dispatch: 'not_dispatched' });
         if (!dispatched && input.command.kind === 'run.create' && error.code === 'AGDF_CANONICAL_SCAFFOLD_REQUIRED')
           return result('rejected', error.code, {}, { dispatch: 'not_dispatched', next_calls: [{ tool: 'agdf_inspect', arguments: {
             operation: 'project-state', primary_target: root, target_source: input.target_source,

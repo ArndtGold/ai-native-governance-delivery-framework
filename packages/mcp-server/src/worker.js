@@ -44,7 +44,7 @@ export function createWorkerDispatchExecutor({
         const started = performance.now(), deadline = started + timeoutMs;
         let worker;
         try { worker = new WorkerClass(WORKER_URL, {
-          workerData: { surface, expectedVersion, commandGroups, argumentsValue, toolName: toolName ?? null, materialGrants: trusted?.materialGrants },
+          workerData: { surface, expectedVersion, commandGroups, argumentsValue, toolName: toolName ?? null, materialGrants: trusted?.materialGrants, inputContext: trusted?.inputContext },
         }); } catch { reject(new DispatchExecutionError('dispatch_worker_failed', 'not_dispatched')); return; }
         event('worker_start', started);
         const current = { worker, timer: null, cleanupSignal: null, cancel: () => finish(reject, new DispatchExecutionError("dispatch_cancelled")) };

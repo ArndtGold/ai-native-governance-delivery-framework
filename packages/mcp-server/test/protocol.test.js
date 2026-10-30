@@ -186,7 +186,11 @@ for (const modern of [false, true]) {
         arguments: argumentsForLanguageCase(unresolvedArguments, row),
       });
       assert.equal(result.isError, true, `${protocol}:${row.id}`);
-      assert.equal(result.structuredContent, undefined, `${protocol}:${row.id}:schema errors have no governance result`);
+      if (row.omit) {
+        assert.equal(result.structuredContent.outcome, 'target_unresolved', `${protocol}:omitted language resolves before target orientation`);
+        assert.equal(result.structuredContent.presentation.presentation_language, 'en');
+        assert.equal(result.structuredContent.authorizes, false);
+      } else assert.equal(result.structuredContent, undefined, `${protocol}:${row.id}:explicit schema errors have no governance result`);
     }
 
     const validResults = new Map();

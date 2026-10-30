@@ -1,3 +1,4 @@
+import { resolutionRecord, resolutionRecordVersion } from './input-resolution.js';
 import { TextDecoder } from "node:util";
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, COOPERATIVE_ASSURANCE } from "./approval-command-contract.js";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
@@ -100,6 +101,8 @@ export function sourceRevisionImpact(proposal, activeBindings) {
 }
 
 export function validSourceRevision(row) {
+  row = resolutionRecord(row);
+  if (!row) return false;
   const commandFields = ['command_digest', 'confirmation_digest', 'proposal_reference', 'producer', 'assurance'];
   const expandedFields = ['policy_version', 'initiating_phase', 'impact_digest', 'quality_digest'];
   if (!exactObject(row, row.schema_version === '3' ? [...fields, ...commandFields, ...expandedFields] : row.schema_version === '2' ? [...fields, ...commandFields] : fields) || !['1', '2', '3'].includes(row.schema_version) || !uuid(row.operation_id)
@@ -207,7 +210,7 @@ export function validSourceRevisionEffect(before, after, receipt) {
     : next.approvals.get(gate)?.status === "missing" && !next.approvals.get(gate)?.evidence
       && next.artefacts.get(gate)?.status === "missing" && !next.artefacts.get(gate)?.path
       && !next.artefact_chain.some(row => row.from === gate))
-    && ["QA", "UAT"].every(gate => receipt.schema_version === '3'
+    && ["QA", "UAT"].every(gate => resolutionRecordVersion(receipt) === '3'
       ? next.approvals.get(gate)?.status === 'missing' && !next.approvals.get(gate)?.evidence
         && (!old.artefacts.has(gate) || next.artefacts.get(gate)?.status === 'missing' && !next.artefacts.get(gate)?.path)
       : canonicalJson(next.approvals.get(gate)) === canonicalJson(old.approvals.get(gate)))

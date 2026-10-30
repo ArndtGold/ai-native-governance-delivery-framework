@@ -1,9 +1,9 @@
-import { existsSync, readFileSync } from "../control-read/fs.js";
-import { join } from "node:path";
+import { readFileSync } from "../control-read/fs.js";
 import { fileURLToPath } from "node:url";
 import { canonicalizeLanguageTag, resolvePresentationLocale } from "../interaction-presentation.js";
 import { validateInteractionCatalog } from "../interaction-catalog-validation.js";
 import { packageURL, generatedURL, contractsURL, templatesURL } from "./binding.js";
+import { readPluginDefaults, resolveConfiguration } from './configuration.js';
 
 function freeze(value) {
   if (value && typeof value === "object") { for (const entry of Object.values(value)) freeze(entry); Object.freeze(value); }
@@ -30,6 +30,7 @@ export function createResourceContext({ packageURL, generatedURL, contractsURL, 
     templatesRoot: templatesURL instanceof URL ? fileURLToPath(templatesURL) : null,
     pluginDefinition,
     interactionLocales,
+    defaults: readPluginDefaults(generatedURL),
   });
 }
 export const resources = createResourceContext({ packageURL, generatedURL, contractsURL, templatesURL });
@@ -42,21 +43,16 @@ export function configuredLanguage(value, context = resources) {
   return normalized;
 }
 export function resolveConfiguredChatLanguage(targetDir, context = resources) {
-  const configPath = join(targetDir, ".agdf", "control", "config.json");
-  if (!existsSync(configPath)) return context.interactionLocales.fallbackLocale;
-  try { return resolvePresentationLocale(context.interactionLocales, JSON.parse(readFileSync(configPath, "utf8")).chat_language); }
-  catch { return context.interactionLocales.fallbackLocale; }
+  return resolvePresentationLocale(context.interactionLocales, resolveConfiguration(targetDir, context.defaults).values.chat_language);
 }
-// Missing or invalid config means English artefacts.
-export function resolveConfiguredArtifactLanguage(targetDir) {
-  try { return canonicalizeLanguageTag(JSON.parse(readFileSync(join(targetDir, ".agdf", "control", "config.json"), "utf8")).artifact_language).split("-")[0] || "en"; }
-  catch { return "en"; }
+export function resolveConfiguredArtifactLanguage(targetDir, context = resources) {
+  return resolveConfiguration(targetDir, context.defaults).values.artifact_language.split('-')[0];
 }
 
 // Shared by artefact authoring and approval rendering; the selected locale may override
 // the configured chat default, but never changes the persisted artefact language.
 export function resolveArtifactPresentationLanguages(targetDir, requestedLanguage, context = resources) {
-  const artifactLanguage = resolveConfiguredArtifactLanguage(targetDir);
+  const artifactLanguage = resolveConfiguredArtifactLanguage(targetDir, context);
   const presentationLanguage = requestedLanguage
     ? resolvePresentationLocale(context.interactionLocales, requestedLanguage)
     : resolveConfiguredChatLanguage(targetDir, context);

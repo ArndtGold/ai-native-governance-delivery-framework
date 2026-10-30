@@ -60,7 +60,8 @@ Delegate drafts to `ur-definition | prd-definition | sd-definition | tp-definiti
 Use listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check`, declared fields.
 Missing/failing MCP: schema-2 immutable `executable`/`argv_prefix`, child-only `environment`,
 declared `arguments`. Quote shell data; CLI: `--revision`.
-For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
+MCP: MCP reply-language override (BCP 47). Omit for a matching configured preference; otherwise supply the current request's language (explicit instruction, then dominant language, en if ambiguous). Invalid explicit tags fail; valid unsupported tags use the complete English pack. Core input remains complete.
+For `--language`: Required; apply the same current-request selection and locale validation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Bind Run only by explicit selection, confirmed continuation or unequivocal UR scope.
 Never construct/repair runtime.

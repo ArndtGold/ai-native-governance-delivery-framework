@@ -14,6 +14,11 @@ import { runSealState } from '../lib/control-state/run-seal.js';
 import { parseRunState } from '../lib/control-state/run-state-parser.js';
 import { validateRunCommandResult } from '../lib/control-state/run-command-contract.js';
 import { readRunOperations } from '../lib/control-state/run-operations.js';
+import { resolveMcpInput } from '../lib/mcp-input-resolution.js';
+import { resources } from '../lib/resources/context.js';
+import { commandGroupDefinition } from '../lib/control-state/run-command-schema.js';
+import { inspectRunInputResolution } from '../lib/control-state/run-input-resolution.js';
+import { withInputResolution } from '../lib/control-state/input-resolution.js';
 
 async function fixture(work) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-create-command-')));
@@ -139,4 +144,45 @@ test('an interrupted owned creation stage is recovered only for the exact origin
   assert.equal(recovered.family_result.recovered_stage, true);
   assert.equal(service('agdf_run', input).outcome, 'already_applied');
   assert.equal(readdirSync(join(root, '.agdf/control/runs')).filter(n => n.startsWith('.run-stage-')).length, 0);
+}));
+
+test('defaulted creation retains its sealed resolution across actual process interruption and corrupt current config', () => fixture(({ root, input, service }) => {
+  const { schema_version, assurance, presentation_language, ...original } = input;
+  const selected = resolveMcpInput(commandGroupDefinition('agdf_run'), original, { defaults: resources.defaults });
+  const serviceOwner = new URL('../lib/control-state/run-command-service.js', import.meta.url).href;
+  const resolutionOwner = new URL('../lib/control-state/input-resolution.js', import.meta.url).href;
+  const child = spawnSync(process.execPath, ['--input-type=module', '-e',
+    `import {createRunCommandService} from ${JSON.stringify(serviceOwner)};
+     import {withInputResolution} from ${JSON.stringify(resolutionOwner)};
+     const selected=JSON.parse(process.argv[1]);
+     withInputResolution(selected.resolution,()=>createRunCommandService({packageVersion:'0.20.2',checkpoint:phase=>{if(phase==='creation_before_publish')process.exit(23);}})('agdf_run',selected.arguments));`, JSON.stringify(selected)], { encoding: 'utf8' });
+  assert.equal(child.status, 23, child.stderr);
+  const config = join(root, '.agdf/control/config.json'); writeFileSync(config, '{');
+  const restored = resolveMcpInput(commandGroupDefinition('agdf_run'), original, { defaults: resources.defaults, lookupOriginal: inspectRunInputResolution });
+  assert.equal(restored.original, true);
+  assert.deepEqual(restored.resolution, selected.resolution);
+  const recovered = withInputResolution(restored.resolution, () => service('agdf_run', restored.arguments), true);
+  assert.equal(recovered.outcome, 'accepted', JSON.stringify(recovered));
+  assert.equal(recovered.family_result.recovered_stage, true);
+  assert.deepEqual(recovered.receipt.input_resolution.logical_digest, selected.resolution.logical_digest);
+  const path = join(root, `.agdf/control/runs/${recovered.binding.run_id}/RUN_STATE.md`), before = readFileSync(path, 'utf8');
+  assert.equal(runSealState(root, before).status, 'valid');
+  assert.equal(withInputResolution(restored.resolution, () => service('agdf_run', restored.arguments), true).outcome, 'already_applied');
+  assert.equal(readFileSync(path, 'utf8'), before); assert.equal(readRunOperations(before).receipts.length, 1);
+  assert.equal(readFileSync(config, 'utf8'), '{');
+}));
+
+test('a changed selected config rejects before new creation; an explicit retry selects the new snapshot', () => fixture(({ root, input, service }) => {
+  const { schema_version, assurance, presentation_language, ...original } = input;
+  const definition = commandGroupDefinition('agdf_run');
+  const selected = resolveMcpInput(definition, original, { defaults: resources.defaults });
+  const configPath = join(root, '.agdf/control/config.json'), config = JSON.parse(readFileSync(configPath));
+  config.chat_language = 'de'; writeFileSync(configPath, JSON.stringify(config));
+  const rejected = withInputResolution(selected.resolution, () => service('agdf_run', selected.arguments));
+  assert.equal(rejected.reason, 'snapshot_stale'); assert.equal(rejected.dispatch, 'not_dispatched'); assert.equal(rejected.outcome, 'rejected');
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  const fresh = resolveMcpInput(definition, original, { defaults: resources.defaults });
+  const accepted = withInputResolution(fresh.resolution, () => service('agdf_run', fresh.arguments));
+  assert.equal(accepted.outcome, 'accepted', JSON.stringify(accepted));
+  assert.equal(accepted.receipt.input_resolution.fields.presentation_language, 'de');
 }));

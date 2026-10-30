@@ -94,6 +94,11 @@ try {
   assert.equal(listed.outcome, "inspect_result", JSON.stringify(listed.recovery));
   assert.deepEqual(listed.report, inspect(multiple, "en").report);
   for (const extra of [{ runId: "first" }, { allActive: true }]) assert.equal(spied({ ...common, ...extra }).outcome, "invalid_input", JSON.stringify(extra));
+  // The MCP server projects every result before sending it; an unclassified read used to fail as
+  // tool_result_invalid there although the in-process result was valid.
+  const projected = runtime.projectToolResult("agdf_inspect", { operation: "inventory", presentation_language: "en" }, inspect(multiple, "en"));
+  assert.equal(projected.outcome, "inspect_result");
+  assert.equal(projected._meta?.["agdf/tool-result"]?.failed, false, JSON.stringify(projected._meta));
   const failed = createControlInspectService({ evaluateDoctor() { throw new Error("fixture read failure"); } })({
     operation: "doctor", allActive: true, presentationLanguage: "de", workingDirectory: multiple,
     primaryTarget: multiple, targetSource: "current_repository", interactionLocales,

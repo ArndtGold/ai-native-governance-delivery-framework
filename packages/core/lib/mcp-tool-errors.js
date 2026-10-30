@@ -19,7 +19,7 @@ const commandOutcomes = new Set(['accepted', 'already_applied', 'rejected', 'rec
 const dispatchOutcomes = new Set(['invalid_input', 'target_unresolved', 'control_result', 'skill_continuation', 'intake_continuation', 'evaluator_error']);
 const inspectOutcomes = new Set(['invalid_input', 'target_unresolved', 'inspect_result', 'evaluator_error']);
 const exactReads = new Set(['presentation-document', 'presentation-preview', 'operation-contract', 'runtime-generations']);
-const reportReads = new Set(['doctor', 'gate-check', 'delivery-map', 'artifact-readiness', 'operation-status', 'native-qualification', 'contract']);
+const reportReads = new Set(['doctor', 'gate-check', 'delivery-map', 'artifact-readiness', 'operation-status', 'native-qualification', 'contract', 'inventory']);
 const readStates = new Set(['available', 'empty', 'partial', 'invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
 const safeFields = new Set(['arguments', 'working_directory', 'primary_target', 'target_source', 'presentation_language', 'skill_id', 'run_id', 'expected_revision_id', 'operation_id', 'command', 'module', 'gate', 'cursor', 'operation', 'all_active', 'variant']);
 const plain = value => !!value && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));

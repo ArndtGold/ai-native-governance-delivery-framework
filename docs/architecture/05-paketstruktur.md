@@ -119,6 +119,12 @@ Persistenz-, Integritäts- und Transaktionseigentümer. Der optionale Belegabsch
 versiegelten Run-Zustands, keine zweite Datenbank oder Freigabequelle. Seine Abwesenheit ist für
 Legacy-Runs gültig, erlaubt aber keine automatische Beziehungskorrektur.
 
+Die vorhandenen generischen Dateisperren, atomaren Dateischreibvorgänge und Verzeichnis-Synchronisation
+liegen gemeinsam in [owned-file-lock.js](../../packages/core/lib/owned-file-lock.js).
+Der Run-Writer exportiert dieselben Funktionen kompatibel weiter. Der MCP-Paketstart importiert
+diesen schlanken Eigentümer direkt, damit Dateisperren keine Run-Auswertung laden. Sperrtoken,
+Wiederherstellung, Diagnosekanal und dauerhafte Schreibgrenzen bleiben beim selben Funktionsbestand.
+
 Die operative Sichtbarkeit gehört dem
 [Interaktionsvertrag](../../plugins/agdf/meta/contracts/interaction.md). Die bestehenden
 [Locale-Ressourcen](../../plugins/agdf/meta/agdf-interaction-locales.json) und der
@@ -160,12 +166,87 @@ keine fremden Hostausgaben. Diese Ausgaben werden ebenfalls atomar ersetzt.
 | Source/public | Keine aktive MCP-/Hook-Laufzeit; öffentliche Skills-only-Ausgabe |
 | Codex-Runtime | Root `mcp.json` mit `type: stdio`; Installer bindet absolute Plugin-/Datenpfade; Hooks bleiben deklarierte Fallback-Komposition |
 | Claude-Runtime | `mcp/claude.mcp.json`, eigener Launcher und deklarierte Hooks |
-| Copilot-Runtime | Fokussierter Offline-Validator, Contracts unter `copilot-skills/contracts`; keine Installer-/SDK-/MCP-Payload |
+| Copilot-Runtime | Präfixierte Skills, eigener Validator und MCP-Server mit SDK-Installationsdeskriptoren; keine privaten UI-Ressourcen; Host-Anbindung experimentell in 0.20.x |
 | OpenCode | Eigene Konfigurationskomposition und das installierte `create-agdf`-Paket |
 
 Source-, Runtime- und Installationsdigests haben unterschiedliche Aufgaben.
 Runtime-/SDK- und Ressourcenänderungen werden in Provenance-Prüfungen erfasst;
 Consent, Trust und Ownership bleiben unabhängige Fakten.
+
+Die MCP-Fassade verwendet `packages/cli/lib/mcp-protocol-runtime.js` für dieselben
+Werkzeugdefinitionen, Parser, Fehler-, Sprach- und Ressourcenprojektionen wie die
+vollständige Runtime. Sie erzeugt keine zweite Core-, Diagnose- oder
+Entscheidungssitzung. Die ausführende Generation konstruiert weiterhin ihre echte
+Runtime und besteht die vollständige Manifest-/Provenance-Prüfung, bevor der
+Server Anfragen annimmt. Seltene Steuerpfade der Fassade initialisieren ihren
+Core einmalig bei Bedarf; Berechtigung, Ziel, Run und Revision werden dabei
+weiterhin vom Core geprüft. Einzelne Befehle behalten isolierte Worker und die
+vorhandene bestätigte Beendigung.
+
+Strukturelle Befehlsschemata und Validatoren liegen ausschließlich in
+`packages/core/lib/control-state/run-command-schema.js`.
+`run-command-contract.js` erhält seine bisherigen Exporte als Fassade und ergänzt
+die ausführliche Hilfe. Reine Protokollimporte laden dadurch keine Diagnose-,
+Gate- oder Dokumentauswertung. Die Readiness-Auswertung und der Inspect-Vertrag
+verwenden dieselben in `control-inspect/selection.js` definierten Gate-Selektoren.
+
+Der kanonische Worker-Einstieg `packages/cli/lib/mcp-worker-runtime.js` delegiert
+an dieselbe vollständige Runtime-Fabrik. `scripts/compile-mcp-worker-runtime.mjs`
+erzeugt daraus im Pluginprofil und im npm-Staging einen einzelnen Node-Build.
+Die vorhandenen Protokoll-/Schema-/Fehler-/Ressourcen- und Lesezustandsmodule
+bleiben echte gemeinsame Imports; es entstehen keine zusätzlichen Regelquellen
+oder Zustands-Singletons. Originale Modul-URLs erhalten Parser-, Ressourcen- und
+Worker-Pfade auch nach Verschieben in ein beanspruchtes Image. Der bereits für die
+UI gepinnte Rolldown-Compiler ist ausschließlich eine Root-Build-Abhängigkeit und
+wird weder mit MCP ausgeliefert noch beim Aufruf gestartet. Die Core-Projektion
+bleibt bytegleich. Bestehende Generator-/Assembly-Befehle erneuern den Build.
+
+Der Server deklariert seine tatsächliche Worker-Schnittstelle in der Node-Importmap.
+Ein neuer Server mit einem älteren Dispatcher gleicher Version scheitert bereits
+an der Paketprüfung. Der neue deklarierte Worker gehört vollständig zum frischen
+Digest; ältere Pakete behalten ihre bisherigen Eintragsmengen und Draht-Digests.
+Alle Core-Dienste werden weiterhin tatsächlich konstruiert, jeder Aufruf behält
+seinen isolierten Worker, seine frische Paketprüfung und das bestätigte Ende.
+
+Die Worker-Fabrik liegt im bestehenden MCP-Modul `src/worker.js`; `server.js`
+reexportiert dieselbe Funktion. Die private Core-Generation importiert dafür
+keinen ungenutzten SDK-Server. Die Fassade lädt ihren tatsächlichen SDK parallel
+zum bereits frisch beanspruchten privaten Generationsstart und wartet auf beide
+Ergebnisse vor MCP-Bereitschaft.
+Ein SDK-Ladefehler beendet die bereits qualifizierte Generation.
+Die gemeinsame Paketprüfung liegt in Core `runtime/plugin-provenance.js`. Die
+Protokollfassade verwendet denselben vollständigen frischen Prüfpfad mit festen
+Paket-/Markerpfaden und allen drei Digests. Über asynchrone Importe werden keine
+geprüften Beobachtungen wiederverwendet. Die zusätzliche frische Prüfung unter
+der Publikationssperre erfolgt vor Generationsstart und SDK-Import; die Generation
+prüft ihre Provenienz ebenfalls vollständig. Es gibt keinen dauerhaften Digest-Cache.
+Der bestehende getrennte Aufsichtsprozess bootet bereits während der Launcher-
+Vorbereitung. Ein begrenzter privater Ready-/Aktivierungsdialog hält ihn bis zur
+geprüften Publikation wartend. Erst dann folgen dieselbe frische Claim-Prüfung
+und der Fassadenstart. Bei fehlgeschlagener Vorbereitung wird der wartende Owner
+geordnet beendet; SDK und öffentliche Bereitschaft bleiben vollständig gesperrt.
+Der bestehende synchrone Vorschau-Renderer lädt die gepinnten HTML-/CSS-Parser
+über deren mitgelieferte CommonJS-Einstiege erst beim Rendern. Die echte Core-
+Servicekonstruktion und vollständige Provenienzprüfung bleiben vor Bereitschaft;
+Parser-Versionen, synchrone Rückgaben und Ressourcen-/Sicherheitsgrenzen bleiben gleich.
+
+Die optionale UI-Protokollkomposition liegt in
+`packages/cli/lib/mcp-decision-protocol.js`. Vollständige und schlanke UI-Einstiege
+laden dieselbe Definition nur bei Bedarf. Der Standardpfad des reduzierten
+Copilot-Pakets importiert keine privaten UI-Core-Module.
+
+`packages/core/lib/owner-placement.js` bindet feste interne Rollen an das
+Verzeichnis und eine bereits vom jeweiligen Eigentümer erzeugte Metadatendatei.
+Inodes werden verlustfrei gelesen. Gerätenummern prüfen laufende Zugriffe, dienen
+aber in neuen Formaten nicht als dauerhafte Kennung über Neustarts hinweg. Der
+gemeinsame Initialisierer erstellt Staging-Version 3 und Abschlussbeleg-Version 2
+vor der atomaren Veröffentlichung; eine private Belegdatei ist noch kein
+veröffentlichter Effekt. Der Marketplace-Eigentümer verwendet Journal-Version 2.
+Alte Formate behalten ihre ursprünglichen Prüfregeln. Die gesonderte
+Wiederherstellung einer alten offenen Veröffentlichung benötigt deren frühere
+vollständige Nachweise, eine konkrete Vorschau und ausdrückliche Bestätigung;
+Projektinitialisierung und Diagnose lösen sie nicht aus. Diese Quellzuordnung
+belegt keine Aktualisierung oder Qualifikation einer bestehenden Installation.
 
 Bestehende installierte Pfade wie `runtime/create-agdf`,
 `node_modules/create-agdf` und versionierte MCP-Datenverzeichnisse bleiben gültig.

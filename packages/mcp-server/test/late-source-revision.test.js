@@ -10,7 +10,7 @@ import { createEarlyUrRevisionTestRun } from "../../cli/scripts/fixtures/early-u
 import { byteDigest } from "../../core/lib/control-state/run-revision-history.js";
 
 const candidate = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? resolve(import.meta.dirname, "../../../dist/npm/create-agdf");
-const fixture = createOwnedRuntimeFixture({ dispatcherSourceRoot: candidate }), root = fixture.governanceTarget;
+const fixture = createOwnedRuntimeFixture({ dispatcherSourceRoot: candidate, controlRuns: [] }), root = fixture.governanceTarget;
 const validator = join(fixture.dispatcherRoot, "bin/agdf-validator.js");
 const f = createLateSourceRevisionTestRun(root, validator, "late-source-mcp-test"), seed = join(fixture.root, "canonical-seed");
 cpSync(join(root, ".agdf"), seed, { recursive: true });
@@ -24,7 +24,7 @@ const args = input => ["--revision", input.revisionId, "--source-gate", input.so
 const observations = [];
 try {
   await withStdioClient(fixture, async client => {
-    const { tools } = await client.listTools(); assert.deepEqual(tools.map(tool => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
+    const { tools } = await client.listTools(); assert.deepEqual(tools.map(tool => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_project", "agdf_run", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
     for (const tool of tools.filter(tool => ['agdf_dispatch', 'agdf_inspect'].includes(tool.name))) for (const name of ["source_gate", "preview_digest", "revision_mode", "operation_id"])
       assert.equal(Object.hasOwn(tool.inputSchema.properties, name), false);
     for (const tool of tools.filter(tool => !['agdf_dispatch', 'agdf_inspect'].includes(tool.name))) {

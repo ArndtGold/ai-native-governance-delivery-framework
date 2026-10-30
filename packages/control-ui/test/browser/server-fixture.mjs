@@ -8,5 +8,7 @@ export const startControlServer = options => startProductionControlServer({
   ...options, ...(process.env.AGDF_COCKPIT_TEST_DIST ? { dist: process.env.AGDF_COCKPIT_TEST_DIST } : {}),
 });
 
-// Visual evidence keeps its established macOS location; other hosts use their own temp directory.
-export const evidencePath = name => join(process.platform === 'darwin' ? '/private/tmp' : tmpdir(), name);
+// A candidate can retain its own evidence without overwriting prior runs.
+// Existing invocations keep their established platform-specific location.
+export const evidencePath = name => join(process.env.AGDF_COCKPIT_TEST_EVIDENCE_DIR
+  ?? (process.platform === 'darwin' ? '/private/tmp' : tmpdir()), name);

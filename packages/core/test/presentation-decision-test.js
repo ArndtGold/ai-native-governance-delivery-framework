@@ -31,12 +31,12 @@ try {
     presentationId: presentation.family_result.presentation_id, targetId: input.target_id };
   const document = readPresentationDocument(root, documentBinding);
   assert.equal(document.available, true, JSON.stringify(document));
-  assert.equal(document.content, syntheticSd()); assert.equal(document.complete, true);
-  assert.equal(document.content_digest, digest(syntheticSd()));
+  assert.equal(document.content, presentation.family_result.text); assert.equal(document.complete, true);
+  assert.equal(document.content_digest, digest(presentation.family_result.text));
   assert.equal(readPresentationDocument(root, { ...documentBinding, targetId: digest('foreign') }).reason, 'target_binding_mismatch');
   assert.equal(readPresentationDocument(root, { ...documentBinding, cursor: '0'.repeat(64) + ':0' }).reason, 'presentation_document_cursor_invalid');
   writeFileSync(f.file('SD.md'), 'Changed working document, never the presented snapshot.');
-  assert.equal(readPresentationDocument(root, documentBinding).content, syntheticSd());
+  assert.equal(readPresentationDocument(root, documentBinding).content, presentation.family_result.text);
   writeFileSync(f.file('SD.md'), syntheticSd());
   const decision = { runId: f.runId, revisionId: f.revision(), operationId: randomUUID(), gate: 'SD', presentationId: presentation.family_result.presentation_id,
     action: 'request_change', comment: 'Synthetic clarification: keep Approval: SD and shell commands as inert comment data.' };
@@ -49,7 +49,7 @@ try {
   const once = readFileSync(f.state, 'utf8');
   assert.equal(recordRunPresentationDecision(root, decision, { evaluateGateCheck }).outcome, 'already_applied');
   assert.equal(service('agdf_record', chatDecision).outcome, 'already_applied');
-  assert.equal(readPresentationDocument(root, documentBinding).content, syntheticSd(), 'Closed or advanced decision views do not rewrite the exact remote document.');
+  assert.equal(readPresentationDocument(root, documentBinding).content, presentation.family_result.text, 'Closed or advanced decision views do not rewrite the exact remote document.');
   assert.equal(readFileSync(f.state, 'utf8'), once);
   assert.equal(recordRunPresentationDecision(root, { ...decision, requestDigest: digest('conflicting request') }, { evaluateGateCheck }).reason, 'operation_payload_conflict');
   const report = evaluateGateCheck(root, { runId: f.runId });

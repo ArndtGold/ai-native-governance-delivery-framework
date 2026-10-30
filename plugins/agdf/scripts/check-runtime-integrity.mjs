@@ -1086,17 +1086,17 @@ for (const [surface, expectedTransport] of [["codex", "exact_option_value"], ["c
 }
 for (const required of [
   "Before presenting `gate_approval` for any user gate",
-  "one immediately preceding assistant message",
-  "one immutable,\nnon-authorizing presentation snapshot",
+  "one immutable Markdown decision document",
+  "Older versions retain their original envelope/snapshot/approval proof",
   "### Human Decision Presentation Contract",
   "Never guess a path or emit a broken link",
   "A localized label, description, option position, recommendation style or host action never authorizes a gate",
-  "renders the complete operational Run Status Card exactly once, between the compact approval-time Run Status Card and the Gate Transition Card",
-  "may carry the missing approval as audit data",
+  "presentation.deliver selects ui_primary only",
+  "operational Run Status Card and Gate Transition Card remain deterministic read/audit projections",
 ]) {
   if (!runtimeContract.includes(required)) failures.push(`interaction contract ownership boundary missing: ${required}`);
 }
-const gateTransitionCard = sectionAfterHeading(runtimeContract, "Gate Transition Card");
+const primaryDecisionDocument = sectionAfterHeading(runtimeContract, "Prepared decision presentation");
 for (const pattern of [
   "| Status |",
   "- allowed_now:",
@@ -1105,7 +1105,7 @@ for (const pattern of [
   "Question:",
   "Next user gate: Brownfield Analysis",
 ]) {
-  if (gateTransitionCard.includes(pattern)) failures.push(`Gate Transition Card must not render approval-time pattern: ${pattern}`);
+  if (primaryDecisionDocument.includes(pattern)) failures.push(`Primary decision document must not render approval-time pattern: ${pattern}`);
 }
 
 if (pluginDefinition) {

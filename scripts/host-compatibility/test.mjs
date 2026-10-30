@@ -145,6 +145,26 @@ check("historical mapping preserves original vocabulary", () => {
 const temp = mkdtempSync(join(tmpdir(), "agdf-compatibility-evidence-test-"));
 try {
   const source = sourceSnapshot(root, manifest);
+  check("owned process and thread compositions retain every canonical runtime owner", () => {
+    for (const file of [
+      'packages/cli/lib/mcp-lifecycle/facade-entry.js',
+      'packages/cli/lib/mcp-lifecycle/facade-thread-entry.js',
+      'packages/cli/lib/mcp-lifecycle/facade-runtime.js',
+      'packages/cli/lib/mcp-lifecycle/thread-owner.js',
+      'packages/cli/lib/mcp-lifecycle/owner-client.js',
+      'packages/cli/lib/mcp-worker-runtime.js',
+      'packages/core/lib/runtime/mcp-owner-protocol.js',
+      'packages/mcp-server/package.json',
+      'packages/mcp-server/src/generation-entry.js',
+      'packages/mcp-server/src/generation-thread-entry.js',
+      'packages/mcp-server/src/generation-runtime.js',
+      'packages/mcp-server/src/worker-entry.js',
+      'packages/mcp-server/src/stdio-output.js',
+    ]) assert.ok(source.files[file], `missing canonical runtime source: ${file}`);
+    const moved = structuredClone(manifest);
+    moved.dynamic_imports.find(item => item.file.endsWith('/facade-runtime.js')).file = 'packages/cli/lib/mcp-lifecycle/facade-entry.js';
+    assert.throws(() => sourceSnapshot(root, moved), /unused_dynamic_import_binding/);
+  });
   for (const path of Object.keys(source.files)) { mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path)); }
   copyFixtureDependencies(temp);
   for (const path of ["packages/core/generated", "packages/cli/generated/plugins/agdf", "packages/cli/generated/plugins/copilot/agdf", ".agdf/control/artefacts/agdf-live-host-conformance-matrix"]) {
@@ -186,6 +206,17 @@ try {
   });
   const changed = "packages/cli/lib/host-adapters/codex/plugin.js"; const original = readFileSync(join(temp, changed), "utf8");
   const baseline = sourceSnapshot(temp, manifest);
+  check("thread entry and shared protocol changes invalidate every host fingerprint", () => {
+    for (const file of ['packages/cli/lib/mcp-lifecycle/facade-thread-entry.js',
+      'packages/mcp-server/src/generation-thread-entry.js', 'packages/core/lib/runtime/mcp-owner-protocol.js']) {
+      const path = join(temp, file), original = readFileSync(path, 'utf8');
+      try {
+        writeFileSync(path, `${original}\n// changed canonical runtime source\n`);
+        const after = sourceSnapshot(temp, manifest);
+        for (const host of HOSTS) assert.notEqual(after.by_host[host], baseline.by_host[host], `${host}:${file}`);
+      } finally { writeFileSync(path, original); }
+    }
+  });
   check("representative real host-local command change is isolated", () => {
     writeFileSync(join(temp, changed), original.replace('["plugin", "remove", "agdf@agdf"]','["plugin", "remove", "agdf@agdf", "--fixture"]'));
     const after = sourceSnapshot(temp, manifest); assert.notEqual(after.by_host.codex, baseline.by_host.codex);

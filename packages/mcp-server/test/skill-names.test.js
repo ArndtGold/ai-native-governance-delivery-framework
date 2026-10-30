@@ -7,7 +7,7 @@ import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient, unresolvedArguments } from "./helpers.js";
 
 const definition = JSON.parse(readFileSync(new URL("../../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url)));
-const fixture = createOwnedRuntimeFixture();
+const fixture = createOwnedRuntimeFixture({ controlRuns: ['agdf-mcp-dispatch-server'] });
 try {
   for (const surface of ["codex", "claude", "copilot", "opencode"]) {
     await withStdioClient({ ...fixture, args: [fixture.args[0], "--surface", surface] }, async client => {

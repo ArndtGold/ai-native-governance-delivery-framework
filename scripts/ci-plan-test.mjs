@@ -10,8 +10,24 @@ import { verificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
 import { CONTROL_COMMAND_PACKAGE_PARTS } from '../packages/cli/scripts/control-command-package-parts.js';
 import { TEST_DOMAINS } from './ci-test-domains.mjs';
+import { deliveryModeCases } from '../packages/mcp-server/test/fixtures/delivery-mode-cases.js';
 
 const preparation = ['dependencies', 'ui-dependencies', 'ui-build', 'generate', 'build-contracts', 'evals', 'assemble', 'prepare', 'mcp-dependencies'];
+
+test('delivery mode CI cells preserve both routes and both protocol versions within isolated jobs', () => {
+  assert.deepEqual(deliveryModeCases([], { structured:true }).map(row => [row.protocol,row.route]), [
+    ['legacy','structured_delivery'],['legacy','structured_slice'],['modern','structured_delivery'],['modern','structured_slice'],
+  ]);
+  const inventory=testInventory({suite:'mcp'});
+  for (const [file,count,structured] of [['structured-flow.test.js',4,true],['verified-change-flow.test.js',2,false]]) {
+    const cells=inventory.filter(row=>row.args[0]===`./test/${file}`);
+    assert.equal(cells.length,count); assert.equal(new Set(cells.map(row=>row.id)).size,count);
+    for(const cell of cells) { assert.equal(cell.isolated,true); assert.equal(deliveryModeCases(cell.args.slice(1),{structured}).length,1); }
+  }
+  for(const args of [['--route','unknown'],['--protocol','unknown'],['--protocol'],['--protocol','legacy','--protocol','modern'],['--unknown','legacy']])
+    assert.throws(()=>deliveryModeCases(args,{structured:true}),/invalid_delivery_test_selector/);
+  assert.throws(()=>deliveryModeCases(['--route','structured_slice']),/invalid_delivery_test_selector/);
+});
 
 test('every OS/Node lane covers the entire canonical inventory and required checks', () => {
   const inventory = testInventory();
@@ -99,8 +115,10 @@ test('compact graph names retain purpose, platform, partition and revision scena
   const jobs = ciJobs();
   const label = id => jobs.find(row => row.id === id).graphLabel;
   assert.equal(label('linux-22-activation'), 'Skills · Linux22');
-  const mcpParts = jobs.filter(row => row.area === 'mcp' && row.os === 'windows-latest' && row.node === 22).length;
+  const mcpParts = jobs.filter(row => row.area === 'mcp' && row.os === 'windows-latest' && row.node === 22 && !row.commands?.some(command=>command.isolated)).length;
   assert.equal(label('windows-22-mcp-part-4'), `MCP · Win22 4of${mcpParts}`);
+  assert.equal(label('linux-22-mcp-structured-delivery-legacy'),'Full legacy · Linux22');
+  assert.equal(label('windows-22-mcp-verified-change-modern'),'VC modern · Win22');
   assert.equal(label('windows-22-revision-ur-during-qa'), 'UR→QA · Win22');
   assert.equal(label('linux-24-revision-prd-during-cd-tests'), 'PRD→CD+Tests · Linux24');
   assert.equal(label('windows-22-revision-sd-during-brownfield-analysis'), 'SD→BA · Win22');

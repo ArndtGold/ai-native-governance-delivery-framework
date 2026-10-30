@@ -117,8 +117,8 @@ for (const modern of [false, true]) {
     assert.equal(client.getNegotiatedProtocolVersion(), protocol);
     assert.equal(client.getProtocolEra(), modern ? "modern" : "legacy");
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 7);
-    assert.deepEqual(tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
+    assert.equal(tools.length, 9);
+    assert.deepEqual(tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_project", "agdf_run", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
     for (const [label, path] of [
       ["repository README", "../../../README.md"],
       ["installation guide", "../../../INSTALL.md"],

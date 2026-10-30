@@ -18,7 +18,8 @@ export function deliveryIntakePhase(targetDir, control, input = {}) {
   const blockers = (control?.doctor_report?.findings ?? []).filter((finding) => finding.severity === "block");
   if (input.intake_mode === "new") {
     // The not-yet-created run is expected to be unselectable; any other blocker keeps the result terminal.
-    if (blockers.some((finding) => !["AGDF_RUN_NOT_SELECTABLE", "AGDF_ACTIVE_RUN_MISSING"].includes(finding.code))) return null;
+    if (blockers.some((finding) => !["AGDF_RUN_NOT_SELECTABLE", "AGDF_ACTIVE_RUN_MISSING"].includes(finding.code)
+      && !(finding.code === 'AGDF_RUN_PATH_INVALID' && finding.path === runPath(targetDir, input.run_id)))) return null;
     assertCanonicalRunStore(targetDir);
     let exists = true;
     try { lstatSync(dirname(runPath(targetDir, input.run_id))); }

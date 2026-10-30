@@ -4,15 +4,34 @@ This contract guides the `gate-check` skill when canonical gate evaluation retur
 `control.next_operation.type: prepare_gate_artifact`. It is procedural guidance only; canonical
 Run State, gate evaluation and exact approval remain authoritative.
 
+## Typed MCP control transport
+
+When the current host lists the fixed MCP control groups, use them for every eligible control step in Quick Task, Verified Change, Structured Slice and Structured Delivery. External source edits, actual test execution and Git actions remain external work. Read agdf_inspect/operation-contract for exact schemas and agdf_inspect/authoring-inputs for the current versioned template and all exact source chunks. Follow every cursor. Do not require local template/proof discovery, hashing or a validator shell switch.
+
+For explicit first setup, read agdf_inspect/project-state with the confirmed existing Git target and no Run/revision. Only deliberate setup uses agdf_project/project.initialize with the returned target_id and one original UUID. This fixed canonical scaffold operation creates no Run/approval and never repairs/migrates/installs or grants permissions. Matching authored governance is read-only unchanged observation; conflicts/unowned partial states stay protected. After uncertainty inspect operation-status module project.initialize/<original UUID> before exact replay. Setup success returns the creation help next call. No diagnosis or creation implicitly initializes.
+
+Create independent work with agdf_run/run.create using a semantic title and one original operation UUID; observe lost responses with pre-Run operation-status for that original UUID. Never ask the human for Run/revision IDs. An unbound or incomplete inventory cannot establish assignment.
+
+Transfer UTF-8 material using agdf_record/material.stage: begin declares up to four slots and byte counts (128 KiB/file, 512 KiB/set); append supplies exact base64 byte parts of at most 16 KiB at the returned offset; seal validates all bytes and returns material references/digests. Requests remain <=64 KiB. Buffers are private to the serving generation, expire after ten minutes/two idle minutes and are bounded to four sets/two MiB. They are not files or approval. Correct a rejected offset/slot/revision; never publish protected files as a workaround. After a generation loss, restage identical semantic bytes, preserve the original mutation UUID and inspect its receipt before retrying. Reference IDs may change; semantic digests may not.
+
+Record UR/internal/evidence/route/review via step.record; replace only a registered unapproved UR with agdf_revise/ur_draft.replace. Formal artefact.record takes the material, exact gate, reviewer, explicit reviewed:true and update_draft. Follow authoring-inputs recording.mode/update_draft and current operation help: initial uses false; explicit replace_unapproved or renew_invalidated_binding uses true and fresh current source/review. draft_registered false after a source revision does not erase historical binding obligations. Effective analytical next_operation selects the actual template/format, including UX reassessment at an outer PRD gate; never substitute the gate template or require source-code lookup. Actual reviewed source mapping remains required; Core retains its reviewed relationship and proof atomically, never inventing an independent semantic review. Approved sources use the existing reviewed source_revision.preview/apply owner, including a staged EVIDENCE JSON proposal; archive/receipt retains its exact logical reference without publishing a generic caller-selected file. Preserve deliberate confirmation and original-UUID recovery.
+
+Verified Change uses verified_change.record phases eligibility/execution, the same read-only Git observations and unchanged compact evaluator. Core captures baseline/actual paths; scope escape escalates. Stage Mini-Closeout in its Verified Change slot and use closeout.record with the returned exact confirmation. Quick Task uses its existing review/evidence and OR-lite owner. No mode uses run-update as the routine MCP control path. Presentation prepare/deliver follows interaction.md; only a new deliberate exact human reply reaches approval.record.
+
+The following local path/CLI forms remain compatibility fallback for hosts without these listed capabilities. They do not override typed MCP continuations.
+
 ## Common Route
 
-- Use only the supplied `gate`, `artifact_path`, `template_path`, `source_artifacts`, `target`,
+- With MCP use only the returned current gate/Run/revision, bound template and exact source
+  chunks from `authoring-inputs`; its template role and digest identify the version-matched owner.
+  CLI fallback uses only the supplied `gate`, `artifact_path`, `template_path`, `source_artifacts`, `target`,
   `run_id` and `revision_id`. `template_path` is the absolute canonical authoring template from the
   installed, version-matched plugin for PRD, SD, TP or QA Report preparation. Repository scaffold
   copies are derived references only. Do not rediscover or substitute a run, target, source
   artifact or template. A missing or unsafe template blocks authoring without fallback or mutation.
 - Prepare only the named current-gate artifact from the supplied approved sources.
-  Record with `run-step --step artefact --gate <PRD|SD|TP|QA>
+  With MCP use `agdf_record/artefact.record` and the bounded reviewed material above.
+  CLI fallback records with `run-step --step artefact --gate <PRD|SD|TP|QA>
   --evidence .agdf/control/artefacts/<run_id>/<input.json> --run <run_id> --revision <revision_id>`.
   Do not publish a pointer and its required source relationship in separate accepted revisions.
 - After persistence, redispatch `gate-check` for the same target/run and use its fresh revision,

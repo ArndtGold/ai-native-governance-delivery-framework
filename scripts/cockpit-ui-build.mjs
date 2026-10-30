@@ -11,7 +11,7 @@ export const COCKPIT_UI_BUILD_COMMAND = 'npm --prefix packages/control-ui run bu
 
 // A valid HTML digest proves its bytes, not that it was built from current UI
 // sources. Both resource builds and every package consumer use this same owner.
-export function mcpUiSourceDigest() {
+export function mcpUiSourceDigest({ sourceRoot = repoRoot } = {}) {
   const files = [];
   function collect(path) {
     const stat = lstatSync(path);
@@ -24,14 +24,15 @@ export function mcpUiSourceDigest() {
     'packages/control-ui/mcp.html', 'packages/control-ui/decision.html', 'packages/control-ui/vite.config.mjs',
     'packages/control-ui/package.json', 'packages/control-ui/package-lock.json',
     'packages/core/lib/interaction-catalog.js', 'packages/core/lib/mcp-resource-contract.js',
+    'plugins/agdf/meta/agdf-interaction-locales.json',
     'packages/core/lib/control-inspect/cockpit-contract.js',
     'packages/core/lib/control-inspect/cockpit-list.js', 'packages/core/lib/control-state/backlog-summary-shape.js',
     'packages/core/lib/control-evaluation/backlog-vocabulary.js',
     'pages/src/design/tokens.json', 'pages/src/styles/design-tokens.css', 'pages/scripts/design-tokens.mjs',
-    'scripts/cockpit-ui-build.mjs']) collect(join(repoRoot, path));
+    'scripts/cockpit-ui-build.mjs']) collect(join(sourceRoot, path));
   const hash = createHash('sha256');
   for (const path of files.sort()) {
-    hash.update(relative(repoRoot, path).replaceAll('\\', '/')); hash.update('\0');
+    hash.update(relative(sourceRoot, path).replaceAll('\\', '/')); hash.update('\0');
     hash.update(readFileSync(path)); hash.update('\0');
   }
   return 'sha256:' + hash.digest('hex');

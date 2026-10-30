@@ -5,6 +5,7 @@ import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verificationPlan, executeVerificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
+import { STRUCTURED_CASES, DELIVERY_PROTOCOLS } from '../packages/mcp-server/test/fixtures/delivery-mode-cases.js';
 import { CONTROL_COMMAND_PACKAGE_PARTS } from '../packages/cli/scripts/control-command-package-parts.js';
 import { TEST_DOMAINS, scriptDomain, commandDomain } from './ci-test-domains.mjs';
 
@@ -105,6 +106,17 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
       const parts = Object.keys(CONTROL_COMMAND_PACKAGE_PARTS);
       return parts.map(part => ({ ...command, args: [...command.args, '--part', part], seconds: share(command.seconds, parts.length) }));
     }
+    // Full local invocations retain every case. CI isolates the independent
+    // route/protocol cells instead of growing the unchanged execution budget.
+    if (command.cwd === 'packages/mcp-server' && command.args[0] === './test/structured-flow.test.js') {
+      return STRUCTURED_CASES.map(({ route, protocol }) => ({ ...command,
+        args: [...command.args, '--route', route, '--protocol', protocol], isolated: true,
+        seconds: share(command.seconds, STRUCTURED_CASES.length) }));
+    }
+    if (command.cwd === 'packages/mcp-server' && command.args[0] === './test/verified-change-flow.test.js') {
+      return DELIVERY_PROTOCOLS.map(protocol => ({ ...command, args: [...command.args, '--protocol', protocol], isolated: true,
+        seconds: share(command.seconds, DELIVERY_PROTOCOLS.length) }));
+    }
     if (command.cwd !== 'packages/mcp-server' || command.args[0] !== './test/expanded-source-revision.test.js') return [command];
     const total = Object.values(SOURCE_PHASE_MATRIX).flat().length;
     return Object.entries(SOURCE_PHASE_MATRIX).flatMap(([gate, phases]) => phases.map(phase => ({ ...command,
@@ -167,6 +179,17 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
       }
     }
     for (const command of inventory.filter(command => command.isolated)) {
+      if (command.args.includes('--protocol')) {
+        const protocol = command.args[command.args.indexOf('--protocol') + 1];
+        const route = command.args.includes('--route') ? command.args[command.args.indexOf('--route') + 1] : 'verified_change';
+        const [group] = partitionTests([command], platform.speed);
+        groups.push(group);
+        const title = { structured_delivery:'Full', structured_slice:'Slice', verified_change:'VC' }[route];
+        rows.push({ ...platform, id:`${prefix}-mcp-${route.replaceAll('_','-')}-${protocol}`,
+          graphLabel:`${title} ${protocol} · ${graphPlatform}`, label:`MCP ${route} / ${protocol} / ${suffix}`,
+          area:command.domain, kind:'tests', ...group });
+        continue;
+      }
       const gate = command.args[command.args.indexOf('--source-gate') + 1];
       const phase = command.args[command.args.indexOf('--phase') + 1];
       const [group] = partitionTests([command], platform.speed);

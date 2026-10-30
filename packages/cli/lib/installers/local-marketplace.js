@@ -1,3 +1,6 @@
+import { ownerPlacement, assertOwnerPlacement } from '#agdf-core/owner-placement.js';
+import { fsyncDirectory } from '#agdf-core/owned-file-lock.js';
+import { randomUUID } from 'node:crypto';
 import { CODEX_REGISTRATION_REVISION, codexLocalInstallVersion, isCodexLocalInstallVersion, marketplaceEntries as codexMarketplaceEntries } from "../host-adapters/codex/identity.js";
 import { marketplaceEntries as claudeMarketplaceEntries } from "../host-adapters/claude/marketplace.js";
 export { CODEX_REGISTRATION_REVISION, codexLocalInstallVersion, isCodexLocalInstallVersion } from "../host-adapters/codex/identity.js";
@@ -55,7 +58,12 @@ function rootIdentity(path) {
 }
 
 function assertTransactionBackupIdentity(path, transaction) {
-  if (rootIdentity(path) !== transaction.previous_root_identity || !transaction.previous_root_identity) {
+  if (transaction.schema_version === 2) {
+    const stable = path.endsWith('.backup') ? path.slice(0, -7) : path;
+    try { assertOwnerPlacement(transaction.previous_root_identity, path, 'marketplace-publication', stable); }
+    catch (cause) { throw new Error(`AGDF marketplace backup identity changed: ${path}`, { cause }); }
+    if (digestDirectory(path) !== transaction.previous_root_digest) throw Error('AGDF_MARKETPLACE_PRIOR_BYTES_CHANGED');
+  } else if (rootIdentity(path) !== transaction.previous_root_identity || !transaction.previous_root_identity) {
     throw new Error(`AGDF marketplace backup identity changed: ${path}`);
   }
 }
@@ -447,11 +455,21 @@ function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failed
   const parent = dirname(stableRoot);
   const transaction = existsSync(transactionPath)
     ? readOptionalJson(transactionPath) : null;
-  if (existsSync(transactionPath) && (transaction?.schema_version !== 1
+  if (transaction?.phase === 'legacy_settlement') {
+    if (transaction.legacy_settlement?.step !== 'completed') throw Error('AGDF_LEGACY_SETTLEMENT_RECOVERY_REQUIRED');
+    validateLegacySettlement(transaction, stableRoot, failedRoot);
+    if (existsSync(failedRoot) || existsSync(backupRoot) || existsSync(stageRoot)) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+    rmSync(transactionPath); fsyncDirectory(parent);
+    return;
+  }
+  if (existsSync(transactionPath) && (![1, 2].includes(transaction?.schema_version)
       || transaction.owner !== "create-agdf" || !["prepared", "committed", "cockpit_qualification_pending"].includes(transaction.phase)
       || typeof transaction.plugin_digest !== "string" || typeof transaction.version !== "string"
       || typeof transaction.profile_id !== "string"
-      || (transaction.previous_root_identity !== null && typeof transaction.previous_root_identity !== "string"))) {
+      || (transaction.schema_version === 1 && transaction.previous_root_identity !== null && typeof transaction.previous_root_identity !== "string")
+      || (transaction.schema_version === 2 && transaction.previous_root_identity !== null
+        && (!transaction.previous_root_identity || transaction.previous_root_identity.role !== 'marketplace-publication'
+          || !/^[a-f0-9]{64}$/.test(transaction.previous_root_digest))))) {
     throw new Error(`Invalid AGDF marketplace transaction marker: ${transactionPath}`);
   }
   if (transaction?.phase === 'cockpit_qualification_pending') {
@@ -484,7 +502,10 @@ function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failed
     renameSyncWithRetry(backupRoot, stableRoot);
     if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
   } else if (transaction?.phase === "prepared" && existsSync(stableRoot)) {
-    if (rootIdentity(stableRoot) !== transaction.previous_root_identity) {
+    const isPrevious = transaction.schema_version === 2 && transaction.previous_root_identity !== null
+      ? (() => { try { assertTransactionBackupIdentity(stableRoot, transaction); return true; } catch { return false; } })()
+      : rootIdentity(stableRoot) === transaction.previous_root_identity;
+    if (!isPrevious) {
       if (transaction.previous_root_identity !== null) {
         throw new Error(`AGDF marketplace prior backup missing: ${backupRoot}`);
       }
@@ -673,13 +694,14 @@ function prepareLocalMarketplaceFromSource({
     }
 
     const transaction = {
-      schema_version: 1,
+      schema_version: 2,
       owner: "create-agdf",
       phase: "prepared",
       profile_id: profileId,
       version: expectedVersion,
       plugin_digest: pluginDigest,
-      previous_root_identity: rootIdentity(stableRoot),
+      previous_root_identity: existsSync(stableRoot) ? ownerPlacement(stableRoot, 'marketplace-publication') : null,
+      previous_root_digest: existsSync(stableRoot) ? digestDirectory(stableRoot) : null,
     };
     atomicWrite(transactionPath, `${JSON.stringify(transaction)}\n`);
     if (existsSync(stableRoot)) renameSyncWithRetry(stableRoot, backupRoot);
@@ -974,7 +996,7 @@ export function settleCodexCockpitPublication({ pluginRoot, target, sourceDigest
   const transactionPath = `${stableRoot}.transaction.json`, backupRoot = `${stableRoot}.backup`, failedRoot = `${stableRoot}.failed`;
   return withOwnedFileLock(`${stableRoot}.cockpit-settle`, () => {
   const transaction = readOptionalJson(transactionPath);
-  if (transaction?.schema_version !== 1 || transaction.owner !== 'create-agdf' || transaction.profile_id !== 'runtime-plugin'
+  if (![1, 2].includes(transaction?.schema_version) || transaction.owner !== 'create-agdf' || transaction.profile_id !== 'runtime-plugin'
     || transaction.phase !== 'cockpit_qualification_pending' || transaction.cockpit_target !== target
     || transaction.source_digest !== sourceDigest) throw Error('AGDF_COCKPIT_SETTLEMENT_CONFLICT');
   if (action === 'rollback' && transaction.previous_source_digest !== previousSourceDigest
@@ -1041,5 +1063,158 @@ export function settleCodexCockpitPublication({ pluginRoot, target, sourceDigest
   atomicWrite(transactionPath, `${JSON.stringify({ ...transaction, phase: 'prepared' })}\n`);
   recoverInterruptedTransaction(stableRoot, `${stableRoot}.stage`, backupRoot, failedRoot, transactionPath);
   return { status: 'restored', source_digest: transaction.previous_source_digest };
+  });
+}
+
+// Explicit compatibility recovery for an original schema-1 publication whose
+// mount-session device number changed. Automatic schema-1 predicates stay exact.
+const settlementHash = value => createHash('sha256').update(value).digest('hex');
+function settlementFile(path, limit = 65536) {
+  let stat;
+  try { stat = lstatSync(path); } catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || stat.size > limit || realpathSync(path) !== resolve(path))
+    throw Error('AGDF_LEGACY_SETTLEMENT_UNSAFE');
+  return readFileSync(path);
+}
+function settlementPaths({ pluginRoot, target, hostHome = homedir() }) {
+  if (!isAbsolute(pluginRoot ?? '') || !isAbsolute(target ?? '') || realpathSync(target) !== target || !isAbsolute(hostHome))
+    throw Error('AGDF_LEGACY_SETTLEMENT_INPUT_INVALID');
+  const stable = dirname(dirname(pluginRoot));
+  if (join(stable, 'plugins', MARKETPLACE_ID) !== pluginRoot) throw Error('AGDF_LEGACY_SETTLEMENT_INPUT_INVALID');
+  return { stable, backup: stable + '.backup', failed: stable + '.failed', stage: stable + '.stage',
+    journal: stable + '.transaction.json', configurations: [...new Set([join(target, '.codex/config.toml'), join(hostHome, '.codex/config.toml')])] };
+}
+function configurationSnapshot(paths) {
+  return paths.map(path => { const bytes = settlementFile(path, 4 * 1024 ** 2); return { path, digest: bytes === null ? null : settlementHash(bytes) }; });
+}
+function settlementWitness(reference, target) {
+  if (!reference || !isAbsolute(reference.path ?? '') || !/^sha256:[a-f0-9]{64}$/.test(reference.digest ?? '')
+    || ![join(target, 'probe-results'), join(target, '.agdf/control/artefacts')].some(root => pathInside(root, reference.path)))
+    throw Error('AGDF_LEGACY_SETTLEMENT_WITNESS_REQUIRED');
+  const bytes = settlementFile(reference.path);
+  if (!bytes || 'sha256:' + settlementHash(bytes) !== reference.digest) throw Error('AGDF_LEGACY_SETTLEMENT_WITNESS_CHANGED');
+  const value = JSON.parse(bytes);
+  if (value.kind !== 'isolated_update_prerequisite_preview' || value.live_mutation !== false
+    || !['stable', 'backup', 'transaction'].every(k => /^[a-f0-9]{64}$/.test(value.before?.[k] ?? '') && value.before[k] === value.after?.[k]))
+    throw Error('AGDF_LEGACY_SETTLEMENT_WITNESS_REQUIRED');
+  return value;
+}
+export function inspectLegacyCodexCockpitSettlement(options = {}) {
+  const paths = settlementPaths(options), bytes = settlementFile(paths.journal), transaction = bytes && JSON.parse(bytes);
+  if (transaction?.schema_version !== 1 || transaction.owner !== 'create-agdf' || transaction.profile_id !== 'runtime-plugin'
+    || transaction.phase !== 'cockpit_qualification_pending' || transaction.cockpit_target !== options.target
+    || transaction.source_digest !== options.sourceDigest || transaction.previous_source_digest !== options.previousSourceDigest
+    || !/^[1-9][0-9]*:[1-9][0-9]*$/.test(transaction.previous_root_identity ?? '')
+    || existsSync(paths.failed) || existsSync(paths.stage)) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+  const witness = settlementWitness(options.witness, options.target);
+  if (JSON.stringify(witness.live_transition) !== JSON.stringify(transaction)
+    || witness.before.transaction !== settlementHash(bytes) || witness.before.stable !== digestDirectory(paths.stable)
+    || witness.before.backup !== digestDirectory(paths.backup)) throw Error('AGDF_LEGACY_SETTLEMENT_WITNESS_CHANGED');
+  assertTransactionStablePayload(paths.stable, transaction);
+  const prior = ownership(paths.backup);
+  if (prior.source_digest !== transaction.previous_source_digest || digestDirectory(join(paths.backup, 'plugins', MARKETPLACE_ID)) !== prior.plugin_digest)
+    throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+  const binding = ownerPlacement(paths.backup, 'marketplace-publication', paths.stable);
+  if (binding.directory_ino !== transaction.previous_root_identity.split(':')[1]) throw Error('AGDF_LEGACY_SETTLEMENT_PRIOR_REPLACED');
+  const body = { schema_version: 1, kind: 'legacy_publication_settlement_preview', action: 'rollback', target: options.target,
+    paths, source_digest: transaction.source_digest, previous_source_digest: transaction.previous_source_digest,
+    original_journal_digest: settlementHash(bytes), original_identity: transaction.previous_root_identity,
+    current_identity: rootIdentity(paths.backup), previous_binding: binding,
+    current_binding: ownerPlacement(paths.stable, 'marketplace-publication'),
+    previous_digest: witness.before.backup, current_digest: witness.before.stable,
+    witness: options.witness, configurations: configurationSnapshot(paths.configurations),
+    configuration_effect: 'preserve exact current configuration; rollback changes only the owned marketplace publication', authorizes: false };
+  const preview_digest = 'sha256:' + settlementHash(JSON.stringify(body));
+  return { ...body, preview_digest, required_confirmation: `Restore previous AGDF publication: ${preview_digest}` };
+}
+function validateLegacySettlement(transaction, stable, failed) {
+  const recovery = transaction?.legacy_settlement;
+  if (transaction?.schema_version !== 1 || transaction.phase !== 'legacy_settlement' || !recovery || recovery.schema_version !== 1
+    || !['confirmed', 'restoring', 'cleanup', 'completed'].includes(recovery.step)) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+  const { digest: seal, ...body } = recovery;
+  const originalBytes = Buffer.from(recovery.original_bytes ?? '', 'base64');
+  if (seal !== settlementHash(JSON.stringify(body)) || settlementHash(originalBytes) !== recovery.preview.original_journal_digest
+    || recovery.confirmation_digest !== settlementHash(`Restore previous AGDF publication: ${recovery.preview.preview_digest}`)
+    || recovery.preview.paths.stable !== stable || recovery.preview.paths.failed !== failed
+    || transaction.source_digest !== recovery.preview.source_digest || transaction.previous_source_digest !== recovery.preview.previous_source_digest)
+    throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+  const original = JSON.parse(originalBytes), witness = settlementWitness(recovery.preview.witness, recovery.preview.target);
+  const { phase: _phase, legacy_settlement: _recovery, ...retained } = transaction;
+  const { phase: _originalPhase, ...originalFields } = original;
+  const { preview_digest, required_confirmation: _confirmation, ...previewBody } = recovery.preview;
+  if (JSON.stringify(retained) !== JSON.stringify(originalFields)
+    || preview_digest !== 'sha256:' + settlementHash(JSON.stringify(previewBody))
+    || original.cockpit_target !== recovery.preview.target || original.previous_root_identity.split(':')[1] !== recovery.preview.previous_binding.directory_ino)
+    throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+  if (JSON.stringify(witness.live_transition) !== JSON.stringify(original) || original.phase !== 'cockpit_qualification_pending'
+    || witness.before.transaction !== recovery.preview.original_journal_digest || witness.before.backup !== recovery.preview.previous_digest
+    || witness.before.stable !== recovery.preview.current_digest
+    || JSON.stringify(configurationSnapshot(recovery.preview.paths.configurations)) !== JSON.stringify(recovery.preview.configurations))
+    throw Error('AGDF_LEGACY_SETTLEMENT_WITNESS_CHANGED');
+  if (recovery.step === 'completed') {
+    assertOwnerPlacement(recovery.preview.previous_binding, stable, 'marketplace-publication', stable);
+    if (digestDirectory(stable) !== recovery.preview.previous_digest) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+  }
+  return recovery;
+}
+export function settleLegacyCodexCockpitPublication(options = {}) {
+  const paths = settlementPaths(options), checkpoint = options.checkpoint ?? (() => {});
+  return withOwnedFileLock(paths.stable + '.cockpit-settle', () => {
+    let transaction = JSON.parse(settlementFile(paths.journal)), recovery;
+    const resumed = transaction.phase === 'legacy_settlement';
+    const historicalEffect = resumed && transaction.legacy_settlement?.step === 'completed';
+    const save = step => {
+      const { digest: _old, ...previous } = recovery;
+      const body = { ...previous, step }; recovery = { ...body, digest: settlementHash(JSON.stringify(body)) };
+      transaction = { ...transaction, phase: 'legacy_settlement', legacy_settlement: recovery };
+      atomicWrite(paths.journal, JSON.stringify(transaction) + '\n'); fsyncDirectory(dirname(paths.journal));
+    };
+    if (transaction.phase === 'legacy_settlement') {
+      recovery = validateLegacySettlement(transaction, paths.stable, paths.failed);
+      if (options.previewDigest !== recovery.preview.preview_digest || options.confirmation !== `Restore previous AGDF publication: ${options.previewDigest}`)
+        throw Error('AGDF_LEGACY_SETTLEMENT_CONFIRMATION_REQUIRED');
+      if (options.target !== recovery.preview.target || options.sourceDigest !== recovery.preview.source_digest
+        || options.previousSourceDigest !== recovery.preview.previous_source_digest
+        || JSON.stringify(options.witness) !== JSON.stringify(recovery.preview.witness)
+        || JSON.stringify(paths) !== JSON.stringify(recovery.preview.paths)) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+    } else {
+      const preview = inspectLegacyCodexCockpitSettlement(options);
+      if (options.previewDigest !== preview.preview_digest || options.confirmation !== preview.required_confirmation)
+        throw Error('AGDF_LEGACY_SETTLEMENT_CONFIRMATION_REQUIRED');
+      recovery = { schema_version: 1, operation_id: randomUUID(), step: 'confirmed', preview,
+        original_bytes: settlementFile(paths.journal).toString('base64'), confirmation_digest: settlementHash(options.confirmation) };
+      save('confirmed'); checkpoint('confirmed');
+    }
+    const preview = recovery.preview;
+    if (recovery.step !== 'completed') {
+      // The same fixed objects may be at their declared before/after rename roles.
+      if (existsSync(paths.backup)) {
+        assertOwnerPlacement(preview.previous_binding, paths.backup, 'marketplace-publication', paths.stable);
+        if (digestDirectory(paths.backup) !== preview.previous_digest) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+        if (existsSync(paths.stable)) {
+          if (existsSync(paths.failed)) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+          assertOwnerPlacement(preview.current_binding, paths.stable, 'marketplace-publication');
+          if (digestDirectory(paths.stable) !== preview.current_digest) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+          save('restoring'); renameSyncWithRetry(paths.stable, paths.failed); fsyncDirectory(dirname(paths.stable)); checkpoint('current_moved');
+        }
+        assertOwnerPlacement(preview.current_binding, paths.failed, 'marketplace-publication', paths.stable);
+        if (digestDirectory(paths.failed) !== preview.current_digest) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+        renameSyncWithRetry(paths.backup, paths.stable); fsyncDirectory(dirname(paths.stable)); checkpoint('previous_restored');
+      }
+      assertOwnerPlacement(preview.previous_binding, paths.stable, 'marketplace-publication');
+      if (digestDirectory(paths.stable) !== preview.previous_digest) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+      if (!existsSync(paths.failed) && recovery.step !== 'cleanup') throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+      if (existsSync(paths.failed)) {
+        assertOwnerPlacement(preview.current_binding, paths.failed, 'marketplace-publication', paths.stable);
+        if (digestDirectory(paths.failed) !== preview.current_digest) throw Error('AGDF_LEGACY_SETTLEMENT_CONFLICT');
+        save('cleanup'); checkpoint('before_cleanup'); removeOwnedRoot(paths.failed, dirname(paths.stable)); checkpoint('after_cleanup');
+      }
+      save('completed'); checkpoint('completed');
+    }
+    validateLegacySettlement(transaction, paths.stable, paths.failed);
+    return { status: 'restored', source_digest: preview.previous_source_digest, operation_id: recovery.operation_id,
+      preview_digest: preview.preview_digest, original_journal_digest: preview.original_journal_digest,
+      original_journal_base64: recovery.original_bytes, journal: paths.journal, witness: preview.witness,
+      configurations: preview.configurations, recovery_retained: true, historical_effect: historicalEffect, recovered: resumed, authorizes: false };
   });
 }

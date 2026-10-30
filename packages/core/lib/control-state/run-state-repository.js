@@ -19,6 +19,7 @@ import { assertCanonicalRunStore, canonicalScaffoldRequired, directoryIdentity, 
 import { parseRunState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
 import { sealRunState } from "./run-seal-compute.js";
+import { fsyncDirectory } from './run-state-writer.js';
 
 export { discoverRuns, runPath } from "./run-state-reader.js";
 
@@ -183,7 +184,8 @@ export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
   let stagedFile;
   try {
     hooks.beforeWrite?.({ root, id, path: stagedPath });
-    const rendered = sealRunState(root, renderRunState(id, body));
+      const initial = renderRunState(id, body);
+      const rendered = sealRunState(root, hooks.prepare ? hooks.prepare(initial) : initial);
     stagedFile = writeNewRunState(stagedPath, rendered);
     hooks.beforePublish?.({ root, id, path, stageDirectory });
     if (!sameCanonicalRunStore(runStore)) {
@@ -193,9 +195,28 @@ export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
     if (existsSync(runDirectory)) throw Error("AGDF_RUN_COLLISION");
     // Windows scanners briefly lock fresh files; the same bounded retry as the marketplace swap.
     renameSyncWithRetry(stageDirectory, runDirectory);
+    fsyncDirectory(runStore.path);
     return path;
   } catch (error) {
     cleanupRunStage(stageIdentity, stagedFile);
     throw error;
   }
+}
+
+// Recovery is confined to a single original creation identity under its store lock.
+// The creation owner must verify the staged sealed receipt and exact request first.
+export function recoverRunCreationStage(root, id, validate) {
+  const store = assertCanonicalRunStore(root), destination = dirname(runPath(root, id));
+  const stages = readdirSync(store.path).filter(name => name.startsWith(`.run-stage-${id}-`));
+  if (!stages.length) return null;
+  if (stages.length !== 1 || existsSync(destination)) throw Error('AGDF_RUN_STALE_STAGE');
+  const directory = join(store.path, stages[0]), stage = directoryIdentity(directory);
+  if (readdirSync(directory).join() !== 'RUN_STATE.md') throw Error('AGDF_RUN_STALE_STAGE');
+  const file = regularFileSnapshot(join(directory, 'RUN_STATE.md'));
+  const receipt = validate(file.content.toString('utf8'));
+  if (!sameCanonicalRunStore(store)) throw Error('AGDF_RUN_TARGET_DRIFT');
+  ensureStagedRunUnchanged(stage, file);
+  renameSyncWithRetry(directory, destination);
+  fsyncDirectory(store.path);
+  return receipt;
 }

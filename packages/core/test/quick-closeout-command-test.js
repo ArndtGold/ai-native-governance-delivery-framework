@@ -10,6 +10,8 @@ import { parseRunState } from '../lib/control-state/run-state-parser.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { closeoutConfirmation } from '../lib/control-evaluation/closeout-readiness.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+import { inspectAuthoringInputs } from '../lib/control-inspect/authoring-inputs.js';
+import { operationContract } from '../lib/control-state/run-command-contract.js';
 
 const root = mkdtempSync(join(tmpdir(), 'agdf-quick-command-'));
 try {
@@ -54,6 +56,29 @@ try {
   }
   record({ step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', '# Code Review\nStatus: pass\n- decision: pass\nSynthetic bounded diff and its direct regression reviewed.\n\n## Examples\nDecision: block\n') });
   assert.equal(dispatch().continuation?.phase, 'compact_closeout');
+  const authoringInput = { run_id: run, expected_revision_id: revision(), presentation_language: 'en' };
+  let authoring = inspectAuthoringInputs(root, authoringInput);
+  assert.equal(authoring.authoring_owner, 'OR', 'the eligible operation owns authoring even while the outer gate is Quick Task Execution');
+  assert.equal(authoring.chunk.type, 'OR', 'compact closeout supplies the version-matched OR template');
+  assert.equal(authoring.chunk.role, 'template');
+  assert.equal(authoring.formats.group, 'agdf_closeout');
+  assert.equal(authoring.formats.kind, 'closeout.record');
+  const format = authoring.formats.authoring_format.quick_task;
+  assert.deepEqual(format.required_sections, ['Result', 'Evidence', 'Risk', 'Next Step']);
+  assert.deepEqual(format.required_metadata.map(row => [row.field, row.label]), [['run_id', 'Run'], ['report_mode', 'Report mode']]);
+  assert.deepEqual(format, operationContract('agdf_closeout', 'closeout.record').authoring_format.quick_task);
+  while (!authoring.complete) authoring = inspectAuthoringInputs(root, { ...authoringInput, cursor: authoring.next_cursor });
+  assert.equal(authoring.available, true);
+  const metadata = format.required_metadata.map(row => `${row.label}: ${row.field === 'run_id' ? run : format.report_mode}`).join('\n');
+  const discoveredOr = `# OR-lite: Synthetic subtraction\n${metadata}\n\n${format.required_sections.map(section => `## ${section}\n${section === 'Risk' ? 'none' : 'Synthetic bounded outcome and evidence.'}\n`).join('\n')}`;
+  const missingRun = source('OR_MISSING_RUN.md', discoveredOr.replace(`Run: ${run}\n`, ''));
+  const missingRequest = { ...bound(), command: { kind: 'closeout.record', payload: { or: missingRun, confirmation: '' } } };
+  missingRequest.command.payload.confirmation = closeoutConfirmation(run, missingRequest.expected_revision_id, missingRequest.operation_id, missingRun.digest);
+  const unchanged = readFileSync(path, 'utf8');
+  assert.equal(service('agdf_closeout', missingRequest).reason, 'closeout_obligations_unfulfilled');
+  assert.equal(readFileSync(path, 'utf8'), unchanged, 'discovery never weakens the required exact Run binding');
+  writeFileSync(join(root, or.path), discoveredOr);
+  or.digest = artefactFileDigest(root, or.path);
   const input = request(), result = service('agdf_closeout', input);
   assert.equal(result.outcome, 'accepted', JSON.stringify(result));
   assert.equal(result.current.lifecycle, 'completed'); assert.equal(result.current.completion.fulfilled, true);

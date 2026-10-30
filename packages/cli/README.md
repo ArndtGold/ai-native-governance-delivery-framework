@@ -267,7 +267,7 @@ npx --yes @agdf/cli@latest config --language en
 ### Optional local MCP dispatcher (unreleased development preview)
 
 AGDF can register one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode.
-MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_project`, `agdf_run`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 Dispatch projects the existing canonical skill-dispatch
 contract; inspect provides read-only doctor, gate-check, delivery-map and contract operations.
 Tool permission and successful execution never grant an

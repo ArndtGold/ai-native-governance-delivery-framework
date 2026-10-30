@@ -1,9 +1,13 @@
 import { createMcpDispatchRuntime } from "../../cli/lib/mcp-dispatch-runtime.js";
 
-export function createTestRuntime(surface = "codex") {
+export function createTestRuntime(surface = "codex", { commandGroups } = {}) {
   const sourceRuntime = createMcpDispatchRuntime({ surface });
   return createMcpDispatchRuntime({
     surface,
+    ...(commandGroups === undefined ? {} : { commandGroups }),
+    // Structural source-runtime tests do not claim an installed provenance
+    // observation. Owned-runtime protocol tests exercise the real verifier.
+    verifyRuntime: () => {},
     inspected: {
       expectedVersion: sourceRuntime.trustedContext.expectedVersion,
       skillSet: sourceRuntime.trustedContext.skillSet,

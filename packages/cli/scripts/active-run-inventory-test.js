@@ -26,18 +26,23 @@ assert.match(contract, /target_source: current_repository/u);
 assert.match(contract, /operation: doctor.*, `all_active: true`/u);
 
 const base = mkdtempSync(join(tmpdir(), "agdf-active-run-inventory-"));
-const runtime = createMcpDispatchRuntime({ surface: "claude" });
-const tool = runtime.tool("agdf_inspect");
+const inspectArgs = async args => {
+  // Structural source-runtime projection only; the owned STDIO suites check
+  // real provenance. Independent inventories use separate bounded sessions.
+  const runtime = createMcpDispatchRuntime({ surface: 'claude', verifyRuntime() {} });
+  try { const tool = runtime.tool('agdf_inspect'); return await tool.execute(tool.parse(args)); }
+  finally { await runtime.close(); }
+};
 const makeRepository = (name, options) => {
   const root = repository(base, name, options);
   execFileSync("git", ["init", "--quiet", root]);
   return root;
 };
-const inspect = (root, language, target = true) => tool.execute(tool.parse({
+const inspect = (root, language, target = true) => inspectArgs({
   operation: "doctor", all_active: true, presentation_language: language,
   working_directory: root,
   ...(target ? { primary_target: root, target_source: "current_repository" } : {}),
-}));
+});
 try {
   const absent = makeRepository("absent", { scaffold: false });
   const empty = makeRepository("empty");
@@ -50,7 +55,7 @@ try {
   for (const language of ["en", "de", "de-DE", "fr"]) {
     for (const [root, state, ids] of [[absent, "absent", []], [empty, "complete", []], [single, "complete", ["one"]], [multiple, "complete", ["first", "second"]], [incomplete, "incomplete", ["known"]]]) {
       const before = treeDigest(root);
-      const result = inspect(root, language);
+      const result = await inspect(root, language);
       assert.equal(result.outcome, "inspect_result", JSON.stringify(result));
       assert.equal(result.terminal, false);
       assert.equal(result.authorizes, false);
@@ -71,13 +76,13 @@ try {
       assert.equal(treeDigest(root), before, "inventory must not write any control or project file");
     }
   }
-  const unresolved = inspect(multiple, "de", false);
+  const unresolved = await inspect(multiple, "de", false);
   assert.equal(unresolved.outcome, "target_unresolved", "cwd alone still cannot bind the target");
   assert.equal(unresolved.report, null);
   assert.equal(unresolved.terminal, true);
-  const other = inspect(empty, "en");
-  const mismatch = tool.execute(tool.parse({ operation: "doctor", all_active: true, presentation_language: "en",
-    working_directory: empty, primary_target: multiple, target_source: "current_repository" }));
+  const other = await inspect(empty, "en");
+  const mismatch = await inspectArgs({ operation: "doctor", all_active: true, presentation_language: "en",
+    working_directory: empty, primary_target: multiple, target_source: "current_repository" });
   assert.equal(mismatch.outcome, "target_unresolved");
   assert.equal(other.report.runs.length, 0);
   const failed = createControlInspectService({ evaluateDoctor() { throw new Error("fixture read failure"); } })({
@@ -92,7 +97,7 @@ try {
   const originalRunId = process.env.AGDF_RUN_ID;
   try {
     process.env.AGDF_RUN_ID = "completed";
-    assert.deepEqual(inspect(multiple, "de").report.runs.map((run) => run.run_id), ["first", "second"]);
+    assert.deepEqual((await inspect(multiple, "de")).report.runs.map((run) => run.run_id), ["first", "second"]);
   } finally {
     if (originalRunId === undefined) delete process.env.AGDF_RUN_ID;
     else process.env.AGDF_RUN_ID = originalRunId;

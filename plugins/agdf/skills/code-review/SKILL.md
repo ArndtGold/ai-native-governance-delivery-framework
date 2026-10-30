@@ -112,7 +112,8 @@ Use this compact structure:
 
 ```text
 ## Code Review
-Record the decision with the validator's `run-step --step review --decision <pass|revise|block> --evidence`.
+Stage the actual report and record through bound `agdf_record/step.record` (step `review`).
+If that MCP group is unavailable, use the supplied validator's `run-step --step review --decision <pass|revise|block> --evidence`.
 
 - decision: pass | revise | block | not_applicable
 - findings:

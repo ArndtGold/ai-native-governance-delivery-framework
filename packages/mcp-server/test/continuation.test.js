@@ -11,7 +11,7 @@ import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient } from "./helpers.js";
 
 const definition = JSON.parse(readFileSync(new URL("../../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url)));
-const fixture = createOwnedRuntimeFixture();
+const fixture = createOwnedRuntimeFixture({ controlRuns: ['agdf-mcp-dispatch-server'] });
 try {
   // This protocol test needs only its existing later-gate seed plus the synthetic
   // authoring runs below. Unrelated live project runs must not govern its intake inventory.
@@ -46,37 +46,51 @@ try {
         assert.equal(result.continuation.presentation_language, "de");
         assert.equal(result.continuation.approval_summary_required, true);
         assert.equal(result.continuation.approval_summary_heading, "AGDF Approval Summary (de; source=en)");
+        assert.equal(result.continuation.control_transport, 'typed_mcp');
+        const read = result.continuation.next_calls.find(call => call.arguments.operation === 'authoring-inputs');
+        assert.ok(read, 'authoring inputs replace local template discovery');
+        const id = {'ur-definition':'UR','prd-definition':'PRD','sd-definition':'SD','tp-definition':'TP'}[skill.slug];
+        let cursor, content = '', complete = false;
+        for(let page=0;page<160;page++) {
+          const reply = await client.callTool({name:read.tool,arguments:{...read.arguments,...(cursor?{cursor}:{})}});
+          assert.equal(reply.isError,undefined,JSON.stringify(reply));
+          const input=reply.structuredContent.report;
+          assert.equal(input.available,true,JSON.stringify(input));
+          if(input.chunk?.role==='template' && input.chunk.type===id) content+=input.chunk.content;
+          if(input.complete){complete=true;break;} cursor=input.next_cursor;
+        }
+        assert.equal(complete,true);
+        assert.equal(content,readFileSync(join(pluginRoot,'control/templates/artefacts',id+'.md'),'utf8'));
+
       }
       if (skill.slug === "ur-definition") {
         assert.equal(result.continuation.phase, "ur_definition");
-        assert.equal(result.continuation.artifact_path, `.agdf/control/artefacts/${urRun}/UR.md`);
-        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "UR.md"));
+        assert.equal(result.continuation.artifact_path, undefined);
+        assert.equal(result.continuation.template_path, undefined);
         assert.equal(result.continuation.draft_registered, false);
       }
       if (skill.slug === "prd-definition") {
         assert.equal(result.continuation.phase, "prd_definition");
-        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "PRD.md"));
+        assert.equal(result.continuation.template_path, undefined);
         assert.equal(result.continuation.draft_registered, false);
         assert.equal(result.continuation.sources[0].path, prdRun.prefix + "UR.md");
       }
       if (skill.slug === "sd-definition") {
         assert.equal(result.continuation.phase, "sd_definition");
-        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "SD.md"));
+        assert.equal(result.continuation.template_path, undefined);
         assert.equal(result.continuation.draft_registered, false);
         assert.equal(result.continuation.sources[0].path, sdRun.prefix + "PRD.md");
       }
       if (skill.slug === "tp-definition") {
         assert.equal(result.continuation.phase, "tp_definition");
-        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "TP.md"));
+        assert.equal(result.continuation.template_path, undefined);
         assert.deepEqual(result.continuation.sources.map(row => row.type), ["PRD", "SD", "Brownfield Review"]);
       }
       if (skill.slug === "ux-intent-definition") {
-        assert.equal(result.continuation.template_path,
-          join(pluginRoot, "control", "templates", "artefacts", "UX_INTENT_DEFINITION.md"));
+        assert.equal(result.continuation.template_path, undefined);
       }
       if (skill.slug === "qa-gate") {
-        assert.equal(result.continuation.template_path,
-          join(pluginRoot, "control", "templates", "artefacts", "QA_REPORT.md"));
+        assert.equal(result.continuation.template_path, undefined);
       }
       const contracts = result.continuation.runtime_contracts;
       assert.deepEqual(contracts.map(c => c.module), skill.runtimeContractModules);

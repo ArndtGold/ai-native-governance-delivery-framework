@@ -31,10 +31,13 @@ test('Automatic iframe disposal reaches the actual assembled Core and expires on
       const input = { schema_version: '1', assurance: 'cooperative_local', presentation_language: 'en', working_directory: fixture.governanceTarget,
         primary_target: fixture.governanceTarget, target_source: 'explicit_target', target_id: resolveControlCommandTarget(fixture.governanceTarget).target_id,
         run_id: f.runId, expected_revision_id: f.revision(), operation_id: randomUUID(), command: { kind: 'presentation.prepare', payload: { gate: 'SD' } } };
-      const other = await call({ name: 'agdf_prepare', arguments: input });
-      const prepared = await call({ name: 'agdf_prepare', arguments: input });
+      const material = await call({ name: 'agdf_prepare', arguments: input });
+      expect(material._meta?.agdf_decision).toBeUndefined();
+      const probe = () => call({ name: 'agdf_decision_view', arguments: { primary_target: input.primary_target, target_id: input.target_id,
+        run_id: f.runId, expected_revision_id: input.expected_revision_id, gate: 'SD', presentation_id: material.structuredContent.family_result.presentation_id } });
+      const other = await probe(), prepared = await probe();
       expect(other.structuredContent.outcome).toBe('accepted');
-      expect(prepared.structuredContent.outcome).toBe('already_applied');
+      expect(prepared.structuredContent.outcome).toBe('accepted');
       const view = prepared._meta.agdf_decision, otherView = other._meta.agdf_decision;
       const resource = await client.readResource({ uri: readDecisionUiBuild().manifest.uri });
       expect('sha256:' + createHash('sha256').update(resource.contents[0].text).digest('hex')).toBe(readDecisionUiBuild().manifest.digest);
@@ -53,13 +56,10 @@ test('Automatic iframe disposal reaches the actual assembled Core and expires on
       await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
       await page.goto('http://127.0.0.1:' + server.address().port);
       const frame = page.frameLocator('iframe');
-      await expect(frame.getByRole('button', { name: view.labels.openDocument, exact: true })).toBeVisible();
-      await frame.getByRole('button', { name: view.labels.openDocument, exact: true }).click();
-      await expect(frame.getByRole('heading', { name: `${view.labels.documentTitle} · ${view.gate_title ?? 'SD'}` }), JSON.stringify(exchange.filter(row => row.request.name === 'agdf_cockpit_read').map(row => row.result.structuredContent))).toBeVisible();
-      await frame.getByRole('button', { name: view.labels.back, exact: true }).click();
+      await expect(frame.getByText('Preview · not a primary decision view. Delivery is pending.', { exact: true })).toBeVisible();
+      await expect(frame.locator('article.document')).toHaveCount(1);
       await expect(frame.getByRole('textbox')).toHaveCount(0);
-      await expect(frame.getByRole('button', { name: view.labels.approve, exact: true })).toHaveCount(0); // Native mediation has not been qualified by this synthetic host.
-      await expect(frame.getByText(view.labels.chatApprovalHint.replace('{gate}', 'SD'), { exact: true })).toBeVisible();
+      await expect(frame.getByRole('button', { name: view.labels.approve, exact: true })).toHaveCount(0);
       await page.locator('iframe').evaluate(frame => frame.remove());
       await expect.poll(() => exchange.filter(row => row.request.arguments?.operation === 'close' && row.result.structuredContent?.data?.closed === true).length).toBe(1);
       const expired = await call({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: view.read_session_id } });
@@ -102,14 +102,17 @@ test('Confirmed approval handoff retires its assembled Core session while keepin
 import {runMcpServer} from ${JSON.stringify(join(fixture.serverRoot, 'src/main.js'))};
 import {loadCockpitResource} from ${JSON.stringify(join(fixture.serverRoot, 'src/cockpit-resource.js'))};
 const ui={uri:DECISION_UI_URI,mimeType:'text/html;profile=mcp-app',limit:4*1024**2,kind:'decision'};ui.digest=loadCockpitResource(ui).digest;
-const runtime=await createMcpDecisionRuntime({runtime:createMcpDispatchRuntime({surface:'codex',commandGroups:['agdf_prepare','agdf_record','agdf_approve']}),ui,appOnlyMediationQualified:true});
+const runtime=await createMcpDecisionRuntime({runtime:createMcpDispatchRuntime({surface:'codex',commandGroups:['agdf_prepare','agdf_record','agdf_approve']}),ui,appOnlyMediationQualified:true,surfaceBinding:()=> '11111111-2222-4333-8444-555555555555'});
 await runMcpServer({surface:'codex',runtime,executor:{execute(input,{toolName,signal}){const tool=runtime.tool(toolName);return tool.execute(tool.parse(input),signal)},close:()=>runtime.close()}});`);
     await withStdioClient({ ...fixture, args: [entry], capabilities: { extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: ['text/html;profile=mcp-app'] } } } }, async client => {
       const call = async input => { const result = await client.callTool(input); exchange.push({ request: input, result }); return result; };
-      const prepare = run => call({ name: 'agdf_prepare', arguments: { schema_version: '1', assurance: 'cooperative_local', presentation_language: 'en',
+      const prepare = async run => { const result = await call({ name: 'agdf_prepare', arguments: { schema_version: '1', assurance: 'cooperative_local', presentation_language: 'en',
         working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target',
         target_id: resolveControlCommandTarget(fixture.governanceTarget).target_id, run_id: run.runId, expected_revision_id: run.revision(),
         operation_id: randomUUID(), command: { kind: 'presentation.prepare', payload: { gate: 'SD' } } } });
+        return call({ name: 'agdf_decision_view', arguments: { primary_target: fixture.governanceTarget,
+          target_id: resolveControlCommandTarget(fixture.governanceTarget).target_id, run_id: run.runId, expected_revision_id: run.revision(),
+          gate: 'SD', presentation_id: result.structuredContent.family_result.presentation_id } }); };
       const other = await prepare(independent), prepared = await prepare(f), view = prepared._meta.agdf_decision;
       expect(prepared.structuredContent.app_capability).toBe('available');
       const resource = await client.readResource({ uri: readDecisionUiBuild().manifest.uri });
@@ -117,7 +120,13 @@ await runMcpServer({surface:'codex',runtime,executor:{execute(input,{toolName,si
         try {
           if (req.url === '/tool' && req.method === 'POST') {
             const buffers = []; for await (const bytes of req) buffers.push(bytes);
-            res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(await call(JSON.parse(Buffer.concat(buffers).toString())))); return;
+            const request = JSON.parse(Buffer.concat(buffers).toString()), result = await call(request);
+            if (request.arguments?.operation === 'decision_display' && result.structuredContent?.state === 'available') await call({ name: 'agdf_prepare', arguments: {
+              schema_version: '1', assurance: 'cooperative_local', presentation_language: 'en', working_directory: fixture.governanceTarget,
+              primary_target: fixture.governanceTarget, target_source: 'explicit_target', target_id: view.binding.target_id, run_id: f.runId,
+              expected_revision_id: view.binding.expected_revision_id, operation_id: randomUUID(), command: { kind: 'presentation.deliver',
+                payload: { gate: 'SD', presentation_id: view.binding.presentation_id, route: 'automatic' } } } });
+            res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(result)); return;
           }
           if (req.url === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
           const bytes = req.url === '/decision.html' ? resource.contents[0].text : req.url === '/host.js' ? readFileSync(join(temporary, 'host.js'))
@@ -147,7 +156,7 @@ await runMcpServer({surface:'codex',runtime,executor:{execute(input,{toolName,si
       const available = await call({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: other._meta.agdf_decision.read_session_id } });
       expect(available.structuredContent.state).toBe('available');
       await frame.getByRole('button', { name: view.labels.openDocument, exact: true }).click();
-      await expect(frame.getByRole('heading', { name: 'SD: Synthetic saved filter', exact: true })).toBeVisible();
+      await expect(frame.getByRole('heading', { name: /Historical version/ })).toBeVisible();
       const document = exchange.findLast(row => row.request.arguments?.operation === 'presentation-document').result.structuredContent.report;
       expect(document.applicability).toBe('historical'); expect(document.content_digest).toBe(view.document_digest);
       await frame.getByRole('button', { name: view.labels.back, exact: true }).click();

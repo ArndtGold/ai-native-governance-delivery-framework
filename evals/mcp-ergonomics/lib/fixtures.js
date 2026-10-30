@@ -3,7 +3,7 @@
 // repository's own .agdf/control is never a measured target.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, lstatSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createPrdDefinitionTestRun, syntheticPrd } from "../../../packages/cli/scripts/fixtures/prd-definition.js";
@@ -146,12 +146,19 @@ export const FIXTURE_BUILDERS = Object.freeze({
 export function buildFixture(id) {
   if (!Object.hasOwn(FIXTURE_BUILDERS, id)) throw new Error(`unknown fixture: ${id}`);
   pendingRoots = [];
-  let built, snapshot, targetId;
+  let built, snapshot, targetId, controlIdentities, receiptIdentity;
   try {
     built = FIXTURE_BUILDERS[id]();
     snapshot = mkdtempSync(join(tmpdir(), `agdf-mcp-ergonomics-${id.toLowerCase()}-snapshot-`));
     cpSync(join(built.root, ".agdf"), join(snapshot, ".agdf"), { recursive: true });
     targetId = resolveControlCommandTarget(built.root).target_id;
+    controlIdentities = ['.agdf', '.agdf/control'].map(path => { const stat = lstatSync(join(built.root, path), { bigint: true });
+      return { path, dev: stat.dev, ino: stat.ino }; });
+    const receiptPath = '.agdf/control/.agdf-canonical-init.json';
+    const receiptStat = lstatSync(join(built.root, receiptPath), { bigint: true });
+    assert.ok(receiptStat.isFile() && !receiptStat.isSymbolicLink() && receiptStat.nlink === 1n);
+    receiptIdentity = { path: receiptPath, dev: receiptStat.dev, ino: receiptStat.ino,
+      bytes: readFileSync(join(built.root, receiptPath)) };
   } catch (error) {
     for (const path of [...pendingRoots, snapshot]) if (path) rmSync(path, { recursive: true, force: true });
     throw error;
@@ -163,8 +170,27 @@ export function buildFixture(id) {
     targetId,
     revision: () => (built.runId ? revisionOf(built.root, built.runId) : null),
     restore() {
-      rmSync(join(built.root, ".agdf"), { recursive: true, force: true });
-      cpSync(join(snapshot, ".agdf"), join(built.root, ".agdf"), { recursive: true });
+      // Initialization receipts bind these directory identities. Reset owned
+      // fixture contents in place; never forge or discard a terminal receipt.
+      for (const owner of controlIdentities) {
+        const stat = lstatSync(join(built.root, owner.path), { bigint: true });
+        assert.equal(stat.isDirectory() && !stat.isSymbolicLink() && stat.dev === owner.dev && stat.ino === owner.ino, true,
+          'fixture directory ownership changed before reset');
+      }
+      // The receipt is also the self-bound ownership anchor. Identical copied
+      // bytes have a different inode and cannot establish original ownership.
+      const receiptPath = join(built.root, receiptIdentity.path);
+      const receiptStat = lstatSync(receiptPath, { bigint: true });
+      assert.ok(receiptStat.isFile() && !receiptStat.isSymbolicLink() && receiptStat.nlink === 1n
+        && receiptStat.dev === receiptIdentity.dev && receiptStat.ino === receiptIdentity.ino
+        && readFileSync(receiptPath).equals(receiptIdentity.bytes), 'fixture initialization ownership changed before reset');
+      for (const path of ['.agdf', '.agdf/control']) for (const name of readdirSync(join(built.root, path))) {
+        if (path === '.agdf' && name === 'control') continue;
+        if (join(built.root, path, name) === receiptPath) continue;
+        rmSync(join(built.root, path, name), { recursive: true, force: true });
+      }
+      cpSync(join(snapshot, ".agdf"), join(built.root, ".agdf"), { recursive: true,
+        filter: source => source !== join(snapshot, receiptIdentity.path) });
     },
     dispose() { rmSync(built.root, { recursive: true, force: true }); rmSync(snapshot, { recursive: true, force: true }); },
   });

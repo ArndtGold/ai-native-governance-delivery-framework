@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, lstatSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 
+export const MCP_RUNTIME_OWNER = "create-agdf:mcp-runtime";
+export const MCP_RUNTIME_MARKER = ".agdf-mcp-owned.json";
+
 export const INSTALLATION_PROVENANCE_FILE = ".agdf-installation.json";
 export const LEGACY_LOCAL_INSTALL_FILE = ".agdf-local-install.json";
 export const COPILOT_PAYLOAD_INVENTORY_FILE = ".agdf-payload-inventory.json";
@@ -132,17 +135,22 @@ function readJson(path) {
   }
 }
 
-export function digestDirectory(root) {
-  const files = [];
-  function visit(directory) {
-    for (const name of readdirSync(directory).sort()) {
-      const path = join(directory, name);
-      const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) files.push(path);
-    }
+// Every invocation reads the live directory entries and every regular file's
+// bytes. Dirent types avoid redundant per-file stat calls; links/unknown types
+// retain the original stat-following predicate. No digest or trust cache exists.
+function* directoryFiles(directory) {
+  const entries = readdirSync(directory, { withFileTypes: true })
+    .sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  for (const entry of entries) {
+    const path = join(directory, entry.name);
+    const type = entry.isDirectory() || entry.isFile() ? entry : statSync(path);
+    if (type.isDirectory()) yield* directoryFiles(path);
+    else if (type.isFile()) yield path;
   }
-  visit(root);
+}
+
+export function digestDirectory(root) {
+  const files = [...directoryFiles(root)];
   const hash = createHash("sha256");
   for (const path of files) {
     hash.update(relative(root, path).replaceAll("\\", "/"));
@@ -178,11 +186,45 @@ const CORE_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
   "package.json", "lib/mcp-dispatch-runtime.js", "lib/cli/runtime-context.js", "lib/runtime/control-context.js", "lib/cli/contract-command.js", "lib/runtime/plugin-provenance.js", "runtime/core",
   "generated/plugins/agdf/meta/agdf-plugin.definition.json", "generated/plugins/agdf/meta/agdf-interaction-locales.json", "generated/plugins/agdf/meta/contracts",
 ]);
-export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...CORE_MCP_DISPATCHER_RUNTIME_ENTRIES,
+const FACADE_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...CORE_MCP_DISPATCHER_RUNTIME_ENTRIES,
   'lib/mcp-lifecycle/package.js', 'lib/mcp-lifecycle/facade-entry.js', 'lib/npm-invocation.js', 'lib/host-command.js']);
+const PRE_PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...FACADE_MCP_DISPATCHER_RUNTIME_ENTRIES,
+  'lib/control-evaluation/git-observation.js']);
+const PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...PRE_PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES, 'lib/mcp-protocol-runtime.js', 'lib/mcp-decision-protocol.js']);
+const WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES, 'lib/mcp-worker-runtime.js']);
+export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES,
+  'lib/mcp-owner-protocol.js', 'lib/mcp-lifecycle/facade-runtime.js', 'lib/mcp-lifecycle/facade-thread-entry.js',
+  'lib/mcp-lifecycle/owner-client.js', 'lib/mcp-lifecycle/thread-owner.js']);
+function declaresOwnerEntry(root) {
+  const entry = readJson(join(root, 'package.json'))?.exports?.['./mcp-owner-protocol'];
+  if (entry !== undefined && entry !== './lib/mcp-owner-protocol.js') throw Error('AGDF_MCP_OWNER_EXPORT_INVALID');
+  return entry !== undefined;
+}
+function declaresWorkerEntry(root) {
+  const entry = readJson(join(root, 'package.json'))?.exports?.['./mcp-worker-runtime'];
+  if (entry !== undefined && entry !== './lib/mcp-worker-runtime.js') throw Error('AGDF_MCP_WORKER_EXPORT_INVALID');
+  return entry !== undefined;
+}
+// Preserve historical owned digests for dispatchers that never import this
+// provider. The selecting dispatcher bytes are themselves always digested.
+const facadeEntries = root => {
+  const source = readFileSync(join(root, 'lib/mcp-dispatch-runtime.js'), 'utf8');
+  return source.includes('./mcp-protocol-runtime.js') ? declaresWorkerEntry(root) ? declaresOwnerEntry(root) ? MCP_DISPATCHER_RUNTIME_ENTRIES : WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES : PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES
+    : source.includes('./control-evaluation/git-observation.js') ? PRE_PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES : FACADE_MCP_DISPATCHER_RUNTIME_ENTRIES;
+};
 const dispatcherEntries = root => existsSync(join(root, "runtime", "core"))
-  ? existsSync(join(root, 'lib/mcp-lifecycle/facade-entry.js')) ? MCP_DISPATCHER_RUNTIME_ENTRIES : CORE_MCP_DISPATCHER_RUNTIME_ENTRIES
+  ? existsSync(join(root, 'lib/mcp-lifecycle/facade-entry.js')) ? facadeEntries(root) : CORE_MCP_DISPATCHER_RUNTIME_ENTRIES
   : LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES;
+
+// Projection and digesting select the same actual declared image. Old packages
+// retain their original entry set; a new declaration cannot omit its worker.
+export const mcpDispatcherRuntimeEntries = root => dispatcherEntries(root);
+export function mcpDispatcherPackageExports(root) {
+  return { './mcp-dispatch-runtime': './lib/mcp-dispatch-runtime.js',
+    ...(dispatcherEntries(root).includes('lib/mcp-protocol-runtime.js') ? { './mcp-protocol-runtime': './lib/mcp-protocol-runtime.js' } : {}),
+    ...(declaresWorkerEntry(root) ? { './mcp-worker-runtime': './lib/mcp-worker-runtime.js' } : {}),
+    ...(declaresOwnerEntry(root) ? { './mcp-owner-protocol': './lib/mcp-owner-protocol.js' } : {}) };
+}
 
 export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
   "node_modules/@modelcontextprotocol/server",
@@ -195,8 +237,8 @@ function digestSelectedEntries(root, entries, syntheticEntries = []) {
   function visit(path) {
     const stats = statSync(path);
     if (stats.isDirectory()) {
-      for (const name of readdirSync(path).sort()) visit(join(path, name));
-    } else if (stats.isFile()) files.push({ path, content: readFileSync(path) });
+      for (const file of directoryFiles(path)) files.push({ path: file });
+    } else if (stats.isFile()) files.push({ path });
   }
   for (const entry of entries) visit(join(root, entry));
   for (const entry of syntheticEntries) files.push({ path: join(root, entry.path), content: Buffer.from(entry.content) });
@@ -204,7 +246,10 @@ function digestSelectedEntries(root, entries, syntheticEntries = []) {
   for (const file of files.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0)) {
     hash.update(relative(root, file.path).replaceAll("\\", "/"));
     hash.update("\0");
-    hash.update(file.content);
+    // Sort paths first, then consume each current file immediately. Retaining
+    // every SDK buffer until sorting only adds allocation/GC pressure; it does
+    // not provide an atomic snapshot. Preserve the exact selected wire order.
+    hash.update(file.content ?? readFileSync(file.path));
     hash.update("\0");
   }
   return hash.digest("hex");
@@ -220,7 +265,7 @@ export function digestPluginMcpDispatcherSource(root, version) {
     version,
     private: true,
     type: "module",
-    exports: { "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js" },
+    exports: mcpDispatcherPackageExports(root),
     ...(existsSync(join(root, "runtime", "core")) ? { imports: { "#agdf-core": "./runtime/core/lib/index.js", "#agdf-core/*": "./runtime/core/lib/*" } } : {}),
   }, null, 2)}\n`;
   return digestSelectedEntries(
@@ -494,3 +539,95 @@ export function inspectInstallationProvenance(pluginRoot, {
 export const distributionProfileContract = Object.freeze({
   expectedProfiles: EXPECTED_PROFILES,
 });
+
+// Shared read-only package qualification. Publication/claim writers consume
+// this same predicate; the transport adds no competing provenance policy.
+export function inspectOwnedMcpRuntimeRoot(root, expectedVersion) {
+  const OWNER = MCP_RUNTIME_OWNER, MARKER = MCP_RUNTIME_MARKER;
+  // Parsing failures remain inside the original mismatch boundary.
+  const readJson = path => JSON.parse(readFileSync(path, "utf8"));
+  const markerPath = join(root, MARKER);
+  if (!existsSync(root)) return Object.freeze({ status: "absent", root, entrypoint: null, digest: null });
+  if (!lstatSync(root).isDirectory() || lstatSync(root).isSymbolicLink() || !existsSync(markerPath)) {
+    return Object.freeze({ status: "foreign", root, entrypoint: null, digest: null });
+  }
+  try {
+    const marker = readJson(markerPath, "AGDF_MCP_RUNTIME_MARKER_INVALID");
+    const packageRoot = join(root, "node_modules", "@agdf", "mcp-server");
+    const dispatcherRoot = join(root, "node_modules", "create-agdf");
+    const sdkServerRoot = join(root, "node_modules", "@modelcontextprotocol", "server");
+    const sdkCoreRoot = join(root, "node_modules", "@modelcontextprotocol", "core");
+    const sdkClientRoot = join(root, "node_modules", "@modelcontextprotocol", "client");
+    const sdkV1Root = join(root, "node_modules", "@modelcontextprotocol", "sdk");
+    const manifestPath = join(packageRoot, "package.json");
+    const dispatcherManifestPath = join(dispatcherRoot, "package.json");
+    if (marker.owner !== OWNER || marker.version !== expectedVersion
+        || !existsSync(manifestPath) || !existsSync(dispatcherManifestPath)) {
+      return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
+    }
+    for (const ownedRoot of [packageRoot, dispatcherRoot, sdkServerRoot, sdkCoreRoot]) {
+      if (!existsSync(ownedRoot) || !lstatSync(ownedRoot).isDirectory() || lstatSync(ownedRoot).isSymbolicLink()) {
+        return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
+      }
+    }
+    const manifest = readJson(manifestPath, "AGDF_MCP_SERVER_MANIFEST_INVALID");
+    const dispatcherManifest = readJson(dispatcherManifestPath, "AGDF_MCP_DISPATCHER_MANIFEST_INVALID");
+    const sdkServerManifest = readJson(join(sdkServerRoot, "package.json"), "AGDF_MCP_SDK_MANIFEST_INVALID");
+    const sdkCoreManifest = readJson(join(sdkCoreRoot, "package.json"), "AGDF_MCP_SDK_MANIFEST_INVALID");
+    const entrypoint = join(packageRoot, "bin", "agdf-mcp.js");
+    const serverDigest = digestDirectory(packageRoot);
+    const dispatcherDigest = digestMcpDispatcherPackage(dispatcherRoot);
+    const sdkDigest = digestMcpSdkRuntime(root);
+    const valid = [1, 2].includes(marker.schema_version)
+      && typeof marker.node_executable === "string"
+      && isAbsolute(marker.node_executable)
+      && manifest.name === "@agdf/mcp-server"
+      && manifest.version === expectedVersion
+      && manifest.dependencies?.["create-agdf"] === expectedVersion
+      && manifest.dependencies?.["@modelcontextprotocol/server"] === "2.0.0"
+      && manifest.engines?.node === ">=22"
+      && dispatcherManifest.name === "create-agdf"
+      && dispatcherManifest.version === expectedVersion
+      // The actual server import map declares its worker interface. Historical
+      // servers have no such entry; new servers must reject an older same-version
+      // dispatcher before public admission, rather than failing on the first call.
+      && (manifest.imports?.['#agdf-dispatch-worker'] === undefined
+        || manifest.imports['#agdf-dispatch-worker'] === 'create-agdf/mcp-worker-runtime' && declaresWorkerEntry(dispatcherRoot))
+      && (manifest.imports?.['#agdf-owner-protocol'] === undefined
+        || manifest.imports['#agdf-owner-protocol'] === 'create-agdf/mcp-owner-protocol' && declaresOwnerEntry(dispatcherRoot))
+      && (manifest.agdfExecutionModel === undefined || manifest.agdfExecutionModel === 'owner_threads_v1'
+        && manifest.imports?.['#agdf-owner-protocol'] === 'create-agdf/mcp-owner-protocol'
+        && declaresOwnerEntry(dispatcherRoot) && declaresWorkerEntry(dispatcherRoot))
+      && sdkServerManifest.name === "@modelcontextprotocol/server"
+      && sdkServerManifest.version === "2.0.0"
+      && sdkCoreManifest.name === "@modelcontextprotocol/core"
+      && sdkCoreManifest.version === "2.0.0"
+      && !existsSync(sdkClientRoot)
+      && !existsSync(sdkV1Root)
+      && existsSync(entrypoint)
+      && lstatSync(entrypoint).isFile()
+      && !lstatSync(entrypoint).isSymbolicLink()
+      && marker.server_digest === serverDigest
+      && marker.dispatcher_digest === dispatcherDigest
+      && marker.sdk_digest === sdkDigest;
+    return Object.freeze({
+      status: valid ? "matched" : "mismatch",
+      version: expectedVersion,
+      root,
+      packageRoot,
+      dispatcherRoot,
+      markerPath,
+      entrypoint: valid ? entrypoint : null,
+      digest: serverDigest,
+      dispatcherDigest,
+      sdkDigest,
+      executionModel: manifest.agdfExecutionModel ?? 'process_v1',
+      nodeExecutable: typeof marker.node_executable === "string" ? marker.node_executable : null,
+      references: Object.freeze(Array.isArray(marker.references) ? marker.references : []),
+      markerSchemaVersion: marker.schema_version,
+      sdkVerification: typeof marker.sdk_verification === "string" ? marker.sdk_verification : null,
+    });
+  } catch {
+    return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
+  }
+}

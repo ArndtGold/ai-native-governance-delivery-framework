@@ -1,12 +1,13 @@
 import { withSyntheticQaContent } from '../../core/test/fixtures/decision-content.js';
 // Existing structured closeout scenario through the actual MCP entrypoint.
 import assert from 'node:assert/strict';
+import { deliveryModeCases } from './fixtures/delivery-mode-cases.js';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
-import { createLateSourceRevisionTestRun } from '../../cli/scripts/fixtures/late-source-revision.js';
+import { createMcpDeliveryHarness } from './delivery-harness.js';
 import { resolveControlCommandTarget, canonicalJson, digest } from '../../core/lib/control-state/approval-command-contract.js';
 import { artefactFileDigest, runSealState } from '../../core/lib/control-state/run-seal.js';
 import { readRunState } from '../../core/lib/control-evaluation/run-state.js';
@@ -14,42 +15,32 @@ import { closeoutConfirmation } from '../../core/lib/control-evaluation/closeout
 import { COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
 import { MCP_APP_UI_EXTENSION } from '../src/ui-capability.js';
 
-for (const modern of [false, true]) for (const route of ['structured_delivery', 'structured_slice']) {
-const fixture = createOwnedRuntimeFixture(), root = fixture.governanceTarget;
+for (const { modern, route } of deliveryModeCases(process.argv.slice(2), { structured: true })) {
+const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
 try {
-  const cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
-  const f = createLateSourceRevisionTestRun(root, cli, 'structured-closeout-command', process.env, { route });
   await withStdioClient({ ...fixture, modern, capabilities: { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } } }, async client => {
-  const service = async (name, input) => { const out = await client.callTool({ name, arguments: input }); assert.ok(out.structuredContent, JSON.stringify(out)); return out.structuredContent; };
-  const target = resolveControlCommandTarget(root).target_id;
-  const bound = () => ({ schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
-    target_id: target, run_id: f.runId, expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local' });
-  writeFileSync(f.file('BROWNFIELD_ANALYSIS.md'), '# Brownfield Analysis\n- decision: pass\nSynthetic current preparation complete.\n');
-  assert.equal(f.run('run-update', '--revision', f.revision()).value.outcome, 'updated');
+  const f = await createMcpDeliveryHarness(client, root); await f.startStructured(route);
+  const service = f.call, target = f.target, bound = f.bound;
   for (const step of ['CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR']) {
-    const path = f.prefix + step.replaceAll(' ', '_').replaceAll('+', '_') + '_CANDIDATE.md';
-    writeFileSync(join(root, path), '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n');
-    const recorded = await service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source: { path, digest: artefactFileDigest(root, path) } } } });
+    const source = await f.stage(step, '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n');
+    const recorded = await service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source } } });
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
   }
-  const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
-  writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n'));
-  writeFileSync(join(root, qaPath), readFileSync(join(root, qaPath), 'utf8')
-    + '\n\n## Normalized Findings\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n'
-    + '| CD-PERF-001 | emergent_risk | CD+Tests | resolved | PERFORMANCE_FIX.md; both unchanged performance qualifications pass. | None for this finding; proceed to the current lifecycle owner. |\n');
-  const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
-    destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
-    relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
-  const { schema_version, target_id, run_id, destination, source, relationship } = command;
-  writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
-  command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
-  const qa = await service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+  const qaPath = f.prefix + 'QA_REPORT.md';
+  const qaInputs = await f.inputs();
+  assert.equal(qaInputs[0].gate,'QA');
+  assert.ok(qaInputs[0].documents.some(row => row.role==='template' && row.type==='QA_REPORT'));
+  const qaText = withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
+  const qa = await f.formal('QA', qaText);
   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
   for (const gate of ['QA', 'UAT']) {
     const preparedReply = await client.callTool({ name: 'agdf_prepare', arguments: { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } } });
     const prepare = preparedReply.structuredContent;
     assert.equal(prepare.outcome, 'accepted', JSON.stringify(prepare));
-    const view = preparedReply._meta.agdf_decision;
+    assert.equal(preparedReply._meta?.agdf_decision, undefined);
+    const probed = await client.callTool({ name: 'agdf_decision_view', arguments: { primary_target: root, target_id: target,
+      run_id: f.runId, expected_revision_id: f.revision(), gate, presentation_id: prepare.family_result.presentation_id } });
+    const view = probed._meta.agdf_decision;
     assert.ok(view?.resource_id, 'Each gate offers exact presented material in the large reading view.');
     const noDecision = readFileSync(f.state, 'utf8');
     const read = { operation: 'document', session_id: view.read_session_id, snapshot_id: view.snapshot_id, run_id: f.runId, resource_id: view.resource_id };
@@ -62,7 +53,7 @@ try {
         assert.equal(document.data.document.content,
           readFileSync(join(root, `.agdf/control/runs/${f.runId}/presentations/${prepare.family_result.presentation_id}.document`), 'utf8'),
           'UAT reads its exact immutable evidence document, independently of the Chat decision layout.');
-        assert.match(document.data.document.content, /Available UAT evidence/u);
+        assert.match(document.data.document.content, /Intended outcome|Delivered result/u);
         assert.notEqual(document.data.document.content, readFileSync(join(root, qaPath), 'utf8'), 'QA is not substituted for the UAT evidence material.');
         assert.equal(document.data.document.resource.registered_reference, `presentation:${view.binding.presentation_id}`);
       }
@@ -155,9 +146,9 @@ none
 - required_approval: none
 - forbidden_until_then: Automatic Git or release action.
 `;
-  writeFileSync(join(root, orPath), report);
+  const orMaterial = await f.stage('OR', report);
 
-  const input = { ...bound(), command: { kind: 'closeout.record', payload: { or: { path: orPath, digest: artefactFileDigest(root, orPath) }, confirmation: 'synthetic invalid confirmation' } } };
+  const input = { ...bound(), command: { kind: 'closeout.record', payload: { or: orMaterial, confirmation: 'synthetic invalid confirmation' } } };
   const before = readFileSync(f.state, 'utf8');
   const rejected = await service('agdf_closeout', input); assert.equal(rejected.reason, 'closeout_confirmation_required');
   assert.equal(readFileSync(f.state, 'utf8'), before);

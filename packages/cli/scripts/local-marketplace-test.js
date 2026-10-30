@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync, realpathSync, lstatSync, linkSync, unlinkSync } from "node:fs";
+import { createHash } from 'node:crypto';
 import { tmpdir } from "node:os";
 import { dirname, join, posix, win32 } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +13,9 @@ import {
   localMarketplaceRoot,
   prepareCopilotMarketplace,
   prepareLocalMarketplace,
+  inspectLegacyCodexCockpitSettlement,
+  settleLegacyCodexCockpitPublication,
+  settleCodexCockpitPublication,
 } from "../lib/installers/local-marketplace.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin, pluginVersionFromList } from "../lib/installers/plugin-installers.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
@@ -1036,3 +1040,83 @@ try {
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });
 }
+
+// Small actual publication/owner fixtures isolate legacy settlement from package
+// assembly. No host profile, registration, credentials or native session is used.
+const hashBytes = bytes => createHash('sha256').update(bytes).digest('hex');
+function legacySettlementFixture(work) {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-legacy-settlement-')));
+  try {
+    const stable = join(root, 'marketplaces/agdf'), backup = stable + '.backup';
+    const publish = (path, source) => {
+      mkdirSync(join(path, 'plugins/agdf'), { recursive: true });
+      writeFileSync(join(path, 'plugins/agdf/content'), source);
+      const marker = { schema_version: 1, owner: 'create-agdf', marketplace_id: 'agdf', staging_state: 'ready',
+        profile_id: 'runtime-plugin', version: '0.20.2', source_digest: source, plugin_digest: digestDirectory(join(path, 'plugins/agdf')) };
+      writeFileSync(join(path, '.agdf-owned.json'), JSON.stringify(marker) + '\n'); return marker;
+    };
+    const current = publish(stable, 'a'.repeat(64)), previous = publish(backup, 'b'.repeat(64));
+    const stat = lstatSync(backup, { bigint: true });
+    const original = { schema_version: 1, owner: 'create-agdf', phase: 'cockpit_qualification_pending', profile_id: 'runtime-plugin',
+      version: current.version, plugin_digest: current.plugin_digest, previous_root_identity: `${stat.dev + 1n}:${stat.ino}`,
+      cockpit_target: root, source_digest: current.source_digest, previous_source_digest: previous.source_digest, previous_version: previous.version };
+    const journal = stable + '.transaction.json', originalBytes = JSON.stringify(original) + '\n'; writeFileSync(journal, originalBytes);
+    mkdirSync(join(root, 'probe-results'), { recursive: true }); mkdirSync(join(root, '.codex')); writeFileSync(join(root, '.codex/config.toml'), '# preserved config\n');
+    const before = { stable: digestDirectory(stable), backup: digestDirectory(backup), transaction: hashBytes(originalBytes) };
+    const witnessPath = join(root, 'probe-results/pre-reboot.json');
+    const witnessBytes = JSON.stringify({ kind: 'isolated_update_prerequisite_preview', live_transition: original, before, after: before, live_mutation: false });
+    writeFileSync(witnessPath, witnessBytes);
+    const options = { pluginRoot: join(stable, 'plugins/agdf'), target: root, hostHome: root,
+      sourceDigest: current.source_digest, previousSourceDigest: previous.source_digest,
+      witness: { path: witnessPath, digest: 'sha256:' + hashBytes(witnessBytes) } };
+    work({ root, stable, backup, journal, originalBytes, before, options });
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+for (const point of ['confirmed', 'current_moved', 'previous_restored', 'before_cleanup', 'after_cleanup', 'completed'])
+  legacySettlementFixture(({ root, stable, backup, journal, originalBytes, before, options }) => {
+    assert.throws(() => settleCodexCockpitPublication({ ...options, action: 'rollback' }), /backup identity changed/,
+      'legacy automatic device/inode rejection must remain exact');
+    const preview = inspectLegacyCodexCockpitSettlement(options);
+    assert.equal(readFileSync(journal, 'utf8'), originalBytes); assert.equal(digestDirectory(stable), before.stable);
+    assert.equal(digestDirectory(backup), before.backup); assert.equal(preview.authorizes, false);
+    const authorized = { ...options, previewDigest: preview.preview_digest, confirmation: preview.required_confirmation };
+    assert.throws(() => settleLegacyCodexCockpitPublication({ ...authorized, confirmation: 'continue' }), /CONFIRMATION_REQUIRED/);
+    assert.equal(readFileSync(journal, 'utf8'), originalBytes);
+    assert.throws(() => settleLegacyCodexCockpitPublication({ ...authorized, checkpoint(phase) {
+      if (phase === point) throw Error('lost-result');
+    } }), /lost-result/);
+    const result = settleLegacyCodexCockpitPublication(authorized);
+    assert.equal(result.status, 'restored'); assert.equal(result.source_digest, options.previousSourceDigest);
+    assert.equal(Buffer.from(result.original_journal_base64, 'base64').toString(), originalBytes);
+    assert.equal(digestDirectory(stable), before.backup); assert.equal(existsSync(backup), false);
+    assert.equal(existsSync(stable + '.failed'), false); assert.equal(result.recovery_retained, true);
+    assert.equal(JSON.parse(readFileSync(journal)).legacy_settlement.step, 'completed');
+    assert.equal(readFileSync(join(root, '.codex/config.toml'), 'utf8'), '# preserved config\n');
+    const retainedJournal = readFileSync(journal, 'utf8'), replayed = settleLegacyCodexCockpitPublication(authorized);
+    assert.equal(replayed.historical_effect, true); assert.equal(replayed.operation_id, result.operation_id);
+    assert.equal(readFileSync(journal, 'utf8'), retainedJournal, 'completed replay cannot write a second maintenance effect');
+    assert.throws(() => settleLegacyCodexCockpitPublication({ ...authorized, target: join(root, 'probe-results') }), /SETTLEMENT_CONFLICT/);
+  });
+for (const fault of ['witness-absent', 'witness-changed', 'copy', 'anchor-link', 'payload', 'phase', 'config-after-preview', 'concurrent'])
+  legacySettlementFixture(({ root, stable, backup, journal, originalBytes, before, options }) => {
+    const preview = inspectLegacyCodexCockpitSettlement(options);
+    const authorized = { ...options, previewDigest: preview.preview_digest, confirmation: preview.required_confirmation };
+    if (fault === 'witness-absent') authorized.witness = undefined;
+    if (fault === 'witness-changed') writeFileSync(options.witness.path, '{}');
+    if (fault === 'copy') { renameSync(backup, backup + '.original'); cpSync(backup + '.original', backup, { recursive: true }); }
+    if (fault === 'anchor-link') linkSync(join(backup, '.agdf-owned.json'), join(root, 'foreign-link'));
+    if (fault === 'payload') writeFileSync(join(backup, 'plugins/agdf/content'), 'foreign bytes');
+    if (fault === 'phase') writeFileSync(journal, originalBytes.replace('cockpit_qualification_pending', 'committed'));
+    if (fault === 'config-after-preview') writeFileSync(join(root, '.codex/config.toml'), '# changed after preview\n');
+    if (fault === 'concurrent') {
+      const result = settleLegacyCodexCockpitPublication({ ...authorized, checkpoint(phase) {
+        if (phase === 'confirmed') assert.throws(() => settleLegacyCodexCockpitPublication(authorized), /LOCK|lock/);
+      } }); assert.equal(result.status, 'restored');
+    } else {
+      const currentJournal = readFileSync(journal, 'utf8'), currentStable = digestDirectory(stable), currentBackup = digestDirectory(backup);
+      assert.throws(() => settleLegacyCodexCockpitPublication(authorized), /SETTLEMENT|owner_placement/);
+      assert.equal(readFileSync(journal, 'utf8'), currentJournal);
+      assert.equal(digestDirectory(stable), currentStable); assert.equal(digestDirectory(backup), currentBackup);
+    }
+  });
+console.log('Witness-bound legacy settlement, exact automatic legacy rejection, confirmed replay/crash recovery and preserved configuration passed in disposable profiles.');

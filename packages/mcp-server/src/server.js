@@ -1,9 +1,10 @@
+import { boundStdioOutput } from './stdio-output.js';
 import { McpServer, ProtocolError, ProtocolErrorCode, fromJsonSchema } from "@modelcontextprotocol/server";
-import { serveStdio } from "@modelcontextprotocol/server/stdio";
+import { serveStdio, StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { AjvJsonSchemaValidator } from '@modelcontextprotocol/server/validators/ajv';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.js";
+import { DispatchExecutionError } from "./worker.js";
 import { loadCockpitResource } from './cockpit-resource.js';
 import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabilities, requiresMcpAppUi,
   missingMcpAppUi, capabilityTransport, modernToolUiDenial } from "./ui-capability.js";
@@ -106,6 +107,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
         ...(definition._meta ? { _meta: definition._meta } : {}),
       },
       async (argumentsValue, context) => {
+        const started = performance.now();
         const denied = !uiAllowed(context) ? runtime.unsupportedUiCode ?? 'resource_denied'
           : tool.requiresUi && !supportsUi(context) ? 'host_ui_unsupported' : null;
         if (denied) {
@@ -113,20 +115,22 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
           const failure = runtime.projectToolResult(name, argumentsValue, runtime.failure(denied, name, argumentsValue, facts), facts);
           return respond(name, argumentsValue, failure, serialize ?? runtime.serialize, context, facts);
         }
-        let phase = tool.parentOwned ? 'parse' : 'execute';
+        const parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(argumentsValue) : tool.parentOwned;
+        let phase = parentOwned ? 'parse' : 'execute';
         try {
           let result;
-          if (tool.parentOwned) {
+          if (parentOwned) {
             const parsed = tool.parse(argumentsValue); phase = 'execute';
             result = await tool.execute(parsed, context.signal,
               { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) });
-          } else result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
+          } else result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name,
+            trusted: runtime.prepareDispatch?.(name, argumentsValue) });
           if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, argumentsValue, result,
             { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
           return respond(name, argumentsValue, result, serialize ?? runtime.serialize, context);
         } catch (error) {
           const facts = runtime.normalizeFailure(error, { phase });
-          const failure = runtime.failure(facts.code, name, argumentsValue, facts);
+          const failure = runtime.failure(facts.code, name, argumentsValue, { ...facts, elapsed_ms: performance.now() - started });
           // A local execution/delivery failure is owned here, including malformed
           // producer output. It never causes re-execution or a second write.
           const projected = runtime.projectToolResult(name, argumentsValue, failure, facts);
@@ -174,6 +178,7 @@ export function serveAgdfStdio({ runtime, executor, onerror } = {}) {
     return server;
   }, {
     legacy: "serve",
+    transport: boundStdioOutput(new StdioServerTransport()),
     onerror: () => onerror?.("AGDF_MCP_TRANSPORT_ERROR"),
   });
   return Object.freeze({
@@ -190,11 +195,4 @@ export function serveAgdfStdio({ runtime, executor, onerror } = {}) {
   });
 }
 
-export function createAgdfWorkerExecutor(runtime, options = {}) {
-  return createWorkerDispatchExecutor({
-    surface: runtime.trustedContext.surface,
-    expectedVersion: runtime.trustedContext.expectedVersion,
-    commandGroups: runtime.trustedContext.commandGroups,
-    ...options,
-  });
-}
+export { createAgdfWorkerExecutor } from './worker.js';

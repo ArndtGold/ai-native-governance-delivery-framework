@@ -1,4 +1,4 @@
-import { discoverRuns } from "./run-state-reader.js";
+import { discoverRuns, readSelectedRun } from "./run-state-reader.js";
 export function resolveRuns(
   root,
   { runIdArg, runIdEnv, allActive = false } = {},
@@ -8,6 +8,17 @@ export function resolveRuns(
     (runIdArg && runIdEnv && runIdArg !== runIdEnv)
   )
     throw Error("AGDF_SELECTOR_CONFLICT");
+  const id = runIdArg || runIdEnv;
+  if (id) {
+    const run = readSelectedRun(root, id);
+    if (!run.valid) {
+      const unsupported = run.findings.some(finding => finding.classification === 'unsupported_version');
+      throw Object.assign(Error(`${unsupported ? 'AGDF_RUN_VERSION_UNSUPPORTED' : 'AGDF_RUN_NOT_SELECTABLE'}:${id}; next=${unsupported ? 'use a compatible reader; preserve original history' : 'select a valid run'}`),
+        { findings: run.findings, run_path: run.path });
+    }
+    return { selection_source: runIdArg ? 'cli' : 'environment', run,
+      active_run_ids: run.meta.lifecycle === 'active' ? [id] : [] };
+  }
   const runs = discoverRuns(root),
     active = runs.filter((r) => r.valid && r.meta.lifecycle === "active");
   const findings = runs
@@ -17,20 +28,6 @@ export function resolveRuns(
     );
   if (allActive)
     return { selection_source: "all_active", runs: active, findings };
-  const id = runIdArg || runIdEnv;
-  if (id) {
-    const run = runs.find((r) => r.run_id === id);
-    if (!run?.valid) {
-      throw Error(
-        `AGDF_RUN_NOT_SELECTABLE:${id}; discovered=${runs.map((item) => item.run_id).join(",")}; next=select a valid run`,
-      );
-    }
-    return {
-      selection_source: runIdArg ? "cli" : "environment",
-      run,
-      active_run_ids: active.map((r) => r.run_id),
-    };
-  }
   if (active.length !== 1)
     throw Error(
       active.length

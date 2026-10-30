@@ -26,6 +26,16 @@ import { TASK_TARGET_SOURCES } from "#agdf-core/task-target-resolution.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "../..");
+// These are agent-visible control instructions. A listed MCP writer must not
+// route the actual agent back to a shell just because a historical CLI example
+// remains in the skill's fallback documentation.
+for (const [skill, writer] of [['brownfield-analysis', 'agdf_record/step.record'],
+  ['code-review', 'agdf_record/step.record'], ['release-or', 'agdf_closeout/closeout.record']]) {
+  const content = readFileSync(join(repoRoot, 'plugins/agdf/skills', skill, 'SKILL.md'), 'utf8');
+  assert.ok(content.includes(writer), `${skill} must name its existing typed recording owner`);
+  assert.match(content, /(?:Only when|If) that (?:MCP )?group is unavailable/u,
+    `${skill} must constrain its local validator example to the missing-MCP fallback`);
+}
 const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
 const definition = SKILL_DISPATCH_FUNCTION_DEFINITION;
 const schema = definition.inputSchema;
@@ -292,7 +302,7 @@ assert.deepEqual(Object.keys(CONTROL_INSPECT_FUNCTION_DEFINITION), ["name", "des
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, { ...definition.annotations, readOnlyHint: true });
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ["operation", "presentation_language", "working_directory"]);
-assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations"]);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.pattern, schema.properties.presentation_language.pattern);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
@@ -313,7 +323,12 @@ for (const outcome of ["inspect_result", "target_unresolved", "invalid_input", "
 }
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Read-only/u);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /target_source\+primary_target.*omit gate\/module/u);
+for (const field of ['run_id','expected_revision_id','target_source','primary_target'])
+  assert.ok(inspectContractHelp().operations['authoring-inputs'].required.includes(field));
+const preRunHelp = inspectContractHelp().operations['operation-contract'].unbound;
+assert.equal(preRunHelp.module,'agdf_run/run.create');
+assert.equal(preRunHelp.required.includes('run_id'),false,'creation help is discoverable before a Run exists');
+assert.deepEqual(preRunHelp.omit,['run_id','expected_revision_id']);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially; read all pages/u);
 assert.match(inspectContractHelp().parameters.module.description, /operation-status: original operation UUID from saved receipt, never a new UUID/u);
 assert.match(definition.outputSchema.properties.presentation.description, /approval_preview/u);

@@ -138,7 +138,11 @@ try {
   assert.match(p.text, /## Nutzeranforderungen prüfen und entscheiden/u);
   assert.match(p.text, /Antworte „Dokument lesen“/u, "the complete presented UR must be accessible before approval");
   assert.equal(readFileSync(join(root, '.agdf/control/runs/new-run/presentations', `${p.presentation_id}.document`), 'utf8'),
-    readFileSync(ur, 'utf8'), "document access binds the exact revised UR rather than a later mutable file");
+    p.text, "document access retains the exact immutable primary decision Markdown");
+  assert.equal(p.artefact_digest, `sha256:${createHash('sha256').update(readFileSync(ur)).digest('hex')}`,
+    "the separate source binding retains the exact revised UR");
+  assert.equal(p.text.match(/- Problem: Ein neuer Umfang wird gebunden\./gu)?.length, 1,
+    "the primary document includes its source summary once");
   assert.match(p.text, /SHA-256: `sha256:[0-9a-f]{64}`/u);
   assert.match(p.text, /- Problem: Ein neuer Umfang wird gebunden\./u, "the German presentation uses the embedded localized summary");
   assert.doesNotMatch(p.text, /A new scope\./u, "no unmarked English source excerpt in the German summary");

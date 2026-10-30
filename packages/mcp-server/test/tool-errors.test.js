@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { Client } from '@modelcontextprotocol/client';
 import { InMemoryTransport } from '@modelcontextprotocol/server';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 import { withStdioClient, unresolvedArguments } from './helpers.js';
 import { createTestRuntime } from './runtime-fixture.js';
 import { buildAgdfServer } from '../src/server.js';
@@ -22,8 +23,9 @@ function failed(reply, code) {
   assert.ok(reply.content[1].text.length <= 1200);
 }
 for (const modern of [false, true]) {
-  const fixture = createOwnedRuntimeFixture();
+  const fixture = createOwnedRuntimeFixture({ controlRuns: [] });
   try {
+    createRun(fixture.governanceTarget, 'mcp-tool-error-fixture');
     await withStdioClient({ ...fixture, modern }, async client => {
       failed(await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments }), 'no_reliable_target');
       failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: tmpdir() } }), 'no_reliable_target');
@@ -49,8 +51,8 @@ for (const modern of [false, true]) {
         failed(reply, 'target_binding_mismatch'); assert.equal(reply.structuredContent.outcome, 'rejected');
       }
       const ok = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en',
-        working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target' } });
-      assert.equal(ok.isError, undefined); assert.equal(ok.content.length, 1); assert.equal(ok.structuredContent.outcome, 'inspect_result');
+        working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target', run_id: 'mcp-tool-error-fixture' } });
+      assert.equal(ok.isError, undefined, JSON.stringify(ok)); assert.equal(ok.content.length, 1); assert.equal(ok.structuredContent.outcome, 'inspect_result');
       const schema = await client.callTool({ name: 'agdf_dispatch', arguments: {} });
       assert.equal(schema.isError, true); assert.equal(schema.structuredContent, undefined, 'SDK input errors keep their own contract');
       await assert.rejects(client.callTool({ name: 'unknown_tool', arguments: {} }), /not found|Unknown|unknown/);
@@ -117,7 +119,7 @@ for (const raw of [
 });
 const malformedInspect = runtime.failure('dispatch_busy', 'agdf_inspect'); delete malformedInspect.operation;
 await injected(runtime, { execute: async () => malformedInspect, close: async () => {} }, async client => {
-  failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: tmpdir() } }), 'tool_result_invalid');
+  failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'gate-check', presentation_language: 'en', working_directory: tmpdir() } }), 'tool_result_invalid');
 });
 await injected(runtime, { execute: async () => { throw Error('/private/SECRET'); }, close: async () => {} }, async client => {
   const reply = await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments });
@@ -151,7 +153,7 @@ for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_record']) {
       worker.emit('message', { type: 'phase', phase: 'PRIVATE_PHASE' });
     }); } });
   const args = name === 'agdf_dispatch' ? unresolvedArguments : name === 'agdf_inspect'
-    ? { operation: 'doctor', presentation_language: 'de', working_directory: tmpdir() }
+    ? { operation: 'gate-check', presentation_language: 'de', working_directory: tmpdir() }
     : { schema_version: '1', presentation_language: 'de', working_directory: tmpdir(), primary_target: tmpdir(),
       target_source: 'explicit_target', target_id: 'sha256:' + 'a'.repeat(64), run_id: 'timeout-fixture',
       expected_revision_id: randomUUID(), operation_id: randomUUID(), assurance: 'cooperative_local',
@@ -159,7 +161,7 @@ for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_record']) {
         source: { path: 'artefacts/evidence.md', digest: 'sha256:' + 'b'.repeat(64) }, reason: 'fixture', covers: 'fixture' } } };
   await injected(runtime, executor, async client => {
     const reply = await client.callTool({ name, arguments: args });
-    failed(reply, 'dispatch_worker_termination_unconfirmed');
+    failed(reply, name === 'agdf_inspect' ? 'read_unavailable' : 'dispatch_worker_termination_unconfirmed');
     assert.deepEqual(reply.structuredContent.diagnostics[0], { code: 'dispatch_worker_termination_unconfirmed',
       cause_code: 'dispatch_timeout', worker_phase: 'operation' });
     assert.match(reply.content[1].text, /cause_code=dispatch_timeout, worker_phase=operation/);
@@ -167,6 +169,12 @@ for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_record']) {
     if (name === 'agdf_record') {
       assert.equal(reply.structuredContent.outcome, 'effect_unknown');
       assert.equal(reply.structuredContent.operation_id, args.operation_id);
+    }
+    if (name === 'agdf_inspect') {
+      assert.ok(reply.structuredContent.timing.total_ms > 0);
+      assert.equal(reply.structuredContent.timing.control_ms, null);
+      assert.equal(reply.structuredContent.timing.measurement_state, 'unavailable');
+      assert.ok(!/UUID|operation-status/u.test(reply.content[1].text), 'read failure recovery is not uncertain-write receipt advice');
     }
     assert.equal(executor.active, true);
     worker.emit('exit', 1);

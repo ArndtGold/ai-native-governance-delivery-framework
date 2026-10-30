@@ -11,6 +11,13 @@ against a committed baseline. Metric definitions and the counting rule are in [M
 | `baselines/<date>-<platform>/` | Promoted `baseline.json` and `REPORT.md`. |
 | `lib/`, `test/` | Implementation and offline unit tests (`npm run test:mcp-ergonomics`). |
 
+Matrix revision `v1.1` adds pre-Run `agdf_run/run.create` success, schema rejection and target-binding
+rejection. Coverage is checked against the canonical command-group registry rather than a copied
+tool-name list. Historical `v1` baselines retain their original calls and provenance.
+Revision `v1.2` adds explicit `agdf_project/project.initialize` observation of authored
+control, rejection of generic force input and rejection of a foreign target binding.
+Fresh Git-only initialization and original-operation recovery have separate setup tests.
+
 ## Setup
 
 The unit tests and all three commands use the MCP test harness in `packages/mcp-server`, whose SDK

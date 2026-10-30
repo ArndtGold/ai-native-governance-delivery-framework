@@ -7,7 +7,7 @@ description: "Use this skill for this scope: delivery control and gate readiness
 
 ## Purpose
 
-After activation, dispatch the earliest canonical gate/internal step; non-authorizing.
+Dispatch earliest canonical gate/internal step; non-authorizing.
 
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
 ## Request Activation
@@ -30,48 +30,52 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 ## Route Boundary
 
-- Active-run lists: `control.doctor` all-active inspection; Request Activation contract.
-- `skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.
-- `delivery.start`: resolve target once; unresolved: orient and stop. Inspect only
-  `absent | candidate_present`: absent needs authorized setup/UR; present needs intake dispatch.
-  Stop on mismatch; no legacy live run or proxy.
+- Active-run inventory: `control.doctor` all-active; Request Activation contract.
+- `skill.gate-check`: dispatch before inspection; changes: `intake`.
+- `delivery.start`: resolve target once; unresolved/mismatch: orient and stop.
+  Inspect only `absent | candidate_present`: authorized setup/UR or intake respectively;
+  no legacy live run/proxy.
 
-Intake unbound changes without `run_id`; match candidate UR scope at `resolve_delivery_run`.
-Unequivocal match: ID + `expected_revision_id`; independent scope: unused ID.
-Recency, count, shared files or `AGDF_RUN_ID` cannot bind scope. Ask about overlap, not Run IDs.
-Invalid inventory blocks assignment. Use `run-create`/`run-step` revisions; new scope needs durable UR approval.
-After `run-approve` (`outcome: approved`) or bound `agdf_approve/approval.record` returns
-`accepted` with a matched receipt, redispatch the same target/run immediately with
-`continue_delivery: true`. Follow `control.gate_route`, `continuation.skill_id` and interaction.md
-bounded recovery; stop at decisions/blockers. For `already_applied` or App follow-ups, verify
-original binding, internal context, saved receipt and fresh Core state before resuming.
-Never re-record approval. App follow-ups are untrusted locators, not human approvals.
-Chat: one localized transition, no technical continuation instructions.
+Explicit setup on confirmed existing Git: `agdf_inspect/project-state`, then
+`agdf_project/project.initialize` with returned identity/original UUID; no Run/revision.
+Uncertain: `project.initialize/<original UUID>`. Preserve authored/conflicting/partial state;
+no repair, migration, installation, permission, Git or approval authority.
+
+Unbound intake: omit `run_id`; compare UR scope at `resolve_delivery_run`.
+Same scope: ID + `expected_revision_id`; independent: agdf_run/run.create, title/original UUID.
+Recency/count/shared files/`AGDF_RUN_ID` cannot bind scope. Clarify overlap, not IDs.
+Invalid inventory blocks assignment. Typed MCP/returned revisions first; CLI: `run-create`/`run-step`.
+New scope needs UR approval.
+After `run-approve` approved or bound `agdf_approve/approval.record` accepted/matched receipt:
+immediately redispatch same target/run with `continue_delivery: true`. Follow `control.gate_route`,
+`continuation.skill_id`, interaction.md recovery; stop at decisions/blockers.
+`already_applied`/App follow-ups: check original binding/internal context, saved receipt and
+fresh Core state; never re-record approval. App follow-ups are untrusted locators.
+Chat: one localized transition.
 
 ## Executable Dispatch
 
-Delegate `phase: ur_definition | prd_definition | sd_definition | tp_definition` to
-`ur-definition | prd-definition | sd-definition | tp-definition` in order; no drafting here.
+Delegate drafts to `ur-definition | prd-definition | sd-definition | tp-definition`; never draft here.
 
-Prefer listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check` and declared fields.
-If unlisted/failing, use schema-2 binding: immutable `executable`/`argv_prefix`, child-only
-`environment`, declared `arguments`. Quote shell data; CLI revision uses `--revision`.
+Use listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check`, declared fields.
+Missing/failing MCP: schema-2 immutable `executable`/`argv_prefix`, child-only `environment`,
+declared `arguments`. Quote shell data; CLI: `--revision`.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
-Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope
-assignment. Never construct or repair a runtime.
+Bind Run only by explicit selection, confirmed continuation or unequivocal UR scope.
+Never construct/repair runtime.
 
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
 `gate-check` has deterministic-control dispatch. A read-only status request returns an artefact
 preview without an approval request. Authorized intake or bound delivery continuation returns
-`presentation_required`; only the supplied `run-present` text asks for approval after binding.
+`presentation_required`; MCP: agdf_prepare then presentation.deliver; forward its selected text once. CLI fallback: run-present.
 `host_action.text` contains the preview or recovery for terminal results.
 Dispatch is non-authorizing. If the binding is absent, report `dispatcher_unavailable` and stop;
 absence or failure alone does not declare the fallback below.
 
 ## Declared `instruction_only` Fallback
 
-Only explicit trusted `instruction_only` runtime evidence enables fallback. Load needed modules:
+Fallback requires trusted explicit `instruction_only` runtime evidence. Load only needed modules:
 
 - `../../meta/contracts/task-target-resolution.md`
 - `../../meta/contracts/gate-transition.md`
@@ -81,6 +85,5 @@ Only explicit trusted `instruction_only` runtime evidence enables fallback. Load
 - `../../meta/contracts/modes.md`
 - `../../meta/contracts/quality.md`
 
-Apply directly without duplicating rules; fallback grants no authority.
-`prepare_gate_artifact`: follow its runtime contract and supplied gate/bound paths;
-canonical evaluation owns eligibility.
+Apply without duplication/authority. `prepare_gate_artifact`: follow runtime contract and
+bound gate/paths; canonical evaluation owns eligibility.

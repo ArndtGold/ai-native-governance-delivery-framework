@@ -64,7 +64,7 @@ try {
     assert.equal(qaDeviationPresentation(state().qa_acceptance,language).approve_label,actionLabel);
     const presentation=prepared.family_result.presentation_id;
     const document=readPresentationDocument(root,{runId:f.runId,gate:'QA',revisionId:e.expected_revision_id,presentationId:presentation,targetId:e.target_id});
-    assert.equal(document.available,true);assert.equal(document.content,bytes.toString());
+    assert.equal(document.available,true);assert.equal(document.content,prepared.family_result.text);
     const beforeLegacy=readFileSync(f.state);
     const legacy=approveRunGate(root,{runId:f.runId,gate:'QA',revisionId:e.expected_revision_id,presentationId:presentation,response:'Approval: QA'},
       {evaluateGateCheck,postApprovalTransition});
@@ -77,16 +77,24 @@ try {
     let approved;
     if(language==='de') approved=service('agdf_approve',input);
     else {
-      const view=createDecisionSessionService({appOnlyMediationQualified:true});
+      const host={surface:randomUUID()};
+      const view=createDecisionSessionService({appOnlyMediationQualified:true,surfaceBinding:ctx=>ctx.surface});
       try {
-        const opened=await view.open({...e,command:{kind:'presentation.prepare',payload:{gate:'QA'}}},prepared);
+        const opened=await view.open({...e,command:{kind:'presentation.prepare',payload:{gate:'QA'}}},prepared,host);
         assert.equal(opened.app_capability,'available',JSON.stringify(opened));
         const meta=opened._meta.agdf_decision;
-        assert.equal(meta.labels.approve,actionLabel);assert.ok(meta.decision_brief.includes('A bounded reader may remain until expiry.'));
-        assert.deepEqual(meta.enabled_actions,['approve']);
+        assert.equal(meta.labels.approve,actionLabel);assert.ok(meta.summary.includes('A bounded reader may remain until expiry.'));
+        assert.equal(meta.summary,prepared.family_result.text);
+        assert.equal(meta.summary.split(language==='de'?'QA mit Abweichungen freigeben':'Approve QA with deviations').length-1,1);
+        assert.deepEqual(meta.enabled_actions,[]);
+        assert.equal((await view.read({operation:'decision_display',session_id:meta.read_session_id,owner_epoch:meta.owner_epoch,nonce:meta.display_nonce,surface_id:host.surface,document_digest:meta.document_digest,visible:true},undefined,host)).state,'available');
+        const delivered=await view.deliver({...e,operation_id:randomUUID(),command:{kind:'presentation.deliver',payload:{gate:'QA',presentation_id:presentation,route:'automatic'}}},host);
+        assert.equal(delivered.presentation_delivery.mode,'ui_primary');
+        const display=await view.read({operation:'decision_state',session_id:meta.read_session_id},undefined,host);
+        assert.deepEqual(display.data.enabled_actions,['approve']);
         const read=await view.read({operation:'document',session_id:meta.read_session_id,run_id:f.runId,snapshot_id:meta.snapshot_id,resource_id:meta.resource_id});
-        assert.equal(read.state,'available',JSON.stringify(read));assert.equal(read.data.document.content,bytes.toString());
-        approved=await view.action({session_id:meta.session_id,operation_id:input.operation_id,presentation_id:presentation,expected_revision_id:e.expected_revision_id,action:'approve'});
+        assert.equal(read.state,'available',JSON.stringify(read));assert.equal(read.data.document.content,prepared.family_result.text);
+        approved=await view.action({session_id:meta.session_id,operation_id:input.operation_id,presentation_id:presentation,expected_revision_id:e.expected_revision_id,action:'approve'},host);
       } finally {await view.close();}
     }
     assert.equal(approved.outcome,'accepted',JSON.stringify(approved));assert.equal(approved.receipt.schema_version,'3');

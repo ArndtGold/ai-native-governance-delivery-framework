@@ -1,4 +1,5 @@
 import { projectCore, coreImports } from "./core-projection.mjs";
+import { compileMcpWorkerRuntime } from './compile-mcp-worker-runtime.mjs';
 import { getPluginSourceRoot } from "./public-plugin/source-root.js";
 import { createHash } from "node:crypto";
 import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -132,6 +133,14 @@ function pruneRuntimeOutput(root, expectedFiles) {
 export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
   "generated/plugins/agdf/meta/contracts",
   "lib/mcp-dispatch-runtime.js",
+  "lib/mcp-worker-runtime.js",
+  "lib/mcp-owner-protocol.js",
+  "lib/mcp-lifecycle/facade-runtime.js",
+  "lib/mcp-lifecycle/facade-thread-entry.js",
+  "lib/mcp-lifecycle/owner-client.js",
+  "lib/mcp-lifecycle/thread-owner.js",
+  "lib/mcp-protocol-runtime.js",
+  "lib/mcp-decision-protocol.js",
   "lib/mcp-lifecycle/package.js",
   "lib/mcp-lifecycle/plugin-runtime.js",
   "lib/mcp-lifecycle/facade-entry.js",
@@ -234,9 +243,11 @@ export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = fa
     private: true,
     type: "module",
     imports: coreImports,
+    ...(mcpRuntime ? { exports: { './mcp-worker-runtime': './lib/mcp-worker-runtime.js', './mcp-owner-protocol': './lib/mcp-owner-protocol.js' } } : {}),
   };
   writeFileSync(join(bundledPackageRoot, "package.json"), `${JSON.stringify(runtimePackageManifest, null, 2)}\n`, "utf8");
   expectedPackageFiles.add("package.json");
+  if (mcpRuntime) compileMcpWorkerRuntime(bundledPackageRoot);
   pruneRuntimeOutput(bundledPackageRoot, expectedPackageFiles);
   const manifest = {
     schema_version: "1",

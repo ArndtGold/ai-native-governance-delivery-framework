@@ -353,17 +353,17 @@ try {
   expectIntegrityFailure(/interaction contract ownership boundary missing: Never guess a path or emit a broken link/);
 
   for (const [badPattern, expected] of [
-    ["| Status | Value |", /Gate Transition Card must not render approval-time pattern: \| Status \|/],
-    ["- allowed_now: implementation", /Gate Transition Card must not render approval-time pattern: - allowed_now:/],
-    ["Diagnostic code: AGDF_INTERNAL", /Gate Transition Card must not render approval-time pattern: Diagnostic code:/],
-    ["Evidence: internal audit rows", /Gate Transition Card must not render approval-time pattern: Evidence:/],
-    ["Question: Approve this gate?", /Gate Transition Card must not render approval-time pattern: Question:/],
-    ["Next user gate: Brownfield Analysis", /Gate Transition Card must not render approval-time pattern: Next user gate: Brownfield Analysis/],
+    ["| Status | Value |", /Primary decision document must not render approval-time pattern: \| Status \|/],
+    ["- allowed_now: implementation", /Primary decision document must not render approval-time pattern: - allowed_now:/],
+    ["Diagnostic code: AGDF_INTERNAL", /Primary decision document must not render approval-time pattern: Diagnostic code:/],
+    ["Evidence: internal audit rows", /Primary decision document must not render approval-time pattern: Evidence:/],
+    ["Question: Approve this gate?", /Primary decision document must not render approval-time pattern: Question:/],
+    ["Next user gate: Brownfield Analysis", /Primary decision document must not render approval-time pattern: Next user gate: Brownfield Analysis/],
   ]) {
     resetPluginFixture();
     writeFileSync(
       interactionContractPath,
-      readFileSync(interactionContractPath, "utf8").replace("## Gate Transition Card\n", `## Gate Transition Card\n\n${badPattern}\n`),
+      readFileSync(interactionContractPath, "utf8").replace("## Prepared decision presentation\n", `## Prepared decision presentation\n\n${badPattern}\n`),
       "utf8",
     );
     expectIntegrityFailure(expected);

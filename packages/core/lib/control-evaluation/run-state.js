@@ -109,6 +109,7 @@ export function readRunState(targetDir, selection = {}) {
   let runPath = join(".agdf", "control", "AGDF_RUN.md");
   const canonicalRoot = join(targetDir, ".agdf", "control", "runs");
   let resolutionError;
+  let resolutionFindings = [];
   let candidateRuns = [];
   if (existsSync(canonicalRoot)) {
     try {
@@ -121,6 +122,9 @@ export function readRunState(targetDir, selection = {}) {
         : selected.run.path;
     } catch (error) {
       resolutionError = error.message;
+      resolutionFindings = error.findings ?? [];
+      if (error.run_path) runPath = error.run_path.startsWith(targetDir)
+        ? error.run_path.slice(targetDir.length + 1) : error.run_path;
       if (resolutionError.startsWith("AGDF_ACTIVE_RUN_AMBIGUOUS")) {
         const active = resolveRuns(targetDir, { allActive: true }).runs.map((run) => {
           const controlState = parseControlState(run.content, {
@@ -158,6 +162,7 @@ export function readRunState(targetDir, selection = {}) {
       memory: {},
       candidate_runs: candidateRuns,
       resolution_error: resolutionError,
+      resolution_findings: resolutionFindings,
       identity_findings: [],
     };
   }

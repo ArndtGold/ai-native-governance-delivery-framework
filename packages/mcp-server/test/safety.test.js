@@ -11,13 +11,14 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 // Exercise the same assembled package whose transitive graph is scanned below.
 // A same-version npm copy can retain obsolete generated resources after a rebuild.
 import { createMcpDispatchRuntime } from "../../../dist/npm/create-agdf/lib/mcp-dispatch-runtime.js";
 import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../../core/lib/runtime/plugin-provenance.js";
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "../src/worker.js";
 import { tryLinkFile } from "../../../scripts/support/symlinks.js";
+import { createOwnedRuntimeFixture } from './owned-runtime.js';
 
 const sourceRoot = new URL("../src/", import.meta.url);
 const sources = readdirSync(sourceRoot)
@@ -52,6 +53,7 @@ function localImport(from, specifier) {
   if (specifier === "create-agdf/mcp-dispatch-runtime") {
     return resolve(repositoryRoot, "dist/npm/create-agdf/lib/mcp-dispatch-runtime.js");
   }
+  if (specifier === 'create-agdf/mcp-protocol-runtime') return resolve(repositoryRoot, 'dist/npm/create-agdf/lib/mcp-protocol-runtime.js');
   if (specifier === "#agdf-core") return resolve(repositoryRoot, "dist/npm/create-agdf/runtime/core/lib/index.js");
   if (specifier.startsWith("#agdf-core/")) return resolve(repositoryRoot, "dist/npm/create-agdf/runtime/core/lib", specifier.slice("#agdf-core/".length));
   if (!specifier.startsWith(".")) return null;
@@ -71,6 +73,9 @@ for (const name of readdirSync(sourceRoot).filter((value) => value.endsWith(".js
   visit(fileURLToPath(new URL(name, sourceRoot)));
 }
 const dispatcherRoot = resolve(repositoryRoot, "dist/npm/create-agdf");
+// Optional UI composition is loaded dynamically only on UI surfaces. Audit it
+// explicitly alongside the statically reachable headless/full entrypoints.
+visit(resolve(dispatcherRoot, 'lib/mcp-decision-protocol.js'));
 const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlinkSync", "rmSync",
   "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"];
 // Bound continuation composes the existing writer; the MCP adapter adds no write owner.
@@ -78,20 +83,37 @@ const continuationWriteOwners = new Map([
   // Existing immutable preview publication owner; no new writer is introduced
   // by the error projector. Reads use its bounded read/validation functions.
   ["runtime/core/lib/control-state/preview-snapshot.js", ["writeFileSync", "openSync", "fsyncSync"]],
-  ["runtime/core/lib/control-state/run-state-writer.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync", "linkSync"]],
+  ["runtime/core/lib/control-state/run-state-writer.js", ["openSync", "fsyncSync"]],
+  // The same file primitives moved out of the semantic Run writer so MCP
+  // bootstrap does not load Run evaluation merely to acquire its package lock.
+  ["runtime/core/lib/owned-file-lock.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync", "linkSync"]],
   ["runtime/core/lib/fs-swap.js", ["renameSync"]],
   ["runtime/core/lib/control-read/snapshot.js", ["openSync"]],
+  // Fixed-role placement opens an existing owner anchor read-only, never creates
+  // or writes it. Enforce the flags separately from this conservative symbol map.
+  ["runtime/core/lib/owner-placement.js", ["openSync"]],
   ["runtime/core/lib/control-state/run-presentation.js", ["writeFileSync", "mkdirSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/control-state/preview-snapshot.js", ["writeFileSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/control-state/run-step-transaction.js", ["renameSync", "unlinkSync", "rmSync", "mkdirSync"]],
-  ["runtime/core/lib/control-state/run-owned-outputs.js", ["unlinkSync"]],
-  // Closure previews: only the preview directory is created here; each preview file is
-  // published through run-state-writer atomicWrite under its exclusive owned-file lock.
+  ["runtime/core/lib/control-state/run-owned-outputs.js", ["unlinkSync", "mkdirSync"]],
+  // Run creation reaches the existing atomic staged repository owner. Neither
+  // the adapter nor material staging gains an arbitrary filesystem writer.
+  ["runtime/core/lib/control-state/run-state-repository.js", ["writeFileSync", "renameSync", "unlinkSync", "rmdirSync", "mkdirSync", "openSync", "fsyncSync"]],
+  // The existing CLI canonical initializer was promoted once to Core. Only its
+  // fixed scaffold/stage publication owns these writes; the facade is a reexport.
+  ["runtime/core/lib/control-state/canonical-initialization.js", ["writeFileSync", "renameSync", "unlinkSync", "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"]],
+  // Closure uses the existing atomic preview writer and creates only its owned directory.
   ["runtime/core/lib/control-state/run-closure.js", ["mkdirSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],
     `module ${packagePath} exceeds its declared filesystem write boundary`);
+  if (packagePath === 'runtime/core/lib/owner-placement.js') {
+    const calls = content.match(/\bopenSync\s*\(/gu) ?? [];
+    assert.equal(calls.length, 1, 'placement has one fixed existing-anchor open');
+    assert.match(content, /openSync\(anchorPath, constants\.O_RDONLY \| \(constants\.O_NOFOLLOW \?\? 0\)\)/u,
+      'placement cannot acquire create, truncate or write flags');
+  }
 }
 for (const [path, content] of visited) {
   for (const prohibited of [
@@ -100,7 +122,8 @@ for (const [path, content] of visited) {
   ]) {
     assert.equal(content.includes(prohibited), false, `reachable module ${path} includes ${prohibited}`);
   }
-  assert.equal(content.includes('node:child_process') && path !== fileURLToPath(new URL('generation.js', sourceRoot)), false,
+  const isGitObservation = path === resolve(dispatcherRoot, 'lib/control-evaluation/git-observation.js');
+  assert.equal(content.includes('node:child_process') && path !== fileURLToPath(new URL('generation.js', sourceRoot)) && !isGitObservation, false,
     `No transitive module may acquire arbitrary process capability: ${path}`);
   const packagePath = relative(dispatcherRoot, path).replaceAll("\\", "/");
   assertWriteBoundary(packagePath, content);
@@ -111,6 +134,18 @@ for (const [path, content] of visited) {
     );
   }
 }
+// The existing CLI Git observer is the sole additional process owner for actual
+// Verified Change facts. Public MCP input cannot supply a command or arbitrary argv.
+const gitObserver = await import(pathToFileURL(resolve(dispatcherRoot, 'lib/control-evaluation/git-observation.js')));
+const gitCalls = [], observed = (...args) => { gitCalls.push(args); return Buffer.from(' leading.txt\0Ü.txt\0'); };
+assert.deepEqual(gitObserver.gitPathList('/fixture', ['diff', 'HEAD', '--name-only'], observed), [' leading.txt', 'Ü.txt']);
+assert.deepEqual(gitCalls[0].slice(0, 2), ['git', ['--no-optional-locks', '-c', 'core.fsmonitor=false', 'diff', '--no-ext-diff', '--no-textconv', 'HEAD', '--name-only', '-z']]);
+const callsBefore = gitCalls.length;
+for (const args of [['commit'], ['diff', '--output=/foreign'], ['rev-parse', '--git-dir'], ['-c', 'alias.x=!anything', 'x']]) {
+  assert.equal(gitObserver.gitPathList('/fixture', args, observed), null);
+  assert.equal(gitObserver.gitValue('/fixture', args, observed), null);
+}
+assert.equal(gitCalls.length, callsBefore, 'unknown process requests are rejected before execution');
 assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/skill-dispatch/service.js")));
 assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/control-inspect/service.js")), "the read tool is part of the scanned reachable surface");
 for (const owner of continuationWriteOwners.keys()) assert.ok(visited.has(resolve(dispatcherRoot, owner)));
@@ -146,6 +181,7 @@ assert.throws(() => assertExclusiveCreate(`${exclusiveOpen}; openSync(path, cons
 assert.throws(() => assertWriteBoundary("runtime/core/lib/unexpected-writer.js", "writeFileSync()"), /write boundary/);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync(); mkdirSync()"), /write boundary/);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync()", new Map()), /write boundary/);
+assert.throws(() => assertWriteBoundary('runtime/core/lib/owner-placement.js', "openSync(anchorPath, 'w')"), /placement cannot acquire/);
 
 class SilentWorker extends EventEmitter {
   constructor() {
@@ -244,18 +280,24 @@ try {
   mkdirSync(join(escapedTarget, ".agdf", "control"), { recursive: true });
   const outside = join(outsideRoot, "outside-secret.txt");
   writeFileSync(outside, "MCP_BOUNDARY_SECRET");
-  if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "escape.md"), "mcp-safety-test")) {
-    const inspectTool = runtime.tool("agdf_inspect");
-    const guardedInspect = inspectTool.execute(inspectTool.parse({
+  if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "MASTER_BACKLOG.md"), "mcp-safety-test")) {
+    const owned = createOwnedRuntimeFixture({ controlRuns: [] });
+    const { createMcpDispatchRuntime: ownedFactory } = await import(pathToFileURL(join(owned.dispatcherRoot, 'lib/mcp-dispatch-runtime.js')));
+    const inspecting = ownedFactory({ surface: 'codex' });
+    try {
+    const inspectTool = inspecting.tool("agdf_inspect");
+    const guardedInspect = await inspectTool.execute(inspectTool.parse({
       operation: "doctor",
       presentation_language: "en",
       working_directory: escapedTarget,
       target_source: "explicit_target",
       primary_target: escapedTarget,
     }));
-    assert.equal(guardedInspect.outcome, "evaluator_error");
-    assert.deepEqual(guardedInspect.diagnostics, [{ code: "inspect_control_evaluation_failed" }]);
+    assert.equal(guardedInspect.outcome, "inspect_result", JSON.stringify(guardedInspect));
+    assert.equal(guardedInspect.report.available, false, JSON.stringify(guardedInspect));
+    assert.equal(guardedInspect.report.reason, 'resource_denied');
     assert.equal(JSON.stringify(guardedInspect).includes("MCP_BOUNDARY_SECRET"), false);
+    } finally { await inspecting.close(); owned.dispose(); }
     const guarded = runtime.execute(runtime.parse({
       skill_id: "gate-check",
       presentation_language: "en",
@@ -268,6 +310,7 @@ try {
     assert.equal(JSON.stringify(guarded).includes("MCP_BOUNDARY_SECRET"), false);
   }
 } finally {
+  await runtime.close();
   rmSync(escapedTarget, { recursive: true, force: true });
   rmSync(outsideRoot, { recursive: true, force: true });
 }

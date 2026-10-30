@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -42,6 +43,32 @@ try {
   input.command.payload.confirmation = preview.family_result.confirmation_selector;
   const seed = root + '-seed'; cpSync(join(root, '.agdf'), seed, { recursive: true });
   try {
+    const content = JSON.stringify(p.value), reference = { material_id: randomUUID(), digest: digest(content) };
+    const grant = { ...reference, content, slot: 'EVIDENCE', target_id: envelope.target_id, run_id: envelope.run_id, expected_revision_id: envelope.expected_revision_id };
+    const staged = createCoreServices({ observers: { materialGrants: [grant] } }).command;
+    const stagedPreviewInput = { ...envelope, command: { kind: 'source_revision.preview', payload: { source_gate: 'TP', proposal: reference } } };
+    const stagedPreview = staged('agdf_revise', stagedPreviewInput);
+    assert.equal(stagedPreview.outcome, 'accepted', JSON.stringify(stagedPreview));
+    const stagedApply = { ...envelope, command: { kind: 'source_revision.apply', payload: { ...stagedPreviewInput.command.payload,
+      preview_digest: stagedPreview.family_result.preview_digest, confirmation: stagedPreview.family_result.confirmation_selector } } };
+    const stagedResult = staged('agdf_revise', stagedApply);
+    assert.equal(stagedResult.outcome, 'accepted', JSON.stringify(stagedResult));
+    assert.ok(readValidatedRevisionArchive(root, stagedResult.receipt).manifest, JSON.stringify(stagedResult));
+    assert.equal(service('agdf_revise', stagedApply).outcome, 'already_applied', 'semantic material replay survives transfer loss');
+    rmSync(join(root, '.agdf'), { recursive: true }); cpSync(seed, join(root, '.agdf'), { recursive: true });
+    for (const stage of ['archive_intent', 'archive_file', 'run_after_rename']) {
+      const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
+        createRunCommandService({materialGrants:JSON.parse(process.argv[3]),checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;
+      const interrupted = spawnSync(process.execPath, ['--input-type=module', '-e', program, JSON.stringify(stagedApply), stage, JSON.stringify([grant])]);
+      assert.equal(interrupted.status, 71, stage + ': ' + interrupted.stderr);
+      const pending = readPendingSourceRevisionJournal(root, f.runId); assert.equal(pending.schema_version, 5);
+      const recovery = { ...envelope, expected_revision_id: f.revision(), command: { kind: 'source_revision.recover', payload: {
+        source_gate: 'TP', proposal: reference, recovery_revision_id: f.revision(), pending_digest: digest(canonicalJson(pending)) } } };
+      const recovered = staged('agdf_revise', recovery);
+      assert.equal(recovered.outcome, 'accepted', JSON.stringify(recovered));
+      assert.equal(staged('agdf_revise', stagedApply).outcome, stage === 'run_after_rename' ? 'already_applied' : 'accepted');
+      rmSync(join(root, '.agdf'), { recursive: true }); cpSync(seed, join(root, '.agdf'), { recursive: true });
+    }
     for (const stage of [...intentStages, ...archiveStages, ...commitStages]) {
       const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
         createRunCommandService({checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;

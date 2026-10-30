@@ -10,8 +10,8 @@ import { COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments } fr
 
 // One connection owns bounded independent read views. Retiring workers still occupy slots.
 export function createCockpitSessionService(root, {
-  poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
-    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration }), now = Date.now, pluginMode = false,
+  budget, poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
+    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false,
 } = {}) {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const sessions = new Map();

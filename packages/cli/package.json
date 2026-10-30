@@ -26,7 +26,10 @@
     "./control-command": "./lib/control-command.js",
     "./cli": "./bin/create-agdf.js",
     "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
-    "./opencode-plugin": "./opencode-plugin.js"
+    "./opencode-plugin": "./opencode-plugin.js",
+    "./mcp-protocol-runtime": "./lib/mcp-protocol-runtime.js",
+    "./mcp-worker-runtime": "./lib/mcp-worker-runtime.js",
+    "./mcp-owner-protocol": "./lib/mcp-owner-protocol.js"
   },
   "bin": {
     "create-agdf": "./bin/create-agdf.js"
@@ -95,7 +98,7 @@
     "test:canonical-init": "node scripts/canonical-init-test.js",
     "test:task-target-resolution": "node ../core/test/task-target-resolution-test.js",
     "test:skill-dispatch": "node ../core/test/skill-names-test.js && node scripts/skill-dispatch-function-contract-test.js && node scripts/skill-dispatch-test.js && node scripts/compact-continuation-test.js && node scripts/skill-dispatch-binding-test.js && node scripts/delivery-run-assignment-test.js",
-    "test:control-inspect": "node scripts/control-inspect-test.js && node scripts/active-run-inventory-test.js && node ../core/test/artifact-readiness-test.js",
+    "test:control-inspect": "node scripts/control-inspect-test.js && node scripts/active-run-inventory-test.js && node ../core/test/artifact-readiness-test.js && node --test ../core/test/doctor-observation-test.js",
     "test:host-command": "node scripts/host-command-test.js && node scripts/codex-plugin-list-budget-test.js",
     "test:mcp-lifecycle": "node scripts/mcp-host-config-test.js && node scripts/mcp-lifecycle-test.js",
     "test:plugin-mcp-runtime": "node scripts/plugin-mcp-runtime-test.js && node scripts/mcp-runtime-retention-test.js && node ../core/test/mcp-tool-errors-test.js",
@@ -130,7 +133,7 @@
     "test:sd-readiness": "node ../core/test/sd-readiness-test.js",
     "test:late-source-revision": "node ../core/test/early-ur-revision-test.js && node ../core/test/run-source-revisions-test.js && node scripts/late-source-revision-test.js && npm run test:late-source-revision-performance",
     "test:late-source-revision-performance": "node scripts/late-source-revision-performance-test.js",
-    "test:run-command-flow": "node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/decision-content-test.js ../core/test/run-command-contract-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js ../core/test/approval-chain-defects-test.js ../core/test/review-findings-correction-test.js && node ../core/test/preview-material-test.js && node ../core/test/preview-render-test.js && node ../core/test/preview-presentation-test.js && node ../core/test/preview-session-test.js",
+    "test:run-command-flow": "node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/decision-content-test.js ../core/test/run-command-contract-test.js ../core/test/run-create-command-test.js ../core/test/project-initialization-test.js ../core/test/authoring-reassessment-test.js ../core/test/run-material-test.js ../core/test/verified-change-command-test.js ../core/test/presentation-delivery-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js ../core/test/approval-chain-defects-test.js ../core/test/review-findings-correction-test.js && node ../core/test/preview-material-test.js && node ../core/test/preview-render-test.js && node ../core/test/preview-presentation-test.js && node ../core/test/preview-session-test.js",
     "test:expanded-source-revision": "node ../core/test/expanded-source-revision-test.js && node ../core/test/expanded-revision-recovery-test.js",
     "test:tp-definition": "node scripts/tp-definition-test.js && node scripts/tp-clarification-test.js && node ../core/test/tp-readiness-test.js"
   },

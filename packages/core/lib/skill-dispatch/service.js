@@ -300,7 +300,7 @@ export function createSkillDispatchService(dependencies = {}) {
         let candidates;
         try {
           validateControlReadBoundary?.(target.governance_target);
-          candidates = readRunInventory(target.governance_target);
+          candidates = readRunInventory(target.governance_target, input.run_id ? { runId: input.run_id } : {});
         } catch (error) {
           const code = error.code === "AGDF_CANONICAL_SCAFFOLD_REQUIRED" ? "intake_scaffold_required"
             : error.code === "AGDF_RUN_ASSIGNMENT_INVENTORY_INVALID" ? "run_assignment_inventory_invalid" : null;

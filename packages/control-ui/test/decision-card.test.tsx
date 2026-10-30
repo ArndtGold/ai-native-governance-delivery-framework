@@ -4,6 +4,35 @@ import { DecisionCard, type DecisionPort } from '../src/mcp/DecisionCard';
 import { matchedDecisionReceipt, readDecisionBootstrap, type DecisionSubmission } from '../src/mcp/decision-bootstrap';
 import { decisionReceipt, decisionView } from './decision-fixtures';
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); });
+it('renders the exact prepared Markdown once; preview has no action and unqualified primary has a disabled action', () => {
+  const view = decisionView('en'), p = port();
+  view.summary = '# One prepared decision\n\nExact source summary.\n\nReply Approval: SD.';
+  view.delivery_state = 'preview'; view.enabled_actions = [];
+  const mounted = render(<DecisionCard view={view} port={p}/>);
+  expect(screen.getAllByText('Exact source summary.')).toHaveLength(1);
+  expect(screen.queryByRole('button', { name: view.labels.approve })).toBeNull();
+  expect(p.submit).not.toHaveBeenCalled();
+  mounted.rerender(<DecisionCard view={{ ...view, delivery_state: 'ui_primary', capability: 'not_qualified' }} port={p}/>);
+  expect(screen.getAllByText('Exact source summary.')).toHaveLength(1);
+  expect((screen.getByRole('button', { name: view.labels.approve }) as HTMLButtonElement).disabled).toBe(true);
+  mounted.rerender(<DecisionCard view={{ ...view, delivery_state: 'retired' }} port={p}/>);
+  expect(screen.queryByText('Exact source summary.')).toBeNull();
+  expect(screen.queryByRole('button', { name: view.labels.approve })).toBeNull();
+});
+it('a receipt-confirmed new primary becomes passive and opens its document only as history', async () => {
+  const view = decisionView('en'), p = port(); view.delivery_state = 'ui_primary';
+  view.summary = '# One current decision\n\nUnique summary before the actual decision.\n\nReply Approval: SD.';
+  p.saved = vi.fn(); p.pending = vi.fn();
+  p.submit = vi.fn(async input => ({ outcome: 'accepted', receipt: decisionReceipt(view, input), current: { available: true } }));
+  render(<DecisionCard view={view} port={p}/>);
+  fireEvent.click(screen.getByRole('button', { name: view.labels.approve }));
+  await waitFor(() => expect(p.saved).toHaveBeenCalledTimes(1));
+  expect(p.pending).toHaveBeenCalledWith(true);
+  expect(screen.queryByText('Unique summary before the actual decision.')).toBeNull();
+  expect(screen.queryByRole('button', { name: view.labels.approve })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: view.labels.openDocument }));
+  await waitFor(() => expect(screen.getByRole('heading', { name: /Historical version/ })).toBeTruthy());
+});
 function port(): DecisionPort {
   return { submit: vi.fn(async () => ({ outcome: 'effect_unknown' })), document: vi.fn(async () => '# Exact presented document\n\nReadable complete content.'),
     inspect: vi.fn(async () => ({ status: 'absent' })), expand: vi.fn(async () => {}) };

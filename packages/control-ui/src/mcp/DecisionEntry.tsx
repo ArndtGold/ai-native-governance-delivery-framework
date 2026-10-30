@@ -12,6 +12,8 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
   const complete = useRef<(view: DecisionBootstrap) => Promise<void>>(async () => {});
   const [closeWarning, setCloseWarning] = useState(false);
   const continuation = useRef<AbortController | null>(null);
+  const saved = useRef(new Set<string>());
+  const deciding = useRef(new Set<string>());
   useEffect(() => {
     let alive = true;
     const closes = new Map<string, Promise<void>>();
@@ -62,6 +64,8 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
       }
       if (previous) { continuation.current?.abort(); void close(previous).catch(() => {}); }
       completed.current = null; setCloseWarning(false);
+      saved.current.clear();
+      deciding.current.clear();
       current.current = next; bridge.session = next.read_session_id; setView(next); theme();
       document.documentElement.lang = next.binding.presentation_language;
     };
@@ -73,6 +77,54 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
     void bridge.app.connect(undefined, { timeout: 10_000 }).then(() => { if (alive) { setConnected(true); theme(); } }).catch(() => {});
     return () => { window.removeEventListener('pagehide', pagehide); void retire(false).catch(() => {}); };
   }, [bridge]);
+  useEffect(() => {
+    if (!view?.delivery_state || view.delivery_state === 'retired' || !connected) return;
+    let alive = true, pending = false, acknowledged = false, intersecting = false;
+    const retire = () => {
+      if (!alive) return;
+      alive = false;
+      setView(old => { if (old?.session_id !== view.session_id) return old;
+        const next: DecisionBootstrap = { ...old, delivery_state: 'retired', enabled_actions: [] }; current.current = null; return next; });
+      void bridge.operation({ operation: 'close' }, undefined, view.read_session_id).catch(() => {});
+    };
+    const visibility = () => { if (document.visibilityState !== 'visible') retire(); };
+    const observe = async () => {
+      if (!alive || pending || !intersecting || saved.current.has(view.session_id) || deciding.current.has(view.session_id) || document.visibilityState !== 'visible') return;
+      pending = true;
+      try {
+        const bytes = new TextEncoder().encode(view.summary);
+        const digest = 'sha256:' + [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b => b.toString(16).padStart(2, '0')).join('');
+        if (digest !== view.document_digest) { retire(); return; }
+        // This is a live rendered-view observation, never human intent. A host
+        // without an independently bound current surface cannot confirm it.
+        if (view.surface_id && view.delivery_state === 'preview' && !acknowledged) { acknowledged = true; await bridge.operation({ operation: 'decision_display',
+          owner_epoch: view.owner_epoch, nonce: view.display_nonce, surface_id: view.surface_id,
+          document_digest: digest, visible: true }, undefined, view.read_session_id); }
+        const reply = await bridge.operation({ operation: 'decision_state' }, undefined, view.read_session_id) as {
+          state?: string; data?: { delivery_state?: string; document_digest?: string; enabled_actions?: ('approve')[] } };
+        if (!alive || saved.current.has(view.session_id) || deciding.current.has(view.session_id)) return;
+        if (reply.state !== 'available' || reply.data?.document_digest !== digest) { retire(); return; }
+        if (reply.data.delivery_state === 'ui_primary') setView(old => { if (old?.session_id !== view.session_id || old.delivery_state === 'ui_primary') return old;
+          const next: DecisionBootstrap = { ...old, delivery_state: 'ui_primary', enabled_actions: reply.data!.enabled_actions ?? [] };
+          current.current = next; return next; });
+      } catch { if (!saved.current.has(view.session_id) && !deciding.current.has(view.session_id)) retire(); } finally { pending = false; }
+    };
+    // React has committed the exact Markdown before the next frame is observed.
+    const article = document.querySelector('article.document');
+    const visibilityObserver = typeof IntersectionObserver === 'undefined' || !article ? null : new IntersectionObserver(entries => {
+      const entry = entries.find(item => item.target === article);
+      if (!entry || !alive) return;
+      intersecting = entry.isIntersecting && entry.intersectionRatio > 0;
+      if (!intersecting && (acknowledged || view.delivery_state === 'ui_primary')
+        && !saved.current.has(view.session_id) && !deciding.current.has(view.session_id)) retire();
+      else if (intersecting) void observe();
+    });
+    if (article) visibilityObserver?.observe(article);
+    const frame = requestAnimationFrame(() => { void observe(); });
+    const timer = setInterval(() => { void observe(); }, 1000);
+    document.addEventListener('visibilitychange', visibility);
+    return () => { alive = false; visibilityObserver?.disconnect(); cancelAnimationFrame(frame); clearInterval(timer); document.removeEventListener('visibilitychange', visibility); };
+  }, [bridge, connected, view?.session_id, view?.delivery_state]);
   const port = useMemo<DecisionPort | null>(() => {
     if (!view) return null;
     const call = async (name: string, argumentsValue: Record<string, unknown>) => {
@@ -95,6 +147,8 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
       return result.structuredContent as Record<string, unknown>;
     };
     return {
+      saved: () => { if (current.current === view) saved.current.add(view.session_id); },
+      pending: value => { if (current.current === view) { if (value) deciding.current.add(view.session_id); else deciding.current.delete(view.session_id); } },
       submit: (input: DecisionSubmission) => call('agdf_decision_action', { ...input }),
       preview: async () => {
         if (!view.preview) throw Error('preview_unavailable');

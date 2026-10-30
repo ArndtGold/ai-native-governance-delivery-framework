@@ -4,6 +4,7 @@ import { RUN_ID_PATTERN, REVISION_ID_PATTERN } from './run-identity.js';
 import { isSafeControlRelativePath } from './contained-file.js';
 
 export const EVIDENCE_PREREQUISITES = Object.freeze({
+  'Verified Change': ['UR'],
   ur: [], route: ['UR'], 'Brownfield Review': ['UR'], 'UX Intent Definition': ['UR', 'Brownfield Review'],
   'Brownfield Analysis': ['UR', 'PRD', 'SD', 'TP', 'Brownfield Review', 'UX Intent Definition'],
   'CD+Tests': ['UR', 'PRD', 'SD', 'TP', 'Brownfield Analysis'],
@@ -26,8 +27,8 @@ const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
 const ownPath = (value, runId) => isSafeControlRelativePath(value) && value.startsWith(`.agdf/control/artefacts/${runId}/`);
 export function validEvidenceBinding(row) {
   return exactObject(row, ['schema_version', 'run_id', 'operation_id', 'action', 'step', 'report', 'sources', 'source_set_digest', 'producer', 'assurance'])
-    && row.schema_version === '1' && RUN_ID_PATTERN.test(row.run_id ?? '') && REVISION_ID_PATTERN.test(row.operation_id ?? '')
-    && ['step.record', 'artefact.record'].includes(row.action) && Object.hasOwn(EVIDENCE_PREREQUISITES, row.step)
+    && row.schema_version === (row.action === 'ur_draft.replace' ? '2' : '1') && RUN_ID_PATTERN.test(row.run_id ?? '') && REVISION_ID_PATTERN.test(row.operation_id ?? '')
+    && ['step.record', 'ur_draft.replace', 'artefact.record'].includes(row.action) && (row.action !== 'ur_draft.replace' || row.step === 'ur') && Object.hasOwn(EVIDENCE_PREREQUISITES, row.step)
     && exactObject(row.report, ['path', 'digest']) && ownPath(row.report.path, row.run_id) && hash(row.report.digest)
     && Array.isArray(row.sources) && row.sources.length === EVIDENCE_PREREQUISITES[row.step].length
     && row.sources.every((s, i) => exactObject(s, ['type', 'path', 'digest', 'status']) && s.type === EVIDENCE_PREREQUISITES[row.step][i]

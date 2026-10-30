@@ -52,7 +52,7 @@ if (process.argv[1] === import.meta.filename) {
     assert.equal(command('agdf_prepare', interruptedInput).outcome, 'already_applied');
     const prepared = command('agdf_prepare', input); assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
     const selectors = { runId: f.runId, gate: 'PRD', revisionId: f.revision(), presentationId: prepared.family_result.presentation_id, targetId: input.target_id };
-    const envelope = validateRunPresentationRecord(root, selectors); assert.equal(envelope.record.schema_version, 5);
+    const envelope = validateRunPresentationRecord(root, selectors); assert.equal(envelope.record.schema_version, 6);
     assert.ok(prepared.family_result.text.includes('.preview.html'));
     const page = readPresentationPreview(root, selectors); assert.equal(page.available, true, JSON.stringify(page));
     assert.equal(page.content_digest, envelope.record.preview_review.rendered_digest); assert.equal(page.authorizes, false);

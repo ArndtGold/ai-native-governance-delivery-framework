@@ -20,11 +20,12 @@ let facade, client, server, clean = false;
 try {
   const base = ensurePluginMcpRuntime({ pluginRoot, dataRoot: join(root, 'runtime'), exec: offlineNpm });
   const dispatcher = await import(pathToFileURL(join(base.dispatcherRoot, 'lib/mcp-dispatch-runtime.js')));
+  const protocol = await import(pathToFileURL(join(base.dispatcherRoot, 'lib/mcp-protocol-runtime.js')));
   const { createOwnedGenerationFacade } = await import(pathToFileURL(join(base.packageRoot, 'src/generation.js')));
   const { loadCockpitResource } = await import(pathToFileURL(join(base.packageRoot, 'src/cockpit-resource.js')));
-  let runtime = dispatcher.createMcpDispatchRuntime({ surface: 'codex' });
+  let runtime = protocol.createMcpTransportRuntime({ surface: 'codex' });
   const ui = { uri: dispatcher.DECISION_UI_URI, mimeType: 'text/html;profile=mcp-app', limit: 4194304, kind: 'decision' };
-  ui.digest = loadCockpitResource(ui).digest; runtime = await dispatcher.createMcpDecisionRuntime({ runtime, ui });
+  ui.digest = loadCockpitResource(ui).digest; runtime = await protocol.createMcpDecisionTransportRuntime({ runtime, ui });
   const publisher = createMcpGenerationPublisher(base), trace = [];
   const lostOperation = randomUUID();
   const ownedFork = (entry, args, options) => {
@@ -34,10 +35,15 @@ try {
       return emit.call(this, kind, ...values);
     }; return child;
   };
+  let controlCreations = 0;
   facade = await createOwnedGenerationFacade({ runtime, publisher, surface: 'codex',
-    Fork: ownedFork, createControlRuntime: runtimeControl => dispatcher.createMcpDispatchRuntime({ surface: 'codex', runtimeControl }),
+    Fork: ownedFork, createControlRuntime: async runtimeControl => {
+      ++controlCreations; await new Promise(resolve => setTimeout(resolve, 20));
+      return dispatcher.createMcpDispatchRuntime({ surface: 'codex', runtimeControl });
+    },
     onEvent: event => trace.push(event) });
   assert.equal(facade.runtimeControl.status().occupancy, 1);
+  assert.equal(controlCreations, 0, 'real generation qualification does not construct another facade Core');
   const target = join(root, 'target'), cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
   execFileSync('git', ['init', '-q', target]); execFileSync(process.execPath, [cli, 'init', '--dir', target, '--language', 'en']);
   const f = createSdDefinitionTestRun(target, cli, 'generation-test', process.env, { typedApprovals: true });
@@ -66,7 +72,13 @@ try {
     if (reply.structuredContent.outcome === 'effect_unknown' && reply.structuredContent.reason === 'generation_response_unknown') throw Error('generation_response_unknown');
     return { ...reply.structuredContent, ...(reply._meta ? { _meta: reply._meta } : {}) };
   };
-  const open = () => invoke('agdf_prepare', { ...envelope(), command: { kind: 'presentation.prepare', payload: { gate: 'SD' } } });
+  const open = async () => {
+    const prepared=await invoke('agdf_prepare',{...envelope(),command:{kind:'presentation.prepare',payload:{gate:'SD'}}});
+    assert.equal(prepared._meta?.agdf_decision,undefined,'preparation never opens a view');
+    const view=await invoke('agdf_decision_view',{primary_target:target,target_id:envelope().target_id,run_id:f.runId,
+      expected_revision_id:f.revision(),gate:'SD',presentation_id:prepared.family_result.presentation_id});
+    return {...view,operation_id:prepared.operation_id};
+  };
   const { artefactFileDigest } = await import('../../core/lib/control-state/run-seal.js');
   const candidatePath = f.prefix + 'CANDIDATE.json', alternatePath = f.prefix + 'CANDIDATE_ALTERNATE.json';
   writeFileSync(join(target, candidatePath), JSON.stringify(candidate, null, 2) + '\n');
@@ -77,6 +89,12 @@ try {
       payload: { candidate: { path, digest }, confirmation: `Replace owned runtime: ${digest}` } } });
   };
   const first = await open(); assert.ok(first._meta?.agdf_decision, JSON.stringify(first));
+  assert.equal(controlCreations, 0, 'ordinary control and decision sessions stay with the qualified generation');
+  const statusInput = { operation: 'runtime-generations', presentation_language: 'en', working_directory: target,
+    primary_target: target, target_source: 'explicit_target', run_id: f.runId, expected_revision_id: f.revision() };
+  const statuses = await Promise.all([facade.tool('agdf_inspect').execute(statusInput), facade.tool('agdf_inspect').execute(statusInput)]);
+  assert.equal(controlCreations, 1, 'concurrent first special-branch requests share actual Core construction');
+  assert.ok(statuses.every(value => value.report?.available), JSON.stringify(statuses));
   const firstSession = first._meta.agdf_decision;
   const operation = randomUUID(), second = await replace(operation); assert.equal(second.outcome, 'accepted', JSON.stringify(second));
   assert.equal((await replace(operation)).outcome, 'already_applied');
@@ -110,6 +128,31 @@ try {
   assert.equal(facade.runtimeControl.status().occupancy, 3);
   assert.equal(readFileSync(f.state, 'utf8'), saved, 'Inspection and retirement neither replay nor change the lost operation.');
   assert.equal((await facade.close()).occupancy, 0); assert.equal(facade.runtimeControl.status().occupancy, 0);
+  const ephemeralId=randomUUID(), droppedRequests=new Set(); let originalEnvelope;
+  const ephemeralFork=(entry,args,options)=>{
+    const child=fork(entry,args,options), send=child.send, emit=child.emit;
+    child.send=function(message,...rest){
+      if(message.kind==='invoke' && message.payload.arguments.operation_id===ephemeralId) droppedRequests.add(message.request_id);
+      return send.call(this,message,...rest);
+    };
+    child.emit=function(kind,...values){
+      if(kind==='message' && values[0]?.kind==='result' && droppedRequests.has(values[0].request_id)) {
+        originalEnvelope=values[0].original_operation_id; return true;
+      }
+      return emit.call(this,kind,...values);
+    };return child;
+  };
+  const ephemeral=await createOwnedGenerationFacade({runtime,publisher,surface:'codex',Fork:ephemeralFork,invokeMs:1000,
+    createControlRuntime:runtimeControl=>dispatcher.createMcpDispatchRuntime({surface:'codex',runtimeControl})});
+  try {
+    const tool=ephemeral.tool('agdf_record');
+    await assert.rejects(tool.execute(tool.parse({...envelope(),operation_id:ephemeralId,
+      command:{kind:'material.stage',payload:{action:'begin',files:[{slot:'EVIDENCE',bytes:1}]}}})),/generation_response_unknown/);
+    assert.equal(originalEnvelope,null,'ephemeral staging has no canonical operation receipt or uncertainty route');
+    assert.equal(ephemeral.runtimeControl.status().generations[0].uncertain_operations,0);
+    assert.equal(readFileSync(f.state,'utf8'),saved,'lost staging acknowledgement never mutates canonical state');
+  } finally { assert.equal((await ephemeral.close()).occupancy,0,'private staging buffers can retire without inventing canonical receipts'); }
+
   // Actual Cockpit view bound to generation 1 survives replacement. Its read
   // rejection must retain the producing descriptor through child IPC and SDK.
   const boundCockpitRuntime = await dispatcher.createMcpCockpitRuntime({ surface: 'codex', cockpitDir: target });
@@ -220,6 +263,20 @@ try {
     for (const session_id of sessions) assert.equal((await reader.execute(reader.parse({ operation: 'close', session_id }), undefined, { uiSupported: true })).data.closed, true);
   } finally { await cockpitFacade.close(); await cockpitRuntime.close(); }
   assert.equal(cockpitFacade.runtimeControl.status().occupancy, 0);
+  let invalidControl;
+  const invalidFacade = await createOwnedGenerationFacade({ runtime: await protocol.createMcpDecisionTransportRuntime({ runtime: protocol.createMcpTransportRuntime({ surface: 'codex' }), ui }),
+    publisher: createMcpGenerationPublisher(base), surface: 'codex',
+    createControlRuntime: runtimeControl => invalidControl = dispatcher.createMcpDispatchRuntime({ surface: 'codex', runtimeControl,
+      inspected: { ...dispatcher.inspectMcpDispatcherRuntime(), provenanceStatus: 'unowned' } }) });
+  try {
+    const attempt = { ...envelope(), command: { kind: 'runtime_generation.replace', payload: {
+      candidate: { path: candidatePath, digest: artefactFileDigest(target, candidatePath) },
+      confirmation: `Replace owned runtime: ${artefactFileDigest(target, candidatePath)}` } } };
+    await assert.rejects(invalidFacade.tool('agdf_record').execute(attempt),
+      error => error.code === 'runtime_provenance_invalid' && error.dispatch === 'not_dispatched');
+    assert.equal(invalidFacade.runtimeControl.status().current_generation, 1, 'unowned lazy Core cannot execute replacement');
+  } finally { await invalidFacade.close(); await invalidControl?.close(); }
+  assert.equal(invalidFacade.runtimeControl.status().occupancy, 0);
   // A native inventory observer may disconnect before MCP initialize. Exercise
   // the assembled SDK with its real prepared child, but no SDK server instance.
   const uninitialized = execFileSync(process.execPath, ['--input-type=module', '--eval', `

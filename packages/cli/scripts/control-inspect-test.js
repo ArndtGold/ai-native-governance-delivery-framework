@@ -45,7 +45,8 @@ assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_
 // Published operation dependencies agree with the shared runtime policy.
 const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
 for (const [name, field] of Object.entries(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties)) {
-  assert.ok(field.description?.length > 10, `Missing meaningful description: ${name}`);
+  assert.ok(field.type || field.enum || field.$ref, `Missing visible input type: ${name}`);
+  assert.ok(inspectContractHelp().parameters[name].description.length > 10, `Missing complete on-demand guidance: ${name}`);
 }
 for (const example of inspectContractHelp().examples) {
   assert.equal(validateInspectSchema(example), true, JSON.stringify(validateInspectSchema.errors));

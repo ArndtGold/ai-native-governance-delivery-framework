@@ -142,7 +142,7 @@ export function commandEnvelope(group, kind) {
 }
 // Repeated immutable schema nodes become deterministic local references. Only
 // schema positions are traversed: a properties map is never itself a schema.
-export function compactCommandSchema(expanded) {
+function compactCommandValidationSchema(expanded) {
   const visit = (node, transform, depth = 0) => {
     const copy = { ...node };
     if (copy.properties) copy.properties = Object.fromEntries(Object.entries(copy.properties).map(([key, child]) =>
@@ -206,6 +206,122 @@ export function compactCommandSchema(expanded) {
   if (names.size) projected.$defs = definitions;
   return projected;
 }
+// A type view is a derived superset, not a second validation owner. Exact per-kind
+// restrictions remain below the required command property and still run in the SDK.
+function commandTypeView(schema) {
+  if (schema.oneOf || schema.anyOf) return mergeCommandTypes((schema.oneOf ?? schema.anyOf).map(commandTypeView));
+  if (schema.properties) return { type: 'object', properties: Object.fromEntries(Object.entries(schema.properties)
+    .map(([key, value]) => [key, commandTypeView(value)])) };
+  if (schema.items) return { type: 'array', items: commandTypeView(schema.items) };
+  const type = value => value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value;
+  if (Object.hasOwn(schema, 'const')) return { type: type(schema.const) };
+  if (schema.enum) return mergeCommandTypes(schema.enum.map(value => ({ type: type(value) })));
+  return { type: schema.type };
+}
+function mergeCommandTypes(rows) {
+  if (rows.every(row => row.type === 'object' && row.properties)) {
+    const keys = [...new Set(rows.flatMap(row => Object.keys(row.properties)))];
+    return { type: 'object', properties: Object.fromEntries(keys.map(key => [key,
+      mergeCommandTypes(rows.filter(row => row.properties[key]).map(row => row.properties[key]))])) };
+  }
+  const unique = [...new Map(rows.map(row => [JSON.stringify(row), row])).values()];
+  return unique.length === 1 ? unique[0] : { anyOf: unique };
+}
+function mapCommandSchema(schema, transform) {
+  const copy = { ...schema };
+  if (copy.properties) copy.properties = Object.fromEntries(Object.entries(copy.properties)
+    .map(([key, child]) => [key, mapCommandSchema(child, transform)]));
+  for (const key of ['oneOf', 'anyOf', 'allOf']) if (copy[key]) copy[key] = copy[key].map(child => mapCommandSchema(child, transform));
+  if (copy.items) copy.items = mapCommandSchema(copy.items, transform);
+  return transform(copy);
+}
+function residualCommandConstraints(schema, view) {
+  const copy = { ...schema };
+  delete copy.description;
+  if (copy.additionalProperties === false && view?.additionalProperties === false
+    && JSON.stringify(Object.keys(copy.properties ?? {}).sort()) === JSON.stringify(Object.keys(view.properties ?? {}).sort())) delete copy.additionalProperties;
+  if (copy.minProperties && view?.required?.length >= copy.minProperties) delete copy.minProperties;
+  if (copy.type && copy.type === view?.type) delete copy.type;
+  if (copy.properties) copy.properties = Object.fromEntries(Object.entries(copy.properties)
+    .map(([key, child]) => [key, residualCommandConstraints(child, view?.properties?.[key])]));
+  for (const key of ['oneOf', 'anyOf', 'allOf']) if (copy[key]) copy[key] = copy[key].map(child => residualCommandConstraints(child, view));
+  // Empty properties still declare allowed keys in a closed object.
+  if (copy.properties && copy.additionalProperties !== false) {
+    copy.properties = Object.fromEntries(Object.entries(copy.properties).filter(([, child]) => Object.keys(child).length));
+    if (!Object.keys(copy.properties).length) delete copy.properties;
+  }
+  if (copy.items) copy.items = residualCommandConstraints(copy.items, view?.items);
+  if (copy.required) {
+    copy.required = copy.required.filter(key => !view?.required?.includes(key));
+    if (!copy.required.length) delete copy.required;
+  }
+  return copy;
+}
+function factorCommandConstraints(schema) {
+  const counts = new Map();
+  mapCommandSchema(schema, node => { const key = JSON.stringify(node); counts.set(key, (counts.get(key) ?? 0) + 1); return node; });
+  const definitions = {}, names = new Map();
+  const factor = (node, defining = false) => {
+    const key = JSON.stringify(node);
+    if (!defining && counts.get(key) > 1 && key.length > 40) {
+      if (!names.has(key)) {
+        const name = `s${names.size}`; names.set(key, name); definitions[name] = factor(node, true);
+      }
+      return { $ref: `#/$defs/${names.get(key)}` };
+    }
+    const copy = { ...node };
+    if (copy.properties) copy.properties = Object.fromEntries(Object.entries(copy.properties).map(([name, child]) => [name, factor(child)]));
+    for (const name of ['oneOf', 'anyOf', 'allOf']) if (copy[name]) copy[name] = copy[name].map(child => factor(child));
+    if (copy.items) copy.items = factor(copy.items);
+    return copy;
+  };
+  return { schema: factor(schema, true), definitions };
+}
+export function compactCommandSchema(expanded) {
+  const full = mapCommandSchema(expanded, node => { delete node.description; return node; });
+  let projected;
+  const kinds = full.properties.command.oneOf.map(row => row.properties.kind.const);
+  // These two existing groups contain nested unions that Codex otherwise renders
+  // as unknown. Keep their possible payload fields visible; help supplies the
+  // exact per-kind required fields, and the SDK enforces those original rules.
+  if (kinds.includes('material.stage') || kinds.includes('source_revision.preview')) {
+    const view = commandTypeView(full.properties.command);
+    view.additionalProperties = false;
+    view.properties.kind = { enum: kinds };
+    view.required = ['kind', 'payload'];
+    const first = compactCommandValidationSchema(full);
+    const factored = first.properties.command;
+    // Closed objects with every declared key required have an equivalent count
+    // constraint. This applies only to hidden validation, never visible required flags.
+    // Resolve the first compactor's refs before deriving residual constraints.
+    const expand = node => {
+      if (node.$ref) return expand(first.$defs[node.$ref.split('/').at(-1)]);
+      return mapCommandSchema(node, value => value.$ref ? expand(value) : value);
+    };
+    const validation = factorCommandConstraints(residualCommandConstraints(mapCommandSchema(expand(factored), node => {
+      if (node.additionalProperties === false && node.required?.length === Object.keys(node.properties ?? {}).length) {
+        const { required, ...rest } = node; return { ...rest, minProperties: required.length };
+      }
+      return node;
+    }), view));
+    projected = { ...full, properties: { ...full.properties, command: view },
+      dependentSchemas: { command: { properties: { command: validation.schema } } },
+      ...(Object.keys(validation.definitions).length ? { $defs: validation.definitions } : {}) };
+  } else {
+    projected = compactCommandValidationSchema(expanded);
+    projected.properties = Object.fromEntries(Object.entries(projected.properties).map(([key, schema]) => {
+      const { description, ...value } = schema;
+      return [key, { ...(full.properties[key].type ? { type: full.properties[key].type } : {}), ...value }];
+    }));
+  }
+  // Equivalent UUID spelling and shorter local labels retain the fixed discovery
+  // budget. Core keeps the expanded canonical pattern and complete field help.
+  const uuid = '^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$';
+  projected = JSON.parse(JSON.stringify(projected).replaceAll(REVISION_ID_PATTERN.source, uuid)
+    .replace(/#\/\$defs\/s(\d+)/gu, '#/$defs/$1'));
+  if (projected.$defs) projected.$defs = Object.fromEntries(Object.entries(projected.$defs).map(([key, value]) => [key.replace(/^s/u, ''), value]));
+  return projected;
+}
 const openObject = { type: 'object', additionalProperties: true };
 const nullableObject = { ...openObject, type: ['object', 'null'] };
 const nullableString = { type: ['string', 'null'] };
@@ -249,7 +365,15 @@ export function commandResultSchema() {
 export function validateRunCommandResult(value) { return schemaDiagnostics(value, RUN_COMMAND_RESULT_SCHEMA); }
 export function commandGroupDefinition(group) {
   const definition = { name: group,
-    description: 'Read operation-contract; retain original UUID. No approval.',
+    description: {
+      agdf_project: 'Initialize canonical project control; explicit setup only.',
+      agdf_run: 'Create an unapproved Run; replay the original UUID.',
+      agdf_prepare: 'Prepare/deliver a decision document; never approve.',
+      agdf_record: 'Stage material or record evidence; read operation-contract.',
+      agdf_approve: 'Record a deliberate reply to the exact presented gate.',
+      agdf_revise: 'Preview revisions; confirm before applying them.',
+      agdf_closeout: 'Record closeout or preview/apply Run closure.',
+    }[group],
     annotations: { readOnlyHint: false, destructiveHint: group !== 'agdf_prepare', idempotentHint: false, openWorldHint: false },
     inputSchema: compactCommandSchema(commandGroupSchema(group)), outputSchema: commandResultDiscoverySchema() };
   if (Buffer.byteLength(JSON.stringify(definition)) > RUN_COMMAND_LIMITS.definition_bytes) throw Error('command_definition_budget_exceeded');

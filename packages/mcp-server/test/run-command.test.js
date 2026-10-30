@@ -69,8 +69,13 @@ for (const modern of [false, true]) {
       const before = readFileSync(f.state, 'utf8');
       const recoveryGroups = { agdf_record: ['step.record', 'artefact.record', 'presentation_decision.record'], agdf_revise: ['ur_draft.replace', 'prd_revision.reopen'], agdf_closeout: ['closeout.record', 'lifecycle_close.record'] };
       for (const [group, allowed] of Object.entries(recoveryGroups)) {
-        const recovery = tools.find(tool => tool.name === group).inputSchema.properties.command.oneOf.find(row => row.properties.kind.const === 'operation.recover');
-        assert.deepEqual(recovery.properties.payload.properties.original_kind.enum, allowed);
+        const help = await client.callTool({ name: 'agdf_inspect', arguments: {
+          operation: 'operation-contract', module: `${group}/operation.recover`, presentation_language: 'en',
+          working_directory: root, primary_target: root, target_source: 'explicit_target',
+          run_id: f.runId, expected_revision_id: f.revision(),
+        } });
+        assert.equal(help.isError, undefined);
+        assert.deepEqual(help.structuredContent.report.payload_schema.properties.original_kind.enum, allowed);
         for (const kind of Object.values(recoveryGroups).flat().filter(kind => !allowed.includes(kind))) {
           const denied = await client.callTool({ name: group, arguments: { ...input, command: { kind: 'operation.recover', payload: {
             original_kind: kind, pending_digest: 'sha256:' + 'd'.repeat(64), recovery_revision_id: input.expected_revision_id } } } });

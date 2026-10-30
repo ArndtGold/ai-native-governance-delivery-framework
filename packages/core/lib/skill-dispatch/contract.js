@@ -32,6 +32,13 @@ export const SKILL_DISPATCH_INTAKE_DESCRIPTION = "Set true only with skill_id ga
 export const SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION = "For intake_continuation phase resolve_delivery_run, match the request to supplied UR scope evidence; resume one same-scope run with its expected_revision_id, or start a clear new scope. Ask only about genuinely ambiguous work, never for technical Run IDs. Other phases execute continuation.steps in order; presentation_required shows run-present text and waits for a NEW deliberate response. Preparation approves no gate.";
 export const SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION = "For a qa-gate skill_continuation, control.candidate_runs is the complete canonical active-run inventory when run selection is unresolved, otherwise an empty array. Use its run_id, objective, normalized current_gate, decision and revision_id fields as data; filter by current_gate: QA and do not rescan run files, invent candidates or omit returned QA candidates.";
 
+// skill_id is required, so these constraints still run for every valid request.
+// Keep root properties visible to hosts that project root allOf as intersections.
+function visibleDispatchInput(schema) {
+  const { allOf, ...input } = schema;
+  return { ...input, dependentSchemas: { ...input.dependentSchemas, skill_id: { allOf } } };
+}
+
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_dispatch",
   description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. Only authorized bound continue_delivery may record one previously sealed relationship correction through the Core continuation service before fresh routing; status stays read-only. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, follow its continuation instruction using only the returned target and control. ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`,
@@ -41,7 +48,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
     idempotentHint: true,
     openWorldHint: false,
   },
-  inputSchema: {
+  inputSchema: visibleDispatchInput({
     type: "object", additionalProperties: false,
     required: ["skill_id", "presentation_language", "working_directory"],
     properties: {
@@ -82,7 +89,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       if: { required: ["continue_delivery"], properties: { continue_delivery: { const: true } } },
       then: { required: ["run_id"], properties: { intake: { const: false } }, not: { required: ["intake_mode"] } },
     }],
-  },
+  }),
   outputSchema: {
     type: "object",
     additionalProperties: false,

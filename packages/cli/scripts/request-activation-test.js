@@ -267,6 +267,7 @@ const expectedOperationIds = [
   "status.opencode_repository",
   "runtime.checks",
   "control.doctor",
+  "control.inventory",
   "control.delivery_map",
   "run.create",
   "run.migrate",

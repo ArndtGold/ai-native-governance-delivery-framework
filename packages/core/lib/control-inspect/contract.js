@@ -37,14 +37,14 @@ const fieldModel = {
   target_source: { help: 'Actual provenance: explicit_target = specified; continued_target = confirmed; current_repository = unambiguous.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Requires primary_target.' },
   primary_target: { help: 'Confirmed absolute root paired with target_source; cwd is not target authority.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Pair: target_source.' },
   run_id: { help: 'Named or confirmed Run; never select by recency.', schema: { type: 'string', pattern: RUN_ID_PATTERN.source }, description: 'Confirmed run.' },
-  gate: { help: 'Requested document gate or catalog filter, never a selection heuristic. artifact-readiness: UR/PRD/SD/TP only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Document gate. Never with gate-check.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
+  gate: { help: 'Requested document gate or catalog filter, never a selection heuristic. artifact-readiness: UR/PRD/SD/TP only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Document gate.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
   expected_revision_id: { help: 'Bound inspections use current gate-check revision. Document/preview reads preserve the original selected catalog or conversation revision.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
   presentation_id: { help: 'Exact prepared ID from validated catalog or conversation. Never guess, select by timestamp, or prepare a replacement to read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
   target_id: { help: 'Copy target hash from operation-contract binding or catalog read_arguments; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Target hash: operation-contract.', operations: PRESENTATION_OPERATIONS },
   cursor: { help: 'Omit initially; copy next_cursor. doctor requires all_active; catalog requires its declared module. Never exchange cursor types.', schema: cursorSchema, description: 'Copy next_cursor.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract', 'authoring-inputs', 'doctor'] },
   variant: { help: 'gate-check view only; never records approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
   module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
-  all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'All runs: doctor/delivery-map.' },
+  all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'doctor/delivery-map only.' },
 };
 const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule' };
 const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-status'];
@@ -83,7 +83,7 @@ delete inputSchema.allOf;
 const conciseHelp = { operation: 'Read operation.', presentation_language: 'Reply language.', working_directory: 'Context directory.',
   target_source: 'Target provenance.', primary_target: 'Confirmed target.', run_id: 'Confirmed Run.', gate: 'Gate selector.',
   expected_revision_id: 'Bound revision.', presentation_id: 'Presentation ID.', target_id: 'Target identity.', cursor: 'Next page cursor.',
-  variant: 'Status variant.', module: 'Contract or UUID.', all_active: 'Inventory scope.' };
+  variant: 'Status variant.', module: 'Contract or UUID.', all_active: 'Doctor/map scope.' };
 for (const [key, description] of Object.entries(conciseHelp)) inputSchema.properties[key].description = description;
 
 const inspectContract = {
@@ -256,6 +256,7 @@ export function normalizeControlInspectInput(input) {
     allActive: input.allActive === true,
     contractModule: input.contractModule,
     variant: input.variant,
+    runId,
   });
   for (const [field, key] of Object.entries(selectorKeys)) {
     if (input[key] !== undefined && !fieldModel[field].operations.includes(operation)) throw new SkillDispatchInputError(field, `Unsupported selector for ${operation}`);

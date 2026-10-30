@@ -7,7 +7,7 @@ import { buildStatusCard, evaluateGateCheck, postApprovalTransition, printApprov
 import { evaluateDoctor } from "../control-evaluation/doctor.js";
 import { evaluateDeliveryMap } from "../control-evaluation/delivery-map.js";
 import { readRuntimeContract } from "../resources/contracts.js";
-import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation, renderActiveRunInventory } from "../interaction-presentation.js";
+import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation, renderActiveRunInventory, renderRunInventory } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
 import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, PRESENTATION_CATALOG_MODULE } from "./contract.js";
@@ -15,6 +15,7 @@ import { RUN_COMMAND_DESCRIPTORS, operationContract } from '../control-state/run
 import { inspectRunOperation } from '../control-state/run-operation-status.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { readRunState } from '../control-evaluation/run-state.js';
+import { readRunInventory } from '../control-state/run-inventory-reader.js';
 import { inspectArtifactReadiness } from "./artifact-readiness.js";
 import { policyForRunContent } from '../control-evaluation/run-step-policy.js';
 import { parseRunState } from '../control-state/run-state-parser.js';
@@ -265,6 +266,10 @@ export function createControlInspectService(dependencies = {}) {
               }
             } catch { /* Advisory navigation unavailable. */ }
             return { report: evaluated, navigation, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
+          }
+          case "inventory": {
+            const inventory = readRunInventory(target.governance_target, { language: input.presentation_language });
+            return { report: inventory, presentation: renderRunInventory(inventory, rawInput.interactionLocales, input.presentation_language) };
           }
           case "delivery-map": {
             const evaluated = deliveryMap(target.governance_target, selection, deliveryMapDependencies);

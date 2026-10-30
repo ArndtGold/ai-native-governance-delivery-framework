@@ -1,0 +1,3978 @@
+{
+  "schema_version": "1",
+  "state": "complete",
+  "counts": {
+    "total": 152,
+    "lifecycle": {
+      "active": 57,
+      "completed": 95,
+      "superseded": 0,
+      "abandoned": 0,
+      "invalid": 0
+    },
+    "attention": {
+      "decision_required": 27,
+      "clarification_required": 16,
+      "blocked": 2,
+      "in_progress": 12,
+      "unclear": 0,
+      "none": 95
+    }
+  },
+  "runs": [
+    {
+      "run_id": "mcp-inspect-contract-phase2-20261020-01",
+      "title": "An agent can discover and correctly use agdf_inspect from its model-visible MCP contract. In particular, it can obtain the existing authoritative bindings and retrieve the complete presented document, including every ordered continuation p…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UAT",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 25, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-20T09:26:20.544Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 25,
+      "revision_id": "7ace8f15-a1d7-4adf-84c0-99ad65623883",
+      "missing": "Exact Approval: UAT.",
+      "next_action": "Request exact approval: Approval: UAT before delivery handoff.",
+      "path": ".agdf/control/runs/mcp-inspect-contract-phase2-20261020-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "claude-install-hardening-20261015-01",
+      "title": "A Claude installation either reaches the state Claude Code sessions will actually load, verified by content provenance, or fails or degrades with an accurate, actionable report. Status reporting for Claude runtime checks matches what sessi…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 19, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-15T17:46:32.647Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 19,
+      "revision_id": "11513dec-d6f1-448f-ab33-fc7abe7a273c",
+      "missing": "Exact Approval: QA.",
+      "next_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "path": ".agdf/control/runs/claude-install-hardening-20261015-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "backlog-status-flow-clarity-20261009-01",
+      "title": "Backlog Status Flow Clarity 20261009 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 35, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-09T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 35,
+      "revision_id": "54ddccde-907b-4137-91db-f3fcf4716899",
+      "missing": "Exact Approval: QA.",
+      "next_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "path": ".agdf/control/runs/backlog-status-flow-clarity-20261009-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-cockpit-mcp-app-20261005-01",
+      "title": "Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a run, inspect registered artefacts and explicit Context Graph references, and use a checked selection for a contextual question while preserving canonical cont…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UAT",
+      "decision": "awaiting_uat",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 118, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-07T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 118,
+      "revision_id": "c6016801-6523-4e44-9b6e-a6db0bb78af6",
+      "missing": "Exact Approval: UAT.",
+      "next_action": "Request exact approval: Approval: UAT before delivery handoff.",
+      "path": ".agdf/control/runs/agdf-cockpit-mcp-app-20261005-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "prd-definition-separation-20261004-01",
+      "title": "Prd Definition Separation 20261004 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 17, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-04T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 17,
+      "revision_id": "0a26abd7-904d-4798-a884-71a8346fd1a0",
+      "missing": "Exact Approval: QA.",
+      "next_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "path": ".agdf/control/runs/prd-definition-separation-20261004-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "ur-definition-separation-20261004-01",
+      "title": "Separate bound unapproved UR drafting and clarification from gate-check through the canonical ur-definition skill, retaining existing registration, revision and deliberate approval controls.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UAT",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 16, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-04T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 16,
+      "revision_id": "2795ef51-02af-4c3a-93e3-db1e1678918b",
+      "missing": "Exact Approval: UAT.",
+      "next_action": "Request exact approval: Approval: UAT before delivery handoff.",
+      "path": ".agdf/control/runs/ur-definition-separation-20261004-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "copilot-skill-name-normalization-20261002-01",
+      "title": "Registrierte Skillnamen auf Codex, Claude Code, Copilot und OpenCode aus dem bestehenden Katalog auf stabile kanonische AGDF-IDs abbilden; Dispatcher-Eingaben, allgemeine Hostprojektion und Nachweise konsistent halten.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UAT",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-02T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 24,
+      "revision_id": "73914ac3-e45f-415e-8716-78a6f77b7778",
+      "missing": "Exact Approval: UAT.",
+      "next_action": "Request exact approval: Approval: UAT before delivery handoff.",
+      "path": ".agdf/control/runs/copilot-skill-name-normalization-20261002-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-portable-plugin-package-structure-20261001-01",
+      "title": "Deliver a portable AGDF plugin with one canonical identity and explicit plugin, control-core, CLI/installation, MCP and build boundaries; preserve supported host profiles and governance authority through a staged migration.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 28, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-01T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 28,
+      "revision_id": "13dc8826-00a0-4a00-ad96-3f5813a885a3",
+      "missing": "Current qa-gate revalidation after MCP discovery repair, then exact Approval: QA.",
+      "next_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "path": ".agdf/control/runs/agdf-portable-plugin-package-structure-20261001-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "repository-control-compatibility-20260930-01",
+      "title": "Inspect compatibility for each selected repository and provide direct, reviewed migration and repair through the installed runtime without reinstalling the plugin.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "pass",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 23, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-30T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 23,
+      "revision_id": "10662971-61f7-4433-ae72-dcc206d63458",
+      "missing": "Exact human Approval: QA and later UAT are absent. No implementation/QA-scope evidence gap remains.",
+      "next_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "path": ".agdf/control/runs/repository-control-compatibility-20260930-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-mcp-inspect-slice1-20260929-01",
+      "title": "Read-only AGDF control operations (doctor, gate-check, delivery-map, contract) are reachable through the MCP tool agdf_inspect with CLI parity, and a presentation_required dispatch carries the read-only approval preview; no write path move…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 17, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-29T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 17,
+      "revision_id": "be45263a-52ce-4135-9263-84392138c1b2",
+      "missing": "Exact Approval: QA.",
+      "next_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "path": ".agdf/control/runs/agdf-mcp-inspect-slice1-20260929-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-zielarchitektur-doku-20260929-01",
+      "title": "Create a non-normative German target-architecture discussion document for candidate domain-facing MCP capabilities, linked from the current architecture overview, without changing runtime contracts.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-29T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 24,
+      "revision_id": "39dd1f25-901f-4331-b0d6-44f2cf11d478",
+      "missing": "Exact Approval: QA.",
+      "next_action": "Present the persisted QA report and request exact approval: Approval: QA",
+      "path": ".agdf/control/runs/mcp-zielarchitektur-doku-20260929-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-clean-build-output-repair-20261004-01",
+      "title": "Agdf Clean Build Output Repair 20261004 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "d9efd9ff-4801-4291-8877-0a6fce7b381f",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-clean-build-output-repair-20261004-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-cross-host-runtime-integrity",
+      "title": "Ensure runtime-bearing AGDF installations for Codex, Claude Code and OpenCode resolve one exact-version shared validator from the intended installed distribution, while portable instruction-only profiles degrade honestly and no runtime-fre…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 21, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 21,
+      "revision_id": "bdafbcfa-a238-47e0-ac20-d81e79b08f38",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-cross-host-runtime-integrity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-guided-mcp-activation",
+      "title": "Make AGDF installation a coherent guided setup that offers a deliberate project- or user-scoped MCP activation together with plugin installation, preserves an explicit plugin-only path, reports every effective state truthfully and never in…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 24,
+      "revision_id": "01ea5b38-2dd0-4154-bad5-1efbcbce836b",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-host-adapter-compatibility",
+      "title": "Make existing AGDF core and host-adapter boundaries consistent, demonstrate common installation, discovery, invocation, update and recovery outcomes, and bind support claims to evidenced capabilities for the exact host environment and exec…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 12, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 12,
+      "revision_id": "8ab37cfd-11a9-4578-b12c-89d4cacc09f3",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-host-adapter-compatibility/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-npm-package-payload-cleanup",
+      "title": "Publish an explicit, runtime-complete create-agdf npm payload without generated submission, review or temporary build artefacts that installed consumers do not need.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "03ee638e-095a-4dd0-ab8f-27d7bd49a4ac",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-npm-package-payload-cleanup/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-product-maturity-roadmap",
+      "title": "AGDF entlang fünf evidenzbasierter Reifegradlinien weiterentwickeln: weniger sichtbare Zeremonie, ehrliche technische Durchsetzung, echte Host-/Mehrturn-Conformance, bessere Proportionalität und einfachere Nutzerinteraktion.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 49, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 49,
+      "revision_id": "eb4ce093-db17-4daa-9261-c1a798243e9c",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-product-maturity-roadmap/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-public-plugin-distribution",
+      "title": "Prepare AGDF for a public, submission-ready plugin distribution through OpenAI's shared ChatGPT and Codex plugin directory while preserving one canonical AGDF source, honest surface boundaries and separate authority for submission, publica…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "qa_approved",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 37, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 37,
+      "revision_id": "468e7977-6268-4466-91ef-13913d675a4f",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-public-plugin-distribution/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "claude-loaded-host-conformance-observation",
+      "title": "Observe the 12 predefined Claude conformance cases (HC-01–HC-12) on a real, freshly restarted Claude Code host running the locally installed 0.13.5 build, producing durable loaded-host evidence.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "pending",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "29ff4a75-39fd-45e1-9970-5308963b5889",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/claude-loaded-host-conformance-observation/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "codex-harness-conformance-slice",
+      "title": "Establish a bounded, portable and evidence-safe AGDF conformance boundary for the open Codex harness before any adapter, protocol integration or public capability claim is designed or implemented.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "69574f16-9f4a-4a62-b925-7061afbc6159",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/codex-harness-conformance-slice/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "cross-surface-skill-target-preflight",
+      "title": "Direkte evidenzabhängige AGDF-Skill-Aufrufe auf allen unterstützten Hosts zuerst an das kanonisch aufgelöste Arbeitsziel binden und danach ausschließlich vorhandene Governance-Evidenz sowie den skill-spezifischen Output verwenden.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "pass",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 8, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 8,
+      "revision_id": "005f2066-7dad-4802-8109-cb648b72890e",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/cross-surface-skill-target-preflight/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "delivery-path-search-control-input-integrity",
+      "title": "Make Delivery Path Search derive canonical gate actions and distinguish missing or empty search input from an evidence-backed no-safe-recommendation result.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 10, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 10,
+      "revision_id": "2fa5f304-207a-4673-af01-a7e9a2ebe79d",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/delivery-path-search-control-input-integrity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "doctor-presentation-identity-parity",
+      "title": "Bring doctor to parity with the identity requirements the interaction-presentation layer enforces (run_id format, revision_id presence) and make renderer validation failures diagnosable instead of silently collapsing cards to null, so a st…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 18, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 18,
+      "revision_id": "277ccc54-3b5d-443a-bc07-665000ec4ddb",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/doctor-presentation-identity-parity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "gate-decision-card-20261010-01",
+      "title": "Gate Decision Card 20261010 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "ae9a3522-0c26-49a0-8ebc-aa9a01149535",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/gate-decision-card-20261010-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "opencode-native-dispatch-tool",
+      "title": "Eliminate repeated general shell confirmations for explicitly invoked, read-only AGDF dispatch in OpenCode through one narrowly permitted native capability without weakening bash, edit, activation, approval or evidence boundaries.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "a7bd2f8d-e8fe-447c-aa11-06b175802e90",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/opencode-native-dispatch-tool/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "payload-budget-root-resolution-20261008-01",
+      "title": "Payload Budget Root Resolution 20261008 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "9c991a12-ae04-4d4a-8b41-04d8f74dd322",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/payload-budget-root-resolution-20261008-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pre-decision-status-card-visibility",
+      "title": "Ensure every ready-gate approval request is preceded by, or visibly offers, the full canonical operational Run Status Card, so users decide with complete authority context (path, allowed, forbidden, blocker, quality outlook) without weaken…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "decision_required",
+        "label": "Decision required"
+      },
+      "basis": "Stored state at revision 14, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 14,
+      "revision_id": "f37acf39-e457-4888-b92a-e916841b3022",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/pre-decision-status-card-visibility/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "cockpit-active-backlog-core-ui-20261008-01",
+      "title": "Provide one authoritative Core list policy and a readable read-only Cockpit list: active compact preview, newest stored row first, stable source-field search, clear completeness and exact Run navigation.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-08T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 22,
+      "revision_id": "4731876d-0586-4607-ab84-073e4f0244c8",
+      "missing": "No approval is pending.",
+      "next_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "path": ".agdf/control/runs/cockpit-active-backlog-core-ui-20261008-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "title": "Gate Internal Continuation Recovery 20261008 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 43, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-08T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 43,
+      "revision_id": "f3c8f3c3-094f-42fd-940f-5c4094a4718f",
+      "missing": "No approval is pending.",
+      "next_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "path": ".agdf/control/runs/gate-internal-continuation-recovery-20261008-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+      "title": "Agdf Intermediate Status Card Reduction 20261002 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-03T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 22,
+      "revision_id": "bab6c8c2-6b4f-4cb0-9d51-c8b185ef01e7",
+      "missing": "No approval is pending.",
+      "next_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "path": ".agdf/control/runs/agdf-intermediate-status-card-reduction-20261002-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-physical-package-boundaries-20261001-01",
+      "title": "Physische Core-/CLI-/MCP-Paketstruktur mit eindeutigen Verantwortungsgrenzen, kanonischer Pluginquelle und kompatiblen Paketen/Profilen erreichen.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 33, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-01T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 33,
+      "revision_id": "ecfb6709-3fd3-40dd-ad24-74b97f6f25eb",
+      "missing": "Authoritative reconciliation of TPR-E001/E002; corrected Windows/matrix execution awaits push. Existing ignored generated workspace drift remains unclaimed.",
+      "next_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "path": ".agdf/control/runs/agdf-physical-package-boundaries-20261001-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-review-remediation-20260929-01",
+      "title": "Recoverably write AGDF control and host state, publish only coherent licensed packages through the coupled release path, and align installed contracts and public evidence with the exact verified version.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 18, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-29T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 18,
+      "revision_id": "5770bb52-5a06-4597-8187-788b9a3b5cad",
+      "missing": "Exact candidate Linux/Windows CI and release/host observations; QA approval is not requested while QA is revise.",
+      "next_action": "Close the two Task Plan Review evidence obligations, then rerun qa-gate for this run.",
+      "path": ".agdf/control/runs/agdf-review-remediation-20260929-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "restore-unsealed-active-run-records-20260929-01",
+      "title": "Restore Unsealed Active Run Records 20260929 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-29T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 24,
+      "revision_id": "bfe1ca8a-e76b-46ed-8280-ddcbcf5013a6",
+      "missing": "Resolution of TPR-APPROVAL-SOURCE via SD, transaction fault-injection evidence, Linux/native Windows evidence, then a new QA decision.",
+      "next_action": "Resolve the routed SD design gap and evidence obligations; repeat Task Plan Review and QA.",
+      "path": ".agdf/control/runs/restore-unsealed-active-run-records-20260929-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-intake-continuation-repair",
+      "title": "Neue Delivery-Aufträge verlässlich einem Run zuordnen, Freigaben an präsentierte Revisionen binden und erlaubte interne Schritte ohne erneuten Nutzerprompt fortsetzen.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 15, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-27T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 15,
+      "revision_id": "e48e8253-04c9-4639-ae15-e9062233c100",
+      "missing": "T10/V11 live evidence after host restart; no QA approval requested.",
+      "next_action": "Execute LIVE_VALIDATION.md with actual user decisions in a fresh Codex session, then refresh reviews and QA.",
+      "path": ".agdf/control/runs/agdf-intake-continuation-repair/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-copilot-plugin-integration",
+      "title": "Make the installable AGDF plugin the only supported GitHub Copilot integration while preserving repository-owned governance, exact approval authority and honest host-evidence boundaries.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 41, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 41,
+      "revision_id": "bccd00e6-7e35-4f24-945d-51000cbedc81",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-plugin-family-language",
+      "title": "Establish a consistent AGDF plugin-family language in which AGDF is the visible brand, lowercase agdf remains a technical identifier, and each plugin keeps a distinct product role.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 21, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 21,
+      "revision_id": "03afe71a-28b0-4c2e-88aa-4fc27ee1d106",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-plugin-family-language/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-request-activation-boundary",
+      "title": "Activate AGDF automatically only for explicit delivery intent, explicit AGDF operations or an unambiguous active-run continuation, while ordinary read-only requests remain outside AGDF.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 32, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 32,
+      "revision_id": "c0f27dde-fb24-4df1-95d5-8fbdefa0bb2d",
+      "missing": "RAB-TPR-01: exact install/readback/restart/fresh-session evidence for all four hosts. RAB-TPR-02: four external model-backed composed-profile runs.",
+      "next_action": "Obtain separate authorization for the external model-profile transfer in RAB-TPR-02 and for each host lifecycle change in RAB-TPR-01; then collect both evidence sets and rerun QA.",
+      "path": ".agdf/control/runs/agdf-request-activation-boundary/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "cross-surface-executable-skill-dispatcher",
+      "title": "Einen versionsgleichen ausführbaren AGDF-Skill-Dispatcher bereitstellen, der auf Copilot, Codex, Claude Code und OpenCode die gemeinsame Preflight-Logik deterministisch ausführt und dem Modell nur einen terminalen Ausgang oder eine begrenz…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 30, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 30,
+      "revision_id": "fe999aaf-4cd1-4fa0-8b8d-b195ac7c2a1c",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/cross-surface-executable-skill-dispatcher/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "cross-surface-plugin-opt-out",
+      "title": "Make plugin deactivation and removal explicit, safe and verifiable across supported AGDF surfaces, including a repository-local GitHub Copilot opt-out and an honest independent-instructions boundary.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 12, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 12,
+      "revision_id": "03a2db80-4237-408a-88f4-d51b99614bc0",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/cross-surface-plugin-opt-out/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "github-community-health-governance",
+      "title": "Establish a truthful, project-appropriate and GitHub-recognized community health and maintainer governance surface for AGDF.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "ec8f97b8-0a6b-4cbb-8e0f-ab8af6e3a035",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/github-community-health-governance/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "installation-consent-runtime-checks",
+      "title": "Establish an informed, least-privilege and reversible installation-consent boundary for automatic AGDF runtime checks across Codex, Claude Code and OpenCode on explicitly supported macOS, Linux and native-Windows combinations without weake…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 24,
+      "revision_id": "d27d6b43-bbf5-40a4-b2eb-465643e77219",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/installation-consent-runtime-checks/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "legacy-profile-upgrade-recovery",
+      "title": "Make upgrades from explicitly supported historical AGDF profile contracts safe and automatic while preserving fail-closed provenance and bounded Windows cache recovery.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 42, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 42,
+      "revision_id": "2fa3ac8d-f920-4872-8d7e-62c4e05b98c3",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/legacy-profile-upgrade-recovery/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "opencode-surface-hardening-parity",
+      "title": "Make OpenCode degradation observable when experimental hook declarations disappear, and add a preflight-gated executable Delivery Path Search evaluator without overstating host evidence.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "revise",
+      "attention": {
+        "code": "clarification_required",
+        "label": "Clarification required"
+      },
+      "basis": "Stored state at revision 17, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 17,
+      "revision_id": "ccc8818d-0d2e-4de6-81e1-7ad524fff351",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/opencode-surface-hardening-parity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-proportionality-benchmark",
+      "title": "Die aktuelle AGDF-Routinglogik deterministisch gegen eine versionierte 40-Fall-Real-Task-Baseline prüfen und Über-/Unter-Governance messen, ohne Gate- oder Evidenzschutz abzuschwächen.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "blocked",
+      "attention": {
+        "code": "blocked",
+        "label": "Blocked"
+      },
+      "basis": "Stored state at revision 12, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 12,
+      "revision_id": "0bc1f587-bb7a-49d6-8d62-0059143eb7d5",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-proportionality-benchmark/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-staged-proportionality-observation",
+      "title": "Den Proportionalitäts-Benchmark stufengerecht in aktuelle nächste Stufe und späteren Delivery Path trennen, ohne Approval-/Brownfield-State zu erfinden oder historische Evidenz zu überschreiben.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "block",
+      "attention": {
+        "code": "blocked",
+        "label": "Blocked"
+      },
+      "basis": "Stored state at revision 17, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 17,
+      "revision_id": "b7cd751b-0c69-45df-82f7-b19dd746633d",
+      "missing": "Exact Approval: UR.",
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "path": ".agdf/control/runs/agdf-staged-proportionality-observation/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "run-inventory-core-20261029-01",
+      "title": "One pure Core module derives a run inventory from the RUN_STATE.md files under .agdf/control/runs/. Every run appears once with a readable title, its stored lifecycle including superseded and abandoned, current gate, an attention class wit…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "CR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 13, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-29T15:29:51.172Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 13,
+      "revision_id": "b6e98942-8598-4961-b906-af255cdb83f6",
+      "missing": "No approval is pending.",
+      "next_action": "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+      "path": ".agdf/control/runs/run-inventory-core-20261029-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "core-approval-lock-defects-20261017-01",
+      "title": "Each defect is either detected at the earliest point where it can be corrected cheaply, or it no longer occurs:",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "OR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 29, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-19T07:26:46.665Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 29,
+      "revision_id": "ec93da9f-1040-4c87-93b2-5d3ec0390ec8",
+      "missing": "No approval is pending.",
+      "next_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "path": ".agdf/control/runs/core-approval-lock-defects-20261017-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-ergonomics-baseline-20261016-01",
+      "title": "A repeatable MCP ergonomics evaluation exists and has produced a committed baseline for the current AGDF MCP interfaces. Later phases can re-run the same evaluation unchanged and compare their results with this baseline.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "OR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 43, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-17T06:56:25.663Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 43,
+      "revision_id": "4fb76264-290d-4419-ac1b-abc19bd287b3",
+      "missing": "No approval is pending.",
+      "next_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "path": ".agdf/control/runs/mcp-ergonomics-baseline-20261016-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-cockpit-claude-host-20261008-01",
+      "title": "Agdf Cockpit Claude Host 20261008 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "Brownfield Analysis",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 13, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-08T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 13,
+      "revision_id": "36fc72e1-c95d-4b9c-ad74-c9b66206f92a",
+      "missing": "No approval is pending.",
+      "next_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+      "path": ".agdf/control/runs/agdf-cockpit-claude-host-20261008-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "status-card-stale-next-action-20261008-01",
+      "title": "Status Card Stale Next Action 20261008 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "CD+Tests",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 25, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-08T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 25,
+      "revision_id": "9bc744d6-1b6e-41ae-8cce-5eb66ec0293d",
+      "missing": "No approval is pending.",
+      "next_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "path": ".agdf/control/runs/status-card-stale-next-action-20261008-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "sd-definition-separation-20261004-01",
+      "title": "Sd Definition Separation 20261004 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "CD+Tests",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 14, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-04T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 14,
+      "revision_id": "b84489d8-b4eb-4bfe-9fbc-39ab8cec331c",
+      "missing": "No approval is pending.",
+      "next_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "path": ".agdf/control/runs/sd-definition-separation-20261004-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agent-control-dispatcher-mcp-concept-20261002-01",
+      "title": "Deliver a complete, evidenced joint concept for controlling coding-agent actions and verifying their work across canonical AGDF control, Dispatcher, MCP and hosts. Produce a validation and separately governed implementation roadmap; runtim…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 17, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-02T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 17,
+      "revision_id": "3d9a7a03-ea22-4ae0-8c29-edd175ebf0b1",
+      "missing": "No approval is pending.",
+      "next_action": "Present the refreshed QA report and request exact Approval: QA.",
+      "path": ".agdf/control/runs/agent-control-dispatcher-mcp-concept-20261002-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "quick-task-closeout-status-20261002-01",
+      "title": "Quick Task Closeout Status 20261002 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "Quick Task Execution",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 4, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-02T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 4,
+      "revision_id": "f083f4e2-060b-4910-b19a-1104209d8f75",
+      "missing": "No approval is pending.",
+      "next_action": "Proceed as a Quick Task within the Brownfield Review scope and record verification evidence.",
+      "path": ".agdf/control/runs/quick-task-closeout-status-20261002-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-actionable-card-ux-20260928-01",
+      "title": "Agdf Actionable Card Ux 20260928 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "CD+Tests",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 19, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-28T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 19,
+      "revision_id": "d7251ca4-23c5-4cbc-81c9-d37df21dbcad",
+      "missing": "AC-006 direct fresh-session evidence from Codex, Claude, Copilot and OpenCode using the tested revision; no user-gate approval is pending.",
+      "next_action": "Choose whether AC-006 stays open under this TP or a separate host-provisioning scope update starts. Host changes are not authorized by this TP.",
+      "path": ".agdf/control/runs/agdf-actionable-card-ux-20260928-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "architecture-review-prevention-2026-09-27",
+      "title": "Make architecture risks and trade-offs visible before implementation so the smallest durable solution fits the existing system and avoids preventable technical debt.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "CD+Tests",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-28T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 22,
+      "revision_id": "9ee3ea44-ab08-45db-a144-3962bd82fadc",
+      "missing": "No approval is pending.",
+      "next_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "path": ".agdf/control/runs/architecture-review-prevention-2026-09-27/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "approval-card-decision-focus",
+      "title": "Approval Card Decision Focus",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "abb0dab3-319c-4923-a277-100534cecb75",
+      "missing": "Durable UR and exact approval.",
+      "next_action": "Draft the UR.",
+      "path": ".agdf/control/runs/approval-card-decision-focus/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-routing-guard-20260929-01",
+      "title": "Mcp Routing Guard 20260929 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "active",
+      "current_gate": "UR",
+      "decision": "in_progress",
+      "attention": {
+        "code": "in_progress",
+        "label": "In progress"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "3adc9660-0658-44e7-8d14-934683478504",
+      "missing": "Durable UR and exact approval.",
+      "next_action": "Draft the UR.",
+      "path": ".agdf/control/runs/mcp-routing-guard-20260929-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "run-lifecycle-close-20261028-01",
+      "title": "A human owner can end one or several active runs as superseded, naming a successor, or as abandoned, giving a reason, through one reviewed decision. Each ended run keeps all of its artefacts and history, carries the decision as a sealed an…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-29T11:29:46.764Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 24,
+      "revision_id": "06a3445f-a6f5-4407-a5a7-f9731301868f",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/run-lifecycle-close-20261028-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-companion-chat-run-navigation-20261028-01",
+      "title": "The companion follows the run the chat works on as soon as the chat names it, lets the user browse other runs freely, and brings the user back to the chat's run automatically with the next chat turn or with one click. The panel changes of …",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 23, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-28T11:34:12.865Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 23,
+      "revision_id": "ca512176-48ca-463f-a1c2-e170fec200f2",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-companion-chat-run-navigation-20261028-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-companion-followup-20261027-01",
+      "title": "A user who has switched the AGDF companion on sees the implementation phase of a structured run in the gate bar and in the figure. The gate bar follows the path the status card shows for the run's mode. The user notices without watching th…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-28T07:18:08.579Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 22,
+      "revision_id": "2dfdada9-c4e1-4ad8-928c-adec69713f82",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-companion-followup-20261027-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "risk-based-test-strategy-20261027-01",
+      "title": "Make test planning and execution proportionate to the approved change and its risks, so delivery agents obtain targeted feedback during the Run and can explain where complete required regression coverage is obtained. Reduce avoidable repea…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-27T10:26:00.495Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 24,
+      "revision_id": "9ab4f3d6-b6c5-43b3-9885-64a9abddcf27",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/risk-based-test-strategy-20261027-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-begleiter-companion-20261025-01",
+      "title": "A Claude Code user working with AGDF can install an optional companion plugin from the AGDF marketplace. In the Claude desktop app it shows a side panel with an animated figure and a compact status for the run worked on in that session, up…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 55, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-27T08:15:24.122Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 55,
+      "revision_id": "0933fcba-0655-44c4-b969-76cc065537a2",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-begleiter-companion-20261025-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-codex-guided-inspection-20261025-01",
+      "title": "A Codex agent can understand the existing MCP inspection contract, obtain exact authoritative read arguments and record the user's deliberate response to the already presented UR without guessing identifiers, avoidable invalid calls, concu…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 35, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-25T19:35:50.474Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 35,
+      "revision_id": "7008b905-d44c-43d3-bb09-7d062a409dad",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/mcp-codex-guided-inspection-20261025-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-contract-completeness-20261025-01",
+      "title": "An agent or MCP client can discover, understand and correctly consume the existing AGDF command tools from their published contracts, while receiving protocol-appropriate capability errors and consistent capability and version information.…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 37, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-25T13:03:41.728Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 37,
+      "revision_id": "224d0fe6-ddfe-47bc-a363-aa76b77ae0ed",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/mcp-contract-completeness-20261025-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "release-0200-codex-claude-20261020-01",
+      "title": "Prepare one coherent AGDF 0.20.0 release candidate with Codex and Claude Code as its intended qualified hosts, close the missing native host evidence for the release scope, and explicitly retain GitHub Copilot and OpenCode as experimental …",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 69, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-24T12:27:07.716Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 69,
+      "revision_id": "15544fb5-9a4c-45a6-931b-0939ae89585d",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/release-0200-codex-claude-20261020-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "compact-closeout-cli-review-20261020-01",
+      "title": "After a Code Review recorded through the CLI step, gate-check with continue_delivery returns the regular compact closeout continuation for release-or, so the run can be closed without a workaround. Fail-closed behaviour for registered sour…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 8, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-20T09:07:45.398Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 8,
+      "revision_id": "7e2a3e60-46d2-4422-a118-fba39844eaa4",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/compact-closeout-cli-review-20261020-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-performance-hermetic-fixture-20261020-01",
+      "title": "The MCP performance test measures the approved budgets on a fixed, recorded fixture that does not grow with the repository's run history and does not depend on unrelated runs, so that its result reflects the dispatch path and runner varian…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 8, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-20T06:18:30.134Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 8,
+      "revision_id": "43663195-6962-4bcc-91d3-c6a74024d6bc",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/mcp-performance-hermetic-fixture-20261020-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-error-contract-phase1-20261019-01",
+      "title": "Make actual AGDF MCP tool failures unambiguously recognizable and actionable. The agent and user must be able to understand what failed, what is known about its effects, and how to correct the request or obtain the missing prerequisite wit…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 25, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-19T19:48:54.144Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 25,
+      "revision_id": "19b97494-4caf-4754-97ba-b62312205024",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/mcp-error-contract-phase1-20261019-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-safety-preview-write-boundary-20261019-01",
+      "title": "The MCP server safety test passes again and its filesystem write boundary stays finite and reviewed:",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-19T14:34:29.767Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 7,
+      "revision_id": "620a4402-ba5f-4bf3-8ad3-c75fce0fd1f6",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/mcp-safety-preview-write-boundary-20261019-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "prd-preview-review-integration-20261018-01",
+      "title": "A reviewer can judge the proposed user interaction before implementation, open the retained preview alongside the PRD review task, and deliberately approve the same verified product basis. Core prevents approval when a required preview is …",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-19T12:25:57.616Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 24,
+      "revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/prd-preview-review-integration-20261018-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "review-findings-correction-20261019-01",
+      "title": "Invalid normalized review finding rows are caught when a review is recorded, and a run already stuck at OR because of them can close without renewed approvals:",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-19T12:07:56.829Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 22,
+      "revision_id": "bb332446-5d52-43d9-b8f2-ded344d57e18",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/review-findings-correction-20261019-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+      "title": "Installing or updating the AGDF plugin for Codex also supplies the existing Cockpit with compatible runtime and UI assets. The user can open it without building or registering a separate local MCP server. Plugin lifecycle operations own th…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 53, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-18T12:19:52.411Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 53,
+      "revision_id": "eb8afc96-884c-4b2e-a89a-9e17072f9971",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-cockpit-plugin-integration-20261016-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "compat-evidence-lf-20261016-01",
+      "title": "The committed host-compatibility evidence matches the LF bytes CI checks out, so compatibility:check passes on CI as it does locally.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 8, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-16T06:48:15.858Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 8,
+      "revision_id": "f4fefd8f-0e8f-4190-9bd8-bd25d8e8ee47",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/compat-evidence-lf-20261016-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "session-check-revise-status-20261016-01",
+      "title": "A session started in a repository whose doctor status is revise shows automatic_check.status: \"revise\"; every doctor status is passed through unchanged, and only unexpected values fall back to unknown.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-16T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 7,
+      "revision_id": "7f8b5990-b0c5-4afa-86ff-112cb6239a71",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/session-check-revise-status-20261016-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "symlink-test-robustness-20261015-01",
+      "title": "The four suites run to completion on Windows hosts without symlink privilege, skip only the assertions that need a file symlink with a visible notice, and keep those assertions where symlinks are available.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-15T16:20:47.159Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 7,
+      "revision_id": "ecea5bd4-dad7-4c70-a829-198e1ba2d763",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/symlink-test-robustness-20261015-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "tp-definition-separation-20261015-01",
+      "title": "Introduce a canonical tp-definition skill, analogous to ur-definition, prd-definition and sd-definition, that owns drafting, clarification and permitted revision of an unapproved Task/Test Plan. The coding agent should receive a clear, bou…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 27, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-15T10:24:13.838Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 27,
+      "revision_id": "9f4ae869-6e9d-4d08-9275-1a058943829f",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/tp-definition-separation-20261015-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "title": "Make AGDF MCP startup and command execution reliably complete within explicitly measured operating bounds by identifying and permanently correcting the actual causes of the observed failures. Preserve exact installed provenance, contained …",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-14T18:52:47.955Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 22,
+      "revision_id": "0a79cd61-a672-4518-8dcb-090601e4f157",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/mcp-start-timeout-reliability-20261014-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "run-uat-content-readiness-20261014-01",
+      "title": "Prepare decision-ready Run and UAT content from current authoritative sources, exclude placeholders, and disclose delivered outcome, acceptance and qualification limits.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 21, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-14T13:09:22.950Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 21,
+      "revision_id": "3c6e4a73-6b5b-4dce-9209-4afe8e741895",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/run-uat-content-readiness-20261014-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "report-decision-field-hardening-20261014-01",
+      "title": "Report Decision Field Hardening 20261014 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 19, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-14T10:06:34.195Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 19,
+      "revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/report-decision-field-hardening-20261014-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "compact-execution-continuation-20261014-01",
+      "title": "Compact Execution Continuation 20261014 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 20, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-14T07:45:20.077Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 20,
+      "revision_id": "f09fd1b8-0ed9-4d6b-9747-16da947119db",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/compact-execution-continuation-20261014-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-copilot-mcp-app-20261013-01",
+      "title": "Agdf Copilot Mcp App 20261013 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 20, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-13T16:55:48.256Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 20,
+      "revision_id": "7a22d424-4eff-4eea-a244-03248a82c37e",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-copilot-mcp-app-20261013-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "title": "Consistent Core and MCP flow from artefact/evidence recording through deliberate gate decisions, supported revision and structured governance closeout; one bound current state across Core/CLI/MCP/cockpit.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 96, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-13T07:02:34.113Z",
+        "source": "receipt",
+        "precision": "time"
+      },
+      "revision": 96,
+      "revision_id": "a4c32a58-d72d-4c78-a798-c68ae2f2add0",
+      "missing": "No approval is pending.",
+      "next_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "cockpit-documented-approvals-20261009-01",
+      "title": "Cockpit Documented Approvals 20261009 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 32, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-10T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 32,
+      "revision_id": "c771e0c8-e537-41f0-8581-c571c36c686d",
+      "missing": "No mandatory evidence or approval pending; optional final native-host observation absent and disclosed in OR.",
+      "next_action": "Use delivery-closeout only when an operative VCS handoff is explicitly requested.",
+      "path": ".agdf/control/runs/cockpit-documented-approvals-20261009-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "cockpit-draft-check-integration-20261009-01",
+      "title": "Let users deliberately check the selected current draft in the Cockpit, understand actual authoring corrections and distinguish the result from documented approval, current gate permission and QA.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 28, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-09T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 28,
+      "revision_id": "af3a4ef5-ef64-4572-8245-3ffc2818c405",
+      "missing": "No approval is pending.",
+      "next_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "path": ".agdf/control/runs/cockpit-draft-check-integration-20261009-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "install-repair-symlink-eperm-20261008-01",
+      "title": "Install Repair Symlink Eperm 20261008 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 6, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-08T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 6,
+      "revision_id": "559d5ea3-c3a1-47ef-8a63-2c3d50cb7994",
+      "missing": "No approval is pending.",
+      "next_action": "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
+      "path": ".agdf/control/runs/install-repair-symlink-eperm-20261008-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-control-cockpit-20261005-01",
+      "title": "Provide a local read-only control cockpit with run overview, authoritative Core evaluation and registered source documents for the explicitly selected repository.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 21, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-05T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 21,
+      "revision_id": "326a36d9-4589-4d7d-b654-60ecba54ebab",
+      "missing": "No approval is pending.",
+      "next_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "path": ".agdf/control/runs/agdf-control-cockpit-20261005-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "late-source-revision-20261005-01",
+      "title": "Provide an explicit source-revision path for valid active CD+Tests runs after approved TP, preserving exact historical authority and requiring renewed affected approvals before implementation resumes.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 26, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-05T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 26,
+      "revision_id": "c401e435-eced-4dab-8792-2bd05224fece",
+      "missing": "No approval is pending.",
+      "next_action": "Use delivery-closeout for the operational VCS handoff when requested; do not perform VCS actions automatically.",
+      "path": ".agdf/control/runs/late-source-revision-20261005-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "architecture-doc-a9-fixes-20261002-01",
+      "title": "Architecture Doc A9 Fixes 20261002 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-02T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 7,
+      "revision_id": "cce039a0-925d-4332-87cc-cf5fabcb1415",
+      "missing": "No approval is pending.",
+      "next_action": "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
+      "path": ".agdf/control/runs/architecture-doc-a9-fixes-20261002-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "plugin-mcp-sdk-supply-chain-20261002-01",
+      "title": "Plugin Mcp Sdk Supply Chain 20261002 01",
+      "title_source": "run_id",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-02T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 24,
+      "revision_id": "ba0a9892-d257-4051-9f17-cccbed87b0cc",
+      "missing": "No approval is pending.",
+      "next_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "path": ".agdf/control/runs/plugin-mcp-sdk-supply-chain-20261002-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-control-command-slice1-20260930-01",
+      "title": "Demonstrate one explicit approval-recording command through existing AGDF owners, with current presentation/revision binding, an accurately stated cooperative authority limit, consistent concurrent/retry/recovery outcomes and measured cons…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 23, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-10-01T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 23,
+      "revision_id": "ff686fa0-41b4-4d80-b908-599af4a054af",
+      "missing": "No delivery gate approval is pending; a commit or rollout needs separate explicit user instruction.",
+      "next_action": "Offer the scoped commit through delivery-closeout; no automatic VCS or installation action.",
+      "path": ".agdf/control/runs/agdf-control-command-slice1-20260930-01/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "codex-activation-matrix-adaptive-runs",
+      "title": "Die Codex-CLI-Aktivierungsmatrix prüft zehn Fälle in frischen Erstläufen, wiederholt nur begründete Abweichungen oder vorab markierte Grenzfälle und weist Token-, Laufzeit- und Suchtelemetrie pro Sitzung nachvollziehbar aus.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 24, not a live evaluation.",
+      "last_activity": {
+        "at": "2026-09-29T00:00:00.000Z",
+        "source": "approval",
+        "precision": "day"
+      },
+      "revision": 24,
+      "revision_id": "ad3a05f6-1a39-41cd-9cbe-ac4e7e22e7ff",
+      "missing": "Nichts innerhalb des genehmigten Scope.",
+      "next_action": "Delivery-Closeout als Git-Handoff erstellen; Commit, Push, PR und Veröffentlichung erfordern eine gesonderte ausdrückliche Anweisung.",
+      "path": ".agdf/control/runs/codex-activation-matrix-adaptive-runs/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "activation-diagnosis-determinism",
+      "title": "Make AGDF repository-activation diagnosis deterministic and tool-shell-safe so that an agent in any context (interactive shell, tool shell, scripted CI, fresh session) can determine AGDF activation through one canonical, code-owned probe, …",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 5, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 5,
+      "revision_id": "3DFDD78F-4143-4C4B-8311-54B63AED89A0",
+      "missing": "Nothing within the approved Verified Change scope.",
+      "next_action": "No run work remains; commit, push, PR, release or install-cache mutation requires separate explicit user instruction.",
+      "path": ".agdf/control/runs/activation-diagnosis-determinism/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-backlog-or-status",
+      "title": "Add a canonical awaiting_or backlog status label so the post-UAT, pre-OR state is representable in MASTER_BACKLOG.md without a doctor finding.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "d5bd65b7-8447-48fa-a6e7-c52fb420a53d",
+      "missing": "Nothing within the approved Verified Change scope.",
+      "next_action": "No run work remains; VCS or release actions require separate explicit user instruction.",
+      "path": ".agdf/control/runs/agdf-backlog-or-status/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-chat-noise-suppression",
+      "title": "Codify chat and tool-call discipline in the AGDF runtime contract and 5 skills.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "5F812109-D6AD-452D-86A2-4DFBA6294250",
+      "missing": null,
+      "next_action": null,
+      "path": ".agdf/control/runs/agdf-chat-noise-suppression/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-cross-host-mcp-integration",
+      "title": "Provide one versioned MCP integration contract and reversible lifecycle across Copilot, Codex, Claude Code and OpenCode while preserving host-native configuration and the existing AGDF server, dispatcher, activation, target, gate and appro…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 29, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 29,
+      "revision_id": "4A7D2445-3D59-42FA-84F1-8397D7F80098",
+      "missing": "No approval is missing for governance closeout. Authenticated Claude, callable Copilot MCP, complete OpenCode argument fidelity, direct failure paths, other OS/client and public package evidence remain explicit non-claims.",
+      "next_action": "Handle the post-acceptance Codex findings in one separately governed correction scope.",
+      "path": ".agdf/control/runs/agdf-cross-host-mcp-integration/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-gate-rationale-why",
+      "title": "Add a deterministic, curated Gate-Rationale-Registry (one-liner \"why\" per gate and internal step in the locale registry) and an on-demand \"Why?\" interaction (status kind, deterministic, non-authorizing) so users can understand why each gat…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "0802C0AA-A4A8-41D5-801E-D7AF92BC911A",
+      "missing": "No delivery artefact or approval; VCS delivery remains a separate explicit action.",
+      "next_action": "No further delivery step; prepare VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-gate-rationale-why/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-handbook-first-reader-content-transfer",
+      "title": "Transfer only durable first-reader guidance removed from the simplified Pages surface into the German-primary handbook and its reviewed English translation without creating a second normative owner or changing the passed Pages candidate.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "15bb9e5d-8b17-4d6c-b28a-dbbd00b94e99",
+      "missing": "Nothing for the approved documentation scope. VCS delivery was not requested.",
+      "next_action": "None inside this completed run; any commit, push or PR requires a separate explicit instruction.",
+      "path": ".agdf/control/runs/agdf-handbook-first-reader-content-transfer/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-human-decision-surface",
+      "title": "Translate AGDF's canonical control state into clear user decisions across primary status, clarification, blocked and approval interactions without changing gate authority or machine output.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 15, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 15,
+      "revision_id": "8DBD9FE3-379E-4B33-AE79-86680B7D9273",
+      "missing": "No delivery artefact or approval; native-host rendering evidence remains intentionally unverified and is not claimed.",
+      "next_action": "No further delivery step; prepare VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-human-decision-surface/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-interaction-ownership-quick-path-ux",
+      "title": "Remove duplicated normative native-interaction prose from the gate-check skill and make the smallest safe AGDF delivery path clearer and less ceremonially visible without weakening governance.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 22,
+      "revision_id": "e6c01bee-50e5-46de-854e-6db75d7f2a66",
+      "missing": "No governance artefact or approval. Released installed-host consumption, authenticated refreshed OpenCode behavior and native Windows execution remain unperformed post-release evidence.",
+      "next_action": "Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 and the remaining opencode-single-install-activation owner decision.",
+      "path": ".agdf/control/runs/agdf-interaction-ownership-quick-path-ux/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-live-host-conformance-matrix",
+      "title": "Zwölf kritische AGDF-Szenarien auf Codex, Claude Code und OpenCode direkt, redigiert und host-/versionsgebunden beobachten, ohne gefundene Produktlücken still zu reparieren.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "ef16335a-d483-4ff2-9910-1bdc974d5ba2",
+      "missing": "Nichts im genehmigten Child-Scope.",
+      "next_action": "Keine weitere Child-Arbeit; Parent darf RMP-06 verlinken.",
+      "path": ".agdf/control/runs/agdf-live-host-conformance-matrix/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-local-plugin-install-scripts",
+      "title": "Make local AGDF plugin installation from the current source checkout simple, safe and consistently verifiable across supported coding-agent surfaces without duplicating installer authority.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 17, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 17,
+      "revision_id": "2f2dbd43-cfe6-4a1a-9983-b470444eeca7",
+      "missing": "Nothing within the accepted Codex UAT boundary.",
+      "next_action": "Use delivery closeout only when the user explicitly requests a commit, push or pull request handoff.",
+      "path": ".agdf/control/runs/agdf-local-plugin-install-scripts/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-mcp-dispatch-server",
+      "title": "Provide one standard, cross-host MCP interface for bounded AGDF skill dispatch while preserving the existing dispatcher, CLI verification path, target authority, durable control state and exact gate approval semantics.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 30, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 30,
+      "revision_id": "C0BB22B4-23EB-4E63-A510-3A0BABB4F55C",
+      "missing": "Nothing for the approved first-release scope. OpenCode 2.x, Linux, Windows and GitHub Copilot MCP remain separate unverified support lanes.",
+      "next_action": "Provide the scoped delivery closeout and await an explicit VCS or release instruction.",
+      "path": ".agdf/control/runs/agdf-mcp-dispatch-server/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-onboarding-fit-default-prompt",
+      "title": "Add an AGDF suitability-assessment prompt as the first Codex default prompt while preserving the existing governance-start, durable-control-state and delivery-closeout prompts.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "73EAEBBD-0A4A-4F60-BE39-DBEFDEF2B648",
+      "missing": "No delivery artefact or approval; VCS delivery remains a separate explicit action.",
+      "next_action": "No further delivery step; prepare VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-onboarding-fit-default-prompt/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-pages-landing-simplification",
+      "title": "Make the public AGDF landing page concise and understandable to first-time readers while preserving truthful product boundaries, the existing visual identity and canonical access to deeper guidance.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 15, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 15,
+      "revision_id": "4A7CEB9D-7F5A-4A63-B286-312C518EBEB4",
+      "missing": "Nothing within the accepted run scope. Deployed/live-domain/publisher/portal/publication evidence remains an explicit non-claim.",
+      "next_action": "No run work remains; any deployment, publication, release or further VCS action requires a separate explicit user instruction.",
+      "path": ".agdf/control/runs/agdf-pages-landing-simplification/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-pages-limits-and-risks",
+      "title": "Make AGDF limits, dependencies and process overhead explicit on the Pages site without implying certification, autonomous correctness or replacement of human engineering responsibility.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 9, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 9,
+      "revision_id": "89efc432-f2f4-41a0-b8c6-343d40cbb300",
+      "missing": "Nothing for this run.",
+      "next_action": "Re-evaluate the separately approved Mozilla Pages run.",
+      "path": ".agdf/control/runs/agdf-pages-limits-and-risks/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-pages-positioning-clarity",
+      "title": "Sharpen the public AGDF distinction and defensible USP in the existing Pages problem section without adding competitor marketing, structural complexity or unsupported superiority claims.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 7,
+      "revision_id": "A5D745E1-94DA-4C10-93F7-0E40C4BE2AA4",
+      "missing": "No scoped implementation or validation evidence; deployment, release and VCS actions remain intentionally separate.",
+      "next_action": "Use delivery closeout only after an explicit VCS instruction.",
+      "path": ".agdf/control/runs/agdf-pages-positioning-clarity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-pages-structured-depth-positioning",
+      "title": "Explain the canonical Structured Depth product semantics on AGDF Pages accurately and accessibly without creating a second normative policy owner.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "10A25281-29A0-4DA3-966E-3B804D6A8B41",
+      "missing": "Nothing required to close this run as superseded. The original absence of a separate durable SDP-13/14 manual-observation report remains disclosed rather than reconstructed.",
+      "next_action": "No work remains in this run; use the landing-page successor for current public copy and the Modes Contract or a separately approved successor for canonical depth changes.",
+      "path": ".agdf/control/runs/agdf-pages-structured-depth-positioning/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-parent-reconciliation-handoff",
+      "title": "Make an explicitly related Parent/programme reconciliation visible at Child closeout without blocking independent Child completion or creating a second closeout authority.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 7,
+      "revision_id": "9f6420a8-e18b-4bfb-a3d6-d0596830b1e4",
+      "missing": "No governance artefact or approval. Authenticated-host and real cross-repository observation remain explicit post-release evidence gaps, not performed UAT evidence.",
+      "next_action": "No governance work remains; use delivery-closeout only after an explicit request for a VCS handoff.",
+      "path": ".agdf/control/runs/agdf-parent-reconciliation-handoff/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-plugin-reliability-hardening",
+      "title": "Make runtime-integrity verification work from both the AGDF source repository and the installed plugin layout, with permanent regression coverage for the published artifact boundary.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "0ad1f500-6fb8-474e-8023-1a376240b7c1",
+      "missing": "No delivery evidence is missing for the accepted repository slice.",
+      "next_action": "Offer the commit-ready handoff and wait for explicit delivery instruction.",
+      "path": ".agdf/control/runs/agdf-plugin-reliability-hardening/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-qa-block-transition-integrity",
+      "title": "Die QA-Transition so korrigieren, dass ein dauerhafter QA-block keine QA-Freigabe anfordert, ohne Gate-Reihenfolge, QA-Entscheidungssemantik oder dauerhafte Fail-Closed-Prüfung zu verändern.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "8667f583-44ed-41a1-ba73-f1b7f527e180",
+      "missing": "Keine Evidenz im genehmigten Quick-Task-Scope; Live-Cache-/Host- und Release-Wirksamkeit wurden bewusst nicht ausgeführt.",
+      "next_action": "VCS-, Reinstall- oder Release-Aktionen nur nach separater ausdrücklicher Nutzeranweisung; Parent-Roadmap separat fortsetzen.",
+      "path": ".agdf/control/runs/agdf-qa-block-transition-integrity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-run-scoped-control-state",
+      "title": "Replace the single mutable AGDF_RUN.md authority with run-scoped control state so independent users, machines and agent sessions can work concurrently without cross-run control-state conflicts.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "dd4eeb66-80e3-482a-9228-cd63cddc2a21",
+      "missing": "Explicit delivery authorization (commit/push/PR/release) if desired; OR is now recorded.",
+      "next_action": "Offer delivery closeout (commit-ready handoff summary); VCS and release actions still require explicit separate instruction.",
+      "path": ".agdf/control/runs/agdf-run-scoped-control-state/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-scope-classification-card",
+      "title": "Make fresh-scope gate classification a canonical, deterministic, code-owned compact presentation so ungated scope decisions are visible and challengeable across models and hosts without becoming a gate or adding ceremony to lightweight pat…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "6364D490-F7E5-45B3-9EBE-9090590F44D6",
+      "missing": "Nothing within the approved parent scope. Installed-plugin freshness and live-host exactly-once behavior remain disclosed non-claims.",
+      "next_action": "No parent run work remains; any VCS, release, publication, deployment or plugin reinstall requires a separate explicit user instruction.",
+      "path": ".agdf/control/runs/agdf-scope-classification-card/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-self-maintenance-overhead-reduction",
+      "title": "Reduce AGDF's own framework-maintenance governance overhead: make mechanically-checkable drift (manifest, vocabulary, generated-surface consistency) preventable via automated checks instead of reactive gated runs, and make the framework-ma…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 14, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 14,
+      "revision_id": "630FF0FE-86A0-47FE-B56F-5C62BAC0510B",
+      "missing": "Delivery closeout offer; explicit delivery authorization (commit/push/PR/release) if desired.",
+      "next_action": "Offer delivery closeout (commit-ready handoff summary); VCS and release actions still require explicit separate instruction.",
+      "path": ".agdf/control/runs/agdf-self-maintenance-overhead-reduction/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-skill-evaluation-framework",
+      "title": "Deliver a versioned, repository-owned evals/ system that evaluates every canonical AGDF skill with realistic prompt and repository fixtures, deterministic safety grading, separate artefact-quality assessment and fail-closed CI thresholds.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 13, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 13,
+      "revision_id": "4d1c8b38-08e8-45c2-828b-f183da0dafee",
+      "missing": null,
+      "next_action": null,
+      "path": ".agdf/control/runs/agdf-skill-evaluation-framework/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-staged-proportionality-baseline-v3",
+      "title": "Create a separately versioned and neutral Benchmark v3 that resolves the remaining staged protocol, baseline and fixture gaps without rewriting historical evidence or creating a second routing owner.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "18fed12d-226a-4582-8e55-dceda4d3816b",
+      "missing": "No approval required for governance closeout; authenticated v3 live evidence remains an explicit non-claim.",
+      "next_action": "None for governance closeout; use delivery-closeout only after an explicit user instruction for a VCS handoff.",
+      "path": ".agdf/control/runs/agdf-staged-proportionality-baseline-v3/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-state-orientation",
+      "title": "Make the AGDF state model visible in the compact human Run Status Card so users can self-orient without reading the full Runtime Contract: a path-derived breadcrumb, a post-acceptance transition micro-narration, and a clean human projectio…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "BD04FEDC-0CD1-442F-A1BC-8C24BDD2BC47",
+      "missing": "No delivery artefact or approval; VCS delivery remains a separate explicit action.",
+      "next_action": "No further delivery step; prepare VCS handoff only when explicitly requested.",
+      "path": ".agdf/control/runs/agdf-state-orientation/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-structured-delivery-depth-boundary",
+      "title": "Eine kanonische, beobachtbare und fail-closed Entscheidungsgrenze zwischen structured_slice und structured_delivery definieren, ohne Gate-Reihenfolge, kompakte Pfade oder Benchmark-Evidenz vorzeitig zu verändern.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 15, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 15,
+      "revision_id": "3de2d15c-2a33-476b-a02b-ed48ab5264e4",
+      "missing": "Nothing blocks governed closeout; no VCS action has been requested.",
+      "next_action": "Offer one scoped commit for the completed run; execute it only after an explicit user instruction.",
+      "path": ".agdf/control/runs/agdf-structured-delivery-depth-boundary/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-surface-parity-fix",
+      "title": "Fix surface parity defects: approvalValueTransport, defaultPrompt, descriptions.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 2, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 2,
+      "revision_id": "32D0C50B-4EC3-4480-8642-CFF6B4620DC6",
+      "missing": null,
+      "next_action": null,
+      "path": ".agdf/control/runs/agdf-surface-parity-fix/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agdf-ux-next-round",
+      "title": "Improve AGDF's next-round user experience by making ambiguous-run selection understandable, shortening first-contact orientation, grouping skills by when users encounter them, and making fallback and version evidence more visible without c…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "0545f7f2-b65a-4267-a5cc-05f4c9ac287f",
+      "missing": "No required gate approval; direct live-host rendering remains intentionally unverified and is not claimed.",
+      "next_action": "Offer delivery closeout for an explicit commit decision.",
+      "path": ".agdf/control/runs/agdf-ux-next-round/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "agent-skills-conformance-portability",
+      "title": "Establish a deterministic Agent Skills conformance check and an explicit plugin-scoped portability boundary without duplicating AGDF Runtime Contract ownership or changing skill behavior.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "f9c73cbe-3a44-4ec1-aed5-0554580c3747",
+      "missing": "No approval is missing for run closeout; authenticated host and public distribution evidence remain intentionally unperformed.",
+      "next_action": "Use delivery closeout only when an operative commit, push or pull-request handoff is explicitly requested.",
+      "path": ".agdf/control/runs/agent-skills-conformance-portability/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "approval-orientation-completeness",
+      "title": "Ensure every native AGDF gate approval presents the operational Run Status Card and the Gate Transition Card from one selected, revalidated control state.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "C2F99F34-7E0C-42D7-832D-25A56FF4F953",
+      "missing": "No gate approval. Cross-host visual rendering remains intentionally unverified and is not claimed.",
+      "next_action": "Offer the commit-ready delivery closeout; perform no VCS action without explicit instruction.",
+      "path": ".agdf/control/runs/approval-orientation-completeness/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "approval-orientation-internal-step-integrity",
+      "title": "Correct approval orientation so internal post-approval steps remain distinct from future user decisions, without changing gate authority, approval formulas, schemas or persistence semantics.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 4, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 4,
+      "revision_id": "C844B05C-3C8A-43CF-804B-42BD3F27A4F8",
+      "missing": "Nothing in the approved repository-fix scope; installed-cache and authenticated-host behaviour remain explicit non-claims.",
+      "next_action": "Use delivery closeout only after an explicit VCS handoff request; handle reinstall, release or live-host verification as separate lifecycle work.",
+      "path": ".agdf/control/runs/approval-orientation-internal-step-integrity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "automatic-version-asset-sync",
+      "title": "Keep the Git source plugin free of generated runtime bytes and make the release build produce and install the complete exact-version plugin for Codex and Claude.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 12, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 12,
+      "revision_id": "50FB0610-6EDA-407F-A51C-E1029B522E56",
+      "missing": "No delivery artefact or approval; authenticated Claude migration, native Windows interruption and live publication remain unobserved evidence boundaries.",
+      "next_action": "Continue the already-approved QA revision in agdf-interaction-ownership-quick-path-ux; VCS delivery remains separately instructed.",
+      "path": ".agdf/control/runs/automatic-version-asset-sync/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "claude-local-install-content-refresh",
+      "title": "Make npm run install:claude deliver current source content to the Claude host deterministically (uninstall→install) and make its version verification read the real multi-line claude plugin list output.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "9901b124-15b2-41d8-8cc9-ee197c920d15",
+      "missing": "Nothing within scope; loaded-host proof awaits the user's Claude Code restart.",
+      "next_action": "Use delivery closeout only when the user explicitly requests a commit, push or pull-request handoff.",
+      "path": ".agdf/control/runs/claude-local-install-content-refresh/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "coding-agent-user-guide-de",
+      "title": "Create a concise German, task-oriented user guide for applying AGDF through coding agents without duplicating normative runtime, installation or CLI sources of truth.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 20, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 20,
+      "revision_id": "6fe12f85-ce15-4936-92f3-1f20c5d71fac",
+      "missing": "No delivery evidence is missing. Git delivery remains a separate explicit instruction.",
+      "next_action": "Request explicit Git delivery instruction if commit, push or PR is wanted.",
+      "path": ".agdf/control/runs/coding-agent-user-guide-de/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "create-agdf-cli-modularization",
+      "title": "Modularize the create-agdf CLI entry point into focused, testable owners while preserving every public command, output contract, exit-code semantic, generated-file behaviour and AGDF gate decision.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 16, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 16,
+      "revision_id": "3b6d1d26-f904-4d88-9598-7f3f19ceb79d",
+      "missing": "No selected-run gate or closeout evidence; native Windows execution remains a disclosed platform limitation.",
+      "next_action": "Provide a delivery handoff; use delivery-closeout only on an explicit VCS delivery request.",
+      "path": ".agdf/control/runs/create-agdf-cli-modularization/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "deterministic-agent-ux",
+      "title": "Make AGDF's agent-native interaction model immediately understandable across Codex, Claude Code, OpenCode and GitHub Copilot, and reduce model-dependent approval-format drift through one deterministic, render-ready presentation path withou…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 18, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 18,
+      "revision_id": "2592aa37-0b6c-4604-8b62-71e37d8c74fe",
+      "missing": "No required delivery artefact or user approval. Authenticated live Claude Code, OpenCode and GitHub Copilot observations remain intentionally unverified.",
+      "next_action": "No further delivery step. A separately requested delivery handoff may prepare VCS actions without executing them automatically.",
+      "path": ".agdf/control/runs/deterministic-agent-ux/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "gate-check-recovery-command",
+      "title": "Ensure ambiguous-run recovery recommends only valid command options and that a selected, artefact-ready user gate reaches the correct approval path without being misclassified as blocked or invoking a native adapter whose transport cannot …",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 18, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 18,
+      "revision_id": "8dbc3fc9-aed5-4f60-9b02-5957428f5218",
+      "missing": "No gate approval. Fresh installed-plugin verification remains useful before publication.",
+      "next_action": "Offer a path-scoped commit that excludes unrelated dirty-worktree changes.",
+      "path": ".agdf/control/runs/gate-check-recovery-command/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "install-scripts-fresh-checkout-fix",
+      "title": "Make npm run install:<surface> work on a fresh checkout by deferring generated-file-dependent module loading in the local install script until after its own release:prepare step has produced create-agdf/generated/.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "571d9264-f843-4211-90e6-7694e59b6ee9",
+      "missing": "Nothing within scope; non-Windows/CI full-suite evidence and the two Windows follow-ups are disclosed separately.",
+      "next_action": "Use delivery closeout only when the user explicitly requests a commit, push or pull-request handoff.",
+      "path": ".agdf/control/runs/install-scripts-fresh-checkout-fix/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "installer-output-parity",
+      "title": "Make AGDF installation, activation, verification, first use and opt-out one coherent journey while keeping technical health distinct from delivery gate state.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 34, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 34,
+      "revision_id": "8BDC042D-6538-4DB3-9A1A-5C10AC5CA385",
+      "missing": "No delivery artefact or approval; real host restart/activation evidence remains intentionally unverified and no VCS handoff has been requested.",
+      "next_action": "No further delivery step; retain the host-evidence limitation in any later handoff.",
+      "path": ".agdf/control/runs/installer-output-parity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "native-gate-buttons-live",
+      "title": "Deliver and live-verify native Codex and Claude Code gate-approval buttons without creating a custom UI or weakening AGDF approval authority.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "decline",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 49, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 49,
+      "revision_id": "DDDC4F09-218B-4D90-B12C-E4D738225F84",
+      "missing": "No closeout artefact; UAT was deliberately declined and no acceptance is claimed.",
+      "next_action": "Close the declined scope as superseded by agdf-human-decision-surface; no further delivery step.",
+      "path": ".agdf/control/runs/native-gate-buttons-live/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "opencode-plugin-honesty-hardening",
+      "title": "Remove three false-confidence sources in the OpenCode plugin surface without adding enforcement logic: document the subagent enforcement bypass, surface inactive-repository warnings in the TUI, and report plugin/validator version drift at …",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "completed",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "4b1c9a20-7d3e-4f2a-9e1b-2a8f7c6d5e3a",
+      "missing": "Nothing required for this completed run. Release or publish work remains a separate action, not missing run evidence.",
+      "next_action": "None for this run.",
+      "path": ".agdf/control/runs/opencode-plugin-honesty-hardening/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "opencode-registry-install",
+      "title": "Stabilize OpenCode registry installation and repair parser/transition runtime integrity defects while preserving the global installation and repository activation boundaries.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "14c896e7-a08c-4985-9a89-c4a96f08c8ff",
+      "missing": "OR / delivery closeout.",
+      "next_action": "Create the Orchestration Report and offer delivery closeout.",
+      "path": ".agdf/control/runs/opencode-registry-install/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "opencode-single-install-activation",
+      "title": "Simplify OpenCode AGDF adoption to one global installation with explicit repository activation from durable AGDF control state, without duplicating shared OpenCode runtime assets.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 12, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 12,
+      "revision_id": "8183dbf7-7063-4766-a982-e16f3a07b9e0",
+      "missing": "No governance artefact or approval. Authenticated interactive OpenCode restart, rendering and skill-selection observation remain unperformed post-release evidence.",
+      "next_action": "Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 using this accepted owner outcome.",
+      "path": ".agdf/control/runs/opencode-single-install-activation/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-agentic-control-layer-evidence",
+      "title": "Add a concise Mozilla 2026 external evidence card after the race-car/control-system analogy without overstating endorsement or contaminating another Pages delivery scope.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 4, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 4,
+      "revision_id": "a791663d-368f-4232-bda9-5e2e855af1db",
+      "missing": "Nothing for the approved quick-task scope.",
+      "next_action": "None; an optional version-control handoff requires separate explicit instruction.",
+      "path": ".agdf/control/runs/pages-agentic-control-layer-evidence/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-contact-email",
+      "title": "Add agdf@iself.eu to the public Pages footer as a visible, accessible email contact without introducing a form, route or external service.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 5, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 5,
+      "revision_id": "a4ad11de-0431-44b2-b37d-9d535b747896",
+      "missing": "Nothing for the approved scope; VCS and release actions remain separate.",
+      "next_action": "Offer delivery closeout; commit, push, PR or release only on explicit instruction.",
+      "path": ".agdf/control/runs/pages-contact-email/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-governed-transition-graphic",
+      "title": "Add one accurate, responsive and accessible governed-transition visual to the existing Pages problem section without implying a dashboard or universal host-side enforcement.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "C47C68D8-71A3-4765-A2D3-424659F8B21A",
+      "missing": "No scoped implementation or validation evidence; deployment, release and VCS actions remain intentionally separate.",
+      "next_action": "Use delivery closeout only after an explicit VCS instruction.",
+      "path": ".agdf/control/runs/pages-governed-transition-graphic/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-landing-ci-coverage",
+      "title": "Run the existing Pages landing-page regression test in the standard GitHub Actions guardrail job.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "a97a0f0e-5084-451d-b68f-c0bfb606ad23",
+      "missing": "GitHub-hosted execution remains external evidence until commit and push.",
+      "next_action": "Use delivery closeout only when commit, push or pull-request handoff is explicitly requested.",
+      "path": ".agdf/control/runs/pages-landing-ci-coverage/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-narrow-bug-track-clarity",
+      "title": "Clarify the Narrow Bug Track as a bounded governance aid rather than an independent delivery-path bypass, while distinguishing it from Verified Change.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "12e5c8ff-748c-4046-8aea-cd826ece046e",
+      "missing": "OR / delivery closeout.",
+      "next_action": "Create the Orchestration Report and offer delivery closeout.",
+      "path": ".agdf/control/runs/pages-narrow-bug-track-clarity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-self-hosting-gate-proof",
+      "title": "Align the public Codex proof module with an SD-to-UAT Gate-Rationale-Registry screenshot sequence so it becomes coherent, evidence-backed self-hosting proof.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": null,
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 7,
+      "revision_id": "e941602b-eb73-4db8-b20b-d9e4ec40c960",
+      "missing": "No evidence is missing for the approved Quick Task scope.",
+      "next_action": "User review or an explicitly requested delivery action.",
+      "path": ".agdf/control/runs/pages-self-hosting-gate-proof/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-self-hosting-proof",
+      "title": "Add a concise, evidence-backed Pages section showing that AGDF is actively developed using AGDF and that this repository is its working reference implementation.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 4, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 4,
+      "revision_id": "daddb561-1a1f-470b-af73-e64eb3863438",
+      "missing": "Nothing for the approved quick-task scope.",
+      "next_action": "None; an optional version-control handoff requires separate explicit instruction.",
+      "path": ".agdf/control/runs/pages-self-hosting-proof/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "pages-skill-evaluation-evidence",
+      "title": "Add one focused Pages proof point for the versioned AGDF skill evaluation framework using only verifiable figures and explicit replay/live evidence boundaries.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 7, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 7,
+      "revision_id": "b0955944-b03d-4620-a5cd-0283024e84b3",
+      "missing": null,
+      "next_action": null,
+      "path": ".agdf/control/runs/pages-skill-evaluation-evidence/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "prd-ux-intent-requirements",
+      "title": "Move UX-intent definition into pre-implementation requirements and give all review skills one shared gap taxonomy so missing requirements, design, plan, implementation and evidence route to their authoritative owner instead of becoming ret…",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 22, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 22,
+      "revision_id": "FC79E4A9-BE83-4CB1-A296-7BAFA1E0F289",
+      "missing": "No governance artefact or approval; authenticated host behavior remains intentionally unclaimed.",
+      "next_action": "Use delivery closeout only when a VCS handoff is explicitly requested.",
+      "path": ".agdf/control/runs/prd-ux-intent-requirements/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "quality-readiness-surface",
+      "title": "Give users one clear post-CD+Tests Quality Readiness picture while preserving the four formal review reports and qa-gate as the only final pass | revise | block decision point.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "67348b4d-06ea-44f8-856e-a036a7e6629a",
+      "missing": "Delivery handoff authorization if commit, push, PR or release is desired.",
+      "next_action": "Offer delivery closeout; do not perform VCS or release actions without separate instruction.",
+      "path": ".agdf/control/runs/quality-readiness-surface/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "runtime-contract-modularization",
+      "title": "Split the 855-line agdf-runtime-contract.md monolith into thematic modules so skills can load only what they need, reducing context waste.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 20, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 20,
+      "revision_id": "833dface-adb5-4ef2-afd5-bbadcfb81765",
+      "missing": "No gate artefact or approval; VCS delivery requires a separate explicit instruction",
+      "next_action": "Provide delivery closeout only when explicitly requested",
+      "path": ".agdf/control/runs/runtime-contract-modularization/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "scope-classification-card-contract-hardening",
+      "title": "Align the Scope Classification Card implementation, tests and normative owners on one bounded, plain-text, fail-closed contract without creating a second presentation owner.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "ADFF34DA-D43B-44D7-B524-F8D7E692284A",
+      "missing": "Nothing within the approved run scope. Installed-plugin freshness and live-host exactly-once behavior remain disclosed non-claims.",
+      "next_action": "No run work remains; any VCS, release, publication or plugin reinstall requires a separate explicit user instruction.",
+      "path": ".agdf/control/runs/scope-classification-card-contract-hardening/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "surface-native-interactions",
+      "title": "Add a portable AGDF interaction layer that uses native Codex, Claude Code and OpenCode controls while preserving exact approvals, durable repository-owned gate state and fail-closed behavior.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 11, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 11,
+      "revision_id": "88B5DE46-B884-4F0B-AC00-BDD295794F73",
+      "missing": "Delivery Orchestration Report; explicit delivery authorization if desired.",
+      "next_action": "Produce the Orchestration Report and offer delivery closeout.",
+      "path": ".agdf/control/runs/surface-native-interactions/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "task-target-resolution-boundary",
+      "title": "Das primäre Arbeitsziel einer Nutzeranfrage vor Repository-Aktivierung, Scope Classification und Gate-Auswertung kanonisch bestimmen und sichtbar von Evidenzquellen sowie dem aktuellen Arbeitsordner trennen.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "a6c59e1a-1e60-4172-a127-b0f4b2d5c59e",
+      "missing": "Kein Governance-Artefakt und keine Freigabe. Live-Host-, Attachment- und Host-Pfad-Beobachtung bleibt unperformed post-release evidence.",
+      "next_action": "Product Maturity Roadmap PMR-5/PMR-6 anhand des akzeptierten Ergebnisses neu bewerten.",
+      "path": ".agdf/control/runs/task-target-resolution-boundary/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "verified-change-control-integrity",
+      "title": "Repair the inconsistencies exposed by the first real bounded Pages Verified Change while preserving fail-closed eligibility and proportionate governance.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 16, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 16,
+      "revision_id": "f6f53fa0-f52f-4a8f-848e-a8c257cf1312",
+      "missing": "No workflow approval; any commit, push, pull request or release requires a separate explicit delivery instruction.",
+      "next_action": "Offer an explicit delivery handoff decision without performing VCS or release actions automatically.",
+      "path": ".agdf/control/runs/verified-change-control-integrity/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "verified-change-path",
+      "title": "Maintain the fail-closed Verified Change path between Trivial Change and Structured Slice without weakening scope, ownership, evidence or escalation controls.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 1, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 1,
+      "revision_id": "66514732-8a1f-4a76-9f95-6ecdbe98ecc1",
+      "missing": "OR / delivery closeout.",
+      "next_action": "Create the Orchestration Report and offer delivery closeout.",
+      "path": ".agdf/control/runs/verified-change-path/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "windows-native-install-viability",
+      "title": "Make npm run install:<surface> and its test chain complete on native Windows without symlink privilege by probe-gating the symlink negative fixture and adding a bounded Windows-only EPERM retry to owned-root directory swaps.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 3, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 3,
+      "revision_id": "d054eeed-6236-4f73-a307-8b8018f9b173",
+      "missing": "Nothing within scope. Two out-of-scope findings are recorded in VERIFIED_CHANGE.md: the provenance migration gap (owned by run agdf-cross-host-runtime-integrity, QA-relevant) and the non-portable darwin-path assertions in local-marketplace-test.js.",
+      "next_action": "Use delivery closeout only when the user explicitly requests a commit, push or pull-request handoff.",
+      "path": ".agdf/control/runs/windows-native-install-viability/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    },
+    {
+      "run_id": "windows-release-bump-symlink-fixture",
+      "title": "Die negative Release-Bump-Symlink-Fixture auf Windows ohne Symlink-Privileg ausführbar machen, ohne Produktionsschutz oder Fehlererkennung zu schwächen.",
+      "title_source": "objective",
+      "valid": true,
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "decision": "pass",
+      "attention": {
+        "code": "none",
+        "label": "History"
+      },
+      "basis": "Stored state at revision 4, not a live evaluation.",
+      "last_activity": {
+        "at": null,
+        "source": "none",
+        "precision": null
+      },
+      "revision": 4,
+      "revision_id": "488CDD5D-4DC5-4CA2-805B-019A6BC9BAB3",
+      "missing": "Nichts für den begrenzten Symlink-Fixture-Fix; Rohlog und genaue Latenzursache des anschließenden Copilot-Skillaufrufs gehören nicht zu diesem Run.",
+      "next_action": "Optionaler Delivery Closeout nur auf ausdrücklichen VCS-Auftrag; langsamen /agdf-gate-check separat untersuchen.",
+      "path": ".agdf/control/runs/windows-release-bump-symlink-fixture/RUN_STATE.md",
+      "closure": null,
+      "findings": []
+    }
+  ],
+  "findings": [],
+  "authorizes": false
+}

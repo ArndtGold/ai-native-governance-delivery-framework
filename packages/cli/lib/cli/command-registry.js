@@ -38,6 +38,7 @@ export const commandRegistry = Object.freeze([
   command("doctor", { local: [""], scaffold: [""], legacy: [" --json"] }),
   command("gate-check", { local: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
   command("delivery-map", { local: [" --json"], scaffold: [""] }),
+  command("inventory", { local: [" [--json] [--language <tag>]"] }),
   command("delivery-path-search", {
     local: [" --surface codex --json", " --surface claude --json", " --surface opencode --json"],
     scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
@@ -143,7 +144,7 @@ export function validateCommandOptions(options) {
   }
   // Shared read-selection rules (MCP agdf_inspect applies the same function). The gate-check
   // --status-card/--approval-envelope flags keep their historical CLI tolerance and are not passed here.
-  validateReadSelection({ operation: options.target, allActive: options.allActive, contractModule: options.contractModule });
+  validateReadSelection({ operation: options.target, allActive: options.allActive, contractModule: options.contractModule, runId: options.runId });
   if (options.target === "run-create" && (!options.runId || options.allActive)) {
     throw new Error("run-create requires --run and rejects --all-active");
   }

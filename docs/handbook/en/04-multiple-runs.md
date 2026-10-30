@@ -2,7 +2,7 @@
 language: en
 chapter_role: multiple_runs
 translation_of: ../de/04-mehrere-runs.md
-source_revision: sha256:9ff856097d47cffdbf51579c48b97d4759e33499fe9900d754ecbe2063ccbb99
+source_revision: sha256:ab6e598f85967aa77237824e6f39fc0e8d419adb0d3acb07674a5f784c920dd1
 translation_status: reviewed
 ---
 
@@ -25,6 +25,24 @@ You normally do not need to select the run yourself:
 
 The working directory, branch name, current diff or chat history alone is not enough to select an
 authoritative run.
+
+## Overview of all runs
+
+When you ask "Show the active AGDF runs in this project", the agent answers with the run inventory
+(`agdf_inspect`, operation `inventory`). In the shell, `agdf inventory --json` returns the same list.
+The inventory reads only the stored `RUN_STATE.md` files and lists every run once with title,
+lifecycle, current step, attention class, last activity and revision:
+
+- **Decision required:** an exact approval is pending.
+- **Clarification required:** the stored result is `revise`, `decline` or a change request.
+- **Blocked:** the result is `block` or the run state is invalid; `doctor --run` shows why.
+- **In progress** and **Unclear** for the remaining active runs.
+
+The list starts with these classes, followed by the most recently worked runs. Last activity is the
+newest receipt, else the date of the latest approval (day precision), else unknown. Completed,
+superseded and abandoned runs appear as history. The classes describe the stored state and are not a
+live evaluation; `gate-check` gives the current state of one run. `doctor --all-active` still checks
+every active run in full and carries the same inventory.
 
 ## Multiple tasks in one repository
 

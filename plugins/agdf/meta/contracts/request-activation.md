@@ -140,6 +140,7 @@ grant applicability or authority.
     { "operation_id": "status.opencode_repository", "route_family": "repository_status", "target_boundary": "explicit_required", "control_boundary": "absence_is_result", "owner_kind": "function", "owner": "evaluateOpenCodeStatus.repository" },
     { "operation_id": "runtime.checks", "route_family": "global_runtime_lifecycle", "target_boundary": "none", "control_boundary": "no_probe", "owner_kind": "command", "owner": "runtime-checks" },
     { "operation_id": "control.doctor", "route_family": "deterministic_control_inspection", "target_boundary": "required_after_activation", "control_boundary": "missing_is_result", "owner_kind": "command", "owner": "doctor" },
+    { "operation_id": "control.inventory", "route_family": "deterministic_control_inspection", "target_boundary": "required_after_activation", "control_boundary": "missing_is_result", "owner_kind": "command", "owner": "inventory" },
     { "operation_id": "control.delivery_map", "route_family": "deterministic_control_inspection", "target_boundary": "required_after_activation", "control_boundary": "missing_is_result", "owner_kind": "command", "owner": "delivery-map" },
     { "operation_id": "run.create", "route_family": "run_lifecycle", "target_boundary": "required_after_activation", "control_boundary": "command_preconditions", "owner_kind": "command", "owner": "run-create" },
     { "operation_id": "run.migrate", "route_family": "run_lifecycle", "target_boundary": "required_after_activation", "control_boundary": "command_preconditions", "owner_kind": "command", "owner": "run-migrate" },
@@ -178,13 +179,15 @@ route synthesizes an immediate `Approval: UR` merely because a control file is a
 ## Active Run Inventory
 
 "Zeige die aktiven AGDF-Runs in diesem Projekt" / "Show the active AGDF runs in this project"
-selects `control.doctor`, even with gate-check loaded. For "this project", bind its verified chat
+selects `control.inventory`, even with gate-check loaded. For "this project", bind its verified chat
 repository root as `primary_target`, `target_source: current_repository`; cwd alone is not authority.
 Ambiguous or unavailable projects use existing target clarification.
-Call `agdf_inspect` with `operation: doctor`, `all_active: true`, `presentation_language` and actual
-`working_directory`; fallback: surface-local `doctor --dir <verified-root> --all-active --json`.
-Omit run selection, intake and continuation. Show every returned run plus integrity findings.
-Distinguish empty, absent control, incomplete inventory and failure; partial counts are not totals.
+Call `agdf_inspect` with `operation: inventory`, `presentation_language` and actual
+`working_directory`; fallback: surface-local `inventory --dir <verified-root> --json`.
+Omit run selection, intake and continuation. Show every returned open run with title, gate and
+attention class, the history counts and integrity findings. Classes rest on stored run state, not a
+live gate evaluation; say so. Distinguish empty, absent control, incomplete inventory and failure;
+partial counts are not totals. `doctor` with `all_active: true` stays the all-run health check.
 Listing never repairs, initializes or requests approval.
 
 ## Request Applicability Guard

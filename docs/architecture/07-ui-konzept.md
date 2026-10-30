@@ -574,6 +574,17 @@ für Auswertung und gespeicherte Entscheidungen zuständig, MCP vermittelt, die 
 Spätere Runtime- oder Installationsänderungen sind gegen ihre eigene Fassung zu prüfen. Sie
 aktualisieren weder diesen datierten Abgleich noch die eingefrorenen Praxisdaten automatisch.
 
+**Nachtrag 29. Oktober 2026 zu Ergänzung 3 (Vorhaben finden):** Der fehlende begrenzte
+Run-Leseumfang steht als gemeinsames Core-Inventar bereit
+([run-inventory.js](../../packages/core/lib/control-state/run-inventory.js), Run
+`run-inventory-core-20261029-01`). Es leitet aus den gespeicherten `RUN_STATE.md`-Dateien je Run
+Titel, Lebenszyklus, Schritt, Aufmerksamkeitsklasse („Entscheidung erforderlich“, „Klärung
+erforderlich“, „blockiert“, „in Arbeit“, „unklar“), letzte Aktivität und Revision ab, ohne Live-Bewertung
+pro Run, und kennzeichnet jede Klasse als gespeicherten Stand. Es ist ein reines Modul ohne
+Dateizugriff. Erste Nutzer sind `doctor --all-active` und die Inspect-Operation `inventory`. Folgen
+sind eigene Runs: der Begleiter mit einer mitgelieferten Kopie, die Hub-Ergänzung 3 im Cockpit und
+die Intake-Kandidatenliste.
+
 ## 10 Beobachtbare Nutzererlebnisse
 
 ### Entlastung am durchgängigen Weg prüfen

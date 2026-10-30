@@ -4,7 +4,7 @@ import { validateCommandOptions, commandGroupRoutes } from "../cli/command-regis
 import { CliUsageError, parseArgs } from "../cli/parse-args.js";
 import { pluginDefinition } from "../cli/runtime-context.js";
 
-const validatorCommands = new Set(["target-check", "skill-dispatch", "doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-create", "run-present", "run-update", "run-revise", "run-step", "run-approve", "run-close", ...Object.keys(commandGroupRoutes)]);
+const validatorCommands = new Set(["target-check", "skill-dispatch", "doctor", "gate-check", "delivery-map", "inventory", "delivery-path-search", "contract", "control-maintenance", "run-create", "run-present", "run-update", "run-revise", "run-step", "run-approve", "run-close", ...Object.keys(commandGroupRoutes)]);
 
 export async function runValidatorCli(argv = process.argv.slice(2), adapters = {}) {
   const io = adapters.io ?? console;
@@ -22,7 +22,7 @@ export async function runValidatorCli(argv = process.argv.slice(2), adapters = {
     return error.exitCode;
   }
   if (parsed.kind === "help") {
-    io.log("AGDF surface-local validator: target-check | skill-dispatch | doctor | gate-check | delivery-map | delivery-path-search | contract | control-maintenance | run-create | run-present | run-update | run-revise | run-step | run-approve | run-close");
+    io.log("AGDF surface-local validator: target-check | skill-dispatch | doctor | gate-check | delivery-map | inventory | delivery-path-search | contract | control-maintenance | run-create | run-present | run-update | run-revise | run-step | run-approve | run-close");
     return 0;
   }
   let options;

@@ -17,13 +17,14 @@ const { cases } = loadRequestActivationCorpus(repoRoot);
 for (const [locale, text] of [["de", "Zeige die aktiven AGDF-Runs in diesem Projekt"], ["en", "Show the active AGDF runs in this project"]]) {
   const scenario = cases.find((item) => item.case_id === `${locale}-active-runs-current-project`);
   assert.equal(scenario.user_text, text);
-  assert.equal(scenario.expected.operation_id, "control.doctor");
+  assert.equal(scenario.expected.operation_id, "control.inventory");
   assert.equal(scenario.expected.selected_skill, "none");
   assert.ok(scenario.expected.forbidden_callbacks.includes("dispatcher_v1"));
   assert.ok(contract.includes(text));
 }
 assert.match(contract, /target_source: current_repository/u);
-assert.match(contract, /operation: doctor.*, `all_active: true`/u);
+assert.match(contract, /`operation: inventory`/u);
+assert.match(contract, /"operation_id": "control\.inventory".*"owner": "inventory"/u);
 
 const base = mkdtempSync(join(tmpdir(), "agdf-active-run-inventory-"));
 const inspectArgs = async args => {
@@ -39,7 +40,7 @@ const makeRepository = (name, options) => {
   return root;
 };
 const inspect = (root, language, target = true) => inspectArgs({
-  operation: "doctor", all_active: true, presentation_language: language,
+  operation: "inventory", presentation_language: language,
   working_directory: root,
   ...(target ? { primary_target: root, target_source: "current_repository" } : {}),
 });
@@ -53,26 +54,30 @@ try {
   const incomplete = makeRepository("incomplete"); addRun(incomplete, "known");
   const broken = addRun(incomplete, "broken"); writeFileSync(broken, "malformed run record\n");
   for (const language of ["en", "de", "de-DE", "fr"]) {
-    for (const [root, state, ids] of [[absent, "absent", []], [empty, "complete", []], [single, "complete", ["one"]], [multiple, "complete", ["first", "second"]], [incomplete, "incomplete", ["known"]]]) {
+    for (const [root, state, ids] of [[absent, "absent", []], [empty, "complete", []], [single, "complete", ["one"]], [multiple, "complete", ["first", "second"]], [incomplete, "incomplete", ["broken", "known"]]]) {
       const before = treeDigest(root);
       const result = await inspect(root, language);
       assert.equal(result.outcome, "inspect_result", JSON.stringify(result));
       assert.equal(result.terminal, false);
       assert.equal(result.authorizes, false);
-      assert.equal(result.report.inventory.state, state);
-      assert.deepEqual(result.report.runs.map((run) => run.run_id), ids);
+      assert.equal(result.report.state, state);
+      const open = result.report.runs.filter((run) => !run.valid || run.lifecycle === "active");
+      assert.deepEqual(open.map((run) => run.run_id).sort(), ids);
+      if (root === multiple) assert.equal(result.report.runs.at(-1).run_id, "completed", "history follows the active runs");
       assert.equal(result.host_action.source, "presentation.markdown");
       assert.equal(result.host_action.may_request_run_or_evidence, false);
       const markdown = result.presentation.markdown;
-      for (const id of ids) assert.ok(markdown.includes(`- \`${id}\``));
-      assert.ok(!markdown.includes("completed"));
+      for (const id of ids) assert.ok(markdown.includes(`\`${id}\``), id);
+      assert.ok(!markdown.includes("`completed`"), "history appears only as counts");
       assert.doesNotMatch(markdown, /Approval:|Choose the delivery run|Nutzer.*Freigabe/u);
       const german = language.startsWith("de");
       if (state === "absent") assert.match(markdown, german ? /keinen Ordner/u : /no .agdf\/control directory/u);
       else if (!ids.length) assert.match(markdown, german ? /Keine aktiven/u : /No active/u);
       else assert.match(markdown, german ? /aktive AGDF-Runs gefunden/u : /active AGDF runs found/u);
       if (state === "incomplete") assert.match(markdown, german ? /Gesamtzahl.*unbekannt/u : /total number.*unknown/u);
-      if (ids.includes("one") || ids.includes("first")) assert.match(markdown, /AGDF_RUN_SEAL_INVALID/u);
+      if (state !== "absent") assert.match(markdown, german ? /Historie: /u : /History: /u);
+      if (ids.length) assert.match(markdown, german ? /keine Live-Bewertung/u : /not a live evaluation/u);
+      if (state === "incomplete") assert.match(markdown, /doctor --run broken/u);
       assert.equal(treeDigest(root), before, "inventory must not write any control or project file");
     }
   }
@@ -81,10 +86,27 @@ try {
   assert.equal(unresolved.report, null);
   assert.equal(unresolved.terminal, true);
   const other = await inspect(empty, "en");
-  const mismatch = await inspectArgs({ operation: "doctor", all_active: true, presentation_language: "en",
+  const mismatch = await inspectArgs({ operation: "inventory", presentation_language: "en",
     working_directory: empty, primary_target: multiple, target_source: "current_repository" });
   assert.equal(mismatch.outcome, "target_unresolved");
   assert.equal(other.report.runs.length, 0);
+  // SCN-012: the inventory evaluates no gate and accepts no run selection.
+  const noEvaluation = () => { throw new Error("inventory must not evaluate gates"); };
+  const spied = createControlInspectService({ evaluateDoctor: noEvaluation, evaluateGateCheck: noEvaluation, evaluateDeliveryMap: noEvaluation });
+  const common = { operation: "inventory", presentationLanguage: "en", workingDirectory: multiple, primaryTarget: multiple,
+    targetSource: "current_repository", interactionLocales, expectedVersion: pluginDefinition.version };
+  const listed = spied(common);
+  assert.equal(listed.outcome, "inspect_result", JSON.stringify(listed.recovery));
+  assert.deepEqual(listed.report, (await inspect(multiple, "en")).report);
+  for (const extra of [{ runId: "first" }, { allActive: true }]) assert.equal(spied({ ...common, ...extra }).outcome, "invalid_input", JSON.stringify(extra));
+  // The MCP server projects every result before sending it; an unclassified read used to fail as
+  // tool_result_invalid there although the in-process result was valid.
+  const projectionRuntime = createMcpDispatchRuntime({ surface: "claude", verifyRuntime() {} });
+  let projected;
+  try { projected = projectionRuntime.projectToolResult("agdf_inspect", { operation: "inventory", presentation_language: "en" }, await inspect(multiple, "en")); }
+  finally { await projectionRuntime.close(); }
+  assert.equal(projected.outcome, "inspect_result");
+  assert.equal(projected._meta?.["agdf/tool-result"]?.failed, false, JSON.stringify(projected._meta));
   const failed = createControlInspectService({ evaluateDoctor() { throw new Error("fixture read failure"); } })({
     operation: "doctor", allActive: true, presentationLanguage: "de", workingDirectory: multiple,
     primaryTarget: multiple, targetSource: "current_repository", interactionLocales,
@@ -97,7 +119,7 @@ try {
   const originalRunId = process.env.AGDF_RUN_ID;
   try {
     process.env.AGDF_RUN_ID = "completed";
-    assert.deepEqual((await inspect(multiple, "de")).report.runs.map((run) => run.run_id), ["first", "second"]);
+    assert.deepEqual((await inspect(multiple, "de")).report.runs.map((run) => run.run_id), ["first", "second", "completed"]);
   } finally {
     if (originalRunId === undefined) delete process.env.AGDF_RUN_ID;
     else process.env.AGDF_RUN_ID = originalRunId;

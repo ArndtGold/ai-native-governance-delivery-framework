@@ -1,0 +1,39 @@
+## Kurzfassung · UAT
+
+Run: `run-inventory-core-20261029-01` · Gate: `UAT` · Revision: `0a3cc2a9-ec4a-4a41-927f-7353d92d46fb`
+
+- Ziel: Ein reines Core-Modul leitet aus den `RUN_STATE.md`-Dateien ein Inventar ab: jeder Run einmal mit Titel, Lebenszyklus inklusive `superseded`/`abandoned`, Gate, Aufmerksamkeitsklasse mit gespeicherter Grundlage, letzter Aktivität mit Quelle und Revision. Erste Nutzer sind `doctor --all-active` und `agdf_inspect`.
+- Geliefertes Ergebnis: Das reine Core-Modul `run-inventory.js` leitet das Inventar nur aus den gespeicherten `RUN_STATE.md` ab: jeder Run einmal mit Titel, Lebenszyklus inklusive `superseded`/`abandoned`, Gate, Aufmerksamkeitsklasse mit Hinweis auf den gespeicherten Stand, letzter Aktivität ohne `updated_at` und Revision, in fester Reihenfolge. `doctor --all-active` trägt es mit, die neue Operation `inventory` liefert es über `agdf_inspect`, CLI und Validator, und die Route „Zeige die aktiven AGDF-Runs“ nutzt sie.
+- Technische QA: pass
+- Nachweisgrenzen: Keine native Host-Sitzung, STDIO mit Quellcode statt installiertem Paket, Verhaltensevaluation nur mit Claude, doctor-Zeit gegen die UR-Basis gemessen, deine fachliche Prüfung der echten Klassen steht aus, volle CI im Pull Request steht aus.
+- Risiken und offene Punkte: Klassen beruhen auf gespeichertem Stand und Seals werden nicht geprüft; 11 Byte Restbudget in der Tool-Definition; Altläufe ohne Beleg sortieren spät; die native Claude-CLI-Evidenz veraltet durch den Vertragstext.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 8
+
+- QA: .agdf/control/artefacts/run-inventory-core-20261029-01/QA_REPORT.md · sha256:4edac496b45cd0789f11f92f579d950b1550bf00bd4ec6fea4d7cf1bb6dad6a7
+- Review: .agdf/control/artefacts/run-inventory-core-20261029-01/TP_REVIEW.md · sha256:e9a94806c836c9bbc53e43a3da5f53de71d53182ac7f5ab238edcbcef78a5e65
+- Review: .agdf/control/artefacts/run-inventory-core-20261029-01/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:fbad59efa99dc842e5ab135acc6b64d3918a82b37180facf8ef4191cfb7866d3
+- Review: .agdf/control/artefacts/run-inventory-core-20261029-01/CODE_REVIEW.md · sha256:c378a6aec8eb9d84539f423ccc6c526a5532f90af3ab8d9f0a5a246a75091775
+- UR: .agdf/control/artefacts/run-inventory-core-20261029-01/UR.md · sha256:3778e8bb633a3e787fcf22376f29730f5bb8cb2b089cb4fd39245cbeae45c6b1
+
+## Vorliegende UAT-Evidenz
+
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/run-inventory-core-20261029-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/run-inventory-core-20261029-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/PRD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/SD_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/TP_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/run-inventory-core-20261029-01/QA_MAPPING_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

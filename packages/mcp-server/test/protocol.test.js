@@ -133,7 +133,10 @@ for (const modern of [false, true]) {
     }
     assert.ok(Buffer.byteLength(JSON.stringify(tools[1])) <= 5000, `${protocol}: actual discovered definition budget`);
     assert.ok(tools[1].outputSchema, 'output validation retained');
-    for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.description?.length > 10);
+    for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.type || field.enum || field.$ref, 'discovery retains input types');
+    for (const name of ['target_source', 'primary_target', 'module', 'gate']) assert.ok(tools[1].inputSchema.properties[name].description?.length > 10);
+    const help = JSON.parse(tools[1].description.match(/\{[^\n]+\}/u)[0]);
+    assert.equal(help.module, 'agdf_run/run.create', 'complete creation help is discoverable before selecting a Run');
     assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
     assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
     await assertGuidedInspection(client);

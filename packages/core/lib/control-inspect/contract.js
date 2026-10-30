@@ -80,15 +80,17 @@ const inputSchema = {
 
 inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
 delete inputSchema.allOf;
-const conciseHelp = { operation: 'Read operation.', presentation_language: 'Reply language.', working_directory: 'Context directory.',
-  target_source: 'Target provenance.', primary_target: 'Confirmed target.', run_id: 'Confirmed Run.', gate: 'Gate selector.',
-  expected_revision_id: 'Bound revision.', presentation_id: 'Presentation ID.', target_id: 'Target identity.', cursor: 'Next page cursor.',
-  variant: 'Status variant.', module: 'Contract or UUID.', all_active: 'Doctor/map scope.' };
-for (const [key, description] of Object.entries(conciseHelp)) inputSchema.properties[key].description = description;
+const conciseHelp = { target_source: 'Pair with primary_target.', primary_target: 'Confirmed root; pair target_source.',
+  module: 'contract: module; operation-contract: group/kind; operation-status: UUID.',
+  gate: 'Not for gate-check.' };
+for (const [key, field] of Object.entries(inputSchema.properties)) {
+  delete field.description;
+  if (conciseHelp[key]) field.description = conciseHelp[key];
+}
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: "Read-only. Follow navigation.next_calls sequentially; read all pages. operation-contract: help.",
+  description: 'Read-only. Help for confirmed /repo: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. Other command help needs Run/revision. Follow navigation.next_calls sequentially; read all pages.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema,
   outputSchema: {

@@ -125,10 +125,18 @@ let parityCases = 0;
 for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
   const expanded = commandGroupSchema(group), definition = commandGroupDefinition(group);
   assert.ok(definition.outputSchema);
-  // Full field guidance stays with operation-contract; discovery need not repeat self-describing names.
+  // Detailed field guidance stays with operation-contract; discovery must expose
+  // usable types rather than unresolved references or empty payload definitions.
   for (const field of Object.values(expanded.properties)) assert.ok(field.description?.length > 10);
-  for (const field of ['operation_id', 'target_source', 'assurance', 'run_id', 'expected_revision_id'])
-    if (definition.inputSchema.properties[field]) assert.ok(definition.inputSchema.properties[field].description?.length > 10);
+  for (const field of ['operation_id', 'primary_target', 'working_directory', 'target_id', 'run_id', 'expected_revision_id'])
+    if (definition.inputSchema.properties[field]) assert.equal(definition.inputSchema.properties[field].type, 'string', `${group}/${field} stays visible`);
+  if (['agdf_record', 'agdf_revise'].includes(group)) {
+    const visible = definition.inputSchema.properties.command;
+    assert.deepEqual(visible.properties.kind.enum, kinds);
+    assert.equal(visible.properties.payload.type, 'object');
+    assert.ok(Object.keys(visible.properties.payload.properties).length > 0);
+    assert.ok(definition.inputSchema.dependentSchemas.command, 'exact kind/payload constraints remain SDK-enforced');
+  }
   const sdk = fromJsonSchema(definition.inputSchema)['~standard'];
   for (const kind of kinds) {
     const contract = operationContract(group, kind), payload = sample(contract.payload_schema);
@@ -142,8 +150,24 @@ for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
       assert.equal(Boolean(actual.issues?.length), schemaDiagnostics(value, expanded).length > 0, `${group}/${kind}`);
       parityCases++;
     }
+    // A merged visible payload must not admit a missing field, a field from a
+    // different kind, or the wrong value type. The expanded owner is the oracle.
+    const check = value => {
+      assert.equal(Boolean(sdk.validate(value).issues?.length), schemaDiagnostics(value, expanded).length > 0, `${group}/${kind}: mutation parity`);
+      parityCases++;
+    };
+    for (const field of Object.keys(valid)) {
+      const missing = { ...valid }; delete missing[field]; check(missing);
+    }
+    const possible = definition.inputSchema.properties.command.properties?.payload?.properties ?? {};
+    for (const field of new Set([...Object.keys(payload), ...Object.keys(possible)])) {
+      const missing = { ...payload }; delete missing[field]; check({ ...valid, command: { kind, payload: missing } });
+      for (const value of [null, false, 0, '', {}, []]) check({ ...valid, command: { kind, payload: { ...payload, [field]: value } } });
+    }
   }
 }
+assert.equal(new Set(Object.keys(RUN_COMMAND_GROUPS).map(group => commandGroupDefinition(group).description)).size,
+  Object.keys(RUN_COMMAND_GROUPS).length, 'write groups describe distinct purposes');
 const success = { schema_version: '1', outcome: 'accepted', authorizes: false, reason: null,
   operation_id: input.operation_id, request_digest: 'sha256:' + 'a'.repeat(64),
   binding: { target_id: input.target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id, kind: input.command.kind },

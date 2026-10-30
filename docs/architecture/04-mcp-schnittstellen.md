@@ -150,6 +150,19 @@ bleiben erhalten: Weniger Aufrufe durch einen Aufgabenabbruch sind kein Effizien
 | SDD-003/008: Zusatzhinweis ohne Autorität | Optionales `navigation` außerhalb des ursprünglichen Berichts. Zusatzfehler lassen den Bericht intakt; ursprüngliche Evaluatorfehler werden nicht geschluckt. Writer und bewusste Freigabe bleiben maßgeblich. | [Inspect-Service](../../packages/core/lib/control-inspect/service.js), [Fehlerinjektion/Berichtsparität](../../packages/cli/scripts/control-inspect-test.js) |
 | SDD-006/007: normale Produkt- und Budgetprüfung | Host-Signatur, SDK-Annahme, Aufgabenerfüllung und normale Build-/Profilprüfung getrennt nachweisen. Ein vollständig operationsweise verzweigtes Schema mit 6.630 Byte scheiterte an der unveränderten 5.000-Byte-Grenze. | [Verworfene Varianten](../../.agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/evidence/prestudy/agdf-inspect-evaluation/DECISION-NOTES.md), [Budget](../../.agdf/control/artefacts/mcp-codex-guided-inspection-20261025-01/evidence/pair-guidance/checks/budget.json) |
 
+Die nachfolgende Schema-Reparatur nutzt denselben Ansatz für `agdf_dispatch`: Die Bedingungen
+liegen unter dem erforderlichen `skill_id`, sodass ihre Auswertung erhalten bleibt. Bei
+`agdf_record` und `agdf_revise` zeigt die Discovery eine abgeleitete Übersicht der möglichen
+Payload-Felder. Die genauen Kombinationen, Pflichtfelder und Grenzen bleiben aus demselben
+expandierten Vertrag unter dem erforderlichen `command` SDK-validiert. Die Übersicht allein
+beschreibt keine gültige Kombination; vor einem Schreibaufruf liefert `operation-contract` den
+vollständigen Vertrag des gewählten Befehls. Es entsteht kein zweiter Validierungs-Owner.
+Ein vollständiges, vor einem Run gültiges Hilfe-Beispiel und das Ziel-Pflichtpaar bleiben in der
+Inspect-Discovery sichtbar; ausführliche Feldhilfe wird weiterhin bei Bedarf gelesen.
+Die [Befehlstests](../../packages/core/test/run-command-contract-test.js) prüfen auch fehlende,
+typfalsche und befehlsfremde Felder gegen den expandierten Owner. Die oben dokumentierten
+historischen Host-Nachweise werden dadurch nicht nachträglich erweitert.
+
 Die [konkrete Lesefolge](core-mcp-command-flow.md#gebundene-lesefolge-vor-einer-entscheidung)
 zeigt eine gültige Anfrageform und sequenzielle Argumentübernahme. Historische Dokumente behalten
 ihre ursprüngliche Revision; aktuelle Operationsverträge nutzen die aktuelle Revision. Der

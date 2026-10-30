@@ -8,7 +8,7 @@ import { DispatchExecutionError } from './worker.js';
 // One live facade, three directly owned children, no process registry or PID
 // discovery. Capacity includes startup and unconfirmed cleanup, not just current.
 export async function createOwnedGenerationFacade({ runtime, publisher, createControlRuntime, surface, cockpitDir, cockpitMode,
-  Fork = fork, qualifyMs = L.qualify, closeMs = L.close, invokeMs = L.qualify, onEvent = () => {} } = {}) {
+  generationTransport, Fork = fork, qualifyMs = L.qualify, closeMs = L.close, invokeMs = L.qualify, onEvent = () => {} } = {}) {
   if (![qualifyMs, closeMs, invokeMs].every(value => Number.isSafeInteger(value) && value > 0)
     || qualifyMs > L.qualify || closeMs > L.close || invokeMs > L.qualify) throw Error('generation_deadline_invalid');
   const epoch = randomUUID(), slots = new Map(), routes = new Map(), presentations = new Map(), operations = new Map(), receipts = new Map();
@@ -64,10 +64,16 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
       unknown: new Set(), inflight: 0, exited: false, closeAck: false, observed: null };
     slots.set(row.id, row); event(row, 'reserved'); // Reservation precedes acquisition/load/spawn.
     try {
-      const claim = publisher.acquire(packageInfo, { ownerEpoch: epoch, generation: row.id });
-      row.child = Fork(join(packageInfo.packageRoot, 'src/generation-entry.js'), [epoch, String(row.id)],
-        { stdio: ['ignore', 'ignore', 'ignore', 'ipc'], serialization: 'json', execArgv: [] });
-      claim.bindOwnedChild(row.child, { confirmedEnd: () => row.closeAck && !row.inflight && !row.unknown.size });
+      if (generationTransport) {
+        // This is a logical private connection. Actual Worker and claim ownership
+        // stay in the detached owner; no ChildProcess/Worker impersonation.
+        row.child = await generationTransport.open({ packageInfo, epoch, generation: row.id });
+      } else {
+        const claim = publisher.acquire(packageInfo, { ownerEpoch: epoch, generation: row.id });
+        row.child = Fork(join(packageInfo.packageRoot, 'src/generation-entry.js'), [epoch, String(row.id)],
+          { stdio: ['ignore', 'ignore', 'ignore', 'ipc'], serialization: 'json', execArgv: [] });
+        claim.bindOwnedChild(row.child, { confirmedEnd: () => row.closeAck && !row.inflight && !row.unknown.size });
+      }
       row.child.on('message', reply => {
         if (!validGenerationMessage(reply, { epoch, generation: row.id, reply: true })) { event(row, 'invalid_reply'); return; }
         const pending = row.pending.get(reply.request_id);
@@ -81,12 +87,17 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
           pending.resolve(reply);
         }
       });
-      row.child.once('exit', () => {
+      row.child.once('exit', (code, signal) => {
         row.exited = true;
         for (const pending of row.pending.values()) { clearTimeout(pending.timer); pending.reject(new DispatchExecutionError('generation_connection_lost')); }
         row.pending.clear();
-        if (row.closeAck && !row.inflight && !row.unknown.size) { slots.delete(row.id); row.state = 'closed'; event(row, 'confirmed_exit'); row.end?.(true); }
+        if (code === 0 && !signal && row.closeAck && !row.inflight && !row.unknown.size) { slots.delete(row.id); row.state = 'closed'; event(row, 'confirmed_exit'); row.end?.(true); }
         else { row.state = 'close_unconfirmed'; event(row, 'unexpected_exit'); row.end?.(false); }
+      });
+      row.child.once('disconnect', () => {
+        row.state = 'close_unconfirmed'; event(row, 'connection_lost');
+        for (const pending of row.pending.values()) { clearTimeout(pending.timer); pending.reject(new DispatchExecutionError('generation_connection_lost')); }
+        row.pending.clear();
       });
       row.child.once('error', () => { row.state = 'close_unconfirmed'; event(row, 'spawn_failed'); });
       row.state = 'qualifying'; event(row, 'qualifying');
@@ -122,8 +133,13 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
       const record = { digest: requestDigest, input, result: null }; receipts.set(input.operation_id, record); replacing = true;
       let candidateRow;
       try {
-        revalidate(); const packageInfo = publisher.resolve(candidate);
-        candidateRow = await reserve(packageInfo, actualContext); revalidate();
+        const recheck = () => {
+          if (closed) throw new DispatchExecutionError('connection_closed', 'not_dispatched');
+          controlRuntimeInstance?.verifyProducer();
+          revalidate();
+        };
+        recheck(); const packageInfo = publisher.resolve(candidate);
+        candidateRow = await reserve(packageInfo, actualContext); recheck();
         const previous = current; current = candidateRow; current.state = 'current';
         if (previous) previous.state = previous.exited ? 'close_unconfirmed' : 'draining';
         event(current, 'admitted'); record.result = { outcome: 'accepted', reason: null, operation_id: input.operation_id,
@@ -135,44 +151,66 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
       record.result.current = status(); return record.result;
     },
   };
-  const controlRuntime = createControlRuntime(control);
+  // Ordinary requests belong to the fully qualified generation. Only the rare
+  // facade control branches need another Core instance; share one initialization.
+  let controlRuntimePromise, controlRuntimeInstance;
+  const getControlRuntime = () => controlRuntimePromise ??= Promise.resolve().then(() => createControlRuntime(control)).then(async created => {
+    const producer = created?.producerIdentity;
+    const code = created?.trustedContext?.expectedVersion !== runtime.trustedContext.expectedVersion ? 'runtime_version_mismatch'
+      : created?.trustedContext?.provenanceStatus !== 'matched'
+      || !producer || producer.server_digest !== publisher.initial.digest || producer.dispatcher_digest !== publisher.initial.dispatcherDigest
+      || producer.sdk_digest !== publisher.initial.sdkDigest || typeof created.verifyProducer !== 'function'
+      ? 'runtime_provenance_invalid' : null;
+    if (code) {
+      await created?.close?.(); throw new DispatchExecutionError(code, 'not_dispatched');
+    }
+    controlRuntimeInstance = created;
+    return created;
+  }).catch(error => { throw new DispatchExecutionError(generationFailureReason(error), 'not_dispatched'); });
   function operationKey(input, id = input.operation_id) { return JSON.stringify([input.primary_target, input.run_id, id]); }
   async function invoke(name, args, host = {}, signal) {
     if (signal?.aborted) throw new DispatchExecutionError('dispatch_cancelled', 'not_dispatched');
     if (closed) throw new DispatchExecutionError('connection_closed', 'not_dispatched');
     actualContext = { client: host.client, uiSupported: host.uiSupported === true };
+    const canonical = Boolean(args.operation_id) && !runtime.isEphemeralControlCommand?.(name,args);
     if (args.operation_id && name === 'agdf_record' && args.command?.kind === 'runtime_generation.replace'
       && operations.has(operationKey(args))) throw new DispatchExecutionError('operation_payload_conflict', 'not_dispatched');
     if (args.operation_id && args.command?.kind !== 'runtime_generation.replace' && receipts.has(args.operation_id))
       throw new DispatchExecutionError('operation_payload_conflict', 'not_dispatched');
     if (name === 'agdf_record' && args.command?.kind === 'runtime_generation.replace'
       || name === 'agdf_inspect' && args.operation === 'runtime-generations') {
+      const controlRuntime = await getControlRuntime();
+      if (closed || signal?.aborted) throw new DispatchExecutionError(closed ? 'connection_closed' : 'dispatch_cancelled', 'not_dispatched');
+      try { controlRuntime.verifyProducer(); } catch (error) { throw new DispatchExecutionError(generationFailureReason(error), 'not_dispatched'); }
       const result = await controlRuntime.tool(name).execute(controlRuntime.tool(name).parse(args));
       return controlRuntime.projectToolResult(name, args, name === 'agdf_inspect' && result.report?.available ? { ...result, report: await control.refresh() } : result);
     }
     if (name === 'agdf_inspect' && args.operation === 'operation-status' && receipts.has(args.module)) {
+      const controlRuntime = await getControlRuntime();
+      if (closed || signal?.aborted) throw new DispatchExecutionError(closed ? 'connection_closed' : 'dispatch_cancelled', 'not_dispatched');
+      try { controlRuntime.verifyProducer(); } catch (error) { throw new DispatchExecutionError(generationFailureReason(error), 'not_dispatched'); }
       const validated = await controlRuntime.tool(name).execute(controlRuntime.tool(name).parse(args));
       return controlRuntime.projectToolResult(name, args, validated.report?.status === 'unknown' || validated.report?.status === 'absent'
         ? { ...validated, report: control.inspect(args.module, args) } : validated);
     }
     const knownSession = args.session_id && routes.get(args.session_id);
     if (args.session_id && !knownSession) throw new DispatchExecutionError('session_expired', 'not_dispatched');
-    const id = name === 'agdf_inspect' && args.operation === 'operation-status' ? args.module : args.operation_id;
+    const id = name === 'agdf_inspect' && args.operation === 'operation-status' ? args.module.split('/').at(-1) : canonical ? args.operation_id : null;
     const key = id && operationKey(args, id), original = key && operations.get(key);
     const presentationId = args.command?.payload?.presentation_id ?? args.presentation_id;
     const presentationOwner = presentationId && presentations.get(operationKey(args, presentationId));
     const row = knownSession ?? original ?? presentationOwner ?? current;
     if (!row || row.exited) throw new DispatchExecutionError('generation_unavailable', 'not_dispatched');
-    if (args.operation_id && !original) {
+    if (canonical && !original) {
       if (operations.size >= L.routes) throw new DispatchExecutionError('generation_route_capacity', 'not_dispatched');
       operations.set(key, row);
     }
     ++row.inflight; event(row, 'invoke', name);
     try {
-      const result = (await request(row, 'invoke', { name, arguments: args }, actualContext, args.operation_id ?? null, invokeMs)).payload;
-      if (args.operation_id && result.outcome === 'effect_unknown') row.unknown.add(key);
+      const result = (await request(row, 'invoke', { name, arguments: args }, actualContext, canonical ? args.operation_id : null, invokeMs)).payload;
+      if (canonical && result.outcome === 'effect_unknown') row.unknown.add(key);
       if (name === 'agdf_inspect' && args.operation === 'operation-status' && result.report?.status === 'recorded'
-        && result.report.receipt?.operation_id === args.module) row.unknown.delete(key);
+        && (result.report.receipt?.operation_id ?? result.report.receipt?.operation?.operation_id) === id) row.unknown.delete(key);
       if (result.app_capability === 'available') nativeRequired = true;
       if (result.family_result?.presentation_id && ['accepted', 'already_applied'].includes(result.outcome)) {
         const presentationKey = operationKey(args, result.family_result.presentation_id);
@@ -185,7 +223,7 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
         }
       }
       return result;
-    } catch (error) { if (args.operation_id && error.dispatch !== 'not_dispatched') row.unknown.add(key); throw error; }
+    } catch (error) { if (canonical && error.dispatch !== 'not_dispatched') row.unknown.add(key); throw error; }
     finally { --row.inflight; if (closed && !row.inflight && !row.unknown.size) void retire(row, true); }
   }
   current = await reserve(publisher.initial, {}); current.state = 'current'; event(current, 'admitted');
@@ -204,6 +242,7 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
         closed = true;
         const previous = current; current = null; if (previous && !previous.exited) previous.state = 'draining';
         await Promise.allSettled([...slots.values()].map(row => retire(row, true)));
+        if (controlRuntimePromise) await controlRuntimePromise.then(controlRuntime => controlRuntime.close?.(), () => {});
         return status();
       })();
     },

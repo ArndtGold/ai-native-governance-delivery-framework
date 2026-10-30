@@ -71,7 +71,7 @@ for (const locale of Object.keys(registry.locales)) for (const mode of ['continu
     await frame.getByText(l.sources, { exact: true }).click();
     if (!['continue_stale', 'continue_unknown'].includes(mode)) {
       await frame.getByRole('button', { name: l.openDocument, exact: true }).click();
-      await expect(frame.getByRole('heading', { name: `${l.documentTitle} · SD` })).toBeVisible();
+      await expect(frame.getByRole('heading', { name: `${locale === 'de' ? 'Historische Fassung' : 'Historical version'} · SD` })).toBeVisible();
       expect(await page.evaluate(() => window.decisionHarness.calls.at(-1).arguments.operation)).toBe('presentation-document');
       await frame.getByRole('button', { name: l.back, exact: true }).click();
     }

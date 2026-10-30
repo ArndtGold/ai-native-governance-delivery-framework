@@ -60,7 +60,9 @@ or help retries. Dispatch never authorizes.
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
 When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`,
-then record the Mode/Slice Decision with the validator's `run-step --step route --route <mode> --reason --evidence`.
+then use the bound MCP continuation: stage the reviewed material and record the Mode/Slice
+Decision through `agdf_record/step.record` (step `route`). Only when that group is unavailable,
+use the supplied validator's `run-step --step route --route <mode> --reason --evidence`.
 
 ## Modes
 

@@ -3,7 +3,7 @@ import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, re
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
 import { createHash, randomUUID } from 'node:crypto';
-import { digestDirectory, digestPluginMcpDispatcherSource, MCP_DISPATCHER_RUNTIME_ENTRIES } from "#agdf-core/runtime/plugin-provenance.js";
+import { digestDirectory, digestPluginMcpDispatcherSource, mcpDispatcherRuntimeEntries, mcpDispatcherPackageExports } from "#agdf-core/runtime/plugin-provenance.js";
 import { acquireMcpExecutableClaim, inspectMcpServerPackage, mcpPackageConstants, mcpRuntimeRetirementState, prepareMcpServerPackage, createMcpRuntimeRetirementTransaction } from "./package.js";
 
 // Plugin-local AGDF MCP runtime shared by the hosts whose runtime plugin declares the server itself:
@@ -39,7 +39,7 @@ function copyPluginPackages({ pluginRoot, stage, version }) {
   }
   cpSync(serverSource, join(stage, "node_modules", "@agdf", "mcp-server"), { recursive: true });
   const dispatcherRoot = join(stage, "node_modules", "create-agdf");
-  for (const entry of MCP_DISPATCHER_RUNTIME_ENTRIES.filter((item) => item !== "package.json")) {
+  for (const entry of mcpDispatcherRuntimeEntries(runtimePackage).filter((item) => item !== "package.json")) {
     cpSync(join(runtimePackage, entry), join(dispatcherRoot, entry), { recursive: true });
   }
   writeFileSync(join(dispatcherRoot, "package.json"), `${JSON.stringify({
@@ -47,7 +47,7 @@ function copyPluginPackages({ pluginRoot, stage, version }) {
     version,
     private: true,
     type: "module",
-    exports: { "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js" },
+    exports: mcpDispatcherPackageExports(runtimePackage),
     imports: { "#agdf-core": "./runtime/core/lib/index.js", "#agdf-core/*": "./runtime/core/lib/*" },
   }, null, 2)}\n`, "utf8");
 }
@@ -250,8 +250,13 @@ export async function launchPluginMcpServer({
   }
   const { surface, dataRoot, cockpitDir, cockpitMode, prepareOnly } = invocation;
   const publicationDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS;
-  let runtime;
+  let runtime, waitingOwner;
   try {
+    // Bootstrap only the existing SDK-free owner while this process performs
+    // preparation. It cannot claim or start a facade until the private message
+    // carries the successfully verified publication.
+    if (!prepareOnly && !startFacade && acquireClaim === acquireMcpExecutableClaim && ensure === ensurePluginMcpRuntime)
+      waitingOwner = startFacadeOwner({ surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline });
     // Reject a damaged installed dispatcher before publication, claim acquisition
     // or SDK execution. Its downstream resource context cannot qualify a facade;
     // starting one first would correctly retain its unconfirmed executable use.
@@ -262,6 +267,7 @@ export async function launchPluginMcpServer({
     }
     runtime = ensure({ pluginRoot, dataRoot, env, publicationDeadline });
   } catch (error) {
+    if (waitingOwner) { waitingOwner.stop(); await waitingOwner.settled.catch(() => {}); }
     const code = /^AGDF_[A-Z_]+/.exec(error?.message ?? "")?.[0] ?? 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
     stderr.write(`${launcherFailureLine(code, code === 'AGDF_MCP_PLUGIN_RUNTIME_FAILED' ? 'preparation' : undefined)}\n`);
     process.exitCode = 1;
@@ -278,7 +284,11 @@ export async function launchPluginMcpServer({
   // The stable launcher directly owns the facade process. It retains its exact
   // executable before fork and releases only after orderly teardown AND exit.
   if (!startFacade && acquireClaim === acquireMcpExecutableClaim) {
-    try { return await startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }); }
+    try {
+      const owner = waitingOwner ?? startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline });
+      waitingOwner?.activate(runtime);
+      return await owner.settled;
+    }
     catch (error) { const code = Object.hasOwn(LAUNCHER_FAILURES, error?.message) ? error.message : 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
       stderr.write(`${launcherFailureLine(code, code === 'AGDF_MCP_PLUGIN_RUNTIME_FAILED' ? 'facade' : undefined)}\n`); process.exitCode = 1; return null; }
   }
@@ -326,15 +336,21 @@ export function supervisePluginMcpFacade({ runtime, surface, cockpitDir, cockpit
 function startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }) {
   const token = randomUUID();
   const deadline = (process.hrtime.bigint() + BigInt(Math.floor(Math.max(0, publicationDeadline - performance.now()) * 1e6))).toString();
-  return new Promise((resolve, reject) => {
+  let activate, stop;
+  const settled = new Promise((resolve, reject) => {
     const child = fork(join(pluginRoot, 'runtime/create-agdf/lib/mcp-lifecycle/facade-owner-entry.js'),
-      [JSON.stringify({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, token, deadline_ns: deadline })],
+      [JSON.stringify({ runtime, await_runtime: runtime === undefined, surface, cockpitDir, cockpitMode, pluginRoot, token, deadline_ns: deadline })],
       { env, detached: true, windowsHide: true, stdio: ['inherit', 'inherit', 'inherit', 'ipc'], execArgv: [] });
-    let confirmed = false, failure;
-    const stop = () => { if (child.connected) child.send({ kind: 'owner_stop', token }, () => {}); };
+    let confirmed = false, failure, ready = runtime !== undefined, pending, stopped = false;
+    const send = message => { if (child.connected) child.send(message, error => { if (error) reject(error); }); };
+    stop = () => { stopped = true; if (ready && child.connected) child.send({ kind: 'owner_stop', token }, () => {}); };
+    activate = publication => { pending = publication; if (ready && !stopped) send({ kind: 'owner_start', token, runtime: pending }); };
     process.once('SIGTERM', stop); process.once('SIGINT', stop);
     const detach = () => { process.off('SIGTERM', stop); process.off('SIGINT', stop); };
     child.on('message', message => {
+      if (message?.kind === 'owner_ready' && message.token === token && !ready) {
+        ready = true; if (stopped) stop(); else if (pending) activate(pending);
+      }
       if (message?.kind === 'owner_closed' && message.token === token && message.confirmed === true) confirmed = true;
       if (message?.kind === 'owner_failed' && message.token === token && Object.hasOwn(LAUNCHER_FAILURES, message.code)) failure = message.code;
     });
@@ -344,6 +360,10 @@ function startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoo
       else reject(Error(failure ?? 'AGDF_MCP_FACADE_CLOSE_UNCONFIRMED'));
     });
   });
+  // Preparation is synchronous; the owner can fail first while its promise is
+  // intentionally not awaited yet. Keep that rejection observed in both phases.
+  settled.catch(() => {});
+  return Object.freeze({ settled, activate: publication => activate(publication), stop: () => stop() });
 }
 
 export function claudePluginDataRoot({ claudeConfigDir, pluginId = "agdf@agdf" }) {

@@ -181,11 +181,17 @@ try {
   await boundedViews.close();
   assert.equal(readFileSync(viewFixture.f.state, 'utf8'), noDecision, 'Expiry and failed reader teardown never decide.');
   let finishResponse, effect;
-  const delayedViews = createDecisionSessionService({ appOnlyMediationQualified: true, actionService: (root, binding, input) => {
+  const syntheticSurface = randomUUID();
+  const delayedViews = createDecisionSessionService({ surfaceBinding: () => syntheticSurface, appOnlyMediationQualified: true, actionService: (root, binding, input) => {
     effect = createDecisionActionService({ appOnlyMediationQualified: true })(root, binding, input);
     return new Promise(resolve => { finishResponse = () => resolve(effect); });
   } });
   const pendingView = (await delayedViews.open(viewFixture.input, viewFixture.prepared))._meta.agdf_decision;
+  assert.equal((await delayedViews.read({ operation: 'decision_display', session_id: pendingView.read_session_id,
+    owner_epoch: pendingView.owner_epoch, nonce: pendingView.display_nonce, surface_id: syntheticSurface,
+    document_digest: pendingView.document_digest, visible: true })).state, 'available');
+  assert.equal((await delayedViews.deliver({ ...viewFixture.input, operation_id: randomUUID(), command: { kind: 'presentation.deliver',
+    payload: { gate: 'SD', presentation_id: pendingView.binding.presentation_id, route: 'automatic' } } })).presentation_delivery.mode, 'ui_primary');
   const actionPromise = delayedViews.action({ ...viewFixture.request('reject'), session_id: pendingView.session_id });
   await delayedViews.read({ operation: 'close', session_id: pendingView.read_session_id }); finishResponse();
   const late = await actionPromise; assert.equal(late.outcome, 'accepted'); assert.equal(late.view_state, 'closed');

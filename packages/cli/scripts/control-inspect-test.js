@@ -37,7 +37,7 @@ assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES,
   `agdf_inspect definition is ${controlInspectDefinitionBytes()} bytes, cap ${CONTROL_INSPECT_MAX_DEFINITION_BYTES}`);
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, [...CONTROL_INSPECT_OPERATIONS]);
-assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "inventory"]);
+assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "inventory"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially/);
@@ -57,7 +57,7 @@ assert.equal(validateInspectSchema({ ...catalogExample, cursor: catalogCursor })
 assert.doesNotThrow(() => normalizeControlInspectInput(parseControlInspectFunctionArguments({ ...catalogExample, cursor: catalogCursor }, trustedContext)));
 assert.equal(validateInspectSchema({ ...catalogExample, module: 'agdf_record/step.record', cursor: catalogCursor }), false);
 assert.throws(() => normalizeControlInspectInput(parseControlInspectFunctionArguments({ ...catalogExample, module: 'agdf_record/step.record', cursor: catalogCursor }, trustedContext)));
-for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations"].includes(operation))) {
+for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state"].includes(operation))) {
   for (const allActive of [undefined, false, true]) {
     for (const variant of [undefined, "status-card", "approval-envelope"]) {
       for (const contractModule of [undefined, "quality"]) {
@@ -71,6 +71,20 @@ for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifa
       }
     }
   }
+}
+const projectBinding = { operation: 'project-state', presentation_language: 'de', working_directory: '/tmp',
+  target_source: 'explicit_target', primary_target: '/tmp' };
+assert.equal(validateInspectSchema(projectBinding), true);
+assert.doesNotThrow(() => normalizeControlInspectInput(parseControlInspectFunctionArguments(projectBinding, trustedContext)));
+for (const field of ['target_source', 'primary_target']) {
+  const missing = { ...projectBinding }; delete missing[field];
+  assert.equal(validateInspectSchema(missing), false, `project-state requires ${field}`);
+}
+for (const fields of [{ run_id: 'foreign-run' }, { expected_revision_id: '00000000-0000-4000-8000-000000000000' },
+  { gate: 'UR' }, { module: 'quality' }, { all_active: true }, { cursor: catalogCursor }]) {
+  const invalid = { ...projectBinding, ...fields };
+  assert.equal(validateInspectSchema(invalid), false, JSON.stringify(invalid));
+  assert.throws(() => normalizeControlInspectInput(parseControlInspectFunctionArguments(invalid, trustedContext)));
 }
 const draftBinding = { operation: "artifact-readiness", presentation_language: "de", working_directory: "/tmp",
   target_source: "explicit_target", primary_target: "/tmp", run_id: "draft-run", gate: "PRD",
@@ -288,7 +302,7 @@ try {
   assert.match(unknownModule.recovery.action, /^module_unknown: does-not-exist\. Available modules: /u);
 
   // AC-003: the dispatcher's presentation_required carries the read-only preview with the gate-check digests.
-  const runtime = createMcpDispatchRuntime({ surface: "claude" });
+  const runtime = createMcpDispatchRuntime({ surface: "claude", verifyRuntime: () => {} });
   const dispatch = runtime.tool("agdf_dispatch");
   const presented = dispatch.execute(dispatch.parse({
     skill_id: "gate-check", presentation_language: "de", working_directory: root,
@@ -297,14 +311,12 @@ try {
   assert.equal(presented.outcome, "intake_continuation", JSON.stringify(presented.diagnostics));
   assert.equal(presented.continuation.phase, "presentation_required");
   assert.equal(presented.host_action.mode, "continue_delivery_intake", "the preview does not make the result terminal");
-  assert.equal(presented.presentation?.semantic_block, "approval_preview");
-  assert.equal(presented.presentation.authorizes, false);
+  assert.equal(presented.presentation, null, 'MCP routing does not emit a duplicate decision preview');
   const gate = cliJson(["gate-check", "--run", "inspect-run", "--language", "de"], root);
-  assert.equal(presented.presentation.markdown, gate.approval_presentation.preview_markdown);
-  assert.equal(presented.presentation.summary_digest, gate.approval_presentation.summary_digest);
-  assert.equal(presented.presentation.artefact_digest, gate.approval_presentation.artefact_digest);
-  assert.equal(presented.presentation.revision_id, gate.approval_presentation.revision_id);
-  assert.equal(presented.continuation.steps[0].argv[0], "run-present", "run-present remains the binding step");
+  assert.equal(presented.continuation.control_transport, 'typed_mcp');
+  assert.ok(presented.continuation.next_calls.some(call => call.arguments.module === 'agdf_prepare/presentation.prepare'));
+  assert.equal(presented.continuation.steps, undefined, 'available MCP control needs no validator shell step');
+
 
   // AC-002: no operation, rejected call or dispatch preview wrote under .agdf/control.
   assert.deepEqual([...snapshot(join(root, ".agdf", "control")).entries()], [...before.entries()], "read operations must not change the control tree");
@@ -314,8 +326,8 @@ try {
   const presentRun = spawnSync(process.execPath, [cli, "run-present", "--dir", root, "--run", "inspect-run", "--gate", "UR", "--revision", gate.approval_presentation.revision_id, "--language", "de"], { encoding: "utf8" });
   assert.equal(presentRun.status, 0, presentRun.stderr);
   const present = JSON.parse(presentRun.stdout);
-  assert.equal(present.summary_digest, presented.presentation.summary_digest);
-  assert.equal(present.artefact_digest, presented.presentation.artefact_digest);
+  assert.equal(present.summary_digest, gate.approval_presentation.summary_digest);
+  assert.equal(present.artefact_digest, gate.approval_presentation.artefact_digest);
   assert.equal(present.text, gate.approval_presentation.markdown, "run-present binds the exact decision text rather than embedding the read-only status preview");
   assert.equal(readFileSync(join(root, '.agdf/control/runs/inspect-run/presentations', `${present.presentation_id}.document`), 'utf8'),
     gate.approval_presentation.document_content, "the bound document snapshot remains the exact reviewed source");
@@ -335,11 +347,14 @@ try {
   }
 
   // The owned runtime exposes the shared read boundary and the five command groups.
-  assert.deepEqual(runtime.tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
+  assert.deepEqual(runtime.tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_project", "agdf_run", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
   const inspectTool = runtime.tool("agdf_inspect");
-  const viaRuntime = inspectTool.execute(inspectTool.parse({ operation: "doctor", presentation_language: "en", working_directory: root, target_source: "explicit_target", primary_target: root, run_id: "inspect-run" }));
+  const viaRuntime = await inspectTool.execute(inspectTool.parse({ operation: "doctor", presentation_language: "en", working_directory: root, target_source: "explicit_target", primary_target: root, run_id: "inspect-run" }));
   assert.equal(viaRuntime.outcome, "inspect_result");
-  assert.equal(stable(viaRuntime.report), stable(cliJson(["doctor", "--run", "inspect-run"], root)));
+  const expectedDoctor = cliJson(["doctor", "--run", "inspect-run"], root);
+  assert.equal(stable(Object.fromEntries(Object.keys(expectedDoctor).map(key => [key, viaRuntime.report[key]]))), stable(expectedDoctor));
+  assert.equal(viaRuntime.report.completeness, 'complete');
+  await runtime.close();
   for (const row of VALID_PRESENTATION_LANGUAGE_CASES) {
     const result = inspectTool.execute(inspectTool.parse({ operation: "gate-check", presentation_language: row.value, working_directory: root, target_source: "explicit_target", primary_target: root, run_id: "inspect-run" }));
     assert.equal(result.outcome, "inspect_result", row.id);

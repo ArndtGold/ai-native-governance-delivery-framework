@@ -63,7 +63,7 @@ export function publishPreviewSnapshot(root, record, preview, { resume = false, 
 
 export function readPreviewSnapshot(root, record, { readBytes = path => readPreviewBytes(root, path), current = false } = {}) {
   const row = record.preview_review;
-  if (record.schema_version !== 5 || !validPreviewSnapshot(row, record.run_id, record.presentation_id)) previewError('snapshot_invalid');
+  if (!([5, 6].includes(record.schema_version) && record.preview_review) || !validPreviewSnapshot(row, record.run_id, record.presentation_id)) previewError('snapshot_invalid');
   for (const file of row.files) {
     const bytes = readBytes(file.snapshot);
     if (!bytes || bytes.length !== file.bytes || digest(bytes) !== file.digest) previewError('snapshot_changed');
@@ -80,11 +80,11 @@ export function readPreviewSnapshot(root, record, { readBytes = path => readPrev
 }
 
 export function validateCurrentPreviewRecord(root, record) {
-  if (record.schema_version !== 5) return;
+  if (!([5, 6].includes(record.schema_version) && record.preview_review)) return;
   readPreviewSnapshot(root, record, { current: true });
   readStandalone(root, record);
   const base = `.agdf/control/artefacts/${record.run_id}/`;
-  if (digest(readPreviewBytes(root, base + 'PRD.md')) !== record.document_digest
+  if (digest(readPreviewBytes(root, base + 'PRD.md')) !== (record.schema_version === 6 ? record.artefact_digest : record.document_digest)
     || digest(canonicalRunText(readPreviewBytes(root, base + 'UR.md').toString('utf8'))) !== record.preview_review.descriptor.source_ur_digest) previewError('source_changed');
 }
 

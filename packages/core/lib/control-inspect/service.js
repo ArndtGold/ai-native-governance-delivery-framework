@@ -1,3 +1,6 @@
+import { baseResult, bindHostAction } from "./result.js";
+import { inspectArtefactRecordingMode } from '../control-state/run-artefact-recording.js';
+import { inspectProjectState } from './project-state.js';
 import process from "node:process";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { buildStatusCard, evaluateGateCheck, postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../control-evaluation/gate-check.js";
@@ -22,6 +25,8 @@ import { readPresentationDocument, readPresentationPreview, readPresentationCata
 import { sourceRevisionBoundary } from '../control-state/run-revision-boundary.js';
 import { sourceRevisionQualityFacts } from '../control-state/run-source-revisions.js';
 import { readHistoryBytes } from '../control-state/run-revision-history.js';
+import { creationRunId } from '../control-state/run-create-command.js';
+import { inspectAuthoringInputs } from './authoring-inputs.js';
 
 // Read-only projection of canonical CLI evaluators and Core validators. It never
 // writes, selects a Run or prepares approval. Git observations are unavailable.
@@ -65,61 +70,6 @@ function runtimeEvidence(expectedVersion, evidence, env) {
   });
 }
 
-function baseResult({ outcome, operation, runtime, timing }) {
-  return {
-    schema_version: CONTROL_INSPECT_SCHEMA_VERSION,
-    contract_version: CONTROL_INSPECT_CONTRACT_VERSION,
-    outcome,
-    terminal: outcome !== "inspect_result",
-    authorizes: false,
-    operation: operation ?? null,
-    runtime,
-    target: null,
-    report: null,
-    presentation: null,
-    recovery: null,
-    host_action: null,
-    timing,
-    diagnostics: [],
-  };
-}
-
-function bindHostAction(result) {
-  if (result.outcome === "inspect_result") {
-    result.host_action = Object.freeze({
-      mode: "consume_report_and_continue",
-      source: result.presentation?.markdown ? "presentation.markdown" : "report",
-      ...(result.presentation?.markdown ? { text: result.presentation.markdown } : {}),
-      allow_surrounding_text: true,
-      may_request_run_or_evidence: false,
-    });
-  } else if (result.presentation?.markdown) {
-    result.host_action = Object.freeze({
-      mode: "transmit_presentation_verbatim_and_stop",
-      source: "presentation.markdown",
-      text: result.presentation.markdown,
-      allow_surrounding_text: false,
-      may_request_run_or_evidence: false,
-    });
-  } else {
-    result.host_action = Object.freeze({
-      mode: "transmit_recovery_verbatim_and_stop",
-      source: "recovery.action",
-      text: result.recovery?.action ?? "",
-      allow_surrounding_text: false,
-      may_request_run_or_evidence: false,
-    });
-  }
-  return Object.freeze(result);
-}
-
-export function createInspectFailureResult(code, runtime, action) {
-  const result = baseResult({ outcome: "evaluator_error", runtime, timing: emptySkillDispatchTiming() });
-  result.recovery = { action };
-  result.diagnostics = [{ code }];
-  return bindHostAction(result);
-}
-
 function gateCheckPresentation(report, variant, reEvaluate) {
   if (variant === "approval-envelope" || variant === "status-card") {
     const lines = [];
@@ -147,7 +97,7 @@ export function createControlInspectService(dependencies = {}) {
   const validateControlReadBoundary = dependencies.validateControlReadBoundary;
   const deliveryMapDependencies = Object.freeze({ evaluateDoctor: doctor, buildStatusCard, postApprovalTransition });
 
-  return function executeControlInspect(rawInput) {
+  return function executeControlInspect(rawInput, { signal } = {}) {
     const started = now();
     const timing = emptySkillDispatchTiming();
     const runtime = runtimeEvidence(rawInput.expectedVersion, dependencies.runtimeEvidence, env);
@@ -197,6 +147,24 @@ export function createControlInspectService(dependencies = {}) {
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
+      if (input.operation === 'doctor' && dependencies.observeDoctor) {
+        const controlStarted = now();
+        return Promise.resolve(dependencies.observeDoctor(target.governance_target, input, signal)).then(report => {
+          timing.control_ms = round(milliseconds(controlStarted, now()));
+          const result = baseResult({ outcome: 'inspect_result', operation: input.operation, runtime, timing });
+          result.target = target; result.report = report;
+          // Reuse the existing localized inventory only when this reply holds
+          // the complete inventory. Paged replies remain explicit scoped data;
+          // the agent follows every advertised cursor before summarizing them.
+          if (input.all_active && report.available && report.completeness === 'complete'
+            && report.inventory?.accounted_count === report.runs?.length + (report.invalid_entries?.length ?? 0)) {
+            const renderStarted = now();
+            result.presentation = renderActiveRunInventory(report, rawInput.interactionLocales, input.presentation_language);
+            timing.render_ms = round(milliseconds(renderStarted, now()));
+          }
+          timing.total_ms = round(milliseconds(started, now())); return bindHostAction(result);
+        });
+      }
       const controlStarted = now();
       const { report, presentation, invalidModule, navigation } = stage(DISPATCH_RECOVERY.control_evaluation_failed, () => {
         validateControlReadBoundary?.(target.governance_target);
@@ -226,11 +194,15 @@ export function createControlInspectService(dependencies = {}) {
                 next_operation: decision.next_operation, blocking_reason: decision.blocking_reason }, authorizes: false }, presentation: null };
           }
           case 'operation-contract': {
+            if (['agdf_run', 'agdf_project'].includes(input.group) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
+              binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
+              next_calls: [{ tool: input.group, kind: input.kind, instruction: input.group === 'agdf_project' ? 'Explicit fixed setup only. Use the confirmed existing Git root and one original UUID. No Run/revision, force, repair, install or approval.' : 'Use a new original operation UUID and confirmed title; there is no prior Run/revision.' }] }, presentation: null };
             const state = readRunState(target.governance_target, { runId: input.run_id });
             const targetId = resolveControlCommandTarget(target.governance_target).target_id;
             const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
               && runSealState(target.governance_target, state.content).status === 'valid';
-            return { report: valid ? { ...operationContract(input.group, input.kind, { gate: input.gate }),
+            return { report: valid ? { ...operationContract(input.group, input.kind, { gate: input.gate ?? state.current_gate }),
+              ...(input.kind === 'artefact.record' ? { recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) } : {}),
               ...(input.contract_module === PRESENTATION_CATALOG_MODULE ? {
                 inspect_contract: inspectContractHelp(),
                 presentation_catalog: readPresentationCatalog(target.governance_target, { runId: input.run_id,
@@ -253,13 +225,18 @@ export function createControlInspectService(dependencies = {}) {
                   source_bindings: readArtefactBindings(state.content).active.map(row => ({ binding_id: row.binding_id, source: row.source, destination: row.destination, relationship: row.relationship })) }; })() }
               : { available: false, authorizes: false, reason: 'operation_binding_stale_or_invalid' }, presentation: null };
           }
+          case 'project-state':
+            return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
           case 'operation-status':
-            return { report: { ...inspectRunOperation(target.governance_target, { runId: input.run_id, operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id }), expected_revision_id: input.expected_revision_id }, presentation: null };
+            if (input.contract_module.startsWith('project.initialize/')) return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
+            return { report: { ...inspectRunOperation(target.governance_target, { runId: input.run_id ?? creationRunId(input.operation_id), operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id }), expected_revision_id: input.expected_revision_id ?? null }, presentation: null };
           case "artifact-readiness":
             return { report: inspectArtifactReadiness(target.governance_target, {
               runId: input.run_id, gate: input.gate, expectedRevisionId: input.expected_revision_id,
               presentationLanguage: input.presentation_language,
             }), presentation: null };
+          case 'authoring-inputs':
+            return { report: inspectAuthoringInputs(target.governance_target, input, { gitObservation: dependencies.gitObservation }), presentation: null };
           case "doctor": {
             const evaluated = doctor(target.governance_target, selection);
             return { report: evaluated, presentation: input.all_active
@@ -340,3 +317,5 @@ export function createControlInspectService(dependencies = {}) {
     }
   };
 }
+
+export { createInspectFailureResult } from "./result.js";

@@ -82,7 +82,15 @@ test('document orientation separates approved Run facts from draft originals in 
     await expect(page.locator('article.document')).toContainText('Gate approval: open');
     await expect(page.locator('article.document')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
     await expect(page.locator('article.document')).toHaveCSS('box-shadow','none');
+    // The focus contract applies after the actual bound return read. Await that
+    // response rather than charging its transport time to the focus assertion.
+    const returning = page.waitForResponse(response => {
+      const url = new URL(response.url()), run = 'agdf-cockpit-mcp-app-20261005-01';
+      return url.pathname === `/api/runs/${run}`
+        || url.pathname === '/api/snapshot' && url.searchParams.get('run_id') === run;
+    });
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+    expect((await returning).ok()).toBe(true);
     await expect(page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/})).toBeFocused();
     // Capture the same bound document through the embedded-card browser entry,
     // whose expanded reader shares the MCP panel layout without the browser rail.

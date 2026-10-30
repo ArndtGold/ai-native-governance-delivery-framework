@@ -1,3 +1,4 @@
+import { createPresentationDelivery } from '../control-state/presentation-delivery.js';
 import { randomUUID, createHash } from 'node:crypto';
 import { createCockpitSessionService } from './cockpit-session.js';
 import { COCKPIT_LIMITS, parseCockpitArguments } from './cockpit-contract.js';
@@ -19,15 +20,26 @@ import { READ_LIMITS } from '../control-read/snapshot.js';
 // Bounded ephemeral views on the existing reader. A general cockpit ID is never a
 // decision-session ID, and no view is persistent gate authority.
 export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_GROUPS), now = Date.now,
-  appOnlyMediationQualified = false, readServiceFactory = root => createCockpitSessionService(root),
+  delivery = createPresentationDelivery({ now }), appOnlyMediationQualified = false, readServiceFactory = root => createCockpitSessionService(root),
+  // Only a host adapter with actual current-surface identity may supply this
+  // private observation. Client name/version, tool arguments and UI capability
+  // cannot supply it. The current SDK adapter has no such observation.
+  surfaceBinding = () => null,
   qualification = () => appOnlyMediationQualified === true,
   actionService = createDecisionActionService({ enabledGroups: groups, appOnlyMediationQualified: true }),
 } = {}) {
   const sessions = new Map(), readers = new Map(), epoch = randomUUID();
   let closed = false, generation = 0;
   const failure = reason => ({ schema_version: '1', outcome: 'rejected', reason, authorizes: false });
+  function currentMaterial(row) {
+    const run = readRun(row.root, row.binding.run_id);
+    if (run.rejection || run.meta.revision_id !== row.binding.expected_revision_id || runSealState(row.root, run.content).status !== 'valid') return false;
+    const material = decisionMaterial(row.root, prepareRunContentState(row.root, run.content, run.path), row.binding.gate);
+    return material.available && material.material_version === row.binding.material_version;
+  }
   function retire(row) {
     if (row.retirement) return row.retirement;
+    row.primary = false; row.displayed = false;
     row.retired = true; ++row.generation; clearTimeout(row.timer); readers.delete(row.readId);
     row.retirement = Promise.resolve().then(() => row.reader.close()).then(() => { sessions.delete(row.id); });
     void row.retirement.catch(() => {}); // Failed worker retirement keeps its counted slot.
@@ -45,12 +57,14 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
     row.timer.unref?.();
   }
   return Object.freeze({
+    remember: delivery.remember, prepared: delivery.prepared, deliver: delivery.deliver,
     inspectOwnership() {
       for (const row of sessions.values()) active(row.id);
       return { views: sessions.size, active: [...sessions.values()].filter(row => !row.retired).length,
         inflight: [...sessions.values()].filter(row => row.pending || row.readPending).length };
     },
     async open(input, result, host = {}) {
+      delivery.remember(input, result);
       const prepared = result.family_result;
       if (closed || !['accepted', 'already_applied'].includes(result.outcome) || typeof prepared?.text !== 'string') return { ...result, app_capability: 'unavailable' };
       for (const row of sessions.values()) active(row.id);
@@ -65,7 +79,7 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       const state = prepareRunContentState(root, run.content, run.path);
       const material = decisionMaterial(root, state, input.command.payload.gate);
       if (!material.available) return { ...result, app_capability: 'unavailable', app_reason: material.reason };
-      if ([3, 4, 5].includes(presentation.record.schema_version) && (typeof prepared.summary !== 'string'
+      if ([3, 4, 5, 6].includes(presentation.record.schema_version) && (typeof prepared.summary !== 'string'
         || 'sha256:' + createHash('sha256').update(prepared.summary).digest('hex') !== presentation.record.summary_digest)) {
         return { ...result, app_capability: 'unavailable', app_reason: 'presentation_binding_changed' };
       }
@@ -74,14 +88,22 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
         material_version: material.material_version, material_sources: material.sources, presentation_language: prepared.presentation_language });
       let qualified = false; try { qualified = qualification(host) === true; } catch {}
       const row = { id: randomUUID(), reader: readServiceFactory(root), root, binding, qualified, created: now(), touched: now(),
-        expires: now() + COCKPIT_LIMITS.lifetime, generation: ++generation, retired: false, retirement: null, readId: null, timer: null, pending: null };
+        expires: now() + COCKPIT_LIMITS.lifetime, generation: ++generation, retired: false, retirement: null, readId: null, timer: null, pending: null,
+        nonce: randomUUID(), surface: surfaceBinding(host), displayed: false, primary: false };
+      const preparedDelivery = delivery.prepared({ ...input, operation_id: prepared.presentation_id });
+      if (!preparedDelivery || preparedDelivery.selected) return { ...result, app_capability: 'unavailable', app_reason: 'delivery_already_selected' };
+      preparedDelivery.view = {
+        confirm: host => active(row.id) === row && Boolean(row.displayed) && row.surface !== null && row.surface === surfaceBinding(host)
+          && now() - row.displayed < 10000 && currentMaterial(row),
+        select: () => { row.primary = true; }, retire: () => retire(row),
+      };
       // UAT presents a bound evidence summary, not an invented UAT artefact or
       // today's QA document. Its large view reads exactly the prepared text.
       row.presentationDocument = binding.gate === 'UAT' ? Object.freeze({ resource_id: randomUUID(),
         run_id: binding.run_id, type: 'UAT', status: 'registered', path: null,
         registered_reference: `presentation:${binding.presentation_id}` }) : null;
-      row.hasSnapshot = [3, 4, 5].includes(presentation.record.schema_version);
-      row.previewRecord = presentation.record.schema_version === 5 ? presentation.record : null;
+      row.hasSnapshot = [3, 4, 5, 6].includes(presentation.record.schema_version);
+      row.previewRecord = ([5, 6].includes(presentation.record.schema_version) && presentation.record.preview_review) ? presentation.record : null;
       row.previewResourceId = row.previewRecord ? randomUUID() : null;
       row.presentationText = row.presentationDocument ? prepared.text : null;
       row.presentedContentSeal = presentation.record.content_digest;
@@ -116,10 +138,11 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
         return { ...result, app_capability: row.qualified ? 'available' : 'not_qualified',
           _meta: { agdf_decision: { schema_version: '1', session_id: row.id, read_session_id: row.readId,
             owner_epoch: epoch, generation: row.generation, expires_at: row.expires, binding, target: snapshot.target,
+            delivery_state: 'preview', display_nonce: row.nonce, surface_id: row.surface,
             title: snapshot.data.run.title, labels: qaAcceptance ? { ...labels, approve: qaAcceptance.approve_label, confirmed: qaAcceptance.confirmed_label } : labels,
             approval_effect_label: interactionLocales.locales[binding.presentation_language]?.statusCard.allowedAfter ?? interactionLocales.locales.en.statusCard.allowedAfter,
-            summary: row.hasSnapshot ? prepared.summary : prepared.text,
-            decision_brief: qaAcceptance?.summary || (row.hasSnapshot ? decisionBriefFromSummary(prepared.summary, binding.presentation_language) : null),
+            summary: row.presentationText ?? prepared.text,
+            decision_brief: null,
             gate_title: interactionLocales.locales[binding.presentation_language]?.gateTitles[binding.gate]
               ?? interactionLocales.locales.en.gateTitles[binding.gate],
             decision_heading: qaAcceptance ? labels.deviationAcceptanceIntro : interactionLocales.locales[binding.presentation_language]?.gateActionTitles[binding.gate]
@@ -128,6 +151,7 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
               ?? interactionLocales.locales.en.primary.afterApproval[binding.gate]),
             snapshot_id: snapshot.snapshot_id, resource_id: resource?.resource_id ?? null,
             document_digest: row.documentDigest,
+            source_digest: presentation.record.artefact_digest,
             ...(row.previewRecord ? { preview: { resource_id: row.previewResourceId,
               version: row.previewRecord.preview_review.descriptor.version,
               task: row.previewRecord.preview_review.descriptor.review_task,
@@ -135,9 +159,9 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
               criterion_ids: row.previewRecord.preview_review.descriptor.criterion_ids,
               open_questions: row.previewRecord.preview_review.descriptor.open_questions,
               content_digest: row.previewRecord.preview_review.rendered_digest } } : {}),
-            enabled_actions: row.qualified ? enabledDecisionActions(groups).filter(action => action === 'approve') : [],
+            enabled_actions: [],
             capability: row.qualified ? 'available' : 'not_qualified',
-            comparison: presentationVersionComparison(root, state, binding.gate, row.documentDigest) } } };
+            comparison: presentationVersionComparison(root, state, binding.gate, presentation.record.artefact_digest) } } };
       } catch (error) {
         await retire(row).catch(() => {});
         return { ...result, app_capability: 'unavailable', app_reason: error.message };
@@ -151,6 +175,7 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       if (!row.qualified) return failure('app_only_mediation_not_qualified');
       try { if (qualification(host) !== true) return failure('app_only_mediation_not_qualified'); }
       catch { return failure('app_only_mediation_not_qualified'); }
+      if (!row.primary || !row.displayed || row.surface !== surfaceBinding(host)) return failure('decision_display_unconfirmed');
       if (input.presentation_id !== row.binding.presentation_id || input.expected_revision_id !== row.binding.expected_revision_id) return failure('decision_binding_invalid');
       if (row.pending) return { ...failure('decision_pending'), outcome: row.pending === input.operation_id ? 'effect_unknown' : 'rejected', operation_id: row.pending };
       touch(row); const captured = row.generation; row.pending = input.operation_id;
@@ -161,11 +186,27 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       if (active(row.id) !== row || row.generation !== captured) return { ...result, view_state: 'closed' };
       touch(row); return { ...result, view_state: 'active' };
     },
-    async read(input, signal) {
+    async read(input, signal, host = {}) {
       try { input = parseCockpitArguments(input); } catch { return failure('resource_denied'); }
       const row = readers.get(input.session_id);
       if (!row || active(row.id) !== row) return failure('session_expired');
       if (input.operation === 'close') { await retire(row); return { schema_version: '1', state: 'available', data: { closed: true }, authorizes: false }; }
+      if (['decision_display', 'decision_state'].includes(input.operation)) {
+        if (!currentMaterial(row)) { await retire(row).catch(() => {}); return failure('decision_binding_changed'); }
+        if (delivery.prepared(row.binding)?.selected && !row.primary) { await retire(row).catch(() => {}); return failure('delivery_already_selected'); }
+        if (input.operation === 'decision_display') {
+          if (!row.surface || row.surface !== surfaceBinding(host) || input.surface_id !== row.surface || input.owner_epoch !== epoch
+            || input.nonce !== row.nonce || input.document_digest !== row.documentDigest || input.visible !== true) return failure('decision_display_unconfirmed');
+          const preparedDelivery = delivery.prepared(row.binding);
+          if (preparedDelivery?.selected) return failure('delivery_already_selected');
+          row.displayed = now();
+        }
+        if (row.primary && row.surface === surfaceBinding(host)) row.displayed = now();
+        touch(row);
+        return { schema_version: '1', state: 'available', data: { delivery_state: row.primary ? 'ui_primary' : 'preview',
+          display: row.displayed ? 'confirmed' : 'unconfirmed', document_digest: row.documentDigest,
+          enabled_actions: row.primary && row.qualified ? enabledDecisionActions(groups).filter(a => a === 'approve') : [] }, authorizes: false };
+      }
       if (!['snapshot', 'document', 'preview', 'freshness', 'changes'].includes(input.operation) || input.run_id && input.run_id !== row.binding.run_id) return failure('resource_denied');
       if (input.operation === 'preview') {
         if (signal?.aborted) return failure('cancelled');
@@ -238,6 +279,6 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       }
       return result;
     },
-    async close() { closed = true; await Promise.allSettled([...sessions.values()].map(retire)); },
+    async close() { closed = true; delivery.close(); await Promise.allSettled([...sessions.values()].map(retire)); },
   });
 }

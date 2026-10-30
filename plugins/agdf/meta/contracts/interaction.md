@@ -159,13 +159,13 @@ template:
 
 This narration is temporally and structurally separate from the Gate Transition Card:
 
-- The Gate Transition Card is **pre-approval** (in the orientation envelope); it is
-  subjunctive and contains the exact `Approval:` value.
+- The prepared decision is **pre-approval**; its one Markdown document contains the
+  effect and exact `Approval:` value. Historical Gate Transition Cards remain audit projections.
 - The narration is **post-acceptance** (after the gate advanced); it is indicative and
   does not contain the `Approval:` value.
 - Both never appear in the same assistant message.
 - The narration does not repeat the decision's effect (the card's job) and uses its own
-  template, not the card's three-question form.
+  template, without repeating the prepared decision summary.
 - For internal steps (Brownfield Review, Brownfield Analysis), the narration states what
   the agent does next and that no user action is required, without exposing
   `next_user_gate: none` or asking for a second approval.
@@ -186,116 +186,15 @@ compact human card collapses internal sub-states to stable human labels:
 all raw values unchanged.
 
 
-## Gate Transition Card
+## Prepared decision presentation
 
-Every ready `gate_approval` uses one fixed visible sequence: first the compact
-approval-time Run Status Card, then the Gate Transition Card, then exactly one
-native question or exact-text fallback. Both cards derive from one immutable,
-non-authorizing presentation snapshot produced after canonical selected-run,
-gate and durable-artefact readiness evaluation. The snapshot never selects a
-run, decides a gate, persists state or grants approval.
+Current presentation records use version 6. The existing run-presentation owner renders one immutable Markdown decision document: neutral title, one complete source-authored/localized summary, decision effect, one exact Chat decision route and supporting version/source identity. Never repeat the summary as a brief plus details, append operational cards or add another questionnaire. The separate companion string is a short location/title/version pointer without a copied summary or decision question. The document reader returns these exact prepared Markdown bytes; source artefacts remain separately available through bound authoring-input reads. Older versions retain their original envelope/snapshot/approval proof; do not regenerate historical bytes.
 
-The two distinct card blocks form one Approval Orientation Envelope in one
-immediately preceding assistant message. The agent must complete that message
-before invoking any native question tool or emitting an exact-text approval
-request. Splitting the cards across separate assistant turns or invoking the
-tool after only one card is a failed interaction, not a valid presentation.
+Preparation is not display or delivery. With MCP, agdf_prepare/presentation.prepare opens no UI and returns a typed presentation.deliver continuation. Ordinary delivery immediately selects full_markdown and returns the whole prepared Markdown once. An optional agdf_decision_view opens only a labelled non-primary read-only preview of the same document. Its live view may acknowledge exact rendered bytes, current visibility, server nonce, owner epoch and independently bound current-surface identity through the scoped view channel. A model-supplied boolean, client name/version, UI advertisement or action qualification is insufficient. The current SDK adapter supplies no trustworthy current-surface identity, so it cannot claim confirmed UI delivery.
 
-The first visible line of that envelope is the localized neutral decision title
-of the current user gate, rendered as a level-two Markdown heading or equivalent
-accessible host heading inside the compact approval-time Run Status Card.
-`AGDF Status`, `Run Status Card`, `Gate Transition Card`, raw gate identifiers
-and machine values are semantic or diagnostic labels only and must not become
-the primary heading. Approval-directed titles such as `Approve solution design`
-are also invalid. The decision title appears exactly once and does not replace,
-merge or reorder either required card block.
+presentation.deliver selects ui_primary only for a fresh matching live confirmation from that current surface. Chat then receives only the pointer. Otherwise it retires the probe and selects full_markdown. Selection is monotonic: late/foreign observations cannot change Markdown or restore a primary view. Replay returns historical delivery status without another summary/question. Explicit fallback first removes UI primary status/actions and retires the view, then returns the exact Markdown. Expiry, teardown, navigation and source changes invalidate view authority. Retained offline pixels cannot prove current display or reading. Readable but action-unqualified UI has disabled buttons and the exact Chat route. Display and delivery never constitute intent, approval, host qualification or release authority.
 
-The compact approval-time Run Status Card contains exactly five operational
-fields: selected run, readiness status, current gate, a localized human-readable
-required decision and one neutral instruction to choose approve, request revision
-or decline. It does not contain the exact approval value or quality outlook. It uses localized human-readable labels
-and must not contain evidence, diagnostic codes, raw control-state keys,
-allowed/forbidden inventories or machine values. The complete Run Status Card remains the operational,
-CLI and audit projection. Every ready-gate presentation renders the complete operational Run Status Card exactly once, between the compact approval-time Run Status Card and the Gate Transition Card, consumed verbatim from the code-owned status presentation; when it is undeliverable, the localized status-presentation failure line with its concrete diagnostic codes takes its place and the decision is still requested.
-The exact-approval once-only requirement applies to the compact approval-time Run Status Card and the Gate Transition Card only; the complete Run Status Card may carry the missing approval as audit data.
-
-The first scan across both cards reveals the requested decision, readiness,
-required approval, approval effect, remaining boundary and next transition.
-Identity and artefact references provide supporting context without competing
-with that sequence. Across the two cards, the exact `Approval: <GateName>` value
-appears exactly once, in the Gate Transition Card. The later native prompt or
-exact-text request may repeat it only as the required input.
-
-The canonical `interaction-presentation.js` owner builds and validates one
-immutable snapshot, then renders both complete Markdown blocks and the approval
-interaction. The public additive `approval_presentation` schema contains
-`schema_version`, selected run/revision/gate/locale identity, fixed sequence,
-both rendered blocks, canonical prompt/options/exact-text fallback and
-`authorizes: false`. It is a valid object only for a ready user gate and `null`
-otherwise. Agents and surface adapters transmit these blocks without rebuilding
-headings, fields, ordering, locale copy or Markdown.
-
-The Gate Transition Card is the second orientation message. It is derived from
-the same snapshot and canonical post-approval transition, but it is not another
-state model, persisted record, renderer or approval authority. It turns only
-the decision-relevant subset into concise product copy immediately before the
-host-native question or exact-text fallback.
-
-The card answers exactly three user questions, in this order:
-
-1. **Where am I?** A localized human-readable gate title, deterministic human
-   run title, selected `run_id` as secondary context, compact `UR · PRD · SD · TP`
-   artefact links and a clear ready-for-decision state.
-2. **What does this decision do?** The exact `Approval: <GateName>` value, its
-   concrete next outcome and the most important boundary that remains.
-3. **What happens next?** The immediate agent-controlled action and the next
-   actual user decision when one exists; otherwise a plain statement that no
-   further user action is required now.
-
-Use this compact composition:
-
-```text
-<localized gate title> · <human run title> · `<run_id>`
-<UR link or localized missing text> · <PRD link or localized missing text> · <SD link or localized missing text> · <TP link or localized missing text>
-<localized ready-for-decision line>
-
-<localized approve heading>
-`Approval: <GateName>` <localized concrete effect>. <localized remaining boundary>.
-
-<localized next heading>
-<localized immediate agent action>. <localized next user decision or no-action statement>.
-```
-
-Resolve all AGDF-owned explanatory text through the canonical Interaction
-Locale Registry. `en` and `de` are initial reviewed packs, not a closed locale
-list. A valid unsupported requested locale uses the complete English pack. Missing or invalid
-external dispatch input fails before governance evaluation; internal rendering without a
-request-specific language supplies explicit `en`. An incomplete or invalid registry fails closed.
-Gate identifiers, `run_id`, canonical paths and exact
-approval values are never translated. The visible gate title is localized;
-for example, the German title may be `Lösungsdesign` while the authorization
-value remains `Approval: SD`. Meaning, ordering and authority boundaries are
-identical across locale packs.
-
-The Gate Transition Card must not be a Markdown table or dashboard. It must not
-present raw control-state keys, machine status values, diagnostic codes,
-evidence lists, allowed/forbidden inventories or implementation detail that is
-not needed for the decision. It must not repeat the native question. The card
-normally fits in one title, one readiness line and two short content blocks.
-Run and gate identity may appear in both cards to anchor the shared snapshot;
-status rows, action inventories and transition prose must not be duplicated.
-
-For `Approval: TP`, the effect is permission to run pre-implementation
-Brownfield Analysis, implementation remains gated until that analysis passes,
-and the next block states plainly that no further user decision is required
-now. Brownfield Analysis must not be presented as a user gate.
-
-If snapshot validation or rendering fails, emit no partial card and forbid native
-invocation. Perform a fresh gate evaluation. Show only the localized exact-text
-request when the same gate remains ready and the canonical approval value is
-independently valid. Otherwise report the current non-ready reason and request no
-decision. Never patch, guess or model-reconstruct missing presentation content.
-
+The operational Run Status Card and Gate Transition Card remain deterministic read/audit projections. They are not additional blocks in the current prepared decision document. Historical format descriptions and locale fields do not require duplicating them in version 6.
 
 ## Native Interaction Contract
 
@@ -370,14 +269,12 @@ selected owner observed; it never supplies request applicability, target authori
 gate permission.
 
 Before presenting `gate_approval` for any user gate (`UR`, `PRD`, `SD`, `TP`,
-`QA`, or `UAT`), the agent must emit the compact localized Run Status Card and
-the localized Gate Transition Card as two distinct blocks in that order within
-one immediately preceding assistant message. Neither card is optional, hidden
-in the question text or replaced by a host button label. Do not invoke the
-native question tool until the complete two-card envelope is visible. Native
-buttons or exact-text fallback may appear only after both cards. Render the two
-cards once per eligible attempt; an unavailable or not-applied native control
-proceeds to exact text without repeating them.
+`QA`, or `UAT`), prepare the exact selected Run/revision and deliver the single
+Markdown decision document above. Confirmed current UI receives that document
+with only its short Chat pointer; every other case receives full Markdown in Chat.
+Operational status and historical transition cards are separate read/audit views;
+never prepend them to this decision or repeat its summary or question. Optional
+native controls must preserve this same document and deliberate decision authority.
 
 ### Approval Summary Source and Completeness
 
@@ -445,7 +342,7 @@ Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. first execute `run-present --run <run_id> --gate <gate> --revision <revision_id>`; retain its presentation_id and show its exact returned text. A `presentation_required` dispatch result may already carry the same preview as `presentation.semantic_block: approval_preview` with identical `summary_digest`; the agent may show it, but asks the gate question only after `run-present` returned a `presentation_id`. This contains the complete deterministic or embedded localized summary, bound by `summary_digest`, and a clickable link to the exact durable artefact with its digest, run, gate and revision; UAT summarizes and lists its existing evidence rows. Missing or invalid summary material makes presentation unavailable and returns a targeted non-authorizing recovery. This explicit writing operation prepares a binding but never proves human visibility. Then forward the exact single decision presentation for the current surface. Show purpose, proposed change, consequences, material risks and exact document access before one approving action/formula. Keep technical identity in details. Do not append another status/transition card or approval questionnaire; ordinary discussion stays in Chat;
+3. with available MCP use agdf_prepare/presentation.prepare followed by presentation.deliver as specified above; stop after forwarding the selected text. CLI/unsupported-host fallback: first execute `run-present --run <run_id> --gate <gate> --revision <revision_id>`; retain its presentation_id and show its exact returned text. A `presentation_required` dispatch result may already carry the same preview as `presentation.semantic_block: approval_preview` with identical `summary_digest`; the agent may show it, but asks the gate question only after `run-present` returned a `presentation_id`. This contains the complete deterministic or embedded localized summary, bound by `summary_digest`, and a clickable link to the exact durable artefact with its digest, run, gate and revision; UAT summarizes and lists its existing evidence rows. Missing or invalid summary material makes presentation unavailable and returns a targeted non-authorizing recovery. This explicit writing operation prepares a binding but never proves human visibility. Then forward the exact single decision presentation for the current surface. Show purpose, proposed change, consequences, material risks and exact document access before one approving action/formula. Keep technical identity in details. Do not append another status/transition card or approval questionnaire; ordinary discussion stays in Chat;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
@@ -749,14 +646,11 @@ remains an explicit evidence gap; do not silently install, reconnect or claim co
 
 ### Bound native and remote Chat delivery
 
-The existing Core presentation owner returns one source-authored decision brief and the complete
-validated summary. Only a qualified native card actually displayed on this current request surface supports `presentation_delivery.mode: native_plus_chat`: show the native card and forward one independently decidable private Chat summary, announcing either its approval button or the exact gate formula. A capability advertisement, emitted resource, render-only card or Mac-only display does not prove current or iPad visibility. Unconfirmed/unsupported surface receives the complete `full_chat` decision once, with no invisible-button instructions. Later optional native opening uses the same presentation; it creates no second request or authority. Never append
-another approval questionnaire, status card or technical transition dump to this decision moment.
-Rendering support, App-action qualification and current business eligibility remain separate.
+Use the version-6 prepared decision delivery contract above. Rendering support, observed current-surface display, primary delivery, action qualification, current eligibility and human intent are separate states. Never infer an opened current card from capability or qualification, or copy the full summary into its Chat pointer.
 
 When the human asks “Dokument lesen” / “Read document”, use existing `agdf_inspect` operation
 `presentation-document` with the returned target/Run/gate/revision/presentation binding. Deliver
-the exact original-language bytes as complete ordered chunks, following every `next_cursor` and
+the exact prepared Markdown bytes as complete ordered chunks, following every `next_cursor` and
 showing completeness and version provenance. Do not replace it with the current filesystem file,
 a paraphrase or a Mac-only link. Discussing or reading never decides. If exact remote material or
 synchronized Chat access is unavailable, explain that limitation and do not invite blind approval.

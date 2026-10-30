@@ -1,3 +1,4 @@
+import { canonicalInitPlan } from "#agdf-core/resources/canonical-init-plan.js";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { generatedRoot, languageConfigContent, pluginDefinition } from "../cli/runtime-context.js";
@@ -112,29 +113,7 @@ export function generatedFilesForTarget(target, targetDir, force, languagePrefer
     return files;
   }
 
-  if (target === "init") {
-    addLanguageConfig(files, languagePreference);
-    files.push({
-      path: join(".agdf", "control", "README.md"),
-      content: loadAsset(join(".agdf", "control", "README.md")),
-    });
-
-    for (const controlPath of liveControlFiles) {
-      files.push({
-        path: controlPath.path,
-        content: loadAsset(controlPath.source),
-      });
-    }
-
-    for (const templatePath of artefactTemplateFiles) {
-      files.push({
-        path: templatePath,
-        content: loadAsset(templatePath),
-      });
-    }
-
-    return files;
-  }
+  if (target === "init") return canonicalInitPlan(languagePreference);
 
   if (target === "codex-repo") {
     addLanguageConfig(files, languagePreference);

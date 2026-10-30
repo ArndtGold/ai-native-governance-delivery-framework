@@ -1,4 +1,4 @@
-import { existsSync } from "../control-read/fs.js";
+import { existsSync, withControlReadMemo, memoizeControlRead } from "../control-read/fs.js";
 import { dirname, join } from 'node:path';
 import { aggregate } from "../control-state/aggregate.js";
 import { verifyLegacyProjection } from "../control-state/legacy-projection-reader.js";
@@ -36,6 +36,21 @@ const RUN_SEAL_FINDINGS = Object.freeze({
   },
 });
 
+// Keep inventory findings under the same diagnosis owner for direct and paged
+// observations; transport pagination must not reinterpret their domain content.
+export const doctorInventoryFindings = findings => findings.map(finding => ({
+  ...finding,
+  severity: 'block',
+  message: finding.classification === 'unsupported_version'
+    ? 'The recorded control-state version is unsupported by this reader; this does not establish corrupted history.'
+    : finding.classification === 'unclassified'
+      ? 'The control-state version is missing or malformed; producer incompatibility has not been established.'
+      : 'Invalid canonical run entry.',
+  next_step: finding.classification === 'unsupported_version'
+    ? 'Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.'
+    : 'Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.',
+}));
+
 export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
   return evaluateDoctorWithRunState(targetDir, selection, dependencies).report;
 }
@@ -43,6 +58,10 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
 // A gate evaluation consumes the exact state already read by its doctor check.
 // This observation lives only for that evaluation; later calls and writes read afresh.
 export function evaluateDoctorWithRunState(targetDir, selection = {}, dependencies = {}) {
+  return withControlReadMemo(() => evaluateDoctorObserved(targetDir, selection, dependencies));
+}
+
+function evaluateDoctorObserved(targetDir, selection, dependencies) {
   if (selection.allActive) {
     const selected = resolveRuns(targetDir, { allActive: true });
     const runs = selected.runs.map((run) => ({
@@ -56,12 +75,7 @@ export function evaluateDoctorWithRunState(targetDir, selection = {}, dependenci
           { allowNoActiveRuns: allowNoActiveRuns(targetDir) },
         ).status;
     const findings = [
-      ...selected.findings.map((finding) => ({
-        ...finding,
-        severity: "block",
-        message: "Invalid canonical run entry.",
-        next_step: "Repair or remove the invalid run entry.",
-      })),
+      ...doctorInventoryFindings(selected.findings),
       ...runs.flatMap((item) => item.report.findings.map((finding) => ({ ...finding, run_id: item.run_id }))),
     ];
     // Stored-state inventory of all runs; it never changes the evaluated doctor status above.
@@ -88,58 +102,17 @@ export function evaluateDoctorWithRunState(targetDir, selection = {}, dependenci
       runs,
     } };
   }
-  const findings = [];
-  for (const pendingId of pendingRunStepIds(targetDir)) {
-    addFinding(
-      findings,
-      "block",
-      "AGDF_RUN_STEP_RECOVERY_REQUIRED",
-      `A run-step transaction for ${pendingId} is incomplete; shared Backlog pointers may be in transition.`,
-      join(".agdf", "control", "runs", pendingId, "RUN_STEP_PENDING.json"),
-      "Retry the exact run-step for the pending run to recover it, or inspect conflicting bytes before manual repair.",
-    );
-  }
+  const shared = sharedDoctorContext(targetDir);
+  const findings = [...shared.findings], missing = shared.missing;
   let reconciliation, selectedRunState;
-  const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
-  if (hasCanonicalRuns) {
-    const projection = verifyLegacyProjection(targetDir);
-    if (!["absent", "valid"].includes(projection.status)) {
-      addFinding(
-        findings,
-        "block",
-        "AGDF_LEGACY_PROJECTION_DRIFT",
-        `Legacy compatibility state is not a valid projection: ${projection.status}.`,
-        join(".agdf", "control", "AGDF_RUN.md"),
-        "Regenerate the explicit legacy projection or remove it after legacy consumers are retired.",
-      );
-    }
-  }
-  const missing = doctorRequiredFiles.filter(
-    (relativePath) => !(relativePath.endsWith("AGDF_RUN.md") && hasCanonicalRuns) && !existsSync(join(targetDir, relativePath)),
-  );
-
-  for (const relativePath of missing) {
-    const templatePath = join(dirname(relativePath), "templates", relativePath.split("/").at(-1));
-    const hasTemplate = existsSync(join(targetDir, templatePath));
-    addFinding(
-      findings,
-      "block",
-      "AGDF_CONTROL_FILE_MISSING",
-      hasTemplate
-        ? "Live control file is missing; only the template exists."
-        : "Required live control file is missing.",
-      relativePath,
-      "Run npx --yes @agdf/cli@latest init only when the repository should own durable AGDF control state or deterministic setup is explicitly needed.",
-    );
-  }
-
   if (missing.length === 0) {
     selectedRunState = readRunState(targetDir, selection);
     const runPath = selectedRunState.path;
     const run = selectedRunState.content;
 
     if (selectedRunState.resolution_error) {
-      addFinding(
+      if (selectedRunState.resolution_findings?.length) findings.push(...doctorInventoryFindings(selectedRunState.resolution_findings));
+      else addFinding(
         findings,
         "block",
         selectedRunState.resolution_error.split(":")[0] || "AGDF_ACTIVE_RUN_UNRESOLVED",
@@ -206,84 +179,6 @@ export function evaluateDoctorWithRunState(targetDir, selection = {}, dependenci
       if (sealFinding) addFinding(findings, "block", sealFinding.code, sealFinding.message, runPath, sealFinding.next_step);
     }
 
-    const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
-    const backlog = readTargetFile(targetDir, backlogPath);
-    parseBacklogSection(markdownSection(backlog, "Active Backlog"), findings, backlogPath);
-    parseBacklogSection(markdownSection(backlog, "Planned / Parking Lot"), findings, backlogPath);
-    const completedRows = tableRows(markdownSection(backlog, "Completed / Superseded Pointers"))
-      .slice(1)
-      .filter((cells) => cells.some((cell) => filled(cell)));
-    // Priorities are written as P1 or, per the numeric template column, as 1.
-    if (!hasFilledTableRow(backlog, /^P?[0-9]/) && completedRows.length === 0) {
-      addFinding(
-        findings,
-        "warn",
-        "AGDF_BACKLOG_POINTER_EMPTY",
-        "MASTER_BACKLOG.md does not contain an active or planned work pointer.",
-        backlogPath,
-        "Add the active item or document that no governed delivery item is active.",
-      );
-    }
-
-    const sotPath = join(".agdf", "control", "SOT_REGISTRY.md");
-    const sot = readTargetFile(targetDir, sotPath);
-    if (!hasFilledTableRow(sot, /Product intent|Architecture|Runtime contracts|UX \/ user flows|Operations \/ release/)) {
-      addFinding(
-        findings,
-        "warn",
-        "AGDF_SOT_REGISTRY_EMPTY",
-        "SOT_REGISTRY.md has no filled primary source-of-truth row.",
-        sotPath,
-        "Assign one primary source of truth for at least the domains relevant to the next run.",
-      );
-    }
-
-    const activeDomains = new Map();
-    for (const cells of nonEmptyTableRows(sot)) {
-      const [domain, document, status] = cells;
-      if (!domain || !document || status !== "active") continue;
-      activeDomains.set(domain, (activeDomains.get(domain) ?? 0) + 1);
-    }
-    for (const [domain, count] of activeDomains.entries()) {
-      if (count > 1) {
-        addFinding(
-          findings,
-          "block",
-          "AGDF_PARALLEL_SOT",
-          `Domain has ${count} active source-of-truth rows: ${domain}.`,
-          sotPath,
-          "Keep exactly one active primary source of truth for this domain.",
-        );
-      }
-    }
-
-    const contextPath = join(".agdf", "control", "CONTEXT_GRAPH.md");
-    const contextGraph = readTargetFile(targetDir, contextPath);
-    if (contextGraph.includes("### CG-001 Example")) {
-      addFinding(
-        findings,
-        "warn",
-        "AGDF_CONTEXT_GRAPH_TEMPLATE_NODE",
-        "CONTEXT_GRAPH.md still contains the example node.",
-        contextPath,
-        "Remove the example or replace it with an evidenced node that has an exit criterion.",
-      );
-    }
-
-    const contractsPath = join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json");
-    try {
-      parseQualityContracts(readTargetFile(targetDir, contractsPath));
-    } catch (error) {
-      addFinding(
-        findings,
-        "block",
-        "AGDF_QUALITY_CONTRACTS_INVALID",
-        `AGENT_QUALITY_CONTRACTS.json is invalid: ${error.message}`,
-        contractsPath,
-        "Restore the generated contracts or fix the JSON contract schema.",
-      );
-    }
-
     const runState = selectedRunState;
     for (const type of runState.artefact_row_duplicates ?? []) {
       addFinding(
@@ -336,6 +231,137 @@ export function evaluateDoctorWithRunState(targetDir, selection = {}, dependenci
     programme_aggregation: reconciliation?.programme_aggregation,
     findings,
   } };
+}
+
+
+// Repeated Runs reuse shared policy/store findings only inside the same read observation.
+// This cache never survives a source change or becomes write permission.
+function sharedDoctorContext(targetDir) {
+  return memoizeControlRead(`doctorShared:${targetDir}`, () => {
+    const findings = [];
+    for (const pendingId of pendingRunStepIds(targetDir)) {
+      addFinding(
+        findings,
+        "block",
+        "AGDF_RUN_STEP_RECOVERY_REQUIRED",
+        `A run-step transaction for ${pendingId} is incomplete; shared Backlog pointers may be in transition.`,
+        join(".agdf", "control", "runs", pendingId, "RUN_STEP_PENDING.json"),
+        "Retry the exact run-step for the pending run to recover it, or inspect conflicting bytes before manual repair.",
+      );
+    }
+    const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
+    if (hasCanonicalRuns) {
+      const projection = verifyLegacyProjection(targetDir);
+      if (!["absent", "valid"].includes(projection.status)) {
+        addFinding(
+          findings,
+          "block",
+          "AGDF_LEGACY_PROJECTION_DRIFT",
+          `Legacy compatibility state is not a valid projection: ${projection.status}.`,
+          join(".agdf", "control", "AGDF_RUN.md"),
+          "Regenerate the explicit legacy projection or remove it after legacy consumers are retired.",
+        );
+      }
+    }
+    const missing = doctorRequiredFiles.filter(
+      (relativePath) => !(relativePath.endsWith("AGDF_RUN.md") && hasCanonicalRuns) && !existsSync(join(targetDir, relativePath)),
+    );
+
+    for (const relativePath of missing) {
+      const templatePath = join(dirname(relativePath), "templates", relativePath.split("/").at(-1));
+      const hasTemplate = existsSync(join(targetDir, templatePath));
+      addFinding(
+        findings,
+        "block",
+        "AGDF_CONTROL_FILE_MISSING",
+        hasTemplate
+          ? "Live control file is missing; only the template exists."
+          : "Required live control file is missing.",
+        relativePath,
+        "Run npx --yes @agdf/cli@latest init only when the repository should own durable AGDF control state or deterministic setup is explicitly needed.",
+      );
+    }
+    if (missing.length === 0) {
+      const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
+      const backlog = readTargetFile(targetDir, backlogPath);
+      parseBacklogSection(markdownSection(backlog, "Active Backlog"), findings, backlogPath);
+      parseBacklogSection(markdownSection(backlog, "Planned / Parking Lot"), findings, backlogPath);
+      const completedRows = tableRows(markdownSection(backlog, "Completed / Superseded Pointers"))
+        .slice(1)
+        .filter((cells) => cells.some((cell) => filled(cell)));
+      // Priorities are written as P1 or, per the numeric template column, as 1.
+      if (!hasFilledTableRow(backlog, /^P?[0-9]/) && completedRows.length === 0) {
+        addFinding(
+          findings,
+          "warn",
+          "AGDF_BACKLOG_POINTER_EMPTY",
+          "MASTER_BACKLOG.md does not contain an active or planned work pointer.",
+          backlogPath,
+          "Add the active item or document that no governed delivery item is active.",
+        );
+      }
+
+      const sotPath = join(".agdf", "control", "SOT_REGISTRY.md");
+      const sot = readTargetFile(targetDir, sotPath);
+      if (!hasFilledTableRow(sot, /Product intent|Architecture|Runtime contracts|UX \/ user flows|Operations \/ release/)) {
+        addFinding(
+          findings,
+          "warn",
+          "AGDF_SOT_REGISTRY_EMPTY",
+          "SOT_REGISTRY.md has no filled primary source-of-truth row.",
+          sotPath,
+          "Assign one primary source of truth for at least the domains relevant to the next run.",
+        );
+      }
+
+      const activeDomains = new Map();
+      for (const cells of nonEmptyTableRows(sot)) {
+        const [domain, document, status] = cells;
+        if (!domain || !document || status !== "active") continue;
+        activeDomains.set(domain, (activeDomains.get(domain) ?? 0) + 1);
+      }
+      for (const [domain, count] of activeDomains.entries()) {
+        if (count > 1) {
+          addFinding(
+            findings,
+            "block",
+            "AGDF_PARALLEL_SOT",
+            `Domain has ${count} active source-of-truth rows: ${domain}.`,
+            sotPath,
+            "Keep exactly one active primary source of truth for this domain.",
+          );
+        }
+      }
+
+      const contextPath = join(".agdf", "control", "CONTEXT_GRAPH.md");
+      const contextGraph = readTargetFile(targetDir, contextPath);
+      if (contextGraph.includes("### CG-001 Example")) {
+        addFinding(
+          findings,
+          "warn",
+          "AGDF_CONTEXT_GRAPH_TEMPLATE_NODE",
+          "CONTEXT_GRAPH.md still contains the example node.",
+          contextPath,
+          "Remove the example or replace it with an evidenced node that has an exit criterion.",
+        );
+      }
+
+      const contractsPath = join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json");
+      try {
+        parseQualityContracts(readTargetFile(targetDir, contractsPath));
+      } catch (error) {
+        addFinding(
+          findings,
+          "block",
+          "AGDF_QUALITY_CONTRACTS_INVALID",
+          `AGENT_QUALITY_CONTRACTS.json is invalid: ${error.message}`,
+          contractsPath,
+          "Restore the generated contracts or fix the JSON contract schema.",
+        );
+      }
+    }
+    return { findings, missing };
+  });
 }
 
 export function printDoctorReport(report, json, io = console) {

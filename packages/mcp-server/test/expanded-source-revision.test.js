@@ -17,7 +17,7 @@ const [{createOwnedRuntimeFixture},{createExpandedSourceRevisionFixture},{readSo
   import('../../core/lib/control-state/run-source-revisions.js'),import('../../core/lib/control-state/run-revision-history.js'),
   import('../../core/lib/control-state/run-seal.js'),import('./helpers.js'),
 ]);
-const runtime=createOwnedRuntimeFixture(),root=runtime.governanceTarget,seeds=mkdtempSync(join(tmpdir(),'agdf-mcp-expanded-seeds-'));
+const runtime=createOwnedRuntimeFixture({controlRuns:[]}),root=runtime.governanceTarget,seeds=mkdtempSync(join(tmpdir(),'agdf-mcp-expanded-seeds-'));
 try {
   const cli=join(runtime.dispatcherRoot,'bin/create-agdf.js'),fixture=createExpandedSourceRevisionFixture(root,cli,seeds);
   const {f,restore,prepare,state}=fixture;let cells=0;

@@ -154,7 +154,9 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
 });
 it('expanded Run refreshes quietly and retains open evidence and its exact selection',async()=>{
  const read=vi.fn(async(path:string)=>path.startsWith('/api/freshness')?changed:detail) as unknown as ReadTransport;
- render(<App initialRunId="run-a" transport={read}/>);await screen.findByText('Weiterarbeit offen');
+ // Settle the initial asynchronous read and its visibility effect before the
+ // test emits the event; visible text alone can precede effect registration.
+ await act(async()=>{render(<App initialRunId="run-a" transport={read}/>);});await screen.findByText('Weiterarbeit offen');
  const evidence=screen.getByText('Nachweislücken im Run-Dokument · 1').closest('details')!;
  evidence.open=true;
  await act(async()=>document.dispatchEvent(new Event('visibilitychange')));

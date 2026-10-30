@@ -5,6 +5,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { subscribe, unsubscribe } from "node:diagnostics_channel";
 import { OWNED_LOCK_CHANNEL, releaseAbandonedOwnedLock, withOwnedFileLock } from "../lib/control-state/run-state-writer.js";
+import * as filePrimitives from "../lib/owned-file-lock.js";
+import * as runWriter from "../lib/control-state/run-state-writer.js";
+
+// Compatibility exports use one actual lock/channel owner, including when a
+// launcher imports the primitives without loading Run evaluation dependencies.
+for (const name of ['atomicWrite', 'fsyncDirectory', 'withOwnedFileLock', 'releaseAbandonedOwnedLock', 'OWNED_LOCK_CHANNEL']) {
+  assert.equal(runWriter[name], filePrimitives[name], `${name} retains the same shared owner`);
+}
 
 const root = mkdtempSync(join(tmpdir(), "agdf-lock-owner-"));
 const path = join(root, "RUN_STATE.md");

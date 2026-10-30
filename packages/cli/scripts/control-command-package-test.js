@@ -108,6 +108,9 @@ else try {
   assert.deepEqual(manifest.exports, {
     ".": "./opencode-plugin.js", "./control-command": "./lib/control-command.js", "./cli": "./bin/create-agdf.js",
     "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js", "./opencode-plugin": "./opencode-plugin.js",
+    "./mcp-protocol-runtime": "./lib/mcp-protocol-runtime.js",
+    "./mcp-worker-runtime": "./lib/mcp-worker-runtime.js",
+    "./mcp-owner-protocol": "./lib/mcp-owner-protocol.js",
   });
   for (const path of Object.values(manifest.exports)) assert.ok(existsSync(join(externalPackage, path)));
   assert.equal(report.files.some(({ path }) => path.startsWith("scripts/")), false, "private fault harness does not ship");

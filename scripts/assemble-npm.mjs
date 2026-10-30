@@ -2,6 +2,7 @@ import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, re
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cliRoot, coreRoot, mcpRoot, repoRoot, projectCore, coreImports } from './core-projection.mjs';
+import { compileMcpWorkerRuntime } from './compile-mcp-worker-runtime.mjs';
 import { renameSyncWithRetry } from '../packages/core/lib/fs-swap.js';
 import { readCockpitUiBuild, readDecisionUiBuild } from './cockpit-ui-build.mjs';
 const OWNER = 'agdf:npm-assembly';
@@ -51,6 +52,7 @@ export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
       manifest.scripts = {};
       if (name === 'create-agdf') { projectCore(target); manifest.imports = coreImports; manifest.files = [...new Set([...manifest.files, 'runtime/core'])]; }
       writeFileSync(join(target, 'package.json'), JSON.stringify(manifest, null, 2) + '\n');
+      if (name === 'create-agdf') compileMcpWorkerRuntime(target);
       results.push({ name: manifest.name, version: manifest.version, source, output: join(output, name) });
     }
     writeFileSync(join(stage, 'assembly.json'), JSON.stringify({ owner: OWNER, version: definition.version, ...(cockpit ? { profile: 'codex-cockpit' } : {}), packages: results }, null, 2) + '\n');

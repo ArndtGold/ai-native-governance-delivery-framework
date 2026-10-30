@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { COCKPIT_LIMITS, COCKPIT_MIME, COCKPIT_UI_URI, DECISION_UI_URI } from "../../core/lib/control-inspect/cockpit-contract.js";
 import { COCKPIT_UI_BUILD_COMMAND, readCockpitUiBuild, readDecisionUiBuild, mcpUiSourceDigest } from "../../../scripts/cockpit-ui-build.mjs";
 import { syncPluginMcp } from "../../../scripts/sync-plugin-mcp.js";
@@ -19,6 +20,28 @@ const build = (name, html, manifest = {}) => {
   return directory;
 };
 try {
+  // A changed imported catalog invalidates the UI source identity even when
+  // the component sources and the previously built HTML remain unchanged.
+  const sourceRoot = join(root, 'source-fixture');
+  const repository = fileURLToPath(new URL('../../../', import.meta.url));
+  for (const path of ['packages/control-ui/src', 'packages/control-ui/scripts',
+    'packages/control-ui/mcp.html', 'packages/control-ui/decision.html',
+    'packages/control-ui/vite.config.mjs', 'packages/control-ui/package.json',
+    'packages/control-ui/package-lock.json', 'packages/core/lib',
+    'plugins/agdf/meta/agdf-interaction-locales.json', 'pages/src/design',
+    'pages/src/styles/design-tokens.css', 'pages/scripts/design-tokens.mjs',
+    'scripts/cockpit-ui-build.mjs']) {
+    mkdirSync(dirname(join(sourceRoot, path)), { recursive: true });
+    cpSync(join(repository, path), join(sourceRoot, path), { recursive: true });
+  }
+  const beforeCatalogChange = mcpUiSourceDigest({ sourceRoot });
+  assert.equal(beforeCatalogChange, mcpUiSourceDigest());
+  const catalogPath = join(sourceRoot, 'plugins/agdf/meta/agdf-interaction-locales.json');
+  const catalog = JSON.parse(readFileSync(catalogPath, 'utf8'));
+  catalog.locales.de.gateTitles.UR += ' (changed fixture)';
+  writeFileSync(catalogPath, JSON.stringify(catalog));
+  assert.notEqual(mcpUiSourceDigest({ sourceRoot }), beforeCatalogChange);
+
   const html = "<!doctype html><title>AGDF Cockpit</title>";
   const ui = readCockpitUiBuild({ uiRoot: build("valid", html) });
   assert.equal(ui.files["cockpit.html"].toString("utf8"), html);

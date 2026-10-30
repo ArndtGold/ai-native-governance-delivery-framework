@@ -20,10 +20,12 @@ export function isSafeRepoRelativePath(value) {
   return isSafeControlRelativePath(value);
 }
 
-export function readVerifiedChangeRecord(targetDir, runState) {
+export function readVerifiedChangeRecord(targetDir, runState, proposedArtefacts) {
   const artefact = runState.artefacts.get("Verified Change");
   if (!artefact?.path || isPlaceholderValue(artefact.path)) return { status: "missing", path: "", content: "" };
   if (!isSafeRepoRelativePath(artefact.path)) return { status: "invalid", path: artefact.path, content: "", error: "record_path_invalid" };
+  const proposed = proposedArtefacts?.get(artefact.path);
+  if (proposed) return { status: 'present', path: artefact.path, content: proposed.content };
   const result = containedRegularFile(targetDir, artefact.path);
   if (result.status !== "valid") {
     if (result.status === "invalid") return { status: "invalid", path: artefact.path, content: "", error: "record_path_invalid" };
@@ -35,7 +37,7 @@ export function readVerifiedChangeRecord(targetDir, runState) {
 export function evaluateVerifiedChange(targetDir, runState, dependencies = {}) {
   const gitPathList = dependencies.gitPathList ?? (() => null);
   const gitValue = dependencies.gitValue ?? (() => null);
-  const record = readVerifiedChangeRecord(targetDir, runState);
+  const record = readVerifiedChangeRecord(targetDir, runState, dependencies.proposedArtefacts);
   const findings = [];
   const add = (code, message, nextStep, severity = "revise") => findings.push({
     severity,

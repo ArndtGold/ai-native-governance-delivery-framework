@@ -13,7 +13,8 @@ import { artefactFileDigest, runSealState } from '../control-state/run-seal.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { extractField } from '../control-evaluation/verified-change.js';
 
-export const ARTIFACT_READINESS_GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP']);
+import { ARTIFACT_READINESS_GATES } from './selection.js';
+export { ARTIFACT_READINESS_GATES };
 
 // Describes the original author's findings; it does not validate or change gate policy.
 export function describeArtifactReadiness(result) {

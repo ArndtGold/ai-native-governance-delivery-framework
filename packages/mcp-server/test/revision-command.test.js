@@ -15,7 +15,7 @@ import { readValidatedRevisionArchive } from '../../core/lib/control-state/run-r
 import { readApprovalOperations } from '../../core/lib/control-state/approval-operations.js';
 
 for (const modern of [false, true]) {
-  const fixture = createOwnedRuntimeFixture(), root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
+  const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
   try {
     const early = createSdDefinitionTestRun(root, cli, 'mcp-early-prd', process.env, { typedApprovals: true });
     const late = createLateSourceRevisionTestRun(root, cli, 'mcp-late-source');

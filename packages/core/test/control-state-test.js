@@ -474,11 +474,14 @@ ${approvals}
     for (const text of [prepared.text, prepared.companion_text]) {
       assert.doesNotMatch(text, /<\/?(?:details|summary|br)\b[^>]*>/iu,
         `${gate} decision and companion text use portable Markdown without HTML`);
-      assert.match(text, /^### Details and evidence\n\n/mu);
-      assert.match(text, /^### Version and sources\n\n/mu);
-      assert.ok(text.includes(prepared.summary), `${gate} keeps the complete review summary visible`);
-      assert.ok(text.includes(prepared.artefact_digest), `${gate} retains the artefact digest`);
     }
+    assert.doesNotMatch(prepared.text, /^### Details and evidence\n\n/mu);
+    assert.match(prepared.text, /^### Version and sources\n\n/mu);
+    assert.equal(prepared.text.split(prepared.summary).length - 1, 1, `${gate} shows the complete source summary exactly once`);
+    assert.ok(prepared.text.includes(prepared.artefact_digest), `${gate} retains the artefact digest`);
+    assert.equal(prepared.companion_text.includes(prepared.summary), false, `${gate} companion has no copied summary`);
+    assert.doesNotMatch(prepared.companion_text, /Approval: /u, `${gate} companion adds no decision question`);
+    assert.ok(prepared.companion_text.includes(sealed.revision_id), `${gate} pointer identifies the presented version`);
     const statusLines = [];
     assert.equal(printGateCheckReport(reviewable, false, true, { log: (line) => statusLines.push(line) }), true);
     assert.equal(statusLines.join("\n"), reviewable.approval_presentation.preview_markdown,
@@ -510,15 +513,18 @@ ${approvals}
       assert.equal(germanPrepared.outcome, "prepared", `German PRD summary must prepare: ${JSON.stringify(germanPrepared)}`);
       for (const text of [germanPrepared.text, germanPrepared.companion_text]) {
         assert.doesNotMatch(text, /<\/?(?:details|summary|br)\b[^>]*>/iu);
-        assert.match(text, /^### Details und Nachweise\n\n/mu);
-        assert.match(text, /^### Fassung und Quellen\n\n/mu);
       }
+      assert.doesNotMatch(germanPrepared.text, /^### Details und Nachweise\n\n/mu);
+      assert.match(germanPrepared.text, /^### Fassung und Quellen\n\n/mu);
+      assert.equal(germanPrepared.text.split(germanPrepared.summary).length - 1, 1);
+      assert.equal(germanPrepared.companion_text.includes(germanPrepared.summary), false);
       assert.match(germanPrepared.text, /Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen/u,
         "German card offers the complete presented document before approval");
       assert.ok(germanPrepared.text.includes("Freigeben kannst du diese Fassung im Chat mit Approval: PRD."),
         "German card localizes the sole approval instruction while preserving the exact token");
-      assert.equal(germanPrepared.document_language, 'en',
-        "German summary retains the English document's source-language binding");
+      assert.equal(germanPrepared.document_language, 'de', 'the immutable decision document uses its actual presentation language');
+      assert.equal(germanPrepared.artefact_digest, prepared.artefact_digest,
+        'localizing the decision document preserves the separate English source artefact identity');
       assert.match(germanPrepared.text, /PRD-CARD-001: Das PRD wird gespeichert und im Run erfasst/u,
         "German approval summary includes the first criterion in German");
       assert.match(germanPrepared.text, /PRD-CARD-002: Karte und Link verweisen auf denselben Run/u,

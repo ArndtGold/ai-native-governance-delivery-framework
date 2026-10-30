@@ -4,21 +4,23 @@ export const TOOL_ERROR_CONTRACT = 'agdf-tool-result/1';
 export const TOOL_RESULT_META = 'agdf/tool-result';
 const fields = ['schema_version', 'failed', 'code', 'category', 'effect_state', 'action', 'message', 'authorizes'];
 const actions = {
-  correct_input: ['input', ['invalid_input', 'dispatch_input_invalid', 'inspect_input_invalid', 'command_schema_invalid', 'decision_schema_invalid', 'operation_source_invalid']],
+  correct_input: ['input', ['invalid_input', 'dispatch_input_invalid', 'inspect_input_invalid', 'command_schema_invalid', 'decision_schema_invalid', 'operation_source_invalid', 'material_binding_invalid', 'material_binding_mismatch', 'material_part_invalid', 'material_part_conflict', 'material_part_offset_invalid', 'material_incomplete', 'authoring_binding_stale_or_invalid', 'authoring_cursor_stale_or_invalid']],
   confirm_target: ['binding', ['target_unresolved', 'target_binding_mismatch', 'no_reliable_target', 'explicit_target_required', 'target_invalid']],
-  refresh_binding: ['binding', ['stale_revision', 'revision_mismatch', 'operation_binding_stale_or_invalid', 'artifact_revision_stale', 'decision_binding_changed', 'decision_binding_invalid', 'presentation_state_changed', 'presentation_version_decided', 'presentation_not_found', 'presentation_missing', 'operation_source_changed', 'session_expired', 'source_changed', 'snapshot_stale', 'run_missing', 'invalid_run', 'document_missing', 'read_unavailable', 'recovery_binding_invalid', 'run_path_invalid']],
+  refresh_binding: ['binding', ['stale_revision', 'revision_mismatch', 'operation_binding_stale_or_invalid', 'artifact_revision_stale', 'decision_binding_changed', 'decision_binding_invalid', 'presentation_state_changed', 'presentation_version_decided', 'presentation_not_found', 'presentation_missing', 'operation_source_changed', 'session_expired', 'source_changed', 'snapshot_stale', 'run_missing', 'invalid_run', 'document_missing', 'recovery_binding_invalid', 'run_path_invalid', 'confirmed_git_project_required', 'AGDF_CANONICAL_SCAFFOLD_REQUIRED', 'AGDF_CANONICAL_INIT_CONFLICT', 'AGDF_CANONICAL_INIT_PARTIAL_UNOWNED', 'AGDF_CANONICAL_INIT_ORIGINAL_OPERATION_REQUIRED', 'AGDF_CANONICAL_INIT_PLAN_DRIFT', 'AGDF_CANONICAL_INIT_TARGET_DRIFT']],
   obtain_authority: ['permission', ['resource_denied', 'host_ui_unsupported', 'app_only_mediation_not_qualified', 'approval_required', 'confirmation_required', 'command_group_disabled', 'permission_denied', 'closeout_not_ready']],
   inspect_operation: ['uncertain', ['effect_unknown', 'recovery_required', 'original_operation_unconfirmed', 'operation_payload_conflict', 'another_pending_operation', 'decision_pending', 'decision_result_unknown', 'dispatch_timeout', 'dispatch_worker_termination_unconfirmed', 'generation_connection_lost', 'generation_response_unknown', 'generation_result_limit', 'command_result_budget_exceeded']],
-  retry_after_prerequisite: ['runtime', ['dispatch_busy', 'busy', 'dispatch_cancelled', 'cancelled', 'resource_limit', 'timeout', 'dispatch_output_too_large', 'inspect_output_too_large', 'lifecycle_ineligible', 'generation_unavailable', 'generation_capacity_protected', 'generation_input_limit', 'connection_closed', 'connection_control_unavailable', 'generation_route_capacity', 'generation_replacement_busy', 'connection_control_capacity']],
+  retry_after_prerequisite: ['runtime', ['dispatch_busy', 'busy', 'dispatch_cancelled', 'cancelled', 'resource_limit', 'timeout', 'dispatch_output_too_large', 'inspect_output_too_large', 'lifecycle_ineligible', 'generation_unavailable', 'generation_capacity_protected', 'generation_input_limit', 'connection_closed', 'connection_control_unavailable', 'generation_route_capacity', 'generation_replacement_busy', 'connection_control_capacity', 'read_unavailable', 'read_failed', 'diagnostic_cursor_invalid', 'material_transfer_expired', 'material_resource_limit', 'material_state_unavailable', 'delivery_state_unavailable', 'delivery_already_selected', 'decision_display_unconfirmed']],
   repair_runtime: ['runtime', ['runtime_version_mismatch', 'runtime_provenance_invalid']],
   stop: ['unknown', ['dispatch_worker_failed', 'generation_runtime_failed', 'tool_result_invalid', 'unclassified_tool_failure', 'generation_manifest_incompatible']],
 };
 const causes = new Map(Object.entries(actions).flatMap(([action, [category, codes]]) => codes.map(code => [code, { action, category }])));
-const commandNames = new Set(['agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout', 'agdf_decision_action']);
+const commandNames = new Set(['agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout', 'agdf_decision_action']);
+export const isEphemeralControlCommand = (name, input = {}) => commandNames.has(name)
+  && ['presentation.deliver', 'material.stage'].includes(input.command?.kind);
 const commandOutcomes = new Set(['accepted', 'already_applied', 'rejected', 'recovery_required', 'effect_unknown']);
 const dispatchOutcomes = new Set(['invalid_input', 'target_unresolved', 'control_result', 'skill_continuation', 'intake_continuation', 'evaluator_error']);
 const inspectOutcomes = new Set(['invalid_input', 'target_unresolved', 'inspect_result', 'evaluator_error']);
-const exactReads = new Set(['presentation-document', 'presentation-preview', 'operation-contract', 'runtime-generations']);
+const exactReads = new Set(['presentation-document', 'presentation-preview', 'operation-contract', 'runtime-generations', 'authoring-inputs', 'project-state']);
 const reportReads = new Set(['doctor', 'gate-check', 'delivery-map', 'artifact-readiness', 'operation-status', 'native-qualification', 'contract', 'inventory']);
 const readStates = new Set(['available', 'empty', 'partial', 'invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
 const safeFields = new Set(['arguments', 'working_directory', 'primary_target', 'target_source', 'presentation_language', 'skill_id', 'run_id', 'expected_revision_id', 'operation_id', 'command', 'module', 'gate', 'cursor', 'operation', 'all_active', 'variant']);
@@ -48,7 +50,8 @@ export function validateToolDomain(name, result) {
   if (name === 'agdf_dispatch' || name === 'agdf_inspect') {
     const outcomes = name === 'agdf_dispatch' ? dispatchOutcomes : inspectOutcomes;
     if (result.contract_version !== 1 || !plain(result.runtime) || !plain(result.timing)
-      || !['wrapper_ms', 'input_ms', 'target_ms', 'control_ms', 'render_ms', 'total_ms'].every(key => Number.isFinite(result.timing[key]) && result.timing[key] >= 0)) invalid();
+      || !['wrapper_ms', 'input_ms', 'target_ms', 'control_ms', 'render_ms', 'total_ms'].every(key => Number.isFinite(result.timing[key]) && result.timing[key] >= 0
+        || name === 'agdf_inspect' && result.timing.measurement_state === 'unavailable' && result.timing.unavailable_reason === 'operation_did_not_complete' && result.timing[key] === null)) invalid();
     if (!outcomes.has(result.outcome) || result.authorizes !== false || typeof result.terminal !== 'boolean'
       || !Array.isArray(result.diagnostics) || !result.diagnostics.every(plain)) invalid();
     if (name === 'agdf_dispatch' && ['skill', 'control', 'continuation'].some(key => result[key] !== null && !plain(result[key]))) invalid();
@@ -70,6 +73,9 @@ export function validateToolDomain(name, result) {
   } else if (commandNames.has(name)) {
     if (!commandOutcomes.has(result.outcome) || result.authorizes !== false) invalid();
     if (['accepted', 'already_applied'].includes(result.outcome) ? !(result.receipt === null || plain(result.receipt)) : typeof result.reason !== 'string' || !result.reason) invalid();
+  } else if (name === 'agdf_decision_view') {
+    if (!['accepted', 'rejected'].includes(result.outcome) || result.authorizes !== false
+      || result.outcome === 'rejected' && typeof result.reason !== 'string') invalid();
   } else if (name === 'agdf_cockpit' || name === 'agdf_cockpit_read') {
     if (name === 'agdf_cockpit' && result.state === undefined && result.outcome === undefined) {
       const view = result._meta?.agdf_cockpit;
@@ -87,7 +93,10 @@ export function validateToolDomain(name, result) {
         && typeof preview.resource_id === 'string' && /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/iu.test(preview.resource_id)
         && typeof preview.content === 'string' && /^sha256:[0-9a-f]{64}$/u.test(preview.content_digest)
         && typeof preview.version === 'string' && preview.version.length > 0;
-      if (result.authorizes !== false || !closed && !rendered
+      const display = plain(result.data) && ['preview', 'ui_primary'].includes(result.data.delivery_state)
+        && ['confirmed', 'unconfirmed'].includes(result.data.display) && /^sha256:[a-f0-9]{64}$/.test(result.data.document_digest)
+        && Array.isArray(result.data.enabled_actions) && result.data.enabled_actions.every(a => a === 'approve');
+      if (result.authorizes !== false || !closed && !rendered && !display
         || Object.keys(result).some(key => !['schema_version', 'state', 'data', 'authorizes', '_meta'].includes(key))) invalid();
     } else if (result.outcome === 'rejected') { if (result.authorizes !== false || typeof result.reason !== 'string') invalid(); }
     else if (!readStates.has(result.state) || !(result.code === null || typeof result.code === 'string')
@@ -102,7 +111,7 @@ function isFailure(name, input, result) {
   if (name === 'agdf_inspect') {
     if (result.outcome !== 'inspect_result') return true;
     if (exactReads.has(input.operation)) return result.report.available !== true;
-    if (reportReads.has(input.operation)) return input.operation === 'native-qualification' && result.report.available === false;
+    if (reportReads.has(input.operation)) return result.report.available === false;
     invalid();
   }
   if (commandNames.has(name)) return !['accepted', 'already_applied'].includes(result.outcome);
@@ -119,15 +128,17 @@ export function describeToolResult(name, input, result, pack, facts) {
   const descriptor = { schema_version: '1', failed, code: null, category: null, effect_state: null, action: null, message: null, authorizes: false };
   if (!failed) return descriptor;
   const candidate = result.reason ?? result.code ?? result.diagnostics?.[0]?.code ?? result.report?.reason ?? result.target?.reason_code ?? result.outcome;
-  const code = causes.has(candidate) ? candidate : result.outcome === 'target_unresolved' ? 'target_unresolved'
+  let code = causes.has(candidate) ? candidate : result.outcome === 'target_unresolved' ? 'target_unresolved'
     : result.outcome === 'invalid_input' ? 'invalid_input' : result.report?.available === false ? 'read_unavailable' : 'unclassified_tool_failure';
-  const uncertain = ['effect_unknown', 'recovery_required'].includes(result.outcome);
+  const canonicalWrite = commandNames.has(name) && !isEphemeralControlCommand(name, input);
+  const uncertain = canonicalWrite && ['effect_unknown', 'recovery_required'].includes(result.outcome);
+  if (['agdf_inspect', 'agdf_cockpit_read', 'agdf_decision_view'].includes(name) && causes.get(code).action === 'inspect_operation') code = 'read_unavailable';
   let { action, category } = causes.get(code);
   if (uncertain) { action = 'inspect_operation'; category = 'uncertain'; }
   const effect = validExecutionFacts(facts) ? facts.dispatch : result.dispatch === 'not_dispatched' ? 'not_dispatched'
     : commandNames.has(name) ? (uncertain ? 'unknown' : 'owner_reported') : 'owner_reported';
   // A cancelled/disconnected write cannot be offered a blind retry.
-  if (commandNames.has(name) && effect === 'unknown') { action = 'inspect_operation'; category = 'uncertain'; }
+  if (canonicalWrite && effect === 'unknown') { action = 'inspect_operation'; category = 'uncertain'; }
   const copy = pack?.mcpErrors;
   if (!copy?.actions?.[action] || !copy?.effects?.[effect]) invalid();
   const field = safeFields.has(facts?.field) ? facts.field : safeFields.has(result.diagnostics?.[0]?.field) ? result.diagnostics[0].field : null;

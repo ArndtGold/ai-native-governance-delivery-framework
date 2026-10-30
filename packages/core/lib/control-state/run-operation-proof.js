@@ -32,7 +32,7 @@ export function operationSources(root, state, step) {
 }
 export const operationSourceSetDigest = (root, state, step) => evidenceSourceSetDigest(operationSources(root, state, step));
 export function operationReceipt(root, run, context, nextRevisionId, record, packageVersion) {
-  return { schema_version: '1', kind: context.kind, operation_id: context.operation_id, request_digest: context.request_digest,
+  return { schema_version: context.kind === 'ur_draft.replace' || record.mode === 'verified_change' ? '2' : '1', kind: context.kind, operation_id: context.operation_id, request_digest: context.request_digest,
     target_id: resolveControlCommandTarget(root).target_id, run_id: run.meta.run_id, expected_revision_id: run.meta.revision_id,
     created_at: new Date().toISOString(), producer: { contract: 'run-command/1', package_version: packageVersion }, assurance: COOPERATIVE_ASSURANCE,
     effect: { previous_revision_id: run.meta.revision_id, resulting_revision_id: nextRevisionId, revision: Number(run.meta.revision) + 1, record } };

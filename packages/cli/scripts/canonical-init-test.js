@@ -8,6 +8,8 @@ import { createRun } from "#agdf-core/control-state/run-state-repository.js";
 import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
 import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 
+import { withOwnedFileLock } from "#agdf-core/control-state/run-state-writer.js";
+
 const temporaryRoots = [];
 const temporaryRoot = (label) => {
   const root = mkdtempSync(join(tmpdir(), `agdf-canonical-init-${label}-`));
@@ -80,9 +82,15 @@ const crashCanonicalInit = (root, point) => {
     };
     initializeCanonicalControl(root, generatedFilesForTarget("init", root, false, language), {}, hooks);
   `;
-  return spawnSync(process.execPath, ["--input-type=module", "--eval", source, root, point], {
-    encoding: "utf8",
-  });
+  const child = spawnSync(process.execPath, ["--input-type=module", "--eval", source, root, point], { encoding: "utf8" });
+  if (child.status === 86) {
+    const lock = join(root, '.agdf', '.canonical-init.lock');
+    const owner = JSON.parse(readFileSync(lock, 'utf8'));
+    assert.equal(owner.pid, child.pid, 'the crash lock belongs to this terminated fixture child');
+    withOwnedFileLock(join(root, '.agdf', '.canonical-init'), () => {});
+    assert.equal(existsSync(lock), false, 'the normal owned-lock primitive reclaims only the confirmed dead fixture owner');
+  }
+  return child;
 };
 
 try {

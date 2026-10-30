@@ -5,6 +5,12 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateCopilotPayload } from "../../../scripts/public-plugin/copilot-profile.js";
+import { ensurePluginMcpRuntime } from '../lib/mcp-lifecycle/plugin-runtime.js';
+import { offlineNpm } from '../../../scripts/support/plugin-mcp-fixture.js';
+import { withStdioClient } from '../../mcp-server/test/helpers.js';
+import { initializeCanonicalControl } from '../lib/scaffold/canonical-init.js';
+import { generatedFilesForTarget } from '../lib/scaffold/plan.js';
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(dirname(packageRoot));
@@ -54,14 +60,45 @@ try {
     assert.equal(bound[0].source, source, `Copilot inventory must bind ${name} to its canonical source`);
   }
   for (const module of ['control-inspect/cockpit.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
-    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js', 'control-inspect/decision-session.js', 'control-state/decision-action-service.js', 'control-state/decision-action-contract.js', 'interaction-catalog.d.ts']) {
+    'control-read/cockpit-worker.js', 'control-inspect/decision-session.js', 'control-state/decision-action-service.js', 'control-state/decision-action-contract.js', 'interaction-catalog.d.ts']) {
     assert.equal(existsSync(join(generatedRoot, 'runtime/create-agdf/runtime/core/lib', module)), false,
       'private Codex cockpit read closure must stay outside the default Copilot payload');
   }
   const runtime = await import(new URL('../generated/plugins/copilot/agdf/runtime/create-agdf/lib/mcp-dispatch-runtime.js', import.meta.url));
+  const protocol = await import(new URL('../generated/plugins/copilot/agdf/runtime/create-agdf/lib/mcp-protocol-runtime.js', import.meta.url));
+  const front = protocol.createMcpTransportRuntime({ surface: 'copilot' });
   const dispatcher = runtime.createMcpDispatchRuntime({ surface:'copilot' });
-  assert.deepEqual(dispatcher.tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+  assert.deepEqual(front.tools.map(tool => tool.definition), dispatcher.tools.map(tool => tool.definition),
+    'the actual reduced headless front shares full canonical contracts without optional private UI imports');
+  assert.deepEqual(dispatcher.tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect', 'agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+  await dispatcher.close();
   await assert.rejects(runtime.createMcpCockpitRuntime({ surface:'copilot', cockpitDir:fixtureRoot }), /AGDF_COCKPIT_TARGET_INVALID/);
+  for (const module of ['control-read/cockpit-pool.js', 'control-read/doctor-worker.js']) {
+    const destination = `runtime/create-agdf/runtime/core/lib/${module}`;
+    const entry = inventoryEntries.find(entry => entry.destination === destination);
+    assert.equal(entry?.owner, 'scripts/sync-plugin-runtime.js');
+    assert.equal(entry.rule, 'generated_exact_runtime');
+    assert.equal(entry.digest, sha256(readFileSync(join(repoRoot, 'packages/core/lib', module))),
+      'the shared diagnostic worker closure must retain exact canonical Core bytes under its existing projection owner');
+  }
+  // Exercise the actual reduced Copilot payload/launcher and owned provenance,
+  // not a substituted full CLI or a native-host qualification claim.
+  const diagnosis = join(fixtureRoot, 'doctor-target'), dataRoot = join(fixtureRoot, 'mcp-data');
+  mkdirSync(join(diagnosis, '.git'), { recursive: true });
+  writeFileSync(join(diagnosis, '.git/HEAD'), 'ref: refs/heads/main\n');
+  initializeCanonicalControl(diagnosis, generatedFilesForTarget('init', diagnosis, false, 'en'));
+  createRun(diagnosis, 'copilot-diagnostic');
+  const prepared = ensurePluginMcpRuntime({ pluginRoot: generatedRoot, dataRoot, exec: offlineNpm });
+  await withStdioClient({ root: prepared.root, command: process.execPath,
+    args: [join(generatedRoot, 'mcp/agdf-mcp-launch.js'), '--surface', 'copilot', '--data', dataRoot] }, async client => {
+    for (const scope of [{ run_id: 'copilot-diagnostic' }, { all_active: true }]) {
+      const result = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en',
+        working_directory: diagnosis, primary_target: diagnosis, target_source: 'explicit_target', ...scope } });
+      assert.equal(result.isError, undefined, JSON.stringify(result));
+      assert.equal(result.structuredContent.report.available, true, JSON.stringify(result));
+      assert.equal(result.structuredContent.report.completeness, 'complete');
+    }
+  });
   for (const max_bytes of [null, NaN, Infinity, -1, "9999999"]) {
     assert.throws(() => validate(generatedRoot, { baseline: { ...baseline, max_bytes } }), /BASELINE_INVALID/);
   }

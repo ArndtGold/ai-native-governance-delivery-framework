@@ -4,6 +4,23 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 // Only read owners import this seam. No global fs patch and no writer API.
 const context = new AsyncLocalStorage();
 const memo = new WeakMap();
+// Only a retained observation owner may inherit memoized facts after revalidation.
+export function inheritControlReadMemo(from, to) {
+  let cache = memo.get(from);
+  if (!cache) { cache = new Map(); memo.set(from, cache); }
+  memo.set(to, cache);
+}
+export const hasControlReadView = () => Boolean(context.getStore()?.view);
+// CLI readers retain their existing file scope; memoized work never survives a call.
+// MCP readers install a contained captured view before entering the same evaluators.
+export function withControlReadMemo(work) {
+  if (hasControlReadView()) return work();
+  const view = { ...native, lstatKindSync(path) {
+    const s = native.lstatSync(path);
+    return s.isSymbolicLink() ? 'symlink' : s.isDirectory() ? 'directory' : s.isFile() ? 'file' : 'other';
+  } };
+  return withControlReadView(view, work);
+}
 export function memoizeControlRead(key, work) {
   const view = context.getStore()?.view;
   if (!view) return work();

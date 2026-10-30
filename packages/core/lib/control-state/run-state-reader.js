@@ -2,6 +2,7 @@ import { existsSync, lstatSync, lstatKindSync, readFileSync, readdirSync, memoiz
 import { join } from "node:path";
 import { parseRunState, RUN_ID_PATTERN } from "./run-state-parser.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
+import { hasSymlinkComponent } from './contained-file.js';
 
 function invalidRun(runId, path) {
   return {
@@ -19,6 +20,25 @@ export function runPath(root, id) {
 
 export function discoverRuns(root) {
   return memoizeControlRead(`discoverRuns:${root}`, () => discoverCapturedRuns(root));
+}
+
+// Exact selection is a dependency of the selected Run, not an inventory assignment.
+// Share the same entry validator with discovery, without reading foreign histories.
+export function readSelectedRun(root, id) {
+  let path;
+  try { path = runPath(root, id); } catch { return invalidRun(id, ''); }
+  const relative = `.agdf/control/runs/${id}/RUN_STATE.md`;
+  if (hasSymlinkComponent(root, relative) || !existsSync(path)) return invalidRun(id, path);
+  const directory = join(root, '.agdf/control/runs', id);
+  if (lstatKindSync(directory) !== 'directory') return invalidRun(id, path);
+  if (existsSync(pendingRunStepPath(root, id))) {
+    return { ...invalidRun(id, path), findings: [{ code: 'AGDF_RUN_STEP_RECOVERY_REQUIRED', path: pendingRunStepPath(root, id) }] };
+  }
+  const stateStats = lstatSync(path);
+  if (stateStats.isSymbolicLink() || !stateStats.isFile()) return invalidRun(id, path);
+  const parsed = parseRunState(readFileSync(path, 'utf8'), id);
+  return { run_id: id, path, ...parsed, findings: parsed.findings.map(finding => ({ ...finding, path: finding.path ?? path })),
+    last_updated_at: parsed.meta.updated_at || stateStats.mtime.toISOString() };
 }
 
 function discoverCapturedRuns(root) {
@@ -40,18 +60,6 @@ function discoverCapturedRuns(root) {
         return invalidRun(id, path);
       }
 
-      if (existsSync(pendingRunStepPath(root, id))) {
-        return { ...invalidRun(id, path), findings: [{ code: "AGDF_RUN_STEP_RECOVERY_REQUIRED", path: pendingRunStepPath(root, id) }] };
-      }
-
-      const stateStats = lstatSync(path);
-      if (stateStats.isSymbolicLink() || !stateStats.isFile()) return invalidRun(id, path);
-      const parsed = parseRunState(readFileSync(path, "utf8"), id);
-      return {
-        run_id: id,
-        path,
-        ...parsed,
-        last_updated_at: parsed.meta.updated_at || stateStats.mtime.toISOString(),
-      };
+      return readSelectedRun(root, id);
     });
 }

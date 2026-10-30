@@ -158,7 +158,10 @@ function boundUrApproval() {
     assert.equal(prepared.outcome, "prepared");
     assert.match(prepared.text, /Dokument lesen/u);
     assert.equal(readFileSync(join(root, '.agdf/control/runs', runId, 'presentations', `${prepared.presentation_id}.document`), 'utf8'),
-      readFileSync(join(artefactDir, 'UR.md'), 'utf8'), 'the readable decision uses the exact presented document snapshot');
+      prepared.text, 'the readable v6 decision is the exact prepared Markdown, with no second source-summary copy');
+    assert.equal(prepared.artefact_digest, `sha256:${createHash('sha256').update(readFileSync(join(artefactDir, 'UR.md'))).digest('hex')}`,
+      'the separate source artefact remains bound to its unchanged exact bytes');
+    assert.equal(prepared.companion_text.includes(prepared.summary), false, 'the Chat pointer must not copy the primary summary');
     assert.match(prepared.text, /Approval: UR/u);
     const approved = json(["run-approve", "--dir", root, "--run", runId, "--gate", "UR",
       "--revision", prepared.revision_id, "--presentation", prepared.presentation_id,

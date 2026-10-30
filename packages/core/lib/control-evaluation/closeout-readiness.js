@@ -8,6 +8,14 @@ import { inspectQaReports } from './qa-follow-up.js';
 export { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType };
 
 export const closeoutConfirmation = (runId, revisionId, operationId, orDigest) => `Close Run: ${runId} ${revisionId} ${operationId} ${orDigest}`;
+// Discovery and validation share the existing compact document requirements.
+export const QUICK_CLOSEOUT_AUTHORING_FORMAT = {
+  template: 'OR', report_mode: 'OR-lite',
+  required_metadata: [{ field: 'run_id', label: 'Run' }, { field: 'report_mode', label: 'Report mode' }],
+  run_binding: 'Exactly one Run: <current run_id> or - run_id: <current run_id>; never both.',
+  required_sections: ['Result', 'Evidence', 'Risk', 'Next Step'],
+  template_scope: 'Use the bound OR template for identity; OR-lite needs only the declared metadata and four concrete sections, not OR-full sections.',
+};
 const value = (text, field, label) => cleanStatusCell(extractField(text, field) || (label ? text.match(new RegExp(`^${label}:[ \\t]*(.*)$`, 'mu'))?.[1] : ''));
 const concrete = text => filled(text) && !isPlaceholderValue(text) && !/^(?:tbd|todo|<)/iu.test(text);
 export function closeoutContext(text) {
@@ -22,7 +30,7 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
   const findings = [], fail = reason => findings.push(reason), route = state.mode_slice_decision?.decision;
   const structured = ['structured_slice', 'structured_delivery'].includes(route);
   if (typeof report !== 'string' || Buffer.byteLength(report) > 131072) return { ready: false, findings: ['or_unavailable_or_oversized'] };
-  if (prepared) for (const [field, label] of [['run_id', 'Run'], ['report_mode', 'Report mode'], ...(structured ? [['status', 'Status']] : [])]) {
+  if (prepared) for (const [field, label] of [...QUICK_CLOSEOUT_AUTHORING_FORMAT.required_metadata.map(row => [row.field, row.label]), ...(structured ? [['status', 'Status']] : [])]) {
     const declarations = [...report.matchAll(new RegExp(`^(?:- ${field}|${label}):[ \\t]*(.*)$`, 'gmu'))];
     if (declarations.length !== 1) fail('or_field_ambiguous:' + field);
   }
@@ -34,7 +42,7 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
   if (programme?.applicable && !programme.final_ready) fail('programme_aggregation_unfulfilled');
   if (!structured) {
     if (state.artefacts.get('CR')?.status !== 'done') fail('code_review_missing');
-    for (const section of ['Result', 'Evidence', 'Risk', 'Next Step']) if (!concrete(markdownSection(report, section).trim())) fail(`or_${section.toLowerCase().replaceAll(' ', '_')}_missing`);
+    for (const section of QUICK_CLOSEOUT_AUTHORING_FORMAT.required_sections) if (!concrete(markdownSection(report, section).trim())) fail(`or_${section.toLowerCase().replaceAll(' ', '_')}_missing`);
   } else {
     if (!['done', 'completed', 'pass'].includes(value(report, 'status', 'Status'))) fail('or_status_unconfirmed');
     for (const gate of ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']) {

@@ -1,5 +1,5 @@
-import { parse, serialize } from 'parse5';
-import postcss from 'postcss';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 import { posix } from 'node:path';
 
 export const PREVIEW_CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; worker-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
@@ -19,6 +19,9 @@ const replace = (node, tag, content) => {
 // One deliberately bounded resource grammar. Ambiguous/unsupported syntax fails,
 // rather than silently omitting a resource needed for the user's review.
 export function renderPreview(descriptor, files) {
+  // Both pinned packages ship CommonJS entries. Load the actual parsers only
+  // when rendering, keeping this synchronous API and all resource guards intact.
+  const { parse, serialize } = require('parse5'), postcss = require('postcss');
   const resources = new Map(files.map(file => [file.path, file]));
   const styles = new Map();
   let embeddedBytes = 0;

@@ -14,7 +14,8 @@ import { readDecisionUiBuild } from '../../../scripts/cockpit-ui-build.mjs';
 import { DECISION_APP_OBSERVATIONS } from '../../core/lib/runtime/plugin-provenance.js';
 import { createPrdDefinitionTestRun } from '../../cli/scripts/fixtures/prd-definition.js';
 import { previewFixture } from '../../core/test/fixtures/preview-review.js';
-const fixture = createOwnedRuntimeFixture(), root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
+import { RUN_COMMAND_GROUPS } from '../../core/lib/control-state/run-command-contract.js';
+const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
 try {
   const f = createSdDefinitionTestRun(root, cli, 'actual-package-decision', process.env, { typedApprovals: true });
   writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
@@ -25,7 +26,7 @@ try {
       command: { kind: 'presentation.prepare', payload: { gate: 'SD' } } };
     await withStdioClient({ ...fixture, modern, capabilities: ui }, async client => {
       const { tools } = await client.listTools();
-      assert.equal(tools.length, 9);
+      assert.equal(tools.length, Object.keys(RUN_COMMAND_GROUPS).length + 5);
       const facade = tools.find(tool => tool.name === 'agdf_decision_action');
       assert.deepEqual(facade._meta.ui.visibility, ['app']); assert.equal(facade._meta.ui.resourceUri, DECISION_UI_URI);
       assert.deepEqual(facade.annotations, { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false });
@@ -35,13 +36,17 @@ try {
       assert.equal('sha256:' + createHash('sha256').update(content.text).digest('hex'), readDecisionUiBuild().manifest.digest);
       const prepared = await client.callTool({ name: 'agdf_prepare', arguments: input });
       assert.equal(prepared.structuredContent.outcome, 'accepted', JSON.stringify(prepared));
-      assert.equal(prepared.structuredContent.app_capability, 'not_qualified');
-      const view = prepared._meta.agdf_decision; assert.ok(view); assert.deepEqual(view.enabled_actions, []);
+      assert.equal(prepared._meta?.agdf_decision, undefined);
+      assert.equal(tools.find(t => t.name === 'agdf_prepare')._meta?.ui, undefined, 'prepare opens no automatic card');
+      const probed = await client.callTool({ name: 'agdf_decision_view', arguments: { primary_target: root, target_id: input.target_id,
+        run_id: f.runId, expected_revision_id: input.expected_revision_id, gate: 'SD', presentation_id: prepared.structuredContent.family_result.presentation_id } });
+      assert.equal(probed.structuredContent.app_capability, 'not_qualified');
+      const view = probed._meta.agdf_decision; assert.ok(view); assert.deepEqual(view.enabled_actions, []);
       assert.equal(prepared.structuredContent.session_id, undefined);
-      assert.equal(prepared.structuredContent.presentation_delivery.mode, 'full_chat');
+      assert.equal(prepared.structuredContent.presentation_delivery.mode, 'prepared');
       assert.equal(prepared.content[0].text, prepared.structuredContent.presentation_delivery.text);
-      assert.equal(prepared.content[0].text, prepared.structuredContent.family_result.text, 'An unconfirmed surface receives the exact complete Core Chat decision.');
-      assert.ok(prepared.content[0].text.includes(view.summary.trim()), 'The complete reviewed summary remains available in Chat.');
+      assert.equal(prepared.content[0].text, '', 'Preparation is neutral and not a decision delivery');
+      assert.equal(view.summary, prepared.structuredContent.family_result.text, 'The probe reads the exact prepared Markdown');
       assert.equal(prepared.content[0].text.includes(view.session_id), false, 'Decision nonce is withheld from model-visible content.');
       for (const action of ['approve', 'request_change', 'reject']) {
         const result = await client.callTool({ name: facade.name, arguments: { session_id: view.session_id, operation_id: randomUUID(),
@@ -62,6 +67,12 @@ try {
       }
       const closed = await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'close', session_id: view.read_session_id } });
       assert.equal(closed.structuredContent.data.closed, true);
+      const deliveryInput = { ...input, operation_id: randomUUID(), command: { kind: 'presentation.deliver', payload: {
+        gate: 'SD', presentation_id: view.binding.presentation_id, route: 'automatic' } } };
+      const delivered = await client.callTool({ name: 'agdf_prepare', arguments: deliveryInput });
+      assert.equal(delivered.structuredContent.presentation_delivery.mode, 'full_markdown');
+      assert.equal(delivered.content[0].text, prepared.structuredContent.family_result.text);
+      assert.equal((await client.callTool({ name: 'agdf_prepare', arguments: deliveryInput })).content[0].text, '');
       const expired = await client.callTool({ name: facade.name, arguments: { session_id: view.session_id, operation_id: randomUUID(),
         presentation_id: view.binding.presentation_id, expected_revision_id: view.binding.expected_revision_id, action: 'reject' } });
       assert.equal(expired.structuredContent.reason, 'session_expired');
@@ -93,7 +104,7 @@ try {
     assert.equal(prepared.structuredContent.outcome,'accepted',JSON.stringify(prepared));
     const access=prepared.structuredContent.presentation_delivery.preview_review;
     assert.equal(access.version,'review-v1');assert.equal(access.operation,'presentation-preview');assert.equal(access.access_state,'not_observed');
-    assert.ok(prepared.structuredContent.presentation_delivery.instruction.includes('review remains open'));
+    assert.equal(prepared.structuredContent.presentation_delivery.mode, 'prepared');
     const inspected=await client.callTool({name:'agdf_inspect',arguments:{operation:access.operation,presentation_language:'en',working_directory:root,primary_target:root,target_source:'explicit_target',
       target_id:access.target_id,run_id:access.run_id,gate:access.gate,expected_revision_id:access.expected_revision_id,presentation_id:access.presentation_id}});
     assert.equal(inspected.structuredContent.report.available,true,JSON.stringify(inspected));assert.equal(inspected.structuredContent.report.content_digest,access.content_digest);
@@ -127,11 +138,13 @@ try {
     assert.equal(qualification.structuredContent.report.action_qualification.qualified, true, 'Synthetic protocol tuple, not native proof');
     assert.equal(qualification.structuredContent.report.authorizes, false);
     const prepared = await client.callTool({ name: 'agdf_prepare', arguments: input });
-    assert.equal(prepared.structuredContent.app_capability, 'available', JSON.stringify(prepared));
-    assert.deepEqual(prepared._meta.agdf_decision.enabled_actions, ['approve']);
+    const probed = await client.callTool({ name: 'agdf_decision_view', arguments: { primary_target: root, target_id: input.target_id,
+      run_id: f.runId, expected_revision_id: input.expected_revision_id, gate: 'SD', presentation_id: prepared.structuredContent.family_result.presentation_id } });
+    assert.equal(probed.structuredContent.app_capability, 'available', JSON.stringify(probed));
+    assert.deepEqual(probed._meta.agdf_decision.enabled_actions, [], 'qualification does not establish display or primacy');
     // Evidence revocation after opening must reject before Core decision effects.
     writeFileSync(join(fixture.root, 'qualification', 'synthetic.log'), 'Evidence changed after view opened');
-    const v = prepared._meta.agdf_decision;
+    const v = probed._meta.agdf_decision;
     const rejected = await client.callTool({ name: 'agdf_decision_action', arguments: { session_id: v.session_id, operation_id: randomUUID(),
       presentation_id: v.binding.presentation_id, expected_revision_id: v.binding.expected_revision_id, action: 'approve' } });
     assert.equal(rejected.structuredContent.reason, 'app_only_mediation_not_qualified');

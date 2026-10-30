@@ -2,7 +2,7 @@
 
 Local STDIO MCP adapter.
 
-MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_project`, `agdf_run`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 
 [Integration guide](../../docs/architecture/09-mcp-integrationsrichtlinien.md).
 [Command flow](../../docs/architecture/core-mcp-command-flow.md): bounded writes,
@@ -53,6 +53,35 @@ document and preview cursors are not interchangeable. Prepared records prove no 
 
 Dispatch follows the canonical skill-dispatch contract;
 inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
+
+`agdf_inspect/project-state` observes the confirmed existing Git project's setup without a Run.
+Deliberate `agdf_project/project.initialize` uses the shared Core initializer and fixed versioned
+plan, preserving authored initialized governance. It creates no Run, approval, installation,
+permission or Git effect and exposes no force/repair/arbitrary writer. Original request recovery
+uses `operation-status` module `project.initialize/<original UUID>`, distinct from Run creation.
+Unknown/unowned partial states remain blocked. Successful setup returns creation help.
+
+`agdf_run/run.create` creates an unapproved Run from a semantic title and original operation UUID;
+pre-Run `operation-status` resolves a lost response without inventing a second Run.
+`authoring-inputs` returns versioned templates and exact sources with bounded cursors.
+`agdf_record/material.stage` transfers at most 16 KiB per part and 128 KiB per file, then seals
+Core-owned references for existing typed writers, including reviewed formal artefacts, unapproved
+UR replacement, Verified Change and closeout. Code edits, actual tests and Git execution remain
+external work; none of these operations grants approval.
+
+MCP `doctor` observes an exact selected Run without enumerating unrelated histories. All-active
+diagnosis returns bounded pages and an opaque observation cursor; consume every `next_cursor`.
+Only complete accounted observations have an overall domain status. Partial, stale, expired or
+resource-limited reads never imply a clean pass. Read failures report elapsed/unmeasured timing
+and read recovery separately from uncertain writes and their original operation receipts.
+
+Preparation opens no UI. `presentation.prepare` freezes one Markdown decision document;
+`presentation.deliver` chooses its primary delivery once. The ordinary route returns the whole
+Markdown. Optional `agdf_decision_view` opens a non-primary read-only preview. UI primary delivery
+requires actual bound current-surface confirmation and gives Chat only a short pointer; action
+qualification remains separate. The current SDK adapter cannot establish that surface identity,
+so capability/qualification alone always keeps Markdown as the primary route. Replay adds no
+second question; explicit fallback retires a primary view before returning the same Markdown.
 
 The shared Core continuation service may record one previously sealed relationship correction
 for an authorized bound `continue_delivery` request, then route the same run afresh. The routing
@@ -141,3 +170,33 @@ This follows the [MCP tool error contract](https://modelcontextprotocol.io/speci
 and [SDK error behavior](https://ts.sdk.modelcontextprotocol.io/v2/servers/errors).
 Local protocol, package and browser tests do not establish native host or agent
 performance; the unchanged ergonomics comparison records that evidence separately.
+
+
+### Owned thread execution
+
+New packages declare `agdfExecutionModel: owner_threads_v1` and the exact owner-protocol
+import/export. The existing launcher and detached retention owner remain OS processes.
+That owner hosts one genuine SDK facade Worker and at most three counted generation
+Workers. Per-request Workers keep their existing execution and lock owners. Public
+STDIO uses native streams and backpressure; generation output cannot write MCP STDOUT.
+One entry-owned SDK output queue serializes actual writes, bounding queued frames/bytes
+without lowering existing per-result or UI resource limits. A blocked reader therefore
+does not create a parallel drain/error listener for every response.
+The private channel accepts bounded finite JSON with exact fields, a per-connection
+token/epoch, publication identity and original operation identity. It limits pending
+frames and bytes, and requalifies replacement candidates through the existing immutable
+publisher. Historical packages retain their declared process path and digest entry sets.
+
+Executable claims bind once to actual native Worker objects. Successful actual exit
+and a complete close acknowledgement are both required for release. Facade loss drains
+surviving work without replay; unconfirmed exits, uncertain effects and nested locks
+remain protected. Fatal failure of the shared owner process can lose all its Workers;
+original operation receipts and retained claims remain the recovery evidence. No PID
+scan, claim garbage collection or timeout alone establishes safe termination.
+
+Repository tests exercise both actual STDIO protocols, replacement, bounded channel
+admission and real write/lock interruption in disposable, fully rehashed fault candidates.
+They do not qualify an installed host or another OS. The fixed performance test selects
+the actual owned plugin launcher; its existing 20/20 samples and 1500/1000 ms limits
+remain unchanged. Final performance acceptance and native qualification are separate
+required evidence, not consequences of the topology declaration.

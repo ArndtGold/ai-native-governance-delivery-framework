@@ -23,6 +23,8 @@ export interface DecisionPort {
   inspect: (operation: string) => Promise<Reply>;
   expand: () => Promise<void>;
   next?: (current: DecisionNext, approval: DecisionSubmission) => Promise<void>;
+  saved?: () => void;
+  pending?: (value: boolean) => void;
 }
 export function DecisionCard({ view, port, closeWarning = false }: { view: DecisionBootstrap; port: DecisionPort; closeWarning?: boolean }) {
   const l = view.labels, [status, setStatus] = useState('undecided'), [message, setMessage] = useState('');
@@ -62,12 +64,14 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
     if (!current()) { setStatus('expired'); setMessage(l.expired); return; }
     if (reply.view_state === 'closed') { setStatus('expired'); setMessage(l.expired); return; }
     if (['accepted', 'already_applied'].includes(String(reply.outcome)) && matchedDecisionReceipt(reply.receipt, view, input)) {
+      port.saved?.();
       setStatus('saved');
       setNext(readDecisionNext(reply.current));
       const current = reply.current as { available?: boolean } | undefined;
       setMessage(l.confirmed + (current?.available === false ? ' ' + l.unknownCurrent : '')); return;
     }
     if (reply.outcome === 'rejected') {
+      port.pending?.(false);
       const reason = String(reply.reason);
       const unavailable = ['stale_revision', 'decision_binding_changed', 'presentation_state_changed', 'decision_binding_invalid', 'presentation_version_decided'].includes(reason);
       const expired = reason === 'session_expired';
@@ -80,13 +84,14 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
   const send = async (input: DecisionSubmission) => {
     if (inflight.current || !current()) return;
     inflight.current = true; pending.current = input; setStatus('pending'); setMessage(l.pending);
+    port.pending?.(true);
     try { const reply = await port.submit(input); if (alive.current) receive(reply, input); }
     catch { if (alive.current) { setStatus('uncertain'); setMessage(l.uncertain); } }
     finally { inflight.current = false; }
   };
   const decide = () => {
     const action = 'approve';
-    if (!current() || status !== 'undecided' || previewReading || previewProblem || view.capability !== 'available' || !view.enabled_actions.includes(action)) return;
+    if (!current() || view.delivery_state && view.delivery_state !== 'ui_primary' || status !== 'undecided' || previewReading || previewProblem || view.capability !== 'available' || !view.enabled_actions.includes(action)) return;
     void send({ session_id: view.session_id, operation_id: crypto.randomUUID(), presentation_id: view.binding.presentation_id,
       expected_revision_id: view.binding.expected_revision_id, action });
   };
@@ -99,6 +104,7 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
       if (!alive.current) return;
       if (!current()) { setStatus('expired'); setMessage(l.expired); return; }
       if (result.status === 'recorded' && matchedDecisionReceipt(result.receipt, view, input)) {
+        port.saved?.();
         setStatus('saved'); setNext(readDecisionNext(result.current)); setMessage(l.confirmed);
       } else setMessage(l.uncertain); // Even absence cannot establish non-execution.
     } catch { if (alive.current) setMessage(l.uncertain); }
@@ -140,6 +146,12 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
       .catch(() => { if (alive.current) setContinuationMessage(l.nextUnavailable); });
     // Do not resend on a lost host acknowledgement or an ordinary rerender.
   }, [status, next, port, l.nextWaiting, l.nextRequested, l.nextUnavailable]);
+  const previewAction = view.preview && <button type="button" ref={previewButton}
+    disabled={!port.preview || previewReading || status === 'stale' || status === 'expired'}
+    onClick={() => void openPreview()}>{l.openPreview} · {view.preview.version}</button>;
+  if (view.delivery_state === 'retired') return <section className="decision-card agdf-surface mcp-entry">
+    <p role="status">{l.sourceChanged}</p><details><summary>{l.sources}</summary><p>{view.title}</p><code>{view.document_digest}</code></details>
+  </section>;
   if (preview !== null) return <section className="decision-card agdf-surface mcp-entry">
     <button type="button" ref={previewBack} onClick={() => { setPreview(null); setTimeout(() => previewButton.current?.focus(), 0); }}>{l.back}</button>
     <h1>{l.previewTitle} · {view.preview?.version}</h1><p>{l.previewIllustrative}</p>
@@ -151,8 +163,29 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
   </section>;
   if (document !== null) return <section className="decision-card agdf-surface mcp-entry">
     <button type="button" onClick={() => { restoreFocus.current = true; setDocument(null); }}>{l.back}</button>
-    <h1 ref={documentHeading} tabIndex={-1}>{l.documentTitle} · {view.gate_title ?? view.binding.gate}</h1><p>{view.title}</p>
+    <h1 ref={documentHeading} tabIndex={-1}>{status === 'saved' ? view.binding.presentation_language.startsWith('de') ? 'Historische Fassung' : 'Historical version' : l.documentTitle} · {view.gate_title ?? view.binding.gate}</h1><p>{view.title}</p>
     <article className="document"><PassiveMarkdown content={document} links={{}} onOpen={() => {}}/></article>
+  </section>;
+  if (view.delivery_state === 'preview') return <section className="decision-card agdf-surface mcp-entry">
+    <p role="status">{view.binding.presentation_language.startsWith('de') ? 'Vorschau · keine primäre Entscheidungsansicht. Die Auslieferung steht noch aus.' : 'Preview · not a primary decision view. Delivery is pending.'}</p>
+    <article className="document"><PassiveMarkdown content={view.summary} links={{}} onOpen={() => {}}/></article>
+    {previewAction}
+  </section>;
+  if (view.delivery_state === 'ui_primary' && status === 'saved') return <section className="decision-card agdf-surface mcp-entry">
+    <p role="status">{message || l.confirmed}</p>
+    {next && <p>{l.nextInformation.replace('{step}', gateTitles?.[next.next_operation.gate] ?? next.next_operation.gate)}</p>}
+    {continuationMessage && <p role="status">{continuationMessage}</p>}
+    <button type="button" ref={openButton} disabled={!view.resource_id || reading} onClick={() => void open()}>{l.openDocument}</button>
+    <details><summary>{l.sources}</summary><p>{view.title}</p><code>{view.document_digest}</code></details>
+    {closeWarning && <p role="status">{l.closeUnavailable}</p>}
+  </section>;
+  if (view.delivery_state === 'ui_primary' && status !== 'saved') return <section className="decision-card agdf-surface mcp-entry">
+    <article className="document"><PassiveMarkdown content={view.summary} links={{}} onOpen={() => {}}/></article>
+    {!nativeApprovalAvailable && <p role="status">{l.notQualified}</p>}
+    <button type="button" disabled={disabled || !nativeApprovalAvailable} onClick={decide}>{l.approve}</button>
+    {previewAction}
+    <p role="status">{message || l.notSaved}</p>
+    {status === 'uncertain' && <button type="button" disabled={checking} onClick={() => void inspect()}>{l.checkOperation}</button>}
   </section>;
   return <section className="decision-card agdf-surface mcp-entry" aria-label={l.title}>
     <h1>{view.decision_heading ?? l.title}</h1><p>{view.title}</p>
@@ -166,7 +199,7 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
     <p>{l.sourceLanguage}</p>
     <button type="button" ref={openButton} disabled={!view.resource_id || reading} onClick={() => void open()}>{l.openDocument}</button>
     {view.preview && <>
-      <button type="button" ref={previewButton} disabled={!port.preview || previewReading || status === 'stale' || status === 'expired'} onClick={() => void openPreview()}>{l.openPreview} · {view.preview.version}</button>
+      {previewAction}
       <p><strong>{l.previewTask}: </strong>{view.preview.task}</p>
       <p>{l.previewScenarios}: {view.preview.scenarios.join(' · ')}</p><p>{l.previewCriteria}: {view.preview.criterion_ids.join(', ')}</p>
       {Boolean(view.preview.open_questions?.length) && <><p><strong>{l.previewQuestions}:</strong></p>

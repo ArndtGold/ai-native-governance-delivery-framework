@@ -5,6 +5,7 @@ import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verificationPlan, executeVerificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
+import { STRUCTURED_CASES, DELIVERY_PROTOCOLS } from '../packages/mcp-server/test/fixtures/delivery-mode-cases.js';
 import { CONTROL_COMMAND_PACKAGE_PARTS } from '../packages/cli/scripts/control-command-package-parts.js';
 import { TEST_DOMAINS, scriptDomain, commandDomain } from './ci-test-domains.mjs';
 
@@ -22,7 +23,11 @@ const prerequisites = new Set(['dependencies', 'ui-dependencies', 'ui-build', 'g
 const checkAreas = {
   contracts: { label: 'Repository contracts', shortLabel: 'Contracts', stages: ['maintenance', 'shell'] },
   compatibility: { label: 'Runtime & host compatibility', shortLabel: 'Compat', stages: ['compatibility-freshness', 'runtime', 'built-runtime', 'host-compatibility', 'mcp-ergonomics'] },
-  distribution: { label: 'Distribution & package consumers', shortLabel: 'Archives', stages: ['cli-package', 'wrapper-package', 'mcp-package', 'archives', 'wrapper-smoke'] },
+  // Keep one ownership list. Nested groups reserve independent Windows budgets
+  // for packing/consumers instead of timing out a later stage after earlier passes.
+  distribution: { label: 'Distribution & package consumers', shortLabel: 'Archives', stages: [
+    ['cli-package', 'wrapper-package', 'mcp-package'], ['archives'], ['wrapper-smoke'],
+  ] },
   'run-safety': { label: 'Run persistence & delivery map', shortLabel: 'Run safety', stages: ['transactions', 'delivery-map'] },
   documentation: { label: 'Documentation & community', shortLabel: 'Docs', stages: ['community', 'pages-install', 'pages'] },
 };
@@ -105,6 +110,17 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
       const parts = Object.keys(CONTROL_COMMAND_PACKAGE_PARTS);
       return parts.map(part => ({ ...command, args: [...command.args, '--part', part], seconds: share(command.seconds, parts.length) }));
     }
+    // Full local invocations retain every case. CI isolates the independent
+    // route/protocol cells instead of growing the unchanged execution budget.
+    if (command.cwd === 'packages/mcp-server' && command.args[0] === './test/structured-flow.test.js') {
+      return STRUCTURED_CASES.map(({ route, protocol }) => ({ ...command,
+        args: [...command.args, '--route', route, '--protocol', protocol], isolated: true,
+        seconds: share(command.seconds, STRUCTURED_CASES.length) }));
+    }
+    if (command.cwd === 'packages/mcp-server' && command.args[0] === './test/verified-change-flow.test.js') {
+      return DELIVERY_PROTOCOLS.map(protocol => ({ ...command, args: [...command.args, '--protocol', protocol], isolated: true,
+        seconds: share(command.seconds, DELIVERY_PROTOCOLS.length) }));
+    }
     if (command.cwd !== 'packages/mcp-server' || command.args[0] !== './test/expanded-source-revision.test.js') return [command];
     const total = Object.values(SOURCE_PHASE_MATRIX).flat().length;
     return Object.entries(SOURCE_PHASE_MATRIX).flatMap(([gate, phases]) => phases.map(phase => ({ ...command,
@@ -144,14 +160,19 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
     if (suite === 'cli') {
       const checks = verificationPlan({ lane: platform.lane }).filter(stage => !prerequisites.has(stage.id) && stage.id !== 'cli-smoke');
       for (const stage of checks) {
-        const owners = Object.values(checkAreas).filter(area => area.stages.includes(stage.id));
+        const owners = Object.values(checkAreas).filter(area => area.stages.flat().includes(stage.id));
         if (owners.length !== 1) throw Error(`CI check needs exactly one owner: ${stage.id}`);
       }
       for (const [area, { label, shortLabel, stages }] of Object.entries(checkAreas)) {
-        const checkStages = checks.filter(stage => stages.includes(stage.id)).map(stage => stage.id);
-        if (checkStages.length) rows.push({ ...platform, id: `${prefix}-checks-${area}`, label: `${label} / ${suffix}`,
-          graphLabel: `${shortLabel} · ${graphPlatform}`,
-          area, kind: 'checks', checkStages, seconds: null });
+        const stageGroups = platform.speed === 'windows' && Array.isArray(stages[0]) ? stages : [stages.flat()];
+        const partitions = stageGroups.map(group => checks.filter(stage => group.includes(stage.id)).map(stage => stage.id)).filter(group => group.length);
+        for (const [index, checkStages] of partitions.entries()) {
+          const part = partitions.length > 1 ? `-part-${index + 1}` : '';
+          const partLabel = partitions.length > 1 ? ` / Part ${index + 1} of ${partitions.length}` : '';
+          rows.push({ ...platform, id: `${prefix}-checks-${area}${part}`, label: `${label}${partLabel} / ${suffix}`,
+            graphLabel: `${shortLabel} · ${graphPlatform}${part ? ` ${index + 1}of${partitions.length}` : ''}`,
+            area, kind: 'checks', checkStages, seconds: null });
+        }
       }
     }
     const groups = [];
@@ -167,6 +188,17 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
       }
     }
     for (const command of inventory.filter(command => command.isolated)) {
+      if (command.args.includes('--protocol')) {
+        const protocol = command.args[command.args.indexOf('--protocol') + 1];
+        const route = command.args.includes('--route') ? command.args[command.args.indexOf('--route') + 1] : 'verified_change';
+        const [group] = partitionTests([command], platform.speed);
+        groups.push(group);
+        const title = { structured_delivery:'Full', structured_slice:'Slice', verified_change:'VC' }[route];
+        rows.push({ ...platform, id:`${prefix}-mcp-${route.replaceAll('_','-')}-${protocol}`,
+          graphLabel:`${title} ${protocol} · ${graphPlatform}`, label:`MCP ${route} / ${protocol} / ${suffix}`,
+          area:command.domain, kind:'tests', ...group });
+        continue;
+      }
       const gate = command.args[command.args.indexOf('--source-gate') + 1];
       const phase = command.args[command.args.indexOf('--phase') + 1];
       const [group] = partitionTests([command], platform.speed);

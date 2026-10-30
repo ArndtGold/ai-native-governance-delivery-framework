@@ -6,7 +6,8 @@ import { evaluateVerifiedChange } from "./verified-change.js";
 // current gate, next action and forbidden list together with the step it records.
 export function policyForRunContent(targetDir, content, runPath = "", preparation = {}) {
   const runState = prepareRunContentState(targetDir, content, runPath, preparation);
-  const verifiedChange = modeSliceDecision(runState) === "verified_change" ? evaluateVerifiedChange(targetDir, runState, {}) : null;
+  const verifiedChange = modeSliceDecision(runState) === "verified_change" ? evaluateVerifiedChange(targetDir, runState, {
+    ...preparation.gitObservation, proposedArtefacts: preparation.proposedArtefacts }) : null;
   const decision = transitionDecisionForRunState(runState, verifiedChange);
   return Object.freeze({
     status: decision.status,

@@ -5,7 +5,7 @@ import { REVISION_ID_PATTERN, RUN_ID_PATTERN, APPROVAL_GATES } from './run-ident
 import { isSafeControlRelativePath } from './contained-file.js';
 
 const fields = ['schema_version', 'kind', 'operation_id', 'request_digest', 'target_id', 'run_id', 'expected_revision_id', 'created_at', 'producer', 'assurance', 'effect'];
-export const RUN_OPERATION_KINDS = Object.freeze(['step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record']);
+export const RUN_OPERATION_KINDS = Object.freeze(['run.create', 'ur_draft.replace', 'step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record']);
 export const ENDED_LIFECYCLES = Object.freeze(['superseded', 'abandoned']);
 const uuid = value => typeof value === 'string' && REVISION_ID_PATTERN.test(value);
 const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
@@ -22,14 +22,20 @@ const validConfirmer = value => exactObject(value, ['statement']) ? value.statem
     && [value.name, value.email].every(item => item === null || closureLine(item, 256));
 function validRecord(receipt) {
   const r = receipt.effect.record;
-  if (receipt.kind === 'step.record') return exactObject(r, ['step', 'source', 'status', 'covers', 'source_set_digest'])
-    && ['ur', 'route', 'review', 'evidence', 'Brownfield Review', 'UX Intent Definition', 'Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR'].includes(r.step)
+  if (receipt.kind === 'run.create') return exactObject(r, ['title']) && text(r.title, 1024) && r.title.trim()
+    && !/[\r\n|]/u.test(r.title) && receipt.run_id === `run-${receipt.operation_id}`;
+  if (['step.record', 'ur_draft.replace'].includes(receipt.kind)) return exactObject(r, ['step', 'source', 'status', 'covers', 'source_set_digest'])
+    && ['ur', 'route', 'review', 'evidence', 'Verified Change', 'Brownfield Review', 'UX Intent Definition', 'Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR'].includes(r.step)
+    && (receipt.kind !== 'ur_draft.replace' || r.step === 'ur')
     && source(r.source, receipt.run_id) && ['done', 'revise', 'block', 'not_applicable'].includes(r.status)
     && text(r.covers, 1024) && hash(r.source_set_digest);
   if (receipt.kind === 'presentation_decision.record') return exactObject(r, ['gate', 'presentation_id', 'presentation_digest', 'material_version', 'material_sources', 'action', 'comment', 'owner', 'artefact_digest'])
     && APPROVAL_GATES.includes(r.gate) && uuid(r.presentation_id) && hash(r.presentation_digest) && hash(r.material_version)
     && validDecisionMaterial(r.material_sources, receipt.run_id) && r.material_version === decisionMaterialVersion(receipt.run_id, r.gate, r.material_sources) && ['request_change', 'reject'].includes(r.action) && text(r.comment) && Buffer.byteLength(r.comment) <= 8192 && (r.action !== 'request_change' || r.comment.trim())
     && text(r.owner, 128) && r.owner.trim() && (r.gate === 'UAT' ? r.artefact_digest === null : hash(r.artefact_digest));
+  if (receipt.kind === 'closeout.record' && r.mode === 'verified_change') return exactObject(r, ['mode', 'verified_change', 'lifecycle', 'context_evidence_digest', 'confirmation_digest'])
+    && source(r.verified_change, receipt.run_id) && r.verified_change.path === `.agdf/control/artefacts/${receipt.run_id}/VERIFIED_CHANGE.md`
+    && r.lifecycle === 'completed' && hash(r.context_evidence_digest) && hash(r.confirmation_digest);
   if (receipt.kind === 'closeout.record') return exactObject(r, ['or', 'lifecycle', 'context_evidence_digest', 'confirmation_digest'])
     && source(r.or, receipt.run_id) && r.or.path === `.agdf/control/artefacts/${receipt.run_id}/OR.md`
     && r.lifecycle === 'completed' && hash(r.context_evidence_digest) && hash(r.confirmation_digest);
@@ -46,11 +52,14 @@ function validRecord(receipt) {
 }
 export const earlyPrdConfirmation = (runId, revisionId, operationId, prdDigest) => `Reopen PRD: ${runId} ${revisionId} ${operationId} ${prdDigest}`;
 export function validRunOperation(receipt) {
-  return exactObject(receipt, fields) && receipt.schema_version === '1' && RUN_OPERATION_KINDS.includes(receipt.kind)
+  const creation = receipt?.kind === 'run.create';
+  const extended = creation || receipt?.kind === 'ur_draft.replace' || receipt?.kind === 'closeout.record' && receipt?.effect?.record?.mode === 'verified_change';
+  return exactObject(receipt, fields) && receipt.schema_version === (extended ? '2' : '1') && RUN_OPERATION_KINDS.includes(receipt.kind)
     && uuid(receipt.operation_id) && hash(receipt.request_digest) && hash(receipt.target_id) && RUN_ID_PATTERN.test(receipt.run_id ?? '')
-    && uuid(receipt.expected_revision_id) && exactObject(receipt.effect, ['previous_revision_id', 'resulting_revision_id', 'revision', 'record'])
+    && (creation ? receipt.expected_revision_id === null : uuid(receipt.expected_revision_id)) && exactObject(receipt.effect, ['previous_revision_id', 'resulting_revision_id', 'revision', 'record'])
     && receipt.effect.previous_revision_id === receipt.expected_revision_id && uuid(receipt.effect.resulting_revision_id)
-    && receipt.effect.resulting_revision_id !== receipt.expected_revision_id && Number.isSafeInteger(receipt.effect.revision) && receipt.effect.revision >= 2
+    && receipt.effect.resulting_revision_id !== receipt.expected_revision_id && Number.isSafeInteger(receipt.effect.revision)
+    && (creation ? receipt.effect.revision === 1 : receipt.effect.revision >= 2)
     && exactObject(receipt.producer, ['contract', 'package_version']) && receipt.producer.contract === 'run-command/1' && text(receipt.producer.package_version, 128) && receipt.producer.package_version
     && canonicalJson(receipt.assurance) === canonicalJson(COOPERATIVE_ASSURANCE)
     && typeof receipt.created_at === 'string' && /^\d{4}-\d{2}-\d{2}T.*Z$/u.test(receipt.created_at) && Number.isFinite(Date.parse(receipt.created_at)) && Boolean(validRecord(receipt));
@@ -65,7 +74,7 @@ export function readRunOperations(content) {
   while (end < lines.length && !/^#{1,2} /u.test(lines[end])) end++;
   const body = lines.slice(start + 1, end).map(line => line.trim()).filter(Boolean);
   if (body[0] !== '- schema_version: 1' || body[1] !== '| operation_id | request_digest | receipt |' || !/^\|[-:|\s]+\|$/u.test(body[2] ?? '')) return invalid();
-  const receipts = [], ids = new Set(), revisions = new Set(); let revision = 1;
+  const receipts = [], ids = new Set(), revisions = new Set(); let revision = 0;
   for (const line of body.slice(3)) {
     const cells = line.match(/^\| ([^|]+) \| ([^|]+) \| ([A-Za-z0-9_-]+) \|$/u);
     if (!cells || cells[3].length > 131072) return invalid();

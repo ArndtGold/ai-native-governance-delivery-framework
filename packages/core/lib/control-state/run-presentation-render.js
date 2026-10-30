@@ -426,18 +426,19 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
   // One source-authored summary and one decision moment. Provenance remains
   // available without duplicating the status, transition and approval prompts.
   if (qaAcceptance) { summaryMarkdown = qaAcceptance.summary; summaryDigest = hash(summaryMarkdown); }
-  const parts = [`## ${qaAcceptance ? pack.decisionCard.deviationAcceptanceIntro : pack.gateActionTitles[gate]}`, resolveHumanRunTitle({ currentArtefactHeading: documentHeading, runContent: runState?.content, runId }),
-    qaAcceptance?.summary || decisionMarkdown || decisionBriefFromSummary(summaryMarkdown, p.presentation_language) || summaryMarkdown, qaAcceptance?.effect || pack.primary.afterApproval[gate],
+  const title = resolveHumanRunTitle({ currentArtefactHeading: documentHeading, runContent: runState?.content, runId });
+  const parts = [`## ${pack.gateActionTitles[gate]}`, title,
+    summaryMarkdown, qaAcceptance?.effect || pack.primary.afterApproval[gate],
     german ? 'Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.'
       : 'Reply “Read document” to read this complete version in Chat. Discuss questions and requested changes here. This step remains open until you approve.',
     pack.decisionCard.chatApprovalHint.replace('{gate}', gate),
-    `### ${german ? 'Details und Nachweise' : 'Details and evidence'}\n\n${summaryMarkdown}`,
     `### ${german ? 'Fassung und Quellen' : 'Version and sources'}\n\nRun: \`${runId}\` · ${pack.gateTitles[gate]} · Revision: \`${revisionId}\`\n\nSHA-256: \`${artefactDigest}\``];
+  const markdown = parts.join('\n\n');
   return parts.every((part) => typeof part === "string" && part.trim())
-    ? { markdown: parts.join("\n\n"), companion_markdown: [german
-          ? `Die AGDF-Karte ist geöffnet. Du kannst dort „${qaAcceptance?.approve_label || 'Freigeben'}“ klicken oder hier \`Approval: ${gate}\` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.`
-          : `The AGDF card is open. Click “${qaAcceptance?.approve_label || 'Approve'}” there or enter \`Approval: ${gate}\` here. Both paths decide the same presented version once.`, ...parts].join("\n\n"), preview_markdown: artifactSection,
+    ? { markdown, companion_markdown: german
+          ? `Die Entscheidungsfassung „${title.slice(0, 240)}“ (${gate}, Revision ${revisionId}) wird in der bestätigten AGDF-Ansicht angezeigt.`
+          : `The decision “${title.slice(0, 240)}” (${gate}, revision ${revisionId}) is displayed in the confirmed AGDF view.`, preview_markdown: artifactSection,
         artefact_digest: artefactDigest, summary_digest: summaryDigest, summary_markdown: summaryMarkdown,
-        document_content: documentContent, document_language: documentLanguage,
+        document_content: markdown, document_language: p.presentation_language,
         ...(qaAcceptance ? { qa_acceptance: { kind: qaAcceptance.kind, digest: qaAcceptance.digest } } : {}) } : null;
 }

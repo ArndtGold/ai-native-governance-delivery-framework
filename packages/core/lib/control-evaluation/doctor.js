@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { aggregate } from "../control-state/aggregate.js";
 import { verifyLegacyProjection } from "../control-state/legacy-projection-reader.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
+import { readRunInventory } from "../control-state/run-inventory-reader.js";
 import { runSealState } from "../control-state/run-seal.js";
 import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
 import { pendingRunStepIds } from "../control-state/run-step-pending.js";
@@ -63,6 +64,8 @@ export function evaluateDoctorWithRunState(targetDir, selection = {}, dependenci
       })),
       ...runs.flatMap((item) => item.report.findings.map((finding) => ({ ...finding, run_id: item.run_id }))),
     ];
+    // Stored-state inventory of all runs; it never changes the evaluated doctor status above.
+    const listed = readRunInventory(targetDir, { language: selection.presentationLanguage });
     return { report: {
       schema_version: "1",
       status,
@@ -72,6 +75,8 @@ export function evaluateDoctorWithRunState(targetDir, selection = {}, dependenci
         state: !existsSync(join(targetDir, ".agdf", "control")) ? "absent"
           : selected.findings.length ? "incomplete" : "complete",
         active_count: runs.length,
+        counts: listed.counts,
+        runs: listed.runs,
       },
       summary: {
         findings: findings.length,

@@ -19,7 +19,8 @@ import { evaluateDeliveryMap, printDeliveryMapReport } from "#agdf-core/control-
 import { evaluateDoctor, printDoctorReport } from "#agdf-core/control-evaluation/doctor.js";
 import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
 import { resolveTaskTarget } from "#agdf-core/task-target-resolution.js";
-import { renderSkillDispatchRecovery, renderTaskTargetOrientation, renderSourceRevision } from "#agdf-core/interaction-presentation.js";
+import { renderSkillDispatchRecovery, renderTaskTargetOrientation, renderSourceRevision, renderRunInventory } from "#agdf-core/interaction-presentation.js";
+import { readRunInventory } from "#agdf-core/control-state/run-inventory-reader.js";
 import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "#agdf-core/skill-dispatch/contract.js";
 import { createCoreServices } from "#agdf-core";
@@ -156,6 +157,12 @@ export function createValidationHandlers(io = console) {
       const presentationRendered = printGateCheckReport(report, options.json, options.statusCard, io);
       if (presentationRendered === false) return 2;
       return report.status === "blocked" ? 2 : 0;
+    }],
+    ["inventory", (options) => {
+      const language = options.languageExplicit ? options.language?.chat_language : resolveConfiguredChatLanguage(options.dir);
+      const inventory = readRunInventory(options.dir, { language });
+      io.log(options.json ? JSON.stringify(inventory, null, 2) : renderRunInventory(inventory, interactionLocales, language).markdown);
+      return 0;
     }],
     ["delivery-map", (options) => {
       const report = evaluateDeliveryMap(options.dir, options, deliveryMapDependencies);

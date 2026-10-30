@@ -30,7 +30,7 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 ## Route Boundary
 
-- Active-run lists: `control.doctor` all-active inspection; Request Activation contract.
+- Active-run lists: `control.inventory` inspection; Request Activation contract.
 - `skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.
 - `delivery.start`: resolve target once; unresolved: orient and stop. Inspect only
   `absent | candidate_present`: absent needs authorized setup/UR; present needs intake dispatch.

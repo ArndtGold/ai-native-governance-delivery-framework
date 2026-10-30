@@ -1,4 +1,5 @@
 import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
+import { normalizedRunTitle, runInventoryHistoryLine } from "./control-state/run-inventory.js";
 import { DISPATCH_RECOVERY_CODES, DECISION_CARD_COPY_BUDGETS } from "./interaction-catalog.js";
 import { TASK_TARGET_SOURCES, TASK_TARGET_UNRESOLVED_REASONS } from "./task-target-resolution.js";
 
@@ -233,13 +234,7 @@ function section(content, heading) {
   return content.match(new RegExp(`(?:^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?=\\n## |$)`))?.[1]?.trim() ?? "";
 }
 
-export function normalizedRunTitle(runId) {
-  const words = String(runId ?? "")
-    .replace(/[._-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return words ? words.replace(/\b\p{L}/gu, (letter) => letter.toUpperCase()) : "AGDF run";
-}
+export { normalizedRunTitle };
 
 export function resolveHumanRunTitle({ currentArtefactHeading, urHeading, runContent, runId }) {
   const objective = section(String(runContent ?? ""), "Objective").split(/\r?\n/).map(stripMarkdown).find(Boolean) ?? "";
@@ -1262,6 +1257,27 @@ export function renderActiveRunInventory(report, registry, language) {
     lines.push("", copy.findingsDescription, "",
       ...report.findings.map((finding) => `- \`${safe(finding.code)}\`${finding.run_id ? ` · \`${safe(finding.run_id)}\`` : ""}`));
   }
+  return { markdown: lines.join("\n"), authorizes: false };
+}
+
+// The shared run inventory: active and invalid runs by attention, history as counts. Classes rest
+// on stored state; each line carries its basis so no reader mistakes them for a live evaluation.
+export function renderRunInventory(inventory, registry, language) {
+  const copy = localePack(registry, language).activeRunInventory;
+  if (!copy) throw new Error("active_run_inventory_copy_missing");
+  const safe = (value) => String(value ?? "").replace(/[\r\n`|]/gu, " ").replace(/\*\*/gu, "");
+  // Authored titles are untrusted text: escape every Markdown metacharacter.
+  const text = (value) => safe(value).replace(/[\\[\]()<>*_#!~]/gu, (char) => `\\${char}`);
+  const open =inventory.runs.filter((run) => !run.valid || run.lifecycle === "active");
+  const lines = [inventory.state === "absent" ? copy.absentDescription
+    : inventory.state === "complete" && open.length === 0 ? copy.noneDescription
+      : copy.countDescription.replace("{count}", String(inventory.counts.lifecycle.active))];
+  if (inventory.state === "incomplete") lines.push("", copy.incompleteDescription);
+  if (open.length) lines.push("", ...open.map((run) => `- **${text(run.title)}** · \`${safe(run.run_id)}\` · ${safe(run.current_gate ?? "?")} · ${safe(run.attention.label)} · ${safe(run.basis)}`));
+  if (inventory.state !== "absent") lines.push("", runInventoryHistoryLine(inventory.counts.lifecycle, language));
+  const findings = [...(inventory.findings ?? []).map((finding) => `- \`${safe(finding.code)}\``),
+    ...inventory.runs.flatMap((run) => run.findings.map((finding) => `- \`${safe(finding.code)}\` · \`${safe(run.run_id)}\` · ${safe(finding.next_step)}`))];
+  if (findings.length) lines.push("", copy.findingsDescription, "", ...findings);
   return { markdown: lines.join("\n"), authorizes: false };
 }
 

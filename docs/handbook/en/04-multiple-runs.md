@@ -26,6 +26,24 @@ You normally do not need to select the run yourself:
 The working directory, branch name, current diff or chat history alone is not enough to select an
 authoritative run.
 
+## Overview of all runs
+
+When you ask "Show the active AGDF runs in this project", the agent answers with the run inventory
+(`agdf_inspect`, operation `inventory`). In the shell, `agdf inventory --json` returns the same list.
+The inventory reads only the stored `RUN_STATE.md` files and lists every run once with title,
+lifecycle, current step, attention class, last activity and revision:
+
+- **Decision required:** an exact approval is pending.
+- **Clarification required:** the stored result is `revise`, `decline` or a change request.
+- **Blocked:** the result is `block` or the run state is invalid; `doctor --run` shows why.
+- **In progress** and **Unclear** for the remaining active runs.
+
+The list starts with these classes, followed by the most recently worked runs. Last activity is the
+newest receipt, else the date of the latest approval (day precision), else unknown. Completed,
+superseded and abandoned runs appear as history. The classes describe the stored state and are not a
+live evaluation; `gate-check` gives the current state of one run. `doctor --all-active` still checks
+every active run in full and carries the same inventory.
+
 ## Multiple tasks in one repository
 
 AGDF may use separate runs for a defect, a new feature and a documentation change. Their control

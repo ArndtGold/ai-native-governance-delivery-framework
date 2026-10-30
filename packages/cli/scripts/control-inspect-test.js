@@ -23,6 +23,9 @@ import { CONTROL_INSPECT_OPERATIONS, validateReadSelection } from "#agdf-core/co
 import { validateCommandOptions } from "../lib/cli/command-registry.js";
 import { createMcpDispatchRuntime } from "../lib/mcp-dispatch-runtime.js";
 import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context.js";
+import { repository, addRun } from "./control-maintenance-fixtures.js";
+import { readRunInventory } from "#agdf-core/control-state/run-inventory-reader.js";
+import { renderRunInventory } from "#agdf-core/interaction-presentation.js";
 import { INVALID_PRESENTATION_LANGUAGE_CASES, VALID_PRESENTATION_LANGUAGE_CASES } from "./fixtures/skill-dispatch-language.js";
 
 const cli = join(dirname(fileURLToPath(import.meta.url)), "..", "bin", "create-agdf.js");
@@ -34,7 +37,7 @@ assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES,
   `agdf_inspect definition is ${controlInspectDefinitionBytes()} bytes, cap ${CONTROL_INSPECT_MAX_DEFINITION_BYTES}`);
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, [...CONTROL_INSPECT_OPERATIONS]);
-assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations"]);
+assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "inventory"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially/);
@@ -391,6 +394,52 @@ try {
   assert.equal(runtime.tool("agdf_write"), null);
 } finally {
   rmSync(root, { recursive: true, force: true });
+}
+
+// Run inventory (SCN-011, SCN-013): doctor carries it additively; the CLI command prints the same list.
+{
+  const base = mkdtempSync(join(tmpdir(), "agdf-inventory-cli-"));
+  try {
+    const repo = repository(base, "repo");
+    execFileSync("git", ["init", "--quiet", repo]);
+    addRun(repo, "alpha"); addRun(repo, "beta", { sealed: true });
+    addRun(repo, "gamma", { transform: (text) => text.replace("lifecycle: active", "lifecycle: completed") });
+    addRun(repo, "delta", { transform: (text) => text.replace("lifecycle: active", "lifecycle: abandoned") });
+    writeFileSync(addRun(repo, "broken"), "malformed run record\n");
+    const run = (...args) => spawnSync(process.execPath, [cli, ...args, "--dir", repo], { encoding: "utf8" });
+    const doctor = JSON.parse(run("doctor", "--all-active", "--json").stdout);
+    assert.deepEqual(Object.keys(doctor.inventory), ["state", "active_count", "counts", "runs"]);
+    assert.equal(doctor.inventory.state, "incomplete");
+    assert.equal(doctor.inventory.active_count, doctor.runs.length);
+    assert.deepEqual(doctor.inventory.runs.filter((entry) => entry.valid && entry.lifecycle === "active").map((entry) => entry.run_id).sort(),
+      doctor.runs.map((entry) => entry.run_id).sort());
+    assert.ok(!doctor.findings.some((finding) => String(finding.code).startsWith("AGDF_RUN_INVENTORY")), "the inventory adds no doctor finding");
+    const listed = readRunInventory(repo);
+    assert.deepEqual(doctor.inventory.runs, listed.runs);
+    assert.deepEqual(doctor.inventory.counts, listed.counts);
+    assert.deepEqual(listed.runs.map((entry) => entry.run_id).at(-1), "delta", "ended runs follow as history");
+    const json = run("inventory", "--json", "--language", "en");
+    assert.equal(json.status, 0, json.stderr);
+    assert.deepEqual(JSON.parse(json.stdout), listed);
+    const text = run("inventory", "--language", "de");
+    assert.equal(text.status, 0, text.stderr);
+    assert.match(text.stdout, /aktive AGDF-Runs gefunden/u);
+    assert.match(text.stdout, /Historie: 1 abgeschlossen, 0 abgelöst, 1 abgebrochen\./u);
+    assert.match(text.stdout, /keine Live-Bewertung/u);
+    for (const [extra, message] of [[["--run", "alpha"], /--run is not supported by inventory/u], [["--all-active"], /--all-active is supported only by doctor and delivery-map/u]]) {
+      const refused = run("inventory", "--json", ...extra);
+      assert.notEqual(refused.status, 0, extra.join(" "));
+      assert.match(refused.stderr, message, extra.join(" "));
+    }
+    // CR-F01: the surface-local validator the plugin ships serves the routing fallback.
+    const validator = join(dirname(cli), "agdf-validator.js");
+    const viaValidator = spawnSync(process.execPath, [validator, "inventory", "--json", "--language", "en", "--dir", repo], { encoding: "utf8" });
+    assert.equal(viaValidator.status, 0, viaValidator.stderr);
+    assert.deepEqual(JSON.parse(viaValidator.stdout), listed);
+    // CR-F02: an authored title cannot inject links, HTML or break the bold span.
+    const hostile = renderRunInventory({ ...listed, runs: [{ ...listed.runs[0], title: "[x](javascript:alert(1)) <img onerror=x> **b** _i_ \\" }] }, interactionLocales, "en").markdown;
+    assert.ok(hostile.includes("- **\\[x\\]\\(javascript:alert\\(1\\)\\) \\<img onerror=x\\> b \\_i\\_ \\\\** · "), hostile);
+  } finally { rmSync(base, { recursive: true, force: true }); }
 }
 
 console.log("control-inspect parity, shared selection, read-only and preview tests passed.");

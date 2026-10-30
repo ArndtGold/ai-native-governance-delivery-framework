@@ -18,6 +18,24 @@ Normalerweise musst du dich nicht um die technische Auswahl kümmern:
 Arbeitsverzeichnis, Branchname, vorhandener Diff oder Chatverlauf reichen allein nicht aus, um einen
 Run als autoritativ auszuwählen.
 
+## Alle Runs überblicken
+
+Auf „Zeige die aktiven AGDF-Runs in diesem Projekt“ antwortet der Agent mit dem Run-Inventar
+(`agdf_inspect`, Operation `inventory`). In der Shell liefert `agdf inventory --json` dieselbe Liste.
+Das Inventar liest nur die gespeicherten `RUN_STATE.md`-Dateien und nennt jeden Run einmal mit Titel,
+Lebenszyklus, aktuellem Schritt, Aufmerksamkeitsklasse, letzter Aktivität und Revision:
+
+- **Entscheidung erforderlich:** Eine exakte Freigabe steht aus.
+- **Klärung erforderlich:** Das gespeicherte Ergebnis ist `revise`, `decline` oder ein Änderungswunsch.
+- **blockiert:** Das Ergebnis ist `block` oder der Run-Stand ist ungültig; `doctor --run` zeigt den Grund.
+- **in Arbeit** und **unklar** für die übrigen aktiven Runs.
+
+Die Liste beginnt mit diesen Klassen, danach folgen die zuletzt bearbeiteten Runs. Letzte Aktivität
+ist der jüngste Beleg, sonst das Datum der letzten Freigabe (tagesgenau), sonst unbekannt.
+Abgeschlossene, abgelöste und abgebrochene Runs erscheinen als Historie. Die Klassen beschreiben den
+gespeicherten Stand und sind keine Live-Bewertung; den aktuellen Stand eines Runs liefert `gate-check`.
+`doctor --all-active` prüft weiterhin jeden aktiven Run vollständig und trägt dasselbe Inventar mit.
+
 ## Mehrere Aufgaben im selben Repository
 
 Für einen Fehler, eine neue Funktion und eine Dokumentationsänderung kann AGDF jeweils einen eigenen

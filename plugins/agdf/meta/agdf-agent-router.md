@@ -120,7 +120,7 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 <!-- AGDF-SKILL-ROUTING:END -->
 
 For named operations, use the catalog owner in `contracts/request-activation.md`; active-run
-inventory uses `control.doctor` with all-active inspection.
+inventory uses `control.inventory`.
 For skill or delivery routes, select exactly one primary skill first.
 Add more only when they cover a distinct concrete risk dimension.
 Do not choose `brownfield-analysis` as the first primary skill for a fresh "I want to build/change X" prompt unless `gate-check` or existing live AGDF control state already makes implementation preparation the next allowed action.

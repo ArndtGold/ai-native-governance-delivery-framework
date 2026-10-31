@@ -44,7 +44,14 @@ export function assertCanonicalRunStore(root, { historicalRead = false } = {}) {
   // Original creation lookup reads its sealed staged receipt before resolving
   // today's configuration. This read-only path requires containment, not a
   // current layout decision or a live legacy projection.
-  const planned = historicalRead || readControlLayout(root).layout === PLANNED_LAYOUT;
+  let planned = historicalRead;
+  if (!historicalRead) {
+    try { planned = readControlLayout(root).layout === PLANNED_LAYOUT; }
+    catch (error) {
+      if (error.message === 'AGDF_CONTROL_PATH_INVALID') throw canonicalScaffoldRequired(root, join(root, '.agdf/control/config.json'));
+      throw error;
+    }
+  }
   const requiredPaths = [...new Set([
     join(".agdf", "control", "config.json"),
     join(".agdf", "control", "README.md"),

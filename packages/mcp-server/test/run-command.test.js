@@ -165,10 +165,15 @@ for (const modern of [false, true]) {
       assert.ok(!closeout.inputSchema.required.includes('run_id') && !closeout.inputSchema.required.includes('expected_revision_id'));
       assert.ok(Buffer.byteLength(JSON.stringify(commandGroupDefinition('agdf_closeout'))) <= 8192);
       assert.ok(groups.reduce((sum, group) => sum + Buffer.byteLength(JSON.stringify(commandGroupDefinition(group))), 0) <= 24576);
-      for (const group of groups.filter(group => !['agdf_project', 'agdf_run', 'agdf_closeout'].includes(group))) {
+      for (const group of groups.filter(group => !['agdf_project', 'agdf_run', 'agdf_record', 'agdf_closeout'].includes(group))) {
         const required = tools.find(tool => tool.name === group).inputSchema.required;
         assert.ok(required.includes('run_id') && required.includes('expected_revision_id'), group);
       }
+      const record = tools.find(tool => tool.name === 'agdf_record').inputSchema;
+      assert.ok(!record.required.includes('run_id') && !record.required.includes('expected_revision_id'),
+        'planning material and planned UR recording have no invented Run binding');
+      assert.ok(record.properties.planning && record.properties.run_id && record.properties.expected_revision_id,
+        'discovery retains both explicit planning and conditional Run bindings');
       for (const group of ['agdf_project', 'agdf_run']) {
         const properties = tools.find(tool => tool.name === group).inputSchema.properties;
         assert.equal(Object.hasOwn(properties, 'run_id'), false, group);

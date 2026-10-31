@@ -313,6 +313,23 @@ function factorCommandConstraints(schema) {
   };
   return { schema: factor(schema, true), definitions };
 }
+// Factoring repeated parents can leave child definitions referenced only once.
+// Inline those exact schemas; retain every constraint and visible field type.
+function inlineSingleUseDefinitions(schema) {
+  for (;;) {
+    const serialized = JSON.stringify(schema);
+    const single = Object.entries(schema.$defs ?? {}).find(([name]) => {
+      const reference = `#/$defs/${name}`;
+      return serialized.split(`"$ref":${JSON.stringify(reference)}`).length === 2
+        && serialized.includes(JSON.stringify({ $ref: reference }));
+    });
+    if (!single) return schema;
+    const [name, definition] = single;
+    delete schema.$defs[name];
+    schema = JSON.parse(JSON.stringify(schema).replace(JSON.stringify({ $ref: `#/$defs/${name}` }), () => JSON.stringify(definition)));
+    if (!Object.keys(schema.$defs).length) delete schema.$defs;
+  }
+}
 export function compactCommandSchema(expanded) {
   const full = mapCommandSchema(expanded, node => { delete node.description; return node; });
   let projected;
@@ -356,7 +373,7 @@ export function compactCommandSchema(expanded) {
   projected = JSON.parse(JSON.stringify(projected).replaceAll(REVISION_ID_PATTERN.source, uuid)
     .replace(/#\/\$defs\/s(\d+)/gu, '#/$defs/$1'));
   if (projected.$defs) projected.$defs = Object.fromEntries(Object.entries(projected.$defs).map(([key, value]) => [key.replace(/^s/u, ''), value]));
-  return projected;
+  return inlineSingleUseDefinitions(projected);
 }
 const openObject = { type: 'object', additionalProperties: true };
 const nullableObject = { ...openObject, type: ['object', 'null'] };
@@ -403,13 +420,13 @@ export function validateRunCommandResult(value) { return schemaDiagnostics(value
 export function commandGroupDefinition(group) {
   const definition = { name: group,
     description: {
-      agdf_project: 'Explicit project setup or preview/confirm/recover legacy layout cutover; no Run/gate approval.',
-      agdf_run: 'Create an unapproved Run; replay the original UUID.',
-      agdf_prepare: 'Prepare/deliver a decision document; never approve.',
-      agdf_record: 'Stage UR planning material, save a planned UR, or record Run evidence; read operation-contract.',
-      agdf_approve: 'Record a deliberate reply to the exact presented gate.',
-      agdf_revise: 'Preview revisions; confirm before applying them.',
-      agdf_closeout: 'Record closeout or preview/apply Run closure.',
+      agdf_project: 'Initialize project; preview/confirm/recover migration.',
+      agdf_run: 'Create an unapproved Run; replay its UUID.',
+      agdf_prepare: 'Prepare/deliver documents; never approve.',
+      agdf_record: 'Stage/save planned URs or record Run evidence.',
+      agdf_approve: 'Record a deliberate presented-gate reply.',
+      agdf_revise: 'Preview revisions; confirm to apply.',
+      agdf_closeout: 'Record closeout or preview/apply closure.',
     }[group],
     annotations: { readOnlyHint: false, destructiveHint: group !== 'agdf_prepare', idempotentHint: false, openWorldHint: false },
     inputSchema: compactCommandSchema(projectMcpInputSchema(commandGroupSchema(group))), outputSchema: commandResultDiscoverySchema() };

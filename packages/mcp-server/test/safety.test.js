@@ -76,6 +76,9 @@ const dispatcherRoot = resolve(repositoryRoot, "dist/npm/create-agdf");
 // Optional UI composition is loaded dynamically only on UI surfaces. Audit it
 // explicitly alongside the statically reachable headless/full entrypoints.
 visit(resolve(dispatcherRoot, 'lib/mcp-decision-protocol.js'));
+// Private children now import the compiled worker entry. Preserve the complete
+// per-owner audit of the canonical full factory that the build compiles.
+visit(resolve(dispatcherRoot, 'lib/mcp-dispatch-runtime.js'));
 const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlinkSync", "rmSync",
   "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"];
 // Bound continuation composes the existing writer; the MCP adapter adds no write owner.
@@ -104,6 +107,12 @@ const continuationWriteOwners = new Map([
   ["runtime/core/lib/control-state/canonical-initialization.js", ["writeFileSync", "renameSync", "unlinkSync", "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"]],
   // Closure uses the existing atomic preview writer and creates only its owned directory.
   ["runtime/core/lib/control-state/run-closure.js", ["mkdirSync"]],
+  // Fixed admission claims/maintenance epochs, independent planned UR journals,
+  // source-bound handoff and explicit layout migration retain their Core owners.
+  ["runtime/core/lib/control-state/control-layout.js", ["writeFileSync", "unlinkSync", "mkdirSync", "openSync", "fsyncSync"]],
+  ["runtime/core/lib/control-state/planned-entry.js", ["renameSync", "unlinkSync", "mkdirSync"]],
+  ["runtime/core/lib/control-state/planned-handoff.js", ["unlinkSync", "rmdirSync", "mkdirSync"]],
+  ["runtime/core/lib/control-maintenance/planned-layout.js", ["unlinkSync", "rmdirSync", "mkdirSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],
@@ -278,6 +287,10 @@ try {
   mkdirSync(join(escapedTarget, ".git"));
   writeFileSync(join(escapedTarget, ".git", "HEAD"), "ref: refs/heads/main\n", "utf8");
   mkdirSync(join(escapedTarget, ".agdf", "control"), { recursive: true });
+  // Select the real legacy read surface; absent/invalid config is diagnosed
+  // before live control reads and would not exercise the linked backlog.
+  writeFileSync(join(escapedTarget, '.agdf/control/config.json'), JSON.stringify({
+    control_layout: 'master-backlog-v1', artifact_language: 'en', chat_language: 'en', runtime_language: 'en' }));
   const outside = join(outsideRoot, "outside-secret.txt");
   writeFileSync(outside, "MCP_BOUNDARY_SECRET");
   if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "MASTER_BACKLOG.md"), "mcp-safety-test")) {

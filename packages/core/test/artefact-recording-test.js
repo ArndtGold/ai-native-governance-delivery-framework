@@ -23,12 +23,15 @@ import { createRunCommandService } from '../lib/control-state/run-command-servic
 import { relationshipForGate } from "../lib/control-evaluation/delivery-relationships.js";
 import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
 import { interactionLocales, pluginDefinition } from "../../cli/lib/runtime/control-context.js";
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 
 const temporary = mkdtempSync(join(tmpdir(), "agdf-artefact-recording-"));
 const seed = join(temporary, "seed"), runId = "typed-artefact", gates = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
 mkdirSync(seed);
-execFileSync(process.execPath, [cli, "init", "--dir", seed, "--language", "en"], { stdio: "pipe" });
+// The hand-authored v2 journal/recording corpus retains its actual legacy layout.
+initializeCanonicalControl(seed, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
 let serial = 0, assertions = 0;
 function fixture(gate = "SD") {
   const root = join(temporary, `case-${serial++}`);

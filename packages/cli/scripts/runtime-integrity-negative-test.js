@@ -318,7 +318,7 @@ try {
   resetPluginFixture();
   writeFileSync(
     releaseOrPath,
-    readFileSync(releaseOrPath, "utf8").replace("16. After writing or updating", "15. After writing or updating"),
+    readFileSync(releaseOrPath, "utf8").replace(/^16\. /mu, "15. "),
     "utf8",
   );
   expectIntegrityFailure(/release-or Rules numbering must be sequential from 1/);

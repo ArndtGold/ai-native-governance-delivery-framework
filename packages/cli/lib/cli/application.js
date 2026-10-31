@@ -951,6 +951,10 @@ function runScaffold(options, io) {
     }
     };
     const configPath = '.agdf/control/config.json';
+    // Reject an existing destination before creating admission directories.
+    // The writer repeats the check under its lock against the current plan.
+    if (options.target !== 'init') assertGeneratedWritePlan(options.dir,
+      generatedFilesForTarget(options.target, options.dir, options.force, options.language), options.force);
     if (options.target !== 'init' && existsSync(join(options.dir, configPath))) {
       if (hasSymlinkComponent(options.dir, configPath)) throw Error('AGDF_CONTROL_PATH_INVALID');
       withOwnedFileLock(join(options.dir, configPath), () => withControlMutation(options.dir, { resource: 'config.preferences' }, write));

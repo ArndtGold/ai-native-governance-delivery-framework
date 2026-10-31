@@ -23,7 +23,7 @@ for (const modern of [false, true]) {
       const state = await call('agdf_inspect', { ...common, operation: 'project-state' });
       assert.equal(state.report.status, 'absent', JSON.stringify(state));
       assert.equal(state.report.repository.root, root); assert.equal(state.report.plan.version, '0.20.2');
-      assert.equal(state.report.plan.file_count, 15); assert.match(state.report.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
+      assert.equal(state.report.plan.file_count, 14); assert.match(state.report.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
       assert.equal(Buffer.byteLength(JSON.stringify(state)) <= 16384, true);
       assert.equal(existsSync(join(root, '.agdf')), false, 'inspection cannot initialize');
       const help = await call('agdf_inspect', state.report.next_calls[0].arguments);

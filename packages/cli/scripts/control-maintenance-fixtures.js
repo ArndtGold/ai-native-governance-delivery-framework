@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, readdirSync, lstatSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
+import { generatedFilesForTarget } from "../../core/test/fixtures/legacy-init-plan.js";
 import { renderRunState } from "#agdf-core/control-state/run-state-repository.js";
 import { sealRunState } from "#agdf-core/control-state/run-seal.js";
 

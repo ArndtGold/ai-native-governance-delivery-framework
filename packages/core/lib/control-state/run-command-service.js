@@ -1,4 +1,4 @@
-import { resolutionRecordVersion, currentInputResolution } from './input-resolution.js';
+import { resolutionRecordVersion, currentInputResolution, isOriginalInputResolution } from './input-resolution.js';
 import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { initializeCanonicalProject, inspectCanonicalProject } from './canonical-initialization.js';
 import { assertProjectGitRoot, inspectProjectState, projectOperationStatusCall } from '../control-inspect/project-state.js';
@@ -211,7 +211,7 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
         }
         if (kind === 'run.create') {
           // Preflight only; the writer repeats validation before publication.
-          assertCanonicalRunStore(root);
+          assertCanonicalRunStore(root, { historicalRead: isOriginalInputResolution() });
           checkpoint('before_dispatch'); dispatched = true;
           const family = createRunCommand(root, input, { requestDigest, packageVersion, checkpoint });
           checkpoint('before_result');

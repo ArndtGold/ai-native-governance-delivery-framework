@@ -33,6 +33,8 @@ import { inspectPlannedHandoffOperation } from '../control-state/planned-handoff
 import { readPlannedInventory, readWorkInventory } from '../control-state/planned-inventory.js';
 import { inspectPlannedLayoutOperation } from '../control-maintenance/planned-layout.js';
 import { readControlLayout, PLANNED_LAYOUT } from '../control-state/control-layout.js';
+import { existsSync } from '../control-read/fs.js';
+import { join } from 'node:path';
 
 // Read-only projection of canonical CLI evaluators and Core validators. It never
 // writes, selects a Run or prepares approval. Git observations are unavailable.
@@ -293,7 +295,10 @@ export function createControlInspectService(dependencies = {}) {
             return { report: evaluated, navigation, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
           }
           case "inventory": {
-            if (readControlLayout(target.governance_target).layout === PLANNED_LAYOUT) return { report: readWorkInventory(target.governance_target, { language: input.presentation_language }), presentation: null };
+            // Read-only inventory also works before control initialization. An
+            // existing config still goes through strict layout validation.
+            if (existsSync(join(target.governance_target, '.agdf/control/config.json'))
+              && readControlLayout(target.governance_target).layout === PLANNED_LAYOUT) return { report: readWorkInventory(target.governance_target, { language: input.presentation_language }), presentation: null };
             const inventory = readRunInventory(target.governance_target, { language: input.presentation_language });
             return { report: inventory, presentation: renderRunInventory(inventory, rawInput.interactionLocales, input.presentation_language) };
           }

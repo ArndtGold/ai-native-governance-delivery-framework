@@ -16,6 +16,8 @@ import { validateBindingProof, exactApprovedArtefacts } from "../lib/control-sta
 import { evaluateGateCheck } from "../lib/control-evaluation/gate-check.js";
 import { recordRunRevision } from "../lib/control-state/run-recording.js";
 import { writeRun } from "../lib/control-state/run-state-writer.js";
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 import { upsertTableRow } from "../lib/control-state/run-state-edits.js";
 import { createCoreServices } from "../lib/index.js";
 import { correctRunRelationship } from "../lib/control-state/run-relationship-correction.js";
@@ -24,7 +26,7 @@ import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
 const temporary = mkdtempSync(join(tmpdir(), "agdf-source-revisions-")), root = join(temporary, "project");
 const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
 mkdirSync(root); execFileSync("git", ["init", "-q", root]);
-execFileSync(process.execPath, [cli, "init", "--dir", root, "--language", "en"]);
+initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
 const f = createLateSourceRevisionTestRun(root, cli, "late-source-test", process.env, { tpEncoding: "crlf_bom" }), seed = join(temporary, "canonical-seed");
 writeFileSync(join(root, "retained-filter.mjs"), `export function filterStore() {
   const saved = new Map(), key = (user, name) => JSON.stringify([user, name]);

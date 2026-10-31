@@ -209,7 +209,9 @@ function cleanupCreatedAgdf(createdAgdf, agdfIdentity, agdfPath) {
 }
 
 function allowedDirectories(plan) {
-  const allowed = new Set(["", "runs"]);
+  // Normal mutation admission leaves these empty owned directories. Any claim
+  // or unknown file is still rejected by inspectExistingControl below.
+  const allowed = new Set(["", "runs", "maintenance", "maintenance/admission"]);
   for (const file of plan) {
     const parts = file.relativePath.split("/");
     parts.pop();

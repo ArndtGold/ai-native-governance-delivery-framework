@@ -408,7 +408,15 @@ export function inspectGeneratedRepositoryMarketplace(targetDir) {
   const marketplacePath = join(targetDir, ".agents", "plugins", "marketplace.json");
   if (!existsSync(marketplacePath)) return { status: "absent", marketplacePath };
   const marketplace = readJson(marketplacePath);
-  const plugin = marketplace?.plugins?.length === 1 ? marketplace.plugins[0] : null;
+  const entries = marketplace?.plugins;
+  // Generated catalogs may expose the optional skill-only Planning package.
+  // Keep the closed local identities and unique Core binding; never select an
+  // arbitrary first entry or accept foreign paths as generated provenance.
+  const validEntries = Array.isArray(entries) && entries.length >= 1 && entries.length <= 2
+    && new Set(entries.map(entry => entry?.name)).size === entries.length
+    && entries.every(entry => ['agdf', 'agdf-planning'].includes(entry?.name)
+      && entry.source?.source === 'local' && entry.source.path === `./plugins/${entry.name}`);
+  const plugin = validEntries ? entries.find(entry => entry.name === 'agdf') : null;
   const pluginPath = plugin?.source?.source === "local" ? plugin.source.path : null;
   if (marketplace?.name !== "agdf-repo" || plugin?.name !== "agdf" || pluginPath !== "./plugins/agdf") {
     return { status: "invalid", reason: "repository_marketplace_invalid", marketplacePath };

@@ -37,7 +37,7 @@ assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES,
   `agdf_inspect definition is ${controlInspectDefinitionBytes()} bytes, cap ${CONTROL_INSPECT_MAX_DEFINITION_BYTES}`);
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, [...CONTROL_INSPECT_OPERATIONS]);
-assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "inventory"]);
+assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "inventory", "planned-inventory", "planned-entry"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially/);
@@ -58,7 +58,7 @@ assert.equal(validateInspectSchema({ ...catalogExample, cursor: catalogCursor })
 assert.doesNotThrow(() => normalizeControlInspectInput(parseControlInspectFunctionArguments({ ...catalogExample, cursor: catalogCursor }, trustedContext)));
 assert.equal(validateInspectSchema({ ...catalogExample, module: 'agdf_record/step.record', cursor: catalogCursor }), false);
 assert.throws(() => normalizeControlInspectInput(parseControlInspectFunctionArguments({ ...catalogExample, module: 'agdf_record/step.record', cursor: catalogCursor }, trustedContext)));
-for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state"].includes(operation))) {
+for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "planned-inventory", "planned-entry"].includes(operation))) {
   for (const allActive of [undefined, false, true]) {
     for (const variant of [undefined, "status-card", "approval-envelope"]) {
       for (const contractModule of [undefined, "quality"]) {

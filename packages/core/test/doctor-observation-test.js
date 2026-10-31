@@ -96,12 +96,12 @@ test('all-active diagnosis preserves same-source single/shared findings and acco
 
 test('selected diagnosis preserves a known unsupported version instead of hiding it as generic selection failure', () => fixture(({ root, path, foreign }) => {
   const beforeForeign = readFileSync(foreign);
-  writeFileSync(path, readFileSync(path, 'utf8').replace('- control_state_version: 2', '- control_state_version: 3'));
+  writeFileSync(path, readFileSync(path, 'utf8').replace(/^- control_state_version: \d+$/mu, '- control_state_version: 4'));
   const report = evaluateDoctor(root, { runId: 'selected', ignoreRunIdEnv: true });
   const finding = report.findings.find(row => row.code === 'AGDF_RUN_VERSION_UNSUPPORTED');
   assert.ok(finding, 'the selected path must retain the existing parser classification for a future format');
   assert.equal(report.status, 'block');
-  assert.equal(finding.actual_version, '3');
+  assert.equal(finding.actual_version, '4');
   assert.equal(finding.classification, 'unsupported_version');
   assert.equal(finding.path, path, 'the finding names the exact selected source, not a legacy projection');
   assert.match(finding.message, /unsupported|incompatib/iu);
@@ -111,8 +111,8 @@ test('selected diagnosis preserves a known unsupported version instead of hiding
 
 test('missing, malformed and conflicting versions remain unclassified rather than asserted producer incompatibility', () => fixture(({ root, path }) => {
   const original = readFileSync(path, 'utf8');
-  for (const replacement of ['', '- control_state_version: unknown', '- control_state_version: 3\n- control_state_version: 2']) {
-    writeFileSync(path, original.replace('- control_state_version: 2', replacement));
+  for (const replacement of ['', '- control_state_version: unknown', '- control_state_version: 4\n- control_state_version: 3']) {
+    writeFileSync(path, original.replace(/^- control_state_version: \d+$/mu, replacement));
     const report = evaluateDoctor(root, { runId: 'selected', ignoreRunIdEnv: true });
     assert.equal(report.status, 'block');
     assert.ok(report.findings.every(finding => finding.classification !== 'unsupported_version'));

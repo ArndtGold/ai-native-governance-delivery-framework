@@ -16,13 +16,15 @@ import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
 import { upsertTableRow } from "../lib/control-state/run-state-edits.js";
 import { createCoreServices } from "../lib/index.js";
 import { resolveControlCommandTarget, canonicalJson, digest } from "../lib/control-state/approval-command-contract.js";
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 import { readPendingSourceRevisionJournal } from "../lib/control-state/run-step-transaction.js";
 import { intentStages, archiveStages, commitStages, beforeIntent, beforeRunCommit } from "./fixtures/transaction-checkpoints.js";
 
 const temporary = mkdtempSync(join(tmpdir(), "agdf-early-ur-revision-")), root = join(temporary, "project");
 const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
 mkdirSync(root); execFileSync("git", ["init", "-q", root]);
-execFileSync(process.execPath, [cli, "init", "--dir", root, "--language", "en"]);
+initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
 const f = createEarlyUrRevisionTestRun(root, cli), seed = join(temporary, "seed");
 cpSync(join(root, ".agdf"), seed, { recursive: true });
 const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };

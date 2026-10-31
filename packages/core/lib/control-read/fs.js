@@ -11,6 +11,7 @@ export function inheritControlReadMemo(from, to) {
   memo.set(to, cache);
 }
 export const hasControlReadView = () => Boolean(context.getStore()?.view);
+export const currentControlReadView = () => context.getStore()?.view ?? null;
 // CLI readers retain their existing file scope; memoized work never survives a call.
 // MCP readers install a contained captured view before entering the same evaluators.
 export function withControlReadMemo(work) {

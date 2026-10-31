@@ -35,7 +35,7 @@ assert.ok(validateRunCommand('agdf_approve', nested).length); assert.equal(acces
 let aggregate = 0;
 for (const group of Object.keys(RUN_COMMAND_GROUPS)) {
   const definition = commandGroupDefinition(group); const bytes = Buffer.byteLength(JSON.stringify(definition)); aggregate += bytes;
-  assert.ok(bytes <= RUN_COMMAND_LIMITS.definition_bytes); assert.equal(definition.annotations.readOnlyHint, false); assert.equal(definition.annotations.destructiveHint, group !== 'agdf_prepare');
+  assert.ok(bytes <= (RUN_COMMAND_LIMITS.definition_bytes_by_group[group] ?? RUN_COMMAND_LIMITS.definition_bytes)); assert.equal(definition.annotations.readOnlyHint, false); assert.equal(definition.annotations.destructiveHint, group !== 'agdf_prepare');
   assert.equal(definition.annotations.idempotentHint, false); assert.equal(definition.annotations.openWorldHint, false);
 }
 const decisionDefinitions = [decisionActionDefinition(Object.keys(RUN_COMMAND_GROUPS)), DECISION_VIEW_DEFINITION];
@@ -59,7 +59,7 @@ assert.equal(validateRunCommand('agdf_closeout', recoveryWithoutRun).length, 2, 
 for (const group of Object.keys(RUN_COMMAND_GROUPS).filter(group => group !== 'agdf_closeout')) {
   const preRun = ['agdf_project', 'agdf_run'].includes(group), schema = commandGroupSchema(group);
   for (const field of ['run_id', 'expected_revision_id']) {
-    assert.equal(schema.required.includes(field), !preRun, `${group}/${field}`);
+    assert.equal(schema.required.includes(field), !preRun && group !== 'agdf_record', `${group}/${field}`);
     if (preRun) assert.equal(Object.hasOwn(schema.properties, field), false, `${group} forbids a premature Run binding`);
   }
 }
@@ -109,6 +109,7 @@ const { fromJsonSchema } = await import('../../mcp-server/node_modules/@modelcon
 const { schemaDiagnostics, validateRunCommandResult, commandResultSchema } = await import('../lib/control-state/run-command-contract.js');
 const { projectMcpInputSchema } = await import('../lib/mcp-input-schema.js');
 const sample = (schema) => {
+  if (schema.allOf) return sample(schema.allOf[0]);
   if (schema.oneOf) return sample(schema.oneOf[0]);
   if (Object.hasOwn(schema, 'const')) return schema.const;
   if (schema.enum) return schema.enum[0];
@@ -143,6 +144,7 @@ for (const [group, kinds] of Object.entries(RUN_COMMAND_GROUPS)) {
     const contract = operationContract(group, kind), payload = sample(contract.payload_schema);
     if (kind === 'presentation.deliver') payload.route = 'markdown';
     const valid = { ...input, command: { kind, payload } };
+    if (contract.schema.properties.planning) valid.planning = sample(contract.schema.properties.planning);
     for (const field of ['run_id', 'expected_revision_id']) if (!Object.hasOwn(contract.schema.properties, field)) delete valid[field];
     assert.deepEqual(validateRunCommand(group, valid), [], `${group}/${kind}: positive input is valid`);
     assert.equal(sdk.validate(valid).issues, undefined, `${group}/${kind}: SDK positive input is valid`);

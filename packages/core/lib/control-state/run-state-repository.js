@@ -19,7 +19,8 @@ import { assertCanonicalRunStore, canonicalScaffoldRequired, directoryIdentity, 
 import { parseRunState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
 import { sealRunState } from "./run-seal-compute.js";
-import { fsyncDirectory } from './run-state-writer.js';
+import { fsyncDirectory, withOwnedFileLock } from './run-state-writer.js';
+import { readControlLayout, PLANNED_LAYOUT, withControlMutation, markControlMutationEffect, markControlMutationRollbackKnown } from './control-layout.js';
 
 export { discoverRuns, runPath } from "./run-state-reader.js";
 
@@ -165,9 +166,16 @@ Describe the trustworthy outcome.
 - quality_outlook:
 `;
 export function renderRunState(id, body = DEFAULT_BODY, meta = {}) {
-  return `# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: ${id}\n- lifecycle: ${meta.lifecycle ?? "active"}\n- revision: 1\n- revision_id: ${randomUUID()}\n- updated_at: ${meta.updated_at ?? new Date().toISOString()}\n- mode: ${meta.mode ?? "structured_delivery"}\n- current_gate: ${meta.current_gate ?? "UR"}\n- decision: ${meta.decision ?? "in_progress"}\n- owner: ${meta.owner ?? "agent"}\n\n${body}`;
+  return `# AGDF Run State\n\n## Run Meta\n\n- control_state_version: ${meta.control_state_version ?? 2}\n- run_id: ${id}\n- lifecycle: ${meta.lifecycle ?? "active"}\n- revision: 1\n- revision_id: ${randomUUID()}\n- updated_at: ${meta.updated_at ?? new Date().toISOString()}\n- mode: ${meta.mode ?? "structured_delivery"}\n- current_gate: ${meta.current_gate ?? "UR"}\n- decision: ${meta.decision ?? "in_progress"}\n- owner: ${meta.owner ?? "agent"}\n\n${body}`;
 }
 export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
+  // Directory publication remains the creation commit point. The independent
+  // admission is retained through all staged output and durability checks.
+  runPath(root, id);
+  const store = assertCanonicalRunStore(root);
+  return withOwnedFileLock(join(store.path, `.direct-create-${id}`), () => withControlMutation(root, { resource: `run.create:${id}` }, () => createRunAdmitted(root, id, body, hooks)));
+}
+function createRunAdmitted(root, id, body, hooks) {
   const path = runPath(root, id);
   const runStore = assertCanonicalRunStore(root);
   const runDirectory = dirname(path);
@@ -179,12 +187,13 @@ export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
   if (staleStage) throw Error(`AGDF_RUN_STALE_STAGE: ${join(runStore.path, staleStage)}`);
   const stageDirectory = join(runStore.path, `${stagePrefix}${randomUUID()}`);
   const stagedPath = join(stageDirectory, "RUN_STATE.md");
+  markControlMutationEffect();
   mkdirSync(stageDirectory);
   const stageIdentity = directoryIdentity(stageDirectory);
   let stagedFile;
   try {
     hooks.beforeWrite?.({ root, id, path: stagedPath });
-      const initial = renderRunState(id, body);
+      const initial = renderRunState(id, body, { control_state_version: readControlLayout(root).layout === PLANNED_LAYOUT ? 3 : 2 });
       const rendered = sealRunState(root, hooks.prepare ? hooks.prepare(initial) : initial);
     stagedFile = writeNewRunState(stagedPath, rendered);
     hooks.beforePublish?.({ root, id, path, stageDirectory });
@@ -199,14 +208,15 @@ export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
     return path;
   } catch (error) {
     cleanupRunStage(stageIdentity, stagedFile);
+    if (!existsSync(runDirectory) && !existsSync(stageDirectory)) markControlMutationRollbackKnown(`run.create:${id}`);
     throw error;
   }
 }
 
 // Recovery is confined to a single original creation identity under its store lock.
 // The creation owner must verify the staged sealed receipt and exact request first.
-export function recoverRunCreationStage(root, id, validate, { inspectOnly = false } = {}) {
-  const store = assertCanonicalRunStore(root), destination = dirname(runPath(root, id));
+export function recoverRunCreationStage(root, id, validate, { inspectOnly = false, discard = false } = {}) {
+  const store = assertCanonicalRunStore(root, { historicalRead: inspectOnly }), destination = dirname(runPath(root, id));
   const stages = readdirSync(store.path).filter(name => name.startsWith(`.run-stage-${id}-`));
   if (!stages.length) return null;
   if (stages.length !== 1 || existsSync(destination)) throw Error('AGDF_RUN_STALE_STAGE');
@@ -217,6 +227,12 @@ export function recoverRunCreationStage(root, id, validate, { inspectOnly = fals
   if (!sameCanonicalRunStore(store)) throw Error('AGDF_RUN_TARGET_DRIFT');
   ensureStagedRunUnchanged(stage, file);
   if (inspectOnly) return receipt;
+  if (discard) {
+    cleanupRunStage(stage, file);
+    if (existsSync(directory)) throw Error('AGDF_RUN_STALE_STAGE');
+    fsyncDirectory(store.path);
+    return receipt;
+  }
   renameSyncWithRetry(directory, destination);
   fsyncDirectory(store.path);
   return receipt;

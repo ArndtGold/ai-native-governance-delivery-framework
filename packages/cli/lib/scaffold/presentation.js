@@ -31,7 +31,7 @@ export function createCanonicalInitLifecycleResult(destination, initialization) 
     restart: { required: false, reason: "none" },
     next_action: {
       kind: "control_setup",
-      text: "Create or migrate one canonical run with an explicit run id before drafting durable delivery state.",
+      text: 'Capture a planned UR, or create a canonical Run for delivery. Inspect inventory before selecting existing work.',
     },
     changes: created,
     retained,

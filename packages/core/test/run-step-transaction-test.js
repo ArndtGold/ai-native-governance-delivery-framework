@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRun, parseRunState } from "../lib/control-state/index.js";
 import { initializeCanonicalControl } from "../../cli/lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../../cli/lib/scaffold/plan.js";
+import { generatedFilesForTarget } from './fixtures/legacy-init-plan.js';
 import { recordRunStep } from "../lib/control-state/run-steps.js";
 import { approveRunGate, recordRunRevision } from "../lib/control-state/run-recording.js";
 import { prepareRunPresentation } from "../lib/control-state/run-presentation.js";

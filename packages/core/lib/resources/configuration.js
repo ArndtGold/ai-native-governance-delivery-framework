@@ -44,6 +44,8 @@ export function resolveConfiguration(root, defaults, explicit = {}) {
     } catch { throw configurationError(projectSource, 'config', 'Correct the project configuration JSON; no operation was dispatched.'); }
     if (!plain(project))
       throw configurationError(projectSource, 'config', 'Restore the existing required language fields; defaults do not initialize project control.');
+    if (Object.hasOwn(project, 'control_layout') && !['master-backlog-v1', 'planned-urs-v1'].includes(project.control_layout))
+      throw configurationError(projectSource, 'control_layout', 'Use the supported layout or explicit migration owner.');
     for (const key of ['chat_language', 'artifact_language', 'runtime_language'])
       if (typeof project[key] !== 'string' || !project[key].trim()) throw configurationError(projectSource, key, 'Restore the named required language field; defaults do not initialize project control.');
     configDigest = digest(bytes); control = 'active';
@@ -65,6 +67,7 @@ export function resolveConfiguration(root, defaults, explicit = {}) {
     if (key.endsWith('_language') && !values[key]) throw configurationError(sources[key], key);
   }
   return Object.freeze({ root: root ?? null, control, config_digest: configDigest, values: Object.freeze(values), sources: Object.freeze(sources),
+    control_layout: project.control_layout ?? 'master-backlog-v1',
     defaults_digest: defaults.digest });
 }
 export function assertConfigurationCurrent(snapshot) {

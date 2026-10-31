@@ -1,0 +1,66 @@
+{
+  "native_candidate": "0.20.2+codex.local-826ca9884801",
+  "final_candidate": "0.20.2+codex.local-a679e02c1b68",
+  "changed_files": [
+    {
+      "path": ".agdf-installation.json",
+      "before": "401cae0af61b6db4900678f7ad9f0b36e5eac2d26defffdecf7fd34ff5bacba9",
+      "after": "5ba4641cdc5777e495b72325f3f1dd038b1dacec13940cd5981128a82d5691e3"
+    },
+    {
+      "path": ".codex-plugin/plugin.json",
+      "before": "129261c0e8e2adf17747fafd19071e2361bcbf051c714aef304513a4b329691c",
+      "after": "afbde39cb3ca003c01ff2e50564fdb71f6713a83daa2ea687b3f2c9d76ceb372"
+    },
+    {
+      "path": "mcp.json",
+      "before": "2ab130b35331774b678d17fa96c7ebbcb0266bf69a4f71d2bdd89f300859e7d4",
+      "after": "fe67d7475388984e01bfacc34eee73f5a119240b4247e370f950f62fb5ae4185"
+    },
+    {
+      "path": "meta/copilot-payload-baseline.json",
+      "before": "370bd22ec21a7844b3232a7428f56ebecd66b909821f076a831f57f67a049ea5",
+      "after": "7701c0d6df0c7011149bf6c9951777811a69e5406de370a17065e276c29623a7"
+    },
+    {
+      "path": "runtime/create-agdf/lib/mcp-worker-runtime.js",
+      "before": "d9ef1608df798c1baf682457263905152fca10051538d9d5b12c6b17295a4d5b",
+      "after": "bee1a2a123b858f9845942b58544f20109905520d9dd8f457b114ce86b45a3c9"
+    },
+    {
+      "path": "runtime/create-agdf/runtime/core/lib/control-maintenance/planned-layout.js",
+      "before": "a21c96728b127fa3b61c87e7da2bcafd9402ccde46e3a67fbe2e61cfc20772fa",
+      "after": "9b6ca388950dbaeb141381ce453ddb7359036ca4a571b254e20d2ed3799d0e15"
+    },
+    {
+      "path": "runtime/runtime-manifest.json",
+      "before": "f2714e3bec2964eec3e98cc466b702e8b325d469ae92321ba3e5f68d1bef6ba6",
+      "after": "e667c2ebebfa8087c4e7ddba4fb2b1c7e48fba7a75ac4953cb5c92321861cf36"
+    }
+  ],
+  "optional_source_unchanged": true,
+  "generated_worker_changed_top_level_nodes": [
+    {
+      "name": "validateIntent",
+      "before": {
+        "type": "FunctionDeclaration",
+        "bytes": 3913,
+        "hash": "f21f316d927330a812308806bdfad1cd7926039e8dca37fb3d39c7a7f0d91120"
+      },
+      "after": {
+        "type": "FunctionDeclaration",
+        "bytes": 4812,
+        "hash": "93e73de7df666856edfbc8372891162619104b785ff96af95174ff72e0afd796"
+      }
+    }
+  ],
+  "unchanged_native_exercised_paths": [
+    "UR authoring/dispatch/template",
+    "planning material and CAS",
+    "planned Inspect/read classification",
+    "handoff/status/idempotent replay/origin",
+    "direct Run creation",
+    "optional Planning package/capability"
+  ],
+  "reuse_boundary": "Migration-only validateIntent guard and its generated worker function changed; affected migration/compiled transport/compatibility checks rerun. Native migration was never claimed. Retain original exact tested candidate identities."
+}

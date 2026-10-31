@@ -785,6 +785,8 @@ function prepareLocalMarketplaceFromSource({
 }
 
 export function prepareLocalMarketplace(options = {}) {
+  if (options.packageSelection === 'planning') return preparePlanningMarketplace(options);
+  if (options.packageSelection !== undefined && options.packageSelection !== 'core') throw Error('AGDF_PACKAGE_SELECTION_INVALID');
   if (!options.snapshotSource) return prepareLocalMarketplaceFromSource(options);
   if (Object.hasOwn(options, "codexInstallVersion")) {
     throw new Error("AGDF snapshot preparation owns the Codex local install version.");
@@ -809,6 +811,82 @@ export function prepareLocalMarketplace(options = {}) {
   } finally {
     snapshot.cleanup();
   }
+}
+
+// The known skill-only extension shares source capture and publication primitives
+// with Core. Content-addressed roots are immutable: updating the native catalog
+// never replaces a Core installation, and no second runtime is assembled here.
+export function inspectPlanningMarketplace(root) {
+  if (!isAbsolute(root) || realpathSync(root) !== resolve(root)) throw Error('AGDF_PLANNING_MARKETPLACE_UNSAFE');
+  const marker = readJson(join(root, OWNERSHIP_FILE), 'planning marketplace ownership');
+  const pluginRoot = join(root, 'plugins/agdf-planning');
+  const names = readdirSync(root).sort();
+  if (names.join() !== '.agdf-owned.json,.agents,plugins' || readdirSync(join(root, 'plugins')).join() !== 'agdf-planning'
+    || readdirSync(join(root, '.agents')).join() !== 'plugins' || readdirSync(join(root, '.agents/plugins')).join() !== 'marketplace.json') throw Error('AGDF_PLANNING_MARKETPLACE_UNCONFIRMED');
+  if (Object.keys(marker).sort().join() !== 'canonical_version,kind,owner,plugin_digest,schema_version,source_digest,version'
+    || marker.schema_version !== 1 || marker.owner !== 'create-agdf' || marker.kind !== 'planning-marketplace'
+    || !/^[a-f0-9]{64}$/u.test(marker.source_digest ?? '') || digestDirectory(pluginRoot) !== marker.plugin_digest
+    || typeof marker.canonical_version !== 'string' || !isCodexLocalInstallVersion(marker.canonical_version, marker.version, marker.source_digest)
+    || JSON.stringify(readJson(join(root, '.agents/plugins/marketplace.json'), 'planning marketplace')) !== JSON.stringify(planningCatalog()))
+    throw Error('AGDF_PLANNING_MARKETPLACE_UNCONFIRMED');
+  validatePlanningSource(pluginRoot, marker.version);
+  return { ...marker, root, pluginRoot };
+}
+function planningCatalog() {
+  return { name: 'agdf-planning', interface: { displayName: 'AGDF Planning' }, plugins: [{ name: 'agdf-planning',
+    source: { source: 'local', path: './plugins/agdf-planning' }, policy: { installation: 'AVAILABLE', authentication: 'ON_INSTALL' }, category: 'Productivity' }] };
+}
+function validatePlanningSource(root, expectedVersion) {
+  const manifest = readJson(join(root, 'plugin.json'), 'planning portable manifest');
+  const native = readJson(join(root, '.codex-plugin/plugin.json'), 'planning Codex manifest');
+  const definition = readJson(join(root, 'meta/agdf-planning.definition.json'), 'planning definition');
+  if (manifest.name !== 'agdf-planning' || manifest.version !== expectedVersion || native.name !== manifest.name || native.version !== manifest.version
+    || definition.core_capability?.schema !== 'planned-ur-v1' || definition.core_capability.protocol_version !== 1
+    || definition.core_capability.authoring_owner !== 'ur-definition' || native.mcpServers || native.hooks
+    || !existsSync(join(root, 'skills/planning/SKILL.md'))) throw Error('AGDF_PLANNING_PACKAGE_INVALID');
+  const visit = directory => {
+    for (const name of readdirSync(directory)) {
+      const path = join(directory, name), stat = lstatSync(path);
+      if (stat.isSymbolicLink() || !stat.isDirectory() && !stat.isFile() || stat.isFile() && stat.size > 131072
+        || ['runtime', 'mcp', 'hooks', 'control', 'templates', 'mcp.json', '.mcp.json'].includes(name)) throw Error('AGDF_PLANNING_PACKAGE_INVALID');
+      if (stat.isDirectory()) visit(path);
+    }
+  };
+  visit(root);
+}
+export function preparePlanningMarketplace({ dataRoot = defaultAgdfDataRoot(), expectedVersion = pluginDefinition.version,
+  planningRoot = join(generatedRoot, 'plugins/agdf-planning') } = {}) {
+  validatePlanningSource(planningRoot, expectedVersion);
+  const snapshot = captureLocalPluginSnapshot({ builtPluginRoot: planningRoot, expectedVersion, profileId: 'planning',
+    adapters: { digest: digestDirectory } });
+  try {
+    mkdirSync(resolve(dataRoot), { recursive: true });
+    const parent = join(realpathSync(resolve(dataRoot)), 'marketplaces', 'agdf-planning');
+    mkdirSync(parent, { recursive: true });
+    if (realpathSync(parent) !== parent) throw Error('AGDF_PLANNING_MARKETPLACE_UNSAFE');
+    const root = join(parent, snapshot.sourceDigest), version = snapshot.codexInstallVersion;
+    return withOwnedFileLock(join(parent, '.publication'), () => {
+      if (existsSync(root)) {
+        const known = inspectPlanningMarketplace(root);
+        if (known.source_digest !== snapshot.sourceDigest || known.version !== version) throw Error('AGDF_PLANNING_MARKETPLACE_UNCONFIRMED');
+      } else {
+        const stage = mkdtempSync(join(parent, '.stage-')), pluginRoot = join(stage, 'plugins/agdf-planning');
+        cpSync(snapshot.pluginRoot, pluginRoot, { recursive: true });
+        if (digestDirectory(pluginRoot) !== snapshot.sourceDigest) throw localInstallSourceUnstable('planning-copy');
+        for (const path of ['plugin.json', '.codex-plugin/plugin.json']) {
+          const file = join(pluginRoot, path); writeJson(file, { ...readJson(file, 'planning manifest'), version });
+        }
+        writeJson(join(stage, '.agents/plugins/marketplace.json'), planningCatalog());
+        writeJson(join(stage, OWNERSHIP_FILE), { schema_version: 1, owner: 'create-agdf', kind: 'planning-marketplace',
+          source_digest: snapshot.sourceDigest, plugin_digest: digestDirectory(pluginRoot), version, canonical_version: expectedVersion });
+        inspectPlanningMarketplace(stage); fsyncDirectory(stage);
+        renameSyncWithRetry(stage, root); fsyncDirectory(parent);
+      }
+      const known = inspectPlanningMarketplace(root);
+      return Object.freeze({ ...known, codexInstallVersion: version, sourceDigest: snapshot.sourceDigest, digest: known.plugin_digest,
+        changed: false, commit() {}, rollback() {} });
+    });
+  } finally { snapshot.cleanup(); }
 }
 
 export function prepareCopilotMarketplace(options = {}) {

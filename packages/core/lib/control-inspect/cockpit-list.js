@@ -36,10 +36,11 @@ export function projectCockpitList(inventory, { section = COCKPIT_BACKLOG_SECTIO
     sectionCount++;
     nonselectable ||= !entry.selectable;
     if (normalizedQuery && ![entry.title, entry.key, entry.stored_status].some(field => field.toLowerCase().includes(normalizedQuery))) return;
-    rows.push({ entry, index, identity: backlogRowKey(entry, index, inventory.content_digest), selectable: entry.selectable,
+    rows.push({ entry, index, identity: inventory.layout === 'planned-urs-v1' ? JSON.stringify([entry.identity, entry.source?.digest]) : backlogRowKey(entry, index, inventory.content_digest), selectable: entry.selectable,
       displayTitle: entry.title.replace(/^\[(framework[-_]maintenance|external[-_]delivery)\]\s*/i, '') || entry.title,
-      provenance: { path: inventory.source_path, digest: inventory.content_digest, originalTitle: entry.title } });
+      provenance: { path: inventory.layout === 'planned-urs-v1' ? entry.source.path : inventory.source_path,
+        digest: inventory.layout === 'planned-urs-v1' ? entry.source.digest : inventory.content_digest, originalTitle: entry.title } });
   });
   return { section, query: normalizedQuery, coverage: diagnostics.length || nonselectable ? 'partial' : 'complete', diagnostics,
-    sectionCount, matchCount: rows.length, rows: rows.reverse() };
+    sectionCount, matchCount: rows.length, rows: inventory.layout === 'planned-urs-v1' ? rows : rows.reverse() };
 }

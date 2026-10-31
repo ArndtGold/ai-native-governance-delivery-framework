@@ -11,11 +11,12 @@ import { reviewFindingDiagnostics } from '../control-evaluation/normalized-gaps.
 import { qaReportReferences } from '../control-evaluation/qa-follow-up.js';
 import { COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
 import { INTERNAL_STEP_FILES, prepareOwnedOutput } from "./run-owned-outputs.js";
+import { readControlLayout, PLANNED_LAYOUT, withControlMutation, assertLayoutRunWrite } from './control-layout.js';
 import { canonicalJson, digest } from "./approval-command-contract.js";
 import { existsSync, readFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import { runPath } from "./run-state-reader.js";
-import { parseControlState } from "./run-state-parser.js";
+import { parseControlState, parseRunState } from "./run-state-parser.js";
 import { APPROVAL_GATES, canonicalRunText } from "./run-seal-compute.js";
 import {
   firstSection,
@@ -48,7 +49,7 @@ import { runWorkSummary, assertSummarySources } from "../control-evaluation/run-
 import { recordBacklogSummary } from "./backlog-summary.js";
 import { decisionMaterial, presentationDecisionState, decisionRemediationOwner } from './presentation-decision.js';
 import { validateRunPresentation, validateRunPresentationRecord } from './run-presentation.js';
-import { withRunBacklogLock, writeRunWithBacklogLocked } from './run-backlog-writer.js';
+import { withRunMutationLock, writeRunMutationLocked } from './run-mutation.js';
 import { APPROVAL_GATES as DECISION_GATES, REVISION_ID_PATTERN } from './run-identity.js';
 import { runSealState, artefactFileDigest } from './run-seal.js';
 import { inspectUxIntentDecision } from '../control-evaluation/definition-sources.js';
@@ -539,7 +540,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
   const summary = runWorkSummary(root, text, run.path, after, { proposed: new Map([...proposedArtefacts].map(([path, row]) => [path, row.content])) });
   const statusLabel = backlogStatusForSummary(summary, after);
   if (closing) backlog.closeout.status = statusLabel;
-  let backlogPlan = closing ? closureBacklogPlan(root, key, { ...backlog, links: backlogLinks(text), next: summary.display_action }, summary, nextRevisionId)
+  let backlogPlan = readControlLayout(root).layout === PLANNED_LAYOUT ? { status: 'not_applicable', update: null }
+    : closing ? closureBacklogPlan(root, key, { ...backlog, links: backlogLinks(text), next: summary.display_action }, summary, nextRevisionId)
     : backlog ? prepareBacklog(root, key, { ...backlog, status: statusLabel, links: backlogLinks(text), next: summary.display_action })
     : prepareRunBacklog(root, key, text, run.path, nextRevisionId);
   // Legacy rows keep their title and per-gate link columns. Status and next step still follow
@@ -549,7 +551,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
   if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
   if (backlog && !closing && backlogPlan.update) backlogPlan.update.next = recordBacklogSummary(root, backlogPlan.update.next, key,
     backlog.closeout ? "Completed / Superseded Pointers" : "Active Backlog", summary, nextRevisionId);
-  const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update || operationContext)
+  const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update || operationContext || readControlLayout(root).layout === PLANNED_LAYOUT)
     ? commitRunStepLocked(root, {
       runId, runPath: run.path, content: text, revisionId, expectedContent: run.content,
       backlog: backlogPlan.update, or: orContent, afterWrite,
@@ -587,13 +589,19 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
   try { path = runPath(root, runId); } catch { return rejected(runId, "run_id_invalid"); }
   const backlogPath = join(root, BACKLOG_PATH);
   const locked = guardedWrite(runId, () => withOwnedFileLock(path, () => {
-    if (step !== "lifecycle_close") assertBacklogPath(root);
-    return withOwnedFileLock(backlogPath, () => {
-    const otherPending = pendingRunStepIds(root).find((id) => id !== runId);
+    return withControlMutation(root, { resource: `run:${runId}`, operation_id: operationContext?.operation_id ?? randomUUID(),
+      resume: true, proveOutcome: result => ['recorded', 'recovered', 'already_applied'].includes(result?.outcome) }, () => {
+    const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
+    if (!planned && step !== "lifecycle_close") assertBacklogPath(root);
+    const perform = () => {
+    const parsed = parseRunState(readFileSync(path, 'utf8'));
+    if (!parsed.valid) return rejected(runId, 'run_state_invalid');
+    assertLayoutRunWrite(root, parsed);
+    const otherPending = !planned && pendingRunStepIds(root).find((id) => id !== runId);
     if (otherPending) return rejected(runId, "run_step_recovery_required", { pending_run_id: otherPending });
     if (operationContext && existsSync(pendingRunStepPath(root, runId))) {
       const pending = readPendingRunStepJournal(root, runId);
-      if (![3, 4].includes(resolutionRecordVersion(pending)) || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
+      if (![3, 4, 6].includes(resolutionRecordVersion(pending)) || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
           || pending.request_digest !== operationContext.request_digest || pending.old_revision_id !== input.revisionId) return rejected(runId, "original_operation_recovery_required");
       recoverPendingRunStepLocked(root, runId);
       return recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation });
@@ -602,9 +610,11 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
     if (recovered.status === "completed") {
       return Object.freeze({ schema_version: "1", outcome: "recovered", run_id: runId,
         operation_id: recovered.operation_id, revision_id: recovered.revision_id,
-        backlog: "updated" });
+        backlog: planned ? 'not_applicable' : 'updated' });
     }
     return recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation });
+    };
+    return planned ? perform() : withOwnedFileLock(backlogPath, perform);
     });
   }));
   return locked.rejection ?? locked.state;
@@ -619,7 +629,7 @@ export function recordRunPresentationDecision(root, input, { evaluateGateCheck, 
     || typeof comment !== 'string' || Buffer.byteLength(comment) > 8192 || /\0/u.test(comment)
     || action === 'request_change' && !comment.trim() || !/^sha256:[0-9a-f]{64}$/u.test(requestDigest ?? '')) return rejected(runId, 'decision_input_invalid');
   const context = { kind: 'presentation_decision.record', operation_id: operationId, request_digest: requestDigest };
-  const written = guardedWrite(runId, () => withRunBacklogLock(root, runPath(root, runId), () => {
+  const written = guardedWrite(runId, () => withRunMutationLock(root, runPath(root, runId), () => {
     const run = readRun(root, runId); if (run.rejection) return run.rejection;
     assertRunOperationIdentity(root, run, operationId, context.kind);
     const previous = readRunOperations(run.content).receipts.find(row => row.operation_id === operationId);
@@ -647,7 +657,7 @@ export function recordRunPresentationDecision(root, input, { evaluateGateCheck, 
     next = replaceFirstScalar(next, 'next_allowed_action', after.next_allowed_action) ?? next;
     for (const [key, value] of [['What is known?', `${action} recorded for current ${gate} material.`], ['What is missing?', 'Changed material and a fresh deliberate decision.'],
       ['What is the next allowed action?', after.next_allowed_action]]) next = upsertTableRow(next, 'Current Control State', 0, key, [key, value]) ?? next;
-    const saved = writeRunWithBacklogLocked(root, run.path, next, revisionId, { expectedContent: run.content,
+    const saved = writeRunMutationLocked(root, run.path, next, revisionId, { expectedContent: run.content,
       appendedOperation: receipt, nextRevisionId, operationContext: { ...context, target_id: receipt.target_id }, afterWrite,
       validateDuringTransaction: () => {
         const fresh = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });

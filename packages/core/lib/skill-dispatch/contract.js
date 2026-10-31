@@ -1,6 +1,7 @@
 import { projectMcpInputSchema } from '../mcp-input-schema.js';
 import { isAbsolute } from "node:path";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "../control-state/run-identity.js";
+import { PLANNING_SCOPE_SCHEMA, schemaDiagnostics } from '../control-state/run-command-schema.js';
 import {
   PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
   canonicalizeLanguageTag,
@@ -67,6 +68,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       },
       primary_target: { type: "string", minLength: 1, maxLength: 4096, description: "Absolute governance-target path paired with target_source. Never derive it from working_directory alone." },
       run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Select an existing run from an explicit request, confirmed continuation or unequivocal same-scope assignment after resolve_delivery_run. Scope assignment must use expected_revision_id. For intake_mode new, choose an unused id for the authorized change; never reuse an existing run." },
+      planning: { ...PLANNING_SCOPE_SCHEMA, description: 'Explicit ur-definition planning mode before any Run. Use one selected plan and source digest (null for capture); no delivery intake or gate approval.' },
       expected_revision_id: { type: "string", pattern: REVISION_ID_PATTERN.source, description: "Revision from the resolve_delivery_run candidate used for scope matching. Requires intake true, intake_mode resume and run_id. Changed or unavailable binding returns fresh assignment evidence before gate evaluation; it never adopts another run automatically." },
       intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
       intake_mode: { type: "string", enum: ["new", "resume"], description: "With intake true: new prepares the explicitly authorized new scope at an unused run_id; resume continues the bound run. Requires run_id. Never infer new from ambiguous continuation." },
@@ -78,6 +80,8 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
     dependentSchemas: {
+      planning: { required: ['primary_target', 'target_source'], properties: { skill_id: { enum: ['ur-definition', 'agdf:ur-definition', 'agdf-ur-definition', 'agdf-global-ur-definition'] } },
+        not: { anyOf: ['run_id', 'expected_revision_id', 'intake', 'intake_mode', 'continue_delivery', 'ur_action', 'prd_action', 'sd_action', 'tp_action'].map(key => ({ required: [key] })) } },
       ur_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
       prd_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
       sd_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
@@ -244,6 +248,9 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
   if (primaryTarget && (!isAbsolute(primaryTarget) || primaryTarget.length > 4096)) throw new SkillDispatchInputError("primary_target", "primary_target must be an absolute bounded path");
   const targetSource = rawTargetSource ? normalizeTaskTargetSource(rawTargetSource, { allowEmpty: false }) : null;
   const runId = input.runId || null;
+  if (input.planning !== undefined && (skillId !== 'ur-definition' || !primaryTarget || schemaDiagnostics(input.planning, PLANNING_SCOPE_SCHEMA).length
+    || ['runId', 'expectedRevisionId', 'intake', 'intakeMode', 'continueDelivery', 'urAction', 'prdAction', 'sdAction', 'tpAction'].some(key => input[key] !== undefined)))
+    throw new SkillDispatchInputError('planning', 'Planning is an explicit pre-Run ur-definition scope; delivery and gate selectors are forbidden');
   if (runId && !RUN_ID_PATTERN.test(runId)) throw new SkillDispatchInputError("run_id", "run_id is invalid");
   if (input.intake !== undefined && (typeof input.intake !== "boolean" || (input.intake && skill.dispatch_mode !== "deterministic_control"))) {
     throw new SkillDispatchInputError("intake", "intake is invalid");
@@ -287,6 +294,7 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
     target_source: targetSource,
     primary_target: primaryTarget,
     run_id: runId,
+    planning: input.planning,
     intake: input.intake === true,
     intake_mode: input.intakeMode,
     expected_revision_id: input.expectedRevisionId,
@@ -323,6 +331,7 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
     targetSource: argumentsValue.target_source,
     primaryTarget: argumentsValue.primary_target,
     runId: argumentsValue.run_id,
+    ...(argumentsValue.planning !== undefined ? { planning: argumentsValue.planning } : {}),
     ...(argumentsValue.intake !== undefined ? { intake: argumentsValue.intake } : {}),
     ...(argumentsValue.intake_mode !== undefined ? { intakeMode: argumentsValue.intake_mode } : {}),
     ...(argumentsValue.expected_revision_id !== undefined ? { expectedRevisionId: argumentsValue.expected_revision_id } : {}),

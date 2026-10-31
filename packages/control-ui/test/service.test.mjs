@@ -28,7 +28,7 @@ test('saved work summary and explicit current comparison survive HTTP with one-f
   const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
   try {
     const overview = (await request(service, '/api/snapshot')).body;
-    assert.equal(overview.data.file_count, 1); assert.equal(overview.data.entries[0].saved_summary.provenance_state, 'recorded');
+    assert.equal(overview.data.file_count, 2); assert.equal(overview.data.entries[0].saved_summary.provenance_state, 'recorded');
     assert.equal(overview.data.entries[0].saved_summary.authorizes, false);
     const selected = (await request(service, '/api/runs/fixture-a?snapshot=' + overview.snapshot_id)).body;
     assert.equal(selected.data.run.backlog_comparison.state, 'matching'); assert.equal(selected.data.run.work_summary.authorizes, false);
@@ -138,7 +138,7 @@ test('SCN-096/100: HTTP title batch requires opaque rows, replaces scope, reject
     for (const suffix of ['&path=artefacts/fixture-a/UR.md','&run_id=fixture-a','&snapshot='+initial.snapshot_id,'&rows='+initial.data.entries[0].row_id]) assert.equal((await request(service,'/api/backlog-titles?'+query+suffix)).status,403);
     const titles = (await request(service,'/api/backlog-titles?'+query)).body;
     assert.equal(titles.data.entries[0].title_observation.title,'Fixture document');
-    assert.equal(titles.data.file_count,2); assert.notEqual(titles.snapshot_id,initial.snapshot_id);
+    assert.equal(titles.data.file_count,3); assert.notEqual(titles.snapshot_id,initial.snapshot_id);
     assert.equal((await request(service,'/api/backlog-titles?'+query)).body.code,'resource_denied');
     assert.equal((await request(service,'/api/freshness?snapshot='+titles.snapshot_id)).body.data.unchanged,true);
     assert.deepEqual(treeBytes(f.root),before);

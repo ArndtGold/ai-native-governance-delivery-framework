@@ -22,6 +22,12 @@ Die vollständige native Abnahme des finalen 0.20.0-Kandidaten bleibt offen. Sie
 
 ## Installieren und prüfen
 
+Neue Projekte verwalten geplante Anforderungen als einzelne URs in
+`.agdf/control/planned/`; der Bestand entsteht aus diesen Quellen und den Runs.
+Bestehende Projekte wechseln ausschließlich über eine ausdrückliche Migration.
+Die optionale Erweiterung **AGDF Planning** ergänzt den Planungsdialog für Codex CLI;
+Core bleibt ohne sie nutzbar. [Bedienung und Migrationsgrenze](plugins/agdf/control/planned-urs.md).
+
 Im normalen Betrieb gibt es keine zwei konkurrierenden Bedienoberflächen:
 
 1. **Chat und Skills** sind die primäre Interaktion für Entscheidungen und nächste Schritte.

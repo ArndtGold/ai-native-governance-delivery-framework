@@ -1,11 +1,44 @@
 # AGDF Runtime Contract — UR Definition
 
 This contract guides `ur-definition` only after a non-authorizing, bound
-`skill_continuation` with `phase: ur_definition`. It creates no gate or persistence authority.
+`skill_continuation` with `phase: ur_definition` or `phase: planned_ur_definition`.
+The same owner defines UR content in both modes. It creates no gate or persistence authority.
 
-## Binding and ownership
+## Planning mode before a Run
 
-Use only the returned governance_target, run_id, revision_id, artifact_path and template_path.
+For explicit capture/refinement/priority intent, dispatch this same skill with the confirmed
+target and `planning: {plan_id, expected_digest}`. Use null digest for capture and an inspected
+canonical digest for replacement. Planning is mutually exclusive with Run/revision, delivery
+intake, continue_delivery and source-revision selectors. Do not enter Run assignment to save a
+planned need. The optional planning plugin orchestrates this mode; Core owns its semantics.
+
+Follow `phase: planned_ur_definition` only. Read every returned authoring-inputs page for the
+version-matched UR template, current source and `planning_capability`. Use the same need,
+clarification, preview, language and summary rules below. An incomplete draft remains saveable
+with clarification open. Planning stops at UR and minimal metadata: never author planned PRD,
+SD or TP, present a gate, collect Approval: UR or infer delivery permission.
+
+Use `agdf_record/planned_material.stage` for one UR, then `planned_ur.create` or
+`planned_ur.replace` with that exact planning scope and original mutation UUID. Choose the new
+identity as `plan-<mutation UUID>` without asking the user for an identifier. Creation material
+contains the ordinary UR template without planning scalar fields: Core adds exactly one initial
+`Planning schema: planned-ur-v1`, `Planning id: <plan_id>` and `Planning priority: high|normal|low`.
+Default normal applies only on explicit create. Replacement preserves schema/identity and
+changes priority in that same UR source under its expected digest; no saved parallel title/status.
+No Run-bound material, generic file writer, shell fallback or copied template is permitted.
+
+Return the saved readable title, source reference/digest, priority and remaining clarification.
+Completeness/priority/selection never starts delivery. Only a later explicit request to start from
+the selected current source uses `agdf_run/run.create_from_planned`; read its contract and preserve
+the original UUID after uncertainty. The handoff creates one unapproved Run for normal UR review.
+A different UUID on an already transferred identity returns that Run. Historical planning source
+is read-only afterwards; later product edits use the active Run's existing revision owner.
+Inspect the original operation before retry. Missing/incompatible Core, unsafe/stale source,
+pending recovery or ambiguous origins stop the affected action with concrete diagnosis.
+
+## Run mode binding and ownership
+
+For `phase: ur_definition`, use only the returned governance_target, run_id, revision_id, artifact_path and template_path.
 template_path is the absolute, version-matched template owned by the installed plugin runtime.
 Repository copies under `.agdf/control/templates/` are derived scaffold references and never
 override this authoring source. Read the template without rewriting it; persist only artifact_path.
@@ -79,7 +112,7 @@ For new-format URs, a missing or invalid required summary returns to this same a
 route before presentation. Correct it through the existing revision writer; no user approval
 is required merely to complete an unapproved incomplete draft.
 
-## Revision and recording
+## Run mode revision and recording
 
 A new draft is recorded through existing run-step --step ur --title <short title>, using
 --dir <governance_target> --run <run_id> --revision <revision_id>.

@@ -18,21 +18,22 @@ export function BacklogEmpty({ list }: { list: CockpitList<BacklogEntry, Diagnos
     : list.query ? 'Keine gespeicherten Vorhaben für diese Suche.' : 'In diesem Bereich sind keine Vorhaben gespeichert.'}</p>;
 }
 // Presentation only: membership/order/identity/provenance are supplied by Core.
-export function BacklogRow({ row, current, onSelect, observation }: { row: CockpitListRow<BacklogEntry>; current: boolean; onSelect: (id: string) => void; observation?: TitleObservation; compact?: boolean }) {
+export function BacklogRow({ row, current, onSelect, onSelectPlanned, observation }: { row: CockpitListRow<BacklogEntry>; current: boolean; onSelect: (id: string) => void; onSelectPlanned?: (rowId: string) => void; observation?: TitleObservation; compact?: boolean }) {
   const r = row.entry, archived = r.section === 'Completed / Superseded Pointers';
   const summary = r.saved_summary, record = summary?.record;
   return <li data-backlog-row={row.identity}>
-    <h3><button className="run-link" disabled={!current || !row.selectable} data-focus-id={r.key} onClick={() => onSelect(r.key)}>{row.displayTitle}</button></h3>
-    <span className="status">Gespeicherter Stand laut Backlog: {r.stored_status || 'Nicht angegeben'}</span>
+    <h3><button className="run-link" disabled={!current || !row.selectable || r.kind === 'planned' && !onSelectPlanned} data-focus-id={r.key} onClick={() => r.kind === 'planned' ? onSelectPlanned?.(r.row_id!) : onSelect(r.key)}>{row.displayTitle}</button></h3>
+    <span className="status">{r.kind ? 'Beobachteter Quellenstand' : 'Gespeicherter Stand laut Backlog'}: {r.stored_status || 'Nicht angegeben'}</span>
+    {r.kind === 'planned' && <p>Geplante UR · {r.handoff_ready ? 'Zur ausdrücklichen Übergabe bereit' : 'Klärung oder Quellenprüfung erforderlich'} · Keine Freigabe</p>}
     {record && <p className="row-phase">{record.phase} · {summary?.label_de}{record.open_obligation_count > 0 && ` · ${reportFindingsLabel(record.open_obligation_count)}`}</p>}
-    <p className="row-step">{archived ? 'Ergebnis laut Backlog' : 'Nächster Schritt laut Backlog'}: {record?.display_action || r.stored_next_step || 'Nicht angegeben'}</p>
-    <p className="muted row-limitation">{summary?.limitation_de ?? 'Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.'}</p>
+    <p className="row-step">{r.kind ? 'Nächster Schritt' : archived ? 'Ergebnis laut Backlog' : 'Nächster Schritt laut Backlog'}: {record?.display_action || (r.kind === 'planned' ? r.handoff_ready ? 'UR prüfen und bewusst an einen Run übergeben.' : 'UR weiter klären; bei unklarer Zuordnung zuerst den ursprünglichen Vorgang prüfen.' : r.stored_next_step) || 'Nicht angegeben'}</p>
+    <p className="muted row-limitation">{summary?.limitation_de ?? (r.kind ? 'Aus kanonischen Quellen abgeleitet; keine Entscheidungsbefugnis.' : 'Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.')}</p>
     {!row.selectable && <p className="muted">Dieser Eintrag ist nicht eindeutig zugeordnet und kann nicht geöffnet werden.</p>}
     <details className="row-source"><summary>Gespeicherte Angaben und Quellen</summary>
-      <dl><dt>Titelherkunft</dt><dd>Gespeicherter Backlog-Titel</dd>
+      <dl><dt>Titelherkunft</dt><dd>{r.kind ? r.kind === 'planned' ? 'Geplante UR' : 'Kanonischer Run' : 'Gespeicherter Backlog-Titel'}</dd>
         <dt>Originaltitel</dt><dd>{row.provenance.originalTitle}</dd><dt>Schlüssel</dt><dd><code>{r.original_key}</code></dd>
-        <dt>Backlog-Quelle</dt><dd><code>{row.provenance.path}</code></dd>
-        <dt>Backlog-Digest</dt><dd><code>{row.provenance.digest}</code></dd>
+        <dt>{r.kind ? 'Quelle' : 'Backlog-Quelle'}</dt><dd><code>{row.provenance.path}</code></dd>
+        <dt>{r.kind ? 'Quelldigest' : 'Backlog-Digest'}</dt><dd><code>{row.provenance.digest}</code></dd>
         {record && <><dt>Gespeicherte Run-Revision</dt><dd><code>{record.revision_id}</code></dd>
           <dt>Synchronisiert</dt><dd>{new Date(record.observed_at).toLocaleString('de-DE')}</dd>
           {record.decisive_obligation && <><dt>Offene Aufgabe</dt><dd>{record.decisive_obligation.id} · {record.decisive_obligation.routing_target}</dd>

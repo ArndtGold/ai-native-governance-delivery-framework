@@ -28,6 +28,7 @@ import { fileURLToPath } from "node:url";
 import { spawnHostSync } from "../../packages/cli/lib/host-command.js";
 import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../../packages/cli/lib/host-adapters/codex/mcp-startup.js';
 import { CODEX_HOOK_STATES } from "../../packages/core/lib/interaction-catalog.js";
+import { CONTROL_INSPECT_MAX_DEFINITION_BYTES } from '../../packages/core/lib/control-inspect/contract.js';
 import { createProtocolRuntime } from '../../evals/mcp-ergonomics/lib/protocol-harness.js';
 import { withStdioClient } from '../../packages/mcp-server/test/helpers.js';
 import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess, CODEX_COMMAND_TASK } from '../../evals/mcp-ergonomics/lib/native-tasks.js';
@@ -398,7 +399,7 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
     await withStdioClient({ modern: true, command: process.execPath, args: serverArgs, cwd: fixture.root, env: taskEnv }, async client => {
       const { tools } = await client.listTools(), definition = tools.find(tool => tool.name === 'agdf_inspect');
       const bytes = Buffer.byteLength(JSON.stringify(definition));
-      if (!definition?.outputSchema || bytes > 5000) throw Error('CANDIDATE_INSPECT_CONTRACT_INVALID');
+      if (!definition?.outputSchema || bytes > CONTROL_INSPECT_MAX_DEFINITION_BYTES) throw Error('CANDIDATE_INSPECT_CONTRACT_INVALID');
       report.discovery = { inspect_definition_bytes: bytes, inspect_definition_digest: `sha256:${createHash('sha256').update(JSON.stringify(definition)).digest('hex')}`, protocol: client.getNegotiatedProtocolVersion() };
       if (commandTask) {
         report.discovery.commands = ['agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout'].map(name => {

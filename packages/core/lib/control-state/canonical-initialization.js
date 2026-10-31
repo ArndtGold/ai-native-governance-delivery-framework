@@ -316,6 +316,16 @@ function planFingerprint(plan) {
   return createHash("sha256").update(serialized, "utf8").digest("hex");
 }
 
+// Existing operation plan digests already bind exact seed bytes. Select only an
+// exact known historical plan for recovery; never reinterpret it as the new layout.
+function operationPlan(operation) {
+  for (const layout of ['planned-urs-v1', 'master-backlog-v1']) {
+    const files = canonicalInitPlan(operation.language_preference, undefined, { layout });
+    if ('sha256:' + planFingerprint(normalizedPlan(files)) === operation.plan_digest) return files;
+  }
+  throw new CanonicalInitError('AGDF_CANONICAL_INIT_PLAN_UNSUPPORTED');
+}
+
 export function inspectCanonicalInitializationPlan() {
   const plan = normalizedPlan(canonicalInitPlan());
   return { version: pluginDefinition.version, plan_digest: 'sha256:' + planFingerprint(plan),
@@ -916,7 +926,7 @@ export function inspectCanonicalProject(targetDir, { operationId } = {}) {
         && data.operation.target_id === resolveControlCommandTarget(targetDir).target_id;
       if (!owned || operationId && data.operation.operation_id !== operationId) return out({ status: 'blocked', operation_status: 'unknown', reason: 'initialization_ownership_unconfirmed' });
       withInputResolution(recordedInputResolution(data), () => operationContext.run(data.operation, () => {
-        const plan = normalizedPlan(canonicalInitPlan(data.operation.language_preference));
+        const plan = normalizedPlan(operationPlan(data.operation));
         const spec = readStageSpec(dirname(marker), plan, rootIdentity, agdfIdentity, publishedMarker);
         inspectOwnedStage(dirname(marker), spec, publishedMarker);
       }), true);
@@ -930,7 +940,7 @@ export function inspectCanonicalProject(targetDir, { operationId } = {}) {
     if (!['valid', 'absent'].includes(projection.status)) throw Error(projection.status);
     const config = JSON.parse(readFileSync(join(controlPath, 'config.json'), 'utf8'));
     if (!['artifact_language', 'chat_language', 'runtime_language'].every(k => typeof config[k] === 'string' && config[k].length <= 64)) throw Error('canonical_config_unsupported');
-    for (const [name, title] of [['MASTER_BACKLOG.md', '# AGDF Master Backlog'], ['SOT_REGISTRY.md', '# AGDF Source-of-Truth Registry'], ['CONTEXT_GRAPH.md', '# AGDF Context Graph']]) {
+    for (const [name, title] of [...(config.control_layout === 'planned-urs-v1' ? [] : [['MASTER_BACKLOG.md', '# AGDF Master Backlog']]), ['SOT_REGISTRY.md', '# AGDF Source-of-Truth Registry'], ['CONTEXT_GRAPH.md', '# AGDF Context Graph']]) {
       const path = join(controlPath, name);
       if (lstatSync(path).size > 1048576 || !canonicalRunText(readFileSync(path, 'utf8')).startsWith(title + '\n')) throw Error('canonical_structure_unsupported');
     }
@@ -946,7 +956,7 @@ export function initializeCanonicalProject(root, { operationId, requestDigest, t
   const original = observed.operation ?? observed.receipt?.operation;
   const languagePreference = original?.operation_id === operationId && original.request_digest === requestDigest
     ? original.language_preference : resolveLanguagePreference(language);
-  const files = canonicalInitPlan(languagePreference), plan = normalizedPlan(files);
+  const files = original?.operation_id === operationId && original.request_digest === requestDigest ? operationPlan(original) : canonicalInitPlan(languagePreference), plan = normalizedPlan(files);
   const operation = { language_preference: languagePreference, operation_id: operationId, request_digest: requestDigest, target_id: targetId,
     plan_digest: 'sha256:' + planFingerprint(plan), producer, preserve_stage: true };
   assertInputConfigurationCurrent(root);

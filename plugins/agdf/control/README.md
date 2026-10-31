@@ -4,14 +4,20 @@ AGDF is primarily a control system for AI-assisted delivery. The skills guide th
 
 Use this scaffold when a target repository should keep AGDF state outside chat history and tool memory.
 
+New projects use `planned-urs-v1`: planned needs are independent URs under
+`planned/<plan_id>/UR.md`, and inventory is derived from those sources plus Runs.
+They have no mandatory live Master Backlog. Existing projects retain their legacy
+layout until explicit preview/confirmation/cutover. See [planned URs](planned-urs.md)
+for Core CLI/MCP commands, the optional Codex planning package and recovery.
+
 ## Files
 
 | File | Purpose |
 |---|---|
 | `config.json` | Project language preference for generated AGDF artefacts and user-facing chat |
-| `templates/RUN_STATE.md` | Canonical version-2 template for isolated per-run state |
+| `templates/RUN_STATE.md` | Shared Run seed; Core renders version 3 for the new layout and genuine version 2 for legacy projects |
 | `templates/AGDF_RUN.md` | Legacy migration-input and compatibility-projection template |
-| `templates/MASTER_BACKLOG.md` | Template for the living backlog pointer: active initiatives and current UR/Brownfield/PRD/SD/TP/QA/OR artefacts |
+| `templates/MASTER_BACKLOG.md` | Historical legacy-layout template and migration input; absent from new initialization |
 | `templates/artefacts/UR.md` | Template for the durable user requirement artefact of a work item |
 | `templates/artefacts/BROWNFIELD_REVIEW.md` | Template for the durable Brownfield Review and Mode/Slice Decision |
 | `templates/artefacts/VERIFIED_CHANGE.md` | Compact fail-closed record for an eligible Verified Change |
@@ -33,8 +39,9 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
       <run_id>/
         RUN_STATE.md
     config.json
-    AGDF_RUN.md
-    MASTER_BACKLOG.md
+    planned/
+      <plan_id>/
+        UR.md
     artefacts/
       <work-item>/
         UR.md
@@ -93,16 +100,16 @@ agdf gate-check --json
   If a run lists its own `RUN_STATE.md`, the seal covers its body directly and uses a self-reference
   marker for that artefact entry. This avoids circular on-disk hashing; references to other runs
   remain fully hashed. Old self-reference failures require a verified restoration, never a blind re-seal.
-- Record the standard small-path steps with one `run-step` call each instead of editing the run state
-  and `MASTER_BACKLOG.md` by hand: `--step ur --title` after writing `artefacts/<run_id>/UR.md`;
+- Record the standard small-path steps with one `run-step` call each instead of editing run state
+  by hand: `--step ur --title` after writing `artefacts/<run_id>/UR.md`;
   `--step route --route <mode> --reason --evidence` after writing `BROWNFIELD_REVIEW.md`;
   `--step evidence` for test or check results; `--step review --decision --evidence` for Code Review;
   and `--step closeout --result --evidence --risk --next` to close a `quick_task` with OR-lite. Each
-  call maintains the tables, the backlog pointer and the next allowed action and prints the next step.
+  call maintains the tables and next allowed action, plus the backlog pointer in legacy projects.
 
 - The selected `runs/<run_id>/RUN_STATE.md` is the current run dashboard.
 - `config.json` stores the project preference for artefact and chat language; runtime rules stay English.
-- `MASTER_BACKLOG.md` points to active delivery work; detailed artefacts live beside the work item.
+- In legacy projects only, `MASTER_BACKLOG.md` points to active delivery work. New-layout inventory derives from planned URs and Runs.
 - Brownfield Review records the post-UR Mode/Slice Decision before PRD depth, Verified Change execution or Quick Task execution is chosen.
 - UR, PRD, SD, TP and QA decisions require durable artefacts or links to the authoritative repository source of truth before the next gate can open.
 - OR records the run closeout and next permissible step; it does not approve later gates.

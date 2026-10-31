@@ -13,6 +13,7 @@ import { readFileSync, statSync } from 'node:fs';
 import { parseRunState } from './run-state-parser.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { readPendingSourceRevisionJournal } from './run-step-transaction.js';
+import { inspectPlannedOperation, inspectPlannedSelection } from './planned-entry.js';
 
 export const MATERIAL_LIMITS = Object.freeze({ part: 16384, file: 131072, set: 524288, sets: 4, total: 2097152,
   lifetime: 600000, idle: 120000 });
@@ -25,18 +26,21 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
   function expire() {
     for (const [id, row] of sets) if (now() - row.created >= MATERIAL_LIMITS.lifetime || now() - row.touched >= MATERIAL_LIMITS.idle) sets.delete(id);
   }
-  function binding(input) { return canonicalJson([input.target_id, input.run_id, input.expected_revision_id]); }
+  const planning = input => Object.hasOwn(input, 'planning');
+  function binding(input) { return planning(input) ? canonicalJson(['planned', input.target_id, input.planning.plan_id, input.planning.expected_digest])
+    : canonicalJson([input.target_id, input.run_id, input.expected_revision_id]); }
   function current(input) {
     const target = resolveTaskTarget({ workingDirectory: input.working_directory, targetSource: input.target_source, primaryTarget: input.primary_target });
     if (target.resolution_state !== 'resolved') throw Error('target_unresolved');
     const root = target.governance_target;
     if (resolveControlCommandTarget(root).target_id !== input.target_id) throw Error('target_binding_mismatch');
     assertInputConfigurationCurrent(root);
+    if (planning(input)) return inspectPlannedSelection(root, input.planning, { presentationLanguage: input.presentation_language });
     let run = readRun(root, input.run_id);
     if (run.rejection?.reason === 'run_step_recovery_required') {
       const pending = readPendingSourceRevisionJournal(root, input.run_id), path = `.agdf/control/runs/${input.run_id}/RUN_STATE.md`;
       const file = containedRegularFile(root, path);
-      if ([2, 5].includes(resolutionRecordVersion(pending)) && [pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
+      if ([2, 5, 6].includes(resolutionRecordVersion(pending)) && [pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
         && !hasSymlinkComponent(root, path) && file.status === 'valid' && statSync(file.path).size <= 1048576) {
         const content = readFileSync(file.path, 'utf8'), parsed = parseRunState(content, input.run_id);
         if (parsed.valid) run = { ...parsed, content };
@@ -73,10 +77,11 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
     stage(input) {
       const envelope = (outcome, reason, family = {}, state = null) => ({ schema_version: '1', outcome, reason,
         operation_id: input?.operation_id ?? null, request_digest: digest(canonicalJson(input)),
-        binding: { target_id: input.target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id, kind: 'material.stage' },
+        binding: planning(input) ? { target_id: input.target_id, planning: input.planning, kind: 'planned_material.stage' }
+          : { target_id: input.target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id, kind: 'material.stage' },
         effect: null, receipt: null, current: state ?? { available: false }, assurance: COOPERATIVE_ASSURANCE,
         historical_effect: Boolean(family.replayed), recovery: null, authorizes: false, family_result: family });
-      if (validateRunCommand('agdf_record', input).length || input.command.kind !== 'material.stage') return envelope('rejected', 'command_schema_invalid');
+      if (validateRunCommand('agdf_record', input).length || !['material.stage', 'planned_material.stage'].includes(input.command.kind)) return envelope('rejected', 'command_schema_invalid');
       try {
         if (closed) throw Error('material_transfer_expired');
         const state = current(input), p = input.command.payload;
@@ -130,10 +135,15 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
       if (!refs.length) return [];
       const target = resolveTaskTarget({ workingDirectory: input.working_directory, targetSource: input.target_source, primaryTarget: input.primary_target });
       if (target.resolution_state === 'resolved' && resolveControlCommandTarget(target.governance_target).target_id === input.target_id) {
+        if (planning(input)) {
+          const previous = inspectPlannedOperation(target.governance_target, input.planning.plan_id, input.operation_id);
+          if (previous.receipt?.request_digest === runCommandRequestDigest(input)) return [];
+        } else {
         const previous = inspectRunOperation(target.governance_target, { runId: input.run_id, operationId: input.operation_id, targetId: input.target_id });
         if (previous.status === 'recorded' && previous.request_digest === runCommandRequestDigest(input)) return [];
         if (input.command.kind === 'source_revision.recover' && ['recorded', 'committed_recovery_required'].includes(previous.status)
           && previous.family === 'source_revision.apply' && previous.receipt?.proposal_reference?.digest === input.command.payload.proposal.digest) return [];
+        }
       }
       current(input); expire();
       return refs.map(ref => {
@@ -143,7 +153,8 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
           if (row.binding !== binding(input) || file.content === null || file.digest !== ref.digest) throw Error('material_binding_mismatch');
           row.touched = now();
           return { material_id: file.material_id, digest: file.digest, slot: file.slot, content: file.content,
-            target_id: input.target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id };
+            target_id: input.target_id, ...(planning(input) ? { planning: input.planning }
+              : { run_id: input.run_id, expected_revision_id: input.expected_revision_id }) };
         }
         throw Error('material_transfer_expired');
       });
@@ -164,7 +175,9 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
 
 export function grantedMaterial(input, reference, grants = []) {
   const row = grants.find(g => g.material_id === reference?.material_id);
-  if (!row || row.target_id !== input.target_id || row.run_id !== input.run_id || row.expected_revision_id !== input.expected_revision_id
+  const sameScope = row && (Object.hasOwn(input, 'planning') ? row.planning && !Object.hasOwn(row, 'run_id')
+    && canonicalJson(row.planning) === canonicalJson(input.planning) : !Object.hasOwn(row, 'planning') && row.run_id === input.run_id && row.expected_revision_id === input.expected_revision_id);
+  if (!row || row.target_id !== input.target_id || !sameScope
     || row.digest !== reference.digest || typeof row.content !== 'string' || Buffer.byteLength(row.content) > MATERIAL_LIMITS.file
     || digest(canonicalRunText(row.content)) !== row.digest) throw Error('material_binding_invalid');
   return row;

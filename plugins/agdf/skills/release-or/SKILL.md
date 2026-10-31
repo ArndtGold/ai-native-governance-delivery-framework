@@ -67,7 +67,7 @@ On skill_continuation use only its target/control. Without that tool and a valid
 or help retries. Dispatch never authorizes.
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
-When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
+When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` when steering-relevant. Only the legacy layout also maintains `MASTER_BACKLOG.md`; new-layout closeout never writes it.
 Use the Runtime Contract definition of `Relevant Run` to decide whether OR is mandatory or whether a Quick Task mini-closeout is enough.
 Close a `quick_task` through bound `agdf_closeout/closeout.record`, preserving its exact
 confirmation and original UUID. If that MCP group is unavailable, use the supplied
@@ -89,7 +89,7 @@ validator's `run-step --step closeout --result --evidence --risk --next`.
 13. Keep machine status normalization in the CLI; do not write internal snake_case status values into the human-facing backlog.
 14. Reconcile Context Graph impact before clean closeout: report `context_graph_reconciliation: resolved | not_applicable | open_gap`.
 15. If Context Graph work remains unresolved, report it as an explicit open gap and do not describe the run as cleanly handoff-ready.
-16. After writing or updating `MASTER_BACKLOG.md`, run `agdf_inspect` with `operation: doctor` when the host lists it, otherwise `doctor --json` (or the locally available equivalent) and resolve any `AGDF_BACKLOG_STATUS_UNKNOWN` or `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN` finding before closeout. See the AGDF control scaffold's `MASTER_BACKLOG.md` template Rules section for the canonical status/artefact label vocabulary.
+16. In legacy layout only, after a writer updates `MASTER_BACKLOG.md`, inspect doctor and resolve unknown legacy status/artefact labels before closeout. In `planned-urs-v1`, use derived inventory and the selected Run; never create or synchronize a backlog. Normal selected-Run doctor/closeout checks remain required in both layouts.
 17. When Delivery Map exposes `parent_reconciliation`, report that evaluated object without
     rediscovering or reclassifying the relationship. Keep Child completion and Parent coordination
     visibly separate. An `open` result retains exactly one next action and does not invalidate Child

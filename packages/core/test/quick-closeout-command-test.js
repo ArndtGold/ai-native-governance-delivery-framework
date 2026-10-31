@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createCoreServices } from '../lib/index.js';
@@ -88,7 +88,7 @@ try {
   assert.equal(evaluateGateCheck(root, { runId: run }).completion.fulfilled, true);
   const completed = dispatch();
   assert.equal(completed.terminal, true); assert.equal(completed.control.next_operation, null);
-  assert.doesNotMatch(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('## Completed / Superseded Pointers')[0], /\| quick-command \|/);
+  assert.equal(existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md')), false, 'new-layout quick closeout never creates a backlog');
 
   // The documented CLI lane records the Code Review without a registered file; closeout must still be reachable.
   const cliRun = 'quick-cli', cliPrefix = `.agdf/control/artefacts/${cliRun}/`, cliPath = join(root, `.agdf/control/runs/${cliRun}/RUN_STATE.md`);

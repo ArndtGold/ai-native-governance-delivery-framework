@@ -14,11 +14,14 @@ import { readRunState } from '../lib/control-evaluation/run-state.js';
 import { presentationVersionComparison } from '../lib/control-state/run-presentation-render.js';
 import { intentStages, archiveStages, commitStages, beforeIntent, beforeRunCommit } from './fixtures/transaction-checkpoints.js';
 import { readValidatedRevisionArchive } from '../lib/control-state/run-revision-history.js';
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 
+for (const layout of ['master-backlog-v1', 'planned-urs-v1']) {
 const root = mkdtempSync(join(tmpdir(), 'agdf-command-revision-'));
 try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
-  execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
+  execFileSync('git', ['init', '-q', root]); initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout }));
   const f = createLateSourceRevisionTestRun(root, cli), p = f.proposal('TP');
   const expanded = process.env.AGDF_TEST_REVISION_POLICY === '2';
   if (expanded) {
@@ -61,7 +64,7 @@ try {
         createRunCommandService({materialGrants:JSON.parse(process.argv[3]),checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;
       const interrupted = spawnSync(process.execPath, ['--input-type=module', '-e', program, JSON.stringify(stagedApply), stage, JSON.stringify([grant])]);
       assert.equal(interrupted.status, 71, stage + ': ' + interrupted.stderr);
-      const pending = readPendingSourceRevisionJournal(root, f.runId); assert.equal(pending.schema_version, 5);
+      const pending = readPendingSourceRevisionJournal(root, f.runId); assert.equal(pending.schema_version, layout === 'master-backlog-v1' ? 5 : 6);
       const recovery = { ...envelope, expected_revision_id: f.revision(), command: { kind: 'source_revision.recover', payload: {
         source_gate: 'TP', proposal: reference, recovery_revision_id: f.revision(), pending_digest: digest(canonicalJson(pending)) } } };
       const recovered = staged('agdf_revise', recovery);
@@ -69,7 +72,8 @@ try {
       assert.equal(staged('agdf_revise', stagedApply).outcome, stage === 'run_after_rename' ? 'already_applied' : 'accepted');
       rmSync(join(root, '.agdf'), { recursive: true }); cpSync(seed, join(root, '.agdf'), { recursive: true });
     }
-    for (const stage of [...intentStages, ...archiveStages, ...commitStages]) {
+    for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => layout === 'master-backlog-v1'
+      || ['intent', 'archive_published', 'run_before_rename', 'run_after_rename', 'retired'].includes(stage))) {
       const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
         createRunCommandService({checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;
       const interrupted = spawnSync(process.execPath, ['--input-type=module', '-e', program, JSON.stringify(input), stage]);
@@ -119,3 +123,4 @@ try {
   assert.equal(presentationVersionComparison(root, readRunState(root, { runId: f.runId }), 'TP', comparison.current_digest).state, 'unavailable');
   console.log('Shared revision preview, exact confirmation boundary, original receipt/archive and immutable historical request replay passed (synthetic only).');
 } finally { rmSync(root, { recursive: true, force: true }); }
+}

@@ -81,7 +81,9 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
     if (!view?.delivery_state || view.delivery_state === 'retired' || !connected) return;
     let alive = true, pending = false, acknowledged = false, intersecting = false;
     const retire = () => {
-      if (!alive) return;
+      // A confirmed handoff already retired this session through its owner.
+      // Passive historical reading or frame disposal must not close it again.
+      if (!alive || completed.current?.session_id === view.session_id) return;
       alive = false;
       setView(old => { if (old?.session_id !== view.session_id) return old;
         const next: DecisionBootstrap = { ...old, delivery_state: 'retired', enabled_actions: [] }; current.current = null; return next; });

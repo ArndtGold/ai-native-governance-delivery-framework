@@ -442,8 +442,8 @@ open approvals, last activity, artefact count, outcome and warnings, stores an i
 needs a successor: `--successor-run` must name an existing run, `--successor-ref` is a free
 reference recorded as unverified. Apply requires the exact phrase printed by the preview; each
 listed run that is still active, sealed and unchanged since the preview is closed with its own
-receipt, and the result names every run. A pending run-step recovery anywhere in the repository
-blocks the whole closure. The receipt records the local Git `user.name` and `user.email` as a
+receipt, and the result names every run. Legacy or unknown pending recovery blocks the whole
+closure; a validated v6 journal for an unselected Run permits independent closure. The receipt records the local Git `user.name` and `user.email` as a
 cooperative statement (include directives are not followed; otherwise `unknown`). An ended run
 rejects every further run write, approval, presentation, revision, recovery and continuation; a
 closure cannot be reopened.
@@ -459,8 +459,8 @@ an extra row and retry `run-update` to record the correction.
 `run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
 presented `revision_id`, records it with the approved artefact's digest and advances the revision.
 `run-step` records one standard small-path transition per call (UR registration, Mode/Slice route,
-evidence, Code Review, `quick_task` closeout with OR-lite) and maintains the run tables, the
-`MASTER_BACKLOG.md` pointer and the policy-derived next action. These commands print JSON and are
+evidence, Code Review, `quick_task` closeout with OR-lite) and maintains the run tables and
+policy-derived next action, plus the `MASTER_BACKLOG.md` pointer in legacy projects. These commands print JSON and are
 also available through the plugin's surface-local validator. The
 seal detects unrecorded edits; it is not a signature. Normal write commands reject missing seal
 lines. Restore a trusted sealed revision before recording changes; `run-migrate` remains the explicit
@@ -713,10 +713,15 @@ records the design evidence and its limits.
 
 ## Control scaffold
 
+New initialization uses `planned-urs-v1`, with independent planned URs and derived
+planned/Run inventory. It creates no live Master Backlog and no Run implicitly.
+Existing projects remain legacy until an explicit source-bound migration.
+See [planned UR commands, migration and optional Codex Planning](../../plugins/agdf/control/planned-urs.md).
+
 The generated `.agdf/control/templates/` files are reusable starting points for durable AGDF state:
 
 - `runs/<run_id>/RUN_STATE.md` for each canonical current run dashboard
-- `MASTER_BACKLOG.md` for active delivery pointers
+- `planned/<plan_id>/UR.md` for each planned need (UR-only; created on explicit capture)
 - `templates/artefacts/` for durable UR, PRD, SD, TP and QA report artefact templates
 - `SOT_REGISTRY.md` for one source of truth per domain
 - `CONTEXT_GRAPH.md` for durable Brownfield findings, decisions, risks, evidence and exit criteria
@@ -730,8 +735,7 @@ npm create agdf@latest -- init
 
 This writes:
 
-- `.agdf/control/runs/<run_id>/RUN_STATE.md`
-- `.agdf/control/MASTER_BACKLOG.md`
+- `.agdf/control/README.md` (Runs are created separately; no mandatory live backlog)
 - `.agdf/control/config.json`
 - `.agdf/control/templates/artefacts/UR.md`
 - `.agdf/control/templates/artefacts/PRD.md`

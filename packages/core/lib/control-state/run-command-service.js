@@ -32,6 +32,12 @@ import { createRunCommand, creationRunId } from './run-create-command.js';
 import { assertCanonicalRunStore } from './run-store-inspection.js';
 import { grantedMaterial } from './run-material.js';
 import { ownedRecordingGitObservation } from './run-verified-change.js';
+import { readControlLayout, PLANNED_LAYOUT, withControlRecovery } from './control-layout.js';
+import { PLANNING_COMMAND_KINDS } from './run-command-schema.js';
+import { inspectPlannedOperation, replayPlannedUr, mutatePlannedUr } from './planned-entry.js';
+import { createRunFromPlanned } from './planned-handoff.js';
+import { previewPlannedLayout, applyPlannedLayout, recoverPlannedLayout } from '../control-maintenance/planned-layout.js';
+import { pagePlannedLayoutPreview } from '../control-maintenance/planned-layout-preview.js';
 
 function safeOperationStatus(root, input) {
   try { return inspectRunOperation(root, { runId: input.run_id ?? creationRunId(input.operation_id), operationId: input.operation_id, targetId: input.target_id }); }
@@ -58,8 +64,12 @@ export function observeCurrentRunCommand(root, input, gitObservation) {
 function boundedRecover(root, input) {
   const payload = input.command.payload, path = runPath(root, input.run_id);
   assertCommandRunPath(root, input);
-  return withOwnedFileLock(path, () => withOwnedFileLock(join(root, '.agdf/control/MASTER_BACKLOG.md'), () => {
-    const other = pendingRunStepIds(root).find(id => id !== input.run_id);
+  return withOwnedFileLock(path, () => withControlRecovery(root, { resource: `run:${input.run_id}`, operation_id: input.operation_id,
+    proveOutcome: result => result.outcome === 'recovered' && !existsSync(pendingRunStepPath(root, input.run_id))
+      && runSealState(root, readFileSync(path, 'utf8')).status === 'valid' }, () => {
+    const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
+    const perform = () => {
+    const other = !planned && pendingRunStepIds(root).find(id => id !== input.run_id);
     if (other) return { outcome: 'recovery_required', reason: 'another_pending_operation', pending_run_id: other };
     if (!existsSync(pendingRunStepPath(root, input.run_id))) {
       const observed = safeOperationStatus(root, input);
@@ -68,7 +78,7 @@ function boundedRecover(root, input) {
         : { outcome: 'recovery_required', reason: 'original_operation_unconfirmed' };
     }
     const pending = readPendingRunStepJournal(root, input.run_id);
-    if (![3, 4].includes(resolutionRecordVersion(pending)) || pending.kind !== payload.original_kind || pending.operation_id !== input.operation_id
+    if (![3, 4, 6].includes(resolutionRecordVersion(pending)) || pending.kind !== payload.original_kind || pending.operation_id !== input.operation_id
       || pending.target_id !== input.target_id || digest(canonicalJson(pending)) !== payload.pending_digest
       || ![pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
       || payload.recovery_revision_id !== input.expected_revision_id) return { outcome: 'rejected', reason: 'recovery_binding_invalid' };
@@ -78,6 +88,8 @@ function boundedRecover(root, input) {
     const parsed = parseRunState(raw, input.run_id);
     if (!parsed.valid || parsed.meta.revision_id !== input.expected_revision_id) return { outcome: 'rejected', reason: 'stale_revision' };
     return { outcome: 'recovered', ...recoverPendingRunStepLocked(root, input.run_id) };
+    };
+    return planned ? perform() : withOwnedFileLock(join(root, '.agdf/control/MASTER_BACKLOG.md'), perform);
   }));
 }
 
@@ -103,14 +115,19 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
       const requestDigest = runCommandRequestDigest(input);
       const selectedInput = input.command.kind === 'run.create' ? { ...input, run_id: creationRunId(input.operation_id), expected_revision_id: null } : input;
       const scoped = TARGET_SCOPED_COMMAND_KINDS.includes(input.command.kind);
+      const planning = PLANNING_COMMAND_KINDS.includes(input.command.kind);
       let root, dispatched = false;
       const result = (outcome, reason, family = {}, extra = {}) => {
-        const status = root && !scoped ? safeOperationStatus(root, selectedInput) : null;
+        const status = root && !scoped && !planning ? safeOperationStatus(root, selectedInput) : null;
         const receipt = family.receipt ?? status?.receipt ?? null;
         const response = { schema_version: '1', outcome, reason: reason ?? null, operation_id: input.operation_id,
-          request_digest: requestDigest, binding: input.command.kind === 'project.initialize' ? { target_id: input.target_id, kind: 'project.initialize' } : { target_id: input.target_id, run_id: selectedInput.run_id ?? null, expected_revision_id: selectedInput.expected_revision_id ?? null, kind: input.command.kind },
+          request_digest: requestDigest, binding: planning ? { target_id: input.target_id, planning: input.planning, kind: input.command.kind }
+            : input.command.kind === 'project.initialize' ? { target_id: input.target_id, kind: 'project.initialize' } : { target_id: input.target_id, run_id: selectedInput.run_id ?? null, expected_revision_id: selectedInput.expected_revision_id ?? null, kind: input.command.kind },
           effect: receipt?.effect ?? null, receipt, historical_effect: Boolean(family.historical_effect || outcome === 'already_applied'),
-          current: scoped ? { available: false, reason: 'target_scoped_command' } : root ? input.command.kind === 'project.initialize' ? { available: true, setup: inspectCanonicalProject(root, { operationId: input.operation_id }) } : observeCurrentRunCommand(root, selectedInput, gitObservation) : { available: false, reason: 'target_unavailable' },
+          current: planning ? family.run_id && root ? observeCurrentRunCommand(root, { ...selectedInput, run_id: family.run_id }, gitObservation)
+            : family.entry ? { available: true, planning: { plan_id: family.entry.plan_id, digest: family.entry.digest }, readiness: family.entry.readiness }
+              : { available: false, reason: 'planning_scoped_command' }
+            : scoped ? { available: false, reason: 'target_scoped_command' } : root ? input.command.kind === 'project.initialize' ? { available: true, setup: inspectCanonicalProject(root, { operationId: input.operation_id }) } : observeCurrentRunCommand(root, selectedInput, gitObservation) : { available: false, reason: 'target_unavailable' },
           assurance: COOPERATIVE_ASSURANCE, authorizes: false,
           recovery: ['effect_unknown', 'recovery_required'].includes(outcome) ? input.command.kind === 'project.initialize'
             ? 'Inspect the supplied project.initialize/original-UUID status call without Run/revision. Preserve the exact saved original request; never create another setup or Run to escape uncertainty.'
@@ -134,6 +151,38 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
         const policy = (target, text, path, preparation = {}) => policyForRunContent(target, text, path, {
           ...preparation, gitObservation: ownedRecordingGitObservation(gitObservation, input.run_id) });
         const bound = { runId: input.run_id, revisionId: input.expected_revision_id, operationId: input.operation_id };
+        if (kind.startsWith('planned_layout.')) {
+          checkpoint('before_dispatch'); dispatched = true;
+          const family = kind === 'planned_layout.preview' ? pagePlannedLayoutPreview(root, payload)
+            : kind === 'planned_layout.apply' ? applyPlannedLayout(root, { ...payload, operation_id: input.operation_id, request_digest: requestDigest }, { checkpoint, packageVersion })
+              : recoverPlannedLayout(root, { ...payload, operation_id: input.operation_id }, { checkpoint });
+          checkpoint('before_result');
+          return result(family.outcome === 'already_applied' ? 'already_applied' : 'accepted', null, family);
+        }
+        if (planning) {
+          if (kind === 'planned_material.stage') return result('rejected', 'material_state_unavailable', {}, { dispatch: 'not_dispatched' });
+          if (kind === 'run.create_from_planned') {
+            if (input.planning.expected_digest === null) return result('rejected', 'planning_source_required', {}, { dispatch: 'not_dispatched' });
+            checkpoint('before_dispatch'); dispatched = true;
+            const family = createRunFromPlanned(root, { ...input.planning, operation_id: input.operation_id, target_id: input.target_id,
+              request_digest: requestDigest, presentation_language: input.presentation_language, title: payload.title }, { packageVersion, checkpoint });
+            checkpoint('before_result');
+            return result(family.outcome === 'accepted' ? 'accepted' : 'already_applied', null, family);
+          }
+          const previous = inspectPlannedOperation(root, input.planning.plan_id, input.operation_id);
+          if (previous.receipt) {
+            if (previous.receipt.kind !== kind || previous.receipt.request_digest !== requestDigest) return result('rejected', 'operation_payload_conflict');
+            const family = replayPlannedUr(root, { plan_id: input.planning.plan_id, operation_id: input.operation_id, request_digest: requestDigest });
+            return result('already_applied', null, family);
+          }
+          const material = grantedMaterial(input, payload.source, materialGrants);
+          if (material.slot !== 'UR') return result('rejected', 'material_slot_mismatch');
+          checkpoint('before_dispatch'); dispatched = true;
+          const family = mutatePlannedUr(root, { kind, ...input.planning, operation_id: input.operation_id, request_digest: requestDigest,
+            content: material.content, ...(kind === 'planned_ur.create' ? { priority: payload.priority } : {}) }, { checkpoint });
+          checkpoint('before_result');
+          return result(family.outcome, null, family);
+        }
         if (kind === 'project.initialize') {
           const gitIdentity = canonicalJson(assertProjectGitRoot(root, gitObservation));
           const state = inspectCanonicalProject(root, { operationId: input.operation_id });
@@ -169,6 +218,15 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           return result(family.outcome === 'already_applied' ? 'already_applied' : 'accepted', null, family);
         }
         if (!scoped) assertCommandRunPath(root, input);
+        if (!scoped && readControlLayout(root).layout === PLANNED_LAYOUT) {
+          const historical = readRun(root, input.run_id);
+          if (!historical.rejection && historical.meta.control_state_version === '2' && historical.meta.lifecycle !== 'active') {
+            const status = safeOperationStatus(root, input);
+            if (status.status === 'recorded' && status.family === kind && status.receipt?.request_digest === requestDigest)
+              return result('already_applied', null, { receipt: status.receipt, historical_effect: true, read_only: true });
+            return result('rejected', 'historical_run_read_only', {}, { dispatch: 'not_dispatched' });
+          }
+        }
         let family;
         if (kind === 'runtime_generation.replace') {
           const current = observeCurrentRunCommand(root, input);
@@ -237,6 +295,9 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
         if (family?.outcome === 'rejected' && ['pending', 'unknown', 'committed_recovery_required'].includes(status?.status)) return result('effect_unknown', family.reason, family);
         return result(repeated ? 'already_applied' : accepted ? 'accepted' : family?.outcome === 'recovery_required' ? 'recovery_required' : 'rejected', family?.reason, family ?? {});
       } catch (error) {
+        if (planning && /RECOVERY_REQUIRED|ADMISSION_UNKNOWN/u.test(error.message)) return result('recovery_required', error.message, {}, { dispatch: dispatched ? 'unknown' : 'not_dispatched' });
+        if (planning && /^AGDF_(?:PLANNED_(?:SOURCE_STALE|UR_NOT_READY|TITLE_INVALID|CONTENT_INVALID|METADATA_INVALID|OPERATION_INVALID|ID_INVALID|COLLISION|HANDOFF_INPUT_INVALID|ALREADY_TRANSFERRED|ORIGIN_UNCONFIRMED)|CONTROL_LAYOUT_MIGRATION_REQUIRED)/u.test(error.message))
+          return result('rejected', error.message, {}, { dispatch: 'not_dispatched', ...(error.readiness ? { readiness: error.readiness } : {}) });
         if (input.command.kind !== 'closure.apply' && error.facts?.code === 'snapshot_stale' && error.facts.dispatch === 'not_dispatched')
           return result('rejected', 'snapshot_stale', {}, { dispatch: 'not_dispatched' });
         if (!dispatched && input.command.kind === 'run.create' && error.code === 'AGDF_CANONICAL_SCAFFOLD_REQUIRED')

@@ -80,7 +80,8 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 
 - `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts. `chat_language` is the direct-command presentation default; dispatcher calls supply `presentation_language` under their current-request language contract. This presentation override never changes `artifact_language`. Runtime rules remain English. Authoring continuations supply the resolved languages and any required localized approval-summary heading before drafting.
 - `.agdf/control/runs/<run_id>/RUN_STATE.md` is the canonical current-run dashboard; legacy `AGDF_RUN.md` is migration input or an explicit non-authoritative projection.
-- `MASTER_BACKLOG.md` is the living pointer for active delivery work.
+- New initialization uses `control_layout: planned-urs-v1`, independent `planned/<plan_id>/UR.md` needs and derived inventory. Planning is UR-only through the existing `ur-definition` owner; it neither starts a Run nor approves a gate. Explicit source-bound handoff creates one unapproved Run and retains immutable origin. Core works without the optional Codex planning package. See `control/planned-urs.md` for typed commands, admission and lossless migration.
+- Only historical `master-backlog-v1` projects retain `MASTER_BACKLOG.md` as their live pointer. No layout is inferred or migrated during a read. Explicit preview/apply/recover is required; do not edit config to bypass migration.
 - `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.
 - `SOT_REGISTRY.md` prevents parallel sources of truth.
 - `CONTEXT_GRAPH.md` stores durable Brownfield findings, decisions, risks, evidence and exit criteria.
@@ -88,9 +89,9 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 - `memory_target`, `multi_scope_state` and branch/workspace evidence fields make ambiguity and persistence decisions visible without turning chat history into the source of truth.
 - OR reports live under `.agdf/control/artefacts/<key>/OR.md` when a run closeout is steering-relevant or should be auditable beyond the chat.
 
-### Human-readable Master Backlog
+### Historical human-readable Master Backlog
 
-The Markdown backlog is a human steering view; CLI reports are its normalized
+Only in the legacy layout, the Markdown backlog is a human steering view; CLI reports are its normalized
 machine projection.
 
 - Use readable status labels such as `In progress`, `Awaiting UAT` and
@@ -136,7 +137,7 @@ They make the repository state checkable, but they do not replace the native ski
 ## Delivery Map
 
 `delivery-map --json` is the machine-readable delivery picture for the selected canonical control state.
-It derives, but does not replace, the selected `RUN_STATE.md` and `MASTER_BACKLOG.md` state.
+It derives from the selected `RUN_STATE.md`; only legacy layout also projects `MASTER_BACKLOG.md`. New-layout inventory derives planned URs and Runs without a shared mutable backlog.
 
 It must expose:
 

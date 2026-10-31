@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { resolve, join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
-import { withControlReadView, inheritControlReadMemo } from './fs.js';
+import { withControlReadView, inheritControlReadMemo, hasControlReadView, currentControlReadView, statSync as viewStat, readFileSync as viewRead } from './fs.js';
 
 export const READ_LIMITS = Object.freeze({ files: 20_000, total: 256 * 1024 ** 2, file: 32 * 1024 ** 2,
   preview: 2 * 1024 ** 2, response: 8 * 1024 ** 2, timeout: 10_000 });
@@ -390,4 +390,40 @@ export function captureControlScope(rootInput, project, options = {}) {
   }
   const initial = capture(project);
   return options.retain ? Object.freeze({ ...initial, extend: capture }) : initial;
+}
+
+// Single contained control source using the same descriptor/ancestor/race checks
+// as dependency capture. Mutation owners can inspect exact old bytes without
+// introducing another filesystem reader or capturing unrelated Run resources.
+function validateSingleControlPath(relativePath) {
+  if (typeof relativePath !== 'string' || !relativePath.startsWith('.agdf/control/')
+    || relativePath.includes('\\') || relativePath.includes(':') || relativePath.split('/').some(part => !part || part === '.' || part === '..')) fail('resource_denied');
+}
+export function readContainedControlText(root, relativePath, maximum = 131072) {
+  validateSingleControlPath(relativePath);
+  if (hasControlReadView()) {
+    const view = currentControlReadView();
+    if (view.readOptionalFileSync) {
+      const observed = view.readOptionalFileSync(join(root, relativePath), maximum);
+      if (observed.code) fail(observed.code);
+      return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(observed.bytes);
+    }
+    const path = join(root, relativePath), stats = viewStat(path);
+    if (!stats.isFile() || stats.size > maximum) fail('resource_limit');
+    const bytes = viewRead(path);
+    if (bytes.length > maximum) fail('resource_limit');
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
+  }
+  return captureControlScope(root, view => {
+    const observed = view.readOptionalFileSync(join(root, relativePath), maximum);
+    if (observed.code) fail(observed.code);
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(observed.bytes);
+  }).data;
+}
+
+export function controlPathPresent(root, relativePath) {
+  validateSingleControlPath(relativePath);
+  const path = join(root, relativePath), view = currentControlReadView();
+  if (view?.readOptionalFileSync) return view.readOptionalFileSync(path, 0).code !== 'document_missing';
+  return captureControlScope(root, observed => observed.readOptionalFileSync(path, 0).code !== 'document_missing').data;
 }

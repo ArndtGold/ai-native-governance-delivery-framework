@@ -557,10 +557,27 @@ function writeCodexMarketplace() {
         },
         category: pluginDefinition.category,
       },
+      { name: 'agdf-planning', source: { source: 'local', path: './plugins/agdf-planning' },
+        policy: { installation: 'AVAILABLE', authentication: 'ON_INSTALL' }, category: pluginDefinition.category },
     ],
   };
 
   write(join(generatedRoot, ".agents", "plugins", "marketplace.json"), `${JSON.stringify(marketplace, null, 2)}\n`);
+}
+
+function syncPlanningPlugin() {
+  const source = join(repoRoot, 'plugins/agdf-planning'), output = join(generatedRoot, 'plugins/agdf-planning');
+  const optional = JSON.parse(read(join(source, 'meta/agdf-planning.definition.json')));
+  if (optional.schema_version !== 1 || optional.id !== 'agdf-planning' || optional.core_capability.schema !== 'planned-ur-v1') throw Error('AGDF_PLANNING_DEFINITION_INVALID');
+  syncDirectory(source, output);
+  for (const asset of ['agdf-icon.svg', 'agdf-logo.svg']) write(join(output, 'assets', asset), read(join(sourcePluginRoot, 'assets', asset)));
+  const definition = { ...pluginDefinition, ...optional, id: optional.id, version: pluginDefinition.version,
+    codex: { ...pluginDefinition.codex, skills: './skills/', capabilities: ['Read', 'Write'],
+      defaultPrompt: ['Use AGDF Planning to clarify a planned UR.'] },
+    publicDistribution: { ...pluginDefinition.publicDistribution, publicDisplayName: optional.displayName,
+      shortDescription: optional.description } };
+  write(join(output, 'plugin.json'), renderPortablePluginManifest(definition));
+  write(join(output, '.codex-plugin/plugin.json'), renderCodexPluginManifest(definition));
 }
 
 export function syncPackageAssets({
@@ -615,6 +632,7 @@ export function syncPackageAssets({
   if (opencode) syncOpenCodeRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
+  syncPlanningPlugin();
   syncDirectory(join(sourcePluginRoot, "host-templates", "shared", "hooks"), join(generatedCodexPluginRoot, "hooks"));
   // Only the runtime Claude manifest declares it; Codex sees the files inert, Copilot never receives them.
   syncDirectory(join(sourcePluginRoot, "host-templates", "claude", "companion"), join(generatedCodexPluginRoot, "companion"));

@@ -1,0 +1,50 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Independent planned URs, backlog retirement and optional Codex planning
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Einzelne geplante URs unabhängig pflegen und ausdrücklich in genau einen nachvollziehbaren Core-Run übergeben; das Pflicht-Masterbacklog ablösen.
+
+- Umfang: Core versteht planned mit einem UR je Vorhaben, Identität, verständlichem Titel und Priorität. Der vorhandene UR-Owner erhält einen Planungsmodus ohne Run. Ein optionales Codex-Planungspaket organisiert den Dialog; Core funktioniert ohne dieses Paket. Planung endet beim UR, bestehende Run-/Artefaktpfade und Freigaben bleiben erhalten.
+
+- Änderung: Native Host-Tests ausschließlich mit Codex CLI, mit Core allein und mit Planungserweiterung. Native Desktop-/Cockpit-Tests entfallen; UI-Verhalten bleibt durch automatisierte Komponenten-/Browserprüfungen abgesichert. Desktop-Qualifikation wird nicht behauptet. Deine bestätigte Quellenrevision ist angewendet; UR und Analysen bleiben erhalten.
+
+- AC-001: Initialisierung, reguläre Run-Schritte, Freigaben, Revision, Abschluss und Pflichtprüfungen funktionieren ohne erforderliches oder neu geschriebenes Live-Masterbacklog.
+
+- AC-002: UR-Entwürfe unabhängig speichern, ändern und priorisieren: hoch, normal, niedrig; Standard normal. Gespeicherter Stand und offene Fragen sind sichtbar. Ungültige, doppelte, unsichere oder veraltete Schreibversuche beschädigen keine anderen Vorhaben.
+
+- AC-003: Gemeinsamer UR-Owner und gemeinsame Inhaltsregeln; Planung braucht keinen Run und erzeugt weder Freigabe noch PRD, SD oder TP.
+
+- AC-004: Core, CLI/MCP und Cockpit leiten Planungs-/Run-Fakten aus denselben Quellen ab. Titel, Herkunft und Verknüpfungen sind sichtbar; Auswahl startet nichts. Runs erscheinen auch ohne Backlog-Zeile. Leer, teilweise, ungültig und nicht verfügbar bleiben unterscheidbar; UI-Nachweise erfolgen automatisiert.
+
+- AC-005: Separat wählbares Codex-Paket für Erfassung, Klärung, Verfeinerung und Priorisierung. Core kann ohne Paket prüfen, planen, ausdrücklich übergeben oder direkt einen Run anlegen. Abhängigkeiten werden vor Änderungen geprüft; Deaktivierung löscht keine Arbeit. Native Prüfung über Codex CLI.
+
+- AC-006: Ausdrückliche Übergabe bindet den ausgewählten aktuellen UR-Stand und seine Herkunft. Unbrauchbare oder geänderte Quellen führen zu sichtbarem Konflikt. Der Run verlangt seine normale UR-Prüfung und Freigabe.
+
+- AC-007: Wiederholung und Recovery lösen die ursprüngliche Übergabe auf; kein zweiter Run für eine bereits übergebene Planungsidentität. Der Planungsstand bleibt historischer Bezug, aktive Änderungen gehören zum Core und schützen freigegebene Quellen.
+
+- AC-008: Jede alte Zeile wird mit Inhalt, Priorität, Links und Historie zugeordnet oder ausdrücklich als ungeklärt erhalten. Keine erfundenen Anforderungen/Freigaben, kein Verlust bei Unterbrechung und keine umgeschriebenen geschützten Nachweise. Reale Migration braucht eine ausdrückliche Aktion.
+
+- AC-009: Gezielte Parallelitäts-/Unterbrechungsprüfungen belegen unabhängigen Fortschritt ohne künstliche Backlog-Sperren. Konflikte derselben Ressource und echte Recovery-Invarianten bleiben geschützt. Kein Versprechen konfliktfreien Git oder ungemessener Beschleunigung.
+
+- AC-010: Oberflächen nennen konkreten Fehler, Quelle und zulässigen nächsten Schritt, einschließlich Wiederholung bei vorübergehenden Lesefehlern. Unsicherheit wird nicht als Erfolg, Leere oder Berechtigung ausgegeben. Codex CLI wird nativ geprüft, UI-Verhalten automatisiert.
+
+- AC-011: Regeln, Vorlagen, Pakete, Hilfe und Leser/Writer werden konsistent angepasst. Betroffene Repository-Prüfungen und vollständige Pflicht-CI bleiben erforderlich, native Qualifikation nur für den tatsächlichen Codex-CLI-Kandidaten. Andere native Oberflächen werden nicht ungeprüft qualifiziert; menschliche UAT bleibt getrennt.
+
+- Entscheidungen: Vollständiges optionales Codex-Planungspaket und hostneutraler Core bleiben beschlossen. Die Nachweisgrenze wurde auf deinen Wunsch auf Codex CLI begrenzt. Die drei Prioritätswerte, ausdrückliche Übergabe und verlustfreier Erhalt bleiben unverändert. Technische Ablage/Paketverdrahtung/Recovery gehören in SD, konkrete Aufgaben und Nachweisverfahren in TP. Keine offene before_prd-Frage.
+
+- Risiken: Migration, alte Journale/Writer-Versionen und unabhängige Schreibvorgänge brauchen konkrete Design-/Testnachweise. Keine globale Statusdatei oder zweiter UR-Autor. Bisher keine Feature-Implementierung, ausgeführte Testserie oder menschliche Abnahme; die frühere Runtime-Korrektur beweist diese Funktion nicht.
+
+- Nächster Schritt: Diese neue PRD-Fassung mit Approval: PRD freigeben. Danach folgen erneuerte SD- und TP-Fassungen; erst freigegebener TP samt erforderlicher Vorbereitung erlaubt Umsetzung. Installation, reale Migration, VCS und Release behalten ihre tatsächlichen Autorisierungsgrenzen.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74` · Produktanforderungen · Revision: `7d45a3bc-ff1a-4026-9d8a-4fd1518e3447`
+
+SHA-256: `sha256:3e14f3908832efaf379a4322e1bb4e36ab6c1fe9be418411617497e8cc07e2d9`

@@ -14,6 +14,7 @@ function operation(name, fields = {}, optional = []) {
 export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
   operation('snapshot', { run_id: run }, ['run_id']),
   operation('backlog_titles', { snapshot_id: id, row_ids: { type: 'array', minItems: 1, maxItems: 12, uniqueItems: true, items: id } }),
+  operation('planned', { snapshot_id: id, row_id: id }),
   operation('run', { snapshot_id: id, run_id: run }),
   operation('artifact_readiness', { snapshot_id: id, run_id: run, gate: { type: 'string', enum: ['UR', 'PRD', 'SD', 'TP'] }, expected_revision_id: id }),
   operation('document', { snapshot_id: id, run_id: run, resource_id: id }),

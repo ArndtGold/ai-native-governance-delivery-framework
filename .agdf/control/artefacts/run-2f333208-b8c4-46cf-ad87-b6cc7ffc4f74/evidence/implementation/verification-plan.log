@@ -1,0 +1,175 @@
+TAP version 13
+# @agdf/mcp-server@0.20.0 already published with identical bytes; no upload.
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, darwin.
+# Subtest: delivery mode CI cells preserve both routes and both protocol versions within isolated jobs
+ok 1 - delivery mode CI cells preserve both routes and both protocol versions within isolated jobs
+  ---
+  duration_ms: 12.973682
+  type: 'test'
+  ...
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 2 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 144.735657
+  type: 'test'
+  ...
+# Subtest: the workflow matrix exposes functional labels for repository, release and published MCP callers
+ok 3 - the workflow matrix exposes functional labels for repository, release and published MCP callers
+  ---
+  duration_ms: 1332.741273
+  type: 'test'
+  ...
+# Subtest: compact graph names retain purpose, platform, partition and revision scenario
+ok 4 - compact graph names retain purpose, platform, partition and revision scenario
+  ---
+  duration_ms: 29.084375
+  type: 'test'
+  ...
+# Subtest: measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+ok 5 - measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+  ---
+  duration_ms: 13.757596
+  type: 'test'
+  ...
+# Subtest: Windows package, archive and wrapper consumers keep independent budgets and complete ownership
+ok 6 - Windows package, archive and wrapper consumers keep independent budgets and complete ownership
+  ---
+  duration_ms: 13.257643
+  type: 'test'
+  ...
+# Subtest: the unchanged timing fixture runs once per lane without preceding fault or pressure cases
+ok 7 - the unchanged timing fixture runs once per lane without preceding fault or pressure cases
+  ---
+  duration_ms: 27.147677
+  type: 'test'
+  ...
+# Subtest: retained Main-CI Windows costs cannot rebuild the exhausted MCP partition
+ok 8 - retained Main-CI Windows costs cannot rebuild the exhausted MCP partition
+  ---
+  duration_ms: 14.048461
+  type: 'test'
+  ...
+# Subtest: measured packed control-command parts run in separate Windows partitions
+ok 9 - measured packed control-command parts run in separate Windows partitions
+  ---
+  duration_ms: 13.213506
+  type: 'test'
+  ...
+# Subtest: graph matrices route every existing partition exactly once for every caller
+ok 10 - graph matrices route every existing partition exactly once for every caller
+  ---
+  duration_ms: 1040.946401
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 11 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 7.186587
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 12 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 3217.985978
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 13 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 38.931699
+  type: 'test'
+  ...
+# Subtest: published preparation substitutes only create-agdf and preserves the exact reviewed SDK closure
+ok 14 - published preparation substitutes only create-agdf and preserves the exact reviewed SDK closure
+  ---
+  duration_ms: 0.709939
+  type: 'test'
+  ...
+# Subtest: a failed locked install restores the original checkout lock byte-for-byte
+ok 15 - a failed locked install restores the original checkout lock byte-for-byte
+  ---
+  duration_ms: 5.017627
+  type: 'test'
+  ...
+# Subtest: recovery distinguishes absent versions from unknown responses and rejects foreign published sources
+ok 16 - recovery distinguishes absent versions from unknown responses and rejects foreign published sources
+  ---
+  duration_ms: 1.429359
+  type: 'test'
+  ...
+# Subtest: recovery never uploads an existing version and fails closed for a byte mismatch
+ok 17 - recovery never uploads an existing version and fails closed for a byte mismatch
+  ---
+  duration_ms: 1.318122
+  type: 'test'
+  ...
+# Subtest: archive comparison accepts recompression only, while verifying registry integrity and every tar byte
+ok 18 - archive comparison accepts recompression only, while verifying registry integrity and every tar byte
+  ---
+  duration_ms: 1.720244
+  type: 'test'
+  ...
+# Subtest: recovery workflow preserves all verification, source binding, provenance and bootstrap dependencies
+ok 19 - recovery workflow preserves all verification, source binding, provenance and bootstrap dependencies
+  ---
+  duration_ms: 4.889493
+  type: 'test'
+  ...
+# Subtest: published-release verification reuses exact completed source checks and has no upload permission or command
+ok 20 - published-release verification reuses exact completed source checks and has no upload permission or command
+  ---
+  duration_ms: 1.873238
+  type: 'test'
+  ...
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 21 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 0.568075
+  type: 'test'
+  ...
+# Subtest: build shares CI checks without recursive builds; evidence preparation remains possible
+ok 22 - build shares CI checks without recursive builds; evidence preparation remains possible
+  ---
+  duration_ms: 0.630842
+  type: 'test'
+  ...
+# Subtest: real npm build failures prevent assembly and preserve stored evidence
+ok 23 - real npm build failures prevent assembly and preserve stored evidence
+  ---
+  duration_ms: 15921.995671
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 24 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 2.689045
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 25 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 201.357621
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 26 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 7016.119325
+  type: 'test'
+  ...
+# Subtest: both snapshot modes export an index larger than the default subprocess output buffer
+ok 27 - both snapshot modes export an index larger than the default subprocess output buffer
+  ---
+  duration_ms: 8344.456164
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 37902.890305

@@ -7,7 +7,10 @@ import { readRunInventory } from "../control-state/run-inventory-reader.js";
 import { runSealState } from "../control-state/run-seal.js";
 import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
 import { pendingRunStepIds } from "../control-state/run-step-pending.js";
-import { doctorRequiredFiles } from "./required-files.js";
+import { requiredControlFiles } from "./required-files.js";
+import { readControlLayout, PLANNED_LAYOUT, inspectLayoutMaintenance } from '../control-state/control-layout.js';
+import { readPendingRunStepJournal } from '../control-state/run-step-transaction.js';
+import { resolutionRecordVersion } from '../control-state/input-resolution.js';
 import { analyzeDeliveryMap } from "./delivery-map.js";
 import { evaluateVerifiedChange } from "./verified-change.js";
 import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState, resolvedArtefactFile } from "./run-state.js";
@@ -239,7 +242,21 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
 function sharedDoctorContext(targetDir) {
   return memoizeControlRead(`doctorShared:${targetDir}`, () => {
     const findings = [];
+    const maintenance = inspectLayoutMaintenance(targetDir);
+    if (maintenance.state !== 'none') addFinding(findings, 'block', 'AGDF_CONTROL_MAINTENANCE_REQUIRED',
+      'A planned-layout cutover is pending or cannot be verified.', '.agdf/control/maintenance/PLANNED_LAYOUT_PENDING.json',
+      'Inspect planned_layout.apply/original-UUID and recover only the original confirmed operation.');
+    let planned = false;
+    try { planned = readControlLayout(targetDir).layout === PLANNED_LAYOUT; }
+    catch (error) {
+      // Missing configuration is already reported by the existing setup checks.
+      if (existsSync(join(targetDir, '.agdf/control/config.json'))) addFinding(findings, 'block', error.message,
+        'The control layout cannot be read safely.', '.agdf/control/config.json', 'Restore a supported contained configuration.');
+    }
     for (const pendingId of pendingRunStepIds(targetDir)) {
+      if (planned) {
+        try { if (resolutionRecordVersion(readPendingRunStepJournal(targetDir, pendingId)) === 6) continue; } catch {}
+      }
       addFinding(
         findings,
         "block",
@@ -263,7 +280,9 @@ function sharedDoctorContext(targetDir) {
         );
       }
     }
-    const missing = doctorRequiredFiles.filter(
+    let required;
+    try { required = requiredControlFiles(targetDir); } catch { required = ['.agdf/control/config.json']; }
+    const missing = required.filter(
       (relativePath) => !(relativePath.endsWith("AGDF_RUN.md") && hasCanonicalRuns) && !existsSync(join(targetDir, relativePath)),
     );
 
@@ -282,6 +301,7 @@ function sharedDoctorContext(targetDir) {
       );
     }
     if (missing.length === 0) {
+      if (!planned) {
       const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
       const backlog = readTargetFile(targetDir, backlogPath);
       parseBacklogSection(markdownSection(backlog, "Active Backlog"), findings, backlogPath);
@@ -299,6 +319,8 @@ function sharedDoctorContext(targetDir) {
           backlogPath,
           "Add the active item or document that no governed delivery item is active.",
         );
+      }
+
       }
 
       const sotPath = join(".agdf", "control", "SOT_REGISTRY.md");

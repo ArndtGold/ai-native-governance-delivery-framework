@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "native_qualified": false,
+  "candidate": {
+    "schema_version": 1,
+    "data_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-planned-corrected-Iw1svq",
+    "core": {
+      "root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-planned-corrected-Iw1svq/marketplaces/agdf",
+      "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-planned-corrected-Iw1svq/marketplaces/agdf/plugins/agdf",
+      "install_version": "0.20.2+codex.local-826ca9884801",
+      "source_digest": "826ca9884801494b1650a5d2a716d4cace45106657653537df15f193c7d30245",
+      "runtime_digest": "f2294181292ee7155483b592737300d74b5e22cb768a5e2d692d0e362dcb8b9b"
+    },
+    "planning": {
+      "root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-planned-corrected-Iw1svq/marketplaces/agdf-planning/8b32f58de5790be47a3953e91de3d3d30d2ce1a270262ade131a6d57ca5eff64",
+      "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-planned-corrected-Iw1svq/marketplaces/agdf-planning/8b32f58de5790be47a3953e91de3d3d30d2ce1a270262ade131a6d57ca5eff64/plugins/agdf-planning",
+      "install_version": "0.20.2+codex.local-8b32f58de579",
+      "source_digest": "8b32f58de5790be47a3953e91de3d3d30d2ce1a270262ade131a6d57ca5eff64"
+    },
+    "machine_installed": false,
+    "native_qualified": false,
+    "correction": "Register planned reads and their availability in the existing MCP error owner",
+    "authorizes": false
+  },
+  "cases": [
+    {
+      "name": "N-CORE",
+      "session": "01a192eb-05b9-7cf3-96c2-98f41ea0d218",
+      "fixture": {
+        "phase": "core",
+        "plan_id": "plan-92f42be5-fcb7-488a-ad8e-42ed96904d2f",
+        "plan_digest": "5c1894fff29b5ecbcda575027d8283c8f7752937ffaa79e98b63fa578ca432b6",
+        "runs": [
+          "run-34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1",
+          "run-8c534ac8-2ff1-4512-bd2b-56343f23eddf"
+        ]
+      },
+      "predicate": "fixture_pass_trace_review_pending"
+    },
+    {
+      "name": "N-PLUGIN",
+      "session": "01a192ec-7a9d-7993-9de3-701dfbeb6a3b",
+      "fixture": {
+        "phase": "planning",
+        "plan_id": "plan-2d2eed01-526d-4aeb-9662-8ac55066b366",
+        "plan_digest": "ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+        "runs": [
+          "run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1"
+        ]
+      },
+      "predicate": "fixture_pass_trace_review_pending"
+    }
+  ],
+  "restored": true,
+  "auth": "existing_chatgpt_login",
+  "credential_copy": false,
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "low",
+  "native_cockpit_claim": false,
+  "repository_control_unchanged": true
+}

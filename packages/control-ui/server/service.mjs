@@ -89,6 +89,7 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     let operation, selector;
     if (url.pathname === '/api/snapshot') operation = 'snapshot';
     else if (url.pathname === '/api/backlog-titles') operation = 'backlog_titles';
+    else if (/^\/api\/planned\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'planned'; selector = url.pathname.slice(13); }
     else if (url.pathname === '/api/freshness') operation = 'freshness';
     else if (url.pathname === '/api/changes') operation = 'changes';
     else if (/^\/api\/runs\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'run'; selector = url.pathname.slice(10); }

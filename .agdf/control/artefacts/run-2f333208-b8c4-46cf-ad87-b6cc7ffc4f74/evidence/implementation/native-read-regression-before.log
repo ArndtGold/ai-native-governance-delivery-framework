@@ -1,0 +1,54 @@
+TAP version 13
+# Subtest: SCN-025/027: actual legacy-negotiated STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+not ok 1 - SCN-025/027: actual legacy-negotiated STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+  ---
+  duration_ms: 4757.509024
+  type: 'test'
+  location: '/Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:12:37'
+  failureType: 'testCodeFailure'
+  error: '{"content":[{"type":"text","text":"{\\n  \\"schema_version\\": \\"1\\",\\n  \\"contract_version\\": 1,\\n  \\"outcome\\": \\"evaluator_error\\",\\n  \\"terminal\\": true,\\n  \\"authorizes\\": false,\\n  \\"operation\\": null,\\n  \\"runtime\\": {\\n    \\"machine_validation\\": \\"local_exact_version_digest\\",\\n    \\"plugin_root\\": \\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-0CNQFg/node_modules/create-agdf/\\",\\n    \\"runtime_digest\\": \\"1d5a0dea072ae24b2ff1268d916e513bcf09b538fc92e86ec291422e4b6100cc\\",\\n    \\"provenance_status\\": \\"matched\\",\\n    \\"expected_version\\": \\"0.20.2\\"\\n  },\\n  \\"target\\": null,\\n  \\"report\\": null,\\n  \\"presentation\\": null,\\n  \\"recovery\\": {\\n    \\"action\\": \\"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation.\\"\\n  },\\n  \\"host_action\\": {\\n    \\"mode\\": \\"transmit_recovery_verbatim_and_stop\\",\\n    \\"source\\": \\"recovery.action\\",\\n    \\"text\\": \\"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation.\\",\\n    \\"allow_surrounding_text\\": false,\\n    \\"may_request_run_or_evidence\\": false\\n  },\\n  \\"timing\\": {\\n    \\"wrapper_ms\\": null,\\n    \\"input_ms\\": null,\\n    \\"target_ms\\": null,\\n    \\"control_ms\\": null,\\n    \\"render_ms\\": null,\\n    \\"total_ms\\": 285.87257199999976,\\n    \\"measurement_state\\": \\"unavailable\\",\\n    \\"unavailable_reason\\": \\"operation_did_not_complete\\"\\n  },\\n  \\"diagnostics\\": [\\n    {\\n      \\"code\\": \\"tool_result_invalid\\"\\n    }\\n  ]\\n}"},{"type":"text","text":"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation."}],"structuredContent":{"schema_version":"1","contract_version":1,"outcome":"evaluator_error","terminal":true,"authorizes":false,"operation":null,"runtime":{"machine_validation":"local_exact_version_digest","plugin_root":"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-0CNQFg/node_modules/create-agdf/","runtime_digest":"1d5a0dea072ae24b2ff1268d916e513bcf09b538fc92e86ec291422e4b6100cc","provenance_status":"matched","expected_version":"0.20.2"},"target":null,"report":null,"presentation":null,"recovery":{"action":"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation."},"host_action":{"mode":"transmit_recovery_verbatim_and_stop","source":"recovery.action","text":"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation.","allow_surrounding_text":false,"may_request_run_or_evidence":false},"timing":{"wrapper_ms":null,"input_ms":null,"target_ms":null,"control_ms":null,"render_ms":null,"total_ms":285.87257199999976,"measurement_state":"unavailable","unavailable_reason":"operation_did_not_complete"},"diagnostics":[{"code":"tool_result_invalid"}]},"isError":true}'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: true
+  operator: 'notStrictEqual'
+  stack: |-
+    call (file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:21:28)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:48:20
+    async withStdioClient (file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:60:5)
+    async TestContext.<anonymous> (file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:18:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: SCN-025/027: actual 2026-07-28 STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+not ok 2 - SCN-025/027: actual 2026-07-28 STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+  ---
+  duration_ms: 4497.170389
+  type: 'test'
+  location: '/Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:12:37'
+  failureType: 'testCodeFailure'
+  error: '{"_meta":{"io.modelcontextprotocol/serverInfo":{"name":"agdf-mcp","version":"0.20.2"}},"content":[{"type":"text","text":"{\\n  \\"schema_version\\": \\"1\\",\\n  \\"contract_version\\": 1,\\n  \\"outcome\\": \\"evaluator_error\\",\\n  \\"terminal\\": true,\\n  \\"authorizes\\": false,\\n  \\"operation\\": null,\\n  \\"runtime\\": {\\n    \\"machine_validation\\": \\"local_exact_version_digest\\",\\n    \\"plugin_root\\": \\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-7S1EM5/node_modules/create-agdf/\\",\\n    \\"runtime_digest\\": \\"1d5a0dea072ae24b2ff1268d916e513bcf09b538fc92e86ec291422e4b6100cc\\",\\n    \\"provenance_status\\": \\"matched\\",\\n    \\"expected_version\\": \\"0.20.2\\"\\n  },\\n  \\"target\\": null,\\n  \\"report\\": null,\\n  \\"presentation\\": null,\\n  \\"recovery\\": {\\n    \\"action\\": \\"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation.\\"\\n  },\\n  \\"host_action\\": {\\n    \\"mode\\": \\"transmit_recovery_verbatim_and_stop\\",\\n    \\"source\\": \\"recovery.action\\",\\n    \\"text\\": \\"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation.\\",\\n    \\"allow_surrounding_text\\": false,\\n    \\"may_request_run_or_evidence\\": false\\n  },\\n  \\"timing\\": {\\n    \\"wrapper_ms\\": null,\\n    \\"input_ms\\": null,\\n    \\"target_ms\\": null,\\n    \\"control_ms\\": null,\\n    \\"render_ms\\": null,\\n    \\"total_ms\\": 288.36334599999986,\\n    \\"measurement_state\\": \\"unavailable\\",\\n    \\"unavailable_reason\\": \\"operation_did_not_complete\\"\\n  },\\n  \\"diagnostics\\": [\\n    {\\n      \\"code\\": \\"tool_result_invalid\\"\\n    }\\n  ]\\n}"},{"type":"text","text":"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation."}],"structuredContent":{"schema_version":"1","contract_version":1,"outcome":"evaluator_error","terminal":true,"authorizes":false,"operation":null,"runtime":{"machine_validation":"local_exact_version_digest","plugin_root":"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-7S1EM5/node_modules/create-agdf/","runtime_digest":"1d5a0dea072ae24b2ff1268d916e513bcf09b538fc92e86ec291422e4b6100cc","provenance_status":"matched","expected_version":"0.20.2"},"target":null,"report":null,"presentation":null,"recovery":{"action":"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation."},"host_action":{"mode":"transmit_recovery_verbatim_and_stop","source":"recovery.action","text":"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation.","allow_surrounding_text":false,"may_request_run_or_evidence":false},"timing":{"wrapper_ms":null,"input_ms":null,"target_ms":null,"control_ms":null,"render_ms":null,"total_ms":288.36334599999986,"measurement_state":"unavailable","unavailable_reason":"operation_did_not_complete"},"diagnostics":[{"code":"tool_result_invalid"}]},"isError":true}'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: true
+  operator: 'notStrictEqual'
+  stack: |-
+    call (file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:21:28)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:48:20
+    async withStdioClient (file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:60:5)
+    async TestContext.<anonymous> (file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/mcp-server/test/planned-flow.test.js:18:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9809.327797

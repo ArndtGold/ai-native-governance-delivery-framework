@@ -4,9 +4,11 @@ import { resources } from './context.js';
 import { resolveLanguagePreference, languageConfigContent } from './language-preference.js';
 import { resolveArtefactTemplatePath } from './artefact-templates.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
+import { PLANNED_LAYOUT, LEGACY_LAYOUT } from '../control-state/control-layout.js';
 
 // Fixed canonical seeds; callers supply only language.
-export function canonicalInitPlan(languagePreference, context = resources) {
+export function canonicalInitPlan(languagePreference, context = resources, { layout = PLANNED_LAYOUT } = {}) {
+  if (![PLANNED_LAYOUT, LEGACY_LAYOUT].includes(layout)) throw Error('canonical_layout_unsupported');
   const language = typeof languagePreference === 'object' && languagePreference !== null
     ? languagePreference : resolveLanguagePreference(languagePreference, undefined, context);
   const root = context.templatesRoot;
@@ -17,9 +19,9 @@ export function canonicalInitPlan(languagePreference, context = resources) {
     if (file.status !== 'valid' || lstatSync(file.path).size > 131072) throw Error('canonical_init_resources_unavailable');
     return readFileSync(file.path, 'utf8');
   };
-  const files = [{ path: '.agdf/control/config.json', content: languageConfigContent(language) },
+  const files = [{ path: '.agdf/control/config.json', content: languageConfigContent(language, layout === PLANNED_LAYOUT ? { control_layout: layout } : {}) },
     { path: '.agdf/control/README.md', content: load(dirname(root), 'README.md') }];
-  for (const name of ['MASTER_BACKLOG.md', 'SOT_REGISTRY.md', 'CONTEXT_GRAPH.md', 'AGENT_QUALITY_CONTRACTS.json'])
+  for (const name of [...(layout === LEGACY_LAYOUT ? ['MASTER_BACKLOG.md'] : []), 'SOT_REGISTRY.md', 'CONTEXT_GRAPH.md', 'AGENT_QUALITY_CONTRACTS.json'])
     files.push({ path: `.agdf/control/${name}`, content: load(root, name) });
   for (const id of ['UR', 'BROWNFIELD_REVIEW', 'VERIFIED_CHANGE', 'PRD', 'UX_INTENT_DEFINITION', 'SD', 'TP', 'QA_REPORT', 'OR']) {
     resolveArtefactTemplatePath(id, context);

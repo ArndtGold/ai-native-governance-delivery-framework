@@ -25,7 +25,8 @@ test('SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR
     expect(await page.locator('.undertaking-list li h3').first().textContent()).toBe('Technischer Backlog 39');
     await expect(page.getByText('UR: Verständliches Vorhaben 39',{exact:true})).toBeAttached();
     expect(batches.flat().length).toBeLessThan(12); expect(maxActive).toBe(1);
-    expect(bodies.every(b=>b.data.file_count<=batches[bodies.indexOf(b)].length+1)).toBe(true);
+    // Layout selection reads config in addition to the backlog and selected URs.
+    expect(bodies.every(b=>b.data.file_count<=batches[bodies.indexOf(b)].length+2)).toBe(true);
     await expect(page.getByRole('button',{name:'Technischer Backlog 0',exact:true})).toBeAttached();
     await expect(page.locator('.row-source[open]')).toHaveCount(0);
     await expect(page.locator('.undertaking-list li').first().getByText('Gespeicherter Stand laut Backlog: In progress', {exact:true})).toBeVisible();

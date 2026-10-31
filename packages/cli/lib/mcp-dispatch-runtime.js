@@ -69,10 +69,10 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
   const execute = input => mcpControlContinuation(input, services.dispatch(input), commandGroups);
   const executeInspect = services.inspect;
   const protocol = composeMcpProtocolRuntime({ surface, inspected, commandGroups, execute, executeInspect, inputContext, executionContext,
-    lookupOriginal: (root, input) => input.command?.kind === 'material.stage' ? services.material.originalInput(input)
+    lookupOriginal: (root, input) => ['material.stage', 'planned_material.stage'].includes(input.command?.kind) ? services.material.originalInput(input)
       : input.command?.kind === 'presentation.deliver' ? delivery.originalInput(input)
         : runtimeControl?.originalInput?.(input) ?? inspectRunInputResolution(root, input),
-    executeCommand: (group, input, signal, host) => input.command.kind === 'material.stage' ? services.material.stage(input)
+    executeCommand: (group, input, signal, host) => ['material.stage', 'planned_material.stage'].includes(input.command.kind) ? services.material.stage(input)
       : input.command.kind === 'presentation.deliver' ? delivery.deliver(input, host) : services.command(group, input) });
   return Object.freeze({ ...protocol,
     verifyProducer,

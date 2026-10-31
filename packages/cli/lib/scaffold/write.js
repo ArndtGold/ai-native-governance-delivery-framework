@@ -1,16 +1,21 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pluginDefinition } from "../cli/runtime-context.js";
+import { atomicWrite } from '#agdf-core/owned-file-lock.js';
+import { markControlMutationEffect } from '#agdf-core/control-state/control-layout.js';
+import { hasSymlinkComponent } from '#agdf-core/control-state/contained-file.js';
 
 export function writeGeneratedFile(targetDir, relativePath, content, force, allowOverwrite = false) {
   const outputPath = join(targetDir, relativePath);
+  if (relativePath.replaceAll('\\', '/') === '.agdf/control/config.json' && hasSymlinkComponent(targetDir, '.agdf/control/config.json')) throw Error('AGDF_CONTROL_PATH_INVALID');
   mkdirSync(dirname(outputPath), { recursive: true });
 
   if (existsSync(outputPath) && !force && !allowOverwrite) {
     throw new Error(`Refusing to overwrite existing file: ${relativePath}. Re-run with --force if you want to replace it.`);
   }
 
-  writeFileSync(outputPath, content, "utf8");
+  if (relativePath.replaceAll('\\', '/') === '.agdf/control/config.json') { markControlMutationEffect(); atomicWrite(outputPath, content); }
+  else writeFileSync(outputPath, content, 'utf8');
 }
 
 export function removeOwnedLegacyOpenCodeAgents(targetDir) {

@@ -6,6 +6,7 @@ import { prepareRunContentState } from '../control-evaluation/run-state.js';
 import { evaluateVerifiedChange, extractField, parseVerifiedChangePathList, readVerifiedChangeRecord } from '../control-evaluation/verified-change.js';
 import { filled, isPlaceholderValue } from '../control-evaluation/shared.js';
 import { closeoutConfirmation, closeoutContextDigest } from '../control-evaluation/closeout-readiness.js';
+import { currentOwnedMutationClaimPaths } from './control-layout.js';
 
 // These exact transient paths belong to the locks/journal of the active recording
 // owner. Caller paths, foreign locks and arbitrary suffixes are never ignored.
@@ -13,7 +14,8 @@ export function ownedRecordingGitObservation(observation, runId) {
   const transient = new Set([`.agdf/control/runs/${runId}/RUN_STATE.md.lock`, '.agdf/control/MASTER_BACKLOG.md.lock',
     `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`]);
   return { gitValue: observation?.gitValue, gitPathList(root, args) {
-    return observation?.gitPathList?.(root, args)?.filter(p => !transient.has(p)) ?? null;
+    const ownClaims = new Set(currentOwnedMutationClaimPaths(root));
+    return observation?.gitPathList?.(root, args)?.filter(p => !transient.has(p) && !ownClaims.has(p)) ?? null;
   } };
 }
 const invariantFields = ['related_ur', 'escalation_target', 'canonical_owner', 'allowed_source_paths', 'allowed_derived_paths',

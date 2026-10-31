@@ -24,8 +24,8 @@ test('SCN-061/063/080: production overview reads only backlog even with >64 MiB 
     for (let i = 0; i < 3; i++) fs.writeFileSync(join(history, i + '.bin'), large);
     const reads = [], reader = createCockpitReader(f.root, { limits: { total: 64 * 1024 ** 2 }, checkpoint(stage, path) { if (stage === 'file_read') reads.push(path); } });
     const first = reader.snapshot();
-    assert.equal(first.state, 'available'); assert.equal(first.data.kind, 'backlog'); assert.equal(first.data.file_count, 1);
-    assert.deepEqual(reads, [join(f.root, '.agdf/control/MASTER_BACKLOG.md')]);
+    assert.equal(first.state, 'available'); assert.equal(first.data.kind, 'backlog'); assert.equal(first.data.file_count, 2, 'layout config and legacy backlog are captured; unrelated history is excluded');
+    assert.deepEqual(reads, [join(f.root, '.agdf/control/config.json'), join(f.root, '.agdf/control/MASTER_BACKLOG.md')]);
     assert.equal(first.data.entries[0].original_key, '`fixture-a`'); assert.equal(first.data.entries[0].stored_status, 'In progress');
     assert.equal(first.data.entries[1].stored_status, 'Superseded'); assert.equal(first.data.entries[0].stored_next_step, 'Stored next step');
     fs.writeFileSync(join(history, '0.bin'), 'unrelated'); assert.equal(reader.freshness(first.snapshot_id).data.unchanged, true);
@@ -41,7 +41,7 @@ test('SCN-062/083: duplicate/malformed pointers stay identifiable and nonselecta
     const partial = reader.snapshot(); assert.equal(partial.state, 'partial');
     assert.equal(partial.data.entries.filter(r => r.key === 'fixture-a').every(r => !r.selectable), true);
     assert.equal(partial.data.entries.find(r => r.key === 'malformed').selectable, false);
-    assert.equal(reads.length, 1); assert.deepEqual(treeBytes(f.root), before);
+    assert.equal(reads.length, 2); assert.deepEqual(treeBytes(f.root), before);
     fs.writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), Buffer.from([255]));
     assert.equal(reader.snapshot().code, 'backlog_unsupported');
     fs.rmSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md')); const missing = reader.snapshot();

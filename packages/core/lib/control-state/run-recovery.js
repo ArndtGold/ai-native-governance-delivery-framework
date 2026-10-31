@@ -12,6 +12,7 @@ import { duplicateArtefactRowTypes, parseControlState, parseRunState, scalarFiel
 import { applyRunSeals, artefactFileDigest, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths, runSealState } from "./run-seal.js";
 import { runPath } from "./run-state-reader.js";
 import { atomicWrite, recoveryRunContent, unapproveRecoveryApprovals, withRunLock, writeRunRecoveryLocked } from "./run-state-writer.js";
+import { readControlLayout, PLANNED_LAYOUT, withControlMutation, markControlMutationEffect } from './control-layout.js';
 
 const sha256 = (value) => `sha256:${createHash("sha256").update(value, "utf8").digest("hex")}`;
 const digestContent = (content) => sha256(canonicalRunText(content));
@@ -169,6 +170,12 @@ function createJournal(path, record) {
 }
 
 export function previewRunRecovery(root, runId, options = {}) {
+  const { path } = safeRunFiles(root, runId);
+  return withRunLock(path, () => withControlMutation(root, { resource: `recovery-preview:${runId}` },
+    () => publishRecoveryPreview(root, runId, options)));
+}
+
+function publishRecoveryPreview(root, runId, options) {
   const inspection = inspectRunRecovery(root, runId, options);
   if (inspection.artefacts.some((entry) => entry.status !== "valid" && !entry.planned)) {
     throw new Error(inspection.artefacts.some((entry) => entry.status === "invalid")
@@ -197,6 +204,7 @@ export function previewRunRecovery(root, runId, options = {}) {
   preview.confirmation = PREVIEW_CONFIRMATION(runId, previewId, preview.preview_digest);
   const dir = previewDirectory(runDir);
   const journalPath = join(dir, `${previewId}.json`);
+  markControlMutationEffect();
   createJournal(journalPath, preview);
   return Object.freeze({
     schema_version: "1", outcome: "previewed", run_id: runId, preview_id: previewId,
@@ -238,6 +246,8 @@ export function applyRunRecovery(root, { runId, previewId, confirmation }, hooks
   const { path: journalPath, preview } = readPreview(root, runDir, runId, previewId);
   if (confirmation !== preview.confirmation) throw new Error("AGDF_RECOVERY_CONFIRMATION_REQUIRED");
   return withRunLock(path, () => {
+    const backlogResult = revision => readControlLayout(root).layout === PLANNED_LAYOUT ? { backlog: 'not_applicable', backlog_reason: null }
+      : { backlog: 'pending', backlog_reason: 'run_only_recovery', backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${revision}.` };
     const lockedPreview = readPreview(root, runDir, runId, previewId).preview;
     if (lockedPreview.preview_digest !== preview.preview_digest || lockedPreview.confirmation !== confirmation) {
       throw new Error("AGDF_RECOVERY_PREVIEW_INVALID");
@@ -254,8 +264,7 @@ export function applyRunRecovery(root, { runId, previewId, confirmation }, hooks
           || !committed.valid || committed.meta.revision_id !== preview.next_revision_id
           || preview.result_revision_id !== preview.next_revision_id) throw new Error("AGDF_RECOVERY_JOURNAL_CONFLICT");
       return Object.freeze({ schema_version: "1", outcome: "already_recovered", run_id: runId, preview_id: previewId, revision_id: preview.result_revision_id,
-        backlog: "pending", backlog_reason: "run_only_recovery",
-        backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${preview.result_revision_id}.` });
+        ...backlogResult(preview.result_revision_id) });
     }
     if (preview.phase !== "prepared" && preview.phase !== "applying") throw new Error("AGDF_RECOVERY_JOURNAL_PHASE_INVALID");
     if (preview.phase === "prepared" && (currentDigest !== preview.source_content_digest
@@ -290,8 +299,7 @@ export function applyRunRecovery(root, { runId, previewId, confirmation }, hooks
     hooks.beforeJournalCommit?.();
     atomicWrite(journalPath, `${JSON.stringify(completed, null, 2)}\n`);
     return Object.freeze({ schema_version: "1", outcome: "recovered", run_id: runId,
-      backlog: "pending", backlog_reason: "run_only_recovery",
-      backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${written.meta.revision_id}.`,
+      ...backlogResult(written.meta.revision_id),
       preview_id: previewId, revision: written.meta.revision, revision_id: written.meta.revision_id,
       seal_status: runSealState(root, resultContent).status, next_gate: deriveNextGate(root, resultContent, path) });
   });

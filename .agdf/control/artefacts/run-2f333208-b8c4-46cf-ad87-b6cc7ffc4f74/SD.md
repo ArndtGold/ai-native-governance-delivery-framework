@@ -1,0 +1,251 @@
+# SD: Planned UR ownership, per-resource delivery and optional Codex planning
+
+Status: draft
+Gate: SD
+Gate approval: open
+Based on: PRD
+Date: 2026-10-31
+Owner: Arndt Gold
+Traceability contract: criteria-chain-v1
+Design Decisions contract: sd-decisions-v1
+
+## 1. Solution Overview
+
+Renewal under the newly approved CLI-only qualification PRD: native host tests are restricted to Codex CLI (Core-only and Core plus the optional planning package). Cockpit/UI behavior remains covered by automated component/browser tests, without a native Desktop/Cockpit qualification claim. Architecture, product criteria and canonical owners are preserved; only the qualification boundary and approved-source binding are renewed.
+
+Implement the approved PRD through the existing Core command, transaction, UR-authoring, inventory and presentation owners. Add a small planned-entry domain inside Core and a separately generated optional Codex planning plugin. Keep planned UR content/steering in one atomic file per undertaking; retain transaction/replay evidence locally without a saved list/status database.
+
+Normal new-layout Run mutations use the selected Run lock and a Run-local journal. They do not prepare backlog summaries, acquire MASTER_BACKLOG.md or reject another Run's backlog-free journal. Planning mutations use the selected entry lock. Handoff is a narrowly scoped entry-to-Run transaction using the existing staged creation, source binding and owned-output mechanisms. Only explicit legacy cutover needs an exclusive project maintenance epoch; ordinary operations use independent admission claims rather than an exclusive project mutex.
+
+This is a design, not evidence of implementation. The recorded prerequisite routing repair is separate. The source PRD is digest sha256:3e14f3908832efaf379a4322e1bb4e36ab6c1fe9be418411617497e8cc07e2d9; bound Review and ready UX remain subordinate inputs. User gates and the normal UR approval step are unchanged.
+
+### Source observations supporting the decisions
+
+At worktree base 8e482d913289f0d2b466128d6d2a0d8b5815f0a3 plus the documented routing repair:
+- run-backlog-writer.js holds the selected Run then backlog lock and checks pendingRunStepIds across other Runs.
+- run-step-transaction.js journals use versions 1 through 5, with optional old/next backlog bytes, owned outputs and Run revision as commit point. input-resolution.js wraps record versions as resolved/1; a new family version must preserve this wrapper.
+- run-create-command.js derives Run ID from creation UUID, stores creation effect in the staged sealed Run and replays by original identity. run-state-repository.js publishes that directory by rename and validates owned staging.
+- run-state-parser.js accepts control_state_version 2 only. run-operations.js validates exact receipt shapes/kinds. These provide explicit historical-version rejection rather than relying on ignored config fields.
+- run-seal-compute.js hashes registered artefacts and separately seals recorded approvals. MASTER_BACKLOG.md is not itself a registered Run source.
+- required-files.js and run-store-inspection.js currently make the backlog a scaffold prerequisite. canonical initialization, revision, closure and recovery also have live backlog paths.
+- run-inventory-reader.js already derives Run facts. cockpit-list.js separately uses Markdown sections, source order and backlog-wide identity. Those policy differences must be removed together.
+- UR planning is not yet implemented; current UR contract requires a Run. Package generation has one canonical plugins/agdf source root, and installed caches are derived output.
+
+No new third-party framework, service, external API or dependency major version is selected. Reuse the repository's existing Node filesystem/crypto, owned locks, command schema validator, MCP and Codex packaging dependencies. Their current repository manifests/locks are the dependency basis; no new upstream technology claim is made.
+
+## 2. Ownership And Source Of Truth
+
+| Surface or fact | Authoritative owner and canonical source | Derived consumers and boundary |
+|---|---|---|
+| Need and product acceptance | Approved Run UR and PRD; existing gate and approval owners | SD maps product criteria; no duplicate acceptance register |
+| Planned UR and local priority | New Core planned-entry reader/writer under packages/core/lib/control-state and control-inspect; .agdf/control/planned/PLAN_ID/UR.md | Optional dialogue and views consume the same entry; no sidecar status authority |
+| UR structure and semantics | Existing plugins/agdf/control/templates/artefacts/UR.md, ur-definition contract/skill and readiness owner | Planning mode and Run mode share the author; derived templates are generated |
+| Active/ended state and approvals | Existing canonical runs/RUN_ID/RUN_STATE.md, registered artefacts, receipts and seals | Extend Run inventory; preserve historical sources and gate semantics |
+| Handoff fact and origin | Exact source-bound creation receipt in resulting sealed Run; immutable Run-local origin snapshot | Entry-local pending/completion evidence supports recovery, not a second live Run status |
+| Mutation/replay/recovery | Existing run-command-service, run-owned-outputs, staged creation, owned locks and transaction families; new planned family extends these primitives | CLI/MCP expose typed results; readers never recover or write |
+| Legacy evidence and cutover | Existing control-maintenance domain extended with a dedicated planned-layout migration family | Immutable original snapshot and row dispositions are migration evidence, not a live backlog |
+| Overview and detail | Core derived combination of planned-entry inventory and readRunInventory | Core CLI/MCP/Cockpit share projection; no adapter-specific stored lifecycle |
+| Optional planning package | New plugins/agdf-planning canonical orchestration source and small Codex package definition | Generated through shared build/install owners; contains no copied Core runtime, UR template or gate engine |
+| Configuration and distribution | Existing .agdf/control/config.json and versioned plugin defaults; existing sync/build/installer owners | Layout capability is project configuration; presentation preferences retain existing precedence |
+| Governance and evidence | CONTRIBUTING.md, GOVERNANCE.md, existing review/QA/UAT/OR owners | PRs grant no merge/release/roadmap commitment; no inferred human review |
+
+Implementation should prefer small modules in the existing domains: planned-entry-contract/reader/writer, planned-handoff and planned-layout-migration. These names describe responsibilities, not permission to create parallel generic registries.
+
+## 3. Architecture Decisions
+
+- SDD-001: Store each planned UR and its minimal steering fields in one canonical UTF-8 UR.md; rationale: independent atomic edits avoid redundant metadata stores and reuse UR ownership; consequence: metadata edits change the selected source digest and require revalidation.
+- SDD-002: Extend existing fixed Core command/inspection groups with explicit target/planning-scoped variants and shared UR planning mode; rationale: pre-Run planning cannot fabricate or weaken Run bindings; consequence: strict separate envelopes and material grants need negative coverage.
+- SDD-003: Keep all new-layout ordinary Run transactions backlog-free, per-resource and versioned; rationale: current shared projection has no independent truth to protect; consequence: legacy journal readers remain frozen and new transaction versions are required.
+- SDD-004: Implement handoff as an entry-locked, source-bound compound staged Run creation with the Run publication as commit point; rationale: one durable creation receipt resolves lost responses and duplicate starts; consequence: sibling artefact publication requires owned precommit staging/recovery and explicit origin checks.
+- SDD-005: Derive one typed work inventory from entry facts and canonical Run inventory; rationale: list membership/order/status must not depend on a mutable table; consequence: Cockpit list selectors/DTO and all affected adapters change together.
+- SDD-006: Deliver AGDF Planning as a separately installable Codex skill/orchestration plugin delegating to compatible Core; rationale: optional dialogue organization must not fork UR/control/runtime authority; consequence: explicit dependency/capability diagnosis and native Codex CLI qualification precede support claims.
+- SDD-007: Use an explicit preview/apply/recover legacy-layout cutover with immutable source preservation and per-row accounting; rationale: legacy rows and pending journals cannot be discarded or silently matched; consequence: cutover has a bounded maintenance epoch and rollback is limited to owned precommit effects.
+- SDD-008: Introduce new-layout control-state version 3 with preserved v2 read/history support and explicit runtime admission; rationale: old parsers already reject unknown state versions while config-only feature flags are ignored; consequence: current active v2 state needs an audited migration, historical bytes and approval records remain unchanged.
+- SDD-009: Use independent operation admission claims plus a rare exclusive maintenance marker for actual cutover/configuration invariants; rationale: safe cutover must exclude in-flight effects without serializing ordinary independent mutations; consequence: uncertain claims or ownership block maintenance and are never removed by timeout alone.
+- SDD-010: Retain existing containment, snapshot, strict-schema, digest and presentation owners across every new path; rationale: planning/source contents are untrusted data and reads grant no authority; consequence: transient failures, stale selections, unsupported versions and uncertainty stay typed and actionable.
+- SDD-011: Extend existing generation/install/CI and review paths with candidate-bound proof of changed surfaces; rationale: no second build pipeline or test-only host claim; consequence: exact native/visible evidence remains a release/QA obligation separate from repository checks.
+
+## 4. Integration Points
+
+Core: extend strict command/record/status schemas, definition routing, material grants, canonical initialization/required-files, Run parser/history/admission and the existing transaction/recovery domains. Add planning capabilities to versioned authoring contracts and operation help; preserve preference precedence and existing Run-bound schemas.
+
+CLI: expose planned inspect/create/revise/start and layout preview/apply/recover through the shared Core service and generated help, not parallel filesystem writers. No technical Run IDs are requested to capture a need. Direct run-create remains available.
+
+MCP: add bounded variants inside existing tool groups, exact operation help and pre-Run status. Reuse content chunks and typed material staging. Fixed tool count and capability/contract projections must remain consistent with actual schemas.
+
+Cockpit/UI: replace list data authority, update selection/session invalidation, counts/filtering, state presentation and applicable recovery views together. Existing approval document/view owners remain intact; planning views do not submit gate approvals.
+
+Build/install/docs: extend existing explicit package selection for Core versus the known optional Codex package, regenerate through sync/assembly owners, validate immutable package provenance and update all affected installation/readme/help statements coherently. Existing plugin caches are outputs, never source-edit paths.
+
+Context graph: update the existing run_inventory_20261030 and run_closure_20261029 nodes at verified implementation/closeout with actual ownership and recovery facts, as routed by Brownfield. Proposed design text is not evidence of that reconciliation.
+
+### Planned-entry representation (SDD-001)
+
+Path is .agdf/control/planned/PLAN_ID/UR.md. PLAN_ID is a stable lowercase bounded identifier using the existing safe-ID character set; folder identity and declared identity must agree. Core-generated new identity is plan- followed by the original create-operation UUID, so a human never supplies a technical ID merely to begin capture. Manually maintained entries may use a valid stable slug; duplicates/mismatches are diagnosed, not rekeyed silently.
+
+Reuse the canonical UR headings and draft/open metadata. Add exactly one initial scalar field each for Planning schema: planned-ur-v1, Planning id: PLAN_ID, and Planning priority: high, normal or low. Default normal is applied only by the explicit creation writer, never used to conceal invalid authored data. Title comes from the UR H1; no redundant saved title. UR references and unanswered questions use the existing content sections. Metadata is preserved in the initial imported UR; the immutable origin snapshot binds its exact canonical bytes. Gate: UR in a planning file is descriptive template metadata and grants no actual gate or approval.
+
+Source identity is the SHA-256 of canonicalRunText of the whole file, with the existing BOM/line-ending semantics. The raw snapshot also has a byte digest when preserving exact legacy/source bytes. UR readiness distinguishes saveable incomplete draft from handoff eligibility: creation/refinement may save incomplete content, while handoff requires the normal UR authoring/readiness checks and complete clarification; no approval is granted.
+
+A per-entry lock protects create/update/priority and handoff exclusion. Use exclusive directory creation/staged rename for a new entry; existing entry updates require expected source digest. Canonical UR replacement is the mutation commit point. Entry-local immutable operation receipts and a single MUTATION_PENDING.json retain old/next content digests, operation identity, owned outputs and request digest. Before commit, rollback only exact owned effects; after commit, complete the matching receipt. Unknown bytes or mismatching operations stop. These records are transaction/history evidence; they never supply a competing editable title, priority or delivery status.
+
+After confirmed handoff, supported planning writes reject edits to that identity and return the Run link. A separate undertaking uses a new explicit identity. Read-only historical source access remains available; direct active UR revisions stay with Core.
+
+### Pre-Run command and material boundary (SDD-002 / SDD-010)
+
+Reuse existing fixed MCP groups, not one tool per planning action:
+- agdf_inspect gains planned-inventory/planned-entry selectors and an explicitly planning-scoped authoring-inputs variant returning the same version-matched UR template and bounded source chunks.
+- agdf_record gains planned_ur.create, planned_ur.replace and planned_material.stage, with an explicit planning scope, expected digest/null-on-create and original UUID. Reuse bounded material buffering with target/planning/digest grants. Active Run material.stage keeps its existing Run/revision requirements unchanged.
+- agdf_run gains run.create_from_planned for deliberate selected-source handoff. Direct run.create remains available.
+- agdf_project gains planned_layout.preview/apply/recover through the existing control-maintenance owner, with exact preview digest and concrete confirmation.
+- operation-contract/operation-status remain the help/recovery surface; pre-Run status accepts the original planning/creation operation identity without a fabricated Run.
+
+Strict discriminated schemas reject mixed Run/planning envelope fields, arbitrary file destinations, foreign target/material, mismatched expected digest, reused UUID with changed semantic input and unsupported entry/layout versions. Limits reuse current 128 KiB material/source, 16 KiB chunks and 64 KiB requests; larger legacy collections are paged rather than squeezed into one caller-authored material. An inactive/uninitialized project remains an explicit setup issue; planning must not initialize control implicitly.
+
+UR planning is an explicit branch of the existing ur-definition dispatcher/contract: source template and semantic definition stay canonical in Core. The optional plugin asks the appropriate planning questions and passes deliberate effects to this branch. Run mode retains its current selection, source binding and approval behavior. No copy of template rules belongs in the extension.
+
+### Backlog-free Run transaction and version boundary (SDD-003 / SDD-008)
+
+Refactor the live writer owner to a per-Run mutation service; historical backlog-named helpers may remain only behind legacy recovery while call sites move to accurate names. New-layout writes never call prepareRunBacklogOrSkip or synchronizeRunBacklog. Remove mandatory table updates from record/approval/revision/closure/recovery and scaffold validation. Result schemas must report no live-backlog effect, not a misleading updated status.
+
+Extend the transaction family with strict new record version 6 under resolved/1 where applicable. It retains target/run/operation/request identity, expected/next revisions, old Run digest, typed owned outputs and any immutable source-revision archive/proposal, with no backlog member. Run revision remains the commit point. Recovery validates the version's exact allowed outputs and receipt kind before rollback/roll-forward. Another Run's v6 journal is not an exclusion; same-Run pending state remains an exclusion. Preserve legacy journal versions 1-5 and their exact old/next backlog predicates under a dedicated legacy branch; do not reinterpret a stored old journal as v6 or null its backlog.
+
+New initialization and new Runs use layout planned-urs-v1 and control_state_version 3. The parser/doctor supports genuine historical v2 and current v3 with explicit layout-specific write admission; future unsupported versions stop before mutation. Current approval/seal/history algorithms and old receipt decoders remain supported unchanged. New receipt kinds/versions are added to explicit registries rather than relaxed to arbitrary JSON.
+
+Legacy cutover upgrades each active v2 Run as an audited canonical control_layout.migrate operation: revision advances, version becomes 3, exact prior current-state bytes are archived, source/approval/old receipt bytes are retained. The migration does not change artefact content, recorded approvals, fulfilled gate decisions or paths. Pending pre-migration approval presentations become stale through the changed revision and need fresh preparation; past approved records remain verified under their original bindings. Ended v2 Runs and their histories are read-only and retain exact bytes. Canonical creation and store validation accept the absence of MASTER_BACKLOG.md only in the new layout.
+
+Older 0.20.2 parsers demonstrably accept only v2 in repository source; qualification must execute old-runtime rejection against a v3 fixture, plus verify direct old creation is blocked by the absent required live backlog. This is a cooperative compatibility boundary, not filesystem access control. Real cutover requires all writers upgraded/quiescent and does not claim to neutralize a deliberately invoked old binary or manual file edits. A config feature flag alone is insufficient because old configuration readers ignore unknown fields.
+
+### Handoff transaction (SDD-004)
+
+Acquire the selected entry lock, then the deterministic Run-creation lock, then any new Run-local resources. No supported path acquires them in reverse order. Validate target/layout, exact planned digest, readiness, no pending conflicting mutation, and existing transfer evidence/origin associations. Inspect the entry's original HANDOFF_PENDING.json and derived Run origin associations before permitting a new start; missing entry-local completion evidence cannot hide an already created Run.
+
+The initial command has an original UUID and request digest containing planning identity, selected canonical digest and requested title. Resulting Run ID is run- plus that UUID, reusing creationRunId. An entry-local durable intent records this identity and exact source/version plus enumerated owned paths before publication. It is recovery evidence, not approval.
+
+Stage the copied UR, immutable PLANNED_UR.md snapshot and PLANNED_ORIGIN.json under the owned Run artefact destination before publishing the staged sealed Run directory. Origin records schema version, planning identity/path, selected canonical/raw digests, creation operation, original target context and a bounded reference to a separate immutable PLANNED_UR.md snapshot. Keeping the source snapshot separate avoids JSON encoding pushing an otherwise permitted 128 KiB UR above the source limit. Register origin and snapshot as protected non-gate artefacts in the initial sealed Run; verify their digests on subsequent Run integrity checks. Raise the current bounded authoring document-count limit from 16 to 32 for the additional source types, retaining 128 KiB per document, paged 16 KiB chunks and bounded total bytes; do not make projection unbounded. Register the initial UR as an unapproved draft through the existing UR recording semantics in the compound creation; the new run.create_from_planned creation receipt binds the origin and initial UR source at revision 1. Extend strict creation/Run-operation validators for this actual compound effect; do not synthesize an unrelated approval or pretend old run.create has the new semantics.
+
+The visible Run-directory publication is the single commit point. Inventory does not expose artefact-only staging as a Run. Before commit, validate the entry version again while holding its lock and the exact staged sources/receipt. Before-commit recovery removes or restores only verified owned staging/output, retaining the original source and journal until outcome is known. After Run publication, never delete or recreate that Run to finish entry bookkeeping: verify its exact creation receipt/origin, complete entry-local transfer evidence and return that same Run. Lost response and same-UUID replay use that receipt. A different UUID for a completed identity returns already_transferred with the existing Run; conflicting or multiple origins stop for explicit diagnosis.
+
+Planned source and immutable origin remain inspectable after completion. Later active source edits use normal UR revision; origin describes the initial selection and is not a synchronization target. Active Run gate state comes solely from canonical Core state.
+
+### Inventory and UI projection (SDD-005)
+
+Compose the existing pure Run inventory with a bounded contained planned-entry reader. Each item has kind, stable identity, readable title, source reference/digest, priority if applicable, coverage/diagnostics and permitted read/navigation actions. Transfer state is derived from verified intent/receipt/origin, never a user-editable status field. Existing active/ended Run lifecycle remains unchanged.
+
+Use deterministic category/priority/title/identity ordering: planned high, normal, low, then normalized title and stable ID; do not store a global rank. Run ordering reuses the existing inventory's deterministic policy. A handed-off source is a reference associated with its Run, not another active undertaking. Multiple matching origins are explicit ambiguity, not silently deduplicated by title.
+
+Replace Cockpit backlog Markdown section/count/order/selector policy with the shared work projection and entry/Run-scoped opaque source-bound selectors. Retain compatible accessible labels where useful, but version the changed list DTO and update validation, cached sessions, UI resource/build identity and all consumers together. Stale old selectors fail with refresh rather than resolving to another row. Existing Core/CLI/MCP/Cockpit results preserve partial/unavailable/empty distinction and concrete retry/source navigation. Read paths never lock for writing, start delivery, approve, repair or migrate.
+
+### Optional package and distribution (SDD-006 / SDD-011)
+
+Canonical optional sources live under plugins/agdf-planning with its own definition, Codex manifest source and bounded planning skill/instructions. Add explicit build selection/composition for this known package to existing generator/assembler/local-marketplace/installer owners; retain plugins/agdf as Core's canonical source root. Generated optional payload contains its own instructions/manifest/assets only and declares/document its compatible Core capability requirements. It ships no second MCP server, Core runtime, UR template or fallback writer.
+
+Codex CLI native invocation must resolve the existing Core planning capability through the host's supported skill/tool path; on missing/incompatible Core it explains recovery before mutation. An unqualified delegation or discovery path keeps the package experimental and fails release qualification rather than falling back to shell edits or duplicating Core. Use the repository's existing Codex manifest schema and dependency/capability checks; do not invent unsupported native manifest dependency keys. Installer-level checks and explicit runtime capability negotiation enforce the dependency when the host manifest cannot express it.
+
+Share versioned Core authoring semantics through explicit returned contracts/template identity and typed operations. No dependency on an agent remembering a template or a copied extension version. CLI install choice is explicit for the optional Codex package; normal Core installation does not silently add it. Existing other-host Core packaging continues to receive the same Core source changes and is checked for compatibility, with no new planning-extension host claim.
+
+### Legacy cutover and maintenance admission (SDD-007 / SDD-009)
+
+Preview is read-only and binds layout/config/source digest, the complete original backlog byte snapshot, row spans/identities, discovered Runs/UR sources and pending journals. Preserve unparsed prose as well as rows. Deterministic migration IDs derive from snapshot digest and row position; do not guess an association from title similarity. A row is associated only from unique valid explicit references/evidence. A planning row lacking sufficient UR input becomes a visibly incomplete draft retaining the original reference/text, not invented requirements. Ambiguous/custom/orphan/duplicate/history material remains explicit unresolved historical input.
+
+Apply requires an exact preview-bound confirmation and original UUID. It creates one immutable migration snapshot and disposition receipt under the existing control-maintenance namespace, stages planned entries and active-Run version transitions, and updates existing config.json with control_layout: planned-urs-v1 only at the commit point. A separate pending migration journal owns enumerated old/next bytes and temporary paths. The original MASTER_BACKLOG.md is archived byte-exactly and retired as a live file; documentation points to preserved evidence. No automatic user-repository migration occurs on installation/read.
+
+Before any effect, the maintenance owner publishes a uniquely owned durable marker under the control-maintenance namespace and waits for existing admitted mutations to finish. Ordinary mutations do not take a common exclusive mutex: after obtaining their resource lock, they read the maintenance/layout generation, create a uniquely owned independent admission claim, and recheck marker/config generation before any effect. They retain the claim through the guarded commit and release it only after a known outcome. A marker appearing before admission completes causes rejection/retry; claims already admitted can finish and are drained before cutover effects. Maintenance preserves its marker on uncertain outcome.
+
+The maintenance owner alone takes an exclusive epoch lock, establishes writer quiescence, validates a stable complete claim/pending inventory and excludes new effects until commit/recovery completes. No TTL proves a dead owner; unknown claim or foreign additions require inspection and supported owned recovery. Same-file/Run conflicts still use resource locks. All supported mutators including direct creation, approvals, revision, closure, planned writes and handoff participate. Readers may report maintenance/partial state but never recover it.
+
+Legacy v1-5 pending journals referencing live backlog must be resolved by their exact original supported recovery before apply; cutover refuses to reinterpret them. The maintenance barrier is an actual cross-record invariant and may block the project during cutover/recovery only. After successful cutover, ordinary independent Run work sees neither this exclusion nor another backlog-free Run journal.
+
+Stage/validate all new entries, immutable legacy evidence and current-state upgrades under the marker. Archive prior active Run states, preserve approval/artefact bytes, publish their audited v3 current revisions, retire only the matched live backlog and commit the configuration layout last. Before config commit, an interrupted migration may restore only exact old/next owned files using its journal; after config commit, supported recovery completes the same migration, never silently downgrades to v2. Partial/foreign edits keep the marker and expose exact conflict. Clear the marker only after all expected outputs and inventories verify. Historical snapshots/receipts remain immutable.
+
+Separate worktree copies are separate local transaction domains. This design does not add a remote allocator or distributed lock. Source-controlled conflicting origins/receipts discovered after integration remain explicit ambiguity requiring reconciliation; Git merges never infer transfer or approval. Test parallel independent entries/Runs in one canonical target and realistic worktree integration separately, without claiming globally conflict-free Git.
+
+## 5. Constraints And Compatibility
+
+- Preserve the approved PRD criteria and existing paths. Existing v2/history receipts remain decodable under their original policies; do not retroactively extend their authority.
+- v3 admission, journal v6 and new compound/planning receipt kinds are explicit capability changes; no claim that an old binary can author the new layout. Upgrade all participating writers and finish legacy pending recovery before real cutover.
+- No bulk rewrite of approved source documents or historical Run/approval records. Only active current Run migration creates an auditable new revision/version; old current-state bytes remain archived.
+- Parent symlinks, unsafe IDs, invalid UTF-8, oversized sources, path substitution and nonregular files fail through existing containment/snapshot helpers. Core-generated output paths only; source text is never code/instruction. Protected origin artefacts are writer-owned immutable inputs, not editable planning metadata.
+- Independent transaction claims are not a new persistent product status store. Maintenance marker is justified only by project configuration/cutover invariants. No root Git lock or per-operation global exclusive backlog replacement.
+- Unknown owner/source/digest/outcome blocks only affected work except the explicitly active maintenance epoch. Never delete foreign recovery evidence or infer liveness from time.
+- Codex manifest/delegation support must be proved on the actual candidate; existing protocol/build dependencies are reused, not upgraded under this SD. No general extension system or additional native host is introduced.
+- Commit/PR/release actions remain separate user/maintainer authority. No implementation before approved TP and required Brownfield preparation.
+
+## 6. Test And Evidence Strategy
+
+The highest-risk changes are multi-file handoff/cutover, removal of shared serialization, old-history admission and the pre-Run/Run scope boundary. UI list authority and separate native package delegation create cross-consumer risks. Treat these as positive, negative and interrupted-operation obligations; structural schema success alone is insufficient.
+
+Reuse existing suites for run-step-transaction, run-backlog-writer, run-create-command, run-material, Run seals/approval/source-revision history, run-closure and control-maintenance. Preserve legacy tests under their versioned fixtures; add focused backlog-free v3 cases to the actual writer paths. Reuse the existing original-defect/green regression evidence for the prerequisite authoring repair only; it does not qualify planned-work changes.
+
+Add planned-entry boundary tests, source/version conflict and incomplete readiness cases; compound creation before/after publication fault injection, lost response, same/different UUID replay, double-start races and foreign output preservation. Exercise admission-marker/claim race orderings and uncertain owners; prove independent Run/entry operations do not share an exclusive mutex and same-resource conflicts still reject. Cutover fixtures account for every byte/row, ambiguous/custom/missing links, active approval preservation, ended v2 byte stability and pending legacy exclusion. Execute preserved old parser/runtime against a v3 fixture and validate no unsafe fallback.
+
+Core inventory/adapter contract tests and existing UI/browser/accessibility tests cover mixed states, no-backlog Runs, counts/order, stale selectors, partial/unavailable/empty and recovery. Mandatory native evidence for the initial candidate: actual Codex CLI Core and separate plugin discovery, deliberate planning invocation, delegation to one UR owner, selected-version start, retry/same Run and missing-plugin Core-only behavior. Visible applicable Cockpit states are checked with the automated component/browser harness; there is no native Codex Desktop/Cockpit qualification obligation or claim in this Run. Bind candidate/installed digests, client version and OS; do not substitute package tests for host observations or human UAT.
+
+Timing: TP selects executable existing scripts/scenarios from canonical npm inventories and scripts/ci-plan.mjs. During CD+Tests run affected targeted tests and generated-asset/schema checks first. Before QA require the planned critical recovery/concurrency/compatibility and native Codex CLI and automated visible UI obligations, or retain an explicit blocking gap under existing quality rules. Before merge all required CI for the actual PR head/merge candidate must pass. Existing nightly/full-regression coverage is reusable only when source/environment/applicability match; it is not a mandatory repeated local run without a concrete trigger.
+
+At SD preparation, only source inspection and artefact readiness checks are performed. No planned feature code, tests, migration, native package behavior or new installed-host support is claimed. Implementation-preparation Brownfield after TP verifies actual owners/dependencies before edits; design contradictions route back to the earliest affected source rather than improvised alternatives.
+
+## 7. Acceptance Traceability
+
+| criterion_id | design_response | source_of_truth | design_decision_ids | compatibility_risk |
+|---|---|---|---|---|
+| AC-001 | New-layout scaffolds and Run mutation/recovery path remove live backlog dependency; legacy decoding is isolated | Core initialization, required-files, run-store-inspection and per-Run transaction owner | SDD-003, SDD-008, SDD-011 | Active v2 state gets audited v3 cutover; history and approval bytes preserved |
+| AC-002 | One metadata-bearing UR with digest-CAS replacement, entry-local transactions and deterministic identity | Core planned-entry contract/reader/writer and canonical UR template | SDD-001, SDD-002, SDD-010 | Unsafe/stale/duplicate inputs reject; incomplete drafts remain visibly incomplete |
+| AC-003 | Explicit pre-Run mode reuses UR template/semantics with scope-separated grants and writers | Existing ur-definition and readiness owners plus strict command/material contracts | SDD-001, SDD-002, SDD-010 | Run schemas remain strict; planning metadata/file cannot confer approval |
+| AC-004 | Shared typed work inventory and item-scoped selectors replace saved Markdown membership/order | readRunInventory, new planned inventory and existing Cockpit projection consumers | SDD-005, SDD-010 | Version DTO/session selectors together; preserve partial/unavailable and historical meaning |
+| AC-005 | Separate small Codex orchestration package calls negotiated Core capabilities; Core retains all functional paths | plugins/agdf-planning, existing Core UR/command owners and build/installer owners | SDD-002, SDD-006, SDD-011 | Missing/incompatible Core blocks mutation; native delegation is an explicit qualification obligation |
+| AC-006 | Compound source-bound staged creation registers an unapproved copied UR and immutable origin at Run publication | Existing staged Run creation/UR writer semantics and new planned-handoff owner | SDD-004, SDD-010 | Exact source recheck and owned staging; no approval transferred and no silent source substitution |
+| AC-007 | Original intent/creation receipt recovery and derived origin uniqueness resolve replay and historical ownership | Sealed Run creation receipt, immutable origin and entry-local recovery evidence | SDD-004, SDD-009, SDD-010 | Different UUID cannot bypass completed origin; divergent worktrees expose ambiguity rather than distributed uniqueness claims |
+| AC-008 | Explicit snapshot-bound migration with per-row disposition, active-state version transition and commit-point recovery | Existing control-maintenance owner extended with planned-layout family; immutable legacy snapshot | SDD-007, SDD-008, SDD-009 | Legacy pending journals resolve before cutover; foreign/ambiguous sources preserved; no real migration on install |
+| AC-009 | Resource-local journals/locks and independent admission claims eliminate ordinary backlog-wide serialization | Per-Run/planned mutation owners, owned locks and maintenance admission owner | SDD-003, SDD-009 | Same-resource conflicts persist; exclusive maintenance justified only by actual cutover invariant |
+| AC-010 | Shared condition codes, bounded source reads and explicit operation outcome/recovery drive adapters | Core inspection/operation-status, containment/read snapshot and interaction locale owners | SDD-002, SDD-005, SDD-010 | Unsupported/unsafe/stale/unknown effects stay explicit; read failure never repairs or fabricates emptiness |
+| AC-011 | Shared regeneration/install selection, explicit version admission and candidate-bound test/host evidence | Existing sync/assembly/installer, scripts/ci-plan.mjs and review/QA owners | SDD-006, SDD-008, SDD-011 | Optional Codex package only initially; other-host Core regressions checked without new native extension claims |
+
+## 8. Risks And Open Questions
+
+Binding design choices are resolved below for review; no material before-SD question is hidden as a test detail. Implementation can still expose contradictory invariants, unsupported Codex delegation or unavailable host evidence; those become explicit upstream design/evidence gaps, not permission to fork the UR author or skip recovery.
+
+Primary risks are missed live backlog call sites, mixed-version in-flight writers, incorrectly relaxed legacy journals, sibling-output ownership during compound creation, stale selector resolution and incomplete Cutover row accounting. The chosen staged commit points, versioned decoders, quiescence/admission and exact owned-output recovery address them; actual verification remains required.
+
+No claim of a security sandbox, distributed worktree lock or immunity to manual filesystem edits is made. Native package wiring remains within existing Codex facilities; if actual supported delegation cannot meet the design, revisit SDD-006 before qualification instead of shipping fallback source edits.
+
+## Design Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Entry encoding and atomic source | before_sd | resolved | SDD-001 selects canonical UR.md with three strict planning scalar fields, H1 title, normal default, whole-source digest and per-entry transaction evidence; no metadata/status sidecar authority. | Arndt Gold |
+| Pre-Run authoring and command scope | before_sd | resolved | SDD-002 uses existing fixed tool groups with strict planning variants and shared ur-definition; separate bounded grants preserve all Run-only bindings. | Arndt Gold |
+| Run journal and legacy semantics | before_sd | resolved | SDD-003 selects backlog-free journal record v6 under existing resolved/1 and resource-local locking; legacy v1-5 decoding/recovery remains exact and isolated. | Arndt Gold |
+| Handoff commit and replay ownership | before_sd | resolved | SDD-004 selects compound creation, deterministic Run ID, entry-first lock order, immutable origin and Run-directory publication commit; replay verifies the same creation receipt. | Arndt Gold |
+| Overview and selection authority | before_sd | resolved | SDD-005 composes canonical inventories and versions DTO/selectors/session invalidation; ordering is derived and no list is writable truth. | Arndt Gold |
+| Optional Codex package composition | before_sd | resolved | SDD-006 extends existing generators/installers for one named optional plugin with instructions only, negotiated Core dependency and native qualification; no duplicated runtime/template or unsupported manifest keys. | Arndt Gold |
+| Lossless cutover and version admission | before_sd | resolved | SDD-007 and SDD-008 use explicit snapshot-bound apply/recover, active v3 state revisions with preserved approvals/history, ended v2 read compatibility and no silent downgrade. | Arndt Gold |
+| Actual shared invariant and ordinary concurrency | before_sd | resolved | SDD-009 reserves exclusive epoch/marker for cutover only; ordinary resource-locked effects use independent claims and marker/config recheck. Unknown owners block maintenance without timeout cleanup. | Arndt Gold |
+| Safety, interaction and evidence owners | before_sd | resolved | SDD-010 and SDD-011 reuse existing containment, snapshots, strict schemas, presentations, locales, generation and quality/CI owners with exact candidate/host limits. | Arndt Gold |
+| Executable scenarios and fault checkpoints | later_tp | deferred | Select precise cases, existing harness reuse, fault hooks, required CI targets and native client/OS procedure for every mapped criterion/SDD; no architecture choice is deferred here. | Task/Test Plan owner |
+
+These are proposed resolved design selections for the new Approval: SD, not claims that Arndt Gold already approved this design or that implementation feasibility has been demonstrated.
+
+## 9. Next Step
+
+Present this design through the existing canonical presentation owner. A new deliberate Approval: SD permits Task/Test Plan drafting only. No product implementation, actual user-repository cutover, host installation, VCS or release follows from this draft.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: Das erneut freigegebene PRD mit einem gemeinsamen UR-Owner, unabhängigen Schreibvorgängen und sicherer Übergabe umsetzen.
+
+- Änderung: Native Host-Prüfung ausschließlich mit Codex CLI, mit Core allein und mit Planungserweiterung. Native Desktop-/Cockpit-Tests entfallen. UI-Verhalten bleibt automatisiert durch Komponenten-/Browserprüfungen abgedeckt; Desktop-Qualifikation wird nicht behauptet.
+
+- Umfang: SDD-001/002 halten jedes Vorhaben in planned/PLAN_ID/UR.md mit Planungsschema, Identität und Priorität; der Titel kommt aus der UR-Überschrift. Gemeinsamer UR-Planungsmodus ohne Run und getrennte Vor-Run-Verträge innerhalb der vorhandenen MCP-Gruppen. Unvollständige Entwürfe bleiben speicherbar, Übergabe braucht normale UR-Bereitschaft.
+
+- Persistenz und Übergabe: SDD-003/004 entfernen Backlog-Schreibzugriffe aus regulären Run-Transaktionen. Neue Journale verwenden Version 6; alte Versionen 1–5 behalten ihre Recovery-Regeln. Die Übergabe bindet Quelle und ursprüngliche Operation, bewahrt einen geschützten Herkunftsstand und verwendet die Run-Veröffentlichung als Commit-Punkt. Wiederholung liefert denselben Run, keine übertragene Freigabe.
+
+- Übersicht und Erweiterung: SDD-005/006 leiten Übersicht und Auswahlkennungen aus Einträgen und kanonischen Runs ab. Das optionale Codex-Paket enthält Dialoganweisungen und geprüfte Core-Anbindung, keine eigene UR-Vorlage, Runtime oder Gate-Engine. Core funktioniert ohne dieses Paket.
+
+- Migration und Sperren: SDD-007/008/009 verwenden bestätigten Vorschau-/Anwenden-/Recovery-Cutover mit vollständigem Altbestandsnachweis. Aktive aktuelle Run-Zustände wechseln auditiert auf Kontrollversion 3; vorige Bytes, Artefakte und Freigaben bleiben erhalten. Beendete v2-Runs bleiben unverändert lesbar. Alte Journale werden vorher aufgelöst, alte ausstehende Präsentationen nach der Revision erneuert. Die exklusive Projekt-Wartungssperre gilt nur für den tatsächlichen Cutover; normale Operationen nutzen unabhängige Zulassungsnachweise und Ressourcensperren. Unklare Eigentümerschaft wird nicht per Zeitablauf gelöscht.
+
+- Qualität und Grenzen: SDD-010/011 behalten bestehende Pfad-, Schema-, Digest-, Snapshot-, Präsentations- und Build-Owner. Alle elf Kriterien sind genau einmal zugeordnet. TP plant gezielte Funktions-, Fehler-, Parallelitäts-, Recovery- und Altversionsprüfungen sowie Codex-CLI-Nachweise; Pflicht-CI und menschliche UAT bleiben getrennt. Keine neue Fremdtechnologie oder zusätzliche native Host-Unterstützung. Keine verteilte Worktree-Sperre, kein Schutz gegen bewusst gestartete Altprogramme oder manuelle Dateieingriffe. Installation führt keine reale Migration aus.
+
+- Stand und Risiken: Alle materiellen Designentscheidungen sind zur Prüfung konkret vorgeschlagen; Ausführung und Nachweisplanung folgen in TP. Übersehene Backlog-Aufrufe, gemischte Writer-Versionen, Migration und Übergabe-Recovery brauchen noch Implementierungs-/Testnachweise; eine tatsächliche Qualifikation wird hier nicht behauptet.
+
+- Nächster Schritt: Approval: SD erlaubt die erneuerte Task-/Test-Planung. Umsetzung folgt erst nach freigegebenem TP und erforderlicher Brownfield-Vorbereitung. Installation, reale Migration, VCS und Release behalten ihre tatsächlichen Autorisierungsgrenzen.

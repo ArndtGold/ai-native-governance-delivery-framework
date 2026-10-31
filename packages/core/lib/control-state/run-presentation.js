@@ -5,7 +5,8 @@ import { validateRunPresentationEnvelope, PRESENTATION_ID_PATTERN as UUID, PRESE
 export { validateRunPresentationEnvelope } from "./run-presentation-envelope.js";
 import { randomUUID } from "node:crypto";
 import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, existsSync, openSync, opendirSync, readSync, writeFileSync } from "node:fs";
-import { fsyncDirectory } from "./run-state-writer.js";
+import { fsyncDirectory, withOwnedFileLock } from "./run-state-writer.js";
+import { withControlMutation, markControlMutationEffect } from './control-layout.js';
 import { dirname, join } from "node:path";
 import { TextDecoder } from 'node:util';
 import { runPath } from "./run-state-reader.js";
@@ -13,7 +14,7 @@ import { readRun, rejected, endedRunRejection } from "./run-state-edits.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
 import { hash } from "./run-presentation-render.js";
 import { resolveControlCommandTarget } from './approval-command-contract.js';
-import { REVISION_ID_PATTERN } from './run-identity.js';
+import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from './run-identity.js';
 import { prepareRunContentState } from '../control-evaluation/run-state.js';
 import { previewForState } from './preview-review.js';
 import { previewSnapshotBinding, publishPreviewSnapshot, readPreviewSnapshot, validateCurrentPreviewRecord } from './preview-snapshot.js';
@@ -86,6 +87,14 @@ function binding(root, { runId, gate, revisionId, language, presentationId }, ev
 
 // Evidence of a prepared presentation, NOT a signature or proof of human visibility.
 export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpoint = () => {} }) {
+  if (!RUN_ID_PATTERN.test(input.runId ?? '')) return rejected(input.runId, 'run_id_invalid');
+  return withOwnedFileLock(join(dirname(runPath(root, input.runId)), '.presentation'), () => withControlMutation(root, {
+    resource: `presentation:${input.runId}`, operation_id: input.operationId ?? null, resume: true,
+    proveOutcome: result => ['prepared', 'already_prepared'].includes(result?.outcome),
+  }, () => prepareRunPresentationAdmitted(root, input, { evaluateGateCheck, checkpoint })));
+}
+function prepareRunPresentationAdmitted(root, input, { evaluateGateCheck, checkpoint }) {
+  let effectStarted = false;
   const { runId, gate, operationId, requestDigest } = input;
   if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
   if (operationId !== undefined && (!UUID.test(operationId) || !/^sha256:[0-9a-f]{64}$/u.test(requestDigest ?? ""))) return rejected(runId, "operation_binding_invalid");
@@ -126,10 +135,12 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
       readDocumentSnapshot(root, record);
     }
     if (documentFd !== undefined) {
+      effectStarted = true; markControlMutationEffect();
       try { writeFileSync(documentFd, documentContent); fsyncSync(documentFd); } finally { closeSync(documentFd); }
     }
     fsyncDirectory(dir);
     checkpoint('presentation_document_published');
+    effectStarted = true; markControlMutationEffect();
     publishPreviewSnapshot(root, record, previewContent, { resume: Boolean(operationId), checkpoint });
     fsyncDirectory(dir);
     const body = JSON.stringify(record);
@@ -144,7 +155,8 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
     return Object.freeze({ ...record, schema_version: "1", outcome: "prepared", text, summary, companion_text: companion, record_digest: hash(body),
       next_action: "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response." });
   } catch (error) {
-    return rejected(runId, error.code ?? error.message, { recovery: error.recovery ?? recovery });
+    return rejected(runId, effectStarted ? 'presentation_recovery_required' : error.code ?? error.message,
+      { recovery: error.recovery ?? recovery, ...(effectStarted ? { detail: error.code ?? error.message } : {}) });
   }
 }
 

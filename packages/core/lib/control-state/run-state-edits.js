@@ -9,6 +9,9 @@ import { runClosure, endedRunMessage, RUN_ENDED_NEXT_ACTION } from './run-operat
 // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
 // addressed section or table row and keep every other byte of the run state.
 const WRITE_REJECTIONS = new Map([
+  ['AGDF_CONTROL_MAINTENANCE_REQUIRED', 'control_maintenance_required'],
+  ['AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED', 'control_layout_migration_required'],
+  ['AGDF_CONTROL_LAYOUT_UNSUPPORTED', 'control_layout_unsupported'],
   ['AGDF_OPERATION_PAYLOAD_CONFLICT', 'operation_payload_conflict'],
   ['AGDF_OPERATION_BINDING_INVALID', 'operation_binding_invalid'],
   ['AGDF_OPERATION_IDENTITY_UNCONFIRMED', 'operation_identity_unconfirmed'],

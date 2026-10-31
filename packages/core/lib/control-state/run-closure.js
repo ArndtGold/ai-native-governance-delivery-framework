@@ -2,6 +2,9 @@ import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { atomicWrite, withOwnedFileLock } from './run-state-writer.js';
+import { withControlMutation, markControlMutationEffect, readControlLayout, PLANNED_LAYOUT } from './control-layout.js';
+import { readPendingRunStepJournal } from './run-step-transaction.js';
+import { resolutionRecordVersion } from './input-resolution.js';
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, resolveControlCommandTarget } from './approval-command-contract.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN, APPROVAL_GATES } from './run-identity.js';
@@ -17,7 +20,6 @@ import { resolveHumanRunTitle } from '../interaction-presentation.js';
 import { readGitIdentity } from './git-identity.js';
 import { bindInputResolution, currentInputResolution, recordedInputResolution, resolutionRecord } from './input-resolution.js';
 import { inspectRunOperation } from './run-operation-status.js';
-import { readPendingRunStepJournal } from './run-step-transaction.js';
 import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 
 // Closure of active Runs as superseded or abandoned. A preview is a stored, immutable and
@@ -134,6 +136,11 @@ function previewEntry(root, entry) {
 
 // Exclusive creation of one immutable preview file per random 8-hex id, written atomically.
 function storePreview(root, body) {
+  return withControlMutation(root, { resource: 'closure-preview', operation_id: currentInputResolution()?.operation_id ?? null },
+    () => storePreviewAdmitted(root, body));
+}
+
+function storePreviewAdmitted(root, body) {
   assertInputConfigurationCurrent(root);
   if (hasSymlinkComponent(root, CLOSURE_PREVIEW_DIRECTORY)) throw Error('AGDF_RUN_PATH_INVALID');
   const directory = join(root, CLOSURE_PREVIEW_DIRECTORY);
@@ -149,7 +156,8 @@ function storePreview(root, body) {
     }
     const preview = bindInputResolution({ ...body, preview_id: id });
     const stored = { ...preview, preview_digest: previewDigest(preview) };
-    if (withOwnedFileLock(path, () => existsSync(path) ? false : (atomicWrite(path, `${JSON.stringify(stored, null, 2)}\n`), true))) return stored;
+    if (withOwnedFileLock(path, () => withControlMutation(root, { resource: `closure-preview:${id}`, operation_id: resolution?.operation_id ?? null },
+      () => existsSync(path) ? false : (markControlMutationEffect(), atomicWrite(path, `${JSON.stringify(stored, null, 2)}\n`), true)))) return stored;
   }
   throw Error('AGDF_CLOSURE_PREVIEW_UNAVAILABLE');
 }
@@ -204,13 +212,22 @@ function safePreviewEntry(root, entry, beforeFacts) {
   }
 }
 
+function closurePending(root, entries) {
+  const pending = pendingRunStepIds(root);
+  if (readControlLayout(root).layout !== PLANNED_LAYOUT) return pending;
+  return pending.filter(id => {
+    if (entries.some(entry => entry.run_id === id)) return true;
+    try { return resolutionRecordVersion(readPendingRunStepJournal(root, id)) !== 6; } catch { return true; }
+  });
+}
+
 // `beforeFacts` is a package-owned test seam for a failing per-run observation.
 export function previewRunClosure(root, { entries, language: requested } = {}, { beforeFacts } = {}) {
   const lang = language(requested);
   const problems = entryProblems(root, entries);
   if (problems.length) return finish({ schema_version: '1', outcome: 'rejected', reason: 'closure_entries_invalid', problems,
     next_action: 'Add the reason, add or correct the successor, give a free reference, or choose abandoned; then request a new preview.', authorizes: false }, lang);
-  const pending = pendingRunStepIds(root);
+  const pending = closurePending(root, entries);
   let stored;
   try {
     stored = storePreview(root, { schema_version: '1', created_at: new Date().toISOString(), target_id: resolveControlCommandTarget(root).target_id,
@@ -257,7 +274,7 @@ export function applyRunClosure(root, { previewId, confirmation, language: reque
   const preview = loaded.preview, phrase = closurePhrase(preview.preview_id), reply = typeof confirmation === 'string' ? confirmation.trim() : '';
   if (!reply) return refuse('confirmation_missing');
   if (reply !== phrase) return refuse(/^Close runs: [0-9a-f]{8}$/u.test(reply) ? 'confirmation_other_preview' : 'confirmation_mismatch');
-  const pending = pendingRunStepIds(root);
+  const pending = closurePending(root, preview.entries);
   if (pending.length) return refuse('closure_recovery_pending', { pending_run_ids: pending, next_action: nextAction('closure_recovery_pending') });
   if (preview.blocked) return refuse('preview_blocked');
   const confirmedBy = readIdentity(root);

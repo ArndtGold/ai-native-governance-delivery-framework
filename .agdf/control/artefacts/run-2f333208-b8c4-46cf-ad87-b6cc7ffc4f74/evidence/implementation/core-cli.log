@@ -1,0 +1,468 @@
+npm notice run create-agdf@0.20.2 test:planned-urs
+npm notice run node --test ../core/test/planned-authoring-test.js ../core/test/planned-cockpit-test.js ../core/test/planned-concurrency-test.js ../core/test/planned-control-version-test.js ../core/test/planned-entry-test.js ../core/test/planned-handoff-test.js ../core/test/planned-inventory-test.js ../core/test/planned-migration-test.js ../core/test/planned-process-test.js ../core/test/planned-run-transaction-test.js scripts/planned-cli-test.js
+TAP version 13
+# Subtest: SCN-004/007/009: pre-Run typed material/create/replace use explicit planning scope and replay after buffer retirement
+ok 1 - SCN-004/007/009: pre-Run typed material/create/replace use explicit planning scope and replay after buffer retirement
+  ---
+  duration_ms: 1196.5298
+  type: 'test'
+  ...
+# Subtest: SCN-008/009: planning cannot relax Run envelopes, cross private grants or stage another artefact type
+ok 2 - SCN-008/009: planning cannot relax Run envelopes, cross private grants or stage another artefact type
+  ---
+  duration_ms: 275.02481
+  type: 'test'
+  ...
+# Subtest: SCN-009: planning authoring pages reuse the versioned UR template and strict read scopes without a Run
+ok 3 - SCN-009: planning authoring pages reuse the versioned UR template and strict read scopes without a Run
+  ---
+  duration_ms: 391.01475
+  type: 'test'
+  ...
+# Subtest: SCN-004/009: the existing UR dispatcher owns pre-Run planning without assigning a delivery Run
+ok 4 - SCN-004/009: the existing UR dispatcher owns pre-Run planning without assigning a delivery Run
+  ---
+  duration_ms: 400.431502
+  type: 'test'
+  ...
+# Subtest: SCN-010/011/026: genuine new-layout cockpit derives counts/order/per-entry sources without a backlog; selected planned UR is read-only and snapshot-bound
+ok 5 - SCN-010/011/026: genuine new-layout cockpit derives counts/order/per-entry sources without a backlog; selected planned UR is read-only and snapshot-bound
+  ---
+  duration_ms: 872.415786
+  type: 'test'
+  ...
+# Subtest: SCN-026: production MCP cockpit session restricts planned selectors to the current overview; handoff becomes one Run reference
+ok 6 - SCN-026: production MCP cockpit session restricts planned selectors to the current overview; handoff becomes one Run reference
+  ---
+  duration_ms: 901.882554
+  type: 'test'
+  ...
+# Subtest: SCN-002/024: Git scope ignores only exact active admission bytes and retains foreign operation paths
+ok 7 - SCN-002/024: Git scope ignores only exact active admission bytes and retains foreign operation paths
+  ---
+  duration_ms: 123.440405
+  type: 'test'
+  ...
+# Subtest: SCN-029: layout is explicit and unsupported or unsafe config fails closed
+ok 8 - SCN-029: layout is explicit and unsupported or unsafe config fails closed
+  ---
+  duration_ms: 9.535019
+  type: 'test'
+  ...
+# Subtest: SCN-024: marker or config change between inspection and claim rejects before effect
+ok 9 - SCN-024: marker or config change between inspection and claim rejects before effect
+  ---
+  duration_ms: 96.970915
+  type: 'test'
+  ...
+# Subtest: SCN-024: known failures retire claims; uncertain outcomes require exact proof, never TTL
+ok 10 - SCN-024: known failures retire claims; uncertain outcomes require exact proof, never TTL
+  ---
+  duration_ms: 89.26367
+  type: 'test'
+  ...
+# Subtest: SCN-024: foreign claim/marker bytes remain untouched and maintenance stays frozen
+ok 11 - SCN-024: foreign claim/marker bytes remain untouched and maintenance stays frozen
+  ---
+  duration_ms: 77.884343
+  type: 'test'
+  ...
+# Subtest: SCN-023/024: independent processes overlap; maintenance drains admitted work and freezes new work
+ok 12 - SCN-023/024: independent processes overlap; maintenance drains admitted work and freezes new work
+  ---
+  duration_ms: 876.044492
+  type: 'test'
+  ...
+# Subtest: SCN-029: actual frozen pre-feature parser rejects v3; actual old creation requires absent legacy backlog
+ok 13 - SCN-029: actual frozen pre-feature parser rejects v3; actual old creation requires absent legacy backlog
+  ---
+  duration_ms: 928.886194
+  type: 'test'
+  ...
+# Subtest: SCN-004/006: canonical source owns title/priority; incomplete draft saves without a Run or approval
+ok 14 - SCN-004/006: canonical source owns title/priority; incomplete draft saves without a Run or approval
+  ---
+  duration_ms: 378.818695
+  type: 'test'
+  ...
+# Subtest: SCN-005/007: source-bound replacement, original UUID replay and conflicting inputs
+ok 15 - SCN-005/007: source-bound replacement, original UUID replay and conflicting inputs
+  ---
+  duration_ms: 551.349869
+  type: 'test'
+  ...
+# Subtest: SCN-008/009: malformed metadata, unsafe identity, NUL/Unicode and source limits reject
+ok 16 - SCN-008/009: malformed metadata, unsafe identity, NUL/Unicode and source limits reject
+  ---
+  duration_ms: 649.859755
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_intent interruption replays the exact original effect
+ok 17 - SCN-005: creation create_intent interruption replays the exact original effect
+  ---
+  duration_ms: 580.139158
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_source interruption replays the exact original effect
+ok 18 - SCN-005: creation create_source interruption replays the exact original effect
+  ---
+  duration_ms: 604.870705
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_staged interruption replays the exact original effect
+ok 19 - SCN-005: creation create_staged interruption replays the exact original effect
+  ---
+  duration_ms: 634.24392
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_committed interruption replays the exact original effect
+ok 20 - SCN-005: creation create_committed interruption replays the exact original effect
+  ---
+  duration_ms: 460.291793
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_intent interruption has a recoverable single source commit
+ok 21 - SCN-005: replacement replace_intent interruption has a recoverable single source commit
+  ---
+  duration_ms: 777.613727
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_committed interruption has a recoverable single source commit
+ok 22 - SCN-005: replacement replace_committed interruption has a recoverable single source commit
+  ---
+  duration_ms: 749.639028
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_receipt interruption has a recoverable single source commit
+ok 23 - SCN-005: replacement replace_receipt interruption has a recoverable single source commit
+  ---
+  duration_ms: 807.857916
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_retired interruption has a recoverable single source commit
+ok 24 - SCN-005: replacement replace_retired interruption has a recoverable single source commit
+  ---
+  duration_ms: 770.769941
+  type: 'test'
+  ...
+# Subtest: SCN-005: foreign pending bytes and original-UUID payload conflict are preserved
+ok 25 - SCN-005: foreign pending bytes and original-UUID payload conflict are preserved
+  ---
+  duration_ms: 752.567788
+  type: 'test'
+  ...
+# Subtest: SCN-015/018: explicit source-bound handoff registers unapproved UR and immutable origin in exactly one Run
+ok 26 - SCN-015/018: explicit source-bound handoff registers unapproved UR and immutable origin in exactly one Run
+  ---
+  duration_ms: 1207.311691
+  type: 'test'
+  ...
+# Subtest: SCN-016: incomplete and stale planning sources cannot create a Run
+ok 27 - SCN-016: incomplete and stale planning sources cannot create a Run
+  ---
+  duration_ms: 684.524392
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_intent interruption resumes the original handoff without another Run
+ok 28 - SCN-017: handoff_intent interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 886.138551
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_output_UR.md interruption resumes the original handoff without another Run
+ok 29 - SCN-017: handoff_output_UR.md interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 707.633601
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_output_PLANNED_UR.md interruption resumes the original handoff without another Run
+ok 30 - SCN-017: handoff_output_PLANNED_UR.md interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 971.926064
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_output_PLANNED_ORIGIN.json interruption resumes the original handoff without another Run
+ok 31 - SCN-017: handoff_output_PLANNED_ORIGIN.json interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 937.925367
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_before_run_publish interruption resumes the original handoff without another Run
+ok 32 - SCN-017: handoff_before_run_publish interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 1010.533974
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_run_committed interruption resumes the original handoff without another Run
+ok 33 - SCN-017: handoff_run_committed interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 843.670514
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_entry_receipt interruption resumes the original handoff without another Run
+ok 34 - SCN-017: handoff_entry_receipt interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 771.185727
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_retired interruption resumes the original handoff without another Run
+ok 35 - SCN-017: handoff_retired interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 706.092633
+  type: 'test'
+  ...
+# Subtest: SCN-017/019: committed Run origin remains authoritative when entry completion is missing
+ok 36 - SCN-017/019: committed Run origin remains authoritative when entry completion is missing
+  ---
+  duration_ms: 826.488828
+  type: 'test'
+  ...
+# Subtest: SCN-017: foreign sibling outputs are preserved before any publication
+ok 37 - SCN-017: foreign sibling outputs are preserved before any publication
+  ---
+  duration_ms: 651.339912
+  type: 'test'
+  ...
+# Subtest: SCN-018/019: active UR may change while origin remains immutable; missing origin or missing Run plus transfer never permits another Run
+ok 38 - SCN-018/019: active UR may change while origin remains immutable; missing origin or missing Run plus transfer never permits another Run
+  ---
+  duration_ms: 876.858345
+  type: 'test'
+  ...
+# Subtest: SCN-018: a manually authored BOM/CRLF planned UR has canonical identity and byte-exact immutable origin
+ok 39 - SCN-018: a manually authored BOM/CRLF planned UR has canonical identity and byte-exact immutable origin
+  ---
+  duration_ms: 655.327072
+  type: 'test'
+  ...
+# Subtest: SCN-010/011: priority/title/id ordering and combined Run references are derived, read-only and nonduplicating
+ok 40 - SCN-010/011: priority/title/id ordering and combined Run references are derived, read-only and nonduplicating
+  ---
+  duration_ms: 1505.99827
+  type: 'test'
+  ...
+# Subtest: SCN-011: malformed or denied entry is partial; valid entries and Runs remain visible
+ok 41 - SCN-011: malformed or denied entry is partial; valid entries and Runs remain visible
+  ---
+  duration_ms: 638.634913
+  type: 'test'
+  ...
+# Subtest: SCN-011: absence is distinct from an unreadable planned store
+ok 42 - SCN-011: absence is distinct from an unreadable planned store
+  ---
+  duration_ms: 352.951907
+  type: 'test'
+  ...
+# Subtest: SCN-020: read-only complete preview and lossless explicit migration; active v2 audited, ended v2 unchanged
+ok 43 - SCN-020: read-only complete preview and lossless explicit migration; active v2 audited, ended v2 unchanged
+  ---
+  duration_ms: 1201.534147
+  type: 'test'
+  ...
+# Subtest: SCN-021: maintenance_frozen interruption recovers exact owned precommit rollback or postcommit completion
+ok 44 - SCN-021: maintenance_frozen interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 761.467645
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_intent interruption recovers exact owned precommit rollback or postcommit completion
+ok 45 - SCN-021: migration_intent interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 988.511103
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_archived interruption recovers exact owned precommit rollback or postcommit completion
+ok 46 - SCN-021: migration_archived interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 1020.815313
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_run_published interruption recovers exact owned precommit rollback or postcommit completion
+ok 47 - SCN-021: migration_run_published interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 917.191429
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_entries_published interruption recovers exact owned precommit rollback or postcommit completion
+ok 48 - SCN-021: migration_entries_published interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 1066.908736
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_backlog_retired interruption recovers exact owned precommit rollback or postcommit completion
+ok 49 - SCN-021: migration_backlog_retired interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 1076.799594
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_config_committed interruption recovers exact owned precommit rollback or postcommit completion
+ok 50 - SCN-021: migration_config_committed interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 1048.757873
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_receipt interruption recovers exact owned precommit rollback or postcommit completion
+ok 51 - SCN-021: migration_receipt interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 948.042178
+  type: 'test'
+  ...
+# Subtest: SCN-021: migration_retired interruption recovers exact owned precommit rollback or postcommit completion
+ok 52 - SCN-021: migration_retired interruption recovers exact owned precommit rollback or postcommit completion
+  ---
+  duration_ms: 865.563172
+  type: 'test'
+  ...
+# Subtest: SCN-022: stale preview, legacy pending journal, and foreign bytes are refused without destructive guessing
+ok 53 - SCN-022: stale preview, legacy pending journal, and foreign bytes are refused without destructive guessing
+  ---
+  duration_ms: 1006.916669
+  type: 'test'
+  ...
+# Subtest: SCN-023/024: legitimate admitted work may finish during drain; an empty stale epoch aborts with a durable original receipt
+ok 54 - SCN-023/024: legitimate admitted work may finish during drain; an empty stale epoch aborts with a durable original receipt
+  ---
+  duration_ms: 745.819963
+  type: 'test'
+  ...
+# Subtest: SCN-020/029: genuine unsealed ended v2 remains exact unverified history; an unsealed active v2 still blocks cutover
+ok 55 - SCN-020/029: genuine unsealed ended v2 remains exact unverified history; an unsealed active v2 still blocks cutover
+  ---
+  duration_ms: 1362.395363
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at create_intent; original UUID proves outcome and retires its retained admission claim
+ok 56 - SCN-005/017/024: real SIGKILL at create_intent; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 1139.936556
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at create_committed; original UUID proves outcome and retires its retained admission claim
+ok 57 - SCN-005/017/024: real SIGKILL at create_committed; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 934.875948
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at replace_intent; original UUID proves outcome and retires its retained admission claim
+ok 58 - SCN-005/017/024: real SIGKILL at replace_intent; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 1125.003094
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at replace_committed; original UUID proves outcome and retires its retained admission claim
+ok 59 - SCN-005/017/024: real SIGKILL at replace_committed; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 1026.14318
+  type: 'test'
+  ...
+# Subtest: SCN-017/019: real handoff SIGKILL at handoff_before_run_publish resumes exactly one unapproved Run
+ok 60 - SCN-017/019: real handoff SIGKILL at handoff_before_run_publish resumes exactly one unapproved Run
+  ---
+  duration_ms: 1346.268345
+  type: 'test'
+  ...
+# Subtest: SCN-017/019: real handoff SIGKILL at handoff_run_committed resumes exactly one unapproved Run
+ok 61 - SCN-017/019: real handoff SIGKILL at handoff_run_committed resumes exactly one unapproved Run
+  ---
+  duration_ms: 1161.591008
+  type: 'test'
+  ...
+# Subtest: SCN-021/024: real cutover SIGKILL at migration_run_published retains freeze and recovers the original bounded operation
+ok 62 - SCN-021/024: real cutover SIGKILL at migration_run_published retains freeze and recovers the original bounded operation
+  ---
+  duration_ms: 1452.760269
+  type: 'test'
+  ...
+# Subtest: SCN-021/024: real cutover SIGKILL at migration_config_committed retains freeze and recovers the original bounded operation
+ok 63 - SCN-021/024: real cutover SIGKILL at migration_config_committed retains freeze and recovers the original bounded operation
+  ---
+  duration_ms: 1128.403092
+  type: 'test'
+  ...
+# Subtest: SCN-019: two live processes starting the same entry serialize at its resource and converge on one Run
+ok 64 - SCN-019: two live processes starting the same entry serialize at its resource and converge on one Run
+  ---
+  duration_ms: 806.373726
+  type: 'test'
+  ...
+# Subtest: SCN-001/002: new-layout Run writes and replay never create or lock a backlog
+ok 65 - SCN-001/002: new-layout Run writes and replay never create or lock a backlog
+  ---
+  duration_ms: 655.982556
+  type: 'test'
+  ...
+# Subtest: SCN-002: v6 intent interruption recovers only selected owned effects
+ok 66 - SCN-002: v6 intent interruption recovers only selected owned effects
+  ---
+  duration_ms: 719.990025
+  type: 'test'
+  ...
+# Subtest: SCN-002: v6 output interruption recovers only selected owned effects
+ok 67 - SCN-002: v6 output interruption recovers only selected owned effects
+  ---
+  duration_ms: 598.93158
+  type: 'test'
+  ...
+# Subtest: SCN-002: v6 run_after_rename interruption recovers only selected owned effects
+ok 68 - SCN-002: v6 run_after_rename interruption recovers only selected owned effects
+  ---
+  duration_ms: 826.248541
+  type: 'test'
+  ...
+# Subtest: SCN-002: v6 run interruption recovers only selected owned effects
+ok 69 - SCN-002: v6 run interruption recovers only selected owned effects
+  ---
+  duration_ms: 804.291967
+  type: 'test'
+  ...
+# Subtest: SCN-002: v6 retired interruption recovers only selected owned effects
+ok 70 - SCN-002: v6 retired interruption recovers only selected owned effects
+  ---
+  duration_ms: 590.117397
+  type: 'test'
+  ...
+# Subtest: SCN-002: foreign version-6 journal members stop recovery without deletion
+ok 71 - SCN-002: foreign version-6 journal members stop recovery without deletion
+  ---
+  duration_ms: 448.467366
+  type: 'test'
+  ...
+# Subtest: SCN-003/025/027: actual CLI initializes backlog-free v3, saves/refines/hands off once and derives inventory
+ok 72 - SCN-003/025/027: actual CLI initializes backlog-free v3, saves/refines/hands off once and derives inventory
+  ---
+  duration_ms: 4312.106512
+  type: 'test'
+  ...
+# Subtest: SCN-014/030: optional package publishes through the existing selector without a runtime; Core stays separately selected
+ok 73 - SCN-014/030: optional package publishes through the existing selector without a runtime; Core stays separately selected
+  ---
+  duration_ms: 63.664232
+  type: 'test'
+  ...
+# Subtest: SCN-025/027: planning CLI rejects irrelevant, duplicate and mixed action fields
+ok 74 - SCN-025/027: planning CLI rejects irrelevant, duplicate and mixed action fields
+  ---
+  duration_ms: 0.845269
+  type: 'test'
+  ...
+# Subtest: SCN-014/030: optional installer verifies compatible agdf Core, changes only its own catalog and reports restart boundary
+ok 75 - SCN-014/030: optional installer verifies compatible agdf Core, changes only its own catalog and reports restart boundary
+  ---
+  duration_ms: 41.58255
+  type: 'test'
+  ...
+# Subtest: SCN-014/030: optional installer verifies compatible agdf-repo Core, changes only its own catalog and reports restart boundary
+ok 76 - SCN-014/030: optional installer verifies compatible agdf-repo Core, changes only its own catalog and reports restart boundary
+  ---
+  duration_ms: 38.110382
+  type: 'test'
+  ...
+1..76
+# tests 76
+# suites 0
+# pass 76
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 24837.810841

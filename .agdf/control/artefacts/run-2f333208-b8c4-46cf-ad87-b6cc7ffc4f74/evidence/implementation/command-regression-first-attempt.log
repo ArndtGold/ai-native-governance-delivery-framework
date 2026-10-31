@@ -1,0 +1,538 @@
+npm notice run create-agdf@0.20.2 test:run-command-flow
+npm notice run node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/decision-content-test.js ../core/test/run-command-contract-test.js ../core/test/run-create-command-test.js ../core/test/project-initialization-test.js ../core/test/authoring-reassessment-test.js ../core/test/run-material-test.js ../core/test/verified-change-command-test.js ../core/test/presentation-delivery-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js ../core/test/approval-chain-defects-test.js ../core/test/review-findings-correction-test.js && node ../core/test/preview-material-test.js && node ../core/test/preview-render-test.js && node ../core/test/preview-presentation-test.js && node ../core/test/preview-session-test.js
+TAP version 13
+# Approval-chain defects D1, D2 and D4 regressions passed.
+# Subtest: ../core/test/approval-chain-defects-test.js
+ok 1 - ../core/test/approval-chain-defects-test.js
+  ---
+  duration_ms: 79568.462869
+  type: 'test'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: backlog_temp_opened: {"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"86b48fb2-1891-4df8-aa83-1843e6004ce2","request_digest":"sha256:910b12f079cea4d1f77916cac8fcf15c4948a62b5586933fef0edf180dfe2024","binding":{"target_id":"sha256:e858886929277d7cee7206df80d7bdf77166252b157ea75878d56bc75e4e3c7d","run_id":"approval-recovery","gate":"SD","expected_revision_id":"50687021-1ecd-46d5-a3ca-3dbf04b4d227","presentation_id":"76d82806-082f-497e-b633-447211695fcc"},"effect":{"previous_revision_id":"50687021-1ecd-46d5-a3ca-3dbf04b4d227","resulting_revision_id":"a38fd847-202f-47c5-bed3-dcf7a1cf24a7","revision":8,"gate":"SD","approval":"Approval: SD","material_version":"sha256:33d3dc38802f8d35d4b2fbd2e1da7ff49eb8cc4a14518d22eab4c0bda76dfded","material_sources":[{"type":"UR","path":".agdf/control/artefacts/approval-recovery/UR.md","digest":"sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a"},{"type":"PRD","path":".agdf/control/artefacts/approval-recovery/PRD.md","digest":"sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"},{"type":"SD","path":".agdf/control/artefacts/approval-recovery/SD.md","digest":"sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"}],"artefact_digest":"sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189","presentation_digest":"sha256:510a53cf4ce1e54e4462133001247ed1d1a922a8da0175bc68bbd558e769788b","next_gate_after_approval":"TP","allowed_after_approval":"Draft or refine the Task/Test Plan; do not implement before TP is approved."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":8,"revision_id":"a38fd847-202f-47c5-bed3-dcf7a1cf24a7","approval_status":"approved","lifecycle":"active","gate":"TP","status":"open","missing_approval":"Approval: TP","next_allowed_action":"Draft or refine the Task/Test Plan; do not implement before TP is approved.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}
+# 0 !== 71
+#     at file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/approval-command-recovery-test.js:50:12
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: false,
+#   code: 'ERR_ASSERTION',
+#   actual: 0,
+#   expected: 71,
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: ../core/test/approval-command-recovery-test.js
+not ok 2 - ../core/test/approval-command-recovery-test.js
+  ---
+  duration_ms: 21442.453497
+  type: 'test'
+  location: '/Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/approval-command-recovery-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Actual source-revision reassessment and discoverable historical-binding renewal passed (synthetic).
+# Subtest: ../core/test/authoring-reassessment-test.js
+ok 3 - ../core/test/authoring-reassessment-test.js
+  ---
+  duration_ms: 14687.011437
+  type: 'test'
+  ...
+# Private facade qualification/groups, inert comments, exact replay/conflict, unknown acknowledgement and actual opposed text/App processes passed (26045 definition bytes; synthetic targets only).
+# Subtest: ../core/test/decision-action-test.js
+ok 4 - ../core/test/decision-action-test.js
+  ---
+  duration_ms: 59743.391454
+  type: 'test'
+  ...
+# Closed authored-content contexts, field-local placeholder boundaries, current source/localization and historical/read-only limits passed.
+# Actual UR registration/replacement writer projection, custom preservation and read-only missing-content recovery passed (synthetic only).
+# Subtest: ../core/test/decision-content-test.js
+ok 5 - ../core/test/decision-content-test.js
+  ---
+  duration_ms: 2711.293583
+  type: 'test'
+  ...
+# Private qualification tuple/evidence containment, exact host/candidate/hash binding and unknown/missing/tampered/symlink rejection passed (synthetic contract only).
+# Subtest: ../core/test/decision-qualification-test.js
+ok 6 - ../core/test/decision-qualification-test.js
+  ---
+  duration_ms: 358.629112
+  type: 'test'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+# 6 !== 3
+#     at file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/early-prd-command-test.js:53:14
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: true,
+#   code: 'ERR_ASSERTION',
+#   actual: 6,
+#   expected: 3,
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: ../core/test/early-prd-command-test.js
+not ok 7 - ../core/test/early-prd-command-test.js
+  ---
+  duration_ms: 27501.796018
+  type: 'test'
+  location: '/Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/early-prd-command-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Exact current/superseded/unknown evidence associations, immutable archive reads, writer guards and orphan rejection passed (synthetic only).
+# Subtest: ../core/test/evidence-bindings-test.js
+ok 8 - ../core/test/evidence-bindings-test.js
+  ---
+  duration_ms: 16243.003698
+  type: 'test'
+  ...
+# Shared material-version rejection/change guard, inert comments, replay/conflict, renewed material, exact approval and historical presentation passed (synthetic only).
+# Subtest: ../core/test/presentation-decision-test.js
+ok 9 - ../core/test/presentation-decision-test.js
+  ---
+  duration_ms: 12891.614248
+  type: 'test'
+  ...
+# Exact Markdown, private display, unqualified actions, monotonic replay, cross-presentation retirement and expiry capacity passed; private host fixtures are not native qualification.
+# Subtest: ../core/test/presentation-delivery-test.js
+ok 10 - ../core/test/presentation-delivery-test.js
+  ---
+  duration_ms: 10846.334057
+  type: 'test'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+# + actual - expected
+# + 'presentation_recovery_required'
+# - 'presentation_document_invalid'
+#                 ^
+#     at file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/presentation-document-test.js:162:10
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: true,
+#   code: 'ERR_ASSERTION',
+#   actual: 'presentation_recovery_required',
+#   expected: 'presentation_document_invalid',
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: ../core/test/presentation-document-test.js
+not ok 11 - ../core/test/presentation-document-test.js
+  ---
+  duration_ms: 9061.732813
+  type: 'test'
+  location: '/Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/presentation-document-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Git project confirmation accepts the same directory spelling alias and rejects another directory
+ok 12 - Git project confirmation accepts the same directory spelling alias and rejects another directory
+  ---
+  duration_ms: 75.754251
+  type: 'test'
+  ...
+# Subtest: prospective receipt is private until the same directory and anchor are atomically published
+ok 13 - prospective receipt is private until the same directory and anchor are atomically published
+  ---
+  duration_ms: 298.725116
+  type: 'test'
+  ...
+# Subtest: interruption before a valid marker at beforeProspectiveReceipt preserves unclaimed bytes without recovery authority
+ok 14 - interruption before a valid marker at beforeProspectiveReceipt preserves unclaimed bytes without recovery authority
+  ---
+  duration_ms: 101.968723
+  type: 'test'
+  ...
+# Subtest: interruption before a valid marker at afterProspectiveReceipt preserves unclaimed bytes without recovery authority
+ok 15 - interruption before a valid marker at afterProspectiveReceipt preserves unclaimed bytes without recovery authority
+  ---
+  duration_ms: 107.41552
+  type: 'test'
+  ...
+# Subtest: interruption before a valid marker at beforeWrite preserves unclaimed bytes without recovery authority
+ok 16 - interruption before a valid marker at beforeWrite preserves unclaimed bytes without recovery authority
+  ---
+  duration_ms: 102.911936
+  type: 'test'
+  ...
+# Subtest: fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+ok 17 - fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+  ---
+  duration_ms: 481.071997
+  type: 'test'
+  ...
+# Subtest: device-only remount simulation preserves new receipts while legacy receipt predicates reject drift
+ok 18 - device-only remount simulation preserves new receipts while legacy receipt predicates reject drift
+  ---
+  duration_ms: 1124.755226
+  type: 'test'
+  ...
+# Subtest: completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+ok 19 - completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+  ---
+  duration_ms: 444.837674
+  type: 'test'
+  ...
+# Subtest: the existing caller stage2 format completes through its original receipt1 branch without conversion
+ok 20 - the existing caller stage2 format completes through its original receipt1 branch without conversion
+  ---
+  duration_ms: 269.712987
+  type: 'test'
+  ...
+# Subtest: full-width filesystem inode values remain strings above Number precision
+ok 21 - full-width filesystem inode values remain strings above Number precision
+  ---
+  duration_ms: 646.630136
+  type: 'test'
+  ...
+# Subtest: legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+ok 22 - legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+  ---
+  duration_ms: 261.015625
+  type: 'test'
+  ...
+# Subtest: explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+ok 23 - explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+  ---
+  duration_ms: 1028.204173
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_publish
+ok 24 - original setup identity survives actual publication response loss at project_after_publish
+  ---
+  duration_ms: 665.916756
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_receipt
+ok 25 - original setup identity survives actual publication response loss at project_after_receipt
+  ---
+  duration_ms: 585.026916
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_before_marker_cleanup
+ok 26 - original setup identity survives actual publication response loss at project_before_marker_cleanup
+  ---
+  duration_ms: 566.062742
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at before_result
+ok 27 - original setup identity survives actual publication response loss at before_result
+  ---
+  duration_ms: 502.038148
+  type: 'test'
+  ...
+# Subtest: foreign partial state, dangling control links and generic write arguments reject without adopting data
+ok 28 - foreign partial state, dangling control links and generic write arguments reject without adopting data
+  ---
+  duration_ms: 203.67889
+  type: 'test'
+  ...
+# Subtest: original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+ok 29 - original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+  ---
+  duration_ms: 605.671121
+  type: 'test'
+  ...
+# Subtest: owned recovery retains the originally resolved language configuration across process-locale drift
+ok 30 - owned recovery retains the originally resolved language configuration across process-locale drift
+  ---
+  duration_ms: 531.190231
+  type: 'test'
+  ...
+# Subtest: a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+ok 31 - a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+  ---
+  duration_ms: 197.30649
+  type: 'test'
+  ...
+# Subtest: an owned unpublished stage preserves its original request; another request cannot adopt it
+ok 32 - an owned unpublished stage preserves its original request; another request cannot adopt it
+  ---
+  duration_ms: 323.993145
+  type: 'test'
+  ...
+# Subtest: changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+ok 33 - changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+  ---
+  duration_ms: 861.505499
+  type: 'test'
+  ...
+# Subtest: an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+ok 34 - an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+  ---
+  duration_ms: 258.587371
+  type: 'test'
+  ...
+# Subtest: stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+ok 35 - stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+  ---
+  duration_ms: 429.565647
+  type: 'test'
+  ...
+# Subtest: changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+ok 36 - changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+  ---
+  duration_ms: 562.964454
+  type: 'test'
+  ...
+# Subtest: a non-regular pending marker blocks without reading a foreign FIFO
+ok 37 - a non-regular pending marker blocks without reading a foreign FIFO
+  ---
+  duration_ms: 415.922177
+  type: 'test'
+  ...
+# Subtest: real CLI and MCP initializer processes serialize publication using the same owned target lock
+ok 38 - real CLI and MCP initializer processes serialize publication using the same owned target lock
+  ---
+  duration_ms: 915.302813
+  type: 'test'
+  ...
+# QA deviations: de/en Chat and assembled decision-session parity, one-effect/legacy guards, immutable report and UAT disclosure, exact revision archive, approved-update rejection, truthful OR closeout, refresh and stale/critical/malformed negatives passed (disposable only; no native qualification).
+# Subtest: ../core/test/qa-deviation-acceptance-test.js
+ok 13 - ../core/test/qa-deviation-acceptance-test.js
+  ---
+  duration_ms: 19537.709519
+  type: 'test'
+  ...
+# node:fs:440
+#     return binding.readFileUtf8(path, stringToFlags(options.flag));
+#                    ^
+# Error: ENOENT: no such file or directory, open '/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-quick-command-mGH4Od/.agdf/control/MASTER_BACKLOG.md'
+#     at readFileSync (node:fs:440:20)
+#     at file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/quick-closeout-command-test.js:91:23
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   errno: -2,
+#   code: 'ENOENT',
+#   syscall: 'open',
+#   path: '/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-quick-command-mGH4Od/.agdf/control/MASTER_BACKLOG.md'
+# }
+# Node.js v22.22.3
+# Subtest: ../core/test/quick-closeout-command-test.js
+not ok 14 - ../core/test/quick-closeout-command-test.js
+  ---
+  duration_ms: 2983.108187
+  type: 'test'
+  location: '/Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/quick-closeout-command-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Shared report-result compatibility, consistent duplicates, aliases, lifecycle metadata and conflict/unknown/missing refusal passed (19 cases).
+# Authored report contexts and code/quote/HTML exclusion passed (139 context cases, 6 internal cases, canonical template and default-domain check).
+# Subtest: ../core/test/report-decision-test.js
+ok 15 - ../core/test/report-decision-test.js
+  ---
+  duration_ms: 267.648473
+  type: 'test'
+  ...
+# Review finding detection and OR correction (D5) passed.
+# Subtest: ../core/test/review-findings-correction-test.js
+ok 16 - ../core/test/review-findings-correction-test.js
+  ---
+  duration_ms: 76965.056271
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-command-test.js
+ok 17 - ../core/test/run-closeout-command-test.js
+  ---
+  duration_ms: 155988.506473
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-slice-test.js
+ok 18 - ../core/test/run-closeout-slice-test.js
+  ---
+  duration_ms: 147694.447143
+  type: 'test'
+  ...
+# Bounded command schema/groups, side-effect annotations, accessor/injection rejection and generated definition budgets passed (24879 bytes; facade not yet included).
+# Expanded/compact SDK parity (3036 cases), direct field help, five output schemas and legitimate/malformed result variants passed.
+# Subtest: ../core/test/run-command-contract-test.js
+ok 19 - ../core/test/run-command-contract-test.js
+  ---
+  duration_ms: 3238.941858
+  type: 'test'
+  ...
+# Shared revision preview, exact confirmation boundary, original receipt/archive and immutable historical request replay passed (synthetic only).
+# Shared revision preview, exact confirmation boundary, original receipt/archive and immutable historical request replay passed (synthetic only).
+# Subtest: ../core/test/run-command-revision-test.js
+ok 20 - ../core/test/run-command-revision-test.js
+  ---
+  duration_ms: 104701.180767
+  type: 'test'
+  ...
+# Shared service target/group confinement, source recording, historical replay/conflict and post-dispatch lost-result acknowledgement passed (synthetic only).
+# Actual English UAT over German defaults: bound locale for text/native approval, replay and rejection observation; protected sources unchanged.
+# Subtest: ../core/test/run-command-service-test.js
+ok 21 - ../core/test/run-command-service-test.js
+  ---
+  duration_ms: 17261.295495
+  type: 'test'
+  ...
+# Subtest: dedicated creation atomically publishes a sealed initial receipt and replays exactly one effect
+ok 48 - dedicated creation atomically publishes a sealed initial receipt and replays exactly one effect
+  ---
+  duration_ms: 419.321118
+  type: 'test'
+  ...
+# Subtest: creation without canonical control rejects before dispatch with a valid result and no setup side effects
+ok 49 - creation without canonical control rejects before dispatch with a valid result and no setup side effects
+  ---
+  duration_ms: 222.293491
+  type: 'test'
+  ...
+# Subtest: two concurrent original-UUID callers resolve one initial Run and one receipt
+ok 50 - two concurrent original-UUID callers resolve one initial Run and one receipt
+  ---
+  duration_ms: 548.304698
+  type: 'test'
+  ...
+# Subtest: an unexplained creation stage remains untouched and cannot be adopted
+ok 51 - an unexplained creation stage remains untouched and cannot be adopted
+  ---
+  duration_ms: 242.534557
+  type: 'test'
+  ...
+# Subtest: lost creation result is unknown until original receipt observation; replay never creates another Run
+ok 52 - lost creation result is unknown until original receipt observation; replay never creates another Run
+  ---
+  duration_ms: 299.369543
+  type: 'test'
+  ...
+# Subtest: semantic creation titles preserve literal dollar expressions and reject blank intent
+ok 53 - semantic creation titles preserve literal dollar expressions and reject blank intent
+  ---
+  duration_ms: 333.401256
+  type: 'test'
+  ...
+# Subtest: creation titles cannot inject line separators into canonical Run structure
+ok 54 - creation titles cannot inject line separators into canonical Run structure
+  ---
+  duration_ms: 211.632979
+  type: 'test'
+  ...
+# Subtest: an interrupted owned creation stage is recovered only for the exact original request
+ok 55 - an interrupted owned creation stage is recovered only for the exact original request
+  ---
+  duration_ms: 701.055394
+  type: 'test'
+  ...
+# Subtest: defaulted creation retains its sealed resolution across actual process interruption and corrupt current config
+ok 56 - defaulted creation retains its sealed resolution across actual process interruption and corrupt current config
+  ---
+  duration_ms: 708.7874
+  type: 'test'
+  ...
+# Subtest: a changed selected config rejects before new creation; an explicit retry selects the new snapshot
+ok 57 - a changed selected config rejects before new creation; an explicit retry selects the new snapshot
+  ---
+  duration_ms: 300.28373
+  type: 'test'
+  ...
+# SCN-004: English/German/misleading display wording leaves full reader and writer policy unchanged; missing prerequisite changes eligibility; stale write rejected without mutation.
+# Shared full-state/writer renewal, bounded internal recording/replay, invalid completion and shared criteria grammar passed (synthetic only).
+# Subtest: ../core/test/run-flow-coherence-test.js
+ok 23 - ../core/test/run-flow-coherence-test.js
+  ---
+  duration_ms: 22680.133652
+  type: 'test'
+  ...
+# Subtest: private multipart material records through the existing UR writer; restaging identity survives response loss
+ok 59 - private multipart material records through the existing UR writer; restaging identity survives response loss
+  ---
+  duration_ms: 807.363631
+  type: 'test'
+  ...
+# Subtest: 128 KiB Unicode handoff is bounded and bad sizes/offsets/slots do not publish
+ok 60 - 128 KiB Unicode handoff is bounded and bad sizes/offsets/slots do not publish
+  ---
+  duration_ms: 300.672693
+  type: 'test'
+  ...
+# Subtest: invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry never publish material
+ok 61 - invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry never publish material
+  ---
+  duration_ms: 267.854516
+  type: 'test'
+  ...
+# Strict v3 owned-output process interruption, pre-commit rollback, post-commit forward recovery, receipt replay and interference rejection passed (no power-loss claim).
+# Strict v3 owned-output process interruption, pre-commit rollback, post-commit forward recovery, receipt replay and interference rejection passed (no power-loss claim).
+# Subtest: ../core/test/run-owned-output-recovery-test.js
+ok 25 - ../core/test/run-owned-output-recovery-test.js
+  ---
+  duration_ms: 45150.380693
+  type: 'test'
+  ...
+# Subtest: Git facts disable filesystem monitors and preserve the actual changed path
+ok 63 - Git facts disable filesystem monitors and preserve the actual changed path
+  ---
+  duration_ms: 1376.787449
+  type: 'test'
+  ...
+# Subtest: Verified Change uses actual Git baseline and completes through canonical typed writers without run-update
+not ok 64 - Verified Change uses actual Git baseline and completes through canonical typed writers without run-update
+  ---
+  duration_ms: 7739.179058
+  type: 'test'
+  location: '/Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/verified-change-command-test.js:39:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"schema_version":"1","outcome":"rejected","reason":"verified_change_not_ready","operation_id":"fdd611f2-3299-4b67-9a54-b2e534a6ed6a","request_digest":"sha256:e9008ce6110c235461e13f7fadf838e4158ea98e55248cd18fa175b650be7583","binding":{"target_id":"sha256:c88e7c04fee4614e6096f8583b529f5bc37fbb1c74e5e5151c6e9a94c3395bc0","run_id":"verified","expected_revision_id":"8ecc6a19-8255-41e2-9964-67e7c883dec4","kind":"verified_change.record"},"effect":null,"receipt":null,"historical_effect":false,"current":{"available":true,"revision":5,"revision_id":"8ecc6a19-8255-41e2-9964-67e7c883dec4","lifecycle":"active","gate":"Verified Change Execution","status":"open","missing_approval":"none","blocking_reason":"none","next_operation":{"type":"implement_compact_scope","skill_id":"gate-check","operation_key":"implementation.execute","actor":"agent","effect":"implementation","gate":"Verified Change Execution"},"completion":{"status":"pending","gate":"OR","fulfilled":false}},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"authorizes":false,"recovery":null,"family_result":{"schema_version":"1","outcome":"rejected","run_id":"verified","reason":"verified_change_not_ready"}}
+    + actual - expected
+    
+    + 'rejected'
+    - 'accepted'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'accepted'
+  actual: 'rejected'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/arndtgold/.codex/worktrees/planned-urs-masterbacklog-replacement/ai-native-governance-delivery-framework/packages/core/test/verified-change-command-test.js:93:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..64
+# tests 64
+# suites 0
+# pass 59
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 880203.962767

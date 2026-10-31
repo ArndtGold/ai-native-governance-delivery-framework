@@ -4,7 +4,8 @@ import { discoverRuns } from "../control-state/run-state-reader.js";
 import { directoryIdentity, regularFileSnapshot } from "../control-state/run-store-inspection.js";
 import { artefactFileDigest, listedArtefactPaths, pendingArtefactPaths, runSealState } from "../control-state/run-seal.js";
 import { inspectRunRecovery } from "../control-state/run-recovery.js";
-import { doctorRequiredFiles } from "../control-evaluation/required-files.js";
+import { requiredControlFiles } from "../control-evaluation/required-files.js";
+import { readControlLayout, PLANNED_LAYOUT } from '../control-state/control-layout.js';
 import { inspectControlConfiguration } from "../control-state/control-configuration.js";
 import { hasSymlinkComponent } from "../control-state/contained-file.js";
 import { APPROVAL_GATES } from "../control-state/run-seal-compute.js";
@@ -36,7 +37,7 @@ function interruptedRecoveries(root, runId) {
 export const CONTROL_MIGRATION_STATUSES = Object.freeze(["not_checked", "absent", "current", "migration_required", "repair_required"]);
 
 export function uncheckedControl() {
-  return { schema_version: 1, supported_control_state_version: 2, target: null,
+  return { schema_version: 1, supported_control_state_version: 3, supported_control_state_versions: [2, 3], control_layout: null, target: null,
     status: "not_checked", runs: [], diagnostics: [], changes: [], authorizes: false };
 }
 
@@ -54,8 +55,11 @@ export function inspectControlMigration(root) {
         throw Object.assign(new Error("AGDF_CONTROL_PATH_INVALID"), { path });
       }
     }
+    const layout = readControlLayout(root);
+    result.control_layout = layout.layout;
+    result.planned_layout_migration = layout.layout === PLANNED_LAYOUT ? 'not_required' : 'explicit_preview_required';
     const required = [join(".agdf", "control", "config.json"), join(".agdf", "control", "README.md"),
-      ...doctorRequiredFiles.filter((path) => !path.endsWith("AGDF_RUN.md"))];
+      ...requiredControlFiles(root).filter((path) => !path.endsWith("AGDF_RUN.md"))];
     for (const path of required) {
       try { regularFileSnapshot(join(root, path)); } catch {
         throw Object.assign(new Error("AGDF_CONTROL_SCAFFOLD_INCOMPLETE"), { path });
@@ -115,6 +119,11 @@ export function inspectControlMigration(root) {
           entry.status = "repair_required";
           entry.diagnostics.push({ code: "AGDF_RECOVERY_RESUME_REQUIRED" });
         }
+        const expectedVersion = layout.layout === PLANNED_LAYOUT ? '3' : '2';
+        entry.read_only = layout.layout === PLANNED_LAYOUT && run.meta.lifecycle !== 'active' && run.meta.control_state_version === '2';
+        if (run.meta.control_state_version !== expectedVersion && !entry.read_only) {
+          entry.status = 'repair_required'; entry.diagnostics.push({ code: 'AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED' });
+        }
       }
       result.runs.push(entry);
     }
@@ -128,7 +137,8 @@ export function inspectControlMigration(root) {
 }
 
 export function assertControlMigration(value) {
-  if (!value || value.schema_version !== 1 || value.supported_control_state_version !== 2
+  if (!value || value.schema_version !== 1 || ![2, 3].includes(value.supported_control_state_version)
+      || value.supported_control_state_version === 3 && JSON.stringify(value.supported_control_state_versions) !== '[2,3]'
       || !CONTROL_MIGRATION_STATUSES.includes(value.status) || value.authorizes !== false
       || !(value.target === null || (typeof value.target === "string" && isAbsolute(value.target)))
       || (value.status === "not_checked" && value.target !== null)

@@ -2,6 +2,7 @@ import { inspectDefinitionSources } from "../control-evaluation/definition-sourc
 import { prdDefinitionPhase } from "./prd-definition.js";
 import { sdDefinitionPhase } from "./sd-definition.js";
 import { tpDefinitionPhase } from "./tp-definition.js";
+import { inspectAuthoringInputs } from '../control-inspect/authoring-inputs.js';
 import { compactContinuation } from "./compact-continuation.js";
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
@@ -287,6 +288,26 @@ export function createSkillDispatchService(dependencies = {}) {
       }
 
       const controlStarted = now();
+      if (input.planning) {
+        validateControlReadBoundary?.(target.governance_target);
+        const source = inspectAuthoringInputs(target.governance_target, input);
+        if (!source.available) throw Error(source.reason);
+        const result = baseResult({ outcome: 'skill_continuation', terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = { scope: 'planning', planning: input.planning, current_gate: null, authorizes: false };
+        result.continuation = { phase: 'planned_ur_definition', skill_id: 'ur-definition', governance_target: target.governance_target,
+          planning: input.planning, ...resolveArtifactPresentationLanguages(target.governance_target, input.presentation_language),
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts('ur-definition') } : {}),
+          instruction: 'Use the shared ur-definition semantics in planning mode only. Read all current authoring-inputs pages and the exact planned writer contract. Capture or refine one unapproved UR and minimal metadata; incomplete drafts are permitted. Stage only planning-scoped UR material. No Run, PRD, SD, TP, gate presentation or approval is created. Return the saved source and remaining clarification. Start delivery only on a later explicit source-bound handoff request.',
+          next_calls: [{ tool: 'agdf_inspect', arguments: { operation: 'authoring-inputs', working_directory: input.working_directory,
+            primary_target: target.governance_target, target_source: input.target_source, presentation_language: input.presentation_language, planning: input.planning } },
+          { tool: 'agdf_inspect', arguments: { operation: 'operation-contract', module: `agdf_record/${source.recording.kind}`,
+            working_directory: input.working_directory, primary_target: target.governance_target, target_source: input.target_source, presentation_language: input.presentation_language } }],
+        };
+        timing.control_ms = round(milliseconds(controlStarted, now())); timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
       const assignmentResult = (candidates, reason) => {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
         result.target = target;

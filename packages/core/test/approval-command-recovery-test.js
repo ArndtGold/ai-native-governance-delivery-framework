@@ -15,11 +15,14 @@ import { resources } from '../lib/resources/context.js';
 import { commandGroupDefinition } from '../lib/control-state/run-command-schema.js';
 import { inspectRunInputResolution } from '../lib/control-state/run-input-resolution.js';
 import { withInputResolution } from '../lib/control-state/input-resolution.js';
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 
+for (const layout of ['master-backlog-v1', 'planned-urs-v1']) {
 const root = mkdtempSync(join(tmpdir(), 'agdf-approval-recovery-')), seed = root + '-seed';
 try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
-  execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
+  execFileSync('git', ['init', '-q', root]); initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout }));
   const f = createSdDefinitionTestRun(root, cli, 'approval-recovery', process.env, { typedApprovals: true });
   writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
   const service = createCoreServices().command;
@@ -34,7 +37,8 @@ try {
   const original = readFileSync(f.state, 'utf8'), initialReceipts = readApprovalOperations(original).receipts.length;
   const { schema_version, assurance, presentation_language, ...shortened } = input;
   const selected = resolveMcpInput(commandGroupDefinition('agdf_approve'), shortened, { defaults: resources.defaults });
-  for (const defaulted of [false, true]) for (const point of [...intentStages, ...commitStages]) {
+  const stages = [...intentStages, ...commitStages].filter(point => layout === 'master-backlog-v1' || !/^backlog(?:_|$)/u.test(point));
+  for (const defaulted of [false, true]) for (const point of stages) {
     rmSync(join(root, '.agdf'), { recursive: true }); cpSync(seed, join(root, '.agdf'), { recursive: true });
     const code = `import {executeApprovalCommand} from ${JSON.stringify(new URL('../lib/control-state/approval-command.js', import.meta.url).href)};
       import {evaluateGateCheck} from ${JSON.stringify(new URL('../lib/control-evaluation/gate-check.js', import.meta.url).href)};
@@ -78,5 +82,6 @@ try {
     }
     assert.equal(readFileSync(f.state, 'utf8'), current);
   }
-  console.log('Approval journal: 22 legacy and 22 defaulted child-process interruptions, original resolution across corrupt config after intent, one receipt and conflicting-envelope rejection passed; no power-loss claim.');
+  console.log(`Approval journal ${layout}: ${stages.length} explicit and ${stages.length} defaulted child-process interruptions, original resolution across corrupt config after intent, one receipt and conflicting-envelope rejection passed; no power-loss claim.`);
 } finally { rmSync(root, { recursive: true, force: true }); rmSync(seed, { recursive: true, force: true }); }
+}

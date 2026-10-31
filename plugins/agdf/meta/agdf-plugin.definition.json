@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "id": "agdf",
   "version": "0.20.2",
+  "planning": { "schema": "planned-ur-v1", "protocol_version": 1, "authoring_owner": "ur-definition" },
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "Arndt Gold",
   "description": "Control layer for governed AI-assisted delivery.",
@@ -440,8 +441,8 @@
         "ur-definition"
       ],
       "discovery": "automatic",
-      "useFor": "bound UR drafting, clarification or revision",
-      "boundary": "content only; preserves approved intent",
+      "useFor": "UR drafting in planning scope or a bound Run",
+      "boundary": "content only; no start or approval authority",
       "dispatch": {
         "mode": "judgement_required",
         "requiresControlSnapshot": true

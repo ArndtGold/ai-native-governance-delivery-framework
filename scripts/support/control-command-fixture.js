@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveControlCommandTarget } from "../../packages/cli/lib/control-command.js";
+import { canonicalInitPlan } from '../../packages/core/lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../../packages/core/lib/control-state/canonical-initialization.js';
 
 export const sourceCli = fileURLToPath(new URL("../../packages/cli/bin/create-agdf.js", import.meta.url));
 export function invoke(cli, args, expected = 0) {
@@ -19,12 +21,14 @@ export function approvalArgs(fixture, command = fixture.command) {
     "--revision", command.expected_revision_id, "--presentation", command.presentation_id,
     "--response", command.response, "--operation", command.operation_id, "--assurance", command.assurance];
 }
-export function commandFixture({ cli = sourceCli, base = tmpdir(), runId = "command-test", operation = randomUUID() } = {}) {
+export function commandFixture({ cli = sourceCli, base = tmpdir(), runId = "command-test", operation = randomUUID(), layout = 'master-backlog-v1' } = {}) {
   const root = realpathSync(mkdtempSync(join(base, "agdf-command-")));
   const runPath = join(root, ".agdf/control/runs", runId, "RUN_STATE.md");
   try {
     assert.equal(spawnSync("git", ["init", "-q"], { cwd: root }).status, 0);
-    invoke(cli, ["init", "--dir", root, "--language", "de"]);
+    // The original receipt/journal corpus intentionally keeps its genuine v2
+    // layout. New-layout feature tests request their separate v3 fixtures.
+    initializeCanonicalControl(root, canonicalInitPlan('de', undefined, { layout }));
     invoke(cli, ["config", "--dir", root, "--language", "de"]);
     // The fixture UR below is English with a German approval summary: artefacts en, chat de. The
     // summary source language comes from artifact_language, so it must match the artefact text.

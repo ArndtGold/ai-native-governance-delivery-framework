@@ -365,7 +365,7 @@ try {
 
   for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     const readyRoot = mkdtempSync(join(tmpdir(), `agdf-ready-${gate.toLowerCase()}-`));
-    execFileSync(process.execPath, [cli, "init", "--dir", readyRoot]);
+    initializeCanonicalControl(readyRoot, generatedFilesForTarget('init', readyRoot, false, 'en'));
     rmSync(join(readyRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });
     const runId = `ready-${gate.toLowerCase()}`;
     execFileSync(process.execPath, [cli, "run-create", "--dir", readyRoot, "--run", runId]);

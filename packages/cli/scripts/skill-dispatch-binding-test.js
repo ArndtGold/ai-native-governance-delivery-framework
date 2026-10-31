@@ -10,7 +10,7 @@ import { TASK_TARGET_SOURCES } from "#agdf-core/task-target-resolution.js";
 import { AGDFPlugin } from "../opencode-plugin.js";
 import { createRun, renderRunState } from "#agdf-core/control-state/index.js";
 import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
+import { generatedFilesForTarget } from "../../core/test/fixtures/legacy-init-plan.js";
 
 // Emulate a host following the supplied grammar, not a production enforcement layer.
 // Actual hosts still own semantic target values and their process/shell transport.

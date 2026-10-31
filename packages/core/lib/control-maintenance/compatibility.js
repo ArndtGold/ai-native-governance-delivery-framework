@@ -55,6 +55,10 @@ export function inspectControlMigration(root) {
         throw Object.assign(new Error("AGDF_CONTROL_PATH_INVALID"), { path });
       }
     }
+    const configPath = join('.agdf', 'control', 'config.json');
+    if (!entryExists(join(root, configPath))) {
+      throw Object.assign(new Error('AGDF_CONTROL_SCAFFOLD_INCOMPLETE'), { path: configPath });
+    }
     const layout = readControlLayout(root);
     result.control_layout = layout.layout;
     result.planned_layout_migration = layout.layout === PLANNED_LAYOUT ? 'not_required' : 'explicit_preview_required';

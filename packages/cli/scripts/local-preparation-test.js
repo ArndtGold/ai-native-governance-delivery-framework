@@ -7,7 +7,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const repo = fileURLToPath(new URL("../../..", import.meta.url));
-const fixture = realpathSync(mkdtempSync(join(tmpdir(), "agdf-local-preparation-")));
+// Expand Windows 8.3 temp aliases so Vite's real file names share the same root.
+const fixture = realpathSync.native(mkdtempSync(join(tmpdir(), "agdf-local-preparation-")));
 const run = (script, ...args) => spawnSync(process.execPath, [join(fixture, "packages", "cli", "scripts", script), ...args], { encoding: "utf8" });
 try {
   copySourceFixture(fixture);

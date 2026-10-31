@@ -1,0 +1,25 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Rebuild missing or stale MCP UI resources during local installation
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Der lokale Installer bricht bei fehlenden oder veralteten MCP-UI-Builds ab; der manuelle Neubau hat den gemeldeten Fehler behoben.
+- Ziel: Lokale Installationen aus dem Checkout sollen die erforderlichen aktuellen UI-Ressourcen automatisch erhalten. Betroffen sind Entwickler, die Codex oder eine andere bestehende lokale Oberfläche installieren.
+- Umfang: Gemeinsame Vorbereitung, bestehende Validierung und Build-Owner nutzen; gültige Builds wiederverwenden, fehlende oder ungültige Builds neu bauen und anschließend validieren; Voraussetzungen und Fehler verständlich behandeln; vorhandene Tests und bei Bedarf Installationshinweise ergänzen.
+- Abgrenzung: Keine UI-Funktionen, Lockerung der Integritätsprüfung, Release-Aktionen, Hostinstallation oder MCP-Registrierung.
+- Abnahme: Fehlende und veraltete Ressourcen werden repariert; aktuelle Builds werden wiederverwendet; Buildfehler oder ungültige Ergebnisse stoppen vor der Hostinstallation; oberflächenspezifische Pakete bleiben korrekt. Regressionstests müssen den ursprünglichen Fehler erkennen.
+- Verantwortung: prepare-local-plugin.js, cockpit-ui-build.mjs und build-mcp.mjs bleiben die bestehenden Owner; CONTRIBUTING.md und GOVERNANCE.md gelten weiter.
+- Offen: Abhängigkeiten im sauberen Checkout, npm-Aufrufe je Plattform und Quelländerungen während des Builds sind durch die bestehenden Owner zu prüfen. Repositorytests beweisen keine native Hostfreigabe.
+- Nächster Schritt: Approval: UR; danach Brownfield Review und proportionale Pfadwahl vor der Umsetzung.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-9a176a40-6508-4b92-b77f-305741d9ef06` · Nutzeranforderungen · Revision: `39b570a7-3216-4f18-b7c6-7e2cab32e401`
+
+SHA-256: `sha256:6231b0e05c972f59243635aeeb5c9c481009e01b9e82c497ad8f989c7aa6af52`

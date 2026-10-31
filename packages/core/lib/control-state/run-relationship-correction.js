@@ -67,8 +67,7 @@ export function correctRunRelationship(root, { runId, revisionId }, { evaluateGa
       written = { meta: actual.meta }; recoveredCommit = true;
     }
     return { schema_version: "1", outcome: "corrected", run_id: runId, binding_id: receipt.binding_id,
-      backlog: "pending", backlog_reason: "run_only_relationship_correction",
-      backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${written.meta.revision_id}.`,
+      backlog: "not_required",
       relationship: receipt.relationship, previous_revision_id: revisionId, revision_id: written.meta.revision_id, revision: written.meta.revision,
       ...(recoveredCommit ? { recovered_commit: true } : {}) };
   }));

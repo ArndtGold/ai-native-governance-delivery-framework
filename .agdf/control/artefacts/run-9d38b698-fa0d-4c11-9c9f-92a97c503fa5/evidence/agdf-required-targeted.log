@@ -1,0 +1,306 @@
+TAP version 13
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: backlog_temp_opened: {"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"91f71931-b6c6-489b-abda-5652b833793d","request_digest":"sha256:68b2b9463ddddb324c963afaba754a2cd08f583ab0532dad4778c0008d13f1f6","binding":{"target_id":"sha256:82311a7344e1db07b17dfa6f743387bfb3d14bb28e046ea98bc6a4b0354394b1","run_id":"approval-recovery","gate":"SD","expected_revision_id":"37ef111c-6d88-4cd9-b4a3-16c5c70a7221","presentation_id":"c3ca4f79-12f1-46eb-b703-8bfc52f437cc"},"effect":{"previous_revision_id":"37ef111c-6d88-4cd9-b4a3-16c5c70a7221","resulting_revision_id":"30b3987c-8347-4570-8d7c-8475cb990a48","revision":8,"gate":"SD","approval":"Approval: SD","material_version":"sha256:33d3dc38802f8d35d4b2fbd2e1da7ff49eb8cc4a14518d22eab4c0bda76dfded","material_sources":[{"type":"UR","path":".agdf/control/artefacts/approval-recovery/UR.md","digest":"sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a"},{"type":"PRD","path":".agdf/control/artefacts/approval-recovery/PRD.md","digest":"sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"},{"type":"SD","path":".agdf/control/artefacts/approval-recovery/SD.md","digest":"sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"}],"artefact_digest":"sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189","presentation_digest":"sha256:1ec66fab5a2e55f5b3acfbef9dce643743190a02967a5c23a946d34d1efe5c3e","next_gate_after_approval":"TP","allowed_after_approval":"Draft or refine the Task/Test Plan; do not implement before TP is approved."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":8,"revision_id":"30b3987c-8347-4570-8d7c-8475cb990a48","approval_status":"approved","lifecycle":"active","gate":"TP","status":"open","missing_approval":"Approval: TP","next_allowed_action":"Draft or refine the Task/Test Plan; do not implement before TP is approved.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}
+# 0 !== 71
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/core/test/approval-command-recovery-test.js:50:12
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: false,
+#   code: 'ERR_ASSERTION',
+#   actual: 0,
+#   expected: 71,
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/core/test/approval-command-recovery-test.js
+not ok 1 - packages/core/test/approval-command-recovery-test.js
+  ---
+  duration_ms: 58062.334192
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/core/test/approval-command-recovery-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: SCN-007/008: exact references preserve passive node bytes, fences and section boundaries without recursive expansion
+ok 2 - SCN-007/008: exact references preserve passive node bytes, fences and section boundaries without recursive expansion
+  ---
+  duration_ms: 4706.645017
+  type: 'test'
+  ...
+# Subtest: SCN-009/010/011: 64 refs, 16 selected, deliberate unavailable exclusion and scoped inspected-source packets
+ok 3 - SCN-009/010/011: 64 refs, 16 selected, deliberate unavailable exclusion and scoped inspected-source packets
+  ---
+  duration_ms: 2078.179256
+  type: 'test'
+  ...
+# Subtest: SCN-012: inclusive 64 KiB counts multibyte source plus all provenance, without truncation
+ok 4 - SCN-012: inclusive 64 KiB counts multibyte source plus all provenance, without truncation
+  ---
+  duration_ms: 1.547313
+  type: 'test'
+  ...
+# Subtest: SCN-013/020: changed captures, generation, supersession and invalidation prevent packet reuse
+ok 5 - SCN-013/020: changed captures, generation, supersession and invalidation prevent packet reuse
+  ---
+  duration_ms: 2524.432301
+  type: 'test'
+  ...
+# Subtest: SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+ok 6 - SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+  ---
+  duration_ms: 2323.25989
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+ok 7 - SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+  ---
+  duration_ms: 2238.047745
+  type: 'test'
+  ...
+# Subtest: SCN-004: missing or foreign/malformed approval presentation never confirms current version
+ok 8 - SCN-004: missing or foreign/malformed approval presentation never confirms current version
+  ---
+  duration_ms: 7564.513822
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+ok 9 - SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+  ---
+  duration_ms: 4590.319885
+  type: 'test'
+  ...
+# Subtest: SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+ok 10 - SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+  ---
+  duration_ms: 0.367383
+  type: 'test'
+  ...
+# Subtest: SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+ok 11 - SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+  ---
+  duration_ms: 4542.609017
+  type: 'test'
+  ...
+# Subtest: SCN-006: actual current SD traceability findings are shown without changing the original report
+ok 12 - SCN-006: actual current SD traceability findings are shown without changing the original report
+  ---
+  duration_ms: 1272.284337
+  type: 'test'
+  ...
+# Subtest: SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+ok 13 - SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+  ---
+  duration_ms: 2160.15954
+  type: 'test'
+  ...
+# Subtest: SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+ok 14 - SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+  ---
+  duration_ms: 7037.665897
+  type: 'test'
+  ...
+# Subtest: SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+ok 15 - SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+  ---
+  duration_ms: 2508.916613
+  type: 'test'
+  ...
+# Subtest: SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+ok 16 - SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+  ---
+  duration_ms: 5669.879474
+  type: 'test'
+  ...
+# Subtest: SCN-009: Core document description array enforces its exact serialized limit
+ok 17 - SCN-009: Core document description array enforces its exact serialized limit
+  ---
+  duration_ms: 3251.672881
+  type: 'test'
+  ...
+# Subtest: SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+ok 18 - SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+  ---
+  duration_ms: 9250.45216
+  type: 'test'
+  ...
+# Subtest: SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+ok 19 - SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+  ---
+  duration_ms: 2461.844338
+  type: 'test'
+  ...
+# Subtest: SCN-006: changes during captured/replay/published check never publish success
+ok 20 - SCN-006: changes during captured/replay/published check never publish success
+  ---
+  duration_ms: 7090.180644
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+ok 21 - SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+  ---
+  duration_ms: 4223.878578
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+ok 22 - SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+  ---
+  duration_ms: 3892.382902
+  type: 'test'
+  ...
+# Subtest: original Brownfield Analysis history is compatible with the current reader and unsupported by the archived reader
+ok 23 - original Brownfield Analysis history is compatible with the current reader and unsupported by the archived reader
+  ---
+  duration_ms: 24.729941
+  type: 'test'
+  ...
+# Subtest: an exact selected observation never captures unrelated Run history
+ok 24 - an exact selected observation never captures unrelated Run history
+  ---
+  duration_ms: 481.255253
+  type: 'test'
+  ...
+# Subtest: bound revision intake is isolated while unbound assignment remains complete and fail closed
+ok 25 - bound revision intake is isolated while unbound assignment remains complete and fail closed
+  ---
+  duration_ms: 422.719071
+  type: 'test'
+  ...
+# Subtest: all-active diagnosis preserves same-source single/shared findings and accounts invalid entries
+ok 26 - all-active diagnosis preserves same-source single/shared findings and accounts invalid entries
+  ---
+  duration_ms: 396.685008
+  type: 'test'
+  ...
+# Subtest: selected diagnosis preserves a known unsupported version instead of hiding it as generic selection failure
+ok 27 - selected diagnosis preserves a known unsupported version instead of hiding it as generic selection failure
+  ---
+  duration_ms: 372.352711
+  type: 'test'
+  ...
+# Subtest: missing, malformed and conflicting versions remain unclassified rather than asserted producer incompatibility
+ok 28 - missing, malformed and conflicting versions remain unclassified rather than asserted producer incompatibility
+  ---
+  duration_ms: 289.737727
+  type: 'test'
+  ...
+# Subtest: bounded inventory pages account 0/1/10/100 active entries and preserve same-source findings
+ok 29 - bounded inventory pages account 0/1/10/100 active entries and preserve same-source findings
+  ---
+  duration_ms: 7495.764577
+  type: 'test'
+  ...
+# Subtest: inventory cursor rejects source mutation and out-of-order replay without stale completion
+ok 30 - inventory cursor rejects source mutation and out-of-order replay without stale completion
+  ---
+  duration_ms: 1706.242365
+  type: 'test'
+  ...
+# Subtest: parent observation uses isolated reusable workers, shared capacity and truthful read recovery
+ok 31 - parent observation uses isolated reusable workers, shared capacity and truthful read recovery
+  ---
+  duration_ms: 932.915152
+  type: 'test'
+  ...
+# Subtest: foreign and out-of-order parent cursors cannot retire a valid advertised continuation
+ok 32 - foreign and out-of-order parent cursors cannot retire a valid advertised continuation
+  ---
+  duration_ms: 1717.22273
+  type: 'test'
+  ...
+# Subtest: actual silent read-worker timeout and cancellation never become clean diagnosis or write recovery
+ok 33 - actual silent read-worker timeout and cancellation never become clean diagnosis or write recovery
+  ---
+  duration_ms: 7187.155597
+  type: 'test'
+  ...
+# Shared service target/group confinement, source recording, historical replay/conflict and post-dispatch lost-result acknowledgement passed (synthetic only).
+# Actual English UAT over German defaults: bound locale for text/native approval, replay and rejection observation; protected sources unchanged.
+# Subtest: packages/core/test/run-command-service-test.js
+ok 6 - packages/core/test/run-command-service-test.js
+  ---
+  duration_ms: 52031.631975
+  type: 'test'
+  ...
+# Subtest: dedicated creation atomically publishes a sealed initial receipt and replays exactly one effect
+ok 35 - dedicated creation atomically publishes a sealed initial receipt and replays exactly one effect
+  ---
+  duration_ms: 676.415794
+  type: 'test'
+  ...
+# Subtest: creation without canonical control rejects before dispatch with a valid result and no setup side effects
+ok 36 - creation without canonical control rejects before dispatch with a valid result and no setup side effects
+  ---
+  duration_ms: 336.124476
+  type: 'test'
+  ...
+# Subtest: two concurrent original-UUID callers resolve one initial Run and one receipt
+ok 37 - two concurrent original-UUID callers resolve one initial Run and one receipt
+  ---
+  duration_ms: 1240.986713
+  type: 'test'
+  ...
+# Subtest: an unexplained creation stage remains untouched and cannot be adopted
+ok 38 - an unexplained creation stage remains untouched and cannot be adopted
+  ---
+  duration_ms: 254.009284
+  type: 'test'
+  ...
+# Subtest: lost creation result is unknown until original receipt observation; replay never creates another Run
+ok 39 - lost creation result is unknown until original receipt observation; replay never creates another Run
+  ---
+  duration_ms: 354.490103
+  type: 'test'
+  ...
+# Subtest: semantic creation titles preserve literal dollar expressions and reject blank intent
+ok 40 - semantic creation titles preserve literal dollar expressions and reject blank intent
+  ---
+  duration_ms: 353.450259
+  type: 'test'
+  ...
+# Subtest: creation titles cannot inject line separators into canonical Run structure
+ok 41 - creation titles cannot inject line separators into canonical Run structure
+  ---
+  duration_ms: 220.591281
+  type: 'test'
+  ...
+# Subtest: an interrupted owned creation stage is recovered only for the exact original request
+ok 42 - an interrupted owned creation stage is recovered only for the exact original request
+  ---
+  duration_ms: 1092.154812
+  type: 'test'
+  ...
+# Subtest: defaulted creation retains its sealed resolution across actual process interruption and corrupt current config
+ok 43 - defaulted creation retains its sealed resolution across actual process interruption and corrupt current config
+  ---
+  duration_ms: 1343.404131
+  type: 'test'
+  ...
+# Subtest: a changed selected config rejects before new creation; an explicit retry selects the new snapshot
+ok 44 - a changed selected config rejects before new creation; an explicit retry selects the new snapshot
+  ---
+  duration_ms: 259.299213
+  type: 'test'
+  ...
+# Run lock owner recovery passed.
+# Subtest: packages/core/test/run-lock-test.js
+ok 8 - packages/core/test/run-lock-test.js
+  ---
+  duration_ms: 1049.27594
+  type: 'test'
+  ...
+1..45
+# tests 45
+# suites 0
+# pass 44
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 222902.63297

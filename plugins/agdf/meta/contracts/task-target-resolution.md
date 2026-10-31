@@ -154,3 +154,27 @@ result; it must not resolve targets, derive governance or become a state store.
 Show orientation when target/context separation is material, when the target changes, or when the
 result is unresolved. Avoid redundant presentation for an obvious unchanged target. Presentation
 never grants mutation or gate authority.
+
+## Worktree Placement And Assigned Checkout
+
+When choosing a new worktree for an initiative, use
+`<owning-primary-checkout>/.agdf/worktrees/<initiative>/`. Determine the primary owner from
+Git common-directory/worktree metadata through the existing repository-context/Git boundary;
+a linked checkout's cwd is not the owner. Resolve unclear ownership, unsafe initiative paths
+and destination collisions before creation. Reuse an already assigned worktree for the coherent
+initiative; do not recursively create another worktree inside it. This rule does not require
+worktrees for every trivial task.
+
+Verify that the owning checkout ignores the container before creating a worktree. Preserve an
+existing correct ignore mechanism. Otherwise prepare a contained `.agdf/worktrees/.gitignore`
+with an ignore-all rule for its contents, preserving foreign rules, and verify the destination
+with `git check-ignore`. This is preparation guidance, not permission for an automatic manager
+to create/switch/move/clean worktrees or edit arbitrary ignore files.
+
+Existing locations and explicit user-instructed alternatives remain supported; record the
+assignment/exception rather than moving existing work. One writer continues each Run in its
+assigned checkout; reviewers read only. Path/branch names confer no authority and checkout-path
+target identity does not enforce branch/HEAD binding or cross-checkout locks. Never share or
+symlink control stores. New worktrees do not copy untracked Run artefacts; inventory and preserve
+registered/untracked evidence before separately authorized handoff or cleanup. Global plugins,
+configuration, ports and external services are not isolated by Git worktrees.

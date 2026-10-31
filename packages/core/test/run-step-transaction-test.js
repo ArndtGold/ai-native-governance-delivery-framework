@@ -1,3 +1,4 @@
+import { withOwnedFileLock } from '../lib/control-state/run-state-writer.js';
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
@@ -15,13 +16,15 @@ import { evaluateDoctor } from "../lib/control-evaluation/doctor.js";
 import { policyForRunContent } from "../lib/control-evaluation/run-step-policy.js";
 import { runSealState } from "../lib/control-state/run-seal.js";
 import { readRun } from "../lib/control-state/run-state-edits.js";
-import { recoverPendingRunStep } from "../lib/control-state/run-step-transaction.js";
+import { recoverPendingRunStep, commitRunStepLocked } from "../lib/control-state/run-step-transaction.js";
 import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
 
 const digest = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
 const closeout = { result: "delivered", evidence: "test evidence", risk: "none", next: "done" };
 
 function fixture(root, runId) {
+  const backlog = join(root, '.agdf/control/MASTER_BACKLOG.md');
+  if (!existsSync(backlog)) writeFileSync(backlog, '# Legacy planning\n\nRetained idea.\n');
   const state = createRun(root, runId);
   const artefacts = join(root, ".agdf", "control", "artefacts", runId);
   mkdirSync(artefacts, { recursive: true });
@@ -41,7 +44,7 @@ function fixture(root, runId) {
   return { state, artefacts, revision, step, or: join(artefacts, "OR.md") };
 }
 
-for (const boundary of ["intent", "or", "run", "backlog"]) {
+for (const boundary of ["intent", "or", "run"]) {
   const root = mkdtempSync(join(tmpdir(), `agdf-run-step-${boundary}-`));
   try {
     initializeCanonicalControl(root, generatedFilesForTarget("init", root, false, "de"));
@@ -62,15 +65,13 @@ for (const boundary of ["intent", "or", "run", "backlog"]) {
       assert.equal(existsSync(join(root, ".agdf", "control", "runs", "first", "RUN_STEP_PENDING.json")), false);
       assert.equal(run.step("closeout", closeout).outcome, "recorded");
     } else {
-      const captured = JSON.parse(readFileSync(join(root, '.agdf/control/runs/first/RUN_STEP_PENDING.json'), 'utf8')).backlog.next;
+      assert.equal(JSON.parse(readFileSync(join(root, '.agdf/control/runs/first/RUN_STEP_PENDING.json'), 'utf8')).backlog, null);
       assert.equal(run.step("closeout", closeout).outcome, "recovered", boundary);
-      assert.equal(readFileSync(backlog, 'utf8'), captured, 'recovery preserves captured row and marker bytes');
+      assert.equal(digest(backlog), prior.backlog, 'Run-only recovery leaves legacy bytes unchanged');
     }
     assert.equal(runSealState(root, readFileSync(run.state, "utf8")).status, "valid", boundary);
     assert.match(readFileSync(run.or, "utf8"), /delivered/);
-    assert.notEqual(digest(backlog), prior.backlog);
-    const marker = readFileSync(backlog, 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === 'first').record;
-    assert.equal(marker.revision_id, run.revision()); assert.equal(marker.section, 'Completed / Superseded Pointers'); assert.equal(marker.kind, 'completed');
+    assert.equal(digest(backlog), prior.backlog);
     assert.equal(existsSync(join(root, ".agdf", "control", "runs", "first", "RUN_STEP_PENDING.json")), false);
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
@@ -109,14 +110,28 @@ try {
     child.on("exit", (code) => code === 0 ? resolve() : reject(new Error(`${runId}: ${stderr}`)));
   });
   await Promise.all([worker("alpha"), worker("beta")]);
-  const backlog = readFileSync(join(concurrentRoot, ".agdf", "control", "MASTER_BACKLOG.md"), "utf8");
-  for (const runId of ["alpha", "beta"]) {
-    assert.equal(backlog.split("\n").filter((line) => line.startsWith(`| P1 | ${runId} |`)).length, 1);
-    const markers = backlog.split('\n').map(decodeBacklogMarker).filter(m => m?.record?.run_id === runId);
-    assert.equal(markers.length, 1); assert.equal(markers[0].record.revision_id,
-      parseRunState(readFileSync(join(concurrentRoot, '.agdf/control/runs', runId, 'RUN_STATE.md'), 'utf8')).meta.revision_id);
-  }
+  assert.equal(existsSync(join(concurrentRoot, '.agdf/control/MASTER_BACKLOG.md')), false);
+  for (const runId of ['alpha', 'beta']) assert.equal(runSealState(concurrentRoot,
+    readFileSync(join(concurrentRoot, '.agdf/control/runs', runId, 'RUN_STATE.md'), 'utf8')).status, 'valid');
+
 } finally { rmSync(concurrentRoot, { recursive: true, force: true }); }
+
+const independentRoot = mkdtempSync(join(tmpdir(), 'agdf-run-step-independent-pending-'));
+try {
+  initializeCanonicalControl(independentRoot, generatedFilesForTarget('init', independentRoot, false, 'de'));
+  const alpha = fixture(independentRoot, 'alpha'), beta = fixture(independentRoot, 'beta');
+  const legacy = readFileSync(join(independentRoot, '.agdf/control/MASTER_BACKLOG.md'), 'utf8');
+  const interrupted = alpha.step('closeout', closeout, { afterWrite(stage) { if (stage === 'run') throw Error('interrupted alpha'); } });
+  assert.equal(interrupted.reason, 'run_step_recovery_required');
+  const oldBeta = beta.revision();
+  assert.equal(beta.step('evidence', { evidence: 'Independent beta check' }).outcome, 'recorded');
+  assert.equal(beta.step('evidence', { evidence: 'Stale beta check', revisionId: oldBeta }).reason, 'stale_revision');
+  assert.notEqual(evaluateDoctor(independentRoot, { runId: 'beta' }).status, 'block');
+  const betaBytes = readFileSync(beta.state, 'utf8');
+  assert.equal(recoverPendingRunStep(independentRoot, 'alpha').status, 'completed');
+  assert.equal(readFileSync(beta.state, 'utf8'), betaBytes);
+  assert.equal(readFileSync(join(independentRoot, '.agdf/control/MASTER_BACKLOG.md'), 'utf8'), legacy);
+} finally { rmSync(independentRoot, { recursive: true, force: true }); }
 
 const conflictRoot = mkdtempSync(join(tmpdir(), "agdf-run-step-conflict-"));
 try {
@@ -125,9 +140,13 @@ try {
   const backlog = join(conflictRoot, ".agdf", "control", "MASTER_BACKLOG.md");
   const oldBacklog = readFileSync(backlog, "utf8");
   const foreignBacklog = `${oldBacklog}\nforeign edit\n`;
-  assert.equal(run.step("closeout", closeout, { afterWrite(stage) {
-    if (stage === "intent") writeFileSync(backlog, foreignBacklog);
-  } }).reason, "run_step_recovery_required");
+  // Emulate a pre-cutover journal using the original low-level transaction owner.
+  const oldRun = readFileSync(run.state, 'utf8');
+  assert.throws(() => withOwnedFileLock(run.state, () => withOwnedFileLock(backlog, () => commitRunStepLocked(conflictRoot, {
+    runId: 'conflict', runPath: run.state, content: oldRun, revisionId: run.revision(), expectedContent: oldRun,
+    backlog: { old: oldBacklog, next: oldBacklog + 'captured legacy update\n' }, or: null,
+    afterWrite(stage) { if (stage === 'run') { writeFileSync(backlog, foreignBacklog); throw Error('legacy interruption'); } },
+  }))), /AGDF_RUN_STEP_RECOVERY_REQUIRED/);
   assert.equal(readFileSync(backlog, "utf8"), foreignBacklog);
   assert.equal(readRun(conflictRoot, "conflict").rejection.reason, "run_step_recovery_required");
   const second = createRun(conflictRoot, "second");
@@ -143,29 +162,25 @@ try {
   assert.equal(otherRead.status, "block");
   assert.ok(otherRead.findings.some(({ code }) => code === "AGDF_RUN_STEP_RECOVERY_REQUIRED"));
   writeFileSync(backlog, oldBacklog);
-  assert.equal(recoverPendingRunStep(conflictRoot, "conflict").status, "rolled_back");
+  assert.equal(recoverPendingRunStep(conflictRoot, "conflict").status, "completed");
+  assert.equal(readFileSync(backlog, "utf8"), oldBacklog + "captured legacy update\n");
 } finally { rmSync(conflictRoot, { recursive: true, force: true }); }
 
 const sameTextRoot = mkdtempSync(join(tmpdir(), 'agdf-run-step-same-text-'));
 try {
   initializeCanonicalControl(sameTextRoot, generatedFilesForTarget('init', sameTextRoot, false, 'de'));
   const run = fixture(sameTextRoot, 'same-text'), backlog = join(sameTextRoot, '.agdf/control/MASTER_BACKLOG.md');
-  const row = () => readFileSync(backlog, 'utf8').split('\n').find(line => line.startsWith('| P1 | same-text |'));
-  const marker = text => text.split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === 'same-text').record;
-  const beforeRow = row(), beforeRevision = run.revision();
+  const before = readFileSync(backlog, 'utf8'), beforeRevision = run.revision();
   const repeated = run.step('review', { decision: 'pass', evidence: 'fixture' });
-  assert.equal(repeated.outcome, 'recorded'); assert.equal(repeated.backlog, 'updated');
-  assert.equal(row(), beforeRow); assert.notEqual(repeated.revision_id, beforeRevision);
-  assert.equal(marker(readFileSync(backlog, 'utf8')).revision_id, repeated.revision_id);
-  const interrupted = run.step('review', { decision: 'pass', evidence: 'fixture' }, { afterWrite(stage) {
-    if (stage === 'run') throw Error('same-text injected interruption');
-  } });
+  assert.equal(repeated.outcome, 'recorded'); assert.equal(repeated.backlog, 'not_required');
+  assert.notEqual(repeated.revision_id, beforeRevision); assert.equal(readFileSync(backlog, 'utf8'), before);
+  // Closeout owns OR output, so it uses a journal even without a typed operation context.
+  const interrupted = run.step('closeout', closeout, { afterWrite(stage) { if (stage === 'run') throw Error('injected'); } });
   assert.equal(interrupted.reason, 'run_step_recovery_required');
-  const captured = JSON.parse(readFileSync(join(sameTextRoot, '.agdf/control/runs/same-text/RUN_STEP_PENDING.json'), 'utf8')).backlog.next;
-  assert.equal(marker(captured).revision_id, run.revision());
-  const recovered = run.step('review', { decision: 'pass', evidence: 'fixture' });
-  assert.equal(recovered.outcome, 'recovered'); assert.equal(readFileSync(backlog, 'utf8'), captured);
-  assert.equal(row(), beforeRow); assert.equal(marker(captured).revision_id, run.revision());
+  assert.equal(JSON.parse(readFileSync(join(sameTextRoot, '.agdf/control/runs/same-text/RUN_STEP_PENDING.json'), 'utf8')).backlog, null);
+  assert.equal(run.step('closeout', closeout).outcome, 'recovered');
+  assert.equal(readFileSync(backlog, 'utf8'), before);
+
 } finally { rmSync(sameTextRoot, { recursive: true, force: true }); }
 
 console.log("Run-step transaction boundaries passed.");

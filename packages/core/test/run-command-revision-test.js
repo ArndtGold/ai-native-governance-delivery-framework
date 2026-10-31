@@ -61,25 +61,41 @@ try {
         createRunCommandService({materialGrants:JSON.parse(process.argv[3]),checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;
       const interrupted = spawnSync(process.execPath, ['--input-type=module', '-e', program, JSON.stringify(stagedApply), stage, JSON.stringify([grant])]);
       assert.equal(interrupted.status, 71, stage + ': ' + interrupted.stderr);
-      const pending = readPendingSourceRevisionJournal(root, f.runId); assert.equal(pending.schema_version, 5);
+      let pending = readPendingSourceRevisionJournal(root, f.runId); assert.equal(pending.schema_version, 5);
+      // Synthetic compatibility fixture: retain a real v5 archive/receipt journal,
+      // adding only the old writer's captured backlog obligation after interruption.
+      const legacyPath = join(root, '.agdf/control/MASTER_BACKLOG.md');
+      if (stage === 'run_after_rename') {
+        writeFileSync(legacyPath, '# Captured legacy v5 old\n');
+        pending.backlog = { old: '# Captured legacy v5 old\n', next: '# Captured legacy v5 next\n' };
+        writeFileSync(join(root, '.agdf/control/runs', f.runId, 'RUN_STEP_PENDING.json'), JSON.stringify(pending));
+      }
       const recovery = { ...envelope, expected_revision_id: f.revision(), command: { kind: 'source_revision.recover', payload: {
         source_gate: 'TP', proposal: reference, recovery_revision_id: f.revision(), pending_digest: digest(canonicalJson(pending)) } } };
       const recovered = staged('agdf_revise', recovery);
       assert.equal(recovered.outcome, 'accepted', JSON.stringify(recovered));
+      if (stage === 'run_after_rename') assert.equal(readFileSync(legacyPath, 'utf8'), '# Captured legacy v5 next\n');
       assert.equal(staged('agdf_revise', stagedApply).outcome, stage === 'run_after_rename' ? 'already_applied' : 'accepted');
       rmSync(join(root, '.agdf'), { recursive: true }); cpSync(seed, join(root, '.agdf'), { recursive: true });
     }
-    for (const stage of [...intentStages, ...archiveStages, ...commitStages]) {
+    for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => !stage.startsWith('backlog'))) {
       const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
         createRunCommandService({checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;
       const interrupted = spawnSync(process.execPath, ['--input-type=module', '-e', program, JSON.stringify(input), stage]);
       assert.equal(interrupted.status, 71, stage + ': ' + interrupted.stderr);
       if (!beforeIntent(stage) && stage !== 'retired') {
         const pending = readPendingSourceRevisionJournal(root, f.runId);
+        if (stage === 'run_after_rename') {
+          assert.equal(pending.schema_version, 2);
+          writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), '# Captured legacy v2 old\n');
+          pending.backlog = { old: '# Captured legacy v2 old\n', next: '# Captured legacy v2 next\n' };
+          writeFileSync(join(root, '.agdf/control/runs', f.runId, 'RUN_STEP_PENDING.json'), JSON.stringify(pending));
+        }
         const recovery = { ...input, expected_revision_id: f.revision(), command: { kind: 'source_revision.recover', payload: {
           ...payload, recovery_revision_id: f.revision(), pending_digest: digest(canonicalJson(pending)),
         } } };
         assert.equal(service('agdf_revise', recovery).outcome, 'accepted', stage);
+        if (stage === 'run_after_rename') assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8'), '# Captured legacy v2 next\n');
       }
       if (beforeRunCommit(stage)) assert.equal(readFileSync(f.state, 'utf8'), before, stage);
       assert.equal(service('agdf_revise', input).outcome, beforeRunCommit(stage) ? 'accepted' : 'already_applied', stage);

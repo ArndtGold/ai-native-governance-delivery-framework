@@ -1,0 +1,19 @@
+{
+  "previous_snapshot_tree": "6e699253d978202c31b6caff9a0bfd51fcf3f81a",
+  "continuation_snapshot_tree": "9a2642813f5455c795f15dab4fac48c6ceb961da",
+  "non_control_changes": [
+    "docs/handbook/de/04-mehrere-runs.md",
+    "docs/handbook/en/04-multiple-runs.md",
+    "scripts/community-health-test.mjs"
+  ],
+  "reused_stages": [
+    "maintenance",
+    "shell",
+    "build-contracts",
+    "evals",
+    "compatibility-freshness"
+  ],
+  "input_assessment": "Only the two handbook chapters and their downstream community fixture changed. No maintenance/shell/build-contract/eval/compatibility owner, normative runtime source, UI source, package dependency, lockfile or compatibility source/payload changed. Both community commands now pass with the real newly linked normative contract copied into the fixture. Runtime/community run again in the continuation; other changed bootstrap prerequisites regenerate normally. All unexecuted shared stages remain required.",
+  "single_full_clean_run_claimed": false,
+  "required_platform_matrix_waived": false
+}

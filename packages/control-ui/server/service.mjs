@@ -63,7 +63,7 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
   const secret = randomBytes(32).toString('hex'), secretBytes = Buffer.from(secret);
   const pool = new ReadWorkerPool(root, poolOptions);
   let origin;
-  const error = code => ({ schema_version: '1', target, snapshot_id: null, observed_as_of: null, source_digest: null,
+  const error = code => ({ schema_version: '2', target, snapshot_id: null, observed_as_of: null, source_digest: null,
     state: code === 'source_changed' ? 'stale' : code === 'resource_denied' || code === 'session_invalid' ? 'blocked' : 'error',
     code, retryable: ['source_changed', 'read_failed', 'busy', 'timeout', 'resource_limit'].includes(code), data: null });
   const server = createServer({ maxHeaderSize: 8192 }, async (req, res) => {
@@ -91,9 +91,9 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     else if (url.pathname === '/api/backlog-titles') operation = 'backlog_titles';
     else if (url.pathname === '/api/freshness') operation = 'freshness';
     else if (url.pathname === '/api/changes') operation = 'changes';
-    else if (/^\/api\/runs\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'run'; selector = url.pathname.slice(10); }
-    else if (/^\/api\/context\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'context'; selector = url.pathname.slice(13); }
-    else if (/^\/api\/draft-check\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'artifact_readiness'; selector = url.pathname.slice(17); }
+    else if (/^\/api\/runs\/[a-z0-9][a-z0-9._-]{0,127}$/.test(url.pathname)) { operation = 'run'; selector = url.pathname.slice(10); }
+    else if (/^\/api\/context\/[a-z0-9][a-z0-9._-]{0,127}$/.test(url.pathname)) { operation = 'context'; selector = url.pathname.slice(13); }
+    else if (/^\/api\/draft-check\/[a-z0-9][a-z0-9._-]{0,127}$/.test(url.pathname)) { operation = 'artifact_readiness'; selector = url.pathname.slice(17); }
     else if (/^\/api\/documents\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'document'; selector = url.pathname.slice(15); }
     else return send(403, error('resource_denied'));
     const params = [...url.searchParams.keys()];
@@ -106,15 +106,14 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
       && ['snapshot', 'gate', 'expected_revision'].every(key => params.includes(key))
       && ['UR', 'PRD', 'SD', 'TP'].includes(url.searchParams.get('gate'))
       && ['snapshot', 'expected_revision'].every(key => /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(url.searchParams.get(key) ?? ''));
-    if (operation === 'artifact_readiness' ? !draftParams : operation === 'backlog_titles' ? !titleParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && (params[0] !== 'run_id'
-        || !/^[A-Za-z0-9_-]{1,128}$/.test(url.searchParams.get('run_id') ?? '')) : params.length !== 1 || params[0] !== 'snapshot'
+    if (operation === 'artifact_readiness' ? !draftParams : operation === 'backlog_titles' ? !titleParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && !((params[0] === 'run_id' && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(url.searchParams.get('run_id') ?? '')) || (params[0] === 'view' && ['runs', 'legacy'].includes(url.searchParams.get('view')))) : params.length !== 1 || params[0] !== 'snapshot'
       || !/^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')) return send(403, error('resource_denied'));
     const cancellation = new AbortController();
     res.once('close', () => { if (!res.writableEnded) cancellation.abort(); });
     try {
       const result = operation === 'changes' ? await pool.waitForChange(url.searchParams.get('snapshot'), cancellation.signal) : await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
         input: operation === 'artifact_readiness' ? { run_id: selector, gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') }
-          : operation === 'backlog_titles' ? { row_ids: rowIds } : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : undefined }, cancellation.signal);
+          : operation === 'backlog_titles' ? { row_ids: rowIds } : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : operation === 'snapshot' && url.searchParams.has('view') ? { view: url.searchParams.get('view') } : undefined }, cancellation.signal);
       send(200, result);
     } catch (e) { send(e.code === 'busy' ? 429 : e.code === 'timeout' ? 504 : 409, error(['resource_denied', 'source_changed', 'read_failed', 'resource_limit', 'busy', 'timeout', 'cancelled'].includes(e.code) ? e.code : 'read_failed')); }
   });

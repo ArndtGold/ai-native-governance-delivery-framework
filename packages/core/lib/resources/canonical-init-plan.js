@@ -19,7 +19,7 @@ export function canonicalInitPlan(languagePreference, context = resources) {
   };
   const files = [{ path: '.agdf/control/config.json', content: languageConfigContent(language) },
     { path: '.agdf/control/README.md', content: load(dirname(root), 'README.md') }];
-  for (const name of ['MASTER_BACKLOG.md', 'SOT_REGISTRY.md', 'CONTEXT_GRAPH.md', 'AGENT_QUALITY_CONTRACTS.json'])
+  for (const name of ['SOT_REGISTRY.md', 'CONTEXT_GRAPH.md', 'AGENT_QUALITY_CONTRACTS.json'])
     files.push({ path: `.agdf/control/${name}`, content: load(root, name) });
   for (const id of ['UR', 'BROWNFIELD_REVIEW', 'VERIFIED_CHANGE', 'PRD', 'UX_INTENT_DEFINITION', 'SD', 'TP', 'QA_REPORT', 'OR']) {
     resolveArtefactTemplatePath(id, context);

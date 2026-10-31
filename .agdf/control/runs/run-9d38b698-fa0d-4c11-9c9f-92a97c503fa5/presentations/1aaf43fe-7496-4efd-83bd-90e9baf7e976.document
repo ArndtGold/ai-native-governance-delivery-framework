@@ -1,0 +1,32 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Parallel delivery without central backlog conflicts
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Unabhängige Runs schreiben dieselbe versionierte Masterbacklog-Datei und verursachen dadurch wiederholt Mergekonflikte. Das Cockpit kann einzelne Runs bereits direkt öffnen; seine Übersicht hängt noch am Backlog. Ziel sind eine Übersicht aus den maßgeblichen Run-Daten und unabhängige Run-Arbeit ohne verpflichtende Pflege dieser Sammeldatei. Betroffen sind Maintainer, ausführende Agenten und Nutzer beider Cockpit-Ansichten.
+
+- Ziel: Runs bilden die maßgebliche Cockpit-Übersicht; unabhängige Vorhaben benötigen keine verpflichtende gemeinsame Backlog-Pflege. Neue AGDF-Arbeits-Worktrees liegen unter .agdf/worktrees/. Beide Änderungen gehören zu diesem einen Run.
+
+- Umfang: Kompakte und große Übersicht verwenden den Run-Bestand und bestehende Core-Verantwortlichkeiten. Run-Phase, konkrete Restarbeit, nächster erlaubter Schritt und Herkunft bleiben nachvollziehbar; Siegel, fachliche Fertigstellung und Freigabe bleiben getrennt. Auch die verpflichtenden Backlog-Schreibzugriffe und abhängigen Prüfungen, Initialisierung, Vorlagen und Regeln werden abgelöst. Eine reine Änderung der Anzeige genügt nicht. Geplante Ideen ohne Run sowie historische reine Backlog-Einträge erhalten eine ausdrückliche, informationsbewahrende Übergangsregel. Die genaue Darstellung entscheidet die folgende Produkt-/Designarbeit; historische Freigaben werden nicht erfunden.
+
+- Worktree-Regel: Neue AGDF-Arbeits-Worktrees liegen unter `.agdf/worktrees/VORHABEN/` des zugehörigen Projekts. Der übergeordnete Checkout ignoriert diesen Ordner. Ein Vorhaben verwendet seinen zugeordneten Worktree; derselbe Run hat einen zuständigen Schreiber. Bereits zugeordnete Worktrees werden wiederverwendet statt rekursiv verschachtelt. Bestehende Worktrees bleiben an ihrem Ort. Die Regel wird in den kanonischen Vorgaben und betroffenen Projektionen konsistent dokumentiert. Automatisches Anlegen, Wechseln und Aufräumen gehört nicht dazu; die Platzierung ersetzt keine technische Sperre zwischen Checkouts.
+
+- Schutz des CI-Fixes: Dieser Run arbeitet auf dem eigenen Branch `agdf/run-overview-worktree-convention` im gleichnamigen Worktree unter `.agdf/worktrees/`, ausgehend von `main` bei `8e57078d`. Fremde Worktrees, Branches, vorgemerkte Dateien und laufende Prozesse bleiben unangetastet. Insbesondere werden die parallele CI-Reparatur, ihre Kompatibilitätsnachweise, Baselines und Workflows nicht geändert. Prüfungen bleiben stufengerecht; unnötige konkurrierende Volltests entfallen. Der fertige CI-Fix wird bei der späteren Integration berücksichtigt.
+
+- Abnahme: Beide Ansichten finden und öffnen Runs auch ohne Masterbacklog. Neue Runs brauchen keinen Backlog-Eintrag. Fehlende, ungültige, veränderte oder veraltete Quellen und Teilbestände bleiben sichtbar begrenzt; Suche, Zähler, Sortierung und Gruppierung haben einen eindeutigen Vertrag. Normale Run-Erstellung, Erfassung, Freigabe, interne Fortsetzung und Abschluss funktionieren ohne verpflichtende Backlog-Aktualisierung. Zwei unabhängige Runs benötigen keine Schreibzugriffe auf diese gemeinsame Datei. Sperren, Revisionen, Freigaben und Recovery bleiben wirksam. Alte Planungs-/Historieninformationen bleiben zugänglich oder erhalten einen dokumentierten Übergang. Worktree-Regel und Ignore-Verhalten werden konsistent geprüft; fremde Arbeitsstände bleiben erhalten. Tests, lesbare schmale/breite Darstellung und Dokumentation belegen das Ergebnis. Automatisierte, Protokoll-, Browser- und echte Hostnachweise werden getrennt ausgewiesen.
+
+- Grenzen und Quellen: Keine neuen Gates, automatische Freigaben, zweite Statushoheit, neue Hostintegration, umfassende Neugestaltung oder gemeinsame verlinkte Kontrollablage. Kein Worktree-Verwaltungsdienst, Verschieben alter Worktrees, Löschen historischer Daten oder Versprechen, sämtliche Git-Konflikte zu verhindern. Kein Commit, Push, Merge oder Release durch diese UR. Maßgeblich bleiben Run-State, registrierte Artefakte und bestehende Core-Owner; die heutigen Backlog-Schreiber und Verbraucher sind gezielt umzustellen. Frühere Backlog-URs liefern Abgrenzung und Wiederverwendung, keine übertragene Freigabe.
+
+- Risiken und nächster Schritt: Brownfield Review ermittelt sämtliche Abhängigkeiten von Backlog-Datei und Schreibtransaktionen. PRD/SD klären begrenztes Laden, Aktualität, sinnvolle Titel, Bereichsbildung und Altinformationen. Unterschiedliche Checkout-Pfade bleiben unterschiedliche Ausführungsziele; Siegel sichern keine unversionierten Dateien. Vor Integration wird der dann fertige CI-Stand erneut berücksichtigt. Jetzt diese UR prüfen und mit einer neuen bewussten `Approval: UR` freigeben, überarbeiten lassen oder ablehnen. Danach folgen die bestehenden Analyse- und Planungsschritte; Produktcode wird erst nach den erforderlichen Freigaben geändert.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5` · Nutzeranforderungen · Revision: `33691983-8451-4ff3-86e0-eceddd34077d`
+
+SHA-256: `sha256:9feb814f5f61037cf69c014ca051783b2846e169fac975db612a8a943b32d3d8`

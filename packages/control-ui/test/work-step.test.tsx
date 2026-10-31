@@ -8,7 +8,7 @@ const runSource={...source,resource_id:'opaque-state',type:'Run State'};
 const data:Detail={run_id:'run',revision_id:'revision',lifecycle:'active',resources:[source,runSource],persisted:{current_gate:'CD+Tests',decision:'in_progress',next_allowed_action:'Implement and test',artefacts:[]},evaluation:{status:'open',control_assessment:{state:'open',authorizes:false},current_gate:'CD+Tests',blocking_reason:'none',missing_approval:'none',next_allowed_action:'Implement and test',next_action_de:'Umsetzung und Prüfung abschließen.',doctor_status:'warn',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[{gate:'TP',status:'approved',evidence:'Bound TP approval'}],missing_evidence:[{missing_evidence:'Native Anzeige prüfen',impact:'Aktueller Build noch nicht im Host bestätigt.',required_next_step:'Neue Karte öffnen und prüfen.'}]}};
 afterEach(cleanup);
 it('accepts current scoped Run DTOs but rejects malformed or authorizing assessment fields',()=>{
- const envelope={schema_version:'1' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:{kind:'run' as const,run:data}};
+ const envelope={schema_version:'2' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:{kind:'run' as const,run:data}};
  expect(()=>validateData('/api/runs/run',envelope)).not.toThrow();
  expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:{...data,evaluation:{...data.evaluation!,control_assessment:undefined}}}})).not.toThrow();
  for(const assessment of [{state:'invented',authorizes:false},{state:'open',authorizes:true},null])
@@ -62,7 +62,7 @@ it('shows an out-of-scope evaluation as unconfirmed without presenting the saved
  const { RunDetail } = await import('../src/RunDetail');
  const unevaluated:Detail={...data,evaluation:{...data.evaluation!,status:'not_evaluated',control_assessment:{state:'unconfirmed',authorizes:false},blocking_reason:'not_evaluated',missing_approval:'not_evaluated',doctor_status:'not_evaluated',next_allowed_action:data.persisted!.next_allowed_action,next_action_de:null,
    diagnostics:[{code:'evaluation_out_of_scope',severity:'warning',path:'docs/notes.md',message:'outside'}]}};
- const envelope={schema_version:'1' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:unevaluated};
+ const envelope={schema_version:'2' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:unevaluated};
  expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:unevaluated}})).not.toThrow();
  render(<RunDetail result={envelope} onOpen={vi.fn()}/>);
  expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();
@@ -80,7 +80,7 @@ it('an ended run shows its closure history from Core and offers no next delivery
      display_action:'Run ended as superseded; start a new run to continue the work.',sources:[],limitations:[],authorizes:false},
    evaluation:{...data.evaluation!,status:'closed',control_assessment:{state:'ended',authorizes:false},next_allowed_action:'Run ended as superseded; start a new run to continue the work.',
      next_action_de:'Run als ersetzt beendet; für weitere Arbeit einen neuen Run starten.',next_operation:null,completion:{status:'superseded',gate:'OR',fulfilled:false},missing_evidence:[]}};
- const envelope={schema_version:'1' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:ended};
+ const envelope={schema_version:'2' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:ended};
  expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:ended}})).not.toThrow();
  for(const broken of [{...closure,outcome:'abandoned'},{...closure,authorizes:true},{...closure,successor:{kind:'reference',value:'PR',verified:true}},{...closure,receipt:'invented'}])
    expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:{...ended,closure:broken}}})).toThrow('dto_invalid');

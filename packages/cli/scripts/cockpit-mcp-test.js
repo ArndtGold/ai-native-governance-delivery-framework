@@ -22,10 +22,11 @@ for (const modern of [false, true]) {
       const inventory = await client.listTools();
       assert.deepEqual(inventory.tools.map(t => t.name), ['agdf_cockpit', 'agdf_cockpit_read']);
       assert.equal(inventory.tools[0]._meta.ui.resourceUri, COCKPIT_UI_URI);
-      assert.equal(inventory.tools[0].inputSchema.properties.run_id.pattern, '^[A-Za-z0-9_-]{1,128}$');
+      assert.equal(inventory.tools[0].inputSchema.properties.run_id.pattern, '^[a-z0-9][a-z0-9._-]{0,127}$');
       assert.equal(inventory.tools[0].inputSchema.additionalProperties, false);
       assert.equal(inventory.tools[1]._meta.ui.resourceUri, undefined);
       const resources = await client.listResources(); assert.deepEqual(resources.resources.map(r => r.uri), [COCKPIT_UI_URI]);
+      await assert.rejects(client.readResource({ uri: 'ui://agdf/cockpit/v1.html' }), /Resource not found: ui:\/\/agdf\/cockpit\/v1\.html/, 'An old UI URI cannot silently consume the new reading envelope');
       const resource = await client.readResource({ uri: COCKPIT_UI_URI });
       assert.equal(resource.contents[0].mimeType, COCKPIT_MIME); assert.match(resource.contents[0].text, /AGDF Cockpit/);
       assert.match(resource.contents[0].text, /Gespeicherter Arbeitsstand/);
@@ -49,6 +50,7 @@ for (const modern of [false, true]) {
       const prepared = (await call({ operation: 'prepare_context', snapshot_id: context.snapshot_id, run_id: 'fixture-a',
         revision_id: context.data.run.revision_id, resource_id: context.data.document.resource.resource_id, graph_ids: [], excluded_ids: [], generation: 1 })).structuredContent;
       assert.equal(prepared.state, 'available'); const packet = prepared.data.packet;
+      assert.equal(prepared.schema_version, '2'); assert.equal(packet.schema_version, '1');
       assert.equal(packet.run_id, 'fixture-a'); assert.equal(packet.authorizes, false);
       assert.equal(packet.artefact.content, readFileSync(new URL(selected.path, 'file://' + f.root + '/'), 'utf8'));
       assert.equal(prepared.data.byte_count, Buffer.byteLength(JSON.stringify(packet), 'utf8'));
@@ -97,7 +99,8 @@ for (const modern of [false, true]) {
         assert.equal((await client.callTool({ name: 'agdf_cockpit', arguments: args })).isError, true);
       }
       const expired = (await call({ operation: 'snapshot' })).structuredContent;
-      assert.equal(expired.state, 'empty');
+      assert.equal(expired.state, 'available');
+      assert.equal(expired.data.kind, 'runs');
       await call({ operation: 'close' });
       assert.equal((await call({ operation: 'snapshot' })).structuredContent.code, 'session_expired');
       assert.deepEqual(treeBytes(f.root), before);
@@ -110,7 +113,7 @@ for (const modern of [false, true]) {
       assert.deepEqual((await client.listResources()).resources, [], 'Without a UI capability, the basic control connection advertises no rendered App resource.');
     });
   } finally { f.close(); }
-  // SCN-016, SCN-027: a closed Run is history with its receipt facts and its archive row.
+  // SCN-016, SCN-027: a closed Run is history with its receipt facts in the stored Run inventory.
   const g = fixture();
   try {
   createRun(g.root, 'fixture-ended'); createRun(g.root, 'fixture-successor');
@@ -125,10 +128,12 @@ for (const modern of [false, true]) {
     assert.deepEqual({ ...run.closure, closed_at: Boolean(run.closure.closed_at), operation_id: Boolean(run.closure.operation_id) }, { outcome: 'superseded',
       reason: 'Replaced by the successor fixture', successor: { kind: 'run', value: 'fixture-successor', verified: true },
       confirmed_by: { name: 'Cockpit Owner', email: null, statement: 'cooperative' }, closed_at: true, operation_id: true, receipt: 'recorded', authorizes: false });
-    const row = archive.entries.find(entry => entry.key === 'fixture-ended');
-    assert.equal(row.section, 'Completed / Superseded Pointers'); assert.equal(row.stored_status, 'Superseded');
-    assert.equal(row.stored_next_step, 'Superseded by fixture-successor: Replaced by the successor fixture');
-    assert.equal(archive.entries.filter(entry => entry.key === 'fixture-ended').length, 1);
+    assert.equal(archive.kind, 'runs');
+    const row = archive.runs.find(entry => entry.run_id === 'fixture-ended');
+    assert.equal(row.lifecycle, 'superseded'); assert.equal(row.attention.code, 'none');
+    assert.equal(row.closure.reason, 'Replaced by the successor fixture');
+    assert.equal(archive.runs.filter(entry => entry.run_id === 'fixture-ended').length, 1);
+
   };
   const reader = createCockpitReader(g.root);
   expectEnded(reader.snapshot('fixture-ended').data.run, reader.snapshot().data);

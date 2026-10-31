@@ -10,7 +10,7 @@ import { dirname, join } from "node:path";
 import { parseRunState } from "./run-state-parser.js";
 import { artefactFileDigest, listedArtefactPaths, runSealState, computeRunSeals, canonicalRunText } from "./run-seal.js";
 import { atomicWrite, withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
-import { pendingRunStepPath } from "./run-step-pending.js";
+import { pendingRunStepPath, pendingRunStepIds } from "./run-step-pending.js";
 import { readSourceRevisions, revisionHistoryPrefix } from "./run-source-revisions.js";
 import { REVISION_ID_PATTERN } from "./run-identity.js";
 import { DIGEST_PATTERN, exactObject, resolveControlCommandTarget, canonicalJson } from "./approval-command-contract.js";
@@ -206,7 +206,7 @@ function publishArchive(root, journal, history, afterWrite) {
   fsyncDirectory(dirname(dirs.final)); afterWrite("archive_published");
 }
 
-// Called only while the selected Run lock and then the shared Backlog lock are held.
+// Called with the selected Run lock; captured legacy Backlog output also requires its lock.
 export function recoverPendingRunStepLocked(root, runId, { sourceRevision = false } = {}) {
   const path = pendingRunStepPath(root, runId);
   if (!existsSync(path)) return { status: "none" };
@@ -277,14 +277,28 @@ export function recoverPendingRunStepLocked(root, runId, { sourceRevision = fals
   return { status: "completed", operation_id: journal.operation_id, revision_id: journal.next_revision_id };
 }
 
-export function recoverPendingRunStep(root, runId) {
-  const runPath = join(root, ".agdf", "control", "runs", runId, "RUN_STATE.md");
-  const backlogPath = join(root, ".agdf", "control", "MASTER_BACKLOG.md");
-  return withOwnedFileLock(runPath, () => withOwnedFileLock(backlogPath,
-    () => recoverPendingRunStepLocked(root, runId)));
+// Independent Run-only journals have no shared output. Unknown journals stay fail-closed.
+export function pendingRunStepConflictIds(root, runId) {
+  return pendingRunStepIds(root).filter(id => {
+    if (id === runId) return true;
+    try { return readPendingRunStepJournal(root, id).backlog !== null; }
+    catch { return true; }
+  });
 }
 
-// Called only with both locks held. The Run revision is the commit point; the journal lets a
+// Only explicit recovery may complete an already captured legacy Backlog output.
+export function withRunStepRecoveryLock(root, runId, work) {
+  const path = join(root, '.agdf/control/runs', runId, 'RUN_STATE.md');
+  return withOwnedFileLock(path, () => {
+    const pending = existsSync(pendingRunStepPath(root, runId)) ? readPendingRunStepJournal(root, runId) : null;
+    return pending?.backlog ? withOwnedFileLock(join(root, '.agdf/control/MASTER_BACKLOG.md'), work) : work();
+  });
+}
+export function recoverPendingRunStep(root, runId) {
+  return withRunStepRecoveryLock(root, runId, () => recoverPendingRunStepLocked(root, runId));
+}
+
+// Called with the Run lock and any actual legacy output lock. The Run revision is the commit point; the journal lets a
 // retry restore OR before it or finish Backlog after it without inventing another authority.
 export function commitRunStepLocked(root, { runId, runPath, content, revisionId, expectedContent, backlog, or, afterWrite = () => {}, nextRevisionId = randomUUID(), writeOptions = {}, history, operationContext, outputs = [] }) {
   assertInputConfigurationCurrent(root);

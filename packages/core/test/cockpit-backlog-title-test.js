@@ -20,7 +20,7 @@ test('SCN-085/090/100: initial backlog only; title batch reads complete requeste
   const f = fixture(); try {
     setup(f); fs.writeFileSync(join(f.root, ur), '# UR: Benutzer verstehen\n\nStatus: completed\nNext step: release immediately\nBody not in DTO\n');
     const before = treeBytes(f.root), reads = [], reader = createCockpitReader(f.root, { checkpoint(stage, path) { if (stage === 'file_read') reads.push(path); } });
-    const first = reader.snapshot(); assert.equal(first.data.file_count, 1); assert.deepEqual(reads, [join(f.root, source)]);
+    const first = reader.snapshot(undefined, 'legacy'); assert.equal(first.data.file_count, 1); assert.deepEqual(reads, [join(f.root, source)]);
     reads.length = 0; const titles = enrichment(reader, first);
     assert.equal(titles.state, 'available'); assert.equal(titles.data.file_count, 2);
     assert.deepEqual(new Set(reads), new Set([join(f.root, source), join(f.root, ur)]));
@@ -60,7 +60,7 @@ test('SCN-089: missing, unsupported, huge and heading-limit URs are local fallba
   const f = fixture(); try {
     for (const [content, code] of [[null,'document_missing'], [Buffer.from([255]),'document_unsupported'], ['# '+ 'a'.repeat(513),'resource_limit'], ['# '+ '😀'.repeat(513),'resource_limit'], ['No heading','ur_heading_missing'], ['# UR: ','ur_heading_missing'], [Buffer.alloc(2 * 1024 ** 2 + 1),'resource_limit']]) {
       setup(f); if (content === null) fs.rmSync(join(f.root, ur)); else fs.writeFileSync(join(f.root, ur), content);
-      const reader = createCockpitReader(f.root), first = reader.snapshot(), titles = enrichment(reader, first);
+      const reader = createCockpitReader(f.root), first = reader.snapshot(undefined, 'legacy'), titles = enrichment(reader, first);
       assert.equal(titles.state, 'available'); assert.equal(titles.data.entries.length, 2);
       assert.equal(titles.data.entries[0].title_observation.code, code); assert.equal(titles.data.entries[0].title, 'Backlog fixture-a');
       assert.equal(reader.freshness(titles.snapshot_id).data.unchanged, true);
@@ -72,25 +72,25 @@ test('SCN-087/090: optional symlink and denied ancestor are captured without fol
   const f = fixture(); try {
     setup(f); fs.rmSync(join(f.root, ur)); if (!symlinkOrSkip('/etc/passwd', join(f.root, ur), t)) return;
     const reads = [], reader = createCockpitReader(f.root, { checkpoint(stage, path) { if (stage === 'file_read') reads.push(path); } });
-    let first = reader.snapshot(), result = enrichment(reader, first);
+    let first = reader.snapshot(undefined, 'legacy'), result = enrichment(reader, first);
     assert.equal(result.data.entries[0].title_observation.code, 'resource_denied'); assert.deepEqual(new Set(reads), new Set([join(f.root, source)]));
     assert.equal(reader.freshness(result.snapshot_id).data.unchanged, true);
     fs.rmSync(join(f.root, ur)); fs.writeFileSync(join(f.root, ur), '# Title'); assert.throws(() => reader.freshness(result.snapshot_id), /source_changed/);
     fs.rmSync(join(f.root, '.agdf/control/artefacts/fixture-a'), { recursive: true }); fs.symlinkSync('/etc', join(f.root, '.agdf/control/artefacts/fixture-a'));
-    first = reader.snapshot(); result = enrichment(reader, first); assert.equal(result.data.entries[0].title_observation.code, 'resource_denied');
+    first = reader.snapshot(undefined, 'legacy'); result = enrichment(reader, first); assert.equal(result.data.entries[0].title_observation.code, 'resource_denied');
     assert.equal(reader.freshness(result.snapshot_id).data.unchanged, true);
   } finally { f.close(); }
 });
 
 test('SCN-090: backlog or requested UR race rejects candidate; unrelated source edits do not invalidate', () => {
   const f = fixture(); try {
-    setup(f); const reader = createCockpitReader(f.root), first = reader.snapshot();
+    setup(f); const reader = createCockpitReader(f.root), first = reader.snapshot(undefined, 'legacy');
     fs.appendFileSync(join(f.root, ur), '\nchanged'); assert.equal(reader.freshness(first.snapshot_id).data.unchanged, true);
     let result = enrichment(reader, first); assert.equal(result.state, 'available');
     fs.appendFileSync(join(f.root, ur), '\nchanged again'); assert.throws(() => reader.freshness(result.snapshot_id), /source_changed/);
     let armed = false;
     const raced = createCockpitReader(f.root, { checkpoint(stage) { if (armed && stage === 'replay') { armed = false; fs.appendFileSync(join(f.root, source), '\nchanged backlog'); } } });
-    const opening = raced.snapshot(); armed = true; result = enrichment(raced, opening);
+    const opening = raced.snapshot(undefined, 'legacy'); armed = true; result = enrichment(raced, opening);
     assert.equal(result.code, 'source_changed'); assert.equal(result.snapshot_id, null); assert.equal(result.data, null);
   } finally { f.close(); }
 });
@@ -100,7 +100,7 @@ test('SCN-096/098: strict batch schema and foreign/stale row selectors preserve 
   try {
     const a = (await service.render())._meta.agdf_cockpit.session_id, b = (await service.render())._meta.agdf_cockpit.session_id;
     const read = (session_id, input) => service.read({ session_id, ...input });
-    const first = await read(a, { operation: 'snapshot' }), other = await read(b, { operation: 'snapshot' });
+    const first = await read(a, { operation: 'snapshot', view: 'legacy' }), other = await read(b, { operation: 'snapshot', view: 'legacy' });
     const input = { operation: 'backlog_titles', session_id: a, snapshot_id: first.snapshot_id, row_ids: [first.data.entries[0].row_id] };
     for (const bad of [{ ...input, row_ids: [] },{ ...input, row_ids: Array.from({ length: 13 }, () => randomUUID()) },{ ...input, row_ids: [input.row_ids[0],input.row_ids[0]] },{ ...input, path: ur },{ ...input, content: 'forged' },{ ...input, run_id: 'fixture-a' }]) assert.throws(() => parseCockpitArguments(bad), /resource_denied/);
     assert.equal((await service.read({ ...input, row_ids: [other.data.entries[0].row_id] })).code, 'resource_denied');

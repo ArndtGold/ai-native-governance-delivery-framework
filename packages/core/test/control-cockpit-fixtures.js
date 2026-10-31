@@ -8,6 +8,8 @@ import { sealRunState } from '../lib/control-state/run-seal.js';
 export function fixture() {
   const root = fs.realpathSync(fs.mkdtempSync(join(tmpdir(), 'agdf-cockpit-')));
   execFileSync(process.execPath, [join(import.meta.dirname, '../../cli/bin/create-agdf.js'), 'init', '--dir', root]);
+  // Explicit legacy data for compatibility tests, not a production initialization requirement.
+  fs.writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), fs.readFileSync(join(import.meta.dirname, '../../../plugins/agdf/control/templates/MASTER_BACKLOG.md')));
   const runPath = createRun(root, 'fixture-a');
   const documentPath = '.agdf/control/artefacts/fixture-a/UR.md';
   fs.mkdirSync(join(root, '.agdf/control/artefacts/fixture-a'), { recursive: true });

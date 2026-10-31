@@ -61,7 +61,7 @@ export function projectCockpitBacklog(root) {
         source_links: completed ? cells[3] ?? '' : compact ? cells[4] ?? '' : cells.slice(4, 11).join(' · '),
         current_spec: completed ? null : cells[compact ? 5 : 11] ?? '',
         normalized_pointer: pointer, saved_summary,
-        selectable: !malformed && /^[A-Za-z0-9_-]{1,128}$/.test(key) });
+        selectable: !malformed && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(key) });
     }
     counts[section] = entries.filter(row => row.section === section).length;
   }

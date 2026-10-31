@@ -1,0 +1,661 @@
+{
+  "evidence_class": "built_ui_real_sdk_core_synthetic_host_attempt",
+  "native_qualified": false,
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/cockpit/v2.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 1258523,
+    "digest": "sha256:1ff747df6ba66da5f76bee5728afe86a296e91efdb6a89b9ddb7c5d33aeba09d",
+    "source_digest": "sha256:5823e47e910ab8ad510003131f4a175b671454536f0c2452331a610a1febd3aa"
+  },
+  "trace": [
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 1,
+      "observed_at": "2026-10-31T09:04:25.712Z",
+      "direction": "out",
+      "message": {
+        "method": "ui/initialize",
+        "params": {
+          "appCapabilities": {},
+          "appInfo": {
+            "name": "AGDF Cockpit",
+            "version": "1.0.0"
+          },
+          "protocolVersion": "2026-01-26"
+        },
+        "jsonrpc": "2.0",
+        "id": 0
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 2,
+      "observed_at": "2026-10-31T09:04:25.738Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "result": {
+          "protocolVersion": "2026-01-26",
+          "hostCapabilities": {
+            "serverTools": {},
+            "logging": {},
+            "updateModelContext": {}
+          },
+          "hostInfo": {
+            "name": "Synthetic trace host",
+            "version": "1"
+          },
+          "hostContext": {
+            "displayMode": "fullscreen",
+            "availableDisplayModes": [
+              "fullscreen"
+            ],
+            "locale": "de"
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 3,
+      "observed_at": "2026-10-31T09:04:25.741Z",
+      "direction": "out",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "ui/notifications/initialized"
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 19,
+      "observed_at": "2026-10-31T09:04:26.770Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "prepare_context",
+            "snapshot_id": "7360e464-3998-416b-8f0b-81b874f0ad5b",
+            "run_id": "fixture-a",
+            "revision_id": "e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6",
+            "resource_id": "21ea0692-e7aa-4327-89b5-b34d2cba5454",
+            "graph_ids": [],
+            "excluded_ids": [],
+            "generation": 4,
+            "session_id": "bc7bd798-1e3f-4d04-bec3-8d824a82ddf8"
+          },
+          "_meta": {
+            "progressToken": 7
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 7
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 20,
+      "observed_at": "2026-10-31T09:04:26.822Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "46804aae-3a8d-41b3-ad61-778bca584598",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"packet\":{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"context_id\":\"fba496dc-76b0-4ea1-a562-a0609727f109\",\"generation\":4,\"prepared_at\":\"2026-10-31T09:04:26.812Z\",\"artefact\":{\"resource\":{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},\"format\":\"markdown\",\"content\":\"# AGDF Run State\\n\\n## Run Meta\\n\\n- control_state_version: 2\\n- run_id: fixture-a\\n- lifecycle: active\\n- revision: 1\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\n- updated_at: 2026-10-31T09:04:25.249Z\\n- mode: structured_delivery\\n- current_gate: UR\\n- decision: in_progress\\n- owner: agent\\n\\n## Objective\\n\\nDescribe the trustworthy outcome.\\n\\n## Current Control State\\n\\n| Question | Answer |\\n|---|---|\\n| What is known? | New run created. |\\n| What is approved? | Nothing yet. |\\n| What is missing? | Durable UR and exact approval. |\\n| What is the next allowed action? | Draft the UR. |\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\n\\n## Approvals\\n\\n| Gate | Status | Evidence |\\n|---|---|---|\\n| UR | missing |  |\\n| PRD | missing |  |\\n| SD | missing |  |\\n| TP | missing |  |\\n| QA | missing |  |\\n| UAT | missing |  |\\n\\n## Artefacts\\n\\n| Type | Path | Status | Notes |\\n|---|---|---|---|\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\n| Brownfield Review |  | missing |  |\\n| Verified Change |  | missing |  |\\n| PRD |  | missing |  |\\n| SD |  | missing |  |\\n| TP |  | missing |  |\\n| Brownfield Analysis |  | missing |  |\\n| CD+Tests |  | missing |  |\\n| CR |  | missing |  |\\n| QA |  | missing |  |\\n\\n## Mode/Slice Decision\\n\\n- decision:\\n- required_next_gate:\\n- scope_reason:\\n- evidence:\\n\\n## Artefact Chain\\n\\n| From | Relationship | To | Evidence |\\n|---|---|---|---|\\n\\n## Evidence\\n\\n| Evidence | Source | Covers | Strength |\\n|---|---|---|---|\\n| Run creation | run-create | Control initialization | direct |\\n\\n## Closeout\\n\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\n- quality_outlook:\\n\",\"content_digest\":\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\",\"links\":{}},\"graph_nodes\":[],\"included\":[{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\"}],\"excluded\":[],\"authorizes\":false},\"byte_count\":3071,\"limit\":65536},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf"
+            },
+            "snapshot_id": "7360e464-3998-416b-8f0b-81b874f0ad5b",
+            "observed_as_of": "2026-10-31T09:04:26.615Z",
+            "source_digest": "d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5",
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "packet": {
+                "schema_version": "1",
+                "target": {
+                  "target_id": "sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c",
+                  "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf"
+                },
+                "snapshot_id": "7360e464-3998-416b-8f0b-81b874f0ad5b",
+                "observed_as_of": "2026-10-31T09:04:26.615Z",
+                "source_digest": "d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5",
+                "run_id": "fixture-a",
+                "revision_id": "e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6",
+                "context_id": "fba496dc-76b0-4ea1-a562-a0609727f109",
+                "generation": 4,
+                "prepared_at": "2026-10-31T09:04:26.812Z",
+                "artefact": {
+                  "resource": {
+                    "resource_id": "21ea0692-e7aa-4327-89b5-b34d2cba5454",
+                    "run_id": "fixture-a",
+                    "type": "Run State",
+                    "path": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                    "registered_reference": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                    "status": "registered"
+                  },
+                  "format": "markdown",
+                  "content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: fixture-a\n- lifecycle: active\n- revision: 1\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\n- updated_at: 2026-10-31T09:04:25.249Z\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: agent\n\n## Objective\n\nDescribe the trustworthy outcome.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | New run created. |\n| What is approved? | Nothing yet. |\n| What is missing? | Durable UR and exact approval. |\n| What is the next allowed action? | Draft the UR. |\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\n| Brownfield Review |  | missing |  |\n| Verified Change |  | missing |  |\n| PRD |  | missing |  |\n| SD |  | missing |  |\n| TP |  | missing |  |\n| Brownfield Analysis |  | missing |  |\n| CD+Tests |  | missing |  |\n| CR |  | missing |  |\n| QA |  | missing |  |\n\n## Mode/Slice Decision\n\n- decision:\n- required_next_gate:\n- scope_reason:\n- evidence:\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Run creation | run-create | Control initialization | direct |\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook:\n",
+                  "content_digest": "c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448",
+                  "links": {}
+                },
+                "graph_nodes": [],
+                "included": [
+                  {
+                    "resource_id": "21ea0692-e7aa-4327-89b5-b34d2cba5454",
+                    "path": ".agdf/control/runs/fixture-a/RUN_STATE.md"
+                  }
+                ],
+                "excluded": [],
+                "authorizes": false
+              },
+              "byte_count": 3071,
+              "limit": 65536
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 21,
+      "observed_at": "2026-10-31T09:04:26.824Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "validate_context",
+            "context_id": "fba496dc-76b0-4ea1-a562-a0609727f109",
+            "generation": 4,
+            "session_id": "bc7bd798-1e3f-4d04-bec3-8d824a82ddf8"
+          },
+          "_meta": {
+            "progressToken": 8
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 8
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 22,
+      "observed_at": "2026-10-31T09:04:26.837Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 8,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "46804aae-3a8d-41b3-ad61-778bca584598",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"context_id\":\"fba496dc-76b0-4ea1-a562-a0609727f109\",\"generation\":4,\"current\":true},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf"
+            },
+            "snapshot_id": "7360e464-3998-416b-8f0b-81b874f0ad5b",
+            "observed_as_of": "2026-10-31T09:04:26.615Z",
+            "source_digest": "d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5",
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "context_id": "fba496dc-76b0-4ea1-a562-a0609727f109",
+              "generation": 4,
+              "current": true
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 23,
+      "observed_at": "2026-10-31T09:04:26.838Z",
+      "direction": "out",
+      "message": {
+        "method": "ui/update-model-context",
+        "params": {
+          "structuredContent": {
+            "schema_version": "1",
+            "target": {
+              "target_id": "sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf"
+            },
+            "snapshot_id": "7360e464-3998-416b-8f0b-81b874f0ad5b",
+            "observed_as_of": "2026-10-31T09:04:26.615Z",
+            "source_digest": "d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5",
+            "run_id": "fixture-a",
+            "revision_id": "e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6",
+            "context_id": "fba496dc-76b0-4ea1-a562-a0609727f109",
+            "generation": 4,
+            "prepared_at": "2026-10-31T09:04:26.812Z",
+            "artefact": {
+              "resource": {
+                "resource_id": "21ea0692-e7aa-4327-89b5-b34d2cba5454",
+                "run_id": "fixture-a",
+                "type": "Run State",
+                "path": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                "registered_reference": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                "status": "registered"
+              },
+              "format": "markdown",
+              "content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: fixture-a\n- lifecycle: active\n- revision: 1\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\n- updated_at: 2026-10-31T09:04:25.249Z\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: agent\n\n## Objective\n\nDescribe the trustworthy outcome.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | New run created. |\n| What is approved? | Nothing yet. |\n| What is missing? | Durable UR and exact approval. |\n| What is the next allowed action? | Draft the UR. |\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\n| Brownfield Review |  | missing |  |\n| Verified Change |  | missing |  |\n| PRD |  | missing |  |\n| SD |  | missing |  |\n| TP |  | missing |  |\n| Brownfield Analysis |  | missing |  |\n| CD+Tests |  | missing |  |\n| CR |  | missing |  |\n| QA |  | missing |  |\n\n## Mode/Slice Decision\n\n- decision:\n- required_next_gate:\n- scope_reason:\n- evidence:\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Run creation | run-create | Control initialization | direct |\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook:\n",
+              "content_digest": "c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448",
+              "links": {}
+            },
+            "graph_nodes": [],
+            "included": [
+              {
+                "resource_id": "21ea0692-e7aa-4327-89b5-b34d2cba5454",
+                "path": ".agdf/control/runs/fixture-a/RUN_STATE.md"
+              }
+            ],
+            "excluded": [],
+            "authorizes": false
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 9
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 24,
+      "observed_at": "2026-10-31T09:04:26.940Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "result": {}
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 27,
+      "observed_at": "2026-10-31T09:04:27.185Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "invalidate_context",
+            "session_id": "bc7bd798-1e3f-4d04-bec3-8d824a82ddf8"
+          },
+          "_meta": {
+            "progressToken": 10
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 10
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 28,
+      "observed_at": "2026-10-31T09:04:27.232Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 10,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "46804aae-3a8d-41b3-ad61-778bca584598",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"invalidated\":true,\"host_publication_required\":true,\"invalidation_id\":\"7f0cc3e6-d0cb-4234-8006-45e828d27d08\"},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf"
+            },
+            "snapshot_id": null,
+            "observed_as_of": null,
+            "source_digest": null,
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "invalidated": true,
+              "host_publication_required": true,
+              "invalidation_id": "7f0cc3e6-d0cb-4234-8006-45e828d27d08"
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 29,
+      "observed_at": "2026-10-31T09:04:27.232Z",
+      "direction": "out",
+      "message": {
+        "method": "ui/update-model-context",
+        "params": {
+          "structuredContent": {
+            "schema_version": "1",
+            "kind": "agdf_cockpit_invalid_selection",
+            "generation": 7,
+            "invalidation_id": "7f0cc3e6-d0cb-4234-8006-45e828d27d08",
+            "observed_at": "2026-10-31T09:04:27.232Z",
+            "authorizes": false,
+            "current": false
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 11
+      }
+    },
+    {
+      "trace_id": "e959611a-b3bb-4c00-8ce1-f6d17ee1a14f",
+      "sequence": 30,
+      "observed_at": "2026-10-31T09:04:27.235Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 11,
+        "error": {
+          "code": -32603,
+          "message": "release_rejected"
+        }
+      }
+    }
+  ],
+  "host": [
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":1,\"observed_at\":\"2026-10-31T09:04:25.712Z\",\"direction\":\"out\",\"message\":{\"method\":\"ui/initialize\",\"params\":{\"appCapabilities\":{},\"appInfo\":{\"name\":\"AGDF Cockpit\",\"version\":\"1.0.0\"},\"protocolVersion\":\"2026-01-26\"},\"jsonrpc\":\"2.0\",\"id\":0}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":2,\"observed_at\":\"2026-10-31T09:04:25.738Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2026-01-26\",\"hostCapabilities\":{\"serverTools\":{},\"logging\":{},\"updateModelContext\":{}},\"hostInfo\":{\"name\":\"Synthetic trace host\",\"version\":\"1\"},\"hostContext\":{\"displayMode\":\"fullscreen\",\"availableDisplayModes\":[\"fullscreen\"],\"locale\":\"de\"}}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":3,\"observed_at\":\"2026-10-31T09:04:25.741Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"ui/notifications/initialized\"}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":4,\"observed_at\":\"2026-10-31T09:04:25.756Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"ui/notifications/tool-result\",\"params\":{\"_meta\":{\"agdf_cockpit\":{\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"render_generation\":1,\"initial_run_id\":\"fixture-a\",\"idle_timeout_ms\":1800000,\"lifetime_ms\":28800000},\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"1\\\",\\\"authorizes\\\":false,\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"}}\"}],\"structuredContent\":{\"schema_version\":\"1\",\"authorizes\":false,\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"}}}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":5,\"observed_at\":\"2026-10-31T09:04:26.108Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"ui/notifications/size-changed\",\"params\":{\"width\":1264,\"height\":2370}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":6,\"observed_at\":\"2026-10-31T09:04:26.239Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"_meta\":{\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"2\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":\\\"c2ef9b37-e932-4df4-9d8a-c5e377b74699\\\",\\\"observed_as_of\\\":\\\"2026-10-31T09:04:26.204Z\\\",\\\"source_digest\\\":\\\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\\\",\\\"state\\\":\\\"available\\\",\\\"code\\\":null,\\\"retryable\\\":false,\\\"data\\\":{\\\"kind\\\":\\\"run\\\",\\\"run\\\":{\\\"run_id\\\":\\\"fixture-a\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"lifecycle\\\":\\\"active\\\",\\\"closure\\\":null,\\\"work_summary\\\":{\\\"kind\\\":\\\"approval_pending\\\",\\\"phase\\\":\\\"UR\\\",\\\"qa_outcome\\\":\\\"not_applicable\\\",\\\"lifecycle\\\":\\\"active\\\",\\\"recorded_approvals\\\":[],\\\"decisive_obligation\\\":null,\\\"open_obligation_count\\\":0,\\\"display_action\\\":\\\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\",\\\"sources\\\":[],\\\"limitations\\\":[],\\\"authorizes\\\":false,\\\"evidence_applicability\\\":{\\\"current\\\":[],\\\"superseded\\\":[],\\\"applicability_unknown\\\":[{\\\"path\\\":\\\"run-create\\\",\\\"step\\\":null,\\\"reason\\\":\\\"no_writer_owned_association\\\",\\\"available\\\":null}]},\\\"status_label\\\":\\\"Approval pending\\\"},\\\"backlog_comparison\\\":{\\\"state\\\":\\\"unavailable\\\",\\\"reason\\\":\\\"legacy_comparison_not_requested\\\",\\\"saved_revision_id\\\":null,\\\"authorizes\\\":false},\\\"objective\\\":\\\"Describe the trustworthy outcome.\\\",\\\"title\\\":\\\"Fixture document\\\",\\\"evaluation\\\":{\\\"status\\\":\\\"blocked\\\",\\\"current_gate\\\":\\\"UR\\\",\\\"blocking_reason\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\",\\\"missing_approval\\\":\\\"Approval: UR\\\",\\\"next_allowed_action\\\":\\\"Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.\\\",\\\"next_action_de\\\":\\\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\\\",\\\"allowed\\\":[\\\"correct only permitted current decision content through its existing owner\\\"],\\\"forbidden\\\":[\\\"create later-gate artefacts beyond the current allowed gate\\\",\\\"run Brownfield Analysis as implementation preparation\\\",\\\"implement code\\\",\\\"claim QA or release readiness\\\",\\\"request approval before required decision content is concrete\\\"],\\\"control_assessment\\\":{\\\"state\\\":\\\"blocked\\\",\\\"authorizes\\\":false},\\\"doctor_status\\\":\\\"warn\\\",\\\"quality_outlook\\\":\\\"No additional quality follow-up identified from the current control state.\\\",\\\"diagnostics\\\":[{\\\"severity\\\":\\\"warn\\\",\\\"code\\\":\\\"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE\\\",\\\"message\\\":\\\"CONTEXT_GRAPH.md still contains the example node.\\\",\\\"path\\\":\\\".agdf/control/CONTEXT_GRAPH.md\\\",\\\"next_step\\\":\\\"Remove the example or replace it with an evidenced node that has an exit criterion.\\\"},{\\\"severity\\\":\\\"warn\\\",\\\"code\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\",\\\"message\\\":\\\"The selected active Run has incomplete decision orientation.\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"next_step\\\":\\\"Complete decision content\\\\n\\\\nObjective: missing_or_placeholder · .agdf/control/runs/fixture-a/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.\\\"}],\\\"approvals\\\":[{\\\"gate\\\":\\\"UR\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"PRD\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"SD\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"TP\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"QA\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"UAT\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"}],\\\"missing_evidence\\\":[],\\\"next_operation\\\":{\\\"type\\\":\\\"resolve_control_blocker\\\",\\\"operation_key\\\":\\\"control.resolve\\\",\\\"actor\\\":\\\"agent\\\",\\\"effect\\\":\\\"none\\\",\\\"gate\\\":\\\"UR\\\",\\\"reason\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\"},\\\"completion\\\":{\\\"status\\\":\\\"pending\\\",\\\"gate\\\":\\\"OR\\\",\\\"fulfilled\\\":false},\\\"git_evidence\\\":\\\"unavailable\\\"},\\\"persisted\\\":{\\\"current_gate\\\":\\\"UR\\\",\\\"next_allowed_action\\\":\\\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\",\\\"decision\\\":\\\"in_progress\\\",\\\"artefacts\\\":[{\\\"type\\\":\\\"UR\\\",\\\"path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"status\\\":\\\"draft\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"none\\\"},{\\\"type\\\":\\\"Brownfield Review\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"Verified Change\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"PRD\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"SD\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"TP\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"Brownfield Analysis\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"CD+Tests\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"CR\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"QA\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"}]},\\\"context_graph\\\":{\\\"refs\\\":\\\"\\\"},\\\"resources\\\":[{\\\"resource_id\\\":\\\"43122aec-b47b-414f-be22-ecf3ff65caf5\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"Run State\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"registered_reference\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"status\\\":\\\"registered\\\"},{\\\"resource_id\\\":\\\"e6e5b99f-c181-43da-a6c5-caceff8e7827\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"UR\\\",\\\"path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"registered_reference\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"status\\\":\\\"registered\\\"}],\\\"draft_check\\\":{\\\"source\\\":{\\\"run_id\\\":\\\"fixture-a\\\",\\\"gate\\\":\\\"UR\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"artifact_path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"artifact_digest\\\":\\\"sha256:d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\\\",\\\"available\\\":true,\\\"reason\\\":null},\\\"result\\\":null,\\\"display\\\":{\\\"state\\\":\\\"unchecked\\\",\\\"reason\\\":null,\\\"recovery\\\":\\\"check\\\"}},\\\"document_states\\\":[{\\\"schema_version\\\":\\\"1\\\",\\\"resource_id\\\":\\\"e6e5b99f-c181-43da-a6c5-caceff8e7827\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"type\\\":\\\"UR\\\",\\\"registered_reference\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"source_state\\\":\\\"available\\\",\\\"content_digest\\\":\\\"d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\\\",\\\"state\\\":\\\"draft\\\",\\\"version_kind\\\":\\\"draft\\\",\\\"reason\\\":\\\"not_checked\\\",\\\"recorded_approval\\\":null,\\\"check\\\":null,\\\"authorizes\\\":false}],\\\"evidence_applicability\\\":{\\\"current\\\":[],\\\"superseded\\\":[],\\\"applicability_unknown\\\":[{\\\"step\\\":null,\\\"path\\\":\\\"run-create\\\",\\\"reason\\\":\\\"no_writer_owned_association\\\",\\\"available\\\":null}]}}},\\\"authorizes\\\":false}\"}],\"structuredContent\":{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"c2ef9b37-e932-4df4-9d8a-c5e377b74699\",\"observed_as_of\":\"2026-10-31T09:04:26.204Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"kind\":\"run\",\"run\":{\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"lifecycle\":\"active\",\"closure\":null,\"work_summary\":{\"kind\":\"approval_pending\",\"phase\":\"UR\",\"qa_outcome\":\"not_applicable\",\"lifecycle\":\"active\",\"recorded_approvals\":[],\"decisive_obligation\":null,\"open_obligation_count\":0,\"display_action\":\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\"sources\":[],\"limitations\":[],\"authorizes\":false,\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"path\":\"run-create\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null}]},\"status_label\":\"Approval pending\"},\"backlog_comparison\":{\"state\":\"unavailable\",\"reason\":\"legacy_comparison_not_requested\",\"saved_revision_id\":null,\"authorizes\":false},\"objective\":\"Describe the trustworthy outcome.\",\"title\":\"Fixture document\",\"evaluation\":{\"status\":\"blocked\",\"current_gate\":\"UR\",\"blocking_reason\":\"AGDF_DECISION_CONTENT_INCOMPLETE\",\"missing_approval\":\"Approval: UR\",\"next_allowed_action\":\"Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.\",\"next_action_de\":\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\",\"allowed\":[\"correct only permitted current decision content through its existing owner\"],\"forbidden\":[\"create later-gate artefacts beyond the current allowed gate\",\"run Brownfield Analysis as implementation preparation\",\"implement code\",\"claim QA or release readiness\",\"request approval before required decision content is concrete\"],\"control_assessment\":{\"state\":\"blocked\",\"authorizes\":false},\"doctor_status\":\"warn\",\"quality_outlook\":\"No additional quality follow-up identified from the current control state.\",\"diagnostics\":[{\"severity\":\"warn\",\"code\":\"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE\",\"message\":\"CONTEXT_GRAPH.md still contains the example node.\",\"path\":\".agdf/control/CONTEXT_GRAPH.md\",\"next_step\":\"Remove the example or replace it with an evidenced node that has an exit criterion.\"},{\"severity\":\"warn\",\"code\":\"AGDF_DECISION_CONTENT_INCOMPLETE\",\"message\":\"The selected active Run has incomplete decision orientation.\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"next_step\":\"Complete decision content\\n\\nObjective: missing_or_placeholder · .agdf/control/runs/fixture-a/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.\"}],\"approvals\":[{\"gate\":\"UR\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"PRD\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"SD\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"TP\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"QA\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"UAT\",\"status\":\"missing\",\"evidence\":\"\"}],\"missing_evidence\":[],\"next_operation\":{\"type\":\"resolve_control_blocker\",\"operation_key\":\"control.resolve\",\"actor\":\"agent\",\"effect\":\"none\",\"gate\":\"UR\",\"reason\":\"AGDF_DECISION_CONTENT_INCOMPLETE\"},\"completion\":{\"status\":\"pending\",\"gate\":\"OR\",\"fulfilled\":false},\"git_evidence\":\"unavailable\"},\"persisted\":{\"current_gate\":\"UR\",\"next_allowed_action\":\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\"decision\":\"in_progress\",\"artefacts\":[{\"type\":\"UR\",\"path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"status\":\"draft\",\"notes\":\"\",\"raw_path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"Brownfield Review\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"Verified Change\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"PRD\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"SD\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"TP\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"Brownfield Analysis\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CD+Tests\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CR\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"QA\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"}]},\"context_graph\":{\"refs\":\"\"},\"resources\":[{\"resource_id\":\"43122aec-b47b-414f-be22-ecf3ff65caf5\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},{\"resource_id\":\"e6e5b99f-c181-43da-a6c5-caceff8e7827\",\"run_id\":\"fixture-a\",\"type\":\"UR\",\"path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"registered_reference\":\".agdf/control/artefacts/fixture-a/UR.md\",\"status\":\"registered\"}],\"draft_check\":{\"source\":{\"run_id\":\"fixture-a\",\"gate\":\"UR\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"artifact_path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"artifact_digest\":\"sha256:d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\",\"available\":true,\"reason\":null},\"result\":null,\"display\":{\"state\":\"unchecked\",\"reason\":null,\"recovery\":\"check\"}},\"document_states\":[{\"schema_version\":\"1\",\"resource_id\":\"e6e5b99f-c181-43da-a6c5-caceff8e7827\",\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"type\":\"UR\",\"registered_reference\":\".agdf/control/artefacts/fixture-a/UR.md\",\"source_state\":\"available\",\"content_digest\":\"d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\",\"state\":\"draft\",\"version_kind\":\"draft\",\"reason\":\"not_checked\",\"recorded_approval\":null,\"check\":null,\"authorizes\":false}],\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"step\":null,\"path\":\"run-create\",\"reason\":\"no_writer_owned_association\",\"available\":null}]}}},\"authorizes\":false}}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":7,\"observed_at\":\"2026-10-31T09:04:26.296Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"changes\",\"snapshot_id\":\"c2ef9b37-e932-4df4-9d8a-c5e377b74699\",\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":2}},\"jsonrpc\":\"2.0\",\"id\":2}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":8,\"observed_at\":\"2026-10-31T09:04:26.298Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"ui/notifications/size-changed\",\"params\":{\"width\":1264,\"height\":3004}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":9,\"observed_at\":\"2026-10-31T09:04:26.354Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"document\",\"snapshot_id\":\"c2ef9b37-e932-4df4-9d8a-c5e377b74699\",\"run_id\":\"fixture-a\",\"resource_id\":\"43122aec-b47b-414f-be22-ecf3ff65caf5\",\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":3}},\"jsonrpc\":\"2.0\",\"id\":3}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":10,\"observed_at\":\"2026-10-31T09:04:26.354Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"notifications/cancelled\",\"params\":{\"requestId\":2,\"reason\":\"AbortError: signal is aborted without reason\"}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":11,\"observed_at\":\"2026-10-31T09:04:26.374Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"ui/notifications/size-changed\",\"params\":{\"width\":1264,\"height\":3046}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":12,\"observed_at\":\"2026-10-31T09:04:26.425Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":3,\"result\":{\"_meta\":{\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"2\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":\\\"94e9da52-24a3-456d-ae99-b4cca1848de6\\\",\\\"observed_as_of\\\":\\\"2026-10-31T09:04:26.403Z\\\",\\\"source_digest\\\":\\\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\\\",\\\"state\\\":\\\"available\\\",\\\"code\\\":null,\\\"retryable\\\":false,\\\"data\\\":{\\\"kind\\\":\\\"document\\\",\\\"run\\\":{\\\"run_id\\\":\\\"fixture-a\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"lifecycle\\\":\\\"active\\\",\\\"closure\\\":null,\\\"work_summary\\\":{\\\"kind\\\":\\\"approval_pending\\\",\\\"phase\\\":\\\"UR\\\",\\\"qa_outcome\\\":\\\"not_applicable\\\",\\\"lifecycle\\\":\\\"active\\\",\\\"recorded_approvals\\\":[],\\\"decisive_obligation\\\":null,\\\"open_obligation_count\\\":0,\\\"display_action\\\":\\\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\",\\\"sources\\\":[],\\\"limitations\\\":[],\\\"authorizes\\\":false,\\\"evidence_applicability\\\":{\\\"current\\\":[],\\\"superseded\\\":[],\\\"applicability_unknown\\\":[{\\\"path\\\":\\\"run-create\\\",\\\"step\\\":null,\\\"reason\\\":\\\"no_writer_owned_association\\\",\\\"available\\\":null}]},\\\"status_label\\\":\\\"Approval pending\\\"},\\\"backlog_comparison\\\":{\\\"state\\\":\\\"unavailable\\\",\\\"reason\\\":\\\"legacy_comparison_not_requested\\\",\\\"saved_revision_id\\\":null,\\\"authorizes\\\":false},\\\"objective\\\":\\\"Describe the trustworthy outcome.\\\",\\\"title\\\":\\\"Fixture document\\\",\\\"evaluation\\\":{\\\"status\\\":\\\"blocked\\\",\\\"current_gate\\\":\\\"UR\\\",\\\"blocking_reason\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\",\\\"missing_approval\\\":\\\"Approval: UR\\\",\\\"next_allowed_action\\\":\\\"Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.\\\",\\\"next_action_de\\\":\\\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\\\",\\\"allowed\\\":[\\\"correct only permitted current decision content through its existing owner\\\"],\\\"forbidden\\\":[\\\"create later-gate artefacts beyond the current allowed gate\\\",\\\"run Brownfield Analysis as implementation preparation\\\",\\\"implement code\\\",\\\"claim QA or release readiness\\\",\\\"request approval before required decision content is concrete\\\"],\\\"control_assessment\\\":{\\\"state\\\":\\\"blocked\\\",\\\"authorizes\\\":false},\\\"doctor_status\\\":\\\"warn\\\",\\\"quality_outlook\\\":\\\"No additional quality follow-up identified from the current control state.\\\",\\\"diagnostics\\\":[{\\\"severity\\\":\\\"warn\\\",\\\"code\\\":\\\"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE\\\",\\\"message\\\":\\\"CONTEXT_GRAPH.md still contains the example node.\\\",\\\"path\\\":\\\".agdf/control/CONTEXT_GRAPH.md\\\",\\\"next_step\\\":\\\"Remove the example or replace it with an evidenced node that has an exit criterion.\\\"},{\\\"severity\\\":\\\"warn\\\",\\\"code\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\",\\\"message\\\":\\\"The selected active Run has incomplete decision orientation.\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"next_step\\\":\\\"Complete decision content\\\\n\\\\nObjective: missing_or_placeholder · .agdf/control/runs/fixture-a/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.\\\"}],\\\"approvals\\\":[{\\\"gate\\\":\\\"UR\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"PRD\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"SD\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"TP\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"QA\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"UAT\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"}],\\\"missing_evidence\\\":[],\\\"next_operation\\\":{\\\"type\\\":\\\"resolve_control_blocker\\\",\\\"operation_key\\\":\\\"control.resolve\\\",\\\"actor\\\":\\\"agent\\\",\\\"effect\\\":\\\"none\\\",\\\"gate\\\":\\\"UR\\\",\\\"reason\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\"},\\\"completion\\\":{\\\"status\\\":\\\"pending\\\",\\\"gate\\\":\\\"OR\\\",\\\"fulfilled\\\":false},\\\"git_evidence\\\":\\\"unavailable\\\"},\\\"persisted\\\":{\\\"current_gate\\\":\\\"UR\\\",\\\"next_allowed_action\\\":\\\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\",\\\"decision\\\":\\\"in_progress\\\",\\\"artefacts\\\":[{\\\"type\\\":\\\"UR\\\",\\\"path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"status\\\":\\\"draft\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"none\\\"},{\\\"type\\\":\\\"Brownfield Review\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"Verified Change\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"PRD\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"SD\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"TP\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"Brownfield Analysis\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"CD+Tests\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"CR\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"QA\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"}]},\\\"context_graph\\\":{\\\"refs\\\":\\\"\\\"},\\\"resources\\\":[{\\\"resource_id\\\":\\\"ef5ce45c-9dfa-4e98-ace8-c094af08c49d\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"Run State\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"registered_reference\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"status\\\":\\\"registered\\\"},{\\\"resource_id\\\":\\\"3aa359f1-fb8c-47f9-b246-adc66ea62e6c\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"UR\\\",\\\"path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"registered_reference\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"status\\\":\\\"registered\\\"}],\\\"draft_check\\\":{\\\"source\\\":{\\\"run_id\\\":\\\"fixture-a\\\",\\\"gate\\\":\\\"UR\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"artifact_path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"artifact_digest\\\":\\\"sha256:d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\\\",\\\"available\\\":true,\\\"reason\\\":null},\\\"result\\\":null,\\\"display\\\":{\\\"state\\\":\\\"unchecked\\\",\\\"reason\\\":null,\\\"recovery\\\":\\\"check\\\"}},\\\"document_states\\\":[{\\\"schema_version\\\":\\\"1\\\",\\\"resource_id\\\":\\\"3aa359f1-fb8c-47f9-b246-adc66ea62e6c\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"type\\\":\\\"UR\\\",\\\"registered_reference\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"source_state\\\":\\\"available\\\",\\\"content_digest\\\":\\\"d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\\\",\\\"state\\\":\\\"draft\\\",\\\"version_kind\\\":\\\"draft\\\",\\\"reason\\\":\\\"not_checked\\\",\\\"recorded_approval\\\":null,\\\"check\\\":null,\\\"authorizes\\\":false}],\\\"evidence_applicability\\\":{\\\"current\\\":[],\\\"superseded\\\":[],\\\"applicability_unknown\\\":[{\\\"step\\\":null,\\\"path\\\":\\\"run-create\\\",\\\"reason\\\":\\\"no_writer_owned_association\\\",\\\"available\\\":null}]}},\\\"document\\\":{\\\"resource\\\":{\\\"resource_id\\\":\\\"ef5ce45c-9dfa-4e98-ace8-c094af08c49d\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"Run State\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"registered_reference\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"status\\\":\\\"registered\\\"},\\\"format\\\":\\\"markdown\\\",\\\"content\\\":\\\"# AGDF Run State\\\\n\\\\n## Run Meta\\\\n\\\\n- control_state_version: 2\\\\n- run_id: fixture-a\\\\n- lifecycle: active\\\\n- revision: 1\\\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\\\n- updated_at: 2026-10-31T09:04:25.249Z\\\\n- mode: structured_delivery\\\\n- current_gate: UR\\\\n- decision: in_progress\\\\n- owner: agent\\\\n\\\\n## Objective\\\\n\\\\nDescribe the trustworthy outcome.\\\\n\\\\n## Current Control State\\\\n\\\\n| Question | Answer |\\\\n|---|---|\\\\n| What is known? | New run created. |\\\\n| What is approved? | Nothing yet. |\\\\n| What is missing? | Durable UR and exact approval. |\\\\n| What is the next allowed action? | Draft the UR. |\\\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\\\n\\\\n## Approvals\\\\n\\\\n| Gate | Status | Evidence |\\\\n|---|---|---|\\\\n| UR | missing |  |\\\\n| PRD | missing |  |\\\\n| SD | missing |  |\\\\n| TP | missing |  |\\\\n| QA | missing |  |\\\\n| UAT | missing |  |\\\\n\\\\n## Artefacts\\\\n\\\\n| Type | Path | Status | Notes |\\\\n|---|---|---|---|\\\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\\\n| Brownfield Review |  | missing |  |\\\\n| Verified Change |  | missing |  |\\\\n| PRD |  | missing |  |\\\\n| SD |  | missing |  |\\\\n| TP |  | missing |  |\\\\n| Brownfield Analysis |  | missing |  |\\\\n| CD+Tests |  | missing |  |\\\\n| CR |  | missing |  |\\\\n| QA |  | missing |  |\\\\n\\\\n## Mode/Slice Decision\\\\n\\\\n- decision:\\\\n- required_next_gate:\\\\n- scope_reason:\\\\n- evidence:\\\\n\\\\n## Artefact Chain\\\\n\\\\n| From | Relationship | To | Evidence |\\\\n|---|---|---|---|\\\\n\\\\n## Evidence\\\\n\\\\n| Evidence | Source | Covers | Strength |\\\\n|---|---|---|---|\\\\n| Run creation | run-create | Control initialization | direct |\\\\n\\\\n## Closeout\\\\n\\\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\\n- quality_outlook:\\\\n\\\",\\\"content_digest\\\":\\\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\\\",\\\"links\\\":{}}},\\\"authorizes\\\":false}\"}],\"structuredContent\":{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"94e9da52-24a3-456d-ae99-b4cca1848de6\",\"observed_as_of\":\"2026-10-31T09:04:26.403Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"kind\":\"document\",\"run\":{\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"lifecycle\":\"active\",\"closure\":null,\"work_summary\":{\"kind\":\"approval_pending\",\"phase\":\"UR\",\"qa_outcome\":\"not_applicable\",\"lifecycle\":\"active\",\"recorded_approvals\":[],\"decisive_obligation\":null,\"open_obligation_count\":0,\"display_action\":\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\"sources\":[],\"limitations\":[],\"authorizes\":false,\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"path\":\"run-create\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null}]},\"status_label\":\"Approval pending\"},\"backlog_comparison\":{\"state\":\"unavailable\",\"reason\":\"legacy_comparison_not_requested\",\"saved_revision_id\":null,\"authorizes\":false},\"objective\":\"Describe the trustworthy outcome.\",\"title\":\"Fixture document\",\"evaluation\":{\"status\":\"blocked\",\"current_gate\":\"UR\",\"blocking_reason\":\"AGDF_DECISION_CONTENT_INCOMPLETE\",\"missing_approval\":\"Approval: UR\",\"next_allowed_action\":\"Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.\",\"next_action_de\":\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\",\"allowed\":[\"correct only permitted current decision content through its existing owner\"],\"forbidden\":[\"create later-gate artefacts beyond the current allowed gate\",\"run Brownfield Analysis as implementation preparation\",\"implement code\",\"claim QA or release readiness\",\"request approval before required decision content is concrete\"],\"control_assessment\":{\"state\":\"blocked\",\"authorizes\":false},\"doctor_status\":\"warn\",\"quality_outlook\":\"No additional quality follow-up identified from the current control state.\",\"diagnostics\":[{\"severity\":\"warn\",\"code\":\"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE\",\"message\":\"CONTEXT_GRAPH.md still contains the example node.\",\"path\":\".agdf/control/CONTEXT_GRAPH.md\",\"next_step\":\"Remove the example or replace it with an evidenced node that has an exit criterion.\"},{\"severity\":\"warn\",\"code\":\"AGDF_DECISION_CONTENT_INCOMPLETE\",\"message\":\"The selected active Run has incomplete decision orientation.\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"next_step\":\"Complete decision content\\n\\nObjective: missing_or_placeholder · .agdf/control/runs/fixture-a/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.\"}],\"approvals\":[{\"gate\":\"UR\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"PRD\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"SD\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"TP\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"QA\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"UAT\",\"status\":\"missing\",\"evidence\":\"\"}],\"missing_evidence\":[],\"next_operation\":{\"type\":\"resolve_control_blocker\",\"operation_key\":\"control.resolve\",\"actor\":\"agent\",\"effect\":\"none\",\"gate\":\"UR\",\"reason\":\"AGDF_DECISION_CONTENT_INCOMPLETE\"},\"completion\":{\"status\":\"pending\",\"gate\":\"OR\",\"fulfilled\":false},\"git_evidence\":\"unavailable\"},\"persisted\":{\"current_gate\":\"UR\",\"next_allowed_action\":\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\"decision\":\"in_progress\",\"artefacts\":[{\"type\":\"UR\",\"path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"status\":\"draft\",\"notes\":\"\",\"raw_path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"Brownfield Review\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"Verified Change\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"PRD\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"SD\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"TP\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"Brownfield Analysis\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CD+Tests\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CR\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"QA\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"}]},\"context_graph\":{\"refs\":\"\"},\"resources\":[{\"resource_id\":\"ef5ce45c-9dfa-4e98-ace8-c094af08c49d\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},{\"resource_id\":\"3aa359f1-fb8c-47f9-b246-adc66ea62e6c\",\"run_id\":\"fixture-a\",\"type\":\"UR\",\"path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"registered_reference\":\".agdf/control/artefacts/fixture-a/UR.md\",\"status\":\"registered\"}],\"draft_check\":{\"source\":{\"run_id\":\"fixture-a\",\"gate\":\"UR\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"artifact_path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"artifact_digest\":\"sha256:d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\",\"available\":true,\"reason\":null},\"result\":null,\"display\":{\"state\":\"unchecked\",\"reason\":null,\"recovery\":\"check\"}},\"document_states\":[{\"schema_version\":\"1\",\"resource_id\":\"3aa359f1-fb8c-47f9-b246-adc66ea62e6c\",\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"type\":\"UR\",\"registered_reference\":\".agdf/control/artefacts/fixture-a/UR.md\",\"source_state\":\"available\",\"content_digest\":\"d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\",\"state\":\"draft\",\"version_kind\":\"draft\",\"reason\":\"not_checked\",\"recorded_approval\":null,\"check\":null,\"authorizes\":false}],\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"step\":null,\"path\":\"run-create\",\"reason\":\"no_writer_owned_association\",\"available\":null}]}},\"document\":{\"resource\":{\"resource_id\":\"ef5ce45c-9dfa-4e98-ace8-c094af08c49d\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},\"format\":\"markdown\",\"content\":\"# AGDF Run State\\n\\n## Run Meta\\n\\n- control_state_version: 2\\n- run_id: fixture-a\\n- lifecycle: active\\n- revision: 1\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\n- updated_at: 2026-10-31T09:04:25.249Z\\n- mode: structured_delivery\\n- current_gate: UR\\n- decision: in_progress\\n- owner: agent\\n\\n## Objective\\n\\nDescribe the trustworthy outcome.\\n\\n## Current Control State\\n\\n| Question | Answer |\\n|---|---|\\n| What is known? | New run created. |\\n| What is approved? | Nothing yet. |\\n| What is missing? | Durable UR and exact approval. |\\n| What is the next allowed action? | Draft the UR. |\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\n\\n## Approvals\\n\\n| Gate | Status | Evidence |\\n|---|---|---|\\n| UR | missing |  |\\n| PRD | missing |  |\\n| SD | missing |  |\\n| TP | missing |  |\\n| QA | missing |  |\\n| UAT | missing |  |\\n\\n## Artefacts\\n\\n| Type | Path | Status | Notes |\\n|---|---|---|---|\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\n| Brownfield Review |  | missing |  |\\n| Verified Change |  | missing |  |\\n| PRD |  | missing |  |\\n| SD |  | missing |  |\\n| TP |  | missing |  |\\n| Brownfield Analysis |  | missing |  |\\n| CD+Tests |  | missing |  |\\n| CR |  | missing |  |\\n| QA |  | missing |  |\\n\\n## Mode/Slice Decision\\n\\n- decision:\\n- required_next_gate:\\n- scope_reason:\\n- evidence:\\n\\n## Artefact Chain\\n\\n| From | Relationship | To | Evidence |\\n|---|---|---|---|\\n\\n## Evidence\\n\\n| Evidence | Source | Covers | Strength |\\n|---|---|---|---|\\n| Run creation | run-create | Control initialization | direct |\\n\\n## Closeout\\n\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\n- quality_outlook:\\n\",\"content_digest\":\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\",\"links\":{}}},\"authorizes\":false}}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":13,\"observed_at\":\"2026-10-31T09:04:26.490Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"changes\",\"snapshot_id\":\"94e9da52-24a3-456d-ae99-b4cca1848de6\",\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":4}},\"jsonrpc\":\"2.0\",\"id\":4}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":14,\"observed_at\":\"2026-10-31T09:04:26.495Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"ui/notifications/size-changed\",\"params\":{\"width\":1264,\"height\":2370}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":15,\"observed_at\":\"2026-10-31T09:04:26.568Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"context\",\"snapshot_id\":\"94e9da52-24a3-456d-ae99-b4cca1848de6\",\"run_id\":\"fixture-a\",\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":5}},\"jsonrpc\":\"2.0\",\"id\":5}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":16,\"observed_at\":\"2026-10-31T09:04:26.631Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":4,\"result\":{\"_meta\":{\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"2\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":null,\\\"observed_as_of\\\":null,\\\"source_digest\\\":null,\\\"state\\\":\\\"blocked\\\",\\\"code\\\":\\\"cancelled\\\",\\\"retryable\\\":true,\\\"data\\\":null,\\\"authorizes\\\":false}\"},{\"type\":\"text\",\"text\":\"AGDF tool failed: cancelled. The existing domain result remains authoritative for state and effects. Wait for the stated resource or execution prerequisite; retry only when eligible and effects are known.\"}],\"structuredContent\":{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"blocked\",\"code\":\"cancelled\",\"retryable\":true,\"data\":null,\"authorizes\":false},\"isError\":true}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":17,\"observed_at\":\"2026-10-31T09:04:26.632Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":5,\"result\":{\"_meta\":{\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"2\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":\\\"7360e464-3998-416b-8f0b-81b874f0ad5b\\\",\\\"observed_as_of\\\":\\\"2026-10-31T09:04:26.615Z\\\",\\\"source_digest\\\":\\\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\\\",\\\"state\\\":\\\"empty\\\",\\\"code\\\":null,\\\"retryable\\\":false,\\\"data\\\":{\\\"kind\\\":\\\"context\\\",\\\"run\\\":{\\\"run_id\\\":\\\"fixture-a\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"lifecycle\\\":\\\"active\\\",\\\"closure\\\":null,\\\"work_summary\\\":{\\\"kind\\\":\\\"approval_pending\\\",\\\"phase\\\":\\\"UR\\\",\\\"qa_outcome\\\":\\\"not_applicable\\\",\\\"lifecycle\\\":\\\"active\\\",\\\"recorded_approvals\\\":[],\\\"decisive_obligation\\\":null,\\\"open_obligation_count\\\":0,\\\"display_action\\\":\\\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\",\\\"sources\\\":[],\\\"limitations\\\":[],\\\"authorizes\\\":false,\\\"evidence_applicability\\\":{\\\"current\\\":[],\\\"superseded\\\":[],\\\"applicability_unknown\\\":[{\\\"path\\\":\\\"run-create\\\",\\\"step\\\":null,\\\"reason\\\":\\\"no_writer_owned_association\\\",\\\"available\\\":null}]},\\\"status_label\\\":\\\"Approval pending\\\"},\\\"backlog_comparison\\\":{\\\"state\\\":\\\"unavailable\\\",\\\"reason\\\":\\\"legacy_comparison_not_requested\\\",\\\"saved_revision_id\\\":null,\\\"authorizes\\\":false},\\\"objective\\\":\\\"Describe the trustworthy outcome.\\\",\\\"title\\\":\\\"Fixture document\\\",\\\"evaluation\\\":{\\\"status\\\":\\\"blocked\\\",\\\"current_gate\\\":\\\"UR\\\",\\\"blocking_reason\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\",\\\"missing_approval\\\":\\\"Approval: UR\\\",\\\"next_allowed_action\\\":\\\"Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.\\\",\\\"next_action_de\\\":\\\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\\\",\\\"allowed\\\":[\\\"correct only permitted current decision content through its existing owner\\\"],\\\"forbidden\\\":[\\\"create later-gate artefacts beyond the current allowed gate\\\",\\\"run Brownfield Analysis as implementation preparation\\\",\\\"implement code\\\",\\\"claim QA or release readiness\\\",\\\"request approval before required decision content is concrete\\\"],\\\"control_assessment\\\":{\\\"state\\\":\\\"blocked\\\",\\\"authorizes\\\":false},\\\"doctor_status\\\":\\\"warn\\\",\\\"quality_outlook\\\":\\\"No additional quality follow-up identified from the current control state.\\\",\\\"diagnostics\\\":[{\\\"severity\\\":\\\"warn\\\",\\\"code\\\":\\\"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE\\\",\\\"message\\\":\\\"CONTEXT_GRAPH.md still contains the example node.\\\",\\\"path\\\":\\\".agdf/control/CONTEXT_GRAPH.md\\\",\\\"next_step\\\":\\\"Remove the example or replace it with an evidenced node that has an exit criterion.\\\"},{\\\"severity\\\":\\\"warn\\\",\\\"code\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\",\\\"message\\\":\\\"The selected active Run has incomplete decision orientation.\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"next_step\\\":\\\"Complete decision content\\\\n\\\\nObjective: missing_or_placeholder · .agdf/control/runs/fixture-a/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.\\\"}],\\\"approvals\\\":[{\\\"gate\\\":\\\"UR\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"PRD\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"SD\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"TP\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"QA\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"},{\\\"gate\\\":\\\"UAT\\\",\\\"status\\\":\\\"missing\\\",\\\"evidence\\\":\\\"\\\"}],\\\"missing_evidence\\\":[],\\\"next_operation\\\":{\\\"type\\\":\\\"resolve_control_blocker\\\",\\\"operation_key\\\":\\\"control.resolve\\\",\\\"actor\\\":\\\"agent\\\",\\\"effect\\\":\\\"none\\\",\\\"gate\\\":\\\"UR\\\",\\\"reason\\\":\\\"AGDF_DECISION_CONTENT_INCOMPLETE\\\"},\\\"completion\\\":{\\\"status\\\":\\\"pending\\\",\\\"gate\\\":\\\"OR\\\",\\\"fulfilled\\\":false},\\\"git_evidence\\\":\\\"unavailable\\\"},\\\"persisted\\\":{\\\"current_gate\\\":\\\"UR\\\",\\\"next_allowed_action\\\":\\\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\",\\\"decision\\\":\\\"in_progress\\\",\\\"artefacts\\\":[{\\\"type\\\":\\\"UR\\\",\\\"path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"status\\\":\\\"draft\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"none\\\"},{\\\"type\\\":\\\"Brownfield Review\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"Verified Change\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"PRD\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"SD\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"TP\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"Brownfield Analysis\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"CD+Tests\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"CR\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"},{\\\"type\\\":\\\"QA\\\",\\\"path\\\":\\\"\\\",\\\"status\\\":\\\"missing\\\",\\\"notes\\\":\\\"\\\",\\\"raw_path\\\":\\\"\\\",\\\"path_format\\\":\\\"plain\\\",\\\"path_reason\\\":\\\"empty\\\"}]},\\\"context_graph\\\":{\\\"refs\\\":\\\"\\\"},\\\"resources\\\":[{\\\"resource_id\\\":\\\"21ea0692-e7aa-4327-89b5-b34d2cba5454\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"Run State\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"registered_reference\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"status\\\":\\\"registered\\\"},{\\\"resource_id\\\":\\\"521dab27-d331-4d5a-8d8f-284aae810062\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"UR\\\",\\\"path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"registered_reference\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"status\\\":\\\"registered\\\"}],\\\"draft_check\\\":{\\\"source\\\":{\\\"run_id\\\":\\\"fixture-a\\\",\\\"gate\\\":\\\"UR\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"artifact_path\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"artifact_digest\\\":\\\"sha256:d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\\\",\\\"available\\\":true,\\\"reason\\\":null},\\\"result\\\":null,\\\"display\\\":{\\\"state\\\":\\\"unchecked\\\",\\\"reason\\\":null,\\\"recovery\\\":\\\"check\\\"}},\\\"document_states\\\":[{\\\"schema_version\\\":\\\"1\\\",\\\"resource_id\\\":\\\"521dab27-d331-4d5a-8d8f-284aae810062\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"type\\\":\\\"UR\\\",\\\"registered_reference\\\":\\\".agdf/control/artefacts/fixture-a/UR.md\\\",\\\"source_state\\\":\\\"available\\\",\\\"content_digest\\\":\\\"d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\\\",\\\"state\\\":\\\"draft\\\",\\\"version_kind\\\":\\\"draft\\\",\\\"reason\\\":\\\"not_checked\\\",\\\"recorded_approval\\\":null,\\\"check\\\":null,\\\"authorizes\\\":false}],\\\"evidence_applicability\\\":{\\\"current\\\":[],\\\"superseded\\\":[],\\\"applicability_unknown\\\":[{\\\"step\\\":null,\\\"path\\\":\\\"run-create\\\",\\\"reason\\\":\\\"no_writer_owned_association\\\",\\\"available\\\":null}]}},\\\"document\\\":{\\\"resource\\\":{\\\"resource_id\\\":\\\"21ea0692-e7aa-4327-89b5-b34d2cba5454\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"Run State\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"registered_reference\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"status\\\":\\\"registered\\\"},\\\"format\\\":\\\"markdown\\\",\\\"content\\\":\\\"# AGDF Run State\\\\n\\\\n## Run Meta\\\\n\\\\n- control_state_version: 2\\\\n- run_id: fixture-a\\\\n- lifecycle: active\\\\n- revision: 1\\\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\\\n- updated_at: 2026-10-31T09:04:25.249Z\\\\n- mode: structured_delivery\\\\n- current_gate: UR\\\\n- decision: in_progress\\\\n- owner: agent\\\\n\\\\n## Objective\\\\n\\\\nDescribe the trustworthy outcome.\\\\n\\\\n## Current Control State\\\\n\\\\n| Question | Answer |\\\\n|---|---|\\\\n| What is known? | New run created. |\\\\n| What is approved? | Nothing yet. |\\\\n| What is missing? | Durable UR and exact approval. |\\\\n| What is the next allowed action? | Draft the UR. |\\\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\\\n\\\\n## Approvals\\\\n\\\\n| Gate | Status | Evidence |\\\\n|---|---|---|\\\\n| UR | missing |  |\\\\n| PRD | missing |  |\\\\n| SD | missing |  |\\\\n| TP | missing |  |\\\\n| QA | missing |  |\\\\n| UAT | missing |  |\\\\n\\\\n## Artefacts\\\\n\\\\n| Type | Path | Status | Notes |\\\\n|---|---|---|---|\\\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\\\n| Brownfield Review |  | missing |  |\\\\n| Verified Change |  | missing |  |\\\\n| PRD |  | missing |  |\\\\n| SD |  | missing |  |\\\\n| TP |  | missing |  |\\\\n| Brownfield Analysis |  | missing |  |\\\\n| CD+Tests |  | missing |  |\\\\n| CR |  | missing |  |\\\\n| QA |  | missing |  |\\\\n\\\\n## Mode/Slice Decision\\\\n\\\\n- decision:\\\\n- required_next_gate:\\\\n- scope_reason:\\\\n- evidence:\\\\n\\\\n## Artefact Chain\\\\n\\\\n| From | Relationship | To | Evidence |\\\\n|---|---|---|---|\\\\n\\\\n## Evidence\\\\n\\\\n| Evidence | Source | Covers | Strength |\\\\n|---|---|---|---|\\\\n| Run creation | run-create | Control initialization | direct |\\\\n\\\\n## Closeout\\\\n\\\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\\n- quality_outlook:\\\\n\\\",\\\"content_digest\\\":\\\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\\\",\\\"links\\\":{}},\\\"context\\\":{\\\"run_id\\\":\\\"fixture-a\\\",\\\"references\\\":[]}},\\\"authorizes\\\":false}\"}],\"structuredContent\":{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"state\":\"empty\",\"code\":null,\"retryable\":false,\"data\":{\"kind\":\"context\",\"run\":{\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"lifecycle\":\"active\",\"closure\":null,\"work_summary\":{\"kind\":\"approval_pending\",\"phase\":\"UR\",\"qa_outcome\":\"not_applicable\",\"lifecycle\":\"active\",\"recorded_approvals\":[],\"decisive_obligation\":null,\"open_obligation_count\":0,\"display_action\":\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\"sources\":[],\"limitations\":[],\"authorizes\":false,\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"path\":\"run-create\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null}]},\"status_label\":\"Approval pending\"},\"backlog_comparison\":{\"state\":\"unavailable\",\"reason\":\"legacy_comparison_not_requested\",\"saved_revision_id\":null,\"authorizes\":false},\"objective\":\"Describe the trustworthy outcome.\",\"title\":\"Fixture document\",\"evaluation\":{\"status\":\"blocked\",\"current_gate\":\"UR\",\"blocking_reason\":\"AGDF_DECISION_CONTENT_INCOMPLETE\",\"missing_approval\":\"Approval: UR\",\"next_allowed_action\":\"Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.\",\"next_action_de\":\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\",\"allowed\":[\"correct only permitted current decision content through its existing owner\"],\"forbidden\":[\"create later-gate artefacts beyond the current allowed gate\",\"run Brownfield Analysis as implementation preparation\",\"implement code\",\"claim QA or release readiness\",\"request approval before required decision content is concrete\"],\"control_assessment\":{\"state\":\"blocked\",\"authorizes\":false},\"doctor_status\":\"warn\",\"quality_outlook\":\"No additional quality follow-up identified from the current control state.\",\"diagnostics\":[{\"severity\":\"warn\",\"code\":\"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE\",\"message\":\"CONTEXT_GRAPH.md still contains the example node.\",\"path\":\".agdf/control/CONTEXT_GRAPH.md\",\"next_step\":\"Remove the example or replace it with an evidenced node that has an exit criterion.\"},{\"severity\":\"warn\",\"code\":\"AGDF_DECISION_CONTENT_INCOMPLETE\",\"message\":\"The selected active Run has incomplete decision orientation.\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"next_step\":\"Complete decision content\\n\\nObjective: missing_or_placeholder · .agdf/control/runs/fixture-a/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version.\"}],\"approvals\":[{\"gate\":\"UR\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"PRD\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"SD\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"TP\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"QA\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"UAT\",\"status\":\"missing\",\"evidence\":\"\"}],\"missing_evidence\":[],\"next_operation\":{\"type\":\"resolve_control_blocker\",\"operation_key\":\"control.resolve\",\"actor\":\"agent\",\"effect\":\"none\",\"gate\":\"UR\",\"reason\":\"AGDF_DECISION_CONTENT_INCOMPLETE\"},\"completion\":{\"status\":\"pending\",\"gate\":\"OR\",\"fulfilled\":false},\"git_evidence\":\"unavailable\"},\"persisted\":{\"current_gate\":\"UR\",\"next_allowed_action\":\"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\"decision\":\"in_progress\",\"artefacts\":[{\"type\":\"UR\",\"path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"status\":\"draft\",\"notes\":\"\",\"raw_path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"Brownfield Review\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"Verified Change\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"PRD\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"SD\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"TP\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"Brownfield Analysis\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CD+Tests\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CR\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"QA\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"}]},\"context_graph\":{\"refs\":\"\"},\"resources\":[{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},{\"resource_id\":\"521dab27-d331-4d5a-8d8f-284aae810062\",\"run_id\":\"fixture-a\",\"type\":\"UR\",\"path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"registered_reference\":\".agdf/control/artefacts/fixture-a/UR.md\",\"status\":\"registered\"}],\"draft_check\":{\"source\":{\"run_id\":\"fixture-a\",\"gate\":\"UR\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"artifact_path\":\".agdf/control/artefacts/fixture-a/UR.md\",\"artifact_digest\":\"sha256:d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\",\"available\":true,\"reason\":null},\"result\":null,\"display\":{\"state\":\"unchecked\",\"reason\":null,\"recovery\":\"check\"}},\"document_states\":[{\"schema_version\":\"1\",\"resource_id\":\"521dab27-d331-4d5a-8d8f-284aae810062\",\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"type\":\"UR\",\"registered_reference\":\".agdf/control/artefacts/fixture-a/UR.md\",\"source_state\":\"available\",\"content_digest\":\"d57fad1af8be684575e18c9090c2b9dde10fbbfe01fd58bdf571153c2cd788cf\",\"state\":\"draft\",\"version_kind\":\"draft\",\"reason\":\"not_checked\",\"recorded_approval\":null,\"check\":null,\"authorizes\":false}],\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"step\":null,\"path\":\"run-create\",\"reason\":\"no_writer_owned_association\",\"available\":null}]}},\"document\":{\"resource\":{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},\"format\":\"markdown\",\"content\":\"# AGDF Run State\\n\\n## Run Meta\\n\\n- control_state_version: 2\\n- run_id: fixture-a\\n- lifecycle: active\\n- revision: 1\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\n- updated_at: 2026-10-31T09:04:25.249Z\\n- mode: structured_delivery\\n- current_gate: UR\\n- decision: in_progress\\n- owner: agent\\n\\n## Objective\\n\\nDescribe the trustworthy outcome.\\n\\n## Current Control State\\n\\n| Question | Answer |\\n|---|---|\\n| What is known? | New run created. |\\n| What is approved? | Nothing yet. |\\n| What is missing? | Durable UR and exact approval. |\\n| What is the next allowed action? | Draft the UR. |\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\n\\n## Approvals\\n\\n| Gate | Status | Evidence |\\n|---|---|---|\\n| UR | missing |  |\\n| PRD | missing |  |\\n| SD | missing |  |\\n| TP | missing |  |\\n| QA | missing |  |\\n| UAT | missing |  |\\n\\n## Artefacts\\n\\n| Type | Path | Status | Notes |\\n|---|---|---|---|\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\n| Brownfield Review |  | missing |  |\\n| Verified Change |  | missing |  |\\n| PRD |  | missing |  |\\n| SD |  | missing |  |\\n| TP |  | missing |  |\\n| Brownfield Analysis |  | missing |  |\\n| CD+Tests |  | missing |  |\\n| CR |  | missing |  |\\n| QA |  | missing |  |\\n\\n## Mode/Slice Decision\\n\\n- decision:\\n- required_next_gate:\\n- scope_reason:\\n- evidence:\\n\\n## Artefact Chain\\n\\n| From | Relationship | To | Evidence |\\n|---|---|---|---|\\n\\n## Evidence\\n\\n| Evidence | Source | Covers | Strength |\\n|---|---|---|---|\\n| Run creation | run-create | Control initialization | direct |\\n\\n## Closeout\\n\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\n- quality_outlook:\\n\",\"content_digest\":\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\",\"links\":{}},\"context\":{\"run_id\":\"fixture-a\",\"references\":[]}},\"authorizes\":false}}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":18,\"observed_at\":\"2026-10-31T09:04:26.682Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"changes\",\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":6}},\"jsonrpc\":\"2.0\",\"id\":6}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":19,\"observed_at\":\"2026-10-31T09:04:26.770Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"prepare_context\",\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"graph_ids\":[],\"excluded_ids\":[],\"generation\":4,\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":7}},\"jsonrpc\":\"2.0\",\"id\":7}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":20,\"observed_at\":\"2026-10-31T09:04:26.822Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":7,\"result\":{\"_meta\":{\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"2\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":\\\"7360e464-3998-416b-8f0b-81b874f0ad5b\\\",\\\"observed_as_of\\\":\\\"2026-10-31T09:04:26.615Z\\\",\\\"source_digest\\\":\\\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\\\",\\\"state\\\":\\\"available\\\",\\\"code\\\":null,\\\"retryable\\\":false,\\\"data\\\":{\\\"packet\\\":{\\\"schema_version\\\":\\\"1\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":\\\"7360e464-3998-416b-8f0b-81b874f0ad5b\\\",\\\"observed_as_of\\\":\\\"2026-10-31T09:04:26.615Z\\\",\\\"source_digest\\\":\\\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"revision_id\\\":\\\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\",\\\"context_id\\\":\\\"fba496dc-76b0-4ea1-a562-a0609727f109\\\",\\\"generation\\\":4,\\\"prepared_at\\\":\\\"2026-10-31T09:04:26.812Z\\\",\\\"artefact\\\":{\\\"resource\\\":{\\\"resource_id\\\":\\\"21ea0692-e7aa-4327-89b5-b34d2cba5454\\\",\\\"run_id\\\":\\\"fixture-a\\\",\\\"type\\\":\\\"Run State\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"registered_reference\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\",\\\"status\\\":\\\"registered\\\"},\\\"format\\\":\\\"markdown\\\",\\\"content\\\":\\\"# AGDF Run State\\\\n\\\\n## Run Meta\\\\n\\\\n- control_state_version: 2\\\\n- run_id: fixture-a\\\\n- lifecycle: active\\\\n- revision: 1\\\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\\\n- updated_at: 2026-10-31T09:04:25.249Z\\\\n- mode: structured_delivery\\\\n- current_gate: UR\\\\n- decision: in_progress\\\\n- owner: agent\\\\n\\\\n## Objective\\\\n\\\\nDescribe the trustworthy outcome.\\\\n\\\\n## Current Control State\\\\n\\\\n| Question | Answer |\\\\n|---|---|\\\\n| What is known? | New run created. |\\\\n| What is approved? | Nothing yet. |\\\\n| What is missing? | Durable UR and exact approval. |\\\\n| What is the next allowed action? | Draft the UR. |\\\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\\\n\\\\n## Approvals\\\\n\\\\n| Gate | Status | Evidence |\\\\n|---|---|---|\\\\n| UR | missing |  |\\\\n| PRD | missing |  |\\\\n| SD | missing |  |\\\\n| TP | missing |  |\\\\n| QA | missing |  |\\\\n| UAT | missing |  |\\\\n\\\\n## Artefacts\\\\n\\\\n| Type | Path | Status | Notes |\\\\n|---|---|---|---|\\\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\\\n| Brownfield Review |  | missing |  |\\\\n| Verified Change |  | missing |  |\\\\n| PRD |  | missing |  |\\\\n| SD |  | missing |  |\\\\n| TP |  | missing |  |\\\\n| Brownfield Analysis |  | missing |  |\\\\n| CD+Tests |  | missing |  |\\\\n| CR |  | missing |  |\\\\n| QA |  | missing |  |\\\\n\\\\n## Mode/Slice Decision\\\\n\\\\n- decision:\\\\n- required_next_gate:\\\\n- scope_reason:\\\\n- evidence:\\\\n\\\\n## Artefact Chain\\\\n\\\\n| From | Relationship | To | Evidence |\\\\n|---|---|---|---|\\\\n\\\\n## Evidence\\\\n\\\\n| Evidence | Source | Covers | Strength |\\\\n|---|---|---|---|\\\\n| Run creation | run-create | Control initialization | direct |\\\\n\\\\n## Closeout\\\\n\\\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\\\n- quality_outlook:\\\\n\\\",\\\"content_digest\\\":\\\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\\\",\\\"links\\\":{}},\\\"graph_nodes\\\":[],\\\"included\\\":[{\\\"resource_id\\\":\\\"21ea0692-e7aa-4327-89b5-b34d2cba5454\\\",\\\"path\\\":\\\".agdf/control/runs/fixture-a/RUN_STATE.md\\\"}],\\\"excluded\\\":[],\\\"authorizes\\\":false},\\\"byte_count\\\":3071,\\\"limit\\\":65536},\\\"authorizes\\\":false}\"}],\"structuredContent\":{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"packet\":{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"context_id\":\"fba496dc-76b0-4ea1-a562-a0609727f109\",\"generation\":4,\"prepared_at\":\"2026-10-31T09:04:26.812Z\",\"artefact\":{\"resource\":{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},\"format\":\"markdown\",\"content\":\"# AGDF Run State\\n\\n## Run Meta\\n\\n- control_state_version: 2\\n- run_id: fixture-a\\n- lifecycle: active\\n- revision: 1\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\n- updated_at: 2026-10-31T09:04:25.249Z\\n- mode: structured_delivery\\n- current_gate: UR\\n- decision: in_progress\\n- owner: agent\\n\\n## Objective\\n\\nDescribe the trustworthy outcome.\\n\\n## Current Control State\\n\\n| Question | Answer |\\n|---|---|\\n| What is known? | New run created. |\\n| What is approved? | Nothing yet. |\\n| What is missing? | Durable UR and exact approval. |\\n| What is the next allowed action? | Draft the UR. |\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\n\\n## Approvals\\n\\n| Gate | Status | Evidence |\\n|---|---|---|\\n| UR | missing |  |\\n| PRD | missing |  |\\n| SD | missing |  |\\n| TP | missing |  |\\n| QA | missing |  |\\n| UAT | missing |  |\\n\\n## Artefacts\\n\\n| Type | Path | Status | Notes |\\n|---|---|---|---|\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\n| Brownfield Review |  | missing |  |\\n| Verified Change |  | missing |  |\\n| PRD |  | missing |  |\\n| SD |  | missing |  |\\n| TP |  | missing |  |\\n| Brownfield Analysis |  | missing |  |\\n| CD+Tests |  | missing |  |\\n| CR |  | missing |  |\\n| QA |  | missing |  |\\n\\n## Mode/Slice Decision\\n\\n- decision:\\n- required_next_gate:\\n- scope_reason:\\n- evidence:\\n\\n## Artefact Chain\\n\\n| From | Relationship | To | Evidence |\\n|---|---|---|---|\\n\\n## Evidence\\n\\n| Evidence | Source | Covers | Strength |\\n|---|---|---|---|\\n| Run creation | run-create | Control initialization | direct |\\n\\n## Closeout\\n\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\n- quality_outlook:\\n\",\"content_digest\":\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\",\"links\":{}},\"graph_nodes\":[],\"included\":[{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\"}],\"excluded\":[],\"authorizes\":false},\"byte_count\":3071,\"limit\":65536},\"authorizes\":false}}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":21,\"observed_at\":\"2026-10-31T09:04:26.824Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"validate_context\",\"context_id\":\"fba496dc-76b0-4ea1-a562-a0609727f109\",\"generation\":4,\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":8}},\"jsonrpc\":\"2.0\",\"id\":8}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":22,\"observed_at\":\"2026-10-31T09:04:26.837Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":8,\"result\":{\"_meta\":{\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"2\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":\\\"7360e464-3998-416b-8f0b-81b874f0ad5b\\\",\\\"observed_as_of\\\":\\\"2026-10-31T09:04:26.615Z\\\",\\\"source_digest\\\":\\\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\\\",\\\"state\\\":\\\"available\\\",\\\"code\\\":null,\\\"retryable\\\":false,\\\"data\\\":{\\\"context_id\\\":\\\"fba496dc-76b0-4ea1-a562-a0609727f109\\\",\\\"generation\\\":4,\\\"current\\\":true},\\\"authorizes\\\":false}\"}],\"structuredContent\":{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"context_id\":\"fba496dc-76b0-4ea1-a562-a0609727f109\",\"generation\":4,\"current\":true},\"authorizes\":false}}}}"
+    },
+    {
+      "kind": "context-ack",
+      "params": {
+        "structuredContent": {
+          "schema_version": "1",
+          "target": {
+            "target_id": "sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c",
+            "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf"
+          },
+          "snapshot_id": "7360e464-3998-416b-8f0b-81b874f0ad5b",
+          "observed_as_of": "2026-10-31T09:04:26.615Z",
+          "source_digest": "d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5",
+          "run_id": "fixture-a",
+          "revision_id": "e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6",
+          "context_id": "fba496dc-76b0-4ea1-a562-a0609727f109",
+          "generation": 4,
+          "prepared_at": "2026-10-31T09:04:26.812Z",
+          "artefact": {
+            "resource": {
+              "resource_id": "21ea0692-e7aa-4327-89b5-b34d2cba5454",
+              "run_id": "fixture-a",
+              "type": "Run State",
+              "path": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+              "registered_reference": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+              "status": "registered"
+            },
+            "format": "markdown",
+            "content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: fixture-a\n- lifecycle: active\n- revision: 1\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\n- updated_at: 2026-10-31T09:04:25.249Z\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: agent\n\n## Objective\n\nDescribe the trustworthy outcome.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | New run created. |\n| What is approved? | Nothing yet. |\n| What is missing? | Durable UR and exact approval. |\n| What is the next allowed action? | Draft the UR. |\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\n| Brownfield Review |  | missing |  |\n| Verified Change |  | missing |  |\n| PRD |  | missing |  |\n| SD |  | missing |  |\n| TP |  | missing |  |\n| Brownfield Analysis |  | missing |  |\n| CD+Tests |  | missing |  |\n| CR |  | missing |  |\n| QA |  | missing |  |\n\n## Mode/Slice Decision\n\n- decision:\n- required_next_gate:\n- scope_reason:\n- evidence:\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Run creation | run-create | Control initialization | direct |\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook:\n",
+            "content_digest": "c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448",
+            "links": {}
+          },
+          "graph_nodes": [],
+          "included": [
+            {
+              "resource_id": "21ea0692-e7aa-4327-89b5-b34d2cba5454",
+              "path": ".agdf/control/runs/fixture-a/RUN_STATE.md"
+            }
+          ],
+          "excluded": [],
+          "authorizes": false
+        }
+      }
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":23,\"observed_at\":\"2026-10-31T09:04:26.838Z\",\"direction\":\"out\",\"message\":{\"method\":\"ui/update-model-context\",\"params\":{\"structuredContent\":{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":\"7360e464-3998-416b-8f0b-81b874f0ad5b\",\"observed_as_of\":\"2026-10-31T09:04:26.615Z\",\"source_digest\":\"d87e1cd21e68f5423b0693c800932f9fb6eef2307e7c21bfa4a811a79d05d6e5\",\"run_id\":\"fixture-a\",\"revision_id\":\"e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\",\"context_id\":\"fba496dc-76b0-4ea1-a562-a0609727f109\",\"generation\":4,\"prepared_at\":\"2026-10-31T09:04:26.812Z\",\"artefact\":{\"resource\":{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},\"format\":\"markdown\",\"content\":\"# AGDF Run State\\n\\n## Run Meta\\n\\n- control_state_version: 2\\n- run_id: fixture-a\\n- lifecycle: active\\n- revision: 1\\n- revision_id: e84f71ff-c9a7-4b9e-9d2e-c4cd811fa0e6\\n- content_seal: sha256:25aa58a1b16d1ae8db8115a1fc80f1224d35c3955a8970c612992b531c7909c2\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\n- updated_at: 2026-10-31T09:04:25.249Z\\n- mode: structured_delivery\\n- current_gate: UR\\n- decision: in_progress\\n- owner: agent\\n\\n## Objective\\n\\nDescribe the trustworthy outcome.\\n\\n## Current Control State\\n\\n| Question | Answer |\\n|---|---|\\n| What is known? | New run created. |\\n| What is approved? | Nothing yet. |\\n| What is missing? | Durable UR and exact approval. |\\n| What is the next allowed action? | Draft the UR. |\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\n\\n## Approvals\\n\\n| Gate | Status | Evidence |\\n|---|---|---|\\n| UR | missing |  |\\n| PRD | missing |  |\\n| SD | missing |  |\\n| TP | missing |  |\\n| QA | missing |  |\\n| UAT | missing |  |\\n\\n## Artefacts\\n\\n| Type | Path | Status | Notes |\\n|---|---|---|---|\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\n| Brownfield Review |  | missing |  |\\n| Verified Change |  | missing |  |\\n| PRD |  | missing |  |\\n| SD |  | missing |  |\\n| TP |  | missing |  |\\n| Brownfield Analysis |  | missing |  |\\n| CD+Tests |  | missing |  |\\n| CR |  | missing |  |\\n| QA |  | missing |  |\\n\\n## Mode/Slice Decision\\n\\n- decision:\\n- required_next_gate:\\n- scope_reason:\\n- evidence:\\n\\n## Artefact Chain\\n\\n| From | Relationship | To | Evidence |\\n|---|---|---|---|\\n\\n## Evidence\\n\\n| Evidence | Source | Covers | Strength |\\n|---|---|---|---|\\n| Run creation | run-create | Control initialization | direct |\\n\\n## Closeout\\n\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\n- quality_outlook:\\n\",\"content_digest\":\"c328537ca458e8c8c74c8c7b58b4b204f0d0ef9775babc48570a7519002b5448\",\"links\":{}},\"graph_nodes\":[],\"included\":[{\"resource_id\":\"21ea0692-e7aa-4327-89b5-b34d2cba5454\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\"}],\"excluded\":[],\"authorizes\":false}},\"jsonrpc\":\"2.0\",\"id\":9}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":24,\"observed_at\":\"2026-10-31T09:04:26.940Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":9,\"result\":{}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":25,\"observed_at\":\"2026-10-31T09:04:27.022Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"ui/notifications/size-changed\",\"params\":{\"width\":1264,\"height\":2403}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":26,\"observed_at\":\"2026-10-31T09:04:27.185Z\",\"direction\":\"out\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"notifications/cancelled\",\"params\":{\"requestId\":6,\"reason\":\"AbortError: signal is aborted without reason\"}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":27,\"observed_at\":\"2026-10-31T09:04:27.185Z\",\"direction\":\"out\",\"message\":{\"method\":\"tools/call\",\"params\":{\"name\":\"agdf_cockpit_read\",\"arguments\":{\"operation\":\"invalidate_context\",\"session_id\":\"bc7bd798-1e3f-4d04-bec3-8d824a82ddf8\"},\"_meta\":{\"progressToken\":10}},\"jsonrpc\":\"2.0\",\"id\":10}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":28,\"observed_at\":\"2026-10-31T09:04:27.232Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":10,\"result\":{\"_meta\":{\"agdf/provider\":{\"schema_version\":1,\"authorizes\":false,\"identity_scope\":\"sdk_server_instance\",\"connection_id\":\"46804aae-3a8d-41b3-ad61-778bca584598\",\"server_module\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js\",\"version\":\"synthetic-test\"},\"agdf/peer\":{\"client_info\":{\"name\":\"synthetic-browser\",\"version\":\"1\"},\"capabilities\":{\"extensions\":{\"io.modelcontextprotocol/ui\":{\"mimeTypes\":[\"text/html;profile=mcp-app\"]}}}}},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"schema_version\\\":\\\"2\\\",\\\"target\\\":{\\\"target_id\\\":\\\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\\\",\\\"display_path\\\":\\\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\\\"},\\\"snapshot_id\\\":null,\\\"observed_as_of\\\":null,\\\"source_digest\\\":null,\\\"state\\\":\\\"available\\\",\\\"code\\\":null,\\\"retryable\\\":false,\\\"data\\\":{\\\"invalidated\\\":true,\\\"host_publication_required\\\":true,\\\"invalidation_id\\\":\\\"7f0cc3e6-d0cb-4234-8006-45e828d27d08\\\"},\\\"authorizes\\\":false}\"}],\"structuredContent\":{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:0855b69a1ac484454e41fd41b46978394ff2dec5e12876fa518e7a55bdb9261c\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-BtAIlf\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"invalidated\":true,\"host_publication_required\":true,\"invalidation_id\":\"7f0cc3e6-d0cb-4234-8006-45e828d27d08\"},\"authorizes\":false}}}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":29,\"observed_at\":\"2026-10-31T09:04:27.232Z\",\"direction\":\"out\",\"message\":{\"method\":\"ui/update-model-context\",\"params\":{\"structuredContent\":{\"schema_version\":\"1\",\"kind\":\"agdf_cockpit_invalid_selection\",\"generation\":7,\"invalidation_id\":\"7f0cc3e6-d0cb-4234-8006-45e828d27d08\",\"observed_at\":\"2026-10-31T09:04:27.232Z\",\"authorizes\":false,\"current\":false}},\"jsonrpc\":\"2.0\",\"id\":11}}"
+    },
+    {
+      "level": "info",
+      "logger": "agdf.sdk.trace",
+      "data": "{\"trace_id\":\"e959611a-b3bb-4c00-8ce1-f6d17ee1a14f\",\"sequence\":30,\"observed_at\":\"2026-10-31T09:04:27.235Z\",\"direction\":\"in\",\"message\":{\"jsonrpc\":\"2.0\",\"id\":11,\"error\":{\"code\":-32603,\"message\":\"release_rejected\"}}}"
+    }
+  ],
+  "frame_text": "AGDF Cockpit\n\nDie Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten."
+}

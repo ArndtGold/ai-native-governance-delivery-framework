@@ -41,7 +41,7 @@ function makeFixture() {
   copyPluginFixture();
   mkdirSync(join(fixtureRoot, "packages"));
   for (const name of ["cli", "core"]) linkDirectory(join(repoRoot, "packages", name), join(fixtureRoot, "packages", name));
-  for (const entry of [".claude-plugin", "pages", ".agdf", "LICENSE", "scripts", "package.json"]) {
+  for (const entry of [".claude-plugin", "pages", ".agdf", "LICENSE", "scripts", "package.json", "node_modules"]) {
     const source = join(repoRoot, entry);
     const isFile = existsSync(source) && statSync(source).isFile();
     // The fixture only mirrors files; Windows without symlink rights gets an identical copy.
@@ -276,6 +276,7 @@ try {
 
   materializeCreateAgdfFixture();
   resetPluginFixture();
+  expectIntegrityPass();
   replaceRequired(requestActivationContractPath, '"owner": "doctor"', '"owner": "comment-only-command"');
   const fixtureCommandRegistryPath = join(fixtureRoot, "packages", "cli", "lib", "cli", "command-registry.js");
   writeFileSync(
@@ -316,11 +317,7 @@ try {
   expectIntegrityFailure(/Runtime Contract must define visible fallback attempt outcomes/);
 
   resetPluginFixture();
-  writeFileSync(
-    releaseOrPath,
-    readFileSync(releaseOrPath, "utf8").replace("16. After writing or updating", "15. After writing or updating"),
-    "utf8",
-  );
+  replaceRequired(releaseOrPath, /^16\. /m, '15. ');
   expectIntegrityFailure(/release-or Rules numbering must be sequential from 1/);
 
   resetPluginFixture();

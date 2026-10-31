@@ -1,3 +1,4 @@
+import { pendingRunStepConflictIds } from './run-step-transaction.js';
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -210,7 +211,9 @@ export function previewRunClosure(root, { entries, language: requested } = {}, {
   const problems = entryProblems(root, entries);
   if (problems.length) return finish({ schema_version: '1', outcome: 'rejected', reason: 'closure_entries_invalid', problems,
     next_action: 'Add the reason, add or correct the successor, give a free reference, or choose abandoned; then request a new preview.', authorizes: false }, lang);
-  const pending = pendingRunStepIds(root);
+  const sharedPending = new Set(pendingRunStepConflictIds(root, null));
+  const selectedIds = new Set(entries.map(entry => entry.run_id));
+  const pending = pendingRunStepIds(root).filter(id => selectedIds.has(id) || sharedPending.has(id));
   let stored;
   try {
     stored = storePreview(root, { schema_version: '1', created_at: new Date().toISOString(), target_id: resolveControlCommandTarget(root).target_id,
@@ -257,7 +260,9 @@ export function applyRunClosure(root, { previewId, confirmation, language: reque
   const preview = loaded.preview, phrase = closurePhrase(preview.preview_id), reply = typeof confirmation === 'string' ? confirmation.trim() : '';
   if (!reply) return refuse('confirmation_missing');
   if (reply !== phrase) return refuse(/^Close runs: [0-9a-f]{8}$/u.test(reply) ? 'confirmation_other_preview' : 'confirmation_mismatch');
-  const pending = pendingRunStepIds(root);
+  const sharedPending = new Set(pendingRunStepConflictIds(root, null));
+  const selectedIds = new Set(preview.entries.map(entry => entry.run_id));
+  const pending = pendingRunStepIds(root).filter(id => selectedIds.has(id) || sharedPending.has(id));
   if (pending.length) return refuse('closure_recovery_pending', { pending_run_ids: pending, next_action: nextAction('closure_recovery_pending') });
   if (preview.blocked) return refuse('preview_blocked');
   const confirmedBy = readIdentity(root);

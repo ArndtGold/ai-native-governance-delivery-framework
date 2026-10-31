@@ -90,244 +90,53 @@ Suche und Vorhabenliste. „Anderen Run wählen“ blendet die aktive Liste bewu
 bleibt ausgewählt, bis der Nutzer einen anderen auswählt. Auswahl und Kontextpakete werden
 nicht aus URL oder Browser-Speicher wiederhergestellt.
 
-## 3. Fachlicher Fokus in allen Ansichten
+## 3. Run-Übersicht, Altbestand und Schreibgrenzen
 
-| Ansicht | Zweck und Verhalten |
-|---|---|
-| Kompakte Karte | Führt einspaltig mit gespeichertem Arbeitsstand, aktueller Kontrollaussage und einer Quellenaktion. Nachweise, Freigaben und Ziel/Run-ID sind zunächst geschlossen. „Run ansehen“ bleibt ein nachgeordneter Zugang zur größeren Ansicht. |
-| Vorhaben-Übersicht | Startet ausschließlich mit gespeicherten Masterbacklog-Einträgen und lädt UR-Überschriften nur für sichtbare Zeilen nach. Die drei Bereichsschalter „Aktiv“, „Geplant“ und „Archiv“ zeigen die Anzahlen der jeweiligen Backlog-Abschnitte; „Archiv“ umfasst abgeschlossene und abgelöste Einträge. „Aktiv“ startet ausgewählt. Die Liste führt mit Titel, gespeichertem Stand und nächstem Schritt beziehungsweise Ergebnis. Ab 1000px Breite des Lesebereichs stehen die Einträge in zwei Spalten; schmalere Ansichten bleiben einspaltig. Der Titel öffnet den konkreten Run für dessen aktuelle Core-Prüfung. |
-| Run-Zusammenfassung | Bündelt aktuellen Arbeitsschritt, exakte Core-Aktion, Voraussetzungen und Nachweise. Ziel, ID und Kontrollgrundlage sind aufklappbar. |
-| Run-Details | Zeigt zusätzliche Originalangaben und Quellen. Der Schiebeschalter „Zusammenfassung / Details“ ändert den Lesemodus innerhalb der größeren Ansicht. |
-| Dokument | Führt mit einer vorhandenen deutschen Quellenkurzfassung, dem gespeicherten Dokumentstand und der getrennten aktuellen Core-Kontrollauswertung. Quellenangaben und unveränderter Originaltext starten geschlossen. Hier gibt es keinen Zusammenfassungs-/Details-Schalter. „Dokument schließen“ kehrt zum Run zurück und stellt den Fokus auf den öffnenden Quellenzugang wieder her. |
+Die Standardübersicht verwendet `readRunInventory` und dessen reine Inventarregeln. Aktiv enthält
+aktive Runs und berücksichtigte ungültige Einträge, Historie abgeschlossene/abgelöste/abgebrochene
+Runs. Beide Oberflächen verwenden dieselbe Gruppierung, Reihenfolge und Suche über den angezeigten
+Inventartitel, Run-ID und gespeicherten Status. Aufmerksamkeit, Aktivität aus Belegen/Freigaben und
+Run-ID bestimmen die vorhandene Reihenfolge; Dateizeit oder nachgeladenes UR-Heading verändern sie
+nicht. Rückfalltitel, unbekannte Aktivität, beobachtete Revision und eingeschränkte Abdeckung bleiben
+sichtbar. Zähler/keine Treffer versprechen keinen vollständigen Bestand bei Lesefehlern.
 
-Das Cockpit schreibt weder kanonische Titel noch freigegebene Ziele um. Fachlich unklare
-Originalangaben bleiben als solche sichtbar. Es erfindet keinen Fortschritt oder nächsten
-Arbeitsschritt aus einer UI-Auswahl.
+Die Liste liest Run-Dateien und Verzeichnismitgliedschaft über den begrenzten bestehenden Read-View,
+keine Einzelprüfung sämtlicher Artefakte, Git-Historie oder rekursive Worktree-Suche. Auswahl eines
+bestimmten Runs verwendet die bestehende aktuelle Gate-, Siegel-, Quellen- und Freigabeprüfung.
+Gespeicherte Lebenszyklen und gültige Siegel sind keine Liefer-/Freigabeentscheidung. Geänderte
+Quellen machen Selektoren ungültig. Fehlgeschlagene Aktualisierung behält sichtbar den vorherigen
+Stand, Wiederholung ersetzt ihn zusammenhängend; entfernte Runs behalten ihre Identität und bieten
+Rückkehr zur Übersicht. Keine benachbarte Auswahl und keine Reparatur durch Lesen.
 
-Die Übersicht ordnet Einträge nach ihrem gespeicherten Backlog-Abschnitt, nicht durch eine
-zusätzliche Run-Auswertung oder automatische Statuskorrektur. Innerhalb jedes Bereichs steht
-der letzte gespeicherte Tabelleneintrag zuerst; daraus wird kein Erstellungsdatum abgeleitet.
-Die Suche filtert nach gespeichertem Backlog-Titel, Schlüssel und gespeichertem Status.
-Ergänzende UR-Überschriften verändern die Treffer nicht. Der Suchumfang wird in der Ansicht erklärt;
-ein Bereichswechsel leert die Suche. Bereich, Suchbegriff und beobachtete Titel bleiben bei der
-Rückkehr aus einem Vorhaben erhalten, solange sich die Backlog-Grundlage nicht geändert hat.
-Der Tastaturfokus kehrt zu dessen auswählbarem Titel zurück, sofern er im aktuellen Ausschnitt
-sichtbar ist. Andernfalls erhält die Listenüberschrift den Fokus mit einer passenden Rückmeldung.
-Es gibt keinen zweiten identischen Öffnen-Button pro Zeile.
+`view: legacy` öffnet einen eigenen optionalen Snapshot des ursprünglichen Masterbacklogs.
+Zeilen/Bereiche/Quellen/Provenienz bleiben lesbar und getrennt von Run-Zählern; Ideen ohne Run werden
+nicht in Runs umgewandelt. Fehlendes, fehlerhaftes oder zu großes Legacy-Material betrifft nur diese
+Ansicht. Der vorhandene Parser und begrenztes `backlog_titles` gehören ausschließlich dorthin.
+Normale Run-Details benötigen keinen Vergleich mit dem Altbestand.
 
-Die Chat-Vorschau zeigt höchstens drei Treffer ohne internen Scrollbereich. Titel und gespeicherter
-Stand, Phase/offene Aufgabe, vollständiger nächster Schritt und Einschränkung bleiben direkt sichtbar
-und umbrechen ohne Zeilenbegrenzung. Originalangaben und Quellen sind zusätzlich aufklappbar.
-„Alle Vorhaben öffnen“ vergrößert die Ansicht unter Beibehaltung der Suche. Hinweise zur Lesbarkeit
-beziehen sich hier auf den aktiven Bereich; ein Fehler in Geplant oder Archiv erzeugt keine
-pauschale Warnung über den aktiven Bestand. Die große Übersicht zeigt alle Treffer in einem eigenen, per Tastatur bedienbaren Scrollbereich.
-Die Liste füllt den verbleibenden Platz unter Kopfzeile, Bereichsauswahl, Suche und Zählern; diese
-Bedienelemente bleiben beim Scrollen sichtbar. Bei sehr geringer Höhe bleibt zusätzlich das
-Scrollen der Gesamtansicht möglich, damit keine Bedienelemente unerreichbar werden.
+Der Cockpit-Umschlag verwendet `schema_version: 2` und die passende Ressource
+`ui://agdf/cockpit/v2.html`. HTTP/MCP, Parser und gebaute große/kompakte Oberfläche werden zusammen
+qualifiziert. Neue UI lehnt alte/unbekannte Umschläge ab; verschachtelte Run-, Dokument-, Kontext-
+und Freigabe-Nachweisformate behalten ihre Version. Alte generationgebundene Sitzungen bleiben alte
+Beobachtungen. Dies ist keine automatische Hostinstallation.
 
-### Gemeinsame Core-Listenprojektion
+Neue Erstellung/Erfassung/Freigaben/Updates/Quellrevisionen/Abschlüsse schreiben und sperren das
+Backlog nicht. Bestehende Schreiber führen Run-lokale Ausgaben, exakte Quellen/Materialien, Revision,
+Siegel, Wiederholung und atomaren Run-Commit mit `backlog: null` fort. Unabhängige neue Runs müssen
+nicht wegen eines anderen Run-lokalen Journals warten. Alte Journale Version 1–5 behalten ihre
+Originalausgaben: nur ausdrückliche unterstützte Recovery darf eine gespeicherte alte Backlog-
+Verpflichtung unter Run-dann-Backlog-Sperre und ursprünglichen Konfliktprüfungen abschließen.
+Normale Operationen fordern diese Recovery an und erfinden keine neue Synchronisierung.
 
-`packages/core/lib/control-inspect/cockpit-list.js` enthält die gemeinsame reine Listenlogik
-für kompakte Karte und große Übersicht. Sie arbeitet ohne Dateisystem, Netzwerk oder React
-mit bereits geprüften Lesedaten. Die vorhandene Transportstruktur bleibt unverändert und in
-Quellreihenfolge; nur die Darstellung kehrt den gewählten Abschnitt um. Core besitzt Bereiche,
-Titelherkunft, Suche, Identität und Vollständigkeit. React besitzt Eingabe, Navigation und Darstellung.
-
-Kompakt erscheint ausschließlich „Active Backlog“, höchstens drei Treffer nach Suche im gesamten
-lesbaren Abschnitt. Der letzte gespeicherte Eintrag steht zuerst. „Aktiv“ ist die Bereichszugehörigkeit,
-keine neue Lifecycle-Regel; gespeichertes Completed bleibt dort sichtbar. Geplant und Archiv sind
-in der großen Übersicht erreichbar. Vergrößern erhält die aktive Suche; Bereichswechsel löscht sie.
-Eine Rückkehr aus einem anderen Bereich nach kompakt setzt Aktiv mit leerer Suche.
-
-Gesucht wird unabhängig von Großschreibung nach getrimmter Zeichenfolge getrennt in Originaltitel,
-Schlüssel und gespeichertem Status. UR-Überschriften verändern weder primären Titel noch Treffer.
-Bekannte Scope-Präfixe entfallen nur in der Anzeige. Gemeinsame passive Zeilen umbrechen Titel und
-zeigen den vollständigen nächsten Schritt und Quellenbeschränkungen direkt. Originalangaben und
-Herkunft bleiben zusätzlich aufklappbar. Bereich, Treffer
-und kompakter Ausschnitt haben getrennte Zähler. Teilbestände behaupten keine vollständigen
-Nulltreffer; nicht verfügbare Bereiche besitzen keine numerische Anzahl.
-
-Die Darstellungsidentität bindet Backlog-Digest, ursprüngliche Position, Bereich und Schlüssel.
-Sie ersetzt keine beobachtungsgebundenen Lese-Selektoren. Rückkehr erhält Bereich/Suche und den
-exakten sichtbaren Fokus. Entfernte Einträge werden von solchen außerhalb des Fünfer-Ausschnitts
-unterschieden; es wird kein benachbarter Run ausgewählt. Quellenänderungen in der Übersicht
-markieren vorherige Daten als veraltet, bis bewusst neu geladen wird. Run-, Dokument-, Kontext-
-und Sitzungsgrenzen behalten ihre bestehenden Zuständigkeiten.
-
-### Überschriften verlinkter Anforderungen
-
-Die erste Übersicht liest nur `MASTER_BACKLOG.md`. Der separate Lesevorgang `backlog_titles`
-nimmt ausschließlich eine Sitzungs-/Snapshot-Bindung und ein bis zwölf eindeutige, vom Server
-ausgestellte Zeilenkennungen entgegen. Die Oberfläche fordert sichtbare Einträge und höchstens
-einen benachbarten Eintrag an, bündelt Anfragen und führt je Ansicht nur eine gleichzeitig aus.
-Eine unsichtbare Ansicht startet keine neue Titelanfrage. Dabei werden weder alle Runs gesucht
-noch ihre Gates ausgewertet.
-
-Core verwendet den ausdrücklich gespeicherten `[UR](relativer-pfad)`-Verweis. Gleiche Ziele
-werden zusammengeführt; fehlende oder widersprüchliche Verweise machen nur die ergänzende Überschrift unverfügbar.
-Nur enthaltene Markdown-Dateien unter `.agdf/control/artefacts/` werden gelesen. Externe oder
-absolute Ziele, kodierte Umgehungen und symbolische Links werden abgewiesen. Ein OR-Verweis
-oder der Schlüssel genügt nicht, um eine UR abzuleiten. Die erste echte H1 außerhalb von
-Frontmatter, Kommentaren und Codeblöcken wird als passiver Text angezeigt; nur das führende
-`UR:` entfällt in der ergänzenden Titelbeobachtung. Primärer Listentitel bleibt der gespeicherte Backlog-Titel; Originalüberschrift und Backlog-Titel bleiben aufklappbar.
-
-Der Status steht ausdrücklich als „Gespeicherter Stand laut Backlog“ in der Liste; auch
-der nächste Schritt beziehungsweise das Ergebnis stammt ausschließlich aus dem Masterbacklog.
-UR-Metadaten ändern diese Angaben nicht. Die Titelherkunft steht in den zunächst geschlossenen
-Quellenangaben. Erst das Öffnen des Vorhabens prüft seinen aktuellen Arbeitsstand und seine
-Voraussetzungen; veraltete Backlog-Angaben werden dadurch nicht automatisch umgeschrieben.
-
-Die regulären Core-Schreibwege (`run-approve`, `control approve`, `run-update`,
-`run-step` einschließlich Nachweiserfassung sowie PRD-Wiederöffnung) führen Status und
-nächsten Schritt des zugeordneten aktiven Backlog-Eintrags aus der gemeinsamen Core-Zusammenfassung nach.
-Run- und Backlog-Sperre werden in dieser Reihenfolge gehalten. Bei Änderungen beider Dateien
-ist die versiegelte Run-Revision der Commit-Punkt; das vorhandene Transaktionsjournal hält
-den Backlog-Schritt nachholbar. Die Wiederholung einer Freigabe schließt zunächst eine
-ausstehende Transaktion ab und bestätigt deren ursprünglichen Beleg ohne zweite Freigabe.
-Die vollständige Freigabeprüfung läuft vor dem Journal unter beiden Sperren; unmittelbar
-vor dem Commit werden Run-Ausgangsstand, Quelldigests und Präsentationsbeleg erneut geprüft.
-
-Eine Freigabe hängt nicht von der Form des Backlogs ab. Lässt sich die Zeile für `run-approve`,
-`control approve` oder `run-update` nicht nachführen (nicht unterstütztes Layout, doppelte
-Identität, Backlog-Datei als Symlink oder kein reguläres File), gilt die Run-Änderung trotzdem.
-Das Backlog bleibt dann unverändert, und das Ergebnis meldet `backlog: skipped` mit
-`backlog_reason` (`backlog_layout_unsupported`, `backlog_identity_ambiguous` oder
-`backlog_path_invalid`); den Zustand des Backlogs selbst meldet `doctor`. Eine ausstehende
-Transaktion eines anderen Runs blockiert weiterhin, weil alle Schreibwege dasselbe
-Backlog-Journal teilen.
-
-Ein ausdrückliches `run-update` kann einen veralteten Backlog-Zeiger eines gültig versiegelten
-Runs korrigieren, ohne Run-Inhalt, Revision oder Freigaben zu ändern. Es aktualisiert
-Status, nächsten Schritt und Prüfvermerk der eindeutig zugeordneten aktiven Zeile; Titel, Links, Reihenfolge
-und andere Vorhaben bleiben erhalten. Kompakte und bestehende ältere 13-spaltige Tabellen werden
-bei dieser Zeigerkorrektur unterstützt; veraltete Revisionen und ausstehende fremde
-Transaktionen verhindern den Schreibzugriff.
-
-`run-step`-Schritte, die eine kompakte Zeile neu schreiben (`artefact`, `ur`, `route`, `review`,
-`closeout`), lassen in einer älteren 13-spaltigen Tabelle Titel und Link-Spalten unverändert.
-Status und nächster Schritt einer vorhandenen Zeile folgen dem Run; ein Abschluss verschiebt
-die Zeile dort nicht. Das Ergebnis meldet in diesem Fall `backlog_reason: backlog_layout_legacy`.
-Andere nicht unterstützte Layouts lehnt `run-step` weiterhin mit `backlog_layout_unsupported` ab.
-Dies ist keine Migration historischer Einträge und verschiebt keine Vorhaben ins Archiv.
-Direkte Dateiänderungen außerhalb der Core-Writer umgehen weiterhin deren Schreibvertrag.
-
-
-### Arbeitsstand, Quellen und Aktualisierung
-
-`control-evaluation/run-work-summary.js` verfeinert die bestehende Run-Policy und den
-Next-Action-Owner ausschließlich für die Beschreibung. QA-Follow-up validiert dieselben
-registrierten Berichte und normalisierten Findings wie bisher; seine Berechtigungsprüfung
-bleibt unverändert. React und HTTP/MCP werten keine Gates oder Findings selbst aus.
-
-| Gespeicherte Bedeutung | Aussage und Folge |
-|---|---|
-| Phase work pending / Awaiting PRD, SD, TP | Arbeit in der benannten Phase; der Prüfvermerk unterscheidet Entwurf und offene menschliche Freigabe. |
-| QA report pending | Der einschlägige QA-Bericht fehlt noch. |
-| QA evidence open | QA verlangt konkrete Nachweise und danach erneute QA. |
-| QA correction open | QA verlangt eine Korrektur innerhalb der freigegebenen Umsetzung und danach erneute QA. |
-| QA source decision required | Zuerst muss der benannte vorgelagerte Owner entscheiden; mehrere Findings folgen der bestehenden restriktiven Route. |
-| QA blocked / Source unconfirmed | Blockiert oder Bericht/Quellenbezug nicht verlässlich; keine positive Qualitätsaussage. |
-| Awaiting QA / Awaiting UAT / Awaiting OR | QA-pass, menschliche Freigabe, UAT und formaler Abschluss bleiben getrennt. |
-| Completed | Der ausdrücklich abgeschlossene Lifecycle; ein vorhandener QA-Bericht allein reicht nicht. |
-
-Eine Tabellenzeile bleibt sieben- beziehungsweise dreizehnspaltig. Ihr privater Prüfvermerk steht
-als eigene Kommentarzeile **nach** der zusammenhängenden Markdown-Tabelle, mit Leerzeile davor:
-`<!-- agdf-backlog-summary-v1 BASE64 -->`. BASE64 ist Standard-Base64 von kanonischem UTF-8-JSON.
-Version 1 enthält genau `schema_version`, `target_id`, `run_id`, `section`, `row_digest`,
-`revision_id`, `observed_at`, `kind`, `phase`, `qa_outcome`, `lifecycle`, `recorded_approvals`,
-`decisive_obligation`, `open_obligation_count`, `display_action`, `sources`, `limitations`
-und `authorizes: false`. `open_obligation_count` zählt offene normalisierte Befundzeilen
-aus registrierten Berichten. Derselbe Sachverhalt kann in mehreren Berichten erscheinen;
-die Anzeige benennt deshalb Berichtsbefunde und behauptet keine Anzahl verschiedener Aufgaben.
-Die Run-Ansicht zeigt diesen Core-Wert auch in der Nachweisklappe. Die separate Liste
-`evaluation.missing_evidence` zählt ausschließlich im Run-Dokument gespeicherte Nachweislücken;
-eine leere Liste bedeutet nicht, dass QA- und Review-Berichte keine offenen Befunde enthalten.
-Die optionale entscheidende Aufgabe enthält `id`, `routing_target`,
-`action`, `source_path`; jede Quelle enthält `path`, `digest`, `state: available`.
-
-`control-state/backlog-summary-shape.js` besitzt die gemeinsame reine Formprüfung für Core und
-UI; `backlog-summary.js` besitzt Kodierung und Zeilenbindung. Der Row-Digest umfasst Bereich
-und tatsächlich serialisierte Zellen. Target, Run, resultierende Revision, Beobachtungszeit und
-beobachtete run-lokale Quelldigests bleiben prüfbar. Der Vermerk ist keine kryptografische
-Beglaubigung, Freigabe oder Behauptung aktueller Vollständigkeit. Grenzen: 64 KiB JSON pro
-Vermerk, 64 Quellen/offene Aufgaben, 256 KiB je Reviewquelle und 2 MiB Backlog. Zu große
-Zusammenfassungen werden ausdrücklich eingeschränkt; entscheidende Aktionen werden nicht
-still gekürzt. Ungültige/mehrdeutige/fremde Vermerke erhalten die ursprüngliche Zeile mit
-sichtbarer Einschränkung. Alte Zeilen bleiben lesbar und unbestätigt; es gibt keine Migration.
-Ein nicht zuordenbarer beschädigter Kommentar wird nicht durch einen Writer gelöscht.
-
-Normale Writer wählen die tatsächliche neue Run-Revision einmal vor der Planung. Zeile und
-Prüfvermerk bilden einen gemeinsamen Backlog-Schritt im bestehenden Journal; die versiegelte
-Run-Revision bleibt Commit-Punkt. Bereits konsumierte QA-/Reviewquellen werden vor Commit
-gegen ihre Digests geprüft. Recovery übernimmt die erfassten Journalbytes, statt spätere
-Quellen mit einem älteren Run zu mischen. Identisches gezieltes Nachführen eines unveränderten
-Runs erhält Revision, Beobachtungszeit und sämtliche Dateibytes; eine echte neue Revision
-aktualisiert den Vermerk auch bei identischem sichtbarem Wortlaut.
-
-Relationship Correction und Run Recovery behalten ihre eigenen Run-/Journal-Owner. Ihr
-Ergebnis meldet den ausstehenden Backlog-Abgleich und nennt ausdrücklich ein auf genau diesen
-Run und dessen aktuelle Revision gebundenes `run-update`. Ein solcher Sonderweg behauptet
-keinen bereits synchronisierten Backlog. Unsupported/ambiguous/path-invalid bleibt bei den
-bereits dokumentierten erlaubten Writer-Operationen ein begründetes `skipped`; die strikten
-run-step-Wege behalten ihre Fehlergrenzen. Historische Freigaben werden nicht wiederholt.
-
-Die Übersicht liest weiterhin ausschließlich den gespeicherten Backlog. `saved_summary` ist
-ein optionales DTO-Feld; alte DTOs bleiben gültig, vorhandene ungültige neue Felder werden
-abgewiesen. Quellen im Vermerk werden niemals als Dateiselektoren verfolgt. Erst bewusstes
-Öffnen des einzelnen Runs erfasst dessen aktuelle registrierte Quellen im selben unveränderlichen
-Read-Snapshot und liefert `work_summary` sowie `backlog_comparison`: `matching`, `different`
-oder `unavailable`. Übereinstimmung benötigt gültige Run-Versiegelung, eindeutigen gültigen
-Prüfvermerk, dieselbe Revision und dieselbe Quellen-/Arbeitsbeschreibung. Fehlende oder
-ungeprüfte Quellen erlauben keine positive Übereinstimmung. Lesen verändert weder Zeile noch
-Run; abweichende Beobachtungen verlangen bewussten Abgleich, keine automatische Freigabe.
-
-Browser-/Quellen-/Protokollprüfungen und native Hostbeobachtung sind getrennte Evidenz. Die
-Quellfassung vom 9. Oktober 2026 besitzt Browsernachweise; die noch offene native Beobachtung
-mit frischer Resource-/Runtime-/UI-Identität ist in
-`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/evidence/NATIVE_OBSERVATION.md`
-gebunden. Ein alter offener App-Stand qualifiziert diese neue Fassung nicht.
-
-Jede gültige Anfrage verwirft den vorherigen Quelldatenstand und erfasst Backlog plus angefragte
-URs erneut als unveränderliche Beobachtung. Die Backlog-Grundlage muss übereinstimmen; andernfalls
-verlangt die Ansicht ein bewusstes Neuladen. Neue Zeilenkennungen gelten nur für den neuen Snapshot.
-Eine UR darf höchstens 2 MiB umfassen, die Überschrift höchstens 512 Unicode-Zeichen beziehungsweise
-2 KiB UTF-8. Fehlende, gesperrte, ungeeignete oder zu große Einzelquellen behalten ihre Zeile mit
-gekennzeichnetem Backlog-Titel. Fehler der gesamten Erfassung liefern keine gemischte Beobachtung.
-
-Die Ansicht hält höchstens 128 Titelbeobachtungen und 256 KiB serialisierte UTF-8-Metadaten im
-Arbeitsspeicher. Dieser LRU-Speicher enthält keine Dokumentkörper oder wiederverwendbaren
-Ressourcenkennungen. Pfad, vollständiger Quelldigest, Beobachtungszeit und Backlog-Digest bleiben
-sichtbar aufklappbar. Frühere Titel sind ausdrücklich Beobachtungen, keine aktuell erfassten
-Kontextquellen. Bewusstes Neuladen, eine geänderte Backlog-Grundlage, unbestätigte Aktualität oder
-eine neue beziehungsweise geschlossene Sitzung verwerfen sie. Fehlgeschlagene Einzelquellen
-werden bis dahin nicht automatisch wiederholt. Titelanfragen übertragen keinen Chat-Kontext,
-senden keine Frage und verändern keine Kontrolldatei.
-
-Bekannte vorangestellte Scope-Tags werden nur beim Backlog-Rücktitel ausgeblendet; Originaltitel,
-Schlüssel, Scope, Priorität, vollständiger nächster Schritt und Quellenangaben bleiben unverändert
-in zunächst geschlossenen Angaben verfügbar.
-
-Zähler sind keine Aussage über aktuell erlaubte Arbeit. Nicht auswertbare oder fehlende Abschnitte
-zeigen „Nicht verfügbar“ statt Null; Eintragshinweise kennzeichnen betroffene Bereichszähler als
-eingeschränkt. Ein einzelner, zunächst geschlossener Lesehinweis nennt die betroffenen Bereiche;
-lesbare Einträge bleiben zugänglich. Lange nächste Schritte werden visuell auf zwei Zeilen
-begrenzt, ihr Original bleibt vollständig aufklappbar. Schrift, Farben, Flächen und Abstände
-verwenden die bestehenden Pages-Tokens in Hell/Dunkel; der Branding-Kopf bleibt erhalten.
-
-Die Dokumentkurzfassung verwendet ausschließlich den ersten vollständigen Absatz einer
-eindeutig vorhandenen `AGDF Approval Summary (de; source=en)` aus der gelesenen Markdownquelle.
-Codebeispiele und mehrfach vorhandene oder zu große Deklarationen liefern keine Kurzfassung;
-die Oberfläche meldet fehlende Kurzfassungen ausdrücklich. Es gibt keine automatische Übersetzung,
-inhaltliche Synthese oder zweite Zusammenfassungsablage. Das Original bleibt vollständig passiv lesbar.
-
-Der Dokumentstand wird aus der passenden Artefaktzeile des Run-Stands gezeigt, nicht aus einer
-Freigabe desselben Gate-Namens oder den Metadaten im Dokument. Ziel, Snapshot, Run, registrierte
-Ressourcenidentität und Quellenverweis müssen zum gleichzeitig gelesenen Run passen. Fehlt diese
-Bindung, bleibt der Dokumentstand unbestätigt. Veraltete Beobachtungen werden als zuletzt gespeichert
-beschrieben; sie bestätigen keine aktuelle Weiterarbeit. Abweichende `draft`-/`open`-Angaben im
-unveränderten Original ersetzen weder den Run-Stand noch die Core-Kontrollauswertung.
-
-Die Dokumentansicht bündelt Titel, Lesehinweise, Einordnung, Quellen und Kontextzugang auf einer gemeinsamen neutralen Pages-Lesefläche. Sie ist einschließlich Innenabständen auf 80ch begrenzt und symmetrisch zentriert. Texte und Anschlussaktionen teilen dieselbe Innenkante. Der Kontextzugang bleibt eine mindestens 44px hohe, per Tastatur erreichbare Textaktion; seine Inhalte öffnen innerhalb der Lesefläche. Originale erhalten darin keinen zusätzlichen Kartenrahmen oder Schatten. Der Branding-Kopf bleibt unverändert.
+Frische Einrichtung erzeugt kein erforderliches Live-Backlog. Bestehende Daten bleiben erhalten;
+Doctor/Gates/Beziehungen verwenden Run- und registrierte Quellen statt Backlog-Zeiger. Andere
+Pflichtkontrollen bleiben wirksam. Vor einer Umstellung alle Schreiber dieses Ziels anhalten,
+Nachweise einschließlich unversionierter Dateien sichern, alte Transaktionen ausdrücklich
+wiederherstellen und schreibende Laufzeiten gemeinsam umstellen. Keine gemischten alten/neuen
+Schreiber. Nach neuen Schreibvorgängen braucht ein Rückwechsel einen konkreten Kompatibilitätsnachweis
+auf einer Kopie; andernfalls lesend erhalten und vorwärts korrigieren. Keine erfundenen historischen
+Zeilen, übertragenen Freigaben oder Neuversiegelung. Native Host-Nachweise bleiben von Browser-
+und Protokolltests getrennt.
 
 ### Eine zusammenhängende Arbeitseinheit
 
@@ -423,7 +232,7 @@ MCP-Ressourcenbenachrichtigungen ist für diesen Weg nicht erforderlich.
 
 Run-Ansichten lesen ihren bisherigen Zielstand im Hintergrund neu; offene Nachweise,
 Lesemodus, Fokus und Scrollposition bleiben dabei erhalten.
-Backlog-Ansichten behalten den bisherigen Stand bis zum bewussten Aktualisieren; neue
+Run- und ausdrückliche Legacy-Ansichten behalten den bisherigen Stand bis zum bewussten Aktualisieren; neue
 Run-Auswahl bleibt währenddessen gesperrt. Suchfilter und Bereich bleiben beim Neuladen
 erhalten; die Quellenangaben der neu beobachteten Zeilen starten geschlossen.
 Ein blauer Punkt am transparenten Refresh-Button zeigt bestätigte Quellenänderungen an;

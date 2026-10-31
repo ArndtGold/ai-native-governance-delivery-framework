@@ -58,7 +58,7 @@ const descriptors = {
   'presentation.prepare': spec('agdf_prepare', strictObject({ gate: enumeration(APPROVAL_GATES) }), 'run-presentation.prepareRunPresentation', ['create immutable exact presentation'], 'no_gate_approval'),
   'presentation.deliver': spec('agdf_prepare', strictObject({ gate: enumeration(APPROVAL_GATES), presentation_id: identity,
     route: enumeration(['automatic', 'markdown', 'fallback']) }), 'decision-session', ['select one primary delivery; no gate effect'], 'no_gate_approval'),
-  'step.record': spec('agdf_record', recordStep, 'run-steps.recordRunStep', ['register bounded actual internal/evidence result; update Run/backlog']),
+  'step.record': spec('agdf_record', recordStep, 'run-steps.recordRunStep', ['register bounded actual internal/evidence result; update selected Run']),
   'artefact.record': spec('agdf_record', { oneOf: [strictObject({ gate: enumeration(['PRD', 'SD', 'TP', 'QA']), reviewed_request: source }),
     strictObject({ gate: enumeration(['PRD', 'SD', 'TP', 'QA']), material: MATERIAL_REFERENCE_SCHEMA, reviewer: string(1024), reviewed: { const: true }, update_draft: { type: 'boolean' } })] }, 'run-artefact-recording.prepareArtefactRecording', ['register reviewed source mapping; replace only unapproved draft']),
   'approval.record': spec('agdf_approve', strictObject({ gate: enumeration(APPROVAL_GATES), presentation_id: identity, response: string(8192) }), 'approval-command.executeApprovalCommand', ['record one exact deliberate gate reply'], 'new_deliberate_exact_reply'),
@@ -69,10 +69,10 @@ const descriptors = {
   'source_revision.apply': spec('agdf_revise', apply, 'run-revision.applySourceRevision', ['archive selected material; invalidate affected decisions; reopen earliest source'], 'exact_material_confirmation'),
   'source_revision.recover': spec('agdf_revise', strictObject({ proposal: materialSource, source_gate: enumeration(['UR', 'PRD', 'SD', 'TP']), recovery_revision_id: identity, pending_digest: hash }), 'run-revision.recoverSourceRevision', ['recover original bounded source revision'], 'original_confirmed_effect'),
   'prd_revision.reopen': spec('agdf_revise', strictObject({ prd: source, confirmation: string(8192) }), 'run-revision.reopenPrdRevision', ['reopen existing early PRD boundary preserving history'], 'exact_material_confirmation'),
-  'closeout.record': spec('agdf_closeout', closeout, 'run-steps.recordRunStep', ['publish exact OR; complete selected Run; synchronize selected backlog'], 'exact_material_confirmation'),
+  'closeout.record': spec('agdf_closeout', closeout, 'run-steps.recordRunStep', ['publish exact OR; complete selected Run'], 'exact_material_confirmation'),
   'closure.preview': spec('agdf_closeout', strictObject({ entries: { type: 'array', minItems: 1, maxItems: 64, items: closureEntry } }), 'run-closure.previewRunClosure', ['no run_id/revision; show text verbatim'], 'no_mutation'),
   'closure.apply': spec('agdf_closeout', strictObject({ preview_id: { type: 'string', pattern: '^[0-9a-f]{8}$' }, confirmation: string(256) }), 'run-closure.applyRunClosure', ["no run_id/revision; owner's verbatim reply; final"], 'exact_owner_phrase'),
-  'operation.recover': { ...spec(null, recovery, 'run-step-transaction.recoverPendingRunStep', ['recover original bounded owned outputs and selected backlog'], 'original_confirmed_effect'), groups: ['agdf_record', 'agdf_revise', 'agdf_closeout'] },
+  'operation.recover': { ...spec(null, recovery, 'run-step-transaction.recoverPendingRunStep', ['recover original bounded owned outputs, including captured legacy backlog only'], 'original_confirmed_effect'), groups: ['agdf_record', 'agdf_revise', 'agdf_closeout'] },
 };
 function freeze(value) { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
 export const RUN_COMMAND_DESCRIPTORS = freeze(descriptors);

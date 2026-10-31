@@ -102,29 +102,15 @@ try {
   const oldRun = readFileSync(f.runPath, 'utf8'), revision = parseRunState(oldRun).meta.revision_id;
   const nextRevisionId = randomUUID();
   const committed = writeRunWithBacklog(f.root, f.runPath, oldRun, revision, { nextRevisionId });
-  let saved = readFileSync(backlog, 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record)?.record;
-  assert.equal(saved.revision_id, committed.meta.revision_id); assert.equal(saved.revision_id, nextRevisionId);
-  assert.equal(saved.kind, 'qa_evidence_open');
+  assert.equal(committed.backlog, 'not_required');
+  assert.equal(committed.meta.revision_id, nextRevisionId);
   const bytes = readFileSync(backlog, 'utf8');
+  assert.equal(bytes.split('\n').some(line => !!decodeBacklogMarker(line)), false, 'normal writer does not manufacture legacy summaries');
   assert.equal(recordRunRevision(f.root, { runId: 'fixture-a', revisionId: nextRevisionId }).outcome, 'unchanged');
   assert.equal(readFileSync(backlog, 'utf8'), bytes);
-  const session = createCockpitReader(f.root); const selection = session.snapshot('fixture-a');
-  assert.equal(selection.data.run.backlog_comparison.state, 'matching');
-  const currentRunBytes = readFileSync(f.runPath, 'utf8');
-  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation', 'Capture a newly required visible sequence')]));
-  assert.equal(session.snapshot('fixture-a').data.run.backlog_comparison.state, 'unavailable', 'moved registered source invalidates the seal');
-  writeFileSync(f.runPath, sealRunState(f.root, currentRunBytes));
-  assert.equal(session.snapshot('fixture-a').data.run.backlog_comparison.state, 'different');
-  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')]));
-  writeFileSync(f.runPath, currentRunBytes);
-  writeFileSync(backlog, bytes.split('\n').filter(line => !line.startsWith('<!-- agdf-backlog-summary-')).join('\n'));
-  assert.equal(session.snapshot('fixture-a').data.run.backlog_comparison.state, 'unavailable');
-  writeFileSync(backlog, bytes);
-  // A source revision with unchanged visible words is still a different saved observation.
-  writeRunWithBacklog(f.root, f.runPath, readFileSync(f.runPath, 'utf8'), nextRevisionId);
-  assert.notEqual(readFileSync(backlog, 'utf8'), bytes);
-  pass('actual resulting revision, exact repeat timestamp/bytes and selected current comparison');
-
+  const session = createCockpitReader(f.root), selection = session.snapshot('fixture-a');
+  assert.equal(selection.data.run.backlog_comparison.state, 'unavailable');
+  assert.equal(selection.data.run.backlog_comparison.reason, 'legacy_comparison_not_requested');
   const before = readFileSync(f.runPath, 'utf8'), currentRevision = parseRunState(before).meta.revision_id;
   const beforeBacklog = readFileSync(backlog, 'utf8');
   assert.throws(() => writeRunWithBacklog(f.root, f.runPath, before, currentRevision, {

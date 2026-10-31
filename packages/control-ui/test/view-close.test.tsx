@@ -5,7 +5,7 @@ import type { HandoffController } from '../src/mcp/handoff';
 
 function fixture(phase = 'idle') {
   const events: string[] = [];
-  const envelope = (closed: boolean) => ({ schema_version: '1', target: { target_id: 'target', display_path: '/fixture' },
+  const envelope = (closed: boolean) => ({ schema_version: '2', target: { target_id: 'target', display_path: '/fixture' },
     snapshot_id: null, source_digest: null, observed_as_of: null, state: 'available', retryable: false, code: null, data: { closed } });
   const handoff = { invalidate: vi.fn(async () => { events.push('invalidate'); }), snapshot: () => ({ phase }) };
   const bridge = { session: 'other-view', operation: vi.fn(async () => { events.push('close'); return envelope(true); }) };

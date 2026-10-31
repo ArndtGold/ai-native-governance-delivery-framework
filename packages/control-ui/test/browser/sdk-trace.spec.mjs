@@ -55,6 +55,20 @@ for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Coc
     expect(trace).toHaveLength(0);
     await frame.getByRole('button', { name: 'SDK-Nachweis aufzeichnen' }).click();
     await expect(frame.getByLabel('SDK-Nachrichten dieser Ansicht')).toContainText('ui/initialize');
+    if (closeMode === 'accepted') {
+      await frame.getByRole('button', { name: 'Alle Vorhaben', exact: true }).first().click();
+      await expect(frame.getByRole('region', { name: 'Run-Liste' })).toBeVisible();
+      for (const width of [390, 1440]) {
+        await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+        await expect(frame.locator('button[data-focus-id="fixture-a"]')).toBeVisible();
+        await page.screenshot({ path: evidencePath(`built-mcp-run-overview-${width}.png`), fullPage: true });
+      }
+      await frame.getByRole('button', { name: /^Historie / }).click();
+      await expect(frame.locator('button[data-focus-id="fixture-completed"]')).toBeVisible();
+      await frame.getByRole('button', { name: /^Aktiv / }).click();
+      await frame.getByRole('searchbox').fill('fixture-a');
+      await frame.locator('button[data-focus-id="fixture-a"]').click();
+    }
     await frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();
     await expect(frame.getByRole('button', { name: 'Dokument schließen' })).toBeVisible();
     await frame.getByRole('button', { name: 'Verknüpfter Kontext ansehen', exact: true }).click();
@@ -102,6 +116,11 @@ for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Coc
     writeFileSync(evidencePath(`cockpit-sdk-trace-browser-${closeMode}.json`), JSON.stringify({ evidence_class: 'built_ui_real_sdk_core_synthetic_host', native_qualified: false,
       authorizes: false, ui: ui.manifest, provider, trace }, null, 2));
   } finally {
+    writeFileSync(evidencePath(`cockpit-sdk-trace-attempt-${closeMode}.json`), JSON.stringify({
+      evidence_class: 'built_ui_real_sdk_core_synthetic_host_attempt', native_qualified: false, ui: ui.manifest, trace,
+      host: await page.evaluate(() => window.sdkTraceHarness?.logs ?? []).catch(() => []),
+      frame_text: await page.frameLocator('iframe').locator('body').innerText({ timeout: 1000 }).catch(() => null),
+    }, null, 2));
     // The rejected-close case intentionally leaves its Core session open.
     // End the fixture before awaiting HTTP shutdown so long polls can finish.
     await sdkServer.closeAgdfRuntime();

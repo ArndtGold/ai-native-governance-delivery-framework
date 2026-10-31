@@ -1,0 +1,267 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test test/browser/run-overview.spec.mjs test/browser/journeys.spec.mjs test/browser/backlog.spec.mjs test/browser/scoped.spec.mjs test/browser/changes.spec.mjs test/browser/backlog-titles.spec.mjs test/browser/mcp-errors.spec.mjs test/browser/sdk-trace.spec.mjs
+
+Running 40 tests using 1 worker
+
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58203) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/backlog-titles.spec.mjs:7:1 › SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR details, reversed order, scope replacement and unchanged sources in light/dark (5.1s)
+(node:58286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 test/browser/backlog.spec.mjs:14:1 › supplementary title batches keep the expanded list and controls still while scrolling (4.1s)
+(node:58293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 test/browser/backlog.spec.mjs:59:1 › backlog areas filter stored entries locally, keep search on return, and match Pages in light/dark at four widths (4.3s)
+(node:58298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 test/browser/backlog.spec.mjs:110:1 › a malformed planned section does not turn its count into zero or obscure readable active entries (3.5s)
+(node:58325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 test/browser/backlog.spec.mjs:124:1 › SCN-008/009/011/012/013: compact full legacy list, search, long wrapped rows and exact expanded return (4.8s)
+(node:58345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 test/browser/changes.spec.mjs:7:40 › actual light overview waits for deliberate reload after a file event (2.7s)
+(node:58350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 test/browser/changes.spec.mjs:7:40 › actual dark overview waits for deliberate reload after a file event (2.5s)
+(node:58354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 test/browser/changes.spec.mjs:44:40 › light changed original uses the header dot until deliberate reload (3.6s)
+(node:58382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 test/browser/changes.spec.mjs:44:40 › dark changed original uses the header dot until deliberate reload (3.6s)
+(node:58397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 test/browser/journeys.spec.mjs:42:1 › document orientation separates approved Run facts from draft originals in both Pages themes (17.0s)
+(node:58499) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 test/browser/journeys.spec.mjs:127:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (6.1s)
+(node:58556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 test/browser/journeys.spec.mjs:184:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (5.7s)
+(node:58645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 test/browser/journeys.spec.mjs:211:1 › SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes (18.0s)
+(node:59198) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 test/browser/journeys.spec.mjs:254:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (6.1s)
+(node:59251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 test/browser/journeys.spec.mjs:275:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (5.5s)
+(node:59308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 test/browser/journeys.spec.mjs:297:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (6.1s)
+(node:59394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 test/browser/journeys.spec.mjs:348:1 › summary leads with the work step and stale reads never claim a missing Run or current control (10.0s)
+(node:59521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 test/browser/journeys.spec.mjs:380:1 › neutral light reading planes and Pages dark surfaces survive host colors across all views (8.4s)
+(node:59651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 test/browser/journeys.spec.mjs:459:1 › Pages action and type hierarchy retains the Cockpit neutral light palette (3.3s)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 test/browser/journeys.spec.mjs:527:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (6.1s)
+  ✓  21 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/stale_revision (1.2s)
+  ✓  22 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/session_expired (1.4s)
+  ✓  23 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/permission_denied (1.6s)
+  ✓  24 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/uncertain (1.6s)
+  ✓  25 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/accepted (1.2s)
+  ✓  26 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/stale_revision (1.3s)
+  ✓  27 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/session_expired (1.7s)
+  ✓  28 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/permission_denied (1.2s)
+  ✓  29 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/uncertain (1.2s)
+  ✓  30 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/accepted (1.3s)
+  ✓  31 test/browser/mcp-errors.spec.mjs:40:1 › late MCP error cannot attach to a replacement decision (synthetic SDK host) (1.3s)
+(node:60127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  32 test/browser/run-overview.spec.mjs:9:3 › Run inventory, history, legacy and retry desktop 390 (4.9s)
+(node:60216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 test/browser/run-overview.spec.mjs:9:3 › Run inventory, history, legacy and retry desktop 1440 (5.0s)
+(node:60256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 test/browser/run-overview.spec.mjs:9:3 › Run inventory, history, legacy and retry compact 390 (4.7s)
+(node:60335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 test/browser/run-overview.spec.mjs:9:3 › Run inventory, history, legacy and retry compact 1440 (4.0s)
+(node:60379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 test/browser/scoped.spec.mjs:6:1 › scoped HTTP reading preserves stored backlog, source navigation and Pages themes at four widths (3.9s)
+(node:60417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  37 test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: accepted (synthetic host) (9.6s)
+(node:60455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  38 test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: ignored (synthetic host) (11.6s)
+(node:60493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  39 test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: deny-release (synthetic host) (11.4s)
+(node:60618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60634) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  40 test/browser/sdk-trace.spec.mjs:127:1 › MCP negative read retains correction; blocked run remains a successful view (synthetic SDK host) (5.1s)
+
+
+  1) test/browser/journeys.spec.mjs:459:1 › Pages action and type hierarchy retains the Cockpit neutral light palette 
+
+    Error: ENOENT: no such file or directory, scandir '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/pages/dist/_astro'
+
+      461 |   const root=resolve(import.meta.dirname,'../../../..'),reference=await context.newPage();
+      462 |   const assets=join(root,'pages/dist/_astro');
+    > 463 |   const css=fs.readdirSync(assets).filter(n=>/^index\..*\.css$/.test(n)).map(n=>fs.readFileSync(join(assets,n),'utf8')).join('\n');
+          |                ^
+      464 |   expect(css.length).toBeGreaterThan(1000);
+      465 |   const observations=[];
+      466 |   const styles=l=>l.evaluate(e=>{const s=getComputedStyle(e);return{font:s.fontFamily,size:s.fontSize,line:s.lineHeight,weight:s.fontWeight,bg:s.backgroundColor,color:s.color,border:s.borderTopColor,radius:s.borderRadius,padding:s.padding};});
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/control-ui/test/browser/journeys.spec.mjs:463:16
+
+    Error Context: test-results/journeys-Pages-action-and--216ab-ckpit-neutral-light-palette/error-context.md
+
+  2) test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: accepted (synthetic host) ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true }) with timeout 5000ms
+      - waiting for locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })
+
+
+      75 |     await expect(frame.getByRole('button', { name: 'Kontext übergeben', exact: true })).toBeEnabled();
+      76 |     await frame.getByRole('button', { name: 'Kontext übergeben', exact: true }).click();
+    > 77 |     await expect(frame.getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })).toBeVisible();
+         |                                                                                                                        ^
+      78 |     await frame.getByRole('button', { name: 'Sitzung beenden und Host schließen lassen', exact: true }).click();
+      79 |     if (closeMode === 'deny-release') {
+      80 |       await expect(frame.getByText('Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.', { exact: true })).toBeVisible();
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/control-ui/test/browser/sdk-trace.spec.mjs:77:120
+
+    Error Context: test-results/sdk-trace-built-Cockpit-close-accepted-synthetic-host-/error-context.md
+
+  3) test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: ignored (synthetic host) ─────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true }) with timeout 5000ms
+      - waiting for locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })
+
+
+      75 |     await expect(frame.getByRole('button', { name: 'Kontext übergeben', exact: true })).toBeEnabled();
+      76 |     await frame.getByRole('button', { name: 'Kontext übergeben', exact: true }).click();
+    > 77 |     await expect(frame.getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })).toBeVisible();
+         |                                                                                                                        ^
+      78 |     await frame.getByRole('button', { name: 'Sitzung beenden und Host schließen lassen', exact: true }).click();
+      79 |     if (closeMode === 'deny-release') {
+      80 |       await expect(frame.getByText('Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.', { exact: true })).toBeVisible();
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/control-ui/test/browser/sdk-trace.spec.mjs:77:120
+
+    Error Context: test-results/sdk-trace-built-Cockpit-close-ignored-synthetic-host-/error-context.md
+
+  4) test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: deny-release (synthetic host) ────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true }) with timeout 5000ms
+      - waiting for locator('iframe').contentFrame().getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })
+
+
+      75 |     await expect(frame.getByRole('button', { name: 'Kontext übergeben', exact: true })).toBeEnabled();
+      76 |     await frame.getByRole('button', { name: 'Kontext übergeben', exact: true }).click();
+    > 77 |     await expect(frame.getByText('Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', { exact: true })).toBeVisible();
+         |                                                                                                                        ^
+      78 |     await frame.getByRole('button', { name: 'Sitzung beenden und Host schließen lassen', exact: true }).click();
+      79 |     if (closeMode === 'deny-release') {
+      80 |       await expect(frame.getByText('Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.', { exact: true })).toBeVisible();
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/control-ui/test/browser/sdk-trace.spec.mjs:77:120
+
+    Error Context: test-results/sdk-trace-built-Cockpit-close-deny-release-synthetic-host-/error-context.md
+
+  4 failed
+    test/browser/journeys.spec.mjs:459:1 › Pages action and type hierarchy retains the Cockpit neutral light palette 
+    test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: accepted (synthetic host) ─────────
+    test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: ignored (synthetic host) ──────────
+    test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: deny-release (synthetic host) ─────
+  36 passed (3.9m)

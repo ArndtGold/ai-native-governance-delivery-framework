@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: atomic backlog writes notify every dependent view without replacing their private snapshots
+ok 1 - atomic backlog writes notify every dependent view without replacing their private snapshots
+  ---
+  duration_ms: 2332.771345
+  type: 'test'
+  ...
+# Subtest: Run source replacement wakes only dependent views, and pending waits close with their session
+ok 2 - Run source replacement wakes only dependent views, and pending waits close with their session
+  ---
+  duration_ms: 1754.284938
+  type: 'test'
+  ...
+# Subtest: SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session
+ok 3 - SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session
+  ---
+  duration_ms: 3049.960839
+  type: 'test'
+  ...
+# Subtest: SCN-003/026/027: shared production worker reads same immutable source, no write and cross-run document denial
+ok 4 - SCN-003/026/027: shared production worker reads same immutable source, no write and cross-run document denial
+  ---
+  duration_ms: 1689.459609
+  type: 'test'
+  ...
+# Subtest: SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker
+ok 5 - SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker
+  ---
+  duration_ms: 988.499127
+  type: 'test'
+  ...
+# Subtest: SCN-022: fake clock proves idle and absolute session expiry without prolonged waits
+ok 6 - SCN-022: fake clock proves idle and absolute session expiry without prolonged waits
+  ---
+  duration_ms: 1037.210533
+  type: 'test'
+  ...
+# Subtest: SCN-036: shared wire parser rejects extra fields, unknown/malformed selectors and forged target inputs
+ok 7 - SCN-036: shared wire parser rejects extra fields, unknown/malformed selectors and forged target inputs
+  ---
+  duration_ms: 0.779368
+  type: 'test'
+  ...
+# Subtest: SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview
+ok 8 - SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview
+  ---
+  duration_ms: 0.439428
+  type: 'test'
+  ...
+# Subtest: SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write
+ok 9 - SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write
+  ---
+  duration_ms: 1250.245682
+  type: 'test'
+  ...
+# Subtest: SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen
+ok 10 - SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen
+  ---
+  duration_ms: 898.558841
+  type: 'test'
+  ...
+# Subtest: SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained
+ok 11 - SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained
+  ---
+  duration_ms: 1146.480089
+  type: 'test'
+  ...
+# Subtest: SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do
+ok 12 - SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do
+  ---
+  duration_ms: 1615.054175
+  type: 'test'
+  ...
+# Subtest: SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable
+ok 13 - SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable
+  ---
+  duration_ms: 1276.484149
+  type: 'test'
+  ...
+# Subtest: SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job
+ok 14 - SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job
+  ---
+  duration_ms: 1021.442652
+  type: 'test'
+  ...
+# Subtest: SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundary; worker budgets remain unchanged
+ok 15 - SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundary; worker budgets remain unchanged
+  ---
+  duration_ms: 1191.150642
+  type: 'test'
+  ...
+# Subtest: plugin views bind two projects once, share capacity, and keep failure identity
+ok 16 - plugin views bind two projects once, share capacity, and keep failure identity
+  ---
+  duration_ms: 1484.151189
+  type: 'test'
+  ...
+# Subtest: plugin production workers preserve cross-project data and one publication owner
+ok 17 - plugin production workers preserve cross-project data and one publication owner
+  ---
+  duration_ms: 2127.830694
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23757.159886

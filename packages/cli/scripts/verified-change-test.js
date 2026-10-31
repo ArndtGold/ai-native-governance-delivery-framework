@@ -348,6 +348,12 @@ try {
 
   write(runStatePath, runState("executed", "completed"));
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", validationStatus: "pass" }));
+  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", validationStatus: "pass", executionChangedPaths: "README.md, .agdf/control/MASTER_BACKLOG.md" }));
+  const historicalRecord = readFileSync(join(root, ".agdf/control/artefacts/example/VERIFIED_CHANGE.md"));
+  check = run("doctor");
+  assert.equal(check.report.findings.some(f => f.code === "AGDF_VERIFIED_CHANGE_EXECUTION_SCOPE_INVALID"), false, "Completed old snapshots retain their captured backlog path without reading or rewriting it.");
+  assert.deepEqual(readFileSync(join(root, ".agdf/control/artefacts/example/VERIFIED_CHANGE.md")), historicalRecord);
+  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", validationStatus: "pass" }));
   write("later-unrelated.md", "future work\n");
   check = run("doctor");
   assert.equal(check.report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_SCOPE_ESCAPE"), false);

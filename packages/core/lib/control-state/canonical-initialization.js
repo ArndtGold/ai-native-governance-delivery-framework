@@ -930,7 +930,7 @@ export function inspectCanonicalProject(targetDir, { operationId } = {}) {
     if (!['valid', 'absent'].includes(projection.status)) throw Error(projection.status);
     const config = JSON.parse(readFileSync(join(controlPath, 'config.json'), 'utf8'));
     if (!['artifact_language', 'chat_language', 'runtime_language'].every(k => typeof config[k] === 'string' && config[k].length <= 64)) throw Error('canonical_config_unsupported');
-    for (const [name, title] of [['MASTER_BACKLOG.md', '# AGDF Master Backlog'], ['SOT_REGISTRY.md', '# AGDF Source-of-Truth Registry'], ['CONTEXT_GRAPH.md', '# AGDF Context Graph']]) {
+    for (const [name, title] of [['SOT_REGISTRY.md', '# AGDF Source-of-Truth Registry'], ['CONTEXT_GRAPH.md', '# AGDF Context Graph']]) {
       const path = join(controlPath, name);
       if (lstatSync(path).size > 1048576 || !canonicalRunText(readFileSync(path, 'utf8')).startsWith(title + '\n')) throw Error('canonical_structure_unsupported');
     }

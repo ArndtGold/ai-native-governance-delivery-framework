@@ -1,0 +1,35 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/control-ui
+
+ ❯ test/run-overview.test.tsx (7 tests | 2 failed | 5 skipped) 13ms
+   × invalid directory identity remains diagnostic without hiding valid Runs (desktop) 11ms
+   × invalid directory identity remains diagnostic without hiding valid Runs (compact) 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/run-overview.test.tsx > invalid directory identity remains diagnostic without hiding valid Runs (desktop)
+ FAIL  test/run-overview.test.tsx > invalid directory identity remains diagnostic without hiding valid Runs (compact)
+AssertionError: expected [Function] to not throw an error but 'Error: dto_invalid' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: dto_invalid"
+
+ ❯ test/run-overview.test.tsx:30:61
+     28|     result.data!.diagnostics = invalid.findings;
+     29|     result.data!.counts = { total: 4, lifecycle: { active: 2, complete…
+     30|     expect(() => validateData('/api/snapshot', result)).not.toThrow();
+       |                                                             ^
+     31|     const read = vi.fn(async () => result) as unknown as ReadTransport;
+     32|     render(<App compact={compact} transport={read}/>);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 skipped (7)
+   Start at  12:19:31
+   Duration  2.12s (environment 46%, import 29%, transform 23%, tests 1%)
+

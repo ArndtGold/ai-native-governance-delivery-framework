@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, realpathSync, readFileSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, realpathSync, readFileSync, existsSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { initializeCanonicalControl } from '../../cli/lib/scaffold/canonical-init.js';
@@ -10,6 +10,8 @@ import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { createRunMaterialStore, MATERIAL_LIMITS } from '../lib/control-state/run-material.js';
 import { createRunCommandService } from '../lib/control-state/run-command-service.js';
+import { readPendingRunStepJournal } from '../lib/control-state/run-step-transaction.js';
+import { canonicalJson, digest } from '../lib/control-state/approval-command-contract.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { runSealState } from '../lib/control-state/run-seal.js';
 import { validateRunCommandResult } from '../lib/control-state/run-command-contract.js';
@@ -123,4 +125,38 @@ test('invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry n
   } finally { clocked.close(); }
   assert.equal(readFileSync(path, 'utf8'), before);
   assert.equal(existsSync(join(root, '.agdf/control/artefacts/material/UR.md')), false);
+}));
+
+// Synthetic compatibility proof: the actual material writer owns every receipt,
+// output and seal; only the historical backlog field is added to its saved intent.
+test('captured v4 material journal recovers its legacy output explicitly', () => fixture(({ root, path, bound, store, call }) => {
+  const text = '# UR: Legacy recovery\n\n## Problem\nInterrupted delivery needs recovery.\n\n## Goal\nRecover captured output.\n\n## Scope\nOnly this fixture.\n\n## Non-Goals\nOther work.\n\n## Acceptance Signals\nThe captured bytes are restored.\n\n## Risks And Unknowns\nNone in the fixture.\n';
+  const bytes = Buffer.from(text);
+  const transfer_id = call({ action: 'begin', files: [{ slot: 'UR', bytes: bytes.length }] }).family_result.transfer_id;
+  assert.equal(call({ action: 'append', transfer_id, file: 0, offset: 0, data: bytes.toString('base64') }).outcome, 'accepted');
+  const reference = call({ action: 'seal', transfer_id }).family_result.files[0].reference;
+  const initial = { ...bound(), command: { kind: 'step.record', payload: { step: 'ur', title: 'Legacy recovery', source: reference } } };
+  assert.equal(createRunCommandService({ materialGrants: store.grants(initial) })('agdf_record', initial).outcome, 'accepted');
+  const input = { ...bound(), command: { kind: 'ur_draft.replace', payload: { title: 'Legacy recovery revised', source: reference } } };
+  const interrupted = createRunCommandService({ materialGrants: [{ ...reference, content: text, slot: 'UR', target_id: input.target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id }], checkpoint(point) { if (point === 'run') throw Error('fixture_interruption'); } })('agdf_revise', input);
+  assert.equal(interrupted.outcome, 'effect_unknown', JSON.stringify(interrupted));
+  const pending = readPendingRunStepJournal(root, input.run_id);
+  assert.equal(pending.schema_version, 4);
+  const legacy = join(root, '.agdf/control/MASTER_BACKLOG.md');
+  pending.backlog = { old: '# Original legacy v4\n', next: '# Captured legacy v4\n' };
+  writeFileSync(legacy, pending.backlog.old);
+  writeFileSync(join(root, '.agdf/control/runs/material/RUN_STEP_PENDING.json'), JSON.stringify(pending));
+  const service = createRunCommandService();
+  const recovery = { ...input, expected_revision_id: bound().expected_revision_id, command: { kind: 'operation.recover', payload: {
+    original_kind: 'ur_draft.replace', pending_digest: digest(canonicalJson(pending)), recovery_revision_id: bound().expected_revision_id } } };
+  writeFileSync(legacy, 'Foreign edit\n');
+  assert.equal(service('agdf_revise', recovery).outcome, 'effect_unknown', 'A committed receipt with conflicting captured output requires explicit recovery, not a fresh write.');
+  assert.equal(readFileSync(legacy, 'utf8'), 'Foreign edit\n');
+  writeFileSync(legacy, pending.backlog.old);
+  const recovered = service('agdf_revise', recovery);
+  assert.equal(recovered.outcome, 'accepted', JSON.stringify(recovered));
+  assert.equal(readFileSync(legacy, 'utf8'), pending.backlog.next);
+  assert.equal(readFileSync(join(root, '.agdf/control/artefacts/material/UR.md'), 'utf8'), text);
+  assert.equal(runSealState(root, readFileSync(path, 'utf8')).status, 'valid');
+  assert.equal(service('agdf_revise', input).outcome, 'already_applied');
 }));

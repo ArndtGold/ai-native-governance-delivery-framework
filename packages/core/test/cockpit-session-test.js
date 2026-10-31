@@ -106,7 +106,7 @@ test('SCN-036: shared wire parser rejects extra fields, unknown/malformed select
 });
 test('SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview', () => {
   assert.deepEqual(COCKPIT_RENDER_DEFINITION.inputSchema.properties.run_id,
-    { type: 'string', pattern: '^[A-Za-z0-9_-]{1,128}$' });
+    { type: 'string', pattern: '^[a-z0-9][a-z0-9._-]{0,127}$' });
   assert.deepEqual(parseCockpitArguments({ run_id: 'fixture-a' }, true), { run_id: 'fixture-a' });
   assert.deepEqual(parseCockpitArguments({ run_id: 'a'.repeat(128) }, true), { run_id: 'a'.repeat(128) });
   for (const value of [{ run_id: '' }, { run_id: undefined }, { run_id: 12 }, { run_id: '../foreign' },
@@ -134,7 +134,7 @@ test('SCN-039/042/046: render carries requested focus without eager capture; ord
     const unknown = await service.render({ run_id: 'unknown-run' });
     assert.equal(unknown._meta.agdf_cockpit.initial_run_id, 'unknown-run');
     assert.equal(unknown._meta.agdf_cockpit.render_generation, 2);
-    assert.equal((await service.read({ operation: 'snapshot', session_id })).state, 'empty');
+    assert.equal((await service.read({ operation: 'snapshot', session_id })).state, 'available');
     const empty = await service.render(); assert.equal(empty._meta.agdf_cockpit.initial_run_id, undefined);
     await assert.rejects(service.render({ run_id: 'bad/path' }), /resource_denied/);
     assert.deepEqual(treeBytes(f.root), before);
@@ -236,7 +236,7 @@ test('SCN-049/051: production worker replacement waits for termination and canno
     await assert.rejects(pool.request({ operation: 'snapshot' }), error => error.code === 'busy');
     assert.equal(pool.worker, null); assert.ok(worker.threadId > 0);
     await finish();
-    assert.equal((await queued).state, 'empty'); assert.notEqual(pool.worker, worker);
+    assert.equal((await queued).state, 'available'); assert.notEqual(pool.worker, worker);
     assert.equal(worker.threadId, -1);
   } finally { if (finish && pool.retiring) await finish(); await pool.close(); f.close(); }
 });
@@ -254,15 +254,15 @@ test('SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundar
     fs.writeFileSync(tail, Buffer.alloc(remaining - 32 * 1024 ** 2, 98));
     assert.equal(bytes(control), COCKPIT_LIMITS.capture);
     const session_id = (await service.render())._meta.agdf_cockpit.session_id;
-    assert.equal((await service.read({ operation: 'snapshot', session_id })).state, 'empty');
+    assert.equal((await service.read({ operation: 'snapshot', session_id })).state, 'available');
     fs.appendFileSync(tail, 'x');
     const overview = await service.read({ operation: 'snapshot', session_id });
-    assert.equal(overview.state, 'empty'); assert.equal(overview.data.file_count, 1);
+    assert.equal(overview.state, 'available'); assert.equal(overview.data.kind, 'runs'); assert.equal(overview.data.runs.length, 2);
     assert.ok(overview.data.byte_count < COCKPIT_LIMITS.capture);
-    assert.equal(createCockpitReader(f.root).snapshot().state, 'empty');
+    assert.equal(createCockpitReader(f.root).snapshot().state, 'available');
     const browserPool = new ReadWorkerPool(f.root);
     try {
-      assert.equal((await browserPool.request({ operation: 'snapshot' })).state, 'empty');
+      assert.equal((await browserPool.request({ operation: 'snapshot' })).state, 'available');
       assert.equal(browserPool.worker.resourceLimits.maxOldGenerationSizeMb, 768);
     } finally { await browserPool.close(); }
   } finally { await service.close(); f.close(); }

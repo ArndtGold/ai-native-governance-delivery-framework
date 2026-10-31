@@ -155,6 +155,27 @@ export function validateData(path: string, value: Envelope<unknown>) {
   if (object(data)) {
     if (path.startsWith('/api/changes')) valid = typeof data.changed === 'boolean';
     else if (path.startsWith('/api/freshness')) valid = data.unchanged === true;
+    else if (data.kind === 'runs' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/'))) {
+      valid = ['complete', 'incomplete', 'absent'].includes(String(data.state)) && data.authorizes === false
+        && Array.isArray(data.runs) && data.runs.every(r => object(r)
+          && typeof r.valid === 'boolean' && text(r.run_id)
+          && r.selectable === /^[a-z0-9][a-z0-9._-]{0,127}$/.test(r.run_id)
+          && (r.selectable || r.valid === false)
+          && text(r.title) && ['objective', 'run_id'].includes(String(r.title_source))
+          && nullableText(r.lifecycle) && nullableText(r.revision_id) && nullableText(r.next_action) && text(r.basis)
+          && r.path === `.agdf/control/runs/${r.run_id}/RUN_STATE.md`
+          && object(r.attention) && text(r.attention.label) && ['decision_required', 'clarification_required', 'blocked', 'in_progress', 'unclear', 'none'].includes(String(r.attention.code))
+          && object(r.last_activity) && nullableText(r.last_activity.at) && text(r.last_activity.source) && nullableText(r.last_activity.precision)
+          && diagnostics(r.findings))
+        && new Set((data.runs as Record<string, unknown>[]).map(r => r.run_id)).size === (data.runs as unknown[]).length
+        && object(data.counts) && data.counts.total === (data.runs as unknown[]).length
+        && object(data.counts.lifecycle) && object(data.counts.attention)
+        && [data.counts.lifecycle, data.counts.attention].every(counts => Object.values(counts as Record<string, unknown>).every(n => Number.isSafeInteger(n) && (n as number) >= 0)
+          && Object.values(counts as Record<string, number>).reduce((sum, n) => sum + n, 0) === (data.runs as unknown[]).length)
+        && diagnostics(data.diagnostics) && data.source_path === '.agdf/control/runs/'
+        && Number.isSafeInteger(data.file_count) && Number.isSafeInteger(data.byte_count)
+        && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(data.removed_run_id));
+    }
     else if (data.kind === 'backlog' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/') || path.startsWith('/api/backlog-titles'))) {
       valid = Array.isArray(data.entries) && data.entries.every(r => object(r)
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
@@ -169,7 +190,7 @@ export function validateData(path: string, value: Envelope<unknown>) {
         && hasConsistentBacklogCounts(data)
         && Number.isSafeInteger(data.file_count) && (data.file_count as number) >= 0
         && Number.isSafeInteger(data.byte_count) && (data.byte_count as number) >= 0
-        && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[A-Za-z0-9_-]{1,128}$/.test(data.removed_run_id));
+        && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(data.removed_run_id));
       if (valid && path.startsWith('/api/backlog-titles') && Array.isArray(data.entries)) {
         const ids = data.entries.map(r => (r as Record<string, unknown>).row_id);
         const observed = data.entries.filter(r => (r as Record<string, unknown>).title_observation !== undefined).length;
@@ -208,7 +229,7 @@ export function validateData(path: string, value: Envelope<unknown>) {
   }
 }
 export function validateEnvelope(value: unknown, expected?: { target: string; snapshot: string; replacement?: boolean }): asserts value is Envelope<unknown> {
-  if (!object(value) || value.schema_version !== '1' || !object(value.target)
+  if (!object(value) || value.schema_version !== '2' || !object(value.target)
     || typeof value.target.target_id !== 'string' || typeof value.target.display_path !== 'string'
     || !states.has(String(value.state)) || typeof value.retryable !== 'boolean'
     || !(value.code === null || typeof value.code === 'string')

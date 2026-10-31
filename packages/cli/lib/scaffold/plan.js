@@ -62,10 +62,6 @@ const controlFiles = [
 ];
 const liveControlFiles = [
   {
-    path: join(".agdf", "control", "MASTER_BACKLOG.md"),
-    source: join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
-  },
-  {
     path: join(".agdf", "control", "SOT_REGISTRY.md"),
     source: join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   },

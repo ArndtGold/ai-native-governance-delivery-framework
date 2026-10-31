@@ -36,6 +36,28 @@ Abgeschlossene, abgelöste und abgebrochene Runs erscheinen als Historie. Die Kl
 gespeicherten Stand und sind keine Live-Bewertung; den aktuellen Stand eines Runs liefert `gate-check`.
 `doctor --all-active` prüft weiterhin jeden aktiven Run vollständig und trägt dasselbe Inventar mit.
 
+## Cockpit und getrennte Arbeitskopien
+
+Auch das Cockpit verwendet dieses gespeicherte Run-Inventar: Aktiv und Historie sind in kompakter
+und großer Ansicht erreichbar. Die Suche umfasst den angezeigten Inventartitel, Run-ID und Status;
+die vorhandene Inventarreihenfolge bleibt erhalten. Erst das gezielte Öffnen prüft den Run aktuell.
+Ein fehlender oder fehlerhafter Bestand ist kein vollständiger leerer Bestand. Das alte Masterbacklog
+bleibt bei Bedarf separat als nur lesbarer Altbestand mit ursprünglichen Angaben zugänglich.
+Neue Runs, Freigaben und Abschlüsse pflegen diese Sammeldatei nicht mehr.
+
+Neu gewählte Worktrees liegen unter `.agdf/worktrees/<initiative>/` des zuständigen Haupt-Checkouts.
+Der Haupt-Checkout muss diesen Container vor dem Anlegen ignorieren; vorhandene Ignore-Regeln
+bleiben erhalten. Ein bereits zugeordneter Worktree wird wiederverwendet, auch wenn er früher
+anderswo angelegt wurde. Ausdrücklich gewünschte Alternativen bleiben möglich. Unklare
+Projektzuordnung oder Namenskollision zuerst klären; aus einem verknüpften Worktree heraus keinen
+weiteren Worktree darin verschachteln. Nicht jede kleine Aufgabe braucht einen Worktree.
+
+Maßgeblich ist die [kanonische Worktree-Regel](../../../plugins/agdf/meta/contracts/task-target-resolution.md#worktree-placement-and-assigned-checkout).
+Ein Run hat einen zuständigen Schreiber; Git-Worktrees isolieren weder globale Plugins noch Ports
+und sind keine Sperre zwischen Checkout-Kopien. Unversionierte Run-Dateien werden nicht automatisch
+mitkopiert. Vor einer gesondert beauftragten Übergabe oder Bereinigung müssen sie gesichert werden.
+Automatisches Anlegen, Wechseln, Verschieben und Aufräumen gehört nicht zu dieser Regel.
+
 ## Mehrere Aufgaben im selben Repository
 
 Für einen Fehler, eine neue Funktion und eine Dokumentationsänderung kann AGDF jeweils einen eigenen
@@ -79,8 +101,8 @@ Freigaben, letzter Aktivität und Warnungen; sie ändert nichts. Dann bestätigs
 Vorschau mit dem Satz `Close runs: <preview_id>`. Ein Agent bereitet die Vorschau vor und reicht
 nur deine wörtliche Antwort weiter. Jeder Run, der sich seit der Vorschau nicht geändert hat, wird
 geschlossen und erhält einen eigenen Beleg mit Grund, Zeitpunkt und deiner Git-Identität. Das
-Ergebnis nennt jeden Run einzeln. Wartet irgendwo im Repository eine unterbrochene Schreiboperation
-auf Wiederherstellung, wird nichts geschlossen.
+Ergebnis nennt jeden Run einzeln. Eine ausstehende Schreiboperation des gewählten Runs oder eine alte gemeinsam wirkende Transaktion
+verlangt zuerst die ausdrückliche Wiederherstellung; unabhängige Run-lokale Operationen bleiben getrennt.
 
 Ein beendeter Run ist endgültig. Er verschwindet aus allen Listen aktiver Runs, bleibt als Historie
 lesbar und nimmt keine weiteren Schritte, Freigaben oder Fortsetzungen an. Soll die Arbeit doch

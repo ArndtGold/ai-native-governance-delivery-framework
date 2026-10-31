@@ -4,6 +4,19 @@ Private local React application for reading one explicitly selected repository's
 The interface is German; documents retain their source language. Overview → run detail → registered
 document and back share an observed source version. Gate evaluation comes from existing AGDF Core.
 
+## Overview and compatibility
+
+The default view reads the shared stored Run inventory. Active and History, title/ID/status search,
+coverage and source basis agree in compact and expanded views; opening a Run invokes current Core
+checks. The optional Legacy backlog view preserves original planning/history and has local errors.
+Normal Run operations do not write or lock MASTER_BACKLOG.md. No reader writes control state.
+
+Cockpit envelopes and the paired `ui://agdf/cockpit/v2.html` resource use version 2. Ship matching
+UI/Core/adapters; nested evidence and governance command versions retain their existing owners.
+Old generations are old observations. Coordinate writing-runtime cutover and old pending recovery
+before using the new writer; no live host update or native qualification follows from a build.
+The normative worktree rule is [task-target-resolution](../../plugins/agdf/meta/contracts/task-target-resolution.md#worktree-placement-and-assigned-checkout).
+
 ## Local use
 
 From the repository root, with Node 22.12+ in the 22 line, Node 24+, or another newer line supported

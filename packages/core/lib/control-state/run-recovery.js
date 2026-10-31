@@ -254,8 +254,7 @@ export function applyRunRecovery(root, { runId, previewId, confirmation }, hooks
           || !committed.valid || committed.meta.revision_id !== preview.next_revision_id
           || preview.result_revision_id !== preview.next_revision_id) throw new Error("AGDF_RECOVERY_JOURNAL_CONFLICT");
       return Object.freeze({ schema_version: "1", outcome: "already_recovered", run_id: runId, preview_id: previewId, revision_id: preview.result_revision_id,
-        backlog: "pending", backlog_reason: "run_only_recovery",
-        backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${preview.result_revision_id}.` });
+        backlog: "not_required" });
     }
     if (preview.phase !== "prepared" && preview.phase !== "applying") throw new Error("AGDF_RECOVERY_JOURNAL_PHASE_INVALID");
     if (preview.phase === "prepared" && (currentDigest !== preview.source_content_digest
@@ -290,8 +289,7 @@ export function applyRunRecovery(root, { runId, previewId, confirmation }, hooks
     hooks.beforeJournalCommit?.();
     atomicWrite(journalPath, `${JSON.stringify(completed, null, 2)}\n`);
     return Object.freeze({ schema_version: "1", outcome: "recovered", run_id: runId,
-      backlog: "pending", backlog_reason: "run_only_recovery",
-      backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${written.meta.revision_id}.`,
+      backlog: "not_required",
       preview_id: previewId, revision: written.meta.revision, revision_id: written.meta.revision_id,
       seal_status: runSealState(root, resultContent).status, next_gate: deriveNextGate(root, resultContent, path) });
   });

@@ -42,7 +42,7 @@ try {
   assert.equal(service('agdf_revise', input).outcome, 'already_applied');
   assert.equal(service('agdf_revise', { ...input, presentation_language: 'de' }).reason, 'operation_payload_conflict');
   assert.equal(service('agdf_revise', prepare()).reason, 'prd_revision_boundary_invalid');
-  for (const stage of [...intentStages, ...archiveStages, ...commitStages]) {
+  for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => !stage.startsWith('backlog'))) {
     reset(); const request = prepare();
     const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
       createRunCommandService({checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;

@@ -15,6 +15,7 @@ import { evaluateGateCheck } from '../../core/lib/control-evaluation/gate-check.
 for (const modern of [false, true]) {
 const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
 try {
+  const legacyPath = join(root, '.agdf/control/MASTER_BACKLOG.md'), legacyBefore = readFileSync(legacyPath, 'utf8');
   await withStdioClient({ ...fixture, modern }, async client => {
   const service = async (name, input) => { const result = await client.callTool({ name, arguments: input }); assert.ok(result.structuredContent, JSON.stringify(result)); return result.structuredContent; };
   const target = resolveControlCommandTarget(root).target_id;
@@ -102,8 +103,8 @@ try {
   assert.equal(evaluateGateCheck(root, { runId: run }).completion.fulfilled, true);
   const completed = await dispatch(); assert.equal(completed.terminal, true);
   assert.equal(completed.control.next_operation, null);
-  assert.doesNotMatch(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('## Completed / Superseded Pointers')[0], /\| quick-command \|/);
-  console.log('Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.');
+  assert.equal(readFileSync(legacyPath, 'utf8'), legacyBefore, 'the whole typed Run lifecycle preserves optional legacy bytes');
+  console.log('Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completion with unchanged optional legacy backlog passed. No VCS command executed.');
   });
 } finally { fixture.dispose(); }
 }

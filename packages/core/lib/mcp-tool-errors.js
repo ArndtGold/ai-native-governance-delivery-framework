@@ -46,7 +46,12 @@ export function executionFacts(error, { phase = 'execute' } = {}) {
 }
 
 export function validateToolDomain(name, result) {
-  if (!plain(result) || result.schema_version !== '1' || result._meta !== undefined && !plain(result._meta)) invalid();
+  // Only the paired Cockpit reading envelope moves to v2. Bootstrap, decision
+  // sessions and every control tool retain their existing v1 domain contract.
+  const cockpitEnvelope = ['agdf_cockpit', 'agdf_cockpit_read'].includes(name) && plain(result)
+    && Object.hasOwn(result, 'snapshot_id') && Object.hasOwn(result, 'target');
+  if (!plain(result) || result.schema_version !== (cockpitEnvelope ? '2' : '1')
+    || result._meta !== undefined && !plain(result._meta)) invalid();
   if (name === 'agdf_dispatch' || name === 'agdf_inspect') {
     const outcomes = name === 'agdf_dispatch' ? dispatchOutcomes : inspectOutcomes;
     if (result.contract_version !== 1 || !plain(result.runtime) || !plain(result.timing)

@@ -83,10 +83,13 @@ for (const modern of [false, true]) {
       const b = (await client.callTool({ name: 'agdf_cockpit', arguments: {} }))._meta.agdf_cockpit.session_id;
       const call = async (session_id, args) => (await client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id, ...args } })).structuredContent;
       const first = await call(a, { operation: 'snapshot', run_id: 'fixture-a' }); assert.equal(first.data.run.run_id, 'fixture-a');
-      let overview = await call(b, { operation: 'snapshot' }); assert.equal(overview.data.kind, 'backlog'); assert.equal(overview.data.file_count, 1);
+      const runOverview = await call(b, { operation: 'snapshot' });
+      assert.equal(runOverview.schema_version, '2'); assert.equal(runOverview.data.kind, 'runs');
+      assert.ok(runOverview.data.runs.some(run => run.run_id === 'fixture-a'));
+      let overview = await call(b, { operation: 'snapshot', view: 'legacy' }); assert.equal(overview.data.kind, 'backlog'); assert.equal(overview.data.file_count, 1);
       assert.equal(overview.data.entries[0].saved_summary.provenance_state, 'recorded');
       assert.equal(overview.data.entries[0].saved_summary.authorizes, false);
-      assert.equal(first.data.run.backlog_comparison.state, 'matching');
+      assert.equal(first.data.run.backlog_comparison.state, 'unavailable');
       const titleBranch = tools.tools[1].inputSchema.oneOf.find(row => row.properties.operation.const === 'backlog_titles');
       assert.equal(titleBranch.properties.row_ids.maxItems, 12); assert.equal(titleBranch.additionalProperties, false);
       const row = overview.data.entries.find(row => row.source_links.includes('[UR]'));

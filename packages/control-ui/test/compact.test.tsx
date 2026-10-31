@@ -19,14 +19,14 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   const many=backlog([pointer('run-a','Deliver cockpit'),...Array.from({length:12},(_,i)=>pointer(`other-${i}`,`Other project ${i}`))]);
   const read=vi.fn(async(path:string)=>named(path)?detail:many) as unknown as ReadTransport;
   render(<App compact transport={read}/>);await screen.findByRole('searchbox');
-  expect(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'})).toBeTruthy();
-  expect(document.querySelector('.compact-controls > p')?.textContent).toBe('fixture');
-  expect(screen.getByText('13 Einträge · 3 angezeigt')).toBeTruthy();
-  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(3);
+  expect(screen.getByRole('heading',{name:'Aktive Vorhaben'})).toBeTruthy();
+  expect(document.querySelector('.compact-repository')?.textContent).toBe('fixture');
+  expect(screen.getByText('13 Einträge')).toBeTruthy();
+  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(13);
   expect(document.querySelector('.undertaking-list .row-step')?.textContent).toContain('Stored next step');
   expect(document.querySelector('.row-source dd')?.closest('details')?.open).toBe(false);
-  fireEvent.change(screen.getByRole('searchbox',{name:'Vorhaben suchen'}),{target:{value:'other-7'}});
-  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);expect(screen.getByText('13 Einträge · 1 Treffer · 1 angezeigt')).toBeTruthy();expect(read).toHaveBeenCalledTimes(1);
+  fireEvent.change(screen.getByRole('searchbox',{name:'Aktiv: Vorhaben suchen'}),{target:{value:'other-7'}});
+  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);expect(screen.getByText('13 Einträge · 1 Treffer')).toBeTruthy();expect(read).toHaveBeenCalledTimes(1);
   fireEvent.change(screen.getByRole('searchbox'),{target:{value:'run-a'}});fireEvent.click(await readySelection());
   await screen.findByText('Freigegebenen Umfang umsetzen.');expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
   expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
@@ -35,7 +35,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   const bad={...pointer('invalid-run','Broken pointer'),selectable:false};
   const partial={...inventory,data:{...inventory.data!,entries:[...inventory.data!.entries,bad],counts:{...inventory.data!.counts,'Active Backlog':2},diagnostics:[{code:'malformed_pointer',message:'Broken stored row.'}]}};
   const read=vi.fn(async()=>partial) as unknown as ReadTransport;render(<App compact transport={read}/>);await readySelection();
-  expect(screen.getByText('Backlog-Hinweise · Aktiv · 1').closest('details')?.open).toBe(false);
+  expect(screen.getByText('Teilweise verfügbar · Aktiv · 1 Lesehinweis').closest('details')?.open).toBe(false);
   expect((screen.getByRole('button',{name:/Broken pointer/}) as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByText('Broken stored row.')).toBeTruthy();expect(read).toHaveBeenCalledTimes(1);
  });
@@ -47,7 +47,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   await readySelection();
   expect(screen.queryByText(/Backlog-Hinweise/)).toBeNull();
   expect(screen.queryByText(/Einige gespeicherte Vorhaben oder Tabellen/)).toBeNull();
-  expect(screen.getByText('1 Eintrag · 1 angezeigt')).toBeTruthy();
+  expect(screen.getByText('1 Eintrag')).toBeTruthy();
   expect((screen.getByRole('button',{name:'Alle Vorhaben öffnen'}) as HTMLButtonElement).disabled).toBe(false);
  });
  it('summary and details remain in the expanded reader without resetting or re-reading the Run',async()=>{
@@ -135,7 +135,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   render(<App compact transport={read}/>);fireEvent.click(await readySelection('run-a'));await screen.findByText('Freigegebenen Umfang umsetzen.');await tick();
   fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));fireEvent.click(await readySelection('run-b'));await screen.findByRole('heading',{name:'Second run'});
   await act(async()=>finish(changed));expect(screen.queryByText(/Veraltet/)).toBeNull();expect(screen.getByRole('heading',{name:'Second run'})).toBeTruthy();
-  expect(vi.mocked(read).mock.calls.filter(c=>c[0]==='/api/snapshot')).toHaveLength(2);
+  expect(vi.mocked(read).mock.calls.filter(c=>c[0]==='/api/snapshot'||c[0]==='/api/snapshot?view=legacy')).toHaveLength(2);
  });
  it('confirmed selected Run removal returns to stored backlog without selecting a replacement',async()=>{
   vi.useFakeTimers({toFake:['setInterval','clearInterval']});let removed=false;
@@ -185,18 +185,18 @@ it('SCN-003/008/009: compact active preview and expanded projection share query/
  const rows=[...active,{...pointer('later','Planned only'),section:'Planned / Parking Lot'},{...pointer('done','Archive only'),section:'Completed / Superseded Pointers'}];
  const read=vi.fn(async()=>backlog(rows)) as unknown as ReadTransport;
  const view=render(<App compact transport={read} onExpand={vi.fn()}/>);await screen.findByRole('searchbox');
- expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice(5).reverse().map(r=>r.title));
+ expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice().reverse().map(r=>r.title));
  expect(screen.queryByRole('button',{name:'Planned only'})).toBeNull();expect(screen.queryByRole('button',{name:'Archive only'})).toBeNull();
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:' Gemeinsames '}});
- expect(screen.getByText('8 Einträge · 8 Treffer · 3 angezeigt')).toBeTruthy();
+ expect(screen.getByText('8 Einträge · 8 Treffer')).toBeTruthy();
  view.rerender(<App transport={read}/>);
  expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe(' Gemeinsames ');
  expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice().reverse().map(r=>r.title));
  fireEvent.click(screen.getByRole('button',{name:'Geplant 1'}));expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('');
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'Planned'}});
  view.rerender(<App compact transport={read}/>);
- expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('');expect(document.activeElement).toBe(screen.getByRole('heading',{name:'AGDF Cockpit'}));
- expect(screen.queryByRole('button',{name:'Planned only'})).toBeNull();expect(read).toHaveBeenCalledTimes(1);
+ expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('Planned');expect(document.activeElement).toBe(screen.getByRole('heading',{name:'AGDF Cockpit'}));
+ expect(screen.getByRole('button',{name:'Planned only'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(1);
 });
 it('SCN-020: exact row return focus; source addition hiding it in compact preview is not reported as removal',async()=>{
  let rows=[pointer('run-a','Selected undertaking')];
@@ -206,7 +206,7 @@ it('SCN-020: exact row return focus; source addition hiding it in compact previe
  fireEvent.click(await readySelection());await screen.findByText('Freigegebenen Umfang umsetzen.');
  rows=[...rows,...Array.from({length:5},(_,i)=>pointer('new'+i,'New '+i))];
  fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
- await screen.findByText(/außerhalb des aktuellen Ausschnitts/);expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'}));
+ await readySelection();expect(document.activeElement).toBe(screen.getByRole('button',{name:'Selected undertaking'}));
  expect(screen.queryByText(/nicht mehr im Backlog/)).toBeNull();
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'run-a'}});await readySelection();
  expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/runs/')).map(c=>c[0])).toEqual(['/api/runs/run-a?snapshot=snapshot','/api/runs/run-a?snapshot=snapshot']);
@@ -215,8 +215,8 @@ it('SCN-020: removed originating row has explicit removal feedback without a sub
  let removed=false;
  const read=vi.fn(async(path:string)=>named(path)?detail:backlog([pointer(removed?'run-b':'run-a')])) as unknown as ReadTransport;
  render(<App compact transport={read}/>);fireEvent.click(await readySelection());await screen.findByText('Freigegebenen Umfang umsetzen.');removed=true;
- fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));await screen.findByText('Das zuvor geöffnete Vorhaben ist nicht mehr im Backlog enthalten.');
- expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'}));expect(vi.mocked(read).mock.calls.some(c=>c[0].startsWith('/api/runs/run-b'))).toBe(false);
+ fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));await screen.findByText('Das zuvor geöffnete Vorhaben ist nicht mehr im gelesenen Bestand enthalten.');
+ expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'}));expect(vi.mocked(read).mock.calls.some(c=>c[0].startsWith('/api/runs/run-b'))).toBe(false);
 });
 it('SCN-020: a valid run key matching a view control still restores the exact row focus',async()=>{
  const key='backlog-search';

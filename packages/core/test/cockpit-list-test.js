@@ -1,3 +1,4 @@
+import { projectCockpitRuns } from '../lib/control-inspect/cockpit-list.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { COCKPIT_BACKLOG_SECTIONS as sections, projectCockpitList, backlogRowKey, hasConsistentBacklogCounts } from '../lib/control-inspect/cockpit-list.js';
@@ -47,4 +48,24 @@ test('SCN-008/015: full-area search precedes view limit; complete empty/no-match
  assert.equal(all.matchCount,10);assert.deepEqual(all.rows.slice(0,5).map(r=>r.entry.key),['item9','item8','item7','item6','item5']);
  assert.equal(projectCockpitList(data,{query:'item0'}).rows[0].entry.key,'item0');assert.equal(projectCockpitList(data,{query:'none'}).coverage,'complete');
  const empty=projectCockpitList(inventory([]));assert.equal(empty.sectionCount,0);assert.equal(empty.query,'');assert.equal(empty.coverage,'complete');
+});
+
+test('Run list preserves inventory order, groups invalid entries and searches only displayed stored fields', () => {
+ const runs = [
+  { run_id: 'b', title: 'Fragen klären', valid: true, lifecycle: 'active', attention: { label: 'Klärung erforderlich' } },
+  { run_id: 'a', title: 'Angebote vergleichen', valid: true, lifecycle: 'active', attention: { label: 'in Arbeit' } },
+  { run_id: 'broken', title: 'Broken', valid: false, lifecycle: null, attention: { label: 'blockiert' } },
+  { run_id: 'old', title: 'Historie', valid: true, lifecycle: 'completed', attention: { label: 'Historie' } },
+ ];
+ const data = { state: 'incomplete', runs }, before = JSON.stringify(data);
+ assert.deepEqual(projectCockpitRuns(data).rows.map(r => r.run_id), ['b', 'a', 'broken']);
+ assert.deepEqual(projectCockpitRuns(data, { section: 'history' }).rows.map(r => r.run_id), ['old']);
+ assert.equal(projectCockpitRuns(data, { query: ' KLÄRUNG ' }).matchCount, 1);
+ assert.equal(projectCockpitRuns(data, { query: 'a' }).sectionCount, 3);
+ runs[0].supplementary_heading = 'Unsearched heading';
+ assert.equal(projectCockpitRuns(data, { query: 'Unsearched' }).matchCount, 0);
+ delete runs[0].supplementary_heading;
+ assert.equal(JSON.stringify(data), before); assert.equal(projectCockpitRuns(data).coverage, 'partial');
+ assert.equal(projectCockpitRuns({ state: 'absent', runs: [] }).coverage, 'unavailable');
+ assert.throws(() => projectCockpitRuns(data, { section: 'invented' }), /dto_invalid/);
 });

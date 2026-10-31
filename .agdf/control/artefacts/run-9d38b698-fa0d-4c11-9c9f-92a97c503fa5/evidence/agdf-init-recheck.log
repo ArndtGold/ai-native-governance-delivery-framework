@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: Git project confirmation accepts the same directory spelling alias and rejects another directory
+ok 1 - Git project confirmation accepts the same directory spelling alias and rejects another directory
+  ---
+  duration_ms: 206.83231
+  type: 'test'
+  ...
+# Subtest: prospective receipt is private until the same directory and anchor are atomically published
+ok 2 - prospective receipt is private until the same directory and anchor are atomically published
+  ---
+  duration_ms: 839.484839
+  type: 'test'
+  ...
+# Subtest: interruption before a valid marker at beforeProspectiveReceipt preserves unclaimed bytes without recovery authority
+ok 3 - interruption before a valid marker at beforeProspectiveReceipt preserves unclaimed bytes without recovery authority
+  ---
+  duration_ms: 263.207777
+  type: 'test'
+  ...
+# Subtest: interruption before a valid marker at afterProspectiveReceipt preserves unclaimed bytes without recovery authority
+ok 4 - interruption before a valid marker at afterProspectiveReceipt preserves unclaimed bytes without recovery authority
+  ---
+  duration_ms: 293.406262
+  type: 'test'
+  ...
+# Subtest: interruption before a valid marker at beforeWrite preserves unclaimed bytes without recovery authority
+ok 5 - interruption before a valid marker at beforeWrite preserves unclaimed bytes without recovery authority
+  ---
+  duration_ms: 266.239139
+  type: 'test'
+  ...
+# Subtest: fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+ok 6 - fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+  ---
+  duration_ms: 1156.072451
+  type: 'test'
+  ...
+# Subtest: device-only remount simulation preserves new receipts while legacy receipt predicates reject drift
+ok 7 - device-only remount simulation preserves new receipts while legacy receipt predicates reject drift
+  ---
+  duration_ms: 1832.380774
+  type: 'test'
+  ...
+# Subtest: completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+ok 8 - completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+  ---
+  duration_ms: 1160.607982
+  type: 'test'
+  ...
+# Subtest: the existing caller stage2 format completes through its original receipt1 branch without conversion
+ok 9 - the existing caller stage2 format completes through its original receipt1 branch without conversion
+  ---
+  duration_ms: 597.364601
+  type: 'test'
+  ...
+# Subtest: full-width filesystem inode values remain strings above Number precision
+ok 10 - full-width filesystem inode values remain strings above Number precision
+  ---
+  duration_ms: 1215.574587
+  type: 'test'
+  ...
+# Subtest: legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+ok 11 - legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+  ---
+  duration_ms: 702.92365
+  type: 'test'
+  ...
+# Subtest: explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+ok 12 - explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+  ---
+  duration_ms: 1596.960369
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_publish
+ok 13 - original setup identity survives actual publication response loss at project_after_publish
+  ---
+  duration_ms: 1283.662849
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_receipt
+ok 14 - original setup identity survives actual publication response loss at project_after_receipt
+  ---
+  duration_ms: 1115.458569
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_before_marker_cleanup
+ok 15 - original setup identity survives actual publication response loss at project_before_marker_cleanup
+  ---
+  duration_ms: 945.149856
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at before_result
+ok 16 - original setup identity survives actual publication response loss at before_result
+  ---
+  duration_ms: 677.670672
+  type: 'test'
+  ...
+# Subtest: foreign partial state, dangling control links and generic write arguments reject without adopting data
+ok 17 - foreign partial state, dangling control links and generic write arguments reject without adopting data
+  ---
+  duration_ms: 213.731717
+  type: 'test'
+  ...
+# Subtest: original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+ok 18 - original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+  ---
+  duration_ms: 762.701252
+  type: 'test'
+  ...
+# Subtest: owned recovery retains the originally resolved language configuration across process-locale drift
+ok 19 - owned recovery retains the originally resolved language configuration across process-locale drift
+  ---
+  duration_ms: 673.766902
+  type: 'test'
+  ...
+# Subtest: a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+ok 20 - a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+  ---
+  duration_ms: 264.089244
+  type: 'test'
+  ...
+# Subtest: an owned unpublished stage preserves its original request; another request cannot adopt it
+ok 21 - an owned unpublished stage preserves its original request; another request cannot adopt it
+  ---
+  duration_ms: 486.203007
+  type: 'test'
+  ...
+# Subtest: changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+ok 22 - changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+  ---
+  duration_ms: 1058.940819
+  type: 'test'
+  ...
+# Subtest: an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+ok 23 - an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+  ---
+  duration_ms: 290.669211
+  type: 'test'
+  ...
+# Subtest: stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+ok 24 - stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+  ---
+  duration_ms: 504.248529
+  type: 'test'
+  ...
+# Subtest: changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+ok 25 - changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+  ---
+  duration_ms: 602.119514
+  type: 'test'
+  ...
+# Subtest: a non-regular pending marker blocks without reading a foreign FIFO
+ok 26 - a non-regular pending marker blocks without reading a foreign FIFO
+  ---
+  duration_ms: 702.059487
+  type: 'test'
+  ...
+# Subtest: real CLI and MCP initializer processes serialize publication using the same owned target lock
+ok 27 - real CLI and MCP initializer processes serialize publication using the same owned target lock
+  ---
+  duration_ms: 1325.069371
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21617.022748

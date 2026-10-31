@@ -44,7 +44,7 @@ const NEXT = Object.freeze({
   run_write_locked: 'Retry the apply with the same preview while the run is unchanged.',
   run_step_recovery_required: 'Recover the pending run step, then repeat the same apply.',
   closure_write_failed: 'Repeat the same apply; if it fails again, inspect the run.',
-  closed_recovery_pending: 'Recover the pending run step to finish its backlog update, then repeat the same apply.',
+  closed_recovery_pending: 'Recover the pending Run step, then repeat the same apply.',
   closure_recovery_pending: 'Recover the pending run step first, then create a new preview.',
 });
 const nextAction = reason => NEXT[reason] ?? 'Inspect the run, then create a new preview.';
@@ -283,7 +283,7 @@ const COPY = {
     outcomeLabel: 'Outcome', reasonLabel: 'Reason', warningsLabel: 'Warnings', next: 'Next',
     warnings: { approved_gates_exist: 'approved gates exist', implementation_started: 'implementation has started', successor_unverified: 'the successor is an unverified free reference' },
     notClosable: 'Not closable', resultHeading: (id, closed, n, d) => `Closure result ${id} · ${closed} of ${n} closed · digest ${d}`,
-    recoveryPending: row => `closed as ${row.outcome}; backlog recovery pending (${row.reason})`,
+    recoveryPending: row => `closed as ${row.outcome}; Run recovery pending (${row.reason})`,
     confirmedBy: 'Confirmed by', cooperative: 'cooperative local Git statement', unknownPerson: 'unknown (no local Git identity found)',
     closed: row => `closed as ${row.outcome === 'superseded' ? `superseded by ${row.successor.value}${row.successor.verified ? '' : ' (unverified reference)'}` : 'abandoned'}`,
     already: 'already closed by this preview', notClosed: 'not closed', backlog: 'Backlog', backlogState: value => value,
@@ -297,11 +297,11 @@ const COPY = {
     outcomeLabel: 'Ergebnis', reasonLabel: 'Grund', warningsLabel: 'Warnungen', next: 'Nächster Schritt',
     warnings: { approved_gates_exist: 'es gibt freigegebene Gates', implementation_started: 'die Umsetzung hat begonnen', successor_unverified: 'der Nachfolger ist ein ungeprüfter freier Verweis' },
     notClosable: 'Nicht schließbar', resultHeading: (id, closed, n, d) => `Abschlussergebnis ${id} · ${closed} von ${n} geschlossen · Digest ${d}`,
-    recoveryPending: row => `geschlossen als ${row.outcome === 'superseded' ? 'ersetzt' : 'aufgegeben'}; Backlog-Wiederherstellung offen (${row.reason})`,
+    recoveryPending: row => `geschlossen als ${row.outcome === 'superseded' ? 'ersetzt' : 'aufgegeben'}; Run-Wiederherstellung offen (${row.reason})`,
     confirmedBy: 'Bestätigt durch', cooperative: 'kooperative Angabe aus der lokalen Git-Identität', unknownPerson: 'unbekannt (keine lokale Git-Identität gefunden)',
     closed: row => `geschlossen als ${row.outcome === 'superseded' ? `ersetzt durch ${row.successor.value}${row.successor.verified ? '' : ' (ungeprüfter Verweis)'}` : 'aufgegeben'}`,
     already: 'bereits durch diese Vorschau geschlossen', notClosed: 'nicht geschlossen', backlog: 'Backlog',
-    backlogState: value => ({ updated: 'aktualisiert', unlinked: 'keine Backlog-Zeile', skipped: 'übersprungen', unchanged: 'unverändert' })[value] ?? value,
+    backlogState: value => ({ not_required: 'nicht erforderlich', updated: 'aktualisiert', unlinked: 'keine Backlog-Zeile', skipped: 'übersprungen', unchanged: 'unverändert' })[value] ?? value,
     rejected: 'Es wurde nichts angewendet.', refusal: 'Abgelehnt; es wurde keine Vorschau gespeichert.' },
 };
 const shortDigest = value => String(value ?? '').replace(/^sha256:/u, '').slice(0, 12);

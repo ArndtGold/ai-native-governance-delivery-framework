@@ -104,6 +104,12 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
       const fileHints = baseline.files[relative(repository, resolve(repository, command.cwd, file)).replaceAll('\\', '/')];
       command.seconds = { ...command.seconds, ...fileHints };
     }
+    // Give timing acceptance its own runner, apart from deliberately faulting
+    // and pressure fixtures; preserve the canonical invocation and limits.
+    if (command.cwd === 'packages/mcp-server' && command.args[0] === './test/performance.test.js') {
+      return [{ ...command, isolated: true,
+        standalone: { id: 'mcp-performance', label: 'MCP performance', graphLabel: 'MCP timing' } }];
+    }
     // The packed control-command suite rebuilds an isolated snapshot for each part. Run 39600811858
     // exhausted the Windows execution budget when all parts shared one invocation.
     if (command.cwd === 'packages/cli' && command.args[0] === 'scripts/control-command-package-test.js') {
@@ -188,6 +194,14 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
       }
     }
     for (const command of inventory.filter(command => command.isolated)) {
+      if (command.standalone) {
+        const [group] = partitionTests([command], platform.speed);
+        groups.push(group);
+        rows.push({ ...platform, id: `${prefix}-${command.standalone.id}`,
+          graphLabel: `${command.standalone.graphLabel} · ${graphPlatform}`,
+          label: `${command.standalone.label} / ${suffix}`, area: command.domain, kind: 'tests', ...group });
+        continue;
+      }
       if (command.args.includes('--protocol')) {
         const protocol = command.args[command.args.indexOf('--protocol') + 1];
         const route = command.args.includes('--route') ? command.args[command.args.indexOf('--route') + 1] : 'verified_change';

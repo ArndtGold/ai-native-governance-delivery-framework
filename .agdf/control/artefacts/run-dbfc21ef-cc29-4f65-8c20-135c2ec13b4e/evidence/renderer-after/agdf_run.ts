@@ -1,0 +1,1 @@
+agdf_run(args: { assurance: "cooperative_local"; command: { kind: "run.create"; payload: { title: string; }; }; operation_id: string; presentation_language: string; primary_target: (string) & (string); schema_version: "1"; target_id: string; target_source: "explicit_target" | "continued_target" | "current_repository"; working_directory: (string) & (string); }

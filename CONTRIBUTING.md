@@ -113,6 +113,10 @@ AGDF installation. Use the guided setup described in [INSTALL.md](INSTALL.md#gui
 when MCP registration is needed; plugin installation and MCP registration are separate effects.
 Do not register the runtime-free repository root or `plugins/agdf/` as a plugin marketplace.
 
+Local preparation reuses valid MCP UI builds and automatically rebuilds missing or stale required
+resources before packaging. It validates the rebuilt output before installation. If the separate UI
+build dependencies are missing, run `npm --prefix packages/control-ui ci --ignore-scripts` and retry.
+
 After a successful install, restart the selected host and start a fresh task or session.
 Installation verification does not prove restarted-host loading, repository activation or
 UAT. Report those observations separately when required. [INSTALL.md](INSTALL.md) owns setup,

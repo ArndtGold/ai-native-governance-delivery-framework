@@ -162,6 +162,28 @@ test('Windows package, archive and wrapper consumers keep independent budgets an
   assert.equal(CI_EXECUTION_BUDGET_MS, 480000);
 });
 
+test('the unchanged timing fixture runs once per lane without preceding fault or pressure cases', () => {
+  for (const suite of ['cli', 'mcp']) {
+    const inventory = testInventory({ suite });
+    const canonical = inventory.filter(command => command.cwd === 'packages/mcp-server' && command.args[0] === './test/performance.test.js');
+    assert.equal(canonical.length, 1);
+    assert.equal(canonical[0].isolated, true);
+    const owners = ciJobs({ suite }).filter(row => row.commands?.some(command => command.args[0] === './test/performance.test.js'));
+    assert.equal(owners.length, 3, 'one original invocation on every supported OS/Node lane');
+    for (const row of owners) {
+      assert.deepEqual(row.commands.map(command => [command.cwd, command.tool, command.args]), [
+        ['packages/mcp-server', 'node', ['./test/performance.test.js']],
+      ]);
+      assert.ok(row.id.endsWith('-mcp-performance'));
+      const plan = ciJobPlan(row);
+      assert.deepEqual(plan.filter(stage => !preparation.includes(stage.id)).map(stage => stage.commands[0].args), [
+        ['./test/performance.test.js'],
+      ]);
+      assert.ok(plan.findIndex(stage => stage.id === 'mcp-dependencies') < plan.length - 1);
+    }
+  }
+});
+
 test('retained Main-CI Windows costs cannot rebuild the exhausted MCP partition', () => {
   const baseline = JSON.parse(readFileSync(new URL('./ci-duration-baseline.json', import.meta.url), 'utf8'));
   const observations = baseline.file_observations.filter(row => row.source_run === 41017974003);

@@ -74,11 +74,10 @@ async function buildWorker(packageRoot) {
       return { id: !corePath.startsWith('../') ? `#agdf-core/${corePath}` : `./${slash(relative(dirname(output), found.id))}`, external: true };
     },
     load(id) { return id === virtualEntry ? source : null; },
-    // Optional UI factories are not worker exports. Preserve their real lazy
-    // import paths while tree-shaking the unused factories, including Copilot.
-    resolveDynamicImport(specifier) {
-      return typeof specifier === 'string' && specifier.startsWith('#agdf-core/') ? { id: specifier, external: true } : null;
-    },
+    // Full generation factories also load optional UI services. Resolve those
+    // imports through the same owned graph instead of loading a second source
+    // graph beside the compiled factory. The resolver above still externalizes
+    // every shared protocol/state module; bundling preserves lazy evaluation.
     transform(code, id) {
       if (id.startsWith('\0') || !code.includes('import.meta')) return null;
       const ast = parse(code, { ecmaVersion: 'latest', sourceType: 'module' });

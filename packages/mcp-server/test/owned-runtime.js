@@ -92,7 +92,7 @@ export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.A
       return relative !== "node_modules" && !relative.startsWith(`node_modules${process.platform === "win32" ? "\\" : "/"}`);
     },
   });
-  for (const name of candidateServerRoot ? [] : ["agdf-plugin.definition.json", "agdf-interaction-locales.json"]) {
+  for (const name of candidateServerRoot ? [] : ["agdf-plugin.definition.json", "agdf-interaction-locales.json", "agdf-defaults.json", "agdf-defaults.schema.json"]) {
     cpSync(
       join(repositoryRoot, "plugins", "agdf", "meta", name),
       join(dispatcherRoot, "generated", "plugins", "agdf", "meta", name),

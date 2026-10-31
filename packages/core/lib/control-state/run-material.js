@@ -1,3 +1,6 @@
+import { resolutionRecordVersion } from './input-resolution.js';
+import { currentInputResolution } from './input-resolution.js';
+import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { randomUUID } from 'node:crypto';
 import { resolveTaskTarget } from '../task-target-resolution.js';
 import { canonicalJson, digest, resolveControlCommandTarget, COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
@@ -28,11 +31,12 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
     if (target.resolution_state !== 'resolved') throw Error('target_unresolved');
     const root = target.governance_target;
     if (resolveControlCommandTarget(root).target_id !== input.target_id) throw Error('target_binding_mismatch');
+    assertInputConfigurationCurrent(root);
     let run = readRun(root, input.run_id);
     if (run.rejection?.reason === 'run_step_recovery_required') {
       const pending = readPendingSourceRevisionJournal(root, input.run_id), path = `.agdf/control/runs/${input.run_id}/RUN_STATE.md`;
       const file = containedRegularFile(root, path);
-      if ([2, 5].includes(pending.schema_version) && [pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
+      if ([2, 5].includes(resolutionRecordVersion(pending)) && [pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
         && !hasSymlinkComponent(root, path) && file.status === 'valid' && statSync(file.path).size <= 1048576) {
         const content = readFileSync(file.path, 'utf8'), parsed = parseRunState(content, input.run_id);
         if (parsed.valid) run = { ...parsed, content };
@@ -48,7 +52,24 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
     if (row.binding !== binding(input)) throw Error('material_binding_mismatch');
     row.touched = now(); return row;
   }
+  function rememberResolution(row, input) {
+    const resolution = currentInputResolution();
+    if (!resolution || row.resolutions.has(input.operation_id)) return;
+    const bytes = Buffer.byteLength(canonicalJson(resolution));
+    if (row.resolutions.size >= 64 || row.size + row.resolutionBytes + bytes > MATERIAL_LIMITS.set
+      || [...sets.values()].reduce((total, entry) => total + entry.size + entry.resolutionBytes, bytes) > MATERIAL_LIMITS.total) throw Error('material_resource_limit');
+    row.resolutions.set(input.operation_id, resolution);
+    row.resolutionBytes += bytes;
+  }
   return Object.freeze({
+    originalInput(input) {
+      expire();
+      for (const row of sets.values()) {
+        const resolution = row.resolutions.get(input.operation_id);
+        if (resolution && row.binding === binding(input)) return { known: true, resolution };
+      }
+      return null;
+    },
     stage(input) {
       const envelope = (outcome, reason, family = {}, state = null) => ({ schema_version: '1', outcome, reason,
         operation_id: input?.operation_id ?? null, request_digest: digest(canonicalJson(input)),
@@ -68,16 +89,19 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
             if (row.request !== request || row.binding !== binding(input)) throw Error('operation_payload_conflict');
           } else {
             const size = p.files.reduce((n, f) => n + f.bytes, 0);
+            const resolutionBytes = currentInputResolution() ? Buffer.byteLength(canonicalJson(currentInputResolution())) : 0;
             if (!p.files.length || p.files.length > 4 || p.files.some(f => !Number.isSafeInteger(f.bytes) || f.bytes < 0 || f.bytes > MATERIAL_LIMITS.file)
-              || size > MATERIAL_LIMITS.set || sets.size >= MATERIAL_LIMITS.sets
-              || [...sets.values()].reduce((n, r) => n + r.size, size) > MATERIAL_LIMITS.total) throw Error('material_resource_limit');
-            row = { request, binding: binding(input), size, created: now(), touched: now(),
+              || size + resolutionBytes > MATERIAL_LIMITS.set || sets.size >= MATERIAL_LIMITS.sets
+              || [...sets.values()].reduce((n, r) => n + r.size + r.resolutionBytes, size + resolutionBytes) > MATERIAL_LIMITS.total) throw Error('material_resource_limit');
+            row = { request, binding: binding(input), size, created: now(), touched: now(), resolutions: new Map(), resolutionBytes: 0,
               files: p.files.map(f => ({ ...f, parts: [], received: 0, material_id: randomUUID(), content: null, digest: null })) };
             sets.set(input.operation_id, row);
           }
+          rememberResolution(row, input);
           return envelope('accepted', null, { transfer_id: input.operation_id, files: row.files.map(({ slot, bytes, received }) => ({ slot, bytes, received })), limits: MATERIAL_LIMITS }, state);
         }
         row = rowFor(input, p.transfer_id);
+        rememberResolution(row, input);
         if (p.action === 'discard') { sets.delete(p.transfer_id); return envelope('accepted', null, { discarded: true }, state); }
         if (p.action === 'append') {
           const file = row.files[p.file], bytes = Buffer.from(p.data, 'base64');

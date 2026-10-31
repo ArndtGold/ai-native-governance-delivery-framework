@@ -1,3 +1,5 @@
+import { assertInputConfigurationCurrent } from '../resources/configuration.js';
+import { bindInputResolution } from './input-resolution.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRun, recoverRunCreationStage } from './run-state-repository.js';
@@ -32,15 +34,16 @@ export function createRunCommand(root, input, { requestDigest, packageVersion, c
     }
     const recovered = recoverRunCreationStage(root, runId, matching);
     if (recovered) return { outcome: 'recorded', run_id: runId, receipt: recovered, recovered_stage: true };
+    assertInputConfigurationCurrent(root);
     let receipt;
     createRun(root, runId, undefined, {
       prepare: content => {
         const parsed = parseRunState(content, runId);
-        receipt = { schema_version: '2', kind: 'run.create', operation_id: input.operation_id,
+        receipt = bindInputResolution({ schema_version: '2', kind: 'run.create', operation_id: input.operation_id,
           request_digest: requestDigest, target_id: input.target_id, run_id: runId, expected_revision_id: null,
           created_at: new Date().toISOString(), producer: { contract: 'run-command/1', package_version: packageVersion },
           assurance: COOPERATIVE_ASSURANCE, effect: { previous_revision_id: null,
-            resulting_revision_id: parsed.meta.revision_id, revision: 1, record: { title: input.command.payload.title } } };
+            resulting_revision_id: parsed.meta.revision_id, revision: 1, record: { title: input.command.payload.title } } });
         return appendRunOperation(content.replace('Describe the trustworthy outcome.', () => input.command.payload.title), receipt);
       },
       beforePublish: () => checkpoint('creation_before_publish'),

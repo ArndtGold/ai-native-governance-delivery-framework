@@ -297,13 +297,23 @@ try {
   backticked.close();
 }
 
-// SCN-008: localization parity with the status-card lookup and the core chat-language rule.
+// SCN-008: valid localization agrees with the status-card/Core language rule.
+// Invalid control configuration is rejected by Core, even when the display-only
+// companion can read an incomplete setting; it never supplies execution authority.
 const configRoot = mkdtempSync(join(tmpdir(), "agdf-companion-locale-"));
 try {
-  for (const config of [null, "{", JSON.stringify({ chat_language: "de" }), JSON.stringify({ chat_language: "de-AT" }), JSON.stringify({ chat_language: "fr" }), JSON.stringify({ chat_language: "not a tag" })]) {
+  const languageConfig = chat_language => JSON.stringify({ artifact_language: "en", chat_language, runtime_language: "en" });
+  for (const config of [null, ...["de", "de-AT", "fr"].map(languageConfig)]) {
     rmSync(join(configRoot, ".agdf"), { recursive: true, force: true });
     if (config !== null) { mkdirSync(join(configRoot, ".agdf", "control"), { recursive: true }); writeFileSync(join(configRoot, ".agdf", "control", "config.json"), config); }
     assert.equal(chatLocale(registry, config), resolveConfiguredChatLanguage(configRoot), `chat language parity for ${config}`);
+  }
+  for (const [config, field] of [["{", "config"], [JSON.stringify({ chat_language: "de" }), "artifact_language"], [languageConfig("not a tag"), "chat_language"]]) {
+    const path = join(configRoot, ".agdf", "control", "config.json");
+    writeFileSync(path, config);
+    assert.throws(() => resolveConfiguredChatLanguage(configRoot), error => error.code === "configuration_invalid"
+      && error.facts.dispatch === "not_dispatched" && error.diagnostic.field === field, `invalid config must not silently default: ${config}`);
+    assert.equal(readFileSync(path, "utf8"), config, "language lookup never repairs invalid project configuration");
   }
 } finally {
   rmSync(configRoot, { recursive: true, force: true });

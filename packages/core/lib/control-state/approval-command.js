@@ -1,3 +1,4 @@
+import { bindInputResolution } from './input-resolution.js';
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -89,7 +90,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
       if (prepared.outcome === "rejected") return result("rejected", prepared.reason, null, {
         recovery: prepared.recovery ?? "Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply.",
       });
-      const receipt = {
+      const receipt = bindInputResolution({
         schema_version: prepared.qaAcceptance ? "3" : "2", action: command.action, operation_id: command.operation_id,
         request_digest: requestDigest, command_digest: commandContext?.request_digest ?? null, binding: commandBinding(command), assurance: COOPERATIVE_ASSURANCE,
         created_at: new Date().toISOString(), producer: { contract: "approval-service/1", package_version: packageVersion },
@@ -99,7 +100,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
           artefact_digest: prepared.digest, presentation_digest: prepared.presentation.digest,
           ...(prepared.qaAcceptance ? { qa_acceptance: prepared.qaAcceptance } : {}),
           next_gate_after_approval: prepared.after.current_gate, allowed_after_approval: prepared.after.next_allowed_action },
-      };
+      });
       checkpoint("before_final_validation");
       const written = writeRunWithBacklogLocked(target.root, path, appendApprovalOperation(prepared.next, receipt), command.expected_revision_id, {
         allowApprovalChange: true, expectedContent: run.content, appendedReceipt: receipt,

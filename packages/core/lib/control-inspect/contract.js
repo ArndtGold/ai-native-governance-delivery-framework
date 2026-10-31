@@ -1,3 +1,4 @@
+import { projectMcpInputSchema } from '../mcp-input-schema.js';
 import { isAbsolute } from "node:path";
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN } from "../control-state/run-identity.js";
 import { RUN_COMMAND_GROUPS } from '../control-state/run-command-schema.js';
@@ -32,7 +33,7 @@ const uuidSchema = { type: 'string', pattern: REVISION_ID_PATTERN.source };
 const cursorSchema = { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$' };
 const fieldModel = {
   operation: { help: 'Read only; never prepare or approve.', schema: { enum: [...CONTROL_INSPECT_OPERATIONS] }, description: 'Read action.' },
-  presentation_language: { help: 'Required BCP47 tag; unsupported valid languages fall back to complete English.', schema: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE }, description: 'Reply BCP47 tag.' },
+  presentation_language: { help: 'Optional MCP override of configured chat language; valid unsupported tags use complete English.', schema: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE }, description: 'Reply BCP47 tag.' },
   working_directory: { help: 'Absolute context; never selects a target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Context; not target authority.' },
   target_source: { help: 'Actual provenance: explicit_target = specified; continued_target = confirmed; current_repository = unambiguous.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Requires primary_target.' },
   primary_target: { help: 'Confirmed absolute root paired with target_source; cwd is not target authority.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Pair: target_source.' },
@@ -92,7 +93,7 @@ const inspectContract = {
   name: "agdf_inspect",
   description: 'Read-only. Help for confirmed /repo: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. Other command help needs Run/revision. Follow navigation.next_calls sequentially; read all pages.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  inputSchema,
+  inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {
     type: 'object', required: ['outcome', 'terminal', 'authorizes', 'operation', 'report', 'presentation', 'host_action', 'target', 'recovery'],
     properties: {
@@ -140,14 +141,15 @@ export function inspectContractHelp() {
   const base = { presentation_language: 'de', working_directory: '/workspace/project', target_source: 'explicit_target', primary_target: '/workspace/project', run_id: 'demo-run-01' };
   const revision = '00000000-0000-4000-8000-000000000001';
   return deepFreeze({ schema_version: '1', authorizes: false,
+    input_completion: 'MCP inherits matching configured language. Current native adapters require explicit working_directory; private trustworthy task context alone may supply it. Bindings remain explicit.',
     parameters: Object.fromEntries(Object.entries(fieldModel).map(([key, field]) => [key, { description: field.help ?? field.description, operations: field.operations ?? [...CONTROL_INSPECT_OPERATIONS] }])),
     operations: Object.fromEntries(CONTROL_INSPECT_OPERATIONS.map(operation => [operation, {
-      required: [...inputSchema.required, ...(BOUND_INSPECT_OPERATIONS.includes(operation) ? ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] : []),
+      required: [...CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ...(BOUND_INSPECT_OPERATIONS.includes(operation) ? ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] : []),
         ...(['contract', 'operation-contract', 'operation-status'].includes(operation) ? ['module'] : []),
         ...(operation === 'artifact-readiness' ? ['gate'] : PRESENTATION_OPERATIONS.includes(operation) ? ['gate', 'presentation_id', 'target_id'] : [])],
       ...(['operation-contract', 'operation-status'].includes(operation) ? { unbound: {
         module: operation === 'operation-contract' ? 'agdf_run/run.create' : 'original run.create operation UUID',
-        required: [...inputSchema.required, 'target_source', 'primary_target', 'module'],
+        required: [...CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, 'target_source', 'primary_target', 'module'],
         omit: ['run_id', 'expected_revision_id'],
       } } : {}),
     }])),

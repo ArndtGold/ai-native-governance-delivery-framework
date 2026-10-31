@@ -1,4 +1,8 @@
 import { projectOperationStatusCall } from '#agdf-core/control-inspect/project-operation-call.js';
+import { resolveMcpInput } from '#agdf-core/mcp-input-resolution.js';
+import { withInputResolution } from '#agdf-core/control-state/input-resolution.js';
+import { effectiveConfiguration } from '#agdf-core/resources/configuration.js';
+import { resources } from './runtime/control-context.js';
 import {
   SKILL_DISPATCH_CONTRACT_VERSION,
   SKILL_DISPATCH_FUNCTION_DEFINITION,
@@ -14,11 +18,11 @@ import { ReadSelectionError } from '#agdf-core/control-inspect/selection.js';
 import { localePack } from '#agdf-core/interaction-presentation.js';
 import { TOOL_ERROR_CONTRACT, TOOL_RESULT_META, describeToolResult, projectToolResult, consumeToolResult, executionFacts, validExecutionFacts, isEphemeralControlCommand } from '#agdf-core/mcp-tool-errors.js';
 import { readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { CONTROL_INSPECT_FUNCTION_DEFINITION, parseControlInspectFunctionArguments, serializeControlInspectResult } from "#agdf-core/control-inspect/contract.js";
 import { createInspectFailureResult } from "#agdf-core/control-inspect/result.js";
 import { interactionLocales, packageRoot, pluginDefinition } from "./cli/runtime-context.js";
-import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, validateRunCommand, validateRunCommandResult, runCommandRequestDigest } from '#agdf-core/control-state/run-command-schema.js';
+import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, validateRunCommand, validateRunCommandResult, runCommandRequestDigest, schemaDiagnostics } from '#agdf-core/control-state/run-command-schema.js';
 import { creationRunId } from '#agdf-core/control-state/run-identity.js';
 import {
   digestMcpDispatcherPackage,
@@ -54,6 +58,7 @@ export function errorSupport(cockpit = false) {
     },
     consumeToolResult(name, result) { checkCommandResult(name, result); return consumeToolResult(name, result); },
     normalizeFailure(error, { phase = 'execute' } = {}) {
+      if (validExecutionFacts(error?.facts)) return { ...error.facts, ...(error.diagnostic ? { configuration: error.diagnostic } : {}) };
       if (phase === 'parse' && (error instanceof SkillDispatchInputError || error instanceof TaskTargetInputError || error instanceof ReadSelectionError)) {
         const facts = { code: error instanceof ReadSelectionError ? 'inspect_input_invalid' : 'dispatch_input_invalid', dispatch: 'not_dispatched', ...(error.field ? { field: error.field } : {}) };
         return validExecutionFacts(facts) ? facts : { code: 'dispatch_input_invalid', dispatch: 'not_dispatched' };
@@ -168,7 +173,7 @@ export function configuredMcpCommandGroups(env = process.env) {
 
 const unwrapped = () => { throw Object.assign(Error('generation_unavailable'), { code: 'generation_unavailable', dispatch: 'not_dispatched' }); };
 
-export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), execute = unwrapped, executeInspect = unwrapped, executeCommand = unwrapped } = {}) {
+export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), execute = unwrapped, executeInspect = unwrapped, executeCommand = unwrapped, lookupOriginal, executionContext, inputContext } = {}) {
   const trustedContext = Object.freeze({
     surface,
     expectedVersion: inspected.expectedVersion,
@@ -181,7 +186,7 @@ export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispa
   });
   const parse = (argumentsValue) => parseSkillDispatchFunctionArguments(argumentsValue, trustedContext);
   const failureEvidence = { ...inspected.runtimeEvidence, expected_version: inspected.expectedVersion };
-  const tools = Object.freeze([
+  const rawTools = [
     Object.freeze({ name: SKILL_DISPATCH_FUNCTION_DEFINITION.name, definition: SKILL_DISPATCH_FUNCTION_DEFINITION, parse, execute, serialize: serializeSkillDispatchResult }),
     Object.freeze({
       name: CONTROL_INSPECT_FUNCTION_DEFINITION.name,
@@ -199,7 +204,26 @@ export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispa
         if (errors.length) throw Error('command_schema_invalid');
         return argumentsValue;
       }, execute: (input, signal, host) => executeCommand(group, input, signal, host), serialize: value => JSON.stringify(value) })),
-  ]);
+  ];
+  const contexts = new WeakMap();
+  const normalize = (name, args) => {
+    if (contexts.has(args)) return contexts.get(args);
+    if (inputContext) return { ...inputContext, arguments: args };
+    const definition = rawTools.find(tool => tool.name === name)?.definition;
+    if (!definition) throw Error('command_group_unsupported');
+    return resolveMcpInput(definition, args, { defaults: resources.defaults, lookupOriginal, executionContext,
+      runtimeRoots: [resources.packageRoot, resources.generatedRoot, dirname(dirname(resources.contractsRoot)), ...(resources.templatesRoot ? [dirname(dirname(resources.templatesRoot))] : [])] });
+  };
+  const tools = Object.freeze(rawTools.map(tool => Object.freeze({ ...tool,
+    parse(args) {
+      const selected = normalize(tool.name, args), parsed = tool.parse(selected.arguments);
+      contexts.set(parsed, selected); return parsed;
+    },
+    execute(input, signal, host) {
+      const selected = contexts.get(input) ?? inputContext;
+      return withInputResolution(selected?.resolution, () => tool.execute(input, signal, host), selected?.original === true);
+    },
+  })));
   if (tools.filter(tool => Object.hasOwn(RUN_COMMAND_GROUPS, tool.name)).reduce((bytes, tool) => bytes + Buffer.byteLength(JSON.stringify(tool.definition)), 0) > RUN_COMMAND_LIMITS.aggregate_definition_bytes) throw Error('command_aggregate_definition_budget_exceeded');
   return Object.freeze({
     ...errorSupport(),
@@ -207,13 +231,32 @@ export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispa
     parse,
     execute,
     tools,
+    prepareInput(name, args) {
+      if (!rawTools.some(tool => tool.name === name)) return args;
+      const selected = normalize(name, args); contexts.set(selected.arguments, selected); return selected.arguments;
+    },
+    inputContextFor(input) {
+      const selected = contexts.get(input);
+      return selected ? { resolution: selected.resolution, original: selected.original } : undefined;
+    },
+    validatePublicInput(name, args) {
+      const definition = tools.find(tool => tool.name === name)?.definition;
+      if (!definition) return false;
+      if (schemaDiagnostics(args, definition.inputSchema).length) throw Object.assign(Error('command_schema_invalid'), { facts: { code: 'command_schema_invalid', dispatch: 'not_dispatched' } });
+      return true;
+    },
+    configurationProjection(input) {
+      const selected = contexts.get(input) ?? inputContext;
+      return selected?.resolution ? effectiveConfiguration(selected.resolution.configuration, selected.original ? 'original_operation' : 'current') : null;
+    },
     producerIdentity: inspected.generationIdentity ?? null,
     tool: name => tools.find(tool => tool.name === name) ?? null,
     serialize: serializeSkillDispatchResult,
-    failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name, argumentsValue, { dispatch = 'unknown', field, cause_code, worker_phase, elapsed_ms } = {}) {
+    failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name, argumentsValue, { dispatch = 'unknown', field, cause_code, worker_phase, elapsed_ms, configuration } = {}) {
       const facts = { code, dispatch, ...(field ? { field } : {}),
         ...(cause_code ? { cause_code } : {}), ...(worker_phase ? { worker_phase } : {}) };
       const finish = value => {
+        if (configuration) value = { ...value, diagnostics: [...(value.diagnostics ?? []), configuration] };
         if (validExecutionFacts(facts)) {
           const { code: _code, dispatch: _dispatch, ...details } = facts;
           if (value.diagnostics?.length) value = { ...value, diagnostics: value.diagnostics.map((d, i) => i === 0 ? { ...d, ...details } : d) };

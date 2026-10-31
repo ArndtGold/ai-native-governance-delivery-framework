@@ -35,7 +35,10 @@ try {
         preview_digest:preview.family_result.preview_digest,confirmation:preview.family_result.confirmation_selector}}};
       const result=await call(applied);assert.equal(result.outcome,'accepted',JSON.stringify({gate,phase,result}));
       const receipt=readSourceRevisions(state().content).receipts.at(-1);
-      assert.equal(receipt.schema_version,'3');assert.equal(receipt.initiating_phase,phase);assert.equal(validateRevisionHistory(root,receipt),true);
+      assert.equal(receipt.schema_version,'resolved/1');
+      assert.equal(receipt.input_resolution.record_version,'3');
+      assert.equal(receipt.input_resolution.effective_digest,receipt.command_digest);
+      assert.equal(receipt.initiating_phase,phase);assert.equal(validateRevisionHistory(root,receipt),true);
       assert.equal(runSealState(root,state().content).status,'valid');assert.equal(state().approvals.get('QA').status,'missing');assert.equal(state().approvals.get('UAT').status,'missing');
       writeFileSync(commandPath,JSON.stringify(applied));
       const replay=JSON.parse(execFileSync(process.execPath,[cli,'agdf-revise','--command-file',commandPath],{encoding:'utf8'}));

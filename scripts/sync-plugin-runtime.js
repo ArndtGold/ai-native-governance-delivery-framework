@@ -227,6 +227,8 @@ export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = fa
     "lib/repository-context.js",
     "generated/plugins/agdf/meta/agdf-plugin.definition.json",
     "generated/plugins/agdf/meta/agdf-interaction-locales.json",
+    "generated/plugins/agdf/meta/agdf-defaults.json",
+    "generated/plugins/agdf/meta/agdf-defaults.schema.json",
     "NOTICE",
     ...(mcpRuntime ? CLAUDE_MCP_RUNTIME_ENTRIES : []),
   ];

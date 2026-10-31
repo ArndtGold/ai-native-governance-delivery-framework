@@ -62,7 +62,7 @@ assert.equal(renderSkillDispatchQaCandidatesProjection(), SKILL_DISPATCH_QA_CAND
 
 assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
-assert.deepEqual(schema.required, ["skill_id", "presentation_language", "working_directory"]);
+assert.deepEqual(schema.required, ["skill_id"]);
 assert.deepEqual(Object.keys(schema.properties), [
   "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "ur_action", "prd_action", "sd_action", "tp_action", "continue_delivery",
 ]);
@@ -91,12 +91,14 @@ assert.deepEqual(schema.dependentRequired, {
 assert.match(schema.properties.working_directory.description, /never selects or authorizes a target/u);
 assert.equal(schema.properties.presentation_language.description, SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION);
 assert.equal(schema.properties.presentation_language.pattern, "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$");
-assert.match(schema.properties.presentation_language.description, /latest natural-language user request/u);
-assert.match(schema.properties.presentation_language.description, /explicitly asks for a response language/u);
-assert.match(schema.properties.presentation_language.description, /dominant request language/u);
-assert.match(schema.properties.presentation_language.description, /mixed or ambiguous/u);
-assert.match(schema.properties.presentation_language.description, /valid unsupported tag/u);
-assert.match(schema.properties.presentation_language.description, /Missing or invalid input fails before governance evaluation/u);
+assert.match(schema.properties.presentation_language.description, /MCP reply-language override/u);
+assert.match(schema.properties.presentation_language.description, /matching configured preference/u);
+assert.match(schema.properties.presentation_language.description, /current request/u);
+assert.match(schema.properties.presentation_language.description, /explicit instruction, then dominant language/u);
+assert.match(schema.properties.presentation_language.description, /en if ambiguous/u);
+assert.match(schema.properties.presentation_language.description, /valid unsupported tags use the complete English pack/u);
+assert.match(schema.properties.presentation_language.description, /Invalid explicit tags fail/u);
+assert.match(schema.properties.presentation_language.description, /Core input remains complete/u);
 assert.match(schema.properties.primary_target.description, /Never derive it from working_directory alone/u);
 assert.match(schema.properties.run_id.description, /unequivocal same-scope assignment/u);
 assert.match(schema.properties.expected_revision_id.description, /resolve_delivery_run/u);
@@ -301,7 +303,7 @@ const { CONTROL_INSPECT_FUNCTION_DEFINITION, CONTROL_INSPECT_MAX_DEFINITION_BYTE
 assert.deepEqual(Object.keys(CONTROL_INSPECT_FUNCTION_DEFINITION), ["name", "description", "annotations", "inputSchema", "outputSchema"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, { ...definition.annotations, readOnlyHint: true });
-assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ["operation", "presentation_language", "working_directory"]);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ["operation"]);
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "inventory"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.pattern, schema.properties.presentation_language.pattern);

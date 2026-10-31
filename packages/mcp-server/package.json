@@ -22,7 +22,7 @@
   "scripts": {
     "test:contract": "node ./test/worker-build.test.js && node ./test/contract.test.js",
     "test:continuation": "node ./test/continuation.test.js",
-    "test:protocol": "node ./test/protocol.test.js && node ./test/skill-names.test.js && node ./test/tool-errors.test.js && node ./test/doctor-observation.test.js",
+    "test:protocol": "node ./test/defaulted-inputs.test.js && node ./test/protocol.test.js && node ./test/skill-names.test.js && node ./test/tool-errors.test.js && node ./test/doctor-observation.test.js",
     "test:safety": "node ./test/safety.test.js && node ./test/worker-lock-release.test.js && node ./test/worker-deadline.test.js",
     "test:cockpit-gating": "node ./test/cockpit-gating.test.js",
     "test:provenance": "node ./test/provenance.test.js",

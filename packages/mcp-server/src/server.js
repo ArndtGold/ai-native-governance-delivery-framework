@@ -118,6 +118,9 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
         const parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(argumentsValue) : tool.parentOwned;
         let phase = parentOwned ? 'parse' : 'execute';
         try {
+          phase = 'parse';
+          argumentsValue = runtime.prepareInput?.(name, argumentsValue) ?? argumentsValue;
+          phase = parentOwned ? 'parse' : 'execute';
           let result;
           if (parentOwned) {
             const parsed = tool.parse(argumentsValue); phase = 'execute';

@@ -116,6 +116,11 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
   }
   const control = {
     status,
+    originalInput(input) {
+      const prior = receipts.get(input.operation_id);
+      if (!prior) return null;
+      return { known: true, resolution: prior.resolution ?? null };
+    },
     async refresh() { await Promise.all([...slots.values()].filter(row => !row.exited).map(observe)); return status(); },
     inspect(id, input) { const record = receipts.get(id);
       if (record && (record.input.run_id !== input.run_id || record.input.primary_target !== input.primary_target
@@ -123,14 +128,14 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
       return record ? { status: record.result ? 'recorded' : 'pending',
       request_digest: record.digest, result: record.result, current: status(), authorizes: false }
       : { status: 'unknown', reason: 'connection_control_record_unavailable', current: status(), authorizes: false }; },
-    async replace({ input, candidate, requestDigest, revalidate }) {
+    async replace({ input, candidate, requestDigest, resolution, revalidate }) {
       const prior = receipts.get(input.operation_id);
       if (prior) return prior.digest !== requestDigest ? failure('operation_payload_conflict')
         : prior.result ? { ...prior.result, outcome: prior.result.outcome === 'accepted' ? 'already_applied' : prior.result.outcome, historical_effect: true, current: status() }
         : { outcome: 'effect_unknown', reason: 'generation_replacement_pending', current: status(), authorizes: false };
       if (receipts.size >= L.receipts) return failure('connection_control_capacity');
       if (closed || replacing) return failure(closed ? 'connection_closed' : 'generation_replacement_busy');
-      const record = { digest: requestDigest, input, result: null }; receipts.set(input.operation_id, record); replacing = true;
+      const record = { digest: requestDigest, input, resolution, result: null }; receipts.set(input.operation_id, record); replacing = true;
       let candidateRow;
       try {
         const recheck = () => {
@@ -232,11 +237,11 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
   // not wire requests; parsing them again in a child both breaks the contract
   // and copies the entire locale registry into a bounded private message.
   const tools = runtime.tools.map(tool => ({ ...tool, parentOwned: true,
-    parse: input => { tool.parse(input); return input; }, execute: input => invoke(tool.name, input) }));
+    parse: input => { if (runtime.validatePublicInput?.(tool.name, input) !== true) tool.parse(input); return input; }, execute: input => invoke(tool.name, input) }));
   // The server supplies actual initialize/request context only at this seam.
   for (const tool of tools) tool.execute = (input, signal, host) => invoke(tool.name, input, host, signal);
   return Object.freeze({ ...runtime, tools, tool: name => tools.find(tool => tool.name === name),
-    requiresProjectedResult: true, postprocessToolResult: undefined, inspectOwnership: status, runtimeControl: control,
+    requiresProjectedResult: true, prepareInput: undefined, postprocessToolResult: undefined, inspectOwnership: status, runtimeControl: control,
     close() {
       return closing ??= (async () => {
         closed = true;

@@ -106,12 +106,37 @@ MCP transaction retain separate results and recovery. A verified plugin is never
 because MCP setup fails. Marketplace-only installation has no CLI callback and therefore remains
 plugin-only.
 
-`agdf_dispatch` requires `presentation_language` as one well-formed BCP 47 tag. The host selects it
-from the latest natural-language request: an explicit response-language instruction wins, otherwise
-the dominant language is used, with `en` for mixed or ambiguous input. Missing or invalid input is
-rejected by the MCP schema before governance evaluation. A valid unsupported tag is accepted and
-renders through the complete English locale pack. The production tests exercise this contract
-separately for protocol versions `2025-11-25` and `2026-07-28`.
+The nine regular MCP tools may omit `presentation_language`; the adapter resolves a valid explicit
+request override, then the confirmed project's `.agdf/control/config.json`, then the versioned
+`plugins/agdf/meta/agdf-defaults.json`. Shipped preferences are `chat_language: en`,
+`artifact_language: en`, `presentation_route: markdown`, and `gate_check_variant: null`.
+The existing complete project configuration remains the only project override file. The last two
+settings are optional siblings of its language fields. Explicit invalid input and present invalid
+recognized settings are errors; defaults never activate or repair missing/incomplete control.
+
+Set an explicit BCP 47 language when the current request differs from the configured language.
+A valid unsupported presentation tag selects one complete English pack; malformed tags/resources
+fail. Presentation overrides never change artefact language or approved material. Existing setup
+locale selection and stored project values remain; normal calls and package generation write no config.
+The seven command groups also allow omitted `schema_version` and `assurance`; their fixed values
+come from the contracts, not configuration or independent human proof. `presentation.deliver` may
+omit route; only inspect `gate-check` may inherit the configured variant. UI/approval owners stay unchanged.
+
+`working_directory` may be omitted only with private trustworthy invocation context. Current native
+adapters have no evidenced task-directory source and return `working_directory_required` on omission;
+supply the absolute execution directory explicitly. Neither target nor plugin/process directory is a substitute.
+All target/Run/revision/operation/presentation/digest/reply bindings remain explicit. The SDK accepts
+the public omission schema; existing Core owners receive and validate the complete effective envelope.
+Existing explicit clients remain usable. Existing inspect/help reports expose effective values and sources
+without a mandatory extra lookup before each ordinary call.
+
+Existing family records retain original resolution in their versioned `resolved/1` extension. New readers
+validate its original family version and original logical/effective request digests. Unchanged complete-envelope
+digest and existing family recovery stay authoritative. A same-UUID retry restores original values after
+configuration changes; another logical request conflicts. Prepared language/material/identity remain immutable.
+Legacy records are read unchanged; old binaries can reject new record versions. No shadow ledger or automatic
+history/config migration is introduced. Repository/SDK, native CLI transport, installed plugin and human UI
+acceptance require separate evidence; a smaller definition or green build alone proves no task-efficiency gain.
 
 ### Selected Cockpit draft authoring check
 

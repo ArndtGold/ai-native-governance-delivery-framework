@@ -1,3 +1,4 @@
+import { resolutionRecord } from './input-resolution.js';
 import { validDecisionMaterial, decisionMaterialVersion } from './decision-material-contract.js';
 import { TextDecoder } from "node:util";
 import { APPROVAL_GATES, REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
@@ -8,6 +9,8 @@ const BINDING_FIELDS = ["target_id", "run_id", "gate", "expected_revision_id", "
 const EFFECT_FIELDS = ["previous_revision_id", "resulting_revision_id", "revision", "gate", "approval", "artefact_digest", "presentation_digest", "next_gate_after_approval", "allowed_after_approval"];
 
 export function validApprovalReceipt(receipt) {
+  receipt = resolutionRecord(receipt);
+  if (!receipt) return false;
   const modern = ['2', '3'].includes(receipt.schema_version);
   if (!exactObject(receipt, modern ? [...RECEIPT_FIELDS, "command_digest"] : RECEIPT_FIELDS) || !["1", "2", "3"].includes(receipt.schema_version) || receipt.action !== "record_gate_approval"
       || !REVISION_ID_PATTERN.test(receipt.operation_id ?? "") || !DIGEST_PATTERN.test(receipt.request_digest ?? "")

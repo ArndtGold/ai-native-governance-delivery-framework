@@ -1,3 +1,4 @@
+import { bindInputResolution } from './input-resolution.js';
 import { readOperationSource } from "./run-operation-proof.js";
 import { randomUUID } from "node:crypto";
 import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
@@ -71,11 +72,11 @@ export function prepareArtefactRecording(root, run, input, control, before) {
       || !sameRelationship(command.relationship, expected)) fail("AGDF_ARTEFACT_RECORDING_INPUT_INVALID");
   const bindings = readArtefactBindings(run.content);
   if (!bindings.valid) fail("AGDF_ARTEFACT_BINDINGS_INVALID");
-  const candidate = {
+  const candidate = bindInputResolution({
     schema_version: input.operationId ? "2" : "1", binding_id: randomUUID(), target_id: command.target_id, run_id: input.runId,
     relationship: command.relationship, destination: command.destination, source: command.source, review: command.review,
     origin: "reviewed_mapping", operation: { id: input.operationId ?? randomUUID(), previous_revision_id: input.revisionId, resulting_revision_id: randomUUID(), revision: Number(run.meta.revision) + 1, ...(input.operationId ? { request_digest: input.requestDigest } : {}) }, supersedes: null,
-  };
+  });
   const prior = bindings.latest.filter(item => artefactBindingKey(item) === artefactBindingKey(candidate));
   if (prior.length > 1) fail("AGDF_ARTEFACT_BINDINGS_INVALID");
   candidate.supersedes = prior[0]?.binding_id ?? null;

@@ -1,3 +1,4 @@
+import { resolutionRecord } from './input-resolution.js';
 import { validDecisionMaterial, decisionMaterialVersion } from './decision-material-contract.js';
 import { TextDecoder } from 'node:util';
 import { canonicalJson, digest, COOPERATIVE_ASSURANCE, DIGEST_PATTERN, exactObject } from './approval-command-contract.js';
@@ -52,6 +53,8 @@ function validRecord(receipt) {
 }
 export const earlyPrdConfirmation = (runId, revisionId, operationId, prdDigest) => `Reopen PRD: ${runId} ${revisionId} ${operationId} ${prdDigest}`;
 export function validRunOperation(receipt) {
+  receipt = resolutionRecord(receipt);
+  if (!receipt) return false;
   const creation = receipt?.kind === 'run.create';
   const extended = creation || receipt?.kind === 'ur_draft.replace' || receipt?.kind === 'closeout.record' && receipt?.effect?.record?.mode === 'verified_change';
   return exactObject(receipt, fields) && receipt.schema_version === (extended ? '2' : '1') && RUN_OPERATION_KINDS.includes(receipt.kind)

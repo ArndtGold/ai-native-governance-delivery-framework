@@ -105,9 +105,14 @@ export function generatedFilesForTarget(target, targetDir, force, languagePrefer
   const files = [];
 
   if (target === "config") {
+    const configPath = join(targetDir, '.agdf', 'control', 'config.json');
+    let existing = {};
+    try { existing = JSON.parse(readFileSync(configPath, 'utf8')); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+    if (!existing || typeof existing !== 'object' || Array.isArray(existing)) throw Error('invalid_control_config');
     files.push({
       path: join(".agdf", "control", "config.json"),
-      content: languageConfigContent(languagePreference),
+      content: languageConfigContent(languagePreference, existing),
       allowOverwrite: true,
     });
     return files;

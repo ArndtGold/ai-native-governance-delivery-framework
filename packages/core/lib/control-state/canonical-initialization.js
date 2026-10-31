@@ -1,3 +1,5 @@
+import { bindInputResolution, recordedInputResolution, resolutionRecordVersion, withInputResolution } from './input-resolution.js';
+import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { ownerPlacement, assertOwnerPlacement, directoryPlacement, assertDirectoryPlacement } from '../owner-placement.js';
 import { AsyncLocalStorage } from "node:async_hooks";
 import { withOwnedFileLock, fsyncDirectory } from "./run-state-writer.js";
@@ -323,7 +325,7 @@ export function inspectCanonicalInitializationPlan() {
 
 function stageMarkerContent({ stageName, mode, plan, stagedPlan, rootIdentity, agdfIdentity, schemaVersion, receipt }) {
   const operation = operationContext.getStore();
-  return JSON.stringify({ schema_version: schemaVersion, ...(operation ? { operation } : {}),
+  return JSON.stringify(bindInputResolution({ schema_version: schemaVersion, ...(operation ? { operation } : {}),
     owner: 'agdf.canonical-init', stage_name: stageName, mode,
     target: schemaVersion === 3 ? directoryPlacement(rootIdentity.path) : {
       realpath: rootIdentity.realpath, dev: String(rootIdentity.dev), ino: String(rootIdentity.ino) },
@@ -331,7 +333,7 @@ function stageMarkerContent({ stageName, mode, plan, stagedPlan, rootIdentity, a
       realpath: agdfIdentity.realpath, dev: String(agdfIdentity.dev), ino: String(agdfIdentity.ino) },
     ...(schemaVersion === 3 ? { control: receipt.control, receipt_digest: receipt.receipt_digest } : {}),
     plan_fingerprint: planFingerprint(plan), staged_files: stagedPlan.map(file => file.relativePath),
-  }, null, 2) + '\n';
+  }), null, 2) + '\n';
 }
 function newStageSpec(stagePath, mode, plan, stagedPlan, rootIdentity, agdfIdentity,
   { schemaVersion = operationContext.getStore() ? 3 : 1, receipt } = {}) {
@@ -376,16 +378,16 @@ function readStageSpec(containerPath, plan, rootIdentity, agdfIdentity, publishe
   const orderedSubset = plan.filter((file) => seen.has(file.relativePath));
   if (orderedSubset.some((file, index) => file !== stagedPlan[index])) throw staleStageError(containerPath);
   if (marker.mode === "new" && stagedPlan.length !== plan.length) throw staleStageError(containerPath);
-  if (![1, 2, 3].includes(marker.schema_version)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+  if (![1, 2, 3].includes(resolutionRecordVersion(marker))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
   let receipt;
-  if (marker.schema_version === 3) {
+  if (resolutionRecordVersion(marker) === 3) {
     receipt = readInitializationReceipt(containerPath, { prospective: !published });
-    if (receipt.schema_version !== 2 || canonicalJson(receipt.operation) !== canonicalJson(operationContext.getStore())) throw staleStageError(containerPath);
+    if (resolutionRecordVersion(receipt) !== 2 || canonicalJson(receipt.operation) !== canonicalJson(operationContext.getStore())) throw staleStageError(containerPath);
   }
   const spec = newStageSpec(join(dirname(containerPath), stageName), marker.mode, plan, stagedPlan, rootIdentity, agdfIdentity,
-    { schemaVersion: marker.schema_version, receipt });
+    { schemaVersion: resolutionRecordVersion(marker), receipt });
   if (raw !== spec.markerContent) {
-    if ([1, 2].includes(marker.schema_version) && raw === JSON.stringify(marker, null, 2) + '\n'
+    if ([1, 2].includes(resolutionRecordVersion(marker)) && raw === JSON.stringify(marker, null, 2) + '\n'
       && JSON.stringify({ ...marker, target: { ...marker.target, dev: String(rootIdentity.dev) },
         agdf: { ...marker.agdf, dev: String(agdfIdentity.dev) } }, null, 2) + '\n' === spec.markerContent)
       throw new CanonicalInitError('AGDF_CANONICAL_INIT_LEGACY_PLACEMENT_UNCONFIRMED', containerPath);
@@ -754,10 +756,10 @@ function legacyReceiptBody(controlPath, operation) {
 }
 function receiptBody(containerPath, operation) {
   const agdfPath = dirname(containerPath), target = dirname(agdfPath), controlPath = join(agdfPath, 'control');
-  return { schema_version: 2, owner: 'agdf.canonical-init', kind: 'project.initialize', operation,
+  return bindInputResolution({ schema_version: 2, owner: 'agdf.canonical-init', kind: 'project.initialize', operation,
     target_id: resolveControlCommandTarget(target).target_id, target: directoryPlacement(target), agdf: directoryPlacement(agdfPath),
     control: ownerPlacement(containerPath, 'canonical-control', controlPath),
-    status: 'recorded', created_run: false, created_gate_approval: false };
+    status: 'recorded', created_run: false, created_gate_approval: false });
 }
 function prepareInitializationReceipt(stagePath, operation, ownership, hooks) {
   hooks.beforeProspectiveReceipt?.({ stagePath, operation });
@@ -780,10 +782,10 @@ export function readInitializationReceipt(controlPath, { prospective = false } =
   const path = join(controlPath, TERMINAL_RECEIPT), file = regularFileIdentity(path);
   if (lstatSync(path).size > 16384) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
   const bytes = readFileSync(path, 'utf8'), record = JSON.parse(bytes);
-  if (![1, 2].includes(record.schema_version)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+  if (![1, 2].includes(resolutionRecordVersion(record))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
   const { receipt_digest, ...body } = record;
   const location = join(dirname(controlPath), 'control');
-  if (record.schema_version === 2) {
+  if (resolutionRecordVersion(record) === 2) {
     if ((!prospective && controlPath !== location) || prospective && !basename(controlPath).startsWith(STAGE_PREFIX)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
     assertDirectoryPlacement(record.target, dirname(dirname(controlPath)));
     assertDirectoryPlacement(record.agdf, dirname(controlPath));
@@ -795,7 +797,7 @@ export function readInitializationReceipt(controlPath, { prospective = false } =
       || record.target_id !== resolveControlCommandTarget(dirname(dirname(controlPath))).target_id
       || record.operation.target_id !== record.target_id
       || !sameRegularFile(file, path, bytes)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
-  if (record.schema_version === 1 && canonicalJson(record.control) !== canonicalJson(legacyReceiptBody(controlPath, record.operation).control))
+  if (resolutionRecordVersion(record) === 1 && canonicalJson(record.control) !== canonicalJson(legacyReceiptBody(controlPath, record.operation).control))
     throw new CanonicalInitError('AGDF_CANONICAL_INIT_LEGACY_PLACEMENT_UNCONFIRMED', controlPath);
   return record;
 }
@@ -811,7 +813,7 @@ function finishInitialization(controlPath, spec, marker, hooks) {
   const operation = operationContext.getStore();
   if (operation && spec.schemaVersion === 3) {
     const receipt = readInitializationReceipt(controlPath);
-    if (receipt.schema_version !== 2 || canonicalJson(receipt.operation) !== canonicalJson(operation)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
+    if (resolutionRecordVersion(receipt) !== 2 || canonicalJson(receipt.operation) !== canonicalJson(operation)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
     fsyncDirectory(controlPath); fsyncDirectory(dirname(controlPath));
     hooks.afterReceipt?.({ controlPath, operation });
   } else if (operation) {
@@ -863,8 +865,8 @@ export function initializeCanonicalControl(targetDir, files, options = {}, hooks
         let stat; try { stat = lstatSync(markerPath); } catch { throw staleStageError(dirname(markerPath)); }
         if (stat.isSymbolicLink() || !stat.isFile() || stat.size > 16384) throw staleStageError(markerPath);
         const marker = JSON.parse(readFileSync(markerPath, 'utf8'));
-        if (![1, 2, 3].includes(marker.schema_version)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
-        if ([2, 3].includes(marker.schema_version)) {
+        if (![1, 2, 3].includes(resolutionRecordVersion(marker))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+        if ([2, 3].includes(resolutionRecordVersion(marker))) {
           if (!validInitializationOperation(marker.operation)) throw staleStageError(markerPath);
           if (!operation && marker.operation.preserve_stage) throw new CanonicalInitError('AGDF_CANONICAL_INIT_ORIGINAL_OPERATION_REQUIRED');
           if (operation && canonicalJson(operation) !== canonicalJson(marker.operation)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_IDENTITY_CONFLICT');
@@ -909,16 +911,16 @@ export function inspectCanonicalProject(targetDir, { operationId } = {}) {
       const markerStat = lstatSync(marker);
       if (!markerStat.isFile() || markerStat.nlink !== 1 || markerStat.size > 16384) throw staleStageError(marker);
       const data = JSON.parse(readFileSync(marker, 'utf8'));
-      if (![1, 2, 3].includes(data.schema_version)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
-      const owned = [2, 3].includes(data.schema_version) && validInitializationOperation(data.operation)
+      if (![1, 2, 3].includes(resolutionRecordVersion(data))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+      const owned = [2, 3].includes(resolutionRecordVersion(data)) && validInitializationOperation(data.operation)
         && data.operation.target_id === resolveControlCommandTarget(targetDir).target_id;
       if (!owned || operationId && data.operation.operation_id !== operationId) return out({ status: 'blocked', operation_status: 'unknown', reason: 'initialization_ownership_unconfirmed' });
-      operationContext.run(data.operation, () => {
+      withInputResolution(recordedInputResolution(data), () => operationContext.run(data.operation, () => {
         const plan = normalizedPlan(canonicalInitPlan(data.operation.language_preference));
         const spec = readStageSpec(dirname(marker), plan, rootIdentity, agdfIdentity, publishedMarker);
         inspectOwnedStage(dirname(marker), spec, publishedMarker);
-      });
-      return out({ status: 'pending', operation_status: publishedMarker && data.schema_version === 3 ? 'recorded' : 'pending', reason: publishedMarker ? 'published_pending_finalization' : 'owned_stage_pending', operation: data.operation, receipt });
+      }), true);
+      return out({ status: 'pending', operation_status: publishedMarker && resolutionRecordVersion(data) === 3 ? 'recorded' : 'pending', reason: publishedMarker ? 'published_pending_finalization' : 'owned_stage_pending', operation: data.operation, receipt, input_resolution: recordedInputResolution(data) });
     }
     if (!existsSync(controlPath)) return out({ status: 'absent', operation_status: 'unknown', reason: 'absence_is_not_proof_of_non_execution' });
     assertMcpControlReadBoundary(targetDir);
@@ -947,6 +949,7 @@ export function initializeCanonicalProject(root, { operationId, requestDigest, t
   const files = canonicalInitPlan(languagePreference), plan = normalizedPlan(files);
   const operation = { language_preference: languagePreference, operation_id: operationId, request_digest: requestDigest, target_id: targetId,
     plan_digest: 'sha256:' + planFingerprint(plan), producer, preserve_stage: true };
+  assertInputConfigurationCurrent(root);
   const effect = initializeCanonicalControl(root, files, { freshOnly: true, operation }, hooks);
   return { status: effect.status === 'created' || effect.status === 'repaired' ? 'created' : 'unchanged', receipt: effect.receipt,
     historical_effect: effect.historical_effect === true, created_run: false, created_gate_approval: false, authorizes: false,

@@ -93,7 +93,7 @@ const invalid = await client.callTool({
 assert.equal(invalid.isError, true);
 assert.equal(calls, 1, "schema-invalid arguments must not reach the dispatcher executor");
 
-for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
+for (const row of INVALID_PRESENTATION_LANGUAGE_CASES.filter(row => !row.omit)) {
   const languageInvalid = await client.callTool({
     name: "agdf_dispatch",
     arguments: argumentsForLanguageCase(unresolvedArguments, row),
@@ -113,6 +113,11 @@ for (const fields of [
   assert.equal(rejected.isError, true, JSON.stringify(fields));
   assert.equal(calls, 1, "invalid dispatch dependencies must not reach executor");
 }
+
+const { presentation_language: omittedLanguage, ...shortened } = unresolvedArguments;
+const defaulted = await client.callTool({ name: 'agdf_dispatch', arguments: shortened });
+assert.equal(defaulted.structuredContent.outcome, 'target_unresolved', 'omitted language completes before the existing unresolved-target result');
+assert.equal(calls, 2, 'language omission is valid and dispatches exactly once');
 
 const inspectBase = { operation: "doctor", presentation_language: "de", working_directory: "/tmp" };
 for (const selection of [

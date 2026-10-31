@@ -1,0 +1,26 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Versioned defaults and immediate MCP input relief
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Die vier Plugin-Vorgaben und die tatsächliche Entlastung der MCP-Eingaben werden gemeinsam umgesetzt. Die freigegebene PRD bleibt die Produktvorgabe.
+- Umfang: Kanonisch sind plugins/agdf/meta/agdf-defaults.json und das benachbarte Schema. Ein gemeinsamer Core-Resolver liest nur die bestehende .agdf/control/config.json des bestätigten Projekts. Reihenfolge: gültige explizite Angabe, Projektwert, Plugin-Default. Chat- und Artefaktsprache bleiben getrennt; gespeicherte Werte und bestehende Aktivierungsregeln bleiben erhalten.
+- Architektur: Öffentliche MCP-Schemata erlauben die vorgesehenen Auslassungen. Der Adapter ergänzt Sprache, Vertragskonstanten und passende Darstellungseinstellungen und übergibt dem Core vollständige validierte Eingaben. Ungültige explizite Werte und unbekannte Felder werden weiter abgewiesen. Ziele, Runs, Revisionen, Digests und bewusste Freigaben bleiben ausdrücklich gebunden.
+- Arbeitsverzeichnis: Die aktuell belegten Adapter liefern keinen vertrauenswürdig gebundenen Taskkontext. Deshalb bleibt dort working_directory ausdrücklich nötig; Auslassung führt vor jeder Wirkung zu einer verständlichen Fehlermeldung. Zielpfad, Plugin-Verzeichnis und bloß geerbtes Prozessverzeichnis werden nicht eingesetzt. Die übrige MCP-Entlastung erfolgt trotzdem im selben Kandidaten.
+- Replay und Kompatibilität: Ursprünglich aufgelöste Werte werden in den bereits zuständigen Operationsbelegen und Transaktionen gebunden. Dieselbe UUID übernimmt nach Konfigurationsänderungen keine neuen Werte; abweichende logische Anfragen werden abgewiesen. Dafür werden bestehende Belegformate versioniert erweitert, ohne separates Journal oder Umschreiben alter Belege. Der neue Reader unterstützt alte Formate; alte Binärversionen müssen neue Formate gegebenenfalls ablehnen. Vorbereitete Entscheidungen behalten Sprache, Material und Identität.
+- Darstellung und Diagnose: Route gilt nur für presentation.deliver, Statusvariante nur für lesendes gate-check. UI-Fähigkeiten und Freigaberegeln bleiben bei ihren bisherigen Ownern. Bestehende Hilfe und Inspektion zeigen wirksame Werte samt Herkunft. Ungültige Einstellungen nennen Quelle, Feld und Korrekturschritt; kein Aufruf repariert oder aktiviert die Projektsteuerung automatisch.
+- Nachweise und Risiken: Alle zwölf PRD-Kriterien sind dem Design zugeordnet. Tests müssen insbesondere alte explizite und neue verkürzte Aufrufe, ungültige Eingaben, Projekttrennung, unterbrochenes Replay und unveränderliche Präsentationen prüfen. Generatoren, feste Größenlimits und beide SDK-Protokollvarianten bleiben verbindlich. Hinzu kommt ein isolierter, exakt kandidatengebundener Codex-CLI-Nachweis mit lesendem Aufruf und synthetischer Schreiboperation. Repository-, native CLI- und UI-/menschliche Abnahme werden getrennt ausgewiesen.
+- Grenzen: Noch keine Umsetzung oder Feature-Tests, keine Installation, Git-Aktion, Veröffentlichung oder allgemeine Host-Freigabe. Die größten technischen Risiken sind die Erweiterung bestehender Belegformate und knappe Schema-/Paketbudgets; ihre Prüfung ist verbindlich, keine offene Architekturentscheidung.
+- Entscheidungen und nächster Schritt: Alle acht materiellen Designentscheidungen sind aufgelöst. Nur konkrete Taskreihenfolge, Fixtures und Prüfkommandos folgen im TP. Approval: SD erlaubt die Task-Plan-Erstellung; Umsetzung folgt erst nach den weiteren erforderlichen Freigaben.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-3ab79b5a-f1d0-425e-9e1e-2dd3fbffbc53` · Lösungsdesign · Revision: `6f53a1f4-805c-4288-bf40-dfeb629f18e7`
+
+SHA-256: `sha256:c3b0dbfa250a7e991e4a02e30221d19baf1456592016eac37153b46e506d1791`

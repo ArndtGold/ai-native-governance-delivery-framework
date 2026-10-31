@@ -1,3 +1,4 @@
+import { resolutionRecord } from './input-resolution.js';
 // Immutable envelope validation is shared by live and archived proofs.
 import { digest as hash, exactObject, DIGEST_PATTERN } from "./approval-command-contract.js";
 import { validPreviewSnapshot } from "./preview-snapshot.js";
@@ -11,10 +12,11 @@ export { UUID as PRESENTATION_ID_PATTERN, recovery as PRESENTATION_RECOVERY };
 // own pending journal. Full policy/binding validation must precede transaction intent.
 // Pure record check is also consumed inside captured read-only observations.
 export function validateRunPresentationEnvelope(envelope, { runId, gate, revisionId, presentationId }) {
-  const { record, digest } = envelope ?? {};
+  const { record: storedRecord, digest } = envelope ?? {};
+  const record = resolutionRecord(storedRecord);
   if (!record || ![1, 2, 3, 4, 5, 6].includes(record.schema_version) || record.presentation_id !== presentationId
       || record.run_id !== runId || record.gate !== gate || record.revision_id !== revisionId
-      || digest !== hash(JSON.stringify(record)) || !Number.isFinite(Date.parse(record.created_at))) {
+      || digest !== hash(JSON.stringify(storedRecord)) || !Number.isFinite(Date.parse(record.created_at))) {
     return { reason: "presentation_binding_invalid", recovery };
   }
   if (record.schema_version === 2 && (!exactObject(envelope, ['record', 'digest'])
@@ -32,6 +34,6 @@ export function validateRunPresentationEnvelope(envelope, { runId, gate, revisio
     || record.qa_acceptance.kind !== 'accepted_with_deviations' || !DIGEST_PATTERN.test(record.qa_acceptance.digest ?? ''))) return { reason: 'presentation_binding_invalid', recovery };
   if ((record.schema_version === 5 || record.schema_version === 6 && record.preview_review) && (gate !== 'PRD' || !validPreviewSnapshot(record.preview_review, runId, presentationId))) return { reason: 'presentation_binding_invalid', recovery };
   if (record.schema_version === 6 && record.presentation_digest !== record.document_digest) return { reason: 'presentation_binding_invalid', recovery };
-  return { presentationId, digest, record };
+  return { presentationId, digest, record: storedRecord };
 }
 

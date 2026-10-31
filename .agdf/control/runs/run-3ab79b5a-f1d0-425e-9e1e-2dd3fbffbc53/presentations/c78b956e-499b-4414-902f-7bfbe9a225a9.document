@@ -1,0 +1,24 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Plugin defaults and validated MCP configuration resolution
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Stabile Einstellungen und technische Werte werden in MCP-Aufrufen wiederholt angegeben. Die vorhandene Projektkonfiguration ersetzt diese Angaben bisher nicht durchgängig; Vorgaben und Fallbacks liegen an mehreren Stellen.
+- Ziel: Maintainer und Coding-Agenten erhalten zentral gepflegte Plugin-Defaults, wirksame Projekteinstellungen und nachvollziehbar aufgelöste MCP-Werte. Die notwendige Governance-Komplexität bleibt erhalten.
+- Umfang: Geeignete Parameter klassifizieren; eine versionierte JSON-Quelle im Plugin ueber die bestehenden Generatoren ausliefern; .agdf/control/config.json für Projektwerte wiederverwenden. Reihenfolge: gültige explizite Angabe, Projektwert, Plugin-Default. Sprache und Darstellung betrachten; Konstanten und Ausführungskontext technisch ergänzen. Geeignete stabile Angaben dürfen bei eindeutiger Auflösung entfallen. Hilfe, Dokumentation und gezielte Prüfungen aktualisieren.
+- Abgrenzung: Keine konfigurierbaren Freigaben, Ziele, Run-/Revisionsbindungen, Digests oder Bestätigungen; keine neuen automatischen Rechte, gelockerten Grenzen oder implizite Projektaktivierung. Keine parallele Konfiguration, Cockpit-Neugestaltung, fremden Installer-Änderungen, Installation, Git-Aktionen oder Veröffentlichung. Kein Preview beauftragt.
+- Abnahme: Eindeutige Defaults und Vorrangregeln, Erhalt gültiger Projektwerte, sichtbare Diagnose ungültiger Einstellungen und prüfbare wirksame Werte samt Herkunft. Projekttrennung, bestehende Präsentationen, explizite Sprachwünsche und Replay-/Freigabebindungen bleiben korrekt. Nachweise unterscheiden Repository-Prüfungen und native Host-Beobachtungen.
+- Verantwortung und offene Ausgestaltung: Bestehende Core-Resolver, Projektkonfiguration, Plugin-Metadaten, Locale-Registry und Generatoren bleiben die Ausgangspunkte. Brownfield Review klärt Auswirkungen und Delivery-Pfad; PRD/SD bestimmen die genaue Schlüsselliste, Dateistruktur und kompatible Auflösung. CONTRIBUTING.md und GOVERNANCE.md gelten weiter; fremde lokale Änderungen bleiben erhalten.
+- Nächster Schritt: Approval: UR; danach Brownfield Review und Mode/Slice, anschließend die erforderlichen weiteren Stufen. Die Run-Anlage genehmigt keine Umsetzung oder spätere Freigabe.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-3ab79b5a-f1d0-425e-9e1e-2dd3fbffbc53` · Nutzeranforderungen · Revision: `0278a535-db05-4df3-a669-5dbee12880cc`
+
+SHA-256: `sha256:71744bb809ba40aac3247959949632f67ad21d5a8808f84cb523a40455afee1b`

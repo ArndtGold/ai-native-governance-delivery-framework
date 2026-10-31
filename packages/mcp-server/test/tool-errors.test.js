@@ -12,6 +12,7 @@ import { withStdioClient, unresolvedArguments } from './helpers.js';
 import { createTestRuntime } from './runtime-fixture.js';
 import { buildAgdfServer } from '../src/server.js';
 import { DispatchExecutionError, createWorkerDispatchExecutor } from '../src/worker.js';
+import { buildFixture } from '../../../evals/mcp-ergonomics/lib/fixtures.js';
 
 function failed(reply, code) {
   assert.equal(reply.isError, true, JSON.stringify(reply));
@@ -141,6 +142,8 @@ await injected(runtime, { execute: async () => oversized, close: async () => {} 
   assert.ok(!/Repair|Reparier/.test(reply.content[1].text));
 });
 // Executor diagnostics survive runtime normalization, projection and SDK error serialization.
+const diagnosticFixture = buildFixture('F3');
+try {
 for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_record']) {
   let worker;
   class HungWorker extends EventEmitter {
@@ -154,9 +157,9 @@ for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_record']) {
     }); } });
   const args = name === 'agdf_dispatch' ? unresolvedArguments : name === 'agdf_inspect'
     ? { operation: 'gate-check', presentation_language: 'de', working_directory: tmpdir() }
-    : { schema_version: '1', presentation_language: 'de', working_directory: tmpdir(), primary_target: tmpdir(),
-      target_source: 'explicit_target', target_id: 'sha256:' + 'a'.repeat(64), run_id: 'timeout-fixture',
-      expected_revision_id: randomUUID(), operation_id: randomUUID(), assurance: 'cooperative_local',
+    : { schema_version: '1', presentation_language: 'de', working_directory: diagnosticFixture.root, primary_target: diagnosticFixture.root,
+      target_source: 'explicit_target', target_id: diagnosticFixture.targetId, run_id: diagnosticFixture.runId,
+      expected_revision_id: diagnosticFixture.revision(), operation_id: randomUUID(), assurance: 'cooperative_local',
       command: { kind: 'step.record', payload: { step: 'evidence',
         source: { path: 'artefacts/evidence.md', digest: 'sha256:' + 'b'.repeat(64) }, reason: 'fixture', covers: 'fixture' } } };
   await injected(runtime, executor, async client => {
@@ -181,6 +184,7 @@ for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_record']) {
     assert.equal(executor.active, false);
   });
 }
+} finally { diagnosticFixture.dispose(); }
 // Construction is known non-dispatch; handoff/exit is uncertain.
 class CannotConstruct { constructor() { throw Error('PRIVATE'); } }
 const setup = createWorkerDispatchExecutor({ WorkerClass: CannotConstruct });

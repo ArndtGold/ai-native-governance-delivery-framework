@@ -1,3 +1,6 @@
+import { assertInputConfigurationCurrent } from '../resources/configuration.js';
+import { bindInputResolution } from './input-resolution.js';
+import { resolutionRecordVersion } from './input-resolution.js';
 import { validateRunPresentationEnvelope, PRESENTATION_ID_PATTERN as UUID, PRESENTATION_RECOVERY as recovery } from "./run-presentation-envelope.js";
 export { validateRunPresentationEnvelope } from "./run-presentation-envelope.js";
 import { randomUUID } from "node:crypto";
@@ -105,10 +108,11 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
     if (ended) return ended;
     const prepared = binding(root, input, evaluateGateCheck);
     const dir = join(checkedRunDirectory(root, runId), "presentations");
+    assertInputConfigurationCurrent(root);
     try { mkdirSync(dir); } catch (error) { if (error.code !== "EEXIST") throw error; }
     const identity = directory(dir);
     const { text, summary, companion_text: companion, document_content: documentContent, preview_content: previewContent, ...bindingRecord } = prepared;
-    const record = { schema_version: 6, presentation_id: presentationId, ...(operationId ? { operation_id: operationId, request_digest: requestDigest } : {}), created_at: new Date().toISOString(), ...bindingRecord };
+    const record = bindInputResolution({ schema_version: 6, presentation_id: presentationId, ...(operationId ? { operation_id: operationId, request_digest: requestDigest } : {}), created_at: new Date().toISOString(), ...bindingRecord });
     if (typeof documentContent !== 'string' || record.document_bytes > 131072) throw Error('presentation_document_invalid');
     // A contained snapshot belongs to the existing presentation owner. It never
     // substitutes a later mutable artefact or exposes a caller-selected path.
@@ -218,7 +222,7 @@ export function readPresentationCatalog(root, { runId, revisionId, targetId, gat
       const checked = validateRunPresentationEnvelope(envelope, { runId, gate: record.gate, revisionId: record.revision_id, presentationId: id });
       if (checked.reason) return fail(checked.reason);
       // Old records without snapshots cannot establish a complete readable catalog.
-      if (![3, 4, 5, 6].includes(record.schema_version)) return fail('presentation_document_snapshot_unavailable');
+      if (![3, 4, 5, 6].includes(resolutionRecordVersion(record))) return fail('presentation_document_snapshot_unavailable');
       const documentPath = join(path, `${id}.document`), documentStat = lstatSync(documentPath);
       new TextDecoder('utf-8', { fatal: true }).decode(readDocumentSnapshot(root, record));
       observedFiles.push([join(path, `${id}.json`), identity(stat)], [documentPath, identity(documentStat)]);
@@ -253,15 +257,15 @@ export function validateRunPresentation(root, input, { evaluateGateCheck }) {
   const envelope = validateRunPresentationRecord(root, input);
   if (envelope.reason) return envelope;
   try {
-    if ([3, 4, 5, 6].includes(envelope.record.schema_version)) readDocumentSnapshot(root, envelope.record);
-    if ([5, 6].includes(envelope.record.schema_version) && envelope.record.preview_review) validateCurrentPreviewRecord(root, envelope.record);
+    if ([3, 4, 5, 6].includes(resolutionRecordVersion(envelope.record))) readDocumentSnapshot(root, envelope.record);
+    if ([5, 6].includes(resolutionRecordVersion(envelope.record)) && envelope.record.preview_review) validateCurrentPreviewRecord(root, envelope.record);
     const fresh = binding(root, { ...input, language: envelope.record.presentation_language }, evaluateGateCheck);
     if (Object.entries(fresh).some(([key, value]) => !['text', 'summary', 'companion_text', 'document_content', 'preview_content'].includes(key)
       // Old snapshots keep their immutable bytes. A renderer upgrade cannot
       // regenerate their language/document hashes; source/seal/summary and the
       // retained envelope/snapshot remain checked by their original format.
-      && !(envelope.record.schema_version < 6 && ['presentation_digest', 'document_digest', 'document_bytes', 'document_language'].includes(key))
-      && ([3, 4, 5, 6].includes(envelope.record.schema_version) || !['document_digest', 'document_bytes', 'document_language'].includes(key))
+      && !(resolutionRecordVersion(envelope.record) < 6 && ['presentation_digest', 'document_digest', 'document_bytes', 'document_language'].includes(key))
+      && ([3, 4, 5, 6].includes(resolutionRecordVersion(envelope.record)) || !['document_digest', 'document_bytes', 'document_language'].includes(key))
       && (['qa_acceptance', 'preview_review'].includes(key) ? JSON.stringify(envelope.record[key]) !== JSON.stringify(value) : envelope.record[key] !== value))) throw new Error("presentation_state_changed");
     return { presentationId: envelope.presentationId, digest: envelope.digest };
   } catch (error) {
@@ -301,7 +305,7 @@ export function readPresentationDocument(root, { runId, gate, revisionId, presen
     const checked = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });
     if (checked.reason) return fail(checked.reason);
     const record = checked.record;
-    if (![3, 4, 5, 6].includes(record.schema_version)) return fail('presentation_document_snapshot_unavailable');
+    if (![3, 4, 5, 6].includes(resolutionRecordVersion(record))) return fail('presentation_document_snapshot_unavailable');
     const bytes = readDocumentSnapshot(root, record);
     // Cursor is bound to this immutable record; offsets always end on UTF-8 boundaries.
     const prefix = `${checked.digest.slice(7)}:`;
@@ -332,7 +336,7 @@ export function readPresentationPreview(root, { runId, gate, revisionId, present
     if (resolveControlCommandTarget(root).target_id !== targetId) return fail('target_binding_mismatch');
     const checked = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });
     if (checked.reason) return fail(checked.reason);
-    if (!([5, 6].includes(checked.record.schema_version) && checked.record.preview_review)) return fail('preview_unavailable');
+    if (!([5, 6].includes(resolutionRecordVersion(checked.record)) && checked.record.preview_review)) return fail('preview_unavailable');
     const bytes = readPreviewSnapshot(root, checked.record), token = `${checked.digest.slice(7)}:`;
     if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.startsWith(token) || !/^(0|[1-9][0-9]*)$/u.test(cursor.slice(token.length)))) return fail('preview_cursor_invalid');
     const start = cursor === undefined ? 0 : Number(cursor.slice(token.length));

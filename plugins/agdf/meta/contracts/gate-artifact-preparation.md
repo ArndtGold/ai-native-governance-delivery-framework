@@ -47,7 +47,7 @@ The following local path/CLI forms remain compatibility fallback for hosts witho
 
 Use the supplied `artifact_language` from `.agdf/control/config.json` for the artefact and
 the resolved `presentation_language` for user-facing text. The configured chat language is
-the direct-command default; dispatcher presentation input follows its current-request contract.
+the direct-command default; MCP may inherit a known matching configured language; a different current-request language needs an explicit presentation_language override. CLI and complete Core language remain explicit.
 Neither the request language nor English runtime/template text changes the artefact language.
 When `approval_summary_required` is true, before recording include exactly one
 `## <approval_summary_heading>` section with the supplied heading verbatim and a complete

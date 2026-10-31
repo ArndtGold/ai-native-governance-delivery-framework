@@ -1,5 +1,23 @@
 # AGDF Runtime Contract — Interaction
 
+## MCP preferences and complete inputs
+
+The versioned meta/agdf-defaults.json and adjacent schema own shipped preferences; the existing
+.agdf/control/config.json is the sole project override. Explicit valid call/request > confirmed
+project > plugin applies to chat_language, artifact_language, presentation_route and gate_check_variant.
+Missing optional preferences inherit; present invalid recognized settings are actionable errors.
+Defaults never activate missing/incomplete control or write/repair configuration. Locale packs and
+contract constants retain their existing owners.
+
+MCP may omit presentation_language when the resolved preference matches the current request;
+otherwise send its explicit BCP 47 override. CLI --language and complete Core input remain explicit.
+Seven command groups may omit schema_version/assurance, and presentation.deliver may omit route.
+Only inspect gate-check inherits variant. Current native adapters still require explicit working_directory;
+omission without private trustworthy task context fails before effect. No target/process/plugin-directory guess.
+All authority/state/reply bindings remain explicit. Existing inspect/help shows effective values/source;
+no extra routine configuration call is needed. Original-operation snapshots and immutable presentations
+retain their bound values after preference changes; existing replay/recovery stays the only owner.
+
 ## Run Status Card
 
 When a run needs an operational status view, use the Run Status Card as a compact projection of existing control state.
@@ -7,7 +25,7 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 - `mode`: `quick_task | verified_change | structured_delivery | unknown`
 - `run_id`: the exactly selected canonical run
-- `presentation_language`: the resolved complete locale-pack tag; a valid unsupported requested tag resolves to the registry's deterministic `en` pack, while a missing or invalid dispatch value fails before this card exists and an incomplete or invalid registry fails closed
+- `presentation_language`: the resolved complete locale-pack tag; a valid unsupported requested tag resolves to the registry's deterministic `en` pack, while an invalid explicit value fails; omitted MCP language resolves from confirmed-project/plugin preferences before this card exists and an incomplete or invalid registry fails closed
 - `status`: `open | blocked | pass | warn | revise | block | in_progress`
 - `current_gate`: current user gate or internal step
 - `mode_slice_decision`: `undecided | quick_task | verified_change | structured_slice | structured_delivery | block`

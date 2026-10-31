@@ -192,9 +192,11 @@ const PRE_PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...FACADE_MCP
   'lib/control-evaluation/git-observation.js']);
 const PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...PRE_PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES, 'lib/mcp-protocol-runtime.js', 'lib/mcp-decision-protocol.js']);
 const WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES, 'lib/mcp-worker-runtime.js']);
-export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES,
+const OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES,
   'lib/mcp-owner-protocol.js', 'lib/mcp-lifecycle/facade-runtime.js', 'lib/mcp-lifecycle/facade-thread-entry.js',
   'lib/mcp-lifecycle/owner-client.js', 'lib/mcp-lifecycle/thread-owner.js']);
+const DEFAULT_RESOURCE_ENTRIES = Object.freeze(['generated/plugins/agdf/meta/agdf-defaults.json', 'generated/plugins/agdf/meta/agdf-defaults.schema.json']);
+export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES, ...DEFAULT_RESOURCE_ENTRIES]);
 function declaresOwnerEntry(root) {
   const entry = readJson(join(root, 'package.json'))?.exports?.['./mcp-owner-protocol'];
   if (entry !== undefined && entry !== './lib/mcp-owner-protocol.js') throw Error('AGDF_MCP_OWNER_EXPORT_INVALID');
@@ -209,12 +211,20 @@ function declaresWorkerEntry(root) {
 // provider. The selecting dispatcher bytes are themselves always digested.
 const facadeEntries = root => {
   const source = readFileSync(join(root, 'lib/mcp-dispatch-runtime.js'), 'utf8');
-  return source.includes('./mcp-protocol-runtime.js') ? declaresWorkerEntry(root) ? declaresOwnerEntry(root) ? MCP_DISPATCHER_RUNTIME_ENTRIES : WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES : PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES
+  return source.includes('./mcp-protocol-runtime.js') ? declaresWorkerEntry(root) ? declaresOwnerEntry(root) ? OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES : WORKER_MCP_DISPATCHER_RUNTIME_ENTRIES : PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES
     : source.includes('./control-evaluation/git-observation.js') ? PRE_PROTOCOL_MCP_DISPATCHER_RUNTIME_ENTRIES : FACADE_MCP_DISPATCHER_RUNTIME_ENTRIES;
 };
-const dispatcherEntries = root => existsSync(join(root, "runtime", "core"))
+const legacyDispatcherEntries = root => existsSync(join(root, "runtime", "core"))
   ? existsSync(join(root, 'lib/mcp-lifecycle/facade-entry.js')) ? facadeEntries(root) : CORE_MCP_DISPATCHER_RUNTIME_ENTRIES
   : LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES;
+// Selection follows digested consumer bytes, so deleting a required resource
+// cannot silently downgrade a new dispatcher to a historical image inventory.
+const dispatcherEntries = root => {
+  const entries = legacyDispatcherEntries(root);
+  const protocol = join(root, 'lib/mcp-protocol-runtime.js');
+  return entries.includes('lib/mcp-protocol-runtime.js') && readFileSync(protocol, 'utf8').includes('resolveMcpInput')
+    ? [...entries, ...DEFAULT_RESOURCE_ENTRIES] : entries;
+};
 
 // Projection and digesting select the same actual declared image. Old packages
 // retain their original entry set; a new declaration cannot omit its worker.

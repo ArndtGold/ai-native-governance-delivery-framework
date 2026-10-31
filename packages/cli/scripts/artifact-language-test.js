@@ -15,10 +15,10 @@ try {
   mkdirSync(configDir, { recursive: true });
   assert.equal(resolveConfiguredArtifactLanguage(join(temporary, "defaults")), "en", "missing config defaults to English");
   writeFileSync(join(configDir, "config.json"), "{ broken");
-  assert.equal(resolveConfiguredArtifactLanguage(join(temporary, "defaults")), "en", "invalid JSON defaults to English");
-  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "not a tag!" }));
-  assert.equal(resolveConfiguredArtifactLanguage(join(temporary, "defaults")), "en", "invalid tag defaults to English");
-  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "de-DE" }));
+  assert.throws(() => resolveConfiguredArtifactLanguage(join(temporary, "defaults")), /configuration_invalid/, "corrupt JSON must not be silently defaulted");
+  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "not a tag!", chat_language: 'en', runtime_language: 'en' }));
+  assert.throws(() => resolveConfiguredArtifactLanguage(join(temporary, "defaults")), /configuration_invalid/, "malformed recognized tags must be diagnosed");
+  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "de-DE", chat_language: 'en', runtime_language: 'en' }));
   assert.equal(resolveConfiguredArtifactLanguage(join(temporary, "defaults")), "de", "region subtags reduce to the language");
   const configuredRoot = join(temporary, "defaults");
   writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "en", chat_language: "de", runtime_language: "en" }));
@@ -33,7 +33,7 @@ try {
   assert.equal(englishOverride.approval_summary_heading, null);
   assert.equal(resolveArtifactPresentationLanguages(configuredRoot, "fr").presentation_language, "en",
     "unsupported presentation tags use the same full English fallback as rendering");
-  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "de-DE", chat_language: "en" }));
+  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "de-DE", chat_language: "en", runtime_language: 'en' }));
   assert.equal(resolveArtifactPresentationLanguages(configuredRoot).approval_summary_heading, "AGDF Approval Summary (en; source=de)");
   assert.equal(resolveArtifactPresentationLanguages(configuredRoot, "de-DE").approval_summary_required, false);
 

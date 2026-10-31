@@ -944,7 +944,7 @@ try {
   const rootManifest = json(join(repoRoot, "package.json"));
   const packageManifest = json(join(packageRoot, "package.json"));
   for (const surface of ["codex", "claude", "copilot", "opencode"]) {
-    assert.equal(rootManifest.scripts[`install:${surface}`], `npm --prefix packages/cli run install:${surface}`);
+    assert.equal(rootManifest.scripts[`install:${surface}`], `npm --prefix packages/cli run install:${surface} --`);
     assert.equal(packageManifest.scripts[`install:${surface}`], `node scripts/install-local-plugin.js ${surface}`);
   }
   assert.deepEqual(Object.keys(rootManifest.scripts).filter((name) => name.startsWith("install:")).sort(), ["install:claude", "install:codex", "install:copilot", "install:opencode"]);

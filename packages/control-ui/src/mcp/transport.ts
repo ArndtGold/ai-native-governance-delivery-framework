@@ -75,6 +75,12 @@ export class CockpitBridge {
     if (url.pathname === '/api/snapshot') { resourceRuns.clear(); argumentsValue = { operation: 'snapshot', ...(url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : url.searchParams.has('view') ? { view: url.searchParams.get('view') } : {}) }; }
     else if (url.pathname === '/api/changes') argumentsValue = { operation: 'changes', snapshot_id };
     else if (url.pathname === '/api/freshness') argumentsValue = { operation: 'freshness', snapshot_id };
+    else if (/^\/api\/archive\/[a-f0-9-]{36}$/.test(url.pathname)) {
+      const keys = [...url.searchParams.keys()];
+      if (keys.length > 2 || new Set(keys).size !== keys.length || keys.some(key => !['snapshot', 'resource'].includes(key))) throw Error('resource_denied');
+      argumentsValue = { operation: 'archive', snapshot_id, row_id: url.pathname.slice(13),
+        ...(url.searchParams.has('resource') ? { resource_id: url.searchParams.get('resource') } : {}) };
+    }
     else if (/^\/api\/planned\/[a-f0-9-]{36}$/.test(url.pathname)) argumentsValue = { operation: 'planned', snapshot_id, row_id: url.pathname.slice(13) };
     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
     else if (url.pathname.startsWith('/api/context/')) argumentsValue = { operation: 'context', snapshot_id, run_id: url.pathname.slice(13) };

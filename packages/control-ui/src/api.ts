@@ -169,7 +169,7 @@ export function validateData(path: string, value: Envelope<unknown>) {
         && !Object.hasOwn(r, 'saved_summary') && !Object.hasOwn(r, 'title_observation')
         && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
         && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
-        && (data.layout === 'run-folders-v1' && ['planned', 'run'].includes(String(r.kind))
+        && (data.layout === 'run-folders-v1' && ['planned', 'run', 'archive'].includes(String(r.kind))
           && text(r.identity) && object(r.source) && text(r.source.path) && (r.source.digest === null || sha(r.source.digest))
           && text(r.coverage) && typeof r.handoff_ready === 'boolean' && Array.isArray(r.actions) && r.actions.every(text))
 )
@@ -179,6 +179,15 @@ export function validateData(path: string, value: Envelope<unknown>) {
         && Number.isSafeInteger(data.file_count) && (data.file_count as number) >= 0
         && Number.isSafeInteger(data.byte_count) && (data.byte_count as number) >= 0
         && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(data.removed_run_id));
+    } else if (data.kind === 'archive' && path.startsWith('/api/archive/')) {
+      const e = data.entry, d = data.document;
+      valid = object(e) && text(e.id) && text(e.title) && ['run', 'artefacts', 'project'].includes(String(e.entry_kind)) && [e.recorded_lifecycle, e.recorded_gate, e.source_control_version].every(nullableText) && e.authorizes === false
+        && Array.isArray(e.recorded_approvals) && e.recorded_approvals.every(a => object(a) && ['gate', 'status', 'evidence'].every(k => text(a[k])))
+        && Array.isArray(e.resources) && e.resources.every(r => object(r) && uuid(r.resource_id) && text(r.original_path) && text(r.path)
+          && String(r.path).startsWith('.agdf/control/archive/source/') && sha(r.digest) && Number.isSafeInteger(r.bytes) && (r.bytes as number) >= 0)
+        && (d === null || object(d) && uuid(d.resource_id) && typeof d.available === 'boolean' && text(d.path) && sha(d.digest)
+          && Number.isSafeInteger(d.bytes) && (d.available ? text(d.content) && new TextEncoder().encode(String(d.content)).length <= 2097152 : text(d.reason))
+          && e.resources.some(r => object(r) && r.resource_id === d.resource_id && r.original_path === d.path && r.digest === d.digest && r.bytes === d.bytes));
     } else if (data.kind === 'planned' && path.startsWith('/api/planned/')) {
       const e = data.entry;
       valid = object(e) && text(e.plan_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(String(e.plan_id))

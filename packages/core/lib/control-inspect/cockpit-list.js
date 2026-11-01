@@ -1,8 +1,8 @@
 // Pure current-model list policy shared by Core and the browser.
-export const COCKPIT_WORK_SECTIONS = Object.freeze(['active', 'planned', 'history']);
+export const COCKPIT_WORK_SECTIONS = Object.freeze(['active', 'planned', 'completed', 'archive']);
 export function hasConsistentWorkCounts(inventory) {
   if (!inventory || inventory.layout !== 'run-folders-v1' || !Array.isArray(inventory.entries)
-    || !inventory.counts || typeof inventory.counts !== 'object' || Object.keys(inventory.counts).length !== 3) return false;
+    || !inventory.counts || typeof inventory.counts !== 'object' || Object.keys(inventory.counts).length !== COCKPIT_WORK_SECTIONS.length) return false;
   return COCKPIT_WORK_SECTIONS.every(section => Number.isSafeInteger(inventory.counts[section])
     && inventory.counts[section] === inventory.entries.filter(row => row?.section === section).length)
     && inventory.entries.every(row => row && COCKPIT_WORK_SECTIONS.includes(row.section));
@@ -25,7 +25,7 @@ export function projectCockpitList(inventory, { section = 'active', query = '' }
 
 // Presentation-only grouping/search over the shared inventory's already ordered entries.
 export function projectCockpitRuns(inventory, { section = 'active', query = '' } = {}) {
-  if (!['active', 'history'].includes(section)) throw Error('dto_invalid');
+  if (!['active', 'completed'].includes(section)) throw Error('dto_invalid');
   const normalized = query.trim().toLowerCase();
   const entries = inventory.runs.filter(run => section === 'active'
     ? !run.valid || run.lifecycle === 'active' : run.valid && run.lifecycle !== 'active');

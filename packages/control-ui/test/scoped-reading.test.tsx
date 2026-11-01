@@ -11,7 +11,7 @@ const run: Detail = { run_id: 'run-a', title: 'Unterlagen zuordnen', revision_id
   evaluation: { status: 'open', current_gate: 'CD+Tests', blocking_reason: 'none', missing_approval: 'none', next_allowed_action: 'Implement approved scope',
     next_action_de: 'Freigegebenen Umfang umsetzen.', doctor_status: 'pass', quality_outlook: '', git_evidence: 'unavailable', diagnostics: [], approvals: [], missing_evidence: [], control_assessment: { state: 'open', authorizes: false } } };
 const backlog: Inventory = { kind: 'work', layout: 'run-folders-v1', entries: [{ kind: 'run', identity: 'run/run-a', source: { path: '.agdf/control/runs/run-a/RUN_STATE.md', digest: 'sha256:'+'a'.repeat(64) }, section: 'active', key: 'run-a', original_key: '`run-a`', title: 'Unterlagen zuordnen',
-  coverage: 'current', handoff_ready: false, actions: [], stored_status: 'Awaiting TP', scope: 'framework-maintenance', priority: '1', stored_next_step: 'Stored next step', source_links: '[UR](UR.md)', current_spec: 'old', selectable: true }], diagnostics: [], source_path: '.agdf/control/', content_digest: 'digest', counts: { active: 1, planned: 0, history: 0 }, file_count: 1, byte_count: 100 };
+  coverage: 'current', handoff_ready: false, actions: [], stored_status: 'Awaiting TP', scope: 'framework-maintenance', priority: '1', stored_next_step: 'Stored next step', source_links: '[UR](UR.md)', current_spec: 'old', selectable: true }], diagnostics: [], source_path: '.agdf/control/', content_digest: 'digest', counts: { active: 1, planned: 0, completed: 0, archive: 0 }, file_count: 1, byte_count: 100 };
 const focused = { ...meta, data: { kind: 'run' as const, run } };
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 

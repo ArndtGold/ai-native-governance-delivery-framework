@@ -1,0 +1,108 @@
+# Cockpit-Archivübernahme – Umsetzungsnachweis, 2026-11-01
+
+Altbestände sollen einmalig erhalten und im Cockpit nachgelesen werden. Der Maintainer hat
+die ursprüngliche Bezeichnung „Historie“ zu „Archiv“ präzisiert. Der Diff trennt deshalb
+beendete aktuelle Runs, archivierte Altbestände und den Änderungsverlauf innerhalb eines Runs.
+
+Arbeitsgrenze: direktes Offline-Wartungswerkzeug und lesende Cockpit-Erweiterung auf
+`agdf/cockpit-archive-import`, Basis `aab3424bc793b86c8b3fecb9cb877ee9ae29aa4f`.
+Kein neuer AGDF-Run, keine Gate-Freigabe, keine Installation und keine Umstellung des echten
+Kontrollbestands gehören zu dieser Arbeit. Der Maintainer beauftragte anschließend Commit,
+Veröffentlichung des Branches und CI-Überwachung. Der separate PR baut auf dem noch offenen
+PR #51 (`agdf/run-model-clean-cut`) auf; CI wird im PR an den tatsächlichen Head gebunden.
+
+## Verhalten und Quellen
+
+- Vier unabhängige Bereiche: **Aktiv**, **Geplant**, **Beendet**, **Archiv**. „Beendet“ bleibt
+  aktuellen Runs vorbehalten. Auch ein im alten Zustand noch aktiver Run ist nach Übernahme
+  ausschließlich ein Archiveintrag. `history/` bezeichnet weiterhin den Verlauf eines aktuellen Runs.
+- `scripts/import-cockpit-archive.mjs` exportiert `importCockpitArchive(directory, options)`.
+  Der Standard ist eine schreibfreie Vorschau. Die Übernahme verlangt den exakten Quelldigest.
+- `.agdf/control/archive/INDEX.json`, Schema `cockpit-archive/1`, enthält `entries` mit
+  `entry_kind` (`run`, `artefacts`, `project`), `recorded_lifecycle`, `recorded_gate`,
+  `recorded_approvals`, `source_control_version` und Dokumentreferenzen. `archived_at`
+  bezeichnet den Archivierungszeitpunkt. Aufgezeichnete Freigaben haben keine heutige Gültigkeit.
+- Originalbytes einschließlich unbekannter und binärer Dateien, leerer Verzeichnisse,
+  alter Konfiguration und alter Siegel bleiben unter `archive/source/` erhalten.
+  `.agdf/backups/control-<digest>` ist die vollständige technische Originalsicherung.
+  Das Archiv dient dem Nachlesen; die Sicherung dient der Wiederherstellung.
+- Vor Veröffentlichung werden Stage-Dateien gegen Quellen, Index und kanonische Vorlagen geprüft.
+  Dateien und Verzeichnisse werden synchronisiert. Ein Journal bindet den Wiederanlauf an
+  Projekt, Sicherung und Stage. Veränderte Quellen, offene Operationen, Symlinks und manipulierte
+  Sicherungen werden abgewiesen. Wiederholung liefert `already_archived`.
+- Core liest ausschließlich den aktuellen Run-Vertrag und das neue Archivformat. Alte Zustände
+  werden nur im Offline-Werkzeug ausgewertet. Kein Masterbacklog wird zur aktuellen Steuerung
+  reaktiviert; gegebenenfalls bleibt er als altes Projektdokument lesbar.
+- Die eigene Archivansicht zeigt Bestandsart, aufgezeichneten Status und Gate, alte Freigaben
+  sowie Dokumente als Text. Sie bietet keine Freigabe- oder Fortsetzungsaktion. Dokumente sind
+  an Eintrag, registrierte Ressource, Snapshot, SHA-256 und Größe gebunden.
+- MCP-Operation `archive` und HTTP `/api/archive/<row-id>` verwenden denselben Leser.
+  Die vor Veröffentlichung verworfene Benennung `history` erhält keine Kompatibilitätsroute.
+
+Kanonisch sind Offline-Werkzeug, Core-Archivleser und -Projektion, der gemeinsame MCP-Vertrag,
+HTTP-Adapter sowie UI-Typen, Validatoren und Leseansicht. Generierte Host-/npm-Payloads werden
+über die bestehenden Build-Owner hergestellt; installierte Caches wurden nicht gepatcht.
+Der Import-Test ist über `packages/cli/package.json` in das bestehende CI-Inventar eingebunden.
+
+## Prüfungen
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Import, Sicherung, Wiederanlauf, MCP-/HTTP-Zugriff | 14/14 bestanden; einschließlich aufgezeichnetem aktiven Altzustand ohne aktuelle Steuerungswirkung und unabhängiger Zähler für beendete Runs und Archiv |
+| UI-Suite | 284/284 bestanden; anschließend 33/33 gezielte Fälle für kompakte Ansicht, Archivlesen und MCP-Transport einschließlich des neuen Kompakt-Regressionsfalls |
+| Lokaler HTTP-Regressionssatz | 8/8 bestanden |
+| Core-Cockpit-Regression | 44/44 bestanden |
+| Chromium gegen produktiven lokalen Server | bestanden: Archiv öffnen, Status und UR lesen, keine Freigabeaktion, Index unverändert |
+| MCP-Cockpit-Capability-Gating | beide Protokollvarianten 2025-11-25 und 2026-07-28 bestanden |
+| Typecheck, normaler UI-Build, Codex-Payloadvorbereitung, npm-Assembly | bestanden |
+| Kanonische CI-Testregistrierung | Import-Testgruppe im CLI-Maintenance-Script und CI-Inventar nachgewiesen |
+
+Eine vollständige Kopie des realen Altbestands wurde isoliert übernommen:
+
+- **13.535 Dateien, 700.846.855 Bytes**, **190 Archiveinträge**. Darin liegen 158 alte
+  Run-Zustände, zusätzliche Artefaktbestände ohne Run-Zustand und gemeinsame Projektdateien.
+- Quelldigest vor der Übernahme und beim abschließenden Lesen des echten Originals:
+  `sha256:c1aff08b89137fc24d8ec0708b26d8c51f8a3e70a79fca424a7f92f2c5007246`.
+- Veröffentlichung und Originalsicherung erfolgreich; Cockpit-Zähler `active: 0`, `planned: 0`,
+  `completed: 0`, `archive: 190`. Die aktuelle Run-Inventur bleibt leer.
+- Ursprünglich geschlossener Beispiel-Run: aufgezeichneter Status `completed`, sechs alte
+  Freigaben erhalten, archivierte UR gelesen, `authorizes: false`.
+- Übersicht erfasst **5.200.433 Bytes**; das vollständige 701-MB-Archiv wird nicht erfasst.
+  Bestehende Capture-, Antwort- und Vorschaugrenzen bleiben unverändert.
+- Keine Änderung unter dem echten `.agdf/control`; die drei vorbestehenden fremden
+  Kompatibilitätsdateien behalten ihre ursprünglichen SHA-256-Werte. Die tatsächlich
+  schreibenden Übernahmen liefen ausschließlich in isolierten Testprojekten.
+
+Die kompakte MCP-Ansicht erhielt denselben Archivleser wie die große Browseransicht.
+Ihr zusätzlicher Regressionstest öffnet einen alten, damals aktiven Eintrag, ohne einen
+aktuellen Run zu laden. Dies ist ein Komponententest des MCP-Ansichtspfads, keine native
+Host-Abnahme.
+
+Lokale Nachweise: `/private/tmp/agdf-archive-refine-import3.log`,
+`/private/tmp/agdf-archive-refine-dom3.log`, `/private/tmp/agdf-archive-refine-service.log`,
+`/private/tmp/agdf-archive-refine-core2.log`, `/private/tmp/agdf-archive-browser-final.log`,
+`/private/tmp/agdf-archive-refine-compact.log`,
+`/private/tmp/agdf-archive-mcp-final.log`, Build-/Assembly-Protokolle mit demselben Präfix,
+Chromium-Screenshot `/private/tmp/agdf-cockpit-archive.png` und das isolierte Übernahmeprotokoll
+`/private/tmp/agdf-archive-scale.log` sowie
+`/private/tmp/agdf-archive-scale-ran6le5k/result.json`. Diese lokalen Nachweise werden nicht mit Rohbeständen
+oder vollständigen Originalgesprächen in den Implementierungsdiff aufgenommen.
+
+## Grenzen und Verantwortung
+
+Geprüft auf macOS mit Node.js 22. Keine neue native Codex-Desktop-/Cockpit-, Windows- oder
+weitere Host-Qualifikation. Repository-, Browser- und MCP-Tests ersetzen keine menschliche
+Abnahme. Die folgenden Nachweise sind lokale Prüfungen vor dem Commit; der nachfolgende
+CI-Status wird im PR mit dem geprüften Head geführt. Kein lokaler Volltest oder Nightly-Lauf. Der normale UI-Build meldet weiterhin einen
+Bundle-Chunk über 500 kB; Limits wurden nicht angehoben. Die Übernahme setzt ruhende alte
+Schreiber voraus und ist keine Online-Migration. Große und binäre Dokumente bleiben erhalten;
+die Vorschau bleibt auf 2 MiB begrenzt.
+
+Bei der Umbenennung deckten Tests eine ausgelassene HTTP-Routenanpassung und veraltete
+UI-Fixtures/Erwartungen auf. Die abschließende Sichtprüfung identifizierte außerdem die
+noch fehlende Verbindung zum Archivleser in der kompakten MCP-Ansicht. Diese wurden korrigiert und die betroffenen Gruppen erneut ausgeführt;
+die ursprünglichen Fehlprotokolle bleiben lokal erhalten.
+
+Wesentliche KI-Unterstützung: Codex führte Analyse, Implementierung und technische Selbstprüfung
+aus. Eine unabhängige menschliche Codeprüfung oder neue QA/UAT-Abnahme ist nicht dokumentiert.
+Diese Dokumentation erteilt keine Release- oder Merge-Freigabe.

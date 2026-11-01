@@ -14,6 +14,7 @@ parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
   try {
     const result = operation === 'snapshot' ? reader.snapshot(input?.run_id, input?.view)
       : operation === 'run' ? reader.run(selector, snapshot)
+      : operation === 'archive' ? reader.archive(selector, snapshot, input?.resource_id)
       : operation === 'planned' ? reader.planned(selector, snapshot)
       : operation === 'artifact_readiness' ? reader.artifactReadiness(input.run_id, snapshot, input.gate, input.expected_revision_id)
       : operation === 'document' ? reader.document(selector, snapshot, input?.run_id)

@@ -56,10 +56,11 @@ it('the document keeps exact source content and adds its undertaking and purpose
   expect(screen.getByRole('heading',{name:'Original 日本語'})).toBeTruthy();expect(screen.getByText('Unveränderter Inhalt.')).toBeTruthy();
 });
 
-it('three stored sections have independent counts and filtering, default to active, and never inspect a Run on switching',()=>{
+it('four stored sections have independent counts and filtering, default to active, and never inspect a Run on switching',()=>{
   const planned={...pointer('later','Geplantes Vorhaben'),section:'planned'};
-  const archived={...pointer('old','Abgeschlossenes Vorhaben'),section:'history',stored_status:'Superseded',stored_next_step:'Durch ein neues Vorhaben abgelöst.'};
-  const select=vi.fn();render(<Overview result={backlog([stored,planned,archived])} onSelect={select}/>);
+  const ended={...pointer('old','Abgeschlossenes Vorhaben'),section:'completed',stored_status:'Superseded',stored_next_step:'Durch ein neues Vorhaben abgelöst.'};
+  const archive={...pointer('imported','Archivierter Altbestand'),kind:'archive' as const,identity:'archive/imported',section:'archive'};
+  const select=vi.fn();render(<Overview result={backlog([stored,planned,ended,archive])} onSelect={select}/>);
   expect(screen.getByRole('button',{name:'Aktiv 1'}).getAttribute('aria-pressed')).toBe('true');
   expect(screen.queryByRole('button',{name:planned.title})).toBeNull();
   fireEvent.change(screen.getByRole('searchbox'),{target:{value:'kein Treffer'}});
@@ -69,9 +70,14 @@ it('three stored sections have independent counts and filtering, default to acti
   expect(screen.getByRole('button',{name:planned.title})).toBeTruthy();
   expect(screen.queryByRole('button',{name:stored.title})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Archiv 1'}));
+  expect(screen.getByRole('button',{name:archive.title})).toBeTruthy();
+  expect(screen.queryByRole('button',{name:ended.title})).toBeNull();
+  expect(select).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{name:'Beendet 1'}));
+  expect(screen.queryByRole('button',{name:archive.title})).toBeNull();
   expect(screen.getByText('Nächster Schritt: Durch ein neues Vorhaben abgelöst.')).toBeTruthy();
   expect(select).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole('button',{name:archived.title}));expect(select).toHaveBeenCalledWith('old');
+  fireEvent.click(screen.getByRole('button',{name:ended.title}));expect(select).toHaveBeenCalledWith('old');
 });
 it('unreadable sections have unavailable counts; readable sections and bad rows remain explicitly distinct',()=>{
   const result=backlog([{...stored,selectable:false}]);

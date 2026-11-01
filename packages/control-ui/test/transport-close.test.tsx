@@ -94,3 +94,16 @@ it('retains the existing expired-session close acknowledgement without accepting
   await expect(bridge.operation({ operation: 'close' })).resolves.toEqual(negative);
   await expect(bridge.operation({ operation: 'snapshot' })).rejects.toThrow('session_expired');
 });
+
+it('maps historical document selection to scoped MCP selectors without a current Run binding', async () => {
+  const bridge = new CockpitBridge(); bridge.session = session(1);
+  const meta = { schema_version: '2', target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: session(2),
+    observed_as_of: '2026-11-01T12:00:00Z', source_digest: 'digest', state: 'available', code: null, retryable: false };
+  callServerTool.mockResolvedValue({ structuredContent: { ...meta, data: { kind: 'archive', entry: { id: 'old-run', title: 'Historical', entry_kind: 'run', recorded_lifecycle: 'completed',
+    recorded_gate: 'OR', source_control_version: '2', recorded_approvals: [], resources: [], authorizes: false }, document: null } } });
+  await bridge.read(`/api/archive/${session(3)}?snapshot=${session(2)}&resource=${session(4)}`, new AbortController().signal,
+    { target: 'target', snapshot: session(2) });
+  expect(callServerTool.mock.calls[0][0]).toEqual({ name: 'agdf_cockpit_read', arguments: {
+    operation: 'archive', session_id: session(1), snapshot_id: session(2), row_id: session(3), resource_id: session(4) } });
+  await expect(bridge.read(`/api/archive/${session(3)}?snapshot=${session(2)}&path=foreign`, new AbortController().signal)).rejects.toThrow('resource_denied');
+});

@@ -1,3 +1,4 @@
+import { ArchiveDetail, type ArchiveLoader } from './ArchiveDetail';
 import { RunOverview } from "./RunOverview";
 import type { OverviewInventory, RunInventory } from "./types";
 import type { ComponentProps } from "react";
@@ -7,18 +8,26 @@ import type { Envelope, Inventory, PlannedDocument } from './types';
 import { ReadState } from './feedback';
 import { WorkCounts, WorkEmpty, WorkRow } from './WorkRows';
 
-const labels = ['Aktiv', 'Geplant', 'Archiv'];
-const headings = ['Aktive Vorhaben', 'Geplante Vorhaben', 'Archivierte Vorhaben'];
+const labels = ['Aktiv', 'Geplant', 'Beendet', 'Archiv'];
+const headings = ['Aktive Vorhaben', 'Geplante Vorhaben', 'Beendete Runs', 'Altbestandsarchiv'];
 export interface WorkView { section: string; filter: string }
-function WorkOverview({ result, onSelect, loadPlanned, view, onViewChange, current = true }: { result: Envelope<Inventory>; onSelect: (id: string) => void; loadPlanned?: (rowId: string, signal: AbortSignal) => Promise<Envelope<PlannedDocument>>; view?: WorkView; onViewChange?: (view: WorkView) => void; current?: boolean }) {
+function WorkOverview({ result, onSelect, loadPlanned, loadArchive, view, onViewChange, current = true }: { result: Envelope<Inventory>; onSelect: (id: string) => void; loadArchive?: ArchiveLoader; loadPlanned?: (rowId: string, signal: AbortSignal) => Promise<Envelope<PlannedDocument>>; view?: WorkView; onViewChange?: (view: WorkView) => void; current?: boolean }) {
   const [localView, setLocalView] = useState<WorkView>({ section: COCKPIT_WORK_SECTIONS[0], filter: '' });
   const { section: rawSelected, filter } = view ?? localView;
   const selected = COCKPIT_WORK_SECTIONS.some(section => section === rawSelected) ? rawSelected : COCKPIT_WORK_SECTIONS[0];
   const changeView = onViewChange ?? setLocalView;
   const inventory = result.data;
+  const archiveFocus = useRef<string | null>(null);
+  const [archiveRow, setArchiveRow] = useState<string | null>(null);
   const [planned, setPlanned] = useState<PlannedDocument | null>(null), [problem, setProblem] = useState<string | null>(null);
   const pending = useRef<AbortController | null>(null);
-  useEffect(() => { pending.current?.abort(); setPlanned(null); setProblem(null); return () => pending.current?.abort(); }, [result.snapshot_id, current]);
+  useEffect(() => {
+    if (archiveRow || !archiveFocus.current) return;
+    const key = archiveFocus.current; archiveFocus.current = null;
+    const element = [...document.querySelectorAll<HTMLElement>('[data-focus-id]')].find(node => node.dataset.focusId === key);
+    element?.focus();
+  }, [archiveRow]);
+  useEffect(() => { pending.current?.abort(); setPlanned(null); setArchiveRow(null); setProblem(null); return () => pending.current?.abort(); }, [result.snapshot_id, current]);
   const openPlanned = loadPlanned ? async (rowId: string) => {
     pending.current?.abort(); const controller = new AbortController(); pending.current = controller; setPlanned(null); setProblem(null);
     try { const response = await loadPlanned(rowId, controller.signal); if (!controller.signal.aborted) { if (!response.data) throw Error(response.code ?? 'read_failed'); setPlanned(response.data); } }
@@ -27,6 +36,8 @@ function WorkOverview({ result, onSelect, loadPlanned, view, onViewChange, curre
   const list = projectCockpitList(inventory, { section: selected, query: filter });
   const areas = COCKPIT_WORK_SECTIONS.map((section, index) => ({ section, label: labels[index], list: projectCockpitList(inventory, { section }) }));
   const areaIndex = COCKPIT_WORK_SECTIONS.findIndex(section => section === selected);
+  if (archiveRow && loadArchive && current) return <ArchiveDetail rowId={archiveRow} load={loadArchive}
+    onClose={() => { archiveFocus.current = inventory?.entries.find(row => row.row_id === archiveRow)?.key ?? null; setArchiveRow(null); }}/>;
   return <section className="panel agdf-surface backlog-overview" aria-label="Geplante URs und Runs">
     <div className="backlog-controls">
     <div className="backlog-tools">
@@ -50,7 +61,7 @@ function WorkOverview({ result, onSelect, loadPlanned, view, onViewChange, curre
     </div>
     <div id="backlog-list" role="region" aria-label={`Vorhaben · ${labels[areaIndex]}`} tabIndex={0}>
       {!inventory ? <ReadState state={result.state} code={result.code}/> : <WorkEmpty list={list}/>}
-      {!!list.rows.length && <ul className="undertaking-list">{list.rows.map(row => <WorkRow key={row.identity} row={row} current={current} onSelect={onSelect} onSelectPlanned={openPlanned}/>)}</ul>}
+      {!!list.rows.length && <ul className="undertaking-list">{list.rows.map(row => <WorkRow key={row.identity} row={row} current={current} onSelect={onSelect} onSelectPlanned={openPlanned} onSelectArchive={loadArchive ? setArchiveRow : undefined}/>)}</ul>}
     </div>
     {problem && <p role="alert">UR konnte nicht sicher gelesen werden: {problem}. Bestand neu laden.</p>}
     {planned && current && <article aria-label="Geplante UR" className="panel"><h2>{planned.entry.title}</h2>

@@ -1,0 +1,32 @@
+## Aufgaben- und Testplan prüfen und entscheiden
+
+TP: Planned URs, backlog-free Core and optional Codex planning
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Den Prüfplan gezielter ausführbar machen, bei unveränderter Abdeckung des freigegebenen PRD und SD.
+
+- Aufgaben: Die 13 Aufgaben und 33 Szenario-IDs bleiben erhalten. Die Szenarien sind jetzt acht Ausführungsgruppen zugeordnet: UR/Planung, Run/Versionen/Parallelität, Übergabe, Migration, Übersicht/Browser, CLI/MCP, Pakete/CI und native Qualifikation. Gemeinsame Fixtures und ein gültiges Ergebnis bedienen mehrere Zuordnungen; 33 Szenarien bedeuten keine 33 separaten Testläufe.
+
+- Fehlerprüfungen: Jede neue oder geänderte Commit-, Eigentums- und Recovery-Verzweigung wird gezielt geprüft. Unveränderte atomare Schreibprimitive nutzen passende bestehende Nachweise. Kein pauschales Kreuzprodukt über Dateien, Kriterien und Hosts; Schutz vor Verlust, Duplikaten, fremden Löschungen und falscher Freigabe bleibt verbindlich.
+
+- Nachweise: Lokal laufen die betroffenen Gruppen und ihre ungültig gewordenen Abhängigkeiten. Vor entsprechenden QA-Aussagen müssen die Pflichtnachweise vorliegen; vor Merge bleibt die vollständige aktuelle Pflicht-CI erforderlich. Neue Änderungen, fehlende Abdeckung oder Widersprüche lösen Wiederholung aus, eine weitere Tabellenzeile oder ein späteres Gate allein nicht.
+
+- Native Prüfung: Drei Verfahren prüfen Core allein, Core mit Planungserweiterung und die tatsächliche Codex-Cockpit-Anzeige auf demselben gültigen Kandidaten. Ein zusammenhängender Plugin-Ablauf deckt Entdeckung, Delegation, Übergabe und Wiederholung ab. Fehlender Zugriff bleibt eine konkrete Lücke; Browser-/Repository-Tests ersetzen keine native oder menschliche Abnahme.
+
+- Schutz: Schreibende Migrations-/Fehlertests bleiben in isolierten Projekten. Gegen diesen Worktree ist nur eine unverändernde Vorschau geplant. Dieser Run, Hauptarbeitskopie, alte Nachweise und fremde Änderungen bleiben geschützt; Installation, reale Migration und VCS/Release behalten ihre tatsächlichen Autorisierungsgrenzen.
+
+- Stand: Dies ist eine überarbeitete Planung, keine ausgeführte Implementierung oder erfolgreiche Testserie. Alle elf Kriterien und zugehörigen SD-Entscheidungen bleiben zugeordnet; aktuell gibt es keine offene materielle Planungsfrage.
+
+- Nächster Schritt: Die neue Fassung mit Approval: TP freigeben. Danach folgt zuerst die erforderliche Brownfield-Vorbereitung, anschließend die freigegebene Umsetzung mit Prüfungen. QA und UAT bleiben eigene Schritte.
+
+Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.
+
+### Fassung und Quellen
+
+Run: `run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74` · Aufgaben- und Testplan · Revision: `b2e3e06b-810a-46ac-883e-7e9600f394a5`
+
+SHA-256: `sha256:e3b2063b69464e01a826b085be87d48d19fe920295cdc180b0ca285aa43eb861`

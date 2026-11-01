@@ -5,6 +5,8 @@ import { scalarFields } from "./run-state-document.js";
 import { readApprovalOperations } from "./approval-operations.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { validSourceRevisionHistories } from "./run-revision-history.js";
+import { validLayoutMigrationHistories } from './layout-migration-proof.js';
+import { validPlannedOriginHistory } from './planned-origin.js';
 const SEAL_PATTERN = /^sha256:[0-9a-f]{64}$/u;
 
 export function runSealState(root, content) {
@@ -18,6 +20,8 @@ export function runSealState(root, content) {
   if (!readApprovalOperations(text).valid) return Object.freeze({ status: "invalid", recorded });
   if (!readArtefactBindings(text).valid) return Object.freeze({ status: "invalid", recorded });
   if (!validSourceRevisionHistories(root, text)) return Object.freeze({ status: "invalid", recorded });
+  if (!validLayoutMigrationHistories(root, text)) return Object.freeze({ status: 'invalid', recorded });
+  if (!validPlannedOriginHistory(root, text)) return Object.freeze({ status: 'invalid', recorded });
   const actual = computeRunSeals(root, text);
   const status = actual.approval_seal !== recorded.approval_seal
     ? "approvals_changed"

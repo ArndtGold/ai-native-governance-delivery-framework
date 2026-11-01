@@ -181,6 +181,9 @@ export function validateData(path: string, value: Envelope<unknown>) {
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
         && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
         && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
+        && (data.layout === undefined ? r.kind === undefined : data.layout === 'planned-urs-v1' && ['planned', 'run'].includes(String(r.kind))
+          && text(r.identity) && object(r.source) && text(r.source.path) && (r.source.digest === null || sha(r.source.digest))
+          && text(r.coverage) && typeof r.handoff_ready === 'boolean' && Array.isArray(r.actions) && r.actions.every(text))
         && (r.saved_summary === undefined || savedSummary(r.saved_summary, r.key, r.section)
           && object(r.saved_summary) && (r.saved_summary.record === null || object(r.saved_summary.record) && r.saved_summary.record.target_id === value.target.target_id))
         && (r.title_observation === undefined || titleObservation(r.title_observation)
@@ -197,6 +200,12 @@ export function validateData(path: string, value: Envelope<unknown>) {
         valid = ids.every(id => typeof id === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(id))
           && new Set(ids).size === ids.length && observed >= 1 && observed <= 12;
       }
+    } else if (data.kind === 'planned' && path.startsWith('/api/planned/')) {
+      const e = data.entry;
+      valid = object(e) && text(e.plan_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(String(e.plan_id))
+        && text(e.title) && ['high', 'normal', 'low'].includes(String(e.priority)) && e.path === `.agdf/control/planned/${e.plan_id}/UR.md`
+        && sha(e.digest) && text(e.content) && new TextEncoder().encode(String(e.content)).length <= 131072
+        && object(e.readiness) && typeof e.readiness.ready === 'boolean' && e.authorizes === false;
     } else if (['run', 'document', 'context'].includes(String(data.kind))) {
       valid = (data.run === null ? data.kind === 'run' && text(data.requested_run_id) && value.state === 'missing'
         : detailData(data.run, data.kind === 'run' && value.state === 'invalid'));

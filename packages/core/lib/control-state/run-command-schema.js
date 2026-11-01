@@ -7,7 +7,11 @@ import { PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE } from '../interaction-present
 // Canonical structural definitions and validators shared by protocol fronts and
 // the full contract facade. Help/readiness evaluation is not a startup dependency.
 export const RUN_COMMAND_VERSION = '1';
-export const RUN_COMMAND_LIMITS = Object.freeze({ input_bytes: 65536, result_bytes: 1048576, definition_bytes: 8192, aggregate_definition_bytes: 24576 });
+// Planning adds three typed record variants, without adding permission groups.
+// Keep request/material bounds unchanged and budget the complete published
+// command/decision composition, including its explicit scope constraints.
+export const RUN_COMMAND_LIMITS = Object.freeze({ input_bytes: 65536, result_bytes: 1048576, definition_bytes: 8192,
+  definition_bytes_by_group: Object.freeze({ agdf_record: 9216 }), aggregate_definition_bytes: 28672 });
 const string = (maxLength = 4096) => ({ type: 'string', minLength: 1, maxLength });
 const identity = { type: 'string', pattern: REVISION_ID_PATTERN.source };
 const hash = { type: 'string', pattern: DIGEST_PATTERN.source };
@@ -23,6 +27,12 @@ const materialStage = { oneOf: [
   strictObject({ action: { const: 'append' }, transfer_id: identity, file: integer(3), offset: integer(131072), data: { type: 'string', maxLength: 21848 } }),
   strictObject({ action: enumeration(['seal', 'discard', 'status']), transfer_id: identity }),
 ] };
+export const PLANNING_SCOPE_SCHEMA = strictObject({ plan_id: { type: 'string', pattern: RUN_ID_PATTERN.source },
+  expected_digest: { oneOf: [hash, { type: 'null' }] } });
+export const PLANNING_COMMAND_KINDS = Object.freeze(['planned_material.stage', 'planned_ur.create', 'planned_ur.replace', 'run.create_from_planned']);
+const plannedMaterialStage = { allOf: [materialStage, { properties: {
+  files: { type: 'array', maxItems: 1, items: { type: 'object', properties: { slot: { const: 'UR' } } } }, file: { maximum: 0 },
+} }] };
 const recoveryGroups = Object.freeze({ 'step.record': 'agdf_record', 'artefact.record': 'agdf_record',
   'presentation_decision.record': 'agdf_record', 'ur_draft.replace': 'agdf_revise', 'prd_revision.reopen': 'agdf_revise', 'closeout.record': 'agdf_closeout', 'lifecycle_close.record': 'agdf_closeout' });
 const recovery = strictObject({ original_kind: enumeration(Object.keys(recoveryGroups)), pending_digest: hash, recovery_revision_id: identity });
@@ -47,12 +57,20 @@ const runId = { type: 'string', pattern: RUN_ID_PATTERN.source };
 // Closure decides over several Runs of one target, without a single Run binding.
 const text = { type: 'string', minLength: 1 };
 const closureEntry = strictObject({ run_id: runId, outcome: enumeration(['superseded', 'abandoned']), reason: text, successor_run: runId, successor_reference: text }, ['run_id', 'outcome', 'reason']);
-export const TARGET_SCOPED_COMMAND_KINDS = Object.freeze(['closure.preview', 'closure.apply']);
+export const TARGET_SCOPED_COMMAND_KINDS = Object.freeze(['closure.preview', 'closure.apply', 'planned_layout.preview', 'planned_layout.apply', 'planned_layout.recover']);
 const descriptors = {
   'project.initialize': spec('agdf_project', strictObject({ language: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE } }, []), 'canonical-initialization.initializeCanonicalProject', ['initialize fixed canonical project control; no Run or approval']),
+  'planned_layout.preview': spec('agdf_project', strictObject({ cursor: { type: 'string', maxLength: 80, pattern: '^[a-f0-9]{64}:(0|[1-9][0-9]*)$' } }, []), 'control-maintenance.pagePlannedLayoutPreview', ['read all bounded source-bound preview pages before confirmation; no mutation'], 'no_mutation'),
+  'planned_layout.apply': spec('agdf_project', strictObject({ preview_digest: hash, confirmation: string(256) }), 'control-maintenance.applyPlannedLayout', ['explicit lossless cutover; audited active v2 upgrade; preserve ended v2'], 'exact_preview_confirmation'),
+  'planned_layout.recover': spec('agdf_project', strictObject({ pending_digest: hash }), 'control-maintenance.recoverPlannedLayout', ['recover original confirmed cutover; preserve unknown bytes'], 'original_confirmed_effect'),
   'ur_draft.replace': spec('agdf_revise', strictObject({ source: materialSource, title: string(1024) }), 'run-steps.recordRunStep', ['replace only current unapproved UR']),
   'verified_change.record': spec('agdf_record', strictObject({ phase: enumeration(['eligibility', 'execution']), source: materialSource }), 'run-steps.recordRunStep', ['record compact eligibility or actual execution; no VCS mutation']),
   'material.stage': spec('agdf_record', materialStage, 'run-material.createRunMaterialStore', ['bounded private transfer; no Run revision or approval']),
+  'planned_material.stage': spec('agdf_record', plannedMaterialStage, 'run-material.createRunMaterialStore', ['planning-scoped UR transfer; no Run or approval']),
+  'planned_ur.create': spec('agdf_record', strictObject({ source: MATERIAL_REFERENCE_SCHEMA, priority: enumeration(['high', 'normal', 'low']) }, ['source']),
+    'planned-entry.mutatePlannedUr', ['create one planned UR; no Run or approval']),
+  'planned_ur.replace': spec('agdf_record', strictObject({ source: MATERIAL_REFERENCE_SCHEMA }), 'planned-entry.mutatePlannedUr', ['CAS replace one untransferred planned UR']),
+  'run.create_from_planned': spec('agdf_run', strictObject({ title: string(1024) }), 'planned-handoff.createRunFromPlanned', ['explicit source-bound handoff; replay returns the same unapproved Run']),
   'run.create': spec('agdf_run', strictObject({ title: { type: 'string', minLength: 1, maxLength: 1024, pattern: '^(?=.*\\S)[^\\u0000-\\u001f\\u007f\\u2028\\u2029|]+(?![\\s\\S])' } }), 'run-state-repository.createRun', ['create one unapproved Run; replay by original UUID']),
   'runtime_generation.replace': spec('agdf_record', strictObject({ candidate: source, confirmation: string(256) }), 'owned-runtime-generation.replace', ['replace only the serving facade own runtime; no Run or gate write'], 'concrete_candidate_digest'),
   'presentation.prepare': spec('agdf_prepare', strictObject({ gate: enumeration(APPROVAL_GATES) }), 'run-presentation.prepareRunPresentation', ['create immutable exact presentation'], 'no_gate_approval'),
@@ -77,9 +95,9 @@ const descriptors = {
 function freeze(value) { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
 export const RUN_COMMAND_DESCRIPTORS = freeze(descriptors);
 export const RUN_COMMAND_GROUPS = freeze({
-  agdf_project: ['project.initialize'],
-  agdf_run: ['run.create'],
-  agdf_prepare: ['presentation.prepare', 'presentation.deliver'], agdf_record: ['material.stage', 'verified_change.record', 'step.record', 'artefact.record', 'presentation_decision.record', 'runtime_generation.replace', 'operation.recover'],
+  agdf_project: ['project.initialize', 'planned_layout.preview', 'planned_layout.apply', 'planned_layout.recover'],
+  agdf_run: ['run.create', 'run.create_from_planned'],
+  agdf_prepare: ['presentation.prepare', 'presentation.deliver'], agdf_record: ['material.stage', 'planned_material.stage', 'planned_ur.create', 'planned_ur.replace', 'verified_change.record', 'step.record', 'artefact.record', 'presentation_decision.record', 'runtime_generation.replace', 'operation.recover'],
   agdf_approve: ['approval.record'], agdf_revise: ['ur_draft.replace', 'source_revision.preview', 'source_revision.apply', 'source_revision.recover', 'prd_revision.reopen', 'operation.recover'],
   agdf_closeout: ['closeout.record', 'closure.preview', 'closure.apply', 'operation.recover'],
 });
@@ -103,6 +121,7 @@ const fieldHelp = Object.freeze({
   primary_target: 'Confirmed absolute target.',
   target_id: 'Exact hash from target inspection; never guess.',
   run_id: 'Run from inspection; recency is no authority.',
+  planning: 'Pre-Run plan identity and exact selected canonical digest; never a Run binding.',
   expected_revision_id: 'Inspected revision; recovery keeps original.',
   operation_id: 'New UUID; retry with same UUID/payload.',
   assurance: 'Cooperative intent, not human proof.',
@@ -133,10 +152,23 @@ function commandSchema(group) {
 export function commandGroupSchema(group) {
   if (!RUN_COMMAND_GROUPS[group]) throw Error('command_group_unsupported');
   const fields = { ...commandEnvelope(group), command: commandSchema(group) };
-  const required = Object.keys(fields).filter(key => !RUN_COMMAND_GROUPS[group].some(kind => TARGET_SCOPED_COMMAND_KINDS.includes(kind)) || !['run_id', 'expected_revision_id'].includes(key));
-  return describeFields(strictObject(fields, required));
+  const kinds = RUN_COMMAND_GROUPS[group], hasPlanning = kinds.some(kind => PLANNING_COMMAND_KINDS.includes(kind));
+  if (hasPlanning) fields.planning = PLANNING_SCOPE_SCHEMA;
+  const unbound = kind => ['run.create', 'project.initialize', ...TARGET_SCOPED_COMMAND_KINDS, ...PLANNING_COMMAND_KINDS].includes(kind);
+  const required = Object.keys(fields).filter(key => key !== 'planning' && !(kinds.some(unbound) && ['run_id', 'expected_revision_id'].includes(key)));
+  const schema = strictObject(fields, required);
+  if (hasPlanning) {
+    schema.if = { properties: { command: { properties: { kind: enumeration(kinds.filter(kind => PLANNING_COMMAND_KINDS.includes(kind))) } } } };
+    schema.then = { required: ['planning'], properties: { run_id: { type: 'null' }, expected_revision_id: { type: 'null' } } };
+    schema.else = { properties: { planning: { type: 'null' } }, ...(kinds.some(kind => !unbound(kind)) ? { required: ['run_id', 'expected_revision_id'] } : {}) };
+  }
+  return describeFields(schema);
 }
 export function commandEnvelope(group, kind) {
+  if (PLANNING_COMMAND_KINDS.includes(kind)) {
+    const { run_id, expected_revision_id, ...base } = envelope;
+    return { ...base, planning: PLANNING_SCOPE_SCHEMA };
+  }
   if (!['agdf_run', 'agdf_project'].includes(group) && !TARGET_SCOPED_COMMAND_KINDS.includes(kind)) return envelope;
   const { run_id, expected_revision_id, ...creation } = envelope;
   return creation;
@@ -210,6 +242,9 @@ function compactCommandValidationSchema(expanded) {
 // A type view is a derived superset, not a second validation owner. Exact per-kind
 // restrictions remain below the required command property and still run in the SDK.
 function commandTypeView(schema) {
+  // An intersection is a subset of its first structural operand. Keep that
+  // readable superset; every refining operand remains in hidden validation.
+  if (schema.allOf) return commandTypeView(schema.allOf[0]);
   if (schema.oneOf || schema.anyOf) return mergeCommandTypes((schema.oneOf ?? schema.anyOf).map(commandTypeView));
   if (schema.properties) return { type: 'object', properties: Object.fromEntries(Object.entries(schema.properties)
     .map(([key, value]) => [key, commandTypeView(value)])) };
@@ -278,6 +313,23 @@ function factorCommandConstraints(schema) {
   };
   return { schema: factor(schema, true), definitions };
 }
+// Factoring repeated parents can leave child definitions referenced only once.
+// Inline those exact schemas; retain every constraint and visible field type.
+function inlineSingleUseDefinitions(schema) {
+  for (;;) {
+    const serialized = JSON.stringify(schema);
+    const single = Object.entries(schema.$defs ?? {}).find(([name]) => {
+      const reference = `#/$defs/${name}`;
+      return serialized.split(`"$ref":${JSON.stringify(reference)}`).length === 2
+        && serialized.includes(JSON.stringify({ $ref: reference }));
+    });
+    if (!single) return schema;
+    const [name, definition] = single;
+    delete schema.$defs[name];
+    schema = JSON.parse(JSON.stringify(schema).replace(JSON.stringify({ $ref: `#/$defs/${name}` }), () => JSON.stringify(definition)));
+    if (!Object.keys(schema.$defs).length) delete schema.$defs;
+  }
+}
 export function compactCommandSchema(expanded) {
   const full = mapCommandSchema(expanded, node => { delete node.description; return node; });
   let projected;
@@ -321,7 +373,7 @@ export function compactCommandSchema(expanded) {
   projected = JSON.parse(JSON.stringify(projected).replaceAll(REVISION_ID_PATTERN.source, uuid)
     .replace(/#\/\$defs\/s(\d+)/gu, '#/$defs/$1'));
   if (projected.$defs) projected.$defs = Object.fromEntries(Object.entries(projected.$defs).map(([key, value]) => [key.replace(/^s/u, ''), value]));
-  return projected;
+  return inlineSingleUseDefinitions(projected);
 }
 const openObject = { type: 'object', additionalProperties: true };
 const nullableObject = { ...openObject, type: ['object', 'null'] };
@@ -330,6 +382,7 @@ const resultProperties = {
   schema_version: { const: '1' }, outcome: enumeration(['accepted', 'already_applied', 'rejected', 'recovery_required', 'effect_unknown']), authorizes: { const: false },
   reason: { ...nullableString, minLength: 1 }, operation_id: { ...identity, type: ['string', 'null'] }, request_digest: { ...hash, type: ['string', 'null'] },
   binding: { oneOf: [{ type: 'null' },
+    strictObject({ target_id: hash, planning: PLANNING_SCOPE_SCHEMA, kind: enumeration(PLANNING_COMMAND_KINDS) }),
     strictObject({ target_id: hash, run_id: envelope.run_id, expected_revision_id: identity, kind: enumeration(Object.keys(descriptors).filter(k => k !== 'run.create')) }),
     strictObject({ target_id: hash, run_id: envelope.run_id, expected_revision_id: { type: 'null' }, kind: { const: 'run.create' } }),
     strictObject({ target_id: hash, kind: { const: 'project.initialize' } }),
@@ -367,17 +420,17 @@ export function validateRunCommandResult(value) { return schemaDiagnostics(value
 export function commandGroupDefinition(group) {
   const definition = { name: group,
     description: {
-      agdf_project: 'Initialize canonical project control; explicit setup only.',
-      agdf_run: 'Create an unapproved Run; replay the original UUID.',
-      agdf_prepare: 'Prepare/deliver a decision document; never approve.',
-      agdf_record: 'Stage material or record evidence; read operation-contract.',
-      agdf_approve: 'Record a deliberate reply to the exact presented gate.',
-      agdf_revise: 'Preview revisions; confirm before applying them.',
-      agdf_closeout: 'Record closeout or preview/apply Run closure.',
+      agdf_project: 'Initialize project; preview/confirm/recover migration.',
+      agdf_run: 'Create an unapproved Run; replay its UUID.',
+      agdf_prepare: 'Prepare/deliver documents; never approve.',
+      agdf_record: 'Stage/save planned URs or record Run evidence.',
+      agdf_approve: 'Record a deliberate presented-gate reply.',
+      agdf_revise: 'Preview revisions; confirm to apply.',
+      agdf_closeout: 'Record closeout or preview/apply closure.',
     }[group],
     annotations: { readOnlyHint: false, destructiveHint: group !== 'agdf_prepare', idempotentHint: false, openWorldHint: false },
     inputSchema: compactCommandSchema(projectMcpInputSchema(commandGroupSchema(group))), outputSchema: commandResultDiscoverySchema() };
-  if (Buffer.byteLength(JSON.stringify(definition)) > RUN_COMMAND_LIMITS.definition_bytes) throw Error('command_definition_budget_exceeded');
+  if (Buffer.byteLength(JSON.stringify(definition)) > (RUN_COMMAND_LIMITS.definition_bytes_by_group[group] ?? RUN_COMMAND_LIMITS.definition_bytes)) throw Error('command_definition_budget_exceeded');
   return freeze(definition);
 }
 // Discovery carries the orientation envelope; the producer always checks the full
@@ -390,6 +443,10 @@ function commandResultDiscoverySchema() {
 // No caller validator, accessor execution, coercion or default-expanded effect is allowed.
 export function schemaDiagnostics(value, schema, path = '$') {
   const errors = [];
+  if (schema.if) {
+    const branch = schemaDiagnostics(value, schema.if, path).length ? schema.else : schema.then;
+    if (branch) errors.push(...schemaDiagnostics(value, branch, path));
+  }
   if (schema.oneOf && schema.oneOf.filter(choice => schemaDiagnostics(value, choice, path).length === 0).length !== 1) errors.push({ path, code: 'one_of_invalid' });
   if (schema.allOf) for (const choice of schema.allOf) errors.push(...schemaDiagnostics(value, choice, path));
   if (Array.isArray(schema.type)) {

@@ -3,10 +3,10 @@ import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "../resources
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 
 // Pure routing over already evaluated control and contained source facts; never a writer or gate.
-export function prdDefinitionPhase(targetDir, control, input, sources) {
+export function prdDefinitionEligible(control, input) {
   const state = control?.status_card?.runState;
   if (control?.next_operation?.type === "reassess_source_analysis") return null;
-  if (input.ur_action !== undefined || input.sd_action !== undefined || input.tp_action !== undefined || !input.run_id || control?.status_card?.run_id !== input.run_id || !state || !sources
+  if (input.ur_action !== undefined || input.sd_action !== undefined || input.tp_action !== undefined || !input.run_id || control?.status_card?.run_id !== input.run_id || !state
       || control.current_gate !== "PRD" || !["open", "blocked"].includes(control.status)
       || !["none", "Approval: PRD"].includes(control.missing_approval)
       || !["none", "AGDF_PRD_DECISIONS_OPEN"].includes(control.blocking_reason)
@@ -17,8 +17,6 @@ export function prdDefinitionPhase(targetDir, control, input, sources) {
       || !["done", "not_applicable"].includes(state.artefacts.get("Brownfield Review")?.status)
       || !["structured_delivery", "structured_slice"].includes(state.mode_slice_decision?.decision)) return null;
   if (input.skill_id !== "prd-definition" && !(input.intake || input.continue_delivery)) return null;
-  const revisionId = extractField(state.content ?? "", "revision_id");
-  if (!revisionId) return null;
   const artifactPath = `.agdf/control/artefacts/${input.run_id}/PRD.md`;
   const artefact = state.artefacts.get("PRD");
   const registered = artefact?.status === "draft";
@@ -26,6 +24,16 @@ export function prdDefinitionPhase(targetDir, control, input, sources) {
       && String(artefact.path ?? "").replace(/^`|`$/gu, "") !== artifactPath)) return null;
   if (registered && input.skill_id !== "prd-definition" && input.prd_action !== "revise"
       && control.prd_readiness?.ready !== false) return null;
+  return true;
+}
+
+export function prdDefinitionPhase(targetDir, control, input, sources) {
+  if (!sources || !prdDefinitionEligible(control, input)) return null;
+  const state = control.status_card.runState;
+  const revisionId = extractField(state.content ?? "", "revision_id");
+  if (!revisionId) return null;
+  const artifactPath = `.agdf/control/artefacts/${input.run_id}/PRD.md`;
+  const registered = state.artefacts.get("PRD")?.status === "draft";
   return Object.freeze({
     phase: "prd_definition", skill_id: "prd-definition", governance_target: targetDir,
     run_id: input.run_id, revision_id: revisionId,

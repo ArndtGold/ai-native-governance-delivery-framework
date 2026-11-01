@@ -717,6 +717,7 @@ for (const requiredRuntimeFile of sourceMode ? [] : [
   "runtime/create-agdf/lib/runtime/validator-application.js",
   "runtime/create-agdf/lib/runtime/plugin-provenance.js",
   "runtime/create-agdf/lib/cli/validation-handlers.js",
+  "runtime/create-agdf/lib/cli/planned-command.js",
 ]) assertFile(join(pluginRoot, requiredRuntimeFile), `focused surface-local runtime module ${requiredRuntimeFile}`);
 if (!sourceMode && isFile(localRuntimeEntrypointPath)) {
   const probe = spawnSync(process.execPath, [localRuntimeEntrypointPath, "--resolve-only", "--json"], { encoding: "utf8" });

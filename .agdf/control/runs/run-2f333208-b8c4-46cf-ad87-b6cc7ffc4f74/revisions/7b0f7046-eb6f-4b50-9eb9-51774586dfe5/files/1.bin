@@ -1,0 +1,335 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "target_id": "sha256:c84b50389bbc7c3b38eff0d357c083ea0ebc99ccf89057098cadb848edcf7e78",
+  "run_id": "run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74",
+  "expected_revision_id": "b2e3e06b-810a-46ac-883e-7e9600f394a5",
+  "operation_id": "7b0f7046-eb6f-4b50-9eb9-51774586dfe5",
+  "source_gate": "PRD",
+  "initiating_phase": "TP",
+  "reason": "User narrows planned native host tests to Codex CLI; approved PRD/SD currently require actual visible/native Cockpit evidence.",
+  "intended_change": "Replace native Desktop/Cockpit qualification with Codex CLI-only native tests, preserving automated UI/browser, Core, migration/recovery and full mandatory CI. Reassess downstream SD/TP evidence wording; retain unchanged UR intent and applicable analytical sources.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+      "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/PRD.md",
+      "digest": "sha256:04a6202db0dd5c86d8ee02d5a3ef56c71c49250c327c1b994a80c121931edb33"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/SD.md",
+      "digest": "sha256:95082ab16f193ff778cd2c9df869676a84d1e5b065a7c50e2a92a028becb45e1"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/TP.md",
+      "digest": "sha256:e3b2063b69464e01a826b085be87d48d19fe920295cdc180b0ca285aa43eb861"
+    }
+  ],
+  "changed_statements": [
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/PRD.md",
+      "digest": "sha256:04a6202db0dd5c86d8ee02d5a3ef56c71c49250c327c1b994a80c121931edb33",
+      "statement": "- required_evidence: Shared Core projection and adapter parity tests, missing/partial/unsafe/empty cases and actual visible Codex Cockpit observations for applicable behavior.",
+      "intended_change": "Limit native host qualification to Codex CLI only (Core-only and optional planning package); retain automated visible Cockpit/UI tests, Core/recovery/migration tests and mandatory CI; do not claim native Desktop qualification.",
+      "reason": "Explicit user request: Auch nur Test mit Codex cli einplanen, das dürfte reichen."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/PRD.md",
+      "digest": "sha256:04a6202db0dd5c86d8ee02d5a3ef56c71c49250c327c1b994a80c121931edb33",
+      "statement": "| Acceptance and qualification boundary | before_prd | resolved | Require candidate-bound repository/CI and native Codex/visible applicable Cockpit evidence and separate human UAT. No new native planning-host claims beyond Codex or measured performance claims without actual proof. | Arndt Gold |",
+      "intended_change": "Limit native host qualification to Codex CLI only (Core-only and optional planning package); retain automated visible Cockpit/UI tests, Core/recovery/migration tests and mandatory CI; do not claim native Desktop qualification.",
+      "reason": "Explicit user request: Auch nur Test mit Codex cli einplanen, das dürfte reichen."
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/SD.md",
+      "digest": "sha256:95082ab16f193ff778cd2c9df869676a84d1e5b065a7c50e2a92a028becb45e1",
+      "statement": "Core inventory/adapter contract tests and existing UI/browser/accessibility tests cover mixed states, no-backlog Runs, counts/order, stale selectors, partial/unavailable/empty and recovery. Mandatory native evidence for the initial candidate: actual Codex Core and separate plugin discovery, deliberate planning invocation, delegation to one UR owner, selected-version start, retry/same Run, missing-plugin Core-only behavior and visible applicable Cockpit states. Bind candidate/installed digests, client version and OS; do not substitute package tests for host observations or human UAT.",
+      "intended_change": "Limit native host qualification to Codex CLI only (Core-only and optional planning package); retain automated visible Cockpit/UI tests, Core/recovery/migration tests and mandatory CI; do not claim native Desktop qualification.",
+      "reason": "Explicit user request: Auch nur Test mit Codex cli einplanen, das dürfte reichen."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/TP.md",
+      "digest": "sha256:e3b2063b69464e01a826b085be87d48d19fe920295cdc180b0ca285aa43eb861",
+      "statement": "- N-UI (SCN-026): actual Codex Desktop Cockpit on the same candidate and isolated mixed-state dataset. Observe source/draft/Run meaning, partial/stale/transient feedback, retry/refresh and absence of start/approval effects from opening/selection. Reference G-05 for exhaustive component conditions; retain actual visible native observations.",
+      "intended_change": "Limit native host qualification to Codex CLI only (Core-only and optional planning package); retain automated visible Cockpit/UI tests, Core/recovery/migration tests and mandatory CI; do not claim native Desktop qualification.",
+      "reason": "Explicit user request: Auch nur Test mit Codex cli einplanen, das dürfte reichen."
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex, cooperative exact-source impact review",
+    "earliest_source": "PRD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+        "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+        "rationale": "Approved UR defines planned URs, Core ownership and conditional host claims; no Desktop-only acceptance or mandatory native UI preview is imposed. Functionality and UI semantics stay unchanged; qualify only CLI host behavior."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2cb1ab6a3506977e549f0002716d3af0875e98321347c0a069a5ef0f058301ea",
+        "disposition": "retain",
+        "reason": "Current writer-owned applicability binds only the exact unchanged approved UR and post-UR analysis sources. Product/UX intent, storage, recovery and mode remain unchanged; only native qualification host scope changes."
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:eb6f444b09241da7a24b6a1e008b7af24bde930d37fcc6ce64f472db66f5b2a5",
+        "disposition": "retain",
+        "reason": "Current writer-owned applicability binds only the exact unchanged approved UR and post-UR analysis sources. Product/UX intent, storage, recovery and mode remain unchanged; only native qualification host scope changes."
+      }
+    ],
+    "implementation_evidence": "No feature implementation or approved TP/CD+Tests/QA/UAT exists. The separate prerequisite routing repair remains unchanged and proves no native planning/Desktop behavior. Renew affected PRD/SD approvals and TP source mapping after the limited qualification-scope revision.",
+    "unresolved": []
+  },
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2cb1ab6a3506977e549f0002716d3af0875e98321347c0a069a5ef0f058301ea",
+        "status": "done"
+      },
+      "record_digest": "sha256:891b66f3ac214c8e7cb7bc2a2cb5be61b8c255c5cf982af8d06ea8bac6b43b5a",
+      "operation_id": "6c34a2b4-fffb-45bc-8fa7-d712be14b2ee",
+      "source_set_digest": "sha256:1d48d597c8eaf9ee5ee216c3f8e07a1781a0c9dc9cf01f5b0a6c4b3ba380e932",
+      "sources": [
+        {
+          "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+          "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Exact current writer-owned sources are unchanged UR/analysis evidence and contain no dependency on affected PRD/SD/TP; retain only this applicability, not future qualification claims."
+    },
+    {
+      "record": {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:eb6f444b09241da7a24b6a1e008b7af24bde930d37fcc6ce64f472db66f5b2a5",
+        "status": "done"
+      },
+      "record_digest": "sha256:3f484de790acbd6c49324db72ead9526a5ef7fdd4857dd39ad11781ef4921181",
+      "operation_id": "70a660f6-5553-4dd8-a584-0e1621a6d7b8",
+      "source_set_digest": "sha256:f027b62efbf366c9b1ac26c71f3dcef54fd8ca4f2dc05bfa02d6f3b31ae19e65",
+      "sources": [
+        {
+          "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+          "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:2cb1ab6a3506977e549f0002716d3af0875e98321347c0a069a5ef0f058301ea",
+          "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Exact current writer-owned sources are unchanged UR/analysis evidence and contain no dependency on affected PRD/SD/TP; retain only this applicability, not future qualification claims."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Applicability is unknown; reassess this record under revised qualification sources rather than transfer an unproved association."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+        "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+        "status": "documented"
+      },
+      "record_digest": "sha256:caa76a395620ef953771f09273aa2394ef3af123f7d776937be4555305e41cf3",
+      "operation_id": "39094964-4b12-48c4-a3e0-c45e370c6b5a",
+      "source_set_digest": "sha256:e2dd4b0000fdd5613a30e3ab1250aa5d5d9c2ea4c680a81f055c203e5765bb69",
+      "sources": [],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Exact current writer-owned sources are unchanged UR/analysis evidence and contain no dependency on affected PRD/SD/TP; retain only this applicability, not future qualification claims."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+        "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+        "status": "documented"
+      },
+      "record_digest": "sha256:caa76a395620ef953771f09273aa2394ef3af123f7d776937be4555305e41cf3",
+      "operation_id": "39094964-4b12-48c4-a3e0-c45e370c6b5a",
+      "source_set_digest": "sha256:e2dd4b0000fdd5613a30e3ab1250aa5d5d9c2ea4c680a81f055c203e5765bb69",
+      "sources": [],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Exact current writer-owned sources are unchanged UR/analysis evidence and contain no dependency on affected PRD/SD/TP; retain only this applicability, not future qualification claims."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+        "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+        "status": "documented"
+      },
+      "record_digest": "sha256:caa76a395620ef953771f09273aa2394ef3af123f7d776937be4555305e41cf3",
+      "operation_id": "39094964-4b12-48c4-a3e0-c45e370c6b5a",
+      "source_set_digest": "sha256:e2dd4b0000fdd5613a30e3ab1250aa5d5d9c2ea4c680a81f055c203e5765bb69",
+      "sources": [],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Exact current writer-owned sources are unchanged UR/analysis evidence and contain no dependency on affected PRD/SD/TP; retain only this applicability, not future qualification claims."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2cb1ab6a3506977e549f0002716d3af0875e98321347c0a069a5ef0f058301ea",
+        "status": "documented"
+      },
+      "record_digest": "sha256:25bb3915785e0c7dc911f3342831c880ecd7c835dde992f131269fbf54583d2a",
+      "operation_id": "6c34a2b4-fffb-45bc-8fa7-d712be14b2ee",
+      "source_set_digest": "sha256:1d48d597c8eaf9ee5ee216c3f8e07a1781a0c9dc9cf01f5b0a6c4b3ba380e932",
+      "sources": [
+        {
+          "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+          "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Exact current writer-owned sources are unchanged UR/analysis evidence and contain no dependency on affected PRD/SD/TP; retain only this applicability, not future qualification claims."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:eb6f444b09241da7a24b6a1e008b7af24bde930d37fcc6ce64f472db66f5b2a5",
+        "status": "documented"
+      },
+      "record_digest": "sha256:588b04d7fb24fab16cab125049e9310ad9cfc9d958221333d8045d540350fe4f",
+      "operation_id": "70a660f6-5553-4dd8-a584-0e1621a6d7b8",
+      "source_set_digest": "sha256:f027b62efbf366c9b1ac26c71f3dcef54fd8ca4f2dc05bfa02d6f3b31ae19e65",
+      "sources": [
+        {
+          "digest": "sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415",
+          "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:2cb1ab6a3506977e549f0002716d3af0875e98321347c0a069a5ef0f058301ea",
+          "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Exact current writer-owned sources are unchanged UR/analysis evidence and contain no dependency on affected PRD/SD/TP; retain only this applicability, not future qualification claims."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/REVIEW-e18dbc3a-1256-4054-b4f0-2f8b1677b8e6.json",
+        "digest": "sha256:f3678f2ccff9a332681fa75fef19f7d17e7d9dbcb6e78e1b500b5b1dfe049674",
+        "status": "documented"
+      },
+      "record_digest": "sha256:1b15af0a4332a1dda630e8ebf47d27b8f6aa1bbbd1d574a0fe8ab880f6de8ae3",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Applicability is unknown; reassess this record under revised qualification sources rather than transfer an unproved association."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/REVIEW-e6ef67d3-c8c9-45b4-a2fb-944c704804df.json",
+        "digest": "sha256:84b4522ee6351561191d3295d271800ca6e595ac8d3254cbd6703ca22cdd7488",
+        "status": "documented"
+      },
+      "record_digest": "sha256:a7e3767e321ebe5c69d9ef2865ebfaea836f7ea948ea927aad6e2ec86f9bd926",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Applicability is unknown; reassess this record under revised qualification sources rather than transfer an unproved association."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/REVIEW-f63bb009-9d07-4e9c-96ef-5f2c5290f7d9.json",
+        "digest": "sha256:9f88d748679b2b0f6d4b717a794ce599daeebc64d1f6077b54c22b249e8deda3",
+        "status": "documented"
+      },
+      "record_digest": "sha256:c47975fe016efb5601c292c610388620072781c3e65e13a34de0c4134620ccca",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Applicability is unknown; reassess this record under revised qualification sources rather than transfer an unproved association."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/REVIEW-988b6cf0-18c3-46a2-b1c6-3fa69112d5c5.json",
+        "digest": "sha256:df42495feb60f29303de4df7f2845884ed19aff6fe771768d56fe3a5b0b7cbcb",
+        "status": "documented"
+      },
+      "record_digest": "sha256:6d4528e544758ae89274527d756575b4f6721e8ccb73be9a93497dcac3f5a50b",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Applicability is unknown; reassess this record under revised qualification sources rather than transfer an unproved association."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74/REVIEW-09865afb-b834-4129-9ea8-cd54513ef18c.json",
+        "digest": "sha256:27d99d1de10de6f7bc32e3d8ddaab05af7c56fa7abf87f4b5c95667edc81282f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:7b165b8539c8498647f19781a47743e991fb0a740e8cab8381548582a71bf3df",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Applicability is unknown; reassess this record under revised qualification sources rather than transfer an unproved association."
+    }
+  ]
+}

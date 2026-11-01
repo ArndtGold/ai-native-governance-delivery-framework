@@ -1,0 +1,34 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Planned UR ownership, per-resource delivery and optional Codex planning
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Das erneut freigegebene PRD mit einem gemeinsamen UR-Owner, unabhängigen Schreibvorgängen und sicherer Übergabe umsetzen.
+
+- Änderung: Native Host-Prüfung ausschließlich mit Codex CLI, mit Core allein und mit Planungserweiterung. Native Desktop-/Cockpit-Tests entfallen. UI-Verhalten bleibt automatisiert durch Komponenten-/Browserprüfungen abgedeckt; Desktop-Qualifikation wird nicht behauptet.
+
+- Umfang: SDD-001/002 halten jedes Vorhaben in planned/PLAN_ID/UR.md mit Planungsschema, Identität und Priorität; der Titel kommt aus der UR-Überschrift. Gemeinsamer UR-Planungsmodus ohne Run und getrennte Vor-Run-Verträge innerhalb der vorhandenen MCP-Gruppen. Unvollständige Entwürfe bleiben speicherbar, Übergabe braucht normale UR-Bereitschaft.
+
+- Persistenz und Übergabe: SDD-003/004 entfernen Backlog-Schreibzugriffe aus regulären Run-Transaktionen. Neue Journale verwenden Version 6; alte Versionen 1–5 behalten ihre Recovery-Regeln. Die Übergabe bindet Quelle und ursprüngliche Operation, bewahrt einen geschützten Herkunftsstand und verwendet die Run-Veröffentlichung als Commit-Punkt. Wiederholung liefert denselben Run, keine übertragene Freigabe.
+
+- Übersicht und Erweiterung: SDD-005/006 leiten Übersicht und Auswahlkennungen aus Einträgen und kanonischen Runs ab. Das optionale Codex-Paket enthält Dialoganweisungen und geprüfte Core-Anbindung, keine eigene UR-Vorlage, Runtime oder Gate-Engine. Core funktioniert ohne dieses Paket.
+
+- Migration und Sperren: SDD-007/008/009 verwenden bestätigten Vorschau-/Anwenden-/Recovery-Cutover mit vollständigem Altbestandsnachweis. Aktive aktuelle Run-Zustände wechseln auditiert auf Kontrollversion 3; vorige Bytes, Artefakte und Freigaben bleiben erhalten. Beendete v2-Runs bleiben unverändert lesbar. Alte Journale werden vorher aufgelöst, alte ausstehende Präsentationen nach der Revision erneuert. Die exklusive Projekt-Wartungssperre gilt nur für den tatsächlichen Cutover; normale Operationen nutzen unabhängige Zulassungsnachweise und Ressourcensperren. Unklare Eigentümerschaft wird nicht per Zeitablauf gelöscht.
+
+- Qualität und Grenzen: SDD-010/011 behalten bestehende Pfad-, Schema-, Digest-, Snapshot-, Präsentations- und Build-Owner. Alle elf Kriterien sind genau einmal zugeordnet. TP plant gezielte Funktions-, Fehler-, Parallelitäts-, Recovery- und Altversionsprüfungen sowie Codex-CLI-Nachweise; Pflicht-CI und menschliche UAT bleiben getrennt. Keine neue Fremdtechnologie oder zusätzliche native Host-Unterstützung. Keine verteilte Worktree-Sperre, kein Schutz gegen bewusst gestartete Altprogramme oder manuelle Dateieingriffe. Installation führt keine reale Migration aus.
+
+- Stand und Risiken: Alle materiellen Designentscheidungen sind zur Prüfung konkret vorgeschlagen; Ausführung und Nachweisplanung folgen in TP. Übersehene Backlog-Aufrufe, gemischte Writer-Versionen, Migration und Übergabe-Recovery brauchen noch Implementierungs-/Testnachweise; eine tatsächliche Qualifikation wird hier nicht behauptet.
+
+- Nächster Schritt: Approval: SD erlaubt die erneuerte Task-/Test-Planung. Umsetzung folgt erst nach freigegebenem TP und erforderlicher Brownfield-Vorbereitung. Installation, reale Migration, VCS und Release behalten ihre tatsächlichen Autorisierungsgrenzen.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74` · Lösungsdesign · Revision: `d2fdf69c-8b92-4a97-87df-5ea3a149eb86`
+
+SHA-256: `sha256:f79cb2eff15ed2616cca559ff913c51216da840b9df73527fdfeb862b3ac8e8d`

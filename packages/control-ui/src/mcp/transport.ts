@@ -76,6 +76,7 @@ export class CockpitBridge {
     else if (url.pathname === '/api/changes') argumentsValue = { operation: 'changes', snapshot_id };
     else if (url.pathname === '/api/freshness') argumentsValue = { operation: 'freshness', snapshot_id };
     else if (url.pathname === '/api/backlog-titles') argumentsValue = { operation: 'backlog_titles', snapshot_id, row_ids: url.searchParams.get('rows')?.split(',') };
+    else if (/^\/api\/planned\/[a-f0-9-]{36}$/.test(url.pathname)) argumentsValue = { operation: 'planned', snapshot_id, row_id: url.pathname.slice(13) };
     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
     else if (url.pathname.startsWith('/api/context/')) argumentsValue = { operation: 'context', snapshot_id, run_id: url.pathname.slice(13) };
     else if (/^\/api\/draft-check\/[a-z0-9][a-z0-9._-]{0,127}$/.test(url.pathname)) {

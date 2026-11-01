@@ -12,7 +12,7 @@ import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 import { appendApprovalOperation, readApprovalOperations } from "./approval-operations.js";
 import { approvalRequestDigest, commandBinding, COOPERATIVE_ASSURANCE, ownDataValue, resolveControlCommandTarget, validateApprovalCommand } from "./approval-command-contract.js";
 import { flushRunCommit } from "./run-state-writer.js";
-import { withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
+import { withRunMutationLock, writeRunMutationLocked } from "./run-mutation.js";
 import { backlogSkip } from "./run-backlog.js";
 
 function sealIsValid(root, content) {
@@ -67,7 +67,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
     return result("rejected", "run_path_invalid");
   }
   try {
-    return withRunBacklogLock(target.root, path, () => {
+    return withRunMutationLock(target.root, path, () => {
       const run = readRun(target.root, command.run_id);
       if (run.rejection) return result("recovery_required", run.rejection.reason);
       assertRunOperationIdentity(target.root, run, command.operation_id, "approval.record");
@@ -102,7 +102,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
           next_gate_after_approval: prepared.after.current_gate, allowed_after_approval: prepared.after.next_allowed_action },
       });
       checkpoint("before_final_validation");
-      const written = writeRunWithBacklogLocked(target.root, path, appendApprovalOperation(prepared.next, receipt), command.expected_revision_id, {
+      const written = writeRunMutationLocked(target.root, path, appendApprovalOperation(prepared.next, receipt), command.expected_revision_id, {
         allowApprovalChange: true, expectedContent: run.content, appendedReceipt: receipt,
         nextRevisionId: receipt.effect.resulting_revision_id, validateBeforeWrite: prepared.validateBeforeWrite,
         validateDuringTransaction: prepared.validateDuringTransaction, checkpoint, afterWrite,

@@ -19,7 +19,7 @@ function command(name, usages) {
 }
 
 export const commandRegistry = Object.freeze([
-  command("codex", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"], scaffold: [""] }),
+  command("codex", { preferred: [" [--package <core|planning>] [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"], scaffold: [""] }),
   command("codex-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
   command("claude", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"], scaffold: [""] }),
   command("copilot", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"] }),
@@ -39,6 +39,8 @@ export const commandRegistry = Object.freeze([
   command("gate-check", { local: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
   command("delivery-map", { local: [" --json"], scaffold: [""] }),
   command("inventory", { local: [" [--json] [--language <tag>]"] }),
+  command('planned', { local: [' --dir <absolute-target> --action <list|inspect|create|replace|start|status> [--plan-id <id> --source-digest <sha256>] [--evidence <UR.md> --priority <high|normal|low>] [--operation <uuid>]'] }),
+  command('layout-migrate', { local: [' --dir <absolute-target> --action <preview|apply|recover|status> [--operation <original-uuid> --preview-digest <sha256> --confirmation <exact-preview-phrase> | --pending-digest <sha256>]'] }),
   command("delivery-path-search", {
     local: [" --surface codex --json", " --surface claude --json", " --surface opencode --json"],
     scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
@@ -70,6 +72,25 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  if (['planned', 'layout-migrate'].includes(options.target)) {
+    if (!options.dirExplicit || !options.dirInputAbsolute || options.runId || options.revisionId || options.gate || options.allActive
+      || options.force || options.intake || options.continueDelivery || options.commandFile || options.packageSelection) throw Error('Planning requires an explicit absolute --dir and no Run/gate/force scope');
+    const actions = options.target === 'planned' ? ['list', 'inspect', 'create', 'replace', 'start', 'status'] : ['preview', 'apply', 'recover', 'status'];
+    if (!actions.includes(options.recoveryAction)) throw Error('Unsupported planning action');
+    if (options.target === 'planned') {
+      if (['inspect', 'replace', 'start', 'status'].includes(options.recoveryAction) && !options.planId) throw Error('--plan-id is required for the selected source');
+      if (['replace', 'start'].includes(options.recoveryAction) && !options.sourceDigest) throw Error('--source-digest is required');
+      if (['create', 'replace'].includes(options.recoveryAction) && !options.stepFields.evidence) throw Error('--evidence UR.md is required');
+      if (options.priority && (options.recoveryAction !== 'create' || !['high', 'normal', 'low'].includes(options.priority))) throw Error('Priority is high, normal or low on create; replacement edits canonical metadata');
+      if (options.recoveryAction === 'create' && (options.planId || options.sourceDigest)) throw Error('Create derives its plan identity from the original UUID');
+    }
+    if (['apply', 'recover', 'status'].includes(options.recoveryAction) && !options.operationId) throw Error('--operation must retain the original UUID');
+    return options;
+  }
+  if (options.packageSelection !== undefined && (options.target !== 'codex' || !['core', 'planning'].includes(options.packageSelection))) throw Error('--package supports only codex core or planning');
+  if (options.packageSelection === 'planning' && (options.setupRequest !== 'plugin_only' || options.acceptPluginCapabilities || options.runtimeChecksDecision
+    || options.controlDir || options.controlMigration || options.scope)) throw Error('The optional package requires --plugin-only and does not change Core setup, hooks or project control');
+  if ([options.planId, options.sourceDigest, options.priority, options.pendingDigest].some(value => value !== undefined)) throw Error('Planning source fields require planned or layout-migrate');
   if (Object.hasOwn(commandGroupRoutes, options.target)) {
     if (!options.commandFile) throw new Error('Bound command routes require --command-file; target/Run/revision/UUID are taken only from that strict envelope.');
     return options;

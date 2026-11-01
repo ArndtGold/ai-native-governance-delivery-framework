@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { plannedFixture } from './planned-fixtures.js';
+import { parseRunState } from '../lib/control-state/run-state-parser.js';
+import { legacyControlV2 } from './fixtures/load-legacy-control-v2.js';
+
+test('SCN-029: actual frozen pre-feature parser rejects v3; actual old creation requires absent legacy backlog', t => {
+  const project = plannedFixture(t), legacy = legacyControlV2(t);
+  const text = readFileSync(join(project, '.agdf/control/runs/first/RUN_STATE.md'), 'utf8');
+  assert.equal(parseRunState(text).meta.control_state_version, '3');
+  const env = { ...process.env };
+  for (const key of Object.keys(env)) if (key.startsWith('AGDF_')) delete env[key];
+  const code = `import {readFileSync} from 'node:fs';
+    import {parseRunState} from ${JSON.stringify(pathToFileURL(join(legacy.root, 'runtime/core/lib/control-state/run-state-parser.js')).href)};
+    import {createRun} from ${JSON.stringify(pathToFileURL(join(legacy.root, 'runtime/core/lib/control-state/run-state-repository.js')).href)};
+    const root=process.argv[1], text=readFileSync(root+'/.agdf/control/runs/first/RUN_STATE.md','utf8');
+    const parsed=parseRunState(text); let creation;
+    try {createRun(root,'old-attempt');creation={accepted:true}} catch(e){creation={code:e.code??e.message,path:e.path??null}};
+    console.log(JSON.stringify({valid:parsed.valid,findings:parsed.findings,creation}));`;
+  const observed = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', code, project], { env, encoding: 'utf8' }));
+  assert.equal(observed.valid, false);
+  assert.ok(observed.findings.some(f => f.code === 'AGDF_RUN_VERSION_UNSUPPORTED' && f.actual_version === '3'));
+  assert.equal(observed.creation.code, 'AGDF_CANONICAL_SCAFFOLD_REQUIRED');
+  assert.ok(observed.creation.path.endsWith('MASTER_BACKLOG.md'));
+  assert.deepEqual(readdirSync(join(project, '.agdf/control/runs')), ['first']);
+});

@@ -1,0 +1,267 @@
+# PRD: Independent planned URs, backlog retirement and optional Codex planning
+
+Status: draft
+Gate: PRD
+Gate approval: open
+Based on: UR
+Date: 2026-10-31
+Owner: Arndt Gold
+Traceability contract: criteria-chain-v1
+
+## 1. Product Scope
+
+Deliver a complete path from a future need to one explicitly started Core Run, without a mandatory shared MASTER_BACKLOG.md. A maintainer can keep independently editable UR drafts under .agdf/control/planned/, inspect them alongside canonical Runs, and deliberately hand a selected source version to Core. Planned work is limited to a UR and minimal steering metadata. Active delivery keeps existing Run/artefact paths, gates and approval authority.
+
+The initial optional product is AGDF Planning, delivered as a separately installable/enabled Codex plugin requiring compatible AGDF Core. It organizes capture, clarification, refinement and prioritization through the existing ur-definition planning mode; it has no second UR specification, gate engine or status store. Core owns the hostneutral planned-entry and handoff contract and remains useful without this plugin: inspect/validate planned entries, invoke the shared UR planning mode and explicitly start a Run, or create a direct Run without planned input. No broad extension platform is introduced.
+
+Core, CLI/MCP and existing Cockpit consumers must use compatible meanings derived from individual planning entries and canonical Runs. Human-readable titles, priority and origin references remain visible. Active and ended Runs must not disappear merely because a legacy backlog row is absent.
+
+A planned entry has a stable identity, a readable title, priority and canonical UR content; relevant source links and unanswered clarification remain with that undertaking. Priority has three product values high, normal and low, default normal, affecting planning order only. Exact encoding, validation schema and deterministic tie ordering belong to SD. There is no mandatory independent metadata/status database or mutable global index. Incomplete needs may be saved as drafts and visibly remain incomplete.
+
+Successful handoff retains the selected draft as historical/reference material with a traceable Run association. Subsequent active UR changes belong to Core; planning must not silently synchronize or overwrite approved content. The same planning identity cannot silently create another Run after successful handoff. A genuinely separate undertaking uses a new explicit identity.
+
+Legacy cutover accounts for every backlog row and its original text, priority, links and history. It associates uniquely evidenced existing Runs, creates unapproved planned material only where supported, or retains an explicit unresolved item. It does not invent missing requirements, associations or approvals. A preserved read-only legacy snapshot may remain as evidence; ordinary new-model operation never requires or rewrites a live master backlog.
+
+## 2. UX Intent And Success
+
+- ui_ux_impact: medium
+- ux_intent_definition: ready; UX_INTENT_DEFINITION.md in this Run, digest sha256:eb6f444b09241da7a24b6a1e008b7af24bde930d37fcc6ce64f472db66f5b2a5
+- primary_user_intent: Plan and clarify one future need independently, then deliberately start its traceable governed delivery.
+- success_signal: A user can find the undertaking by readable title, distinguish planned from active/ended work, edit one draft without changing another, and locate either the resulting Run or a concrete recovery action.
+- primary_decision_or_action: Refine or prioritize a draft, or explicitly start one Run from its displayed selected version.
+
+The UX report's agent-only written walkthrough covers capture, Core-only navigation, stale selection, interrupted handoff, unresolved legacy rows and historical origin after handoff. Its proposed behavior is adopted below in the stable criteria. No interactive preview was required by the UR, created or observed; no human usability observation is claimed. PRD approval adopts the specified behavior and criteria, not a claim of implementation, host qualification or completed acceptance.
+
+## 3. Working Modes And Effective State
+
+| working_mode | effective_state | visible_state_types | effective_state_authority | primary_state_presentation_owner |
+|---|---|---|---|---|
+| Codex optional planning dialogue | Unapproved UR draft and local steering metadata | Draft, incomplete/invalid input, saved current version, handed-off reference | Selected planned UR/version and Core validation | AGDF Planning dialogue using shared ur-definition |
+| Core without optional plugin | Same planning facts; deliberate start remains available | Planned, unavailable/partial, explicit handoff outcome, direct Run | Planned source, verified handoff evidence and canonical Run | Existing Core CLI/MCP result and Cockpit overview/detail |
+| Combined overview and detail | Derived planning and actual Run lifecycle | Planned draft, handed-off reference, active Run, ended Run, invalid/unavailable source | Individual planning sources and canonical Runs, with explicit partial-read limits | Existing shared overview/detail surfaces |
+| Handoff and recovery | One concrete source/operation under transfer | Pending, conflict, uncertain, failed, completed with Run link | Actual original operation and source-bound Core result | Core handoff result as presented by the invoking surface |
+| Active Run delivery | Current gate, source revision and lifecycle | Actual gate/blocker, approval pending, completed/closed | Existing canonical Run and registered artefacts | Existing Core Run/gate presentation |
+| Legacy reconciliation | Evidenced association or unresolved historical material | Accounted row, incomplete planned need, linked Run/history, ambiguous association, pending recovery | Preserved legacy facts plus independently evidenced current sources | Existing migration result and overview/detail |
+
+These state labels are user-visible meaning, not instructions to persist a duplicate status registry.
+
+## 4. Activation, Blockers, Recovery And Transitions
+
+- activation_and_deactivation: Planning begins only from an explicit user request to capture/refine/prioritize a need or open an entry for that purpose. Discovery, installation, list selection and priority do not start delivery. Explicit start names the displayed source version. Ending the dialogue preserves saved draft material; disabling/removing the optional plugin does not delete planned entries or Runs.
+- blockers_and_visible_next_actions: Show affected identity/source and a concrete next action for invalid UR/metadata, duplicate identity, unsupported version, stale selection, unsafe/unavailable input, uncertain prior handoff and incompatible pending legacy recovery. Invalid planning entries do not prohibit unrelated valid Run work. A pending operation may block genuinely affected shared resources; its scope and reason must be explicit.
+- recovery_paths: Correct incomplete/invalid drafts through the shared UR owner. Refresh and deliberately reselect changed material. Inspect the original uncertain operation before retry/recovery; reuse its identity and selected version. Expose retry for transient reads. Preserve unresolved legacy material for explicit reconciliation. Do not advise a second unbound Run creation to evade uncertainty.
+- relevant_state_transitions: Need -> saved unapproved draft; explicit edit -> new draft version; explicit start of selected version -> pending handoff -> one Run awaiting ordinary UR review and approval, with origin link. Changed source before commitment -> visible conflict, no silent substitution. Lost response -> inspect/recover original operation -> same Run or concrete no-effect/failure result. Completed handoff -> historical planning reference plus live Run navigation. Legacy row -> accounted planned/Run/history disposition or explicit unresolved input. Failed read -> unavailable/partial, never an apparently empty successful result.
+
+## 5. Acceptance Criteria
+
+### Core operation without a live master backlog
+
+- criterion_id: AC-001
+- requirement: A new-model repository initializes, creates/updates/approves/revises/closes ordinary Runs and performs required inspection without requiring or rewriting a live MASTER_BACKLOG.md. Initialization provides the planned area and canonical Run facilities. Historical retained backlog bytes are not another live authority.
+- observable_success: The covered operations complete with the same applicable gate/approval protections when the live file is absent; no operation recreates it as a mandatory projection.
+- required_evidence: Affected initialization, doctor/readiness, writer, revision, closure and packaging checks against repositories with absent live backlog and preserved optional historical material.
+
+### Independent planned drafts and minimal metadata
+
+- criterion_id: AC-002
+- working_mode: Shared UR planning mode with or without optional Codex orchestration.
+- source_state: No entry, or an editable unapproved entry.
+- action: Explicitly capture, revise or reprioritize one selected undertaking.
+- requirement: Save canonical UR content and minimal identity/title/priority metadata under that entry; no Run, PRD, SD or TP is required. Use high/normal/low priority, default normal. Entry content is the authority for those values.
+- expected_effective_state: One current unapproved planned draft; another entry and unrelated Run remain unchanged.
+- visible_feedback: Readable title, stable identity, saved version, priority and remaining clarification.
+- failure_behavior: Invalid/duplicate identity, invalid priority, unsafe path or stale expected version rejects the affected write without partial replacement or false success.
+- recovery: Correct the named field or refresh/reselect the actual current draft. An incomplete need can be saved and remains visibly incomplete.
+- observable_success: Independent entries can be refined without updating a shared writable list; the saved title/priority/UR can be inspected directly and through Core.
+- required_evidence: Positive capture/edit/priority cases, incomplete draft, invalid/stale/duplicate/unsafe negatives and unchanged unrelated-file observations.
+
+### One UR owner and no planning authority escalation
+
+- criterion_id: AC-003
+- requirement: Planning and active UR authoring use the same canonical UR structure and semantic rules through ur-definition. Planning is explicitly available before a Run exists and requires no fabricated Run/revision identifiers. Planning results confer no gate approval, delivery authorization or hidden PRD/SD/TP.
+- observable_success: The same relevant UR content is accepted or diagnosed consistently in both modes; saved planning remains unapproved and starting delivery still requires normal Core UR presentation/approval.
+- required_evidence: Shared-template/contract and planning-without-Run tests, mode-specific writer guards and no implicit approval/Run-creation negative cases.
+
+### Readable shared overview and detail
+
+- criterion_id: AC-004
+- working_mode: Core, CLI/MCP and existing Cockpit overview/detail.
+- source_state: Mixed valid planned entries, active/ended Runs and handed-off references.
+- action: Read, filter or open an item.
+- requirement: Derive membership/state from the relevant sources, show readable undertaking title, identity, priority where applicable and origin/Run link; distinguish draft from actual lifecycle/gate and show canonical Runs even without backlog membership.
+- expected_effective_state: Read-only view of the selected source; no delivery or approval.
+- visible_feedback: Clearly labeled planned, handed-off, active or ended meaning and source detail; equivalent facts across affected surfaces.
+- failure_behavior: A partial/unavailable/invalid read is visibly different from a successful empty inventory; one failed item does not masquerade as a valid state or silently erase the rest.
+- recovery: Retry transient read, inspect the affected source or open the canonical Run. Last-known values, if shown, are explicitly stale.
+- observable_success: Users can determine what they are viewing and its permitted next action without a writable global summary.
+- required_evidence: Shared Core projection and adapter parity tests, missing/partial/unsafe/empty cases and actual visible Codex Cockpit observations for applicable behavior.
+
+### Optional Codex planning product and Core autonomy
+
+- criterion_id: AC-005
+- working_mode: Codex with AGDF Planning enabled; Core without that package.
+- source_state: Compatible Core installed, optional plugin present or absent.
+- action: Explicitly request capture, clarification, refinement, prioritization or start.
+- requirement: Deliver a separately installable/enabled optional Codex planning package using the shared UR mode and Core contract. Core-only users retain inspection/validation, shared UR planning mode, explicit source-bound handoff and direct new-Run creation.
+- expected_effective_state: The same draft and Run facts regardless of optional orchestration; planning plugin owns dialogue organization only.
+- visible_feedback: Clear invoked mode and required compatible Core; missing optional plugin does not imply lost data or disabled Core.
+- failure_behavior: Incompatible/missing Core yields a specific dependency/version diagnosis before mutation. Removing/disabling the extension preserves sources and Runs.
+- recovery: Use Core directly or install/enable a compatible optional package deliberately.
+- observable_success: A complete Codex planning-to-Run flow works with the plugin; Core-only cases work without it, using identical semantics.
+- required_evidence: Package/install/discovery/negative dependency checks, native Codex invocation and Core-only comparison on exact candidate versions; no broader-host support inferred.
+
+### Deliberate version-bound handoff
+
+- criterion_id: AC-006
+- working_mode: Explicit start from planned work.
+- source_state: A selected current draft eligible for ordinary Core UR preparation.
+- action: Deliberately start a Run from the identified source version.
+- requirement: Bind the actual selected content and origin to one resulting Run, retain the planning source and require normal Core UR review/approval. Incomplete requirements never bypass the existing readiness/clarification owner.
+- expected_effective_state: One traceable Run with the selected UR content awaiting ordinary Core control; the retained draft is reference material.
+- visible_feedback: Run identity/link, selected source/version, origin and the next actual UR/gate action.
+- failure_behavior: Changed, invalid or unavailable source fails visibly before silent substitution or a falsely completed handoff.
+- recovery: Refresh/reselect or correct the source; inspect actual operation outcome after uncertainty.
+- observable_success: The Run's initial content/origin match the deliberate selection; no approval is inherited from planning.
+- required_evidence: Source-bound positive and stale/unsafe/incomplete cases, exact origin/content comparison and native Codex flow.
+
+### Idempotence, interruption and historical ownership
+
+- criterion_id: AC-007
+- working_mode: Handoff retry/recovery and subsequent navigation.
+- source_state: Pending/uncertain operation or already completed transfer.
+- action: Inspect/retry/recover the original operation, or open its result.
+- requirement: Replaying the same operation yields the same Run/effect; another request must not silently create a second Run for an already transferred planning identity. Preserve selected content, source history and the active Run's authority. Later scope changes use existing Core revision rules.
+- expected_effective_state: One resolved transfer or explicit unresolved failure with retained evidence; completed source becomes historical/reference material.
+- visible_feedback: Original operation, known/unknown effect, same Run link on success, and precise eligible next action.
+- failure_behavior: Source/revision conflict, interrupted commit or incompatible recovery never loses the source or fabricates completion.
+- recovery: Inspect and use the supported recovery/retry of the original operation. A genuinely different undertaking requires an explicit new planning identity.
+- observable_success: Fault-injection and concurrent duplicate-start cases converge to at most one Run; approved active UR bytes remain protected from planning edits.
+- required_evidence: Commit-boundary/lost-response/replay/concurrent handoff tests and visible recoverable feedback in the initial Codex flow.
+
+### Lossless and explicit legacy disposition
+
+- criterion_id: AC-008
+- working_mode: Migration/reconciliation and its resulting overview.
+- source_state: Existing planning, active, archive/history or ambiguous backlog rows.
+- action: Preview and explicitly apply supported cutover/reconciliation.
+- requirement: Account for every original row and preserve its text, priority, references and relevant history, with an evidenced planned-entry/Run/history disposition or an explicit unresolved item. Existing Run/artefact paths, approvals and protected historical bytes remain valid; missing needs or associations are never invented.
+- expected_effective_state: Traceable new-model entries/Run associations plus inspectable unresolved historical input; no mandatory writable backlog.
+- visible_feedback: Per-item disposition, unresolved reasons and affected recovery restrictions; distinguish an incomplete migrated need from an accepted UR.
+- failure_behavior: Ambiguity, unsupported legacy form or pending incompatible journal preserves original material and prevents unsafe affected cutover; no silent deletion or guessed match.
+- recovery: Inspect preserved original facts and deliberately reconcile the affected item or finish the supported legacy recovery first.
+- observable_success: Complete row accounting and byte/source preservation can be demonstrated; interrupted retry neither drops nor duplicates work.
+- required_evidence: Representative real-repository input preview, isolated migration fixtures including orphan/duplicate/history/custom text and interrupted retry, plus pre/post approval/path integrity checks. Real in-place migration requires its own explicit user action.
+
+### Independent progress with retained true invariants
+
+- criterion_id: AC-009
+- requirement: Independent planned-entry and Run operations do not acquire or depend on a live master-backlog write/lock or another unrelated Run's backlog-only pending journal. Preserve same-entry/Run revision checks, idempotence, approval integrity and genuinely shared-resource recovery exclusions.
+- observable_success: Controlled concurrent cases show independent operations progressing without shared-backlog contention, while conflicting same-resource work fails/retries safely. Every remaining project-wide exclusion has a named actual invariant and bounded effect.
+- required_evidence: Targeted concurrent processes and interruption tests covering both independence and retained conflicts; source analysis of all affected writers/locks/recovery paths. No numeric performance claim without measurements; shared Git/branch operations are outside this concurrency promise.
+
+### Visible diagnosis and recovery consistency
+
+- criterion_id: AC-010
+- working_mode: Planning, inventory, handoff and migration across affected adapters.
+- source_state: Invalid, stale, unsafe, partial/unavailable or uncertain state.
+- action: Inspect the failure and take its offered next action.
+- requirement: Explain the concrete cause, affected source and eligible recovery; preserve uncertainty and original operation identity without interpreting source text as executable instructions.
+- expected_effective_state: Safe diagnosed state or verified recovery, never implicit approval/start.
+- visible_feedback: Distinct empty/partial/unavailable and pending/failed/completed meanings, with visible retry for recoverable transient failure.
+- failure_behavior: Unsafe or unauthorized operations remain rejected; technical IDs supplement a readable task name rather than substituting for explanation.
+- recovery: Correct, refresh, retry read, inspect original operation or reconcile the named legacy item as applicable.
+- observable_success: Equivalent underlying conditions produce compatible explanations/next actions in Core, CLI/MCP, Codex dialogue and applicable Cockpit views.
+- required_evidence: Condition matrix with positive recovery and negative authority cases, plus native/visible observations for the initial supported flow.
+
+### Compatibility, evidence and maintainable delivery
+
+- criterion_id: AC-011
+- requirement: Update affected contracts, scaffolds, generated distributions, help/install documentation and existing consumers coherently. State compatible control/runtime versions and reject unsupported writer combinations concretely. Qualify the optional planning package initially for Codex only; preserve existing other-host Core workflows within their stated support boundaries.
+- observable_success: Required affected checks and CI pass for the candidate; installation/discovery and actual invocation of the exact Codex candidate are evidenced; existing Core operation without optional planning remains supported. No repository test is reported as human acceptance or unobserved host support.
+- required_evidence: Mandatory PR/merge checks plus affected targeted tests, generated-asset parity, exact-version installed CLI/MCP/Codex and visible Cockpit evidence. SD/TP identify other-host compatibility obligations and qualify only actual observed claims. Human UAT remains a separate gate.
+
+## 6. Non-Goals
+
+No mandatory optional-plugin installation, generic extension framework, second UR author, PRD/SD/TP in planned, new gate system, implicit approval, automatic implementation/start from selection or priority, global writable index, remote planning service, calendar, new multi-user permissions system, bulk source deletion, automatic release/merge or blanket removal of all locks. New native planning-plugin support for hosts other than Codex is deferred.
+
+## 7. Users And Roles
+
+Maintainers and contributing agents capture/refine needs and inspect actual state. Arndt Gold is PRD/product decision owner and retains deliberate gate authority. The optional Codex planning dialogue facilitates clarification; it cannot settle human approvals. Core remains the delivery-control authority. Existing review/QA/maintainer responsibilities in CONTRIBUTING.md and GOVERNANCE.md remain applicable. A planning source or plugin grants no merge, release or roadmap commitment.
+
+## 8. Constraints
+
+Use the dedicated worktree/branch and approved UR scope. Reuse current Core, UR and presentation owners. Existing paths and approvals cannot be rewritten to manufacture migration success. New planning authoring requires no fake Run binding; active-Run writers retain their existing protections. Untrusted source contents are data. No hidden sync back from an active Run to its historical draft. Preserve legacy facts and source provenance.
+
+Distinguish safe concurrent control-file work from Git/index/branch conflicts or divergent worktree copies. Same-Run conflicts across versions/worktrees remain subject to actual source/revision semantics. The product promises removal of artificial backlog coupling, not distributed coordination or contention-free Git merging.
+
+The prerequisite UX-template routing repair already made in this worktree is separately documented in RUNTIME_REPAIR.md. Its targeted tests and local installation observations do not prove this planned-work feature. Current gates for the feature remain in force.
+
+## 9. Evidence Requirements
+
+UR -> PRD mapping: UR AC-01 maps to AC-001; AC-02 to AC-002/004; AC-03 to AC-003; AC-04 to AC-004/010; AC-05 to AC-005/011; AC-06 to AC-006/007; AC-07 to AC-008; AC-08 to AC-009; AC-09 to AC-011. UX walkthrough 1 maps to AC-002/003/005, 2 to AC-004/010, 3 to AC-006, 4 to AC-007/010, 5 to AC-008/010, and 6 to AC-007.
+
+SD must map every stable criterion exactly once to design/SoT ownership, decisions, compatibility and risk treatment. TP must cover those mappings with executable positive/negative/recovery/concurrency scenarios and evidence owners. Prefer reuse of applicable proof with exact candidate/environment and limits; later stage passage alone does not require repeated execution.
+
+Mandatory evidence includes affected repository/CI checks; actual installed Codex plugin discovery, planning-mode invocation, Core-only operation and handoff on the same candidate; visible applicable Cockpit states and recovery; migration losslessness and protected approval integrity; independence plus same-resource conflict/interruption behavior. Exact client/runtime/version/OS bindings accompany native evidence. UI correctness needs visible observations; semantic/source tests alone are insufficient. Other hosts get no expanded native claim from adapter tests.
+
+At this drafting stage only approved sources, Brownfield source inspection, recorded UX analysis and user scope clarification exist. No feature implementation, migration, new host support, quantitative contention improvement or human acceptance has been observed. UR preview requirement is none; the written UX scenario walkthrough is agent analysis, not a tested preview.
+
+## 10. Risks And Open Questions
+
+Persistent planning and legacy journals require a coherent cutover, not a moved table. A mandatory shared index, duplicated UR author or automatic active/planned sync would recreate the bottleneck or authority conflict. Unclear migration associations must remain visible. Pending legacy recovery and old runtimes must not mutate new state unsafely. A missing optional plugin must not strand existing data.
+
+No unresolved before-PRD product question remains. Exact schemas/encoding, ownership boundaries in code, transaction protocol, backward-version admission and package wiring remain named SD obligations. Test mechanisms and native qualification execution remain TP obligations. Failure to resolve their invariant/compatibility consequences before their gates blocks progression; it is not accepted technical debt.
+
+## Approval Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| First optional extension and host scope | before_prd | resolved | User accepted the Codex-first recommendation with "Leg los" after "Deine Empfehlung": deliver a complete optional Codex planning package; keep the Core contract hostneutral; broader native planning hosts follow separately. This is scope clarification, not PRD approval. | Arndt Gold |
+| Planning depth and authority | before_prd | resolved | Unapproved UR plus minimal identity/title/priority and relevant source references only. Reuse ur-definition; no planned PRD/SD/TP, inferred approval or implicit Run. | Arndt Gold |
+| Core autonomy and overview | before_prd | resolved | Core understands, inspects and validates planned entries and supports shared UR planning mode, explicit handoff and direct Runs without the optional package; views are derived from entry/Run facts. | Arndt Gold |
+| Draft steering defaults | before_prd | resolved | Proposed product rule for this PRD: high/normal/low priority with normal default, readable title and stable identity local to each undertaking; priority affects planning order only. Acceptance of this rule requires the new PRD approval. | Arndt Gold |
+| Handoff and retained source | before_prd | resolved | Explicit selected-version handoff, at most one resulting Run per transferred planning identity, normal UR approval, retained historical source, no active-source sync; recovery resolves the original operation. These specify the approved traceability/nonduplication intent and are subject to this PRD approval. | Arndt Gold |
+| Legacy preservation and real migration authority | before_prd | resolved | Account for all rows without guessing; preserve historical sources, paths and approvals, expose unresolved material. Deliver migration capability/preview; no automatic real-repository cutover from this PRD alone. | Arndt Gold |
+| Acceptance and qualification boundary | before_prd | resolved | Require candidate-bound repository/CI and native Codex/visible applicable Cockpit evidence and separate human UAT. No new native planning-host claims beyond Codex or measured performance claims without actual proof. | Arndt Gold |
+| Planned metadata and handoff protocol | later_sd | deferred | Define exact entry encoding/schema, canonical source owners, version/idempotence/conflict and fault-recovery protocol satisfying the above criteria without a shared mutable status store. | Solution Design owner |
+| Legacy version and pending-journal compatibility | later_sd | deferred | Define a safe cutover/admission/recovery protocol preserving old evidence; name every remaining shared exclusion and its invariant. | Solution Design owner |
+| Optional package wiring and shared author | later_sd | deferred | Choose concrete separate Codex packaging/dependency/invocation using existing build/installation owners and one shared UR specification; no general extension platform. | Solution Design owner |
+| Scenario and qualification execution | later_tp | deferred | Map each criterion/SD decision to tasks, executable checks, exact native candidate environments and visible evidence; separate mandatory CI from optional full regression. | Task/Test Plan owner |
+
+## 11. Next Step
+
+Review this PRD and its complete German approval summary. Only a new deliberate Approval: PRD on its fresh presentation permits Solution Design preparation. Do not implement the feature, run an actual repository migration, infer SD/TP approval or perform VCS/release closeout.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: Zukünftige Vorhaben als einzelne UR-Entwürfe planen und bewusst in genau einen nachvollziehbaren Core-Run übergeben, ohne gemeinsame Masterbacklog-Schreibvorgänge.
+
+- Umfang: Core versteht .agdf/control/planned/ mit einem UR je Vorhaben und minimalen Angaben zu Identität, verständlichem Titel und Priorität. Der bestehende ur-definition-Owner erhält den Planungsmodus ohne vorherigen Run. Zusätzlich liefern wir ein separat installierbares und aktivierbares Planungspaket zunächst für Codex; der Core-Vertrag bleibt hostneutral und alle Kernwege funktionieren ohne dieses Paket. Planung endet beim UR. Bestehende Run-/Artefaktpfade und Freigaben bleiben erhalten.
+
+- AC-001: Initialisierung, reguläre Run-Schritte, Freigaben, Revision, Abschluss und Pflichtprüfungen funktionieren ohne erforderliches oder neu geschriebenes Live-MASTER_BACKLOG.md.
+
+- AC-002: Einzelne UR-Entwürfe werden unabhängig erfasst, geändert und priorisiert. Vorgesehen sind hoch, normal und niedrig, Standard normal. Titel, Identität, gespeicherter Stand und offene Klärung sind sichtbar; ungültige, doppelte, unsichere oder veraltete Schreibversuche beschädigen keine anderen Vorhaben.
+
+- AC-003: Planung und aktive UR-Arbeit verwenden denselben UR-Owner und dieselben Inhaltsregeln. Planung braucht keine erfundenen Run-IDs und erzeugt weder Run, Freigabe noch PRD, SD oder TP.
+
+- AC-004: Core, CLI/MCP und Cockpit zeigen dieselben abgeleiteten Planungs-/Run-Fakten mit verständlichem Titel, Herkunft und Verknüpfungen. Auswahl startet nichts. Aktive und beendete Runs erscheinen auch ohne alte Backlog-Zeile; leer, teilweise, ungültig und nicht verfügbar bleiben unterscheidbar.
+
+- AC-005: Das optionale Codex-Paket organisiert Erfassung, Klärung, Verfeinerung und Priorisierung über den gemeinsamen Autor. Core kann ohne Paket prüfen, im gemeinsamen UR-Modus planen und ausdrücklich übergeben oder direkt einen Run anlegen. Fehlende oder inkompatible Abhängigkeiten werden vor Änderungen erklärt; Deaktivierung löscht keine Arbeit.
+
+- AC-006: Eine ausdrückliche Übergabe bindet den ausgewählten aktuellen UR-Stand und seine Herkunft an einen Run. Ein geänderter oder unbrauchbarer Stand führt zu einem sichtbaren Konflikt. Der Core verlangt anschließend die normale UR-Prüfung und Freigabe.
+
+- AC-007: Wiederholung und Recovery lösen dieselbe ursprüngliche Übergabe auf und erzeugen keinen zweiten Run für eine bereits übergebene Planungsidentität. Der Planungsstand bleibt historischer Bezug; spätere aktive Änderungen gehören zum Core und überschreiben keine freigegebenen Quellen.
+
+- AC-008: Migration weist für jede alte Zeile den Verbleib von Inhalt, Priorität, Links und Historie nach oder zeigt die ungeklärte Zuordnung ausdrücklich. Sie erfindet keine Anforderungen oder Freigaben. Unterbrechungen, Mehrdeutigkeit und alte Journale dürfen weder Arbeit verlieren noch geschützte Run-Pfade oder Nachweise umschreiben; eine echte Migration braucht eine eigene ausdrückliche Aktion.
+
+- AC-009: Gezielte Parallelitäts- und Unterbrechungsprüfungen belegen den Wegfall künstlicher Backlog-Sperren zwischen unabhängigen Einträgen/Runs. Gleichzeitige Änderungen derselben Ressource sowie echte gemeinsame Recovery-Invarianten bleiben geschützt und werden erklärt. Konfliktfreies Git oder ungemessene Beschleunigung wird nicht versprochen.
+
+- AC-010: Betroffene Oberflächen nennen bei Fehlern den konkreten Grund, die Quelle und den nächsten zulässigen Schritt, einschließlich sichtbarer Wiederholung bei vorübergehenden Lesefehlern. Unsicherheit wird nicht als Erfolg, Leere oder neue Berechtigung ausgegeben.
+
+- AC-011: Regeln, Vorlagen, abgeleitete Pakete, Hilfe und Leser/Writer werden konsistent angepasst. Abnahme verlangt passende Repository-/CI-Prüfungen sowie versionsgebundene native Codex- und sichtbare Cockpit-Nachweise. Andere Hosts erhalten keinen ungeprüften zusätzlichen Supportanspruch; menschliche UAT bleibt getrennt.
+
+- Entscheidungen: Der erste Lieferumfang ist das vollständige optionale Codex-Planungspaket bei hostneutralem Core; dein „Leg los“ bestätigt diesen Umfang, keine Gate-Freigabe. Dieses PRD schlägt zusätzlich die drei Prioritätswerte mit Standard normal und die beschriebenen Übergabe-/Erhaltungsregeln zur Prüfung vor. Technische Ablagecodierung, Paketverdrahtung, Versionszulassung, Sperren und Recovery gehören in SD; konkrete Aufgaben, Szenarien und Nachweisumgebungen in TP. Es gibt keine offenen before_prd-Fragen.
+
+- Risiken: Verlustfreie Altbestandsübernahme, ausstehende Journale, alte Runtime-Versionen und unabhängige Schreibvorgänge brauchen konkrete Design- und Testnachweise. Eine neue globale Statusdatei oder ein zweiter UR-Autor wäre unzulässig. Die vorangegangene Runtime-Korrektur beweist diese Funktion nicht. Bisher existieren Quellen-/UX-Analyse und Umfangsklärung, keine umgesetzte Planungserweiterung, echte Migration, neue Host-Qualifikation oder menschliche Abnahme.
+
+- Nächster Schritt: Jetzt dieses PRD prüfen. Approval: PRD erlaubt anschließend nur Solution Design. Umsetzung folgt erst nach SD und TP samt erforderlicher Vorbereitung; Installation, reale Migration, Commit, PR, Merge oder Release werden hierdurch nicht automatisch beauftragt.

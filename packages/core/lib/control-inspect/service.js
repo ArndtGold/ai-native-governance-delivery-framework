@@ -27,6 +27,14 @@ import { sourceRevisionQualityFacts } from '../control-state/run-source-revision
 import { readHistoryBytes } from '../control-state/run-revision-history.js';
 import { creationRunId } from '../control-state/run-create-command.js';
 import { inspectAuthoringInputs } from './authoring-inputs.js';
+import { PLANNING_COMMAND_KINDS } from '../control-state/run-command-schema.js';
+import { inspectPlannedEntry, inspectPlannedOperation } from '../control-state/planned-entry.js';
+import { inspectPlannedHandoffOperation } from '../control-state/planned-handoff.js';
+import { readPlannedInventory, readWorkInventory } from '../control-state/planned-inventory.js';
+import { inspectPlannedLayoutOperation } from '../control-maintenance/planned-layout.js';
+import { readControlLayout, PLANNED_LAYOUT } from '../control-state/control-layout.js';
+import { existsSync } from '../control-read/fs.js';
+import { join } from 'node:path';
 
 // Read-only projection of canonical CLI evaluators and Core validators. It never
 // writes, selects a Run or prepares approval. Git observations are unavailable.
@@ -194,9 +202,14 @@ export function createControlInspectService(dependencies = {}) {
                 next_operation: decision.next_operation, blocking_reason: decision.blocking_reason }, authorizes: false }, presentation: null };
           }
           case 'operation-contract': {
+            if (PLANNING_COMMAND_KINDS.includes(input.kind) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
+              binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
+              next_calls: [{ tool: input.group, kind: input.kind, instruction: 'Use the confirmed planning scope and original UUID; no Run/revision. Planning never approves a gate. Start a Run only from a deliberately selected complete source.' }] }, presentation: null };
             if (['agdf_run', 'agdf_project'].includes(input.group) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
               binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
-              next_calls: [{ tool: input.group, kind: input.kind, instruction: input.group === 'agdf_project' ? 'Explicit fixed setup only. Use the confirmed existing Git root and one original UUID. No Run/revision, force, repair, install or approval.' : 'Use a new original operation UUID and confirmed title; there is no prior Run/revision.' }] }, presentation: null };
+              next_calls: [{ tool: input.group, kind: input.kind, instruction: input.kind.startsWith('planned_layout.')
+                ? 'Explicit legacy cutover only: preview first, review every row/blocker, confirm the exact digest. Apply/recover retain the original UUID. No implicit migration, Run/gate approval or installation.'
+                : input.group === 'agdf_project' ? 'Explicit fixed setup only. Use the confirmed existing Git root and one original UUID. No Run/revision, force, repair, install or approval.' : 'Use a new original operation UUID and confirmed title; there is no prior Run/revision.' }] }, presentation: null };
             const state = readRunState(target.governance_target, { runId: input.run_id });
             const targetId = resolveControlCommandTarget(target.governance_target).target_id;
             const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
@@ -228,6 +241,10 @@ export function createControlInspectService(dependencies = {}) {
           case 'project-state':
             return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
           case 'operation-status':
+            if (input.contract_module.startsWith('planned_layout.apply/')) return { report: inspectPlannedLayoutOperation(target.governance_target, input.operation_id), presentation: null };
+            if (input.planning) return { report: input.contract_module.startsWith('run.create_from_planned/')
+              ? inspectPlannedHandoffOperation(target.governance_target, input.planning.plan_id, input.operation_id)
+              : inspectPlannedOperation(target.governance_target, input.planning.plan_id, input.operation_id), presentation: null };
             if (input.contract_module.startsWith('project.initialize/')) return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
             return { report: { ...inspectRunOperation(target.governance_target, { runId: input.run_id ?? creationRunId(input.operation_id), operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id }), expected_revision_id: input.expected_revision_id ?? null }, presentation: null };
           case "artifact-readiness":
@@ -237,6 +254,16 @@ export function createControlInspectService(dependencies = {}) {
             }), presentation: null };
           case 'authoring-inputs':
             return { report: inspectAuthoringInputs(target.governance_target, input, { gitObservation: dependencies.gitObservation }), presentation: null };
+          case 'planned-inventory': {
+            const inventory = readPlannedInventory(target.governance_target, { language: input.presentation_language });
+            return { report: { ...inventory, available: inventory.state !== 'unavailable' }, presentation: null };
+          }
+          case 'planned-entry': {
+            const entry = inspectPlannedEntry(target.governance_target, input.planning.plan_id, { presentationLanguage: input.presentation_language });
+            return { report: input.planning.expected_digest && input.planning.expected_digest !== entry.digest
+              ? { available: false, reason: 'planning_source_stale', plan_id: input.planning.plan_id, authorizes: false }
+              : { ...entry, available: true }, presentation: null };
+          }
           case "doctor": {
             const evaluated = doctor(target.governance_target, selection);
             return { report: evaluated, presentation: input.all_active
@@ -268,6 +295,10 @@ export function createControlInspectService(dependencies = {}) {
             return { report: evaluated, navigation, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
           }
           case "inventory": {
+            // Read-only inventory also works before control initialization. An
+            // existing config still goes through strict layout validation.
+            if (existsSync(join(target.governance_target, '.agdf/control/config.json'))
+              && readControlLayout(target.governance_target).layout === PLANNED_LAYOUT) return { report: readWorkInventory(target.governance_target, { language: input.presentation_language }), presentation: null };
             const inventory = readRunInventory(target.governance_target, { language: input.presentation_language });
             return { report: inventory, presentation: renderRunInventory(inventory, rawInput.interactionLocales, input.presentation_language) };
           }

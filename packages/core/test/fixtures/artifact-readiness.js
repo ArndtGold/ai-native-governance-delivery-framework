@@ -2,15 +2,18 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { artefactFileDigest, sealRunState } from '../../lib/control-state/run-seal.js';
 import { digest } from '../../lib/control-state/approval-command-contract.js';
+import { canonicalInitPlan } from '../../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../../lib/control-state/canonical-initialization.js';
 
 // Synthetic non-authorizing control data confined to a temporary test repository.
 export function artifactReadinessFixture(gate = 'PRD', language = 'de', runId = 'synthetic-draft') {
   const root = mkdtempSync(join(tmpdir(), 'agdf-artifact-check-'));
   execFileSync('git', ['init', '--quiet', root], { stdio: 'pipe' });
-  execFileSync(process.execPath, [resolve(import.meta.dirname, '../../../cli/bin/create-agdf.js'), 'init', '--dir', root, '--language', 'en'], { stdio: 'pipe' });
+  // This corpus deliberately qualifies historical v2 approval/recovery data.
+  initializeCanonicalControl(root, canonicalInitPlan(undefined, undefined, { layout: 'master-backlog-v1' }));
   const revision = randomUUID(), gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
   const prefix = `.agdf/control/artefacts/${runId}/`, runDir = join(root, `.agdf/control/runs/${runId}`);
   mkdirSync(join(root, prefix), { recursive: true });

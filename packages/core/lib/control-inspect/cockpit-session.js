@@ -154,6 +154,7 @@ export function createCockpitSessionService(root, {
           touch(session); return result;
         }
         if (input.operation === 'backlog_titles' && input.row_ids.some(id => !session.rows.has(id))) return fail('resource_denied');
+        if (input.operation === 'planned' && !session.rows.has(input.row_id)) return fail('resource_denied');
         if (['document', 'prepare_context'].includes(input.operation)
           && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return fail('resource_denied');
         if (['context', 'artifact_readiness'].includes(input.operation) && input.run_id !== session.run_id) return fail('resource_denied');
@@ -178,7 +179,7 @@ export function createCockpitSessionService(root, {
         generation = session.generation;
         if (replacement) session.rows.clear();
         const result = await session.pool.request({ operation: input.operation, snapshot: input.snapshot_id,
-          selector: ['run', 'context'].includes(input.operation) ? input.run_id : input.resource_id, input }, signal);
+          selector: input.operation === 'planned' ? input.row_id : ['run', 'context'].includes(input.operation) ? input.run_id : input.resource_id, input }, signal);
         if (active(session.id) !== session || generation !== session.generation) return fail('session_expired');
         const response = { ...result, authorizes: false };
         if (Buffer.byteLength(JSON.stringify(response), 'utf8') > READ_LIMITS.response) throw new ControlReadError('resource_limit');

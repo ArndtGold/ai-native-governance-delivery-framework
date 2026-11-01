@@ -209,7 +209,9 @@ function cleanupCreatedAgdf(createdAgdf, agdfIdentity, agdfPath) {
 }
 
 function allowedDirectories(plan) {
-  const allowed = new Set(["", "runs"]);
+  // Normal mutation admission leaves these empty owned directories. Any claim
+  // or unknown file is still rejected by inspectExistingControl below.
+  const allowed = new Set(["", "runs", "maintenance", "maintenance/admission"]);
   for (const file of plan) {
     const parts = file.relativePath.split("/");
     parts.pop();
@@ -314,6 +316,16 @@ function retainedRunsEqual(left, right) {
 function planFingerprint(plan) {
   const serialized = JSON.stringify(plan.map((file) => [file.relativePath, file.content]));
   return createHash("sha256").update(serialized, "utf8").digest("hex");
+}
+
+// Existing operation plan digests already bind exact seed bytes. Select only an
+// exact known historical plan for recovery; never reinterpret it as the new layout.
+function operationPlan(operation) {
+  for (const layout of ['planned-urs-v1', 'master-backlog-v1']) {
+    const files = canonicalInitPlan(operation.language_preference, undefined, { layout });
+    if ('sha256:' + planFingerprint(normalizedPlan(files)) === operation.plan_digest) return files;
+  }
+  throw new CanonicalInitError('AGDF_CANONICAL_INIT_PLAN_UNSUPPORTED');
 }
 
 export function inspectCanonicalInitializationPlan() {
@@ -916,7 +928,7 @@ export function inspectCanonicalProject(targetDir, { operationId } = {}) {
         && data.operation.target_id === resolveControlCommandTarget(targetDir).target_id;
       if (!owned || operationId && data.operation.operation_id !== operationId) return out({ status: 'blocked', operation_status: 'unknown', reason: 'initialization_ownership_unconfirmed' });
       withInputResolution(recordedInputResolution(data), () => operationContext.run(data.operation, () => {
-        const plan = normalizedPlan(canonicalInitPlan(data.operation.language_preference));
+        const plan = normalizedPlan(operationPlan(data.operation));
         const spec = readStageSpec(dirname(marker), plan, rootIdentity, agdfIdentity, publishedMarker);
         inspectOwnedStage(dirname(marker), spec, publishedMarker);
       }), true);
@@ -946,7 +958,7 @@ export function initializeCanonicalProject(root, { operationId, requestDigest, t
   const original = observed.operation ?? observed.receipt?.operation;
   const languagePreference = original?.operation_id === operationId && original.request_digest === requestDigest
     ? original.language_preference : resolveLanguagePreference(language);
-  const files = canonicalInitPlan(languagePreference), plan = normalizedPlan(files);
+  const files = original?.operation_id === operationId && original.request_digest === requestDigest ? operationPlan(original) : canonicalInitPlan(languagePreference), plan = normalizedPlan(files);
   const operation = { language_preference: languagePreference, operation_id: operationId, request_digest: requestDigest, target_id: targetId,
     plan_digest: 'sha256:' + planFingerprint(plan), producer, preserve_stage: true };
   assertInputConfigurationCurrent(root);

@@ -89,6 +89,24 @@ try {
   assert.equal(matched.envelope.evidence_plane, "generated_bundle");
   assert.equal(matched.envelope.provenance_status, "not_applicable");
 
+  const coreEntry = { name: 'agdf', source: { source: 'local', path: './plugins/agdf' } };
+  const planningEntry = { name: 'agdf-planning', source: { source: 'local', path: './plugins/agdf-planning' } };
+  for (const plugins of [[coreEntry, planningEntry], [planningEntry, coreEntry]]) {
+    writeFileSync(repositoryMarketplacePath, JSON.stringify({ name: 'agdf-repo', plugins }));
+    assert.equal(resolveLocalValidator({ runtimeRoot, expectedVersion: '1.2.3', surface: 'codex' }).envelope.machine_validation,
+      'owned_version_matched', 'optional Planning must preserve exact Core provenance regardless of catalog order');
+  }
+  for (const plugins of [
+    [coreEntry, coreEntry], [planningEntry], [coreEntry, { ...planningEntry, name: 'foreign' }],
+    [coreEntry, { ...planningEntry, source: { source: 'local', path: '../foreign' } }],
+    [coreEntry, { ...planningEntry, source: { source: 'remote', path: './plugins/agdf-planning' } }],
+    {},
+  ]) {
+    writeFileSync(repositoryMarketplacePath, JSON.stringify({ name: 'agdf-repo', plugins }));
+    assert.equal(resolveLocalValidator({ runtimeRoot, expectedVersion: '1.2.3', surface: 'codex' }).envelope.machine_validation,
+      'unavailable', 'ambiguous, foreign or malformed catalogs must not establish generated provenance');
+  }
+
   rmSync(repositoryMarketplacePath);
   const missingProvenance = resolveLocalValidator({ runtimeRoot, expectedVersion: "1.2.3", surface: "codex" });
   assert.equal(missingProvenance.envelope.machine_validation, "unavailable");

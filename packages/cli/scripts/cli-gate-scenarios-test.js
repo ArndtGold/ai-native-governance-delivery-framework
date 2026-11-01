@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sealRunState } from "#agdf-core/control-state/run-seal.js";
+import { canonicalInitPlan } from "#agdf-core/resources/canonical-init-plan.js";
+import { initializeCanonicalControl } from "#agdf-core/control-state/canonical-initialization.js";
 
 const cli = fileURLToPath(new URL("../bin/create-agdf.js", import.meta.url));
 const scenarios = new Map([
@@ -33,7 +35,8 @@ function fixture(runId, scenario, beforeCreate) {
   try {
     const git = spawnSync("git", ["init", "-q"], { cwd: root, encoding: "utf8" });
     assert.equal(git.status, 0, git.stderr);
-    invoke(["init", "--dir", root, "--language", "de"]);
+    // These scenarios deliberately author historical v2 Run states below.
+    initializeCanonicalControl(root, canonicalInitPlan('de', undefined, { layout: 'master-backlog-v1' }));
     beforeCreate?.({ root });
     const created = invoke(["run-create", "--dir", root, "--run", runId]);
     const revisionId = created.match(/^revision_id: (\S+)$/mu)?.[1];

@@ -109,7 +109,7 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 | `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
 | `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
-| `ur-definition` | bound UR drafting, clarification or revision | content only; preserves approved intent |
+| `ur-definition` | UR drafting in planning scope or a bound Run | content only; no start or approval authority |
 | `prd-definition` | bound PRD drafting, clarification or revision | content only; preserves approved intent |
 | `sd-definition` | bound SD content | content only; preserves approved intent |
 | `tp-definition` | bound TP content | content only; preserves approved sources |

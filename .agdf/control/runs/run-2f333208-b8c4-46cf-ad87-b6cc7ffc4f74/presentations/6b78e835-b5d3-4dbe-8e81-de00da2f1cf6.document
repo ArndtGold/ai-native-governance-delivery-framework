@@ -1,0 +1,48 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Independent planned URs, backlog retirement and optional Codex planning
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Zukünftige Vorhaben als einzelne UR-Entwürfe planen und bewusst in genau einen nachvollziehbaren Core-Run übergeben, ohne gemeinsame Masterbacklog-Schreibvorgänge.
+
+- Umfang: Core versteht .agdf/control/planned/ mit einem UR je Vorhaben und minimalen Angaben zu Identität, verständlichem Titel und Priorität. Der bestehende ur-definition-Owner erhält den Planungsmodus ohne vorherigen Run. Zusätzlich liefern wir ein separat installierbares und aktivierbares Planungspaket zunächst für Codex; der Core-Vertrag bleibt hostneutral und alle Kernwege funktionieren ohne dieses Paket. Planung endet beim UR. Bestehende Run-/Artefaktpfade und Freigaben bleiben erhalten.
+
+- AC-001: Initialisierung, reguläre Run-Schritte, Freigaben, Revision, Abschluss und Pflichtprüfungen funktionieren ohne erforderliches oder neu geschriebenes Live-MASTER_BACKLOG.md.
+
+- AC-002: Einzelne UR-Entwürfe werden unabhängig erfasst, geändert und priorisiert. Vorgesehen sind hoch, normal und niedrig, Standard normal. Titel, Identität, gespeicherter Stand und offene Klärung sind sichtbar; ungültige, doppelte, unsichere oder veraltete Schreibversuche beschädigen keine anderen Vorhaben.
+
+- AC-003: Planung und aktive UR-Arbeit verwenden denselben UR-Owner und dieselben Inhaltsregeln. Planung braucht keine erfundenen Run-IDs und erzeugt weder Run, Freigabe noch PRD, SD oder TP.
+
+- AC-004: Core, CLI/MCP und Cockpit zeigen dieselben abgeleiteten Planungs-/Run-Fakten mit verständlichem Titel, Herkunft und Verknüpfungen. Auswahl startet nichts. Aktive und beendete Runs erscheinen auch ohne alte Backlog-Zeile; leer, teilweise, ungültig und nicht verfügbar bleiben unterscheidbar.
+
+- AC-005: Das optionale Codex-Paket organisiert Erfassung, Klärung, Verfeinerung und Priorisierung über den gemeinsamen Autor. Core kann ohne Paket prüfen, im gemeinsamen UR-Modus planen und ausdrücklich übergeben oder direkt einen Run anlegen. Fehlende oder inkompatible Abhängigkeiten werden vor Änderungen erklärt; Deaktivierung löscht keine Arbeit.
+
+- AC-006: Eine ausdrückliche Übergabe bindet den ausgewählten aktuellen UR-Stand und seine Herkunft an einen Run. Ein geänderter oder unbrauchbarer Stand führt zu einem sichtbaren Konflikt. Der Core verlangt anschließend die normale UR-Prüfung und Freigabe.
+
+- AC-007: Wiederholung und Recovery lösen dieselbe ursprüngliche Übergabe auf und erzeugen keinen zweiten Run für eine bereits übergebene Planungsidentität. Der Planungsstand bleibt historischer Bezug; spätere aktive Änderungen gehören zum Core und überschreiben keine freigegebenen Quellen.
+
+- AC-008: Migration weist für jede alte Zeile den Verbleib von Inhalt, Priorität, Links und Historie nach oder zeigt die ungeklärte Zuordnung ausdrücklich. Sie erfindet keine Anforderungen oder Freigaben. Unterbrechungen, Mehrdeutigkeit und alte Journale dürfen weder Arbeit verlieren noch geschützte Run-Pfade oder Nachweise umschreiben; eine echte Migration braucht eine eigene ausdrückliche Aktion.
+
+- AC-009: Gezielte Parallelitäts- und Unterbrechungsprüfungen belegen den Wegfall künstlicher Backlog-Sperren zwischen unabhängigen Einträgen/Runs. Gleichzeitige Änderungen derselben Ressource sowie echte gemeinsame Recovery-Invarianten bleiben geschützt und werden erklärt. Konfliktfreies Git oder ungemessene Beschleunigung wird nicht versprochen.
+
+- AC-010: Betroffene Oberflächen nennen bei Fehlern den konkreten Grund, die Quelle und den nächsten zulässigen Schritt, einschließlich sichtbarer Wiederholung bei vorübergehenden Lesefehlern. Unsicherheit wird nicht als Erfolg, Leere oder neue Berechtigung ausgegeben.
+
+- AC-011: Regeln, Vorlagen, abgeleitete Pakete, Hilfe und Leser/Writer werden konsistent angepasst. Abnahme verlangt passende Repository-/CI-Prüfungen sowie versionsgebundene native Codex- und sichtbare Cockpit-Nachweise. Andere Hosts erhalten keinen ungeprüften zusätzlichen Supportanspruch; menschliche UAT bleibt getrennt.
+
+- Entscheidungen: Der erste Lieferumfang ist das vollständige optionale Codex-Planungspaket bei hostneutralem Core; dein „Leg los“ bestätigt diesen Umfang, keine Gate-Freigabe. Dieses PRD schlägt zusätzlich die drei Prioritätswerte mit Standard normal und die beschriebenen Übergabe-/Erhaltungsregeln zur Prüfung vor. Technische Ablagecodierung, Paketverdrahtung, Versionszulassung, Sperren und Recovery gehören in SD; konkrete Aufgaben, Szenarien und Nachweisumgebungen in TP. Es gibt keine offenen before_prd-Fragen.
+
+- Risiken: Verlustfreie Altbestandsübernahme, ausstehende Journale, alte Runtime-Versionen und unabhängige Schreibvorgänge brauchen konkrete Design- und Testnachweise. Eine neue globale Statusdatei oder ein zweiter UR-Autor wäre unzulässig. Die vorangegangene Runtime-Korrektur beweist diese Funktion nicht. Bisher existieren Quellen-/UX-Analyse und Umfangsklärung, keine umgesetzte Planungserweiterung, echte Migration, neue Host-Qualifikation oder menschliche Abnahme.
+
+- Nächster Schritt: Jetzt dieses PRD prüfen. Approval: PRD erlaubt anschließend nur Solution Design. Umsetzung folgt erst nach SD und TP samt erforderlicher Vorbereitung; Installation, reale Migration, Commit, PR, Merge oder Release werden hierdurch nicht automatisch beauftragt.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74` · Produktanforderungen · Revision: `0d01f9c4-3a7c-49f0-8593-90097638b6e0`
+
+SHA-256: `sha256:04a6202db0dd5c86d8ee02d5a3ef56c71c49250c327c1b994a80c121931edb33`

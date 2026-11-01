@@ -1,0 +1,89 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { randomUUID } from 'node:crypto';
+import { readFileSync, writeFileSync, readdirSync, renameSync, unlinkSync } from 'node:fs';
+import { join } from 'node:path';
+import { withStdioClient } from './helpers.js';
+import { createOwnedRuntimeFixture } from './owned-runtime.js';
+import { plannedFixture, clarifiedUr } from '../../core/test/planned-fixtures.js';
+import { planningId } from '../../core/lib/control-state/planned-entry.js';
+import { resolveControlCommandTarget } from '../../core/lib/control-state/approval-command-contract.js';
+
+for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-07-28' : 'legacy-negotiated'} STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status`, async t => {
+  const runtime = createOwnedRuntimeFixture({ controlRuns: [] }); t.after(() => runtime.dispose());
+  const root = plannedFixture(t, []), target_id = resolveControlCommandTarget(root).target_id;
+  const target = { working_directory: root, primary_target: root, target_source: 'explicit_target', presentation_language: 'en' };
+  const operation_id = randomUUID(), plan_id = planningId(operation_id), planning = { plan_id, expected_digest: null };
+  const bound = { ...target, target_id, schema_version: '1', operation_id, assurance: 'cooperative_local', planning };
+  await withStdioClient({ ...runtime, modern }, async client => {
+    const call = async (name, args, accepted = true) => {
+      const result = await client.callTool({ name, arguments: args });
+      if (accepted) assert.notEqual(result.isError, true, JSON.stringify(result));
+      return result.structuredContent;
+    };
+    const tools = (await client.listTools()).tools.map(tool => tool.name);
+    assert.deepEqual(tools, ['agdf_dispatch', 'agdf_inspect', 'agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+    const help = await call('agdf_inspect', { ...target, operation: 'operation-contract', module: 'agdf_record/planned_ur.create' });
+    assert.equal(help.report.planning_capability.owner, 'ur-definition');
+    const dispatch = await call('agdf_dispatch', { ...target, skill_id: 'ur-definition', planning });
+    assert.equal(dispatch.outcome, 'skill_continuation'); assert.equal(dispatch.terminal, false); assert.equal(dispatch.authorizes, false);
+    let cursor, template = '';
+    do {
+      const input = await call('agdf_inspect', { ...target, operation: 'authoring-inputs', planning, ...(cursor ? { cursor } : {}) });
+      assert.equal(input.report.available, true, JSON.stringify(input));
+      const chunk = input.report.chunk;
+      if (chunk) template += JSON.stringify(chunk);
+      cursor = input.report.next_cursor;
+    } while (cursor);
+    assert.match(template, /UR/u);
+    const stage = async (scope, content) => {
+      const bytes = Buffer.from(content);
+      const part = payload => call('agdf_record', { ...bound, planning: scope, operation_id: randomUUID(), command: { kind: 'planned_material.stage', payload } });
+      const started = await part({ action: 'begin', files: [{ slot: 'UR', bytes: bytes.length }] }), transfer_id = started.family_result.transfer_id;
+      for (let offset = 0; offset < bytes.length; offset += 16384) await part({ action: 'append', transfer_id, file: 0, offset, data: bytes.subarray(offset, offset + 16384).toString('base64') });
+      return (await part({ action: 'seal', transfer_id })).family_result.files[0].reference;
+    };
+    const source = await stage(planning, clarifiedUr), create = { ...bound, command: { kind: 'planned_ur.create', payload: { source, priority: 'high' } } };
+    const saved = await call('agdf_record', create); assert.equal(saved.outcome, 'accepted');
+    const listed = await call('agdf_inspect', { ...target, operation: 'planned-inventory' });
+    assert.equal(listed.report.available, true); assert.equal(listed.report.entries[0].plan_id, plan_id);
+    const entry = saved.family_result.entry, configPath = join(root, '.agdf/control/config.json'), originalConfig = readFileSync(configPath, 'utf8');
+    writeFileSync(configPath, '{broken current configuration');
+    const replay = await call('agdf_record', create); assert.equal(replay.outcome, 'already_applied');
+    const status = await call('agdf_inspect', { ...target, operation: 'operation-status', planning,
+      module: `planned_ur.create/${operation_id}` }); assert.equal(status.report.status, 'recorded');
+    writeFileSync(configPath, originalConfig);
+    const scope = { plan_id, expected_digest: entry.digest }, revised = entry.content.replace('Planning priority: high', 'Planning priority: low');
+    const replacement = await stage(scope, revised);
+    const replaced = await call('agdf_record', { ...bound, operation_id: randomUUID(), planning: scope,
+      command: { kind: 'planned_ur.replace', payload: { source: replacement } } });
+    assert.equal(replaced.family_result.entry.priority, 'low');
+    const selected = { plan_id, expected_digest: replaced.family_result.entry.digest };
+    const inspected = await call('agdf_inspect', { ...target, operation: 'planned-entry', planning: selected });
+    assert.equal(inspected.report.available, true); assert.equal(inspected.report.digest, selected.expected_digest);
+    assert.equal(inspected.report.priority, 'low');
+    const stale = await client.callTool({ name: 'agdf_inspect', arguments: { ...target, operation: 'planned-entry', planning: scope } });
+    assert.equal(stale.isError, true); assert.equal(stale.structuredContent.report.available, false);
+    assert.equal(stale.structuredContent.report.reason, 'planning_source_stale');
+    const handoff = { ...bound, operation_id: randomUUID(), planning: { plan_id, expected_digest: replaced.family_result.entry.digest },
+      command: { kind: 'run.create_from_planned', payload: { title: replaced.family_result.entry.title } } };
+    const started = await call('agdf_run', handoff), repeated = await call('agdf_run', handoff);
+    assert.equal(started.outcome, 'accepted'); assert.equal(repeated.outcome, 'already_applied'); assert.equal(started.family_result.run_id, repeated.family_result.run_id);
+    const inventory = await call('agdf_inspect', { ...target, operation: 'inventory' });
+    assert.equal(inventory.report.entries.length, 1); assert.equal(inventory.report.planning_references.length, 1);
+    const direct = await call('agdf_run', { ...target, target_id, schema_version: '1', operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind: 'run.create', payload: { title: 'Direct fixture Run' } } });
+    assert.equal(direct.outcome, 'accepted'); assert.equal(readdirSync(join(root, '.agdf/control/runs')).length, 2);
+    for (const id of readdirSync(join(root, '.agdf/control/runs'))) assert.match(readFileSync(join(root, `.agdf/control/runs/${id}/RUN_STATE.md`), 'utf8'), /\| UR \| missing \|/u);
+    const plannedRoot = join(root, '.agdf/control/planned'), backup = plannedRoot + '.fixture-backup';
+    const sourceBefore = readFileSync(join(plannedRoot, plan_id, 'UR.md'));
+    renameSync(plannedRoot, backup); writeFileSync(plannedRoot, 'Unavailable fixture directory');
+    try {
+      const unavailable = await client.callTool({ name: 'agdf_inspect', arguments: { ...target, operation: 'planned-inventory' } });
+      assert.equal(unavailable.isError, true); assert.equal(unavailable.structuredContent.report.available, false);
+      assert.equal(unavailable.structuredContent.report.state, 'unavailable');
+    } finally { unlinkSync(plannedRoot); renameSync(backup, plannedRoot); }
+    assert.deepEqual(readFileSync(join(plannedRoot, plan_id, 'UR.md')), sourceBefore);
+    const rejected = await client.callTool({ name: 'agdf_record', arguments: { ...create, run_id: started.family_result.run_id, expected_revision_id: randomUUID() } });
+    assert.equal(rejected.isError, true);
+  });
+});

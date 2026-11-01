@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 import { withWindowsCmdShim } from "../../../scripts/support/npm-cmd-shim.js";
 import { projectCockpitBacklog } from "#agdf-core/control-inspect/cockpit-backlog.js";
 import { runRootFromStatePath, sealRunState } from "#agdf-core/control-state/run-seal.js";
+import { canonicalInitPlan } from '#agdf-core/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '#agdf-core/control-state/canonical-initialization.js';
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
@@ -1108,10 +1110,8 @@ smokePhase("init");
         throw new Error(`Missing live control file for init: ${relativePath}`);
       }
     }
-    if (existsSync(join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md"))) {
-      throw new Error("Canonical init must not create a shared legacy backlog.");
-    }
-    if (existsSync(join(tempDir, ".agdf", "control", "AGDF_RUN.md"))
+    if (existsSync(join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md"))
+        || existsSync(join(tempDir, ".agdf", "control", "AGDF_RUN.md"))
         || readdirSync(join(tempDir, ".agdf", "control", "runs")).length !== 0) {
       throw new Error("Canonical init must create an empty run store without a live legacy run.");
     }
@@ -2252,7 +2252,7 @@ smokePhase("delivery map chain");
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
 
   try {
-    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    initializeCanonicalControl(tempDir, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
     execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(backlogPath, `# AGDF Master Backlog
 
@@ -2412,7 +2412,7 @@ smokePhase("delivery map and backlog scenarios");
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
 
   try {
-    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    initializeCanonicalControl(tempDir, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
     const statusCases = [
       ["Needs UR", "needs_ur"],
       ["Awaiting Brownfield Review", "awaiting_brownfield_review"],
@@ -2499,7 +2499,7 @@ smokePhase("invalid compact backlog");
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
 
   try {
-    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    initializeCanonicalControl(tempDir, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
     writeFileSync(backlogPath, `# AGDF Master Backlog
 
 ## Active Backlog
@@ -2542,7 +2542,7 @@ smokePhase("completed only backlog");
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
 
   try {
-    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    initializeCanonicalControl(tempDir, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
     writeFileSync(backlogPath, `# AGDF Master Backlog
 
 ## Active Backlog

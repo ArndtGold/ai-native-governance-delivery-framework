@@ -49,6 +49,7 @@ const fixturePaths = [
   "plugins/agdf/meta/contracts/quality.md",
   "plugins/agdf/meta/contracts/task-target-resolution.md",
   "plugins/agdf/control/README.md",
+  "plugins/agdf/control/planned-urs.md",
   "packages/cli/distribution/agdf/README.md",
 ];
 

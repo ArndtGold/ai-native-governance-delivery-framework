@@ -14,6 +14,9 @@ import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js
 import { interactionLocales } from '../resources/context.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
 import { projectCockpitBacklog, projectBacklogUrTitle } from './cockpit-backlog.js';
+import { projectCockpitWork } from './cockpit-work.js';
+import { readControlLayout, PLANNED_LAYOUT } from '../control-state/control-layout.js';
+import { inspectPlannedEntry } from '../control-state/planned-entry.js';
 import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
 import { runSealState } from '../control-state/run-seal.js';
 import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactReadiness } from './artifact-readiness.js';
@@ -55,7 +58,7 @@ export function projectCockpitAssessment(report, lifecycle) {
 export function createCockpitReader(root, options = {}) {
   let view = null, details = new Map(), documents = new Map();
   let graph = null, inspected = null, packet = null;
-  let backlogRows = new Map(), backlogDigest = null;
+  let backlogRows = new Map(), backlogDigest = null, plannedRows = new Map();
   // One result belongs to this existing reader, never to a shared or durable cache.
   let checkedDraft = null;
   const invalidate = () => { packet = null; };
@@ -244,7 +247,7 @@ export function createCockpitReader(root, options = {}) {
     if (!retainCheck) checkedDraft = null;
     invalidate(); inspected = null; graph = null; view = null;
     details = new Map(); documents = new Map();
-    backlogRows = new Map(); backlogDigest = null;
+    backlogRows = new Map(); backlogDigest = null; plannedRows = new Map();
   }
   function selectedRun(runId) {
     const run = discoverRuns(root).find(row => row.run_id === runId);
@@ -278,14 +281,17 @@ export function createCockpitReader(root, options = {}) {
         diagnostics: [...inventory.findings, ...inventory.runs.flatMap(run => run.findings)],
         file_count: view.file_count, byte_count: view.byte_count, ...(removedRunId ? { removed_run_id: removedRunId } : {}) } };
   }
-  function backlogScope(removedRunId = null, titleRows = [], expectedDigest = null) {
-    const result = projectCockpitBacklog(root);
+  function backlogScope(removedRunId = null, titleRows = [], expectedDigest = null, legacy = false) {
+    const newLayout = !legacy && readControlLayout(root).layout === PLANNED_LAYOUT;
+    const result = newLayout ? projectCockpitWork(root) : projectCockpitBacklog(root);
+    plannedRows = new Map();
     backlogRows = new Map(); backlogDigest = result.data?.content_digest ?? null;
     if (expectedDigest && backlogDigest !== expectedDigest) fail('source_changed');
     if (result.data) result.data.entries.forEach((row, index) => {
-      row.selectable = row.selectable && existsSync(join(root, '.agdf/control/runs', row.key, 'RUN_STATE.md'));
+      if (row.kind !== 'planned') row.selectable = row.selectable && existsSync(join(root, '.agdf/control/runs', row.key, 'RUN_STATE.md'));
       row.row_id = randomUUID(); backlogRows.set(row.row_id, index);
-      if (titleRows.includes(index)) row.title_observation = projectBacklogUrTitle(root, view, row, backlogDigest);
+      if (row.kind === 'planned') plannedRows.set(row.row_id, { plan_id: row.key, digest: row.source.digest });
+      if (!newLayout && titleRows.includes(index)) row.title_observation = projectBacklogUrTitle(root, view, row, backlogDigest);
     });
     if (result.data) Object.assign(result.data, { file_count: view.file_count, byte_count: view.byte_count,
       ...(removedRunId ? { removed_run_id: removedRunId } : {}) });
@@ -312,7 +318,7 @@ export function createCockpitReader(root, options = {}) {
       return replaceScope(() => {
         if (view.control_absent) return { state: 'missing', code: 'control_absent', data: null };
         if (runId) return reopenRun(runId, wasInspected);
-        return scope === 'legacy' ? backlogScope() : runsScope();
+        return scope === 'legacy' ? backlogScope(null, [], null, true) : readControlLayout(root).layout === PLANNED_LAYOUT ? backlogScope() : runsScope();
       });
     },
     run(runId, id) {
@@ -320,6 +326,16 @@ export function createCockpitReader(root, options = {}) {
       assertSnapshot(id);
       const wasInspected = details.get(runId)?.state === 'available';
       return replaceScope(() => reopenRun(runId, wasInspected), true);
+    },
+    planned(rowId, id) {
+      const selected = plannedRows.get(rowId);
+      if (!selected) fail('resource_denied');
+      assertSnapshot(id);
+      const entry = withControlReadView(view, () => inspectPlannedEntry(root, selected.plan_id, { presentationLanguage: 'de' }));
+      if (entry.digest !== selected.digest) fail('source_changed');
+      view.revalidate();
+      return envelope({ kind: 'planned', entry: { plan_id: entry.plan_id, title: entry.title, priority: entry.priority,
+        path: entry.path, digest: entry.digest, content: entry.content, readiness: entry.readiness, authorizes: false } });
     },
     artifactReadiness(runId, id, gate, revision) {
       const previous = details.get(runId)?.data?.draft_check?.source;
@@ -347,7 +363,7 @@ export function createCockpitReader(root, options = {}) {
         || rowIds.some(row => !backlogRows.has(row))) fail('resource_denied');
       assertSnapshot(id);
       const rows = rowIds.map(row => backlogRows.get(row)), digest = backlogDigest;
-      return replaceScope(() => backlogScope(null, rows, digest));
+      return replaceScope(() => backlogScope(null, rows, digest, true));
     },
     document(resourceId, id, runId) {
       // Check selectors before revalidation or replacing the legitimate view.

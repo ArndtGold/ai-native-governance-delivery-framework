@@ -192,7 +192,7 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   const absent = inspectProjectState(root, input, cliGitObservation);
   assert.equal(absent.status, 'absent'); assert.equal(existsSync(join(root, '.agdf')), false);
   assert.equal(absent.repository.root, root); assert.match(absent.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
-  assert.equal(absent.plan.version, '0.20.2'); assert.equal(absent.plan.file_count, 14);
+  assert.equal(absent.plan.version, '0.20.2'); assert.equal(absent.plan.file_count, 14, 'new layout omits the mandatory shared backlog');
   assert.equal(absent.setup.binding.target_id, input.target_id); assert.equal(absent.setup.requires_explicit_intent, true);
   assert.deepEqual(absent.setup.required_agent_fields, ['operation_id']);
   const created = run();

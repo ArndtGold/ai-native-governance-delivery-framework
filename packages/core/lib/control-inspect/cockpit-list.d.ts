@@ -1,8 +1,8 @@
 export const COCKPIT_BACKLOG_SECTIONS: readonly ['Active Backlog', 'Planned / Parking Lot', 'Completed / Superseded Pointers'];
-export interface ListEntry { section: string; key: string; title: string; stored_status: string; selectable: boolean }
+export interface ListEntry { section: string; key: string; title: string; stored_status: string; selectable: boolean; identity?: string; source?: { path: string; digest: string | null } }
 export interface ListDiagnostic { code: string; section?: string; key?: string | null }
 export interface ListInventory<T extends ListEntry = ListEntry, D extends ListDiagnostic = ListDiagnostic> {
-  entries: T[]; diagnostics: D[]; counts: Record<string, number>; content_digest: string; source_path: string;
+  entries: T[]; diagnostics: D[]; counts: Record<string, number>; content_digest: string; source_path: string; layout?: string;
 }
 export interface CockpitListRow<T extends ListEntry = ListEntry> {
   entry: T; index: number; identity: string; selectable: boolean; displayTitle: string;

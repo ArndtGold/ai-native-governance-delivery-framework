@@ -5,11 +5,12 @@ import { execFileSync } from 'node:child_process';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { upsertTableRow, replaceFirstScalar } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
-export function fixture() {
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
+export function fixture({ layout = 'master-backlog-v1' } = {}) {
   const root = fs.realpathSync(fs.mkdtempSync(join(tmpdir(), 'agdf-cockpit-')));
-  execFileSync(process.execPath, [join(import.meta.dirname, '../../cli/bin/create-agdf.js'), 'init', '--dir', root]);
-  // Explicit legacy data for compatibility tests, not a production initialization requirement.
-  fs.writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), fs.readFileSync(join(import.meta.dirname, '../../../plugins/agdf/control/templates/MASTER_BACKLOG.md')));
+  initializeCanonicalControl(root, canonicalInitPlan(undefined, undefined, { layout }));
+  if (layout === 'master-backlog-v1' && !fs.existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md'))) fs.writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), fs.readFileSync(join(import.meta.dirname, '../../../plugins/agdf/control/templates/MASTER_BACKLOG.md')));
   const runPath = createRun(root, 'fixture-a');
   const documentPath = '.agdf/control/artefacts/fixture-a/UR.md';
   fs.mkdirSync(join(root, '.agdf/control/artefacts/fixture-a'), { recursive: true });
@@ -28,8 +29,8 @@ export function fixture() {
 }
 // Windows without Developer Mode refuses symlinks (EPERM). Only the symlink assertions are
 // skipped there: a whole test via `t`, otherwise the caller skips its own symlink step.
-export function symlinkOrSkip(target, path, t) {
-  try { fs.symlinkSync(target, path); return true; }
+export function symlinkOrSkip(target, path, t, type) {
+  try { fs.symlinkSync(target, path, type); return true; }
   catch (error) {
     if (process.platform !== 'win32' || error.code !== 'EPERM') throw error;
     const reason = 'symlinks need elevated privileges or Windows Developer Mode (EPERM)';

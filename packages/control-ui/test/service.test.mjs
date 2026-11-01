@@ -138,7 +138,7 @@ test('SCN-096/100: HTTP title batch requires opaque rows, replaces scope, reject
     for (const suffix of ['&path=artefacts/fixture-a/UR.md','&run_id=fixture-a','&snapshot='+initial.snapshot_id,'&rows='+initial.data.entries[0].row_id]) assert.equal((await request(service,'/api/backlog-titles?'+query+suffix)).status,403);
     const titles = (await request(service,'/api/backlog-titles?'+query)).body;
     assert.equal(titles.data.entries[0].title_observation.title,'Fixture document');
-    assert.equal(titles.data.file_count,2); assert.notEqual(titles.snapshot_id,initial.snapshot_id);
+    assert.equal(titles.data.file_count,3); assert.notEqual(titles.snapshot_id,initial.snapshot_id);
     assert.equal((await request(service,'/api/backlog-titles?'+query)).body.code,'resource_denied');
     assert.equal((await request(service,'/api/freshness?snapshot='+titles.snapshot_id)).body.data.unchanged,true);
     assert.deepEqual(treeBytes(f.root),before);

@@ -45,6 +45,10 @@ import { renderUsage, resolveCommand, validateCommandOptions } from "./command-r
 import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
+import { existsSync } from 'node:fs';
+import { withOwnedFileLock } from '#agdf-core/owned-file-lock.js';
+import { withControlMutation } from '#agdf-core/control-state/control-layout.js';
+import { hasSymlinkComponent } from '#agdf-core/control-state/contained-file.js';
 import { printMcpLifecycleResult, runMcpLifecycle } from "../mcp-lifecycle/service.js";
 import { promptControlMigration, promptControlRepair, promptInstallScope, promptInstallSetup } from "../install-setup/interaction.js";
 import {
@@ -232,7 +236,13 @@ function createHandlers({
     ["uninstall", (options) => options.setupRequest === "full"
       ? runCoupledUninstall(options, { io, env, exec, mcpLifecycle, revokeCodexPolicy: revokeCodexPluginDispatcher })
       : runUninstall(options, { io, env, exec, revokeCodexPolicy: revokeCodexPluginDispatcher })],
-    ["codex", guidedInstall],
+    ['codex', options => {
+      if (options.packageSelection !== 'planning') return guidedInstall(options);
+      try {
+        const installed = installCodexGlobalPlugin({ ...installerAdapters, env, packageSelection: 'planning' });
+        io.log(JSON.stringify(installed, null, 2)); return 0;
+      } catch (error) { io.error(error.message); return 1; }
+    }],
     ["claude", guidedInstall],
     ["copilot", guidedInstall],
     ["opencode", guidedInstall],
@@ -358,7 +368,7 @@ function installPluginPayload(surface, options, consent, pluginConfiguration, de
     return installOpenCodePluginPayload(pluginConfiguration, consent, dependencies);
   }
   const installed = surface === "codex"
-    ? installCodexGlobalPlugin({ ...dependencies.installerAdapters, target: options.dir })
+    ? installCodexGlobalPlugin({ ...dependencies.installerAdapters, target: options.dir, packageSelection: options.packageSelection ?? 'core' })
     : surface === "claude"
       ? installClaudeGlobalPlugin(dependencies.installerAdapters)
       : installCopilotGlobalPlugin(dependencies.installerAdapters);
@@ -928,6 +938,7 @@ function runScaffold(options, io) {
   let initialization = null;
 
   try {
+    const write = () => {
     files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
     if (options.target === "init") {
       initialization = initializeCanonicalControl(options.dir, files, { force: options.force });
@@ -938,6 +949,16 @@ function runScaffold(options, io) {
         writeGeneratedFile(options.dir, file.path, file.content, options.force, file.allowOverwrite);
       }
     }
+    };
+    const configPath = '.agdf/control/config.json';
+    // Reject an existing destination before creating admission directories.
+    // The writer repeats the check under its lock against the current plan.
+    if (options.target !== 'init') assertGeneratedWritePlan(options.dir,
+      generatedFilesForTarget(options.target, options.dir, options.force, options.language), options.force);
+    if (options.target !== 'init' && existsSync(join(options.dir, configPath))) {
+      if (hasSymlinkComponent(options.dir, configPath)) throw Error('AGDF_CONTROL_PATH_INVALID');
+      withOwnedFileLock(join(options.dir, configPath), () => withControlMutation(options.dir, { resource: 'config.preferences' }, write));
+    } else write();
     // Legacy OpenCode assets are intentionally preserved. A future explicit migration command
     // may remove only ownership-proven files after its precedence behavior is verified.
   } catch (error) {

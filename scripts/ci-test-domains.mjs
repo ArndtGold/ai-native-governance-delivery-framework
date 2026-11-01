@@ -25,7 +25,7 @@ export const TEST_DOMAINS = {
   runs: { label: 'Run commands & recovery', shortLabel: 'Runs', scripts: [
     'test:control-inspect', 'test:control-command', 'test:control-command-process', 'test:control-state',
     'test:run-command-flow', 'test:run-step-transaction', 'test:run-recovery', 'test:run-close', 'test:run-lock',
-    'test:verified-change',
+    'test:verified-change', 'test:planned-urs',
   ] },
   revisions: { label: 'Source revisions', shortLabel: 'Revision', scripts: [
     'test:run-revision', 'test:late-source-revision', 'test:late-source-revision-performance',

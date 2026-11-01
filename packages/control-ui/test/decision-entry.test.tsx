@@ -85,6 +85,12 @@ it('reads the exact historical presentation without restoring the closed decisio
   expect(call.arguments).toMatchObject({ target_id: f.view.target.target_id, run_id: f.view.binding.run_id,
     presentation_id: f.view.binding.presentation_id, expected_revision_id: f.view.binding.expected_revision_id });
   expect(f.operation).toHaveBeenCalledTimes(1); expect(f.bridge.session).toBe('');
+  // The real browser emits visibility during later iframe disposal. The passive
+  // receipt/document view must not dispatch another close after confirmed handoff.
+  Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+  act(() => { document.dispatchEvent(new Event('visibilitychange')); });
+  expect(f.operation).toHaveBeenCalledTimes(1);
+  Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
 });
 
 it('does not retire a replacement when the old completed view close finishes late', async () => {

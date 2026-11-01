@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { inspectMutationClaims } from '../lib/control-state/control-layout.js';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync, cpSync } from 'node:fs';
@@ -44,11 +45,15 @@ if (process.argv[1] === import.meta.filename) {
     const interrupted = createRunCommandService({ checkpoint: point => { if (point === 'presentation_preview_file_published') throw Error('synthetic_interrupt'); } });
     assert.notEqual(interrupted('agdf_prepare', interruptedInput).outcome, 'accepted');
     const partial=join(root,`.agdf/control/runs/${f.runId}/presentations/${interruptedInput.operation_id}.preview-file-0`),partialBytes=readFileSync(partial);
-    writeFileSync(partial,'changed partial bytes');assert.equal(command('agdf_prepare',interruptedInput).outcome,'rejected');assert.equal(readFileSync(partial,'utf8'),'changed partial bytes');
+    // An interrupted original publication has owned effects and a retained claim.
+    // Foreign replacement prevents a proven outcome; it is not a fresh rejection.
+    writeFileSync(partial,'changed partial bytes');assert.equal(command('agdf_prepare',interruptedInput).outcome,'effect_unknown');assert.equal(readFileSync(partial,'utf8'),'changed partial bytes');
+    assert.equal(inspectMutationClaims(root).length,1);assert.equal(readFileSync(f.state,'utf8'),before);
     rmSync(partial);const outside=join(root,'foreign-partial');writeFileSync(outside,partialBytes);
-    if(tryLinkFile(outside,partial,'preview-publication')){assert.equal(command('agdf_prepare',interruptedInput).outcome,'rejected');rmSync(partial);}
+    if(tryLinkFile(outside,partial,'preview-publication')){assert.equal(command('agdf_prepare',interruptedInput).outcome,'effect_unknown');assert.equal(inspectMutationClaims(root).length,1);rmSync(partial);}
     writeFileSync(partial,partialBytes);
     const resumed = command('agdf_prepare', interruptedInput); assert.equal(resumed.outcome, 'accepted', JSON.stringify(resumed));
+    assert.equal(inspectMutationClaims(root).length,0);
     assert.equal(command('agdf_prepare', interruptedInput).outcome, 'already_applied');
     const prepared = command('agdf_prepare', input); assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
     const selectors = { runId: f.runId, gate: 'PRD', revisionId: f.revision(), presentationId: prepared.family_result.presentation_id, targetId: input.target_id };

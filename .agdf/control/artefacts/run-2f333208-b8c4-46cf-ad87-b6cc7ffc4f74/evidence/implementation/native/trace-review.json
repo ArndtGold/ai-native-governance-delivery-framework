@@ -1,0 +1,470 @@
+{
+  "core": {
+    "runtime_digests": [
+      "a9f3e146a950f6a3c93fe4c10e6b19acfa7f1f83dcfbfb4e8f9a70f759b689e5"
+    ],
+    "all_observed_provenance_matched": true,
+    "capabilities": [
+      {
+        "approval": "none; explicit handoff starts an unapproved Run",
+        "default_priority": "normal only on explicit create",
+        "fields": "Preserve the canonical UR template and exactly one initial scalar of each planning metadata field. Planning id remains unchanged on replacement.",
+        "metadata": [
+          "Planning schema",
+          "Planning id",
+          "Planning priority"
+        ],
+        "owner": "ur-definition",
+        "priority": [
+          "high",
+          "normal",
+          "low"
+        ],
+        "protocol_version": 1,
+        "schema": "planned-ur-v1",
+        "source_identity": "SHA-256 of the whole canonical UR text"
+      }
+    ],
+    "outcomes": [
+      {
+        "binding": null,
+        "outcome": "already_applied",
+        "receipt": null,
+        "request_digest": "sha256:2b9764cc9595ef754f2b1b5d0736199a139474ff215da0b8bea11b2b0a6e2648",
+        "run_id": "run-34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1"
+      },
+      {
+        "binding": {
+          "kind": "run.create_from_planned",
+          "planning": {
+            "expected_digest": "sha256:5c1894fff29b5ecbcda575027d8283c8f7752937ffaa79e98b63fa578ca432b6",
+            "plan_id": "plan-92f42be5-fcb7-488a-ad8e-42ed96904d2f"
+          },
+          "target_id": "sha256:a77bea75d24bf434ab6d09b1c11f399d73853d5a7a10782a2848da4dc0e94a7f"
+        },
+        "outcome": "accepted",
+        "receipt": {
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "created_at": "2026-10-31T17:05:07.799Z",
+          "effect": {
+            "previous_revision_id": null,
+            "record": {
+              "origin": {
+                "digest": "sha256:b0350a7026e71611973ba0a9383a531e0d7a4febab171ec651762f1f28c1540f",
+                "path": ".agdf/control/artefacts/run-34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1/PLANNED_ORIGIN.json"
+              },
+              "planned": {
+                "digest": "sha256:5c1894fff29b5ecbcda575027d8283c8f7752937ffaa79e98b63fa578ca432b6",
+                "path": ".agdf/control/planned/plan-92f42be5-fcb7-488a-ad8e-42ed96904d2f/UR.md",
+                "plan_id": "plan-92f42be5-fcb7-488a-ad8e-42ed96904d2f"
+              },
+              "snapshot": {
+                "digest": "sha256:5c1894fff29b5ecbcda575027d8283c8f7752937ffaa79e98b63fa578ca432b6",
+                "path": ".agdf/control/artefacts/run-34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1/PLANNED_UR.md"
+              },
+              "title": "Receipt lookup",
+              "ur": {
+                "digest": "sha256:5c1894fff29b5ecbcda575027d8283c8f7752937ffaa79e98b63fa578ca432b6",
+                "path": ".agdf/control/artefacts/run-34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1/UR.md"
+              }
+            },
+            "resulting_revision_id": "2a79cbbd-708d-4d44-8e7f-74b822b55054",
+            "revision": 1
+          },
+          "expected_revision_id": null,
+          "input_resolution": {
+            "configuration": {
+              "config_digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+              "control": "active",
+              "control_layout": "planned-urs-v1",
+              "defaults_digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+              "root": "/private/tmp/agdf-planned-native-qualification/final-cohort/core-only",
+              "sources": {
+                "artifact_language": {
+                  "digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+                  "kind": "project",
+                  "path": ".agdf/control/config.json"
+                },
+                "chat_language": {
+                  "kind": "explicit"
+                },
+                "gate_check_variant": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                },
+                "presentation_route": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                }
+              },
+              "values": {
+                "artifact_language": "en",
+                "chat_language": "en",
+                "gate_check_variant": null,
+                "presentation_route": "markdown"
+              }
+            },
+            "effective_digest": "sha256:2b9764cc9595ef754f2b1b5d0736199a139474ff215da0b8bea11b2b0a6e2648",
+            "fields": {
+              "assurance": "cooperative_local",
+              "schema_version": "1"
+            },
+            "kind": "run.create_from_planned",
+            "logical_digest": "sha256:5981433bac41ba8a144343503ae44827ffa8103e96ca6c496864418d7de02c46",
+            "operation_id": "34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1",
+            "record_version": "3",
+            "schema_version": 1
+          },
+          "kind": "run.create_from_planned",
+          "operation_id": "34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.20.2"
+          },
+          "request_digest": "sha256:2b9764cc9595ef754f2b1b5d0736199a139474ff215da0b8bea11b2b0a6e2648",
+          "run_id": "run-34d488bb-d9b7-4a83-a8f1-f64d0f1a2ba1",
+          "schema_version": "resolved/1",
+          "target_id": "sha256:a77bea75d24bf434ab6d09b1c11f399d73853d5a7a10782a2848da4dc0e94a7f"
+        },
+        "request_digest": "sha256:2b9764cc9595ef754f2b1b5d0736199a139474ff215da0b8bea11b2b0a6e2648",
+        "run_id": null
+      }
+    ],
+    "non_success_diagnostics": [],
+    "tool_wrappers": 18
+  },
+  "planning": {
+    "runtime_digests": [
+      "a9f3e146a950f6a3c93fe4c10e6b19acfa7f1f83dcfbfb4e8f9a70f759b689e5"
+    ],
+    "all_observed_provenance_matched": true,
+    "capabilities": [
+      {
+        "approval": "none; explicit handoff starts an unapproved Run",
+        "default_priority": "normal only on explicit create",
+        "fields": "Preserve the canonical UR template and exactly one initial scalar of each planning metadata field. Planning id remains unchanged on replacement.",
+        "metadata": [
+          "Planning schema",
+          "Planning id",
+          "Planning priority"
+        ],
+        "owner": "ur-definition",
+        "priority": [
+          "high",
+          "normal",
+          "low"
+        ],
+        "protocol_version": 1,
+        "schema": "planned-ur-v1",
+        "source_identity": "SHA-256 of the whole canonical UR text"
+      }
+    ],
+    "outcomes": [
+      {
+        "binding": null,
+        "outcome": "already_applied",
+        "receipt": {
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "created_at": "2026-10-31T17:07:07.175Z",
+          "effect": {
+            "previous_revision_id": null,
+            "record": {
+              "origin": {
+                "digest": "sha256:0b71633db9a7f57546eabc085971ca38ae2cdba27fd93bda01100a1848d58c0e",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/PLANNED_ORIGIN.json"
+              },
+              "planned": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/planned/plan-2d2eed01-526d-4aeb-9662-8ac55066b366/UR.md",
+                "plan_id": "plan-2d2eed01-526d-4aeb-9662-8ac55066b366"
+              },
+              "snapshot": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/PLANNED_UR.md"
+              },
+              "title": "Evidence note lookup",
+              "ur": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/UR.md"
+              }
+            },
+            "resulting_revision_id": "17473c20-7ad2-4d23-b085-462680e0866f",
+            "revision": 1
+          },
+          "expected_revision_id": null,
+          "input_resolution": {
+            "configuration": {
+              "config_digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+              "control": "active",
+              "control_layout": "planned-urs-v1",
+              "defaults_digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+              "root": "/private/tmp/agdf-planned-native-qualification/final-cohort/with-planning",
+              "sources": {
+                "artifact_language": {
+                  "digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+                  "kind": "project",
+                  "path": ".agdf/control/config.json"
+                },
+                "chat_language": {
+                  "kind": "explicit"
+                },
+                "gate_check_variant": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                },
+                "presentation_route": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                }
+              },
+              "values": {
+                "artifact_language": "en",
+                "chat_language": "en",
+                "gate_check_variant": null,
+                "presentation_route": "markdown"
+              }
+            },
+            "effective_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+            "fields": {},
+            "kind": "run.create_from_planned",
+            "logical_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+            "operation_id": "ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+            "record_version": "3",
+            "schema_version": 1
+          },
+          "kind": "run.create_from_planned",
+          "operation_id": "ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.20.2"
+          },
+          "request_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+          "run_id": "run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+          "schema_version": "resolved/1",
+          "target_id": "sha256:af3a47bde3dcc7ceddcc911c2af508caf08b5b16c685ea22a0d35d41d2781174"
+        },
+        "request_digest": null,
+        "run_id": "run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1"
+      },
+      {
+        "binding": {
+          "kind": "run.create_from_planned",
+          "planning": {
+            "expected_digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+            "plan_id": "plan-2d2eed01-526d-4aeb-9662-8ac55066b366"
+          },
+          "target_id": "sha256:af3a47bde3dcc7ceddcc911c2af508caf08b5b16c685ea22a0d35d41d2781174"
+        },
+        "outcome": "accepted",
+        "receipt": {
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "created_at": "2026-10-31T17:07:07.175Z",
+          "effect": {
+            "previous_revision_id": null,
+            "record": {
+              "origin": {
+                "digest": "sha256:0b71633db9a7f57546eabc085971ca38ae2cdba27fd93bda01100a1848d58c0e",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/PLANNED_ORIGIN.json"
+              },
+              "planned": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/planned/plan-2d2eed01-526d-4aeb-9662-8ac55066b366/UR.md",
+                "plan_id": "plan-2d2eed01-526d-4aeb-9662-8ac55066b366"
+              },
+              "snapshot": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/PLANNED_UR.md"
+              },
+              "title": "Evidence note lookup",
+              "ur": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/UR.md"
+              }
+            },
+            "resulting_revision_id": "17473c20-7ad2-4d23-b085-462680e0866f",
+            "revision": 1
+          },
+          "expected_revision_id": null,
+          "input_resolution": {
+            "configuration": {
+              "config_digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+              "control": "active",
+              "control_layout": "planned-urs-v1",
+              "defaults_digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+              "root": "/private/tmp/agdf-planned-native-qualification/final-cohort/with-planning",
+              "sources": {
+                "artifact_language": {
+                  "digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+                  "kind": "project",
+                  "path": ".agdf/control/config.json"
+                },
+                "chat_language": {
+                  "kind": "explicit"
+                },
+                "gate_check_variant": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                },
+                "presentation_route": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                }
+              },
+              "values": {
+                "artifact_language": "en",
+                "chat_language": "en",
+                "gate_check_variant": null,
+                "presentation_route": "markdown"
+              }
+            },
+            "effective_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+            "fields": {},
+            "kind": "run.create_from_planned",
+            "logical_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+            "operation_id": "ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+            "record_version": "3",
+            "schema_version": 1
+          },
+          "kind": "run.create_from_planned",
+          "operation_id": "ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.20.2"
+          },
+          "request_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+          "run_id": "run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+          "schema_version": "resolved/1",
+          "target_id": "sha256:af3a47bde3dcc7ceddcc911c2af508caf08b5b16c685ea22a0d35d41d2781174"
+        },
+        "request_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+        "run_id": null
+      },
+      {
+        "binding": {
+          "kind": "run.create_from_planned",
+          "planning": {
+            "expected_digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+            "plan_id": "plan-2d2eed01-526d-4aeb-9662-8ac55066b366"
+          },
+          "target_id": "sha256:af3a47bde3dcc7ceddcc911c2af508caf08b5b16c685ea22a0d35d41d2781174"
+        },
+        "outcome": "already_applied",
+        "receipt": {
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "created_at": "2026-10-31T17:07:07.175Z",
+          "effect": {
+            "previous_revision_id": null,
+            "record": {
+              "origin": {
+                "digest": "sha256:0b71633db9a7f57546eabc085971ca38ae2cdba27fd93bda01100a1848d58c0e",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/PLANNED_ORIGIN.json"
+              },
+              "planned": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/planned/plan-2d2eed01-526d-4aeb-9662-8ac55066b366/UR.md",
+                "plan_id": "plan-2d2eed01-526d-4aeb-9662-8ac55066b366"
+              },
+              "snapshot": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/PLANNED_UR.md"
+              },
+              "title": "Evidence note lookup",
+              "ur": {
+                "digest": "sha256:ae7d529ed357a3d3cbedd2124aca8c1a6d15f9fc550ecf2648e7571eb885ab77",
+                "path": ".agdf/control/artefacts/run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1/UR.md"
+              }
+            },
+            "resulting_revision_id": "17473c20-7ad2-4d23-b085-462680e0866f",
+            "revision": 1
+          },
+          "expected_revision_id": null,
+          "input_resolution": {
+            "configuration": {
+              "config_digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+              "control": "active",
+              "control_layout": "planned-urs-v1",
+              "defaults_digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+              "root": "/private/tmp/agdf-planned-native-qualification/final-cohort/with-planning",
+              "sources": {
+                "artifact_language": {
+                  "digest": "sha256:15a6e952fb74491c56db6b851c7411a1e1c4270e1323cfc9d045533c2c76f0e1",
+                  "kind": "project",
+                  "path": ".agdf/control/config.json"
+                },
+                "chat_language": {
+                  "kind": "explicit"
+                },
+                "gate_check_variant": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                },
+                "presentation_route": {
+                  "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33",
+                  "kind": "plugin",
+                  "path": "meta/agdf-defaults.json"
+                }
+              },
+              "values": {
+                "artifact_language": "en",
+                "chat_language": "en",
+                "gate_check_variant": null,
+                "presentation_route": "markdown"
+              }
+            },
+            "effective_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+            "fields": {},
+            "kind": "run.create_from_planned",
+            "logical_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+            "operation_id": "ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+            "record_version": "3",
+            "schema_version": 1
+          },
+          "kind": "run.create_from_planned",
+          "operation_id": "ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.20.2"
+          },
+          "request_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+          "run_id": "run-ba1a9751-4edd-41e9-b38d-bcc7ec7380c1",
+          "schema_version": "resolved/1",
+          "target_id": "sha256:af3a47bde3dcc7ceddcc911c2af508caf08b5b16c685ea22a0d35d41d2781174"
+        },
+        "request_digest": "sha256:531b1a5f708f62c5709698d3a96a940f87debafd460da5484fafe23786e498a8",
+        "run_id": null
+      }
+    ],
+    "non_success_diagnostics": [
+      [
+        {
+          "code": "working_directory_required",
+          "field": "working_directory"
+        }
+      ]
+    ],
+    "tool_wrappers": 30
+  }
+}

@@ -17,7 +17,11 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
   if (['prd_definition', 'sd_definition', 'tp_definition'].includes(continuation.phase))
     recording = inspectArtefactRecordingMode(readRunState(root, { runId: run, ignoreRunIdEnv: true }), result.control.current_gate);
   let nextCalls, requiredGroups = [], instruction = continuation.instruction ?? '';
-  if (continuation.phase === 'run_missing' || continuation.phase === 'resolve_delivery_run') {
+  if (continuation.phase === 'planned_ur_definition') {
+    requiredGroups = ['agdf_record'];
+    nextCalls = continuation.next_calls;
+    instruction += ' Use planned_material.stage and the planning scope; do not substitute Run material or a shell writer.';
+  } else if (continuation.phase === 'run_missing' || continuation.phase === 'resolve_delivery_run') {
     requiredGroups = ['agdf_run'];
     nextCalls = [inspect('operation-contract', { module: 'agdf_run/run.create' }, false)];
     instruction = continuation.phase === 'resolve_delivery_run'
@@ -41,6 +45,9 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
       .replace(/Complete the linked Verified Change Mini-Closeout.*?Git-aware CLI evaluation\./u, 'Stage the linked Verified Change Mini-Closeout and use closeout.record with its exact confirmation; the Core checks actual Git observations.');
   }
   const missing = [...new Set(requiredGroups)].filter(group => !availableGroups.includes(group));
+  if (missing.length && continuation.phase === 'planned_ur_definition') return { ...result,
+    continuation: { ...continuation, control_transport: 'unavailable', missing_mcp_groups: missing,
+      instruction: 'Planning Core capability is unavailable in this host. Enable the compatible AGDF Core record group before any mutation. No shell-writing or Run-intake fallback.' } };
   if (missing.length) return { ...result, presentation: continuation.phase === 'presentation_required' ? null : result.presentation,
     continuation: { ...continuation, control_transport: 'cli_fallback', missing_mcp_groups: missing,
       transport_reason: 'required_mcp_group_unavailable' } };

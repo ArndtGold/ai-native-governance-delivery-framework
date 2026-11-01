@@ -1,7 +1,7 @@
 import { projectMcpInputSchema } from '../mcp-input-schema.js';
 import { isAbsolute } from "node:path";
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN } from "../control-state/run-identity.js";
-import { RUN_COMMAND_GROUPS } from '../control-state/run-command-schema.js';
+import { RUN_COMMAND_GROUPS, PLANNING_COMMAND_KINDS, PLANNING_SCOPE_SCHEMA, schemaDiagnostics } from '../control-state/run-command-schema.js';
 import { APPROVAL_GATES } from '../control-state/run-identity.js';
 import {
   PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
@@ -15,7 +15,7 @@ import { ARTIFACT_READINESS_GATES, ALL_ACTIVE_OPERATIONS, VARIANT_OPERATION, MOD
 export const CONTROL_INSPECT_SCHEMA_VERSION = "1";
 export const CONTROL_INSPECT_CONTRACT_VERSION = 1;
 // Shared discovery budget across hosts (SDD-005).
-export const CONTROL_INSPECT_MAX_DEFINITION_BYTES = 5000;
+export const CONTROL_INSPECT_MAX_DEFINITION_BYTES = 6144;
 export const OPERATION_CONTRACT_MODULES = Object.freeze(Object.entries(RUN_COMMAND_GROUPS)
   .flatMap(([group, kinds]) => kinds.map(kind => `${group}/${kind}`)));
 
@@ -38,6 +38,7 @@ const fieldModel = {
   target_source: { help: 'Actual provenance: explicit_target = specified; continued_target = confirmed; current_repository = unambiguous.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Requires primary_target.' },
   primary_target: { help: 'Confirmed absolute root paired with target_source; cwd is not target authority.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Pair: target_source.' },
   run_id: { help: 'Named or confirmed Run; never select by recency.', schema: { type: 'string', pattern: RUN_ID_PATTERN.source }, description: 'Confirmed run.' },
+  planning: { help: 'Selected pre-Run plan and canonical source digest; null digest is permitted for initial capture/inspection. Never combine with Run/revision.', schema: PLANNING_SCOPE_SCHEMA, description: 'Pre-Run source scope.', operations: ['authoring-inputs', 'planned-entry', 'operation-status'] },
   gate: { help: 'Requested document gate or catalog filter, never a selection heuristic. artifact-readiness: UR/PRD/SD/TP only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Document gate.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
   expected_revision_id: { help: 'Bound inspections use current gate-check revision. Document/preview reads preserve the original selected catalog or conversation revision.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
   presentation_id: { help: 'Exact prepared ID from validated catalog or conversation. Never guess, select by timestamp, or prepare a replacement to read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
@@ -47,7 +48,7 @@ const fieldModel = {
   module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
   all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'doctor/delivery-map only.' },
 };
-const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule' };
+const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule', planning: 'planning' };
 const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-status'];
 const inputSchema = {
   type: 'object', additionalProperties: false,
@@ -63,6 +64,9 @@ const inputSchema = {
         : field.operations === PRESENTATION_OPERATIONS ? { $ref: '#/$defs/d' } : name === 'module' ? { $ref: '#/$defs/m' } : { enum: field.operations } } },
   ])),
   allOf: [
+    { if: { properties: { operation: { enum: ['planned-inventory', 'planned-entry'] } } }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
+    { if: { properties: { operation: { const: 'planned-entry' } } }, then: { required: ['planning'] } },
+    { if: { required: ['planning'] }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
     { if: { properties: { operation: { const: 'project-state' } } }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
     { not: { properties: { all_active: { const: true } }, required: ['all_active', 'run_id'] } },
     { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
@@ -71,7 +75,8 @@ const inputSchema = {
       { required: ['run_id', 'expected_revision_id'] },
       { not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] }, oneOf: [
         { properties: { operation: { const: 'operation-status' } } },
-        { properties: { operation: { const: 'operation-contract' }, module: { enum: ['agdf_run/run.create', 'agdf_project/project.initialize'] } }, required: ['module'] },
+        { properties: { operation: { const: 'operation-contract' }, module: { anyOf: [{ enum: ['agdf_run/run.create', 'agdf_project/project.initialize'] }, { pattern: '/(?:planned_|run\\.create_from_planned)' }] } }, required: ['module'] },
+        { properties: { operation: { const: 'authoring-inputs' } }, required: ['planning'] },
       ] },
     ] } },
     { if: { properties: { operation: { const: 'artifact-readiness' } } }, then: { required: ['gate'], properties: { gate: { enum: [...ARTIFACT_READINESS_GATES] } } } },
@@ -91,7 +96,7 @@ for (const [key, field] of Object.entries(inputSchema.properties)) {
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read-only. Help for confirmed /repo: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. Other command help needs Run/revision. Follow navigation.next_calls sequentially; read all pages.',
+  description: 'Read-only. Help: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. Planning/migration help needs only target; Run help needs Run/revision. Follow navigation.next_calls sequentially; read all pages.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {
@@ -224,9 +229,17 @@ export function normalizeControlInspectInput(input) {
   if (primaryTarget && (!isAbsolute(primaryTarget) || primaryTarget.length > 4096)) throw new SkillDispatchInputError("primary_target", "primary_target must be an absolute bounded path");
   const targetSource = rawTargetSource ? normalizeTaskTargetSource(rawTargetSource, { allowEmpty: false }) : null;
   const runId = input.runId || null;
+  const planning = input.planning;
+  if (planning !== undefined && (schemaDiagnostics(planning, PLANNING_SCOPE_SCHEMA).length || runId || input.expectedRevisionId !== undefined || input.gate !== undefined
+    || !primaryTarget || !fieldModel.planning.operations.includes(operation))) throw new SkillDispatchInputError('planning', 'Planning requires one exact pre-Run source scope and confirmed target; no Run/revision/gate');
+  if (operation === 'operation-status' && Boolean(planning) !== /^(?:planned_ur\.|run\.create_from_planned\/)/u.test(input.contractModule ?? ''))
+    throw new SkillDispatchInputError('planning', 'Pre-Run planning status needs its original operation kind/UUID and planning scope');
   if (runId && !RUN_ID_PATTERN.test(runId)) throw new SkillDispatchInputError("run_id", "run_id is invalid");
   if (runId && input.allActive === true) throw new SkillDispatchInputError('all_active', 'All-active and selected Run scopes cannot be combined');
-  if (operation === 'project-state') {
+  if (operation === 'planned-inventory' || operation === 'planned-entry' || operation === 'authoring-inputs' && planning) {
+    if (!primaryTarget || runId || input.expectedRevisionId !== undefined || input.gate !== undefined || operation !== 'planned-inventory' && !planning)
+      throw new SkillDispatchInputError('planning', 'A confirmed target and planning scope are required; inventory needs only the target');
+  } else if (operation === 'project-state') {
     if (!primaryTarget || runId || input.expectedRevisionId !== undefined || input.gate !== undefined) throw new SkillDispatchInputError('binding', 'Project state requires only the confirmed target, no Run/revision');
   } else if (operation === "artifact-readiness") {
     if (!runId) throw new SkillDispatchInputError("run_id", "artifact-readiness requires an explicit run_id");
@@ -235,12 +248,15 @@ export function normalizeControlInspectInput(input) {
     if (!REVISION_ID_PATTERN.test(input.expectedRevisionId ?? "")) throw new SkillDispatchInputError("expected_revision_id", "A valid expected revision is required");
   } else if (BOUND_INSPECT_OPERATIONS.includes(operation)) {
     const creation = !runId && input.expectedRevisionId === undefined && (operation === 'operation-status'
-      || operation === 'operation-contract' && ['agdf_run/run.create', 'agdf_project/project.initialize'].includes(input.contractModule));
+      || operation === 'operation-contract' && (['agdf_run/run.create', 'agdf_project/project.initialize'].includes(input.contractModule) || input.contractModule?.startsWith('agdf_project/planned_layout.')
+        || PLANNING_COMMAND_KINDS.includes(input.contractModule?.split('/')[1])));
     if (!primaryTarget || !creation && (!runId || !REVISION_ID_PATTERN.test(input.expectedRevisionId ?? ''))) throw new SkillDispatchInputError('binding', 'An exact target, Run and expected revision binding is required; creation lookup uses target/original UUID');
     if (operation === 'operation-contract' && !OPERATION_CONTRACT_MODULES.includes(input.contractModule)) {
       throw new SkillDispatchInputError('module', 'Unsupported command group/operation module', { allowedValues: OPERATION_CONTRACT_MODULES });
     }
-    if (operation === 'operation-status' && !(REVISION_ID_PATTERN.test(input.contractModule ?? '') || !runId && /^project\.initialize\/[0-9a-f-]{36}$/.test(input.contractModule ?? '') && REVISION_ID_PATTERN.test(input.contractModule.split('/')[1]))) throw new SkillDispatchInputError('operation_id', 'An original operation UUID is required');
+    if (operation === 'operation-status' && !(REVISION_ID_PATTERN.test(input.contractModule ?? '')
+      || !runId && /^(?:project\.initialize|planned_layout\.apply|planned_ur\.(?:create|replace)|run\.create_from_planned)\/[0-9a-f-]{36}$/u.test(input.contractModule ?? '')
+        && REVISION_ID_PATTERN.test(input.contractModule.split('/')[1]))) throw new SkillDispatchInputError('operation_id', 'An original operation UUID is required');
     if (input.gate !== undefined && (!['operation-contract', 'presentation-document', 'presentation-preview'].includes(operation) || !APPROVAL_GATES.includes(input.gate))) throw new SkillDispatchInputError('gate', 'Unsupported operation gate');
   } else if (input.gate !== undefined || input.expectedRevisionId !== undefined) {
     throw new SkillDispatchInputError("gate", "Draft binding fields are supported only by artifact-readiness");
@@ -274,6 +290,7 @@ export function normalizeControlInspectInput(input) {
     target_source: targetSource,
     primary_target: primaryTarget,
     run_id: runId,
+    planning,
     gate: input.gate,
     expected_revision_id: input.expectedRevisionId,
     presentation_id: input.presentationId, target_id: input.targetId, cursor: input.cursor,

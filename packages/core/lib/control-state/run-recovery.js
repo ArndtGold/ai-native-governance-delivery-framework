@@ -12,6 +12,7 @@ import { duplicateArtefactRowTypes, parseControlState, parseRunState, scalarFiel
 import { applyRunSeals, artefactFileDigest, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths, runSealState } from "./run-seal.js";
 import { runPath } from "./run-state-reader.js";
 import { atomicWrite, recoveryRunContent, unapproveRecoveryApprovals, withRunLock, writeRunRecoveryLocked } from "./run-state-writer.js";
+import { readControlLayout, PLANNED_LAYOUT, withControlMutation, markControlMutationEffect } from './control-layout.js';
 
 const sha256 = (value) => `sha256:${createHash("sha256").update(value, "utf8").digest("hex")}`;
 const digestContent = (content) => sha256(canonicalRunText(content));
@@ -169,6 +170,12 @@ function createJournal(path, record) {
 }
 
 export function previewRunRecovery(root, runId, options = {}) {
+  const { path } = safeRunFiles(root, runId);
+  return withRunLock(path, () => withControlMutation(root, { resource: `recovery-preview:${runId}` },
+    () => publishRecoveryPreview(root, runId, options)));
+}
+
+function publishRecoveryPreview(root, runId, options) {
   const inspection = inspectRunRecovery(root, runId, options);
   if (inspection.artefacts.some((entry) => entry.status !== "valid" && !entry.planned)) {
     throw new Error(inspection.artefacts.some((entry) => entry.status === "invalid")
@@ -197,6 +204,7 @@ export function previewRunRecovery(root, runId, options = {}) {
   preview.confirmation = PREVIEW_CONFIRMATION(runId, previewId, preview.preview_digest);
   const dir = previewDirectory(runDir);
   const journalPath = join(dir, `${previewId}.json`);
+  markControlMutationEffect();
   createJournal(journalPath, preview);
   return Object.freeze({
     schema_version: "1", outcome: "previewed", run_id: runId, preview_id: previewId,

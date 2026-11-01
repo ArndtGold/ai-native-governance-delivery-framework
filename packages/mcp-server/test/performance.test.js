@@ -7,6 +7,9 @@ import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient } from "./helpers.js";
 
 const RUNS = 20;
+// Maintainer-adjusted cold-start budget includes the owned launcher, integrity
+// verification, generation qualification and MCP handshake through tools/list.
+const COLD_P95_LIMIT_MS = 2_500;
 const RUN_ID = "agdf-mcp-dispatch-server";
 const p95 = (samples) => [...samples].sort((left, right) => left - right)[Math.ceil(samples.length * 0.95) - 1];
 const milliseconds = (started) => Number(process.hrtime.bigint() - started) / 1_000_000;
@@ -74,7 +77,7 @@ try {
     warm_p95_ms: Math.round(p95(warm) * 1000) / 1000,
   };
   console.log(JSON.stringify(evidence));
-  assert.ok(p95(cold) <= 1_500, `cold tools/list p95 exceeded 1500 ms: ${p95(cold)}`);
+  assert.ok(p95(cold) <= COLD_P95_LIMIT_MS, `cold tools/list p95 exceeded ${COLD_P95_LIMIT_MS} ms: ${p95(cold)}`);
   assert.ok(p95(warm) <= 1_000, `warm dispatch p95 exceeded 1000 ms: ${p95(warm)}`);
 } finally {
   fixture.dispose();

@@ -1,0 +1,20 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test test/browser/backlog-titles.spec.mjs test/browser/draft-check.spec.mjs test/browser/decision-close-integration.spec.mjs test/browser/planned.spec.mjs
+
+Running 5 tests using 1 worker
+
+(node:98280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/backlog-titles.spec.mjs:7:1 › SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR details, reversed order, scope replacement and unchanged sources in light/dark (4.4s)
+  ✓  2 test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) (37.9s)
+  ✓  3 test/browser/decision-close-integration.spec.mjs:83:1 › Confirmed approval handoff retires its assembled Core session while keeping the receipt and exact historical document (synthetic host) (52.5s)
+(node:98280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 test/browser/draft-check.spec.mjs:7:1 › SCN-015/016/018: built compact/expanded checks use actual Core, preserve keyboard/disclosure/position and wrap long findings (4.2s)
+(node:98280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 test/browser/planned.spec.mjs:8:1 › planned UR overview uses Core ordering and source detail without Run/gate creation (2.5s)
+
+  5 passed (1.8m)

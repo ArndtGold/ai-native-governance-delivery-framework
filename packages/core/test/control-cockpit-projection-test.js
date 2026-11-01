@@ -41,7 +41,8 @@ test('cockpit assessment projects the evaluated outcome without a second doctor-
   assert.equal(projectCockpitAssessment({ ...report, missing_approval: 'Approval: QA' }, 'active').state, 'blocked');
   assert.equal(projectCockpitAssessment({ ...report, status: 'unknown' }, 'active').state, 'unconfirmed');
   assert.equal(projectCockpitAssessment(report, 'abandoned').state, 'ended');
-  assert.deepEqual(projectCockpitAssessment({ ...report, completion: { fulfilled: true } }, 'completed'), { state: 'completed', authorizes: false });
+  assert.deepEqual(projectCockpitAssessment(report, 'completed'), { state: 'unconfirmed', authorizes: false });
+  assert.equal(projectCockpitAssessment({ ...report, completion: { fulfilled: true } }, 'completed').state, 'completed');
 });
 test('captured assessment matches canonical gate evaluation and performs no writes', () => {
   const f = fixture(); try {
@@ -84,7 +85,7 @@ test('SCN-001/002/008/020: Run inventory stays passive; selected valid, complete
     assert.throws(() => reader.document('unknown', document.snapshot_id), /resource_denied/);
     reader.freshness(document.snapshot_id); assert.deepEqual(treeBytes(f.root), before);
     const completed = reader.run('fixture-completed', document.snapshot_id);
-    assert.equal(completed.data.run.lifecycle, 'completed'); assert.equal(completed.data.run.evaluation.control_assessment.state, projectCockpitAssessment(evaluateGateCheck(f.root, { runId: 'fixture-completed' }), 'completed').state);
+    assert.equal(completed.data.run.lifecycle, 'completed'); assert.equal(completed.data.run.evaluation.control_assessment.state, 'unconfirmed', 'A synthetic lifecycle scalar alone supplies no completion evidence');
     const broken = reader.run('broken', completed.snapshot_id); assert.equal(broken.code, 'invalid_run');
     assert.equal(broken.data.run.resources.length, 0); assert.ok(broken.data.run.diagnostics.length);
     const newer = reader.snapshot(); assert.throws(() => reader.run('fixture-a', broken.snapshot_id), /resource_denied/);

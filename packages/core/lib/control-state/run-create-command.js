@@ -10,6 +10,7 @@ import { withOwnedFileLock } from './run-state-writer.js';
 import { runSealState } from './run-seal.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
+import { withControlMutation } from './control-layout.js';
 
 import { creationRunId } from './run-identity.js';
 export { creationRunId };
@@ -19,8 +20,9 @@ export { creationRunId };
 export function createRunCommand(root, input, { requestDigest, packageVersion, checkpoint = () => {} }) {
   const runId = creationRunId(input.operation_id);
   const relative = `.agdf/control/runs/${runId}/RUN_STATE.md`;
-  assertCanonicalRunStore(root);
-  return withOwnedFileLock(join(root, '.agdf/control/runs', `.create-${input.operation_id}`), () => {
+  assertCanonicalRunStore(root, { historicalRead: true });
+  return withOwnedFileLock(join(root, '.agdf/control/runs', `.create-${input.operation_id}`), () => withControlMutation(root, { resource: `run.create:${runId}`, operation_id: input.operation_id,
+    resume: true, proveOutcome: result => ['recorded', 'already_applied'].includes(result?.outcome) }, () => {
     function matching(content) {
       const parsed = parseRunState(content, runId), receipts = readRunOperations(content);
       const receipt = receipts.receipts.find(r => r.operation_id === input.operation_id);
@@ -32,6 +34,9 @@ export function createRunCommand(root, input, { requestDigest, packageVersion, c
       if (hasSymlinkComponent(root, relative) || containedRegularFile(root, relative).status !== 'valid') throw Error('run_path_invalid');
       return { outcome: 'already_applied', run_id: runId, receipt: matching(readFileSync(join(root, relative), 'utf8')), historical_effect: true };
     }
+    // A proven receipt above is a replay, independent of current live pointers.
+    // New or staged effects still require today's complete layout scaffold.
+    assertCanonicalRunStore(root);
     const recovered = recoverRunCreationStage(root, runId, matching);
     if (recovered) return { outcome: 'recorded', run_id: runId, receipt: recovered, recovered_stage: true };
     assertInputConfigurationCurrent(root);
@@ -50,5 +55,5 @@ export function createRunCommand(root, input, { requestDigest, packageVersion, c
     });
     checkpoint('creation_published');
     return { outcome: 'recorded', run_id: runId, receipt };
-  });
+  }));
 }

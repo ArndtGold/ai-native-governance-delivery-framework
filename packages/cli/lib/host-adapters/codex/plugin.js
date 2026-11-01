@@ -1,13 +1,14 @@
 import process from "node:process";
 import { inspectPluginList } from "../../installers/plugin-command.js";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { homedir } from 'node:os';
 import { join } from "node:path";
 import { inspectGeneratedRepositoryMarketplace } from "#agdf-core/runtime/plugin-provenance.js";
 import { execHostFileSync } from "../../host-command.js";
 import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { CODEX_REGISTRATION_REVISION, isCodexLocalInstallVersion } from "./identity.js";
-import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace, inspectCodexOwnedManifestRepair } from "../../installers/local-marketplace.js";
+import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace, inspectCodexOwnedManifestRepair, inspectPlanningMarketplace } from "../../installers/local-marketplace.js";
 import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "./plugin-mcp.js";
 import { ownedFileSnapshot } from "../../lifecycle/owned-mutation.js";
 import { inspectCodexCockpitAdmission, inspectCodexSetup } from '../../mcp-lifecycle/adapters/codex.js';
@@ -24,7 +25,10 @@ export function installCodexGlobalPlugin({
   migrateMcp = migrateLegacyCodexMcpRegistration,
   prepareMcp = prepareCodexPluginMcp,
   target,
+  packageSelection = 'core',
 } = {}) {
+  if (packageSelection === 'planning') return installCodexPlanningPlugin({ exec, prepare, dataRoot, env });
+  if (packageSelection !== 'core') throw Error('AGDF_PACKAGE_SELECTION_INVALID');
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
   if (target) target = realpathSync(target);
@@ -100,6 +104,49 @@ export function installCodexGlobalPlugin({
     };
   } catch (error) {
     recoverMarketplace({ exec, migration, transaction, error });
+    throw error;
+  }
+}
+
+function installCodexPlanningPlugin({ exec, prepare, dataRoot, env }) {
+  const list = runPluginPhase(exec, 'codex', ['plugin', 'list'], 'verification', { ...captureOptions(), maxBuffer: CODEX_PLUGIN_LIST_MAX_BUFFER });
+  const coreSelector = ['agdf@agdf-repo', 'agdf@agdf'].find(selector => pluginVersionFromList(list, selector));
+  const coreVersion = coreSelector && pluginVersionFromList(list, coreSelector);
+  if (!coreVersion || !/^[0-9A-Za-z.+-]+$/u.test(coreVersion)) throw Error('AGDF_PLANNING_CORE_REQUIRED');
+  const marketplace = coreSelector.split('@')[1];
+  const coreRoot = join(env.CODEX_HOME || join(homedir(), '.codex'), 'plugins/cache', marketplace, 'agdf', coreVersion);
+  let capability;
+  try { capability = JSON.parse(readFileSync(join(coreRoot, 'meta/agdf-plugin.definition.json'), 'utf8')).planning; } catch {}
+  if (capability?.schema !== 'planned-ur-v1' || capability.protocol_version !== 1 || capability.authoring_owner !== 'ur-definition') throw Error('AGDF_PLANNING_COMPATIBLE_CORE_REQUIRED');
+  const transaction = prepare({ packageSelection: 'planning', expectedVersion: pluginDefinition.version, ...(dataRoot ? { dataRoot } : {}) });
+  const output = runPluginPhase(exec, 'codex', ['plugin', 'marketplace', 'list', '--json'], 'marketplace', captureOptions());
+  const entries = JSON.parse(output)?.marketplaces;
+  if (!Array.isArray(entries)) throw Error('AGDF_PLANNING_MARKETPLACE_UNKNOWN');
+  const matches = entries.filter(entry => entry?.name === 'agdf-planning');
+  if (matches.length > 1) throw Error('AGDF_PLANNING_MARKETPLACE_UNKNOWN');
+  const previous = matches[0], previousRoot = previous?.marketplaceSource?.source ?? previous?.source?.source ?? previous?.marketplaceSource?.path ?? previous?.source?.path ?? previous?.path;
+  if (previous) {
+    if (typeof previousRoot !== 'string') throw Error('AGDF_PLANNING_MARKETPLACE_UNKNOWN');
+    inspectPlanningMarketplace(previousRoot); // Foreign catalogs are never replaced.
+  }
+  let added = false, removed = false;
+  try {
+    if (previousRoot !== transaction.root) {
+      if (previousRoot) { runPluginPhase(exec, 'codex', ['plugin', 'marketplace', 'remove', 'agdf-planning', '--json'], 'marketplace', captureOptions()); removed = true; }
+      runPluginPhase(exec, 'codex', ['plugin', 'marketplace', 'add', transaction.root, '--json'], 'marketplace', captureOptions()); added = true;
+    }
+    runPluginPhase(exec, 'codex', ['plugin', 'add', 'agdf-planning@agdf-planning', '--json'], 'plugin_operation', captureOptions());
+    const observed = runPluginPhase(exec, 'codex', ['plugin', 'list'], 'verification', { ...captureOptions(), maxBuffer: CODEX_PLUGIN_LIST_MAX_BUFFER });
+    const installedVersion = pluginVersionFromList(observed, 'agdf-planning@agdf-planning');
+    if (installedVersion !== transaction.codexInstallVersion) throw Error('AGDF_PLANNING_VERSION_UNCONFIRMED');
+    return { surface: 'codex', operation: 'install', expectedVersion: transaction.codexInstallVersion, installedVersion,
+      verificationStatus: 'configured_pending_restart', pluginRoot: transaction.pluginRoot, digest: transaction.digest, sourceDigest: transaction.sourceDigest,
+      runtimeDigest: null, evidence: ['optional_planning_only', 'compatible_core_metadata', 'codex plugin list', 'fresh_session_capability_check_required'], nativeOutput: [] };
+  } catch (error) {
+    const evidence = [], recovery = recoveryAttempt(exec, 'codex', evidence);
+    if (added) recovery(['plugin', 'marketplace', 'remove', 'agdf-planning', '--json']);
+    if (removed) recovery(['plugin', 'marketplace', 'add', previousRoot, '--json']);
+    error.recovery = evidence;
     throw error;
   }
 }

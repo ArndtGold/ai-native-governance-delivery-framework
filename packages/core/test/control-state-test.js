@@ -40,7 +40,7 @@ import { evaluateDoctor, evaluateDoctorWithRunState } from "../lib/control-evalu
 import { policyForRunContent } from "../lib/control-evaluation/run-step-policy.js";
 import { recordRunStep } from "../lib/control-state/run-steps.js";
 import { initializeCanonicalControl } from "../../cli/lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../../cli/lib/scaffold/plan.js";
+import { generatedFilesForTarget } from './fixtures/legacy-init-plan.js';
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { normalizeBacklogStatus } from "../lib/control-evaluation/shared.js";
 import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from "../lib/interaction-presentation.js";
@@ -365,7 +365,7 @@ try {
 
   for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     const readyRoot = mkdtempSync(join(tmpdir(), `agdf-ready-${gate.toLowerCase()}-`));
-    execFileSync(process.execPath, [cli, "init", "--dir", readyRoot]);
+    initializeCanonicalControl(readyRoot, generatedFilesForTarget('init', readyRoot, false, 'en'));
     rmSync(join(readyRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });
     const runId = `ready-${gate.toLowerCase()}`;
     execFileSync(process.execPath, [cli, "run-create", "--dir", readyRoot, "--run", runId]);

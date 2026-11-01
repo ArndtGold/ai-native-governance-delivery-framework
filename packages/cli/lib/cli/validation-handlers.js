@@ -21,6 +21,9 @@ import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
 import { resolveTaskTarget } from "#agdf-core/task-target-resolution.js";
 import { renderSkillDispatchRecovery, renderTaskTargetOrientation, renderSourceRevision, renderRunInventory } from "#agdf-core/interaction-presentation.js";
 import { readRunInventory } from "#agdf-core/control-state/run-inventory-reader.js";
+import { readWorkInventory } from '#agdf-core/control-state/planned-inventory.js';
+import { readControlLayout, PLANNED_LAYOUT } from '#agdf-core/control-state/control-layout.js';
+import { executePlannedCli } from './planned-command.js';
 import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "#agdf-core/skill-dispatch/contract.js";
 import { createCoreServices } from "#agdf-core";
@@ -69,6 +72,7 @@ export function createValidationHandlers(io = console) {
       finally { if (fd !== undefined) closeSync(fd); }
     }]),
     ["control-maintenance", (options) => executeControlMaintenance(options, io)],
+    ['planned', options => executePlannedCli(options, io)], ['layout-migrate', options => executePlannedCli(options, io)],
     ["run-create", (options) => {
       try {
         const path = createRun(options.dir, options.runId);
@@ -160,6 +164,11 @@ export function createValidationHandlers(io = console) {
     }],
     ["inventory", (options) => {
       const language = options.languageExplicit ? options.language?.chat_language : resolveConfiguredChatLanguage(options.dir);
+      if (readControlLayout(options.dir).layout === PLANNED_LAYOUT) {
+        const inventory = readWorkInventory(options.dir, { language });
+        io.log(options.json ? JSON.stringify(inventory, null, 2) : inventory.entries.map(row => `${row.kind}: ${row.title} · ${row.coverage}`).join('\n'));
+        return inventory.state === 'unavailable' ? 2 : 0;
+      }
       const inventory = readRunInventory(options.dir, { language });
       io.log(options.json ? JSON.stringify(inventory, null, 2) : renderRunInventory(inventory, interactionLocales, language).markdown);
       return 0;

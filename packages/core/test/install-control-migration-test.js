@@ -7,7 +7,7 @@ import { selectControlMigration } from "../../cli/lib/install-setup/interaction.
 import { runInstallSetup } from "../../cli/lib/install-setup/service.js";
 import { renderControlMigration, renderControlMigrationDecision, renderInstallSetupText } from "../../cli/lib/install-setup/presentation.js";
 import { initializeCanonicalControl } from "../../cli/lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../../cli/lib/scaffold/plan.js";
+import { generatedFilesForTarget } from './fixtures/legacy-init-plan.js';
 import { renderRunState } from "../lib/control-state/run-state-repository.js";
 import { runSealState, sealRunState } from "../lib/control-state/run-seal.js";
 import { applyRunRecovery, previewRunRecovery } from "../lib/control-state/run-recovery.js";

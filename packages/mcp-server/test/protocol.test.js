@@ -7,6 +7,7 @@ import { createCoreServices } from '../../core/lib/index.js';
 import { readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
 import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from "../../cli/lib/mcp-dispatch-runtime.js";
+import { CONTROL_INSPECT_MAX_DEFINITION_BYTES } from '../../core/lib/control-inspect/contract.js';
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
   VALID_PRESENTATION_LANGUAGE_CASES,
@@ -131,7 +132,7 @@ for (const modern of [false, true]) {
       assert.ok(declared, `${label}: missing MCP tool inventory`);
       assert.deepEqual([...declared[1].matchAll(/`(agdf_[a-z]+)`/g)].map((match) => match[1]), tools.map((tool) => tool.name), `${label}: MCP tool inventory differs from tools/list`);
     }
-    assert.ok(Buffer.byteLength(JSON.stringify(tools[1])) <= 5000, `${protocol}: actual discovered definition budget`);
+    assert.ok(Buffer.byteLength(JSON.stringify(tools[1])) <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `${protocol}: actual discovered definition budget`);
     assert.ok(tools[1].outputSchema, 'output validation retained');
     for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.type || field.enum || field.$ref, 'discovery retains input types');
     for (const name of ['target_source', 'primary_target', 'module', 'gate']) assert.ok(tools[1].inputSchema.properties[name].description?.length > 10);

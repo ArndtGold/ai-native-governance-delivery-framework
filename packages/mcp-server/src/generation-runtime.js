@@ -3,7 +3,7 @@ import { createAgdfWorkerExecutor } from './worker.js';
 import { loadCockpitResource } from './cockpit-resource.js';
 import { generationMessage, validGenerationMessage, generationManifest, generationFailureReason } from './generation-protocol.js';
 import { createMcpDispatchRuntime, createMcpDecisionRuntime, createMcpCockpitRuntime, DECISION_UI_URI,
-  inspectMcpDispatcherRuntime, releaseAbandonedOwnedLock } from 'create-agdf/mcp-dispatch-runtime';
+  inspectMcpDispatcherRuntime, releaseAbandonedOwnedLock } from 'create-agdf/mcp-worker-runtime';
 export function startGenerationRuntime({ epoch, generation, channel }) {
   let runtime, executor, starting = false, closing = false, inflight = 0, serverDigest, sdkDigest, uiDigest;
   const observed = new Set(), unknown = new Set();

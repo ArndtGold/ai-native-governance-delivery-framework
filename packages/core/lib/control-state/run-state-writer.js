@@ -15,6 +15,9 @@ import { transitionDecisionForRunState } from "../control-evaluation/gate-policy
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 
 import { atomicWrite, fsyncDirectory, withOwnedFileLock } from "../owned-file-lock.js";
+import { assertLayoutRunWrite, withControlMutation, markControlMutationEffect, inspectLayoutMaintenance } from './control-layout.js';
+import { assertLayoutMigrationEffect } from './layout-migration-proof.js';
+import { assertPlannedOriginImmutable } from './planned-origin.js';
 export { atomicWrite, fsyncDirectory, withOwnedFileLock, releaseAbandonedOwnedLock, OWNED_LOCK_CHANNEL } from "../owned-file-lock.js";
 
 function stampRunActivity(content, updatedAt = new Date().toISOString()) {
@@ -25,13 +28,13 @@ function stampRunActivity(content, updatedAt = new Date().toISOString()) {
 }
 
 export function withRunLock(path, work, options) {
-  return withOwnedFileLock(path, work, options);
+  return withOwnedFileLock(path, () => withControlMutation(runRootFromStatePath(path), { resource: `run:${basename(dirname(path))}` }, work), options);
 }
 
 // Every write advances the revision and re-seals the run. Approval rows may change only when the
 // caller has validated one exact gate approval (run-approve) or the bounded PRD supersession
 // (run-revise); any other write must keep them intact.
-export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, appendedRevision, appendedOperation, appendedEvidence, checkpoint } = {}) {
+export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, appendedRevision, appendedOperation, appendedEvidence, checkpoint, updatedAt } = {}) {
   const root = runRootFromStatePath(path);
   if (!allowPendingTransaction && existsSync(join(dirname(path), "RUN_STEP_PENDING.json"))) {
     throw new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
@@ -39,6 +42,7 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
     const currentContent = readFileSync(path, "utf8");
     const current = parseRunState(currentContent);
     if (!current.valid) throw new Error("AGDF_RUN_STATE_INVALID");
+    assertLayoutRunWrite(root, current);
     // A superseded or abandoned Run is final; its own closure write starts from active.
     assertRunNotEnded(currentContent);
     if (current.meta.revision_id !== expectedRevisionId
@@ -58,6 +62,7 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
     assertSourceRevisionsChange(currentContent, content, appendedRevision);
     assertRunOperationsChange(currentContent, content, appendedOperation);
     assertEvidenceBindingsChange(currentContent, content, appendedEvidence);
+    assertPlannedOriginImmutable(root, currentContent, content);
     if (appendedEvidence && (!validEvidenceBinding(appendedEvidence) || appendedEvidence.run_id !== current.meta.run_id
       || appendedEvidence.operation_id !== (appendedOperation?.operation_id ?? appendedBinding?.operation.id))) throw Error('AGDF_EVIDENCE_BINDINGS_INVALID');
     if (appendedOperation && (!validRunOperation(appendedOperation) || (allowApprovalChange !== (appendedOperation.kind === 'prd_revision.reopen')) || appendedReceipt || appendedBinding || appendedRevision
@@ -65,6 +70,13 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
         || appendedOperation.effect.resulting_revision_id !== nextRevisionId || appendedOperation.effect.revision !== Number(current.meta.revision) + 1)) throw Error("AGDF_RUN_OPERATIONS_INVALID");
     if (appendedOperation?.kind === 'prd_revision.reopen' && (!validateBeforeWrite || !validateEarlyPrdHistory(root, appendedOperation)
       || !archivedRunMatches(root, earlyPrdHistoryReference(appendedOperation), currentContent) || !validEarlyPrdEffect(currentContent, content))) throw Error('AGDF_RUN_OPERATIONS_INVALID');
+    if (appendedOperation?.kind === 'control_layout.migrate') {
+      const maintenance = inspectLayoutMaintenance(root);
+      if (!validateBeforeWrite || current.meta.control_state_version !== '2' || maintenance.state !== 'pending'
+        || maintenance.marker.schema_version !== 2 || maintenance.marker.operation_id !== appendedOperation.operation_id
+        || maintenance.marker.request_digest !== appendedOperation.request_digest) throw Error('AGDF_LAYOUT_MIGRATION_EFFECT_INVALID');
+      assertLayoutMigrationEffect(root, currentContent, content, appendedOperation);
+    }
     if (appendedRevision && (!allowApprovalChange || appendedReceipt || appendedBinding || !validateBeforeWrite
         || !validSourceRevision(appendedRevision) || appendedRevision.run_id !== current.meta.run_id
         || appendedRevision.previous_revision_id !== expectedRevisionId || appendedRevision.resulting_revision_id !== nextRevisionId
@@ -86,17 +98,20 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
     }
     if (duplicateArtefactRowTypes(content).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
     validateBeforeWrite?.();
-    const next = sealRunState(root, stampRunActivity(canonicalRunText(content))
+    const next = sealRunState(root, stampRunActivity(canonicalRunText(content), updatedAt)
       .replace(
         /^- revision:\s*.*$/m,
         `- revision: ${Number(current.meta.revision) + 1}`,
       )
       .replace(/^- revision_id:\s*.*$/m, `- revision_id: ${nextRevisionId}`));
     const candidate = parseRunState(next);
-    if (!candidate.valid || candidate.meta.run_id !== current.meta.run_id) {
+    if (!candidate.valid || candidate.meta.run_id !== current.meta.run_id || runSealState(root, next).status !== 'valid') {
       throw new Error("AGDF_RUN_STATE_INVALID");
     }
 
+    if (candidate.meta.control_state_version !== (appendedOperation?.kind === 'control_layout.migrate' ? '3' : current.meta.control_state_version))
+      throw Error('AGDF_CONTROL_VERSION_CHANGE_FORBIDDEN');
+    markControlMutationEffect();
     atomicWrite(path, next, { checkpoint });
     return candidate;
 }
@@ -164,6 +179,7 @@ export function writeRunRecoveryLocked(path, candidateContent, {
   const currentContent = readFileSync(path, "utf8");
   const current = parseRunState(currentContent);
   if (!current.valid) throw new Error("AGDF_RUN_STATE_INVALID");
+  assertLayoutRunWrite(root, current);
   if (current.meta.run_id !== basename(dirname(path))) throw new Error("AGDF_RUN_PATH_INVALID");
   assertRunNotEnded(currentContent);
   if (current.meta.lifecycle !== "active") throw new Error("AGDF_RECOVERY_LIFECYCLE_UNSUPPORTED");
@@ -188,6 +204,7 @@ export function writeRunRecoveryLocked(path, candidateContent, {
   const sealed = recoveryRunContent(root, candidateContent, { revision: current.meta.revision, nextRevisionId, updatedAt });
   const validated = parseRunState(sealed);
   if (!validated.valid || runSealState(root, sealed).status !== "valid") throw new Error("AGDF_RUN_STATE_INVALID");
+  markControlMutationEffect();
   atomicWrite(path, sealed);
   return validated;
 }

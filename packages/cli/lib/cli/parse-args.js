@@ -54,7 +54,7 @@ export function parseArgs(argv, dependencies = {}) {
   let intakeMode;
   let continueDelivery = false;
   let presentationId;
-  let operationId, assurance;
+  let operationId, assurance, planId, sourceDigest, priority, pendingDigest, packageSelection;
   let revisionMode, sourceGate, previewDigest;
   let fixture;
   let persist = false;
@@ -102,6 +102,16 @@ export function parseArgs(argv, dependencies = {}) {
     if (!arg) continue;
     if (arg.startsWith("--")) flagCounts.set(arg, (flagCounts.get(arg) ?? 0) + 1);
     if (arg === "--help" || arg === "-h") return { kind: "help" };
+    if (['--plan-id', '--source-digest', '--priority', '--pending-digest', '--package'].includes(arg)) {
+      if (flagCounts.get(arg) !== 1) throw new CliUsageError(`${arg} may not repeat`);
+      const value = requiredValue(args, i, arg); i++;
+      if (arg === '--plan-id') planId = value;
+      else if (arg === '--source-digest') sourceDigest = value;
+      else if (arg === '--priority') priority = value;
+      else if (arg === '--pending-digest') pendingDigest = value;
+      else packageSelection = value;
+      continue;
+    }
     if (arg === "--force") { force = true; continue; }
     if (arg === "--json") { json = true; continue; }
     if (arg === "--verbose") { verbose = true; continue; }
@@ -360,6 +370,17 @@ export function parseArgs(argv, dependencies = {}) {
   }
 
   if (Object.hasOwn(commandGroupRoutes, target) && [...flagCounts.keys()].some(flag => !['--command-file', '--json'].includes(flag))) throw new CliUsageError('Bound command routes accept only --command-file and --json; no overriding envelope fields.');
+  if (['planned', 'layout-migrate'].includes(target)) {
+    const common = ['--dir', '--action', '--json', '--language'];
+    const fields = target === 'planned' ? {
+      list: [], inspect: ['--plan-id'], create: ['--evidence', '--priority', '--operation'],
+      replace: ['--plan-id', '--source-digest', '--evidence', '--operation'],
+      start: ['--plan-id', '--source-digest', '--operation'], status: ['--plan-id', '--operation'],
+    } : { preview: [], apply: ['--operation', '--preview-digest', '--confirmation'], recover: ['--operation', '--pending-digest'], status: ['--operation'] };
+    const allowed = new Set([...common, ...(fields[recoveryAction] ?? [])]);
+    if ([...flagCounts].some(([flag, count]) => count !== 1 || !allowed.has(flag)))
+      throw new CliUsageError('Planning accepts only the unique fields of its selected action.');
+  }
   return {
     kind: "command",
     options: {
@@ -389,6 +410,9 @@ export function parseArgs(argv, dependencies = {}) {
       continueDelivery,
       presentationId,
       ...(operationId !== undefined ? { operationId } : {}),
+      ...(planId !== undefined ? { planId } : {}), ...(sourceDigest !== undefined ? { sourceDigest } : {}),
+      ...(priority !== undefined ? { priority } : {}), ...(pendingDigest !== undefined ? { pendingDigest } : {}),
+      ...(packageSelection !== undefined ? { packageSelection } : {}),
       ...(assurance !== undefined ? { assurance } : {}),
       ...(revisionMode !== undefined ? { revisionMode } : {}),
       ...(sourceGate !== undefined ? { sourceGate } : {}),

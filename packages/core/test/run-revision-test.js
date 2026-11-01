@@ -7,6 +7,8 @@ import { reopenPrdRevision } from "../lib/control-state/run-revision.js";
 import { sealRunState } from "../lib/control-state/run-seal.js";
 import { recordRunRevision } from "../lib/control-state/run-recording.js";
 import { writeRun } from "../lib/control-state/run-state-writer.js";
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 
 // run-revise is the one bounded path that removes a recorded approval: PRD, at SD, before any
 // later artefact is linked or approved. Everything else must be rejected without a write.
@@ -85,7 +87,7 @@ ${sdLinked ? `| SD | .agdf/control/artefacts/${runId}/SD.md | draft | ready |\n`
 
 try {
   execFileSync("git", ["init", "-q", root]);
-  execFileSync(process.execPath, [cli, "init", "--dir", root], { stdio: "pipe" });
+  initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
   rmSync(join(root, ".agdf", "control", "AGDF_RUN.md"), { force: true });
   mkdirSync(artefacts, { recursive: true });
   for (const name of ["UR.md", "BROWNFIELD_REVIEW.md", "PRD.md", "SD.md"]) writeFileSync(join(artefacts, name), `# ${name}\n`);

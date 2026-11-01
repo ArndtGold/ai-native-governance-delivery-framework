@@ -222,6 +222,6 @@ scan, claim garbage collection or timeout alone establishes safe termination.
 Repository tests exercise both actual STDIO protocols, replacement, bounded channel
 admission and real write/lock interruption in disposable, fully rehashed fault candidates.
 They do not qualify an installed host or another OS. The fixed performance test selects
-the actual owned plugin launcher; its existing 20/20 samples and 1500/1000 ms limits
-remain unchanged. Final performance acceptance and native qualification are separate
+the actual owned plugin launcher with 20/20 samples and p95 limits of 2500 ms cold /
+1000 ms warm. Performance acceptance and native qualification are separate
 required evidence, not consequences of the topology declaration.

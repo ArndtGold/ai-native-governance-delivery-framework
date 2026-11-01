@@ -23,9 +23,15 @@ export function evaluateUrReadiness(targetDir, runState, { presentationLanguage 
   const path = resolvedArtefactFile(targetDir, runState.artefacts.get("UR")?.path);
   if (!path) return null;
   const content = readFileSync(path, "utf8");
+  return evaluateUrContentReadiness(content, { languages: resolveArtifactPresentationLanguages(targetDir, presentationLanguage), path });
+}
+
+// Shared authoring semantics for Run and pre-Run planning; planning explicitly
+// requires the current clarification contract rather than legacy marker absence.
+export function evaluateUrContentReadiness(content, { languages, path = 'UR.md', requireClarification = false } = {}) {
   try { previewRequirement(content); } catch (error) { return { ready: false, legacy: false, open_items: [error.message] }; }
   const markers = content.match(/^Requirements clarification:[^\r\n]*$/gmu) ?? [];
-  if (!markers.length) return { ready: true, legacy: true, open_items: [] };
+  if (!markers.length && !requireClarification) return { ready: true, legacy: true, open_items: [] };
   const open = markers.length === 1 && markers[0].trim() === UR_AUTHORING_FORMAT.readiness_contract ? [] : ["Requirements clarification"];
   const blocks = content.split(/^##[ \t]+/mu).slice(1).map(block => {
     const [heading, ...body] = block.split(/\r?\n/u);
@@ -36,7 +42,6 @@ export function evaluateUrReadiness(targetDir, runState, { presentationLanguage 
     const body = matches[0]?.body ?? "";
     if (matches.length !== 1 || !body || templatePrompts.has(body) || /<[^>]+>|^(?:tbd|todo|to confirm)[ \t]*$/imu.test(body)) open.push(section);
   }
-  const languages = resolveArtifactPresentationLanguages(targetDir, presentationLanguage);
   const summary = evaluateApprovalSummaryReadiness("UR", content, languages);
   if (!summary.ready) open.push(summary.required_heading);
   // Name the unreadable field and its expected line, not only the section heading.

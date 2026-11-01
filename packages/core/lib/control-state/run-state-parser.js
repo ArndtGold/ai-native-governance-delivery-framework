@@ -31,7 +31,7 @@ export function parseRunState(content, expected) {
   if (expected && id !== expected)
     findings.push({ code: "AGDF_RUN_PATH_MISMATCH" });
   const version = values.get('control_state_version');
-  if (version !== '2') {
+  if (!['2', '3'].includes(version)) {
     const unsupported = /^[1-9]\d*$/u.test(version ?? '') && !duplicates.includes('control_state_version');
     findings.push({ code: unsupported ? 'AGDF_RUN_VERSION_UNSUPPORTED' : 'AGDF_RUN_VERSION_INVALID',
       actual_version: version ?? null, classification: unsupported ? 'unsupported_version' : 'unclassified' });
@@ -87,6 +87,7 @@ export function parseRunState(content, expected) {
     ...revisions.receipts.map(r => ({ id: r.operation_id, revision: r.revision, next: r.resulting_revision_id })),
   ];
   if (!runOperations.valid || runOperations.receipts.some(r => r.run_id !== id
+      || ['control_layout.migrate', 'run.create_from_planned'].includes(r.kind) && version !== '3'
       || r.effect.revision > Number(values.get("revision"))
       || r.effect.revision === Number(values.get("revision")) && r.effect.resulting_revision_id !== values.get("revision_id")
       || existingEffects.some(e => e.id === r.operation_id || e.revision === r.effect.revision || e.next === r.effect.resulting_revision_id))) {

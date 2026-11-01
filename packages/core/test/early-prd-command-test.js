@@ -14,11 +14,14 @@ import { readRunState } from '../lib/control-evaluation/run-state.js';
 import { readPendingRunStepJournal } from '../lib/control-state/run-step-transaction.js';
 import { revisionHistoryPrefix } from '../lib/control-state/run-source-revisions.js';
 import { intentStages, archiveStages, commitStages, beforeIntent, beforeRunCommit } from './fixtures/transaction-checkpoints.js';
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 
+for (const layout of ['master-backlog-v1', 'planned-urs-v1']) {
 const root = mkdtempSync(join(tmpdir(), 'agdf-early-prd-command-')), seed = mkdtempSync(join(tmpdir(), 'agdf-early-prd-seed-'));
 try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
-  execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
+  execFileSync('git', ['init', '-q', root]); initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout }));
   const f = createSdDefinitionTestRun(root, cli, 'early-prd-command', process.env, { typedApprovals: true });
   cpSync(join(root, '.agdf'), join(seed, 'control'), { recursive: true });
   const reset = () => { rmSync(join(root, '.agdf'), { recursive: true }); cpSync(join(seed, 'control'), join(root, '.agdf'), { recursive: true }); };
@@ -42,7 +45,8 @@ try {
   assert.equal(service('agdf_revise', input).outcome, 'already_applied');
   assert.equal(service('agdf_revise', { ...input, presentation_language: 'de' }).reason, 'operation_payload_conflict');
   assert.equal(service('agdf_revise', prepare()).reason, 'prd_revision_boundary_invalid');
-  for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => !stage.startsWith('backlog'))) {
+  for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => layout === 'master-backlog-v1' && !stage.startsWith('backlog')
+    || ['intent', 'archive_temp_written', 'archive_published', 'run_before_rename', 'run_after_rename', 'retired'].includes(stage))) {
     reset(); const request = prepare();
     const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
       createRunCommandService({checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1]));`;
@@ -50,7 +54,7 @@ try {
     assert.equal(killed.status, 71, killed.stderr.toString());
     if (!beforeIntent(stage) && stage !== 'retired') {
       const pending = readPendingRunStepJournal(root, f.runId);
-      assert.equal(pending.schema_version, 3); assert.equal(pending.kind, 'prd_revision.reopen');
+      assert.equal(pending.schema_version, layout === 'master-backlog-v1' ? 3 : 6); assert.equal(pending.kind, 'prd_revision.reopen');
       const recover = { ...request, expected_revision_id: f.revision(), command: { kind: 'operation.recover', payload: { original_kind: 'prd_revision.reopen', pending_digest: digest(canonicalJson(pending)), recovery_revision_id: f.revision() } } };
       if (stage === 'archive_temp_written') {
         const temp = join(root, revisionHistoryPrefix(f.runId, request.operation_id).slice(0, -1) + '.pending', 'files', pending.archive.files[0] + '.tmp-' + request.operation_id);
@@ -70,3 +74,4 @@ try {
   }
   console.log('Existing early PRD boundary, concrete confirmation, immutable exact archive, replay/conflict and v3 pre/post-commit process recovery passed (synthetic only).');
 } finally { rmSync(root, { recursive: true, force: true }); rmSync(seed, { recursive: true, force: true }); }
+}

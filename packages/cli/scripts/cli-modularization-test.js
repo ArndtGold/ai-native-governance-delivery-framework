@@ -47,7 +47,7 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "inventory", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
+  "delivery-map", "inventory", "planned", "layout-migrate", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
   "run-migrate", "run-recovery", "run-close", "run-render-legacy",
   "agdf-project", "agdf-run", "agdf-prepare", "agdf-record", "agdf-approve", "agdf-revise", "agdf-closeout",
 ];

@@ -74,11 +74,10 @@ async function buildWorker(packageRoot) {
       return { id: !corePath.startsWith('../') ? `#agdf-core/${corePath}` : `./${slash(relative(dirname(output), found.id))}`, external: true };
     },
     load(id) { return id === virtualEntry ? source : null; },
-    // Optional UI factories are not worker exports. Preserve their real lazy
-    // import paths while tree-shaking the unused factories, including Copilot.
-    resolveDynamicImport(specifier) {
-      return typeof specifier === 'string' && specifier.startsWith('#agdf-core/') ? { id: specifier, external: true } : null;
-    },
+    // Full generation factories also load optional UI services. Resolve those
+    // imports through the same owned graph instead of loading a second source
+    // graph beside the compiled factory. The resolver above still externalizes
+    // every shared protocol/state module; bundling preserves lazy evaluation.
     transform(code, id) {
       if (id.startsWith('\0') || !code.includes('import.meta')) return null;
       const ast = parse(code, { ecmaVersion: 'latest', sourceType: 'module' });
@@ -109,7 +108,9 @@ async function buildWorker(packageRoot) {
   const bundle = await rolldown({ cwd: packageRoot, input: output, platform: 'node', plugins: [sourceIdentity, capture] });
   let generated;
   try { generated = await bundle.generate({ file: output, format: 'esm', codeSplitting: false,
-    minify: { compress: false, mangle: false }, sourcemap: false }); } finally { await bundle.close(); }
+    // Reduce the executable image and parser work, without property mangling or
+    // changing observable function/class names at the original module boundary.
+    minify: true, keepNames: true, sourcemap: false }); } finally { await bundle.close(); }
   if (generated.output.length !== 1 || generated.output[0].type !== 'chunk') throw Error('AGDF_WORKER_BUILD_CHUNK_INVALID');
   const code = header + generated.output[0].code;
   if (code.includes(slash(repository)) || code.includes(slash(packageRoot))) throw Error('AGDF_WORKER_BUILD_ABSOLUTE_PATH');

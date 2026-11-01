@@ -49,7 +49,8 @@ export function resolveMcpInput(definition, original, { defaults, executionConte
     const id = effective.module?.split('/').at(-1);
     if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u.test(id ?? '')) readLocator = {
       ...effective, operation_id: id, target_id: resolveControlCommandTarget(root).target_id,
-      command: { kind: effective.module.startsWith('project.initialize/') ? 'project.initialize' : effective.run_id ? 'status.inspect' : 'run.create' },
+      command: { kind: ['project.initialize', 'planned_ur.create', 'planned_ur.replace', 'run.create_from_planned', 'planned_layout.apply'].includes(effective.module?.split('/')[0])
+        ? effective.module.split('/')[0] : effective.run_id ? 'status.inspect' : 'run.create' },
     };
   } else if (root && ['presentation-document', 'presentation-preview'].includes(effective.operation)) readLocator = {
     ...effective, operation_id: effective.presentation_id, command: { kind: 'presentation.prepare' },
@@ -65,7 +66,7 @@ export function resolveMcpInput(definition, original, { defaults, executionConte
   }
   if (readLocator && previous?.known && effective.presentation_language !== undefined) return { arguments: effective, resolution: null, original: true };
   if (!readLocator && previous?.resolution) {
-    if (['operation.recover', 'source_revision.recover'].includes(effective.command?.kind)) {
+    if (['operation.recover', 'source_revision.recover', 'planned_layout.recover'].includes(effective.command?.kind)) {
       const c = previous.resolution;
       for (const key of ['presentation_language', 'working_directory', 'schema_version', 'assurance']) effective[key] ??= c.fields[key];
       effective.presentation_language ??= c.configuration.values.chat_language;

@@ -40,7 +40,8 @@ export function validInputResolution(value) {
     || Object.hasOwn(f, 'assurance') && f.assurance !== 'cooperative_local'
     || Object.hasOwn(f, 'variant') && !['status-card', 'approval-envelope'].includes(f.variant)
     || Object.hasOwn(f, 'command.payload.route') && !['markdown', 'automatic', 'fallback'].includes(f['command.payload.route'])) return false;
-  if (!exactObject(c, ['root', 'control', 'config_digest', 'values', 'sources', 'defaults_digest'])
+  if (!exactObject(c, ['root', 'control', 'config_digest', 'values', 'sources', 'defaults_digest', ...(Object.hasOwn(c, 'control_layout') ? ['control_layout'] : [])])
+    || Object.hasOwn(c, 'control_layout') && !['master-backlog-v1', 'planned-urs-v1'].includes(c.control_layout)
     || !(c.root === null || typeof c.root === 'string' && isAbsolute(c.root) && c.root.length <= 4096) || !['inactive', 'active'].includes(c.control)
     || !(c.config_digest === null || hash(c.config_digest)) || !hash(c.defaults_digest)
     || !exactObject(c.values, preferenceKeys) || !exactObject(c.sources, preferenceKeys)

@@ -1,0 +1,30 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Replace the master backlog with planned URs and an optional planning extension
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: MASTER_BACKLOG.md bündelt Planung und abgeleitete Run-Zustände. Parallele Arbeiten ändern dieselbe Datei und treffen auf gemeinsame Schreib-/Recovery-Regeln. Eine reine Verschiebung der Planungszeilen löst diesen Engpass nicht.
+
+- Ziel: Maintainer und Agenten sollen Vorhaben als einzelne UR-Entwürfe planen und unabhängige Runs in Worktrees bearbeiten können. Core, CLI/MCP und Cockpit liefern eine daraus abgeleitete Übersicht; bestehende Nachweise bleiben erhalten.
+
+- Umfang: Die Pflicht zum Masterbacklog und zu seinen gemeinsamen Statusschreibvorgängen entfällt. Geplante Vorhaben liegen einzeln unter .agdf/control/planned/, vorgesehen als planning-id/UR.md, mit minimalen Angaben wie Identität und Priorität. Planung endet beim UR-Entwurf; PRD, SD, TP und Umsetzung gehören zum aktiven Run. Der vorhandene ur-definition-Owner erhält einen Planungsmodus ohne vorher angelegten Run. Eine optionale Planungserweiterung organisiert Erfassung, Klärung und Priorisierung über diesen gemeinsamen Autor. Der Core definiert und versteht die Ablage auch ohne die Erweiterung.
+
+- Übergabe: Ein ausdrücklich ausgewählter UR-Stand wird nachvollziehbar in einen Core-Run übernommen. Wiederholungen und Unterbrechungen dürfen weder doppelte Runs noch verlorene Entwürfe verursachen. Core-Gates und revisionsgebundene Freigaben bleiben verbindlich. Aktive und abgeschlossene Runs behalten ihre bisherigen Pfade.
+
+- Abnahme: Vorhandene Planung, Prioritäten, Links und Historie werden übernommen oder mit konkret benannten Unklarheiten erhalten. Die betroffenen Leser, Writer, Vorlagen und Regeln werden angepasst. Abnahmesignale umfassen Betrieb ohne Live-Masterbacklog, getrennte Dateischreibvorgänge, gemeinsame UR-Regeln, erkennbare Planungs-/Run-Zustände, optionale Erweiterung, sichere Übergabe und Migration sowie gezielte Parallelitäts-/Recovery-Prüfungen. Installation und Host-/UI-Verhalten brauchen eigene Nachweise.
+
+- Risiken: Kanonische Run-/Artefaktzustände und bestehende Core-Owner bleiben maßgeblich. Brownfield muss unnötige globale Kopplung von erforderlichen Sperren unterscheiden; PRD/SD klären Metadaten, Übergabeprotokoll, Erweiterungspaket und anfängliche Host-Abdeckung. Keine automatische Umsetzung, neue Gate-Logik, pauschale Sperrenentfernung, Veröffentlichung oder Löschung unklarer Altdaten. Ein interaktiver Preview wurde nicht beauftragt.
+
+- Nächster Schritt: Eigener Worktree, Branch agdf/planned-urs-masterbacklog-replacement, Basis 8e482d91. Jetzt ausschließlich UR prüfen und bei Zustimmung mit `Approval: UR` freigeben; danach folgen Brownfield, Mode/Slice und die erforderlichen Folgeschritte. Frühere Freigaben gelten nicht für diesen neuen Run.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74` · Nutzeranforderungen · Revision: `939dc84e-8049-4c19-b59e-689d14244b25`
+
+SHA-256: `sha256:647cd7a6f3a9f224a592a46742a2aa71be469ca9ef164ba8da1429e4123c9415`

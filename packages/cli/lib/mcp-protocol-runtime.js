@@ -197,7 +197,7 @@ export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispa
       serialize: serializeControlInspectResult,
     }),
     ...commandGroups.map(group => Object.freeze({ name: group, definition: commandGroupDefinition(group),
-      parentOwned: input => group === 'agdf_record' && input?.command?.kind === 'material.stage'
+      parentOwned: input => group === 'agdf_record' && ['material.stage', 'planned_material.stage'].includes(input?.command?.kind)
         || group === 'agdf_prepare' && input?.command?.kind === 'presentation.deliver',
       parse: argumentsValue => {
         const errors = validateRunCommand(group, argumentsValue);
@@ -268,10 +268,10 @@ export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispa
       };
       if (Object.hasOwn(RUN_COMMAND_GROUPS, toolName)) {
         const valid = argumentsValue && validateRunCommand(toolName, argumentsValue).length === 0;
-        if (valid && ['presentation.deliver', 'material.stage'].includes(argumentsValue.command.kind)) return finish({ schema_version: '1', outcome: 'rejected',
-          reason: argumentsValue.command.kind === 'material.stage' ? 'material_state_unavailable' : 'delivery_state_unavailable',
+        if (valid && ['presentation.deliver', 'material.stage', 'planned_material.stage'].includes(argumentsValue.command.kind)) return finish({ schema_version: '1', outcome: 'rejected',
+          reason: argumentsValue.command.kind.endsWith('material.stage') ? 'material_state_unavailable' : 'delivery_state_unavailable',
           operation_id: argumentsValue.operation_id, request_digest: runCommandRequestDigest(argumentsValue), authorizes: false,
-          recovery: argumentsValue.command.kind === 'material.stage'
+          recovery: argumentsValue.command.kind.endsWith('material.stage')
             ? 'Read material.stage/status for the original transfer in this generation. After generation loss restage identical semantic bytes, preserving the original future canonical write UUID. No gate or Run mutation was attempted.'
             : 'Observe this same prepared presentation/delivery. No gate or Run mutation was attempted; do not create another question. Read its exact document if delivery access is unconfirmed.' });
         return finish({ schema_version: '1', outcome: dispatch === 'not_dispatched' ? 'rejected' : 'effect_unknown', reason: code,

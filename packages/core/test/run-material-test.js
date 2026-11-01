@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { initializeCanonicalControl } from '../../cli/lib/scaffold/canonical-init.js';
 import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { createRunMaterialStore, MATERIAL_LIMITS } from '../lib/control-state/run-material.js';
 import { createRunCommandService } from '../lib/control-state/run-command-service.js';
@@ -17,12 +18,12 @@ import { runSealState } from '../lib/control-state/run-seal.js';
 import { validateRunCommandResult } from '../lib/control-state/run-command-contract.js';
 import { inspectAuthoringInputs } from '../lib/control-inspect/authoring-inputs.js';
 
-function fixture(work) {
+function fixture(work, { layout } = {}) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-material-')));
   const store = createRunMaterialStore();
   try {
     execFileSync('git', ['init', '-q', root]);
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+    initializeCanonicalControl(root, layout ? canonicalInitPlan('en', undefined, { layout }) : generatedFilesForTarget('init', root, false, 'en'));
     const path = createRun(root, 'material');
     const bound = () => ({ schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target',
       primary_target: root, target_id: resolveControlCommandTarget(root).target_id, run_id: 'material',
@@ -159,4 +160,4 @@ test('captured v4 material journal recovers its legacy output explicitly', () =>
   assert.equal(readFileSync(join(root, '.agdf/control/artefacts/material/UR.md'), 'utf8'), text);
   assert.equal(runSealState(root, readFileSync(path, 'utf8')).status, 'valid');
   assert.equal(service('agdf_revise', input).outcome, 'already_applied');
-}));
+}, { layout: 'master-backlog-v1' }));

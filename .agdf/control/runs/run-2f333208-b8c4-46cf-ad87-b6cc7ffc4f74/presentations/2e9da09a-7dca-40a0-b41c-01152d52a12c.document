@@ -1,0 +1,28 @@
+## Qualitätssicherung prüfen und entscheiden
+
+QA Report: Planned URs and backlog-free Core
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Geplante Vorhaben als einzelne URs verwalten und den gemeinsamen Masterbacklog als Pflicht- und Schreibengpass ablösen; Core und optionale Codex-Planung nutzen denselben UR-Owner.
+
+- Ergebnis: Unabhängiges Speichern, Klären und Priorisieren; ausdrückliche Übergabe eines bestimmten UR-Stands an genau einen Run mit Herkunft und sicherer Wiederholung. Neue Projekte verwenden Run-lokale Persistenz ohne Live-Backlog. Core, CLI/MCP und passive Cockpit-Ansicht teilen die abgeleiteten Fakten. Verlustfreie Migrationsvorschau und isoliert geprüfte Recovery sind vorhanden. TP-, Clean- und Code-Review sind erfasst; technische QA: pass.
+
+- Nachweise: 76 Core-/CLI-Prüfungen, 17 abschließende Migrations- und 10 Prozess-/Versionsfälle, zwei tatsächliche STDIO-Protokollabläufe, automatisierte UI-/Browsernachweise, Paket-/Schema- und 56 Kompatibilitätsprüfungen bestanden. Codex CLI bestand mit Core allein und mit Planungserweiterung; Quellen, Übergaben, Wiederholung und ausbleibende Freigaben wurden tatsächlich beobachtet. Vier konkrete Implementierungsbefunde sind korrigiert und nachgeprüft.
+
+- Grenzen: Native Nachweise gelten für den tatsächlich geprüften Kandidaten 826ca9884801 auf Codex CLI/macOS. Danach änderte sich nur die Migrationsjournal-Validierung; die unveränderten UR-/Übergabepfade sind abgeglichen, betroffene Prüfungen erneut bestanden. Keine native Ausführung des endgültigen Paket-Digests, Desktop-/Windows-/anderer Host-Test oder menschliche Abnahme wird behauptet. Die vorherige Installation und Konfiguration wurden wiederhergestellt.
+
+- Risiken: Die echte Migration wurde als unverändernde Vorschau geprüft, nicht angewendet. 105 alte Zuordnungs-/Historienbefunde bleiben ausdrücklich erhalten; unbekannte Zustände und Kapazitätsüberschreitungen werden abgewiesen. Pflicht-CI am späteren aktuellen PR-Stand und menschliche UAT bleiben erforderlich. Es gibt noch keinen Commit, Push, PR, Merge oder Release.
+
+- Entscheidung: Approval: QA bestätigt ausschließlich diese technische Qualitätsbewertung und ihre Grenzen. Sie erlaubt den nächsten UAT-Schritt; tatsächliche Migration, permanente Installation, VCS und Veröffentlichung sind damit nicht freigegeben.
+
+Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: QA.
+
+### Fassung und Quellen
+
+Run: `run-2f333208-b8c4-46cf-ad87-b6cc7ffc4f74` · Qualitätssicherung · Revision: `60bda615-2350-41c3-aa67-a2dc992aad1f`
+
+SHA-256: `sha256:f4a5326536d6ee217f3652dacba62349f045514f76e2e399698322859e66b9d2`

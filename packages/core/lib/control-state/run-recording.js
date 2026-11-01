@@ -8,7 +8,7 @@ import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tabl
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
 import { storedNextActionStale } from "../control-evaluation/next-action.js";
-import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
+import { writeRunMutation, synchronizeRunBacklog, withRunMutationLock, writeRunMutationLocked } from "./run-mutation.js";
 import { backlogSkip } from "./run-backlog.js";
 import { runPath } from "./run-state-reader.js";
 import { projectUrObjective, endedRunRejection } from './run-state-edits.js';
@@ -135,7 +135,7 @@ export function recordRunRevision(root, { runId, revisionId }) {
     const file = containedRegularFile(root, current.artefacts.get('UR').path);
     if (file.status === 'valid') content = projectUrObjective(content, readFileSync(file.path, 'utf8'));
   }
-  const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, content, revisionId, { expectedContent: run.content, allowContentChange: true }));
+  const written = guardedWrite(runId, () => writeRunMutation(root, run.path, content, revisionId, { expectedContent: run.content, allowContentChange: true }));
   if (written.rejection) return written.rejection;
   return Object.freeze({
     schema_version: "1",
@@ -255,7 +255,7 @@ export function approveRunGate(root, input, dependencies) {
   if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
   const initial = readRun(root, runId);
   if (initial.rejection && initial.rejection.reason !== "run_step_recovery_required") return initial.rejection;
-  const written = guardedWrite(runId, () => withRunBacklogLock(root, runPath(root, runId), () => {
+  const written = guardedWrite(runId, () => withRunMutationLock(root, runPath(root, runId), () => {
     // Recovery precedes preparation: an interrupted legacy approval may have committed
     // already, in which case the old reply is rejected rather than applied a second time.
     const prepared = prepareGateApproval(root, input, dependencies);
@@ -264,7 +264,7 @@ export function approveRunGate(root, input, dependencies) {
       recovery: 'Use the existing typed approval.record command with this exact presentation and original operation UUID.',
     });
     const { run, next, after, validateBeforeWrite, validateDuringTransaction } = prepared;
-    const state = writeRunWithBacklogLocked(root, run.path, next, revisionId, {
+    const state = writeRunMutationLocked(root, run.path, next, revisionId, {
       allowApprovalChange: true, validateBeforeWrite, validateDuringTransaction, expectedContent: run.content,
     });
     return Object.freeze({ schema_version: "1", outcome: "approved", run_id: runId,

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { initializeCanonicalControl } from '../../cli/lib/scaffold/canonical-init.js';
-import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
+import { generatedFilesForTarget } from './fixtures/legacy-init-plan.js';
 import { sealRunState, runSealState, artefactFileDigest, listedArtefactPaths } from '../lib/control-state/run-seal.js';
 import { previewRunClosure, applyRunClosure, closurePhrase, closureOperationId, CLOSURE_PREVIEW_DIRECTORY } from '../lib/control-state/run-closure.js';
 import { readRunOperations, validRunOperation, runClosure } from '../lib/control-state/run-operations.js';

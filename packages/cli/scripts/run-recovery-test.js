@@ -8,6 +8,8 @@ import { applyRunRecovery, inspectRunRecovery, previewRunRecovery } from "../lib
 import { canonicalRunText, runSealState, sealRunState } from "#agdf-core/control-state/run-seal.js";
 import { recordRunRevision } from "#agdf-core/control-state/run-recording.js";
 import { withRunLock, writeRunRecoveryLocked } from "#agdf-core/control-state/run-state-writer.js";
+import { canonicalInitPlan } from '#agdf-core/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '#agdf-core/control-state/canonical-initialization.js';
 
 const root = mkdtempSync(join(tmpdir(), "agdf-run-recovery-"));
 const runId = "recovery-fixture";
@@ -68,6 +70,7 @@ Recovery fixture.
 `;
 
 try {
+  initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
   mkdirSync(runDir, { recursive: true });
   mkdirSync(join(root, ".agdf", "control", "runs", "nonselected"), { recursive: true });
   writeFileSync(sentinelPath, "non-selected fixture bytes\n");

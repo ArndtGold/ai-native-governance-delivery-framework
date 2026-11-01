@@ -236,6 +236,13 @@ Warm misst `agdf_dispatch` über einen bestehenden Client. Die Cold-RPC-Messung 
 begann dagegen erst nach dem Handshake. Diese unterschiedlichen Messgrenzen erlauben keinen
 direkten Geschwindigkeitsvergleich. Methodischer Owner bleibt der [bestehende Performance-Test](../../packages/mcp-server/test/performance.test.js).
 
+Für PR #50 wurde die aktuelle Cold-p95-Grenze auf ausdrücklichen Maintainer-Wunsch
+von **1.500 auf 2.500 ms** erhöht. Voraus gingen Messungen von **2.116,486 ms** auf
+macOS und **1.535,097/1.566,697 ms** unter Windows. Die Warm-Grenze von **1.000 ms**,
+je 20 Cold-/Warm-Messungen und der vollständige Startpfad bleiben erhalten. Dies
+ändert die Akzeptanzgrenze, nicht die Laufzeitgeschwindigkeit; die oben verlinkten
+historischen Messungen und damaligen Grenzwerte bleiben historische Nachweise.
+
 Nach den nativen Läufen wurden ausschließlich zwei Testannahmen berichtigt: die negative Guard-
 Prüfung erwartet die Meldung auf `stderr`; der spätere CI-Nachlauf aktualisiert veraltete
 Beschreibungspins im [Funktionsvertragstest](../../packages/cli/scripts/skill-dispatch-function-contract-test.js).

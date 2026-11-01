@@ -1,6 +1,6 @@
 ---
 name: ur-definition
-description: "Use this skill for this scope: bound UR drafting, clarification or revision. Boundary: content only; preserves approved intent. The requested effect, not discovery, decides AGDF activation."
+description: "Use this skill for this scope: UR drafting in planning scope or a bound Run. Boundary: content only; no start or approval authority. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # ur-definition
@@ -35,6 +35,11 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 ## Executable Dispatch
 
 Use listed MCP `agdf_dispatch` (load deferred; host prefix allowed): `skill_id` `ur-definition`, `presentation_language` (optional override), `working_directory`, and only bound `target_source`/`primary_target` and `run_id`. Never search unlisted tools.
+For deliberate pre-Run planning, pass the confirmed `planning` scope instead of `run_id`.
+Use `plan-<future mutation UUID>` and null expected digest for capture, or the inspected
+plan identity/current digest for refinement. No delivery intake/continue/revision fields.
+Follow only `phase: planned_ur_definition`, shared template/contract and planning-scoped typed
+writers. Missing compatible Core stops before mutation; no CLI/shell writer or Run-assignment fallback.
 If absent/failing: supplied schema-2 executable, child-only environment, immutable argv_prefix, declared arguments; `--skill ur-definition`, language and working directory.
 MCP: MCP reply-language override (BCP 47). Omit for a matching configured preference; otherwise supply the current request's language (explicit instruction, then dominant language, en if ambiguous). Invalid explicit tags fail; valid unsupported tags use the complete English pack. Core input remains complete.
 For `--language`: Required; apply the same current-request selection and locale validation.
@@ -52,4 +57,6 @@ review timing in the UR; creation belongs to the later bound analytical step.
 Set the initial `Preview requirement` metadata according to the UR contract; a required
 interactive before-PRD preview uses `before_prd_interactive`, otherwise `none`.
 Write only the supplied unapproved UR, preserving uncertainty and explicit human approval.
-After canonical recording, redispatch gate-check; use its fresh presentation and wait.
+In Run mode, after canonical recording redispatch gate-check; use its fresh presentation and wait.
+In planning mode, report the saved draft, source and remaining questions without requesting a
+gate approval. Only a later explicit selected-source start request uses the Core handoff contract.

@@ -4,6 +4,7 @@ export interface Envelope<T> { schema_version: '2'; target: Target; snapshot_id:
 export interface Run { run_id: string; valid: boolean; lifecycle: string | null; revision_id: string | null; objective: string | null; title: string; source_path: string; status: string | null; current_gate: string | null; code: string | null;
   attention?: { blocking_reason: string; missing_approval: string; missing_evidence_count: number } }
 export interface BacklogEntry { section: string; key: string; original_key: string; title: string; stored_status: string; scope: string;
+  kind?: 'planned' | 'run'; identity?: string; source?: { path: string; digest: string | null }; coverage?: string; handoff_ready?: boolean; actions?: string[];
   priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean; row_id?: string; title_observation?: TitleObservation; saved_summary?: SavedSummary }
 export interface WorkSummary { kind: string; phase: string; qa_outcome: string; lifecycle: string; recorded_approvals: string[];
   decisive_obligation: null | { id: string; routing_target: string; action: string; source_path: string };
@@ -15,8 +16,9 @@ export interface SavedSummary { provenance_state: 'recorded' | 'unverified' | 'i
   label_de: string | null; limitation_de: string; authorizes: false }
 export interface TitleObservation { state: 'available' | 'unavailable'; code: string | null; path: string | null;
   heading: string | null; title: string | null; content_digest: string | null; observed_as_of: string; backlog_digest: string }
-export interface Inventory { kind: 'backlog'; entries: BacklogEntry[]; diagnostics: Diagnostic[]; source_path: string; content_digest: string;
+export interface Inventory { kind: 'backlog'; layout?: 'planned-urs-v1'; entries: BacklogEntry[]; diagnostics: Diagnostic[]; source_path: string; content_digest: string;
   counts: Record<string, number>; file_count: number; byte_count: number; removed_run_id?: string }
+export interface PlannedDocument { kind: 'planned'; entry: { plan_id: string; title: string; priority: string; path: string; digest: string; content: string; readiness: { ready: boolean }; authorizes: false } }
 export interface RunInventoryEntry { run_id: string; valid: boolean; selectable: boolean; lifecycle: string | null; title: string; title_source: string;
   attention: { code: string; label: string }; basis: string; next_action: string | null; path: string; revision_id: string | null;
   last_activity: { at: string | null; source: string; precision: string | null }; findings: Diagnostic[] }

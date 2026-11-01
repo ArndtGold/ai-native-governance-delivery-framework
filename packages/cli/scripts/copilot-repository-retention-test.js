@@ -68,7 +68,7 @@ try {
     assert.equal(report.plugin.result, "success");
     assert.equal(report.effective_state, "control_repair_required");
     assert.equal(report.control.status, "repair_required");
-    assert.ok(report.control.diagnostics.some(({ code }) => code === "AGDF_CONTROL_SCAFFOLD_INCOMPLETE"));
+    assert.ok(report.control.diagnostics.some(({ code }) => code === "AGDF_CONTROL_SCAFFOLD_INCOMPLETE"), JSON.stringify(report.control));
     output.length = 0;
     assertRetained(phase);
   }

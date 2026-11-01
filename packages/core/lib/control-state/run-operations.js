@@ -4,9 +4,10 @@ import { TextDecoder } from 'node:util';
 import { canonicalJson, digest, COOPERATIVE_ASSURANCE, DIGEST_PATTERN, exactObject } from './approval-command-contract.js';
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN, APPROVAL_GATES } from './run-identity.js';
 import { isSafeControlRelativePath } from './contained-file.js';
+import { validLayoutMigrationRecord } from './layout-migration-record.js';
 
 const fields = ['schema_version', 'kind', 'operation_id', 'request_digest', 'target_id', 'run_id', 'expected_revision_id', 'created_at', 'producer', 'assurance', 'effect'];
-export const RUN_OPERATION_KINDS = Object.freeze(['run.create', 'ur_draft.replace', 'step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record']);
+export const RUN_OPERATION_KINDS = Object.freeze(['run.create', 'run.create_from_planned', 'control_layout.migrate', 'ur_draft.replace', 'step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record']);
 export const ENDED_LIFECYCLES = Object.freeze(['superseded', 'abandoned']);
 const uuid = value => typeof value === 'string' && REVISION_ID_PATTERN.test(value);
 const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
@@ -23,8 +24,16 @@ const validConfirmer = value => exactObject(value, ['statement']) ? value.statem
     && [value.name, value.email].every(item => item === null || closureLine(item, 256));
 function validRecord(receipt) {
   const r = receipt.effect.record;
+  if (receipt.kind === 'control_layout.migrate') return validLayoutMigrationRecord(r, receipt.run_id);
   if (receipt.kind === 'run.create') return exactObject(r, ['title']) && text(r.title, 1024) && r.title.trim()
     && !/[\r\n|]/u.test(r.title) && receipt.run_id === `run-${receipt.operation_id}`;
+  if (receipt.kind === 'run.create_from_planned') return exactObject(r, ['title', 'planned', 'ur', 'snapshot', 'origin'])
+    && text(r.title, 1024) && Boolean(r.title.trim()) && !/[\r\n\u2028\u2029]/u.test(r.title)
+    && receipt.run_id === `run-${receipt.operation_id}` && exactObject(r.planned, ['plan_id', 'path', 'digest'])
+    && RUN_ID_PATTERN.test(r.planned.plan_id ?? '') && r.planned.path === `.agdf/control/planned/${r.planned.plan_id}/UR.md` && hash(r.planned.digest)
+    && [['ur', 'UR.md'], ['snapshot', 'PLANNED_UR.md'], ['origin', 'PLANNED_ORIGIN.json']].every(([key, name]) => source(r[key], receipt.run_id)
+      && r[key].path === `.agdf/control/artefacts/${receipt.run_id}/${name}`)
+    && r.ur.digest === r.planned.digest && r.snapshot.digest === r.planned.digest;
   if (['step.record', 'ur_draft.replace'].includes(receipt.kind)) return exactObject(r, ['step', 'source', 'status', 'covers', 'source_set_digest'])
     && ['ur', 'route', 'review', 'evidence', 'Verified Change', 'Brownfield Review', 'UX Intent Definition', 'Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR'].includes(r.step)
     && (receipt.kind !== 'ur_draft.replace' || r.step === 'ur')
@@ -55,9 +64,10 @@ export const earlyPrdConfirmation = (runId, revisionId, operationId, prdDigest) 
 export function validRunOperation(receipt) {
   receipt = resolutionRecord(receipt);
   if (!receipt) return false;
-  const creation = receipt?.kind === 'run.create';
+  const plannedCreation = receipt?.kind === 'run.create_from_planned';
+  const creation = receipt?.kind === 'run.create' || plannedCreation;
   const extended = creation || receipt?.kind === 'ur_draft.replace' || receipt?.kind === 'closeout.record' && receipt?.effect?.record?.mode === 'verified_change';
-  return exactObject(receipt, fields) && receipt.schema_version === (extended ? '2' : '1') && RUN_OPERATION_KINDS.includes(receipt.kind)
+  return exactObject(receipt, fields) && receipt.schema_version === (plannedCreation || receipt.kind === 'control_layout.migrate' ? '3' : extended ? '2' : '1') && RUN_OPERATION_KINDS.includes(receipt.kind)
     && uuid(receipt.operation_id) && hash(receipt.request_digest) && hash(receipt.target_id) && RUN_ID_PATTERN.test(receipt.run_id ?? '')
     && (creation ? receipt.expected_revision_id === null : uuid(receipt.expected_revision_id)) && exactObject(receipt.effect, ['previous_revision_id', 'resulting_revision_id', 'revision', 'record'])
     && receipt.effect.previous_revision_id === receipt.expected_revision_id && uuid(receipt.effect.resulting_revision_id)

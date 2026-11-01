@@ -34,7 +34,7 @@ export function createPrdDefinitionTestRun(root, validator, runId = "prd-authori
   const present = (gate = "PRD", language = "en") => run("run-present", "--revision", revision(), "--gate", gate, "--language", language);
   const ur = present("UR"); assert.equal(ur.value?.outcome, "prepared", ur.text);
   assert.equal(approve("UR", ur.value.presentation_id).value?.outcome, typedApprovals ? "accepted" : "approved");
-  writeFileSync(file("BROWNFIELD_REVIEW.md"), `# Brownfield Review\n\nSynthetic existing filter owner.\n- ux_intent_definition_required: ${uxRequired ? 'yes' : 'no'}\n`);
+  writeFileSync(file("BROWNFIELD_REVIEW.md"), `# Brownfield Review\n\nSynthetic existing filter owner.\n- ux_intent_definition_required: ${uxRequired ? "yes" : "no"}\n`);
   if (typedRoute) {
     const result = createCoreServices().command('agdf_record', {schema_version:'1',presentation_language:'en',working_directory:root,
       primary_target:root,target_source:'explicit_target',target_id:resolveControlCommandTarget(root).target_id,run_id:runId,

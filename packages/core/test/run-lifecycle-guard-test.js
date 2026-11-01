@@ -13,12 +13,16 @@ import { createRunCommandService } from '../lib/control-state/run-command-servic
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { correctRunRelationship } from '../lib/control-state/run-relationship-correction.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
+import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 
 // Synthetic isolated repository only; no real run of this repository is read or written.
 const root = mkdtempSync(join(tmpdir(), 'agdf-lifecycle-guard-'));
 try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
-  execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
+  execFileSync('git', ['init', '-q', root]);
+  // This lifecycle corpus includes legacy backlog byte-preservation assertions.
+  initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
 
   // SCN-012 writer level: a sealed Run whose current lifecycle is ended is never written again.
   for (const outcome of ['superseded', 'abandoned']) {

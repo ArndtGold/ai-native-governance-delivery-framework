@@ -6,11 +6,11 @@ import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { buildStatusCard, evaluateGateCheck, postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../control-evaluation/gate-check.js";
 import { evaluateDoctor } from "../control-evaluation/doctor.js";
 import { evaluateDeliveryMap } from "../control-evaluation/delivery-map.js";
-import { readRuntimeContract } from "../resources/contracts.js";
+import { readRuntimeContract, runtimeContractModules } from "../resources/contracts.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation, renderActiveRunInventory, renderRunInventory } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
-import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, PRESENTATION_CATALOG_MODULE } from "./contract.js";
+import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, OPERATION_CONTRACT_MODULES, PRESENTATION_CATALOG_MODULE } from "./contract.js";
 import { RUN_COMMAND_DESCRIPTORS, operationContract } from '../control-state/run-command-contract.js';
 import { inspectRunOperation } from '../control-state/run-operation-status.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
@@ -102,6 +102,7 @@ export function createControlInspectService(dependencies = {}) {
   const gateCheck = dependencies.evaluateGateCheck ?? evaluateGateCheck;
   const deliveryMap = dependencies.evaluateDeliveryMap ?? evaluateDeliveryMap;
   const readContract = dependencies.readRuntimeContract ?? readRuntimeContract;
+  const readModules = dependencies.runtimeContractModules ?? runtimeContractModules;
   const validateControlReadBoundary = dependencies.validateControlReadBoundary;
   const deliveryMapDependencies = Object.freeze({ evaluateDoctor: doctor, buildStatusCard, postApprovalTransition });
 
@@ -155,6 +156,15 @@ export function createControlInspectService(dependencies = {}) {
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
+      if (input.target_id && resolveControlCommandTarget(target.governance_target).target_id !== input.target_id) {
+        const result = baseResult({ outcome: 'invalid_input', operation: input.operation, runtime, timing });
+        result.target = target;
+        result.diagnostics = [{ code: 'target_binding_mismatch', field: 'target_id' }];
+        result.recovery = { action: renderInputRecovery({ field: 'target_id', allowedValues: [] },
+          { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
       if (input.operation === 'doctor' && dependencies.observeDoctor) {
         const controlStarted = now();
         return Promise.resolve(dependencies.observeDoctor(target.governance_target, input, signal)).then(report => {
@@ -202,9 +212,12 @@ export function createControlInspectService(dependencies = {}) {
                 next_operation: decision.next_operation, blocking_reason: decision.blocking_reason }, authorizes: false }, presentation: null };
           }
           case 'operation-contract': {
-            if (PLANNING_COMMAND_KINDS.includes(input.kind) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
-              binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
-              next_calls: [{ tool: input.group, kind: input.kind, instruction: 'Use the confirmed planning scope and original UUID; no Run/revision. Planning never approves a gate. Start a Run only from a deliberately selected complete source.' }] }, presentation: null };
+            if (PLANNING_COMMAND_KINDS.includes(input.kind) && !input.run_id) {
+              const contract = operationContract(input.group, input.kind);
+              return { report: { ...contract, binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
+                next_calls: [{ tool: input.group, kind: input.kind, instruction: contract.planning_capture?.instructions
+                  ?? 'Use the confirmed planning scope and original UUID; no Run/revision. Planning never approves a gate. Start a Run only from a deliberately selected complete source.' }] }, presentation: null };
+            }
             if (['agdf_run', 'agdf_project'].includes(input.group) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
               binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
               next_calls: [{ tool: input.group, kind: input.kind, instruction: input.group === 'agdf_project' ? 'Explicit fixed setup only. Use the confirmed existing Git root and one original UUID. No Run/revision, force, repair, install or approval.' : 'Use a new original operation UUID and confirmed title; there is no prior Run/revision.' }] }, presentation: null };
@@ -318,6 +331,9 @@ export function createControlInspectService(dependencies = {}) {
             return { report: evaluated, presentation: null };
           }
           case "contract": {
+            if (!input.contract_module) return { report: { available: true, modules: readModules(),
+              operation_modules: OPERATION_CONTRACT_MODULES, inspect_contract: inspectContractHelp(),
+              instruction: 'contract reads a listed runtime module. operation-contract reads an exact listed group/kind; omit planning, gate and Run/revision for creation help. Copy operation-specific arguments; never copy whole command bindings.', authorizes: false }, presentation: null };
             const read = readContract(input.contract_module, { pluginRoot: null });
             if (!read.ok) return { report: null, presentation: null, invalidModule: read };
             return { report: { module: read.module, content: read.content }, presentation: { markdown: read.content, authorizes: false } };

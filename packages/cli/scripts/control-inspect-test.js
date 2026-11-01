@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { currentFixture } from "../../core/test/fixtures/current-run.js";
+import { createRun } from "#agdf-core/control-state/run-state-repository.js";
 import Ajv2020 from "ajv/dist/2020.js";
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -24,6 +26,7 @@ import { validateCommandOptions } from "../lib/cli/command-registry.js";
 import { createMcpDispatchRuntime } from "../lib/mcp-dispatch-runtime.js";
 import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context.js";
 import { repository, addRun } from "./control-maintenance-fixtures.js";
+import { readWorkInventory } from "#agdf-core/control-state/planned-inventory.js";
 import { readRunInventory } from "#agdf-core/control-state/run-inventory-reader.js";
 import { renderRunInventory } from "#agdf-core/interaction-presentation.js";
 import { INVALID_PRESENTATION_LANGUAGE_CASES, VALID_PRESENTATION_LANGUAGE_CASES } from "./fixtures/skill-dispatch-language.js";
@@ -67,7 +70,7 @@ for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifa
           ...(variant !== undefined ? { variant } : {}),
           ...(contractModule !== undefined ? { module: contractModule } : {}) };
         let accepted = true;
-        try { validateReadSelection({ operation, allActive, variant, contractModule }); } catch { accepted = false; }
+        try { validateReadSelection({ operation, allActive, variant, contractModule, allowContractIndex: true }); } catch { accepted = false; }
         assert.equal(validateInspectSchema(args), accepted, JSON.stringify(args));
       }
     }
@@ -117,7 +120,8 @@ assert.equal(validateInspectSchema(documentBinding), true);
 for (const field of ['run_id', 'gate', 'expected_revision_id', 'presentation_id', 'target_id', 'target_source', 'primary_target']) {
   const incomplete = { ...documentBinding }; delete incomplete[field]; assert.equal(validateInspectSchema(incomplete), false, field);
 }
-for (const field of ['cursor', 'target_id', 'presentation_id']) {
+assert.equal(validateInspectSchema({ ...nativeBinding, target_id: documentBinding.target_id }), true);
+for (const field of ['cursor', 'presentation_id']) {
   assert.equal(validateInspectSchema({ ...nativeBinding, [field]: documentBinding[field] ?? 'a'.repeat(64) + ':0' }), false, field);
 }
 const validatePublicOutput = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema);
@@ -132,10 +136,11 @@ assert.match(observedInvalid.recovery.action, /doctor and delivery-map/);
 
 // SDD-002: one rule set for CLI and MCP, identical wording.
 const sharedCases = [
-  [{ target: "run-create", allActive: true, runId: "x" }, { operation: "run-create", allActive: true }, "--all-active is supported only by doctor and delivery-map"],
+  [{ target: "gate-check", allActive: true, runId: "x" }, { operation: "gate-check", allActive: true }, "--all-active is supported only by doctor and delivery-map"],
   [{ target: "doctor", contractModule: "quality" }, { operation: "doctor", contractModule: "quality" }, "--module is supported only by contract"],
-  [{ target: "contract" }, { operation: "contract" }, "contract requires --module"],
 ];
+assert.throws(() => validateCommandOptions({ json: true, target: 'contract' }), /contract requires --module/);
+assert.doesNotThrow(() => normalizeControlInspectInput(parseControlInspectFunctionArguments({ operation: 'contract', presentation_language: 'en', working_directory: '/tmp' }, trustedContext)));
 // The variant rule exists only for the MCP tool; the CLI keeps its historical flag tolerance (no new public rejection).
 assert.throws(() => validateReadSelection({ operation: "doctor", variant: "status-card" }), /supported only by gate-check/u);
 assert.doesNotThrow(() => validateCommandOptions({ json: true, target: "doctor", statusCard: true }));
@@ -211,18 +216,16 @@ function cliText(args, root) {
 
 // macOS may expose the same temporary directory as /var and /private/var. Both surfaces
 // receive the canonical path so the report comparison tests content rather than an alias.
+const fixtureCleanup = [];
 const root = realpathSync(mkdtempSync(join(tmpdir(), "agdf-control-inspect-")));
 try {
-  mkdirSync(join(root, ".git"));
-  writeFileSync(join(root, ".git", "HEAD"), "ref: refs/heads/main\n", "utf8");
-  execFileSync(process.execPath, [cli, "init", "--dir", root]);
-  rmSync(join(root, ".agdf", "control", "AGDF_RUN.md"), { force: true });
-  execFileSync(process.execPath, [cli, "run-create", "--dir", root, "--run", "inspect-run"]);
-  const artefacts = join(root, ".agdf", "control", "artefacts", "inspect-run");
-  mkdirSync(artefacts, { recursive: true });
-  writeFileSync(join(artefacts, "UR.md"), "# UR: Inspect\n\nStatus: draft\n\n## Problem\nRead operations need one MCP surface. The user should review this document before approval.\n\n## Goal\nInspect control state without a shell.\n\n## Scope\nRead-only operations.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Leseoperationen brauchen eine MCP-Oberfläche.\n- Ziel: Kontrollzustand ohne Shell prüfen.\n- Umfang: Nur lesende Operationen.\n");
-  const revision = readFileSync(join(root, ".agdf", "control", "runs", "inspect-run", "RUN_STATE.md"), "utf8").match(/^- revision_id: (.+)$/mu)[1];
-  execFileSync(process.execPath, [cli, "run-step", "--dir", root, "--run", "inspect-run", "--revision", revision, "--step", "ur", "--title", "Inspect run"]);
+  const f = currentFixture({ after: fn => fixtureCleanup.push(fn) }, { root });
+  createRun(root, 'inspect-run');
+  const urText = "# UR: Inspect\n\nStatus: draft\n\n## Problem\nRead operations need one MCP surface. The user should review this document before approval.\n\n## Goal\nInspect control state without a shell.\n\n## Scope\nRead-only operations.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Leseoperationen brauchen eine MCP-Oberfläche.\n- Ziel: Kontrollzustand ohne Shell prüfen.\n- Umfang: Nur lesende Operationen.\n";
+  const revision = readFileSync(join(root, '.agdf/control/runs/inspect-run/RUN_STATE.md'), 'utf8').match(/^- revision_id: (.+)$/mu)[1];
+  const binding = { run_id: 'inspect-run', expected_revision_id: revision };
+  const recorded = f.call('step.record', { step: 'ur', title: 'Inspect run', source: f.material(binding, 'UR', urText) }, binding);
+  assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
 
   const base = { workingDirectory: root, targetSource: "explicit_target", primaryTarget: root, interactionLocales, expectedVersion: pluginDefinition.version };
   // Advisory composition failure cannot turn a readable report into an evaluator error.
@@ -326,11 +329,13 @@ try {
   // AC-003 continued: the binding write still happens only through run-present, and its digests match the preview.
   const presentRun = spawnSync(process.execPath, [cli, "run-present", "--dir", root, "--run", "inspect-run", "--gate", "UR", "--revision", gate.approval_presentation.revision_id, "--language", "de"], { encoding: "utf8" });
   assert.equal(presentRun.status, 0, presentRun.stderr);
-  const present = JSON.parse(presentRun.stdout);
+  const preparation = JSON.parse(presentRun.stdout);
+  assert.equal(preparation.outcome, "accepted", JSON.stringify(preparation));
+  const present = preparation.family_result;
   assert.equal(present.summary_digest, gate.approval_presentation.summary_digest);
   assert.equal(present.artefact_digest, gate.approval_presentation.artefact_digest);
   assert.equal(present.text, gate.approval_presentation.markdown, "run-present binds the exact decision text rather than embedding the read-only status preview");
-  assert.equal(readFileSync(join(root, '.agdf/control/runs/inspect-run/presentations', `${present.presentation_id}.document`), 'utf8'),
+  assert.equal(readFileSync(join(root, '.agdf/control/runs/inspect-run/control/presentations', `${present.presentation_id}.document`), 'utf8'),
     gate.approval_presentation.document_content, "the bound document snapshot remains the exact reviewed source");
   const approveWithoutPresentation = spawnSync(process.execPath, [cli, "run-approve", "--dir", root, "--run", "inspect-run", "--gate", "UR", "--revision", gate.approval_presentation.revision_id, "--response", "Approval: UR"], { encoding: "utf8" });
   assert.notEqual(approveWithoutPresentation.status, 0, "approval without a presentation id stays rejected");
@@ -409,6 +414,7 @@ try {
   assert.equal(validateOutput({ ...inspectFailure, recovery: null }), false);
   assert.equal(runtime.tool("agdf_write"), null);
 } finally {
+  for (const close of fixtureCleanup) close();
   rmSync(root, { recursive: true, force: true });
 }
 
@@ -436,12 +442,10 @@ try {
     assert.deepEqual(listed.runs.map((entry) => entry.run_id).at(-1), "delta", "ended runs follow as history");
     const json = run("inventory", "--json", "--language", "en");
     assert.equal(json.status, 0, json.stderr);
-    assert.deepEqual(JSON.parse(json.stdout), listed);
+    assert.deepEqual(JSON.parse(json.stdout), readWorkInventory(repo, { language: "en" }));
     const text = run("inventory", "--language", "de");
     assert.equal(text.status, 0, text.stderr);
-    assert.match(text.stdout, /aktive AGDF-Runs gefunden/u);
-    assert.match(text.stdout, /Historie: 1 abgeschlossen, 0 abgelöst, 1 abgebrochen\./u);
-    assert.match(text.stdout, /keine Live-Bewertung/u);
+    assert.equal(text.stdout, "run: Alpha · available\nrun: Beta · available\nrun: Broken · unavailable\nrun: Gamma · available\nrun: Delta · available\n");
     for (const [extra, message] of [[["--run", "alpha"], /--run is not supported by inventory/u], [["--all-active"], /--all-active is supported only by doctor and delivery-map/u]]) {
       const refused = run("inventory", "--json", ...extra);
       assert.notEqual(refused.status, 0, extra.join(" "));
@@ -451,7 +455,7 @@ try {
     const validator = join(dirname(cli), "agdf-validator.js");
     const viaValidator = spawnSync(process.execPath, [validator, "inventory", "--json", "--language", "en", "--dir", repo], { encoding: "utf8" });
     assert.equal(viaValidator.status, 0, viaValidator.stderr);
-    assert.deepEqual(JSON.parse(viaValidator.stdout), listed);
+    assert.deepEqual(JSON.parse(viaValidator.stdout), readWorkInventory(repo, { language: "en" }));
     // CR-F02: an authored title cannot inject links, HTML or break the bold span.
     const hostile = renderRunInventory({ ...listed, runs: [{ ...listed.runs[0], title: "[x](javascript:alert(1)) <img onerror=x> **b** _i_ \\" }] }, interactionLocales, "en").markdown;
     assert.ok(hostile.includes("- **\\[x\\]\\(javascript:alert\\(1\\)\\) \\<img onerror=x\\> b \\_i\\_ \\\\** · "), hostile);

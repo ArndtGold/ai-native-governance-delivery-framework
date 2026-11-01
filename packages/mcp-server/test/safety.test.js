@@ -19,6 +19,7 @@ import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../../core/lib/runtime/plugin-pr
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "../src/worker.js";
 import { tryLinkFile } from "../../../scripts/support/symlinks.js";
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
+import { currentFixture } from '../../core/test/fixtures/current-run.js';
 
 const sourceRoot = new URL("../src/", import.meta.url);
 const sources = readdirSync(sourceRoot)
@@ -104,15 +105,14 @@ const continuationWriteOwners = new Map([
   ["runtime/core/lib/control-state/run-state-repository.js", ["writeFileSync", "renameSync", "unlinkSync", "rmdirSync", "mkdirSync", "openSync", "fsyncSync"]],
   // The existing CLI canonical initializer was promoted once to Core. Only its
   // fixed scaffold/stage publication owns these writes; the facade is a reexport.
-  ["runtime/core/lib/control-state/canonical-initialization.js", ["writeFileSync", "renameSync", "unlinkSync", "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"]],
+  ["runtime/core/lib/control-state/canonical-initialization.js", ["writeFileSync", "renameSync", "unlinkSync", "rmdirSync", "mkdirSync", "openSync", "fsyncSync"]],
   // Closure uses the existing atomic preview writer and creates only its owned directory.
   ["runtime/core/lib/control-state/run-closure.js", ["mkdirSync"]],
   // Fixed admission claims/maintenance epochs, independent planned UR journals,
-  // source-bound handoff and explicit layout migration retain their Core owners.
+  // source-bound handoff retain their Core owners.
   ["runtime/core/lib/control-state/control-layout.js", ["writeFileSync", "unlinkSync", "mkdirSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/control-state/planned-entry.js", ["renameSync", "unlinkSync", "mkdirSync"]],
   ["runtime/core/lib/control-state/planned-handoff.js", ["unlinkSync", "rmdirSync", "mkdirSync"]],
-  ["runtime/core/lib/control-maintenance/planned-layout.js", ["unlinkSync", "rmdirSync", "mkdirSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],
@@ -157,7 +157,7 @@ for (const args of [['commit'], ['diff', '--output=/foreign'], ['rev-parse', '--
 assert.equal(gitCalls.length, callsBefore, 'unknown process requests are rejected before execution');
 assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/skill-dispatch/service.js")));
 assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/control-inspect/service.js")), "the read tool is part of the scanned reachable surface");
-for (const owner of continuationWriteOwners.keys()) assert.ok(visited.has(resolve(dispatcherRoot, owner)));
+for (const owner of continuationWriteOwners.keys()) assert.ok(visited.has(resolve(dispatcherRoot, owner)), `Declared write owner must be reachable: ${owner}`);
 const readOnlyGraph = new Map();
 for (const owner of ["skill-dispatch/service.js", "control-inspect/service.js"]) {
   visit(resolve(dispatcherRoot, "runtime/core/lib", owner), readOnlyGraph);
@@ -284,13 +284,10 @@ assert.equal(sanitized.authorizes, false);
 const escapedTarget = mkdtempSync(join(tmpdir(), "agdf-mcp-read-boundary-"));
 const outsideRoot = mkdtempSync(join(tmpdir(), "agdf-mcp-outside-"));
 try {
-  mkdirSync(join(escapedTarget, ".git"));
-  writeFileSync(join(escapedTarget, ".git", "HEAD"), "ref: refs/heads/main\n", "utf8");
-  mkdirSync(join(escapedTarget, ".agdf", "control"), { recursive: true });
-  // Select the real legacy read surface; absent/invalid config is diagnosed
-  // before live control reads and would not exercise the linked backlog.
-  writeFileSync(join(escapedTarget, '.agdf/control/config.json'), JSON.stringify({
-    control_layout: 'master-backlog-v1', artifact_language: 'en', chat_language: 'en', runtime_language: 'en' }));
+  // Exercise the current store so the linked canonical source reaches read containment.
+  const initialized = currentFixture({ after: () => {} }, { root: escapedTarget });
+  initialized.store.close();
+  rmSync(join(escapedTarget, '.agdf/control/SOT_REGISTRY.md'));
   const outside = join(outsideRoot, "outside-secret.txt");
   writeFileSync(outside, "MCP_BOUNDARY_SECRET");
   if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "SOT_REGISTRY.md"), "mcp-safety-test")) {

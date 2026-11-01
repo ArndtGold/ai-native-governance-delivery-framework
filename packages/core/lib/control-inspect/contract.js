@@ -42,7 +42,7 @@ const fieldModel = {
   gate: { help: 'Requested document gate or catalog filter, never a selection heuristic. artifact-readiness: UR/PRD/SD/TP only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Document gate.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
   expected_revision_id: { help: 'Bound inspections use current gate-check revision. Document/preview reads preserve the original selected catalog or conversation revision.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
   presentation_id: { help: 'Exact prepared ID from validated catalog or conversation. Never guess, select by timestamp, or prepare a replacement to read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
-  target_id: { help: 'Copy target hash from operation-contract binding or catalog read_arguments; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Target hash: operation-contract.', operations: PRESENTATION_OPERATIONS },
+  target_id: { help: 'Optional confirmed target hash on target-bound reads; when supplied it must match. Required for presentation reads; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Optional verified target hash.' },
   cursor: { help: 'Omit initially; copy next_cursor. doctor requires all_active; catalog requires its declared module. Never exchange cursor types.', schema: cursorSchema, description: 'Copy next_cursor.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract', 'authoring-inputs', 'doctor'] },
   variant: { help: 'gate-check view only; never records approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
   module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
@@ -53,21 +53,20 @@ const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-sta
 const inputSchema = {
   type: 'object', additionalProperties: false,
   required: ['operation', 'presentation_language', 'working_directory'],
-  $defs: { i: uuidSchema, b: { not: { enum: CONTROL_INSPECT_OPERATIONS.filter(op => !BOUND_INSPECT_OPERATIONS.includes(op)) } }, d: { enum: PRESENTATION_OPERATIONS }, m: { enum: moduleOperations } },
+  $defs: { i: uuidSchema, b: { not: { enum: CONTROL_INSPECT_OPERATIONS.filter(op => !BOUND_INSPECT_OPERATIONS.includes(op)) } }, d: { enum: PRESENTATION_OPERATIONS }, m: { enum: ['operation-contract', 'operation-status'] } },
   properties: Object.fromEntries(Object.entries(fieldModel).map(([name, field]) => [name, { ...field.schema, description: field.description }])),
-  dependentRequired: { target_source: ['primary_target'], primary_target: ['target_source'] },
+  dependentRequired: { target_source: ['primary_target'], primary_target: ['target_source'], target_id: ['primary_target', 'target_source'] },
   dependentSchemas: Object.fromEntries(Object.entries(fieldModel).filter(([, f]) => f.operations).map(([name, field]) => [name,
     name === 'cursor' ? { anyOf: [ { properties: { operation: { enum: [...PRESENTATION_OPERATIONS, 'authoring-inputs'] } } },
       { properties: { operation: { const: 'doctor' }, all_active: { const: true } }, required: ['all_active'] },
       { properties: { operation: { const: 'operation-contract' }, module: { const: PRESENTATION_CATALOG_MODULE } } } ] }
       : { properties: { operation: field.operations === BOUND_INSPECT_OPERATIONS ? { $ref: '#/$defs/b' }
-        : field.operations === PRESENTATION_OPERATIONS ? { $ref: '#/$defs/d' } : name === 'module' ? { $ref: '#/$defs/m' } : { enum: field.operations } } },
+        : field.operations === PRESENTATION_OPERATIONS ? { $ref: '#/$defs/d' } : name === 'module' ? { enum: moduleOperations } : { enum: field.operations } } },
   ])),
   allOf: [
-    { if: { properties: { operation: { enum: ['planned-inventory', 'planned-entry'] } } }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
+    { if: { properties: { operation: { enum: ['project-state', 'planned-inventory', 'planned-entry'] } } }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
     { if: { properties: { operation: { const: 'planned-entry' } } }, then: { required: ['planning'] } },
     { if: { required: ['planning'] }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
-    { if: { properties: { operation: { const: 'project-state' } } }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
     { not: { properties: { all_active: { const: true } }, required: ['all_active', 'run_id'] } },
     { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
     { if: { properties: { operation: { $ref: '#/$defs/m' } } }, then: { required: ['module'] } },
@@ -87,7 +86,11 @@ const inputSchema = {
 inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
 delete inputSchema.allOf;
 const conciseHelp = { target_source: 'Pair with primary_target.', primary_target: 'Confirmed root; pair target_source.',
-  module: 'contract: module; operation-contract: group/kind; operation-status: UUID. Omit for authoring-inputs.',
+  module: 'contract: omit for index; operation-contract: group/kind; operation-status: UUID.',
+  run_id: 'Omit on inventory/project/planned reads.',
+  expected_revision_id: 'Omit on gate-check, delivery-map and inventory.',
+  planning: 'Omit on operation-contract; authoring-inputs/planned-entry/status only.',
+  target_id: 'Required with gate on presentation-document.',
   gate: 'Not for gate-check.' };
 for (const [key, field] of Object.entries(inputSchema.properties)) {
   delete field.description;
@@ -96,7 +99,7 @@ for (const [key, field] of Object.entries(inputSchema.properties)) {
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read-only. Help: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. Creation/planning help needs only target; Run help needs Run/revision. Follow navigation.next_calls sequentially; read all pages.',
+  description: 'Read-only. Help: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. contract lists modules. Copy next_calls. Follow navigation.next_calls sequentially; read all pages.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {
@@ -150,8 +153,10 @@ export function inspectContractHelp() {
     parameters: Object.fromEntries(Object.entries(fieldModel).map(([key, field]) => [key, { description: field.help ?? field.description, operations: field.operations ?? [...CONTROL_INSPECT_OPERATIONS] }])),
     operations: Object.fromEntries(CONTROL_INSPECT_OPERATIONS.map(operation => [operation, {
       required: [...CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ...(BOUND_INSPECT_OPERATIONS.includes(operation) ? ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] : []),
-        ...(['contract', 'operation-contract', 'operation-status'].includes(operation) ? ['module'] : []),
+        ...(['operation-contract', 'operation-status'].includes(operation) ? ['module'] : []),
         ...(operation === 'artifact-readiness' ? ['gate'] : PRESENTATION_OPERATIONS.includes(operation) ? ['gate', 'presentation_id', 'target_id'] : [])],
+      omit: [...Object.entries(fieldModel).filter(([, field]) => field.operations && !field.operations.includes(operation)).map(([name]) => name),
+        ...(['inventory', 'planned-inventory', 'planned-entry', 'project-state'].includes(operation) ? ['run_id'] : [])],
       ...(['operation-contract', 'operation-status'].includes(operation) ? { unbound: {
         module: operation === 'operation-contract' ? 'agdf_run/run.create' : 'original run.create operation UUID',
         required: [...CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, 'target_source', 'primary_target', 'module'],
@@ -165,6 +170,22 @@ export function inspectContractHelp() {
     provenance: 'Preserve exact conversation bindings; otherwise require unique complete catalog discovery or explicit selection. Reads keep original revisions. Prepared proves neither viewing nor approval. Catalog cursors require the catalog module.',
     catalog_limits: { page_candidates: 16, record_files: 256, record_bytes: 1048576, directory_entries: 1024 },
   });
+}
+
+export function inspectInputValidationHint(input) {
+  if (!input || typeof input !== 'object' || !CONTROL_INSPECT_OPERATIONS.includes(input.operation)) return '';
+  const operation = input.operation, messages = [];
+  for (const [name, field] of Object.entries(fieldModel)) {
+    if (Object.hasOwn(input, name) && field.operations && !field.operations.includes(operation))
+      messages.push(`Remove ${name} for ${operation}.`);
+  }
+  if (input.run_id && ['inventory', 'project-state', 'planned-inventory', 'planned-entry'].includes(operation))
+    messages.push(`Remove run_id for ${operation}; it reads the target scope.`);
+  const required = [...(['operation-contract', 'operation-status'].includes(operation) ? ['module'] : []),
+    ...(PRESENTATION_OPERATIONS.includes(operation) ? ['gate', 'presentation_id', 'target_id', 'run_id', 'expected_revision_id'] : [])];
+  for (const key of required) if (!Object.hasOwn(input, key)) messages.push(`Supply ${key} for ${operation}.`);
+  if (PRESENTATION_OPERATIONS.includes(operation)) messages.push('Copy the exact agdf_inspect arguments from presentation.prepare next_calls or the presentation catalog.');
+  return messages.slice(0, 5).join(' ').slice(0, 768);
 }
 
 export function controlInspectDefinitionBytes(definition = CONTROL_INSPECT_FUNCTION_DEFINITION) {
@@ -228,6 +249,8 @@ export function normalizeControlInspectInput(input) {
   if (Boolean(rawTargetSource) !== Boolean(primaryTarget)) throw new SkillDispatchInputError("primary_target", "target_source and primary_target must be supplied together");
   if (primaryTarget && (!isAbsolute(primaryTarget) || primaryTarget.length > 4096)) throw new SkillDispatchInputError("primary_target", "primary_target must be an absolute bounded path");
   const targetSource = rawTargetSource ? normalizeTaskTargetSource(rawTargetSource, { allowEmpty: false }) : null;
+  if (input.targetId !== undefined && (!primaryTarget || !/^sha256:[0-9a-f]{64}$/u.test(input.targetId)))
+    throw new SkillDispatchInputError('target_id', 'A valid target hash requires a confirmed target');
   const runId = input.runId || null;
   const planning = input.planning;
   if (planning !== undefined && (schemaDiagnostics(planning, PLANNING_SCOPE_SCHEMA).length || runId || input.expectedRevisionId !== undefined || input.gate !== undefined
@@ -265,7 +288,7 @@ export function normalizeControlInspectInput(input) {
     if (!APPROVAL_GATES.includes(input.gate) || !REVISION_ID_PATTERN.test(input.presentationId ?? '')
       || !/^sha256:[0-9a-f]{64}$/u.test(input.targetId ?? '')
       || input.cursor !== undefined && !/^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$/u.test(input.cursor)) throw new SkillDispatchInputError('presentation', 'An exact presentation binding and bounded cursor are required');
-  } else if (input.presentationId !== undefined || input.targetId !== undefined || input.cursor !== undefined && !((operation === 'authoring-inputs' || operation === 'doctor' && input.allActive === true || operation === 'operation-contract' && input.contractModule === PRESENTATION_CATALOG_MODULE) && new RegExp(cursorSchema.pattern, 'u').test(input.cursor) && typeof input.cursor === 'string' && input.cursor.length <= cursorSchema.maxLength)) {
+  } else if (input.presentationId !== undefined || input.cursor !== undefined && !((operation === 'authoring-inputs' || operation === 'doctor' && input.allActive === true || operation === 'operation-contract' && input.contractModule === PRESENTATION_CATALOG_MODULE) && new RegExp(cursorSchema.pattern, 'u').test(input.cursor) && typeof input.cursor === 'string' && input.cursor.length <= cursorSchema.maxLength)) {
     throw new SkillDispatchInputError('presentation', 'Document selectors require presentation-document');
   }
   if (input.allActive !== undefined && typeof input.allActive !== "boolean") throw new SkillDispatchInputError("all_active", "all_active is invalid");
@@ -274,12 +297,12 @@ export function normalizeControlInspectInput(input) {
   validateReadSelection({
     operation,
     allActive: input.allActive === true,
-    contractModule: input.contractModule,
+    contractModule: input.contractModule, allowContractIndex: true,
     variant: input.variant,
     runId,
   });
   for (const [field, key] of Object.entries(selectorKeys)) {
-    if (input[key] !== undefined && !fieldModel[field].operations.includes(operation)) throw new SkillDispatchInputError(field, `Unsupported selector for ${operation}`);
+    if (input[key] !== undefined && !(fieldModel[field].operations ?? CONTROL_INSPECT_OPERATIONS).includes(operation)) throw new SkillDispatchInputError(field, `Unsupported selector for ${operation}`);
   }
   return Object.freeze({
     schema_version: CONTROL_INSPECT_SCHEMA_VERSION,

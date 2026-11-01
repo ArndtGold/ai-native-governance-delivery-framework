@@ -24,8 +24,24 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
     };
     const tools = (await client.listTools()).tools.map(tool => tool.name);
     assert.deepEqual(tools, ['agdf_dispatch', 'agdf_inspect', 'agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+    const index = await call('agdf_inspect', { ...target, operation: 'contract' });
+    assert.ok(index.report.modules.includes('ur-definition'));
+    assert.ok(index.report.operation_modules.includes('agdf_record/planned_material.stage'));
+    const badScope = await client.callTool({ name: 'agdf_inspect', arguments: { ...target,
+      operation: 'inventory', run_id: 'private-fixture', expected_revision_id: randomUUID() } });
+    assert.equal(badScope.isError, true);
+    assert.match(badScope.content[0].text, /Remove expected_revision_id for inventory/);
+    assert.match(badScope.content[0].text, /Remove run_id for inventory/);
     const help = await call('agdf_inspect', { ...target, operation: 'operation-contract', module: 'agdf_record/planned_ur.create' });
     assert.equal(help.report.planning_capability.owner, 'ur-definition');
+    assert.equal(help.report.planning_capture.plan_id, 'plan-<planned_ur.create operation_id>');
+    const parallel = await Promise.all(Array.from({ length: 4 }, () => call('agdf_inspect', { ...target, target_id,
+      operation: 'operation-contract', module: 'agdf_record/planned_material.stage' })));
+    assert.ok(parallel.every(result => result.report.available && result.report.planning_capture.expected_digest === null));
+    const wrongTarget = await call('agdf_inspect', { ...target, target_id: `sha256:${'0'.repeat(64)}`,
+      operation: 'project-state' }, false);
+    assert.equal(wrongTarget.outcome, 'invalid_input');
+    assert.equal(wrongTarget.diagnostics[0].code, 'target_binding_mismatch');
     const missing = await client.callTool({ name: 'agdf_inspect', arguments: { ...target, operation: 'planned-entry', planning } });
     assert.equal(missing.isError, true); assert.equal(missing.structuredContent.outcome, 'inspect_result');
     assert.equal(missing.structuredContent.terminal, false);
@@ -53,6 +69,14 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
       for (let offset = 0; offset < bytes.length; offset += 16384) await part({ action: 'append', transfer_id, file: 0, offset, data: bytes.subarray(offset, offset + 16384).toString('base64') });
       return (await part({ action: 'seal', transfer_id })).family_result.files[0].reference;
     };
+    const invalidSource = await stage(planning, clarifiedUr.replace('\n', `\nPlanning schema: planned-ur-v1\nPlanning id: ${plan_id}\nPlanning priority: normal\n`));
+    const invalid = await client.callTool({ name: 'agdf_record', arguments: { ...bound,
+      command: { kind: 'planned_ur.create', payload: { source: invalidSource } } } });
+    assert.equal(invalid.isError, true);
+    assert.equal(invalid.structuredContent.reason, 'AGDF_PLANNED_METADATA_INVALID');
+    assert.equal(invalid.structuredContent.dispatch, 'not_dispatched');
+    assert.match(invalid.structuredContent.recovery, /without Planning schema/);
+    assert.ok(!invalid.content.some(part => part.type === 'text' && part.text.includes('unclassified_tool_failure')));
     const source = await stage(planning, clarifiedUr), create = { ...bound, command: { kind: 'planned_ur.create', payload: { source, priority: 'high' } } };
     const saved = await call('agdf_record', create); assert.equal(saved.outcome, 'accepted');
     const listed = await call('agdf_inspect', { ...target, operation: 'planned-inventory' });
@@ -79,6 +103,15 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
       command: { kind: 'run.create_from_planned', payload: { title: replaced.family_result.entry.title } } };
     const started = await call('agdf_run', handoff), repeated = await call('agdf_run', handoff);
     assert.equal(started.outcome, 'accepted'); assert.equal(repeated.outcome, 'already_applied'); assert.equal(started.family_result.run_id, repeated.family_result.run_id);
+    assert.equal(started.next_calls.length, 4);
+    for (const next of started.next_calls) await call(next.tool, next.arguments);
+    const prepared = await call('agdf_prepare', { ...target, target_id, run_id: started.family_result.run_id,
+      expected_revision_id: started.current.revision_id, operation_id: randomUUID(),
+      command: { kind: 'presentation.prepare', payload: { gate: 'UR' } } });
+    assert.equal(prepared.next_calls.length, 1);
+    const document = await call(prepared.next_calls[0].tool, prepared.next_calls[0].arguments);
+    assert.equal(document.report.complete, true);
+    assert.equal(document.report.byte_end, document.report.total_bytes);
     const inventory = await call('agdf_inspect', { ...target, operation: 'inventory' });
     assert.equal(inventory.report.entries.length, 1); assert.equal(inventory.report.planning_references.length, 1);
     const direct = await call('agdf_run', { ...target, target_id, schema_version: '1', operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind: 'run.create', payload: { title: 'Direct fixture Run' } } });

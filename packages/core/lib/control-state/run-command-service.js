@@ -40,7 +40,7 @@ import { grantedMaterial } from './run-material.js';
 import { ownedRecordingGitObservation } from './run-verified-change.js';
 import { withControlRecovery } from './control-layout.js';
 import { PLANNING_COMMAND_KINDS } from './run-command-schema.js';
-import { inspectPlannedOperation, replayPlannedUr, mutatePlannedUr } from './planned-entry.js';
+import { inspectPlannedOperation, replayPlannedUr, mutatePlannedUr, planningId } from './planned-entry.js';
 import { createRunFromPlanned } from './planned-handoff.js';
 
 function safeOperationStatus(root, input) {
@@ -148,6 +148,23 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
             : 'Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer absence or create another decision.' : null,
           ...(['effect_unknown', 'recovery_required'].includes(outcome) && input.command.kind === 'project.initialize' ? { next_calls: [projectOperationStatusCall(input)] } : {}),
           family_result: family, ...extra };
+        if (['accepted', 'already_applied'].includes(outcome)) {
+          const common = { presentation_language: input.presentation_language, working_directory: input.working_directory,
+            primary_target: input.primary_target, target_source: input.target_source, target_id: input.target_id };
+          const inspect = argumentsValue => ({ tool: 'agdf_inspect', arguments: { ...common, ...argumentsValue } });
+          if (input.command.kind === 'planned_ur.create' && family.entry) response.next_calls = [
+            inspect({ operation: 'planned-inventory' }), inspect({ operation: 'planned-entry', planning: {
+              plan_id: family.entry.plan_id, expected_digest: family.entry.digest } })];
+          if (['run.create', 'run.create_from_planned'].includes(input.command.kind) && response.current.available) {
+            const run_id = family.run_id ?? selectedInput.run_id;
+            response.next_calls = [inspect({ operation: 'inventory' }), inspect({ operation: 'gate-check', run_id }),
+              inspect({ operation: 'delivery-map', run_id }), inspect({ operation: 'operation-contract',
+                module: 'agdf_prepare/presentation.prepare', run_id, expected_revision_id: response.current.revision_id, gate: 'UR' })];
+          }
+          if (input.command.kind === 'presentation.prepare' && family.presentation_id && family.revision_id)
+            response.next_calls = [inspect({ operation: 'presentation-document', run_id: input.run_id,
+              expected_revision_id: family.revision_id, gate: family.gate, presentation_id: family.presentation_id })];
+        }
         if (Buffer.byteLength(JSON.stringify(response)) > (input.command.kind === 'project.initialize' ? 16384 : RUN_COMMAND_LIMITS.result_bytes)) return { schema_version: '1', outcome: dispatched ? 'effect_unknown' : 'rejected',
           reason: 'command_result_budget_exceeded', operation_id: input.operation_id, binding: response.binding, authorizes: false,
           recovery: 'Inspect operation-status with the original UUID. A lost response does not prove non-execution.' };
@@ -166,6 +183,10 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           ...preparation, gitObservation: ownedRecordingGitObservation(gitObservation, input.run_id) });
         const bound = { runId: input.run_id, revisionId: input.expected_revision_id, operationId: input.operation_id };
         if (planning) {
+          if (kind === 'planned_ur.create' && (input.planning.plan_id !== planningId(input.operation_id) || input.planning.expected_digest !== null))
+            return result('rejected', 'planning_identity_mismatch', {}, { dispatch: 'not_dispatched',
+              diagnostics: [{ code: 'planning_identity_mismatch', field: 'planning', expected_plan_id: planningId(input.operation_id), expected_digest: null }],
+              recovery: 'Reserve the create UUID before staging. Restage the UR with planning.plan_id = plan-<this planned_ur.create operation_id> and expected_digest = null; use that same scope for material and create. No operation was dispatched.' });
           if (kind === 'planned_material.stage') return result('rejected', 'material_state_unavailable', {}, { dispatch: 'not_dispatched' });
           if (kind === 'run.create_from_planned') {
             if (input.planning.expected_digest === null) return result('rejected', 'planning_source_required', {}, { dispatch: 'not_dispatched' });
@@ -293,6 +314,12 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
         return result(repeated ? 'already_applied' : accepted ? 'accepted' : family?.outcome === 'recovery_required' ? 'recovery_required' : 'rejected', family?.reason, family ?? {});
       } catch (error) {
         if (planning && /RECOVERY_REQUIRED|ADMISSION_UNKNOWN/u.test(error.message)) return result('recovery_required', error.message, {}, { dispatch: dispatched ? 'unknown' : 'not_dispatched' });
+        if (planning && error.message === 'AGDF_PLANNED_METADATA_INVALID')
+          return result('rejected', error.message, {}, { dispatch: 'not_dispatched',
+            diagnostics: [{ code: error.message, field: 'source' }],
+            recovery: input.command.kind === 'planned_ur.create'
+              ? 'Restage the canonical UR without Planning schema, Planning id or Planning priority lines. The create writer adds those fields from the request. Keep the reserved create UUID and planning scope; no operation was dispatched.'
+              : 'Restage the full selected canonical UR with exactly one Planning schema: planned-ur-v1, Planning id matching the selected plan_id, and Planning priority: high, normal or low before the first section. Preserve the selected plan_id and expected_digest; no operation was dispatched.' });
         if (planning && /^AGDF_(?:PLANNED_(?:SOURCE_STALE|UR_NOT_READY|TITLE_INVALID|CONTENT_INVALID|METADATA_INVALID|OPERATION_INVALID|ID_INVALID|COLLISION|HANDOFF_INPUT_INVALID|ALREADY_TRANSFERRED|ORIGIN_UNCONFIRMED)|CONTROL_LAYOUT_MIGRATION_REQUIRED)/u.test(error.message))
           return result('rejected', error.message, {}, { dispatch: 'not_dispatched', ...(error.readiness ? { readiness: error.readiness } : {}) });
         if (input.command.kind !== 'closure.apply' && error.facts?.code === 'snapshot_stale' && error.facts.dispatch === 'not_dispatched')

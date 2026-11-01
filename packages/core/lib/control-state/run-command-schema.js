@@ -117,7 +117,7 @@ const fieldHelp = Object.freeze({
   primary_target: 'Confirmed absolute target.',
   target_id: 'Exact hash from target inspection; never guess.',
   run_id: 'Run from inspection; recency is no authority.',
-  planning: 'Pre-Run plan identity and exact selected canonical digest; never a Run binding.',
+  planning: 'Pre-Run scope. Initial material/create: reserve the future planned_ur.create UUID; plan_id is plan-<that UUID>, expected_digest is null. Reuse that plan_id for material and create; material calls have separate UUIDs. Existing plans use the exact selected id/digest. No Run binding.',
   expected_revision_id: 'Inspected revision; recovery keeps original.',
   operation_id: 'New UUID; retry with same UUID/payload.',
   assurance: 'Cooperative intent, not human proof.',

@@ -52,8 +52,12 @@ async function assertGuidedInspection(client) {
     const document = navigation.next_calls.find(next => next.arguments.operation === 'presentation-document').arguments;
     for (const override of [
       { expected_revision_id: '00000000-0000-4000-8000-000000000000' },
-      { target_id: `sha256:${'0'.repeat(64)}` }, { gate: 'PRD' }, { run_id: 'foreign-run' },
+      { gate: 'PRD' }, { run_id: 'foreign-run' },
     ]) assert.notEqual((await call({ ...document, ...override }, true)).report.available, true);
+    const wrongTarget = await client.callTool({ name: 'agdf_inspect', arguments: { ...document, target_id: `sha256:${'0'.repeat(64)}` } });
+    assert.equal(wrongTarget.isError, true);
+    assert.equal(wrongTarget.structuredContent.outcome, 'invalid_input');
+    assert.equal(wrongTarget.structuredContent.diagnostics[0].code, 'target_binding_mismatch');
     const unbound = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'gate-check', presentation_language: 'de', working_directory: fixture.root, run_id: fixture.runId } });
     assert.equal(unbound.structuredContent.navigation, undefined, 'working directory never supplies target authority');
     assert.equal(unbound.structuredContent.authorizes, false);

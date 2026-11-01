@@ -10,6 +10,7 @@ import { initializeCanonicalControl } from '../lib/control-state/canonical-initi
 export function fixture({ layout = 'master-backlog-v1' } = {}) {
   const root = fs.realpathSync(fs.mkdtempSync(join(tmpdir(), 'agdf-cockpit-')));
   initializeCanonicalControl(root, canonicalInitPlan(undefined, undefined, { layout }));
+  if (layout === 'master-backlog-v1' && !fs.existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md'))) fs.writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), fs.readFileSync(join(import.meta.dirname, '../../../plugins/agdf/control/templates/MASTER_BACKLOG.md')));
   const runPath = createRun(root, 'fixture-a');
   const documentPath = '.agdf/control/artefacts/fixture-a/UR.md';
   fs.mkdirSync(join(root, '.agdf/control/artefacts/fixture-a'), { recursive: true });

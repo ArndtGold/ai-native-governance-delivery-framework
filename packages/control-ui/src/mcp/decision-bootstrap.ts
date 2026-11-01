@@ -38,7 +38,7 @@ export function readDecisionBootstrap(result: unknown): DecisionBootstrap | null
     || row.decision_brief !== undefined && row.decision_brief !== null && (typeof row.decision_brief !== 'string' || new TextEncoder().encode(row.decision_brief).length > 24000)
     || ['gate_title', 'decision_heading', 'approval_effect', 'approval_effect_label'].some(key => row[key] !== undefined
       && (typeof row[key] !== 'string' || !(row[key] as string).trim() || (row[key] as string).length > 1200))
-    || b.target_id !== target.target_id || typeof b.run_id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(b.run_id)
+    || b.target_id !== target.target_id || typeof b.run_id !== 'string' || !/^[a-z0-9][a-z0-9._-]{0,127}$/.test(b.run_id)
     || !['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'].includes(String(b.gate)) || !uuid(b.expected_revision_id) || !uuid(b.presentation_id)
     || !hash(b.material_version) || !hash(b.presentation_digest) || typeof b.presentation_language !== 'string'
     || !Array.isArray(b.material_sources) || !b.material_sources.length || b.material_sources.length > 12

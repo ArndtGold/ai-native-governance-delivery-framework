@@ -207,7 +207,8 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   const authored = JSON.parse(readFileSync(config, 'utf8')); authored.chat_language = 'de';
   writeFileSync(config, JSON.stringify(authored, null, 2) + '\n');
   assert.equal(existsSync(join(control, 'MASTER_BACKLOG.md')), false);
-  for (const name of ['CONTEXT_GRAPH.md', 'SOT_REGISTRY.md'])
+  writeFileSync(join(control, 'MASTER_BACKLOG.md'), '# Preserved legacy planning\n');
+  for (const name of ['MASTER_BACKLOG.md', 'CONTEXT_GRAPH.md', 'SOT_REGISTRY.md'])
     writeFileSync(join(control, name), readFileSync(join(control, name), 'utf8') + '\nHuman authored context retained.\n');
   const before = files(control), replay = run();
   assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));

@@ -1,0 +1,77 @@
+{
+  "measurement_class": "local fixed-fixture process/protocol timing, not native host qualification",
+  "baseline_commit": "c79972c2f3fc3d8bd21d45d10e90a1dd79c5d763",
+  "performance_test_sha256": "1038d620deaf754014b4ebcbe279101e607c830fe8be37431867551c269bd04b",
+  "budgets_ms": {
+    "cold_p95": 1500,
+    "warm_p95": 1000
+  },
+  "budgets_or_test_modified": false,
+  "candidate_standalone_retries": 1,
+  "baseline_measurements": 1,
+  "observations": [
+    {
+      "label": "candidate-in-shared-plan",
+      "node": "v22.22.3",
+      "platform": "darwin-x64",
+      "runs": 20,
+      "fixture": {
+        "control": "hermetic",
+        "control_runs": [
+          "agdf-mcp-dispatch-server"
+        ],
+        "control_files": 31,
+        "control_bytes": 804412
+      },
+      "cold_p95_ms": 2379.791,
+      "cold_median_ms": 1491.5895,
+      "warm_p95_ms": 861.183,
+      "idle_min_percent": 1.8907563025210083,
+      "cold_pass": false,
+      "warm_pass": true
+    },
+    {
+      "label": "candidate-standalone-once",
+      "node": "v22.22.3",
+      "platform": "darwin-x64",
+      "runs": 20,
+      "fixture": {
+        "control": "hermetic",
+        "control_runs": [
+          "agdf-mcp-dispatch-server"
+        ],
+        "control_files": 31,
+        "control_bytes": 804412
+      },
+      "cold_p95_ms": 1522.431,
+      "cold_median_ms": 1466.7445,
+      "warm_p95_ms": 393.563,
+      "idle_min_percent": 18.68686868686869,
+      "cold_pass": false,
+      "warm_pass": true
+    },
+    {
+      "label": "unmodified-main-once",
+      "node": "v22.22.3",
+      "platform": "darwin-x64",
+      "runs": 20,
+      "fixture": {
+        "control": "hermetic",
+        "control_runs": [
+          "agdf-mcp-dispatch-server"
+        ],
+        "control_files": 31,
+        "control_bytes": 796400
+      },
+      "cold_p95_ms": 1912.955,
+      "cold_median_ms": 1469.8435,
+      "warm_p95_ms": 364.633,
+      "idle_min_percent": 1.9927536231884058,
+      "cold_pass": false,
+      "warm_pass": true
+    }
+  ],
+  "new_source_regression_established": false,
+  "candidate_cold_budget_qualified": false,
+  "remaining_obligation": "Keep failed timings explicit; obtain eligible exact-candidate performance evidence with the unchanged existing check. Required dedicated platform CI remains mandatory before integration. No more local cold retries or foreign process changes."
+}

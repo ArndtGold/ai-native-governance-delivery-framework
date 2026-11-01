@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: SCN-061/063/080: production overview reads only backlog even with >64 MiB unrelated history, and keeps original pointer facts
+ok 1 - SCN-061/063/080: production overview reads only backlog even with >64 MiB unrelated history, and keeps original pointer facts
+  ---
+  duration_ms: 1608.502317
+  type: 'test'
+  ...
+# Subtest: SCN-062/083: duplicate/malformed pointers stay identifiable and nonselectable; missing/unsupported backlog never discovers Runs or writes
+ok 2 - SCN-062/083: duplicate/malformed pointers stay identifiable and nonselectable; missing/unsupported backlog never discovers Runs or writes
+  ---
+  duration_ms: 727.427404
+  type: 'test'
+  ...
+# Subtest: SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation
+ok 3 - SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation
+  ---
+  duration_ms: 1174.530344
+  type: 'test'
+  ...
+# Subtest: SCN-067/068/069/074: production transitions reissue matching parents/resources and old or foreign selectors cannot discard a valid view
+ok 4 - SCN-067/068/069/074: production transitions reissue matching parents/resources and old or foreign selectors cannot discard a valid view
+  ---
+  duration_ms: 819.656529
+  type: 'test'
+  ...
+# Subtest: SCN-067/072: strict optional named snapshot and independent production workers retain only latest scoped selectors
+ok 5 - SCN-067/072: strict optional named snapshot and independent production workers retain only latest scoped selectors
+  ---
+  duration_ms: 1550.141503
+  type: 'test'
+  ...
+# Subtest: SCN-079/080/083: canonical approval without backlog membership leaves stored pointers unchanged; direct reading checks the new Run
+ok 6 - SCN-079/080/083: canonical approval without backlog membership leaves stored pointers unchanged; direct reading checks the new Run
+  ---
+  duration_ms: 1144.105111
+  type: 'test'
+  ...
+# Subtest: SCN-080/082/083: canonical approval leaves retained legacy pointers unchanged while the Run revision advances
+ok 7 - SCN-080/082/083: canonical approval leaves retained legacy pointers unchanged while the Run revision advances
+  ---
+  duration_ms: 1140.262739
+  type: 'test'
+  ...
+# Subtest: UR readiness follows the configured project language exactly like the canonical gate-check
+ok 8 - UR readiness follows the configured project language exactly like the canonical gate-check
+  ---
+  duration_ms: 719.205345
+  type: 'test'
+  ...
+# Subtest: canonical Run State is a registered resource on every platform
+ok 9 - canonical Run State is a registered resource on every platform
+  ---
+  duration_ms: 702.323828
+  type: 'test'
+  ...
+# Subtest: an artefact registered outside .agdf/control blocks only that resource and leaves the evaluation unconfirmed
+ok 10 - an artefact registered outside .agdf/control blocks only that resource and leaves the evaluation unconfirmed
+  ---
+  duration_ms: 1786.065765
+  type: 'test'
+  ...
+# Subtest: a generated next step from an earlier gate is replaced; custom text and backward moves keep the stored values
+ok 11 - a generated next step from an earlier gate is replaced; custom text and backward moves keep the stored values
+  ---
+  duration_ms: 1733.244798
+  type: 'test'
+  ...
+# Subtest: an actual decision-content blocker overrides a stored next step without repairing the source
+ok 12 - an actual decision-content blocker overrides a stored next step without repairing the source
+  ---
+  duration_ms: 773.24753
+  type: 'test'
+  ...
+# Subtest: Run overview works without a legacy backlog and reads no registered artefacts
+ok 13 - Run overview works without a legacy backlog and reads no registered artefacts
+  ---
+  duration_ms: 747.545863
+  type: 'test'
+  ...
+# Subtest: invalid directory identities stay accounted diagnostics with no Run selector
+ok 14 - invalid directory identities stay accounted diagnostics with no Run selector
+  ---
+  duration_ms: 747.444971
+  type: 'test'
+  ...
+# Subtest: cockpit assessment projects the evaluated outcome without a second doctor-warning veto
+ok 15 - cockpit assessment projects the evaluated outcome without a second doctor-warning veto
+  ---
+  duration_ms: 0.310378
+  type: 'test'
+  ...
+# Subtest: captured assessment matches canonical gate evaluation and performs no writes
+ok 16 - captured assessment matches canonical gate evaluation and performs no writes
+  ---
+  duration_ms: 805.697679
+  type: 'test'
+  ...
+# Subtest: cockpit title identifies the bound UR instead of a generic current artefact heading
+ok 17 - cockpit title identifies the bound UR instead of a generic current artefact heading
+  ---
+  duration_ms: 923.507423
+  type: 'test'
+  ...
+# Subtest: SCN-001/002/008/020: Run inventory stays passive; selected valid, completed and invalid Runs retain Core semantics and no writes
+ok 18 - SCN-001/002/008/020: Run inventory stays passive; selected valid, completed and invalid Runs retain Core semantics and no writes
+  ---
+  duration_ms: 1276.711956
+  type: 'test'
+  ...
+# Subtest: SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary
+ok 19 - SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary
+  ---
+  duration_ms: 3928.802561
+  type: 'test'
+  ...
+# Subtest: SCN-006/015: mutation of selected dependencies invalidates related reads, while backlog remains independent
+ok 20 - SCN-006/015: mutation of selected dependencies invalidates related reads, while backlog remains independent
+  ---
+  duration_ms: 941.104487
+  type: 'test'
+  ...
+# Subtest: SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest
+ok 21 - SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest
+  ---
+  duration_ms: 902.935552
+  type: 'test'
+  ...
+# Subtest: Run membership captures creation/removal and invalid entries independently of legacy pointers
+ok 22 - Run membership captures creation/removal and invalid entries independently of legacy pointers
+  ---
+  duration_ms: 774.067398
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25800.679672

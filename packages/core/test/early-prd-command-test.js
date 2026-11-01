@@ -45,7 +45,7 @@ try {
   assert.equal(service('agdf_revise', input).outcome, 'already_applied');
   assert.equal(service('agdf_revise', { ...input, presentation_language: 'de' }).reason, 'operation_payload_conflict');
   assert.equal(service('agdf_revise', prepare()).reason, 'prd_revision_boundary_invalid');
-  for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => layout === 'master-backlog-v1'
+  for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => layout === 'master-backlog-v1' && !stage.startsWith('backlog')
     || ['intent', 'archive_temp_written', 'archive_published', 'run_before_rename', 'run_after_rename', 'retired'].includes(stage))) {
     reset(); const request = prepare();
     const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};

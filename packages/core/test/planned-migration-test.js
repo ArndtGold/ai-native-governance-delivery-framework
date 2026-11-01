@@ -157,3 +157,42 @@ test('SCN-020/029: genuine unsealed ended v2 remains exact unverified history; a
   writeFileSync(activePath, readFileSync(activePath, 'utf8').replace(/^- (?:content_seal|approval_seal):[^\n]*\n/gmu, ''));
   assert.ok(previewPlannedLayout(other).blockers.some(row => row.run_id === 'first' && row.code === 'AGDF_LAYOUT_RUN_UNTRUSTED'));
 });
+
+for (const interruption of [null, 'migration_entries_published', 'migration_config_committed']) {
+  test(`Run-only legacy without Backlog: ${interruption ?? 'apply'} preserves absence and Run history`, t => {
+    const root = fixture(t);
+    rmSync(join(root, BACKLOG));
+    const path = join(root, '.agdf/control/runs/first/RUN_STATE.md'), original = readFileSync(path, 'utf8');
+    const { preview, input } = request(root);
+    assert.deepEqual(preview.rows, []); assert.deepEqual(preview.entries, []);
+    if (interruption) {
+      assert.throws(() => applyPlannedLayout(root, input, { checkpoint(point) { if (point === interruption) throw Error('interrupt'); } }), /interrupt/u);
+      const status = inspectPlannedLayoutOperation(root, input.operation_id);
+      const recovered = recoverPlannedLayout(root, { operation_id: input.operation_id, pending_digest: status.pending_digest });
+      assert.equal(recovered.outcome, interruption === 'migration_config_committed' ? 'applied' : 'rolled_back');
+      if (recovered.outcome === 'rolled_back') assert.equal(readFileSync(path, 'utf8'), original);
+    } else {
+      assert.equal(applyPlannedLayout(root, input).outcome, 'applied');
+      assert.equal(readControlLayout(root).layout, 'planned-urs-v1');
+      const manifest = JSON.parse(readFileSync(join(root, preview.snapshot_root, 'SOURCE_MANIFEST.json'), 'utf8'));
+      assert.equal(manifest.sources.some(source => source.path === BACKLOG), false);
+      assert.equal(runSealState(root, readFileSync(path, 'utf8')).status, 'valid');
+    }
+    assert.equal(existsSync(join(root, BACKLOG)), false, 'recovery never invents a missing Backlog');
+    assert.equal(inspectLayoutMaintenance(root).state, 'none');
+  });
+}
+test('Run-only migration binds missing Backlog and preserves a later foreign file', t => {
+  const root = fixture(t); rmSync(join(root, BACKLOG));
+  const { input } = request(root);
+  writeFileSync(join(root, BACKLOG), '# Foreign planning\n');
+  assert.throws(() => applyPlannedLayout(root, input), /PREVIEW_STALE/u);
+  rmSync(join(root, BACKLOG));
+  assert.throws(() => applyPlannedLayout(root, input, { checkpoint(point) {
+    if (point === 'migration_intent') { writeFileSync(join(root, BACKLOG), '# Foreign planning\n'); throw Error('interrupt'); }
+  } }), /interrupt/u);
+  const status = inspectPlannedLayoutOperation(root, input.operation_id);
+  assert.throws(() => recoverPlannedLayout(root, { operation_id: input.operation_id, pending_digest: status.pending_digest }), /FOREIGN/u);
+  assert.equal(readFileSync(join(root, BACKLOG), 'utf8'), '# Foreign planning\n');
+  assert.equal(inspectLayoutMaintenance(root).state, 'pending');
+});

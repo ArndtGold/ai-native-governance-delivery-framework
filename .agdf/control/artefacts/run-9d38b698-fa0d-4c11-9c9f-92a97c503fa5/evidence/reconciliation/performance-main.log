@@ -1,0 +1,105 @@
+[baseline] exact unmodified commit c79972c2f3fc3d8bd21d45d10e90a1dd79c5d763; identical performance test and budgets
+[verify-ci] dependencies
+
+added 19 packages, and audited 22 packages in 1s
+
+8 packages are looking for funding
+  run `npm fund` for details
+
+1 moderate severity vulnerability
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+[verify-ci] dependencies passed (1.7s)
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 3s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (3.8s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+✓ built in 378ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1252501,"digest":"sha256:37e98d07f7d5755ab78db528d209433194d9f7034d70b194c863683267554187","source_digest":"sha256:456366dac60cf96b4f504da58cecdfc43329e7f1c4a80756800d5a6172d47be1"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 262ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":952501,"digest":"sha256:37cd1ee1411ad84e2fa03c7e499f6dc00b116c901120baaaaca19626cb701dd0","source_digest":"sha256:456366dac60cf96b4f504da58cecdfc43329e7f1c4a80756800d5a6172d47be1"}
+[verify-ci] ui-build passed (1.8s)
+[verify-ci] generate
+[verify-ci] generate passed (2.5s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-main-perf-HdCPgv/checkout/packages/cli",
+    "output": "/private/tmp/agdf-main-perf-HdCPgv/checkout/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-main-perf-HdCPgv/checkout/packages/cli/distribution/agdf",
+    "output": "/private/tmp/agdf-main-perf-HdCPgv/checkout/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-main-perf-HdCPgv/checkout/packages/mcp-server",
+    "output": "/private/tmp/agdf-main-perf-HdCPgv/checkout/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (1.4s)
+[verify-ci] mcp-dependencies
+
+added 15 packages, and audited 16 packages in 7s
+
+2 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] mcp-dependencies passed (7.6s)
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"fixture":{"control":"hermetic","control_runs":["agdf-mcp-dispatch-server"],"control_files":31,"control_bytes":796400},"cold_tools_list_ms":[1474.858,1470.444,1470.307,1449.735,1468.086,1475.478,1449.615,1469.38,1459.37,1478.304,1466.475,1460.549,1474.69,1452.384,1466.044,1459.36,1493.79,1636.891,2759.448,1912.955],"cold_p95_ms":1912.955,"cold_phases":[{"sample":1,"initialization_ms":1463.043459,"tools_list_ms":11.81475300000011,"load_before":[7,6.14794921875,7.68603515625],"load_after":[6.83984375,6.12841796875,7.669921875],"system_cpu_idle_percent":18.33616298811545},{"sample":2,"initialization_ms":1462.851167,"tools_list_ms":7.592869000000064,"load_before":[6.83984375,6.12841796875,7.669921875],"load_after":[6.83984375,6.12841796875,7.669921875],"system_cpu_idle_percent":24.102564102564102},{"sample":3,"initialization_ms":1462.683227,"tools_list_ms":7.623438000000078,"load_before":[6.83984375,6.12841796875,7.669921875],"load_after":[6.83984375,6.12841796875,7.669921875],"system_cpu_idle_percent":23.037542662116042},{"sample":4,"initialization_ms":1442.657102,"tools_list_ms":7.078271000000086,"load_before":[6.83984375,6.12841796875,7.669921875],"load_after":[6.6923828125,6.109375,7.65380859375],"system_cpu_idle_percent":29.432013769363166},{"sample":5,"initialization_ms":1461.025161,"tools_list_ms":7.061255999999958,"load_before":[6.6923828125,6.109375,7.65380859375],"load_after":[6.6923828125,6.109375,7.65380859375],"system_cpu_idle_percent":17.035775127768314},{"sample":6,"initialization_ms":1467.744804,"tools_list_ms":7.732926000000134,"load_before":[6.6923828125,6.109375,7.65380859375],"load_after":[6.6923828125,6.109375,7.65380859375],"system_cpu_idle_percent":31.35593220338983},{"sample":7,"initialization_ms":1442.241991,"tools_list_ms":7.372540999999956,"load_before":[6.6923828125,6.109375,7.65380859375],"load_after":[6.6923828125,6.109375,7.65380859375],"system_cpu_idle_percent":40.75993091537133},{"sample":8,"initialization_ms":1462.575694,"tools_list_ms":6.8044739999998,"load_before":[6.63671875,6.107421875,7.64404296875],"load_after":[6.63671875,6.107421875,7.64404296875],"system_cpu_idle_percent":20.442930153321978},{"sample":9,"initialization_ms":1453.467848,"tools_list_ms":5.901884999999993,"load_before":[6.63671875,6.107421875,7.64404296875],"load_after":[6.63671875,6.107421875,7.64404296875],"system_cpu_idle_percent":19.65811965811966},{"sample":10,"initialization_ms":1472.45153,"tools_list_ms":5.852106000000049,"load_before":[6.63671875,6.107421875,7.64404296875],"load_after":[6.63671875,6.107421875,7.64404296875],"system_cpu_idle_percent":17.56756756756757},{"sample":11,"initialization_ms":1460.89383,"tools_list_ms":5.581175999999914,"load_before":[6.63671875,6.107421875,7.64404296875],"load_after":[6.50537109375,6.0888671875,7.62841796875],"system_cpu_idle_percent":19.283276450511945},{"sample":12,"initialization_ms":1454.957196,"tools_list_ms":5.592255000000023,"load_before":[6.50537109375,6.0888671875,7.62841796875],"load_after":[6.50537109375,6.0888671875,7.62841796875],"system_cpu_idle_percent":33.27615780445969},{"sample":13,"initialization_ms":1469.11857,"tools_list_ms":5.571277999999893,"load_before":[6.50537109375,6.0888671875,7.62841796875],"load_after":[6.50537109375,6.0888671875,7.62841796875],"system_cpu_idle_percent":24.95755517826825},{"sample":14,"initialization_ms":1446.645909,"tools_list_ms":5.738374999999905,"load_before":[6.50537109375,6.0888671875,7.62841796875],"load_after":[6.14453125,6.0205078125,7.59521484375],"system_cpu_idle_percent":35.924006908462864},{"sample":15,"initialization_ms":1460.025285,"tools_list_ms":6.0184169999999995,"load_before":[6.14453125,6.0205078125,7.59521484375],"load_after":[6.14453125,6.0205078125,7.59521484375],"system_cpu_idle_percent":25.212947189097104},{"sample":16,"initialization_ms":1453.125552,"tools_list_ms":6.23450200000002,"load_before":[6.14453125,6.0205078125,7.59521484375],"load_after":[6.14453125,6.0205078125,7.59521484375],"system_cpu_idle_percent":36.02058319039451},{"sample":17,"initialization_ms":1487.169657,"tools_list_ms":6.620555000000195,"load_before":[6.14453125,6.0205078125,7.59521484375],"load_after":[6.052734375,6.00341796875,7.57958984375],"system_cpu_idle_percent":6.688963210702341},{"sample":18,"initialization_ms":1630.623197,"tools_list_ms":6.267383000000109,"load_before":[6.052734375,6.00341796875,7.57958984375],"load_after":[6.052734375,6.00341796875,7.57958984375],"system_cpu_idle_percent":10.736196319018404},{"sample":19,"initialization_ms":2753.145174,"tools_list_ms":6.302603999999974,"load_before":[6.052734375,6.00341796875,7.57958984375],"load_after":[6.052734375,6.00341796875,7.57958984375],"system_cpu_idle_percent":1.9927536231884058},{"sample":20,"initialization_ms":1906.821511,"tools_list_ms":6.133630999999923,"load_before":[6.052734375,6.00341796875,7.57958984375],"load_after":[6.92919921875,6.185546875,7.634765625],"system_cpu_idle_percent":13.743455497382199}],"warm_dispatch_ms":[484.142,364.633,343.555,341.499,342.324,340.793,340.127,341.214,342.865,341.049,345.477,342.652,343.857,344.31,349.021,339.462,339.895,337.461,341.6,337.093],"warm_p95_ms":364.633}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 1912.955142
+    at file:///private/tmp/agdf-main-perf-HdCPgv/checkout/packages/mcp-server/test/performance.test.js:77:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+[baseline] performance exit 1
+[baseline] disposable baseline removed; source checkout/index unchanged

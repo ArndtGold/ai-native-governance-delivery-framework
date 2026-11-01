@@ -106,7 +106,7 @@ describe('bounded contextual handoff',()=>{
   });
   it('SCN-054/057: actual immutable adapter binds begin and completion to the old session and checks the exact receipt',async()=>{
     const id='00000000-0000-4000-8000-000000000099';
-    const envelope=(data:unknown)=>({schema_version:'1',target:{target_id:'target',display_path:'/fixture'},snapshot_id:null,source_digest:null,observed_as_of:null,state:'available',code:null,retryable:false,data});
+    const envelope=(data:unknown)=>({schema_version:'2',target:{target_id:'target',display_path:'/fixture'},snapshot_id:null,source_digest:null,observed_as_of:null,state:'available',code:null,retryable:false,data});
     const operation=vi.fn().mockResolvedValueOnce(envelope({invalidated:true,host_publication_required:true,invalidation_id:id}))
       .mockResolvedValueOnce(envelope({completed:true,invalidation_id:id})).mockResolvedValueOnce(envelope({completed:true,invalidation_id:'foreign'}))
       .mockResolvedValueOnce(envelope({invalidated:true,host_publication_required:false,invalidation_id:id}));
@@ -119,7 +119,7 @@ describe('bounded contextual handoff',()=>{
   });
   it('SCN-011/013/025: actual handoff adapter checks the returned source/selection and disclosure before publication',async()=>{
     const source=packet(1);source.included=[{resource_id:selection.resource_id,path:'source.md'}];
-    const response={schema_version:'1',target:source.target,snapshot_id:source.snapshot_id,source_digest:source.source_digest,
+    const response={schema_version:'2',target:source.target,snapshot_id:source.snapshot_id,source_digest:source.source_digest,
       observed_as_of:source.observed_as_of,state:'available',code:null,retryable:false,data:{packet:source}};
     const operation=vi.fn(async()=>response);
     const bridge={operation,request:async(action:()=>Promise<unknown>)=>action(),app:{getHostCapabilities:()=>({serverTools:{},updateModelContext:{},message:{text:{}}}),updateModelContext:vi.fn(async()=>({})),sendMessage:vi.fn(async()=>({isError:true}))}} as unknown as CockpitBridge;
@@ -142,7 +142,7 @@ describe('bounded contextual handoff',()=>{
   });
   it('SCN-010/015/020: UI exposes unavailable exclusion and packet provenance, never sends merely from reading',async()=>{
     const{port,controller}=fixture();
-    const envelope=<T,>(data:T):Envelope<T>=>({schema_version:'1',target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',source_digest:'digest',observed_as_of:'now',state:'available',code:null,retryable:false,data});
+    const envelope=<T,>(data:T):Envelope<T>=>({schema_version:'2',target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',source_digest:'digest',observed_as_of:'now',state:'available',code:null,retryable:false,data});
     const detail=envelope<Detail>({...runData('run-a'),resources:[packet(1).artefact.resource]});
     const document=envelope<DocumentData>(packet(1).artefact);
     const graph=envelope<GraphData>({run_id:'run-a',references:[{resource_id:'missing-node',run_id:'run-a',origin:'CG-MISSING',path:'.agdf/control/CONTEXT_GRAPH.md',node_id:'CG-MISSING',graph_digest:'digest',content_digest:null,content:null,state:'missing',code:'node_missing'}]});

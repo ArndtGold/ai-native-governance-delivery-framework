@@ -14,7 +14,14 @@ function fixture(f=canonicalFixture()){
 }
 function repositoryFixture(){
  const f=canonicalFixture(),source=resolve(import.meta.dirname,'../../../..');
- fs.rmSync(join(f.root,'.agdf/control'),{recursive:true});fs.cpSync(join(source,'.agdf/control'),join(f.root,'.agdf/control'),{recursive:true});
+ fs.rmSync(join(f.root,'.agdf/control'),{recursive:true});
+ // These journeys select exactly two historical Runs. Preserve their real bytes,
+ // without copying unrelated Run archives into every disposable browser fixture.
+ const control=join(source,'.agdf/control'), selected=new Set(['agdf-cockpit-mcp-app-20261005-01','agdf-control-cockpit-20261005-01']);
+ fs.cpSync(control,join(f.root,'.agdf/control'),{recursive:true,filter:path=>{
+  const rel=path.slice(control.length+1).split(/[\\/]/);
+  return !['runs','artefacts'].includes(rel[0]) || rel.length<2 || selected.has(rel[1]);
+ }});
  // Preserve actual registered source bytes; supply explicit valid stored pointers only in this disposable copy.
  fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),'# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | agdf-cockpit-mcp-app-20261005-01 | Embedded AGDF Cockpit for Codex | In progress | none | TP | Stored next step |\n| 2 | agdf-control-cockpit-20261005-01 | Local read-only AGDF control cockpit | In progress | none | TP | Stored next step |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
  return f;
@@ -112,6 +119,7 @@ test('document orientation separates approved Run facts from draft originals in 
 async function openSession(page, service, pathname = '/') {
   await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
   await page.goto(service.origin + pathname);
+  await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
   await expect(page.getByRole('heading', { name: pathname === '/card.html' ? 'AGDF Cockpit' : 'Gespeicherte Vorhaben',level:1 })).toBeVisible({ timeout: 12_000 });
   if (pathname === '/card.html') await expect(page.locator('.undertaking-list .run-link').first()).toBeEnabled({ timeout: 12_000 });
   expect(new URL(page.url()).hash).toBe('');

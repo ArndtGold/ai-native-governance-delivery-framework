@@ -71,7 +71,7 @@ it('never retargets a late explicit close or treats an unconfirmed reply as clos
 
 it('preserves only checked negative DTOs under isError and retains binding/session validation', async () => {
   const bridge = new CockpitBridge(); bridge.session = session(1);
-  const value = { schema_version: '1', target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: null,
+  const value = { schema_version: '2', target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: null,
     observed_as_of: null, source_digest: null, state: 'blocked', code: 'source_changed', retryable: true, data: null };
   callServerTool.mockResolvedValue({ isError: true, structuredContent: value });
   await expect(bridge.read('/api/snapshot', new AbortController().signal)).resolves.toEqual(value);

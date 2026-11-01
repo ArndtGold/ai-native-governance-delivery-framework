@@ -116,5 +116,5 @@ try {
   assert.equal(runSealState(root, readFileSync(cliPath, 'utf8')).status, 'valid');
   assert.equal(evaluateGateCheck(root, { runId: cliRun }).completion.fulfilled, true);
   assert.equal(cliDispatch().terminal, true);
-  console.log('Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.');
+  console.log('Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed Run projection passed. No VCS command executed.');
 } finally { rmSync(root, { recursive: true, force: true }); }

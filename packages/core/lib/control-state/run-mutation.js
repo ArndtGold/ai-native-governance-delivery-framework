@@ -1,91 +1,61 @@
 import { resolutionRecordVersion } from './input-resolution.js';
-import { readFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
-import { parseRunState } from "./run-state-parser.js";
-import { runSealState } from "./run-seal.js";
-import { atomicWrite, withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
-import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingRunStepJournal } from "./run-step-transaction.js";
-import { pendingRunStepIds } from "./run-step-pending.js";
-import { BACKLOG_RELATIVE_PATH, prepareRunBacklogOrSkip } from "./run-backlog.js";
-import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
-import { randomUUID } from "node:crypto";
-import { existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { relative, sep } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { parseRunState } from './run-state-parser.js';
+import { runSealState } from './run-seal.js';
+import { withOwnedFileLock } from './run-state-writer.js';
+import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingRunStepJournal, pendingRunStepConflictIds } from './run-step-transaction.js';
 import { pendingRunStepPath } from './run-step-pending.js';
-import { assertSummarySources } from "../control-evaluation/run-work-summary.js";
-import { readControlLayout, PLANNED_LAYOUT, withControlMutation, assertLayoutRunWrite } from './control-layout.js';
+import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
+import { runWorkSummary, assertSummarySources } from '../control-evaluation/run-work-summary.js';
+import { withControlMutation, assertLayoutRunWrite, readControlLayout, PLANNED_LAYOUT } from './control-layout.js';
 
 export function withRunMutationLock(root, path, work, options = {}) {
-  const relativePath = relative(root, path).split(sep).join("/");
-  if (hasSymlinkComponent(root, relativePath) || containedRegularFile(root, relativePath).status !== "valid") throw Error("AGDF_RUN_PATH_INVALID");
-  // The Run path check covers the shared .agdf/control ancestors, so the sibling Backlog lock is
-  // contained. An unusable Backlog file itself is reported by the planner, not by the lock.
+  const relativePath = relative(root, path).split(sep).join('/');
+  if (hasSymlinkComponent(root, relativePath) || containedRegularFile(root, relativePath).status !== 'valid') throw Error('AGDF_RUN_PATH_INVALID');
   return withOwnedFileLock(path, () => {
-    return withControlMutation(root, { resource: `run:${parseRunState(readFileSync(path, 'utf8')).meta.run_id}`, operation_id: options.operationContext?.operation_id ?? randomUUID(),
+    const run = parseRunState(readFileSync(path, 'utf8'));
+    if (!run.valid) throw Error('AGDF_RUN_STATE_INVALID');
+    return withControlMutation(root, { resource: `run:${run.meta.run_id}`, operation_id: options.operationContext?.operation_id ?? randomUUID(),
       resume: true, proveOutcome: result => ['accepted', 'already_applied', 'recorded', 'recovered'].includes(result?.outcome) || Boolean(result?.meta?.revision_id) }, () => {
-    const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
-    const perform = () => {
-      const run = parseRunState(readFileSync(path, "utf8"));
-      if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
       assertLayoutRunWrite(root, run);
-      const other = !planned && pendingRunStepIds(root).find(id => id !== run.meta.run_id);
-      if (other) { const error = Error("AGDF_RUN_STEP_RECOVERY_REQUIRED"); error.pending_run_id = other; throw error; }
-      if (options.operationContext && existsSync(pendingRunStepPath(root, run.meta.run_id))) {
+      const other = pendingRunStepConflictIds(root, run.meta.run_id).find(id => id !== run.meta.run_id);
+      if (other) { const error = Error('AGDF_RUN_STEP_RECOVERY_REQUIRED'); error.pending_run_id = other; throw error; }
+      if (existsSync(pendingRunStepPath(root, run.meta.run_id))) {
         const pending = readPendingRunStepJournal(root, run.meta.run_id), expected = options.operationContext;
-        if (![3, 4, 6].includes(resolutionRecordVersion(pending)) || pending.operation_id !== expected.operation_id || pending.kind !== expected.kind
-          || pending.target_id !== expected.target_id || pending.request_digest !== expected.request_digest) throw Error('AGDF_RUN_STEP_RECOVERY_REQUIRED');
+        if (pending.backlog || expected && (![3, 4, 6].includes(resolutionRecordVersion(pending)) || pending.operation_id !== expected.operation_id || pending.kind !== expected.kind
+          || pending.target_id !== expected.target_id || pending.request_digest !== expected.request_digest)) throw Error('AGDF_RUN_STEP_RECOVERY_REQUIRED');
       }
       recoverPendingRunStepLocked(root, run.meta.run_id);
       return work();
-    };
-    return planned ? perform() : withOwnedFileLock(join(root, BACKLOG_RELATIVE_PATH), perform);
     });
   }, options);
 }
 
-// The selected resource lock is held. New-layout journals contain no backlog;
-// only frozen legacy operations retain the historical shared projection.
+// Normal writes have no shared Backlog output in either layout. Historical
+// captured obligations are completed only by explicit recovery, under its lock.
 export function writeRunMutationLocked(root, path, content, revisionId, options = {}) {
-  const old = readFileSync(path, "utf8"), run = parseRunState(old);
-  if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
-  if (run.meta.revision_id !== revisionId || options.expectedContent !== undefined && old !== options.expectedContent) throw Error("AGDF_STALE_RUN_REVISION");
+  const old = readFileSync(path, 'utf8'), run = parseRunState(old);
+  if (!run.valid) throw Error('AGDF_RUN_STATE_INVALID');
+  if (run.meta.revision_id !== revisionId || options.expectedContent !== undefined && old !== options.expectedContent) throw Error('AGDF_STALE_RUN_REVISION');
   const nextRevisionId = options.nextRevisionId ?? randomUUID();
-  const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
-  const plan = planned ? { status: 'not_applicable', update: null }
-    : prepareRunBacklogOrSkip(root, run.meta.run_id, content, path, nextRevisionId);
-  const withBacklog = state => ({ ...state, backlog: plan.status, backlog_reason: plan.reason ?? null });
-  const guard = () => { if (plan.summary) assertSummarySources(root, plan.summary); };
-  if (!planned && !plan.update && !options.operationContext) return withBacklog(writeRunLocked(path, content, revisionId, { ...options, nextRevisionId,
-    validateBeforeWrite: () => { options.validateBeforeWrite?.(); guard(); } }));
-  // Full gate/presentation evaluation still sees the original sealed Run, under both
-  // locks. The journal then rechecks its captured source digests and envelope at commit.
-  options.validateBeforeWrite?.();
-  return withBacklog(commitRunStepLocked(root, { runId: run.meta.run_id, runPath: path, content,
-    revisionId, expectedContent: old, backlog: plan.update, or: null,
-    operationContext: options.operationContext,
-    nextRevisionId,
-    writeOptions: { ...options, validateBeforeWrite: () => { options.validateDuringTransaction?.(); guard(); } }, afterWrite: options.afterWrite }));
+  const summary = runWorkSummary(root, content, path);
+  const guard = () => assertSummarySources(root, summary);
+  options.validateBeforeWrite?.(); guard();
+  return { ...commitRunStepLocked(root, { runId: run.meta.run_id, runPath: path, content,
+    revisionId, expectedContent: old, backlog: null, or: null, operationContext: options.operationContext, nextRevisionId,
+    writeOptions: { ...options, validateBeforeWrite: () => { options.validateDuringTransaction?.(); guard(); } }, afterWrite: options.afterWrite }), backlog: readControlLayout(root).layout === PLANNED_LAYOUT ? 'not_applicable' : 'not_required' };
 }
-
 export function writeRunMutation(root, path, content, revisionId, options = {}) {
   return withRunMutationLock(root, path, () => writeRunMutationLocked(root, path, content, revisionId, options));
 }
-
-// Explicit repair of a valid sealed Run's stale pointer needs only one atomic file write;
-// no fabricated Run revision, new approval or reader-side write is necessary.
 export function synchronizeRunBacklog(root, path, revisionId) {
   return withRunMutationLock(root, path, () => {
-    const content = readFileSync(path, "utf8"), run = parseRunState(content);
-    if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
-    if (run.meta.revision_id !== revisionId) throw Error("AGDF_STALE_RUN_REVISION");
-    if (runSealState(root, content).status !== "valid") throw Error("AGDF_RUN_SEAL_INVALID");
-    if (readControlLayout(root).layout === PLANNED_LAYOUT) return { meta: run.meta, backlog: 'not_applicable', backlog_reason: null };
-    const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path, revisionId);
-    if (plan.update) {
-      assertSummarySources(root, plan.summary);
-      if (readFileSync(path, "utf8") !== content || runSealState(root, content).status !== "valid"
-          || readFileSync(join(root, BACKLOG_RELATIVE_PATH), "utf8") !== plan.update.old) throw Error("AGDF_STALE_RUN_REVISION");
-      atomicWrite(join(root, BACKLOG_RELATIVE_PATH), plan.update.next);
-    }
-    return { meta: run.meta, backlog: plan.status, backlog_reason: plan.reason ?? null };
+    const content = readFileSync(path, 'utf8'), run = parseRunState(content);
+    if (!run.valid) throw Error('AGDF_RUN_STATE_INVALID');
+    if (run.meta.revision_id !== revisionId) throw Error('AGDF_STALE_RUN_REVISION');
+    if (runSealState(root, content).status !== 'valid') throw Error('AGDF_RUN_SEAL_INVALID');
+    return { meta: run.meta, backlog: readControlLayout(root).layout === PLANNED_LAYOUT ? 'not_applicable' : 'not_required' };
   });
 }

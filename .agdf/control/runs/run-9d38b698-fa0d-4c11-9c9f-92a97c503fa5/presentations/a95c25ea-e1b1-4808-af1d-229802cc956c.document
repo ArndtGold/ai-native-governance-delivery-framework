@@ -1,0 +1,40 @@
+## Nutzerabnahme prüfen und entscheiden
+
+Parallele Vorhaben ohne zentrale Backlog-Konflikte
+
+- Ziel: Runs bilden die maßgebliche Cockpit-Übersicht; unabhängige Vorhaben benötigen keine verpflichtende gemeinsame Backlog-Pflege. Neue AGDF-Arbeits-Worktrees liegen unter .agdf/worktrees/. Beide Änderungen gehören zu diesem einen Run.
+- Geliefertes Ergebnis: Die technische QA besteht für die isolierte Umsetzung mit ihren gezielten lokalen, Protokoll-, Paket- und sichtbaren Browsernachweisen. Beide Cockpit-Ansichten verwenden Runs mit Aktiv/Historie, Suche und sicherer Auswahl; alte Backlog-Daten bleiben getrennt lesbar. Normale Run-Operationen pflegen und sperren das gemeinsame Backlog nicht mehr. Historische Recovery bleibt erhalten. Die Worktree-Regel einschließlich Ignore-Prüfung, Wiederverwendung und ausdrücklich gewählten Ausnahmen ist dokumentiert. TP-, Clean- und Code-Review sind erfasst; der dabei gefundene Fehler bei ungültigen Verzeichnisnamen ist behoben und gezielt geprüft. Deine Doku-Bestätigung und der bestandene Doku-Check sind berücksichtigt.
+- Technische QA: pass
+- Nachweisgrenzen: Die Pflicht-CI des exakten Feature-Stands einschließlich des unveränderten isolierten Performancechecks muss vor Integration/Merge noch bestehen. Der lokale Timing-Fehlschlag bleibt offen dokumentiert; auch unverändertes main überschritt das Budget, eine neue Regression ist nicht belegt. Es gab keinen weiteren lokalen Performance-Test. Die breite lokale Prüfung und der zusätzliche Vorbereitungslauf werden nicht als vollständig bestanden ausgegeben. Native Host-Installation, produktive Umstellung und Plattformqualifikation sind nicht belegt; die lokale Paketvorbereitung ist nicht aktiviert.
+- Risiken und offene Punkte: Vor Integration sind die noch fehlenden Pflichtnachweise erforderlich. Schreibende Laufzeiten müssen später koordiniert mit der passenden Oberfläche umgestellt werden; ein Rückwechsel nach neuen Schreibvorgängen braucht den genehmigten Kompatibilitäts-/Recovery-Nachweis. Deine QA-Freigabe ersetzt diese Pflichten nicht und erteilt keinen Commit-, Push-, Merge-, Release- oder Installationsauftrag. Als nächster Schritt wird deine bewusste Entscheidung zu genau diesem QA-Bericht erbeten; UAT und OR folgen danach nach ihren bestehenden Regeln.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- ur ·  (exact cooperative association)
+- route · UR (exact cooperative association)
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- evidence · UR, PRD, SD, TP (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 12
+
+- QA: .agdf/control/artefacts/run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5/QA_REPORT.md · sha256:bbf7c931ac889db365854af340e3905ad516369ea2c50b4b11ad0716dfc64401
+- Review: .agdf/control/artefacts/run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5/TP_REVIEW.md · sha256:15e280833e4ad0aef25939fa41135d06eef76a1a37ac64799274b078455722c3
+- Review: .agdf/control/artefacts/run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:2d40a26e4c3f3472fcacbf2b4aa2b8aa7a7dde61afa224d681de77e48f69811c
+- Review: .agdf/control/artefacts/run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5/CODE_REVIEW.md · sha256:6313ea0bf3213107d5bbe7e7268f986285cc4fa91022cfc6642a145348390758
+- UR: .agdf/control/artefacts/run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5/UR.md · sha256:9feb814f5f61037cf69c014ca051783b2846e169fac975db612a8a943b32d3d8
+
+Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UAT.
+
+### Fassung und Quellen
+
+Run: `run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5` · Nutzerabnahme · Revision: `179c3d1b-6de6-426d-a3a1-39f69c1aff7b`
+
+SHA-256: `sha256:842d9f523a8b28041bcb37649bec5b883e57be728f0d8b6b148814d3b060181c`

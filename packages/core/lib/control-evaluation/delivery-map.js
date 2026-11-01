@@ -1,5 +1,3 @@
-import { existsSync } from "../control-read/fs.js";
-import { join } from 'node:path';
 import { aggregate } from "../control-state/aggregate.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { resolveConfiguredChatLanguage } from "../resources/context.js";
@@ -7,7 +5,7 @@ import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js
 import { effectiveNextAllowedAction } from "./next-action.js";
 import { gateApprovalStatus, readRunState, resolvedArtefactFile } from "./run-state.js";
 import { deliveryRelationships, relationshipRequired, sameRelationship } from "./delivery-relationships.js";
-import { allowNoActiveRuns, filled, markdownSection, parseBacklogSection, readTargetFile } from "./shared.js";
+import { allowNoActiveRuns, filled } from "./shared.js";
 import { evaluateReconciliationState } from "./parent-reconciliation.js";
 import { readSourceRevisions, sourceRevisionObservation } from "../control-state/run-source-revisions.js";
 import { readArtefactBindings } from "../control-state/artefact-bindings.js";
@@ -153,14 +151,6 @@ export function deriveQualityOutlook(runState, findings = []) {
   return "No additional quality follow-up identified from the current control state.";
 }
 
-function readBacklogPointers(targetDir) {
-  const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
-  if (!existsSync(join(targetDir, backlogPath))) return [];
-
-  const backlog = readTargetFile(targetDir, backlogPath);
-  const activeSection = markdownSection(backlog, "Active Backlog");
-  return parseBacklogSection(activeSection);
-}
 
 export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}) {
   const { evaluateDoctor, buildStatusCard, postApprovalTransition } = dependencies;
@@ -253,7 +243,7 @@ export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}
       chatLanguage: resolveConfiguredChatLanguage(targetDir),
       findings: map.findings,
     }),
-    backlog_pointers: readBacklogPointers(targetDir),
+    backlog_pointers: [], // Legacy field: current relationships come from registered Run sources.
     artefacts: Object.fromEntries([...runState.artefacts.entries()]),
     approvals: Object.fromEntries([...runState.approvals.entries()]),
     mode_slice_decision: runState.mode_slice_decision,

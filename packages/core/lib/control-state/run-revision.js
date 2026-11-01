@@ -11,7 +11,6 @@ import { writeRunMutation } from "./run-mutation.js";
 import { readControlLayout, PLANNED_LAYOUT, withControlMutation, assertLayoutRunWrite } from './control-layout.js';
 import { backlogStatusForSummary } from "./run-backlog.js";
 import { runWorkSummary, assertSummarySources } from "../control-evaluation/run-work-summary.js";
-import { recordBacklogSummary } from "./backlog-summary.js";
 import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
 import { randomUUID } from "node:crypto";
 import { REVISION_PROPOSAL_FIELDS, REVISION_PROPOSAL_V2_FIELDS, REVISION_IMPACT_FIELDS, REVISION_UPSTREAM_FIELDS, REVISION_ANALYSIS_FIELDS } from './recording-formats.js';
@@ -22,8 +21,8 @@ import { readArtefactBindings } from "./artefact-bindings.js";
 import { exactApprovedArtefacts, readContainedJson, validateBindingProof } from "./artefact-binding-proof.js";
 import { SOURCE_GATES, appendSourceRevision, readSourceRevisions, revisionHistoryPrefix, sourceRevisionImpact, sourceRevisionConfirmation, validExpandedRevisionProof } from "./run-source-revisions.js";
 import { collectRevisionHistory, byteDigest, inspectRevisionHistory, readHistoryBytes } from "./run-revision-history.js";
-import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingSourceRevisionJournal } from "./run-step-transaction.js";
-import { pendingRunStepIds, pendingRunStepPath } from "./run-step-pending.js";
+import { commitRunStepLocked, recoverPendingRunStepLocked, pendingRunStepConflictIds, readPendingRunStepJournal, readPendingSourceRevisionJournal } from "./run-step-transaction.js";
+import { pendingRunStepPath } from "./run-step-pending.js";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 import { internalStepArtefacts } from "../control-evaluation/run-state.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
@@ -32,9 +31,7 @@ import { readOperationSource } from './run-operation-proof.js';
 import { COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
 import { appendRunOperation, readRunOperations, earlyPrdConfirmation, assertRunNotEnded } from './run-operations.js';
 import { operationReceipt } from './run-operation-proof.js';
-import { readPendingRunStepJournal } from './run-step-transaction.js';
 import { earlyPrdRevisionBoundary } from './run-revision-boundary.js';
-import { prepareRunBacklogOrSkip } from './run-backlog.js';
 import { validateRunPresentationEnvelope } from './run-presentation.js';
 
 export { sourceRevisionConfirmation } from './run-source-revisions.js';
@@ -45,21 +42,24 @@ function validateRevisionIdentity({ runId, operationId, revisionId }) {
   if (!RUN_ID_PATTERN.test(runId ?? "") || ![operationId, revisionId].every(value => typeof value === "string" && REVISION_ID_PATTERN.test(value)))
     throw revisionError("revision_input_invalid");
 }
-function withRevisionLocks(root, input, work) {
+function withRevisionLocks(root, input, work, { recovery = false } = {}) {
   validateRevisionIdentity(input);
-  const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
-  const paths = [`.agdf/control/runs/${input.runId}/RUN_STATE.md`, ...(!planned ? ['.agdf/control/MASTER_BACKLOG.md'] : [])];
-  const check = () => {
-    if (paths.some(path => hasSymlinkComponent(root, path) || containedRegularFile(root, path).status !== "valid"))
-      throw revisionError("revision_path_invalid");
-  };
+  const relative = `.agdf/control/runs/${input.runId}/RUN_STATE.md`;
+  const check = () => { if (hasSymlinkComponent(root, relative) || containedRegularFile(root, relative).status !== 'valid') throw revisionError('revision_path_invalid'); };
   check();
   return withOwnedFileLock(runPath(root, input.runId), () => withControlMutation(root, { resource: `run:${input.runId}`, operation_id: input.operationId,
     resume: true, proveOutcome: result => ['reopened', 'replayed', 'recovered'].includes(result?.outcome) }, () => {
-    const perform = () => { check(); assertLayoutRunWrite(root, parseRunState(readFileSync(runPath(root, input.runId), 'utf8'))); return work(); };
-    return planned ? perform() : withOwnedFileLock(join(root, paths[1]), perform);
+    check(); assertLayoutRunWrite(root, parseRunState(readFileSync(runPath(root, input.runId), 'utf8')));
+    const pendingPath = pendingRunStepPath(root, input.runId);
+    const pending = existsSync(pendingPath) ? readPendingRunStepJournal(root, input.runId) : null;
+    if (pending?.backlog) {
+      if (!recovery) throw revisionError('run_step_recovery_required');
+      return withOwnedFileLock(join(root, '.agdf/control/MASTER_BACKLOG.md'), work);
+    }
+    return work();
   }));
 }
+
 const commandResult = (runId, work) => {
   try { return work(); } catch (error) {
     if (error.revision_reason) return { ...rejected(runId, error.revision_reason, { recovery: error.recovery }), authorizes: false,
@@ -120,7 +120,7 @@ function prepareSourceRevision(root, input) {
   const { runId, revisionId, operationId, sourceGate, evidence } = input;
   validateRevisionIdentity(input);
   if (!REVISION_ID_PATTERN.test(operationId ?? "") || !SOURCE_GATES.includes(sourceGate)) throw revisionError("revision_input_invalid");
-  if (pendingRunStepIds(root).length) throw revisionError("run_step_recovery_required");
+  if (pendingRunStepConflictIds(root, runId).length) throw revisionError("run_step_recovery_required");
   const run = readRun(root, runId);
   if (run.rejection) throw revisionError(run.rejection.reason);
   assertRunNotEnded(run.content);
@@ -251,7 +251,7 @@ export function inspectSourceRevision(root, { runId, operationId, revisionId }) 
 export function applySourceRevision(root, input, { afterWrite } = {}) {
   return commandResult(input.runId, () => withRevisionLocks(root, input, () => {
     const { runId, revisionId, operationId } = input;
-    if (pendingRunStepIds(root).length) throw revisionError("run_step_recovery_required");
+    if (pendingRunStepConflictIds(root, runId).length) throw revisionError("run_step_recovery_required");
     const run = readRun(root, runId); if (run.rejection) throw revisionError(run.rejection.reason);
     const prior = readSourceRevisions(run.content).receipts.find(row => row.operation_id === operationId);
     if (prior) {
@@ -285,22 +285,8 @@ export function applySourceRevision(root, input, { afterWrite } = {}) {
     receipt = bindInputResolution(receipt);
     const { next, after } = revisedRun(root, work, receipt);
     const summary = runWorkSummary(root, next, run.path, after);
-    let backlogUpdate = null;
-    if (readControlLayout(root).layout !== PLANNED_LAYOUT) {
-    const backlogPath = join(root, ".agdf/control/MASTER_BACKLOG.md");
-    if (hasSymlinkComponent(root, ".agdf/control/MASTER_BACKLOG.md") || containedRegularFile(root, ".agdf/control/MASTER_BACKLOG.md").status !== "valid") throw revisionError("backlog_path_invalid");
-    const oldBacklog = readFileSync(backlogPath, "utf8");
-    const lines = oldBacklog.split("\n"), section = firstSection(lines, "Active Backlog");
-    const priorRow = section && tableLineIndexes(lines, section).slice(2).map(i => tableCells(lines[i])).find(cells => cells[1]?.replaceAll("`", "").trim() === runId);
-    let nextBacklog = upsertTableRow(oldBacklog, "Active Backlog", 1, priorRow?.[1] ?? runId, [priorRow?.[0] || "P1", priorRow?.[1] ?? runId, priorRow?.[2] || runId, backlogStatusForSummary(summary, after),
-      SOURCE_GATES.filter(type => work.preview.impact.retained.includes(type)).map(type => `[${type}](artefacts/${runId}/${type}.md)`).join(" · "),
-      `[Revision history](${receipt.archive.path.slice(".agdf/control/".length)})`, summary.display_action]);
-    if (!nextBacklog) throw revisionError("backlog_layout_unsupported");
-    nextBacklog = recordBacklogSummary(root, nextBacklog, runId, "Active Backlog", summary, receipt.resulting_revision_id);
-    backlogUpdate = { old: oldBacklog, next: nextBacklog };
-    }
     const written = commitRunStepLocked(root, { runId, runPath: run.path, content: next, revisionId, expectedContent: run.content,
-      backlog: backlogUpdate, or: null, history: work.history, afterWrite,
+      backlog: null, or: null, history: work.history, afterWrite,
       nextRevisionId: receipt.resulting_revision_id, writeOptions: { allowApprovalChange: true, appendedRevision: receipt,
         validateBeforeWrite: () => { work.boundProposal?.validate(); assertSummarySources(root, summary); const checked = prepareSourceRevisionIgnoringPending(root, input); if (checked.previewDigest !== work.previewDigest) throw Error("AGDF_STALE_RUN_REVISION"); } } });
     return { outcome: "reopened", authorizes: false, run_id: runId, operation_id: operationId, gate: after.current_gate,
@@ -309,7 +295,7 @@ export function applySourceRevision(root, input, { afterWrite } = {}) {
 }
 
 function prepareSourceRevisionIgnoringPending(root, input) {
-  // The exact pending operation is owned by the caller under both locks. Revalidation reads
+  // The exact pending operation is owned by the caller under its applicable output locks. Revalidation reads
   // the unchanged pre-commit state without allowing ordinary readRun to bypass a pending write.
   const pending = readPendingSourceRevisionJournal(root, input.runId);
   if (![2, 5, 6].includes(resolutionRecordVersion(pending)) || pending.operation_id !== input.operationId) throw Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
@@ -349,7 +335,7 @@ export function recoverSourceRevision(root, input) {
       }
     }
     return { outcome: "recovered", authorizes: false, run_id: input.runId, ...recoverPendingRunStepLocked(root, input.runId, { sourceRevision: true }) };
-  }));
+  }, { recovery: true }));
 }
 
 function replaceGateRow(text, heading, gate, update) {
@@ -404,7 +390,7 @@ export function reopenPrdRevision(root, input, { afterWrite = () => {} } = {}) {
     const { runId, revisionId, operationId, commandContext } = input;
     if (commandContext.kind !== 'prd_revision.reopen' || commandContext.operation_id !== operationId
       || commandContext.target_id !== resolveControlCommandTarget(root).target_id) throw revisionError('revision_input_invalid');
-    if (pendingRunStepIds(root).some(id => id !== runId)) throw revisionError('run_step_recovery_required');
+    if (pendingRunStepConflictIds(root, runId).some(id => id !== runId)) throw revisionError('run_step_recovery_required');
     if (existsSync(pendingRunStepPath(root, runId))) {
       const pending = readPendingRunStepJournal(root, runId);
       if (resolutionRecordVersion(pending) !== 3 || pending.kind !== commandContext.kind || pending.operation_id !== operationId
@@ -436,8 +422,7 @@ export function reopenPrdRevision(root, input, { afterWrite = () => {} } = {}) {
     const receipt = operationReceipt(root, run, commandContext, nextRevisionId, { prd: input.prdBinding,
       archive: { path: `${revisionHistoryPrefix(runId, operationId)}manifest.json`, digest: history.digest }, confirmation_digest: digest(confirmation) }, input.packageVersion ?? '0.14.5');
     const next = appendRunOperation(prepared.text, receipt);
-    const plan = readControlLayout(root).layout === PLANNED_LAYOUT ? { status: 'not_applicable', update: null }
-      : prepareRunBacklogOrSkip(root, runId, next, run.path, nextRevisionId);
+    const plan = { update: null };
     const validate = () => {
       boundPrd.validate();
       if (!exactApprovedArtefacts(root, prepared.state) || history.files.some(row => byteDigest(readHistoryBytes(root, row.path)) !== row.digest)) throw revisionError('stale_revision');

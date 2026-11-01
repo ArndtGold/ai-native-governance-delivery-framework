@@ -105,11 +105,11 @@ agdf gate-check --json
   `--step route --route <mode> --reason --evidence` after writing `BROWNFIELD_REVIEW.md`;
   `--step evidence` for test or check results; `--step review --decision --evidence` for Code Review;
   and `--step closeout --result --evidence --risk --next` to close a `quick_task` with OR-lite. Each
-  call maintains the tables and next allowed action, plus the backlog pointer in legacy projects.
+  call maintains the Run tables and the next allowed action. Normal writes never update or lock the optional legacy backlog.
 
 - The selected `runs/<run_id>/RUN_STATE.md` is the current run dashboard.
 - `config.json` stores the project preference for artefact and chat language; runtime rules stay English.
-- In legacy projects only, `MASTER_BACKLOG.md` points to active delivery work. New-layout inventory derives from planned URs and Runs.
+- `MASTER_BACKLOG.md` is optional retained legacy planning/history in either layout. Current inventory derives from Runs and, in the new layout, planned URs.
 - Brownfield Review records the post-UR Mode/Slice Decision before PRD depth, Verified Change execution or Quick Task execution is chosen.
 - UR, PRD, SD, TP and QA decisions require durable artefacts or links to the authoritative repository source of truth before the next gate can open.
 - OR records the run closeout and next permissible step; it does not approve later gates.
@@ -130,3 +130,9 @@ Recovery retains its path and absence in the integrity snapshot and leaves its s
 It does not create evidence or approve a gate. Completed or ready evidence, unsafe paths and
 descriptive placeholders still require repair. Creating a planned file after a recovery preview
 invalidates that preview; creating it after recovery changes the seal until a canonical update.
+
+## Parallel Work And Compatibility
+
+Follow the normative [worktree rule](../meta/contracts/task-target-resolution.md#worktree-placement-and-assigned-checkout): new chosen worktrees belong under the owning primary checkout's ignored `.agdf/worktrees/<initiative>/`; reuse assignments and preserve older/explicit alternative locations. No automatic management or cross-checkout authority is implied.
+
+Before switching writing runtimes, quiesce all writers for that target, preserve registered and untracked evidence and legacy data, complete pending old transactions with supported explicit recovery, then update writing hosts/CLI together. Do not mix old backlog-maintaining writers with Run-only writers. Existing null-backlog journal formats remain supported. Cockpit envelope/resource v2 requires matching UI/Core; old sessions remain old observations. After new writes, a downgrade needs exact compatibility proof on a disposable copy with pending work settled; otherwise retain read-only state and forward-fix. Never synthesize old rows, replace new history with backups or transfer approvals. This guidance authorizes no live installation or downgrade.

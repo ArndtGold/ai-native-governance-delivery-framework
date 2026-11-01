@@ -19,7 +19,7 @@ test('SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR
   page.on('requestfinished',r=>{if(new URL(r.url()).pathname==='/api/backlog-titles')active--;});
   page.on('response',async r=>{if(new URL(r.url()).pathname==='/api/backlog-titles')bodies.push(await r.json());});
   try {
-    await page.setViewportSize({width:800,height:750}); await page.goto(service.startupURL);
+    await page.setViewportSize({width:800,height:750}); await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
     await expect(page.getByRole('button',{name:'Technischer Backlog 39',exact:true})).toBeVisible();
     await expect(page.getByRole('button',{name:'Aktiv 40'})).toBeVisible();
     expect(await page.locator('.undertaking-list li h3').first().textContent()).toBe('Technischer Backlog 39');

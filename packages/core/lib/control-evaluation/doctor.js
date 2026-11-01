@@ -6,7 +6,7 @@ import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { readRunInventory } from "../control-state/run-inventory-reader.js";
 import { runSealState } from "../control-state/run-seal.js";
 import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
-import { pendingRunStepIds } from "../control-state/run-step-pending.js";
+import { pendingRunStepConflictIds } from "../control-state/run-step-transaction.js";
 import { requiredControlFiles } from "./required-files.js";
 import { readControlLayout, PLANNED_LAYOUT, inspectLayoutMaintenance } from '../control-state/control-layout.js';
 import { readPendingRunStepJournal } from '../control-state/run-step-transaction.js';
@@ -14,7 +14,7 @@ import { resolutionRecordVersion } from '../control-state/input-resolution.js';
 import { analyzeDeliveryMap } from "./delivery-map.js";
 import { evaluateVerifiedChange } from "./verified-change.js";
 import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState, resolvedArtefactFile } from "./run-state.js";
-import { addFinding, allowNoActiveRuns, filled, hasFilledEvidenceRow, hasFilledTableRow, isPlaceholderValue, markdownSection, nonEmptyTableRows, parseBacklogSection, parseQualityContracts, readTargetFile, runSelectionRecovery, tableRows } from "./shared.js";
+import { addFinding, allowNoActiveRuns, filled, hasFilledEvidenceRow, hasFilledTableRow, isPlaceholderValue, markdownSection, nonEmptyTableRows, parseQualityContracts, readTargetFile, runSelectionRecovery, tableRows } from "./shared.js";
 
 const RUN_SEAL_FINDINGS = Object.freeze({
   approvals_changed: {
@@ -105,7 +105,7 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
       runs,
     } };
   }
-  const shared = sharedDoctorContext(targetDir);
+  const shared = sharedDoctorContext(targetDir, selection.runId);
   const findings = [...shared.findings], missing = shared.missing;
   let reconciliation, selectedRunState;
   if (missing.length === 0) {
@@ -239,8 +239,8 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
 
 // Repeated Runs reuse shared policy/store findings only inside the same read observation.
 // This cache never survives a source change or becomes write permission.
-function sharedDoctorContext(targetDir) {
-  return memoizeControlRead(`doctorShared:${targetDir}`, () => {
+function sharedDoctorContext(targetDir, runId) {
+  return memoizeControlRead(`doctorShared:${targetDir}:${runId ?? ""}`, () => {
     const findings = [];
     const maintenance = inspectLayoutMaintenance(targetDir);
     if (maintenance.state !== 'none') addFinding(findings, 'block', 'AGDF_CONTROL_MAINTENANCE_REQUIRED',
@@ -253,7 +253,7 @@ function sharedDoctorContext(targetDir) {
       if (existsSync(join(targetDir, '.agdf/control/config.json'))) addFinding(findings, 'block', error.message,
         'The control layout cannot be read safely.', '.agdf/control/config.json', 'Restore a supported contained configuration.');
     }
-    for (const pendingId of pendingRunStepIds(targetDir)) {
+    for (const pendingId of pendingRunStepConflictIds(targetDir, runId)) {
       if (planned) {
         try { if (resolutionRecordVersion(readPendingRunStepJournal(targetDir, pendingId)) === 6) continue; } catch {}
       }
@@ -261,9 +261,9 @@ function sharedDoctorContext(targetDir) {
         findings,
         "block",
         "AGDF_RUN_STEP_RECOVERY_REQUIRED",
-        `A run-step transaction for ${pendingId} is incomplete; shared Backlog pointers may be in transition.`,
+        `A run-step transaction for ${pendingId} is incomplete; its recorded outputs require recovery.`,
         join(".agdf", "control", "runs", pendingId, "RUN_STEP_PENDING.json"),
-        "Retry the exact run-step for the pending run to recover it, or inspect conflicting bytes before manual repair.",
+        "Use explicit supported recovery for this exact pending operation; preserve conflicting bytes.",
       );
     }
     const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
@@ -301,27 +301,6 @@ function sharedDoctorContext(targetDir) {
       );
     }
     if (missing.length === 0) {
-      if (!planned) {
-      const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
-      const backlog = readTargetFile(targetDir, backlogPath);
-      parseBacklogSection(markdownSection(backlog, "Active Backlog"), findings, backlogPath);
-      parseBacklogSection(markdownSection(backlog, "Planned / Parking Lot"), findings, backlogPath);
-      const completedRows = tableRows(markdownSection(backlog, "Completed / Superseded Pointers"))
-        .slice(1)
-        .filter((cells) => cells.some((cell) => filled(cell)));
-      // Priorities are written as P1 or, per the numeric template column, as 1.
-      if (!hasFilledTableRow(backlog, /^P?[0-9]/) && completedRows.length === 0) {
-        addFinding(
-          findings,
-          "warn",
-          "AGDF_BACKLOG_POINTER_EMPTY",
-          "MASTER_BACKLOG.md does not contain an active or planned work pointer.",
-          backlogPath,
-          "Add the active item or document that no governed delivery item is active.",
-        );
-      }
-
-      }
 
       const sotPath = join(".agdf", "control", "SOT_REGISTRY.md");
       const sot = readTargetFile(targetDir, sotPath);

@@ -67,15 +67,15 @@ try {
         }
         const replay = await client.callTool({ name: 'agdf_inspect', arguments: first.next_calls[0].arguments });
         assert.equal(replay.structuredContent.report.available, true, 'bad or foreign cursors must not retire the valid observation');
-        const backlog = join(root, '.agdf/control/MASTER_BACKLOG.md'), content = readFileSync(backlog, 'utf8');
+        const source = join(root, '.agdf/control/SOT_REGISTRY.md'), content = readFileSync(source, 'utf8');
         try {
-          writeFileSync(backlog, content + '\n');
+          writeFileSync(source, content + '\n');
           const changed = await client.callTool({ name: 'agdf_inspect', arguments: first.next_calls[0].arguments });
           assert.equal(changed.structuredContent.report.available, false);
           assert.equal(changed.structuredContent.report.reason, 'source_changed');
           assert.equal(changed.structuredContent.report.overall_status, null);
           assert.equal(changed.structuredContent.report.next_calls[0].arguments.cursor, undefined);
-        } finally { writeFileSync(backlog, content); }
+        } finally { writeFileSync(source, content); }
       }
     });
     assert.deepEqual(fingerprint(), before, 'successful reads and deliberate restored fixture mutation leave no canonical effect');

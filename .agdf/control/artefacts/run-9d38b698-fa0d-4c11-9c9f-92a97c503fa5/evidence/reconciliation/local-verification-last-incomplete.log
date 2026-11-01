@@ -1,0 +1,154 @@
+[candidate] exact continuation tree ca0c6bd58f3b94e29f2b4bae8c6b68074b2cf41d; source index untouched
+[continuation] Reusing passed stages with unchanged inputs: maintenance, shell, build-contracts, evals, compatibility-freshness, prepare, runtime, host-compatibility, mcp-ergonomics, built-runtime, cli-package, wrapper-package, transactions, delivery-map, mcp-package, archives
+[continuation] Existing runtime-integrity part passed after fixture repair; plugin-mcp-runtime part passed previously. Core part below includes all still-unexecuted packed consumers.
+[continuation] Current community human review and cold-performance failures remain unresolved, never reported as passing.
+[continuation] Exact remaining CLI commands: npm run test:cli-gates && npm run test:control-state && npm run test:run-command-flow && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-close && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:next-action && npm run test:late-source-revision && npm run test:intake-continuation && npm run test:prd-definition && npm run test:sd-readiness && npm run test:sd-definition && npm run test:tp-definition && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js
+[verify-ci] dependencies
+
+added 19 packages, and audited 22 packages in 2s
+
+8 packages are looking for funding
+  run `npm fund` for details
+
+1 moderate severity vulnerability
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+[verify-ci] dependencies passed (2.8s)
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 3s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (3.6s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 444 modules transformed.
+rendering chunks...
+✓ built in 342ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v2.html","mime_type":"text/html;profile=mcp-app","bytes":1258523,"digest":"sha256:1ff747df6ba66da5f76bee5728afe86a296e91efdb6a89b9ddb7c5d33aeba09d","source_digest":"sha256:5823e47e910ab8ad510003131f4a175b671454536f0c2452331a610a1febd3aa"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 281ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":954273,"digest":"sha256:70b373fdd3303c2278a6d460a53716c100965f0ef1f92bf0c439af9902ca13c2","source_digest":"sha256:5823e47e910ab8ad510003131f4a175b671454536f0c2452331a610a1febd3aa"}
+[verify-ci] ui-build passed (1.7s)
+[verify-ci] generate
+[verify-ci] generate passed (2.3s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-reconciled-continuation-71seGh/checkout/packages/cli",
+    "output": "/private/tmp/agdf-reconciled-continuation-71seGh/checkout/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-reconciled-continuation-71seGh/checkout/packages/cli/distribution/agdf",
+    "output": "/private/tmp/agdf-reconciled-continuation-71seGh/checkout/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-reconciled-continuation-71seGh/checkout/packages/mcp-server",
+    "output": "/private/tmp/agdf-reconciled-continuation-71seGh/checkout/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (1.3s)
+[verify-ci] mcp-dependencies
+
+added 15 packages, and audited 16 packages in 5s
+
+2 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] mcp-dependencies passed (5.7s)
+[verify-ci] remaining package consumers/CLI correctness (known gaps retained)
+PASS package containment accepts POSIX/Windows dependencies and rejects sibling, parent and foreign-drive paths
+PASS SCN-024/028 CLI modularization against the current source and documentation in isolated snapshot
+PASS SCN-029/032 isolated package-build regression
+PASS SCN-029/032 isolated copilot-profile regression
+PASS SCN-029/032 isolated release-version-coherence regression
+PASS SCN-029/032 isolated package-contents regression
+PASS SCN-029/032 isolated local-validator regression
+PASS SCN-005/006/027 package exports and 95 pure runtime dependency modules
+PASS SCN-006 external import has only package-owned reads and no target/process/write/print/exit effects
+SCN-001 PACKED_API_RESULT {"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"f425fc7b-094b-4abc-baba-1c4ccf518878","request_digest":"sha256:a6f80f3467b3e0331c63d1fd1eb158f2128e6c576beb0608d376c4a0e3c90951","binding":{"target_id":"sha256:8bd80935d809aadfdde631f672c25d1a1dac3be25d0969be1a8bb096eec3639c","run_id":"external-consumer","gate":"UR","expected_revision_id":"84a12c33-eb7f-4d44-911d-3e436ee88ea3","presentation_id":"47f34eb3-e98b-4749-9a27-51e7224ebc5a"},"effect":{"previous_revision_id":"84a12c33-eb7f-4d44-911d-3e436ee88ea3","resulting_revision_id":"ba4e88ed-b8e5-46a4-978f-5edecc766e77","revision":3,"gate":"UR","approval":"Approval: UR","material_version":"sha256:53a9f2f905fcd296b71b16893a557791d3112aba42ed4a7e4fe1695bc87379db","material_sources":[{"type":"UR","path":".agdf/control/artefacts/external-consumer/UR.md","digest":"sha256:cecf97c3c26b0b41dbcfe82f834b74f434c42311a4da0baf2e89adb5bd0cbc6e"}],"artefact_digest":"sha256:cecf97c3c26b0b41dbcfe82f834b74f434c42311a4da0baf2e89adb5bd0cbc6e","presentation_digest":"sha256:5b2947c9bf461e290d65283aa5fe795c981a2d58e8a27fc46349019752c6ecb1","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"ba4e88ed-b8e5-46a4-978f-5edecc766e77","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}
+PASS SCN-001/028/029 packed external CLI/API approve/replay/Git/locale parity
+PASS SCN-029 missing packed locale resource fails without canonical mutation
+SCN-032 RUNTIME_IDENTITY {"profile":"generated/plugins/agdf","version":"0.20.2","digest":"6ee3b48112be4c62ef271d5da5072174a3d0944108d69cd43443ee04d144ef2b","result":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"1547291f-2915-4dc1-bbea-6f0135a7cd2a","request_digest":"sha256:65703e105789f0518b481b26d92d20618e659162aa424ee80ff8c11b1c7376f1","binding":{"target_id":"sha256:67e804690e00447b3a994bed108f15f23480850b7456c0c2c628c3e21870d239","run_id":"generated-shared","gate":"UR","expected_revision_id":"7b247730-d95e-438c-8fbe-23e1a33cdc68","presentation_id":"79a867e6-3c3b-44f7-b92b-40197104ff76"},"effect":{"previous_revision_id":"7b247730-d95e-438c-8fbe-23e1a33cdc68","resulting_revision_id":"5a698301-33d5-451d-9950-4f046a7b017e","revision":3,"gate":"UR","approval":"Approval: UR","material_version":"sha256:a25c1acb201806642a16423c3c63d8e2985c03a9b9d701c766042baeca6f0e98","material_sources":[{"type":"UR","path":".agdf/control/artefacts/generated-shared/UR.md","digest":"sha256:cecf97c3c26b0b41dbcfe82f834b74f434c42311a4da0baf2e89adb5bd0cbc6e"}],"artefact_digest":"sha256:cecf97c3c26b0b41dbcfe82f834b74f434c42311a4da0baf2e89adb5bd0cbc6e","presentation_digest":"sha256:916337479dc343a70bb4f8f2708e250db3bbc23f8921153074de1e429170955d","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"5a698301-33d5-451d-9950-4f046a7b017e","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}
+PASS SCN-032 generated generated/plugins/agdf module/resource closure and missing resource fail closed
+SCN-032 RUNTIME_IDENTITY {"profile":"generated/plugins/copilot/agdf","version":"0.20.2","digest":"3159f0815dce7933214498d1478c82abb01217eaa459a48f5bc272bd01885309","result":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"f51ab8df-b151-4bac-94db-cbf89fa227ef","request_digest":"sha256:54bbbc653594136b9a61744046495016b9a084871ef9af962eb2bb15acd5bd1f","binding":{"target_id":"sha256:0f2f4512bb5616d9607e6778868f4c4af0fecf9facf4ef13e60a24a0f92d2448","run_id":"generated-copilot","gate":"UR","expected_revision_id":"61dc6080-b689-41df-bc3c-45651bd439c2","presentation_id":"69e95d41-383c-4fb4-bc1d-ef4a9c72b337"},"effect":{"previous_revision_id":"61dc6080-b689-41df-bc3c-45651bd439c2","resulting_revision_id":"a5d5c035-e533-468d-b3b8-5ff2e81e7ad4","revision":3,"gate":"UR","approval":"Approval: UR","material_version":"sha256:a65657fedc0d5e9fd1c9584898b8f71098c2db59622d24a3de8989a7149dd9a8","material_sources":[{"type":"UR","path":".agdf/control/artefacts/generated-copilot/UR.md","digest":"sha256:cecf97c3c26b0b41dbcfe82f834b74f434c42311a4da0baf2e89adb5bd0cbc6e"}],"artefact_digest":"sha256:cecf97c3c26b0b41dbcfe82f834b74f434c42311a4da0baf2e89adb5bd0cbc6e","presentation_digest":"sha256:8dcee8350f56c102cc069d74825a7dfd7a3b0ee1ed4a8cd11ba0783f793dcfd7","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"a5d5c035-e533-468d-b3b8-5ff2e81e7ad4","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}
+PASS SCN-032 generated generated/plugins/copilot/agdf module/resource closure and missing resource fail closed
+SCN-026 WORKFLOW_METRICS [{"lane":"legacy","boundary":"recorded_UR_to_inspected_approval","success_calls":3,"presentation_prepared":1,"presentations_visibly_shown":"unavailable","manual_corrections":0,"simulated_replies":1,"observed_human_decisions":"unavailable","retry_calls":1,"retry_outcome":"rejected","stale_calls":1,"stale_outcome":"rejected"},{"lane":"command","boundary":"recorded_UR_to_inspected_approval","success_calls":3,"presentation_prepared":1,"presentations_visibly_shown":"unavailable","manual_corrections":0,"simulated_replies":1,"observed_human_decisions":"unavailable","retry_calls":1,"retry_outcome":"already_applied","stale_calls":1,"stale_outcome":"rejected"}]
+SCN-030/031 QUALIFICATION {"source":"passed","packed_external":"passed","generated_validator":"passed","native_platform":"darwin/x64","native_linux":"unavailable","native_windows":"unavailable","new_installed_plugin":"not_installed","visible_host":"not_observed","independent_human_proof":"unavailable"}
+PACKAGE_IDENTITY {"version":"0.20.2","tarball_sha256":"88dabdcc8e81d210bdfa64665c98b690aa9bfb7e8b3171e6d41deacf950351ee","command_schema_version":"1","receipt_schema_version":"1","approval_seal_legacy_version":"1","receipt_approval_seal_version":"2","files":1494,"node":"v22.22.3","platform":"darwin","arch":"x64"}
+Control command package tests passed (1494 real packed files).
+npm notice run create-agdf@0.20.2 test:cli-gates
+npm notice run node scripts/cli-gate-scenarios-test.js
+[cli-gates] START new-ur
+[cli-gates] PASS new-ur (5.1s)
+[cli-gates] START duplicate-prd
+[cli-gates] PASS duplicate-prd (5.7s)
+[cli-gates] START bound-ur
+[cli-gates] PASS bound-ur (5.2s)
+[cli-gates] START stale-next-step
+[cli-gates] PASS stale-next-step (24.2s)
+[cli-gates] START qa-follow-up
+[cli-gates] PASS qa-follow-up (55.6s)
+npm notice run create-agdf@0.20.2 test:control-state
+npm notice run node ../core/test/control-state-test.js
+artefact recording/correction tests passed (211 assertions)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'not_required'
+- 'updated'
+
+    at file:///private/tmp/agdf-reconciled-continuation-71seGh/checkout/packages/core/test/control-state-test.js:1217:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'not_required',
+  expected: 'updated',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+Error: Verification failed at cli-smoke: npm --prefix packages/cli run test:control-state (1)
+    at executeVerificationPlan (file:///private/tmp/agdf-reconciled-continuation-71seGh/checkout/scripts/verify-ci.mjs:70:38)
+    at file:///private/tmp/agdf-reconciled-continuation-71seGh/checkout/[eval1]:1:1892
+Error: Ordered continuation failed: 1
+    at file:///private/tmp/agdf-verify-reconciled-final-correctness.mjs:23:64
+[candidate] real source index preserved

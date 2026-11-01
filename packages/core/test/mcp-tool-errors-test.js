@@ -6,7 +6,7 @@ const registry = JSON.parse(readFileSync(new URL('../../../plugins/agdf/meta/agd
 const base = { schema_version: '1', contract_version: 1, runtime: {}, skill: null, control: null, continuation: null, timing: { wrapper_ms: 0, input_ms: 0, target_ms: 0, control_ms: 0, render_ms: 0, total_ms: 0 }, authorizes: false, terminal: false, diagnostics: [], target: null, recovery: null, presentation: null, host_action: { mode: 'consume_report_and_continue', source: 'report', allow_surrounding_text: true, may_request_run_or_evidence: false } };
 const dispatch = outcome => ({ ...base, outcome, ...(outcome === 'control_result' ? {} : { terminal: true, recovery: { action: 'Confirm the requested target.' }, host_action: { mode: 'transmit_recovery_verbatim_and_stop', source: 'recovery.action', allow_surrounding_text: false, may_request_run_or_evidence: false, text: 'Confirm the requested target.' } }) });
 const inspect = report => ({ ...base, outcome: 'inspect_result', operation: 'doctor', report });
-const envelope = state => ({ schema_version: '1', target: null, snapshot_id: null, state, code: state === 'blocked' ? 'resource_denied' : null, retryable: false, data: null });
+const envelope = state => ({ schema_version: '2', target: null, snapshot_id: null, state, code: state === 'blocked' ? 'resource_denied' : null, retryable: false, data: null });
 const commands = ['agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout', 'agdf_decision_action'];
 const successfulCommand = (outcome, receipt = {}) => ({ schema_version: '1', outcome, reason: null, receipt, authorizes: false,
   operation_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', request_digest: 'sha256:' + 'a'.repeat(64),
@@ -90,3 +90,12 @@ for (const language of ['de', 'en']) {
 const source = readFileSync(new URL('../lib/mcp-tool-errors.js', import.meta.url), 'utf8');
 assert.ok(!/\bimport\b|\bprocess\b\.|\b(?:writeFile|readFile|setTimeout|eval)\s*\(/.test(source), 'projector stays pure');
 console.log(`MCP error projector passed: ${count} classification/correction cases, locale/bounds/domain/purity checks.`);
+
+{
+  const describe = (name, input, value) => describeToolResult(name, input, value, localePack(registry, 'en'));
+  const current = envelope('available');
+  assert.equal(describe('agdf_cockpit_read', { operation: 'snapshot' }, current).failed, false);
+  assert.throws(() => describe('agdf_cockpit_read', { operation: 'snapshot' }, { ...current, schema_version: '1' }), /tool_result_invalid/);
+  assert.throws(() => describe('agdf_inspect', {}, { ...base, schema_version: '2' }), /tool_result_invalid/);
+  assert.throws(() => describe('agdf_cockpit_read', { operation: 'close' }, { schema_version: '2', state: 'available', data: { closed: true }, authorizes: false }), /tool_result_invalid/);
+}

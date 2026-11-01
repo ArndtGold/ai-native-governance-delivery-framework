@@ -81,7 +81,7 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 - `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts. `chat_language` is the direct-command presentation default; dispatcher calls supply `presentation_language` under their current-request language contract. This presentation override never changes `artifact_language`. Runtime rules remain English. Authoring continuations supply the resolved languages and any required localized approval-summary heading before drafting.
 - `.agdf/control/runs/<run_id>/RUN_STATE.md` is the canonical current-run dashboard; legacy `AGDF_RUN.md` is migration input or an explicit non-authoritative projection.
 - New initialization uses `control_layout: planned-urs-v1`, independent `planned/<plan_id>/UR.md` needs and derived inventory. Planning is UR-only through the existing `ur-definition` owner; it neither starts a Run nor approves a gate. Explicit source-bound handoff creates one unapproved Run and retains immutable origin. Core works without the optional Codex planning package. See `control/planned-urs.md` for typed commands, admission and lossless migration.
-- Only historical `master-backlog-v1` projects retain `MASTER_BACKLOG.md` as their live pointer. No layout is inferred or migrated during a read. Explicit preview/apply/recover is required; do not edit config to bypass migration.
+- Retained `MASTER_BACKLOG.md` is optional read-only legacy planning/history in both layouts; normal Run writes do not update it or take its lock. No layout is inferred or migrated during a read. Explicit preview/apply/recover is required; do not edit config to bypass migration.
 - `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.
 - `SOT_REGISTRY.md` prevents parallel sources of truth.
 - `CONTEXT_GRAPH.md` stores durable Brownfield findings, decisions, risks, evidence and exit criteria.
@@ -91,19 +91,10 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 
 ### Historical human-readable Master Backlog
 
-Only in the legacy layout, the Markdown backlog is a human steering view; CLI reports are its normalized
-machine projection.
+The optional Markdown backlog preserves historical planning information. Its absence or corruption does not veto valid Run work. Only explicit recovery may finish a historical journal's captured backlog output.
 
-- Use readable status labels such as `In progress`, `Awaiting UAT` and
-  `Completed` in Markdown.
-- Use links relative to `MASTER_BACKLOG.md`, such as
-  `[UR](artefacts/<key>/UR.md)`, instead of exposing long raw paths.
-- Keep `Priority`, `Key`, `Work item`, `Status`, `Artefacts`, `Current spec`
-  and `Next step` visible for active and planned work.
-- Keep one canonical template. Generated surface copies remain derived output.
-- Normalize human labels and link targets only at the CLI parser boundary.
-- Existing wide rows, raw paths and snake_case statuses remain supported for
-  backward compatibility.
+The normative worktree placement/reuse/ignore rule is owned by
+[task-target-resolution.md](task-target-resolution.md#worktree-placement-and-assigned-checkout).
 
 The scaffold is not a second documentation site. Link to authoritative artefacts instead of copying them.
 
@@ -137,7 +128,7 @@ They make the repository state checkable, but they do not replace the native ski
 ## Delivery Map
 
 `delivery-map --json` is the machine-readable delivery picture for the selected canonical control state.
-It derives from the selected `RUN_STATE.md`; only legacy layout also projects `MASTER_BACKLOG.md`. New-layout inventory derives planned URs and Runs without a shared mutable backlog.
+It derives from the selected `RUN_STATE.md` and its registered sources. New-layout inventory additionally includes planned URs, without a shared mutable backlog.
 
 It must expose:
 

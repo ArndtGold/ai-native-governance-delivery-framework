@@ -100,8 +100,7 @@ function validateIntent(root, stored) {
     sourceMap.set(row.path, row.content);
   }
   const config = sourceMap.get(CONFIG);
-  if (digest(config ?? '') !== value.report.config_digest || value.report.config_next !== layoutJson({ ...JSON.parse(config.replace(/^\uFEFF/u, '')), control_layout: PLANNED_LAYOUT })
-    || !sourceMap.has(BACKLOG)) fail('AGDF_LAYOUT_JOURNAL_INVALID');
+  if (digest(config ?? '') !== value.report.config_digest || value.report.config_next !== layoutJson({ ...JSON.parse(config.replace(/^\uFEFF/u, '')), control_layout: PLANNED_LAYOUT })) fail('AGDF_LAYOUT_JOURNAL_INVALID');
   const expectedEntries = value.report.entries;
   if (value.entries.length !== expectedEntries.length || new Set(value.entries.map(row => row.plan_id)).size !== value.entries.length) fail('AGDF_LAYOUT_JOURNAL_INVALID');
   for (const entry of value.entries) {
@@ -140,6 +139,7 @@ function withRunLocks(root, runs, work, index = 0) {
   return index === runs.length ? work() : withOwnedFileLock(join(root, runs[index].path), () => withRunLocks(root, runs, work, index + 1));
 }
 function exactSourceState(root, value, sourceMap) {
+  if (!sourceMap.has(BACKLOG) && present(root, BACKLOG)) fail('AGDF_LAYOUT_FOREIGN_BYTES');
   for (const [path, old] of sourceMap) {
     if (path.startsWith('@plugin/')) continue;
     const current = present(root, path) ? read(root, path) : null;
@@ -173,7 +173,7 @@ function executeIntentBound(root, stored, { checkpoint = () => {}, recover = fal
         unlinkSync(join(root, entry.path)); fsyncDirectory(dirname(join(root, entry.path)));
         rmdirSync(dirname(join(root, entry.path))); fsyncDirectory(dirname(dirname(join(root, entry.path))));
       }
-      if (!present(root, BACKLOG)) atomicWrite(join(root, BACKLOG), sourceMap.get(BACKLOG));
+      if (sourceMap.has(BACKLOG) && !present(root, BACKLOG)) atomicWrite(join(root, BACKLOG), sourceMap.get(BACKLOG));
       const result = { schema_version: 1, operation_id: value.operation_id, request_digest: value.request_digest,
         preview_digest: report.preview_digest, source_snapshot_digest: report.source_snapshot_digest, outcome: 'rolled_back', authorizes: false };
       const receipt = bindInputResolution(result);
@@ -198,9 +198,12 @@ function executeIntentBound(root, stored, { checkpoint = () => {}, recover = fal
     checkpoint('migration_entries_published');
     if (!committed) {
       exactSourceState(root, value, sourceMap);
-      if (read(root, BACKLOG) !== sourceMap.get(BACKLOG)) fail('AGDF_LAYOUT_FOREIGN_BYTES');
-      // Archive is durable before retiring the last live shared backlog.
-      unlinkSync(join(root, BACKLOG)); fsyncDirectory(dirname(join(root, BACKLOG))); checkpoint('migration_backlog_retired');
+      if (sourceMap.has(BACKLOG)) {
+        if (read(root, BACKLOG) !== sourceMap.get(BACKLOG)) fail('AGDF_LAYOUT_FOREIGN_BYTES');
+        // Retire only the optional file whose original bytes were captured.
+        unlinkSync(join(root, BACKLOG)); fsyncDirectory(dirname(join(root, BACKLOG)));
+      }
+      checkpoint('migration_backlog_retired');
       atomicWrite(join(root, CONFIG), report.config_next); checkpoint('migration_config_committed');
     } else if (present(root, BACKLOG)) fail('AGDF_LAYOUT_COMMITTED_STATE_UNKNOWN');
     const result = { schema_version: 1, operation_id: value.operation_id, request_digest: value.request_digest,

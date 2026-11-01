@@ -2,7 +2,7 @@
 language: en
 chapter_role: multiple_runs
 translation_of: ../de/04-mehrere-runs.md
-source_revision: sha256:ab6e598f85967aa77237824e6f39fc0e8d419adb0d3acb07674a5f784c920dd1
+source_revision: sha256:f4871439fe33039e48a1534b05875003c023deaa8a5cafc8dbeaf6b81f40ca53
 translation_status: reviewed
 ---
 
@@ -44,6 +44,27 @@ superseded and abandoned runs appear as history. The classes describe the stored
 live evaluation; `gate-check` gives the current state of one run. `doctor --all-active` still checks
 every active run in full and carries the same inventory.
 
+## Cockpit and separate working copies
+
+The compact and expanded Cockpit also use this stored Run inventory. Both provide Active and
+History. Search covers the displayed inventory title, Run ID and status; existing inventory order
+is preserved. Only opening a selected Run evaluates it against current sources. A missing or invalid
+store is not a complete empty store. If needed, the old master backlog remains separately available
+as read-only legacy information with its original data. New Runs, approvals and closeouts no longer
+maintain that shared file.
+
+Newly chosen worktrees belong under `.agdf/worktrees/<initiative>/` in the owning primary checkout.
+The primary checkout must ignore that container before creation; preserve existing ignore rules.
+Reuse an assigned worktree even if it was created elsewhere earlier. Explicitly requested
+alternatives remain supported. Resolve unclear project ownership or name collisions first; do not
+nest another worktree inside a linked checkout. Not every small task needs a worktree.
+
+The [canonical worktree rule](../../../plugins/agdf/meta/contracts/task-target-resolution.md#worktree-placement-and-assigned-checkout)
+is authoritative. One writer is responsible for each Run. Git worktrees isolate neither global
+plugins nor ports and do not provide locks between checkouts. Untracked Run files are not copied
+automatically. Preserve them before a separately authorized handoff or cleanup. Automatic creation,
+switching, moving and cleanup are outside this rule.
+
 ## Multiple tasks in one repository
 
 AGDF may use separate runs for a defect, a new feature and a documentation change. Their control
@@ -84,8 +105,9 @@ There are two steps. First a preview shows each selected run with its gate, open
 activity and warnings; it changes nothing. Then you confirm exactly that preview with the phrase
 `Close runs: <preview_id>`. An agent prepares the preview and forwards only your verbatim reply.
 Every run that has not changed since the preview is closed and receives its own receipt with the
-reason, the time and your Git identity. The result names every run. While an interrupted write
-anywhere in the repository waits for recovery, nothing is closed.
+reason, the time and your Git identity. The result names every run. A pending write of the selected
+Run or an old transaction with shared outputs requires explicit recovery first; independent
+Run-local operations remain separate.
 
 An ended run is final. It leaves every list of active runs, stays readable as history and accepts no
 further steps, approvals or continuations. To continue the work, start a new run that may reference

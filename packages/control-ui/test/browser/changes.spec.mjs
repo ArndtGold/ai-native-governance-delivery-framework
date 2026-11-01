@@ -8,7 +8,7 @@ for (const theme of ['light', 'dark']) test(`actual ${theme} overview waits for 
   const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md'); fs.writeFileSync(path, content('Awaiting QA'));
   const service = await startControlServer({ dir: f.root });
   try {
-    await page.goto(service.startupURL); await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
+    await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click(); await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
     await expect(page.getByText('Gespeicherter Stand laut Backlog: Awaiting QA')).toBeVisible();
     await page.getByRole('searchbox').fill('My undertaking');
     await page.getByText('Gespeicherte Angaben und Quellen', { exact: true }).click();
@@ -47,7 +47,7 @@ for (const theme of ['light', 'dark']) test(`${theme} changed original uses the 
   fs.writeFileSync(path, '# Before deliberate reload');
   const service = await startControlServer({ dir: f.root });
   try {
-    await page.goto(service.startupURL);
+    await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
     await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
     await page.getByRole('button', { name: 'My undertaking' }).click();
     await page.getByRole('button', { name: 'Details', exact: true }).click();

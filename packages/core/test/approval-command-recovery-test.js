@@ -37,7 +37,7 @@ try {
   const original = readFileSync(f.state, 'utf8'), initialReceipts = readApprovalOperations(original).receipts.length;
   const { schema_version, assurance, presentation_language, ...shortened } = input;
   const selected = resolveMcpInput(commandGroupDefinition('agdf_approve'), shortened, { defaults: resources.defaults });
-  const stages = [...intentStages, ...commitStages].filter(point => layout === 'master-backlog-v1' || !/^backlog(?:_|$)/u.test(point));
+  const stages = [...intentStages, ...commitStages].filter(point => !/^backlog(?:_|$)/u.test(point));
   for (const defaulted of [false, true]) for (const point of stages) {
     rmSync(join(root, '.agdf'), { recursive: true }); cpSync(seed, join(root, '.agdf'), { recursive: true });
     const code = `import {executeApprovalCommand} from ${JSON.stringify(new URL('../lib/control-state/approval-command.js', import.meta.url).href)};

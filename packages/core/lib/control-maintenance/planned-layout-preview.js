@@ -33,7 +33,11 @@ export function collectPlannedLayoutPreview(root) {
       if (!sources.has(path)) sources.set(path, readContainedControlText(root, path, maximum));
       return sources.get(path);
     };
-    const config = take(CONTROL + 'config.json', 65536), backlog = take(CONTROL + 'MASTER_BACKLOG.md', READ_LIMITS.preview);
+    const config = take(CONTROL + 'config.json', 65536), backlogPath = CONTROL + 'MASTER_BACKLOG.md';
+    if (hasSymlinkComponent(root, backlogPath)) fail('AGDF_LAYOUT_SOURCE_UNSAFE');
+    // Run-only legacy projects may have no Backlog. Its absence is bound by the
+    // source manifest omitting this known optional path, never by invented bytes.
+    const backlog = existsSync(join(root, backlogPath)) ? take(backlogPath, READ_LIMITS.preview) : '';
     if (existsSync(join(root, CONTROL, 'planned')) && readdirSync(join(root, CONTROL, 'planned')).length)
       blockers.push({ code: 'AGDF_LAYOUT_PLANNED_STORE_NOT_EMPTY' });
     if (existsSync(join(root, LAYOUT_PENDING))) blockers.push({ code: 'AGDF_LAYOUT_RECOVERY_REQUIRED' });

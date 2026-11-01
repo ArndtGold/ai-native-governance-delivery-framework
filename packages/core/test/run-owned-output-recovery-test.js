@@ -20,6 +20,9 @@ const temporary = mkdtempSync(join(tmpdir(), 'agdf-v3-recovery-')), root = join(
 const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
 try {
   execFileSync('git', ['init', '-q', root]); initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout }));
+  const backlogPath = join(root, '.agdf/control/MASTER_BACKLOG.md'), legacyBacklog = '# Legacy planning\nExisting reference.\n';
+  writeFileSync(backlogPath, legacyBacklog);
+
   const f = createLateSourceRevisionTestRun(root, cli), seed = join(temporary, 'seed');
   const source = { path: f.prefix + 'CD_CANDIDATE.md', digest: null }; writeFileSync(join(root, source.path), '# CD+Tests\n- decision: pass\nSynthetic executed checks.\n'); source.digest = artefactFileDigest(root, source.path);
   const input = { runId: f.runId, revisionId: f.revision(), step: 'internal', internalStep: 'CD+Tests', sourceBinding: source, decision: 'pass' };
@@ -36,7 +39,7 @@ try {
   const atomicStages = ['temp_opened', 'temp_written', 'after_file_sync', 'before_rename', 'after_rename', 'after_directory_sync'];
   const stages = [...atomicStages.map(stage => 'intent_' + stage), 'intent', ...atomicStages.map(stage => 'output_' + stage), 'output',
     ...atomicStages.map(stage => 'run_' + stage), 'run', ...atomicStages.map(stage => 'backlog_' + stage), 'backlog', 'retired'];
-  for (const stage of stages.filter(stage => layout === 'master-backlog-v1'
+  for (const stage of stages.filter(stage => layout === 'master-backlog-v1' && !stage.startsWith('backlog')
     || ['intent', 'output_after_rename', 'run_before_rename', 'run_after_rename', 'retired'].includes(stage))) {
     reset(); const old = readFileSync(f.state, 'utf8'), result = worker(stage); assert.equal(result.status, 71, stage + ': ' + result.stderr + result.stdout);
     const beforeIntent = ['intent_temp_opened', 'intent_temp_written', 'intent_after_file_sync', 'intent_before_rename'].includes(stage);
@@ -52,6 +55,7 @@ try {
       assert.equal(readFileSync(f.state, 'utf8'), state); assert.equal(existsSync(output), true);
     }
     assert.equal(existsSync(pending), false, stage);
+    assert.equal(readFileSync(backlogPath, 'utf8'), legacyBacklog, stage);
   }
   reset(); assert.equal(worker('output_after_rename').status, 71); writeFileSync(output, '# Foreign interference\n');
   const oldRun = readFileSync(f.state, 'utf8'), oldPending = readFileSync(pending, 'utf8');

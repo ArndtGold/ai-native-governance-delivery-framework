@@ -31,6 +31,8 @@ function repository(name) {
   const root = mkdtempSync(join(tmpdir(), `agdf-closure-${name}-`)); roots.push(root);
   execFileSync('git', ['init', '-q', root]);
   initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+  // Explicit historical planning fixture; fresh initialization no longer creates it.
+  writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), readFileSync(new URL('../../../plugins/agdf/control/templates/MASTER_BACKLOG.md', import.meta.url)));
   return root;
 }
 const statePath = (root, id) => join(root, '.agdf', 'control', 'runs', id, 'RUN_STATE.md');
@@ -207,12 +209,10 @@ try {
     r => { r.effect.record.successor = { kind: 'run', value: 'plain-c', verified: true }; }, r => { r.effect.record.reason = 'a|b'; }]) {
     const malformed = JSON.parse(JSON.stringify(valid)); change(malformed); assert.equal(validRunOperation(malformed), false);
   }
-  // Backlog: the linked row moves with its final status; the unlinked runs are reported unlinked.
+  // Closing Runs never synchronizes even explicitly linked historical planning rows.
   assert.deepEqual(applied.results.filter(row => row.result === 'closed').map(row => [row.run_id, row.backlog]),
-    [['plain-a', 'updated'], ['plain-c', 'unlinked'], ['approved-run', 'updated']]);
-  const archive = backlog(root).split('## Completed / Superseded Pointers')[1];
-  assert.ok(archive.includes('| plain-a | Plain A work | Abandoned | [RUN_STATE](runs/plain-a/RUN_STATE.md) | Abandoned: No longer needed |'), archive);
-  assert.ok(!backlog(root).split('## Planned')[0].includes('| plain-a |'), 'The active row is removed');
+    [['plain-a', 'not_required'], ['plain-c', 'not_required'], ['approved-run', 'not_required']]);
+  assert.equal(Buffer.from(backlog(root)).toString('base64'), before.get('.agdf/control/MASTER_BACKLOG.md'));
   assert.ok(!evaluateDoctor(root, {}).findings?.some(row => row.code === 'AGDF_BACKLOG_STATUS_UNKNOWN'));
 
   // SCN-006: repeating the same apply reports closed runs as already closed and writes nothing.
@@ -246,7 +246,7 @@ try {
   assert.notEqual(forged, closed); assert.equal(readRunOperations(forged).valid, true);
   assert.notEqual(runSealState(root, forged).status, 'valid');
 
-  // SCN-017: an unusable backlog never blocks a closure and is reported skipped.
+  // SCN-017: malformed, missing and non-file legacy backlogs are outside closure writes.
   const skipRoot = repository('skip');
   createRun(skipRoot, 'skip-a'); createRun(skipRoot, 'skip-b'); createRun(skipRoot, 'skip-c');
   const skipBacklog = join(skipRoot, '.agdf', 'control', 'MASTER_BACKLOG.md');
@@ -255,17 +255,18 @@ try {
   const skipBacklogBytes = readFileSync(skipBacklog);
   const skipPreview = previewRunClosure(skipRoot, { entries: [{ run_id: 'skip-a', outcome: 'abandoned', reason: 'Backlog unusable' }] });
   const skipped = applyRunClosure(skipRoot, { previewId: skipPreview.preview_id, confirmation: skipPreview.confirmation_phrase }, options);
-  assert.deepEqual(skipped.results.map(row => [row.result, row.backlog, row.backlog_reason]), [['closed', 'skipped', 'backlog_layout_unsupported']]);
+  assert.deepEqual(skipped.results.map(row => [row.result, row.backlog, row.backlog_reason]), [['closed', 'not_required', null]]);
   assert.deepEqual(readFileSync(skipBacklog), skipBacklogBytes);
   rmSync(skipBacklog);
   const missingPreview = previewRunClosure(skipRoot, { entries: [{ run_id: 'skip-b', outcome: 'abandoned', reason: 'Backlog missing' }] });
   assert.deepEqual(applyRunClosure(skipRoot, { previewId: missingPreview.preview_id, confirmation: missingPreview.confirmation_phrase }, options)
-    .results.map(row => [row.result, row.backlog, row.backlog_reason]), [['closed', 'skipped', 'backlog_missing']]);
+    .results.map(row => [row.result, row.backlog, row.backlog_reason]), [['closed', 'not_required', null]]);
+  assert.equal(existsSync(skipBacklog), false);
   // CR-F01: a backlog path that is not a regular file (here a directory) never stops a closure.
   mkdirSync(skipBacklog);
   const pathPreview = previewRunClosure(skipRoot, { entries: [{ run_id: 'skip-c', outcome: 'abandoned', reason: 'Backlog path invalid' }] });
   assert.deepEqual(applyRunClosure(skipRoot, { previewId: pathPreview.preview_id, confirmation: pathPreview.confirmation_phrase }, options)
-    .results.map(row => [row.result, row.backlog, row.backlog_reason]), [['closed', 'skipped', 'backlog_path_invalid']]);
+    .results.map(row => [row.result, row.backlog, row.backlog_reason]), [['closed', 'not_required', null]]);
   assert.equal(meta(skipRoot, 'skip-c').lifecycle, 'abandoned'); assert.ok(statSync(skipBacklog).isDirectory());
 
   // CR-F07: an exception while observing one run marks only that run not closable.
@@ -276,8 +277,7 @@ try {
   assert.equal(partial.outcome, 'preview');
   assert.deepEqual(partial.entries.map(row => [row.closable, row.not_closable?.reason ?? null]), [[true, null], [false, 'run_unreadable']]);
 
-  // CR-F03, CR-F07: a committed closure whose backlog recovery failed is closed with recovery pending;
-  // the remaining runs say to recover and repeat the same apply.
+  // CR-F03, CR-F07: a committed Run with pending recovery does not block independent closures.
   const pendingRoot = repository('recovery-pending');
   for (const id of ['rp-1', 'rp-2']) { createRun(pendingRoot, id); backlogRow(pendingRoot, id); }
   const pendingPreview = previewRunClosure(pendingRoot, { entries: [{ run_id: 'rp-1', outcome: 'abandoned', reason: 'First' }, { run_id: 'rp-2', outcome: 'abandoned', reason: 'Second' }] });
@@ -285,23 +285,23 @@ try {
   const interrupted = applyRunClosure(pendingRoot, { previewId: pendingPreview.preview_id, confirmation: pendingPreview.confirmation_phrase },
     { ...options, afterWrite: point => { if (point === 'run' && !thrown) { thrown = true; throw Error('simulated failure after the run commit'); } } });
   assert.deepEqual(interrupted.results.map(row => [row.run_id, row.result, row.reason]), [['rp-1', 'closed_recovery_pending', 'run_step_recovery_required'],
-    ['rp-2', 'not_closed', 'run_step_recovery_required']]);
+    ['rp-2', 'closed', undefined]]);
   assert.equal(interrupted.recovery_pending_count, 1); assert.equal(meta(pendingRoot, 'rp-1').lifecycle, 'abandoned');
-  assert.equal(interrupted.results[1].next_action, 'Recover the pending run step, then repeat the same apply.');
-  assert.ok(interrupted.text.includes('1. `rp-1`: closed as abandoned; backlog recovery pending (run_step_recovery_required)'), interrupted.text);
-  assert.ok(interrupted.text.includes('2. `rp-2`: not closed: run_step_recovery_required · Next: Recover the pending run step, then repeat the same apply.'));
+  assert.equal(meta(pendingRoot, 'rp-2').lifecycle, 'abandoned');
+  assert.ok(interrupted.text.includes('1. `rp-1`: closed as abandoned; Run recovery pending (run_step_recovery_required)'), interrupted.text);
+  assert.ok(interrupted.text.includes('2. `rp-2`: closed as abandoned'));
   assert.equal(recoverPendingRunStep(pendingRoot, 'rp-1').status, 'completed');
   assert.deepEqual(applyRunClosure(pendingRoot, { previewId: pendingPreview.preview_id, confirmation: pendingPreview.confirmation_phrase }, options)
-    .results.map(row => row.result), ['already_closed', 'closed']);
+    .results.map(row => row.result), ['already_closed', 'already_closed']);
 
-  // SCN-028, SCN-022, SCN-006: an interrupted second closure leaves one journal; everything waits for its recovery.
+  // SCN-028, SCN-022, SCN-006: an interrupted second closure blocks that Run while independent Runs continue.
   const childUrl = new URL('../lib/control-state/run-closure.js', import.meta.url).href;
   const service = createRunCommandService();
-  for (const stage of [...intentStages, ...commitStages]) {
+  for (const stage of [...intentStages, ...commitStages].filter(stage => !stage.startsWith('backlog'))) {
     const crashRoot = repository('crash');
     for (const id of ['x1', 'x2', 'y1']) { createRun(crashRoot, id); backlogRow(crashRoot, id); }
     const first = previewRunClosure(crashRoot, { entries: [{ run_id: 'x1', outcome: 'abandoned', reason: 'First' }, { run_id: 'x2', outcome: 'abandoned', reason: 'Second' }] });
-    const x2Before = content(crashRoot, 'x2');
+    const x2Before = content(crashRoot, 'x2'), legacyBefore = backlog(crashRoot);
     const program = `import { applyRunClosure } from ${JSON.stringify(childUrl)}; let seen = 0;
       applyRunClosure(process.argv[1], { previewId: process.argv[2], confirmation: process.argv[3] }, { readIdentity: () => ({ statement: 'unknown' }),
         afterWrite(point) { if (point === process.argv[4] && ++seen === 2) process.exit(71); } });`;
@@ -312,16 +312,17 @@ try {
     assert.deepEqual(pendingRunStepIds(crashRoot), journal ? ['x2'] : [], stage);
     if (beforeRunCommit(stage)) assert.equal(content(crashRoot, 'x2'), x2Before, stage);
     if (journal) {
-      // SCN-022: the whole list is blocked and names the pending run; other writes are refused as today.
-      const blocked = previewRunClosure(crashRoot, { entries: [{ run_id: 'y1', outcome: 'abandoned', reason: 'Waits' }] });
+      // SCN-022: a list selecting the pending Run is blocked; an unrelated Run can still record evidence.
+      const blocked = previewRunClosure(crashRoot, { entries: [{ run_id: 'x2', outcome: 'abandoned', reason: 'Waits for its own recovery' }] });
       assert.equal(blocked.outcome, 'preview'); assert.deepEqual(blocked.blocked.pending_run_ids, ['x2']); assert.equal(blocked.confirmation_phrase, null);
       assert.ok(blocked.text.includes('Blocked: pending run-step recovery in x2. Recover the pending run step first, then create a new preview.'));
       const y1Before = readFileSync(statePath(crashRoot, 'y1'));
       const refused = applyRunClosure(crashRoot, { previewId: blocked.preview_id, confirmation: closurePhrase(blocked.preview_id) }, options);
       assert.equal(refused.reason, 'closure_recovery_pending'); assert.deepEqual(refused.pending_run_ids, ['x2']);
       assert.equal(recordRunStep(crashRoot, { runId: 'y1', revisionId: meta(crashRoot, 'y1').revision_id, step: 'evidence', evidence: 'x' },
-        { policy: policyForRunContent }).reason, 'run_step_recovery_required');
-      assert.deepEqual(readFileSync(statePath(crashRoot, 'y1')), y1Before);
+        { policy: policyForRunContent }).outcome, 'recorded');
+      assert.notDeepEqual(readFileSync(statePath(crashRoot, 'y1')), y1Before);
+      assert.equal(runSealState(crashRoot, content(crashRoot, 'y1')).status, 'valid');
       // The existing operation recovery completes or rolls back the closure of x2.
       const pending = readPendingRunStepJournal(crashRoot, 'x2');
       assert.equal(pending.kind, 'lifecycle_close.record'); assert.deepEqual(pending.outputs, []);
@@ -340,7 +341,7 @@ try {
     const retry = applyRunClosure(crashRoot, { previewId: first.preview_id, confirmation: first.confirmation_phrase }, options);
     assert.deepEqual(retry.results.map(row => row.result), ['already_closed', beforeRunCommit(stage) ? 'closed' : 'already_closed'], `${stage}: ${retry.text}`);
     assert.equal(meta(crashRoot, 'x2').lifecycle, 'abandoned', stage);
-    assert.equal(backlog(crashRoot).split('## Completed / Superseded Pointers')[1].includes('| x2 | Work x2 | Abandoned |'), true, stage);
+    assert.equal(backlog(crashRoot), legacyBefore, stage);
   }
-  console.log('Run closure preview, phrase, per-run apply, receipts, backlog, refusals and interruption recovery passed (synthetic only).');
+  console.log('Run closure preview, phrase, per-run apply, receipts, preserved legacy planning, refusals and Run-local interruption recovery passed (synthetic only).');
 } finally { for (const root of roots) rmSync(root, { recursive: true, force: true }); }

@@ -105,7 +105,7 @@ presentations become stale when the Run revision advances.
 
 Immutable snapshots and row dispositions live under
 `.agdf/control/maintenance/planned-layout/<source-digest>/`. The configuration
-change is the global commit point; only then is the old live-backlog role retired.
+change is the global commit point selecting the planned layout. Normal Run writes already leave retained legacy backlog bytes untouched in both layouts. Run-only legacy projects without a backlog are supported; its absence is bound by omission of that known optional path from the source manifest and rechecked before effects.
 Before commit, recovery restores only exact known owned effects; after commit it
 finishes the original operation. Unknown/foreign bytes or ownership stop recovery
 and retain the freeze. No timeout authorizes removal of a claim or marker.

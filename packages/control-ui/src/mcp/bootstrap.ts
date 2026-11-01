@@ -14,7 +14,7 @@ export function readRenderBootstrap(result: { isError?: boolean; _meta?: Record<
     || target.target_id !== source.target_id || target.display_path !== source.display_path
     || typeof value.session_id !== 'string' || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(value.session_id)
     || !Number.isSafeInteger(value.render_generation) || (value.render_generation as number) < 1) return null;
-  if (value.initial_run_id !== undefined && (typeof value.initial_run_id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(value.initial_run_id))) return null;
+  if (value.initial_run_id !== undefined && (typeof value.initial_run_id !== 'string' || !/^[a-z0-9][a-z0-9._-]{0,127}$/.test(value.initial_run_id))) return null;
   return { sessionId: value.session_id, targetId: target.target_id, generation: value.render_generation as number,
     ...(typeof value.initial_run_id === 'string' ? { initialRunId: value.initial_run_id } : {}) };
 }

@@ -1,0 +1,669 @@
+{
+  "evidence_class": "built_ui_real_sdk_core_synthetic_host",
+  "native_qualified": false,
+  "authorizes": false,
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/cockpit/v2.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 1258523,
+    "digest": "sha256:1ff747df6ba66da5f76bee5728afe86a296e91efdb6a89b9ddb7c5d33aeba09d",
+    "source_digest": "sha256:5823e47e910ab8ad510003131f4a175b671454536f0c2452331a610a1febd3aa"
+  },
+  "provider": {
+    "schema_version": 1,
+    "authorizes": false,
+    "identity_scope": "sdk_server_instance",
+    "connection_id": "82acc437-2615-463b-aeca-cbee43224964",
+    "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+    "version": "synthetic-test"
+  },
+  "trace": [
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 1,
+      "observed_at": "2026-10-31T09:04:18.687Z",
+      "direction": "out",
+      "message": {
+        "method": "ui/initialize",
+        "params": {
+          "appCapabilities": {},
+          "appInfo": {
+            "name": "AGDF Cockpit",
+            "version": "1.0.0"
+          },
+          "protocolVersion": "2026-01-26"
+        },
+        "jsonrpc": "2.0",
+        "id": 0
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 2,
+      "observed_at": "2026-10-31T09:04:18.710Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "result": {
+          "protocolVersion": "2026-01-26",
+          "hostCapabilities": {
+            "serverTools": {},
+            "logging": {},
+            "updateModelContext": {}
+          },
+          "hostInfo": {
+            "name": "Synthetic trace host",
+            "version": "1"
+          },
+          "hostContext": {
+            "displayMode": "fullscreen",
+            "availableDisplayModes": [
+              "fullscreen"
+            ],
+            "locale": "de"
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 3,
+      "observed_at": "2026-10-31T09:04:18.713Z",
+      "direction": "out",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "ui/notifications/initialized"
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 32,
+      "observed_at": "2026-10-31T09:04:20.729Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "prepare_context",
+            "snapshot_id": "17d693a9-06a4-4539-92ca-ed314b257c9c",
+            "run_id": "fixture-a",
+            "revision_id": "00518102-377e-4f85-8756-276391998739",
+            "resource_id": "ff68ee48-8053-4860-b641-c8c251367d55",
+            "graph_ids": [],
+            "excluded_ids": [],
+            "generation": 7,
+            "session_id": "350eac98-c4db-41d5-befe-7f16bf65c3d9"
+          },
+          "_meta": {
+            "progressToken": 11
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 11
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 33,
+      "observed_at": "2026-10-31T09:04:20.787Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 11,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "82acc437-2615-463b-aeca-cbee43224964",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd\"},\"snapshot_id\":\"17d693a9-06a4-4539-92ca-ed314b257c9c\",\"observed_as_of\":\"2026-10-31T09:04:20.559Z\",\"source_digest\":\"8b86e9fc3869beaffc9596057c88e0b7bca875d22027db1cd6b9c9c2b2a3c345\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"packet\":{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd\"},\"snapshot_id\":\"17d693a9-06a4-4539-92ca-ed314b257c9c\",\"observed_as_of\":\"2026-10-31T09:04:20.559Z\",\"source_digest\":\"8b86e9fc3869beaffc9596057c88e0b7bca875d22027db1cd6b9c9c2b2a3c345\",\"run_id\":\"fixture-a\",\"revision_id\":\"00518102-377e-4f85-8756-276391998739\",\"context_id\":\"9c15f719-5e37-44f4-ae57-27bb0eaa68ea\",\"generation\":7,\"prepared_at\":\"2026-10-31T09:04:20.782Z\",\"artefact\":{\"resource\":{\"resource_id\":\"ff68ee48-8053-4860-b641-c8c251367d55\",\"run_id\":\"fixture-a\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/fixture-a/RUN_STATE.md\",\"status\":\"registered\"},\"format\":\"markdown\",\"content\":\"# AGDF Run State\\n\\n## Run Meta\\n\\n- control_state_version: 2\\n- run_id: fixture-a\\n- lifecycle: active\\n- revision: 1\\n- revision_id: 00518102-377e-4f85-8756-276391998739\\n- content_seal: sha256:11675dde1d3d14c059124e5534e6f25c5503b16d60a262cf69f03050c9a1e920\\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\\n- updated_at: 2026-10-31T09:04:17.816Z\\n- mode: structured_delivery\\n- current_gate: UR\\n- decision: in_progress\\n- owner: agent\\n\\n## Objective\\n\\nDescribe the trustworthy outcome.\\n\\n## Current Control State\\n\\n| Question | Answer |\\n|---|---|\\n| What is known? | New run created. |\\n| What is approved? | Nothing yet. |\\n| What is missing? | Durable UR and exact approval. |\\n| What is the next allowed action? | Draft the UR. |\\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\\n\\n## Approvals\\n\\n| Gate | Status | Evidence |\\n|---|---|---|\\n| UR | missing |  |\\n| PRD | missing |  |\\n| SD | missing |  |\\n| TP | missing |  |\\n| QA | missing |  |\\n| UAT | missing |  |\\n\\n## Artefacts\\n\\n| Type | Path | Status | Notes |\\n|---|---|---|---|\\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\\n| Brownfield Review |  | missing |  |\\n| Verified Change |  | missing |  |\\n| PRD |  | missing |  |\\n| SD |  | missing |  |\\n| TP |  | missing |  |\\n| Brownfield Analysis |  | missing |  |\\n| CD+Tests |  | missing |  |\\n| CR |  | missing |  |\\n| QA |  | missing |  |\\n\\n## Mode/Slice Decision\\n\\n- decision:\\n- required_next_gate:\\n- scope_reason:\\n- evidence:\\n\\n## Artefact Chain\\n\\n| From | Relationship | To | Evidence |\\n|---|---|---|---|\\n\\n## Evidence\\n\\n| Evidence | Source | Covers | Strength |\\n|---|---|---|---|\\n| Run creation | run-create | Control initialization | direct |\\n\\n## Closeout\\n\\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\\n- quality_outlook:\\n\",\"content_digest\":\"528899d42c4dae9431d117d4bb8c608fa64fc06f0db121fdd1b0d5956f7fa22d\",\"links\":{}},\"graph_nodes\":[],\"included\":[{\"resource_id\":\"ff68ee48-8053-4860-b641-c8c251367d55\",\"path\":\".agdf/control/runs/fixture-a/RUN_STATE.md\"}],\"excluded\":[],\"authorizes\":false},\"byte_count\":3071,\"limit\":65536},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd"
+            },
+            "snapshot_id": "17d693a9-06a4-4539-92ca-ed314b257c9c",
+            "observed_as_of": "2026-10-31T09:04:20.559Z",
+            "source_digest": "8b86e9fc3869beaffc9596057c88e0b7bca875d22027db1cd6b9c9c2b2a3c345",
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "packet": {
+                "schema_version": "1",
+                "target": {
+                  "target_id": "sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952",
+                  "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd"
+                },
+                "snapshot_id": "17d693a9-06a4-4539-92ca-ed314b257c9c",
+                "observed_as_of": "2026-10-31T09:04:20.559Z",
+                "source_digest": "8b86e9fc3869beaffc9596057c88e0b7bca875d22027db1cd6b9c9c2b2a3c345",
+                "run_id": "fixture-a",
+                "revision_id": "00518102-377e-4f85-8756-276391998739",
+                "context_id": "9c15f719-5e37-44f4-ae57-27bb0eaa68ea",
+                "generation": 7,
+                "prepared_at": "2026-10-31T09:04:20.782Z",
+                "artefact": {
+                  "resource": {
+                    "resource_id": "ff68ee48-8053-4860-b641-c8c251367d55",
+                    "run_id": "fixture-a",
+                    "type": "Run State",
+                    "path": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                    "registered_reference": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                    "status": "registered"
+                  },
+                  "format": "markdown",
+                  "content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: fixture-a\n- lifecycle: active\n- revision: 1\n- revision_id: 00518102-377e-4f85-8756-276391998739\n- content_seal: sha256:11675dde1d3d14c059124e5534e6f25c5503b16d60a262cf69f03050c9a1e920\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\n- updated_at: 2026-10-31T09:04:17.816Z\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: agent\n\n## Objective\n\nDescribe the trustworthy outcome.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | New run created. |\n| What is approved? | Nothing yet. |\n| What is missing? | Durable UR and exact approval. |\n| What is the next allowed action? | Draft the UR. |\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\n| Brownfield Review |  | missing |  |\n| Verified Change |  | missing |  |\n| PRD |  | missing |  |\n| SD |  | missing |  |\n| TP |  | missing |  |\n| Brownfield Analysis |  | missing |  |\n| CD+Tests |  | missing |  |\n| CR |  | missing |  |\n| QA |  | missing |  |\n\n## Mode/Slice Decision\n\n- decision:\n- required_next_gate:\n- scope_reason:\n- evidence:\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Run creation | run-create | Control initialization | direct |\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook:\n",
+                  "content_digest": "528899d42c4dae9431d117d4bb8c608fa64fc06f0db121fdd1b0d5956f7fa22d",
+                  "links": {}
+                },
+                "graph_nodes": [],
+                "included": [
+                  {
+                    "resource_id": "ff68ee48-8053-4860-b641-c8c251367d55",
+                    "path": ".agdf/control/runs/fixture-a/RUN_STATE.md"
+                  }
+                ],
+                "excluded": [],
+                "authorizes": false
+              },
+              "byte_count": 3071,
+              "limit": 65536
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 34,
+      "observed_at": "2026-10-31T09:04:20.790Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "validate_context",
+            "context_id": "9c15f719-5e37-44f4-ae57-27bb0eaa68ea",
+            "generation": 7,
+            "session_id": "350eac98-c4db-41d5-befe-7f16bf65c3d9"
+          },
+          "_meta": {
+            "progressToken": 12
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 12
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 35,
+      "observed_at": "2026-10-31T09:04:20.893Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 12,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "82acc437-2615-463b-aeca-cbee43224964",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd\"},\"snapshot_id\":\"17d693a9-06a4-4539-92ca-ed314b257c9c\",\"observed_as_of\":\"2026-10-31T09:04:20.559Z\",\"source_digest\":\"8b86e9fc3869beaffc9596057c88e0b7bca875d22027db1cd6b9c9c2b2a3c345\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"context_id\":\"9c15f719-5e37-44f4-ae57-27bb0eaa68ea\",\"generation\":7,\"current\":true},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd"
+            },
+            "snapshot_id": "17d693a9-06a4-4539-92ca-ed314b257c9c",
+            "observed_as_of": "2026-10-31T09:04:20.559Z",
+            "source_digest": "8b86e9fc3869beaffc9596057c88e0b7bca875d22027db1cd6b9c9c2b2a3c345",
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "context_id": "9c15f719-5e37-44f4-ae57-27bb0eaa68ea",
+              "generation": 7,
+              "current": true
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 36,
+      "observed_at": "2026-10-31T09:04:20.898Z",
+      "direction": "out",
+      "message": {
+        "method": "ui/update-model-context",
+        "params": {
+          "structuredContent": {
+            "schema_version": "1",
+            "target": {
+              "target_id": "sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd"
+            },
+            "snapshot_id": "17d693a9-06a4-4539-92ca-ed314b257c9c",
+            "observed_as_of": "2026-10-31T09:04:20.559Z",
+            "source_digest": "8b86e9fc3869beaffc9596057c88e0b7bca875d22027db1cd6b9c9c2b2a3c345",
+            "run_id": "fixture-a",
+            "revision_id": "00518102-377e-4f85-8756-276391998739",
+            "context_id": "9c15f719-5e37-44f4-ae57-27bb0eaa68ea",
+            "generation": 7,
+            "prepared_at": "2026-10-31T09:04:20.782Z",
+            "artefact": {
+              "resource": {
+                "resource_id": "ff68ee48-8053-4860-b641-c8c251367d55",
+                "run_id": "fixture-a",
+                "type": "Run State",
+                "path": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                "registered_reference": ".agdf/control/runs/fixture-a/RUN_STATE.md",
+                "status": "registered"
+              },
+              "format": "markdown",
+              "content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: fixture-a\n- lifecycle: active\n- revision: 1\n- revision_id: 00518102-377e-4f85-8756-276391998739\n- content_seal: sha256:11675dde1d3d14c059124e5534e6f25c5503b16d60a262cf69f03050c9a1e920\n- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea\n- updated_at: 2026-10-31T09:04:17.816Z\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: agent\n\n## Objective\n\nDescribe the trustworthy outcome.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | New run created. |\n| What is approved? | Nothing yet. |\n| What is missing? | Durable UR and exact approval. |\n| What is the next allowed action? | Draft the UR. |\n| What is explicitly forbidden right now? | Later artefacts and implementation. |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | .agdf/control/artefacts/fixture-a/UR.md | draft |  |\n| Brownfield Review |  | missing |  |\n| Verified Change |  | missing |  |\n| PRD |  | missing |  |\n| SD |  | missing |  |\n| TP |  | missing |  |\n| Brownfield Analysis |  | missing |  |\n| CD+Tests |  | missing |  |\n| CR |  | missing |  |\n| QA |  | missing |  |\n\n## Mode/Slice Decision\n\n- decision:\n- required_next_gate:\n- scope_reason:\n- evidence:\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Run creation | run-create | Control initialization | direct |\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook:\n",
+              "content_digest": "528899d42c4dae9431d117d4bb8c608fa64fc06f0db121fdd1b0d5956f7fa22d",
+              "links": {}
+            },
+            "graph_nodes": [],
+            "included": [
+              {
+                "resource_id": "ff68ee48-8053-4860-b641-c8c251367d55",
+                "path": ".agdf/control/runs/fixture-a/RUN_STATE.md"
+              }
+            ],
+            "excluded": [],
+            "authorizes": false
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 13
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 37,
+      "observed_at": "2026-10-31T09:04:20.965Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 13,
+        "result": {}
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 40,
+      "observed_at": "2026-10-31T09:04:21.155Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "invalidate_context",
+            "session_id": "350eac98-c4db-41d5-befe-7f16bf65c3d9"
+          },
+          "_meta": {
+            "progressToken": 14
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 14
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 41,
+      "observed_at": "2026-10-31T09:04:21.168Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 14,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "82acc437-2615-463b-aeca-cbee43224964",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"invalidated\":true,\"host_publication_required\":true,\"invalidation_id\":\"92bf2080-b0ab-4b7d-ac0e-e24c68dbe805\"},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd"
+            },
+            "snapshot_id": null,
+            "observed_as_of": null,
+            "source_digest": null,
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "invalidated": true,
+              "host_publication_required": true,
+              "invalidation_id": "92bf2080-b0ab-4b7d-ac0e-e24c68dbe805"
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 42,
+      "observed_at": "2026-10-31T09:04:21.171Z",
+      "direction": "out",
+      "message": {
+        "method": "ui/update-model-context",
+        "params": {
+          "structuredContent": {
+            "schema_version": "1",
+            "kind": "agdf_cockpit_invalid_selection",
+            "generation": 10,
+            "invalidation_id": "92bf2080-b0ab-4b7d-ac0e-e24c68dbe805",
+            "observed_at": "2026-10-31T09:04:21.170Z",
+            "authorizes": false,
+            "current": false
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 15
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 43,
+      "observed_at": "2026-10-31T09:04:21.177Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 15,
+        "result": {}
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 44,
+      "observed_at": "2026-10-31T09:04:21.178Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "complete_context_invalidation",
+            "invalidation_id": "92bf2080-b0ab-4b7d-ac0e-e24c68dbe805",
+            "session_id": "350eac98-c4db-41d5-befe-7f16bf65c3d9"
+          },
+          "_meta": {
+            "progressToken": 16
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 16
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 45,
+      "observed_at": "2026-10-31T09:04:21.193Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 16,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "82acc437-2615-463b-aeca-cbee43224964",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"completed\":true,\"invalidation_id\":\"92bf2080-b0ab-4b7d-ac0e-e24c68dbe805\"},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd"
+            },
+            "snapshot_id": null,
+            "observed_as_of": null,
+            "source_digest": null,
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "completed": true,
+              "invalidation_id": "92bf2080-b0ab-4b7d-ac0e-e24c68dbe805"
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 46,
+      "observed_at": "2026-10-31T09:04:21.196Z",
+      "direction": "out",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "agdf_cockpit_read",
+          "arguments": {
+            "operation": "close",
+            "session_id": "350eac98-c4db-41d5-befe-7f16bf65c3d9"
+          },
+          "_meta": {
+            "progressToken": 17
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 17
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 47,
+      "observed_at": "2026-10-31T09:04:21.208Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 17,
+        "result": {
+          "_meta": {
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "82acc437-2615-463b-aeca-cbee43224964",
+              "server_module": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/mcp-server/src/server.js",
+              "version": "synthetic-test"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "synthetic-browser",
+                "version": "1"
+              },
+              "capabilities": {
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"2\",\"target\":{\"target_id\":\"sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"closed\":true},\"authorizes\":false}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "2",
+            "target": {
+              "target_id": "sha256:5d75095823fcd23fe30455a5f9e03c59ad252a989a8a714cb4b766ab70e3e952",
+              "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cockpit-2o85vd"
+            },
+            "snapshot_id": null,
+            "observed_as_of": null,
+            "source_digest": null,
+            "state": "available",
+            "code": null,
+            "retryable": false,
+            "data": {
+              "closed": true
+            },
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 49,
+      "observed_at": "2026-10-31T09:04:21.213Z",
+      "direction": "out",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "ui/notifications/request-teardown",
+        "params": {}
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 50,
+      "observed_at": "2026-10-31T09:04:21.221Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "method": "ui/resource-teardown",
+        "params": {}
+      }
+    },
+    {
+      "trace_id": "f3d305ac-0905-483b-8bd8-96e8dc7f9b11",
+      "sequence": 51,
+      "observed_at": "2026-10-31T09:04:21.223Z",
+      "direction": "out",
+      "message": {
+        "result": {},
+        "jsonrpc": "2.0",
+        "id": 0
+      }
+    }
+  ]
+}

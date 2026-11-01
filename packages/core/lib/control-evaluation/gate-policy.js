@@ -16,7 +16,7 @@ function durableArtefactBlock(gate, nextGate) {
     missing_approval: "none",
     allowed: [
       `persist the approved ${label} in a stable artefact path such as ${stablePath}`,
-      "link the artefact from the selected RUN_STATE.md and MASTER_BACKLOG.md",
+      "link the artefact from the selected RUN_STATE.md",
       "run gate-check again",
     ],
     forbidden: nextGate

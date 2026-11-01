@@ -64,8 +64,8 @@ try {
   pass('old seven/thirteen-column rows retain stored text without migration');
 
   writeFileSync(path, saved);
-  const before = readFileSync(path); const reader = createCockpitReader(f.root); const snapshot = reader.snapshot();
-  assert.equal(snapshot.data.file_count, 2, 'layout config plus saved legacy summary do not resolve a Run or QA report');
+  const before = readFileSync(path); const reader = createCockpitReader(f.root); const snapshot = reader.snapshot(undefined, 'legacy');
+  assert.equal(snapshot.data.file_count, 1, 'saved summary list does not resolve a Run or QA report');
   assert.equal(snapshot.data.entries[0].saved_summary.provenance_state, 'recorded');
   assert.deepEqual(readFileSync(path), before, 'read is never synchronization');
   pass('saved-only immutable scope reads exactly the Backlog and never writes');

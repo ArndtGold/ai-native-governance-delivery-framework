@@ -4,6 +4,8 @@ export const messages: Record<string, string> = {
   persisted_mismatch: 'Die gespeicherte Angabe weicht von der Core-Auswertung ab. Beide Quellen sind getrennt dargestellt; die Core-Auswertung bestimmt den Kontrollstatus.',
   control_absent: 'Für dieses Repository fehlen die Kontrolldaten. Quelle außerhalb des Cockpits einrichten und erneut laden.',
   backlog_partial: 'Einige gespeicherte Vorhaben oder Tabellen sind nicht eindeutig lesbar. Die Übersicht bestätigt keine aktuellen Run-Voraussetzungen.',
+  run_store_missing: 'Der Run-Bestand fehlt. Dies ist kein bestätigter leerer Bestand.',
+  run_inventory_incomplete: 'Der gespeicherte Run-Bestand ist eingeschränkt lesbar.',
   backlog_missing: 'Das Masterbacklog fehlt. Es wird keine Run-Liste als Ersatz geladen.',
   backlog_unsupported: 'Das Masterbacklog ist nicht als UTF-8-Text lesbar.',
   run_missing: 'Der angefragte Run wurde nicht gefunden. Die Run-ID bleibt erhalten; bewusst erneut laden.',

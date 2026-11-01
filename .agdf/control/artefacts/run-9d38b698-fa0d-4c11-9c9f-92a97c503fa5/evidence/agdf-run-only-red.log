@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: approval does not depend on absent legacy backlog
+not ok 1 - approval does not depend on absent legacy backlog
+  ---
+  duration_ms: 3279.17064
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/core/test/run-only-writer-test.js:14:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"schema_version":"1","outcome":"rejected","reason":"gate_not_ready","operation_id":"a5bb3ce2-150c-4567-95c4-52699fbeadfd","request_digest":"sha256:283d3e2d38b540a791c502a613ef61aaaffcb290bad2249393f746622c521d17","binding":{"target_id":"sha256:7547989f8be8e38e91a2886766becd989cd099a981054f185d6e7085c2fba6d8","run_id":"command-test","gate":"UR","expected_revision_id":"3f6f3276-51c3-43ef-9b0e-c0d57e2151a5","presentation_id":"c8ad1fc0-ac41-4807-b071-3256c30355c8"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"3f6f3276-51c3-43ef-9b0e-c0d57e2151a5","approval_status":"missing","lifecycle":"active","gate":"UR","status":"blocked","missing_approval":"none","next_allowed_action":"Draft the minimal UR, obtain explicit setup or link authority, then initialize and persist durable control before requesting any gate approval.","blocking_reason":"AGDF_CONTROL_FILE_MISSING"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}
+    + actual - expected
+    
+    + 'rejected'
+    - 'accepted'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'accepted'
+  actual: 'rejected'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/core/test/run-only-writer-test.js:23:14)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: approval does not depend on conflicted legacy backlog
+ok 2 - approval does not depend on conflicted legacy backlog
+  ---
+  duration_ms: 3983.652429
+  type: 'test'
+  ...
+# Subtest: approval does not depend on locked legacy backlog
+not ok 3 - approval does not depend on locked legacy backlog
+  ---
+  duration_ms: 3684.99207
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/core/test/run-only-writer-test.js:14:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"5d4c5890-a427-4ee2-abf5-35b197315f09","request_digest":"sha256:36044d69daa6f0a21fb478266c90e679bb4a2df1906d98e99ded2caf6ccaef3f","binding":{"target_id":"sha256:fa6ac197355fdff68b9575b0a7f18a949f4db0257b9643910891217af1eab626","run_id":"command-test","gate":"UR","expected_revision_id":"4886427a-8600-420d-9d94-fe2e51e49602","presentation_id":"fec80e04-950e-433c-af75-1a69375b7898"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"4886427a-8600-420d-9d94-fe2e51e49602","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}
+    + actual - expected
+    
+    + 'retryable_failure'
+    - 'accepted'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'accepted'
+  actual: 'retryable_failure'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-overview-worktree-convention/packages/core/test/run-only-writer-test.js:23:14)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 1
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11361.644578

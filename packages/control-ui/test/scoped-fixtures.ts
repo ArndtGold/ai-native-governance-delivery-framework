@@ -1,6 +1,6 @@
 import type { BacklogEntry, Detail, Envelope, Inventory, ReadingScope } from '../src/types';
 
-export const fixtureMeta = { schema_version: '1' as const, target: { target_id: 'target', display_path: '/fixture' },
+export const fixtureMeta = { schema_version: '2' as const, target: { target_id: 'target', display_path: '/fixture' },
   snapshot_id: 'snapshot', observed_as_of: '2026-10-07T08:00:00Z', source_digest: 'digest', state: 'available' as const, code: null, retryable: false };
 export function pointer(key: string, title = key): BacklogEntry {
   return { section: 'Active Backlog', key, original_key: key, title, stored_status: 'In progress', scope: 'framework-maintenance',

@@ -11,7 +11,6 @@ import { createRunFromPlanned } from '../lib/control-state/planned-handoff.js';
 import { inspectMutationClaims } from '../lib/control-state/control-layout.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { createRun } from '../lib/control-state/run-state-repository.js';
-import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
 import { previewPlannedLayout, applyPlannedLayout, recoverPlannedLayout, inspectPlannedLayoutOperation } from '../lib/control-maintenance/planned-layout.js';
 const url = path => new URL(path, import.meta.url).href;
 function killed(root, module, fn, input, phase) {
@@ -49,7 +48,7 @@ for (const phase of ['handoff_before_run_publish', 'handoff_run_committed']) tes
 for (const phase of ['migration_run_published', 'migration_config_committed']) test(`SCN-021/024: real cutover SIGKILL at ${phase} retains freeze and recovers the original bounded operation`, t => {
   const root = plannedFixture(t, []), config = join(root, '.agdf/control/config.json');
   writeFileSync(config, JSON.stringify({ ...JSON.parse(readFileSync(config, 'utf8')), control_layout: 'master-backlog-v1' }));
-  const oldBacklog = canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }).find(row => row.path.endsWith('MASTER_BACKLOG.md')).content;
+  const oldBacklog = readFileSync(new URL('../../../plugins/agdf/control/templates/MASTER_BACKLOG.md', import.meta.url), 'utf8');
   writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), oldBacklog); createRun(root, 'active');
   const path = join(root, '.agdf/control/runs/active/RUN_STATE.md'), old = readFileSync(path, 'utf8'), preview = previewPlannedLayout(root);
   const input = { operation_id: randomUUID(), preview_digest: preview.preview_digest, confirmation: preview.confirmation };

@@ -43,10 +43,10 @@ console.log(JSON.stringify({tp_digest:digest,criterion_id:'AC-001',task_id:'T-00
 const code = readFileSync(join(root, "retained-filter.mjs")), retainedTest = readFileSync(join(root, "retained-filter-test.mjs"));
 cpSync(join(root, ".agdf"), seed, { recursive: true });
 const originalRevision = f.revision(), evidence = [], observations = [], gates = ["UR", "PRD", "SD", "TP"];
-const structuredBacklogRow = readFileSync(join(root, ".agdf/control/MASTER_BACKLOG.md"), "utf8").split("\n").find(line => line.includes(`| ${f.runId} |`));
-assert.match(structuredBacklogRow, /\| CD\+Tests work pending \|/u, "persisted TP approval updates Backlog beyond Awaiting TP");
-assert.ok(structuredBacklogRow.includes("Implement the approved TP scope"), "Backlog next action follows the approved TP transition");
-assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === f.runId).record.revision_id, f.revision());
+assert.equal(existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md')), false, 'TP approval has no shared projection');
+writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), '# Legacy planning\nretained idea\n');
+// Preserve an explicitly authored old file in the reset fixture, not as a setup prerequisite.
+cpSync(join(root, '.agdf'), seed, { recursive: true });
 const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
 const tree = () => {
   const result = {};
@@ -99,8 +99,7 @@ try {
     assert.deepEqual(previewSourceRevision(root, p.input), p.preview); assert.deepEqual(tree(), before);
     const oldApproval = readApprovalOperations(old).receipts, oldBindings = readArtefactBindings(old).receipts;
     const result = applySourceRevision(root, p.input); assert.equal(result.outcome, "reopened", JSON.stringify(result)); assert.equal(result.gate, gate);
-    const recorded = readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === f.runId).record;
-    assert.equal(recorded.revision_id, result.revision_id); assert.equal(recorded.phase, gate); assert.equal(recorded.authorizes, false);
+    assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8'), '# Legacy planning\nretained idea\n', 'revision leaves retained legacy information unchanged');
     const current = f.readState().content, history = readSourceRevisions(current);
     assert.equal(history.valid, true); assert.equal(validateRevisionHistory(root, history.receipts[0]), true);
     assert.equal(runSealState(root, current).status, "valid");
@@ -200,7 +199,7 @@ try {
     assert.deepEqual(tree(), before, phase);
   }
   passed(["SCN-019"], "Faults at real intent/archive writes, file sync, publication and pre-Run rename restore exact old effective state.");
-  for (const phase of ["run_after_rename", "run_after_directory_sync", "run", "backlog_after_rename", "backlog", "retired"]) {
+  for (const phase of ["run_after_rename", "run_after_directory_sync", "run", "retired"]) {
     reset(); const p = prepare(), result = applySourceRevision(root, p.input, { afterWrite(point) { if (point === phase) throw Error("injected_fault"); } });
     assert.equal(result.outcome, "recovery_required", phase); const revision = f.revision(), before = tree();
     const inspect = inspectSourceRevision(root, p.input); assert.ok(["recovery_required", "historical"].includes(inspect.outcome)); assert.deepEqual(tree(), before);
@@ -276,8 +275,8 @@ try {
   reset(); const unsafeBacklog = prepare(), saved = readFileSync(backlog), outsideBacklog = join(temporary, "foreign-backlog.md");
   writeFileSync(outsideBacklog, saved); unlinkSync(backlog);
   try {
-    symlinkSync(outsideBacklog, backlog); const unchanged = tree(); assert.equal(applySourceRevision(root, unsafeBacklog.input).reason, "revision_path_invalid");
-    assert.deepEqual(tree(), unchanged); assert.deepEqual(readFileSync(outsideBacklog), saved);
+    symlinkSync(outsideBacklog, backlog); const unchanged = tree(); assert.equal(applySourceRevision(root, unsafeBacklog.input).outcome, "reopened");
+    assert.deepEqual(readFileSync(outsideBacklog), saved, "new revision never traverses optional legacy symlink");
   } catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; }
 
   reset(); const sealed = prepare(); assert.equal(applySourceRevision(root, sealed.input).outcome, "reopened");

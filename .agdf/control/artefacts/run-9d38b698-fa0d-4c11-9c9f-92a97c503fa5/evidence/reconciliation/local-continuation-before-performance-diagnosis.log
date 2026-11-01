@@ -1,0 +1,266 @@
+[candidate] exact continuation tree 946379eae4be404a32d2dcff514bbbbd491b985d; source index untouched
+[continuation] Reusing passed stages with unchanged inputs: maintenance, shell, build-contracts, evals, compatibility-freshness, prepare, runtime, community, host-compatibility, mcp-ergonomics, built-runtime, cli-package, wrapper-package, transactions, delivery-map, mcp-package, archives
+[continuation] CLI prefix reused: npm run release:prepare && npm run test:release-workflows && npm run test:release-registry-state && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:plugin-mcp-cockpit-variant && npm run test:claude-plugin-mcp && npm run test:claude-companion && npm run test:codex-plugin-mcp
+[continuation] Exact canonical CLI suffix: npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:claude-packaged-app-copy && npm run test:claude-install-hardening && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-command-flow && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-close && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:next-action && npm run test:late-source-revision && npm run test:intake-continuation && npm run test:prd-definition && npm run test:sd-readiness && npm run test:sd-definition && npm run test:tp-definition && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js
+[verify-ci] dependencies
+
+added 19 packages, and audited 22 packages in 3s
+
+8 packages are looking for funding
+  run `npm fund` for details
+
+1 moderate severity vulnerability
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+[verify-ci] dependencies passed (3.6s)
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 3s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (3.4s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 444 modules transformed.
+rendering chunks...
+✓ built in 334ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v2.html","mime_type":"text/html;profile=mcp-app","bytes":1258523,"digest":"sha256:1ff747df6ba66da5f76bee5728afe86a296e91efdb6a89b9ddb7c5d33aeba09d","source_digest":"sha256:5823e47e910ab8ad510003131f4a175b671454536f0c2452331a610a1febd3aa"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 262ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":954273,"digest":"sha256:70b373fdd3303c2278a6d460a53716c100965f0ef1f92bf0c439af9902ca13c2","source_digest":"sha256:5823e47e910ab8ad510003131f4a175b671454536f0c2452331a610a1febd3aa"}
+[verify-ci] ui-build passed (1.7s)
+[verify-ci] generate
+[verify-ci] generate passed (2.4s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/packages/cli",
+    "output": "/private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/packages/cli/distribution/agdf",
+    "output": "/private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.20.2",
+    "source": "/private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/packages/mcp-server",
+    "output": "/private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (1.3s)
+[verify-ci] mcp-dependencies
+
+added 15 packages, and audited 16 packages in 5s
+
+2 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] mcp-dependencies passed (5.8s)
+[verify-ci] cli-smoke (canonical remaining suffix)
+npm notice run create-agdf@0.20.2 test:mcp-server
+npm notice run npm --prefix ../mcp-server test
+npm notice run @agdf/mcp-server@0.20.2 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:run-command-flow && npm run test:protocol && npm run test:cockpit-gating && npm run test:generation && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+npm notice run @agdf/mcp-server@0.20.2 test:contract
+npm notice run node ./test/worker-build.test.js && node ./test/contract.test.js
+Compiled worker: relocation/determinism, shared descriptors/errors, fresh tamper/missing/interface refusal and both real protocols passed; synthetic only.
+AGDF MCP semantic contract tests passed.
+Public capability Transport callback/context/options/session/close/send-failure forwarding passed.
+npm notice run @agdf/mcp-server@0.20.2 test:continuation
+npm notice run node ./test/continuation.test.js
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+npm notice run @agdf/mcp-server@0.20.2 test:late-source-revision
+npm notice run node ./test/late-source-revision.test.js
+Late source revision CLI/Core/MCP parity passed (actual stdio server, synthetic fixture approvals).
+npm notice run @agdf/mcp-server@0.20.2 test:run-command-flow
+npm notice run node ./test/run-command.test.js && node ./test/project-initialization.test.js && node ./test/decision-resource.test.js && node ./test/material-recovery.test.js && node ./test/whole-flow.test.js && node ./test/verified-change-flow.test.js && node ./test/structured-flow.test.js && node ./test/revision-command.test.js && node ./test/expanded-source-revision.test.js
+Actual legacy/modern STDIO group discovery, strict confinement, canonical recording/replay/status and worker uncertainty passed; native host consent remains unqualified.
+Project initialization: actual legacy/modern STDIO discovery, setup, original status/replay and Run creation passed (synthetic, not native).
+Packaged preview: actual STDIO Core preparation/session/stateless reads and honest unsupported Chat access passed without approval.
+Exact owned generated package UI resource, private nonce, model/App discovery, unqualified enforcement, disabled groups, document bytes and teardown passed over both actual STDIO eras; native qualification remains absent.
+Actual generation loss/restaging, dropped acknowledgement, original receipt and one canonical UR effect passed (legacy).
+Actual generation loss/restaging, dropped acknowledgement, original receipt and one canonical UR effect passed (modern).
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completion with unchanged optional legacy backlog passed. No VCS command executed.
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completion with unchanged optional legacy backlog passed. No VCS command executed.
+Verified Change MCP-only control, actual Git/test, server baseline/path observation and Mini-Closeout passed (legacy).
+Verified Change MCP-only control, actual Git/test, server baseline/path observation and Mini-Closeout passed (modern).
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_slice: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_slice: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+SCN-069/074: starting UR/PRD
+SCN-069/074: passed UR/PRD
+SCN-069/074: starting UR/SD
+SCN-069/074: passed UR/SD
+SCN-069/074: starting UR/TP
+SCN-069/074: passed UR/TP
+SCN-069/074: starting UR/Brownfield Analysis
+SCN-069/074: passed UR/Brownfield Analysis
+SCN-069/074: starting UR/CD+Tests
+SCN-069/074: passed UR/CD+Tests
+SCN-069/074: starting UR/QA
+SCN-069/074: passed UR/QA
+SCN-069/074: starting UR/UAT
+SCN-069/074: passed UR/UAT
+SCN-069/074: starting PRD/SD
+SCN-069/074: passed PRD/SD
+SCN-069/074: starting PRD/TP
+SCN-069/074: passed PRD/TP
+SCN-069/074: starting PRD/Brownfield Analysis
+SCN-069/074: passed PRD/Brownfield Analysis
+SCN-069/074: starting PRD/CD+Tests
+SCN-069/074: passed PRD/CD+Tests
+SCN-069/074: starting PRD/QA
+SCN-069/074: passed PRD/QA
+SCN-069/074: starting PRD/UAT
+SCN-069/074: passed PRD/UAT
+SCN-069/074: starting SD/TP
+SCN-069/074: passed SD/TP
+SCN-069/074: starting SD/Brownfield Analysis
+SCN-069/074: passed SD/Brownfield Analysis
+SCN-069/074: starting SD/CD+Tests
+SCN-069/074: passed SD/CD+Tests
+SCN-069/074: starting SD/QA
+SCN-069/074: passed SD/QA
+SCN-069/074: starting SD/UAT
+SCN-069/074: passed SD/UAT
+SCN-069/074: starting TP/Brownfield Analysis
+SCN-069/074: passed TP/Brownfield Analysis
+SCN-069/074: starting TP/CD+Tests
+SCN-069/074: passed TP/CD+Tests
+SCN-069/074: starting TP/QA
+SCN-069/074: passed TP/QA
+SCN-069/074: starting TP/UAT
+SCN-069/074: passed TP/UAT
+SCN-069/074: all 22 selected source/phase cells passed through actual generated CLI command adapter and owned STDIO MCP: identical read-only preview, canonical receipt/history, QA withdrawal and cross-adapter replay. Synthetic disposable decisions only; no native host proof.
+npm notice run @agdf/mcp-server@0.20.2 test:protocol
+npm notice run node ./test/defaulted-inputs.test.js && node ./test/protocol.test.js && node ./test/skill-names.test.js && node ./test/tool-errors.test.js && node ./test/doctor-observation.test.js
+Defaulted MCP inputs: both SDK eras, discovery, read/write/replay, invalid config and authority negatives passed.
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+CLI/MCP host skill name parity passed
+MCP error contract: both protocol eras, seven actual owned stdio tool families, typed worker parse, independent error validation, safe faults and bounded fallback passed.
+Owned STDIO doctor: both protocols, absent control plus complete 0/1/10/100 inventories, exact finding parity, foreign/order/mutation failures and invalid-entry accounting passed.
+npm notice run @agdf/mcp-server@0.20.2 test:cockpit-gating
+npm notice run node ./test/cockpit-gating.test.js
+AGDF cockpit UI capability gating tests passed (2025-11-25 and 2026-07-28).
+npm notice run @agdf/mcp-server@0.20.2 test:generation
+npm notice run node ./test/owner-thread.test.js && node ./test/startup.test.js && node ./test/generation.test.js
+owner-protocol: pass
+owner-claims: genuine Worker binding, one lifetime, actual successful exit plus acknowledgement pass
+owner-threads: both actual STDIO protocols and independent claim teardown pass
+{"role":"facade","transport_failure":"Connection closed; server stderr: AGDF_MCP_PLUGIN_RUNTIME_FAILED: facade phase: the AGDF MCP runtime could not be started. Reinstall the AGDF plugin and restart."}
+{"test":"owner-fault","role":"facade","original_operation_id":"b8ad20e8-4710-4bf8-8c41-f26c8ec1d8e3","retained_claims":1,"actual_exit":17,"unique_effect":true,"protected_lock":false,"native_qualified":false}
+{"test":"owner-fault","role":"generation","original_operation_id":"fdb1cc06-ba4e-4ae3-a939-9b5f07779974","retained_claims":2,"actual_exit":17,"unique_effect":false,"protected_lock":true,"native_qualified":false}
+owner-boundary: real facade Worker rejects stale/unknown/extra/non-JSON/oversized frames before extra execution
+owner-pressure: real owned STDIO survives a paused reader with complete unique MCP replies and acknowledged exit
+owner-deadline: genuine unresolved write stays protected, validated late reply/original receipt and actual exits permit retirement
+Actual startup generation qualification before facade SDK availability passed; synthetic only.
+Actual startup transport failure before service with generation teardown passed; synthetic only.
+Actual owner bootstrap overlap and qualification before facade start passed.
+Actual owner bootstrap overlap and source refusal without facade/claims passed.
+Actual fresh inspection parity/marker drift and late SDK mutation refusal before transport import passed.
+Actual owned child IPC, exact manifest qualification, three live-view slots, original-view routing, capacity refusal, control replay/conflict and acknowledged real-exit retirement passed; synthetic host only.
+npm notice run @agdf/mcp-server@0.20.2 test:safety
+npm notice run node ./test/safety.test.js && node ./test/worker-lock-release.test.js && node ./test/worker-deadline.test.js
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+Abandoned-worker lock release passed: unconfirmed and late exit, hung worker, drained messages, release failure, real terminated thread and foreign lock.
+TAP version 13
+# Subtest: timeout leaves time for asynchronous termination within the original deadline
+ok 1 - timeout leaves time for asynchronous termination within the original deadline
+  ---
+  duration_ms: 793.560194
+  type: 'test'
+  ...
+# Subtest: an actual exit confirms cancellation even when terminate rejects
+ok 2 - an actual exit confirms cancellation even when terminate rejects
+  ---
+  duration_ms: 26.084615
+  type: 'test'
+  ...
+# Subtest: unconfirmed termination retains the typed timeout and last safe phase
+ok 3 - unconfirmed termination retains the typed timeout and last safe phase
+  ---
+  duration_ms: 101.097506
+  type: 'test'
+  ...
+# Subtest: failed result cleanup never treats result content as a typed failure cause
+ok 4 - failed result cleanup never treats result content as a typed failure cause
+  ---
+  duration_ms: 102.641949
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1035.437093
+npm notice run @agdf/mcp-server@0.20.2 test:provenance
+npm notice run node ./test/provenance.test.js
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+Git observation provider tamper rejection and historical facade digest compatibility passed.
+Both shared headless/optional UI protocol producers are covered by owned provenance.
+npm notice run @agdf/mcp-server@0.20.2 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"fixture":{"control":"hermetic","control_runs":["agdf-mcp-dispatch-server"],"control_files":31,"control_bytes":804412},"cold_tools_list_ms":[2409.462,1543.729,1520.415,1558.793,1709.282,2379.791,1577.585,1480.248,1473,1489.465,1484.257,1477.457,1478.457,1493.714,1465.087,1561.187,1483.277,1478.227,1487.068,1497.428],"cold_p95_ms":2379.791,"cold_phases":[{"sample":1,"initialization_ms":2396.780185,"tools_list_ms":12.681505000000016,"load_before":[5.74560546875,6.81787109375,8.75830078125],"load_after":[6.005859375,6.85400390625,8.75927734375],"system_cpu_idle_percent":1.9730010384215992},{"sample":2,"initialization_ms":1535.133376,"tools_list_ms":8.595190000000002,"load_before":[6.005859375,6.85400390625,8.75927734375],"load_after":[6.005859375,6.85400390625,8.75927734375],"system_cpu_idle_percent":20.8130081300813},{"sample":3,"initialization_ms":1512.728553,"tools_list_ms":7.686245000000099,"load_before":[6.005859375,6.85400390625,8.75927734375],"load_after":[6.005859375,6.85400390625,8.75927734375],"system_cpu_idle_percent":15.321252059308073},{"sample":4,"initialization_ms":1551.497057,"tools_list_ms":7.2955930000000535,"load_before":[6.005859375,6.85400390625,8.75927734375],"load_after":[5.60498046875,6.75634765625,8.71337890625],"system_cpu_idle_percent":22.990353697749196},{"sample":5,"initialization_ms":1700.148295,"tools_list_ms":9.134011999999984,"load_before":[5.60498046875,6.75634765625,8.71337890625],"load_after":[5.60498046875,6.75634765625,8.71337890625],"system_cpu_idle_percent":13.069016152716593},{"sample":6,"initialization_ms":2372.304106,"tools_list_ms":7.487054000000171,"load_before":[5.60498046875,6.75634765625,8.71337890625],"load_after":[9.31982421875,7.50732421875,8.966796875],"system_cpu_idle_percent":1.8907563025210083},{"sample":7,"initialization_ms":1570.385251,"tools_list_ms":7.200046000000157,"load_before":[9.31982421875,7.50732421875,8.966796875],"load_after":[9.31982421875,7.50732421875,8.966796875],"system_cpu_idle_percent":20},{"sample":8,"initialization_ms":1473.611681,"tools_list_ms":6.636794000000009,"load_before":[9.31982421875,7.50732421875,8.966796875],"load_after":[9.31982421875,7.50732421875,8.966796875],"system_cpu_idle_percent":23.389830508474578},{"sample":9,"initialization_ms":1466.737802,"tools_list_ms":6.262132999999949,"load_before":[9.31982421875,7.50732421875,8.966796875],"load_after":[8.8935546875,7.44873046875,8.9375],"system_cpu_idle_percent":31.1864406779661},{"sample":10,"initialization_ms":1483.277658,"tools_list_ms":6.187445000000025,"load_before":[8.8935546875,7.44873046875,8.9375],"load_after":[8.8935546875,7.44873046875,8.9375],"system_cpu_idle_percent":13.949579831932773},{"sample":11,"initialization_ms":1477.818585,"tools_list_ms":6.4388759999999365,"load_before":[8.8935546875,7.44873046875,8.9375],"load_after":[8.8935546875,7.44873046875,8.9375],"system_cpu_idle_percent":22.053872053872055},{"sample":12,"initialization_ms":1471.526004,"tools_list_ms":5.931192999999894,"load_before":[8.8935546875,7.44873046875,8.9375],"load_after":[8.8935546875,7.44873046875,8.9375],"system_cpu_idle_percent":32.14890016920474},{"sample":13,"initialization_ms":1472.455849,"tools_list_ms":6.001543000000083,"load_before":[8.8935546875,7.44873046875,8.9375],"load_after":[8.34130859375,7.35791015625,8.896484375],"system_cpu_idle_percent":29.661016949152543},{"sample":14,"initialization_ms":1487.58881,"tools_list_ms":6.125046000000111,"load_before":[8.34130859375,7.35791015625,8.896484375],"load_after":[8.34130859375,7.35791015625,8.896484375],"system_cpu_idle_percent":17.224080267558527},{"sample":15,"initialization_ms":1459.459038,"tools_list_ms":5.628077000000076,"load_before":[8.34130859375,7.35791015625,8.896484375],"load_after":[8.34130859375,7.35791015625,8.896484375],"system_cpu_idle_percent":31.28205128205128},{"sample":16,"initialization_ms":1555.26503,"tools_list_ms":5.922256000000061,"load_before":[8.34130859375,7.35791015625,8.896484375],"load_after":[8.39404296875,7.384765625,8.89697265625],"system_cpu_idle_percent":4.647435897435898},{"sample":17,"initialization_ms":1476.979208,"tools_list_ms":6.297453000000132,"load_before":[8.39404296875,7.384765625,8.89697265625],"load_after":[8.39404296875,7.384765625,8.89697265625],"system_cpu_idle_percent":17.200674536256322},{"sample":18,"initialization_ms":1472.268554,"tools_list_ms":5.958401999999978,"load_before":[8.39404296875,7.384765625,8.89697265625],"load_after":[8.39404296875,7.384765625,8.89697265625],"system_cpu_idle_percent":22.504230118443317},{"sample":19,"initialization_ms":1481.062135,"tools_list_ms":6.006125000000111,"load_before":[8.39404296875,7.384765625,8.89697265625],"load_after":[8.1220703125,7.3447265625,8.8740234375],"system_cpu_idle_percent":18.21247892074199},{"sample":20,"initialization_ms":1491.230995,"tools_list_ms":6.197019000000182,"load_before":[8.1220703125,7.3447265625,8.8740234375],"load_after":[8.1220703125,7.3447265625,8.8740234375],"system_cpu_idle_percent":19.467554076539102}],"warm_dispatch_ms":[408.359,340.601,337.784,338.978,343.851,347.664,337.941,339.525,340.101,382.533,861.183,380.522,369.543,353.621,449.178,383.12,375.726,444.559,493.919,951.484],"warm_p95_ms":861.183}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 2379.79116
+    at file:///private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/packages/mcp-server/test/performance.test.js:77:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+Error: Verification failed at cli-smoke: npm --prefix packages/cli run test:mcp-server (1)
+    at executeVerificationPlan (file:///private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/scripts/verify-ci.mjs:70:38)
+    at file:///private/tmp/agdf-reconciled-continuation-fxi5A4/checkout/[eval1]:1:1483
+Error: Ordered continuation failed: 1
+    at file:///private/tmp/agdf-verify-reconciled-mcp-continuation.mjs:23:64
+[candidate] real source index preserved

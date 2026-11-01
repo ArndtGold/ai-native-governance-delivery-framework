@@ -1,3 +1,4 @@
+import { RUN_ID_PATTERN } from '../control-state/run-identity.js';
 // One wire-schema owner for the bounded cockpit connection. No filesystem selectors.
 import { COCKPIT_UI_URI } from '../mcp-resource-contract.js';
 import { READ_SESSION_CAPACITY } from '../control-read/cockpit-pool.js';
@@ -6,13 +7,13 @@ export const COCKPIT_MIME = 'text/html;profile=mcp-app';
 export const COCKPIT_LIMITS = Object.freeze({ html: 4 * 1024 ** 2, idle: 30 * 60_000, lifetime: 8 * 60 * 60_000,
   sessions: READ_SESSION_CAPACITY, capture: 64 * 1024 ** 2, workerOldGeneration: 256 });
 const id = { type: 'string', format: 'uuid' };
-const run = { type: 'string', pattern: '^[A-Za-z0-9_-]{1,128}$' };
+const run = { type: 'string', pattern: RUN_ID_PATTERN.source };
 function operation(name, fields = {}, optional = []) {
   const properties = { operation: { const: name }, session_id: id, ...fields };
   return { type: 'object', additionalProperties: false, properties, required: Object.keys(properties).filter(key => !optional.includes(key)) };
 }
 export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
-  operation('snapshot', { run_id: run }, ['run_id']),
+  operation('snapshot', { run_id: run, view: { type: 'string', enum: ['runs', 'legacy'] } }, ['run_id', 'view']),
   operation('backlog_titles', { snapshot_id: id, row_ids: { type: 'array', minItems: 1, maxItems: 12, uniqueItems: true, items: id } }),
   operation('run', { snapshot_id: id, run_id: run }),
   operation('artifact_readiness', { snapshot_id: id, run_id: run, gate: { type: 'string', enum: ['UR', 'PRD', 'SD', 'TP'] }, expected_revision_id: id }),
@@ -73,6 +74,7 @@ export function parseCockpitArguments(value, render = false) {
     if (typeof value.run_id !== 'string' || !new RegExp(run.pattern).test(value.run_id)) return reject();
     return { run_id: value.run_id };
   }
+  if (value.operation === 'snapshot' && Object.hasOwn(value, 'run_id') && Object.hasOwn(value, 'view')) return reject();
   const branch = COCKPIT_READ_SCHEMA.oneOf.find(row => row.properties.operation.const === value.operation);
   if (!branch || Object.keys(value).some(key => !Object.hasOwn(branch.properties, key)) || branch.required.some(key => !Object.hasOwn(value, key))) return reject();
   const valid = (item, rule) => {

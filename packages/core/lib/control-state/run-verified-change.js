@@ -10,7 +10,7 @@ import { closeoutConfirmation, closeoutContextDigest } from '../control-evaluati
 // These exact transient paths belong to the locks/journal of the active recording
 // owner. Caller paths, foreign locks and arbitrary suffixes are never ignored.
 export function ownedRecordingGitObservation(observation, runId) {
-  const transient = new Set([`.agdf/control/runs/${runId}/RUN_STATE.md.lock`, '.agdf/control/MASTER_BACKLOG.md.lock',
+  const transient = new Set([`.agdf/control/runs/${runId}/RUN_STATE.md.lock`,
     `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`]);
   return { gitValue: observation?.gitValue, gitPathList(root, args) {
     return observation?.gitPathList?.(root, args)?.filter(p => !transient.has(p)) ?? null;
@@ -23,7 +23,7 @@ const scalar = (text, key, value) => {
   return replaceFirstScalar(text, key, value);
 };
 
-// Domain preparation inside the existing Run/backlog transaction owner. Core
+// Domain preparation inside the existing Run transaction owner. Core
 // still evaluates the same compact eligibility rules as the CLI.
 export function prepareVerifiedChangeRecording(root, run, control, before, input, source, gitObservation) {
   const phase = input.step === 'closeout' ? 'closeout' : input.phase;

@@ -101,8 +101,8 @@ try {
 
   const result = applyRunRecovery(root, { runId, previewId: preview.preview_id, confirmation: preview.confirmation });
   assert.equal(result.outcome, "recovered");
-  assert.equal(result.backlog, "pending"); assert.equal(result.backlog_reason, "run_only_recovery");
-  assert.ok(result.backlog_next_action.includes(`--run ${runId} --revision ${result.revision_id}`));
+  assert.equal(result.backlog, "not_required");
+  assert.equal(result.backlog_next_action, undefined);
   assert.equal(result.revision, "2");
   assert.equal(result.seal_status, "valid");
   assert.equal(result.next_gate, "UR");

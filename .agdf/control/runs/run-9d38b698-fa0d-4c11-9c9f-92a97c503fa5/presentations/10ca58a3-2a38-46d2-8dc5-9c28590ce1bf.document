@@ -1,0 +1,30 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Parallel delivery without central backlog conflicts
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Unabhängige Runs sollen ohne verpflichtende gemeinsame Backlog-Pflege bearbeitbar und im Cockpit direkt auffindbar sein. Dazu kommt die einheitliche Regel für neu gewählte Arbeits-Worktrees unter .agdf/worktrees/ des zugehörigen Haupt-Checkouts.
+- Umfang: Beide Cockpit-Ansichten verwenden das bestehende Run-Inventar mit Aktiv/Historie, Statusklassen, Aktivität und Titeln. Die Liste zeigt gespeicherte Orientierung; erst das gezielte Öffnen prüft einen Run aktuell. Normale Run-Operationen schreiben und sperren das Masterbacklog nicht mehr verpflichtend. Alte Planungs-/Historienangaben bleiben getrennt und nur lesend zugänglich. Vorhandene Worktrees bleiben erhalten; Automatisierung ihrer Verwaltung gehört nicht dazu.
+- AC-001: Kompakte und große Übersicht zeigen denselben Run-Bestand auch ohne Masterbacklog; neue Runs sind direkt auffindbar, fehlerhafte Einträge bleiben als Diagnose berücksichtigt.
+- AC-002: Sortierung folgt den bestehenden Aufmerksamkeitsklassen, danach Aktivität und Run-ID. Suche über angezeigten Inventartitel, ID und Status bleibt stabil; Teilabdeckung, Titelrückfall und Zähler sind erkennbar.
+- AC-003: Gespeicherter Listenstand, aktuelle Einzelprüfung und Integrität bleiben getrennt. Veraltete Auswahl, fehlender Run, Sitzungsablauf und Ladefehler haben sichere Rückkehr sowie sichtbare Wiederholung oder Neuverbindung.
+- AC-004: Das vorhandene Backlog bleibt als optionaler Altbestand mit ursprünglichen Angaben und Quellen lesbar. Seine Fehler blockieren weder Runs noch deren Übersicht; es entstehen keine erfundenen Runs, Freigaben oder automatischen Migrationen.
+- AC-005: Erstellung, Erfassung, Freigaben, Updates, interne Fortsetzung und Abschluss funktionieren ohne verpflichtende gemeinsame Backlog-Schreibzugriffe oder dafür erforderliche Sperren. Zwei unabhängige Runs brauchen keine Änderungen an dieser Sammeldatei.
+- AC-006: Revisionen, Run-Sperren, exakte Freigaben, Quellbindungen, Wiederholung und historische Nachweise bleiben geschützt. Eine bereits gespeicherte alte Transaktion darf ihre Backlog-Pflicht nur über die vorhandene ausdrückliche Recovery beenden.
+- AC-007: Neu gewählte AGDF-Arbeits-Worktrees liegen im ignorierten Ordner .agdf/worktrees/VORHABEN/ des zuständigen Haupt-Checkouts. Zugeordnete Worktrees werden wiederverwendet; alte Orte und ausdrücklich gewünschte Ausnahmen bleiben möglich. Keine automatische Verwaltung und keine behauptete Sperre zwischen Checkouts.
+- AC-008: Regeln, Einrichtung, Vorlagen, Core, Transporte, betroffene Paketprojektionen und Dokumentation werden konsistent umgestellt. Gemeinsame bestehende Owner bleiben maßgeblich; Kompatibilität, Versionsübergang und Rückweg müssen vor Umsetzung im SD entschieden sein.
+- AC-009: Der parallele CI-Fix mit Branch, Index, Dateien, Baselines, Workflows und Prozessen bleibt unangetastet. Gezielte Prüfungen, verpflichtende Integrationschecks und optionale Volltests bleiben getrennt; vor Integration wird dessen fertiger Stand berücksichtigt. Sichtbare und native Nachweise werden nicht aus Quelltests abgeleitet.
+- Entscheidungen: Diese PRD schlägt Aktiv/Historie aus gespeicherten Runs, die bestehende Inventarsortierung, getrennten optionalen Altbestand und die Worktree-Regel einschließlich Bestandsschutz/Ausnahmen vor. Das Produktverhalten ist in dieser Fassung festgelegt; deine PRD-Freigabe nimmt es an. Technische Lese-, Transaktions-, Recovery-, Versions- und Rückwegdetails gehören ins SD, die konkrete Prüfmatrix ins TP. PRD-Owner ist Arndt Gold. Veröffentlichung, Neuinstallation und Git-Aktionen bleiben separat; Umsetzung folgt erst nach den erforderlichen SD-/TP-Freigaben.
+- Risiken: Versteckte Backlog-Abhängigkeiten, alte Recovery-Journale und zu breite Listenprüfungen müssen gezielt behandelt werden. Die spätere Abnahme verlangt tatsächliche lesbare schmale/breite Darstellung und klare Fehler-/Wiederholungsszenarien. Der fertiggestellte Vorlagenfix ist Voraussetzung der Planung, keine Umsetzungsevidenz dieser neuen Funktion.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5` · Produktanforderungen · Revision: `f177a967-1fd3-4c9b-873e-860246fc6978`
+
+SHA-256: `sha256:f07e94c8b4f1580749794e3e3ef129aef42d387c14465aefb01f88ac24a0d057`

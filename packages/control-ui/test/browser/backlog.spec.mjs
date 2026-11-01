@@ -8,7 +8,7 @@ function storedBacklog(planned = true) {
   return '# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Unterlagen schneller zuordnen | In progress | | UR | Quellen prüfen und den nächsten Arbeitsschritt anhand der bestätigten Voraussetzungen vorbereiten. |\n\n## Planned / Parking Lot\n' + (planned ? '| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 2 | planned-a | Beratung vorbereiten | Needs UR | | | Umfang klären. |\n' : 'Nicht auswertbare Tabelle.\n') + '\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n| fixture-completed | Frühere Umsetzung | Completed | none | Ergebnis dokumentiert. |\n| superseded-a | Abgelöstes Vorhaben | Superseded | none | Durch ein neues Vorhaben ersetzt. |\n';
 }
 async function overview(page, service) {
-  await page.goto(service.startupURL);
+  await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Aktiv 1', exact: true })).toBeVisible();
 }
 test('supplementary title batches keep the expanded list and controls still while scrolling', async ({ page }) => {
@@ -31,7 +31,7 @@ test('supplementary title batches keep the expanded list and controls still whil
   });
   try {
     await page.setViewportSize({ width: 800, height: 1000 });
-    await page.goto(service.startupURL);
+    await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
     await expect(page.locator('.undertaking-list > li')).toHaveCount(40);
     await expect.poll(() => batches).toBeGreaterThan(0);
     await expect(page.getByText('Ergänzende Überschriften sichtbarer Vorhaben werden geladen.')).toHaveCount(0);
@@ -90,12 +90,12 @@ test('backlog areas filter stored entries locally, keep search on return, and ma
     await page.getByRole('button', { name: 'Geplant 1' }).focus(); await page.keyboard.press('Enter');
     await expect(page.getByRole('button', { name: 'Beratung vorbereiten' })).toBeVisible();
     await page.getByRole('searchbox').fill('kein Treffer');
-    await expect(page.getByText('Keine gespeicherten Vorhaben für diese Suche.')).toBeVisible();
+    await expect(page.getByText('Keine lesbaren Treffer. Der Bestand ist eingeschränkt; weitere Vorhaben können fehlen.')).toBeVisible();
     await page.getByRole('button', { name: 'Archiv 2' }).click();
     await expect(page.getByRole('searchbox')).toHaveValue('');
     await expect(page.getByText('Ergebnis laut Backlog: Durch ein neues Vorhaben ersetzt.')).toBeVisible();
     await expect(page.locator('.row-source[open]')).toHaveCount(0);
-    expect(requests.filter(p => !p.startsWith('/api/freshness') && !p.startsWith('/api/changes') && !p.startsWith('/api/backlog-titles'))).toEqual(['/api/snapshot']);
+    expect(requests.filter(p => !p.startsWith('/api/freshness') && !p.startsWith('/api/changes') && !p.startsWith('/api/backlog-titles'))).toEqual(['/api/snapshot', '/api/snapshot?view=legacy']);
     expect(requests.filter(p => p.startsWith('/api/backlog-titles')).every(path => new URL('http://local'+path).searchParams.get('rows').split(',').length <= 12)).toBe(true);
     await page.getByRole('searchbox').fill('fixture-completed');
     await page.getByRole('button', { name: 'Frühere Umsetzung' }).click();
@@ -121,7 +121,7 @@ test('a malformed planned section does not turn its count into zero or obscure r
     await expect(page.locator('.notice')).not.toHaveAttribute('open');
   } finally { await service.close(); expect(treeBytes(f.root)).toEqual(before); f.close(); }
 });
-test('SCN-008/009/011/012/013: compact active three-preview, full search, long wrapped rows and exact expanded return',async({page})=>{
+test('SCN-008/009/011/012/013: compact full legacy list, search, long wrapped rows and exact expanded return',async({page})=>{
  const f=fixture(),path=join(f.root,'.agdf/control/MASTER_BACKLOG.md');
  const title='Unterlagen schneller finden und vollständig vergleichen mit nachvollziehbarer Quellenherkunft '+ 'Langtitel'.repeat(10);
  const step='Nächsten Schritt vollständig prüfen '+ 'Einzelheit '.repeat(30)+'ENTSCHEIDENDER SCHLUSS';
@@ -131,25 +131,25 @@ test('SCN-008/009/011/012/013: compact active three-preview, full search, long w
  const requests=[];page.on('request',r=>{const u=new URL(r.url());if(u.pathname.startsWith('/api/'))requests.push(u.pathname+u.search);});
  try{
   await page.addInitScript(({secret,origin})=>{if(location.origin===origin)history.replaceState(null,'','/card.html#'+secret);},{secret:service.secret,origin:service.origin});
-  await page.goto(service.origin+'/card.html');
-  await expect(page.locator('.undertaking-list > li')).toHaveCount(3);
-  await expect(page.getByRole('heading',{name:'Aktive Vorhaben im Repository'})).toBeVisible();
-  await expect(page.locator('.compact-controls > p').first()).toHaveText(f.root.split(/[\\/]/).at(-1));
-  await expect(page.getByText('8 Einträge · 3 angezeigt')).toBeVisible();
+  await page.goto(service.origin+'/card.html'); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
+  await expect(page.locator('.undertaking-list > li')).toHaveCount(8);
+  await expect(page.getByRole('button',{name:/^Aktiv 8/})).toBeVisible();
+  await expect(page.locator('.compact-cockpit')).toContainText(f.root.split(/[\\/]/).at(-1));
+  await expect(page.getByText('8 lesbare Einträge · Eingeschränkt', {exact:true})).toBeVisible();
   expect(await page.locator('.undertaking-list h3').first().textContent()).toBe(title+' 7');
   await expect(page.getByText('Gespeicherter Stand laut Backlog: Completed',{exact:true})).toBeVisible();
   await expect(page.getByRole('combobox')).toHaveCount(0);await expect(page.getByRole('button',{name:'Beratung vorbereiten'})).toHaveCount(0);
-  await expect(page.locator('.compact-controls .row-step')).toHaveCount(3);
-  await expect(page.locator('.compact-controls .row-step').first()).toContainText('ENTSCHEIDENDER SCHLUSS');
-  await expect(page.locator('.compact-controls .undertaking-list')).toHaveCSS('overflow-y','visible');
-  await expect(page.locator('.compact-controls .undertaking-list')).toHaveCSS('max-height','none');
+  await expect(page.locator('.compact-cockpit .row-step')).toHaveCount(8);
+  await expect(page.locator('.compact-cockpit .row-step').first()).toContainText('ENTSCHEIDENDER SCHLUSS');
+  await expect(page.locator('.compact-cockpit .undertaking-list')).toHaveCSS('overflow-y','visible');
+  await expect(page.locator('.compact-cockpit .undertaking-list')).toHaveCSS('max-height','none');
   for(const theme of ['light','dark'])for(const width of [320,560,800,1280]){
    await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);await page.setViewportSize({width,height:1000});
    await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
    const geometry=await page.locator('.undertaking-list .run-link, .undertaking-list summary').evaluateAll(elements=>elements.map(e=>({height:e.getBoundingClientRect().height,width:e.getBoundingClientRect().width,scroll:e.scrollWidth,client:e.clientWidth,whiteSpace:getComputedStyle(e).whiteSpace,clamp:getComputedStyle(e).webkitLineClamp})));
    expect(geometry.every(g=>g.height>=44&&g.scroll<=g.client+1)).toBe(true);
    expect(geometry.filter((_,i)=>i%2===0).every(g=>g.whiteSpace==='normal'&&g.clamp==='none')).toBe(true);
-   await page.locator('.undertaking-list .run-link').first().focus();await expect(page.locator('.undertaking-list .run-link').first()).toBeFocused();
+   await page.locator('.undertaking-list summary').first().focus();await expect(page.locator('.undertaking-list summary').first()).toBeFocused();
    await page.screenshot({path:evidencePath(`cockpit-core-ui-compact-${theme}-${width}.png`),fullPage:true});
   }
   await page.locator('.undertaking-list > li').first().locator('summary').click();

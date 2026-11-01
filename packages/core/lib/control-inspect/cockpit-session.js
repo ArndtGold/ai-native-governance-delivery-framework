@@ -16,7 +16,7 @@ export function createCockpitSessionService(root, {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const sessions = new Map();
   let closed = false, renderGeneration = 0, publication = null;
-  const failure = (code, viewTarget = target) => ({ schema_version: '1', target: viewTarget, snapshot_id: null, observed_as_of: null,
+  const failure = (code, viewTarget = target) => ({ schema_version: '2', target: viewTarget, snapshot_id: null, observed_as_of: null,
     source_digest: null, state: 'blocked', code, retryable: code !== 'session_expired', data: null, authorizes: false });
   function losePublication(session) {
     if (publication?.session_id !== session.id) return;

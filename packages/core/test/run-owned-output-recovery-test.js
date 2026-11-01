@@ -17,6 +17,8 @@ const temporary = mkdtempSync(join(tmpdir(), 'agdf-v3-recovery-')), root = join(
 const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
 try {
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
+  const backlogPath = join(root, '.agdf/control/MASTER_BACKLOG.md'), legacyBacklog = '# Legacy planning\nExisting reference.\n';
+  writeFileSync(backlogPath, legacyBacklog);
   const f = createLateSourceRevisionTestRun(root, cli), seed = join(temporary, 'seed');
   const source = { path: f.prefix + 'CD_CANDIDATE.md', digest: null }; writeFileSync(join(root, source.path), '# CD+Tests\n- decision: pass\nSynthetic executed checks.\n'); source.digest = artefactFileDigest(root, source.path);
   const input = { runId: f.runId, revisionId: f.revision(), step: 'internal', internalStep: 'CD+Tests', sourceBinding: source, decision: 'pass' };
@@ -32,11 +34,14 @@ try {
   const pending = join(root, `.agdf/control/runs/${f.runId}/RUN_STEP_PENDING.json`), output = join(root, f.prefix + 'CD_TESTS.md');
   const atomicStages = ['temp_opened', 'temp_written', 'after_file_sync', 'before_rename', 'after_rename', 'after_directory_sync'];
   const stages = [...atomicStages.map(stage => 'intent_' + stage), 'intent', ...atomicStages.map(stage => 'output_' + stage), 'output',
-    ...atomicStages.map(stage => 'run_' + stage), 'run', ...atomicStages.map(stage => 'backlog_' + stage), 'backlog', 'retired'];
+    ...atomicStages.map(stage => 'run_' + stage), 'run', 'retired'];
   for (const stage of stages) {
     reset(); const old = readFileSync(f.state, 'utf8'), result = worker(stage); assert.equal(result.status, 71, stage + ': ' + result.stderr + result.stdout);
     const beforeIntent = ['intent_temp_opened', 'intent_temp_written', 'intent_after_file_sync', 'intent_before_rename'].includes(stage);
-    if (stage !== 'retired' && !beforeIntent) assert.equal(readPendingRunStepJournal(root, f.runId).schema_version, 3);
+    if (stage !== 'retired' && !beforeIntent) {
+      const journal = readPendingRunStepJournal(root, f.runId);
+      assert.equal(journal.schema_version, 3); assert.equal(journal.backlog, null);
+    }
     const recovery = recoverPendingRunStep(root, f.runId);
     const beforeCommit = stage.startsWith('intent') || stage.startsWith('output') || ['run_temp_opened', 'run_temp_written', 'run_after_file_sync', 'run_before_rename'].includes(stage);
     assert.equal(recovery.status, stage === 'retired' || beforeIntent ? 'none' : beforeCommit ? 'rolled_back' : 'completed', stage);
@@ -48,6 +53,7 @@ try {
       assert.equal(readFileSync(f.state, 'utf8'), state); assert.equal(existsSync(output), true);
     }
     assert.equal(existsSync(pending), false, stage);
+    assert.equal(readFileSync(backlogPath, 'utf8'), legacyBacklog, stage);
   }
   reset(); assert.equal(worker('output_after_rename').status, 71); writeFileSync(output, '# Foreign interference\n');
   const oldRun = readFileSync(f.state, 'utf8'), oldPending = readFileSync(pending, 'utf8');

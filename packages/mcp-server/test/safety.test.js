@@ -280,7 +280,7 @@ try {
   mkdirSync(join(escapedTarget, ".agdf", "control"), { recursive: true });
   const outside = join(outsideRoot, "outside-secret.txt");
   writeFileSync(outside, "MCP_BOUNDARY_SECRET");
-  if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "MASTER_BACKLOG.md"), "mcp-safety-test")) {
+  if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "SOT_REGISTRY.md"), "mcp-safety-test")) {
     const owned = createOwnedRuntimeFixture({ controlRuns: [] });
     const { createMcpDispatchRuntime: ownedFactory } = await import(pathToFileURL(join(owned.dispatcherRoot, 'lib/mcp-dispatch-runtime.js')));
     const inspecting = ownedFactory({ surface: 'codex' });

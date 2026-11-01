@@ -23,7 +23,7 @@ import { recordRunStep, recordRunPresentationDecision } from './run-steps.js';
 import { inspectRunOperation } from './run-operation-status.js';
 import { readOperationSource } from './run-operation-proof.js';
 import { pendingRunStepIds, pendingRunStepPath } from './run-step-pending.js';
-import { readPendingRunStepJournal, recoverPendingRunStepLocked } from './run-step-transaction.js';
+import { readPendingRunStepJournal, recoverPendingRunStepLocked, pendingRunStepConflictIds, withRunStepRecoveryLock } from './run-step-transaction.js';
 import { previewSourceRevision, applySourceRevision, recoverSourceRevision, reopenPrdRevision } from './run-revision.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { parseRunState } from './run-state-parser.js';
@@ -58,8 +58,8 @@ export function observeCurrentRunCommand(root, input, gitObservation) {
 function boundedRecover(root, input) {
   const payload = input.command.payload, path = runPath(root, input.run_id);
   assertCommandRunPath(root, input);
-  return withOwnedFileLock(path, () => withOwnedFileLock(join(root, '.agdf/control/MASTER_BACKLOG.md'), () => {
-    const other = pendingRunStepIds(root).find(id => id !== input.run_id);
+  return withRunStepRecoveryLock(root, input.run_id, () => {
+    const other = pendingRunStepConflictIds(root, input.run_id).find(id => id !== input.run_id);
     if (other) return { outcome: 'recovery_required', reason: 'another_pending_operation', pending_run_id: other };
     if (!existsSync(pendingRunStepPath(root, input.run_id))) {
       const observed = safeOperationStatus(root, input);
@@ -78,7 +78,7 @@ function boundedRecover(root, input) {
     const parsed = parseRunState(raw, input.run_id);
     if (!parsed.valid || parsed.meta.revision_id !== input.expected_revision_id) return { outcome: 'rejected', reason: 'stale_revision' };
     return { outcome: 'recovered', ...recoverPendingRunStepLocked(root, input.run_id) };
-  }));
+  });
 }
 
 // Fixed permission groups; adapters share this service. Test seams are private.

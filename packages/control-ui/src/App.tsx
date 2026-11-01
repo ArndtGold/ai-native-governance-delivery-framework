@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState } from 'react';
 import { createApi, type ReadTransport } from './api';
 import { initialState, readingReducer, hasExpiredSession } from './state';
-import type { Inventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
+import type { Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
 import { ReadState, ReadingFeedback, readingStatus } from './feedback';
 import { Overview, type BacklogView } from './Overview';
 import { RunDetail } from './RunDetail';
@@ -24,8 +24,9 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const enabled = !!transport || !!secret;
   const [state, dispatch] = useReducer(readingReducer, initialState);
   const [readerMode, setReaderMode] = useState<'summary' | 'details'>('summary');
-  const [backlogView, setBacklogView] = useState<BacklogView>({ section: 'Active Backlog', filter: '' });
+  const [backlogView, setBacklogView] = useState<BacklogView>({ section: 'active', filter: '' });
   const [backlogReturnNotice, setBacklogReturnNotice] = useState<string | null>(null);
+  const overviewLegacy = useRef(false);
   const [titleEpoch, setTitleEpoch] = useState(0);
   const titleStore = useRef(createBacklogTitleStore());
   const titlePending = useRef<AbortController | null>(null), freshnessPending = useRef<AbortController | null>(null);
@@ -65,15 +66,9 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     + ':' + (element.querySelector('summary')?.textContent?.replace(/ · \d+$/, '') ?? '');
   const previousCompact = useRef(compact);
   useLayoutEffect(() => {
-    if (previousCompact.current !== compact) {
-      if (compact && backlogView.section !== COCKPIT_BACKLOG_SECTIONS[0]) {
-        setBacklogView({ section: COCKPIT_BACKLOG_SECTIONS[0], filter: '' });
-        setBacklogReturnNotice('Die kompakte Ansicht zeigt wieder den aktiven Bereich ohne Suche.');
-      }
-      heading.current?.focus();
-    }
+    if (previousCompact.current !== compact) heading.current?.focus();
     previousCompact.current = compact;
-  }, [compact, backlogView.section]);
+  }, [compact]);
   const read = useRef(transport ?? createApi(secret)).current;
   const initialRoute = useRef<Route>(initialRunId ? { view: 'detail', runId: initialRunId } : { view: 'overview' }).current;
   const capturePosition = (generation: number) => {
@@ -108,19 +103,20 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       let route = requested;
       const expected = scope?.snapshot_id ? { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true } : undefined;
       if (refresh || requested.view === 'overview') {
-        scope = await read<ReadingScope>('/api/snapshot' + (requested.runId ? '?run_id=' + requested.runId : ''), controller.signal, expected);
+        scope = await read<ReadingScope>('/api/snapshot' + (requested.runId ? '?run_id=' + requested.runId : requested.legacy ? '?view=legacy' : ''), controller.signal, expected);
       } else if (requested.view === 'detail') {
         scope = await read<ReadingScope>(`/api/runs/${requested.runId}?snapshot=${scope!.snapshot_id}`, controller.signal, expected);
       }
       if (controller.signal.aborted || generation !== sequence.current) return;
       if (!scope) throw Error('read_failed');
       if (!scope.data) {
-        if (live.current.scope?.data) throw Error(scope.code ?? 'read_failed');
+        const sourceSwitch = requested.view === 'overview' && !!requested.legacy !== !!live.current.route.legacy;
+        if (live.current.scope?.data && !sourceSwitch) throw Error(scope.code ?? 'read_failed');
         dispatch({ type: 'ready', generation, route, scope, inventory: null, detail: null, document: null });
         return;
       }
       let removed = false;
-      if (requested.view === 'document' && scope.data.kind !== 'backlog') {
+      if (requested.view === 'document' && scope.data.kind !== 'backlog' && scope.data.kind !== 'runs') {
         if (!('run' in scope.data) || !scope.data.run || scope.data.run.run_id !== route.runId) throw Error('dto_invalid');
         const resource = scope.data.run.resources.find(r => refresh
           ? r.registered_reference === route.resourcePath : r.resource_id === route.resourceId);
@@ -138,17 +134,18 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         }
       }
       const data = scope.data;
-      if (data.kind === 'backlog') {
+      if (data.kind === 'backlog' || data.kind === 'runs') {
         if (requested.runId && (!data.removed_run_id || data.removed_run_id !== requested.runId
           || live.current.detail?.data?.run_id !== requested.runId || !live.current.detail.data.evaluation)) throw Error('dto_invalid');
         if (data.removed_run_id && data.removed_run_id !== requested.runId) throw Error('dto_invalid');
-        removed = !!data.removed_run_id; route = { view: 'overview' };
+        removed = !!data.removed_run_id; route = { view: 'overview', legacy: data.kind === 'backlog' };
+        overviewLegacy.current = route.legacy ?? false;
       }
       else if (!data.run && data.kind === 'run') {
         if (data.requested_run_id !== requested.runId) throw Error('dto_invalid');
       } else if (data.run?.run_id !== requested.runId) throw Error('dto_invalid');
-      const inventory = data.kind === 'backlog' ? { ...scope, data } as Envelope<Inventory> : null;
-      const detail = data.kind !== 'backlog' && data.run ? { ...scope, data: data.run } as Envelope<Detail> : null;
+      const inventory = data.kind === 'backlog' || data.kind === 'runs' ? { ...scope, data } as Envelope<OverviewInventory> : null;
+      const detail = data.kind !== 'backlog' && data.kind !== 'runs' && data.run ? { ...scope, data: data.run } as Envelope<Detail> : null;
       const document = data.kind === 'document' && data.document ? { ...scope, data: data.document } as Envelope<DocumentData> : null;
       dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
     } catch (error) { if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed' }); }
@@ -217,10 +214,10 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     const focusTargets = state.route.view === 'overview' ? '.undertaking-list .run-link[data-focus-id]' : '[data-focus-id]';
     const control = origin ? [...document.querySelectorAll<HTMLElement>(focusTargets)].find(e => e.dataset.focusId === origin && !(e instanceof HTMLButtonElement && e.disabled)) : null;
     if (origin && !control && state.route.view === 'overview' && state.inventory?.data) {
-      const exists = state.inventory.data.entries.some(entry => entry.key === origin);
+      const exists = state.inventory.data.kind === 'runs' ? state.inventory.data.runs.some(entry => entry.run_id === origin) : state.inventory.data.entries.some(entry => entry.key === origin);
       setBacklogReturnNotice(exists
         ? 'Das Vorhaben liegt außerhalb des aktuellen Ausschnitts oder ist nicht auswählbar. Suche anpassen oder die Übersicht vergrößern.'
-        : 'Das zuvor geöffnete Vorhaben ist nicht mehr im Backlog enthalten.');
+        : 'Das zuvor geöffnete Vorhaben ist nicht mehr im gelesenen Bestand enthalten.');
     }
     const fallback = state.route.view === 'overview' ? document.querySelector<HTMLElement>('[data-focus-id="backlog-heading"]') : null;
     // Returning to an inspected source must restore a visible focus target, even when
@@ -287,7 +284,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const showOverview = () => {
     setBacklogReturnNotice(null);
     returnFocus.current = state.route.runId ?? null;
-    void navigate({ view: 'overview' });
+    void navigate({ view: 'overview', legacy: overviewLegacy.current });
   };
   const showRun = () => {
     returnFocus.current = documentOrigin.current ?? state.route.resourceId ?? null;
@@ -304,7 +301,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const runTitle = state.detail?.data?.title ?? state.route.runId;
   const pageTitle = state.route.view === 'overview' ? 'Gespeicherte Vorhaben' : state.route.view === 'detail' || summarizing ? runTitle ?? 'Run verstehen' : documentName(state.document?.data?.resource.type);
   const readingContent = <>
-      <div className={`page-title${documentVisible ? ' page-title--document' : ''}`}><div>{!summarizing && <div className="eyebrow">Dein Repository · Deine Vorhaben</div>}<h1 ref={heading} tabIndex={-1}>{pageTitle}</h1>{!summarizing && <p>{state.route.view === 'overview' ? 'Orientierung aus dem Masterbacklog. Öffne ein Vorhaben für die aktuelle Prüfung.' : state.route.view === 'detail' || summarizing ? 'Ziel, offene Punkte und nächster erlaubter Schritt.' : 'Registrierte Quelle und ihre Bedeutung für das Vorhaben.'}</p>}</div>
+      <div className={`page-title${documentVisible ? ' page-title--document' : ''}`}><div>{!summarizing && <div className="eyebrow">Dein Repository · Deine Vorhaben</div>}<h1 ref={heading} tabIndex={-1}>{pageTitle}</h1>{!summarizing && <p>{state.route.view === 'overview' ? 'Orientierung aus gespeicherten Run-Daten. Öffne ein Vorhaben für die aktuelle Prüfung.' : state.route.view === 'detail' || summarizing ? 'Ziel, offene Punkte und nächster erlaubter Schritt.' : 'Registrierte Quelle und ihre Bedeutung für das Vorhaben.'}</p>}</div>
         {documentVisible && <button type="button" className="document-close" aria-label="Dokument schließen" title="Dokument schließen" onClick={showRun} disabled={expired || state.phase === 'loading'}><Icon name="close"/></button>}
         {state.route.view === 'detail' && state.detail?.data?.evaluation && <div className="view-switch" data-mode={summarizing ? 'summary' : 'details'} role="group" aria-label="Ansicht"><button aria-pressed={summarizing} onClick={() => setReaderMode('summary')}>Zusammenfassung</button><button aria-pressed={!summarizing} onClick={() => setReaderMode('details')}>Details</button></div>}
       </div>
@@ -333,9 +330,9 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   if (compact) return <CompactCockpit draftCheck={state.detail && <DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
     view={backlogView} onViewChange={setBacklogView} returnNotice={backlogReturnNotice}
-    onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview}
+    onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview} onRuns={() => void navigate({ view: 'overview' })} onLegacy={() => void navigate({ view: 'overview', legacy: true })}
     onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onBack={showRun} onExpand={onExpand}/>;
-  return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
+  return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview', legacy: true })}>Legacy-Backlog</button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
     <div className={`workspace${state.route.view === 'overview' ? ' workspace--overview' : ''}${documentVisible ? ' workspace--document' : ''}${summarizing ? ' workspace--summary' : ''}`} ref={workspace}><BrandHeader projectPath={state.scope?.target.display_path} contextTitle={state.route.view !== 'overview' ? runTitle : undefined} variant={documentVisible ? 'document' : 'view'}>
       <RefreshControl state={state} enabled={enabled} onReload={() => void navigate(reloadRoute, true)}/>
     </BrandHeader><main>

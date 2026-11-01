@@ -1193,7 +1193,7 @@ ${approvals}
     }
   }
 
-  // run-step records the small path in single sealed revisions, including the backlog pointer.
+  // run-step records the small path in single sealed revisions without a shared backlog output.
   {
     const stepRoot = mkdtempSync(join(tmpdir(), "agdf-run-step-"));
     try {
@@ -1202,7 +1202,8 @@ ${approvals}
       const read = () => readFileSync(statePath, "utf8");
       const revision = () => parseRunState(read(), "step").meta.revision_id;
       const artefacts = join(stepRoot, ".agdf", "control", "artefacts", "step");
-      const backlog = () => readFileSync(join(stepRoot, ".agdf", "control", "MASTER_BACKLOG.md"), "utf8");
+      const assertNoBacklog = () => assert.equal(existsSync(join(stepRoot, ".agdf", "control", "MASTER_BACKLOG.md")), false, "normal Run steps do not create a shared backlog");
+      assertNoBacklog();
       const step = (name, fields = {}) => recordRunStep(stepRoot, { runId: "step", revisionId: revision(), step: name, ...fields }, { policy: policyForRunContent, date: "2026-01-03" });
 
       assert.equal(step("unknown").reason, "step_invalid");
@@ -1214,10 +1215,10 @@ ${approvals}
       const drafted = step("ur", { title: "subtract | with test" });
       assert.equal(drafted.outcome, "recorded");
       assert.equal(drafted.current_gate, "UR");
-      assert.equal(drafted.backlog, "updated");
+      assert.equal(drafted.backlog, "not_required");
       assert.match(read(), /^\| UR \| `\.agdf\/control\/artefacts\/step\/UR\.md` \| draft \|  \|$/m);
       assert.match(read(), /^\| What is missing\? \| Exact Approval: UR\. \|$/m);
-      assert.match(backlog(), /^\| P1 \| step \| subtract \/ with test \| Needs UR \| \[UR\]\(artefacts\/step\/UR\.md\) \| \[UR\]\(artefacts\/step\/UR\.md\) \| /m);
+      assertNoBacklog();
       assert.equal(runSealState(stepRoot, read()).status, "valid");
       const drafting = evaluateGateCheck(stepRoot, { runId: "step" });
       assert.equal(drafting.approval_presentation?.revision_id, revision(), "the recorded UR is ready for its exact approval");
@@ -1234,7 +1235,7 @@ ${approvals}
       assert.equal(approveRunGate(stepRoot, { runId: "step", gate: "UR", revisionId: revision(), response: "Approval: UR", presentationId: prepareRunPresentation(stepRoot, { runId: "step", gate: "UR", revisionId: revision() }, { evaluateGateCheck }).presentation_id, date: "2026-01-03" }, { evaluateGateCheck }).outcome, "approved");
       assert.equal(evaluateGateCheck(stepRoot, { runId: "step" }).current_gate, "Quick Task Execution", "the recorded route is applied immediately after UR approval");
       assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "code_review_missing");
-      assert.match(backlog(), /\| Quick Task Execution work pending \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/);
+      assertNoBacklog();
 
       assert.equal(step("evidence").reason, "evidence_missing");
       assert.equal(step("evidence", { evidence: "npm test: 2 pass", source: "npm test" }).outcome, "recorded");
@@ -1246,8 +1247,8 @@ ${approvals}
       assert.equal(closed.current_gate, "OR");
       assert.match(readFileSync(join(artefacts, "OR.md"), "utf8"), /^# OR-lite: subtract$/m);
       assert.match(read(), /^- lifecycle: completed$/m);
-      assert.doesNotMatch(backlog(), /^\| P1 \| step \|/m, "the active pointer moves to completed");
-      assert.match(backlog(), /^\| step \| subtract \/ with test \| Completed \| \[OR\]\(artefacts\/step\/OR\.md\) \| subtract added with tests \|$/m);
+      assertNoBacklog();
+      assertNoBacklog();
       assert.equal(runSealState(stepRoot, read()).status, "valid");
       const done = evaluateGateCheck(stepRoot, { runId: "step" });
       assert.equal(done.status, "pass");

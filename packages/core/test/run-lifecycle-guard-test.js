@@ -38,6 +38,8 @@ try {
   // Runs closed through the closure itself, one per outcome, plus active and completed neighbours.
   for (const id of ['old-work', 'dropped-work', 'new-work', 'still-active']) createRun(root, id);
   const backlogPath = join(root, '.agdf', 'control', 'MASTER_BACKLOG.md');
+  const legacyBacklog = '# Preserved legacy planning\n\nDropped work reference.\n';
+  writeFileSync(backlogPath, legacyBacklog);
   const statePath = id => join(root, '.agdf', 'control', 'runs', id, 'RUN_STATE.md');
   const revision = id => parseRunState(readFileSync(statePath(id), 'utf8'), id).meta.revision_id;
   const preview = previewRunClosure(root, { entries: [{ run_id: 'old-work', outcome: 'superseded', reason: 'Replaced by new work', successor_run: 'new-work' },
@@ -111,17 +113,12 @@ try {
     assert.deepEqual(readFileSync(statePath(id)), before);
   }
 
-  // SCN-011: run-update on an unchanged ended Run synchronizes only its backlog row.
-  const backlog = readFileSync(backlogPath, 'utf8');
-  const marker = '|---:|---|---|---|---|---|---|\n\n## Planned';
-  writeFileSync(backlogPath, backlog.replace(marker, `|---:|---|---|---|---|---|---|\n| P1 | dropped-work | Dropped work | Needs UR | | | Write the UR |\n\n## Planned`));
+  // SCN-011: run-update on an unchanged ended Run preserves its state and legacy planning.
   const runBytes = readFileSync(statePath('dropped-work'));
   const synced = cliRun('run-update', '--json', '--run', 'dropped-work', '--revision', revision('dropped-work')).value;
-  assert.equal(synced.outcome, 'updated', JSON.stringify(synced)); assert.equal(synced.run_state, 'unchanged'); assert.equal(synced.backlog, 'updated');
+  assert.equal(synced.outcome, 'unchanged', JSON.stringify(synced)); assert.equal(synced.run_state, 'unchanged'); assert.equal(synced.backlog, 'not_required');
   assert.deepEqual(readFileSync(statePath('dropped-work')), runBytes, 'The ended run itself is never written');
-  const [activeSection, archiveSection] = readFileSync(backlogPath, 'utf8').split('## Completed / Superseded Pointers');
-  assert.ok(!activeSection.includes('| dropped-work |'), 'The Active row is moved, not only relabelled');
-  assert.ok(archiveSection.includes('| dropped-work | Dropped work | Abandoned | [RUN_STATE](runs/dropped-work/RUN_STATE.md) | Abandoned: No longer wanted |'), archiveSection);
+  assert.equal(readFileSync(backlogPath, 'utf8'), legacyBacklog, 'No implicit legacy backlog synchronization');
   assert.equal(cliRun('run-update', '--json', '--run', 'dropped-work', '--revision', revision('dropped-work')).value.outcome, 'unchanged');
 
   // SCN-015: all-active selections list only active runs.
@@ -135,5 +132,5 @@ try {
 
   const evidence = cliRun('run-step', '--json', '--run', 'still-active', '--revision', revision('still-active'), '--step', 'evidence', '--evidence', 'Active work continues');
   assert.equal(evidence.value.outcome, 'recorded', 'Active runs keep today\'s behaviour');
-  console.log('Ended-run guard for writers, CLI, MCP, readers, all-active selection and backlog-only update passed (synthetic only).');
+  console.log('Ended-run guard for writers, CLI, MCP, readers, all-active selection and preserved legacy planning passed (synthetic only).');
 } finally { rmSync(root, { recursive: true, force: true }); }

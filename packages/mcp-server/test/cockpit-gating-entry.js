@@ -8,7 +8,7 @@ import { COCKPIT_LIMITS, COCKPIT_MIME, COCKPIT_READ_DEFINITION, COCKPIT_RENDER_D
 const [surface, uiDirectory, marker] = process.argv.slice(2);
 const plugin = surface === 'codex-plugin';
 const version = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
-const envelope = { schema_version: '1', authorizes: false, target: null, snapshot_id: null, observed_as_of: null, source_digest: null, state: 'available', code: null, retryable: false, data: null };
+const envelope = { schema_version: '2', authorizes: false, target: null, snapshot_id: null, observed_as_of: null, source_digest: null, state: 'available', code: null, retryable: false, data: null };
 const tools = [COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION].map((definition) => ({
   name: definition.name, definition, parse: (value) => value,
   execute: async () => { appendFileSync(marker, `${definition.name}\n`); return { ...envelope, tool: definition.name }; },

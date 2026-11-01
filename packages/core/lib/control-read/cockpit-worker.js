@@ -12,7 +12,7 @@ const changes = createControlChangeObserver(workerData.root, () => {
 });
 parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
   try {
-    const result = operation === 'snapshot' ? reader.snapshot(input?.run_id)
+    const result = operation === 'snapshot' ? reader.snapshot(input?.run_id, input?.view)
       : operation === 'run' ? reader.run(selector, snapshot)
       : operation === 'artifact_readiness' ? reader.artifactReadiness(input.run_id, snapshot, input.gate, input.expected_revision_id)
       : operation === 'backlog_titles' ? reader.backlogTitles(input?.row_ids, snapshot)

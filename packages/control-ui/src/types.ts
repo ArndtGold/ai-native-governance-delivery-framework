@@ -1,6 +1,6 @@
 export type Availability = 'available' | 'empty' | 'partial' | 'invalid' | 'missing' | 'unsupported' | 'blocked' | 'stale' | 'error';
 export interface Target { target_id: string; display_path: string }
-export interface Envelope<T> { schema_version: '1'; target: Target; snapshot_id: string | null; observed_as_of: string | null; source_digest: string | null; state: Availability; code: string | null; retryable: boolean; data: T | null }
+export interface Envelope<T> { schema_version: '2'; target: Target; snapshot_id: string | null; observed_as_of: string | null; source_digest: string | null; state: Availability; code: string | null; retryable: boolean; data: T | null }
 export interface Run { run_id: string; valid: boolean; lifecycle: string | null; revision_id: string | null; objective: string | null; title: string; source_path: string; status: string | null; current_gate: string | null; code: string | null;
   attention?: { blocking_reason: string; missing_approval: string; missing_evidence_count: number } }
 export interface BacklogEntry { section: string; key: string; original_key: string; title: string; stored_status: string; scope: string;
@@ -17,7 +17,14 @@ export interface TitleObservation { state: 'available' | 'unavailable'; code: st
   heading: string | null; title: string | null; content_digest: string | null; observed_as_of: string; backlog_digest: string }
 export interface Inventory { kind: 'backlog'; entries: BacklogEntry[]; diagnostics: Diagnostic[]; source_path: string; content_digest: string;
   counts: Record<string, number>; file_count: number; byte_count: number; removed_run_id?: string }
-export type ReadingScope = Inventory | { kind: 'run'; run: Detail | null; requested_run_id?: string }
+export interface RunInventoryEntry { run_id: string; valid: boolean; selectable: boolean; lifecycle: string | null; title: string; title_source: string;
+  attention: { code: string; label: string }; basis: string; next_action: string | null; path: string; revision_id: string | null;
+  last_activity: { at: string | null; source: string; precision: string | null }; findings: Diagnostic[] }
+export interface RunInventory { kind: 'runs'; authorizes: false; state: 'complete' | 'incomplete' | 'absent'; runs: RunInventoryEntry[];
+  counts: { total: number; lifecycle: Record<string, number>; attention: Record<string, number> }; diagnostics: Diagnostic[];
+  source_path: string; file_count: number; byte_count: number; removed_run_id?: string }
+export type OverviewInventory = Inventory | RunInventory;
+export type ReadingScope = OverviewInventory | { kind: 'run'; run: Detail | null; requested_run_id?: string }
   | { kind: 'document'; run: Detail; document: DocumentData | null }
   | { kind: 'context'; run: Detail; document: DocumentData | null; context: GraphData };
 export interface Resource { resource_id: string; run_id: string; type: string; path: string | null; registered_reference: string; status: string }
@@ -56,7 +63,7 @@ export interface DocumentState {
   check: (DraftCheckData & { content_digest: string }) | null; authorizes: false;
 }
 export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string; document_state?: DocumentState }
-export interface Route { view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
+export interface Route { legacy?: boolean; view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
 export interface GraphReference { resource_id: string; run_id: string; origin: string; path: string; node_id: string | null;
   graph_digest: string | null; content_digest: string | null; content: string | null;
   state: 'available' | 'unresolved' | 'missing' | 'blocked' | 'unsupported'; code: string | null }

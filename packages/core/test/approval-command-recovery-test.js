@@ -34,7 +34,7 @@ try {
   const original = readFileSync(f.state, 'utf8'), initialReceipts = readApprovalOperations(original).receipts.length;
   const { schema_version, assurance, presentation_language, ...shortened } = input;
   const selected = resolveMcpInput(commandGroupDefinition('agdf_approve'), shortened, { defaults: resources.defaults });
-  for (const defaulted of [false, true]) for (const point of [...intentStages, ...commitStages]) {
+  for (const defaulted of [false, true]) for (const point of [...intentStages, ...commitStages].filter(stage => !stage.startsWith('backlog'))) {
     rmSync(join(root, '.agdf'), { recursive: true }); cpSync(seed, join(root, '.agdf'), { recursive: true });
     const code = `import {executeApprovalCommand} from ${JSON.stringify(new URL('../lib/control-state/approval-command.js', import.meta.url).href)};
       import {evaluateGateCheck} from ${JSON.stringify(new URL('../lib/control-evaluation/gate-check.js', import.meta.url).href)};

@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { withWindowsCmdShim } from "../../../scripts/support/npm-cmd-shim.js";
+import { projectCockpitBacklog } from "#agdf-core/control-inspect/cockpit-backlog.js";
 import { runRootFromStatePath, sealRunState } from "#agdf-core/control-state/run-seal.js";
 
 const packageRoot = new URL("..", import.meta.url);
@@ -1092,7 +1093,6 @@ smokePhase("init");
       join(".agdf", "control", "config.json"),
       join(".agdf", "control", "README.md"),
       join(".agdf", "control", "runs"),
-      join(".agdf", "control", "MASTER_BACKLOG.md"),
       join(".agdf", "control", "SOT_REGISTRY.md"),
       join(".agdf", "control", "CONTEXT_GRAPH.md"),
       join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json"),
@@ -1107,6 +1107,9 @@ smokePhase("init");
       if (!existsSync(join(tempDir, relativePath))) {
         throw new Error(`Missing live control file for init: ${relativePath}`);
       }
+    }
+    if (existsSync(join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md"))) {
+      throw new Error("Canonical init must not create a shared legacy backlog.");
     }
     if (existsSync(join(tempDir, ".agdf", "control", "AGDF_RUN.md"))
         || readdirSync(join(tempDir, ".agdf", "control", "runs")).length !== 0) {
@@ -1226,6 +1229,9 @@ smokePhase("language config update");
     let config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
     if (config.artifact_language !== "de" || config.chat_language !== "de") {
       throw new Error("Config target should write only the requested project language.");
+    }
+    if (existsSync(join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md"))) {
+      throw new Error("Config target must not create a shared legacy backlog.");
     }
     if (existsSync(join(tempDir, ".agdf", "control", "AGDF_RUN.md"))) {
       throw new Error("Config target must not create live AGDF control files.");
@@ -2357,14 +2363,18 @@ smokePhase("delivery map chain");
     if (!deliveryMapReport.relationships.some((relationship) => relationship.from === "PRD" && relationship.status === "missing_evidence")) {
       throw new Error("Delivery-map should expose PRD relationship status as missing_evidence.");
     }
-    if (deliveryMapReport.backlog_pointers[0]?.brownfield_review !== "BROWNFIELD_REVIEW.md") {
-      throw new Error("Delivery-map should preserve the Brownfield Review backlog pointer column.");
+    if (deliveryMapReport.backlog_pointers.length !== 0) {
+      throw new Error("Delivery-map must derive relationships from Run sources, independently of legacy backlog pointers.");
     }
-    if (deliveryMapReport.backlog_pointers[0]?.or !== "OR.md") {
-      throw new Error("Delivery-map should preserve the OR backlog pointer column.");
+    const legacyPointers = projectCockpitBacklog(tempDir).data.entries.map(row => row.normalized_pointer);
+    if (legacyPointers[0]?.brownfield_review !== "BROWNFIELD_REVIEW.md") {
+      throw new Error("The explicit Legacy view should preserve the Brownfield Review backlog pointer column.");
     }
-    if (deliveryMapReport.backlog_pointers[0]?.current_spec !== "PRD.md") {
-      throw new Error("Delivery-map should preserve the Current Spec column after OR.");
+    if (legacyPointers[0]?.or !== "OR.md") {
+      throw new Error("The explicit Legacy view should preserve the OR backlog pointer column.");
+    }
+    if (legacyPointers[0]?.current_spec !== "PRD.md") {
+      throw new Error("The explicit Legacy view should preserve the Current Spec column after OR.");
     }
 
     let gateCheckFailed = false;
@@ -2441,7 +2451,10 @@ ${statusRows}
 `, "utf8");
 
     const report = runJson(["delivery-map", "--dir", tempDir, "--json"]);
-    const pointer = report.backlog_pointers[0];
+    if (report.backlog_pointers.length !== 0) throw new Error("Legacy planning must not become live delivery relationships.");
+    const legacy = projectCockpitBacklog(tempDir);
+    const pointers = legacy.data.entries.map(row => row.normalized_pointer);
+    const pointer = pointers[0];
     if (pointer?.key !== "compact-run" || pointer?.status !== "awaiting_uat") {
       throw new Error("Compact backlog should preserve the key and normalize the human status label.");
     }
@@ -2462,7 +2475,7 @@ ${statusRows}
     if (Object.values(pointer).some((value) => typeof value === "string" && value.includes("]("))) {
       throw new Error("Compact backlog JSON must not expose Markdown link syntax.");
     }
-    const externalSpecPointer = report.backlog_pointers.find((item) => item.key === "external-spec");
+    const externalSpecPointer = pointers.find((item) => item.key === "external-spec");
     if (externalSpecPointer?.current_spec !== "docs/spec.md") {
       throw new Error(`Compact backlog should resolve safe repository SoT links, got ${externalSpecPointer?.current_spec}.`);
     }
@@ -2470,7 +2483,7 @@ ${statusRows}
       throw new Error(`A Work item cell with no bracketed tag should leave scope empty, got ${externalSpecPointer?.scope}.`);
     }
     for (const [index, [, expectedStatus]] of statusCases.entries()) {
-      const statusPointer = report.backlog_pointers.find((item) => item.key === `status-${index}`);
+      const statusPointer = pointers.find((item) => item.key === `status-${index}`);
       if (statusPointer?.status !== expectedStatus) {
         throw new Error(`Compact backlog should normalize status-${index} to ${expectedStatus}, got ${statusPointer?.status}.`);
       }
@@ -2502,7 +2515,11 @@ smokePhase("invalid compact backlog");
 `, "utf8");
 
     const report = runJson(["doctor", "--dir", tempDir, "--json"]);
-    const codes = new Set(report.findings.map((finding) => finding.code));
+    if (report.findings.some(row => row.code.startsWith("AGDF_BACKLOG_"))) {
+      throw new Error("Legacy planning diagnostics must not block the live Run doctor.");
+    }
+    const legacy = projectCockpitBacklog(tempDir);
+    const codes = new Set(legacy.data.diagnostics.map(row => row.code));
     for (const requiredCode of [
       "AGDF_BACKLOG_STATUS_UNKNOWN",
       "AGDF_BACKLOG_LINK_TARGET_INVALID",
@@ -2546,6 +2563,9 @@ smokePhase("completed only backlog");
 `, "utf8");
 
     const report = runJson(["doctor", "--dir", tempDir, "--json"]);
+    if (projectCockpitBacklog(tempDir).data.entries.filter(row => row.section === "Completed / Superseded Pointers").length !== 1) {
+      throw new Error("The explicit Legacy view must retain the completed historical pointer.");
+    }
     if (report.findings.some((finding) => finding.code === "AGDF_BACKLOG_POINTER_EMPTY")) {
       throw new Error("A completed-only backlog should not be reported as empty.");
     }

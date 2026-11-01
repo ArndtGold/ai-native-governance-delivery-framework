@@ -313,3 +313,15 @@ footer { padding: var(--agdf-space-6) 0 var(--agdf-space-2); font-size: var(--ag
 .draft-check dd { margin-inline-start: 0; }
 .draft-check pre { max-width: 100%; }
 .draft-check [aria-disabled="true"] { opacity: .7; cursor: progress; }
+
+/* Shared Run overview remains usable inside the compact host and narrow readers. */
+.compact-cockpit .backlog-overview { padding: var(--agdf-space-3); }
+.compact-cockpit #backlog-list { contain: none; max-height: 50vh; overflow-y: auto; }
+.undertaking { min-width: 0; }
+.undertaking :is(p, code, details) { overflow-wrap: anywhere; }
+
+@media (max-width: 700px) {
+  .rail { gap: var(--agdf-space-3); }
+  .rail .brand { flex: 1; min-width: 0; }
+  .rail .nav-item { flex: 1; min-width: 0; margin-left: 0; overflow-wrap: anywhere; }
+}

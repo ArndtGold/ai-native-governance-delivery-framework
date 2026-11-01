@@ -8,6 +8,7 @@ import { operationContract } from '../control-state/run-command-contract.js';
 import { resolveArtefactTemplatePath } from '../resources/artefact-templates.js';
 import { digest, resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
+import { inspectDefinitionSources } from '../control-evaluation/definition-sources.js';
 
 const templateId = gate => ({ UR: 'UR', PRD: 'PRD', SD: 'SD', TP: 'TP', QA: 'QA_REPORT', OR: 'OR',
   'Brownfield Review': 'BROWNFIELD_REVIEW', 'Brownfield Analysis': 'BROWNFIELD_REVIEW', 'Mode/Slice Decision': 'BROWNFIELD_REVIEW',
@@ -27,6 +28,14 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
       const state = readRunState(root, { runId: input.run_id, ignoreRunIdEnv: true });
       if (state.resolution_error || state.meta?.revision_id !== input.expected_revision_id || runSealState(root, state.content).status !== 'valid') throw Error('authoring_binding_stale_or_invalid');
       const evaluated = evaluateGateCheck(root, { runId: input.run_id, ignoreRunIdEnv: true, presentationLanguage: input.presentation_language }, observedGit);
+      let authoringOwner = evaluated.next_operation?.type === 'record_closeout' ? 'OR'
+        : evaluated.next_operation?.analysis ?? evaluated.next_operation?.gate ?? evaluated.current_gate;
+      // Initial UX preparation still sits at PRD. Reuse the dispatcher's source check;
+      // a repairable prerequisite selects its template without granting correction intent.
+      if (evaluated.current_gate === 'PRD' && evaluated.next_operation?.type === 'prepare_gate_artifact') {
+        const checked = inspectDefinitionSources(root, state, input.run_id, 'PRD', ['UR', 'Brownfield Review']);
+        if (checked.issue?.repairable) authoringOwner = 'UX Intent Definition';
+      }
       const rows = [...state.artefacts].filter(([, r]) => r.path).map(([type, row]) => ({ type, ...row }));
       if (rows.length > 16) throw Error('authoring_source_limit');
       const sources = rows.map(row => {
@@ -37,8 +46,7 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
         const content = new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(file.path));
         return { type: row.type, path, status: row.status, digest: artefactFileDigest(root, path), content };
       });
-      return { gate: evaluated.current_gate, authoring_owner: evaluated.next_operation?.type === 'record_closeout' ? 'OR'
-        : evaluated.next_operation?.analysis ?? evaluated.next_operation?.gate ?? evaluated.current_gate,
+      return { gate: evaluated.current_gate, authoring_owner: authoringOwner,
         recording: inspectArtefactRecordingMode(state, evaluated.current_gate), mode: state.mode_slice_decision?.decision, next_operation: evaluated.next_operation, status: evaluated.status,
         blocking_reason: evaluated.blocking_reason, sources };
     });

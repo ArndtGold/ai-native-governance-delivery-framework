@@ -2,7 +2,7 @@ import { withSyntheticQaContent } from './fixtures/decision-content.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, cpSync, rmSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync, writeFileSync, cpSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createCoreServices } from '../lib/index.js';
@@ -133,14 +133,14 @@ try {
       assert.equal(readFileSync(f.state, 'utf8'), unrecorded); continue;
     }
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
-    const before = readFileSync(f.state, 'utf8'), backlog = readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8');
+    const before = readFileSync(f.state, 'utf8'), backlog = (existsSync(join(root,'.agdf/control/MASTER_BACKLOG.md')) ? readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8') : null);
     const check = evaluateGateCheck(root,{runId:f.runId});
     assert.equal(check.blocking_reason,'AGDF_DECISION_CONTENT_INCOMPLETE');
     assert.notEqual(check.next_operation.type,'human_gate_decision');assert.equal(check.approval_presentation,null);
     assert.ok(check.status_presentation?.markdown, 'A truthful gap retains visible read-only status.');
     const denied = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
     assert.equal(denied.outcome,'rejected',JSON.stringify(denied));
-    assert.equal(readFileSync(f.state,'utf8'),before);assert.equal(readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8'),backlog);
+    assert.equal(readFileSync(f.state,'utf8'),before);assert.equal((existsSync(join(root,'.agdf/control/MASTER_BACKLOG.md')) ? readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8') : null),backlog);
     assert.equal(readFileSync(join(root,qaPath),'utf8'),report,'No approved or unapproved content is silently repaired by inspection/preparation.');
   }
   rmSync(join(root, '.agdf'), { recursive: true, force: true }); cpSync(preQa, join(root, '.agdf'), { recursive: true });
@@ -269,7 +269,7 @@ none
   assert.equal(service('agdf_closeout', input).outcome, 'already_applied');
   assert.equal(service('agdf_closeout', { ...input, presentation_language: 'de' }).reason, 'operation_payload_conflict');
   assert.equal(service('agdf_closeout', prepare()).reason, 'closeout_not_ready');
-  for (const stage of [...intentStages, ...outputStages, ...commitStages]) {
+  for (const stage of [...intentStages, ...outputStages, ...commitStages].filter(stage => !stage.startsWith('backlog'))) {
     reset(); const request = prepare();
     const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
       createRunCommandService({checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_closeout',JSON.parse(process.argv[1]));`;
@@ -277,8 +277,16 @@ none
     assert.equal(child.status, 71, child.stderr.toString());
     if (!beforeIntent(stage) && stage !== 'retired') {
       const pending = readPendingRunStepJournal(root, f.runId);
+      // Synthetic old-writer fixture, retaining actual v3 receipt and output ownership.
+      if (stage === 'run_after_rename') {
+        assert.equal(pending.schema_version, 3);
+        writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), '# Captured legacy v3 old\n');
+        pending.backlog = { old: '# Captured legacy v3 old\n', next: '# Captured legacy v3 next\n' };
+        writeFileSync(join(root, '.agdf/control/runs', f.runId, 'RUN_STEP_PENDING.json'), JSON.stringify(pending));
+      }
       const recovered = service('agdf_closeout', { ...request, expected_revision_id: f.revision(), command: { kind: 'operation.recover', payload: { original_kind: 'closeout.record', pending_digest: digest(canonicalJson(pending)), recovery_revision_id: f.revision() } } });
       assert.equal(recovered.outcome, 'accepted', JSON.stringify(recovered));
+      if (stage === 'run_after_rename') assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8'), '# Captured legacy v3 next\n');
     }
     assert.equal(runSealState(root, readFileSync(f.state, 'utf8')).status, 'valid');
     if (beforeRunCommit(stage)) assert.equal(readFileSync(f.state, 'utf8'), original, stage);

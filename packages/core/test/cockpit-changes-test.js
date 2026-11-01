@@ -16,21 +16,24 @@ test('atomic backlog writes notify every dependent view without replacing their 
   try {
     const open = async run_id => {
       const session_id = (await service.render())._meta.agdf_cockpit.session_id;
-      const snapshot = await service.read({ operation: 'snapshot', session_id, ...(run_id ? { run_id } : {}) });
+      const snapshot = await service.read({ operation: 'snapshot', session_id, ...(run_id ? { run_id } : { view: 'legacy' }) });
       return { session_id, snapshot_id: snapshot.snapshot_id };
     };
     const a = await open(), b = await open(), run = await open('fixture-a');
-    const waitingRun = service.read({ operation: 'changes', ...run });
+    const cancellation = new AbortController();
+    const waitingRun = service.read({ operation: 'changes', ...run }, cancellation.signal);
     const waitingA = service.read({ operation: 'changes', ...a }), waitingB = service.read({ operation: 'changes', ...b });
     const path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
     replace(path, fs.readFileSync(path, 'utf8') + '\nSaved backlog update\n');
     const beforeReads = treeBytes(f.root);
-    for (const event of await deadline(Promise.all([waitingA, waitingB, waitingRun]))) {
+    for (const event of await deadline(Promise.all([waitingA, waitingB]))) {
       assert.equal(event.data.changed, true); assert.equal(event.authorizes, false);
     }
+    assert.equal((await service.read({ operation: 'freshness', ...run })).data.unchanged, true, 'Run detail has no legacy dependency');
+    cancellation.abort(); await waitingRun;
     assert.equal((await service.read({ operation: 'changes', session_id: b.session_id, snapshot_id: a.snapshot_id })).code, 'resource_denied');
     assert.deepEqual(treeBytes(f.root), beforeReads);
-    const next = await service.read({ operation: 'snapshot', session_id: a.session_id });
+    const next = await service.read({ operation: 'snapshot', session_id: a.session_id, view: 'legacy' });
     const cancel = new AbortController(), pending = service.read({ operation: 'changes', session_id: a.session_id, snapshot_id: next.snapshot_id }, cancel.signal);
     cancel.abort(); await pending;
     assert.notEqual((await service.read({ operation: 'changes', ...a })).code, null);

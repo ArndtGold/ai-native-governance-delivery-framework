@@ -72,13 +72,13 @@ export class CockpitBridge {
     const url = new URL(path, 'https://local.invalid');
     const snapshot_id = url.searchParams.get('snapshot');
     let argumentsValue: Record<string, unknown>;
-    if (url.pathname === '/api/snapshot') { resourceRuns.clear(); argumentsValue = { operation: 'snapshot', ...(url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : {}) }; }
+    if (url.pathname === '/api/snapshot') { resourceRuns.clear(); argumentsValue = { operation: 'snapshot', ...(url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : url.searchParams.has('view') ? { view: url.searchParams.get('view') } : {}) }; }
     else if (url.pathname === '/api/changes') argumentsValue = { operation: 'changes', snapshot_id };
     else if (url.pathname === '/api/freshness') argumentsValue = { operation: 'freshness', snapshot_id };
     else if (url.pathname === '/api/backlog-titles') argumentsValue = { operation: 'backlog_titles', snapshot_id, row_ids: url.searchParams.get('rows')?.split(',') };
     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
     else if (url.pathname.startsWith('/api/context/')) argumentsValue = { operation: 'context', snapshot_id, run_id: url.pathname.slice(13) };
-    else if (/^\/api\/draft-check\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) {
+    else if (/^\/api\/draft-check\/[a-z0-9][a-z0-9._-]{0,127}$/.test(url.pathname)) {
       const keys = [...url.searchParams.keys()];
       if (keys.length !== 3 || new Set(keys).size !== 3 || !['snapshot', 'gate', 'expected_revision'].every(key => keys.includes(key))) throw Error('resource_denied');
       argumentsValue = { operation: 'artifact_readiness', snapshot_id, run_id: url.pathname.slice(17),

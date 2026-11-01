@@ -44,7 +44,7 @@
     "test:release-version-coherence": "node scripts/release-version-coherence-test.js",
     "test:release-registry-state": "node scripts/release-registry-state-test.js",
     "test:release-workflows": "node scripts/release-workflow-contract-test.js",
-    "test:run-step-transaction": "node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js && node ../core/test/backlog-work-summary-test.js && node ../core/test/backlog-summary-codec-test.js",
+    "test:run-step-transaction": "node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js && node ../core/test/run-only-writer-test.js && node ../core/test/backlog-work-summary-test.js && node ../core/test/backlog-summary-codec-test.js",
     "test:run-recovery": "node scripts/run-recovery-test.js",
     "test:run-close": "node ../core/test/run-closure-test.js && node ../core/test/run-lifecycle-guard-test.js && node ../core/test/git-identity-test.js && node scripts/run-close-test.js",
     "test:control-command": "node scripts/control-command-test.js",

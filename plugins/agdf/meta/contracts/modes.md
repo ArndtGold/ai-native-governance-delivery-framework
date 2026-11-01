@@ -161,9 +161,10 @@ Graph Impact, Knowledge Persistence Decision, Closeout):
 - `packages/cli/bin/**`
 - any other executable code file, in any language, anywhere in the repository
 
-A `MASTER_BACKLOG.md` entry is required only when the change is otherwise a "Relevant Run" below. A
-change that is not clearly and fully outside every listed path fails closed to the existing, unchanged
-ceremony — ambiguity is never read as permission for the lighter path.
+No MASTER_BACKLOG.md entry is required for a Run. Retained legacy planning/history is optional;
+normal Run operations do not maintain it. Existing Run relevance, approvals and evidence duties
+remain unchanged. Worktree placement is defined solely in task-target-resolution.md.
+
 
 #### Narrow Code-Fix Criterion
 

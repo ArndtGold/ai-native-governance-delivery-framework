@@ -4,7 +4,7 @@ import { policyForRunContent as policyForDecision } from '../control-evaluation/
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
-import { appendRunOperation, readRunOperations, closureSuccessorText, closureOutcomeText, closureBacklogRecord } from "./run-operations.js";
+import { appendRunOperation, readRunOperations, closureSuccessorText } from "./run-operations.js";
 import { readOperationSource, operationSourceSetDigest, operationSources, operationReceipt, internalStepEligibility, reviewCorrectionRefusal, reviewCorrectionAvailable } from "./run-operation-proof.js";
 import { appendEvidenceBinding, evidenceSourceSetDigest, CORRECTABLE_REVIEWS } from './evidence-bindings.js';
 import { reviewFindingDiagnostics } from '../control-evaluation/normalized-gaps.js';
@@ -24,19 +24,14 @@ import {
   readRun,
   rejected,
   endedRunRejection,
-  removeTableRows,
   replaceFirstScalar,
   replaceSectionScalar,
-  tableCells,
-  tableLineIndexes,
   upsertTableRow,
   appendTableRow,
 } from "./run-state-edits.js";
 import { withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
-import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingRunStepJournal } from "./run-step-transaction.js";
-import { pendingRunStepIds } from "./run-step-pending.js";
+import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingRunStepJournal, pendingRunStepConflictIds } from "./run-step-transaction.js";
 import { prepareArtefactRecording } from "./run-artefact-recording.js";
-import { backlogStatusForSummary, assertBacklogPath, prepareRunBacklog, backlogTableLayout } from "./run-backlog.js";
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { randomUUID } from "node:crypto";
 import { evaluateCloseoutReadiness, closeoutConfirmation, closeoutContext } from '../control-evaluation/closeout-readiness.js';
@@ -45,7 +40,6 @@ import { inspectQaReports } from '../control-evaluation/qa-follow-up.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { statSync } from 'node:fs';
 import { runWorkSummary, assertSummarySources } from "../control-evaluation/run-work-summary.js";
-import { recordBacklogSummary } from "./backlog-summary.js";
 import { decisionMaterial, presentationDecisionState, decisionRemediationOwner } from './presentation-decision.js';
 import { validateRunPresentation, validateRunPresentationRecord } from './run-presentation.js';
 import { withRunBacklogLock, writeRunWithBacklogLocked } from './run-backlog-writer.js';
@@ -72,8 +66,6 @@ const NEXT_GATE_BY_ROUTE = Object.freeze({
   structured_delivery: "PRD",
   block: "none",
 });
-const BACKLOG_LABELS = Object.freeze([["UR", "UR"], ["Brownfield Review", "Brownfield"], ["PRD", "PRD"], ["SD", "SD"], ["TP", "TP"], ["QA", "QA"], ["OR", "OR"]]);
-const BACKLOG_PATH = join(".agdf", "control", "MASTER_BACKLOG.md");
 const CONTROL_PREFIX = ".agdf/control/";
 
 const artefactPath = (key, file) => `${CONTROL_PREFIX}artefacts/${key}/${file}`;
@@ -129,55 +121,6 @@ function artefactHeading(root, path) {
   }
 }
 
-function backlogLinks(text) {
-  const control = parseControlState(text, { userGates: APPROVAL_GATES, internalSteps: ["Brownfield Review"], closeoutArtefacts: ["OR"] });
-  return BACKLOG_LABELS
-    .map(([type, label]) => [label, control.artefacts.get(type)?.path ?? ""])
-    .filter(([, path]) => path.startsWith(CONTROL_PREFIX))
-    .map(([label, path]) => `[${label}](${path.slice(CONTROL_PREFIX.length)})`);
-}
-
-function prepareBacklog(root, key, { title, status, links, next, closeout }) {
-  const path = join(root, BACKLOG_PATH);
-  if (!existsSync(path)) return { status: "missing", update: null };
-  const original = readFileSync(path, "utf8");
-  let text = canonicalRunText(original);
-  const lines = text.split("\n");
-  const active = firstSection(lines, "Active Backlog");
-  const indexes = active ? tableLineIndexes(lines, active) : [];
-  const layout = indexes.length ? backlogTableLayout(tableCells(lines[indexes[0]])) : null;
-  if (layout === "legacy") return { status: "layout_legacy", update: null };
-  if (layout !== "compact") return { status: "layout_unsupported", update: null };
-  const matching = indexes.slice(2).filter(index => tableCells(lines[index])[1]?.replaceAll("`", "").trim() === key);
-  if (matching.length > 1) throw Error("AGDF_BACKLOG_IDENTITY_AMBIGUOUS");
-  if (matching.some(index => tableCells(lines[index]).length !== 7)) return { status: "layout_unsupported", update: null };
-  const existing = active
-    ? tableLineIndexes(lines, active).slice(2).map((index) => tableCells(lines[index])).find((cells) => cells[1]?.replaceAll("`", "").trim() === key)
-    : undefined;
-  const rowTitle = oneLine(title) || existing?.[2] || key;
-  if (closeout) {
-    const archived = firstSection(lines, "Completed / Superseded Pointers");
-    // A closure moves only an existing pointer; a Run without a row stays unlinked.
-    if (closeout.linkedOnly && !existing && !(archived && tableLineIndexes(lines, archived).slice(2).some(index => tableCells(lines[index])[0]?.replaceAll("`", "").trim() === key))) return { status: "unlinked", update: null };
-    text = removeTableRows(text, "Active Backlog", 1, existing?.[1] ?? key) ?? text;
-    text = upsertTableRow(text, "Completed / Superseded Pointers", 0, key, [key, rowTitle, closeout.status ?? "Completed", closeout.record, oneLine(closeout.outcome)]);
-  } else {
-    text = upsertTableRow(text, "Active Backlog", 1, existing?.[1] ?? key, [
-      existing?.[0] || "P1",
-      existing?.[1] ?? key,
-      rowTitle,
-      status ?? existing?.[3] ?? "In Progress",
-      links.join(" · "),
-      links[0] ?? "",
-      oneLine(next),
-    ]);
-  }
-  if (text === null) return { status: "layout_unsupported", update: null };
-  // A step commits a new Run revision even when its visible row cells are unchanged.
-  // Keep the candidate so the caller records that revision's observation in this transaction.
-  return { status: "updated", update: { old: original, next: text } };
-}
-
 function closeoutRecord({ title, runId, date, result, evidence, risk, next }) {
   return [
     `# OR-lite: ${title}`,
@@ -204,23 +147,6 @@ function closeoutRecord({ title, runId, date, result, evidence, risk, next }) {
     oneLine(next),
     "",
   ].join("\n");
-}
-
-// A closure must never stop on the derived pointer: every backlog problem becomes a reported skip.
-function closureBacklogPlan(root, key, backlog, summary, nextRevisionId) {
-  try {
-    assertBacklogPath(root);
-    const plan = prepareBacklog(root, key, backlog);
-    if (plan.status === "missing") return { status: "skipped", reason: "backlog_missing", update: null };
-    if (["layout_legacy", "layout_unsupported"].includes(plan.status)) return { status: "skipped", reason: `backlog_${plan.status}`, update: null };
-    if (plan.update) plan.update.next = recordBacklogSummary(root, plan.update.next, key, "Completed / Superseded Pointers", summary, nextRevisionId);
-    return plan;
-  } catch (error) {
-    const reason = { AGDF_BACKLOG_PATH_INVALID: "backlog_path_invalid", AGDF_BACKLOG_IDENTITY_AMBIGUOUS: "backlog_identity_ambiguous",
-      AGDF_BACKLOG_LAYOUT_UNSUPPORTED: "backlog_layout_unsupported", AGDF_BACKLOG_SUMMARY_INVALID: "backlog_summary_invalid" }[error?.message];
-    if (!reason) throw error;
-    return { status: "skipped", reason, update: null };
-  }
 }
 
 function recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation }) {
@@ -273,7 +199,6 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     || !control.artefacts.get('UR')?.path || approved('UR'))) return rejected(runId, 'ur_draft_not_replaceable');
   let known = "";
   let evidenceRow = null;
-  let backlog = null;
   let orContent = null;
   let recording = null;
   let ownedOutputs = [];
@@ -317,7 +242,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     known = `Run closed as ${closure.lifecycle}${successor}: ${closure.reason}`;
     evidenceRow = ["Run closure", `preview ${closure.preview.id}`, `${closure.lifecycle}${successor}; reason: ${closure.reason}; confirmed by ${confirmer}`, "cooperative local confirmation"];
     operationRecord = closure;
-    backlog = { closeout: { linkedOnly: true, record: closureBacklogRecord(key), outcome: closureOutcomeText(closure.lifecycle, closure.successor, closure.reason) } };
+
   } else if (step === 'verified_change') {
     operationSource = readSource();
     try { compactPreparation = prepareVerifiedChangeRecording(root, run, control, before, input, operationSource, gitObservation); }
@@ -325,7 +250,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     text = compactPreparation.text; ownedOutputs = compactPreparation.outputs;
     operationRecord = { step: 'Verified Change', source: { path: compactPreparation.path, digest: compactPreparation.digest },
       status: 'done', covers: `Verified Change ${input.phase}`, source_set_digest: operationSourceSetDigest(root, control, 'Verified Change') };
-    known = `Verified Change ${input.phase} recorded with actual Git observation.`; backlog = {};
+    known = `Verified Change ${input.phase} recorded with actual Git observation.`;
   } else if (step === "internal") {
     const ux = input.internalStep === 'UX Intent Definition';
     if (!operationContext || !internalStepEligibility(control, before, input, root) || !(ux ? ['ready', 'blocked', 'not_applicable'] : ["pass", "revise", "block", "not_applicable"]).includes(input.decision)
@@ -359,7 +284,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     evidenceRow = [input.internalStep, path, oneLine(input.covers) || "approved TP scope", "bound cooperative result"];
     operationRecord = { step: input.internalStep, source: { path, digest: input.sourceBinding.digest }, status,
       covers: oneLine(input.covers) || "approved TP scope", source_set_digest: operationSourceSetDigest(root, control, input.internalStep) };
-    backlog = {};
+
   } else if (step === "artefact") {
     if (operationContext && !input.material) operationSource = readSource();
     recording = prepareArtefactRecording(root, run, { ...input, ...(operationContext ? { operationId: operationContext.operation_id, requestDigest: operationContext.request_digest } : {}) }, control, before);
@@ -370,7 +295,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     }
     text = recording.text;
     known = `${input.gate} artefact and reviewed source binding recorded together.`;
-    backlog = {};
+
   } else if (step === "ur") {
     if (approved("UR")) return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
     if (!filled(input.title)) return rejected(runId, "title_missing");
@@ -383,7 +308,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     if (failed) return failed;
     known = `UR drafted at \`${path}\`.`;
     evidenceRow = ["UR draft", `\`${path}\``, "problem, goal, scope and acceptance signals", "direct"];
-    backlog = { title: input.title };
+
   } else if (step === "route") {
     const routeBeforeUrApproval = !approved("UR")
       && before.status === "open"
@@ -410,7 +335,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     }
     known = `Brownfield Review at \`${path}\` selected \`${input.route}\`.`;
     evidenceRow = ["Brownfield Review", `\`${path}\``, `Mode/Slice Decision \`${input.route}\``, "direct"];
-    backlog = {};
+
   } else if (step === "review") {
     if (!RUN_STEP_ROUTES.includes(route)) return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
     if (!REVIEW_DECISIONS.has(input.decision)) return rejected(runId, "decision_invalid", { decisions: [...REVIEW_DECISIONS] });
@@ -424,7 +349,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     }
     known = `Code Review decision \`${input.decision}\`.`;
     evidenceRow = ["Code Review", oneLine(input.source) || "code-review", `decision ${input.decision}: ${oneLine(input.evidence)}`, "direct"];
-    backlog = {};
+
   } else if (step === "evidence") {
     if (!filled(input.evidence)) return rejected(runId, "evidence_missing");
     known = `Evidence recorded: ${oneLine(input.evidence)}.`;
@@ -436,7 +361,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     catch (e) { if (e.message.startsWith('verified_change_') || e.message === 'confirmation_required') return rejected(runId, e.message); throw e; }
     if (!exactApprovedArtefacts(root, control)) return rejected(runId, 'approved_source_proof_invalid');
     text = compactPreparation.text; ownedOutputs = compactPreparation.outputs; operationRecord = compactPreparation.record;
-    known = 'Verified Change completed with its canonical Mini-Closeout.'; backlog = { closeout: true };
+    known = 'Verified Change completed with its canonical Mini-Closeout.';
   } else if (step === "closeout") {
     if (operationContext) {
       if (operationContext.kind !== 'closeout.record' || !input.sourceBinding || control.meta.lifecycle !== 'active'
@@ -475,7 +400,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       operationRecord = { or: { path, digest: input.sourceBinding.digest }, lifecycle: 'completed', context_evidence_digest: readiness.context_digest, confirmation_digest: digest(confirmation) };
       known = `Run delivery completed; exact ${route === 'quick_task' ? 'OR-lite' : 'OR-full'} at ${path}.`;
       evidenceRow = ['OR', path, 'selected Run closeout; no VCS or publication effect', 'bound cooperative result'];
-      backlog = { closeout: { record: `[OR](artefacts/${key}/OR.md)`, outcome: 'Completed approved scope with disclosed report obligations.' } };
+
     } else {
     if (route !== "quick_task") return rejected(runId, "closeout_route_unsupported", { route: route || "undecided" });
     if (before.current_gate !== "Quick Task Execution") return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
@@ -495,7 +420,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     orContent = closeoutRecord({ title, runId, date, ...input });
     known = `Quick task delivered; OR-lite at \`${path}\`.`;
     evidenceRow = ["OR-lite", `\`${path}\``, "quick task closeout", "direct"];
-    backlog = { closeout: { record: `[OR](artefacts/${key}/OR.md)`, outcome: input.result } };
+
     }
   }
 
@@ -537,18 +462,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
 
   // Owned outputs are published before the precommit source check, so the summary reads them as proposed.
   const summary = runWorkSummary(root, text, run.path, after, { proposed: new Map([...proposedArtefacts].map(([path, row]) => [path, row.content])) });
-  const statusLabel = backlogStatusForSummary(summary, after);
-  if (closing) backlog.closeout.status = statusLabel;
-  let backlogPlan = closing ? closureBacklogPlan(root, key, { ...backlog, links: backlogLinks(text), next: summary.display_action }, summary, nextRevisionId)
-    : backlog ? prepareBacklog(root, key, { ...backlog, status: statusLabel, links: backlogLinks(text), next: summary.display_action })
-    : prepareRunBacklog(root, key, text, run.path, nextRevisionId);
-  // Legacy rows keep their title and per-gate link columns. Status and next step still follow
-  // the Run where the row exists; a closeout move is left to the maintainer.
-  if (backlogPlan.status === "layout_legacy") backlogPlan = { ...(backlog.closeout ? { status: "skipped", update: null }
-    : prepareRunBacklog(root, key, text, run.path, nextRevisionId)), reason: "backlog_layout_legacy" };
-  if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
-  if (backlog && !closing && backlogPlan.update) backlogPlan.update.next = recordBacklogSummary(root, backlogPlan.update.next, key,
-    backlog.closeout ? "Completed / Superseded Pointers" : "Active Backlog", summary, nextRevisionId);
+  const backlogPlan = { status: 'not_required', update: null };
   const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update || operationContext)
     ? commitRunStepLocked(root, {
       runId, runPath: run.path, content: text, revisionId, expectedContent: run.content,
@@ -585,27 +499,26 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
   if (!recordingStep(step, operationContext)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
   let path;
   try { path = runPath(root, runId); } catch { return rejected(runId, "run_id_invalid"); }
-  const backlogPath = join(root, BACKLOG_PATH);
   const locked = guardedWrite(runId, () => withOwnedFileLock(path, () => {
-    if (step !== "lifecycle_close") assertBacklogPath(root);
-    return withOwnedFileLock(backlogPath, () => {
-    const otherPending = pendingRunStepIds(root).find((id) => id !== runId);
+
+    const otherPending = pendingRunStepConflictIds(root, runId).find((id) => id !== runId);
     if (otherPending) return rejected(runId, "run_step_recovery_required", { pending_run_id: otherPending });
     if (operationContext && existsSync(pendingRunStepPath(root, runId))) {
       const pending = readPendingRunStepJournal(root, runId);
-      if (![3, 4].includes(resolutionRecordVersion(pending)) || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
+      if (pending.backlog || ![3, 4].includes(resolutionRecordVersion(pending)) || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
           || pending.request_digest !== operationContext.request_digest || pending.old_revision_id !== input.revisionId) return rejected(runId, "original_operation_recovery_required");
       recoverPendingRunStepLocked(root, runId);
       return recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation });
     }
+    if (existsSync(pendingRunStepPath(root, runId)) && readPendingRunStepJournal(root, runId).backlog)
+      return rejected(runId, 'run_step_recovery_required');
     const recovered = recoverPendingRunStepLocked(root, runId);
     if (recovered.status === "completed") {
       return Object.freeze({ schema_version: "1", outcome: "recovered", run_id: runId,
         operation_id: recovered.operation_id, revision_id: recovered.revision_id,
-        backlog: "updated" });
+        backlog: "not_required" });
     }
     return recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation });
-    });
   }));
   return locked.rejection ?? locked.state;
 }

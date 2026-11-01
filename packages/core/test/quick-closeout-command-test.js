@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createCoreServices } from '../lib/index.js';
@@ -88,7 +88,7 @@ try {
   assert.equal(evaluateGateCheck(root, { runId: run }).completion.fulfilled, true);
   const completed = dispatch();
   assert.equal(completed.terminal, true); assert.equal(completed.control.next_operation, null);
-  assert.doesNotMatch(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('## Completed / Superseded Pointers')[0], /\| quick-command \|/);
+  assert.equal(existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md')), false, 'Quick closeout does not create a legacy backlog');
 
   // The documented CLI lane records the Code Review without a registered file; closeout must still be reachable.
   const cliRun = 'quick-cli', cliPrefix = `.agdf/control/artefacts/${cliRun}/`, cliPath = join(root, `.agdf/control/runs/${cliRun}/RUN_STATE.md`);
@@ -116,5 +116,5 @@ try {
   assert.equal(runSealState(root, readFileSync(cliPath, 'utf8')).status, 'valid');
   assert.equal(evaluateGateCheck(root, { runId: cliRun }).completion.fulfilled, true);
   assert.equal(cliDispatch().terminal, true);
-  console.log('Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.');
+  console.log('Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed Run projection passed. No VCS command executed.');
 } finally { rmSync(root, { recursive: true, force: true }); }

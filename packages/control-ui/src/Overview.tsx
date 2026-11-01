@@ -1,3 +1,6 @@
+import { RunOverview } from './RunOverview';
+import type { OverviewInventory, RunInventory } from './types';
+import type { ComponentProps } from 'react';
 import { useState } from 'react';
 import { COCKPIT_BACKLOG_SECTIONS, projectCockpitList } from '../../core/lib/control-inspect/cockpit-list.js';
 import type { Envelope, Inventory } from './types';
@@ -8,9 +11,10 @@ import { BacklogCounts, BacklogEmpty, BacklogRow } from './BacklogRows';
 const labels = ['Aktiv', 'Geplant', 'Archiv'];
 const headings = ['Aktive Vorhaben', 'Geplante Vorhaben', 'Archivierte Vorhaben'];
 export interface BacklogView { section: string; filter: string }
-export function Overview({ result, onSelect, view, onViewChange, loadTitles, titlesEnabled = true, titleStore, resetTitles = false, current = true }: { result: Envelope<Inventory>; onSelect: (id: string) => void; view?: BacklogView; onViewChange?: (view: BacklogView) => void; loadTitles?: TitleLoader; titlesEnabled?: boolean; titleStore?: BacklogTitleStore; resetTitles?: boolean; current?: boolean }) {
+function LegacyOverview({ result, onSelect, view, onViewChange, loadTitles, titlesEnabled = true, titleStore, resetTitles = false, current = true }: { result: Envelope<Inventory>; onSelect: (id: string) => void; view?: BacklogView; onViewChange?: (view: BacklogView) => void; loadTitles?: TitleLoader; titlesEnabled?: boolean; titleStore?: BacklogTitleStore; resetTitles?: boolean; current?: boolean }) {
   const [localView, setLocalView] = useState<BacklogView>({ section: COCKPIT_BACKLOG_SECTIONS[0], filter: '' });
-  const { section: selected, filter } = view ?? localView;
+  const { section: rawSelected, filter } = view ?? localView;
+  const selected = COCKPIT_BACKLOG_SECTIONS.some(section => section === rawSelected) ? rawSelected : COCKPIT_BACKLOG_SECTIONS[0];
   const changeView = onViewChange ?? setLocalView;
   const inventory = result.data;
   const list = projectCockpitList(inventory, { section: selected, query: filter });
@@ -19,6 +23,7 @@ export function Overview({ result, onSelect, view, onViewChange, loadTitles, tit
   const areaIndex = COCKPIT_BACKLOG_SECTIONS.findIndex(section => section === selected);
   return <section className="panel agdf-surface backlog-overview" aria-label="Vorhaben nach Backlog-Bereich">
     <div className="backlog-controls">
+    <p className="muted legacy-description">Legacy-Backlog · ursprüngliche Planungs- und Historienangaben, nur lesbar. Diese Zeilen sind kein aktueller Run-Bestand.</p>
     <div className="backlog-tools">
     <div className="backlog-switch" role="group" aria-label="Backlog-Bereich">
       {areas.map(area => <button key={area.section} type="button" aria-pressed={selected === area.section} aria-controls="backlog-list"
@@ -44,4 +49,10 @@ export function Overview({ result, onSelect, view, onViewChange, loadTitles, tit
       {!!list.rows.length && <ul className="undertaking-list" ref={titles.list}>{list.rows.map(row => <BacklogRow key={row.identity} row={row} current={current} onSelect={onSelect} observation={titles.cache.get(row.identity)}/>)}</ul>}
     </div>
   </section>;
+}
+
+export function Overview(props: Omit<ComponentProps<typeof LegacyOverview>, 'result'> & { result: Envelope<OverviewInventory> }) {
+  return props.result.data?.kind === 'runs'
+    ? <RunOverview result={props.result as Envelope<RunInventory>} onSelect={props.onSelect} current={props.current ?? true} view={props.view} onViewChange={props.onViewChange}/>
+    : <LegacyOverview {...props} result={props.result as Envelope<Inventory>}/>;
 }

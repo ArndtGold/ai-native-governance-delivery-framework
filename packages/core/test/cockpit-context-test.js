@@ -72,6 +72,8 @@ test('SCN-009/010/011: 64 refs, 16 selected, deliberate unavailable exclusion an
     assert.equal(packet.artefact.content, fs.readFileSync(join(f.root,f.documentPath),'utf8'));
     assert.equal(packet.artefact.content_digest, hash(packet.artefact.content));
     assert.equal(packet.run_id,'fixture-a'); assert.equal(packet.revision_id,s.detail.data.revision_id);
+    assert.equal(s.snapshot.schema_version, '2');
+    assert.equal(packet.schema_version, '1', 'The published context packet does not inherit the v2 reader envelope version');
     assert.equal(packet.snapshot_id,s.snapshot.snapshot_id); assert.equal(packet.source_digest,s.snapshot.source_digest);
     assert.equal(result.data.byte_count, Buffer.byteLength(JSON.stringify(packet),'utf8'));
     assert.equal(s.reader.validateContext(packet.context_id,1).data.current,true);

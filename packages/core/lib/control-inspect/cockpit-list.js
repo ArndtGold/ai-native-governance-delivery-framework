@@ -43,3 +43,15 @@ export function projectCockpitList(inventory, { section = COCKPIT_BACKLOG_SECTIO
   return { section, query: normalizedQuery, coverage: diagnostics.length || nonselectable ? 'partial' : 'complete', diagnostics,
     sectionCount, matchCount: rows.length, rows: rows.reverse() };
 }
+
+// Presentation-only grouping/search over the shared inventory's already ordered entries.
+export function projectCockpitRuns(inventory, { section = 'active', query = '' } = {}) {
+  if (!['active', 'history'].includes(section)) throw Error('dto_invalid');
+  const normalized = query.trim().toLowerCase();
+  const entries = inventory.runs.filter(run => section === 'active'
+    ? !run.valid || run.lifecycle === 'active' : run.valid && run.lifecycle !== 'active');
+  const rows = entries.filter(run => !normalized || [run.title, run.run_id, run.attention.label]
+    .some(value => value.toLowerCase().includes(normalized)));
+  return { rows, sectionCount: entries.length, matchCount: rows.length,
+    coverage: inventory.state === 'complete' ? 'complete' : inventory.state === 'absent' ? 'unavailable' : 'partial' };
+}

@@ -4,7 +4,7 @@ import { App } from '../src/App';
 import { validateData, validateEnvelope, type ReadTransport } from '../src/api';
 import type { Detail, Envelope, Inventory, ReadingScope } from '../src/types';
 
-const meta = { schema_version: '1' as const, target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: 'snapshot',
+const meta = { schema_version: '2' as const, target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: 'snapshot',
   observed_as_of: '2026-10-07T08:00:00Z', source_digest: 'digest', state: 'available' as const, code: null, retryable: false };
 const run: Detail = { run_id: 'run-a', title: 'Unterlagen zuordnen', revision_id: 'revision', lifecycle: 'active', resources: [],
   persisted: { current_gate: 'CD+Tests', next_allowed_action: 'Implement approved scope', decision: 'in_progress', artefacts: [] },

@@ -1,0 +1,22 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Run-based Cockpit overview and worktree placement
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Lösung: Die Cockpit-Übersicht liest das vorhandene Run-Inventar. Aktiv und Historie verwenden dieselbe Reihenfolge, Suche und gespeicherte Orientierung; erst das Öffnen eines bestimmten Runs liefert dessen aktuelle Prüfung. Alte Backlog-Inhalte bleiben separat und nur lesbar erreichbar.
+- Verantwortung: Run-Dateien, bestehendes Inventar, Gate-Prüfung, Siegel und Transaktionsschreiber behalten ihre Zuständigkeit. Es entstehen weder ein neuer Index noch eine zweite Status- oder Freigabequelle.
+- Entscheidungen: Neue Run-Operationen schreiben und sperren das zentrale Backlog nicht mehr. Bestehende Journalformate bleiben erhalten; nur ausdrückliche Wiederherstellung darf eine bereits gespeicherte alte Backlog-Verpflichtung abschließen. Neue Worktrees gehören unter .agdf/worktrees/INITIATIVE/ im zuständigen Hauptcheckout, werden dort ignoriert und für das Vorhaben wiederverwendet. Alte Orte und ausdrückliche Alternativen bleiben möglich.
+- Integration: Cockpit-Datenvertrag und passende Oberfläche wechseln gemeinsam auf Version 2; Run- und Freigabeformate bleiben bestehen. Schreibende Laufzeiten müssen koordiniert umgestellt werden. Ein beliebiger alter Schreiber wird technisch nicht durch eine neue Konfigurationsmarke ausgeschlossen. Nach neuen Schreibvorgängen braucht ein Rückwechsel einen nachgewiesenen kompatiblen Wiederherstellungsweg; sonst erfolgt eine Vorwärtskorrektur.
+- Offen: Keine materielle Designfrage ist vor dieser Freigabe offen. Der TP konkretisiert Aufgaben, Tests, sichtbare Nachweise und den Abgleich mit dem abgeschlossenen CI-Fix. Dieser bleibt unangetastet. Umsetzung, Browser-/Host-Verifikation und Integration sind noch nicht erfolgt; diese Freigabe erlaubt zunächst nur den TP.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5` · Lösungsdesign · Revision: `272c4a07-e1d1-455d-98dc-174b1cd1a253`
+
+SHA-256: `sha256:47420849b40b40d8601c57bb77e9030d1fd922b5729c4148db5346ef583f0a96`

@@ -15,3 +15,8 @@ export interface CockpitList<T extends ListEntry = ListEntry, D extends ListDiag
 export function hasConsistentBacklogCounts(inventory: unknown): boolean;
 export function backlogRowKey(entry: ListEntry, index: number, digest: string): string;
 export function projectCockpitList<T extends ListEntry, D extends ListDiagnostic>(inventory: ListInventory<T, D> | null, options?: { section?: string; query?: string }): CockpitList<T, D>;
+
+export interface RunListEntry { valid: boolean; lifecycle: string | null; run_id: string; title: string; attention: { label: string } }
+export function projectCockpitRuns<T extends RunListEntry>(inventory: { runs: T[]; state: string }, options?: { section?: string; query?: string }): {
+  rows: T[]; sectionCount: number; matchCount: number; coverage: 'complete' | 'partial' | 'unavailable';
+};

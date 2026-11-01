@@ -113,13 +113,11 @@ try {
     assert.equal(history.active[0].operation.resulting_revision_id, f.revision()); assert.equal(runSealState(f.root, after).status, "valid");
     assert.equal(evaluateGateCheck(f.root, { runId }).delivery_map.relationships.find(row => row.from === history.active[0].destination.type).status, "pass");
     const backlogPath = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
-    const visibleRow = () => readFileSync(backlogPath, 'utf8').split('\n').find(line => line.startsWith(`| 1 | ${runId} |`));
-    const firstRow = visibleRow(), firstRevision = f.revision();
+    const firstBacklog = readFileSync(backlogPath, 'utf8'), firstRevision = f.revision();
     const repeated = f.record(); assert.equal(repeated.outcome, 'recorded');
-    assert.notEqual(repeated.revision_id, firstRevision); assert.equal(visibleRow(), firstRow);
-    const marker = readFileSync(backlogPath, 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === runId);
-    assert.equal(marker.record.revision_id, repeated.revision_id, 'same visible row must bind each new typed recording revision');
-    assert.equal(repeated.backlog, 'updated');
+    assert.notEqual(repeated.revision_id, firstRevision);
+    assert.equal(readFileSync(backlogPath, 'utf8'), firstBacklog, 'new typed recording preserves legacy bytes');
+    assert.equal(repeated.backlog, 'not_required');
     f.omit(); const blocked = evaluateGateCheck(f.root, { runId });
     assert.equal(blocked.blocking_reason, "AGDF_DELIVERY_RELATIONSHIP_MISSING", JSON.stringify(blocked.doctor_report?.findings));
     assert.equal(blocked.next_operation.type, 'resolve_control_blocker');
@@ -132,8 +130,8 @@ try {
     assert.equal(readFileSync(f.state, "utf8"), stateBeforeRead);
     const repaired = correctRunRelationship(f.root, { runId, revisionId: f.revision() }, { evaluateGateCheck });
     assert.equal(repaired.outcome, "corrected", JSON.stringify(repaired));
-    assert.equal(repaired.backlog, "pending"); assert.equal(repaired.backlog_reason, "run_only_relationship_correction");
-    assert.ok(repaired.backlog_next_action.includes(`--run ${runId} --revision ${repaired.revision_id}`));
+    assert.equal(repaired.backlog, "not_required");
+    assert.equal(repaired.backlog_next_action, undefined);
     assert.equal(approvalSeal(readFileSync(f.state, "utf8")), approvals);
     assert.match(readFileSync(f.state, "utf8"), new RegExp(repaired.revision_id));
     const snapshot = readFileSync(f.state, "utf8");
@@ -208,7 +206,7 @@ try {
   for (const [name, alter] of [
     ["missing approval proof", x => rmSync(join(x.root, `.agdf/control/runs/${runId}/presentations`), { recursive: true })],
     ["multiple omissions", x => x.edit(text => text.replace(/^\| PRD \| derived_from \| UR \|[^\n]*\n/mu, ""))],
-    ["unrelated blocker", x => writeFileSync(join(x.root, ".agdf/control/MASTER_BACKLOG.md"), readFileSync(join(x.root, ".agdf/control/MASTER_BACKLOG.md"), "utf8").replace(/\[UR\]\([^)]*\)/u, "invalid link"))],
+    ["unrelated blocker", x => rmSync(join(x.root, ".agdf/control/AGENT_QUALITY_CONTRACTS.json"))],
     ["pending transaction", x => writeFileSync(join(x.root, `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`), "{}")],
     ["changed source", x => { writeFileSync(join(x.root, `${x.prefix}PRD.md`), "Changed approved source\n"); x.edit(text => text); }],
     ["changed destination", x => writeFileSync(join(x.root, `${x.prefix}SD.md`), "Changed destination\n")],

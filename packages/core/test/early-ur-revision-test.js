@@ -12,7 +12,6 @@ import { readArtefactBindings } from "../lib/control-state/artefact-bindings.js"
 import { readApprovalOperations } from "../lib/control-state/approval-operations.js";
 import { runSealState, sealRunState, artefactFileDigest } from "../lib/control-state/run-seal.js";
 import { evaluateGateCheck } from "../lib/control-evaluation/gate-check.js";
-import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
 import { upsertTableRow } from "../lib/control-state/run-state-edits.js";
 import { createCoreServices } from "../lib/index.js";
 import { resolveControlCommandTarget, canonicalJson, digest } from "../lib/control-state/approval-command-contract.js";
@@ -23,6 +22,8 @@ const temporary = mkdtempSync(join(tmpdir(), "agdf-early-ur-revision-")), root =
 const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
 mkdirSync(root); execFileSync("git", ["init", "-q", root]);
 execFileSync(process.execPath, [cli, "init", "--dir", root, "--language", "en"]);
+const backlogPath = join(root, ".agdf/control/MASTER_BACKLOG.md"), legacyBacklog = "# Legacy planning\n\nExisting idea and reference.\n";
+writeFileSync(backlogPath, legacyBacklog);
 const f = createEarlyUrRevisionTestRun(root, cli), seed = join(temporary, "seed");
 cpSync(join(root, ".agdf"), seed, { recursive: true });
 const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
@@ -71,8 +72,7 @@ try {
   const history = inspectSourceRevision(root, p.input).history;
   for (const name of oldPresentations) assert.ok(history.manifest.files.some(row => row.path.endsWith(`/presentations/${name}`)));
   assert.deepEqual(readFileSync(join(root, history.manifest.files.find(row => row.path === f.prefix + "SD.md").snapshot)), readFileSync(f.file("SD.md")));
-  const marker = readFileSync(join(root, ".agdf/control/MASTER_BACKLOG.md"), "utf8").split("\n").map(decodeBacklogMarker).find(row => row?.record?.run_id === f.runId);
-  assert.equal(marker.record.revision_id, f.revision());
+  assert.equal(readFileSync(backlogPath, "utf8"), legacyBacklog, "Source revision preserves existing legacy planning bytes");
   const check = evaluateGateCheck(root, { runId: f.runId }); assert.equal(check.current_gate, "UR"); assert.equal(check.source_revisions.status, "verified");
   const services = createCoreServices();
   const dispatch = services.dispatch({ skillId: "gate-check", runId: f.runId, intake: true, intakeMode: "resume", urAction: "revise",
@@ -144,7 +144,7 @@ try {
   assert.equal(applySourceRevision(root, draftChanged.input).reason, "seal_invalid");
 
   // Real process exits cover both pre-commit rollback and post-commit completion.
-  for (const stage of ["archive_file", "archive_published", "run", "backlog"]) {
+  for (const stage of ["archive_file", "archive_published", "run", "run_after_directory_sync"]) {
     reset(); const candidate = prepare(), previous = f.revision();
     const interrupted = await worker(candidate.input, stage); assert.equal(interrupted.code, 71, interrupted.stderr);
     assert.equal(inspectSourceRevision(root, candidate.input).outcome, "recovery_required");
@@ -156,7 +156,7 @@ try {
   }
   // Early UR through the bounded v2 command uses the same real atomic checkpoints.
   // Process interruption is not physical power-loss or a native human decision.
-  for (const stage of [...intentStages, ...archiveStages, ...commitStages]) {
+  for (const stage of [...intentStages, ...archiveStages, ...commitStages].filter(stage => !stage.startsWith("backlog"))) {
     reset(); const candidate = f.proposal(), previous = f.readState().content;
     const payload = { source_gate: "UR", proposal: { path: candidate.input.evidence, digest: artefactFileDigest(root, candidate.input.evidence) } };
     const envelope = { schema_version: "1", presentation_language: "en", working_directory: root, target_source: "explicit_target", primary_target: root,

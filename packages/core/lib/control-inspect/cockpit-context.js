@@ -85,7 +85,8 @@ export function composeCockpitPacket(metadata, document, context, input) {
   const selected = input.graph_ids.map(id => registrations.get(id));
   if (selected.some(ref => ref.state !== 'available')) fail('resource_denied');
   if (context.references.some(ref => ref.state !== 'available' && !input.excluded_ids.includes(ref.resource_id))) fail('context_exclusion_required');
-  const packet = { ...metadata, context_id: randomUUID(), generation: input.generation,
+  // Context packets keep their independent published format when the reader envelope evolves.
+  const packet = { ...metadata, schema_version: '1', context_id: randomUUID(), generation: input.generation,
     prepared_at: new Date().toISOString(), artefact: document,
     graph_nodes: selected,
     included: [{ resource_id: document.resource.resource_id, path: document.resource.path }, ...selected.map(ref => ({ resource_id: ref.resource_id, node_id: ref.node_id, origin: ref.origin }))],

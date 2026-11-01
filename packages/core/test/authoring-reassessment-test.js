@@ -6,7 +6,10 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createExpandedSourceRevisionFixture } from '../../cli/scripts/fixtures/expanded-source-revision.js';
-import { syntheticPrd } from '../../cli/scripts/fixtures/prd-definition.js';
+import { createPrdDefinitionTestRun, syntheticPrd } from '../../cli/scripts/fixtures/prd-definition.js';
+import { createCoreServices } from '../lib/index.js';
+import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
+import { treeBytes } from './control-cockpit-fixtures.js';
 import { inspectAuthoringInputs } from '../lib/control-inspect/authoring-inputs.js';
 import { createRunCommandService } from '../lib/control-state/run-command-service.js';
 import { digest } from '../lib/control-state/approval-command-contract.js';
@@ -15,6 +18,55 @@ import { artefactFileDigest } from '../lib/control-state/run-seal.js';
 const root = mkdtempSync(join(tmpdir(), 'agdf-reassessment-')), seeds = mkdtempSync(join(tmpdir(), 'agdf-reassessment-seeds-'));
 try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
+  const initialRoot = mkdtempSync(join(tmpdir(), 'agdf-initial-ux-'));
+  try {
+    execFileSync('git', ['init', '-q', initialRoot]);
+    execFileSync(process.execPath, [cli, 'init', '--dir', initialRoot, '--language', 'en']);
+    const initial = createPrdDefinitionTestRun(initialRoot, cli, 'initial-ux', process.env,
+      { typedApprovals: true, typedRoute: true, uxRequired: true });
+    const services = createCoreServices();
+    const inspect = () => {
+      const before = treeBytes(initialRoot);
+      const report = inspectAuthoringInputs(initialRoot, { run_id: initial.runId,
+        expected_revision_id: initial.revision(), presentation_language: 'en' });
+      assert.equal(report.available, true, JSON.stringify(report));
+      assert.equal(report.gate, 'PRD');
+      assert.deepEqual(treeBytes(initialRoot), before, 'authoring-inputs preserves every control file');
+      return report;
+    };
+    const dispatch = () => services.dispatch({ skillId: 'gate-check', runId: initial.runId,
+      continueDelivery: true, surface: 'codex', presentationLanguage: 'en', workingDirectory: initialRoot,
+      primaryTarget: initialRoot, targetSource: 'explicit_target',
+      expectedVersion: services.resources.pluginDefinition.version, interactionLocales: services.resources.interactionLocales });
+    const assertUxInput = () => {
+      assert.equal(dispatch().continuation?.skill_id, 'ux-intent-definition');
+      const report = inspect();
+      assert.equal(report.authoring_owner, 'UX Intent Definition');
+      assert.equal(report.chunk.type, 'UX_INTENT_DEFINITION');
+      assert.equal(report.chunk.source, 'version_matched_plugin');
+      assert.equal(report.formats.kind, 'step.record');
+      assert.equal(report.documents.some(row => row.role === 'template' && row.type === 'PRD'), false);
+    };
+    assertUxInput(); // The first post-UR analysis is missing; no source revision exists.
+    writeFileSync(initial.file('UX_INTENT_DEFINITION.md'), '# UX intent\nDecision: ready\n');
+    assertUxInput(); // Malformed declaration is the existing owner's correction path.
+    writeFileSync(initial.file('UX_INTENT_DEFINITION.md'), '# UX intent\n- decision: blocked\n');
+    assert.equal(dispatch().terminal, true, 'a blocked decision must not grant analytical correction intent');
+    assert.equal(inspect().authoring_owner, 'PRD', 'non-repairable source decisions retain the existing gate observation');
+    writeFileSync(initial.file('UX_INTENT_DEFINITION.md'), '# UX intent\n- decision: ready\n');
+    assertUxInput(); // Ready bytes still need canonical registration.
+    const recorded = services.command('agdf_record', { schema_version: '1', presentation_language: 'en',
+      working_directory: initialRoot, primary_target: initialRoot, target_source: 'explicit_target',
+      target_id: resolveControlCommandTarget(initialRoot).target_id, run_id: initial.runId,
+      expected_revision_id: initial.revision(), operation_id: randomUUID(), assurance: 'cooperative_local',
+      command: { kind: 'step.record', payload: { step: 'internal', internal_step: 'UX Intent Definition',
+        decision: 'ready', source: { path: initial.prefix + 'UX_INTENT_DEFINITION.md',
+          digest: artefactFileDigest(initialRoot, initial.prefix + 'UX_INTENT_DEFINITION.md') } } } });
+    assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
+    assert.equal(dispatch().continuation?.skill_id, 'prd-definition');
+    assert.equal(inspect().chunk.type, 'PRD', 'the completed prerequisite returns authoring to PRD');
+    console.log('Initial required UX authoring: missing, malformed, unrecorded, blocked and completed inputs match dispatch without writes.');
+  } finally { rmSync(initialRoot, { recursive: true, force: true }); }
   execFileSync('git', ['init', '-q', root]);
   execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const { f, service, state, envelope, restore, prepare } = createExpandedSourceRevisionFixture(root, cli, seeds);

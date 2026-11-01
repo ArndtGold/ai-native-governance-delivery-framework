@@ -1,7 +1,7 @@
 // Shared run inventory derived from stored run state texts only. Pure: no `node:` import, no file,
 // clock, network or process access, so a bundled copy can serve hosts without the Core runtime.
 // Callers pass validity findings from the full parser; this module never validates receipts.
-import { scalarFields, sectionTableRows } from "./run-state-document.js";
+import { scalarFields, sectionTableRows, projectRunFacts } from "./run-state-document.js";
 import { RUN_ID_PATTERN } from "./run-identity.js";
 import { isDecisionContentPlaceholder } from "../control-evaluation/decision-content-placeholder.js";
 
@@ -9,7 +9,7 @@ export const RUN_INVENTORY_SCHEMA_VERSION = "1";
 export const RUN_INVENTORY_LIFECYCLES = Object.freeze(["active", "completed", "superseded", "abandoned"]);
 export const RUN_INVENTORY_ATTENTION = Object.freeze(["decision_required", "clarification_required", "blocked", "in_progress", "unclear", "none"]);
 
-// English first, German second, like the backlog vocabulary.
+// English first, German second.
 const LABELS = Object.freeze({
   decision_required: ["Decision required", "Entscheidung erforderlich"],
   clarification_required: ["Clarification required", "Klärung erforderlich"],
@@ -19,10 +19,10 @@ const LABELS = Object.freeze({
   none: ["History", "Historie"],
 });
 const TEXT = Object.freeze({
-  basis: [revision => `Stored state at revision ${revision}, not a live evaluation.`,
-    revision => `Gespeicherter Stand der Revision ${revision}, keine Live-Bewertung.`],
-  basisUnknown: [() => "Stored state at an unknown revision, not a live evaluation.",
-    () => "Gespeicherter Stand unbekannter Revision, keine Live-Bewertung."],
+  basis: [revision => `Derived observation at revision ${revision}; no delivery authority.`,
+    revision => `Abgeleitete Beobachtung der Revision ${revision}; keine Lieferfreigabe.`],
+  basisUnknown: [() => "Derived observation at an unknown revision; no delivery authority.",
+    () => "Abgeleitete Beobachtung unbekannter Revision; keine Lieferfreigabe."],
   history: [c => `History: ${c.completed} completed, ${c.superseded} superseded, ${c.abandoned} abandoned.`,
     c => `Historie: ${c.completed} abgeschlossen, ${c.superseded} abgelöst, ${c.abandoned} abgebrochen.`],
   inspect: [id => `Inspect the run with doctor --run ${id}.`, id => `Den Run mit doctor --run ${id} prüfen.`],
@@ -34,7 +34,7 @@ export const runInventoryHistoryLine = (counts, language) => TEXT.history[langua
 const BLOCKED = new Set(["block", "blocked"]);
 const CLARIFICATION = new Set(["revise", "decline"]);
 const AWAITING = new Set(["pending", "awaiting_uat"]);
-const WORKING = new Set(["in_progress", "pass", "qa_approved", "completed"]);
+const WORKING = new Set(["open", "in_progress", "pass", "qa_approved", "completed"]);
 const ATTENTION_ORDER = RUN_INVENTORY_ATTENTION.slice(0, 5);
 const TITLE_LIMIT = 240;
 const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/u;
@@ -67,8 +67,6 @@ function objectiveTitle(text, runId) {
     : { title: clip(stripped), title_source: "objective" };
 }
 
-const controlAnswer = (text, question) => plain(sectionTableRows(text, "Current Control State").find(([key]) => key === question)?.[1]);
-
 // Base64url receipt cells decoded for display facts only; undecodable cells are skipped.
 function decodeReceipt(cell) {
   if (!/^[A-Za-z0-9_-]+$/u.test(cell)) return null;
@@ -79,19 +77,14 @@ function decodeReceipt(cell) {
     return receipt && typeof receipt === "object" ? receipt : null;
   } catch { return null; }
 }
-const receipts = text => ["Run Operations", "Approval Operations"]
+const receipts = text => ["Run Operations", "Approval Operations", "Artefact Bindings", "Source Revisions"]
   .flatMap(heading => sectionTableRows(text, heading).filter(row => row.length === 3).map(row => decodeReceipt(row[2])))
   .filter(Boolean);
 const timeOf = value => (typeof value === "string" && ISO_TIME.test(value) && !Number.isNaN(Date.parse(value)) ? Date.parse(value) : null);
 
-function lastActivity(text, decoded) {
+function lastActivity(decoded) {
   const times = decoded.map(receipt => timeOf(receipt.created_at)).filter(value => value !== null);
   if (times.length) return { at: new Date(Math.max(...times)).toISOString(), source: "receipt", precision: "time" };
-  const days = sectionTableRows(text, "Approvals")
-    .map(([, status, evidence]) => (plain(status) === "approved" ? String(evidence ?? "").match(/· (\d{4}-\d{2}-\d{2}) ·/u)?.[1] : null))
-    .map(day => (day ? timeOf(`${day}T00:00:00.000Z`) : null))
-    .filter(value => value !== null);
-  if (days.length) return { at: new Date(Math.max(...days)).toISOString(), source: "approval", precision: "day" };
   return { at: null, source: "none", precision: null };
 }
 
@@ -126,14 +119,13 @@ function entryOf(source, language) {
   if (!text) { if (!findings.length) findings.push({ code: "AGDF_RUN_STATE_UNAVAILABLE" }); }
   else if (meta.get("run_id") !== runId || !RUN_INVENTORY_LIFECYCLES.includes(lifecycle)) findings.push({ code: "AGDF_RUN_META_INVALID" });
   const valid = RUN_ID_PATTERN.test(runId) && findings.length === 0;
-  const gate = plain(meta.get("current_gate")) || null;
-  const decision = plain(meta.get("decision")) || null;
+  const gate = source.observation?.current_gate ?? null;
+  const decision = source.observation?.decision ?? null;
   const decoded = text ? receipts(text) : [];
-  const statuses = new Map((text ? sectionTableRows(text, "Artefacts") : []).map(([type, , status]) => [plain(type), plain(status)]));
-  const gateResult = gate ? statuses.get(gate === "Quick Task Execution" ? "CR" : gate) ?? null : null;
-  const known = text ? controlAnswer(text, "What is known?") : "";
-  const presentationDecision = gate && new RegExp(`^(?:reject|request_change) recorded for current ${gate.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")} material\\.$`, "u").test(known);
-  const missing = text ? controlAnswer(text, "What is missing?") : "";
+  const facts = text && valid ? projectRunFacts(text) : null;
+  const gateResult = facts?.artefacts.get(gate === 'Quick Task Execution' ? 'CR' : gate)?.status ?? null;
+  const presentationDecision = source.observation?.presentation_decision === true;
+  const missing = source.observation?.missing === 'none' ? '' : source.observation?.missing ?? '';
   const attention = runAttention({ lifecycle, valid, decision, gateResult, presentationDecision, missing });
   const revision = /^[1-9]\d*$/u.test(meta.get("revision") ?? "") ? Number(meta.get("revision")) : null;
   const index = languageIndex(language);
@@ -146,11 +138,11 @@ function entryOf(source, language) {
     decision,
     attention: { code: attention, label: LABELS[attention][index] },
     basis: revision === null ? TEXT.basisUnknown[index]() : TEXT.basis[index](revision),
-    last_activity: text ? lastActivity(text, decoded) : { at: null, source: "none", precision: null },
+    last_activity: text ? lastActivity(decoded) : { at: null, source: "none", precision: null },
     revision,
     revision_id: meta.get("revision_id") ?? null,
     missing: missing || null,
-    next_action: (text ? controlAnswer(text, "What is the next allowed action?") : "") || null,
+    next_action: source.observation?.next_action ?? null,
     path: `.agdf/control/runs/${runId}/RUN_STATE.md`,
     closure: valid ? closureFacts(lifecycle, decoded) : null,
     findings: valid ? [] : findings.map(finding => ({ ...finding, next_step: TEXT.inspect[index](runId) })),

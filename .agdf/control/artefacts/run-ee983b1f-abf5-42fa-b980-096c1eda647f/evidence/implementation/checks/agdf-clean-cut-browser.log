@@ -1,0 +1,30 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test --grep run model
+
+Running 7 tests using 1 worker
+
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/run-model-findings.spec.mjs:9:1 › run model: normalized open findings remain visible without a saved summary (14.4s)
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/run-model.spec.mjs:7:3 › run model: current inventory, deliberate selection, history and retry desktop 390 (2.0s)
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 test/browser/run-model.spec.mjs:7:3 › run model: current inventory, deliberate selection, history and retry desktop 1440 (2.5s)
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 test/browser/run-model.spec.mjs:7:3 › run model: current inventory, deliberate selection, history and retry compact 390 (1.9s)
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 test/browser/run-model.spec.mjs:7:3 › run model: current inventory, deliberate selection, history and retry compact 1440 (2.1s)
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 test/browser/run-model.spec.mjs:35:35 › run model: unsupported is visible and deliberate retry restores the current desktop view (1.5s)
+(node:55169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 test/browser/run-model.spec.mjs:35:35 › run model: unsupported is visible and deliberate retry restores the current compact view (1.4s)
+
+  7 passed (30.3s)

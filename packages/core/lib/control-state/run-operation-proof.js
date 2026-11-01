@@ -1,3 +1,5 @@
+import { RUN_OPERATION_VERSION } from './run-operations.js';
+import { runDocumentPath, runEvidencePath } from './run-identity.js';
 import { bindInputResolution } from './input-resolution.js';
 import { readFileSync, statSync } from 'node:fs';
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, COOPERATIVE_ASSURANCE, resolveControlCommandTarget } from './approval-command-contract.js';
@@ -13,7 +15,7 @@ import { approvalMaterialTypes, reviewRecordingChain } from './presentation-deci
 
 export function readOperationSource(root, runId, source) {
   if (!exactObject(source, ['path', 'digest']) || !DIGEST_PATTERN.test(source.digest ?? '')
-    || typeof source.path !== 'string' || !source.path.startsWith(`.agdf/control/artefacts/${runId}/`)
+    || typeof source.path !== 'string' || ![runDocumentPath(runId, ''), runEvidencePath(runId, '')].some(prefix => source.path.startsWith(`${prefix}/`))
     || source.path.endsWith('/RUN_STATE.md') || hasSymlinkComponent(root, source.path)) throw Error('AGDF_RUN_OPERATION_SOURCE_INVALID');
   const file = containedRegularFile(root, source.path);
   if (file.status !== 'valid' || statSync(file.path).size > 131072) throw Error('AGDF_RUN_OPERATION_SOURCE_INVALID');
@@ -33,7 +35,7 @@ export function operationSources(root, state, step) {
 }
 export const operationSourceSetDigest = (root, state, step) => evidenceSourceSetDigest(operationSources(root, state, step));
 export function operationReceipt(root, run, context, nextRevisionId, record, packageVersion) {
-  return bindInputResolution({ schema_version: context.kind === 'ur_draft.replace' || record.mode === 'verified_change' ? '2' : '1', kind: context.kind, operation_id: context.operation_id, request_digest: context.request_digest,
+  return bindInputResolution({ schema_version: RUN_OPERATION_VERSION, kind: context.kind, operation_id: context.operation_id, request_digest: context.request_digest,
     target_id: resolveControlCommandTarget(root).target_id, run_id: run.meta.run_id, expected_revision_id: run.meta.revision_id,
     created_at: new Date().toISOString(), producer: { contract: 'run-command/1', package_version: packageVersion }, assurance: COOPERATIVE_ASSURANCE,
     effect: { previous_revision_id: run.meta.revision_id, resulting_revision_id: nextRevisionId, revision: Number(run.meta.revision) + 1, record } });
@@ -61,7 +63,7 @@ function reviewCorrectionCandidate(state, before, input) {
     || !row?.path || !['done', 'revise', 'block'].includes(row.status)) return false;
   // Only a correction that the approval-material proof recognises afterwards is eligible:
   // the approvals saw a receipt-recorded version at the canonical path with this status.
-  const chain = reviewRecordingChain(state, type), canonical = `.agdf/control/artefacts/${state.run_id ?? state.meta?.run_id}/${INTERNAL_STEP_FILES[type]}`;
+  const chain = reviewRecordingChain(state, type), canonical = `${runDocumentPath(state.run_id ?? state.meta?.run_id, '')}/${INTERNAL_STEP_FILES[type]}`;
   return Boolean(chain) && chain.seen.source.path === canonical && String(row.path).replace(/^`|`$/gu, '') === canonical && row.status === chain.seen.status;
 }
 

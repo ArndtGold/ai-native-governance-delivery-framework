@@ -1,12 +1,14 @@
+import { currentFixture } from './fixtures/current-run.js';
+import { runDocumentPath, runHistoryPath } from '../lib/control-state/run-identity.js';
+import { boundMutatePlannedUr as mutatePlannedUr, boundCreateRunFromPlanned as createRunFromPlanned } from './planned-fixtures.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync, rmSync, existsSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import { plannedFixture, clarifiedUr, completeUr } from './planned-fixtures.js';
-import { mutatePlannedUr, inspectPlannedEntry, plannedEntryPath, plannedTextDigest, plannedRawDigest } from '../lib/control-state/planned-entry.js';
-import { createRunFromPlanned } from '../lib/control-state/planned-handoff.js';
-import { inspectPlannedOrigins } from '../lib/control-state/planned-origin.js';
+import { inspectPlannedEntry, plannedEntryPath, plannedTextDigest, plannedRawDigest } from '../lib/control-state/planned-entry.js';
+import { inspectPlannedOrigins } from '../lib/control-state/planned-origin-reader.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { runSealState } from '../lib/control-state/run-seal.js';
 import { parseControlState, parseRunState } from '../lib/control-state/run-state-parser.js';
@@ -34,7 +36,7 @@ test('SCN-015/018: explicit source-bound handoff registers unapproved UR and imm
   const state = parseControlState(text, { userGates: ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'] });
   assert.equal(state.approvals.get('UR').status, 'missing');
   assert.equal(state.artefacts.get('UR').status, 'draft');
-  for (const name of ['UR.md', 'PLANNED_UR.md']) assert.equal(readFileSync(join(root, `.agdf/control/artefacts/${id}/${name}`), 'utf8'), entry.content);
+  for (const path of [runDocumentPath(id, 'UR.md'), runHistoryPath(id, 'planning/UR.md')]) assert.equal(readFileSync(join(root, path), 'utf8'), entry.content);
   assert.equal(createRunFromPlanned(root, input).outcome, 'already_applied');
   const another = createRunFromPlanned(root, { ...input, operation_id: randomUUID() });
   assert.equal(another.run_id, id);
@@ -50,10 +52,10 @@ test('SCN-016: incomplete and stale planning sources cannot create a Run', t => 
   const { root, input } = fixture(t, completeUr);
   assert.throws(() => createRunFromPlanned(root, input), /UR_NOT_READY/);
   assert.throws(() => createRunFromPlanned(root, { ...input, expected_digest: 'sha256:' + '0'.repeat(64) }), /SOURCE_STALE/);
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')).filter(name => !name.startsWith('.')), []);
 });
 
-for (const phase of ['handoff_intent', 'handoff_output_UR.md', 'handoff_output_PLANNED_UR.md', 'handoff_output_PLANNED_ORIGIN.json',
+for (const phase of ['handoff_intent', 'handoff_output_UR.md', 'handoff_output_snapshot',
   'handoff_before_run_publish', 'handoff_run_committed', 'handoff_entry_receipt', 'handoff_retired']) {
   test(`SCN-017: ${phase} interruption resumes the original handoff without another Run`, t => {
     const { root, entry, input } = fixture(t);
@@ -79,32 +81,36 @@ test('SCN-017/019: committed Run origin remains authoritative when entry complet
 test('SCN-017: foreign sibling outputs are preserved before any publication', t => {
   const { root, entry, input } = fixture(t);
   assert.throws(() => createRunFromPlanned(root, input, { checkpoint(stage) { if (stage === 'handoff_output_UR.md') throw Error('fault'); } }));
-  const path = join(root, `.agdf/control/artefacts/run-${input.operation_id}/UR.md`);
+  const stage = readdirSync(join(root, '.agdf/control/runs')).find(name => name.startsWith(`.run-stage-run-${input.operation_id}-`));
+  assert(stage);
+  const path = join(root, '.agdf/control/runs', stage, 'foreign-sibling.md');
   writeFileSync(path, 'Foreign bytes');
   assert.throws(() => createRunFromPlanned(root, input), /RECOVERY_REQUIRED/);
   assert.equal(readFileSync(path, 'utf8'), 'Foreign bytes');
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')).filter(name => !name.startsWith('.')), []);
   assert.equal(inspectPlannedEntry(root, entry.plan_id).digest, entry.digest);
 });
 
 test('SCN-018/019: active UR may change while origin remains immutable; missing origin or missing Run plus transfer never permits another Run', t => {
   const { root, entry, input } = fixture(t), result = createRunFromPlanned(root, input);
   const path = join(root, `.agdf/control/runs/${result.run_id}/RUN_STATE.md`), before = readFileSync(path, 'utf8');
-  const urPath = join(root, `.agdf/control/artefacts/${result.run_id}/UR.md`);
-  writeFileSync(urPath, readFileSync(urPath, 'utf8') + '\nAn active UR clarification.\n');
-  writeRun(path, before, parseRunState(before).meta.revision_id, { allowContentChange: true });
+  const f = currentFixture(t, { root, initialize: false });
+  const binding = { run_id: result.run_id, expected_revision_id: parseRunState(before).meta.revision_id };
+  const material = f.material(binding, 'UR', clarifiedUr + '\nAn active UR clarification.\n');
+  const replaced = f.call('ur_draft.replace', { source: material, title: entry.title }, binding);
+  assert.equal(replaced.outcome, 'accepted', JSON.stringify(replaced));
   assert.equal(inspectPlannedOrigins(root, entry.plan_id).matches[0].origin.planned.digest, entry.digest);
-  const source = join(root, `.agdf/control/artefacts/${result.run_id}/PLANNED_ORIGIN.json`), origin = readFileSync(source, 'utf8');
+  const source = join(root, runHistoryPath(result.run_id, 'planning/UR.md')), origin = readFileSync(source, 'utf8');
   rmSync(source);
   assert.equal(inspectPlannedOrigins(root, entry.plan_id).complete, false);
-  assert.throws(() => createRunFromPlanned(root, { ...input, operation_id: randomUUID() }), /ORIGIN_UNCONFIRMED/u);
+  assert.throws(() => createRunFromPlanned(root, { ...input, operation_id: randomUUID() }), /original_operation_unconfirmed/u);
   writeFileSync(source, origin);
   const runDirectory = join(root, `.agdf/control/runs/${result.run_id}`), moved = join(root, 'temporarily-missing-run');
   renameSync(runDirectory, moved);
   assert.equal(readPlannedInventory(root).entries[0].coverage, 'unconfirmed');
-  assert.throws(() => createRunFromPlanned(root, { ...input, operation_id: randomUUID() }), /ORIGIN_UNCONFIRMED/u);
+  assert.throws(() => createRunFromPlanned(root, { ...input, operation_id: randomUUID() }), /original_operation_unconfirmed/u);
   renameSync(moved, runDirectory);
-  const current = readFileSync(path, 'utf8'), snapshot = join(root, `.agdf/control/artefacts/${result.run_id}/PLANNED_UR.md`);
+  const current = readFileSync(path, 'utf8'), snapshot = join(root, runHistoryPath(result.run_id, 'planning/UR.md'));
   writeFileSync(snapshot, 'Unrecorded origin mutation');
   assert.throws(() => writeRun(path, current, parseRunState(current).meta.revision_id, { allowContentChange: true }), /SEAL_INVALID|ORIGIN_IMMUTABLE/u);
   assert.equal(readFileSync(path, 'utf8'), current);
@@ -116,6 +122,6 @@ test('SCN-018: a manually authored BOM/CRLF planned UR has canonical identity an
   const observed = inspectPlannedEntry(root, entry.plan_id);
   assert.equal(observed.digest, entry.digest); assert.equal(observed.raw_digest, plannedRawDigest(raw));
   const result = createRunFromPlanned(root, input);
-  for (const name of ['UR.md', 'PLANNED_UR.md']) assert.equal(readFileSync(join(root, `.agdf/control/artefacts/${result.run_id}/${name}`), 'utf8'), raw);
+  for (const path of [runDocumentPath(result.run_id, 'UR.md'), runHistoryPath(result.run_id, 'planning/UR.md')]) assert.equal(readFileSync(join(root, path), 'utf8'), raw);
   assert.equal(inspectPlannedOrigins(root, entry.plan_id).matches[0].origin.raw_digest, plannedRawDigest(raw));
 });

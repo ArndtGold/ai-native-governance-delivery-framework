@@ -42,12 +42,17 @@ function cliWorker(fixture, command) {
     let output = "", errors = "";
     child.stdout.on("data", (data) => { output += data; }); child.stderr.on("data", (data) => { errors += data; });
     child.on("error", reject); child.on("exit", (code) => {
-      try { resolve({ code, result: JSON.parse(output) }); } catch { reject(new Error(`${errors}\n${output}`)); }
+      try { resolve({ code, result: JSON.parse(output), stderr: errors, stdout: output }); }
+      catch {
+        if (code === 2 && errors.trim() === 'operation_payload_conflict' && !output.trim())
+          resolve({ code, result: null, stderr: errors, stdout: output });
+        else reject(new Error(`${errors}\n${output}`));
+      }
     });
   });
 }
 
-for (const point of ["before_rename", "after_rename", "before_response"]) {
+for (const point of ["run_before_rename", "run_after_rename", "before_response"]) {
   const fixture = commandFixture(); let active;
   try {
     const before = readFileSync(fixture.runPath, "utf8"), revision = Number(parseRunState(before).meta.revision);
@@ -58,13 +63,13 @@ for (const point of ["before_rename", "after_rename", "before_response"]) {
     const killed = await active.completion;
     assert.equal(killed.signal, "SIGKILL", "process death must be observed before stale lock reclamation");
     const interrupted = readFileSync(fixture.runPath, "utf8");
-    if (point === "before_rename") assert.equal(interrupted, before);
+    if (point === "run_before_rename") assert.equal(interrupted, before);
     else {
       assert.equal(readApprovalOperations(interrupted).receipts.length, 1);
       assert.equal(runSealState(fixture.root, interrupted).status, "valid");
     }
     const replay = recordGateApprovalCommand(fixture.root, fixture.command);
-    assert.equal(replay.outcome, point === "before_rename" ? "accepted" : "already_applied");
+    assert.equal(replay.outcome, point === "run_before_rename" ? "accepted" : "already_applied");
     assert.equal(replay.effect.revision, revision + 1);
     assert.equal(readApprovalOperations(readFileSync(fixture.runPath, "utf8")).receipts.length, 1);
     assert.equal(existsSync(`${fixture.runPath}.lock`), false);
@@ -84,15 +89,17 @@ for (const mode of ["identical", "distinct", "changed_payload"]) {
     active = worker(fixture, first, "before_final_validation");
     await markerReady(active.child, active.marker);
     const rival = await cliWorker(fixture, second);
-    assert.equal(rival.code, 2); assert.equal(rival.result.outcome, "retryable_failure");
+    assert.equal(rival.code, 2);
+    if (mode === 'changed_payload' && !rival.result) assert.equal(rival.stderr.trim(), 'operation_payload_conflict');
+    else { assert.equal(rival.result.outcome, "rejected"); assert.equal(rival.result.family_result.outcome, "retryable_failure"); }
     assert.equal(existsSync(`${fixture.runPath}.lock`), true);
     writeFileSync(active.release, "continue");
     const completed = await active.completion;
     assert.equal(completed.result.outcome, "accepted");
     const retried = await cliWorker(fixture, second);
-    assert.equal(retried.result.outcome, identical ? "already_applied" : "rejected");
+    if (mode === 'changed_payload') { assert.equal(retried.result, null); assert.equal(retried.stderr.trim(), 'operation_payload_conflict'); }
+    else assert.equal(retried.result.outcome, identical ? "already_applied" : "rejected");
     assert.equal(retried.code, identical ? 0 : 2);
-    if (mode === "changed_payload") assert.equal(retried.result.reason, "operation_payload_conflict");
     processEvidence.push({ mode, child_pid: active.child.pid, winner: completed.result, concurrent: rival, retried });
     const content = readFileSync(fixture.runPath, "utf8");
     assert.equal(Number(parseRunState(content).meta.revision), before + 1);
@@ -103,31 +110,31 @@ for (const mode of ["identical", "distinct", "changed_payload"]) {
 }
 console.log(`Control command process tests passed on ${process.platform}/${process.arch}.`);
 
-// Baseline interruption qualification uses the real legacy CLI with a private native-I/O preload.
+// Baseline interruption qualification uses the current CLI with original UUID with a private native-I/O preload.
 // The preload is generated in the disposable fixture, has no environment hook and never ships.
 for (const point of ["before_rename", "after_rename"]) {
   const fixture = commandFixture(); let child;
   try {
-    const marker = join(fixture.root, "legacy-marker"), release = join(fixture.root, "legacy-release");
-    const preload = join(fixture.root, "legacy-preload.mjs");
+    const marker = join(fixture.root, "current-marker"), release = join(fixture.root, "current-release");
+    const preload = join(fixture.root, "current-preload.mjs");
     writeFileSync(preload, `import fs from 'node:fs'; import {syncBuiltinESMExports} from 'node:module';
 +const original=fs.renameSync;
 +function pause(){fs.writeFileSync(${JSON.stringify(marker)},'checkpoint');const until=Date.now()+20000;while(!fs.existsSync(${JSON.stringify(release)})){if(Date.now()>until)throw Error('timeout');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,25);}}
 +fs.renameSync=(from,to)=>{const selected=String(to)===${JSON.stringify(fixture.runPath)};if(selected&&${JSON.stringify(point)}==='before_rename')pause();const result=original(from,to);if(selected&&${JSON.stringify(point)}==='after_rename')pause();return result;};syncBuiltinESMExports();
 +`.replace(/^\+/gmu, ""));
-    const legacyArgs = approvalArgs(fixture).slice(0, -4);
+    const currentArgs = approvalArgs(fixture);
     const before = readFileSync(fixture.runPath, "utf8");
-    child = spawn(process.execPath, ["--import", pathToFileURL(preload).href, sourceCli, ...legacyArgs], { stdio: ["ignore", "pipe", "pipe"] });
+    child = spawn(process.execPath, ["--import", pathToFileURL(preload).href, sourceCli, ...currentArgs], { stdio: ["ignore", "pipe", "pipe"] });
     const exited = new Promise((resolve) => child.once("exit", (code, signal) => resolve({ code, signal })));
     await markerReady(child, marker); child.kill("SIGKILL"); assert.equal((await exited).signal, "SIGKILL");
     const interrupted = readFileSync(fixture.runPath, "utf8");
-    const replay = json(sourceCli, legacyArgs, point === "before_rename" ? 0 : 2);
-    assert.equal(replay.outcome, point === "before_rename" ? "approved" : "rejected");
-    assert.equal(readApprovalOperations(readFileSync(fixture.runPath, "utf8")).present, false);
+    const replay = json(sourceCli, currentArgs);
+    assert.equal(replay.outcome, point === "before_rename" ? "accepted" : "already_applied");
+    assert.equal(readApprovalOperations(readFileSync(fixture.runPath, "utf8")).receipts.length, 1);
     if (point === "after_rename") assert.equal(readFileSync(fixture.runPath, "utf8"), interrupted);
     assert.equal(Number(parseRunState(readFileSync(fixture.runPath, "utf8")).meta.revision), Number(parseRunState(before).meta.revision) + 1);
-    interruptionMetrics.push({ lane: "legacy", point, interrupted_calls: 1, retry_calls: 1, resulting_revision_count: 1, replay_outcome: replay.outcome, manual_corrections: 0, human_decision: "unavailable" });
-    console.log(`PASS SCN-026 real legacy CLI interruption ${point}`);
+    interruptionMetrics.push({ lane: "current_cli", point, interrupted_calls: 1, retry_calls: 1, resulting_revision_count: 1, replay_outcome: replay.outcome, manual_corrections: 0, human_decision: "unavailable" });
+    console.log(`PASS SCN-026 current CLI with original UUID interruption ${point}`);
   } finally { child?.kill("SIGKILL"); fixture.cleanup(); }
 }
 console.log(`SCN-026 INTERRUPTION_METRICS ${JSON.stringify(interruptionMetrics)}`);
@@ -141,7 +148,7 @@ for (const kind of ["artefact", "presentation", "revision", "gate_eligibility"])
     await markerReady(active.child, active.marker);
     let expectedContent = readFileSync(fixture.runPath, "utf8");
     if (kind === "artefact") writeFileSync(fixture.urPath, `${readFileSync(fixture.urPath, "utf8")}Changed before commit.\n`);
-    if (kind === "presentation") writeFileSync(join(fixture.root, ".agdf/control/runs", fixture.runId, "presentations", `${fixture.command.presentation_id}.json`), "{}");
+    if (kind === "presentation") writeFileSync(join(fixture.root, ".agdf/control/runs", fixture.runId, "control/presentations", `${fixture.command.presentation_id}.json`), "{}");
     if (kind === "revision" || kind === "gate_eligibility") {
       const changed = kind === "revision"
         ? expectedContent.replace(/^- revision:.*$/mu, `- revision: ${Number(parseRunState(expectedContent).meta.revision) + 1}`)
@@ -153,7 +160,7 @@ for (const kind of ["artefact", "presentation", "revision", "gate_eligibility"])
     const completed = await active.completion;
     assert.notEqual(completed.result.outcome, "accepted"); assert.equal(completed.result.effect, null);
     assert.equal(readFileSync(fixture.runPath, "utf8"), expectedContent);
-    assert.equal(readApprovalOperations(expectedContent).present, false);
+    assert.equal(readApprovalOperations(expectedContent).receipts.length, 0);
     console.log(`PASS SCN-012 real child final-checkpoint ${kind}, no command effect`);
     console.log(`FRESHNESS_EVIDENCE ${JSON.stringify({ kind, child_pid: active.child.pid, result: completed.result })}`);
   } finally { active?.child.kill("SIGKILL"); fixture.cleanup(); }

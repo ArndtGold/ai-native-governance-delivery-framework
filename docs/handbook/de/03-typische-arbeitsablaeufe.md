@@ -146,8 +146,7 @@ relevante Wege nach einem Fehler. Nutze bei Bedarf ein verfügbares Visualisieru
 Ist eine Vorschau ausdrücklich beauftragt, hält bereits das UR ihren Zweck, die Szenarien, die
 benötigte Interaktion und den Zeitpunkt der Abstimmung fest. Die UX-Klärung erstellt sie später und
 legt eine dauerhaft öffnungsfähige Version unter
-`.agdf/control/artefacts/<run_id>/previews/<name>-v1/index.html` ab. Der Bereich
-`runs/<run_id>/` bleibt dem Steuerungszustand vorbehalten. Eine neue Vorschauversion erhält einen
+`.agdf/control/runs/<run_id>/evidence/previews/<name>-v1/index.html` ab. Derselbe Run-Ordner enthält außerdem Dokumente, Steuerungsnachweise und unveränderliche Historie. Eine neue Vorschauversion erhält einen
 neuen Pfad; UX-Analyse und PRD verweisen auf dieselbe geprüfte Version mit Dateiprüfsummen und
 Beobachtungsgrenzen. Eine Anzeige nur im Chat erfüllt diesen Run-Auftrag nicht.
 

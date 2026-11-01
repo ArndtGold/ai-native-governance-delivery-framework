@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
+import { rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { treeBytes } from './control-cockpit-fixtures.js';
 import { plannedFixture, clarifiedUr, commandBinding } from './planned-fixtures.js';
 import { planningId } from '../lib/control-state/planned-entry.js';
 import { createRunMaterialStore, grantedMaterial } from '../lib/control-state/run-material.js';
@@ -93,7 +96,18 @@ test('SCN-009: planning authoring pages reuse the versioned UR template and stri
     const parsed = parseControlInspectFunctionArguments(args, trusted);
     assert.equal(normalizeControlInspectInput(parsed).operation, operation);
     assert.throws(() => normalizeControlInspectInput({ ...parsed, runId: 'invented', expectedRevisionId: randomUUID() }));
-    if (operation !== 'planned-entry') assert.equal(inspect(parsed).outcome, 'inspect_result');
+    const result = inspect(parsed);
+    assert.equal(result.outcome, 'inspect_result');
+    if (operation === 'planned-entry') {
+      assert.equal(result.terminal, false); assert.equal(result.report.available, false);
+      assert.equal(result.report.reason, 'planned_entry_missing');
+      const next = result.report.next_calls[0];
+      assert.equal(next.tool, 'agdf_inspect');
+      const nextInput = parseControlInspectFunctionArguments(next.arguments, trusted);
+      const authored = inspect(nextInput);
+      assert.equal(authored.outcome, 'inspect_result'); assert.equal(authored.report.available, true);
+      assert.equal(authored.report.mode, 'planning');
+    }
   }
   const help = inspect({ operation: 'operation-contract', contractModule: 'agdf_record/planned_ur.create', presentationLanguage: 'en',
     workingDirectory: root, targetSource: 'explicit_target', primaryTarget: root, ...trusted });
@@ -119,4 +133,17 @@ test('SCN-004/009: the existing UR dispatcher owns pre-Run planning without assi
   assert.equal(missing.continuation.control_transport, 'unavailable');
   for (const altered of [{ ...input, runId: 'invented' }, { ...input, continueDelivery: true }, { ...input, skillId: 'prd-definition' }])
     assert.equal(services.dispatch(altered).outcome, 'invalid_input');
+});
+
+test('SCN-002/009: a missing planning container is unavailable, not a missing new entry or a setup offer', t => {
+  const root = plannedFixture(t, []), bound = envelope(root);
+  rmSync(join(root, '.agdf/control/planned'), { recursive: true });
+  const before = treeBytes(root), trusted = { surface: 'codex', expectedVersion: '0.20.2', interactionLocales };
+  const parsed = parseControlInspectFunctionArguments({ operation: 'planned-entry', presentation_language: 'en',
+    working_directory: root, primary_target: root, target_source: 'explicit_target', planning: bound.planning }, trusted);
+  const result = createControlInspectService()(parsed);
+  assert.equal(result.outcome, 'inspect_result'); assert.equal(result.terminal, false);
+  assert.equal(result.report.available, false); assert.equal(result.report.reason, 'planning_store_unavailable');
+  assert.ok(result.report.findings.some(row => row.code === 'AGDF_PLANNED_STORE_MISSING'));
+  assert.equal(result.report.next_calls, undefined); assert.deepEqual(treeBytes(root), before);
 });

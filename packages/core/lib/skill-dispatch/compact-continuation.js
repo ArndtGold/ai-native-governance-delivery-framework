@@ -67,10 +67,10 @@ export function compactContinuation(root, report, input) {
     source_artifacts: sources, ...(record ? { verified_change: record } : {}),
     instruction: implementation
       ? `Inspect current execution and review evidence first; perform only unfinished work within the approved UR and Brownfield scope. ${mode === 'verified_change'
-        ? 'Use only the evaluated record paths; run its declared propagation and validation commands, record exact changed paths and passing evidence through the existing record/run-update owner. Escalate through the existing declared structured path if eligibility is lost.'
+        ? 'Use only the evaluated record paths; run its declared propagation and validation commands, record exact changed paths and passing evidence through verified_change.record phase execution. Escalate through the existing declared structured path if eligibility is lost.'
         : 'Run relevant checks, record actual evidence and mandatory Code Review through the existing run-step owners before OR-lite.'} After recorded changes redispatch gate-check for this same target/run with continue_delivery and its fresh revision. Stop at any decision or concrete blocker. Never infer QA, UAT, VCS or release authority.`
       : `Close only this already reviewed/executed compact scope through release-or. ${mode === 'verified_change'
-        ? 'Complete the linked Verified Change Mini-Closeout and publish lifecycle-consistent role links through the existing run-update owner; closeout.record does not support this mode. Revalidate with Git-aware CLI evaluation.'
+        ? 'Complete the linked Verified Change Mini-Closeout and publish lifecycle-consistent role links through the current typed closeout.record owner with its exact confirmation. Revalidate with Git-aware CLI evaluation.'
         : 'Read the bound OR template and closeout authoring format; persist OR-lite with the exact Run and Report mode declared once, plus Result, Evidence, Risk and Next Step through the existing closeout owner.'} Do not repeat implementation or perform VCS/release actions. Redispatch gate-check for this same target/run after recording; completed state stops.`,
   };
 }

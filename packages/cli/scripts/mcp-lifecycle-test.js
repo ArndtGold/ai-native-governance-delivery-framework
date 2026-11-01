@@ -67,10 +67,10 @@ const qualification = {
   requested_scope: "project", native_scope: "project", configuration_source: "project",
   node_version: "22.22.3", server_version: VERSION, dispatcher_version: VERSION, sdk_version: "2.0.0",
   entrypoint_identity: `${VERSION}:${"a".repeat(64)}`,
-  discovery_evidence_ref: ".agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md",
-  dispatch_evidence_ref: ".agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md",
-  failure_evidence_ref: ".agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md",
-  cleanup_evidence_ref: ".agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md",
+  discovery_evidence_ref: ".agdf/control/runs/agdf-cross-host-mcp-integration/documents/DIRECT_HOST_EVIDENCE.md",
+  dispatch_evidence_ref: ".agdf/control/runs/agdf-cross-host-mcp-integration/documents/DIRECT_HOST_EVIDENCE.md",
+  failure_evidence_ref: ".agdf/control/runs/agdf-cross-host-mcp-integration/documents/DIRECT_HOST_EVIDENCE.md",
+  cleanup_evidence_ref: ".agdf/control/runs/agdf-cross-host-mcp-integration/documents/DIRECT_HOST_EVIDENCE.md",
 };
 assert.equal(validateMcpCapabilityProfile({ ...mcpCapabilityProfile, qualification: {
   ...mcpCapabilityProfile.qualification, records: [qualification],
@@ -245,7 +245,7 @@ assert.throws(() => createMcpLifecycleResult({
   registration: { status: "matched", selected_status: "matched", effective_status: "matched",
     selected_source: "project", effective_source: "project", native_scope: "project", sources: [] },
   discovery: { status: "discovered", source: "direct_host",
-    evidence_ref: ".agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md" },
+    evidence_ref: ".agdf/control/runs/agdf-cross-host-mcp-integration/documents/DIRECT_HOST_EVIDENCE.md" },
   nextAction: { code: "none" },
 }), /AGDF_MCP_LIFECYCLE_RESULT_INVALID/, "discovery cannot imply qualified support");
 
@@ -1116,7 +1116,7 @@ console.log("AGDF MCP lifecycle, package acquisition and host adapter tests pass
     observations: ['discovery', 'ui_initialize', 'render', 'interaction', 'provider_attribution', 'teardown'],
     inventory: { complete: true, origins: [{ path: '/config', digest: hash }] },
     providers: [{ origin: '/plugin', server_id: 'agdf-cockpit', connection_id: 'fixture', tools: ['agdf_cockpit', 'agdf_cockpit_read'], exposed_tools: { agdf_cockpit: 'fixture/cockpit/render', agdf_cockpit_read: 'fixture/cockpit/read' } }],
-    evidence: [{ path: '.agdf/control/artefacts/fixture/native.md', digest: hash }],
+    evidence: [{ path: '.agdf/control/runs/fixture/documents/native.md', digest: hash }],
     isolated_qualification: { isolated: true, context_id: 'fixture-native-context', target_id: hash, plugin_digest: hash } };
   assert.equal(validateCockpitTransitionEvidence(record).valid, true);
   assert.equal(validateMcpDirectEvidenceResult(record).valid, false);
@@ -1134,7 +1134,7 @@ console.log("AGDF MCP lifecycle, package acquisition and host adapter tests pass
   const { parseArgs } = await import('../lib/cli/parse-args.js');
   const { validateCommandOptions } = await import('../lib/cli/command-registry.js');
   const argv = ['mcp', 'disable', '--surface', 'codex', '--scope', 'project', '--dir', cliTarget,
-    '--retire-cockpit', 'agdf-cockpit-local', '--evidence', '.agdf/control/artefacts/fixture/transition.json'];
+    '--retire-cockpit', 'agdf-cockpit-local', '--evidence', '.agdf/control/runs/fixture/documents/transition.json'];
   const options = parseArgs(argv, { cwd: cliTarget }).options;
   assert.equal(validateCommandOptions(options).retireCockpit, 'agdf-cockpit-local');
   for (const change of [o => { o.surface = 'claude'; }, o => { o.scope = 'user'; },

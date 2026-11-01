@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, relative, resolve } from "node:path";
@@ -149,7 +150,6 @@ const syncPackageAssetsPath = sourceMode ? join(repoRoot, "scripts", "sync-packa
 const syncPluginRuntimePath = sourceMode ? join(repoRoot, "scripts", "sync-plugin-runtime.js") : null;
 const createAgdfOpenCodeInstallerPath = sourceMode ? join(repoRoot, "packages", "cli", "lib", "installers", "opencode.js") : null;
 const openCodeNpmPluginPath = sourceMode ? join(repoRoot, "packages", "cli", "opencode-plugin.js") : null;
-const activeRunStatePath = sourceMode ? join(repoRoot, ".agdf", "control", "AGDF_RUN.md") : null;
 const rootLicensePath = sourceMode ? join(repoRoot, "LICENSE") : null;
 const pluginLicensePath = join(pluginRoot, "LICENSE");
 const controlRoot = join(pluginRoot, "control");
@@ -160,8 +160,6 @@ let expectedSkills = [];
 const expectedControlFiles = [
   "README.md",
   "templates/RUN_STATE.md",
-  "templates/AGDF_RUN.md",
-  "templates/MASTER_BACKLOG.md",
   "templates/SOT_REGISTRY.md",
   "templates/CONTEXT_GRAPH.md",
   "templates/AGENT_QUALITY_CONTRACTS.json",
@@ -1486,6 +1484,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     failures.push("OpenCode npm plugin must reserve its only session-created toast for version drift");
   }
 
+  let activeProbeRoot;
   try {
     const expectedIdentity = {
       owner: "request_activation_contract",
@@ -1530,8 +1529,16 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
       failures.push("inactive OpenCode compaction must emit zero bytes");
     }
 
+    // A source checkout need not contain live control. Keep the probe independent
+    // of its governing Runs and exercise activation against disposable current control.
+    activeProbeRoot = realpathSync(mkdtempSync(join(tmpdir(), "agdf-integrity-active-")));
+    const git = spawnSync("git", ["init", "-q", activeProbeRoot], { encoding: "utf8" });
+    if (git.status !== 0) throw new Error(`activation fixture repository initialization failed: ${git.stderr}`);
+    const initialized = spawnSync(process.execPath, [join(repoRoot, "packages", "cli", "bin", "create-agdf.js"),
+      "init", "--dir", activeProbeRoot, "--language", "en", "--json"], { encoding: "utf8" });
+    if (initialized.status !== 0) throw new Error(`current activation fixture initialization failed: ${initialized.stderr || initialized.stdout}`);
     const activeHooks = await AGDFPlugin({
-      directory: repoRoot,
+      directory: activeProbeRoot,
       client: {
         app: { async log() { return {}; } },
         tui: { async showToast() { return {}; } },
@@ -1586,6 +1593,8 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     }
   } catch (error) {
     failures.push(`OpenCode npm plugin Request Activation integrity probe failed: ${error.message}`);
+  } finally {
+    if (activeProbeRoot) rmSync(activeProbeRoot, { recursive: true, force: true });
   }
 }
 
@@ -2132,7 +2141,7 @@ for (const relativePath of expectedControlFiles) {
   assertFile(join(controlRoot, relativePath), `plugins/agdf/control/${relativePath}`);
 }
 
-const runTemplatePath = join(controlRoot, "templates", "AGDF_RUN.md");
+const runTemplatePath = join(controlRoot, "templates", "RUN_STATE.md");
 const contextGraphTemplatePath = join(controlRoot, "templates", "CONTEXT_GRAPH.md");
 const sotRegistryTemplatePath = join(controlRoot, "templates", "SOT_REGISTRY.md");
 const qualityContractsPath = join(controlRoot, "templates", "AGENT_QUALITY_CONTRACTS.json");
@@ -2141,23 +2150,17 @@ const uxIntentTemplatePath = join(controlRoot, "templates", "artefacts", "UX_INT
 const prdTemplatePath = join(controlRoot, "templates", "artefacts", "PRD.md");
 const verifiedChangeTemplatePath = join(controlRoot, "templates", "artefacts", "VERIFIED_CHANGE.md");
 const orTemplatePath = join(controlRoot, "templates", "artefacts", "OR.md");
-const backlogTemplatePath = join(controlRoot, "templates", "MASTER_BACKLOG.md");
 
 if (isFile(runTemplatePath)) {
   const runTemplate = read(runTemplatePath);
-  for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "transparency_note", "Artefact Chain", "context_graph_impact", "context_graph_reconciliation", "quality_outlook"]) {
-    if (!runTemplate.includes(required)) failures.push(`AGDF_RUN.md missing control field: ${required}`);
+  for (const required of ['version-4', 'Objective', 'Mode/Slice Decision', 'Relationships', 'quality_outlook']) {
+    if (!runTemplate.includes(required)) failures.push(`RUN_STATE.md missing current authored field: ${required}`);
   }
-  assertContextGraphReconciliation("AGDF_RUN.md template", runTemplate, { allowTemplatePlaceholders: true });
-  const runStatusCard = sectionAfterHeading(runTemplate, "Run Status Card");
-  for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
-    if (!runStatusCard.includes(`| ${label} |`)) failures.push(`AGDF_RUN.md Run Status Card missing readable label: ${label}`);
+  for (const heading of ['Approvals', 'Artefacts', 'Artefact Chain', 'Evidence', 'Current Control State']) {
+    if (runTemplate.includes(`## ${heading}\n`)) failures.push(`RUN_STATE.md persists derived table: ${heading}`);
   }
-  for (const extraLabel of ["Mode", "Mode / slice", "Forbidden now", "Evidence", "Next skill"]) {
-    if (runStatusCard.includes(`| ${extraLabel} |`)) failures.push(`AGDF_RUN.md Run Status Card is not compact: ${extraLabel}`);
-  }
-  for (const rawField of ["allowed_now", "forbidden_now", "blocking_condition", "next_skill", "next_step", "quality_outlook"]) {
-    if (runStatusCard.includes(`- ${rawField}:`)) failures.push(`AGDF_RUN.md Run Status Card exposes raw field: ${rawField}`);
+  for (const retired of ['AGDF_RUN.md', 'MASTER_BACKLOG.md']) {
+    if (isFile(join(controlRoot, 'templates', retired))) failures.push(`Retired control template remains: ${retired}`);
   }
 }
 
@@ -2175,20 +2178,6 @@ if (isFile(orTemplatePath)) {
   }
   if ((orTemplate.match(/Quality outlook/g) ?? []).length !== 1) {
     failures.push("OR.md must present Quality outlook exactly once in the Run Status Card");
-  }
-}
-
-if (isFile(backlogTemplatePath)) {
-  const backlogTemplate = read(backlogTemplatePath);
-  for (const required of [
-    "| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |",
-    "| Key | Work item | Final status | Historical record | Outcome |",
-    "document-relative Markdown link",
-  ]) {
-    if (!backlogTemplate.includes(required)) failures.push(`MASTER_BACKLOG.md missing human-readable backlog contract: ${required}`);
-  }
-  if (backlogTemplate.includes("| Prio | Key | Title | Status | UR |")) {
-    failures.push("MASTER_BACKLOG.md must not use the legacy wide layout as its canonical template");
   }
 }
 
@@ -2345,9 +2334,7 @@ if (isFile(orTemplatePath)) {
   assertContextGraphReconciliation("OR.md template", orTemplate, { allowTemplatePlaceholders: true });
 }
 
-if (isFile(activeRunStatePath)) {
-  assertContextGraphReconciliation(".agdf/control/AGDF_RUN.md", read(activeRunStatePath));
-}
+
 
 assertContextGraphReconciliation("Context Graph open-gap fixture", [
   "- context_graph_impact: link_only",

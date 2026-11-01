@@ -153,7 +153,6 @@ export function createCockpitSessionService(root, {
           if (active(session.id) !== session || generation !== session.generation) return fail('session_expired');
           touch(session); return result;
         }
-        if (input.operation === 'backlog_titles' && input.row_ids.some(id => !session.rows.has(id))) return fail('resource_denied');
         if (input.operation === 'planned' && !session.rows.has(input.row_id)) return fail('resource_denied');
         if (['document', 'prepare_context'].includes(input.operation)
           && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return fail('resource_denied');
@@ -172,8 +171,8 @@ export function createCockpitSessionService(root, {
           if (publication.phase !== 'prepared') return fail('context_superseded');
         }
         if (input.operation === 'artifact_readiness' && publication) return fail(publication.phase === 'uncertain' ? 'context_cleanup_uncertain' : 'busy');
-        const replacement = ['snapshot', 'backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(input.operation);
-        if (['backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(input.operation)) {
+        const replacement = ['snapshot', 'run', 'document', 'context', 'artifact_readiness'].includes(input.operation);
+        if (['run', 'document', 'context', 'artifact_readiness'].includes(input.operation)) {
           discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; session.draft = null;
         }
         generation = session.generation;
@@ -191,7 +190,7 @@ export function createCockpitSessionService(root, {
         }
         if (!['resource_denied', 'context_superseded', 'busy', 'context_cleanup_uncertain'].includes(result.code)) touch(session);
         if (replacement && result.snapshot_id) session.snapshot = result.snapshot_id;
-        if (replacement && result.data?.kind === 'backlog') for (const row of result.data.entries) session.rows.add(row.row_id);
+        if (replacement && result.data?.kind === 'work') for (const row of result.data.entries) session.rows.add(row.row_id);
         if (replacement) { session.run_id = result.data?.run?.run_id ?? null; session.draft = result.data?.run?.draft_check?.source ?? null; }
         if (replacement && result.data?.run?.resources) for (const resource of result.data.run.resources) {
           session.documents.set(resource.resource_id, `${result.snapshot_id}:${result.data.run.run_id}`);

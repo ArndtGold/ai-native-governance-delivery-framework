@@ -1,3 +1,4 @@
+import { runDocumentPath, runEvidencePath } from './run-identity.js';
 import { createHash } from 'node:crypto';
 import { canonicalJson, digest, exactObject, DIGEST_PATTERN, COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN } from './run-identity.js';
@@ -24,7 +25,7 @@ export const CORRECTABLE_REVIEWS = Object.freeze([...STRUCTURED_REQUIRED_REVIEWS
 export const evidenceSourceSetDigest = sources => digest(`agdf-operation-sources/1\0${canonicalJson(sources)}`);
 export const canonicalEvidenceDigest = text => 'sha256:' + createHash('sha256').update(String(text).replace(/\r\n?/gu, '\n').replace(/^\uFEFF/u, '')).digest('hex');
 const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
-const ownPath = (value, runId) => isSafeControlRelativePath(value) && value.startsWith(`.agdf/control/artefacts/${runId}/`);
+const ownPath = (value, runId) => isSafeControlRelativePath(value) && [runDocumentPath(runId, ''), runEvidencePath(runId, '')].some(prefix => value.startsWith(`${prefix}/`));
 export function validEvidenceBinding(row) {
   return exactObject(row, ['schema_version', 'run_id', 'operation_id', 'action', 'step', 'report', 'sources', 'source_set_digest', 'producer', 'assurance'])
     && row.schema_version === (row.action === 'ur_draft.replace' ? '2' : '1') && RUN_ID_PATTERN.test(row.run_id ?? '') && REVISION_ID_PATTERN.test(row.operation_id ?? '')

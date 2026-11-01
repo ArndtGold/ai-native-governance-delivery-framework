@@ -1,4 +1,4 @@
-import { bindInputResolution, recordedInputResolution, resolutionRecordVersion, withInputResolution } from './input-resolution.js';
+import { bindInputResolution, currentInputResolution, recordedInputResolution, resolutionRecordVersion, withInputResolution } from './input-resolution.js';
 import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { ownerPlacement, assertOwnerPlacement, directoryPlacement, assertDirectoryPlacement } from '../owner-placement.js';
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -10,29 +10,14 @@ import { canonicalInitPlan } from "../resources/canonical-init-plan.js";
 import { pluginDefinition } from '../resources/context.js';
 import { parseQualityContracts } from '../control-evaluation/shared.js';
 import { canonicalRunText } from './run-seal.js';
-import { verifyLegacyProjection } from './legacy-projection-reader.js';
 import { pendingRunStepIds } from './run-step-pending.js';
 import { assertMcpControlReadBoundary } from '../control-read-boundary.js';
 const operationContext = new AsyncLocalStorage();
 const TERMINAL_RECEIPT = ".agdf-canonical-init.json";
 import { createHash, randomUUID } from "node:crypto";
-import {
-  closeSync,
-  fstatSync,
-  fsyncSync,
-  linkSync,
-  lstatSync,
-  mkdirSync,
-  openSync,
-  readFileSync,
-  readdirSync,
-  realpathSync,
-  rmdirSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { closeSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join } from "node:path";
-import { parseRunState, RUN_ID_PATTERN } from "./run-state-parser.js";
+
 import { renameSyncWithRetry } from "../fs-swap.js";
 
 const CONTROL_PREFIX = ".agdf/control/";
@@ -66,7 +51,7 @@ function normalizedPlan(files) {
       throw new CanonicalInitError("AGDF_CANONICAL_INIT_PLAN_INVALID", path);
     }
     if (relativePath === LEGACY_LIVE_RUN) throw new CanonicalInitError("AGDF_CANONICAL_INIT_LEGACY_AUTHORITY_FORBIDDEN", path);
-    if (relativePath === STAGE_MARKER || relativePath === TERMINAL_RECEIPT || relativePath === "runs" || relativePath.startsWith("runs/")) {
+    if (relativePath === STAGE_MARKER || relativePath === TERMINAL_RECEIPT || ["runs", "planned"].some(name => relativePath === name || relativePath.startsWith(name + "/"))) {
       throw new CanonicalInitError("AGDF_CANONICAL_INIT_PLAN_INVALID", path);
     }
     if (seen.has(relativePath)) throw new CanonicalInitError("AGDF_CANONICAL_INIT_PLAN_DUPLICATE", path);
@@ -211,7 +196,7 @@ function cleanupCreatedAgdf(createdAgdf, agdfIdentity, agdfPath) {
 function allowedDirectories(plan) {
   // Normal mutation admission leaves these empty owned directories. Any claim
   // or unknown file is still rejected by inspectExistingControl below.
-  const allowed = new Set(["", "runs", "maintenance", "maintenance/admission"]);
+  const allowed = new Set(["", "runs", "planned", "maintenance", "maintenance/admission"]);
   for (const file of plan) {
     const parts = file.relativePath.split("/");
     parts.pop();
@@ -223,49 +208,11 @@ function allowedDirectories(plan) {
   return allowed;
 }
 
-function inspectCanonicalRun(runPath, relativePath, runId) {
-  if (!RUN_ID_PATTERN.test(runId)) {
-    throw new CanonicalInitError("AGDF_CANONICAL_INIT_UNKNOWN_PATH", relativePath);
-  }
-
-  const runStats = lstatSync(runPath);
-  if (runStats.isSymbolicLink() || !runStats.isDirectory()) {
-    throw new CanonicalInitError("AGDF_CANONICAL_INIT_CONFLICT", relativePath);
-  }
-
-  const entries = readdirSync(runPath).sort();
-  if (entries.length !== 1 || entries[0] !== "RUN_STATE.md") {
-    const unexpected = entries.find((entry) => entry !== "RUN_STATE.md");
-    throw new CanonicalInitError(
-      unexpected ? "AGDF_CANONICAL_INIT_UNKNOWN_PATH" : "AGDF_CANONICAL_INIT_CONFLICT",
-      unexpected ? `${relativePath}/${unexpected}` : relativePath,
-    );
-  }
-
-  const statePath = join(runPath, "RUN_STATE.md");
-  const stateRelativePath = `${relativePath}/RUN_STATE.md`;
-  const stateStats = lstatSync(statePath);
-  if (stateStats.isSymbolicLink() || !stateStats.isFile() || stateStats.nlink !== 1) {
-    throw new CanonicalInitError("AGDF_CANONICAL_INIT_CONFLICT", stateRelativePath);
-  }
-
-  const content = readFileSync(statePath, "utf8");
-  if (!parseRunState(content, runId).valid) {
-    throw new CanonicalInitError("AGDF_CANONICAL_INIT_CONFLICT", stateRelativePath);
-  }
-
-  return Object.freeze({
-    directory: Object.freeze({ path: relativePath, dev: runStats.dev, ino: runStats.ino }),
-    state: Object.freeze({ path: stateRelativePath, dev: stateStats.dev, ino: stateStats.ino, content }),
-  });
-}
-
 function inspectExistingControl(controlPath, plan) {
   const expected = new Map(plan.map((file) => [file.relativePath, file]));
   const allowedDirs = allowedDirectories(plan);
   const files = new Map();
   const directories = new Set([""]);
-  const retainedRuns = [];
   const visit = (directory, prefix = "") => {
     for (const name of readdirSync(directory).sort()) {
       const relativePath = prefix ? `${prefix}/${name}` : name;
@@ -273,11 +220,6 @@ function inspectExistingControl(controlPath, plan) {
       const stats = lstatSync(path);
       if (stats.isSymbolicLink()) throw new CanonicalInitError("AGDF_CANONICAL_INIT_CONFLICT", relativePath);
       if (stats.isDirectory()) {
-        if (prefix === "runs") {
-          directories.add(relativePath);
-          retainedRuns.push(inspectCanonicalRun(path, relativePath, name));
-          continue;
-        }
         if (!allowedDirs.has(relativePath)) throw new CanonicalInitError("AGDF_CANONICAL_INIT_UNKNOWN_PATH", relativePath);
         directories.add(relativePath);
         visit(path, relativePath);
@@ -301,30 +243,18 @@ function inspectExistingControl(controlPath, plan) {
   return Object.freeze({
     files: Object.freeze([...files.keys()].sort()),
     directories: Object.freeze([...directories].sort()),
-    retainedRuns: Object.freeze(retainedRuns.sort((left, right) => left.state.path.localeCompare(right.state.path))),
   });
 }
 
-function snapshotsEqual(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
-}
-
-function retainedRunsEqual(left, right) {
-  return JSON.stringify(left.retainedRuns) === JSON.stringify(right.retainedRuns);
-}
-
 function planFingerprint(plan) {
-  const serialized = JSON.stringify(plan.map((file) => [file.relativePath, file.content]));
+  const serialized = JSON.stringify({ directories: [...allowedDirectories(plan)].sort(), files: plan.map((file) => [file.relativePath, file.content]) });
   return createHash("sha256").update(serialized, "utf8").digest("hex");
 }
 
-// Existing operation plan digests already bind exact seed bytes. Select only an
-// exact known historical plan for recovery; never reinterpret it as the new layout.
+// Recovery is bound to the sole current seed plan and its original digest.
 function operationPlan(operation) {
-  for (const layout of ['planned-urs-v1', 'master-backlog-v1']) {
-    const files = canonicalInitPlan(operation.language_preference, undefined, { layout });
-    if ('sha256:' + planFingerprint(normalizedPlan(files)) === operation.plan_digest) return files;
-  }
+  const files = canonicalInitPlan(operation.language_preference);
+  if ('sha256:' + planFingerprint(normalizedPlan(files)) === operation.plan_digest) return files;
   throw new CanonicalInitError('AGDF_CANONICAL_INIT_PLAN_UNSUPPORTED');
 }
 
@@ -337,20 +267,16 @@ export function inspectCanonicalInitializationPlan() {
 
 function stageMarkerContent({ stageName, mode, plan, stagedPlan, rootIdentity, agdfIdentity, schemaVersion, receipt }) {
   const operation = operationContext.getStore();
-  return JSON.stringify(bindInputResolution({ schema_version: schemaVersion, ...(operation ? { operation } : {}),
+  return JSON.stringify(bindInputResolution({ schema_version: 3, operation,
     owner: 'agdf.canonical-init', stage_name: stageName, mode,
-    target: schemaVersion === 3 ? directoryPlacement(rootIdentity.path) : {
-      realpath: rootIdentity.realpath, dev: String(rootIdentity.dev), ino: String(rootIdentity.ino) },
-    agdf: schemaVersion === 3 ? directoryPlacement(agdfIdentity.path) : {
-      realpath: agdfIdentity.realpath, dev: String(agdfIdentity.dev), ino: String(agdfIdentity.ino) },
-    ...(schemaVersion === 3 ? { control: receipt.control, receipt_digest: receipt.receipt_digest } : {}),
-    plan_fingerprint: planFingerprint(plan), staged_files: stagedPlan.map(file => file.relativePath),
-  }), null, 2) + '\n';
+    target: directoryPlacement(rootIdentity.path), agdf: directoryPlacement(agdfIdentity.path),
+    control: receipt.control, receipt_digest: receipt.receipt_digest,
+    plan_fingerprint: planFingerprint(plan), staged_files: stagedPlan.map(file => file.relativePath) }), null, 2) + '\n';
 }
 function newStageSpec(stagePath, mode, plan, stagedPlan, rootIdentity, agdfIdentity,
-  { schemaVersion = operationContext.getStore() ? 3 : 1, receipt } = {}) {
+  { schemaVersion = 3, receipt } = {}) {
   const stageName = basename(stagePath);
-  return Object.freeze({ stagePath, stageName, mode, plan, stagedPlan, schemaVersion,
+  return Object.freeze({ stagePath, stageName, mode, plan, stagedPlan, schemaVersion, receipt,
     markerContent: stageMarkerContent({ stageName, mode, plan, stagedPlan, rootIdentity, agdfIdentity, schemaVersion, receipt }) });
 }
 
@@ -360,6 +286,16 @@ function staleStageError(path) {
 
 function readStageSpec(containerPath, plan, rootIdentity, agdfIdentity, published = false) {
   const markerPath = join(containerPath, STAGE_MARKER);
+  if (!existsSync(markerPath)) {
+    if (published || !existsSync(join(containerPath, TERMINAL_RECEIPT))) throw staleStageError(containerPath);
+    const receipt = readInitializationReceipt(containerPath, { prospective: true }), operation = operationContext.getStore();
+    if (!operation || canonicalJson(receipt.operation) !== canonicalJson(operation)
+      || basename(containerPath) !== STAGE_PREFIX + operation.operation_id
+      || operation.plan_digest !== 'sha256:' + planFingerprint(plan)) throw staleStageError(containerPath);
+    // The current prospective receipt pins the exact stage directory and anchor
+    // inode before the marker is written. No markerless/unowned directory is adopted.
+    return Object.freeze({ ...newStageSpec(containerPath, 'new', plan, plan, rootIdentity, agdfIdentity, { receipt }), prospective: true });
+  }
   let raw;
   let marker;
   try {
@@ -374,7 +310,7 @@ function readStageSpec(containerPath, plan, rootIdentity, agdfIdentity, publishe
   if (!(operationContext.getStore() ? OPERATION_UUID_PATTERN : UUID_PATTERN).test(stageId) || (!published && basename(containerPath) !== stageName)) {
     throw staleStageError(containerPath);
   }
-  if (!Array.isArray(marker?.staged_files) || !["new", "repair"].includes(marker?.mode)) {
+  if (!Array.isArray(marker?.staged_files) || marker?.mode !== 'new') {
     throw staleStageError(containerPath);
   }
   const planByPath = new Map(plan.map((file) => [file.relativePath, file]));
@@ -390,7 +326,7 @@ function readStageSpec(containerPath, plan, rootIdentity, agdfIdentity, publishe
   const orderedSubset = plan.filter((file) => seen.has(file.relativePath));
   if (orderedSubset.some((file, index) => file !== stagedPlan[index])) throw staleStageError(containerPath);
   if (marker.mode === "new" && stagedPlan.length !== plan.length) throw staleStageError(containerPath);
-  if (![1, 2, 3].includes(resolutionRecordVersion(marker))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+  if (resolutionRecordVersion(marker) !== 3) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
   let receipt;
   if (resolutionRecordVersion(marker) === 3) {
     receipt = readInitializationReceipt(containerPath, { prospective: !published });
@@ -398,13 +334,7 @@ function readStageSpec(containerPath, plan, rootIdentity, agdfIdentity, publishe
   }
   const spec = newStageSpec(join(dirname(containerPath), stageName), marker.mode, plan, stagedPlan, rootIdentity, agdfIdentity,
     { schemaVersion: resolutionRecordVersion(marker), receipt });
-  if (raw !== spec.markerContent) {
-    if ([1, 2].includes(resolutionRecordVersion(marker)) && raw === JSON.stringify(marker, null, 2) + '\n'
-      && JSON.stringify({ ...marker, target: { ...marker.target, dev: String(rootIdentity.dev) },
-        agdf: { ...marker.agdf, dev: String(agdfIdentity.dev) } }, null, 2) + '\n' === spec.markerContent)
-      throw new CanonicalInitError('AGDF_CANONICAL_INIT_LEGACY_PLACEMENT_UNCONFIRMED', containerPath);
-    throw staleStageError(containerPath);
-  }
+  if (raw !== spec.markerContent) throw staleStageError(containerPath);
   return spec;
 }
 
@@ -417,7 +347,7 @@ function inspectOwnedStage(containerPath, spec, complete) {
   const expectedFiles = new Map([
     [STAGE_MARKER, spec.markerContent],
     ...spec.stagedPlan.map((file) => [file.relativePath, file.content]),
-    ...(existsSync(join(containerPath, TERMINAL_RECEIPT)) ? [[TERMINAL_RECEIPT, validatedReceiptBytes(containerPath, { prospective: basename(containerPath) !== "control" })]] : []),
+    [TERMINAL_RECEIPT, JSON.stringify(spec.receipt, null, 2) + "\n"],
   ]);
   const expectedDirectories = new Set(expectedStageDirectories(spec.stagedPlan));
   const ownership = { files: [], directories: [directoryIdentity(containerPath)] };
@@ -437,18 +367,8 @@ function inspectOwnedStage(containerPath, spec, complete) {
         visit(path, relativePath);
         continue;
       }
-      // A resumed CLI repair may have published precisely this staged seed as
-      // its second link. It is safe only at its exact canonical destination;
-      // MCP setup, markers, receipts and arbitrary hardlinks remain single-link.
-      const repairDestination = join(dirname(containerPath), 'control', relativePath);
-      const publishedRepairLink = spec.mode === 'repair' && stats.nlink === 2
-        && spec.stagedPlan.some(file => file.relativePath === relativePath)
-        && existsSync(repairDestination) && realpathSync(repairDestination) === repairDestination
-        && sameRegularFile(regularFileIdentity(path), repairDestination, expectedFiles.get(relativePath));
-      if (!stats.isFile() || stats.nlink !== 1 && !publishedRepairLink || !expectedFiles.has(relativePath)
-        || stats.size !== Buffer.byteLength(expectedFiles.get(relativePath))) {
-        throw new CanonicalInitError("AGDF_CANONICAL_INIT_STAGE_INVALID", path);
-      }
+      if (!stats.isFile() || stats.nlink !== 1 || !expectedFiles.has(relativePath)
+        || stats.size !== Buffer.byteLength(expectedFiles.get(relativePath))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_STAGE_INVALID', path);
       const content = readFileSync(path, "utf8");
       if (content !== expectedFiles.get(relativePath)) {
         throw new CanonicalInitError("AGDF_CANONICAL_INIT_STAGE_INVALID", path);
@@ -458,8 +378,19 @@ function inspectOwnedStage(containerPath, spec, complete) {
     }
   };
   visit(containerPath);
-  if (!seenFiles.has(STAGE_MARKER)) throw new CanonicalInitError("AGDF_CANONICAL_INIT_STAGE_INVALID", containerPath);
-  if (complete || spec.schemaVersion === 3) {
+  if (!seenFiles.has(STAGE_MARKER) && (complete || !spec.prospective)) throw new CanonicalInitError("AGDF_CANONICAL_INIT_STAGE_INVALID", containerPath);
+  if (spec.prospective) {
+    // Creation writes seeds in plan order before publishing the marker. Only
+    // that exact prefix is a possible original interrupted write.
+    let missing = false;
+    for (const file of spec.stagedPlan) {
+      if (!seenFiles.has(file.relativePath)) missing = true;
+      else if (missing) throw new CanonicalInitError('AGDF_CANONICAL_INIT_STAGE_INVALID', containerPath);
+    }
+  }
+  // A published marker follows all seed writes. Missing files after that point
+  // are interference, not permission to fill or repair an initialized stage.
+  if (complete || !spec.prospective) {
     if ([...expectedFiles.keys()].some((path) => !seenFiles.has(path))
       || [...expectedDirectories].some((path) => !seenDirectories.has(path))) {
       throw new CanonicalInitError("AGDF_CANONICAL_INIT_STAGE_INVALID", containerPath);
@@ -469,6 +400,10 @@ function inspectOwnedStage(containerPath, spec, complete) {
 }
 
 function completeStage(containerPath, spec, ownership, hooks, validate = true) {
+  if (spec.prospective && !existsSync(join(containerPath, STAGE_MARKER))) {
+    writeOwnedFile(join(containerPath, STAGE_MARKER), spec.markerContent, ownership);
+    fsyncDirectory(containerPath);
+  }
   const seenDirectories = new Set(ownership.directories.map((identity) => {
     if (identity.path === containerPath) return "";
     return identity.path.slice(containerPath.length + 1).replaceAll("\\", "/");
@@ -494,19 +429,13 @@ function completeStage(containerPath, spec, ownership, hooks, validate = true) {
 function createStage(stagePath, mode, plan, stagedPlan, rootIdentity, agdfIdentity, hooks, ownership) {
   createOwnedDirectory(stagePath, ownership);
   const operation = operationContext.getStore();
-  const receipt = operation ? prepareInitializationReceipt(stagePath, operation, ownership, hooks) : undefined;
+  const receipt = prepareInitializationReceipt(stagePath, operation, ownership, hooks);
   const spec = newStageSpec(stagePath, mode, plan, stagedPlan, rootIdentity, agdfIdentity, { receipt });
-  if (spec.schemaVersion === 3) {
-    // Receipt and fixed seed bytes are private until the final atomic rename.
-    completeStage(stagePath, spec, ownership, hooks, false);
-    writeOwnedFile(join(stagePath, STAGE_MARKER), spec.markerContent, ownership);
-    for (const entry of ownership.directories) fsyncDirectory(entry.path);
-    fsyncDirectory(dirname(stagePath));
-    return Object.freeze({ spec, ownership: inspectOwnedStage(stagePath, spec, true) });
-  }
+  completeStage(stagePath, spec, ownership, hooks, false);
   writeOwnedFile(join(stagePath, STAGE_MARKER), spec.markerContent, ownership);
-  fsyncDirectory(stagePath); fsyncDirectory(dirname(stagePath));
-  return Object.freeze({ spec, ownership: completeStage(stagePath, spec, ownership, hooks) });
+  for (const entry of ownership.directories) fsyncDirectory(entry.path);
+  fsyncDirectory(dirname(stagePath));
+  return Object.freeze({ spec, ownership: inspectOwnedStage(stagePath, spec, true) });
 }
 
 function staleStageNames(agdfPath) {
@@ -522,24 +451,8 @@ function loadStaleStage(agdfPath, names, plan, rootIdentity, agdfIdentity) {
     const ownership = inspectOwnedStage(stagePath, spec, false);
     return Object.freeze({ stagePath, spec, ownership });
   } catch (error) {
-    if (error.code === 'AGDF_CANONICAL_INIT_LEGACY_PLACEMENT_UNCONFIRMED') throw error;
     throw staleStageError(stagePath);
   }
-}
-
-function removeCreatedDirectories(directories) {
-  for (const directory of [...directories].sort((left, right) => right.path.length - left.path.length)) {
-    if (!sameDirectory(directory, directory.path)) continue;
-    try {
-      rmdirSync(directory.path);
-    } catch (error) {
-      if (!["ENOENT", "ENOTEMPTY", "EEXIST"].includes(error.code)) throw error;
-    }
-  }
-}
-
-function createdDirectoriesUnchanged(directories) {
-  return directories.every((directory) => sameDirectory(directory, directory.path));
 }
 
 function result(status, plan, existing = new Set()) {
@@ -651,121 +564,9 @@ function initializeCanonicalControlLocked(targetDir, files, options = {}, hooks 
     }
   }
 
-  if (stale && stale.spec.mode !== "repair") throw staleStageError(stale.stagePath);
-  if (options.freshOnly) throw new CanonicalInitError("AGDF_CANONICAL_INIT_PARTIAL_UNOWNED");
-  const controlIdentity = directoryIdentity(controlPath);
-  const before = inspectExistingControl(controlPath, plan);
-  const existing = new Set(before.files);
-  const missing = plan.filter((file) => !existing.has(file.relativePath));
-  const runsMissing = !before.directories.includes("runs");
-  if (missing.length === 0 && !runsMissing && !stale) return result("unchanged", plan, existing);
-  if (existing.size === 0) throw new CanonicalInitError("AGDF_CANONICAL_INIT_PARTIAL_UNOWNED", ".agdf/control");
-  if (stale) {
-    const stagedPaths = new Set(stale.spec.stagedPlan.map((file) => file.relativePath));
-    if (missing.some((file) => !stagedPaths.has(file.relativePath))) throw staleStageError(stale.stagePath);
-  }
-
-  const stagePath = stale?.stagePath ?? join(agdfPath, `${STAGE_PREFIX}${randomUUID()}`);
-  let ownership = stale?.ownership ?? { files: [], directories: [] };
-  const linked = [];
-  const createdDirectories = [];
-  try {
-    let spec = stale?.spec;
-    if (!spec) {
-      const created = createStage(stagePath, "repair", plan, missing, rootIdentity, agdfIdentity, hooks, ownership);
-      spec = created.spec;
-      ownership = created.ownership;
-    } else {
-      ownership = completeStage(stagePath, spec, ownership, hooks);
-    }
-    const beforePublish = inspectOwnedStage(stagePath, spec, true);
-    hooks.beforePublish?.({ targetDir, controlPath, stagePath, mode: "repair" });
-    if (!sameDirectory(rootIdentity, targetDir)
-      || !sameDirectory(agdfIdentity, agdfPath)
-      || !sameDirectory(controlIdentity, controlPath)
-      || !sameDirectory(beforePublish.directories[0], stagePath)) {
-      throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT");
-    }
-    const afterPublish = inspectOwnedStage(stagePath, spec, true);
-    let controlUnchanged = false;
-    try {
-      controlUnchanged = snapshotsEqual(before, inspectExistingControl(controlPath, plan));
-    } catch {
-      controlUnchanged = false;
-    }
-    if (!sameOwnershipSnapshot(beforePublish, afterPublish)
-      || !controlUnchanged) {
-      throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT");
-    }
-    if (runsMissing) {
-      const runsPath = join(controlPath, "runs");
-      createOwnedDirectory(runsPath, { files: [], directories: createdDirectories });
-    }
-    for (const [index, file] of missing.entries()) {
-      const destination = join(controlPath, ...file.relativePath.split("/"));
-      const stagedPath = join(stagePath, ...file.relativePath.split("/"));
-      const ancestors = [];
-      let parent = dirname(destination);
-      while (parent !== controlPath && !existsSync(parent)) {
-        ancestors.push(parent);
-        parent = dirname(parent);
-      }
-      for (const directory of ancestors.reverse()) {
-        createOwnedDirectory(directory, { files: [], directories: createdDirectories });
-      }
-      hooks.beforeLink?.({ index, file, destination });
-      const stagedFile = afterPublish.files.find((candidate) => candidate.path === stagedPath);
-      if (!stagedFile
-        || !sameDirectory(rootIdentity, targetDir)
-        || !sameDirectory(agdfIdentity, agdfPath)
-        || !sameDirectory(controlIdentity, controlPath)
-        || !createdDirectoriesUnchanged(createdDirectories)
-        || !sameRegularFile(stagedFile, stagedPath, file.content)
-        || existsSync(destination)) {
-        throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT", file.path);
-      }
-      linkSync(stagedPath, destination);
-      const linkedFile = Object.freeze({ ...regularFileIdentity(destination), content: file.content });
-      linked.push(linkedFile);
-      if (!sameRegularFile(stagedFile, destination, file.content)) {
-        throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT", file.path);
-      }
-      hooks.afterLink?.({ index, file, destination, stagePath });
-    }
-    if (!createdDirectoriesUnchanged(createdDirectories)) {
-      throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT", controlPath);
-    }
-    const completedControl = inspectExistingControl(controlPath, plan);
-    if (!retainedRunsEqual(before, completedControl)) {
-      throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT", join(controlPath, "runs"));
-    }
-    if (!cleanupOwnedTree(afterPublish)) {
-      throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT", stagePath);
-    }
-    return result("repaired", plan, existing);
-  } catch (error) {
-    for (const linkedFile of linked.reverse()) {
-      if (!sameRegularFile(linkedFile, linkedFile.path, linkedFile.content)) continue;
-      try {
-        unlinkSync(linkedFile.path);
-      } catch (cleanupError) {
-        if (cleanupError.code !== "ENOENT") throw cleanupError;
-      }
-    }
-    removeCreatedDirectories(createdDirectories);
-    cleanupOwnedTree(ownership);
-    throw error;
-  }
+  throw new CanonicalInitError('AGDF_CANONICAL_INIT_PARTIAL_UNOWNED', controlPath);
 }
 
-
-function legacyReceiptBody(controlPath, operation) {
-  const control = directoryIdentity(controlPath);
-  return { schema_version: 1, owner: 'agdf.canonical-init', kind: 'project.initialize', operation,
-    target_id: resolveControlCommandTarget(dirname(dirname(controlPath))).target_id,
-    control: { realpath: control.realpath, dev: String(control.dev), ino: String(control.ino) },
-    status: 'recorded', created_run: false, created_gate_approval: false };
-}
 function receiptBody(containerPath, operation) {
   const agdfPath = dirname(containerPath), target = dirname(agdfPath), controlPath = join(agdfPath, 'control');
   return bindInputResolution({ schema_version: 2, owner: 'agdf.canonical-init', kind: 'project.initialize', operation,
@@ -794,7 +595,7 @@ export function readInitializationReceipt(controlPath, { prospective = false } =
   const path = join(controlPath, TERMINAL_RECEIPT), file = regularFileIdentity(path);
   if (lstatSync(path).size > 16384) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
   const bytes = readFileSync(path, 'utf8'), record = JSON.parse(bytes);
-  if (![1, 2].includes(resolutionRecordVersion(record))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+  if (resolutionRecordVersion(record) !== 2) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
   const { receipt_digest, ...body } = record;
   const location = join(dirname(controlPath), 'control');
   if (resolutionRecordVersion(record) === 2) {
@@ -809,8 +610,6 @@ export function readInitializationReceipt(controlPath, { prospective = false } =
       || record.target_id !== resolveControlCommandTarget(dirname(dirname(controlPath))).target_id
       || record.operation.target_id !== record.target_id
       || !sameRegularFile(file, path, bytes)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
-  if (resolutionRecordVersion(record) === 1 && canonicalJson(record.control) !== canonicalJson(legacyReceiptBody(controlPath, record.operation).control))
-    throw new CanonicalInitError('AGDF_CANONICAL_INIT_LEGACY_PLACEMENT_UNCONFIRMED', controlPath);
   return record;
 }
 function validInitializationOperation(op) {
@@ -828,13 +627,6 @@ function finishInitialization(controlPath, spec, marker, hooks) {
     if (resolutionRecordVersion(receipt) !== 2 || canonicalJson(receipt.operation) !== canonicalJson(operation)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
     fsyncDirectory(controlPath); fsyncDirectory(dirname(controlPath));
     hooks.afterReceipt?.({ controlPath, operation });
-  } else if (operation) {
-    const path = join(controlPath, TERMINAL_RECEIPT), bytes = receiptBytes(legacyReceiptBody(controlPath, operation));
-    if (existsSync(path)) {
-      if (validatedReceiptBytes(controlPath) !== bytes) throw new CanonicalInitError('AGDF_CANONICAL_INIT_RECEIPT_INVALID');
-    } else writeOwnedFile(path, bytes, { files: [], directories: [] });
-    fsyncDirectory(controlPath); fsyncDirectory(dirname(controlPath));
-    hooks.afterReceipt?.({ controlPath, operation });
   }
   // Hooks cannot change owned content before cleanup.
   inspectOwnedStage(controlPath, spec, true);
@@ -847,6 +639,7 @@ function finishInitialization(controlPath, spec, marker, hooks) {
 // Shared CLI/MCP lock and publication owner.
 export function initializeCanonicalControl(targetDir, files, options = {}, hooks = {}) {
   if (options.force) throw new CanonicalInitError('AGDF_CANONICAL_INIT_FORCE_FORBIDDEN');
+  if (!options.operation || !currentInputResolution()) throw new CanonicalInitError('AGDF_CANONICAL_INIT_ORIGINAL_OPERATION_REQUIRED');
   const requestedTarget = targetDir;
   // Preserve rejection of a linked target entry, then bind its canonical location
   // (including the system /var -> /private/var alias used by CLI temp fixtures).
@@ -874,19 +667,15 @@ export function initializeCanonicalControl(targetDir, files, options = {}, hooks
       const markerPath = existsSync(join(controlPath, STAGE_MARKER)) ? join(controlPath, STAGE_MARKER)
         : stages.length === 1 ? join(agdfPath, stages[0], STAGE_MARKER) : null;
       if (markerPath) {
-        let stat; try { stat = lstatSync(markerPath); } catch { throw staleStageError(dirname(markerPath)); }
-        if (stat.isSymbolicLink() || !stat.isFile() || stat.size > 16384) throw staleStageError(markerPath);
-        const marker = JSON.parse(readFileSync(markerPath, 'utf8'));
-        if (![1, 2, 3].includes(resolutionRecordVersion(marker))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
-        if ([2, 3].includes(resolutionRecordVersion(marker))) {
-          if (!validInitializationOperation(marker.operation)) throw staleStageError(markerPath);
-          if (!operation && marker.operation.preserve_stage) throw new CanonicalInitError('AGDF_CANONICAL_INIT_ORIGINAL_OPERATION_REQUIRED');
-          if (operation && canonicalJson(operation) !== canonicalJson(marker.operation)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_IDENTITY_CONFLICT');
-          operation ??= marker.operation;
-        } else if (options.freshOnly) throw staleStageError(markerPath);
-      } else if (!existsSync(controlPath)) {
-        operation ??= { operation_id: randomUUID(), request_digest: digest(canonicalJson(plan)),
-          target_id: resolveControlCommandTarget(targetDir).target_id, plan_digest: 'sha256:' + planFingerprint(plan), producer: 'canonical-init/2', preserve_stage: false, language_preference: null };
+        const marker = existsSync(markerPath) ? (() => {
+          const stat = lstatSync(markerPath);
+          if (stat.isSymbolicLink() || !stat.isFile() || stat.size > 16384) throw staleStageError(markerPath);
+          const value = JSON.parse(readFileSync(markerPath, 'utf8'));
+          if (resolutionRecordVersion(value) !== 3) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+          return value;
+        })() : readInitializationReceipt(dirname(markerPath), { prospective: true });
+        if (!validInitializationOperation(marker.operation)) throw staleStageError(markerPath);
+        if (canonicalJson(operation) !== canonicalJson(marker.operation)) throw new CanonicalInitError('AGDF_CANONICAL_INIT_IDENTITY_CONFLICT');
       }
       if (operation && (!validInitializationOperation(operation) || operation.target_id !== resolveControlCommandTarget(targetDir).target_id
           || operation.plan_digest !== 'sha256:' + planFingerprint(plan))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_PLAN_DRIFT');
@@ -920,11 +709,15 @@ export function inspectCanonicalProject(targetDir, { operationId } = {}) {
     if (stages.length || publishedMarker) {
       const marker = publishedMarker ? join(controlPath, STAGE_MARKER) : stages.length === 1 ? join(agdfPath, stages[0], STAGE_MARKER) : null;
       if (!marker) throw staleStageError(agdfPath);
-      const markerStat = lstatSync(marker);
-      if (!markerStat.isFile() || markerStat.nlink !== 1 || markerStat.size > 16384) throw staleStageError(marker);
-      const data = JSON.parse(readFileSync(marker, 'utf8'));
-      if (![1, 2, 3].includes(resolutionRecordVersion(data))) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
-      const owned = [2, 3].includes(resolutionRecordVersion(data)) && validInitializationOperation(data.operation)
+      const data = existsSync(marker) ? (() => {
+        const markerStat = lstatSync(marker);
+        if (!markerStat.isFile() || markerStat.nlink !== 1 || markerStat.size > 16384) throw staleStageError(marker);
+        const value = JSON.parse(readFileSync(marker, 'utf8'));
+        if (resolutionRecordVersion(value) !== 3) throw new CanonicalInitError('AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
+        return value;
+      })() : !publishedMarker && existsSync(join(dirname(marker), TERMINAL_RECEIPT))
+        ? readInitializationReceipt(dirname(marker), { prospective: true }) : (() => { throw staleStageError(dirname(marker)); })();
+      const owned = validInitializationOperation(data.operation)
         && data.operation.target_id === resolveControlCommandTarget(targetDir).target_id;
       if (!owned || operationId && data.operation.operation_id !== operationId) return out({ status: 'blocked', operation_status: 'unknown', reason: 'initialization_ownership_unconfirmed' });
       withInputResolution(recordedInputResolution(data), () => operationContext.run(data.operation, () => {
@@ -938,8 +731,6 @@ export function inspectCanonicalProject(targetDir, { operationId } = {}) {
     assertMcpControlReadBoundary(targetDir);
     const store = assertCanonicalRunStore(targetDir);
     if (pendingRunStepIds(targetDir).length) throw Error('canonical_pending_run_operation');
-    const projection = verifyLegacyProjection(targetDir);
-    if (!['valid', 'absent'].includes(projection.status)) throw Error(projection.status);
     const config = JSON.parse(readFileSync(join(controlPath, 'config.json'), 'utf8'));
     if (!['artifact_language', 'chat_language', 'runtime_language'].every(k => typeof config[k] === 'string' && config[k].length <= 64)) throw Error('canonical_config_unsupported');
     for (const [name, title] of [['SOT_REGISTRY.md', '# AGDF Source-of-Truth Registry'], ['CONTEXT_GRAPH.md', '# AGDF Context Graph']]) {

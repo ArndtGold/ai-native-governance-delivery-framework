@@ -16,7 +16,7 @@ it('accepts current scoped Run DTOs but rejects malformed or authorizing assessm
 });
 it('leads with saved state, Core assessment and the actual registered step source; all originals start closed',()=>{
  const open=vi.fn();render(<WorkStep data={data} compact onOpen={open}/>);
- expect(screen.getByText('Zuletzt als „In Arbeit“ gespeichert.')).toBeTruthy();
+ expect(screen.getByText('Aktuell als „In Arbeit“ eingeordnet.')).toBeTruthy();
  expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();expect(screen.getByText('Umsetzung und Prüfung abschließen.')).toBeTruthy();
  expect(Array.from(document.querySelectorAll('details')).every(d=>!d.open)).toBe(true);
  fireEvent.click(screen.getByRole('button',{name:'Umsetzungs- und Prüfnachweise öffnen'}));expect(open).toHaveBeenCalledWith(source, 'step:opaque-cd');
@@ -47,7 +47,7 @@ it('unknown evidence stays exact; foreign and blocked registrations are never us
 it('an expired reading view preserves originals but disables all source navigation',()=>{
  render(<WorkStep data={data} current={false} sourceDisabled onOpen={vi.fn()}/>);
  expect(Array.from(document.querySelectorAll('button')).every(b=>b.disabled)).toBe(true);
- expect(screen.getByText('Zuletzt als „In Arbeit“ gespeichert.')).toBeTruthy();
+ expect(screen.getByText('Aktuell als „In Arbeit“ eingeordnet.')).toBeTruthy();
 });
 it('a missing evaluation preserves the explicit read-navigation action',()=>{
  render(<WorkStep data={{...data,evaluation:undefined}}><button>Run ansehen</button></WorkStep>);

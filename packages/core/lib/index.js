@@ -17,6 +17,6 @@ export function createCoreServices({ resources: context = resources, observers =
   return Object.freeze({ ...contracts, resources: context, runtimeBinding, material,
     dispatch: createDeliveryContinuationService({ ...reads, ...contracts, pluginDefinition: context.pluginDefinition }),
     inspect: createControlInspectService({ ...reads, ...contracts }),
-    command: createRunCommandService({ packageVersion: context.pluginDefinition.version, enabledGroups: observers.commandGroups, runtimeControl: observers.runtimeControl, materialGrants: observers.materialGrants, gitObservation: observers.gitObservation, initializationProducer: observers.runtimeEvidence?.runtime_digest }),
+    command: createRunCommandService({ inputDefaults: context.defaults, packageVersion: context.pluginDefinition.version, enabledGroups: observers.commandGroups, runtimeControl: observers.runtimeControl, materialGrants: observers.materialGrants, gitObservation: observers.gitObservation, initializationProducer: observers.runtimeEvidence?.runtime_digest }),
   });
 }

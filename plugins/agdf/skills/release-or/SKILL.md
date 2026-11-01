@@ -67,7 +67,7 @@ On skill_continuation use only its target/control. Without that tool and a valid
 or help retries. Dispatch never authorizes.
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
-When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` when it is steering-relevant; no central backlog update is required.
+When `.agdf/control/` is present, persist or link the OR under `.agdf/control/runs/<run_id>/documents/OR.md` and reference it from the selected canonical `RUN_STATE.md` when it is steering-relevant; no central backlog update is required.
 Use the Runtime Contract definition of `Relevant Run` to decide whether OR is mandatory or whether a Quick Task mini-closeout is enough.
 Close a `quick_task` through bound `agdf_closeout/closeout.record`, preserving its exact
 confirmation and original UUID. If that MCP group is unavailable, use the supplied

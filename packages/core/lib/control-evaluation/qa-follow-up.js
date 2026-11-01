@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { readFileSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { posix } from 'node:path';
@@ -41,7 +42,7 @@ export function inspectQaReports(root, state, runId, expectedDecision, maxSource
     if (!path) { if (type === 'QA') return stop('Current QA report is missing.'); else continue; }
     const overlay = proposed?.get(path), external = readArtefact || typeof overlay === 'string';
     if (posix.normalize(path) !== path || strictUtf8 && /[%?#]/u.test(path)
-        || !path.startsWith(`.agdf/control/artefacts/${runId}/`) || !external && hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
+        || !path.startsWith(`${runDocumentPath(runId, '')}/`) || !external && hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
     const file = external ? null : containedRegularFile(root, path);
     if (file && file.status !== 'valid') return stop(`Review source unavailable: ${type}.`);
     if (reports.has(path)) continue;

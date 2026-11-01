@@ -5,7 +5,10 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { runRootFromStatePath, sealRunState } from "#agdf-core/control-state/run-seal.js";
+import assert from 'node:assert/strict';
+import { structuredCurrentRun } from '../../core/test/fixtures/current-structured-run.js';
+import { withSyntheticQaContent } from '../../core/test/fixtures/decision-content.js';
+import { evaluateGateCheck } from '#agdf-core/control-evaluation/gate-check.js';
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
@@ -17,9 +20,6 @@ function runJson(args) {
     if (error.stdout) return JSON.parse(error.stdout.toString());
     throw error;
   }
-}
-function sealFixtureRun(path) {
-  writeFileSync(path, sealRunState(runRootFromStatePath(path), readFileSync(path, "utf8")), "utf8");
 }
 
 export function checkGeneratedGateContracts() {
@@ -97,137 +97,41 @@ export function checkGeneratedGateContracts() {
 }
 
 export function checkLateGateTransitions() {
-  const cases = [
-    { name: "brownfield", steps: {}, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "Brownfield Analysis", missing: "none", allowed: "run Brownfield Analysis for the approved TP scope", forbidden: "implement before Brownfield evidence supports the approved TP path", next: "Run Brownfield Analysis for the approved TP scope before CD+Tests." },
-    { name: "cd-tests", steps: { "Brownfield Analysis": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
-    { name: "cr", steps: { "Brownfield Analysis": "done", "CD+Tests": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CR", missing: "none", allowed: "run mandatory code review", forbidden: "claim QA pass", next: "Run Code Review for the implemented TP scope and resolve blocking findings before QA." },
-    { name: "qa-revise-missing-findings", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "revise"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "request QA approval", forbiddenExtra: ["implement code", "request UAT approval"], next: "Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report.", status: "open" },
-    { name: "qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "request QA approval", next: "Resolve or route the blocking QA findings via their authoritative owner, then rerun the required steps. Do not request Approval: QA from a block report.", status: "blocked" },
-    { name: "approved-qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "complete the current control-state fields", forbidden: "create later-gate artefacts beyond the current allowed gate", next: "Update the QA artefact row in the selected RUN_STATE.md to use the gate-specific durable status vocabulary.", status: "blocked" },
-    { name: "qa-reviews-missing", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "none", allowed: "record TP Review and Clean Implementation Review", forbidden: "request QA approval", forbiddenExtra: ["request UAT approval"], next: "persist or refine the QA report" },
-    { name: "qa-approval", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done", "TP Review": "done", "Clean Implementation Review": "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "persist or refine the QA report" },
-    { name: "brownfield-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "done", CR: "done", "TP Review": "done", "Clean Implementation Review": "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "persist or refine the QA report" },
-    { name: "mandatory-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "not_applicable", CR: "not_applicable" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
-    { name: "premature-qa", steps: {}, qa: "approved", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "Brownfield Analysis", missing: "none", allowed: "run Brownfield Analysis for the approved TP scope", forbidden: "implement before Brownfield evidence supports the approved TP path", next: "Run Brownfield Analysis for the approved TP scope before CD+Tests." },
-    { name: "premature-uat", steps: { "Brownfield Analysis": "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "pass"], uat: "approved", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
-    { name: "qa-report", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "approved", qaArtefact: ["", "missing"], uat: "missing", gate: "QA", missing: "none", allowed: "persist the approved QA report in a stable artefact path such as .agdf/control/artefacts/<key>/QA_REPORT.md", forbidden: "create UAT", next: "Persist the approved QA report and link it from the AGDF control state before continuing.", status: "blocked" },
-    { name: "uat", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "pass", qaArtefact: ["QA_REPORT.md", "passed"], uat: "missing", gate: "UAT", missing: "Approval: UAT", allowed: "request exact UAT approval", forbidden: "release", next: "Request exact approval: Approval: UAT before delivery handoff." },
-    { name: "or", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "passed", qaArtefact: ["QA_REPORT.md", "pass"], uat: "approved", gate: "OR", missing: "none", allowed: "produce OR or delivery closeout", forbidden: "commit, push, open PR or release automatically", next: "Produce delivery closeout or requested handoff; do not perform VCS actions automatically." },
-  ];
-
-  for (const testCase of cases) {
-    const tempDir = realpathSync(mkdtempSync(join(tmpdir(), `create-agdf-late-gate-${testCase.name}-`)));
-    const runId = `late-gate-${testCase.name}`;
-    const prefix = `.agdf/control/artefacts/${runId}/`;
-    const concreteUat = ['approved', 'pass', 'passed'].includes(testCase.qa) && ['pass', 'passed'].includes(testCase.qaArtefact[1]);
-    const runPath = join(tempDir, ".agdf", "control", "runs", runId, "RUN_STATE.md");
-    try {
-      execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
-      execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", runId], { stdio: "pipe" });
-      if (concreteUat) {
-        mkdirSync(join(tempDir, prefix), { recursive: true });
-        writeFileSync(join(tempDir, prefix, 'UR.md'), '# UR: Personal filter\n\n## Goal\nSave and restore the user-owned personal filter through the existing storage owner.\n');
-        writeFileSync(join(tempDir, prefix, 'QA_REPORT.md'), '# QA: Personal filter\nDecision: pass\n\n## TP Coverage\n- delivered_result: The user-owned filter is saved and restored through the existing storage owner, verified in the disposable transition test.\n\n## Missing Evidence\n- qualification_limits: none\n\n## Risks\n- delivery_risks: none\n');
-        for (const step of ['Brownfield Analysis', 'CD+Tests', 'CR']) {
-          writeFileSync(join(tempDir, prefix, step.replace(/[^A-Za-z]+/g, '_').toUpperCase() + '.md'),
-            `# ${step}\nDecision: pass\n\nThe disposable late-gate fixture records its completed scoped verification.\n`);
-        }
-      }
-      const internalRows = ["Brownfield Analysis", "CD+Tests", "CR", "TP Review", "Clean Implementation Review"]
-        .map((step) => `| ${step} | ${testCase.steps[step] ? `${concreteUat ? prefix : ''}${step.replace(/[^A-Za-z]+/g, "_").toUpperCase()}.md` : ""} | ${testCase.steps[step] ?? "missing"} | |`)
-        .join("\n");
-      writeFileSync(runPath, `# AGDF Run State
-
-## Run Meta
-
-- control_state_version: 2
-- run_id: ${runId}
-- lifecycle: active
-- revision: 1
-- revision_id: 22222222-2222-4222-8222-222222222222
-- started_at: 2026-07-13
-- mode: structured_delivery
-- current_gate: OR
-- decision: in_progress
-- owner: test
-
-## Objective
-
-Verify that the approved personal-filter change follows the canonical late-gate transition without skipping evidence or human decisions.
-
-## Current Control State
-
-| Question | Answer |
-|---|---|
-| What is known? | Approved TP and explicit late-gate artefact state. |
-| What is approved? | UR, PRD, SD and TP; QA/UAT according to fixture. |
-| What is missing? | The next canonical late-gate step. |
-| What is the next allowed action? | Derive it from the canonical transition model. |
-| What is explicitly forbidden right now? | Skipping the canonical transition model. |
-
-## Approvals
-
-| Gate | Status | Evidence |
-|---|---|---|
-| UR | approved | Approval: UR |
-| PRD | approved | Approval: PRD |
-| SD | approved | Approval: SD |
-| TP | approved | Approval: TP |
-| QA | ${testCase.qa} | QA evidence |
-| UAT | ${testCase.uat} | UAT evidence |
-
-## Artefacts
-
-| Type | Path | Status | Notes |
-|---|---|---|---|
-| UR | ${concreteUat ? prefix + 'UR.md' : 'UR.md'} | approved | |
-| Brownfield Review | BROWNFIELD_REVIEW.md | done | |
-| PRD | PRD.md | approved | |
-| SD | SD.md | approved | |
-| TP | TP.md | approved | |
-${internalRows}
-| QA | ${concreteUat ? prefix + 'QA_REPORT.md' : testCase.qaArtefact[0]} | ${testCase.qaArtefact[1]} | |
-
-## Mode/Slice Decision
-
-- decision: structured_delivery
-- required_next_gate: PRD
-- scope_reason: Late-gate transition fixture.
-- evidence: BROWNFIELD_REVIEW.md
-
-## Artefact Chain
-
-| From | Relationship | To | Evidence |
-|---|---|---|---|
-| UR | approved_by | Approval: UR | exact approval |
-| PRD | derived_from | UR | linked |
-| SD | derived_from | PRD | linked |
-| TP | derived_from | SD | linked |
-| QA_REPORT | tests | TP | linked when present |
-
-## Evidence
-
-| Evidence | Source | Covers | Strength |
-|---|---|---|---|
-| late-gate fixture | build-contract-checks.js | transition | direct |
-
-## Closeout
-
-- next_allowed_action: ${testCase.next}
-`, "utf8");
-      sealFixtureRun(runPath);
-      const report = runJson(["gate-check", "--dir", tempDir, "--run", runId, "--json"]);
-      if (report.current_gate !== testCase.gate
-        || report.missing_approval !== testCase.missing
-        || report.status !== (testCase.status ?? "open")
-        || !report.allowed.includes(testCase.allowed)
-        || !report.forbidden.includes(testCase.forbidden)
-        || (testCase.forbiddenExtra ?? []).some((action) => !report.forbidden.includes(action))
-        || report.next_allowed_action !== testCase.next) {
-        throw new Error(`Late-gate ${testCase.name} mismatch: ${JSON.stringify({ status: report.status, gate: report.current_gate, missing: report.missing_approval, allowed: report.allowed, forbidden: report.forbidden, next: report.next_allowed_action, doctor: report.doctor_report?.findings, content: report.presentation_diagnostics, card: report.status_card })}`);
-      }
-    } finally {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-  }
+  const disposers = [], lifecycle = { after: dispose => disposers.push(dispose) };
+  try {
+    const run = structuredCurrentRun(lifecycle);
+    const accepted = result => { assert.equal(result.outcome, 'accepted', JSON.stringify(result)); return result; };
+    const inspect = () => evaluateGateCheck(run.f.root, { runId: run.id });
+    const step = (name, decision = 'pass') => run.step('internal', `# ${name}\nDecision: ${decision}\nSynthetic exact build contract prerequisite.\n`,
+      { internal_step: name, decision, ...(decision === 'not_applicable' ? { reason: 'Synthetic attempt to skip a mandatory step' } : {}) });
+    // Current command ownership makes previously forged premature-approval/table
+    // states unconstructible. Assert the actual refusals and derived transitions.
+    assert.equal(inspect().current_gate, 'Brownfield Analysis');
+    assert.equal(run.present('QA').outcome, 'rejected');
+    accepted(step('Brownfield Analysis'));
+    assert.equal(inspect().current_gate, 'CD+Tests');
+    assert.equal(step('CD+Tests', 'not_applicable').outcome, 'rejected');
+    accepted(step('CD+Tests'));
+    assert.equal(inspect().current_gate, 'CR');
+    assert.equal(step('CR', 'not_applicable').outcome, 'rejected');
+    accepted(step('CR'));
+    assert.equal(run.present('QA').outcome, 'rejected', 'TP and clean reviews are mandatory');
+    accepted(step('TP Review'));
+    assert.equal(run.present('QA').outcome, 'rejected', 'Clean review is still missing');
+    accepted(step('Clean Implementation Review'));
+    assert.equal(inspect().current_gate, 'QA');
+    assert.equal(run.present('QA').outcome, 'rejected', 'No durable passing QA report');
+    const text = decision => withSyntheticQaContent(`# QA: Build contract\nDecision: ${decision}\n\n## Scope\nSynthetic current transition.\n## Evidence\nActual current command progression.\n## Risks\nnone\n`);
+    accepted(run.record('QA', text('revise') + '\n## Normalized Findings\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| BUILD-1 | evidence_gap | evidence_obligation | open | Synthetic missing observation | Collect the missing observation |\n'));
+    assert.equal(run.present('QA').outcome, 'rejected');
+    accepted(run.record('QA', text('pass'), true));
+    accepted(run.approve('QA'));
+    assert.equal(inspect().current_gate, 'UAT');
+    assert.equal(inspect().missing_approval, 'Approval: UAT');
+    accepted(run.approve('UAT'));
+    const final = inspect();
+    assert.equal(final.current_gate, 'OR');
+    assert(final.forbidden.includes('commit, push, open PR or release automatically'));
+    assert(!/^## (?:Approvals|Artefacts|Artefact Chain|Evidence)\s*$/mu.test(run.content()));
+  } finally { for (const dispose of disposers.reverse()) dispose(); }
 }

@@ -18,7 +18,7 @@ import { RUN_COMMAND_GROUPS } from '../../core/lib/control-state/run-command-con
 const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
 try {
   const f = createSdDefinitionTestRun(root, cli, 'actual-package-decision', process.env, { typedApprovals: true });
-  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
+  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'accepted');
   const before = readFileSync(f.state, 'utf8'), ui = { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } };
   for (const modern of [false, true]) {
     const input = { schema_version: '1', presentation_language: 'de', working_directory: root, target_source: 'explicit_target', primary_target: root,
@@ -94,7 +94,7 @@ try {
   assert.equal(readFileSync(f.state, 'utf8'), before, 'Preparation, capability advertisement, read, non-qualified choices and teardown cannot decide.');
   const prd=createPrdDefinitionTestRun(root,cli,'packaged-preview',process.env,{typedApprovals:true,previewRequirement:true});
   const preview=previewFixture(root,prd.runId,readFileSync(prd.file('UR.md'),'utf8'));
-  writeFileSync(prd.file('PRD.md'),preview.prd());assert.equal(prd.record().value.outcome,'recorded');
+  writeFileSync(prd.file('PRD.md'),preview.prd());assert.equal(prd.record().value.outcome,'accepted');
   const previewState=readFileSync(prd.state,'utf8');
   for(const capabilities of [ui,{}]) await withStdioClient({...fixture,capabilities},async client=>{
     const input={schema_version:'1',presentation_language:'en',working_directory:root,target_source:'explicit_target',primary_target:root,

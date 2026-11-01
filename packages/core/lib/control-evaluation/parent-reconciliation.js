@@ -1,3 +1,4 @@
+import { runDocumentPath, runEvidencePath } from '../control-state/run-identity.js';
 import { RUN_ID_PATTERN } from "../control-state/run-state-parser.js";
 
 const parentPrefix = "parent_run:";
@@ -220,7 +221,7 @@ export function evaluateProgrammeAggregation(runState, { loadRun, resolveFile } 
   const fieldCounts = input.field_counts ?? {};
   const acceptanceRefValid = fieldCounts.acceptance_ref === 1
     && filled(input.acceptance_ref)
-    && input.acceptance_ref.startsWith(".agdf/control/artefacts/")
+    && [runDocumentPath(runState.run_id, ''), runEvidencePath(runState.run_id, '')].some(prefix => input.acceptance_ref.startsWith(`${prefix}/`))
     && Boolean(resolveFile?.(input.acceptance_ref));
   const missingEvidenceValid = fieldCounts.missing_evidence === 1
     && input.missing_evidence === "none";

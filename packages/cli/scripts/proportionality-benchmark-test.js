@@ -450,11 +450,11 @@ const historyManifest = { profile_id: "staged-v3", history_provenance_path: "his
 const history = { schema_version: "1", profile_id: "staged-v3", inventory_version: "1.0.0", protected_roots: [historyRoot], protected_files: { [`${historyRoot}/a.txt`]: createHash("sha256").update("a\n").digest("hex") } };
 for (const path of [
   "evals/proportionality/staged-manifest.json", "evals/proportionality/staged-scenarios.json", "evals/proportionality/fixtures/staged-catalog.json",
-  ".agdf/control/artefacts/agdf-staged-proportionality-observation/STAGED_PROPORTIONALITY_BASELINE.json",
-  ".agdf/control/artefacts/agdf-staged-proportionality-observation/STAGED_PROPORTIONALITY_REPORT.json",
-  ".agdf/control/artefacts/agdf-staged-proportionality-observation/STAGED_PROPORTIONALITY_REPORT.md",
-  ".agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md",
-  ".agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md",
+  ".agdf/control/runs/agdf-staged-proportionality-observation/documents/STAGED_PROPORTIONALITY_BASELINE.json",
+  ".agdf/control/runs/agdf-staged-proportionality-observation/documents/STAGED_PROPORTIONALITY_REPORT.json",
+  ".agdf/control/runs/agdf-staged-proportionality-observation/documents/STAGED_PROPORTIONALITY_REPORT.md",
+  ".agdf/control/runs/agdf-staged-proportionality-observation/documents/QA_REPORT.md",
+  ".agdf/control/runs/agdf-staged-proportionality-observation/documents/OR.md",
 ]) {
   mkdirSync(dirname(join(historyTemp, path)), { recursive: true });
   writeFileSync(join(historyTemp, path), "fixture\n");
@@ -463,7 +463,7 @@ for (const path of [
 writeFileSync(join(historyTemp, "evals/proportionality/history.json"), `${JSON.stringify(history)}\n`);
 validateHistoryInventory(historyTemp, join(historyTemp, "evals/proportionality"), historyManifest);
 const omittedHistory = structuredClone(history);
-delete omittedHistory.protected_files[".agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md"];
+delete omittedHistory.protected_files[".agdf/control/runs/agdf-staged-proportionality-observation/documents/OR.md"];
 writeFileSync(join(historyTemp, "evals/proportionality/history.json"), `${JSON.stringify(omittedHistory)}\n`);
 assert.throws(() => validateHistoryInventory(historyTemp, join(historyTemp, "evals/proportionality"), historyManifest), /omits required staged-v2 evidence/);
 writeFileSync(join(historyTemp, "evals/proportionality/history.json"), `${JSON.stringify(history)}\n`);
@@ -479,7 +479,7 @@ loaderManifest.fixture_version = "3.0.1";
 writeFileSync(join(loaderTemp, "evals/proportionality/staged-v3-manifest.json"), `${JSON.stringify(loaderManifest)}\n`);
 writeFileSync(join(loaderTemp, "evals/proportionality/staged-v3-scenarios.json"), readFileSync(join(repoRoot, "evals/proportionality/staged-v3-scenarios.json")));
 writeFileSync(join(loaderTemp, "evals/proportionality/fixtures/staged-v3-catalog.json"), readFileSync(join(repoRoot, "evals/proportionality/fixtures/staged-v3-catalog.json")));
-writeFileSync(join(loaderTemp, ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/STAGED_PROPORTIONALITY_BASELINE_V3.json"), readFileSync(join(repoRoot, ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/STAGED_PROPORTIONALITY_BASELINE_V3.json")));
+writeFileSync(join(loaderTemp, ".agdf/control/runs/agdf-staged-proportionality-baseline-v3/documents/STAGED_PROPORTIONALITY_BASELINE_V3.json"), readFileSync(join(repoRoot, ".agdf/control/runs/agdf-staged-proportionality-baseline-v3/documents/STAGED_PROPORTIONALITY_BASELINE_V3.json")));
 assert.throws(() => loadCorpus(loaderTemp, "staged-v3"), /version mismatch: fixtures.fixture_version/);
 loaderManifest.fixture_version = "3.0.0";
 loaderManifest.scenarios_path = "../outside.json";

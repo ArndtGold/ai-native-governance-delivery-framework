@@ -1,4 +1,9 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from 'node:crypto';
+import { runEvidencePath } from '../control-state/run-identity.js';
+import { readSelectedRun } from '../control-state/run-state-reader.js';
+import { runSealState } from '../control-state/run-seal.js';
+import { hasSymlinkComponent } from '../control-state/contained-file.js';
+import { mkdirSync, writeFileSync, readFileSync, lstatSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { validateSearchResult } from "./contracts.js";
 
@@ -17,14 +22,27 @@ export function persistSearchResult(targetDir, result) {
   if (validated.provenance.valid_evaluations < 1) {
     throw new Error("search result requires at least one valid evaluation before persistence");
   }
-  const root = join(targetDir, ".agdf", "control", "artefacts", validated.scope_key);
-  const jsonPath = join(root, "DELIVERY_PATH_SEARCH.json");
-  const markdownPath = join(root, "DELIVERY_PATH_SEARCH.md");
-  mkdirSync(dirname(jsonPath), { recursive: true });
+  const run = readSelectedRun(targetDir, validated.scope_key);
+  if (!run.valid || runSealState(targetDir, run.content).status !== 'valid') throw Error('AGDF_SEARCH_CURRENT_RUN_REQUIRED');
+  const relative = runEvidencePath(run.run_id, '');
+  if (hasSymlinkComponent(targetDir, relative)) throw Error('AGDF_RUN_PATH_INVALID');
+  const root = join(targetDir, relative);
   const safe = safeResult(validated);
-  writeFileSync(jsonPath, `${JSON.stringify(safe, null, 2)}\n`, "utf8");
+  const jsonText = `${JSON.stringify(safe, null, 2)}\n`;
+  const identity = createHash('sha256').update(jsonText).digest('hex');
+  const jsonPath = join(root, `DELIVERY_PATH_SEARCH-${identity}.json`);
+  const markdownPath = join(root, `DELIVERY_PATH_SEARCH-${identity}.md`);
+  mkdirSync(dirname(jsonPath), { recursive: true });
+  if (hasSymlinkComponent(targetDir, relative)) throw Error('AGDF_RUN_PATH_INVALID');
+  const publish = (path, text) => {
+    try { writeFileSync(path, text, { encoding: 'utf8', flag: 'wx' }); }
+    catch (error) {
+      if (error.code !== 'EEXIST' || !lstatSync(path).isFile() || lstatSync(path).isSymbolicLink() || readFileSync(path, 'utf8') !== text) throw error;
+    }
+  };
+  publish(jsonPath, jsonText);
   const recommendation = safe.recommendation?.action ?? "No safe recommendation";
-  writeFileSync(markdownPath, [
+  publish(markdownPath, [
     "# Delivery Path Search Decision",
     "",
     `- status: ${safe.status}`,
@@ -46,6 +64,6 @@ export function persistSearchResult(targetDir, result) {
     "",
     "This summary contains model judgements, not measured facts. Canonical AGDF gate-check remains authoritative.",
     "",
-  ].join("\n"), "utf8");
+  ].join("\n"));
   return { jsonPath, markdownPath };
 }

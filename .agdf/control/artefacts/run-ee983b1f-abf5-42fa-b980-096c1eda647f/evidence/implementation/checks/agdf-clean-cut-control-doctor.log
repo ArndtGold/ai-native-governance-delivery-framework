@@ -1,0 +1,136 @@
+TAP version 13
+# Subtest: exact gate reply validation preserves every deliberate-response boundary
+ok 1 - exact gate reply validation preserves every deliberate-response boundary
+  ---
+  duration_ms: 3.992574
+  type: 'test'
+  ...
+# Subtest: status rendering, narration, identity and localized labels remain independent of storage layout
+ok 2 - status rendering, narration, identity and localized labels remain independent of storage layout
+  ---
+  duration_ms: 70.950838
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Approvals source
+ok 3 - current parser refuses a second writable Approvals source
+  ---
+  duration_ms: 741.38846
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Artefacts source
+ok 4 - current parser refuses a second writable Artefacts source
+  ---
+  duration_ms: 910.581635
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Artefact Chain source
+ok 5 - current parser refuses a second writable Artefact Chain source
+  ---
+  duration_ms: 721.159146
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Evidence source
+ok 6 - current parser refuses a second writable Evidence source
+  ---
+  duration_ms: 605.594542
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Current Control State source
+ok 7 - current parser refuses a second writable Current Control State source
+  ---
+  duration_ms: 699.126069
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Gate Checklist source
+ok 8 - current parser refuses a second writable Gate Checklist source
+  ---
+  duration_ms: 609.689353
+  type: 'test'
+  ...
+# Subtest: recorded facts determine the next gate and read-only checks preserve exact bytes
+ok 9 - recorded facts determine the next gate and read-only checks preserve exact bytes
+  ---
+  duration_ms: 1163.691176
+  type: 'test'
+  ...
+# Subtest: unsupported typed operation records cannot be adopted or resealed by an ordinary command
+ok 10 - unsupported typed operation records cannot be adopted or resealed by an ordinary command
+  ---
+  duration_ms: 877.466319
+  type: 'test'
+  ...
+# Subtest: archived source history is unsupported by the current reader and is preserved byte for byte
+ok 11 - archived source history is unsupported by the current reader and is preserved byte for byte
+  ---
+  duration_ms: 4.059925
+  type: 'test'
+  ...
+# Subtest: an exact selected observation never captures unrelated Run history
+ok 12 - an exact selected observation never captures unrelated Run history
+  ---
+  duration_ms: 728.236184
+  type: 'test'
+  ...
+# Subtest: bound revision intake is isolated while unbound assignment remains complete and fail closed
+ok 13 - bound revision intake is isolated while unbound assignment remains complete and fail closed
+  ---
+  duration_ms: 940.756005
+  type: 'test'
+  ...
+# Subtest: all-active diagnosis preserves same-source single/shared findings and accounts invalid entries
+ok 14 - all-active diagnosis preserves same-source single/shared findings and accounts invalid entries
+  ---
+  duration_ms: 781.905189
+  type: 'test'
+  ...
+# Subtest: selected diagnosis preserves a known unsupported version instead of hiding it as generic selection failure
+ok 15 - selected diagnosis preserves a known unsupported version instead of hiding it as generic selection failure
+  ---
+  duration_ms: 680.761116
+  type: 'test'
+  ...
+# Subtest: missing, malformed and conflicting versions remain unclassified rather than asserted producer incompatibility
+ok 16 - missing, malformed and conflicting versions remain unclassified rather than asserted producer incompatibility
+  ---
+  duration_ms: 795.574928
+  type: 'test'
+  ...
+# Subtest: bounded inventory pages account 0/1/10/100 active entries and preserve same-source findings
+ok 17 - bounded inventory pages account 0/1/10/100 active entries and preserve same-source findings
+  ---
+  duration_ms: 6690.795812
+  type: 'test'
+  ...
+# Subtest: inventory cursor rejects source mutation and out-of-order replay without stale completion
+ok 18 - inventory cursor rejects source mutation and out-of-order replay without stale completion
+  ---
+  duration_ms: 1501.878832
+  type: 'test'
+  ...
+# Subtest: parent observation uses isolated reusable workers, shared capacity and truthful read recovery
+ok 19 - parent observation uses isolated reusable workers, shared capacity and truthful read recovery
+  ---
+  duration_ms: 631.139316
+  type: 'test'
+  ...
+# Subtest: foreign and out-of-order parent cursors cannot retire a valid advertised continuation
+ok 20 - foreign and out-of-order parent cursors cannot retire a valid advertised continuation
+  ---
+  duration_ms: 1631.834077
+  type: 'test'
+  ...
+# Subtest: actual silent read-worker timeout and cancellation never become clean diagnosis or write recovery
+ok 21 - actual silent read-worker timeout and cancellation never become clean diagnosis or write recovery
+  ---
+  duration_ms: 7530.858669
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 22382.568678

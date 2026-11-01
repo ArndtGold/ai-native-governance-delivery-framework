@@ -40,7 +40,7 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
     if (run.rejection?.reason === 'run_step_recovery_required') {
       const pending = readPendingSourceRevisionJournal(root, input.run_id), path = `.agdf/control/runs/${input.run_id}/RUN_STATE.md`;
       const file = containedRegularFile(root, path);
-      if ([2, 5, 6].includes(resolutionRecordVersion(pending)) && [pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
+      if (resolutionRecordVersion(pending) === 7 && [pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
         && !hasSymlinkComponent(root, path) && file.status === 'valid' && statSync(file.path).size <= 1048576) {
         const content = readFileSync(file.path, 'utf8'), parsed = parseRunState(content, input.run_id);
         if (parsed.valid) run = { ...parsed, content };

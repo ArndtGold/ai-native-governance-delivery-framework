@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, realpathSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { initializeCanonicalControl } from '../../cli/lib/scaffold/canonical-init.js';
+import { initializeCurrentControl } from './fixtures/current-init.js';
 import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
 import { cliGitObservation } from '../../cli/lib/control-evaluation/git-observation.js';
 import { createRun } from '../lib/control-state/run-state-repository.js';
@@ -41,7 +41,7 @@ test('Verified Change uses actual Git baseline and completes through canonical t
   try {
     const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
     git(['init', '-q']); git(['config', 'user.name', 'Synthetic fixture']); git(['config', 'user.email', 'fixture@example.invalid']);
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+    initializeCurrentControl(root, 'en');
     const state = createRun(root, run); writeFileSync(join(root, 'README.md'), 'Before\n');
     git(['add', '.']); git(['commit', '-qm', 'Synthetic clean baseline']);
     const bound = () => ({ schema_version: '1', presentation_language: 'en', working_directory: root, primary_target: root,
@@ -62,10 +62,10 @@ test('Verified Change uses actual Git baseline and completes through canonical t
     const approved = service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: {
       gate: 'UR', presentation_id: prepared.family_result.presentation_id, response: 'Approval: UR' } } });
     assert.equal(approved.outcome, 'accepted', JSON.stringify(approved));
-    let record = '# Verified Change: Synthetic bounded copy\n\n## Record\n- status: eligible\n- related_ur: .agdf/control/artefacts/verified/UR.md\n- escalation_target: structured_slice\n- canonical_owner: README.md\n- allowed_source_paths: README.md\n- allowed_derived_paths: none\n- prohibited_impacts: none\n- propagation_command: none\n- validation_commands: inspect exact README sentence\n- baseline_commit: to_be_captured\n- baseline_tracked_paths: none\n- baseline_untracked_paths: none\n- execution_changed_paths: none\n- execution_scope_status: pending\n- validation_status: pending\n- propagation_status: not_applicable\n\n## Brownfield Selection\n- mode: post_ur_review\n- decision: verified_change\n- scope_reason: One owner, bounded copy, no prohibited impact.\n- evidence: Synthetic fixture analysis.\n\n## Mini-Closeout\n- delivered:\n- intentionally_not_delivered:\n- residual_risk: none\n- next_step:\n';
+    let record = '# Verified Change: Synthetic bounded copy\n\n## Record\n- status: eligible\n- related_ur: .agdf/control/runs/verified/documents/UR.md\n- escalation_target: structured_slice\n- canonical_owner: README.md\n- allowed_source_paths: README.md\n- allowed_derived_paths: none\n- prohibited_impacts: none\n- propagation_command: none\n- validation_commands: inspect exact README sentence\n- baseline_commit: to_be_captured\n- baseline_tracked_paths: none\n- baseline_untracked_paths: none\n- execution_changed_paths: none\n- execution_scope_status: pending\n- validation_status: pending\n- propagation_status: not_applicable\n\n## Brownfield Selection\n- mode: post_ur_review\n- decision: verified_change\n- scope_reason: One owner, bounded copy, no prohibited impact.\n- evidence: Synthetic fixture analysis.\n\n## Mini-Closeout\n- delivered:\n- intentionally_not_delivered:\n- residual_risk: none\n- next_step:\n';
     const eligible = recordText('verified_change.record', 'Verified Change', record, { phase: 'eligibility' });
     assert.equal(eligible.outcome, 'accepted', JSON.stringify(eligible));
-    const vcPath = join(root, '.agdf/control/artefacts/verified/VERIFIED_CHANGE.md');
+    const vcPath = join(root, '.agdf/control/runs/verified/documents/VERIFIED_CHANGE.md');
     record = readFileSync(vcPath, 'utf8');
     assert.ok(record.includes(`- baseline_commit: ${git(['rev-parse', 'HEAD']).trim()}`));
     const routed = recordText('step.record', 'Brownfield Review', '# Brownfield Review\n- decision: pass\nSynthetic bounded copy, one canonical owner and no prohibited impact.\n',

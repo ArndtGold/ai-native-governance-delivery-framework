@@ -53,7 +53,7 @@ test('SCN-003/026/027: shared production worker reads same immutable source, no 
     const call = input => service.read({ session_id: session, ...input });
     const snapshot = await call({ operation: 'snapshot' });
     const direct = createCockpitReader(f.root).snapshot();
-    assert.deepEqual(snapshot.data, direct.data);
+    assert.deepEqual({...snapshot.data,entries:snapshot.data.entries.map(({row_id,...row})=>row)},{...direct.data,entries:direct.data.entries.map(({row_id,...row})=>row)});
     const detail = await call({ operation: 'run', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a' });
     const resource = detail.data.run.resources.find(r => r.type === 'UR');
     const args = { operation: 'document', snapshot_id: detail.snapshot_id, run_id: 'fixture-a', resource_id: resource.resource_id };
@@ -257,7 +257,7 @@ test('SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundar
     assert.equal((await service.read({ operation: 'snapshot', session_id })).state, 'available');
     fs.appendFileSync(tail, 'x');
     const overview = await service.read({ operation: 'snapshot', session_id });
-    assert.equal(overview.state, 'available'); assert.equal(overview.data.kind, 'runs'); assert.equal(overview.data.runs.length, 2);
+    assert.equal(overview.state, 'available'); assert.equal(overview.data.kind, 'work'); assert.equal(overview.data.entries.length, 2);
     assert.ok(overview.data.byte_count < COCKPIT_LIMITS.capture);
     assert.equal(createCockpitReader(f.root).snapshot().state, 'available');
     const browserPool = new ReadWorkerPool(f.root);
@@ -271,7 +271,7 @@ test('SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundar
 test('plugin views bind two projects once, share capacity, and keep failure identity', async () => {
   const first = fixture(), second = fixture();
   for (const f of [first, second]) {
-    fs.mkdirSync(join(f.root, '.git'));
+    fs.mkdirSync(join(f.root, '.git'),{recursive:true});
     fs.writeFileSync(join(f.root, '.git/HEAD'), 'ref: refs/heads/main\n');
   }
   const created = [], service = createCockpitSessionService(undefined, { pluginMode: true,
@@ -303,7 +303,7 @@ test('plugin views bind two projects once, share capacity, and keep failure iden
 
 test('plugin production workers preserve cross-project data and one publication owner', async () => {
   const a = fixture(), b = fixture();
-  for (const f of [a, b]) { fs.mkdirSync(join(f.root, '.git')); fs.writeFileSync(join(f.root, '.git/HEAD'), 'ref: refs/heads/main\n'); }
+  for (const f of [a, b]) { fs.mkdirSync(join(f.root, '.git'),{recursive:true}); fs.writeFileSync(join(f.root, '.git/HEAD'), 'ref: refs/heads/main\n'); }
   fs.writeFileSync(join(b.root, b.documentPath), '# Other project document\n');
   const beforeA = treeBytes(a.root), beforeB = treeBytes(b.root);
   const service = createCockpitSessionService(undefined, { pluginMode: true });

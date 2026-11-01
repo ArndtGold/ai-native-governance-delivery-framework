@@ -50,7 +50,7 @@ await runMcpServer({surface:'codex'});`);
       assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
       const state = readFileSync(join(root, '.agdf/control/runs', original.run_id, 'RUN_STATE.md'), 'utf8');
       assert.equal(readRunOperations(state).receipts.filter(r => r.operation_id === original.operation_id).length, 1);
-      assert.equal(readFileSync(join(root, '.agdf/control/artefacts', original.run_id, 'UR.md'), 'utf8'), content);
+      assert.equal(readFileSync(join(root, '.agdf/control/runs', original.run_id, 'documents', 'UR.md'), 'utf8'), content);
     });
     console.log(`Actual generation loss/restaging, dropped acknowledgement, original receipt and one canonical UR effect passed (${modern ? 'modern' : 'legacy'}).`);
   } finally { fixture.dispose(); }

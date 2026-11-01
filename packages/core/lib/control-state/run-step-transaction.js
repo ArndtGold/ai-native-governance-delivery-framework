@@ -1,6 +1,7 @@
+import { runDocumentPath, runEvidencePath, runControlPath } from './run-identity.js';
 import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { bindInputResolution, resolutionRecord, resolutionRecordVersion, recordedInputResolution } from './input-resolution.js';
-import { validOwnedOutputs, publishOwnedOutputs, recoverOwnedOutputs, ownedOutputText, requiresMaterialJournal } from "./run-owned-outputs.js";
+import { validOwnedOutputs, publishOwnedOutputs, recoverOwnedOutputs, ownedOutputText } from "./run-owned-outputs.js";
 import { readRunOperations } from "./run-operations.js";
 import { readApprovalOperations } from "./approval-operations.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
@@ -18,7 +19,7 @@ import { byteDigest, readHistoryBytes, collectRevisionHistory, validateRevisionH
 import { hasSymlinkComponent, isSafeControlRelativePath } from "./contained-file.js";
 import { renameSyncWithRetry } from "../fs-swap.js";
 import { fsyncDirectory } from "./run-state-writer.js";
-import { readControlLayout, PLANNED_LAYOUT, withControlRecovery, markControlMutationEffect, currentControlMutationId, markControlMutationRollbackKnown } from './control-layout.js';
+import { readControlLayout, CURRENT_LAYOUT, withControlRecovery, markControlMutationEffect, currentControlMutationId, markControlMutationRollbackKnown } from './control-layout.js';
 
 const digest = (value) => createHash("sha256").update(value, "utf8").digest("hex");
 
@@ -47,107 +48,56 @@ function invalidJournalArchive(journal, runId) {
     || new Set(journal.archive.sources.map(row => row.path)).size !== journal.archive.sources.length;
 }
 
-// Version 5 owns only the exact immutable staged proposal needed to reconstruct
+// The current journal owns the immutable staged proposal needed to reconstruct
 // its archive after interruption. No caller-selected filesystem output is added.
 function validJournalProposal(journal) {
   const p = journal.proposal_material;
   return exactObject(p, ['path', 'digest', 'content']) && typeof p.content === 'string' && Buffer.byteLength(p.content) <= 131072
     && p.digest === byteDigest(Buffer.from(canonicalRunText(p.content)))
-    && p.path === `.agdf/control/artefacts/${journal.run_id}/EVIDENCE-${p.digest.slice(7)}.json`
+    && p.path === runEvidencePath(journal.run_id, `EVIDENCE-${p.digest.slice(7)}.json`)
     && journal.archive.sources.some(row => row.path === p.path && row.digest === byteDigest(Buffer.from(p.content)));
 }
 
-function validJournalOutputs(journal) {
-  const { run_id: runId, outputs, kind, operation_id: id } = journal;
-  const version = resolutionRecordVersion(journal);
-  if (!validOwnedOutputs(runId, outputs, { material: version === 4 })) return false;
-  if (version !== 4) return kind !== 'ur_draft.replace';
-  const base = `.agdf/control/artefacts/${runId}/`;
-  if (kind === 'ur_draft.replace') return outputs.length === 1 && outputs[0].path === `${base}UR.md`;
-  if (kind === 'closeout.record') return outputs.length === 1 && outputs[0].path === `${base}VERIFIED_CHANGE.md`;
-  if (kind === 'step.record' && outputs.length === 1 && outputs[0].path === `${base}VERIFIED_CHANGE.md`) return true;
-  if (kind === 'step.record') return outputs.length === 1 && /^EVIDENCE-[0-9a-f]{64}\.md$/u.test(outputs[0].path.slice(base.length))
-    && outputs[0].path === `${base}EVIDENCE-${digest(canonicalRunText(outputs[0].next))}.md`
-    && (outputs[0].old === null || outputs[0].old === outputs[0].next);
-  if (kind !== 'artefact.record' || outputs.length !== 3) return false;
-  const names = outputs.map(r => r.path.slice(base.length));
-  return names.filter(n => /^(PRD|SD|TP|QA_REPORT)\.md$/u.test(n)).length === 1
-    && [`REVIEW-${id}.json`, `RECORD-${id}.json`].every(n => names.includes(n))
-    && outputs.filter(r => r.path.endsWith('.json')).every(r => r.old === null);
-}
-
+export const RUN_TRANSACTION_VERSION = 7;
 const commandKinds = ['step.record', 'ur_draft.replace', 'artefact.record', 'approval.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record'];
-const versionOf = resolutionRecordVersion;
-const sourceJournal = journal => [2, 5].includes(versionOf(journal)) || versionOf(journal) === 6 && journal.kind === 'source_revision';
-const outputJournal = journal => [3, 4].includes(versionOf(journal)) || versionOf(journal) === 6 && commandKinds.includes(journal.kind);
+const sourceJournal = journal => resolutionRecordVersion(journal) === RUN_TRANSACTION_VERSION && journal.kind === 'source_revision';
+const outputJournal = journal => resolutionRecordVersion(journal) === RUN_TRANSACTION_VERSION && commandKinds.includes(journal.kind);
 
-function validV6Outputs(journal) {
+function validJournalOutputs(journal) {
   if (!validOwnedOutputs(journal.run_id, journal.outputs)) return false;
-  const base = `.agdf/control/artefacts/${journal.run_id}/`;
-  if (journal.kind === 'step.record' && journal.outputs.some(row => row.path === `${base}OR.md`)) return false;
-  if (journal.kind === 'closeout.record') return journal.outputs.length === 1
-    && ['OR.md', 'VERIFIED_CHANGE.md'].some(name => journal.outputs[0].path === `${base}${name}`);
-  if (!['step.record', 'ur_draft.replace', 'artefact.record'].includes(journal.kind) && journal.outputs.length) return false;
-  // Preserve each typed output owner's restrictions without changing the frozen
-  // v3/v4 decoder. v6 can carry either owner's exact output shape.
-  return validJournalOutputs({ ...journal, schema_version: 3 }) || validJournalOutputs({ ...journal, schema_version: 4 });
+  const paths = journal.outputs.map(row => row.path), doc = name => runDocumentPath(journal.run_id, name);
+  if (journal.kind === 'ur_draft.replace') return paths.length === 1 && paths[0] === doc('UR.md');
+  if (journal.kind === 'artefact.record') return paths.length === 1 && ['PRD.md', 'SD.md', 'TP.md', 'QA_REPORT.md'].some(name => paths[0] === doc(name));
+  if (journal.kind === 'closeout.record') return paths.length === 1 && ['OR.md', 'VERIFIED_CHANGE.md'].some(name => paths[0] === doc(name));
+  if (journal.kind === 'step.record') return paths.length <= 1 && !paths.includes(doc('OR.md'));
+  return paths.length === 0;
 }
-
-function validV6Journal(root, journal, runId) {
+function validJournal(root, journal, runId) {
   const source = journal.kind === 'source_revision', update = journal.kind === 'run.update';
-  const fields = ['schema_version', 'run_id', 'operation_id', 'old_revision_id', 'next_revision_id', 'old_run_digest', 'or', 'kind', 'target_id', 'request_digest', 'outputs'];
+  const fields = ['schema_version', 'run_id', 'operation_id', 'old_revision_id', 'next_revision_id', 'old_run_digest', 'kind', 'target_id', 'request_digest', 'outputs'];
   if (source) fields.push('preview_digest', 'archive', ...(Object.hasOwn(journal, 'proposal_material') ? ['proposal_material'] : []));
   else if (journal.kind === 'prd_revision.reopen') fields.push('archive');
-  return exactObject(journal, fields) && journal.schema_version === 6 && journal.run_id === runId
+  return exactObject(journal, fields) && journal.schema_version === RUN_TRANSACTION_VERSION && journal.run_id === runId
     && [journal.operation_id, journal.old_revision_id, journal.next_revision_id].every(value => REVISION_ID_PATTERN.test(value))
+    && journal.old_revision_id !== journal.next_revision_id
     && /^[a-f0-9]{64}$/u.test(journal.old_run_digest) && DIGEST_PATTERN.test(journal.request_digest)
     && journal.target_id === resolveControlCommandTarget(root).target_id
     && (source || update || commandKinds.includes(journal.kind))
-    && (source || update ? Array.isArray(journal.outputs) && journal.outputs.length === 0 : validV6Outputs(journal))
-    && (journal.or === null || update && exactObject(journal.or, ['old', 'next'])
-      && (journal.or.old === null || typeof journal.or.old === 'string') && typeof journal.or.next === 'string'
-      && Buffer.byteLength(journal.or.next) <= 131072 && (journal.or.old === null || Buffer.byteLength(journal.or.old) <= 131072))
+    && (source || update ? Array.isArray(journal.outputs) && journal.outputs.length === 0 : validJournalOutputs(journal))
     && (!source || DIGEST_PATTERN.test(journal.preview_digest))
     && (!(source || journal.kind === 'prd_revision.reopen') || !invalidJournalArchive(journal, runId))
     && (!Object.hasOwn(journal, 'proposal_material') || source && validJournalProposal(journal));
 }
-
 function journalState(root, runId, { readJournal } = {}) {
   const path = pendingRunStepPath(root, runId);
-  let journal;
+  let stored;
   try {
-    if (hasSymlinkComponent(root, `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`)) throw recoveryError(runId);
-    journal = JSON.parse(readJournal ? readJournal(path) : checkedFile(path));
+    if (hasSymlinkComponent(root, runControlPath(runId, 'RUN_STEP_PENDING.json'))) throw recoveryError(runId);
+    stored = JSON.parse(readJournal ? readJournal(path) : checkedFile(path));
   } catch { throw recoveryError(runId); }
-  const storedJournal = journal;
-  journal = resolutionRecord(journal);
-  if (journal?.schema_version === 6) {
-    if (!validV6Journal(root, journal, runId)) throw recoveryError(runId);
-    return { path, journal: storedJournal };
-  }
-  if (![1, 2, 3, 4, 5].includes(journal?.schema_version) || journal.run_id !== runId
-      || typeof journal.old_run_digest !== "string" || typeof journal.old_revision_id !== "string"
-      || typeof journal.next_revision_id !== "string" || typeof journal.operation_id !== "string"
-      || (journal.backlog !== null && (typeof journal.backlog?.old !== "string" || typeof journal.backlog?.next !== "string"))
-      || (journal.or !== null && (journal.or?.old !== null && typeof journal.or?.old !== "string"
-        || typeof journal.or?.next !== "string"))) throw recoveryError(runId);
-  if ([2, 5].includes(resolutionRecordVersion(journal)) && (!exactObject(journal, ["schema_version", "run_id", "operation_id", "old_revision_id", "next_revision_id", "old_run_digest", "backlog", "or", "kind", "target_id", "request_digest", "preview_digest", "archive", ...(resolutionRecordVersion(journal) === 5 ? ["proposal_material"] : [])])
-      || journal.kind !== "source_revision" || journal.or !== null
-      || ![journal.operation_id, journal.old_revision_id, journal.next_revision_id].every(value => REVISION_ID_PATTERN.test(value))
-      || !/^[a-f0-9]{64}$/u.test(journal.old_run_digest)
-      || journal.target_id !== resolveControlCommandTarget(root).target_id
-      || ![journal.request_digest, journal.preview_digest].every(value => DIGEST_PATTERN.test(value))
-      || invalidJournalArchive(journal, runId) || resolutionRecordVersion(journal) === 5 && !validJournalProposal(journal))) throw recoveryError(runId);
-  if ([3, 4].includes(resolutionRecordVersion(journal)) && (!exactObject(journal, ["schema_version", "run_id", "operation_id", "old_revision_id", "next_revision_id", "old_run_digest", "backlog", "or", "kind", "target_id", "request_digest", "outputs", ...(journal.kind === "prd_revision.reopen" ? ["archive"] : [])])
-      || !["step.record", "ur_draft.replace", "artefact.record", "approval.record", "presentation_decision.record", "prd_revision.reopen", "closeout.record", "lifecycle_close.record"].includes(journal.kind)
-      || journal.or !== null || ![journal.operation_id, journal.old_revision_id, journal.next_revision_id].every(value => REVISION_ID_PATTERN.test(value))
-      || !/^[a-f0-9]{64}$/u.test(journal.old_run_digest) || journal.target_id !== resolveControlCommandTarget(root).target_id
-      || !DIGEST_PATTERN.test(journal.request_digest) || !validJournalOutputs(journal)
-      || journal.kind === "prd_revision.reopen" && invalidJournalArchive(journal, runId)
-      || journal.kind === "step.record" && journal.outputs.some(row => row.path.endsWith("/OR.md"))
-      || resolutionRecordVersion(journal) === 3 && journal.kind === "closeout.record" && (journal.outputs.length !== 1 || journal.outputs[0].path !== `.agdf/control/artefacts/${runId}/OR.md`)
-      || resolutionRecordVersion(journal) === 3 && !["step.record", "closeout.record"].includes(journal.kind) && journal.outputs.length)) throw recoveryError(runId);
-  return { path, journal: storedJournal };
+  const journal = resolutionRecord(stored);
+  if (!journal || !validJournal(root, journal, runId)) throw recoveryError(runId);
+  return { path, journal: stored };
 }
 
 // Read-only bounded observation; never rolls back, forwards or retires an intent.
@@ -157,9 +107,9 @@ export function readPendingRunStepJournal(root, runId, options = {}) {
 
 function sameInputResolution(first, second) {
   const a = recordedInputResolution(first), b = recordedInputResolution(second);
-  return a === null && b === null || a !== null && b !== null && canonicalJson(a) === canonicalJson(b);
+  return a !== null && b !== null && canonicalJson(a) === canonicalJson(b);
 }
-function v3ReceiptMatches(journal, runText) {
+function currentReceiptMatches(journal, runText) {
   const sameResolution = record => sameInputResolution(journal, record);
   if (journal.kind === "artefact.record") {
     const r = readArtefactBindings(runText).receipts.find(row => row.operation.id === journal.operation_id);
@@ -176,8 +126,7 @@ function v3ReceiptMatches(journal, runText) {
     && r.request_digest === journal.request_digest && r.target_id === journal.target_id && sameResolution(r);
 }
 
-// A journal embeds both Backlog versions; it is not an artefact JSON input. Keep its
-// own strict transaction schema and contained-path checks for revision observations.
+// The same current journal codec serves explicit source-revision observations.
 export function readPendingSourceRevisionJournal(root, runId) {
   const { journal } = journalState(root, runId);
   if (!sourceJournal(journal)) throw recoveryError(runId);
@@ -247,29 +196,21 @@ function publishArchive(root, journal, history, afterWrite) {
   fsyncDirectory(dirname(dirs.final)); afterWrite("archive_published");
 }
 
-// Called with the selected Run lock; captured legacy Backlog output also requires its lock.
+// Called with the selected Run lock. Only current Run-owned intent is recoverable.
 export function recoverPendingRunStepLocked(root, runId, { sourceRevision = false } = {}) {
   const path = pendingRunStepPath(root, runId);
   if (!existsSync(path)) return { status: "none" };
   const { journal } = journalState(root, runId);
-  // An explicit cutover must drain every legacy journal before changing layout.
-  // Do not recover old backlog effects inside an already-cut-over project.
-  if (readControlLayout(root).layout === PLANNED_LAYOUT && versionOf(journal) !== 6) throw recoveryError(runId);
   if (sourceJournal(journal) && !sourceRevision) throw recoveryError(runId);
   markControlMutationEffect();
-  const runPath = join(dirname(path), "RUN_STATE.md");
-  const backlogPath = join(root, ".agdf", "control", "MASTER_BACKLOG.md");
-  const orPath = join(root, ".agdf", "control", "artefacts", runId, "OR.md");
+  const runPath = join(dirname(dirname(path)), "RUN_STATE.md");
   const runText = checkedFile(runPath);
-  const backlogText = journal.backlog ? checkedFile(backlogPath) : null;
-  const orText = journal.or ? checkedFile(orPath) : null;
   if (runText === null) throw recoveryError(runId);
 
   if (digest(runText) === journal.old_run_digest) {
     const current = parseRunState(runText, runId);
     if (!current.valid || current.meta.revision_id !== journal.old_revision_id
-        || sourceJournal(journal) && runSealState(root, runText).status !== "valid"
-        || (journal.backlog && backlogText !== journal.backlog.old)) throw recoveryError(runId);
+        || sourceJournal(journal) && runSealState(root, runText).status !== "valid") throw recoveryError(runId);
     if (sourceJournal(journal) || journal.kind === "prd_revision.reopen") {
       if (journal.archive.sources.some(row => byteDigest(journal.proposal_material?.path === row.path ? Buffer.from(journal.proposal_material.content) : readHistoryBytes(root, row.path)) !== row.digest)) throw recoveryError(runId);
       discardOwnedArchive(root, journal);
@@ -282,22 +223,14 @@ export function recoverPendingRunStepLocked(root, runId, { sourceRevision = fals
       recoverOwnedOutputs(root, journal, false);
       if (runSealState(root, runText).status !== "valid") throw recoveryError(runId);
     }
-    if (journal.or) {
-      if (orText !== journal.or.next && orText !== journal.or.old) throw recoveryError(runId);
-      if (orText === journal.or.next) {
-        if (journal.or.old === null) unlinkSync(orPath);
-        else atomicWrite(orPath, journal.or.old);
-      }
-    }
     unlinkSync(path);
-    if (resolutionRecordVersion(journal) >= 2) fsyncDirectory(dirname(path));
+    fsyncDirectory(dirname(path));
     return { status: "rolled_back", operation_id: journal.operation_id };
   }
 
   const committed = parseRunState(runText, runId);
   if (!committed.valid || committed.meta.revision_id !== journal.next_revision_id
-      || runSealState(root, runText).status !== "valid"
-      || (journal.or && orText !== journal.or.next)) throw recoveryError(runId);
+      || runSealState(root, runText).status !== "valid") throw recoveryError(runId);
   if (sourceJournal(journal)) {
     const receipt = readSourceRevisions(runText).receipts.find(row => row.operation_id === journal.operation_id);
     if (!receipt || receipt.archive.digest !== journal.archive.digest || receipt.target_id !== journal.target_id
@@ -306,19 +239,15 @@ export function recoverPendingRunStepLocked(root, runId, { sourceRevision = fals
         || !sameInputResolution(journal, receipt) || !validateRevisionHistory(root, receipt)) throw recoveryError(runId);
   }
   if (outputJournal(journal)) {
-    if (!v3ReceiptMatches(journal, runText)) throw recoveryError(runId);
+    if (!currentReceiptMatches(journal, runText)) throw recoveryError(runId);
     recoverOwnedOutputs(root, journal, true);
     if (journal.kind === "prd_revision.reopen") {
       const receipt = readRunOperations(runText).receipts.find(row => row.operation_id === journal.operation_id);
       if (!receipt || receipt.effect.record.archive.digest !== journal.archive.digest || !validateEarlyPrdHistory(root, receipt)) throw recoveryError(runId);
     }
   }
-  if (journal.backlog) {
-    if (backlogText !== journal.backlog.old && backlogText !== journal.backlog.next) throw recoveryError(runId);
-    if (backlogText === journal.backlog.old) atomicWrite(backlogPath, journal.backlog.next);
-  }
   unlinkSync(path);
-  if (resolutionRecordVersion(journal) >= 2) fsyncDirectory(dirname(path));
+  fsyncDirectory(dirname(path));
   return { status: "completed", operation_id: journal.operation_id, revision_id: journal.next_revision_id };
 }
 
@@ -326,18 +255,13 @@ export function recoverPendingRunStepLocked(root, runId, { sourceRevision = fals
 export function pendingRunStepConflictIds(root, runId) {
   return pendingRunStepIds(root).filter(id => {
     if (id === runId) return true;
-    try { const journal = readPendingRunStepJournal(root, id); return resolutionRecordVersion(journal) !== 6 && journal.backlog !== null; }
+    try { readPendingRunStepJournal(root, id); return false; }
     catch { return true; }
   });
 }
 
-// Only explicit recovery may complete an already captured legacy Backlog output.
 export function withRunStepRecoveryLock(root, runId, work) {
-  const path = join(root, '.agdf/control/runs', runId, 'RUN_STATE.md');
-  return withOwnedFileLock(path, () => {
-    const pending = existsSync(pendingRunStepPath(root, runId)) ? readPendingRunStepJournal(root, runId) : null;
-    return pending?.backlog ? withOwnedFileLock(join(root, '.agdf/control/MASTER_BACKLOG.md'), work) : work();
-  });
+  return withOwnedFileLock(join(root, '.agdf/control/runs', runId, 'RUN_STATE.md'), work);
 }
 export function recoverPendingRunStep(root, runId) {
   const path = join(root, '.agdf/control/runs', runId, 'RUN_STATE.md');
@@ -349,46 +273,32 @@ export function recoverPendingRunStep(root, runId) {
   });
 }
 
-// Called with the Run lock and any actual legacy output lock. The Run revision is the commit point; the journal lets a
-// retry restore OR before it or finish Backlog after it without inventing another authority.
-export function commitRunStepLocked(root, { runId, runPath, content, revisionId, expectedContent, backlog, or, afterWrite = () => {}, nextRevisionId = randomUUID(), writeOptions = {}, history, operationContext, outputs = [] }) {
+// The Run revision is the commit point. The current journal binds exact owned
+// outputs and the original normalized command through commit or rollback.
+export function commitRunStepLocked(root, { runId, runPath, content, revisionId, expectedContent, afterWrite = () => {}, nextRevisionId = randomUUID(), writeOptions = {}, history, operationContext, outputs = [] }) {
   assertInputConfigurationCurrent(root);
-  const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
-  if (planned && backlog) throw Error('AGDF_CONTROL_LEGACY_EFFECT_FORBIDDEN');
+  readControlLayout(root);
   const path = pendingRunStepPath(root, runId);
   if (existsSync(path)) throw recoveryError(runId);
-  const backlogPath = join(root, ".agdf", "control", "MASTER_BACKLOG.md");
-  const orPath = join(root, ".agdf", "control", "artefacts", runId, "OR.md");
-  if (checkedFile(runPath) !== expectedContent || (backlog && checkedFile(backlogPath) !== backlog.old)) {
+  if (checkedFile(runPath) !== expectedContent) {
     throw new Error("AGDF_STALE_RUN_REVISION");
   }
   const seal = runSealState(root, expectedContent);
   if (seal.status !== "valid" && !(seal.status === "content_changed" && writeOptions.allowContentChange)) throw new Error("AGDF_RUN_SEAL_INVALID");
   const listedBefore = listedArtefactPaths(expectedContent).map((artefact) =>
     [artefact, artefactFileDigest(root, artefact)]);
-  const oldOr = or ? checkedFile(orPath) : null;
   const journal = {
-    schema_version: operationContext ? operationContext.kind === 'ur_draft.replace' || requiresMaterialJournal(runId, outputs) ? 4 : 3 : history ? history.proposalMaterial ? 5 : 2 : 1,
-    run_id: runId,
+    schema_version: RUN_TRANSACTION_VERSION, run_id: runId,
     operation_id: operationContext?.operation_id ?? (history ? writeOptions.appendedRevision.operation_id : currentControlMutationId() ?? randomUUID()),
-    old_revision_id: revisionId,
-    next_revision_id: nextRevisionId,
-    old_run_digest: digest(expectedContent),
-    backlog: backlog ? { old: backlog.old, next: backlog.next } : null,
-    or: or ? { old: oldOr, next: or } : null,
+    old_revision_id: revisionId, next_revision_id: nextRevisionId, old_run_digest: digest(expectedContent),
+    kind: operationContext?.kind ?? (history ? 'source_revision' : 'run.update'),
+    target_id: operationContext?.target_id ?? resolveControlCommandTarget(root).target_id,
+    request_digest: operationContext?.request_digest ?? writeOptions.appendedRevision?.request_digest
+      ?? `sha256:${digest(canonicalJson({ expectedContent, content }))}`,
+    outputs,
   };
-  if (operationContext) {
-    if (or || history && operationContext.kind !== "prd_revision.reopen") throw recoveryError(runId);
-    Object.assign(journal, { kind: operationContext.kind, target_id: operationContext.target_id, request_digest: operationContext.request_digest, outputs });
-    // Validate the strict descriptor and ownership before publishing intent or any output.
-    const allowed = ["step.record", "ur_draft.replace", "artefact.record", "approval.record", "presentation_decision.record", "prd_revision.reopen", "closeout.record", "lifecycle_close.record"];
-    if (!allowed.includes(journal.kind) || !REVISION_ID_PATTERN.test(journal.operation_id) || !DIGEST_PATTERN.test(journal.request_digest)
-        || journal.target_id !== resolveControlCommandTarget(root).target_id || !validJournalOutputs(journal)
-        || journal.kind === "step.record" && outputs.some(row => row.path.endsWith("/OR.md"))
-        || resolutionRecordVersion(journal) === 3 && journal.kind === "closeout.record" && (outputs.length !== 1 || outputs[0].path !== `.agdf/control/artefacts/${runId}/OR.md`)
-        || resolutionRecordVersion(journal) === 3 && !["step.record", "closeout.record"].includes(journal.kind) && outputs.length
-        || outputs.some(row => ownedOutputText(root, runId, row.path) !== row.old)) throw recoveryError(runId);
-  }
+  if (operationContext && (history && operationContext.kind !== 'prd_revision.reopen'
+    || !validJournalOutputs(journal) || outputs.some(row => ownedOutputText(root, runId, row.path) !== row.old))) throw recoveryError(runId);
   if (history) {
     const receipt = writeOptions.appendedRevision ?? writeOptions.appendedOperation;
     if (!operationContext) {
@@ -400,20 +310,15 @@ export function commitRunStepLocked(root, { runId, runPath, content, revisionId,
     journal.archive = { ...(receipt.archive ?? receipt.effect.record.archive),
       files: history.files.map(file => file.snapshot.split("/").at(-1)), sources: history.files.map(({ path, digest }) => ({ path, digest })) };
     if (history.proposalMaterial) journal.proposal_material = history.proposalMaterial;
-    if (invalidJournalArchive(journal, runId) || resolutionRecordVersion(journal) === 5 && !validJournalProposal(journal)) throw recoveryError(runId);
+    if (invalidJournalArchive(journal, runId) || journal.proposal_material && !validJournalProposal(journal)) throw recoveryError(runId);
     // A pre-existing directory is not owned by this transaction, even with the same UUID.
     const dirs = archiveDirectories(root, journal);
     if (existsSync(dirs.final) || existsSync(dirs.stage)) throw Error("AGDF_REVISION_HISTORY_INVALID");
   }
-  if (planned) {
-    journal.schema_version = 6;
-    delete journal.backlog;
-    journal.kind ??= 'run.update';
-    journal.target_id ??= resolveControlCommandTarget(root).target_id;
-    journal.request_digest ??= `sha256:${digest(canonicalJson({ expectedContent, content, or: journal.or }))}`;
-    journal.outputs ??= [];
-    if (!validV6Journal(root, journal, runId)) throw recoveryError(runId);
-  }
+  if (!validJournal(root, journal, runId)) throw recoveryError(runId);
+  const controlDirectory = dirname(path);
+  if (hasSymlinkComponent(root, runControlPath(runId, ''))) throw recoveryError(runId);
+  if (!existsSync(controlDirectory)) { mkdirSync(controlDirectory); fsyncDirectory(dirname(controlDirectory)); }
   let committed = false;
   try {
     markControlMutationEffect();
@@ -421,32 +326,21 @@ export function commitRunStepLocked(root, { runId, runPath, content, revisionId,
     afterWrite("intent");
     if (history) publishArchive(root, journal, history, afterWrite);
     if (operationContext) publishOwnedOutputs(root, journal, afterWrite);
-    if (or) {
-      atomicWrite(orPath, or);
-      afterWrite("or");
-    }
     const state = writeRunLocked(runPath, content, revisionId, {
       ...writeOptions,
       ...(history || operationContext ? { checkpoint: stage => afterWrite(`run_${stage}`) } : {}),
       expectedContent, nextRevisionId, allowPendingTransaction: true, allowContentChange: true,
       validateBeforeWrite: () => {
         writeOptions.validateBeforeWrite?.();
-        if (backlog && checkedFile(backlogPath) !== backlog.old) throw recoveryError(runId);
-        if (or && checkedFile(orPath) !== or) throw recoveryError(runId);
         if (operationContext && outputs.some(row => ownedOutputText(root, runId, row.path) !== row.next)) throw recoveryError(runId);
         for (const [artefact, beforeDigest] of listedBefore) {
-          if (artefact !== `.agdf/control/artefacts/${runId}/OR.md` && !outputs.some(row => row.path === artefact)
+          if (artefact !== `${runDocumentPath(runId, '')}/OR.md` && !outputs.some(row => row.path === artefact)
               && artefactFileDigest(root, artefact) !== beforeDigest) throw recoveryError(runId);
         }
       },
     });
     committed = true;
     afterWrite("run");
-    if (backlog) {
-      if (checkedFile(backlogPath) !== backlog.old) throw recoveryError(runId);
-      atomicWrite(backlogPath, backlog.next, history || operationContext ? { checkpoint: stage => afterWrite(`backlog_${stage}`) } : {});
-      afterWrite("backlog");
-    }
     const recovered = recoverPendingRunStepLocked(root, runId, { sourceRevision: Boolean(history) });
     if (recovered.status !== "completed") throw recoveryError(runId);
     if (history || operationContext) afterWrite("retired");

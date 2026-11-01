@@ -1,72 +1,74 @@
-import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { artefactFileDigest } from "../../../core/lib/control-state/run-seal.js";
-import { createCoreServices } from "../../../core/lib/index.js";
-import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
+import { createCoreServices } from '../../../core/lib/index.js';
+import { resolveControlCommandTarget } from '../../../core/lib/control-state/approval-command-contract.js';
+import { artefactFileDigest } from '../../../core/lib/control-state/run-seal.js';
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { createRun } from '../../../core/lib/control-state/run-state-repository.js';
+import { parseRunState } from '../../../core/lib/control-state/run-state-parser.js';
+import { clarifiedUr } from '../../../core/test/planned-fixtures.js';
 
-// Synthetic authorization in isolated test runs only; never a human production approval.
-export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env, { typedApprovals = false, typedRoute = false, route = "structured_delivery", previewRequirement = false, uxRequired = false } = {}) {
+// Synthetic disposable approvals only. Sources are authored outside canonical
+// documents, then atomically published by the actual CLI current writer.
+export function createPrdDefinitionTestRun(root, validator, runId = 'prd-authoring-test', env = process.env,
+  { route = 'structured_delivery', previewRequirement = false, uxRequired = false, uxRecorded = false } = {}) {
   const log = [];
   const call = (command, ...args) => {
-    const result = spawnSync(process.execPath, [validator, command, "--dir", root, "--json", ...args], { encoding: "utf8", env });
+    const result = spawnSync(process.execPath, [validator, command, ...(command.startsWith('agdf-') ? [] : ['--dir', root]), '--json', ...args], { encoding: 'utf8', env });
     assert.equal(result.error, undefined);
-    let value;
-    try { value = JSON.parse(result.stdout); } catch { value = null; }
+    let value; try { value = JSON.parse(result.stdout); } catch { value = null; }
     log.push({ command, args, code: result.status, value, stderr: result.stderr });
     return { code: result.status, value, text: result.stdout + result.stderr };
   };
-  const state = join(root, `.agdf/control/runs/${runId}/RUN_STATE.md`);
-  const prefix = `.agdf/control/artefacts/${runId}/`;
-  const file = name => join(root, prefix, name);
-  const revision = () => readFileSync(state, "utf8").match(/^- revision_id: (.+)$/mu)[1];
-  const run = (command, ...args) => call(command, "--run", runId, ...args);
-  const created = run("run-create"); assert.equal(created.code, 0, created.text);
-  mkdirSync(join(root, prefix), { recursive: true });
-  writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Derselbe Filter muss wiederholt aufgebaut werden.\n- Ziel: Einen benannten persönlichen Filter speichern und wiederherstellen.\n- Umfang: Ein Filter ohne Teilen oder Berechtigungsänderung.\n");
-  if (previewRequirement) writeFileSync(file('UR.md'), readFileSync(file('UR.md'),'utf8').replace('\n\n## Problem','\nPreview requirement: before_prd_interactive\n\n## Problem'));
-  assert.equal(run("run-step", "--revision", revision(), "--step", "ur", "--title", "Synthetic saved filter").code, 0);
-  const approve = (gate, presentation, rev = revision(), response = `Approval: ${gate}`) => run("run-approve",
-    "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response,
-    ...(typedApprovals ? ["--operation", randomUUID()] : []));
-  const present = (gate = "PRD", language = "en") => run("run-present", "--revision", revision(), "--gate", gate, "--language", language);
-  const ur = present("UR"); assert.equal(ur.value?.outcome, "prepared", ur.text);
-  assert.equal(approve("UR", ur.value.presentation_id).value?.outcome, typedApprovals ? "accepted" : "approved");
-  writeFileSync(file("BROWNFIELD_REVIEW.md"), `# Brownfield Review\n\nSynthetic existing filter owner.\n- ux_intent_definition_required: ${uxRequired ? "yes" : "no"}\n`);
-  if (typedRoute) {
-    const result = createCoreServices().command('agdf_record', {schema_version:'1',presentation_language:'en',working_directory:root,
-      primary_target:root,target_source:'explicit_target',target_id:resolveControlCommandTarget(root).target_id,run_id:runId,
-      expected_revision_id:revision(),operation_id:randomUUID(),assurance:'cooperative_local',
-      command:{kind:'step.record',payload:{step:'route',route,reason:'Synthetic current writer-owned analytical proof',
-        source:{path:prefix+'BROWNFIELD_REVIEW.md',digest:artefactFileDigest(root,prefix+'BROWNFIELD_REVIEW.md')}}}});
+  const state = createRun(root, runId), prefix = `.agdf/control/runs/${runId}/documents/`;
+  const inputDirectory = join(root, '.test-inputs', runId); mkdirSync(inputDirectory, { recursive: true });
+  const file = name => join(inputDirectory, name), canonicalFile = name => join(root, prefix, name);
+  const revision = () => parseRunState(readFileSync(state, 'utf8')).meta.revision_id;
+  const run = (command, ...args) => call(command, '--run', runId, ...args);
+  const check = result => { assert.equal(result.value?.outcome, 'accepted', result.text); return result; };
+  writeFileSync(file('UR.md'), clarifiedUr.replace('Independent work', 'Synthetic saved-filter need')
+    .replace('Preview requirement: none', `Preview requirement: ${previewRequirement ? 'before_prd_interactive' : 'none'}`)
+    + '\n## AGDF Approval Summary (de; source=en)\n- Problem: Derselbe Filter muss wiederholt aufgebaut werden.\n- Ziel: Einen persönlichen Filter speichern und wiederherstellen.\n- Umfang: Ein Filter ohne Teilen oder Berechtigungsänderung.\n');
+  check(run('run-step', '--revision', revision(), '--step', 'ur', '--title', 'Synthetic saved filter', '--evidence', file('UR.md')));
+  const approve = (gate, presentation, rev = revision(), response = `Approval: ${gate}`) => run('run-approve',
+    '--revision', rev, '--gate', gate, '--presentation', presentation, '--response', response, '--operation', randomUUID());
+  const present = (gate = 'PRD', language = 'en') => run('run-present', '--revision', revision(), '--gate', gate, '--language', language);
+  const ur = check(present('UR')); check(approve('UR', ur.value.family_result.presentation_id));
+  writeFileSync(file('BROWNFIELD_REVIEW.md'), `# Brownfield Review\n\nSynthetic existing filter owner.\n- ux_intent_definition_required: ${uxRequired ? 'yes' : 'no'}\n`);
+  check(run('run-step', '--revision', revision(), '--step', 'route', '--route', route, '--reason',
+    'Synthetic public-contract test route, never live authorization', '--evidence', file('BROWNFIELD_REVIEW.md')));
+  if (uxRecorded) {
+    writeFileSync(canonicalFile('UX_INCOMING.md'),'# UX Intent Definition\n- decision: ready\nSynthetic reviewed analytical input before PRD.\n');
+    const target=resolveControlCommandTarget(root),path=prefix+'UX_INCOMING.md';
+    const result=createCoreServices().command('agdf_record',{schema_version:'1',assurance:'cooperative_local',presentation_language:'en',working_directory:target.root,primary_target:target.root,target_source:'explicit_target',target_id:target.target_id,run_id:runId,expected_revision_id:revision(),operation_id:randomUUID(),command:{kind:'step.record',payload:{step:'internal',internal_step:'UX Intent Definition',decision:'ready',source:{path,digest:artefactFileDigest(root,path)}}}});
     assert.equal(result.outcome,'accepted',JSON.stringify(result));
-  } else {
-    const routed = run("run-step", "--revision", revision(), "--step", "route", "--route", route, "--reason",
-      "Synthetic public-contract test route, never live authorization", "--evidence", prefix + "BROWNFIELD_REVIEW.md");
-    assert.equal(routed.value?.outcome, "recorded", routed.text);
   }
-
-  const recording = (update = false, mutate = () => {}) => {
-    const proof = prefix + `mapping-${randomUUID()}.json`, input = prefix + `recording-${randomUUID()}.json`;
-    const value = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
-      expected_revision_id: revision(), destination: { type: "PRD", path: prefix + "PRD.md", digest: artefactFileDigest(root, prefix + "PRD.md"), status: "draft" },
-      source: { type: "UR", path: prefix + "UR.md", digest: artefactFileDigest(root, prefix + "UR.md") },
-      relationship: { from: "PRD", relationship: "derived_from", to: "UR" },
-      review: { reviewer: "synthetic test reviewer", path: proof, digest: "" }, update_draft: update };
-    const { schema_version, target_id, run_id, relationship, destination, source } = value;
-    writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, relationship, destination, source, reviewer: value.review.reviewer, reviewed: true }));
-    value.review.digest = artefactFileDigest(root, proof);
-    mutate(value);
-    writeFileSync(join(root, input), JSON.stringify(value));
-    return { value, path: input };
+  const recording = (gate = 'PRD', update_draft = false, mutate = () => {}) => {
+    const value = { gate, material: { path: file(gate === 'QA' ? 'QA_REPORT.md' : gate + '.md') },
+      reviewer: 'Synthetic current test reviewer', reviewed: true, update_draft };
+    mutate(value); return value;
   };
-  const record = (update = false, mutate) => {
-    const input = recording(update, mutate);
-    return run("run-step", "--revision", revision(), "--step", "artefact", "--gate", "PRD", "--evidence", input.path);
+  const recordGate = (gate, update = false, mutate) => {
+    const value = recording(gate, update);
+    if (mutate) {
+      const path = `.agdf/control/runs/${runId}/evidence/source-proof-${gate}.md`;
+      mkdirSync(join(root, `.agdf/control/runs/${runId}/evidence`), { recursive: true });
+      writeFileSync(join(root, path), readFileSync(value.material.path));
+      value.material = { path, digest: artefactFileDigest(root, path) };
+      mutate(value);
+      const target = resolveControlCommandTarget(root), request = join(inputDirectory, 'source-proof-command.json');
+      writeFileSync(request, JSON.stringify({ schema_version: '1', working_directory: root, primary_target: root,
+        target_source: 'explicit_target', target_id: target.target_id, run_id: runId, expected_revision_id: revision(),
+        operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind: 'artefact.record', payload: value } }));
+      return call('agdf-record', '--command-file', request);
+    }
+    return run('run-step', '--revision', revision(), '--step', 'artefact', '--gate', value.gate, '--evidence', value.material.path,
+      '--reviewer', value.reviewer, ...(value.reviewed ? ['--reviewed', 'true'] : []), ...(value.update_draft ? ['--update-draft', 'true'] : []));
   };
-  return { root, runId, prefix, state, file, revision, run, call, log, present, approve, record, recording };
+  const record = (update = false, mutate) => recordGate('PRD', update, mutate);
+  return { root, runId, prefix, state, file, canonicalFile, revision, run, call, log, present, approve, record, recording, recordGate };
 }
 
 export const syntheticPrd = (open = false) => `# PRD: Synthetic saved filter

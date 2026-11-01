@@ -33,7 +33,7 @@ for (const modern of [false, true]) {
       reopen.command.payload.confirmation = earlyPrdConfirmation(early.runId, reopen.expected_revision_id, reopen.operation_id, reopen.command.payload.prd.digest);
       assert.equal((await call(reopen)).outcome, 'accepted');
       assert.equal((await call(reopen)).outcome, 'already_applied');
-      assert.equal(readRunOperations(readFileSync(early.state, 'utf8')).receipts.length, 1);
+      assert.equal(readRunOperations(readFileSync(early.state, 'utf8')).receipts.filter(row => row.kind === 'prd_revision.reopen').length, 1);
       assert.equal(runSealState(root, readFileSync(early.state, 'utf8')).status, 'valid');
       const proposal = late.proposal('TP'), envelope = { ...bound(late), operation_id: proposal.input.operationId };
       const payload = { source_gate: 'TP', proposal: { path: proposal.input.evidence, digest: artefactFileDigest(root, proposal.input.evidence) } };
@@ -55,7 +55,7 @@ for (const modern of [false, true]) {
       // command group, rather than treating earlier CLI/source proof as MCP proof.
       const urProposal = earlyUr.proposal(), urBefore = readFileSync(earlyUr.state, 'utf8');
       const oldApprovals = readApprovalOperations(urBefore).receipts;
-      const oldPresentations = readdirSync(join(root, `.agdf/control/runs/${earlyUr.runId}/presentations`));
+      const oldPresentations = readdirSync(join(root, `.agdf/control/runs/${earlyUr.runId}/control/presentations`));
       const urEnvelope = { ...bound(earlyUr), operation_id: urProposal.input.operationId };
       const urPayload = { source_gate: 'UR', proposal: { path: urProposal.input.evidence,
         digest: artefactFileDigest(root, urProposal.input.evidence) } };
@@ -80,10 +80,10 @@ for (const modern of [false, true]) {
       assert.equal(earlyUr.control().mode_slice_decision.decision, 'undecided');
       assert.equal(earlyUr.control().artefacts.get('Brownfield Review').status, 'missing');
       for (const name of oldPresentations) {
-        const row = archive.manifest.files.find(row => row.path.endsWith(`/presentations/${name}`));
+        const row = archive.manifest.files.find(row => row.path.endsWith(`/control/presentations/${name}`));
         assert.ok(row, `${name} remains archived with its exact prepared bytes.`);
         assert.deepEqual(readFileSync(join(root, row.snapshot)),
-          readFileSync(join(root, `.agdf/control/runs/${earlyUr.runId}/presentations/${name}`)));
+          readFileSync(join(root, `.agdf/control/runs/${earlyUr.runId}/control/presentations/${name}`)));
       }
       for (const type of ['UR', 'PRD', 'SD']) {
         const archived = archive.manifest.files.find(row => row.path === earlyUr.prefix + type + '.md');

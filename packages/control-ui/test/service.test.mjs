@@ -1,3 +1,8 @@
+import { currentFixture } from '../../core/test/fixtures/current-run.js';
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
+import { sealRunState } from '../../core/lib/control-state/run-seal.js';
+import { runDocumentPath } from '../../core/lib/control-state/run-identity.js';
+import { clarifiedUr } from '../../core/test/planned-fixtures.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -8,7 +13,6 @@ import { startControlServer } from '../server/service.mjs';
 import { ReadWorkerPool } from '../server/pool.mjs';
 import { fixture, treeBytes, symlinkOrSkip } from '../../core/test/control-cockpit-fixtures.js';
 import { READ_LIMITS } from '../../core/lib/control-read/snapshot.js';
-import { recordBacklogSummary } from '../../core/lib/control-state/backlog-summary.js';
 import { runWorkSummary } from '../../core/lib/control-evaluation/run-work-summary.js';
 import { parseRunState } from '../../core/lib/control-state/run-state-parser.js';
 
@@ -20,21 +24,17 @@ function request(service, path, { headers = {}, method = 'GET' } = {}) {
     }); req.on('error', reject); req.end();
   });
 }
-test('saved work summary and explicit current comparison survive HTTP with one-file overview and no writes', async () => {
-  const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
-  const run = fs.readFileSync(f.runPath, 'utf8');
-  const backlog = fs.readFileSync(path, 'utf8').replace('|---:|---|---|---|---|---|---|', '|---:|---|---|---|---|---|---|\n| P1 | fixture-a | Stored undertaking | Needs UR | | | Read the requirement |');
-  fs.writeFileSync(path, recordBacklogSummary(f.root, backlog, 'fixture-a', 'Active Backlog', runWorkSummary(f.root, run, f.runPath), parseRunState(run).meta.revision_id));
-  const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
+test('run model: HTTP overview and exact selected sources are current and read-only, without persisted comparison metadata', async () => {
+  const f=fixture(), before=treeBytes(f.root),service=await startControlServer({dir:f.root});
   try {
-    const overview = (await request(service, '/api/snapshot?view=legacy')).body;
-    assert.equal(overview.data.file_count, 1); assert.equal(overview.data.entries[0].saved_summary.provenance_state, 'recorded');
-    assert.equal(overview.data.entries[0].saved_summary.authorizes, false);
-    const selected = (await request(service, '/api/runs/fixture-a?snapshot=' + overview.snapshot_id)).body;
-    assert.equal(selected.data.run.backlog_comparison.state, 'unavailable'); assert.equal(selected.data.run.work_summary.authorizes, false);
-    assert.equal(selected.data.run.work_summary.display_action, overview.data.entries[0].saved_summary.record.display_action);
-    assert.deepEqual(treeBytes(f.root), before);
-  } finally { await service.close(); f.close(); }
+    const overview=(await request(service,'/api/snapshot')).body;
+    assert.equal(overview.data.kind,'work');assert.equal(overview.data.layout,'run-folders-v1');
+    assert.equal(overview.data.counts.active,1);assert.equal(overview.data.counts.history,1);
+    assert(overview.data.entries.every(row=>!Object.hasOwn(row,'saved_summary')));
+    const selected=(await request(service,'/api/runs/fixture-a?snapshot='+overview.snapshot_id)).body;
+    assert.equal(selected.data.run.run_id,'fixture-a');assert(!Object.hasOwn(selected.data.run,'backlog_comparison'));
+    assert.deepEqual(treeBytes(f.root),before);
+  }finally{await service.close();f.close();}
 });
 test('SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree', async () => {
   const f = fixture(), before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
@@ -57,7 +57,7 @@ test('SCN-020/022/032: loopback authenticated read journey, origin/method/select
     assert.equal((await request(service, '/assets/unregistered.woff2')).status, 404);
     const s = (await request(service, '/api/snapshot')).body; assert.ok(s.snapshot_id);
     const d = (await request(service, '/api/runs/fixture-a?snapshot=' + s.snapshot_id)).body;
-    assert.equal(s.data.kind, 'runs'); assert.equal(d.data.kind, 'run');
+    assert.equal(s.data.kind, 'work'); assert.equal(d.data.kind, 'run');
     const resource = d.data.run.resources.find(r => r.type === 'UR');
     const doc = (await request(service, `/api/documents/${resource.resource_id}?snapshot=${d.snapshot_id}`)).body;
     assert.match(doc.data.document.content, /Fixture document/); assert.notEqual(doc.snapshot_id,d.snapshot_id);
@@ -128,31 +128,21 @@ test('SCN-026: actual serialized response cap accepts exact byte limit and rejec
   } finally { await service.close(); f.close(); }
 });
 
-test('SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged', async () => {
-  const f = fixture();
-  fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'), '# Master Backlog\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Stored title | In progress | [UR](artefacts/fixture-a/UR.md) | stored | next |\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
-  const before = treeBytes(f.root), service = await startControlServer({dir:f.root});
-  try {
-    const initial = (await request(service,'/api/snapshot?view=legacy')).body;
-    const query = `snapshot=${initial.snapshot_id}&rows=${initial.data.entries[0].row_id}`;
-    for (const suffix of ['&path=artefacts/fixture-a/UR.md','&run_id=fixture-a','&snapshot='+initial.snapshot_id,'&rows='+initial.data.entries[0].row_id]) assert.equal((await request(service,'/api/backlog-titles?'+query+suffix)).status,403);
-    const titles = (await request(service,'/api/backlog-titles?'+query)).body;
-    assert.equal(titles.data.entries[0].title_observation.title,'Fixture document');
-    assert.equal(titles.data.file_count,3); assert.notEqual(titles.snapshot_id,initial.snapshot_id);
-    assert.equal((await request(service,'/api/backlog-titles?'+query)).body.code,'resource_denied');
-    assert.equal((await request(service,'/api/freshness?snapshot='+titles.snapshot_id)).body.data.unchanged,true);
-    assert.deepEqual(treeBytes(f.root),before);
-  } finally { await service.close(); f.close(); }
+test('run model: retired legacy selection and title-probe routes are refused without changing sources',async()=>{
+  const f=fixture(),before=treeBytes(f.root),service=await startControlServer({dir:f.root});
+  try{
+    for(const path of ['/api/snapshot?view=legacy','/api/backlog-titles?snapshot=old&rows=row'])assert((await request(service,path)).status>=400);
+    assert.equal((await request(service,'/api/snapshot')).body.data.kind,'work');assert.deepEqual(treeBytes(f.root),before);
+  }finally{await service.close();f.close();}
 });
-
-test('authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding', async () => {
+test('authenticated change wait wakes on atomic current Run source replacement and preserves its snapshot binding', async () => {
   const f = fixture(), service = await startControlServer({ dir: f.root });
   try {
-    const snapshot = (await request(service, '/api/snapshot?view=legacy')).body;
+    const snapshot = (await request(service, '/api/snapshot')).body;
     assert.equal((await request(service, `/api/changes?snapshot=${snapshot.snapshot_id}`, { headers: { 'x-agdf-session': '0'.repeat(64) } })).status, 401);
     const pending = request(service, `/api/changes?snapshot=${snapshot.snapshot_id}`);
-    const path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
-    fs.writeFileSync(path + '.replacement', fs.readFileSync(path, 'utf8') + '\nChanged saved backlog\n'); fs.renameSync(path + '.replacement', path);
+    const path = join(f.root, f.documentPath);
+    fs.writeFileSync(path + '.replacement', fs.readFileSync(path, 'utf8') + '\nChanged current source\n'); fs.renameSync(path + '.replacement', path);
     const event = await pending;
     assert.equal(event.status, 200); assert.equal(event.body.data.changed, true);
     assert.equal(event.body.snapshot_id, snapshot.snapshot_id); assert.equal(event.body.authorizes, false);

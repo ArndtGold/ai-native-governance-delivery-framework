@@ -151,8 +151,7 @@ Use an available visualization tool when useful.
 
 When a preview is explicitly requested, the UR already captures its purpose, scenarios, required
 interaction and review timing. UX clarification later creates a reopenable version under
-`.agdf/control/artefacts/<run_id>/previews/<name>-v1/index.html`. Keep `runs/<run_id>/` for control
-state. A revised preview gets a new path; the UX analysis and PRD reference the same inspected
+`.agdf/control/runs/<run_id>/evidence/previews/<name>-v1/index.html`. The same Run directory also owns documents, control records and immutable history. A revised preview gets a new path; the UX analysis and PRD reference the same inspected
 version with file digests and observation limits. A chat rendering alone does not fulfill this
 run deliverable.
 

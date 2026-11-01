@@ -559,8 +559,8 @@ deterministic baseline. AGDF does not fall back to another provider automaticall
 `--persist` writes a redacted decision summary to:
 
 ```text
-.agdf/control/artefacts/<scope>/DELIVERY_PATH_SEARCH.json
-.agdf/control/artefacts/<scope>/DELIVERY_PATH_SEARCH.md
+.agdf/control/runs/<run_id>/evidence/DELIVERY_PATH_SEARCH-<digest>.json
+.agdf/control/runs/<run_id>/evidence/DELIVERY_PATH_SEARCH-<digest>.md
 ```
 
 Raw prompts, hidden reasoning, secrets and source snapshots are excluded. Cost units are bounded rubric values, not measured provider currency.

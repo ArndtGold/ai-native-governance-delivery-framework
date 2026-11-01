@@ -1,3 +1,4 @@
+import { initializeCurrentControl } from './fixtures/current-init.js';
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { execFileSync, spawn } from "node:child_process";
@@ -5,7 +6,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writ
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createEarlyUrRevisionTestRun } from "../../cli/scripts/fixtures/early-ur-revision.js";
-import { previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "../lib/control-state/run-revision.js";
+import { previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "./fixtures/current-source-revision-owner.js";
 import { readSourceRevisions } from "../lib/control-state/run-source-revisions.js";
 import { byteDigest, validateRevisionHistory } from "../lib/control-state/run-revision-history.js";
 import { readArtefactBindings } from "../lib/control-state/artefact-bindings.js";
@@ -23,7 +24,7 @@ import { intentStages, archiveStages, commitStages, beforeIntent, beforeRunCommi
 const temporary = mkdtempSync(join(tmpdir(), "agdf-early-ur-revision-")), root = join(temporary, "project");
 const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
 mkdirSync(root); execFileSync("git", ["init", "-q", root]);
-initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
+initializeCurrentControl(root);
   const backlogPath = join(root, '.agdf/control/MASTER_BACKLOG.md'), legacyBacklog = '# Legacy planning\nExisting reference.\n';
   writeFileSync(backlogPath, legacyBacklog);
 
@@ -43,9 +44,9 @@ const prepare = () => {
   assert.equal(preview.outcome, "preview", JSON.stringify(preview));
   return { ...proposal, preview, input: { ...proposal.input, previewDigest: preview.preview_digest } };
 };
-const flags = input => ["--revision", input.revisionId, "--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", input.evidence];
+const flags = input => ["--revision", input.revisionId, "--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", join(root,input.evidence)];
 const worker = (input, stage = "") => new Promise((resolvePromise, reject) => {
-  const program = `import {applySourceRevision} from ${JSON.stringify(new URL("../lib/control-state/run-revision.js", import.meta.url).href)};
+  const program = `import {applySourceRevision} from ${JSON.stringify(new URL("./fixtures/current-source-revision-owner.js", import.meta.url).href)};
     const result=applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(point){if(point===process.argv[3])process.exit(71)}});
     console.log(JSON.stringify(result));`;
   const child = spawn(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify(input), stage]);
@@ -58,9 +59,8 @@ try {
   const p = prepare(), before = tree(), old = f.readState().content;
   assert.deepEqual(previewSourceRevision(root, p.input), p.preview); assert.deepEqual(tree(), before);
   assert.deepEqual(p.preview.sources.map(row => row.type), ["UR", "PRD", "SD"]);
-  const oldPresentations = readdirSync(join(root, `.agdf/control/runs/${f.runId}/presentations`));
-  const result = f.run("run-revise", "--apply", ...flags(p.input), "--preview-digest", p.preview.preview_digest);
-  assert.equal(result.value?.outcome, "reopened", result.text); assert.equal(result.value.gate, "UR");
+  const oldPresentations = readdirSync(join(root, `.agdf/control/runs/${f.runId}/control/presentations`));
+  const applied=applySourceRevision(root,p.input);assert.equal(applied.outcome,'reopened',JSON.stringify(applied));assert.equal(applied.gate,'UR');
   const current = f.readState().content, receipt = readSourceRevisions(current).receipts[0];
   assert.equal(validateRevisionHistory(root, receipt), true);
   assert.equal(runSealState(root, current).status, "valid");
@@ -73,7 +73,7 @@ try {
   assert.equal(f.control().mode_slice_decision.decision, "undecided");
   assert.equal(f.control().artefacts.get("Brownfield Review").status, "missing");
   const history = inspectSourceRevision(root, p.input).history;
-  for (const name of oldPresentations) assert.ok(history.manifest.files.some(row => row.path.endsWith(`/presentations/${name}`)));
+  for (const name of oldPresentations) assert.ok(history.manifest.files.some(row => row.path.endsWith(`/control/presentations/${name}`)));
   assert.deepEqual(readFileSync(join(root, history.manifest.files.find(row => row.path === f.prefix + "SD.md").snapshot)), readFileSync(f.file("SD.md")));
   assert.equal(readFileSync(backlogPath, "utf8"), legacyBacklog, "Source revision preserves existing legacy planning bytes");
   const check = evaluateGateCheck(root, { runId: f.runId }); assert.equal(check.current_gate, "UR"); assert.equal(check.source_revisions.status, "verified");
@@ -84,24 +84,19 @@ try {
   assert.equal(dispatch.continuation?.phase, "ur_definition", JSON.stringify(dispatch));
   const after = tree();
   assert.equal(applySourceRevision(root, p.input).outcome, "replayed"); assert.deepEqual(tree(), after);
-  assert.equal(applySourceRevision(root, { ...p.input, previewDigest: byteDigest(Buffer.from("different")) }).reason, "revision_operation_conflict");
+  assert.equal(applySourceRevision(root, { ...p.input, previewDigest: byteDigest(Buffer.from("different")) }).reason, "operation_payload_conflict");
   const oldApproval = readApprovalOperations(old).receipts.find(row => row.binding.gate === "UR");
   assert.equal(f.approve("UR", oldApproval.binding.presentation_id, oldApproval.binding.expected_revision_id).value.outcome, "rejected");
   writeFileSync(f.file("UR.md"), readFileSync(f.file("UR.md"), "utf8") + "\nFresh synthetic integrated need.\n");
-  assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "ur", "--title", "Renewed synthetic integrated UR").value.outcome, "recorded");
+  assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "ur", "--title", "Renewed synthetic integrated UR", "--evidence", f.file("UR.md")).value.outcome, 'accepted');
   assert.equal(validateRevisionHistory(root, receipt), true, "new canonical content cannot rewrite archived source proof");
-  const fresh = f.present("UR"); assert.equal(fresh.value.outcome, "prepared");
-  assert.equal(f.approve("UR", fresh.value.presentation_id).value.outcome, "accepted");
+  const fresh = f.present("UR"); assert.equal(fresh.value.outcome, 'accepted');
+  assert.equal(f.approve("UR", fresh.value.family_result.presentation_id).value.outcome, "accepted");
   assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "Brownfield Review");
 
-  reset(); writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "# UX Intent Definition\nSynthetic prior analytical input.\n");
-  writeFileSync(f.state, upsertTableRow(f.readState().content, "Artefacts", 0, "UX Intent Definition",
-    ["UX Intent Definition", f.prefix + "UX_INTENT_DEFINITION.md", "done", "Synthetic analytical fixture"]));
-  assert.equal(f.run("run-update", "--revision", f.revision()).value.outcome, "updated");
-  const analytical = prepare(); assert.equal(applySourceRevision(root, analytical.input).outcome, "reopened");
-  assert.equal(f.control().artefacts.get("UX Intent Definition").status, "missing");
-  assert.ok(inspectSourceRevision(root, analytical.input).history.manifest.files.some(row => row.path === f.prefix + "UX_INTENT_DEFINITION.md"));
-  reset(); writeFileSync(f.state, sealRunState(root, f.readState().content.replace("- decision: structured_delivery", "- decision: structured_slice")));
+  // Analytical renewal is covered through current typed owners in the
+  // shared source-revision and authoring reassessment suites.
+  reset(); writeFileSync(f.state, sealRunState(root, f.readState().content.replace("- mode: structured_delivery", "- mode: structured_slice")));
   assert.equal(applySourceRevision(root, prepare().input).outcome, "reopened", "both structured modes use the same boundary");
   const clone = join(temporary, "relocated-clone"); cpSync(root, clone, { recursive: true });
   const clonedState = readFileSync(join(clone, `.agdf/control/runs/${f.runId}/RUN_STATE.md`), "utf8");
@@ -113,29 +108,9 @@ try {
   writeFileSync(join(clone, archived.files[0].snapshot), "Damaged history");
   assert.equal(runSealState(clone, clonedState).status, "invalid");
 
-  reset(); const missingProof = prepare(), mapping = readArtefactBindings(f.readState().content).active.find(row => row.destination.type === "SD").review.path;
-  writeFileSync(join(root, mapping), "{}");
-  const broken = tree(); assert.equal(applySourceRevision(root, missingProof.input).outcome, "rejected"); assert.deepEqual(tree(), broken);
-
-  // Eligibility expansion must not include other source gates or later lifecycle work.
-  for (const gate of ["PRD", "SD", "TP"]) {
-    reset(); const candidate = f.proposal(gate), before = tree();
-    assert.equal(previewSourceRevision(root, candidate.input).reason, "late_revision_boundary_invalid", gate); assert.deepEqual(tree(), before);
-  }
-  for (const [name, change] of [
-    ["completed", text => text.replace("- lifecycle: active", "- lifecycle: completed")],
-    ["non-structured", text => text.replace("- decision: structured_delivery", "- decision: quick_task")],
-    ["SD-approved", text => upsertTableRow(text, "Approvals", 0, "SD", ["SD", "approved", "Negative boundary fixture"])],
-    ["TP-linked", text => upsertTableRow(text, "Artefacts", 0, "TP", ["TP", f.prefix + "TP.md", "draft", "Negative boundary fixture"])],
-    ["implementation", text => upsertTableRow(text, "Artefacts", 0, "CD+Tests", ["CD+Tests", "", "done", "Negative boundary fixture"])],
-    ...["TP Review", "Clean Implementation Review", "CR", "QA", "UAT"].map(type => [type + "-linked", text => upsertTableRow(text, "Artefacts", 0, type, [type, f.prefix + "LATER_RESULT.md", "draft", "Negative boundary fixture"])]),
-    ...["QA", "UAT"].map(gate => [gate + "-approved", text => upsertTableRow(text, "Approvals", 0, gate, [gate, "approved", "Negative boundary fixture"])]),
-    ["OR", text => upsertTableRow(text, "Artefacts", 0, "OR", ["OR", "", "done", "Negative boundary fixture"])],
-  ]) {
-    reset(); writeFileSync(f.state, sealRunState(root, change(f.readState().content)));
-    const candidate = f.proposal(), before = tree();
-    assert.equal(previewSourceRevision(root, candidate.input).outcome, "rejected", name); assert.deepEqual(tree(), before);
-  }
+  reset();const missingProof=prepare();const source=readArtefactBindings(f.readState().content).active.find(row=>row.destination.type==='SD').source.path;
+  rmSync(join(root,source));const broken=tree();assert.equal(applySourceRevision(root,missingProof.input).outcome,'rejected');assert.deepEqual(tree(),broken);
+  // Later phase eligibility uses the current 22-cell phase/source matrix.
   for (const change of [value => value.target_id = byteDigest(Buffer.from("foreign")), value => value.expected_revision_id = randomUUID(),
     value => value.impact_assessment.analyses[0].disposition = "retain", value => value.impact_assessment.unresolved.push("Unknown impact")]) {
     reset(); const candidate = f.proposal(); change(candidate.value); writeFileSync(join(root, candidate.input.evidence), JSON.stringify(candidate.value));
@@ -143,7 +118,7 @@ try {
   }
   reset(); const stale = prepare(); writeFileSync(join(root, stale.input.evidence), JSON.stringify({ ...stale.value, intended_change: "Changed after preview" }));
   const unchanged = tree(); assert.equal(applySourceRevision(root, stale.input).reason, "revision_preview_stale"); assert.deepEqual(tree(), unchanged);
-  reset(); const draftChanged = prepare(); writeFileSync(f.file("SD.md"), readFileSync(f.file("SD.md"), "utf8") + "Changed without recording\n");
+  reset(); const draftChanged = prepare(); writeFileSync(f.canonicalFile("SD.md"), readFileSync(f.canonicalFile("SD.md"), "utf8") + "Changed without recording\n");
   assert.equal(applySourceRevision(root, draftChanged.input).reason, "seal_invalid");
 
   // Real process exits cover both pre-commit rollback and post-commit completion.
@@ -188,7 +163,7 @@ try {
     const replay = service("agdf_revise", input);
     assert.equal(replay.outcome, beforeRunCommit(stage) ? "accepted" : "already_applied", stage);
     const current = f.readState().content, receipts = readSourceRevisions(current).receipts;
-    assert.equal(receipts.length, 1); assert.equal(receipts[0].schema_version, "2");
+    assert.equal(receipts.length, 1); assert.equal(receipts[0].input_resolution.record_version, "4");
     assert.equal(validateRevisionHistory(root, receipts[0]), true, stage);
     assert.equal(runSealState(root, current).status, "valid", stage);
     assert.deepEqual(readApprovalOperations(current).receipts, readApprovalOperations(previous).receipts, stage);

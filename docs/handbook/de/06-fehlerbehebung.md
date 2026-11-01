@@ -130,24 +130,12 @@ Die kanonische veränderliche Run-Datei liegt unter:
 .agdf/control/runs/<run_id>/RUN_STATE.md
 ```
 
-Eine ältere `.agdf/control/AGDF_RUN.md` kann Migrationseingabe oder eine ausdrücklich erzeugte,
-nicht autoritative Projektion sein. Sie ist kein zweiter veränderlicher Eigentümer.
-
-Lösche oder überschreibe Legacy-Dateien nicht auf Verdacht. Prüfe zuerst den ausgewählten Run:
-
-```bash
-agdf doctor --run payment-limit-fix --json
-agdf gate-check --run payment-limit-fix --json
-```
-
-Wenn die Diagnose eine Migration verlangt, führe sie ausdrücklich für dieselbe Run-ID aus:
-
-```bash
-agdf run-migrate --run payment-limit-fix
-```
-
-Ersetze `payment-limit-fix` durch die betroffene Run-ID. Read-only-Befehle wie `doctor` und
-`gate-check` migrieren den Zustand nicht automatisch.
+Unterstützt sind ausschließlich das ausdrücklich konfigurierte Layout `run-folders-v1`
+und Run-Version 4. Andere Layouts, Versionen und alte Belege bleiben unverändert.
+Es gibt keine Migration, Konvertierung, Rücksetzung oder Legacy-Projektion. Diese Dateien
+sichern und für neue Arbeit ein frisches aktuelles Ziel auswählen. Den gewählten aktuellen
+Run mit `doctor --run <run_id> --json` und `gate-check --run <run_id> --json` prüfen.
+Diese Befehle reparieren nichts und erteilen keine Freigabe.
 
 ## Der Agent meldet `revise` oder `block`
 

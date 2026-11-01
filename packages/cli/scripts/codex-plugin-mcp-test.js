@@ -375,7 +375,7 @@ try {
       { path: join(replacement.pluginRoot, 'mcp.json'), digest: hash(readFileSync(join(replacement.pluginRoot, 'mcp.json'))) }] },
     providers: [{ origin: replacement.pluginRoot, server_id: 'agdf-cockpit', connection_id: 'fixture-plugin',
       tools: ['agdf_cockpit', 'agdf_cockpit_read'], exposed_tools: { agdf_cockpit: 'fixture.render', agdf_cockpit_read: 'fixture.read' } }],
-    evidence: [{ path: '.agdf/control/artefacts/service-fixture/synthetic-observation.txt', digest: hash(readFileSync(raw)) }] };
+    evidence: [{ path: '.agdf/control/runs/service-fixture/documents/synthetic-observation.txt', digest: hash(readFileSync(raw)) }] };
   const recordPath = join(dir, 'transition.json'); writeFileSync(recordPath, JSON.stringify(record));
   const invoke = options => runMcpLifecycle({ surface: 'codex', scope: 'project', target: transitionTarget,
     env, cockpitEvidence: recordPath, ...options });

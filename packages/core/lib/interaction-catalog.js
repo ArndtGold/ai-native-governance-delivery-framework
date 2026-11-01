@@ -9,8 +9,8 @@ function freeze(value) {
 }
 export const INSTALL_SETUP_STATES = freeze({
   cancelled: { result: "cancelled", actions: ["cancelled"] },
-  control_migration_required: { result: "partial", actions: ["migrate_control"] },
-  control_repair_required: { result: "partial", actions: ["repair_control"] },
+  control_unsupported: { result: "partial", actions: ["inspect_control"] },
+  control_repair_required: { result: "partial", actions: ["inspect_control"] },
   plugin_ready_mcp_absent: { result: "success", actions: ["restart_host"] },
   plugin_ready_mcp_in_plugin: { result: "success", actions: ["restart_host"] },
   mcp_ready_hook_review_required: { result: "partial", actions: ["review_codex_hook"] },

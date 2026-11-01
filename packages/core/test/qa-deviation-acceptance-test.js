@@ -17,7 +17,6 @@ import {createDecisionSessionService} from '../lib/control-inspect/decision-sess
 import {closeoutConfirmation,evaluateCloseoutReadiness} from '../lib/control-evaluation/closeout-readiness.js';
 import {validateRevisionHistory} from '../lib/control-state/run-revision-history.js';
 import {readSourceRevisions} from '../lib/control-state/run-source-revisions.js';
-import {approveRunGate} from '../lib/control-state/run-recording.js';
 import {postApprovalTransition} from '../lib/control-evaluation/gate-check.js';
 
 const root=mkdtempSync(join(tmpdir(),'agdf-qa-deviations-')), seeds=mkdtempSync(join(tmpdir(),'agdf-qa-deviation-seeds-'));
@@ -29,16 +28,9 @@ try {
     deviations:[{finding_id:'MISSING-NATIVE',severity:'medium',risk:'Native teardown was not observed.',consequence:'A bounded reader may remain until expiry.',follow_up:'Observe native closure on the exact candidate.',owner:'Runtime evidence owner'}]});
   const report=(value,decision='revise',target='evidence_obligation')=>withSyntheticQaContent('# QA: Disposable exact deviation proposal\n- decision: '+decision+'\n\n## Scope\nOwned fixture only.\n## Evidence\nCore and review checks retained.\n## Risks\nNative closure remains unobserved.\n\n## Normalized Findings\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| MISSING-NATIVE | '+(target==='CD+Tests'?'implementation_gap':'evidence_gap')+' | '+target+' | open | No native close observation in this fixture | Collect the exact native observation |\n'+(value?'\n## QA Deviation Acceptance\n```json\n'+JSON.stringify(value,null,2)+'\n```\n':'')+'\n## AGDF Approval Summary (de; source=en)\n- Umfang: Begrenzte interne Nutzung des Wegwerf-Projekts; Nachweis der nativen Ansicht steht aus.\n- Nachweise: Core- und Review-Prüfungen sind dokumentiert.\n- Risiken: Native Sitzungsbeendigung ist nicht beobachtet; ein begrenzter Leser kann bis zum Ablauf bleiben. Der Nachweisowner muss den Schließtest nachholen. Freigabe akzeptiert diese Abweichung und erlaubt anschließend UAT; keine native Produktionsqualifikation.\n', { risks: 'Native closure remains unobserved and accepted only in the declared bounded scope.' });
   const recordQa=(text,expected='accepted')=>{
-    const path=f.prefix+'QA_REPORT.md';writeFileSync(join(root,path),text);
+    const path=f.prefix+'QA_REPORT.md', incoming=f.prefix+'QA_INCOMING.md';writeFileSync(join(root,incoming),text);
     const old=state().artefacts.get('QA');
-    const request={schema_version:'1',target_id:envelope().target_id,run_id:f.runId,expected_revision_id:f.revision(),
-      destination:{type:'QA_REPORT',path,digest:artefactFileDigest(root,path),status:text.match(/^- decision: (\w+)/m)[1]},
-      source:{type:'TP',path:f.prefix+'TP.md',digest:artefactFileDigest(root,f.prefix+'TP.md')},
-      relationship:{from:'QA_REPORT',relationship:'tests',to:'TP'},review:{reviewer:'Disposable QA derivation reviewer',path:f.prefix+randomUUID()+'.json',digest:''},update_draft:Boolean(old?.path)};
-    const {schema_version,target_id,run_id,destination,source,relationship}=request;
-    writeFileSync(join(root,request.review.path),JSON.stringify({schema_version,target_id,run_id,destination,source,relationship,reviewer:request.review.reviewer,reviewed:true}));
-    request.review.digest=artefactFileDigest(root,request.review.path);const input=f.prefix+randomUUID()+'.json';writeFileSync(join(root,input),JSON.stringify(request));
-    const result=service('agdf_record',{...envelope(),command:{kind:'artefact.record',payload:{gate:'QA',reviewed_request:{path:input,digest:artefactFileDigest(root,input)}}}});
+    const result=service('agdf_record',{...envelope(),command:{kind:'artefact.record',payload:{gate:'QA',material:{path:incoming,digest:artefactFileDigest(root,incoming)},reviewer:'Disposable QA reviewer',reviewed:true,update_draft:Boolean(old?.path)}}});
     assert.equal(result.outcome,expected,JSON.stringify(result));return expected==='accepted'?path:result;
   };
   for(const mutate of [p=>p.deviations[0].severity='critical',p=>p.deviations=[],p=>p.deviations.push({...p.deviations[0]}),p=>p.deviations[0].finding_id='UNKNOWN',p=>p.deviations[0].owner='',p=>p.override=true]) {
@@ -66,9 +58,7 @@ try {
     const document=readPresentationDocument(root,{runId:f.runId,gate:'QA',revisionId:e.expected_revision_id,presentationId:presentation,targetId:e.target_id});
     assert.equal(document.available,true);assert.equal(document.content,prepared.family_result.text);
     const beforeLegacy=readFileSync(f.state);
-    const legacy=approveRunGate(root,{runId:f.runId,gate:'QA',revisionId:e.expected_revision_id,presentationId:presentation,response:'Approval: QA'},
-      {evaluateGateCheck,postApprovalTransition});
-    assert.equal(legacy.reason,'qa_deviation_requires_typed_approval',JSON.stringify(legacy));assert.deepEqual(readFileSync(f.state),beforeLegacy);
+    assert.deepEqual(readFileSync(f.state),beforeLegacy,'Read-only presentation does not grant approval');
     const input={...e,operation_id:randomUUID(),command:{kind:'approval.record',payload:{gate:'QA',presentation_id:presentation,response:'Approval: QA'}}};
     const quote=service('agdf_approve',{...input,operation_id:randomUUID(),command:{...input.command,payload:{...input.command.payload,response:'Is "Approval: QA" a quote?'}}});
     assert.equal(quote.outcome,'rejected');assert.equal(state().approvals.get('QA').status,'missing');
@@ -93,11 +83,11 @@ try {
         const display=await view.read({operation:'decision_state',session_id:meta.read_session_id},undefined,host);
         assert.deepEqual(display.data.enabled_actions,['approve']);
         const read=await view.read({operation:'document',session_id:meta.read_session_id,run_id:f.runId,snapshot_id:meta.snapshot_id,resource_id:meta.resource_id});
-        assert.equal(read.state,'available',JSON.stringify(read));assert.equal(read.data.document.content,prepared.family_result.text);
+        assert.equal(read.state,'available',JSON.stringify(read));assert.equal(read.data.document.content,bytes.toString(),'Document selector reads the exact registered QA report; the separate decision summary is the presentation.');
         approved=await view.action({session_id:meta.session_id,operation_id:input.operation_id,presentation_id:presentation,expected_revision_id:e.expected_revision_id,action:'approve'},host);
       } finally {await view.close();}
     }
-    assert.equal(approved.outcome,'accepted',JSON.stringify(approved));assert.equal(approved.receipt.schema_version,'3');
+    assert.equal(approved.outcome,'accepted',JSON.stringify(approved));assert.equal(approved.receipt.input_resolution.record_version,'4');
     assert.equal(approved.receipt.effect.qa_acceptance.qa_outcome,'revise');assert.equal(approved.current.gate,'UAT');
     assert.equal(state().qa_acceptance.accepted,true,JSON.stringify(state().qa_acceptance));
     assert.deepEqual(readFileSync(join(root,path)),bytes,'Acceptance never edits the QA result');

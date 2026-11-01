@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { readFileSync } from '../control-read/fs.js';
 import { join } from 'node:path';
 import { captureControlScope } from '../control-read/snapshot.js';
@@ -43,7 +44,7 @@ export function describeArtifactReadiness(result) {
 
 // Runs only inside the caller's bounded captured view. Both consumers use these same validators.
 export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId, presentationLanguage }) {
-  const path = `.agdf/control/artefacts/${runId}/${gate}.md`;
+  const path = `${runDocumentPath(runId, '')}/${gate}.md`;
   const targetRoot = root;
   const diagnostics = [], checks = [];
   let state, revision = null, digest = null;
@@ -109,7 +110,7 @@ export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId
 // Standalone authoring preflight retains its original captured/read-only report contract.
 export function inspectArtifactReadiness(root, input) {
   const { runId, gate, expectedRevisionId } = input;
-  const path = `.agdf/control/artefacts/${runId}/${gate}.md`;
+  const path = `${runDocumentPath(runId, '')}/${gate}.md`;
   try {
     return captureControlScope(root, view => projectArtifactReadiness(view.root, input)).data;
   } catch (error) {

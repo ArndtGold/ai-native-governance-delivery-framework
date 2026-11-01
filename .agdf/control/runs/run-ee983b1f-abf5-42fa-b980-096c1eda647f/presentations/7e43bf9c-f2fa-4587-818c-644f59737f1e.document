@@ -1,0 +1,32 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: One Run Folder And One Current Control Data Model
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Ein aktuelles Datenmodell und ein gemeinsamer Ordner je Run; Masterbacklog und dauerhafte Altformat-Unterstützung entfallen vollständig.
+- Umfang: Core, CLI/MCP, Cockpit, Initialisierung, Planungshandoff, Persistenz, Pakete, Verträge und betroffene Tests; unabhängige geplante URs bleiben erhalten.
+- AC-001: Neue Projekte erhalten genau das aktuelle Modell ohne Masterbacklog und parallelen Artefaktbaum; Konflikte werden nicht überschrieben.
+- AC-002: UR-Planung startet keinen Run. Erst die ausdrückliche quellgebundene Übergabe erzeugt genau einen unfreigegebenen Run.
+- AC-003: Alle Run-eigenen Dokumente, Zustände, nötigen Fassungen und Nachweise liegen im gemeinsamen Run-Ordner; keine alten Alias-Pfade.
+- AC-004: Jede aktuelle Information hat einen kanonischen Owner; zusätzliche gespeicherte Daten brauchen einen eigenen Review-, Historien- oder Recovery-Zweck.
+- AC-005: Nur aktuelle Formate werden unterstützt; alte Bestände werden klar und ohne automatische Änderung, Migration oder Reset abgewiesen.
+- AC-006: CLI/MCP und lesendes Cockpit zeigen denselben aktuellen Bestand; keine Legacy-Ansicht, klare Fehlerzustände und ausdrückliches Aktualisieren.
+- AC-007: Freigaben bleiben an die genaue vorgelegte Dokumentfassung gebunden; notwendige historische Entscheidungen bleiben nachvollziehbar.
+- AC-008: Wiederholungen mit ursprünglicher UUID, Integrität, Recovery nach Unterbrechung und unabhängige Run-Schreibzugriffe bleiben erhalten.
+- AC-009: Dokumentation, Pakete und Tests nutzen das aktuelle Modell. Frische native Qualifikation wird auf Codex CLI begrenzt; Pflicht-CI und automatisierte Kompatibilitätsprüfungen bleiben erforderlich.
+- AC-010: Vor Umsetzung wird festgelegt, wie dieser steuernde Run abgeschlossen/aufbewahrt und betroffene Entwicklungsfixtures ersetzt werden; keine pauschale Datenlöschung.
+- Entscheidungen: Der Schnitt ohne Altbestand-Migration ist durch UR vorgegeben. Dieses PRD legt zusätzlich die klare Diagnose bei alten Beständen und Codex CLI als frischen nativen Abnahmeumfang fest. Schema, Unterordner, Metadatenhaltung und der endliche Übergang dieses Runs werden im SD entschieden; konkrete Tests im TP.
+- Grenzen und Risiken: Neue Implementierung und Hostnachweise stehen noch aus. Pfade sind Teil der Integritäts- und Freigabebindungen; die eigene Run-Ablage darf nicht still umgeschrieben werden. Kein globales Plugin-Update, Reset, Merge oder Release ist hiermit beauftragt.
+- Nächster Schritt: Approval: PRD erlaubt das Solution Design; Umsetzung bleibt bis zu den weiteren Freigaben und Voraussetzungen gesperrt.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-ee983b1f-abf5-42fa-b980-096c1eda647f` · Produktanforderungen · Revision: `37d40e03-b12c-47d8-a9dd-c5feb5deb714`
+
+SHA-256: `sha256:e9f707c1a102f73a2e8e2e0b09951d06b0fac316c8f57adf806ced0d4a759064`

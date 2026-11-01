@@ -63,20 +63,20 @@ it('SCN-017: overview change signal waits for deliberate reload and retains quer
     deliver = () => resolve({ ...backlog([]), data: { changed: true } });
     signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
   }));
-  render(<App transport={read}/>); await screen.findByText('Gespeicherter Stand laut Backlog: Awaiting QA');
+  render(<App transport={read}/>); await screen.findByText('Beobachteter Quellenstand: Awaiting QA');
   screen.getByRole('searchbox').focus();
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'My undertaking' } });
-  screen.getByText('Gespeicherte Angaben und Quellen').closest('details')!.open = true;
+  screen.getByText('Quellenangaben').closest('details')!.open = true;
   const workspace = document.querySelector('.workspace')!; workspace.scrollTop = 180;
   await waitFor(() => expect(deliver).toBeTypeOf('function'));
   changed = true; await act(async () => deliver());
   const reload=await screen.findByRole('button',{name:'Neuer Stand verfügbar · Aktualisieren'});
-  expect(screen.getByText('Gespeicherter Stand laut Backlog: Awaiting QA')).toBeTruthy();
+  expect(screen.getByText('Beobachteter Quellenstand: Awaiting QA')).toBeTruthy();
   expect((screen.getByRole('button',{name:'My undertaking'}) as HTMLButtonElement).disabled).toBe(true);
   expect(read).toHaveBeenCalledTimes(2);fireEvent.click(reload);
-  await screen.findByText('Gespeicherter Stand laut Backlog: Awaiting UAT');
+  await screen.findByText('Beobachteter Quellenstand: Awaiting UAT');
   expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('My undertaking');
-  expect(screen.getByText('Gespeicherte Angaben und Quellen')).toBeTruthy();
+  expect(screen.getByText('Quellenangaben')).toBeTruthy();
   expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'})); expect(workspace.scrollTop).toBe(180); expect(screen.queryByText('Veraltet')).toBeNull(); expect(read).toHaveBeenCalledTimes(3);
 });
 it('hidden view cancels its waiting request and rechecks on return', async () => {

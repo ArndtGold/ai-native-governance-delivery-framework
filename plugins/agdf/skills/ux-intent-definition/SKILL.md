@@ -98,7 +98,7 @@ implementation. A requested change to the actual product still follows its exist
 #### Retain a run-bound preview
 
 For a preview used in this bound analysis, save a durable, reopenable copy under
-`.agdf/control/artefacts/<run_id>/previews/<short-name>-v<N>/index.html`, relative to the supplied
+`.agdf/control/runs/<run_id>/evidence/previews/<short-name>-v<N>/index.html`, relative to the supplied
 governance target. Derive the run from the valid assignment, not cwd, recency or another run.
 Resolve containment and reject symlink escapes before writing; never put preview content in
 `runs/<run_id>/RUN_STATE.md`. Use a new unused version for revisions and preserve reviewed versions.
@@ -176,7 +176,7 @@ Populate each field or use an explicit, justified `not_applicable`:
 
 For `blocked`, `blocking_reason`, `open_product_questions`, `affected_outputs`, `evidence`,
 `missing_evidence` and `required_next_step` are mandatory. When durable control state exists, write
-the result to `.agdf/control/artefacts/<run_id>/UX_INTENT_DEFINITION.md` without a Gate or approval field.
+the result to `.agdf/control/runs/<run_id>/documents/UX_INTENT_DEFINITION.md` without a Gate or approval field.
 
 ## Forbidden
 

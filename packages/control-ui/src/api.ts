@@ -1,6 +1,7 @@
+import { runDocumentPath } from '../../core/lib/control-state/run-identity.js';
 import type { Envelope } from './types';
-import { hasConsistentBacklogCounts } from '../../core/lib/control-inspect/cockpit-list.js';
-import { validBacklogSummary, validWorkSummary } from '../../core/lib/control-state/backlog-summary-shape.js';
+import { hasConsistentWorkCounts } from '../../core/lib/control-inspect/cockpit-list.js';
+import { validWorkSummary } from '../../core/lib/control-state/run-work-summary-shape.js';
 const states = new Set(['available', 'empty', 'partial', 'invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 // JSON object member order is not part of the wire contract. Array order is.
@@ -21,20 +22,8 @@ const evidenceAssociations = (v: unknown) => object(v) && ['current', 'supersede
 });
 const nextOperation = (v: unknown) => object(v) && ['type', 'operation_key', 'effect', 'gate'].every(key => text(v[key]))
   && ['agent', 'human'].includes(String(v.actor));
-const savedSummary = (v: unknown, key: unknown, section: unknown) => object(v)
-  && ['recorded', 'unverified', 'invalid'].includes(String(v.provenance_state)) && nullableText(v.code)
-  && nullableText(v.label_de) && text(v.limitation_de) && v.authorizes === false
-  && (v.provenance_state === 'recorded' ? validBacklogSummary(v.record)
-    && object(v.record) && v.record.run_id === key && v.record.section === section
-    && new TextEncoder().encode(JSON.stringify(v.record)).length <= 65536 : v.record === null);
 const workSummary = (v: unknown, runId: string) => object(v) && validWorkSummary(v, runId)
   && new TextEncoder().encode(JSON.stringify(v)).length <= 65536;
-const titleObservation = (v: unknown) => object(v) && ['available', 'unavailable'].includes(String(v.state))
-  && ['code', 'path', 'heading', 'title', 'content_digest'].every(k => nullableText(v[k]))
-  && text(v.observed_as_of) && text(v.backlog_digest)
-  && (v.state !== 'available' || v.code === null && text(v.path) && text(v.heading) && text(v.title)
-    && !!v.title && [...v.heading as string].length <= 512 && new TextEncoder().encode(v.heading as string).length <= 2048
-    && /^[a-f0-9]{64}$/.test(String(v.content_digest)));
 const resources = (v: unknown) => Array.isArray(v) && v.every(r => object(r) && text(r.resource_id) && text(r.run_id) && text(r.type) && text(r.registered_reference) && nullableText(r.path) && text(r.status));
 const diagnostics = (v: unknown) => Array.isArray(v) && v.every(d => object(d) && text(d.code) && ['message', 'path', 'next_step', 'severity', 'section'].every(k => d[k] === undefined || text(d[k])) && (d.key === undefined || nullableText(d.key)));
 const sha = (v: unknown) => typeof v === 'string' && /^sha256:[a-f0-9]{64}$/.test(v);
@@ -47,7 +36,7 @@ export function validDraftCheck(v: unknown, runId: string, revision: unknown): b
   const supported = ['UR', 'PRD', 'SD', 'TP'].includes(String(s.gate));
   if (s.run_id !== runId || !uuid(s.revision_id) || s.revision_id !== revision || !text(s.gate)
     || typeof s.available !== 'boolean' || !nullableText(s.reason)
-    || s.artifact_path !== (supported ? `.agdf/control/artefacts/${runId}/${s.gate}.md` : null)
+    || s.artifact_path !== (supported ? runDocumentPath(runId, `${s.gate}.md`) : null)
     || !(s.artifact_digest === null || sha(s.artifact_digest))
     || s.available && (!supported || !sha(s.artifact_digest) || s.reason !== null)
     || !['unchecked', 'passed', 'corrections_required', 'unavailable'].includes(String(d.state))
@@ -127,9 +116,7 @@ const detailData = (data: unknown, allowInvalid = false): boolean => {
     || data.draft_check !== undefined && !validDraftCheck(data.draft_check, data.run_id, data.revision_id)
     || !validDocumentStates(data) || !closureData(data.closure, data.lifecycle)
     || data.evidence_applicability !== undefined && !evidenceAssociations(data.evidence_applicability)
-    || data.backlog_comparison !== undefined && !(object(data.backlog_comparison)
-      && ['matching', 'different', 'unavailable'].includes(String(data.backlog_comparison.state))
-      && text(data.backlog_comparison.reason) && nullableText(data.backlog_comparison.saved_revision_id) && data.backlog_comparison.authorizes === false)) return false;
+) return false;
   if (data.evaluation === undefined) return allowInvalid && diagnostics(data.diagnostics);
   const e = data.evaluation, p = data.persisted;
   return object(e) && ['status', 'current_gate', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'doctor_status', 'git_evidence'].every(k => text(e[k]))
@@ -176,30 +163,22 @@ export function validateData(path: string, value: Envelope<unknown>) {
         && Number.isSafeInteger(data.file_count) && Number.isSafeInteger(data.byte_count)
         && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(data.removed_run_id));
     }
-    else if (data.kind === 'backlog' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/') || path.startsWith('/api/backlog-titles'))) {
+    else if (data.kind === 'work' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/'))) {
       valid = Array.isArray(data.entries) && data.entries.every(r => object(r)
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
+        && !Object.hasOwn(r, 'saved_summary') && !Object.hasOwn(r, 'title_observation')
         && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
         && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
-        && (data.layout === undefined ? r.kind === undefined : data.layout === 'planned-urs-v1' && ['planned', 'run'].includes(String(r.kind))
+        && (data.layout === 'run-folders-v1' && ['planned', 'run'].includes(String(r.kind))
           && text(r.identity) && object(r.source) && text(r.source.path) && (r.source.digest === null || sha(r.source.digest))
           && text(r.coverage) && typeof r.handoff_ready === 'boolean' && Array.isArray(r.actions) && r.actions.every(text))
-        && (r.saved_summary === undefined || savedSummary(r.saved_summary, r.key, r.section)
-          && object(r.saved_summary) && (r.saved_summary.record === null || object(r.saved_summary.record) && r.saved_summary.record.target_id === value.target.target_id))
-        && (r.title_observation === undefined || titleObservation(r.title_observation)
-          && object(r.title_observation) && r.title_observation.backlog_digest === data.content_digest))
+)
         && diagnostics(data.diagnostics) && text(data.source_path) && text(data.content_digest) && object(data.counts)
         && Object.values(data.counts).every(v => Number.isSafeInteger(v) && (v as number) >= 0)
-        && hasConsistentBacklogCounts(data)
+        && hasConsistentWorkCounts(data)
         && Number.isSafeInteger(data.file_count) && (data.file_count as number) >= 0
         && Number.isSafeInteger(data.byte_count) && (data.byte_count as number) >= 0
         && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(data.removed_run_id));
-      if (valid && path.startsWith('/api/backlog-titles') && Array.isArray(data.entries)) {
-        const ids = data.entries.map(r => (r as Record<string, unknown>).row_id);
-        const observed = data.entries.filter(r => (r as Record<string, unknown>).title_observation !== undefined).length;
-        valid = ids.every(id => typeof id === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(id))
-          && new Set(ids).size === ids.length && observed >= 1 && observed <= 12;
-      }
     } else if (data.kind === 'planned' && path.startsWith('/api/planned/')) {
       const e = data.entry;
       valid = object(e) && text(e.plan_id) && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(String(e.plan_id))

@@ -8,7 +8,7 @@ export const CD_TESTS_NEXT_ALLOWED_ACTION = "Implement the approved TP scope, ru
 
 function durableArtefactBlock(gate, nextGate) {
   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
-  const stablePath = gate === "QA" ? ".agdf/control/artefacts/<key>/QA_REPORT.md" : `.agdf/control/artefacts/<key>/${gate}.md`;
+  const stablePath = gate === "QA" ? ".agdf/control/runs/<run_id>/documents/QA_REPORT.md" : `.agdf/control/runs/<run_id>/documents/${gate}.md`;
   return {
     status: "blocked",
     current_gate: gate,
@@ -127,7 +127,6 @@ function gateDecisionForRunState(runState, verifiedChange = null) {
     if (modeDecision === "quick_task") {
       if (
         extractField(runState.content ?? "", "lifecycle") === "completed"
-        && runState.current_gate === "OR"
         && runState.artefacts.get("OR")?.status === "done"
       ) {
         return {

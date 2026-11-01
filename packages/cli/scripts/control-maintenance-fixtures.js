@@ -2,28 +2,28 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, readdirSync, lstatSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../../core/test/fixtures/legacy-init-plan.js";
-import { renderRunState } from "#agdf-core/control-state/run-state-repository.js";
+import { initializeCurrentControl } from "../../core/test/fixtures/current-init.js";
+
+import { createRun } from "#agdf-core/control-state/run-state-repository.js";
 import { sealRunState } from "#agdf-core/control-state/run-seal.js";
 
 export function repository(base, name, { language = "en", scaffold = true } = {}) {
   const root = join(base, name);
   mkdirSync(root, { recursive: true });
-  if (scaffold) initializeCanonicalControl(root, generatedFilesForTarget("init", root, false, {
-    artifact_language: "en", chat_language: language, runtime_language: "en", source: "parameter", detected_locale: language,
-  }));
+  if (scaffold) {
+    initializeCurrentControl(root, 'en');
+    const path = join(root, '.agdf/control/config.json');
+    writeFileSync(path, JSON.stringify({ ...JSON.parse(readFileSync(path, 'utf8')), chat_language: language }));
+  }
   return root;
 }
 
-export function addRun(root, id, { sealed = false, transform = (text) => text } = {}) {
-  const directory = join(root, ".agdf/control/runs", id);
-  mkdirSync(directory);
-  let text = transform(renderRunState(id));
+export function addRun(root, id, { sealed = true, version = 4, transform = text => text } = {}) {
+  const path = createRun(root, id);
+  let text = transform(readFileSync(path, 'utf8'));
   if (sealed) text = sealRunState(root, text);
-  const path = join(directory, "RUN_STATE.md");
-  writeFileSync(path, text);
-  return path;
+  if (version !== 4) text = text.replace('control_state_version: 4', 'control_state_version: ' + version);
+  writeFileSync(path, text); return path;
 }
 
 export function treeDigest(root) {

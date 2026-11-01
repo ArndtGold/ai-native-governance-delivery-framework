@@ -82,7 +82,7 @@ never hand-build an extra approval card or claim missing runtime integration is 
 
 The PRD owns exactly one `## Preview Review` section containing only one fenced `json` object.
 Use `schema_version: "1"`, a short lowercase `version` ending in `-vN`, the canonical approved
-`source_ur_digest`, and `entry: ".agdf/control/artefacts/<run_id>/previews/<version>/index.html"`.
+`source_ur_digest`, and `entry: ".agdf/control/runs/<run_id>/evidence/previews/<version>/index.html"`.
 Provide `files` sorted by path, each with `path`, raw-byte SHA-256 `digest`, exact `bytes` and
 `media_type`; also provide `review_task`, nonempty `scenarios`, valid PRD `criterion_ids`, and
 `open_questions` (an array, possibly empty). No other keys or separate manifest are accepted.
@@ -114,12 +114,12 @@ intake true, intake_mode resume, run_id, expected_revision_id and prd_action rev
 Never edit an approved PRD or transfer its approval. An approved-intent change uses the existing
 earliest affected UR/PRD revision route, not this unapproved authoring assignment.
 
-Use the shared Reviewed Recording Input in gate-artifact-preparation and existing
-run-step --step artefact --gate PRD --evidence <recording-input.json> with the supplied current
-run/revision. Record PRD derived_from the exact approved UR; analyses do not replace that source.
+Use the shared reviewed-material contract in gate-artifact-preparation and existing
+run-step --step artefact --gate PRD --evidence <reviewed-PRD.md> --reviewer <name> --reviewed true --update-draft <true|false> with the supplied current
+run/revision and original operation UUID. Record PRD derived_from the exact approved UR; analyses do not replace that source.
 Initial registration uses update_draft false; explicit registered replacement uses true with
-fresh reviewed mapping and recording paths. Retain previous proof/history and other protected
-bytes. Never hand-author receipts, substitute run-update for required source binding or reseal
+fresh reviewed material and inline attestation. Retain previous proof/history and other protected
+bytes. Never hand-author receipts, substitute a hand edit for required source binding or reseal
 unknown edits. Follow existing transaction recovery and supported visible retry with fresh state.
 
 Use the returned revision and redispatch gate-check. When supplied, prepare exact run-present,

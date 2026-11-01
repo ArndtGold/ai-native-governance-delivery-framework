@@ -1,14 +1,13 @@
 import { existsSync, withControlReadMemo, memoizeControlRead } from "../control-read/fs.js";
 import { dirname, join } from 'node:path';
 import { aggregate } from "../control-state/aggregate.js";
-import { verifyLegacyProjection } from "../control-state/legacy-projection-reader.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { readRunInventory } from "../control-state/run-inventory-reader.js";
 import { runSealState } from "../control-state/run-seal.js";
 import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
 import { pendingRunStepConflictIds } from "../control-state/run-step-transaction.js";
 import { requiredControlFiles } from "./required-files.js";
-import { readControlLayout, PLANNED_LAYOUT, inspectLayoutMaintenance } from '../control-state/control-layout.js';
+import { readControlLayout, CURRENT_LAYOUT } from '../control-state/control-layout.js';
 import { readPendingRunStepJournal } from '../control-state/run-step-transaction.js';
 import { resolutionRecordVersion } from '../control-state/input-resolution.js';
 import { analyzeDeliveryMap } from "./delivery-map.js";
@@ -25,17 +24,17 @@ const RUN_SEAL_FINDINGS = Object.freeze({
   content_changed: {
     code: "AGDF_RUN_SEAL_MISMATCH",
     message: "The run state or a listed artefact changed after the last recorded revision.",
-    next_step: "Record the reviewed change with run-update so the run revision advances, then run gate-check again.",
+    next_step: "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
   },
   invalid: {
     code: "AGDF_RUN_SEAL_INVALID",
     message: "The run seal lines are missing or malformed.",
-    next_step: "Restore the last sealed revision from trusted history and inspect changes before run-update; do not remove seal lines to bypass approval checks.",
+    next_step: "Restore trusted sealed bytes and inspect the change; never remove seals or adopt unknown edits.",
   },
   unsealed: {
     code: "AGDF_RUN_SEAL_INVALID",
     message: "The run has no seal and cannot be changed by normal write commands.",
-    next_step: "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+    next_step: "Preserve the original bytes; inspect the original current operation and its supported recovery owner.",
   },
 });
 
@@ -124,35 +123,11 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
         runSelectionRecovery(selection.target),
       );
     } else {
-      const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
-      const nextActionLine = run.match(/^- next_allowed_action:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
-      const hasEvidence = hasFilledEvidenceRow(run);
+      const hasEvidence = selectedRunState.evidence_refs.length > 0;
       const content = observeDecisionContent(targetDir, selectedRunState, { objectiveOnly: true });
       if (!content.ready) addFinding(findings, 'warn', 'AGDF_DECISION_CONTENT_INCOMPLETE',
         'The selected active Run has incomplete decision orientation.', runPath,
         decisionContentRecovery(content, { state: selectedRunState }));
-
-      if (isPlaceholderValue(currentGateLine)) {
-        addFinding(
-          findings,
-          "revise",
-          "AGDF_CURRENT_GATE_MISSING",
-          "The selected run state does not name the current gate.",
-          runPath,
-          "Set current_gate to the current delivery gate or none.",
-        );
-      }
-
-      if (isPlaceholderValue(nextActionLine)) {
-        addFinding(
-          findings,
-          "revise",
-          "AGDF_NEXT_ALLOWED_ACTION_MISSING",
-          "The selected run state does not state the next allowed action.",
-          runPath,
-          "Fill the next allowed action before asking an agent to continue delivery work.",
-        );
-      }
 
       if (!hasEvidence) {
         addFinding(
@@ -161,7 +136,7 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
           "AGDF_EVIDENCE_EMPTY",
           "The selected run state has no visible evidence row yet.",
           runPath,
-          "Add at least one evidence row or explicitly document that no evidence exists yet.",
+          "Record actual evidence through the current Run evidence owner.",
         );
       }
 
@@ -174,7 +149,7 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
             ? "The selected run state has a missing or invalid run_id; interaction cards cannot be rendered for it."
             : "The selected run state has a missing or invalid revision_id; approval interactions cannot be rendered for it.",
           runPath,
-          "Run run-migrate to repair the run identity, or migrate the legacy state to a canonical run record.",
+          "Select a valid current Run; unsupported control is never converted automatically.",
         );
       }
 
@@ -190,7 +165,7 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
         "AGDF_ARTEFACT_ROW_DUPLICATE",
         `The selected run has more than one Artefacts row for ${type}; the effective artefact is ambiguous.`,
         runState.path,
-        "Keep exactly one Artefacts row per type, record the reviewed correction with run-update, then retry the gate presentation.",
+        "Current document references derive from typed bindings; restore valid records instead of editing derived tables.",
       );
     }
     if (modeSliceDecision(runState) === "verified_change") {
@@ -242,12 +217,8 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
 function sharedDoctorContext(targetDir, runId) {
   return memoizeControlRead(`doctorShared:${targetDir}:${runId ?? ""}`, () => {
     const findings = [];
-    const maintenance = inspectLayoutMaintenance(targetDir);
-    if (maintenance.state !== 'none') addFinding(findings, 'block', 'AGDF_CONTROL_MAINTENANCE_REQUIRED',
-      'A planned-layout cutover is pending or cannot be verified.', '.agdf/control/maintenance/PLANNED_LAYOUT_PENDING.json',
-      'Inspect planned_layout.apply/original-UUID and recover only the original confirmed operation.');
     let planned = false;
-    try { planned = readControlLayout(targetDir).layout === PLANNED_LAYOUT; }
+    try { planned = readControlLayout(targetDir).layout === CURRENT_LAYOUT; }
     catch (error) {
       // Missing configuration is already reported by the existing setup checks.
       if (existsSync(join(targetDir, '.agdf/control/config.json'))) addFinding(findings, 'block', error.message,
@@ -255,35 +226,20 @@ function sharedDoctorContext(targetDir, runId) {
     }
     for (const pendingId of pendingRunStepConflictIds(targetDir, runId)) {
       if (planned) {
-        try { if (resolutionRecordVersion(readPendingRunStepJournal(targetDir, pendingId)) === 6) continue; } catch {}
+        try { if (resolutionRecordVersion(readPendingRunStepJournal(targetDir, pendingId)) === 7) continue; } catch {}
       }
       addFinding(
         findings,
         "block",
         "AGDF_RUN_STEP_RECOVERY_REQUIRED",
         `A run-step transaction for ${pendingId} is incomplete; its recorded outputs require recovery.`,
-        join(".agdf", "control", "runs", pendingId, "RUN_STEP_PENDING.json"),
+        join(".agdf", "control", "runs", pendingId, "control", "RUN_STEP_PENDING.json"),
         "Use explicit supported recovery for this exact pending operation; preserve conflicting bytes.",
       );
     }
-    const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
-    if (hasCanonicalRuns) {
-      const projection = verifyLegacyProjection(targetDir);
-      if (!["absent", "valid"].includes(projection.status)) {
-        addFinding(
-          findings,
-          "block",
-          "AGDF_LEGACY_PROJECTION_DRIFT",
-          `Legacy compatibility state is not a valid projection: ${projection.status}.`,
-          join(".agdf", "control", "AGDF_RUN.md"),
-          "Regenerate the explicit legacy projection or remove it after legacy consumers are retired.",
-        );
-      }
-    }
-    let required;
-    try { required = requiredControlFiles(targetDir); } catch { required = ['.agdf/control/config.json']; }
+    const required = requiredControlFiles(targetDir);
     const missing = required.filter(
-      (relativePath) => !(relativePath.endsWith("AGDF_RUN.md") && hasCanonicalRuns) && !existsSync(join(targetDir, relativePath)),
+      (relativePath) => !existsSync(join(targetDir, relativePath)),
     );
 
     for (const relativePath of missing) {

@@ -1,6 +1,9 @@
+import { initializeCurrentControl } from './fixtures/current-init.js';
+import { renderRunState } from '../lib/control-state/run-state-repository.js';
+import { sealRunState } from '../lib/control-state/run-seal.js';
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseControlState } from "../lib/control-state/run-state-parser.js";
@@ -69,11 +72,11 @@ const invalidInput = { ...declaredAction, field_counts: { disposition: 2, next_a
 assert.equal(evaluateReconciliationState(state("child", [childRow], { parent_reconciliation: invalidInput }), { loadRun: () => null }).findings[0].code, "AGDF_PARENT_RECONCILIATION_EVIDENCE_INVALID");
 assert.equal(evaluateReconciliationState(state("child", [childRow], { parent_reconciliation: invalidInput }), { loadRun: loadResolved }).parent_reconciliation.outcome, "open");
 
-const completedChild = state("included", [], { artefacts: new Map([["OR", { path: ".agdf/control/artefacts/included/OR.md", status: "done" }]]) });
+const completedChild = state("included", [], { artefacts: new Map([["OR", { path: ".agdf/control/runs/included/documents/OR.md", status: "done" }]]) });
 const includes = { from: "Aggregate", relationship: "includes", to: "child_run:included", evidence: "Completed Child OR." };
 const programmeInput = (overrides = {}) => ({
   present: true,
-  acceptance_ref: ".agdf/control/artefacts/parent/AGGREGATE_ACCEPTANCE.md",
+  acceptance_ref: ".agdf/control/runs/parent/documents/AGGREGATE_ACCEPTANCE.md",
   evidence: "Programme acceptance matrix.",
   missing_evidence: "none",
   field_counts: { acceptance_ref: 1, evidence: 1, missing_evidence: 1 },
@@ -101,11 +104,11 @@ const finalReady = evaluateProgramme([includes], programmeInput());
 assert.equal(finalReady.startable, true);
 assert.equal(finalReady.final_ready, true);
 
-const parsed = parseControlState(`## Run Meta\n\n- run_id: child\n\n## Parent Reconciliation Handoff\n\n- parent_reconciliation_disposition: accepted_open\n- parent_reconciliation_next_action: Reconcile Parent.\n\n## Programme Aggregation Readiness\n\n- programme_acceptance_ref: .agdf/control/artefacts/parent/ACCEPTANCE.md\n- programme_aggregation_evidence: linked children\n- programme_aggregation_missing_evidence: none\n`);
+const parsed = parseControlState(`## Run Meta\n\n- run_id: child\n\n## Parent Reconciliation Handoff\n\n- parent_reconciliation_disposition: accepted_open\n- parent_reconciliation_next_action: Reconcile Parent.\n\n## Programme Aggregation Readiness\n\n- programme_acceptance_ref: .agdf/control/runs/parent/documents/ACCEPTANCE.md\n- programme_aggregation_evidence: linked children\n- programme_aggregation_missing_evidence: none\n`);
 assert.equal(parsed.run_id, "child");
 assert.equal(parsed.parent_reconciliation.disposition, "accepted_open");
 assert.equal(parsed.parent_reconciliation.field_counts.next_action, 1);
-assert.equal(parsed.programme_aggregation.acceptance_ref, ".agdf/control/artefacts/parent/ACCEPTANCE.md");
+assert.equal(parsed.programme_aggregation.acceptance_ref, ".agdf/control/runs/parent/documents/ACCEPTANCE.md");
 const templateOnly = parseControlState(`## Run Meta\n\n- run_id: child\n\n## Programme Aggregation Readiness\n\n- programme_acceptance_ref:\n- programme_aggregation_evidence:\n- programme_aggregation_missing_evidence: \`none\`\n`);
 assert.equal(evaluateReconciliationState({ ...state("child"), programme_aggregation: templateOnly.programme_aggregation }).programme_aggregation.applicable, false);
 assert.equal(evaluateProgramme([includes], programmeInput({ acceptance_ref: "README.md" }), () => "/repo/README.md").final_ready, false);
@@ -135,10 +138,10 @@ assert.doesNotMatch(parentTemplateSection, /Approval:/);
 const root = mkdtempSync(join(tmpdir(), "agdf-parent-reconciliation-"));
 const cli = join(import.meta.dirname, "..", "..", "cli", "bin", "create-agdf.js");
 try {
-  execFileSync(process.execPath, [cli, "init", "--dir", root]);
-  rmSync(join(root, ".agdf", "control", "AGDF_RUN.md"), { force: true });
-  for (const runId of ["child", "parent"]) execFileSync(process.execPath, [cli, "run-create", "--dir", root, "--run", runId]);
-  const runText = (runId, chain) => `# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: ${runId}\n- lifecycle: active\n- revision: 1\n- revision_id: ${runId === "child" ? "11111111-1111-4111-8111-111111111111" : "22222222-2222-4222-8222-222222222222"}\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: test\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n${chain}\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Fixture | test | reconciliation | direct |\n\n## Closeout\n\n- next_allowed_action: Draft UR.\n- quality_outlook: Preserve independent authority.\n`;
+  initializeCurrentControl(root);
+  const runText = (runId, chain) => sealRunState(root, renderRunState(runId,
+    `## Objective\n\nCurrent synthetic ${runId} reconciliation.\n\n## Relationships\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n${chain}\n`, { mode: 'structured_delivery' }));
+  for (const id of ['child', 'parent']) mkdirSync(join(root, '.agdf/control/runs', id), { recursive: true });
   const childPath = join(root, ".agdf", "control", "runs", "child", "RUN_STATE.md");
   const parentPath = join(root, ".agdf", "control", "runs", "parent", "RUN_STATE.md");
   writeFileSync(childPath, runText("child", "| OR | reconciles_with | parent_run:parent | Explicit Parent evidence. |"));
@@ -150,7 +153,8 @@ try {
   assert.equal(doctorResolved.parent_reconciliation.outcome, "resolved");
   assert.equal(gateResolved.delivery_map.parent_reconciliation.outcome, "resolved");
   assert.equal(mapResolved.parent_reconciliation.outcome, "resolved");
-  writeFileSync(parentPath, runText("parent", ""));
+  const changedParent = runText("parent", "");
+  writeFileSync(parentPath, changedParent);
   const doctorOpen = evaluateDoctor(root, { runId: "child" });
   const gateOpen = evaluateGateCheck(root, { runId: "child" });
   const mapOpen = evaluateDeliveryMap(root, { runId: "child" }, { evaluateDoctor, buildStatusCard, postApprovalTransition });
@@ -158,7 +162,7 @@ try {
     assert.equal(report.parent_reconciliation.outcome, "open");
     assert.equal(report.findings.filter((finding) => finding.code === "AGDF_PARENT_RECONCILIATION_OPEN").length, 1);
   }
-  assert.equal(readFileSync(parentPath, "utf8"), runText("parent", ""), "evaluation must not mutate Parent state");
+  assert.equal(readFileSync(parentPath, "utf8"), changedParent, "evaluation must not mutate Parent state");
   assert.notEqual(beforeParent, readFileSync(parentPath, "utf8"), "test setup must exercise changed Parent evidence");
 } finally {
   rmSync(root, { recursive: true, force: true });

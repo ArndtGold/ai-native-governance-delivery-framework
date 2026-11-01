@@ -2,8 +2,8 @@ import { discoverRuns, readSelectedRun } from "../control-state/run-state-reader
 import { assertCanonicalRunStore } from "../control-state/run-store-inspection.js";
 import { artefactFileDigest, runSealState } from "../control-state/run-seal.js";
 import { containedRegularFile } from "../control-state/contained-file.js";
-import { duplicateArtefactRowTypes, parseControlState } from "../control-state/run-state-parser.js";
-import { closeoutArtefacts, internalStepArtefacts, readArtefactHeading, userGateOrder } from "../control-evaluation/run-state.js";
+import { duplicateArtefactRowTypes } from "../control-state/run-state-parser.js";
+import { prepareRunContentState, readArtefactHeading } from "../control-evaluation/run-state.js";
 import { buildRunCandidates } from "../interaction-presentation.js";
 
 // Scope matching belongs to the coding agent. This leaf supplies canonical evidence only;
@@ -24,11 +24,7 @@ export function readDeliveryRunInventory(targetDir, { runId } = {}) {
       findings.push({ code: "AGDF_RUN_ASSIGNMENT_SEAL_INVALID", run_id: run.run_id, path: run.path, seal_status: seal.status });
       continue;
     }
-    const state = parseControlState(run.content, {
-      userGates: userGateOrder,
-      internalSteps: [...internalStepArtefacts],
-      closeoutArtefacts: [...closeoutArtefacts],
-    });
+    const state = prepareRunContentState(targetDir, run.content, run.path);
     const ur = state.artefacts.get("UR");
     const urPath = ur?.path || null;
     if ((!urPath && (state.current_gate !== "UR" || state.approvals.get("UR")?.status === "approved"))

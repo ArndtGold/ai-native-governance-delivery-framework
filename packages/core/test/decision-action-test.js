@@ -37,7 +37,7 @@ function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'agdf-decision-facade-')); roots.push(root);
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const f = createSdDefinitionTestRun(root, cli, 'decision-test', process.env, { typedApprovals: true });
-  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
+  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'accepted');
   const command = createCoreServices().command;
   const input = { schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
     target_id: resolveControlCommandTarget(root).target_id, run_id: f.runId, expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local',
@@ -109,10 +109,10 @@ try {
   const currentResource = currentRead.data.run.resources.find(item => item.type === 'SD');
   assert.equal((await views.read({ ...presentedRead, snapshot_id: currentRead.snapshot_id,
     resource_id: currentResource.resource_id })).state, 'available', 'Current issued selectors remain usable.');
-  const originalDocument = readFileSync(viewFixture.f.file('SD.md'), 'utf8'); writeFileSync(viewFixture.f.file('SD.md'), originalDocument + '\nChanged after snapshot.\n');
+  const originalDocument = readFileSync(viewFixture.f.canonicalFile('SD.md'), 'utf8'); writeFileSync(viewFixture.f.canonicalFile('SD.md'), originalDocument + '\nChanged after snapshot.\n');
   const changed = await views.read({ operation: 'document', session_id: view.read_session_id, snapshot_id: view.snapshot_id, run_id: view.binding.run_id, resource_id: view.resource_id });
   assert.notEqual(changed.state, 'available', 'Never substitute changed current bytes as the presented version.');
-  writeFileSync(viewFixture.f.file('SD.md'), originalDocument);
+  writeFileSync(viewFixture.f.canonicalFile('SD.md'), originalDocument);
   await views.read({ operation: 'close', session_id: view.read_session_id });
   assert.equal((await views.action({ ...viewFixture.request('reject'), session_id: view.session_id })).reason, 'session_expired');
   await views.close();

@@ -1,13 +1,13 @@
+import { runControlPath } from './run-identity.js';
 import { resolutionRecordVersion } from './input-resolution.js';
 import { readFileSync, statSync } from "../control-read/fs.js";
 import { canonicalJson, digest, exactObject } from "./approval-command-contract.js";
 import { readApprovalOperations } from "./approval-operations.js";
 import { artefactFileDigest, APPROVAL_GATES } from "./run-seal-compute.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
-import { readArtefactBindings } from "./artefact-bindings.js";
+import { readArtefactBindings, validArtefactBinding } from "./artefact-bindings.js";
 import { readSourceRevisions } from "./run-source-revisions.js";
 import { validateRunPresentationEnvelope } from './run-presentation-envelope.js';
-import { REVIEW_PROOF_FIELDS } from './recording-formats.js';
 import { previewProof } from './preview-snapshot.js';
 import { reviewCorrections } from './presentation-decision.js';
 
@@ -54,38 +54,29 @@ export function inspectApprovedArtefact(root, control, gate, { fileDigest = path
       // A review corrected at OR (receipt-proven, presentation-decision.js) counts as the version the approval saw.
       const corrections = reviewCorrections(control), seen = source => fileDigest(source.path) === source.digest
         || corrections.get(source.type)?.seen_digest === source.digest && fileDigest(source.path) === corrections.get(source.type).current_digest;
-      if (['2', '3'].includes(receipt[0].schema_version) && !receipt[0].effect.material_sources.every(seen)) return unconfirmed();
+      if (!receipt[0].effect.material_sources.every(seen)) return unconfirmed();
       // The row identifies the exact prepared record, not a historical superseded approval.
     }
     let observedRaw;
     try {
-      const envelope = readJson(`.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.json`);
+      const envelope = readJson(`${runControlPath(control.meta.run_id, 'presentations')}/${presentation[1]}.json`);
       const record = envelope.record;
       // Preserve the existing aggregate's v1 proof checks. New v2/v3/v4 envelopes have the
       // complete command grammar; older minimal proofs are not retroactively v2.
-      if (!record || ![1, 2, 3, 4, 5, 6].includes(resolutionRecordVersion(record))
-          || resolutionRecordVersion(record) >= 2 && validateRunPresentationEnvelope(envelope, { runId: control.meta.run_id, gate, revisionId: record.revision_id, presentationId: presentation[1] }).reason
+      if (!record || resolutionRecordVersion(record) !== 7
+          || validateRunPresentationEnvelope(envelope, { runId: control.meta.run_id, gate, revisionId: record.revision_id, presentationId: presentation[1] }).reason
           || record.presentation_id !== presentation[1] || record.run_id !== control.meta.run_id
           || record.gate !== gate || record.artefact_digest !== (observedRaw = rawFileDigest(row.path)) || envelope.digest !== presentation[2]
           || receipt.length === 1 && record.revision_id !== receipt[0].binding.expected_revision_id
           || digest(JSON.stringify(record)) !== envelope.digest) return unconfirmed();
-      if ([3, 4, 5, 6].includes(resolutionRecordVersion(record)) && rawFileDigest(`.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.document`) !== record.document_digest) return unconfirmed();
-      if ((resolutionRecordVersion(record) === 5 || resolutionRecordVersion(record) === 6 && record.preview_review) && !previewProof(record, { rawFileDigest, fileDigest })) return unconfirmed();
+      if (rawFileDigest(`${runControlPath(control.meta.run_id, 'presentations')}/${presentation[1]}.document`) !== record.document_digest) return unconfirmed();
+      if (record.preview_review && !previewProof(record, { rawFileDigest, fileDigest })) return unconfirmed();
     } catch { return unconfirmed(); }
   return { confirmed: true, reason: null, path: row.path, artefact_digest: actual, raw_digest: observedRaw };
 }
 
 // Local reviewed attestation: explicit exact mapping, never prose or inferred gate order.
-export function validateBindingProof(root, receipt, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false } = {}) {
-  if ([receipt.destination, receipt.source, receipt.review].some(file => !historical && hasSymlinkComponent(root, file.path)
-        || fileDigest(file.path) !== file.digest)) return false;
-  try {
-    const proof = readJson(receipt.review.path);
-    return exactObject(proof, REVIEW_PROOF_FIELDS)
-      && proof.schema_version === "1" && proof.reviewed === true && proof.target_id === receipt.target_id && proof.run_id === receipt.run_id
-      && proof.reviewer === receipt.review.reviewer
-      && canonicalJson(proof.relationship) === canonicalJson(receipt.relationship)
-      && canonicalJson(proof.destination) === canonicalJson(receipt.destination)
-      && canonicalJson(proof.source) === canonicalJson(receipt.source);
-  } catch { return false; }
+export function validateBindingProof(root, receipt, { fileDigest = path => artefactFileDigest(root, path), historical = false } = {}) {
+  return validArtefactBinding(receipt) && receipt.review.reviewed === true
+    && [receipt.destination, receipt.source].every(file => (historical || !hasSymlinkComponent(root, file.path)) && fileDigest(file.path) === file.digest);
 }

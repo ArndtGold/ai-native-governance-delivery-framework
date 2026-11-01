@@ -1,6 +1,6 @@
 import { readWorkInventory } from '../control-state/planned-inventory.js';
 import { digest, canonicalJson } from '../control-state/approval-command-contract.js';
-import { COCKPIT_BACKLOG_SECTIONS as sections } from './cockpit-list.js';
+import { COCKPIT_WORK_SECTIONS as sections } from './cockpit-list.js';
 
 // Compatibility DTO for the existing list/session protocol. The explicit layout
 // discriminator changes policy: order and per-row source identity come from Core,
@@ -22,7 +22,7 @@ export function projectCockpitWork(root) {
   });
   return { state: inventory.state === 'partial' ? 'partial' : entries.length ? 'available' : 'empty',
     code: inventory.state === 'partial' ? 'work_inventory_partial' : null,
-    data: { kind: 'backlog', layout: 'planned-urs-v1', entries, diagnostics: inventory.findings,
+    data: { kind: 'work', layout: 'run-folders-v1', entries, diagnostics: inventory.findings,
       source_path: '.agdf/control/', content_digest: digest(canonicalJson(inventory)).slice(7),
       counts: Object.fromEntries(sections.map(section => [section, entries.filter(row => row.section === section).length])),
       planning_references: inventory.planning_references, authorizes: false } };

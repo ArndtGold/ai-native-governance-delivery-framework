@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
 import { inspectStartupCompatibility, startupMaintenanceInvocation } from "../lib/control-maintenance/startup.js";
-import { runControlMaintenance } from "../lib/control-maintenance/service.js";
+import { runControlMaintenance } from "#agdf-core/control-maintenance/service.js";
 import { renderStartupControlNotice } from "#agdf-core/control-maintenance/presentation.js";
 import { runtimeCheckCapabilityIdentity, fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
@@ -15,14 +15,14 @@ import { repository, addRun, treeDigest, git } from "./control-maintenance-fixtu
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const base = mkdtempSync(join(tmpdir(), "agdf-repository-startup-"));
 try {
-  const a = repository(base, "root A", { language: "de" }); addRun(a, "old"); git(a, "init", "-q");
+  const a = repository(base, "root A", { language: "de" }); addRun(a, "old", { version: 2 }); git(a, "init", "-q");
   const nested = join(a, "nested"); mkdirSync(nested);
   const b = repository(base, "root B"); addRun(b, "current", { sealed: true }); git(b, "init", "-q");
   const sotPath = join(b, ".agdf/control/SOT_REGISTRY.md");
   writeFileSync(sotPath, readFileSync(sotPath, "utf8") + "\n| Fixture domain | A.md | active |\n| Fixture domain | B.md | active |\n");
   // doctor reports revise for a run without next action and for a repository without active runs.
   const c = repository(base, "root C"); git(c, "init", "-q");
-  addRun(c, "gapped", { sealed: true, transform: (text) => text.replace(/^- next_allowed_action:.*$/mu, "- next_allowed_action:") });
+  addRun(c, "gapped", { sealed: true, transform: text => text });
   const d = repository(base, "root D"); git(d, "init", "-q");
   const beforeA = treeDigest(a), beforeB = treeDigest(b), beforeC = treeDigest(c), beforeD = treeDigest(d);
   const source = await runControlMaintenance(a);
@@ -33,7 +33,7 @@ try {
     assert.equal(opts.stdio[0], "ignore"); assert.equal(opts.timeout, 1000);
     return { status: 2, stdout: JSON.stringify(source) };
   } });
-  assert.equal(calls, 1); assert.equal(compact.status, "migration_required");
+  assert.equal(calls, 1); assert.equal(compact.status, "unsupported");
   for (const child of [{ status: 0, stdout: "broken" }, { status: 1, stdout: JSON.stringify(source) }, { status: 0, stdout: JSON.stringify({ ...source, target: b }) }, { status: null, error: new Error("timeout") }]) {
     assert.equal(inspectStartupCompatibility({ ...launch, run: () => child }).inspection_state, "unavailable");
   }
@@ -42,16 +42,16 @@ try {
   const large = structuredClone(source);
   large.compatibility.runs = Array.from({ length: 2048 }, (_, index) => ({ ...source.compatibility.runs[0], run_id: `legacy-${index}` }));
   large.compatibility.diagnostics = [{ code: "$(touch /tmp/should-never-execute) `literal diagnostic`" }];
-  large.counts.migration = 2048;
+  large.counts.unsupported = 2048;
   const largeFacts = inspectStartupCompatibility({ ...launch, run: () => ({ status: 2, stdout: JSON.stringify(large) }) });
-  assert.equal(largeFacts.counts.migration, 2048);
+  assert.equal(largeFacts.counts.unsupported, 2048);
   assert.ok(Buffer.byteLength(JSON.stringify(largeFacts)) < 600);
   assert.doesNotMatch(JSON.stringify(largeFacts), /legacy-|touch|literal diagnostic/u);
   assert.equal(startupMaintenanceInvocation({ ...compact, status: "current" }, launch), null);
   for (const language of ["en", "de", "fr-CA"]) {
     const facts = { ...compact, invocation: startupMaintenanceInvocation(compact, { ...launch, language }) };
     const notice = renderStartupControlNotice(facts, { language });
-    assert.ok(notice.includes(a) && notice.includes("control-maintenance") && notice.includes("--guided"));
+    assert.ok(notice.includes(a) && notice.includes("control-maintenance") && !notice.includes("--guided"));
     assert.ok(Buffer.byteLength(notice) < 1600);
     assert.ok(!notice.includes("old: "));
   }
@@ -85,9 +85,9 @@ try {
   assert.equal(launchHook(nested, "enabled", "stale"), null);
   const aFacts = launchHook(nested);
   assert.equal(aFacts.repository_control.target, realpathSync(a));
-  assert.equal(aFacts.repository_control.status, "migration_required");
-  assert.equal(aFacts.repository_control.counts.migration, 1);
-  assert.ok(aFacts.repository_control.notice.includes("Migration"));
+  assert.equal(aFacts.repository_control.status, "unsupported");
+  assert.equal(aFacts.repository_control.counts.unsupported, 1);
+  assert.ok(aFacts.repository_control.notice.includes("unterstützt"));
   assert.equal(aFacts.repository_control.invocation.argv[3], realpathSync(a));
   const bFacts = launchHook(b);
   assert.equal(bFacts.repository_control.target, realpathSync(b));
@@ -95,7 +95,7 @@ try {
   assert.equal(bFacts.automatic_check.status, "block", "blocked delivery readiness remains separate from current control compatibility");
   assert.equal(bFacts.repository_control.invocation, undefined);
   const cCheck = launchHook(c).automatic_check;
-  assert.equal(cCheck.status, "revise", "doctor revise reaches the runtime facts");
+  assert.equal(cCheck.status, "warn", "current empty Run exposes its actual doctor warning separately from gate readiness");
   assert.ok(cCheck.findings > 0);
   assert.equal(launchHook(d).automatic_check.status, "revise", "no active run is revise, not unknown");
   assert.equal(launchHook(base).repository_control, undefined);
@@ -108,7 +108,7 @@ try {
   assert.equal(openCode.status, 0, openCode.stderr);
   const openCodeFacts = JSON.parse(openCode.stdout.match(/AGDF runtime facts: (.+)/u)[1]);
   assert.equal(openCodeFacts.repository_control.target, realpathSync(a));
-  assert.equal(openCodeFacts.repository_control.status, "migration_required");
+  assert.equal(openCodeFacts.repository_control.status, "unsupported");
   // Doctor and compatibility inspection share one startup deadline: a slow doctor must not starve the inspection.
   // The stub doctor only reports pass after it has observed the inspection while it was still running itself.
   const concurrentRoot = join(base, "concurrent plugin");
@@ -137,7 +137,7 @@ if (process.argv[2] === "control-maintenance") {
   const concurrentFacts = JSON.parse(concurrent.stdout.match(/AGDF runtime facts: (.+)/u)[1]);
   assert.equal(concurrentFacts.automatic_check.status, "pass", "doctor runs beside the compatibility inspection");
   assert.equal(concurrentFacts.repository_control.inspection_state, "complete");
-  assert.equal(concurrentFacts.repository_control.status, "migration_required");
+  assert.equal(concurrentFacts.repository_control.status, "unsupported");
   assert.equal(treeDigest(a), beforeA); assert.equal(treeDigest(b), beforeB);
   assert.equal(treeDigest(c), beforeC); assert.equal(treeDigest(d), beforeD);
   console.log("Repository control bounded startup, consent and reentry tests passed.");

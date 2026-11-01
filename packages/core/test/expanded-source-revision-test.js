@@ -23,11 +23,11 @@ try {
   for(const [gate,phases] of Object.entries(matrix))for(const phase of phases){
     restore(phase);const before=readFileSync(f.state,'utf8'), old=state();const {p,input,preview}=prepare(gate);
     assert.equal(preview.outcome,'accepted',JSON.stringify({gate,phase,preview}));assert.equal(readFileSync(f.state,'utf8'),before,'Preview is read-only');
-    if(phase==='UAT')assert.equal(sourceRevisionBoundary(old,gate),null,'Legacy predicate must not acquire expanded authority');
+    assert.equal(sourceRevisionBoundary(old,gate,1),null,'Retired policy cannot acquire authority');
     const applied={...input,command:{kind:'source_revision.apply',payload:{...input.command.payload,preview_digest:preview.family_result.preview_digest,confirmation:preview.family_result.confirmation_selector}}};
     const result=service('agdf_revise',applied);assert.equal(result.outcome,'accepted',JSON.stringify({gate,phase,result}));
     const after=state(), receipt=readSourceRevisions(after.content).receipts.at(-1);
-    assert.equal(receipt.schema_version,'3');assert.equal(receipt.policy_version,2);assert.equal(receipt.initiating_phase,phase);assert.equal(validateRevisionHistory(root,receipt),true);
+    assert.equal(receipt.input_resolution.record_version,'4');assert.equal(receipt.policy_version,2);assert.equal(receipt.initiating_phase,phase);assert.equal(validateRevisionHistory(root,receipt),true);
     assert.equal(runSealState(root,after.content).status,'valid');assert.equal(after.approvals.get('QA').status,'missing');assert.equal(after.approvals.get('UAT').status,'missing');
     for(const type of ['UR','PRD','SD','TP'].slice(0,['UR','PRD','SD','TP'].indexOf(gate)))assert.deepEqual(after.approvals.get(type),old.approvals.get(type));
     assert.equal(service('agdf_revise',applied).outcome,'already_applied');assert.equal(readSourceRevisions(state().content).receipts.length,1);cells++;
@@ -96,6 +96,9 @@ try {
     assert.notEqual(freshUat.family_result.presentation_id,oldPresentation.family_result.presentation_id);assert.equal(state().current_gate,'UAT');
     assert.equal(state().evidence_applicability.by_step.get('QA').applicability,'current');
   }
-  restore('UAT');approve('UAT');const denied=prepare('TP');assert.equal(denied.preview.outcome,'rejected','Deliberate UAT prohibits revision');
+  restore('UAT');const denied=prepare('TP');approve('UAT');denied.p.value.expected_revision_id=f.revision();
+  writeFileSync(join(root,denied.p.input.evidence),JSON.stringify(denied.p.value));
+  denied.input.expected_revision_id=f.revision();denied.input.command.payload.proposal.digest=artefactFileDigest(root,denied.p.input.evidence);
+  assert.equal(service('agdf_revise',denied.input).outcome,'rejected','Deliberate UAT prohibits a fresh revision');
   console.log('SCN-069/070/072/073/074: all 22 canonical phase/source cells, Brownfield Analysis design-gap revision, exact upstream retention, post-QA withdrawal, version-pinned archive/replay and invalid proof rejection passed (synthetic only).');
 } finally {rmSync(root,{recursive:true,force:true});rmSync(seeds,{recursive:true,force:true});}

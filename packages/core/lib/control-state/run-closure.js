@@ -3,20 +3,20 @@ import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { atomicWrite, withOwnedFileLock } from './run-state-writer.js';
-import { withControlMutation, markControlMutationEffect, readControlLayout, PLANNED_LAYOUT } from './control-layout.js';
+import { withControlMutation, markControlMutationEffect, readControlLayout, CURRENT_LAYOUT } from './control-layout.js';
 import { readPendingRunStepJournal } from './run-step-transaction.js';
 import { resolutionRecordVersion } from './input-resolution.js';
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, resolveControlCommandTarget } from './approval-command-contract.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN, APPROVAL_GATES } from './run-identity.js';
-import { parseControlState, parseRunState } from './run-state-parser.js';
+import { parseRunState } from './run-state-parser.js';
 import { runSealState, listedArtefactPaths } from './run-seal.js';
 import { readRunOperations, closureLine, ENDED_LIFECYCLES } from './run-operations.js';
 import { readApprovalOperations } from './approval-operations.js';
 import { pendingRunStepIds } from './run-step-pending.js';
 import { recordRunStep } from './run-steps.js';
 import { policyForRunContent } from '../control-evaluation/run-step-policy.js';
-import { readArtefactHeading } from '../control-evaluation/run-state.js';
+import { readArtefactHeading, prepareRunContentState } from '../control-evaluation/run-state.js';
 import { resolveHumanRunTitle } from '../interaction-presentation.js';
 import { readGitIdentity } from './git-identity.js';
 import { bindInputResolution, currentInputResolution, recordedInputResolution, resolutionRecord } from './input-resolution.js';
@@ -41,7 +41,7 @@ const language = value => String(value ?? '').toLowerCase().startsWith('de') ? '
 const ENTRY_FIELDS = ['run_id', 'outcome', 'reason', 'successor_run', 'successor_reference'];
 const NEXT = Object.freeze({
   run_missing: 'Check the run id, then create a new preview.', run_unreadable: 'Repair the run file, then create a new preview.',
-  run_completed: 'none', run_already_ended: 'none', seal_invalid: 'Repair the run through run-recovery first, then create a new preview.',
+  run_completed: 'none', run_already_ended: 'none', seal_invalid: 'Inspect the original operation and exact source bytes; resolve unconfirmed state before creating a new preview.',
   changed_since_preview: 'Create a new preview.', not_active: 'none', successor_run_unknown: 'Create a new preview with an existing successor run or a free reference.',
   run_write_locked: 'Retry the apply with the same preview while the run is unchanged.',
   run_step_recovery_required: 'Recover the pending run step, then repeat the same apply.',
@@ -52,12 +52,12 @@ const NEXT = Object.freeze({
 const nextAction = reason => NEXT[reason] ?? 'Inspect the run, then create a new preview.';
 const NEXT_DE = Object.freeze({
   run_missing: 'Run-ID prüfen, dann eine neue Vorschau erstellen.', run_unreadable: 'Run-Datei reparieren, dann eine neue Vorschau erstellen.',
-  run_completed: 'keiner', run_already_ended: 'keiner', seal_invalid: 'Den Run zuerst über run-recovery reparieren, dann eine neue Vorschau erstellen.',
+  run_completed: 'keiner', run_already_ended: 'keiner', seal_invalid: 'Ursprüngliche Operation und genaue Quellbytes prüfen; den ungeklärten Stand vor einer neuen Vorschau auflösen.',
   changed_since_preview: 'Eine neue Vorschau erstellen.', not_active: 'keiner', successor_run_unknown: 'Eine neue Vorschau mit vorhandenem Nachfolge-Run oder freiem Verweis erstellen.',
   run_write_locked: 'Mit derselben Vorschau erneut anwenden, solange der Run unverändert ist.',
   run_step_recovery_required: 'Den offenen Run-Step wiederherstellen, dann dieselbe Anwendung wiederholen.',
   closure_write_failed: 'Dieselbe Anwendung wiederholen; scheitert sie erneut, den Run prüfen.',
-  closed_recovery_pending: 'Den offenen Run-Step wiederherstellen, damit das Backlog nachgezogen wird, dann dieselbe Anwendung wiederholen.',
+  closed_recovery_pending: 'Den ursprünglichen offenen Run-Schritt wiederaufnehmen, dann dieselbe Anwendung wiederholen.',
   closure_recovery_pending: 'Erst den offenen Run-Step wiederherstellen, dann eine neue Vorschau erstellen.',
   preview_unknown: 'Eine neue Vorschau erstellen.', preview_invalid: 'Eine neue Vorschau erstellen.', preview_blocked: 'Eine neue Vorschau erstellen.',
 });
@@ -118,9 +118,9 @@ function previewEntry(root, entry) {
   const run = readRunFile(root, entry.run_id);
   const refuse = reason => ({ ...row, not_closable: { reason, next_action: nextAction(reason) } });
   if (run.reason) return refuse(run.reason);
-  const control = parseControlState(run.content, { userGates: APPROVAL_GATES, internalSteps: ['CD+Tests', 'CR'] });
+  const control = prepareRunContentState(root, run.content, run.path);
   const approved = APPROVAL_GATES.filter(gate => control.approvals.get(gate)?.status === 'approved');
-  const gate = run.meta.current_gate ?? 'unknown';
+  const gate = control.current_gate;
   row.revision_id = run.meta.revision_id;
   row.facts = { title: resolveHumanRunTitle({ urHeading: readArtefactHeading(root, control.artefacts.get('UR')).replace(/^UR:\s*/iu, ''), runContent: run.content, runId: entry.run_id }),
     lifecycle: run.meta.lifecycle, current_gate: gate, approved_gates: approved,
@@ -249,8 +249,7 @@ function closeEntry(root, preview, entry, confirmedBy, { packageVersion, afterWr
     result = recordRunStep(root, { runId: entry.run_id, revisionId: entry.revision_id, step: 'lifecycle_close', closure: record },
       { policy: policyForRunContent, packageVersion, operationContext: context, afterWrite });
   } catch (error) { return notClosed('closure_write_failed', { detail: String(error?.message ?? error).slice(0, 256) }); }
-  if (result.outcome === 'recorded') return { ...base, result: 'closed', operation_id: context.operation_id, revision_id: result.revision_id,
-    backlog: result.backlog === 'missing' ? 'skipped' : result.backlog, backlog_reason: result.backlog_reason ?? null };
+  if (result.outcome === 'recorded') return { ...base, result: 'closed', operation_id: context.operation_id, revision_id: result.revision_id };
   if (result.outcome === 'already_applied') return { ...base, result: 'already_closed', operation_id: context.operation_id };
   const reason = { stale_revision: 'changed_since_preview', lifecycle_ended: 'not_active' }[result.reason] ?? result.reason;
   if (result.committed) return { ...base, result: 'closed_recovery_pending', reason, operation_id: context.operation_id, revision_id: result.revision_id,
@@ -294,7 +293,7 @@ const COPY = {
     recoveryPending: row => `closed as ${row.outcome}; Run recovery pending (${row.reason})`,
     confirmedBy: 'Confirmed by', cooperative: 'cooperative local Git statement', unknownPerson: 'unknown (no local Git identity found)',
     closed: row => `closed as ${row.outcome === 'superseded' ? `superseded by ${row.successor.value}${row.successor.verified ? '' : ' (unverified reference)'}` : 'abandoned'}`,
-    already: 'already closed by this preview', notClosed: 'not closed', backlog: 'Backlog', backlogState: value => value,
+    already: 'already closed by this preview', notClosed: 'not closed',
     rejected: 'Nothing was applied.', refusal: 'Refused; no preview was stored.' },
   de: { previewHeading: (id, n, d) => `Abschlussvorschau ${id} · ${n} ${n === 1 ? 'Run' : 'Runs'} · Digest ${d}`,
     finality: 'Ein geschlossener Run ist endgültig: Er kann nicht wieder geöffnet werden; für weitere Arbeit braucht es einen neuen Run.',
@@ -308,8 +307,7 @@ const COPY = {
     recoveryPending: row => `geschlossen als ${row.outcome === 'superseded' ? 'ersetzt' : 'aufgegeben'}; Run-Wiederherstellung offen (${row.reason})`,
     confirmedBy: 'Bestätigt durch', cooperative: 'kooperative Angabe aus der lokalen Git-Identität', unknownPerson: 'unbekannt (keine lokale Git-Identität gefunden)',
     closed: row => `geschlossen als ${row.outcome === 'superseded' ? `ersetzt durch ${row.successor.value}${row.successor.verified ? '' : ' (ungeprüfter Verweis)'}` : 'aufgegeben'}`,
-    already: 'bereits durch diese Vorschau geschlossen', notClosed: 'nicht geschlossen', backlog: 'Backlog',
-    backlogState: value => ({ not_required: 'nicht erforderlich', updated: 'aktualisiert', unlinked: 'keine Backlog-Zeile', skipped: 'übersprungen', unchanged: 'unverändert' })[value] ?? value,
+    already: 'bereits durch diese Vorschau geschlossen', notClosed: 'nicht geschlossen',
     rejected: 'Es wurde nichts angewendet.', refusal: 'Abgelehnt; es wurde keine Vorschau gespeichert.' },
 };
 const shortDigest = value => String(value ?? '').replace(/^sha256:/u, '').slice(0, 12);
@@ -333,7 +331,6 @@ export function renderRunClosure(result, requested) {
       lines.push(`${i + 1}. \`${row.run_id}\`: ${row.result === 'closed' ? c.closed(row) : row.result === 'already_closed' ? c.already
         : row.result === 'closed_recovery_pending' ? `${c.recoveryPending(row)} · ${c.next}: ${c.action(row.result, row.next_action)}`
         : `${c.notClosed}: ${row.reason} · ${c.next}: ${c.action(row.reason, row.next_action)}`}`);
-      if (row.result === 'closed') lines.push(`   ${c.backlog}: ${c.backlogState(row.backlog)}${row.backlog_reason ? ` (${row.backlog_reason})` : ''}`);
     });
   } else {
     lines.push(`${result.problems ? c.refusal : c.rejected} ${result.reason}`);

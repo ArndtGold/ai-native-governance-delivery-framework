@@ -1,10 +1,11 @@
+import { runDocumentPath } from './run-identity.js';
 import { canonicalJson, digest, DIGEST_PATTERN } from './approval-command-contract.js';
 
 export function validDecisionMaterial(sources, runId) {
   return Array.isArray(sources) && sources.length > 0 && sources.length <= 12
     && new Set(sources.map(s => s?.type)).size === sources.length
     && sources.every(s => s && Object.keys(s).sort().join(',') === 'digest,path,type' && typeof s.type === 'string'
-      && typeof s.path === 'string' && s.path.startsWith(`.agdf/control/artefacts/${runId}/`)
+      && typeof s.path === 'string' && s.path.startsWith(`${runDocumentPath(runId, '')}/`)
       && !s.path.includes('..') && DIGEST_PATTERN.test(s.digest ?? ''));
 }
 

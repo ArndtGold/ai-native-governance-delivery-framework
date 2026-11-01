@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { projectCockpitRuns } from '../../core/lib/control-inspect/cockpit-list.js';
 import type { Envelope, RunInventory } from './types';
-import type { BacklogView } from './Overview';
+import type { WorkView } from './Overview';
 import { ReadState } from './feedback';
 
 export function RunOverview({ result, onSelect, current, view, onViewChange }: {
   result: Envelope<RunInventory>; onSelect: (id: string) => void; current: boolean;
-  view?: BacklogView; onViewChange?: (view: BacklogView) => void;
+  view?: WorkView; onViewChange?: (view: WorkView) => void;
 }) {
-  const [local, setLocal] = useState<BacklogView>({ section: 'active', filter: '' });
+  const [local, setLocal] = useState<WorkView>({ section: 'active', filter: '' });
   const value = view ?? local, section = value.section === 'history' ? 'history' : 'active';
   const change = onViewChange ?? setLocal, inventory = result.data;
   if (!inventory) return <ReadState state={result.state} code={result.code}/>;

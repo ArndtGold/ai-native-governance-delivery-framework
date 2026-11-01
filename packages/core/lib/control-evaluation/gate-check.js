@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { decisionRemediationOwner } from '../control-state/presentation-decision.js';
 import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderDefinitionSourceRecovery, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
 import { interactionLocales, resolveConfiguredChatLanguage, resolveArtifactPresentationLanguages } from "../resources/context.js";
@@ -60,8 +61,8 @@ function requiredGateArtifactPreparation({ status, currentGate, missingApproval,
     effect: "preparation",
     gate: currentGate,
     skill_id: currentGate === "SD" ? "sd-definition" : currentGate === "TP" ? "tp-definition" : "gate-check",
-    artifact_path: `.agdf/control/artefacts/${runId}/${plan.file}`,
-    source_artifacts: Object.freeze(plan.sources.map((source) => `.agdf/control/artefacts/${runId}/${source}`)),
+    artifact_path: `${runDocumentPath(runId, '')}/${plan.file}`,
+    source_artifacts: Object.freeze(plan.sources.map((source) => `${runDocumentPath(runId, '')}/${source}`)),
   });
 }
 
@@ -368,13 +369,13 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     currentGate = "UR";
     missingApproval = "none";
     allowed = [
-      "create or migrate a canonical run with an explicit run id",
+      "create a current Run with an operation UUID",
       "select an existing canonical run explicitly",
       "persist a real UR revision before requesting gate approval",
       "run doctor again",
     ];
     forbidden = ["request gate approval without a durable run and artefact", "implement gated work", "claim QA or release readiness"];
-    nextAllowedAction = "Create, migrate or select the canonical run, then persist its UR revision before requesting approval.";
+    nextAllowedAction = "Create or select the current Run, then persist its UR revision before requesting approval.";
   } else if (doctorBlocker && /AGDF_(?:ACTIVE_RUN|RUN_NOT_SELECTABLE|RUN_PATH_INVALID)/u.test(doctorBlocker.code)) {
     status = "blocked";
     blockingReason = doctorBlocker.code;
@@ -419,7 +420,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     blockingReason = "AGDF_UR_REQUIREMENTS_INCOMPLETE";
     allowed = ["complete the UR requirement clarification and record a new run revision"];
     forbidden = [...forbidden, "present or approve UR before requirement clarification is complete"];
-    nextAllowedAction = "complete the UR requirement clarification, then record the revision with run-update";
+    nextAllowedAction = "complete the UR requirement clarification, then record the revision through the inspected current recording operation";
   }
   let prdReadiness = currentGate === "PRD" && approvalArtefactReady
     ? evaluatePrdReadiness(targetDir, runState, { presentationLanguage: presentationLocale }) : null;
@@ -435,7 +436,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     allowed = ["complete the listed PRD readiness items together and record a new run revision"];
     forbidden = [...forbidden, "present or approve PRD before required decisions and acceptance criteria are ready"];
     // Fixed text keeps the card localizable; detailed gaps travel separately in prd_readiness.open_decisions.
-    nextAllowedAction = "complete the open PRD readiness items together, then record the revision with run-update";
+    nextAllowedAction = "complete the open PRD readiness items together, then record the revision through the inspected current recording operation";
   }
   const sdReadiness = currentGate === "SD" && approvalArtefactReady ? evaluateSdReadiness(targetDir, runState) : null;
   const traceabilityReadiness = status === "open" && approvalArtefactReady && currentGate === "SD"
@@ -458,8 +459,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
       : "complete the listed TP traceability rows and record a new run revision"];
     forbidden = [...forbidden, "present or approve the current artefact before its traceability is complete"];
     nextAllowedAction = currentGate === "SD"
-      ? "complete the listed SD traceability rows, then record the revision with run-update"
-      : "complete the listed TP traceability rows, then record the revision with run-update";
+      ? "complete the listed SD traceability rows, then record the revision through the inspected current recording operation"
+      : "complete the listed TP traceability rows, then record the revision through the inspected current recording operation";
   }
   if (status === "open" && /^Approval: /u.test(missingApproval) && !approvalArtefactReady) {
     allowed = allowed.filter((action) => !/^request exact .* approval$/iu.test(action));

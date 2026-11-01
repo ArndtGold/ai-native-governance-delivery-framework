@@ -1,3 +1,5 @@
+import { runEvidencePath } from './run-identity.js';
+import { runDocumentPath, runHistoryPath } from './run-identity.js';
 import { resolutionRecord, resolutionRecordVersion } from './input-resolution.js';
 import { TextDecoder } from "node:util";
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, COOPERATIVE_ASSURANCE } from "./approval-command-contract.js";
@@ -8,6 +10,7 @@ import { APPROVAL_GATES } from "./run-identity.js";
 import { evidenceApplicability } from './evidence-bindings.js';
 import { REVISION_STATEMENT_FIELDS, REVISION_QUALITY_FIELDS, REVISION_IMPACT_FIELDS, REVISION_UPSTREAM_FIELDS, REVISION_ANALYSIS_FIELDS } from './recording-formats.js';
 
+export const SOURCE_REVISION_VERSION = '4';
 export const SOURCE_GATES = Object.freeze(["UR", "PRD", "SD", "TP"]);
 export const sourceRevisionConfirmation = ({ runId, revisionId, operationId, sourceGate, previewDigest }) =>
   `Apply source revision: ${runId} ${revisionId} ${operationId} ${sourceGate} ${previewDigest}`;
@@ -15,7 +18,7 @@ const uuid = value => typeof value === "string" && REVISION_ID_PATTERN.test(valu
 const hashes = value => typeof value === "string" && DIGEST_PATTERN.test(value);
 const fields = ["schema_version", "operation_id", "target_id", "run_id", "source_gate", "request_digest", "preview_digest", "previous_revision_id", "resulting_revision_id", "revision", "invalidated_bindings", "analyses", "retained_sources", "archive", "reason"];
 export const sourceRevisionDigest = value => digest(`agdf-source-revision/1\0${canonicalJson(value)}`);
-export const revisionHistoryPrefix = (runId, operationId) => `.agdf/control/runs/${runId}/revisions/${operationId}/`;
+export const revisionHistoryPrefix = (runId, operationId) => `${runHistoryPath(runId, `revisions/${operationId}`)}/`;
 
 // One inventory for live preview and immutable archive validation. No inferred
 // association can preserve fulfillment; the original writer owns consumed sources.
@@ -84,20 +87,17 @@ export function validExpandedRevisionProof(proposal, state, readArtefact, phase)
 
 export function sourceRevisionImpact(proposal, activeBindings) {
   const index = SOURCE_GATES.indexOf(proposal.source_gate), affected = SOURCE_GATES.slice(index);
-  const expanded = proposal.schema_version === '2';
   return { source_gate: proposal.source_gate, retained: SOURCE_GATES.slice(0, index), superseded: affected,
     invalidated_bindings: activeBindings.filter(row => affected.includes(row.destination.type)
-      || expanded && ['QA', 'QA_REPORT'].includes(row.destination.type)).map(row => row.binding_id),
-    analyses: proposal.impact_assessment.analyses, invalidated_steps: expanded
-      ? [...new Set(['Brownfield Analysis', 'CD+Tests', 'CR', ...proposal.quality_assessment.filter(row => row.disposition === 'reassess' && row.record.type !== 'evidence').map(row => row.record.type)])]
-      : ["Brownfield Analysis", "CD+Tests", "CR"],
+      || ['QA', 'QA_REPORT'].includes(row.destination.type)).map(row => row.binding_id),
+    analyses: proposal.impact_assessment.analyses, invalidated_steps: [...new Set(['Brownfield Analysis', 'CD+Tests', 'CR', ...proposal.quality_assessment.filter(row => row.disposition === 'reassess' && row.record.type !== 'evidence').map(row => row.record.type)])],
     retained_work: "Code and test files are retained; fulfillment and evidence require the renewed TP.",
     next_gate: proposal.source_gate !== "UR" && proposal.impact_assessment.analyses.some(row => row.type === "Brownfield Review" && row.disposition === "reassess") ? "Brownfield Review" : proposal.source_gate,
     implementation_authority: false,
-    ...(expanded ? { policy_version: 2, initiating_phase: proposal.initiating_phase,
+    policy_version: 2, initiating_phase: proposal.initiating_phase,
       changed_statements: proposal.changed_statements, quality_assessment: proposal.quality_assessment,
       invalidated_quality: proposal.quality_assessment.filter(row => row.disposition === 'reassess'),
-      renewed_approvals: [...affected, 'QA', 'UAT'], pending_presentations: 'superseded by exact material-version guard' } : {}) };
+      renewed_approvals: [...affected, 'QA', 'UAT'], pending_presentations: 'superseded by exact material-version guard' };
 }
 
 export function validSourceRevision(row) {
@@ -105,7 +105,7 @@ export function validSourceRevision(row) {
   if (!row) return false;
   const commandFields = ['command_digest', 'confirmation_digest', 'proposal_reference', 'producer', 'assurance'];
   const expandedFields = ['policy_version', 'initiating_phase', 'impact_digest', 'quality_digest'];
-  if (!exactObject(row, row.schema_version === '3' ? [...fields, ...commandFields, ...expandedFields] : row.schema_version === '2' ? [...fields, ...commandFields] : fields) || !['1', '2', '3'].includes(row.schema_version) || !uuid(row.operation_id)
+  if (!exactObject(row, [...fields, ...commandFields, ...expandedFields]) || row.schema_version !== SOURCE_REVISION_VERSION || !uuid(row.operation_id)
       || !RUN_ID_PATTERN.test(row.run_id ?? "") || !SOURCE_GATES.includes(row.source_gate)
       || ![row.target_id, row.request_digest, row.preview_digest].every(hashes)
       || ![row.previous_revision_id, row.resulting_revision_id].every(uuid)
@@ -117,22 +117,22 @@ export function validSourceRevision(row) {
       || !Array.isArray(row.analyses) || !row.analyses.every(item => exactObject(item, ["type", "disposition", "path", "digest", "reason"])
         && ["Brownfield Review", "UX Intent Definition"].includes(item.type)
         && ["retain", "reassess"].includes(item.disposition) && hashes(item.digest)
-        && isSafeControlRelativePath(item.path) && item.path.startsWith(`.agdf/control/artefacts/${row.run_id}/`)
+        && isSafeControlRelativePath(item.path) && item.path.startsWith(`${runDocumentPath(row.run_id, '')}/`)
         && typeof item.reason === "string" && item.reason.trim() && item.reason.length <= 4096)
       || new Set(row.analyses.map(item => item.type)).size !== row.analyses.length
       || !Array.isArray(row.retained_sources) || row.retained_sources.length !== SOURCE_GATES.indexOf(row.source_gate)
       || !row.retained_sources.every((item, i) => exactObject(item, ["type", "path", "digest", "rationale"])
-        && item.type === SOURCE_GATES[i] && item.path === `.agdf/control/artefacts/${row.run_id}/${item.type}.md`
+        && item.type === SOURCE_GATES[i] && item.path === `${runDocumentPath(row.run_id, '')}/${item.type}.md`
         && hashes(item.digest) && typeof item.rationale === "string" && item.rationale.trim() && item.rationale.length <= 4096)
       || !exactObject(row.archive, ["path", "digest"]) || !hashes(row.archive.digest)
       || row.archive.path !== `${revisionHistoryPrefix(row.run_id, row.operation_id)}manifest.json`) return false;
-  if (['2', '3'].includes(row.schema_version) && (![row.command_digest, row.confirmation_digest].every(hashes)
+  if ((![row.command_digest, row.confirmation_digest].every(hashes)
     || !exactObject(row.proposal_reference, ['path', 'digest']) || !hashes(row.proposal_reference.digest)
-    || !isSafeControlRelativePath(row.proposal_reference.path) || !row.proposal_reference.path.startsWith(`.agdf/control/artefacts/${row.run_id}/`)
+    || !isSafeControlRelativePath(row.proposal_reference.path) || !row.proposal_reference.path.startsWith(`${runHistoryPath(row.run_id, '')}/`) && !row.proposal_reference.path.startsWith(`${runEvidencePath(row.run_id, '')}/`)
     || !exactObject(row.producer, ['contract', 'package_version']) || row.producer.contract !== 'run-command/1' || typeof row.producer.package_version !== 'string'
     || canonicalJson(row.assurance) !== canonicalJson(COOPERATIVE_ASSURANCE)
     || row.confirmation_digest !== digest(sourceRevisionConfirmation({ runId: row.run_id, revisionId: row.previous_revision_id, operationId: row.operation_id, sourceGate: row.source_gate, previewDigest: row.preview_digest })))) return false;
-  if (row.schema_version === '3' && (row.policy_version !== 2 || !['PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'QA', 'UAT'].includes(row.initiating_phase)
+  if ((row.policy_version !== 2 || !['PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'QA', 'UAT'].includes(row.initiating_phase)
     || ![row.impact_digest, row.quality_digest].every(hashes))) return false;
   return row.source_gate !== "UR" || row.analyses.every(item => item.disposition === "reassess");
 }
@@ -210,10 +210,8 @@ export function validSourceRevisionEffect(before, after, receipt) {
     : next.approvals.get(gate)?.status === "missing" && !next.approvals.get(gate)?.evidence
       && next.artefacts.get(gate)?.status === "missing" && !next.artefacts.get(gate)?.path
       && !next.artefact_chain.some(row => row.from === gate))
-    && ["QA", "UAT"].every(gate => resolutionRecordVersion(receipt) === '3'
-      ? next.approvals.get(gate)?.status === 'missing' && !next.approvals.get(gate)?.evidence
-        && (!old.artefacts.has(gate) || next.artefacts.get(gate)?.status === 'missing' && !next.artefacts.get(gate)?.path)
-      : canonicalJson(next.approvals.get(gate)) === canonicalJson(old.approvals.get(gate)))
+    && ["QA", "UAT"].every(gate => next.approvals.get(gate)?.status === 'missing' && !next.approvals.get(gate)?.evidence
+        && (!old.artefacts.has(gate) || next.artefacts.get(gate)?.status === 'missing' && !next.artefacts.get(gate)?.path))
     && steps.filter(type => ["Brownfield Analysis", "CD+Tests", "CR"].includes(type) || old.artefacts.has(type) && !["Brownfield Review", "UX Intent Definition"].includes(type))
       .every(type => next.artefacts.get(type)?.status === "missing" && !next.artefacts.get(type)?.path)
     && receipt.analyses.every(row => row.disposition === "retain"

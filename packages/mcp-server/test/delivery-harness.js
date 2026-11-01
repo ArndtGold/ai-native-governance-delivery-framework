@@ -88,7 +88,7 @@ export async function createMcpDeliveryHarness(client, root, title = 'Synthetic 
     await invoke('agdf_record', 'step.record', { step: 'internal', internal_step: 'Brownfield Analysis', decision: 'pass',
       source: await stage('Brownfield Analysis', '# Brownfield Analysis\n- mode: pre_implementation_analysis\n- decision: pass\nSynthetic current source preparation complete.\n') });
   };
-  const prefix = `.agdf/control/artefacts/${run}/`;
+  const prefix = `.agdf/control/runs/${run}/documents/`;
   return { runId: run, target, bound, call, invoke, stage, inputs, approve, formal, startStructured, recoveredOperations,
     revision: () => revision, state: join(root, `.agdf/control/runs/${run}/RUN_STATE.md`), prefix, file: name => join(root, prefix, name) };
 }

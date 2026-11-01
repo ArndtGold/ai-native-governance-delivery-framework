@@ -325,80 +325,17 @@ beschreibt die eng begrenzte Beziehungskorrektur **vor** der Ausgabe; sie ist ke
 | **UC-D16 · Erlaubte Umsetzung fortsetzen** | Gebundenes `continue_delivery`, strukturierter Pfad an offenem `CD+Tests`, TP erfüllt, keine fehlende Freigabe und kanonische Umsetzungs-/Testaktion. | `skill_continuation`, Phase `implementation`, mit Ziel, Run, aktueller Revision und Runtime-Verträgen. | Agent setzt nur den genehmigten TP-Umfang um, führt Tests und Evidenzpflege aus und prüft nach aufgezeichneten Kontrolländerungen erneut. Routinearbeit braucht keine zusätzliche Statuskarte; Entscheidungen und Blocker bleiben sichtbar. |
 | **UC-D17 · Eine fehlende Beziehung korrigieren** | Beauftragte gebundene Fortsetzung; genau eine fehlende Beziehung als entscheidender Befund, unveränderter versiegelter Zuordnungsbeleg und keine unabhängigen Blocker. | Die Fortsetzungsorchestrierung koordiniert höchstens einen Korrekturversuch über den Core-Dienst vor Ausgabe; bei Erfolg neue Revision, Audit und frisches Routing. Das Ergebnis folgt der danach gültigen Route und enthält `relationship_correction`. | Agent nennt die belegte Korrektur im nächsten knappen Ergebnis. Fehlender oder unklarer Beleg bleibt ein konkreter Blocker. Keine Freigabe, Umfangsänderung oder allgemeine Reparatur wird daraus abgeleitet. |
 
-## Fortsetzung im Detail
+## Abgeleitete Beziehungen
 
-### Routinearbeit und sichtbare Ereignisse
-
-UC-D16 hält bereits erlaubte Umsetzung im laufenden Arbeitsablauf. Die Zahl der Karten bestimmt
-nicht, welche Kontrollen stattfinden: Ziel-/Run-Bindung, Tests und Evidenzpflege bleiben Pflicht.
-Der Agent zeigt kurze Fortschrittsmeldungen und ein überprüfbares Ergebnis. Entscheidungen,
-konkrete Blocker, relevante Risiken oder Unsicherheit, Änderungen an Ziel, Run, Umfang oder
-Berechtigung sowie wesentliche Ergebnisse werden vor davon abhängiger Arbeit sichtbar.
-
-Eine ausdrückliche Statusabfrage verwendet den lesenden Pfad ohne `continue_delivery` und liefert
-frischen vollständigen Status. Nach einer Unterbrechung wird die Bindung erneut geprüft;
-unveränderte Wiederaufnahme benötigt keine doppelte Karte. Geänderte Voraussetzungen müssen
-sichtbar werden. Es gibt keinen dauerhaften Karten-Cache und keinen zweiten Renderer. Owner
-dieser Regel bleibt der [Interaktionsvertrag](../../plugins/agdf/meta/contracts/interaction.md).
-
-### Artefakterfassung und begrenzte Beziehungskorrektur
-
-Das [gemeinsame Beziehungsregister](../../packages/core/lib/control-evaluation/delivery-relationships.js)
-wird von Kontrollauswertung, Belegprüfung und Erfassung verwendet. Es enthält URs bestehende
-Freigabebeziehung, die Quellbezüge PRD → UR, SD → PRD und TP → SD sowie
-`QA_REPORT tests TP`. Der QA-Bericht steht dabei im Artefaktfeld `QA`, seine logische
-Beziehungskennung ist `QA_REPORT`. URs Freigabebeziehung entsteht erst durch die bewusste
-Freigabe; `not_applicable`-Ausnahmen bleiben erhalten.
-
-Für ein erfasstes, ansonsten geeignetes aktuelles Artefakt wird die erforderliche Beziehung
-bereits vor Präsentation und Freigabe geprüft. Ein noch fehlendes Artefakt bleibt entwerfbar.
-Eine fehlende Beziehung zu einem vorhandenen Artefakt ist kein Auftrag, dieses erneut zu entwerfen.
-
-Der Agent erfasst PRD, SD, TP oder einen bereits bewerteten QA-Bericht über die bestehende Operation:
-
-```text
-run-step --dir <target> --run <run_id> --revision <revision_id>
-         --step artefact --gate <PRD|SD|TP|QA> --evidence <recording-input.json>
-```
-
-Die [Erfassung im Core](../../packages/core/lib/control-state/run-artefact-recording.js) prüft
-das strikte Eingabeschema, Ziel/Run/Revision, kanonische enthaltene Dateipfade, vollständige
-Quell-/Ziel-Digests, genaue Quellfreigaben und eine separate geprüfte Zuordnung. Sie veröffentlicht
-Artefaktzeiger, `Artefact Bindings`-Beleg, Beziehung und Audit in einer versiegelten Run-Revision.
-Die bestehenden Run-/Backlog-Locks und das Transaktionsjournal bleiben zuständig. Der Writer
-erzeugt den Beleg; vorhandene Belege und explizite Entwurfsersetzungen behalten ihre Historie.
-Die Operation setzt keine Freigabe und trifft keine QA-Entscheidung. Eingabe- und Belegdetails
-stehen ausschließlich im [Artefaktvorbereitungsvertrag](../../plugins/agdf/meta/contracts/gate-artifact-preparation.md).
-
-UC-D17 wird von der [Fortsetzungsorchestrierung](../../packages/core/lib/delivery-continuation/service.js)
-am [gemeinsamen Core-Einstieg](../../packages/core/lib/index.js) koordiniert. Der Dispatcher
-bleibt auch mit `continue_delivery` lesend. Die Orchestrierung verwendet nur eine erfolgreich
-validierte Route mit gebundenem Ziel, Run und Revision; ungültige Eingaben, offene Ziele,
-veraltete Intake-Zuordnungen, Status und Urteilsskills können keine Korrektur auslösen.
-Ein internes Routing-Ergebnis wird erst nach Abschluss dieses Anwendungsschritts ausgegeben.
-Ablehnung beendet den einzigen Versuch; es gibt keine Reparaturschleife.
-
-Der [Core-Korrektureigentümer](../../packages/core/lib/control-state/run-relationship-correction.js)
-prüft unter dem Run-Lock Revision, Siegel, genau einen aktiven bereits versiegelten
-Zuordnungsbeleg, unveränderte Artefakt-/Belegbytes und vollständige Freigabeintegrität erneut.
-Er ergänzt nur die fehlende Beziehung und das Audit mit alter/neuer Revision; der bestehende
-zulässige Arbeitsumfang bleibt gleich. Anschließend ruft die Orchestrierung das lesende Routing für dasselbe Ziel und denselben Run
-mit frischer Kontrollauswertung genau einmal erneut auf. Die Korrekturmetadaten werden an
-das Ergebnis dieser Auswertung gebunden.
-Der Beleg ist eine kooperative lokale Prüfaussage, kein unabhängiger Nachweis einer menschlichen
-Prüfung oder der fachlichen Ableitung.
-
-Status, `doctor`, Gate-Auswertung, Delivery Map, `agdf_inspect` und `run-present` korrigieren nichts.
-Legacy-Zeilen bleiben gültig, begründen aber ohne strikten Beleg keine automatische Korrektur.
-Veraltete oder fremde Bindungen, widersprüchliche Zeilen, mehrere fehlende Beziehungen,
-Beleg-/Artefaktdrift, ungültige Siegel, offene Transaktionen und unabhängige Blocker bleiben
-ausgeschlossen. Bereits ausgegebener terminaler Text wird nicht nachträglich abgefangen.
-
-Fehler vor dem Commit lassen den alten akzeptierten Zustand bestehen. Nach dem Commit bleibt
-die veröffentlichte Revision maßgeblich: Die Erfassung nutzt das bestehende Journal zur Recovery;
-die Korrektur bestätigt dieselbe Revision über den bestehenden Persistenzpfad. Scheitert diese
-Bestätigung, meldet sie `correction_commit_unconfirmed` samt bereits veröffentlichter Revision,
-und der Anwendungseinstieg stoppt mit `evaluator_error`. Es gibt keinen stillen zweiten Schreibversuch.
+Dokumentbeziehungen entstehen aus den aktuellen typisierten Artefact Bindings.
+Eine zusätzliche veränderliche Beziehungstabelle und deren automatische
+Korrektur entfallen. Der Core-Einstieg delegiert an denselben lesenden Dispatcher;
+Status, Doctor, Gate-Auswertung, Delivery Map und Präsentation verändern keine
+Bindungen. Fehlende, veraltete oder widersprüchliche Quellenbelege bleiben eine
+konkrete Diagnose. Nur der zulässige aktuelle Aufzeichnungs- oder Quellenrevisions-
+Eigentümer kann nach tatsächlicher Prüfung eine neue gebundene Fassung erfassen.
+Die eingebettete Prüfaussage ist kooperativ und kein unabhängiger menschlicher
+Identitätsnachweis oder Beweis fachlicher Ableitung.
 
 ## Späte Quellenrevision
 
@@ -418,7 +355,7 @@ Nachweise. Es entstehen weder neue User-Gates noch MCP-Schreibargumente. Die gen
 Vorschlagsstruktur und die explizite Inspektion/Recovery beschreibt
 [die CLI-Dokumentation](../../packages/cli/README.md#late-source-revision).
 
-Der bestehende Run/Backlog-Transaktionspfad besitzt dafür eine streng gebundene Version 2.
+Der bestehende Run-Transaktionspfad verwendet ausschließlich das aktuelle Version-7-Journal. Quellenrevisionen behalten Policy 2 und deren bestehende Phasen- und Bestätigungsgrenzen.
 Archivierung erfolgt vor dem atomaren Run-Commit. Unterbrechungen bleiben geschlossen, bis
 explizite Recovery den alten Zustand oder genau einen Commit nachweist; normale Inspektion
 repariert nichts. Ein identischer Vorgang kann sein historisches Ergebnis ohne neuen Commit

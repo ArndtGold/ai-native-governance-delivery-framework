@@ -13,13 +13,8 @@ import { inspectClosureInputResolution } from './run-closure.js';
 import { validateRunPresentationRecord } from './run-presentation.js';
 import { inspectPlannedOperation } from './planned-entry.js';
 import { inspectPlannedHandoffOperation } from './planned-handoff.js';
-import { inspectPlannedLayoutOperation } from '../control-maintenance/planned-layout.js';
 
 export function inspectRunInputResolution(root, input) {
-  if (['planned_layout.apply', 'planned_layout.recover'].includes(input.command?.kind)) {
-    const status = inspectPlannedLayoutOperation(root, input.operation_id);
-    return status.status === 'absent' ? null : { known: true, resolution: status.input_resolution };
-  }
   if (input.planning && ['planned_ur.create', 'planned_ur.replace', 'run.create_from_planned'].includes(input.command?.kind)) {
     const observed = input.command.kind === 'run.create_from_planned' ? inspectPlannedHandoffOperation(root, input.planning.plan_id, input.operation_id)
       : inspectPlannedOperation(root, input.planning.plan_id, input.operation_id);

@@ -6,7 +6,7 @@ import { Worker } from 'node:worker_threads';
 import { mkdtempSync, realpathSync, readFileSync, readdirSync, rmSync, mkdirSync, writeFileSync, existsSync, renameSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { initializeCanonicalControl } from '../../cli/lib/scaffold/canonical-init.js';
+import { initializeCurrentControl } from './fixtures/current-init.js';
 import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
 import { createRunCommandService } from '../lib/control-state/run-command-service.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
@@ -24,7 +24,7 @@ async function fixture(work) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-create-command-')));
   try {
     execFileSync('git', ['init', '-q', root]);
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+    initializeCurrentControl(root, 'en');
     const input = { schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target',
       primary_target: root, target_id: resolveControlCommandTarget(root).target_id, operation_id: randomUUID(), assurance: 'cooperative_local',
       command: { kind: 'run.create', payload: { title: 'Create exactly this bounded work' } } };

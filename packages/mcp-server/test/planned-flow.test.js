@@ -1,3 +1,4 @@
+import { prepareRunContentState } from '../../core/lib/control-evaluation/run-state.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
@@ -25,6 +26,15 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
     assert.deepEqual(tools, ['agdf_dispatch', 'agdf_inspect', 'agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
     const help = await call('agdf_inspect', { ...target, operation: 'operation-contract', module: 'agdf_record/planned_ur.create' });
     assert.equal(help.report.planning_capability.owner, 'ur-definition');
+    const missing = await client.callTool({ name: 'agdf_inspect', arguments: { ...target, operation: 'planned-entry', planning } });
+    assert.equal(missing.isError, true); assert.equal(missing.structuredContent.outcome, 'inspect_result');
+    assert.equal(missing.structuredContent.terminal, false);
+    assert.equal(missing.structuredContent.report.reason, 'planned_entry_missing');
+    assert.ok(missing.content.some(part => part.type === 'text' && part.text.includes('planned_entry_missing')));
+    assert.ok(!missing.content.some(part => part.type === 'text' && part.text.includes('unclassified_tool_failure')));
+    const authoring = await call('agdf_inspect', missing.structuredContent.report.next_calls[0].arguments);
+    assert.equal(authoring.report.available, true); assert.equal(authoring.report.mode, 'planning');
+
     const dispatch = await call('agdf_dispatch', { ...target, skill_id: 'ur-definition', planning });
     assert.equal(dispatch.outcome, 'skill_continuation'); assert.equal(dispatch.terminal, false); assert.equal(dispatch.authorizes, false);
     let cursor, template = '';
@@ -73,7 +83,7 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
     assert.equal(inventory.report.entries.length, 1); assert.equal(inventory.report.planning_references.length, 1);
     const direct = await call('agdf_run', { ...target, target_id, schema_version: '1', operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind: 'run.create', payload: { title: 'Direct fixture Run' } } });
     assert.equal(direct.outcome, 'accepted'); assert.equal(readdirSync(join(root, '.agdf/control/runs')).length, 2);
-    for (const id of readdirSync(join(root, '.agdf/control/runs'))) assert.match(readFileSync(join(root, `.agdf/control/runs/${id}/RUN_STATE.md`), 'utf8'), /\| UR \| missing \|/u);
+    for (const id of readdirSync(join(root, '.agdf/control/runs'))) assert.equal(prepareRunContentState(root,readFileSync(join(root, `.agdf/control/runs/${id}/RUN_STATE.md`),'utf8')).approvals.get('UR').status,'missing');
     const plannedRoot = join(root, '.agdf/control/planned'), backup = plannedRoot + '.fixture-backup';
     const sourceBefore = readFileSync(join(plannedRoot, plan_id, 'UR.md'));
     renameSync(plannedRoot, backup); writeFileSync(plannedRoot, 'Unavailable fixture directory');

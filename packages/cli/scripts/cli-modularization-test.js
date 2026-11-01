@@ -1,6 +1,6 @@
 import "../../../scripts/support/english-locale.js";
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { PassThrough } from "node:stream";
@@ -47,8 +47,7 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "inventory", "planned", "layout-migrate", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
-  "run-migrate", "run-recovery", "run-close", "run-render-legacy",
+  "delivery-map", "inventory", "planned", "delivery-path-search", "contract", "control-maintenance", "run-create", "run-present", "run-approve", "run-step", "run-revise", "run-close",
   "agdf-project", "agdf-run", "agdf-prepare", "agdf-record", "agdf-approve", "agdf-revise", "agdf-closeout",
 ];
 
@@ -60,7 +59,7 @@ const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
 assert.match(usage, /Bootstrap and lifecycle commands:/);
 assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-update|run-approve|run-migrate|run-render-legacy)/);
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-revise", "run-step", "run-approve"]) {
   assert.match(usage, new RegExp(`agdf ${command}`), `help must route repeated ${command} use to the local command`);
 }
 assert.match(usage, /Advanced \/ Compatibility/);
@@ -125,7 +124,6 @@ assert.deepEqual(parsed.options, {
   mcpScope: undefined,
   setupRequest: undefined,
   controlDir: undefined,
-  controlMigration: undefined,
   generatorModel: "g",
   maxGeneratedCandidates: 3,
   generationTimeoutMs: 12000,
@@ -233,16 +231,13 @@ assert.throws(() => validateCommandOptions({ target: "skill-dispatch", json: tru
 assert.throws(() => validateCommandOptions({ target: "doctor", skillId: "gate-check" }), /--skill is supported only/);
 assert.throws(() => validateCommandOptions({ target: "doctor", approvalEnvelope: true }), /supported only/);
 assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true, json: true }), /cannot be combined/);
-assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);
-assert.throws(() => validateCommandOptions({ target: "run-render-legacy" }), /requires --run/);
-assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a" }), /run-update requires --run and --revision/);
-assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev", gate: "UR" }), /--gate is supported by run-present\/run-approve; --response only by run-approve/);
-assert.doesNotThrow(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev" }));
-assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --run, --gate, --revision and --response/);
-assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", response: "Approval: UR" }));
-assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by run-update, run-revise, run-present, run-approve, run-step and skill-dispatch/);
-assert.throws(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev" }), /run-step requires --run, --revision and --step/);
-assert.throws(() => validateCommandOptions({ target: "doctor", stepFields: { route: "quick_task" } }), /step fields are supported only by run-step/);
+assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --title/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-create", stepFields: { title: "A current Run" } }));
+assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --gate, --presentation and --response/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", presentationId: "presented-version", response: "Approval: UR" }));
+assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by skill-dispatch/);
+assert.throws(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev" }), /requires --step/);
+assert.throws(() => validateCommandOptions({ target: "doctor", stepFields: { route: "quick_task" } }), /Delivery sources belong to the bound command file/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev", runStep: "route", stepFields: { route: "quick_task" } }));
 assert.throws(() => validateCommandOptions({ target: "contract" }), /contract requires --module/);
 assert.throws(() => validateCommandOptions({ target: "doctor", contractModule: "modes" }), /--module is supported only by contract/);
@@ -297,7 +292,7 @@ assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|e
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 
 const packageReadme = readFileSync(join(packageRoot, "README.md"), "utf8");
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-revise", "run-step", "run-approve"]) {
   assert.match(packageReadme,new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }
@@ -343,9 +338,7 @@ assert.match(systemArchitecture, /noch den Inhalt eines von npm aufgelösten `@l
 assert.match(systemArchitecture, /Quelle, Paket und frische Sitzung benötigen eigene Nachweise/, "source, distribution and installed-host claims need separate evidence");
 for (const content of [architectureReadme, systemArchitecture]) assert.doesNotMatch(content, /kanonische Paketversion \*\*0\.14\.5\*\*/);
 
-const backlogTemplate = readFileSync(join(packageRoot, "../..", "plugins", "agdf", "control", "templates", "MASTER_BACKLOG.md"), "utf8");
-assert.match(backlogTemplate, /packages\/core\/lib\/control-evaluation\/shared\.js/);
-assert.doesNotMatch(backlogTemplate, /create-agdf\/bin\/create-agdf\.js/);
+for (const name of ['MASTER_BACKLOG.md', 'AGDF_RUN.md']) assert.equal(existsSync(join(repositoryRoot, 'plugins/agdf/control/templates', name)), false, 'Removed templates cannot be shipped');
 
 const application = readFileSync(join(packageRoot, "lib", "cli", "application.js"), "utf8");
 const validationHandlers = readFileSync(join(packageRoot, "lib", "cli", "validation-handlers.js"), "utf8");
@@ -383,8 +376,8 @@ function recordingIo() {
   assert.deepEqual(JSON.parse(recording.out[0]), { name: "create-agdf", version: pluginDefinition.version });
   assert.equal(await runValidatorCli(["codex"], { io: recording.io }), 1);
   assert.match(recording.err.at(-1), /does not support lifecycle command/);
-  assert.equal(await runValidatorCli(["run-update", "--run", "missing-run", "--revision", "rev", "--dir", packageRoot], { io: recording.io }), 2);
-  assert.equal(JSON.parse(recording.out.at(-1)).reason, "run_missing", "the surface-local validator records run revisions");
+  assert.equal(await runValidatorCli(["run-update", "--run", "missing-run", "--revision", "rev", "--dir", packageRoot], { io: recording.io }), 1);
+  assert.match(recording.err.at(-1), /unsupported|unknown/iu, "the removed command has no compatibility writer");
   assert.equal(await runValidatorCli(["contract", "--module", "modes"], { io: recording.io }), 0);
   assert.match(recording.out.at(-1), /^# AGDF Runtime Contract/, "the surface-local validator serves runtime-contract modules");
   assert.equal(await runValidatorCli(["contract", "--module", "../agdf-runtime-contract"], { io: recording.io }), 1);

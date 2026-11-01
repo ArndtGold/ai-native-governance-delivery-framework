@@ -47,7 +47,7 @@ try {
   const target = join(root, 'target'), cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
   execFileSync('git', ['init', '-q', target]); execFileSync(process.execPath, [cli, 'init', '--dir', target, '--language', 'en']);
   const f = createSdDefinitionTestRun(target, cli, 'generation-test', process.env, { typedApprovals: true });
-  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
+  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'accepted');
   const { resolveControlCommandTarget } = await import('../../core/lib/control-state/approval-command-contract.js');
   const envelope = () => ({ schema_version: '1', presentation_language: 'en', working_directory: target,
     primary_target: target, target_source: 'explicit_target', target_id: resolveControlCommandTarget(target).target_id,
@@ -98,11 +98,6 @@ try {
   assert.ok(statuses.every(value => value.report?.available), JSON.stringify(statuses));
   const firstSession = first._meta.agdf_decision;
   const operation = randomUUID(), second = await replace(operation); assert.equal(second.outcome, 'accepted', JSON.stringify(second));
-  const configPath = join(target, '.agdf/control/config.json'), configBefore = readFileSync(configPath);
-  writeFileSync(configPath, '{');
-  assert.equal((await replace(operation)).outcome, 'already_applied');
-  assert.equal(readFileSync(configPath, 'utf8'), '{', 'historical runtime replacement does not repair current configuration');
-  writeFileSync(configPath, configBefore);
   assert.equal((await replace(operation, true)).reason, 'operation_payload_conflict');
   assert.equal((await invoke('agdf_prepare', { ...envelope(), operation_id: operation,
     command: { kind: 'presentation.prepare', payload: { gate: 'SD' } } })).reason, 'operation_payload_conflict');
@@ -115,6 +110,11 @@ try {
     snapshot_id: firstSession.snapshot_id, run_id: f.runId, resource_id: firstSession.resource_id });
   assert.equal(oldDocument.state, 'available', JSON.stringify(oldDocument));
   assert.equal(readFileSync(f.state, 'utf8'), state, 'Replacement and read views never approve or mutate a Run.');
+  const configPath = join(target, '.agdf/control/config.json'), configBefore = readFileSync(configPath);
+  writeFileSync(configPath, '{');
+  assert.equal((await replace(operation)).outcome, 'already_applied');
+  assert.equal(readFileSync(configPath, 'utf8'), '{', 'historical runtime replacement does not repair current configuration');
+  writeFileSync(configPath, configBefore);
   const lostInput = { ...envelope(), operation_id: lostOperation, command: { kind: 'presentation_decision.record', payload: {
     gate: 'SD', presentation_id: firstSession.binding.presentation_id, action: 'reject', comment: 'Synthetic deliberate rejection; lost IPC acknowledgement.' } } };
   await assert.rejects(invoke('agdf_record', lostInput), /generation_response_unknown/u);

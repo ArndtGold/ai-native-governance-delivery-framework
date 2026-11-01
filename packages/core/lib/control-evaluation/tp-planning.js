@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { readFileSync } from '../control-read/fs.js';
 import { section } from './markdown-table.js';
 import { readSdDecisionRows } from './sd-readiness.js';
@@ -53,8 +54,8 @@ function sourceValid(root, state, reference) {
     && artefactFileDigest(root, source.path) === digest && readFileSync(file.path, 'utf8').includes(statement);
 }
 function resolutionValid(root, state, id, reference) {
-  const match = reference.match(/^(\.agdf\/control\/artefacts\/[^ ]+) @ (sha256:[0-9a-f]{64})$/u);
-  if (!match || !match[1].startsWith(`.agdf/control/artefacts/${state.run_id}/`) || hasSymlinkComponent(root, match[1])) return false;
+  const match = reference.match(/^(\.agdf\/control\/runs\/[^ ]+) @ (sha256:[0-9a-f]{64})$/u);
+  if (!match || !match[1].startsWith(`${runDocumentPath(state.run_id, '')}/`) || hasSymlinkComponent(root, match[1])) return false;
   const file = containedRegularFile(root, match[1]);
   if (file.status !== 'valid' || artefactFileDigest(root, match[1]) !== match[2] || !readFileSync(file.path, 'utf8').includes(id)) return false;
   const evidence = readEvidenceBindings(state.content);

@@ -19,7 +19,7 @@ try {
   }
   assert.throws(() => validateCommandOptions(parseArgs(["doctor", "--guided"]).options));
   const a = repository(base, "root A ' $ special");
-  addRun(a, "old");
+  addRun(a, "old", { version: 2 });
   const b = repository(base, "root B"); addRun(b, "current", { sealed: true });
   const beforeA = treeDigest(a), beforeB = treeDigest(b);
   for (const entrypoint of ["packages/cli/bin/create-agdf.js", "packages/cli/bin/agdf-validator.js"]) {
@@ -28,29 +28,14 @@ try {
       assert.equal(child.status, root === a ? 2 : 0, child.stderr);
       const report = JSON.parse(child.stdout);
       assert.equal(report.target, root); assert.equal(report.operation, "inspect");
-      assert.equal(report.compatibility.status, root === a ? "migration_required" : "current");
+      assert.equal(report.compatibility.status, root === a ? "unsupported" : "current");
     }
   }
   assert.equal(treeDigest(a), beforeA); assert.equal(treeDigest(b), beforeB);
-  const logs = [], errors = [];
-  const io = { log: (value) => logs.push(value), error: (value) => errors.push(value) };
-  assert.equal(await executeControlMaintenance(options("--dir", a, "--guided"), io, { interactive: false }), 1);
-  assert.equal(treeDigest(a), beforeA);
-  for (const input of [["3", "bad", "2"], [""], [null]]) {
-    const choices = [...input]; logs.length = 0;
-    assert.equal(await executeControlMaintenance(options("--dir", a, "--guided", "--language", "de"), io, { interactive: true, readChoice: async () => choices.shift() }), 0);
-    assert.equal(treeDigest(a), beforeA);
-    assert.ok(logs.join("\n").includes(a));
+  for (const root of [a, b]) {
+    const before = treeDigest(root), child = spawnSync(process.execPath, [resolve(repoRoot, 'packages/cli/bin/create-agdf.js'), 'control-maintenance', '--dir', root, '--guided'], { encoding: 'utf8' });
+    assert.notEqual(child.status, 0); assert.equal(treeDigest(root), before);
   }
-  // A real stream EOF resolves the question and produces the deferred result.
-  const input = new PassThrough(), output = new PassThrough();
-  const execution = executeControlMaintenance(options("--dir", a, "--guided"), io, { interactive: true, input, output });
-  input.end();
-  assert.equal(await execution, 0);
-  assert.equal(treeDigest(a), beforeA);
-  const choices = ["1", "1"];
-  assert.equal(await executeControlMaintenance(options("--dir", a, "--guided"), io, { interactive: true, readChoice: async () => choices.shift() }), 0);
-  assert.notEqual(treeDigest(a), beforeA); assert.equal(treeDigest(b), beforeB);
 
   // Validate actual generated full-runtime execution separately from source CLI behavior.
   for (const [plugin, surfaces] of [["packages/cli/generated/plugins/agdf", ["codex", "claude", "opencode"]], ["packages/cli/generated/plugins/copilot/agdf", ["copilot"]]]) {

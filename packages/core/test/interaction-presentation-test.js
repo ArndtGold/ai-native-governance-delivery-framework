@@ -184,13 +184,13 @@ assert.equal(normalizeInteractionOutcome("Approval: QA", { expectedApproval: "Ap
 assert.equal(normalizeInteractionOutcome("Approval: QA", { expectedApproval: "Approval: QA", stale: true }), "stale");
 
 const refs = buildArtefactRefs(new Map([
-  ["UR", { path: ".agdf/control/artefacts/run/UR.md", status: "approved" }],
+  ["UR", { path: ".agdf/control/runs/run/documents/UR.md", status: "approved" }],
   ["PRD", { path: "../guessed/PRD.md", status: "approved" }],
-  ["SD", { path: ".agdf/control/artefacts/run/SD.md", status: "approved" }],
+  ["SD", { path: ".agdf/control/runs/run/documents/SD.md", status: "approved" }],
 ] ), registry, "de");
 assert.deepEqual(refs.map((ref) => ref.exists), [true, false, true, false]);
-assert.equal(formatArtefactRefs(refs), "[UR](.agdf/control/artefacts/run/UR.md) · PRD (noch nicht erstellt) · [SD](.agdf/control/artefacts/run/SD.md) · TP (noch nicht erstellt)");
-const verifiedRefs = buildArtefactRefs({ UR: { path: ".agdf/control/artefacts/run/UR.md" } }, registry, "en", { pathExists: () => false });
+assert.equal(formatArtefactRefs(refs), "[UR](.agdf/control/runs/run/documents/UR.md) · PRD (noch nicht erstellt) · [SD](.agdf/control/runs/run/documents/SD.md) · TP (noch nicht erstellt)");
+const verifiedRefs = buildArtefactRefs({ UR: { path: ".agdf/control/runs/run/documents/UR.md" } }, registry, "en", { pathExists: () => false });
 assert.equal(verifiedRefs[0].exists, false);
 assert.equal(verifiedRefs[0].path, "");
 
@@ -361,7 +361,7 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
 
   const brownfieldTransition = transitionDecisionForRunState({
     approvals: new Map([["UR", { status: "approved" }]]),
-    artefacts: new Map([["UR", { path: ".agdf/control/artefacts/run/UR.md", status: "approved" }]]),
+    artefacts: new Map([["UR", { path: ".agdf/control/runs/run/documents/UR.md", status: "approved" }]]),
   });
   const germanBrownfieldReview = renderOperationalStatusCard({
     run_id: "status-run",
@@ -423,13 +423,13 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   const prdTransition = transitionDecisionForRunState({
     approvals: new Map([["UR", { status: "approved" }]]),
     artefacts: new Map([
-      ["UR", { path: ".agdf/control/artefacts/run/UR.md", status: "approved" }],
-      ["Brownfield Review", { path: ".agdf/control/artefacts/run/BROWNFIELD_REVIEW.md", status: "done" }],
+      ["UR", { path: ".agdf/control/runs/run/documents/UR.md", status: "approved" }],
+      ["Brownfield Review", { path: ".agdf/control/runs/run/documents/BROWNFIELD_REVIEW.md", status: "done" }],
     ]),
     mode_slice_decision: {
       decision: "structured_delivery",
       scope_reason: "External contract depth is evidenced.",
-      evidence: ".agdf/control/artefacts/run/BROWNFIELD_REVIEW.md",
+      evidence: ".agdf/control/runs/run/documents/BROWNFIELD_REVIEW.md",
     },
   });
   const germanPrdApproval = renderOperationalStatusCard({
@@ -535,7 +535,7 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
       forbidden_now: ["present or approve UR before requirement clarification is complete"],
       blocking_condition: "AGDF_UR_REQUIREMENTS_INCOMPLETE", missing_approval: "none",
       next_gate_after_approval: "none", allowed_after_approval: "none",
-      next_step: "complete the UR requirement clarification, then record the revision with run-update",
+      next_step: sourceRegistry.locales.en.operationalValues.nextUrRequirements,
       quality_outlook: sourceRegistry.locales.en.operationalValues.noAdditionalQualityFollowUp,
     }, { registry: sourceRegistry, humanPresentation: { gateTitle: "UR" } });
     assert.ok(urBlockedCard, presentationLanguage);
@@ -589,7 +589,7 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     content: "- run_id: status-run\n- mode: structured_delivery\n- lifecycle: active",
     mode_slice_decision: { decision: "structured_delivery" },
     approvals: new Map([["TP", { status: "approved" }]]),
-    artefacts: new Map([["TP", { status: "approved", path: ".agdf/control/artefacts/status-run/TP.md" }]]),
+    artefacts: new Map([["TP", { status: "approved", path: ".agdf/control/runs/status-run/documents/TP.md" }]]),
     evidence_refs: [],
   };
   const postTpStatus = buildStatusCard({
@@ -671,8 +671,8 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
 
 const candidates = buildRunCandidates([
   { run_id: "closed", valid: true, meta: { lifecycle: "completed" } },
-  { run_id: "beta-run", valid: true, content: "## Objective\n\nShip beta safely.\n", meta: { lifecycle: "active", current_gate: "`TP`", decision: "`revise`", revision_id: "b" }, control_state: { next_allowed_action: "Plan tests" }, ur_heading: "# Human beta title" },
-  { run_id: "alpha-run", valid: true, content: "## Objective\n\nShip alpha.\nWith deterministic evidence.\n", meta: { lifecycle: "active", current_gate: "`UR`", decision: "`in_progress`", revision_id: "a" }, control_state: { next_allowed_action: "Draft UR" }, current_artefact_heading: "# Human alpha title" },
+  { run_id: "beta-run", valid: true, content: "## Objective\n\nShip beta safely.\n", meta: { lifecycle: "active", current_gate: "`TP`", decision: "`revise`", revision_id: "b" }, control_state: { current_gate: "`TP`", decision: "`revise`", next_allowed_action: "Plan tests" }, ur_heading: "# Human beta title" },
+  { run_id: "alpha-run", valid: true, content: "## Objective\n\nShip alpha.\nWith deterministic evidence.\n", meta: { lifecycle: "active", current_gate: "`UR`", decision: "`in_progress`", revision_id: "a" }, control_state: { current_gate: "`UR`", decision: "`in_progress`", next_allowed_action: "Draft UR" }, current_artefact_heading: "# Human alpha title" },
 ]);
 assert.deepEqual(candidates.map((candidate) => candidate.run_id), ["alpha-run", "beta-run"]);
 assert.equal(candidates[0].display_title, "Human alpha title");
@@ -1484,7 +1484,7 @@ for (const locale of Object.keys(sourceRegistry.locales)) {
     ['ux_source_unrecorded', 'unrecorded', true], ['ux_not_ready', 'blocked', false], ['unsafe_ux_source', 'foreign or unsafe source', false],
     ['unsafe_destination', 'unsafe', false], ['source_unavailable', 'missing', false],
   ]) {
-    const text = renderDefinitionSourceRecovery({ code, path: '.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md', expected: '- decision: ready', observed, repairable }, { registry: sourceRegistry, requestedLocale: locale });
+    const text = renderDefinitionSourceRecovery({ code, path: '.agdf/control/runs/test/documents/UX_INTENT_DEFINITION.md', expected: '- decision: ready', observed, repairable }, { registry: sourceRegistry, requestedLocale: locale });
     assert.ok(text?.includes(pack.skillDispatch.sourceInput.conditions[code]));
     assert.match(text, /UX_INTENT_DEFINITION.md/);
     assert.match(text, /decision: ready/);

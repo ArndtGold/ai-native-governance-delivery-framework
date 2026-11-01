@@ -1,48 +1,26 @@
-// Pure internal Core policy shared by Node readers and browser list presentations.
-// Raw entries and opaque selectors remain in source order and are never modified here.
-export const COCKPIT_BACKLOG_SECTIONS = Object.freeze([
-  'Active Backlog', 'Planned / Parking Lot', 'Completed / Superseded Pointers',
-]);
-const unreadableLayout = /^(backlog_(section_missing|layout_missing|layout_unsupported)|AGDF_BACKLOG_LAYOUT_UNKNOWN)$/;
-
-export function hasConsistentBacklogCounts(inventory) {
-  if (!inventory || !Array.isArray(inventory.entries) || !inventory.counts || typeof inventory.counts !== 'object') return false;
-  const actual = new Map();
-  for (const row of inventory.entries) {
-    if (!row || !COCKPIT_BACKLOG_SECTIONS.includes(row.section)) return false;
-    actual.set(row.section, (actual.get(row.section) ?? 0) + 1);
-  }
-  return Object.entries(inventory.counts).every(([section, count]) => COCKPIT_BACKLOG_SECTIONS.includes(section)
-    && Number.isSafeInteger(count) && count >= 0 && count === (actual.get(section) ?? 0))
-    && [...actual.keys()].every(section => Object.hasOwn(inventory.counts, section));
+// Pure current-model list policy shared by Core and the browser.
+export const COCKPIT_WORK_SECTIONS = Object.freeze(['active', 'planned', 'history']);
+export function hasConsistentWorkCounts(inventory) {
+  if (!inventory || inventory.layout !== 'run-folders-v1' || !Array.isArray(inventory.entries)
+    || !inventory.counts || typeof inventory.counts !== 'object' || Object.keys(inventory.counts).length !== 3) return false;
+  return COCKPIT_WORK_SECTIONS.every(section => Number.isSafeInteger(inventory.counts[section])
+    && inventory.counts[section] === inventory.entries.filter(row => row?.section === section).length)
+    && inventory.entries.every(row => row && COCKPIT_WORK_SECTIONS.includes(row.section));
 }
-
-export function backlogRowKey(entry, index, digest) {
-  return JSON.stringify([digest, index, entry.section, entry.key]);
-}
-
-export function projectCockpitList(inventory, { section = COCKPIT_BACKLOG_SECTIONS[0], query = '' } = {}) {
-  if (!COCKPIT_BACKLOG_SECTIONS.includes(section)) throw Error('dto_invalid');
-  const normalizedQuery = query.trim().toLowerCase();
-  const unavailable = { section, query: normalizedQuery, coverage: 'unavailable', diagnostics: [], sectionCount: null, matchCount: null, rows: [] };
-  if (!inventory) return unavailable;
-  if (!hasConsistentBacklogCounts(inventory)) throw Error('dto_invalid');
-  const diagnostics = inventory.diagnostics.filter(d => !d.section || d.section === section);
-  if (!Object.hasOwn(inventory.counts, section) || diagnostics.some(d => unreadableLayout.test(d.code))) return { ...unavailable, diagnostics };
-  const rows = [];
-  let sectionCount = 0, nonselectable = false;
-  inventory.entries.forEach((entry, index) => {
-    if (entry.section !== section) return;
-    sectionCount++;
-    nonselectable ||= !entry.selectable;
-    if (normalizedQuery && ![entry.title, entry.key, entry.stored_status].some(field => field.toLowerCase().includes(normalizedQuery))) return;
-    rows.push({ entry, index, identity: inventory.layout === 'planned-urs-v1' ? JSON.stringify([entry.identity, entry.source?.digest]) : backlogRowKey(entry, index, inventory.content_digest), selectable: entry.selectable,
-      displayTitle: entry.title.replace(/^\[(framework[-_]maintenance|external[-_]delivery)\]\s*/i, '') || entry.title,
-      provenance: { path: inventory.layout === 'planned-urs-v1' ? entry.source.path : inventory.source_path,
-        digest: inventory.layout === 'planned-urs-v1' ? entry.source.digest : inventory.content_digest, originalTitle: entry.title } });
-  });
-  return { section, query: normalizedQuery, coverage: diagnostics.length || nonselectable ? 'partial' : 'complete', diagnostics,
-    sectionCount, matchCount: rows.length, rows: inventory.layout === 'planned-urs-v1' ? rows : rows.reverse() };
+export function projectCockpitList(inventory, { section = 'active', query = '' } = {}) {
+  if (!COCKPIT_WORK_SECTIONS.includes(section)) throw Error('dto_invalid');
+  const normalized = query.trim().toLowerCase();
+  if (!inventory) return { section, query: normalized, coverage: 'unavailable', diagnostics: [], sectionCount: null, matchCount: 0, rows: [] };
+  if (!hasConsistentWorkCounts(inventory)) throw Error('dto_invalid');
+  const diagnostics = inventory.diagnostics.filter(row => !row.section || row.section === section);
+  if (diagnostics.some(row => row.code === 'work_section_unavailable')) return { section, query: normalized, coverage: 'unavailable', diagnostics, sectionCount: null, matchCount: null, rows: [] };
+  const selected = inventory.entries.map((entry, index) => ({ entry, index })).filter(row => row.entry.section === section);
+  const rows = selected.filter(({ entry }) => !normalized || [entry.title, entry.key, entry.stored_status]
+    .some(value => value.toLowerCase().includes(normalized))).map(({ entry, index }) => ({ entry, index,
+      identity: JSON.stringify([entry.identity, entry.source.digest]), selectable: entry.selectable, displayTitle: entry.title.replace(/^\[(framework[-_]maintenance|external[-_]delivery)\]\s*/i, '') || entry.title,
+      provenance: { path: entry.source.path, digest: entry.source.digest, originalTitle: entry.title } }));
+  return { section, query: normalized, coverage: diagnostics.length || selected.some(row => !row.entry.selectable) ? 'partial' : 'complete',
+    diagnostics, sectionCount: selected.length, matchCount: rows.length, rows };
 }
 
 // Presentation-only grouping/search over the shared inventory's already ordered entries.

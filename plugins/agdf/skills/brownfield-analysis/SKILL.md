@@ -60,7 +60,7 @@ On skill_continuation use only its target/control. Without that tool and a valid
 or help retries. Dispatch never authorizes.
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
-When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`,
+When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/runs/<run_id>/documents/BROWNFIELD_REVIEW.md`,
 then use the bound MCP continuation: stage the reviewed material and record the Mode/Slice
 Decision through `agdf_record/step.record` (step `route`). Only when that group is unavailable,
 use the supplied validator's `run-step --step route --route <mode> --reason --evidence`.
@@ -201,7 +201,7 @@ Use a concise structure:
 - decision: pass | revise | block | not_applicable
 - mode_slice_decision: quick_task | verified_change | structured_slice | structured_delivery | block
 - required_next_gate: none | PRD | SD | TP | Brownfield Analysis
-- artefact: .agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md | none
+- artefact: .agdf/control/runs/<run_id>/documents/BROWNFIELD_REVIEW.md | none
 - scope:
 - evidence:
 - transparency: why later artefacts are skipped, shortened or required

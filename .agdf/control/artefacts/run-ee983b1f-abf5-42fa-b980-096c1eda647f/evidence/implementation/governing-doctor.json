@@ -1,0 +1,125 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "doctor",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.20.2",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/cd55b82a11c093e9907f0345e4040d8bae4b216c4584817b330017a9ccb805b3/0.20.2/node_modules/create-agdf/",
+    "runtime_digest": "486b2c484bd60f5ffa3545518374da00c7b75fdc3e70ad90faac06131e86cf0a",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "schema_version": "1",
+    "status": "pass",
+    "checked_at": "2026-11-01T17:25:57.787Z",
+    "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut",
+    "summary": {
+      "findings": 0,
+      "block": 0,
+      "revise": 0,
+      "warn": 0
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "findings": [],
+    "available": true,
+    "completeness": "complete",
+    "source_digest": "c3de31a24638d49f039f181adcf845064b77e9520c36773e6fff296b5a85216e",
+    "observed_as_of": "2026-11-01T17:25:57.730Z",
+    "authorizes": false,
+    "timing": {
+      "capture_and_evaluation_ms": 194.03725100308657,
+      "provenance_ms": 659.3836029991508,
+      "provenance_state": "verified",
+      "worker_startup_ms": 126.17283400148153,
+      "total_ms": 1965.7733910009265
+    },
+    "target_id": "sha256:5f6965032dc4645ed997e7726d336309443acfb389c5dfa89da5078f4ce15ec3",
+    "observation_id": "9a5baa516ebc8a9b862f94870aa3639f988c0371d027d5dd1861bd7941891ff8",
+    "findings_scope": "current_page",
+    "summary_scope": "observation",
+    "overall_status": "pass",
+    "next_cursor": null,
+    "next_calls": [],
+    "effective_configuration": {
+      "binding": "current",
+      "values": {
+        "chat_language": "de",
+        "artifact_language": "en",
+        "presentation_route": "markdown",
+        "gate_check_variant": null
+      },
+      "sources": {
+        "chat_language": {
+          "kind": "explicit"
+        },
+        "artifact_language": {
+          "kind": "project",
+          "path": ".agdf/control/config.json",
+          "digest": "sha256:de27e6830b0fb6f3f9c9e2ce29e18631156feb0e28c9fc776bee6c5cbea7eb8c"
+        },
+        "presentation_route": {
+          "kind": "plugin",
+          "path": "meta/agdf-defaults.json",
+          "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33"
+        },
+        "gate_check_variant": {
+          "kind": "plugin",
+          "path": "meta/agdf-defaults.json",
+          "digest": "sha256:c045c52948446ee0c079099c53c23b5ce0d48047c1ea99bc08c0cbcbecb80b33"
+        }
+      },
+      "constants": "contract_owned",
+      "authorizes": false
+    }
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 2.263,
+    "target_ms": 1.355,
+    "control_ms": 1966.711,
+    "render_ms": 0,
+    "total_ms": 1971.359
+  },
+  "diagnostics": []
+}

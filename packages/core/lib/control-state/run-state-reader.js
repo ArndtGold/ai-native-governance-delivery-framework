@@ -1,8 +1,12 @@
+import { readControlLayout } from './control-layout.js';
 import { existsSync, lstatSync, lstatKindSync, readFileSync, readdirSync, memoizeControlRead } from "../control-read/fs.js";
 import { join } from "node:path";
 import { parseRunState, RUN_ID_PATTERN } from "./run-state-parser.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
 import { hasSymlinkComponent } from './contained-file.js';
+import { runRelativePath } from './run-identity.js';
+export { runRelativePath, runDocumentPath, runEvidencePath, runControlPath, runHistoryPath } from './run-identity.js';
+export const runPath = (root, runId) => join(root, runRelativePath(runId, '', 'RUN_STATE.md'));
 
 function invalidRun(runId, path) {
   return {
@@ -11,11 +15,6 @@ function invalidRun(runId, path) {
     valid: false,
     findings: [{ code: "AGDF_RUN_PATH_INVALID", path }],
   };
-}
-
-export function runPath(root, id) {
-  if (!RUN_ID_PATTERN.test(id)) throw Error(`invalid run_id: ${id}`);
-  return join(root, ".agdf", "control", "runs", id, "RUN_STATE.md");
 }
 
 export function discoverRuns(root) {
@@ -27,7 +26,8 @@ export function discoverRuns(root) {
 export function readSelectedRun(root, id) {
   let path;
   try { path = runPath(root, id); } catch { return invalidRun(id, ''); }
-  const relative = `.agdf/control/runs/${id}/RUN_STATE.md`;
+  try { readControlLayout(root); } catch (error) { return { ...invalidRun(id, path), findings: [{ code: error.code ?? error.message, classification: error.message === 'AGDF_CONTROL_LAYOUT_UNSUPPORTED' ? 'unsupported_layout' : 'invalid_current' }] }; }
+  const relative = runRelativePath(id, '', 'RUN_STATE.md');
   if (hasSymlinkComponent(root, relative) || !existsSync(path)) return invalidRun(id, path);
   const directory = join(root, '.agdf/control/runs', id);
   if (lstatKindSync(directory) !== 'directory') return invalidRun(id, path);
@@ -44,6 +44,7 @@ export function readSelectedRun(root, id) {
 function discoverCapturedRuns(root) {
   const dir = join(root, ".agdf", "control", "runs");
   if (!existsSync(dir)) return [];
+  readControlLayout(root);
   if (lstatKindSync(dir) !== 'directory') {
     return [invalidRun("<repository>", dir)];
   }

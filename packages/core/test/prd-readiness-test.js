@@ -6,7 +6,7 @@ import { evaluatePrdReadiness } from "../lib/control-evaluation/prd-readiness.js
 
 // PRD approval requires a named owner and every before_prd decision resolved in one explicit table.
 const root = mkdtempSync(join(tmpdir(), "agdf-prd-readiness-"));
-const path = ".agdf/control/artefacts/run/PRD.md";
+const path = ".agdf/control/runs/run/documents/PRD.md";
 mkdirSync(join(root, ".agdf", "control", "artefacts", "run"), { recursive: true });
 const runState = { artefacts: new Map([["PRD", { path }]]) };
 const header = "| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n";

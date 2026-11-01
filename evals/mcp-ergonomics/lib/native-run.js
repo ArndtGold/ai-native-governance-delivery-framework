@@ -189,22 +189,45 @@ export function assertCodexT4HostReady(result) {
 export function pureInspectWrapper(code, earlierBindings = new Set(), allowedTools = ['agdf_inspect']) {
   let tree;
   try { tree = parseJavaScript(code, { ecmaVersion: 'latest', sourceType: 'module', allowAwaitOutsideFunction: true }); } catch { return false; }
-  const globals = new Set(['ALL_TOOLS', 'tools', 'text', 'notify', 'store', 'load', 'JSON', 'Object', 'Promise', 'String', 'undefined']);
-  const forbidden = new Set(['constructor', 'prototype', '__proto__', 'globalThis', 'process', 'require', 'eval', 'Function', 'window', 'self', 'module', 'exports']);
-  const locals = new Set(earlierBindings), nodes = [];
+  const globals = new Set(['ALL_TOOLS', 'tools', 'text', 'notify', 'store', 'load', 'JSON', 'Object', 'Promise', 'String', 'Array', 'undefined', 'TextEncoder', 'unescape', 'encodeURIComponent']);
+  // Unbound module/exports are already rejected as unknown globals; a local
+  // contract-module name is ordinary data, not access to Node's module object.
+  const forbidden = new Set(['constructor', 'prototype', '__proto__', 'globalThis', 'process', 'require', 'eval', 'Function', 'window', 'self']);
+  const locals = new Set(earlierBindings), nodes = [], declarations = new Map();
+  const declare = name => { locals.add(name); declarations.set(name, (declarations.get(name) ?? 0) + 1); };
+  const patternNames = node => !node ? [] : node.type === 'Identifier' ? [node.name]
+    : node.type === 'RestElement' ? patternNames(node.argument)
+    : node.type === 'ArrayPattern' ? node.elements.flatMap(patternNames)
+    : node.type === 'ObjectPattern' ? node.properties.flatMap(p => patternNames(p.type === 'RestElement' ? p : p.value)) : [];
   const collect = (node, parent, key) => {
     if (!node || typeof node !== 'object' || !node.type) return;
     nodes.push({ node, parent, key });
-    if (node.type === 'VariableDeclarator' && node.id.type === 'Identifier') locals.add(node.id.name);
-    if (['ArrowFunctionExpression', 'FunctionExpression'].includes(node.type)) for (const param of node.params) if (param.type === 'Identifier') locals.add(param.name);
+    if (node.type === 'VariableDeclarator') for (const name of patternNames(node.id)) declare(name);
+    if (['ArrowFunctionExpression', 'FunctionExpression'].includes(node.type)) for (const param of node.params) for (const name of patternNames(param)) declare(name);
     for (const [k, value] of Object.entries(node)) if (Array.isArray(value)) for (const child of value) collect(child, node, k); else collect(value, node, k);
   };
   collect(tree);
+  if ([...locals].some(name => globals.has(name))) return false;
+  const counters = new Set();
+  for (const { node } of nodes.filter(({ node }) => node.type === 'ForStatement')) {
+    const init = node.init?.type === 'VariableDeclaration' && node.init.declarations.length === 1 ? node.init.declarations[0] : null;
+    const name = init?.id.type === 'Identifier' ? init.id.name : null, update = node.update;
+    const increment = update?.type === 'UpdateExpression' && ['++', '--'].includes(update.operator) && update.argument.name === name
+      || update?.type === 'AssignmentExpression' && ['+=', '-='].includes(update.operator) && update.left.name === name
+        && update.right.type === 'Literal' && Number.isSafeInteger(update.right.value);
+    if (name && init.init?.type === 'Literal' && Number.isSafeInteger(init.init.value) && declarations.get(name) === 1 && increment
+      && !nodes.some(({ node: other }) => other !== update && (other.type === 'AssignmentExpression' && other.left.name === name
+        || other.type === 'UpdateExpression' && other.argument.name === name))) counters.add(name);
+  }
+  const numericIndex = node => node.type === 'Literal' && typeof node.value === 'number'
+    || node.type === 'Identifier' && counters.has(node.name)
+    || node.type === 'BinaryExpression' && (['&', '|', '^', '<<', '>>', '>>>'].includes(node.operator)
+      || ['+', '-', '*', '/', '%', '**'].includes(node.operator) && numericIndex(node.left) && numericIndex(node.right));
   const types = new Set(['Program', 'VariableDeclaration', 'VariableDeclarator', 'Identifier', 'Literal', 'ExpressionStatement', 'CallExpression', 'MemberExpression',
     'ArrowFunctionExpression', 'FunctionExpression', 'BinaryExpression', 'LogicalExpression', 'AwaitExpression', 'ObjectExpression', 'Property', 'ArrayExpression',
     'TemplateLiteral', 'TemplateElement', 'UnaryExpression', 'ConditionalExpression', 'BlockStatement', 'ReturnStatement', 'ChainExpression', 'SpreadElement',
-    'IfStatement', 'WhileStatement', 'ForOfStatement', 'AssignmentExpression', 'UpdateExpression', 'BreakStatement']);
-  const methods = new Set(['filter', 'find', 'map', 'includes', 'endsWith', 'startsWith', 'test', 'join', 'slice', 'split', 'push', 'parse', 'stringify', 'keys', 'values', 'entries', 'fromEntries', 'all', 'resolve', 'then']);
+    'IfStatement', 'WhileStatement', 'ForOfStatement', 'ForStatement', 'AssignmentExpression', 'UpdateExpression', 'BreakStatement', 'ObjectPattern', 'ArrayPattern', 'RestElement', 'NewExpression']);
+  const methods = new Set(['filter', 'find', 'map', 'from', 'includes', 'endsWith', 'startsWith', 'test', 'join', 'slice', 'split', 'replace', 'push', 'parse', 'stringify', 'keys', 'values', 'entries', 'fromEntries', 'all', 'resolve', 'then', 'charCodeAt', 'encode']);
   const memberName = node => node?.computed ? node.property?.type === 'Literal' ? node.property.value : null : node?.property?.name;
   const admittedTool = name => allowedTools.some(tool => name === `mcp__agdf__${tool}` || name === `mcp__plugin_agdf_agdf__${tool}`) || ['list_mcp_resources', 'list_mcp_resource_templates'].includes(name);
   for (const { node, parent, key } of nodes) {
@@ -214,17 +237,23 @@ export function pureInspectWrapper(code, earlierBindings = new Set(), allowedToo
     if (node.type === 'Identifier' && !dataKey
       && !(parent?.type === 'MemberExpression' && key === 'property' && !parent.computed) && !globals.has(node.name) && !locals.has(node.name)) return false;
     if (node.type === 'Identifier' && node.name === 'tools' && (parent?.type !== 'MemberExpression' || key !== 'object')) return false;
-    if (node.type === 'MemberExpression' && node.computed && node.property.type !== 'Literal') return false;
+    // Numeric arithmetic and unshadowed, numeric-only loop counters admit local
+    // byte arrays, never arbitrary computed names or a dynamically selected tool.
+    if (node.type === 'MemberExpression' && node.computed && node.property.type !== 'Literal'
+      && !numericIndex(node.property)) return false;
+    if (node.type === 'ObjectPattern' && node.properties.some(p => p.type === 'Property'
+      && (p.computed || forbidden.has(p.key.name ?? p.key.value)))) return false;
+    if (node.type === 'NewExpression' && (node.callee.type !== 'Identifier' || node.callee.name !== 'TextEncoder' || node.arguments.length)) return false;
     if (node.type === 'MemberExpression' && node.object?.name === 'tools' && (parent?.type !== 'CallExpression' || key !== 'callee')) return false;
     if (node.type === 'MemberExpression' && (forbidden.has(memberName(node)) || node.object?.name === 'tools'
       && !admittedTool(memberName(node)))) return false;
     if (node.type === 'CallExpression') {
       if (node.callee.type === 'Identifier') {
-        if (!['text', 'notify', 'store', 'load', 'String'].includes(node.callee.name) && !locals.has(node.callee.name)) return false;
+        if (!['text', 'notify', 'store', 'load', 'String', 'unescape', 'encodeURIComponent'].includes(node.callee.name) && !locals.has(node.callee.name)) return false;
       } else if (node.callee.type !== 'MemberExpression' || !(methods.has(memberName(node.callee))
         || admittedTool(memberName(node.callee)))) return false;
     }
-    if (node.type === 'VariableDeclarator' && (node.id.type !== 'Identifier' || globals.has(node.id.name))) return false;
+    if (node.type === 'VariableDeclarator' && !patternNames(node.id).length) return false;
     if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier' && globals.has(node.left.name)) return false;
   }
   for (const name of locals) earlierBindings.add(name);
@@ -366,9 +395,19 @@ export function strictCommandFlow({ parsed, binding }) {
 }
 
 export function strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText }) {
-  const fail = reason => ({ check: 'strict_t4_document_flow_v1', success: false, reason });
+  return presentedDocumentFlow({ parsed, expectedBytes, binding, finalText }, { requireDiscovery: true, requireDelivery: true });
+}
+
+// RUN_MODEL creates its presentation in this session. It proves the subsequent
+// complete bound read, without claiming that the full document was shown to a user.
+export function strictPresentedDocumentRead(input) {
+  return presentedDocumentFlow(input, { requireDiscovery: false, requireDelivery: false });
+}
+
+function presentedDocumentFlow({ parsed, expectedBytes, binding, finalText }, { requireDiscovery, requireDelivery }) {
+  const fail = reason => ({ check: requireDelivery ? 'strict_t4_document_flow_v1' : 'strict_presented_document_read_v1', success: false, reason });
   if (!parsed.trace_complete || parsed.detours.length) return fail('incomplete_trace_or_forbidden_detour');
-  let discovered = false, offset = 0, nextCursor, complete = false, pages = 0;
+  let discovered = !requireDiscovery, offset = 0, nextCursor, complete = false, pages = 0;
   const chunks = [], expectedDigest = `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}`;
   for (const call of parsed.calls) {
     if (call.result.is_error) continue;
@@ -392,6 +431,7 @@ export function strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText
     chunks.push(bytes); ++pages;
   }
   if (!complete || !Buffer.concat(chunks).equals(expectedBytes)) return fail('document_incomplete');
-  if (typeof finalText !== 'string' || !finalText.includes(expectedBytes.toString('utf8'))) return fail('complete_user_delivery_unproven');
+  if (requireDelivery && (typeof finalText !== 'string' || !finalText.includes(expectedBytes.toString('utf8')))) return fail('complete_user_delivery_unproven');
+  if (!requireDelivery) return { check: 'strict_presented_document_read_v1', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true };
   return { check: 'strict_t4_document_flow_v1', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true, complete_user_delivery: true };
 }

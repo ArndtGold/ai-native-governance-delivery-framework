@@ -6,7 +6,7 @@ import { containedRegularFile } from './contained-file.js';
 import { readRunOperations } from './run-operations.js';
 import { readApprovalOperations } from './approval-operations.js';
 import { READ_LIMITS } from '../control-read/snapshot.js';
-import { STRUCTURED_REQUIRED_REVIEWS, CORRECTABLE_REVIEWS } from './evidence-bindings.js';
+import { STRUCTURED_REQUIRED_REVIEWS, CORRECTABLE_REVIEWS, readEvidenceBindings } from './evidence-bindings.js';
 import { decisionMaterialVersion } from './decision-material-contract.js';
 
 export const decisionRemediationOwner = gate => ({ UR: 'ur-definition', PRD: 'prd-definition', SD: 'sd-definition', TP: 'tp-definition', QA: 'qa-gate', UAT: 'delivery-closeout' })[gate] ?? null;
@@ -49,7 +49,7 @@ export function projectPresentationDecision(state, gate, material) {
   const decisions = [
     ...internal.receipts.filter(r => r.kind === 'presentation_decision.record' && r.effect.record.gate === gate && r.effect.record.material_version === material.material_version)
       .map(receipt => ({ action: receipt.effect.record.action, receipt, owner: receipt.effect.record.owner })),
-    ...approvals.receipts.filter(r => ['2', '3'].includes(resolutionRecordVersion(r)) && r.binding.gate === gate && r.effect.material_version === material.material_version
+    ...approvals.receipts.filter(r => resolutionRecordVersion(r) === '4' && r.binding.gate === gate && r.effect.material_version === material.material_version
       && approval?.status === 'approved' && r.binding.presentation_id === currentPresentation)
       .map(receipt => ({ action: 'approve', receipt, owner: null })),
   ];
@@ -65,7 +65,7 @@ export function presentationDecisionState(root, state, gate, options = {}) {
 // The material receipt of the current approval of a gate, located by its presentation id.
 function currentApprovalReceipt(state, gate, operations = readApprovalOperations(state.content ?? '')) {
   const id = state.approvals?.get(gate)?.evidence?.match(/presentation ([0-9a-f-]{36}) /u)?.[1];
-  return operations.receipts.find(r => ['2', '3'].includes(resolutionRecordVersion(r)) && r.binding.gate === gate && r.binding.presentation_id === id) ?? null;
+  return operations.receipts.find(r => resolutionRecordVersion(r) === '4' && r.binding.gate === gate && r.binding.presentation_id === id) ?? null;
 }
 
 // Material types of the current approval of a gate: 'recorded' with its receipt's source
@@ -90,9 +90,13 @@ function reviewRecordingChains(state) {
   const uat = approvals.valid ? currentApprovalReceipt(state, 'UAT', approvals) : null;
   if (!uat || !operations.valid) return chains;
   for (const type of CORRECTABLE_REVIEWS) {
-    const steps = operations.receipts.filter(r => r.kind === 'step.record' && (r.effect.record.step === type || type === 'CR' && r.effect.record.step === 'review'));
-    const seen = steps.filter(r => r.effect.revision < uat.effect.revision).at(-1)?.effect.record;
-    if (seen) chains.set(type, { seen, later: steps.filter(r => r.effect.revision > uat.effect.revision).map(r => r.effect.record) });
+    const byId = new Map(readEvidenceBindings(state.content).bindings.map(row => [row.operation_id, row]));
+    const steps = operations.receipts.filter(r => r.kind === 'step.record').map(r => {
+      const binding = byId.get(r.effect.record.evidence_binding_id);
+      return { ...r, record: binding ? { ...r.effect.record, step: binding.step, source: binding.report, source_set_digest: binding.source_set_digest } : null };
+    }).filter(r => r.record && (r.record.step === type || type === 'CR' && r.record.step === 'review'));
+    const seen = steps.filter(r => r.effect.revision < uat.effect.revision).at(-1)?.record;
+    if (seen) chains.set(type, { seen, later: steps.filter(r => r.effect.revision > uat.effect.revision).map(r => r.record) });
   }
   return chains;
 }
@@ -119,7 +123,7 @@ export function approvedMaterialFindings(state, decisions) {
   return [...state.approvals].flatMap(([gate, approval]) => {
     if (approval.status !== 'approved') return [];
     const id = approval.evidence?.match(/presentation ([0-9a-f-]{36}) /u)?.[1];
-    const receipt = receipts.find(r => ['2', '3'].includes(resolutionRecordVersion(r)) && r.binding.gate === gate && r.binding.presentation_id === id);
+    const receipt = receipts.find(r => resolutionRecordVersion(r) === '4' && r.binding.gate === gate && r.binding.presentation_id === id);
     if (!receipt) return [];
     const material = decisions.get(gate);
     if (material?.available && material.material_version === receipt.effect.material_version) return [];

@@ -1,10 +1,10 @@
 import { isAbsolute } from "node:path";
-import { assertControlMigration } from "./compatibility.js";
+import { assertControlCompatibility } from "./compatibility.js";
 
 // Counts are presentation projections of the canonical inventory, never a stored policy.
 export function controlCounts(control) {
   return {
-    migration: control.runs.filter((run) => run.status === "migration_required" || run.pending_recoveries?.length === 1).length,
+    unsupported: control.runs.filter((run) => run.status === "unsupported").length,
     repair: control.runs.filter((run) => run.status === "repair_required" && run.pending_recoveries?.length !== 1).length,
     historical: control.runs.filter((run) => run.status === "historical").length,
   };
@@ -13,12 +13,12 @@ export function controlCounts(control) {
 export function assertMaintenanceResult(value, target = value?.target) {
   if (!value || value.schema_version !== 1 || value.authorizes !== false
       || typeof target !== "string" || !isAbsolute(target) || value.target !== target
-      || !["inspect", "guided"].includes(value.operation)
+      || value.operation !== "inspect"
       || !["complete", "unavailable", "not_checked"].includes(value.inspection_state)
-      || !["not_started", "deferred", "applied", "partial", "needs_input"].includes(value.maintenance_outcome)
+      || value.maintenance_outcome !== "not_started"
       || !Array.isArray(value.diagnostics)) throw new Error("AGDF_MAINTENANCE_RESULT_INVALID");
   if (value.inspection_state === "complete") {
-    assertControlMigration(value.compatibility);
+    assertControlCompatibility(value.compatibility);
     if (value.compatibility.target !== target
         || JSON.stringify(value.counts) !== JSON.stringify(controlCounts(value.compatibility))) {
       throw new Error("AGDF_MAINTENANCE_TARGET_MISMATCH");

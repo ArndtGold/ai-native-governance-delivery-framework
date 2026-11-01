@@ -1,3 +1,4 @@
+import { inspectArtefactRecordingMode } from '../../../core/lib/control-state/run-artefact-recording.js';
 import { withSyntheticQaContent } from '../../../core/test/fixtures/decision-content.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -21,18 +22,8 @@ export function createExpandedSourceRevisionFixture(root, cli, seeds) {
   const envelope = () => ({schema_version:'1',presentation_language:'en',working_directory:root,primary_target:root,target_source:'explicit_target',
     target_id:resolveControlCommandTarget(root).target_id,run_id:f.runId,expected_revision_id:f.revision(),operation_id:randomUUID(),assurance:'cooperative_local'});
   const record = (gate, text) => {
-    const relation = relationshipForGate(gate), type = gate === 'QA' ? 'QA_REPORT' : gate, path = f.prefix+type+'.md';
-    writeFileSync(join(root,path),text);
-    const proof = f.prefix+randomUUID()+'.json', request = f.prefix+randomUUID()+'.json';
-    const input = {schema_version:'1',target_id:envelope().target_id,run_id:f.runId,expected_revision_id:f.revision(),
-      destination:{type,path,digest:artefactFileDigest(root,path),status:gate === 'QA' ? 'pass' : 'draft'},
-      source:{type:relation.to,path:f.prefix+relation.to+'.md',digest:artefactFileDigest(root,f.prefix+relation.to+'.md')},
-      relationship:{from:relation.from,relationship:relation.relationship,to:relation.to},review:{reviewer:'Synthetic expanded-revision reviewer',path:proof,digest:''},update_draft:false};
-    const {schema_version,target_id,run_id,destination,source,relationship}=input;
-    writeFileSync(join(root,proof),JSON.stringify({schema_version,target_id,run_id,destination,source,relationship,reviewer:input.review.reviewer,reviewed:true}));
-    input.review.digest=artefactFileDigest(root,proof);writeFileSync(join(root,request),JSON.stringify(input));
-    const r=service('agdf_record',{...envelope(),command:{kind:'artefact.record',payload:{gate,reviewed_request:{path:request,digest:artefactFileDigest(root,request)}}}});
-    assert.equal(r.outcome,'accepted',JSON.stringify(r));
+    writeFileSync(f.file(gate === 'QA' ? 'QA_REPORT.md' : gate + '.md'), text);
+    const result = f.recordGate(gate, inspectArtefactRecordingMode(state(), gate).update_draft); assert.equal(result.value?.outcome, 'accepted', result.text);
   };
   const approve = gate => {const p=service('agdf_prepare',{...envelope(),command:{kind:'presentation.prepare',payload:{gate}}});assert.equal(p.outcome,'accepted',JSON.stringify(p));
     const r=service('agdf_approve',{...envelope(),command:{kind:'approval.record',payload:{gate,presentation_id:p.family_result.presentation_id,response:'Approval: '+gate}}});assert.equal(r.outcome,'accepted',JSON.stringify(r));};
@@ -48,7 +39,7 @@ export function createExpandedSourceRevisionFixture(root, cli, seeds) {
   const prepare = gate => {
     const s=state(), p=sourceRevisionTestProposal(root,{...f,control:()=>s},gate,'reassess');
     const source=p.value.sources.find(row=>row.type===gate), statement=read(source.path).replace(/^\uFEFF/,'').split('\n').find(line=>line.trim());
-    Object.assign(p.value,{schema_version:'2',policy_version:2,initiating_phase:s.current_gate,
+    Object.assign(p.value,{schema_version:'3',policy_version:2,initiating_phase:s.current_gate,
       changed_statements:[{...source,statement,intended_change:'Clarify the concrete fixture statement',reason:'Actual fixture source change'}],
       quality_assessment:sourceRevisionQualityFacts(s,read).map(row=>({...row,disposition:'reassess',reason:'Renew affected or unassociated current proof under the changed source'}))});
     writeFileSync(join(root,p.input.evidence),JSON.stringify(p.value));

@@ -1,3 +1,7 @@
+import { transitionDecisionForRunState } from '../control-evaluation/gate-policy.js';
+export const REVISION_ARCHIVE_VERSION = '2';
+import { runEvidencePath } from './run-identity.js';
+import { runDocumentPath } from './run-identity.js';
 import { resolutionRecordVersion } from './input-resolution.js';
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { createHash } from "node:crypto";
@@ -8,9 +12,9 @@ import { APPROVAL_GATES, canonicalRunText, computeRunSeals, listedArtefactPaths,
 import { parseControlState, parseRunState } from "./run-state-parser.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { exactApprovedArtefacts, validateBindingProof } from "./artefact-binding-proof.js";
-import { internalStepArtefacts } from "../control-evaluation/run-state.js";
+
 import { readSourceRevisions, revisionHistoryPrefix, SOURCE_GATES, sourceRevisionImpact, validExpandedRevisionProof } from "./run-source-revisions.js";
-import { REVISION_PROPOSAL_FIELDS, REVISION_PROPOSAL_V2_FIELDS } from './recording-formats.js';
+import { REVISION_PROPOSAL_FIELDS, SOURCE_REVISION_PROPOSAL_VERSION } from './recording-formats.js';
 import { sourceRevisionBoundary, earlyPrdRevisionBoundary } from "./run-revision-boundary.js";
 import { readRunOperations } from './run-operations.js';
 
@@ -37,11 +41,11 @@ export function collectRevisionHistory(root, runId, operationId, paths, { propos
     const bytes = proposalMaterial?.path === path ? Buffer.from(proposalMaterial.content) : readBoundedHistoryBytes(root, path,
       path === `.agdf/control/runs/${runId}/RUN_STATE.md` ? CONTROL_STATE_LIMIT : DOCUMENT_LIMIT);
     if (proposalMaterial?.path === path && (bytes.length > DOCUMENT_LIMIT || byteDigest(Buffer.from(canonicalRunText(bytes.toString('utf8')))) !== proposalMaterial.digest
-      || path !== `.agdf/control/artefacts/${runId}/EVIDENCE-${proposalMaterial.digest.slice(7)}.json`)) throw Error('AGDF_REVISION_HISTORY_INVALID');
+      || path !== runEvidencePath(runId, `EVIDENCE-${proposalMaterial.digest.slice(7)}.json`))) throw Error('AGDF_REVISION_HISTORY_INVALID');
     return { path, snapshot: `${prefix}files/${i}.bin`, bytes, digest: byteDigest(bytes),
       canonical_digest: byteDigest(Buffer.from(canonicalRunText(bytes.toString("utf8")), "utf8")) };
   });
-  const manifest = { schema_version: "1", run_id: runId, operation_id: operationId,
+  const manifest = { schema_version: REVISION_ARCHIVE_VERSION, run_id: runId, operation_id: operationId,
     files: files.map(({ path, snapshot, bytes, digest, canonical_digest }) => ({ path, snapshot, length: bytes.length, digest, canonical_digest })) };
   const text = canonicalJson(manifest) + "\n";
   if (Buffer.byteLength(text) > 131072) throw Error("AGDF_REVISION_HISTORY_INVALID");
@@ -54,7 +58,7 @@ export function readValidatedRevisionArchive(root, receipt) {
     if (byteDigest(bytes) !== receipt.archive.digest) return false;
     const manifest = JSON.parse(bytes.toString("utf8")), prefix = revisionHistoryPrefix(receipt.run_id, receipt.operation_id);
     // target_id names the recording checkout; clones verify it via the archived proposal, not their path.
-    if (!exactObject(manifest, ["schema_version", "run_id", "operation_id", "files"]) || manifest.schema_version !== "1"
+    if (!exactObject(manifest, ["schema_version", "run_id", "operation_id", "files"]) || manifest.schema_version !== REVISION_ARCHIVE_VERSION
         || manifest.run_id !== receipt.run_id || manifest.operation_id !== receipt.operation_id
         || !Array.isArray(manifest.files) || !manifest.files.length) return false;
     const names = new Set(), snapshots = new Set(), archived = new Map(), digests = new Map();
@@ -102,9 +106,9 @@ export function validateRevisionHistory(root, receipt) {
     const closure = readValidatedRevisionArchive(root, receipt);
     if (!closure) return false;
     const { original, parsed, archived, digests, names, readers, control } = closure;
-    const expanded = resolutionRecordVersion(receipt) === '3';
-    const boundary = sourceRevisionBoundary(control, receipt.source_gate, expanded ? 2 : 1);
-    if (!boundary || !boundary.sources.every(type => names.has(`.agdf/control/artefacts/${receipt.run_id}/${type}.md`))) return false;
+    if (resolutionRecordVersion(receipt) !== '4') return false;
+    const boundary = sourceRevisionBoundary(control, receipt.source_gate, 2);
+    if (!boundary || !boundary.sources.every(type => names.has(`${runDocumentPath(receipt.run_id, '')}/${type}.md`))) return false;
     const bindings = readArtefactBindings(original);
     // The receipt pins an actually archived reviewed request and its computed preview,
     // not just unrelated valid old approvals beside caller-supplied request hashes.
@@ -112,22 +116,22 @@ export function validateRevisionHistory(root, receipt) {
       try { const row = JSON.parse(bytes.toString("utf8")); return digest(canonicalJson(row)) === receipt.request_digest ? [row] : []; } catch { return []; }
     });
     const proposal = proposals[0];
-    if (['2', '3'].includes(resolutionRecordVersion(receipt))) {
+    {
       const bytes = archived.get(receipt.proposal_reference.path);
       if (!bytes || digest(canonicalRunText(bytes.toString('utf8'))) !== receipt.proposal_reference.digest) return false;
     }
     const sources = boundary.sources.map(type => ({ type, path: control.artefacts.get(type)?.path, digest: digests.get(control.artefacts.get(type)?.path) }));
-    if (proposals.length !== 1 || !exactObject(proposal, expanded ? REVISION_PROPOSAL_V2_FIELDS : REVISION_PROPOSAL_FIELDS)
-        || proposal.schema_version !== (expanded ? '2' : '1') || proposal.target_id !== receipt.target_id || proposal.run_id !== receipt.run_id
+    if (proposals.length !== 1 || !exactObject(proposal, REVISION_PROPOSAL_FIELDS)
+        || proposal.schema_version !== SOURCE_REVISION_PROPOSAL_VERSION || proposal.target_id !== receipt.target_id || proposal.run_id !== receipt.run_id
         || proposal.expected_revision_id !== receipt.previous_revision_id || proposal.operation_id !== receipt.operation_id
         || proposal.source_gate !== receipt.source_gate || proposal.reason !== receipt.reason || canonicalJson(proposal.sources) !== canonicalJson(sources)
         || canonicalJson(proposal.impact_assessment?.upstream) !== canonicalJson(receipt.retained_sources)
         || canonicalJson(proposal.impact_assessment?.analyses) !== canonicalJson(receipt.analyses)) return false;
     const impact = sourceRevisionImpact(proposal, bindings.active);
-    if (expanded && (receipt.policy_version !== 2 || receipt.initiating_phase !== boundary.initiating_phase
+    if ((receipt.policy_version !== 2 || receipt.initiating_phase !== boundary.initiating_phase
       || receipt.impact_digest !== digest(canonicalJson(impact)) || receipt.quality_digest !== digest(canonicalJson(proposal.quality_assessment))
       || !validExpandedRevisionProof(proposal, control, path => archived.get(path)?.toString('utf8'), boundary.initiating_phase))) return false;
-    const preview = { schema_version: expanded ? '2' : "1", target_id: receipt.target_id, run_id: receipt.run_id, expected_revision_id: receipt.previous_revision_id,
+    const preview = { schema_version: '2', target_id: receipt.target_id, run_id: receipt.run_id, expected_revision_id: receipt.previous_revision_id,
       operation_id: receipt.operation_id, request_digest: receipt.request_digest, reason: proposal.reason, intended_change: proposal.intended_change,
       sources, impact, archive_digest: receipt.archive.digest,
       current_run_digest: byteDigest(archived.get(`.agdf/control/runs/${receipt.run_id}/RUN_STATE.md`)) };
@@ -170,7 +174,7 @@ export function validEarlyPrdEffect(before, after) {
       : canonicalJson(old.approvals.get(gate)) === canonicalJson(next.approvals.get(gate)))
     && [...old.artefacts].every(([type, row]) => type === 'PRD' ? next.artefacts.get(type)?.path === row.path && next.artefacts.get(type)?.status === 'draft'
       : canonicalJson(next.artefacts.get(type)) === canonicalJson(row))
-    && parseRunState(after).meta.current_gate === 'PRD' && parseRunState(after).meta.lifecycle === 'active';
+    && transitionDecisionForRunState({ ...next, content: after, meta: parseRunState(after).meta }).current_gate === 'PRD' && parseRunState(after).meta.lifecycle === 'active';
 }
 
 export function inspectRevisionHistory(root, receipt) {

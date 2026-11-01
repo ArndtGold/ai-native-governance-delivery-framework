@@ -1,3 +1,5 @@
+import { createRun } from '../../../packages/core/lib/control-state/run-state-repository.js';
+import { runEvidencePath, runDocumentPath } from '../../../packages/core/lib/control-state/run-identity.js';
 // Deterministic fixture repositories F1 to F5 (SDD-003, TP section 1a). Every fixture is a fresh
 // temporary repository built through the canonical CLI and the existing fixture builders; the
 // repository's own .agdf/control is never a measured target.
@@ -56,15 +58,15 @@ function urText(longDocument) {
 // F3 / F4: run at UR with a prepared presentation.
 function presentedUr(kind, longDocument) {
   const root = governedRoot(kind);
-  assert.equal(cli(root, "run-create", "--run", DEMO_RUN).code, 0);
-  const prefix = `.agdf/control/artefacts/${DEMO_RUN}/`;
+  createRun(root, DEMO_RUN);
+  const prefix = `${runDocumentPath(DEMO_RUN, '')}/`;
   mkdirSync(join(root, prefix), { recursive: true });
-  writeFileSync(join(root, prefix, "UR.md"), urText(longDocument));
-  const step = cli(root, "run-step", "--run", DEMO_RUN, "--revision", revisionOf(root, DEMO_RUN), "--step", "ur", "--title", "Synthetic saved filter");
+  const input = join(root, "incoming-ur.md"); writeFileSync(input, urText(longDocument));
+  const step = cli(root, "run-step", "--run", DEMO_RUN, "--revision", revisionOf(root, DEMO_RUN), "--step", "ur", "--title", "Synthetic saved filter", "--evidence", input);
   assert.equal(step.code, 0, step.text);
   const present = cli(root, "run-present", "--run", DEMO_RUN, "--revision", revisionOf(root, DEMO_RUN), "--gate", "UR", "--language", "de");
-  assert.equal(present.value?.outcome, "prepared", present.text);
-  return { root, runId: DEMO_RUN, presentationId: present.value.presentation_id, documentBytes: present.value.document_bytes };
+  assert.equal(present.value?.outcome, "accepted", present.text);
+  return { root, runId: DEMO_RUN, presentationId: present.value.family_result.presentation_id, documentBytes: present.value.family_result.document_bytes };
 }
 
 function runAtPrd(kind) {
@@ -72,7 +74,7 @@ function runAtPrd(kind) {
   const f = createPrdDefinitionTestRun(root, CLI, DEMO_RUN, process.env, { route: "structured_slice" });
   writeFileSync(f.file("PRD.md"), syntheticPrd());
   const recorded = f.record();
-  assert.equal(recorded.value?.outcome, "recorded", recorded.text);
+  assert.equal(recorded.value?.outcome, "accepted", recorded.text);
   return { root, runId: DEMO_RUN, f };
 }
 
@@ -196,7 +198,7 @@ export function buildFixture(id) {
   });
 }
 
-// Reviewed schema-2 UR revision proposal for a valid agdf_revise preview on F2.
+// Reviewed current UR revision proposal for a valid agdf_revise preview on F2.
 export function writeUrRevisionProposal(fixture, operationId) {
   const f = { ...fixture.f, control: () => readRunState(fixture.root, { runId: fixture.runId }), revision: () => fixture.revision() };
   const state = f.control();
@@ -204,7 +206,7 @@ export function writeUrRevisionProposal(fixture, operationId) {
   const source = proposal.value.sources.find(row => row.type === "UR");
   const read = path => { try { return readFileSync(join(fixture.root, path), "utf8"); } catch { return undefined; } };
   const statement = read(source.path).replace(/^﻿/u, "").split("\n").find(line => line.trim());
-  Object.assign(proposal.value, { schema_version: "2", policy_version: 2, initiating_phase: state.current_gate,
+  Object.assign(proposal.value, { schema_version: "3", policy_version: 2, initiating_phase: state.current_gate,
     changed_statements: [{ ...source, statement, intended_change: "Clarify the concrete fixture statement", reason: "Actual fixture source change" }],
     quality_assessment: sourceRevisionQualityFacts(state, read).map(row => ({ ...row, disposition: "reassess",
       reason: "Renew affected or unassociated current proof under the changed source" })) });
@@ -213,7 +215,8 @@ export function writeUrRevisionProposal(fixture, operationId) {
 }
 
 export function writeEvidenceNote(fixture, name, text) {
-  const path = `.agdf/control/artefacts/${fixture.runId}/${name}`;
+  const path = runEvidencePath(fixture.runId, name);
+  mkdirSync(join(fixture.root, runEvidencePath(fixture.runId, '')), { recursive: true });
   writeFileSync(join(fixture.root, path), text);
   return { path, digest: artefactFileDigest(fixture.root, path) };
 }

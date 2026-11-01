@@ -1,0 +1,39 @@
+## Nutzerabnahme prüfen und entscheiden
+
+Einheitliches Run-Datenmodell: Masterbacklog und Altformat-Unterstützung vollständig entfernen
+
+- Ziel: Ein aktuelles Datenmodell, ein gemeinsamer Ordner je gestartetem Run und genau eine kanonische Zuständigkeit je Information.
+- Geliefertes Ergebnis: Ein aktuelles Modell run-folders-v1/Run v4 ist in Core, CLI/MCP, Cockpit, Vorlagen und Paketen umgesetzt. Aktuelle Freigaben, Historie, Original-UUID-Replay und Recovery sind nachgewiesen; Altbestände werden unverändert abgewiesen. Pflichtreviews sind registriert und pass. Build, Paketprüfungen, gezielte Funktions-/Prozesstests und zwei abschließende echte Codex-CLI-Sitzungen waren erfolgreich.
+- Technische QA: pass
+- Nachweisgrenzen: Nur das benannte Codex-CLI/macOS/Modell-Tupel wurde nativ geprüft. Keine Desktop-/weitere Hostqualifikation, keine unabhängige menschliche Prüfung oder UAT, kein lokaler Volltest und keine CI am späteren PR-Head. Frühere Einzelprüfungen werden mit ihrer Gültigkeitsgrenze wiederverwendet. Insgesamt sechs echte Sitzungen: drei fehlgeschlagen und drei erfolgreich; abschließender korrigierter Kandidat2/2. Rohfehler bleiben erhalten. Kein fehlerfreier Bedienweg: je finaler Sitzung sechs falsche Vertragsaufrufe sowie die erwartete Altformat-Ablehnung.
+- Risiken und offene Punkte: Bewusster harter Schnitt ohne Migration; alte Installationen können neue Bestände nicht bedienen. Dieser bestehende Run bleibt bis OR beim eingefrorenen alten Schreiber. Weitere Entwicklungstests benötigen wieder intakte gesperrte Abhängigkeiten; fremde gesicherte Daten bleiben erhalten. CI muss vor einem späteren Merge am exakten Head grün sein. Keine Installation oder Veröffentlichung erfolgt.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- ur ·  (exact cooperative association)
+- route · UR (exact cooperative association)
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 8
+
+- QA: .agdf/control/artefacts/run-ee983b1f-abf5-42fa-b980-096c1eda647f/QA_REPORT.md · sha256:77cd3ea0d00c5a50a1d8dea67001cbefddb5c0201a7372d097e8f80bcf727fb1
+- Review: .agdf/control/artefacts/run-ee983b1f-abf5-42fa-b980-096c1eda647f/TP_REVIEW.md · sha256:6024625c0ae2c9aa6bf9039779bcf3d0b0c8d33b68d48f407fa9ba061cd1ee2b
+- Review: .agdf/control/artefacts/run-ee983b1f-abf5-42fa-b980-096c1eda647f/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:66ff86b04789d91f5d635f9bca00210109f69ea731592ee4649c7e9d342e4094
+- Review: .agdf/control/artefacts/run-ee983b1f-abf5-42fa-b980-096c1eda647f/CODE_REVIEW.md · sha256:bbde78ef038945c22d8f5c912299509f05030a35911dc1d43385690c777a3954
+- UR: .agdf/control/artefacts/run-ee983b1f-abf5-42fa-b980-096c1eda647f/UR.md · sha256:3d8f1db643d8851719f9367e025d25f17b8643b3f2c96adafdcbf6995a833ac6
+
+Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UAT.
+
+### Fassung und Quellen
+
+Run: `run-ee983b1f-abf5-42fa-b980-096c1eda647f` · Nutzerabnahme · Revision: `d4b53057-6407-402f-96a1-905cd0e70788`
+
+SHA-256: `sha256:78418c1e2af6ba886ec5a916177d9011b65b1de1ca3c7c794bcdb73d6f98afc8`

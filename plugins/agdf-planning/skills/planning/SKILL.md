@@ -16,6 +16,10 @@ initialize or migrate control implicitly. Planning reads grant no mutation autho
 Inspect `agdf_record/planned_ur.create` through `agdf_inspect` operation-contract
 with confirmed target and no Run/revision. Require the returned planning_capability
 to declare schema `planned-ur-v1`, protocol_version 1 and owner `ur-definition`.
+Inspect `project-state` for that same confirmed target before writing. Require
+initialized control with `config.control_layout: run-folders-v1`; an absent project
+requires separate explicit setup, and another layout or an unavailable observation
+stops planning unchanged even if the older Core advertises the same UR protocol.
 Require listed `agdf_dispatch`, `agdf_inspect`, `agdf_record` and `agdf_run`.
 Missing/disabled/older Core or capabilities: explain that compatible Core is
 required and stop before any write. Never install, enable, use shell/CLI fallback,

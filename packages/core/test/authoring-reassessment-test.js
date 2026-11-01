@@ -47,12 +47,12 @@ try {
       assert.equal(report.documents.some(row => row.role === 'template' && row.type === 'PRD'), false);
     };
     assertUxInput(); // The first post-UR analysis is missing; no source revision exists.
-    writeFileSync(initial.file('UX_INTENT_DEFINITION.md'), '# UX intent\nDecision: ready\n');
+    writeFileSync(initial.canonicalFile('UX_INTENT_DEFINITION.md'), '# UX intent\nDecision: ready\n');
     assertUxInput(); // Malformed declaration is the existing owner's correction path.
-    writeFileSync(initial.file('UX_INTENT_DEFINITION.md'), '# UX intent\n- decision: blocked\n');
+    writeFileSync(initial.canonicalFile('UX_INTENT_DEFINITION.md'), '# UX intent\n- decision: blocked\n');
     assert.equal(dispatch().terminal, true, 'a blocked decision must not grant analytical correction intent');
     assert.equal(inspect().authoring_owner, 'PRD', 'non-repairable source decisions retain the existing gate observation');
-    writeFileSync(initial.file('UX_INTENT_DEFINITION.md'), '# UX intent\n- decision: ready\n');
+    writeFileSync(initial.canonicalFile('UX_INTENT_DEFINITION.md'), '# UX intent\n- decision: ready\n');
     assertUxInput(); // Ready bytes still need canonical registration.
     const recorded = services.command('agdf_record', { schema_version: '1', presentation_language: 'en',
       working_directory: initialRoot, primary_target: initialRoot, target_source: 'explicit_target',

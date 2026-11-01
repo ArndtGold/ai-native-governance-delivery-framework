@@ -70,14 +70,14 @@ async function assertGuidedInspection(client) {
     assert.deepEqual(snapshot(), ambiguousBefore);
 
     fixture.restore();
-    rmSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'presentations'), { recursive: true });
+    rmSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'control/presentations'), { recursive: true });
     const missingBefore = snapshot(); const missing = (await read()).navigation;
     assert.equal(missing.presentation_catalog.state, 'none');
     assert.equal(missing.next_calls.some(next => next.arguments.operation === 'presentation-document'), false);
     assert.deepEqual(snapshot(), missingBefore, 'missing documents are never prepared by a read');
 
     fixture.restore();
-    writeFileSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'presentations', `${fixture.presentationId}.json`), '{}');
+    writeFileSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'control/presentations', `${fixture.presentationId}.json`), '{}');
     const corruptBefore = snapshot(); const corrupt = (await read()).navigation;
     assert.equal(corrupt.presentation_catalog.state, 'unavailable');
     assert.deepEqual(corrupt.next_calls, []);
@@ -150,9 +150,8 @@ for (const modern of [false, true]) {
       const contractArgs = { ...args, operation: 'operation-contract', module: 'agdf_prepare/presentation.prepare' };
       const contract = await client.callTool({ name: 'agdf_inspect', arguments: contractArgs });
       assert.equal(contract.isError, undefined);
-      assert.equal(contract.structuredContent.report.presentation_catalog.state, 'unavailable', 'synthetic legacy approval records cannot establish a readable catalog');
-      assert.equal(contract.structuredContent.report.presentation_catalog.complete_scan, false);
-      assert.match(contract.structuredContent.report.presentation_catalog.next_action, /cannot establish/);
+      assert.equal(contract.structuredContent.report.presentation_catalog.state, 'none', 'an unregistered draft has no prepared decision');
+      assert.equal(contract.structuredContent.report.presentation_catalog.complete_scan, true);
       assert.equal(contract.structuredContent.report.inspect_contract.examples_are_illustrative, true);
       for (const changed of [{ expected_revision_id: 'bad' }, { cursor: 'bad' }, { module: 'agdf_record/step.record', cursor: `${'0'.repeat(64)}:16` }]) {
         const bad = await client.callTool({ name: 'agdf_inspect', arguments: { ...contractArgs, ...changed } });

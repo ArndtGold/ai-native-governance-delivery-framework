@@ -17,9 +17,7 @@ const codexPluginFiles = [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "control", "README.md"),
-  join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
   join("plugins", "agdf", "control", "templates", "RUN_STATE.md"),
-  join("plugins", "agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join("plugins", "agdf", "control", "templates", "SOT_REGISTRY.md"),
   join("plugins", "agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join("plugins", "agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
@@ -44,9 +42,7 @@ const codexPluginFiles = [
 ];
 const controlFiles = [
   join(".agdf", "control", "README.md"),
-  join(".agdf", "control", "templates", "AGDF_RUN.md"),
   join(".agdf", "control", "templates", "RUN_STATE.md"),
-  join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),

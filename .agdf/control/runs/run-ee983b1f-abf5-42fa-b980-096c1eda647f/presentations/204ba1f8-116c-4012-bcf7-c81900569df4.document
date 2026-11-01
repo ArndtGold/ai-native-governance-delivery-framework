@@ -1,0 +1,27 @@
+## Aufgaben- und Testplan prüfen und entscheiden
+
+TP: One Run Folder And One Current Control Data Model
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Den freigegebenen Schnitt mit einem Run-Ordner und genau einem aktuellen Datenmodell vollständig umsetzen; keine Migration oder Altformat-Unterstützung.
+- Aufgaben: Zwölf Aufgaben decken Vorbereitung, Pfade/Initialisierung, kanonische Metadaten, aktuelle Transaktionen, Planung/Historie, Entscheidungen, CLI/MCP/Cockpit, Verträge/Pakete, Tests und die bestehenden Qualitätsreviews ab.
+- Prüfung: 24 Szenarien ordnen alle zehn PRD-Kriterien und jede zugehörige Designentscheidung konkreten Aufgaben, erwarteten Ergebnissen, Testwegen und Nachweisen zu. Positive Fälle, Stale-/Manipulations-/Fremddatenfälle und echte Prozessunterbrechungen sind enthalten.
+- Lokale Tests: Gezielte bestehende Core-, CLI/MCP-, UI-, Prozess- und Paketprüfungen; alte positive Kompatibilitätsmatrizen werden durch aktuelle Fixtures ersetzt, nicht durch ausgelassene heutige Verpflichtungen. Timing bleibt bei 20/20 Messungen und 2.500/1.000 ms.
+- Native Tests: Ein begrenzter RUN_MODEL-Fall im vorhandenen Codex-CLI-Testläufer, zwei Sitzungen mit gpt-6.1-sol/low und dem eingefrorenen Kandidaten an frischen Testbeständen. Keine persönliche Plugin-Installation, keine Credential-Kopie, kein Desktop- oder anderer nativer Hosttest.
+- CI und Zusatzprüfungen: Vollständige Pflicht-CI für den tatsächlichen späteren PR-Head vor Merge; kein routinemäßiger zusätzlicher lokaler Volltest und keine neue Nightly-Matrix. Ältere Ergebnisse werden nicht als Nachweis des neuen Codes umgedeutet.
+- Übergang: Diesen steuernden Run weiter mit der exakt gebundenen Laufzeit bis OR führen. Neue Testziele und Datenpfade bleiben getrennt; keine Neusiegelung, automatische Neuinitialisierung oder Migration alter echter Bestände.
+- Entscheidungen: Aufgaben-/Szenarioreihenfolge, Versions-/Kandidatenaufnahme, zwei native Sitzungen, Fixture-Ersatz und Ausfallbehandlung sind festgelegt. Fehlender Zugriff oder ein tatsächlicher Testfehler bleibt ein benannter Nachweisbedarf und wird nicht als bestanden gewertet.
+- Grenzen und Risiken: Bisher ist nur geplant; keine Implementierung oder Qualifikation durchgeführt. Metadatenabbau und neue Pfade müssen Freigaben, Herkunft, Integrität und Recovery erhalten. Commit, Push, Merge, globale Installation und Release sind keine Wirkung dieser Freigabe.
+- Nächster Schritt: Approval: TP erlaubt zuerst die vorbereitende Brownfield Analysis; erst danach die Umsetzung und tatsächlichen Prüfungen, wenn die Voraussetzungen erfüllt sind.
+
+Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.
+
+### Fassung und Quellen
+
+Run: `run-ee983b1f-abf5-42fa-b980-096c1eda647f` · Aufgaben- und Testplan · Revision: `e79ab0f2-cc95-424a-95c1-e797e3c3a411`
+
+SHA-256: `sha256:9cf034595bb202113c70697597532cff533e79d8f919834fc24dacd833a819d8`

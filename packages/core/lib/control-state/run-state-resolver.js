@@ -12,8 +12,8 @@ export function resolveRuns(
   if (id) {
     const run = readSelectedRun(root, id);
     if (!run.valid) {
-      const unsupported = run.findings.some(finding => finding.classification === 'unsupported_version');
-      throw Object.assign(Error(`${unsupported ? 'AGDF_RUN_VERSION_UNSUPPORTED' : 'AGDF_RUN_NOT_SELECTABLE'}:${id}; next=${unsupported ? 'use a compatible reader; preserve original history' : 'select a valid run'}`),
+      const unsupported = run.findings.some(finding => ['unsupported_version', 'unsupported_layout'].includes(finding.classification));
+      throw Object.assign(Error(`${unsupported ? 'AGDF_RUN_VERSION_UNSUPPORTED' : 'AGDF_RUN_NOT_SELECTABLE'}:${id}; next=${unsupported ? 'preserve the unsupported store; select a fresh current target' : 'select a valid run'}`),
         { findings: run.findings, run_path: run.path });
     }
     return { selection_source: runIdArg ? 'cli' : 'environment', run,

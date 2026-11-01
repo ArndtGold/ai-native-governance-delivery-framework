@@ -2,7 +2,7 @@ import { INSTALL_SETUP_STATES, INSTALL_ACTIONS, INSTALL_FAILURE_PHASES, INSTALL_
 import { isAbsolute } from "node:path";
 import { assertLifecycleResult } from "../lifecycle/result.js";
 import { mcpCapabilityProfileContract } from "../mcp-lifecycle/profile.js";
-import { assertControlMigration, uncheckedControl } from "./control-migration.js";
+import { assertControlCompatibility, uncheckedControl } from "./control-compatibility.js";
 
 const SURFACES = new Set(mcpCapabilityProfileContract.surfaces);
 const SETUP_REQUESTS = new Set(["plugin_only", "full", "cancel"]);
@@ -130,7 +130,7 @@ export function deriveInstallSetupState({ setup_request: setupRequest, surface, 
   if (!pluginVerified(plugin)) return "failed";
   if (failure?.phase === "runtime_check_permission") return "partial";
   if (!failure && control?.status === "repair_required") return "control_repair_required";
-  if (!failure && control?.status === "migration_required") return "control_migration_required";
+  if (!failure && control?.status === "unsupported") return "control_unsupported";
   const state = mcpState(mcp);
   if (setupRequest === "plugin_only") {
     if (state === "plugin_managed" && !failure && codexHookReviewPending(surface, runtimeChecks)) {
@@ -165,7 +165,7 @@ export function createInstallSetupPreflight(input = {}) {
   const pluginConfiguration = input.plugin_configuration ?? null;
   const invocationDirectorySource = input.invocation_directory_source ?? "none";
   const fullBlockReason = input.full_block_reason ?? "none";
-  const control = assertControlMigration(input.control ?? uncheckedControl());
+  const control = assertControlCompatibility(input.control ?? uncheckedControl());
   const scopeStateValid = (state) => plainObject(state)
     && Object.keys(state).every((key) => [
       "status", "capability", "selected_status", "effective_source", "registration_path",
@@ -236,7 +236,7 @@ export function createInstallSetupResult(input = {}) {
   const requestedScope = input.requested_scope ?? null;
   const effectiveScope = input.effective_scope ?? null;
   const invocationDirectorySource = input.invocation_directory_source ?? "none";
-  const control = assertControlMigration(input.control ?? uncheckedControl());
+  const control = assertControlCompatibility(input.control ?? uncheckedControl());
   if (!SETUP_REQUESTS.has(input.setup_request) || !SURFACES.has(input.surface)
       || !(target === null || (typeof target === "string" && isAbsolute(target)))
       || !TARGET_SOURCES.has(input.target_source)

@@ -1,20 +1,21 @@
+import { runDocumentPath, runHistoryPath } from './run-identity.js';
 import { resolutionRecord } from './input-resolution.js';
 import { validDecisionMaterial, decisionMaterialVersion } from './decision-material-contract.js';
 import { TextDecoder } from 'node:util';
 import { canonicalJson, digest, COOPERATIVE_ASSURANCE, DIGEST_PATTERN, exactObject } from './approval-command-contract.js';
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN, APPROVAL_GATES } from './run-identity.js';
 import { isSafeControlRelativePath } from './contained-file.js';
-import { validLayoutMigrationRecord } from './layout-migration-record.js';
 
 const fields = ['schema_version', 'kind', 'operation_id', 'request_digest', 'target_id', 'run_id', 'expected_revision_id', 'created_at', 'producer', 'assurance', 'effect'];
-export const RUN_OPERATION_KINDS = Object.freeze(['run.create', 'run.create_from_planned', 'control_layout.migrate', 'ur_draft.replace', 'step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record']);
+export const RUN_OPERATION_VERSION = '4';
+export const RUN_OPERATION_KINDS = Object.freeze(['run.create', 'run.create_from_planned', 'ur_draft.replace', 'step.record', 'presentation_decision.record', 'prd_revision.reopen', 'closeout.record', 'lifecycle_close.record']);
 export const ENDED_LIFECYCLES = Object.freeze(['superseded', 'abandoned']);
 const uuid = value => typeof value === 'string' && REVISION_ID_PATTERN.test(value);
 const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
 const text = (value, max = 8192) => typeof value === 'string' && value.length <= max && !/\0/u.test(value);
 const source = (value, runId) => exactObject(value, ['path', 'digest']) && isSafeControlRelativePath(value.path)
-  && value.path.startsWith(`.agdf/control/artefacts/${runId}/`) && hash(value.digest);
-// One trimmed table-safe line; closure texts reach the Evidence table and the backlog row.
+  && value.path.startsWith(`${runDocumentPath(runId, '')}/`) && hash(value.digest);
+// One bounded table-safe line for typed closure facts.
 export const closureLine = (value, max) => text(value, max) && value.trim() === value && Boolean(value) && !/[|\u0000-\u001f\u007f]/u.test(value);
 const validSuccessor = (value, runId) => exactObject(value, ['kind', 'value', 'verified']) && (value.kind === 'run'
   ? value.verified === true && RUN_ID_PATTERN.test(value.value) && value.value !== runId : value.kind === 'reference' && value.verified === false && closureLine(value.value, 512));
@@ -24,38 +25,34 @@ const validConfirmer = value => exactObject(value, ['statement']) ? value.statem
     && [value.name, value.email].every(item => item === null || closureLine(item, 256));
 function validRecord(receipt) {
   const r = receipt.effect.record;
-  if (receipt.kind === 'control_layout.migrate') return validLayoutMigrationRecord(r, receipt.run_id);
   if (receipt.kind === 'run.create') return exactObject(r, ['title']) && text(r.title, 1024) && r.title.trim()
     && !/[\r\n|]/u.test(r.title) && receipt.run_id === `run-${receipt.operation_id}`;
-  if (receipt.kind === 'run.create_from_planned') return exactObject(r, ['title', 'planned', 'ur', 'snapshot', 'origin'])
+  if (receipt.kind === 'run.create_from_planned') return exactObject(r, ['title', 'planned', 'snapshot'])
     && text(r.title, 1024) && Boolean(r.title.trim()) && !/[\r\n\u2028\u2029]/u.test(r.title)
     && receipt.run_id === `run-${receipt.operation_id}` && exactObject(r.planned, ['plan_id', 'path', 'digest'])
     && RUN_ID_PATTERN.test(r.planned.plan_id ?? '') && r.planned.path === `.agdf/control/planned/${r.planned.plan_id}/UR.md` && hash(r.planned.digest)
-    && [['ur', 'UR.md'], ['snapshot', 'PLANNED_UR.md'], ['origin', 'PLANNED_ORIGIN.json']].every(([key, name]) => source(r[key], receipt.run_id)
-      && r[key].path === `.agdf/control/artefacts/${receipt.run_id}/${name}`)
-    && r.ur.digest === r.planned.digest && r.snapshot.digest === r.planned.digest;
-  if (['step.record', 'ur_draft.replace'].includes(receipt.kind)) return exactObject(r, ['step', 'source', 'status', 'covers', 'source_set_digest'])
-    && ['ur', 'route', 'review', 'evidence', 'Verified Change', 'Brownfield Review', 'UX Intent Definition', 'Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR'].includes(r.step)
-    && (receipt.kind !== 'ur_draft.replace' || r.step === 'ur')
-    && source(r.source, receipt.run_id) && ['done', 'revise', 'block', 'not_applicable'].includes(r.status)
-    && text(r.covers, 1024) && hash(r.source_set_digest);
+    && exactObject(r.snapshot, ['path', 'digest', 'raw_digest']) && r.snapshot.path === runHistoryPath(receipt.run_id, 'planning/UR.md')
+    && r.snapshot.digest === r.planned.digest && hash(r.snapshot.raw_digest);
+  if (['step.record', 'ur_draft.replace'].includes(receipt.kind)) return exactObject(r, ['evidence_binding_id', 'status', 'covers'])
+    && r.evidence_binding_id === receipt.operation_id && uuid(r.evidence_binding_id)
+    && ['done', 'revise', 'block', 'not_applicable', 'eligible', 'executed', 'escalated'].includes(r.status) && text(r.covers, 1024);
   if (receipt.kind === 'presentation_decision.record') return exactObject(r, ['gate', 'presentation_id', 'presentation_digest', 'material_version', 'material_sources', 'action', 'comment', 'owner', 'artefact_digest'])
     && APPROVAL_GATES.includes(r.gate) && uuid(r.presentation_id) && hash(r.presentation_digest) && hash(r.material_version)
     && validDecisionMaterial(r.material_sources, receipt.run_id) && r.material_version === decisionMaterialVersion(receipt.run_id, r.gate, r.material_sources) && ['request_change', 'reject'].includes(r.action) && text(r.comment) && Buffer.byteLength(r.comment) <= 8192 && (r.action !== 'request_change' || r.comment.trim())
     && text(r.owner, 128) && r.owner.trim() && (r.gate === 'UAT' ? r.artefact_digest === null : hash(r.artefact_digest));
   if (receipt.kind === 'closeout.record' && r.mode === 'verified_change') return exactObject(r, ['mode', 'verified_change', 'lifecycle', 'context_evidence_digest', 'confirmation_digest'])
-    && source(r.verified_change, receipt.run_id) && r.verified_change.path === `.agdf/control/artefacts/${receipt.run_id}/VERIFIED_CHANGE.md`
+    && source(r.verified_change, receipt.run_id) && r.verified_change.path === `${runDocumentPath(receipt.run_id, '')}/VERIFIED_CHANGE.md`
     && r.lifecycle === 'completed' && hash(r.context_evidence_digest) && hash(r.confirmation_digest);
   if (receipt.kind === 'closeout.record') return exactObject(r, ['or', 'lifecycle', 'context_evidence_digest', 'confirmation_digest'])
-    && source(r.or, receipt.run_id) && r.or.path === `.agdf/control/artefacts/${receipt.run_id}/OR.md`
+    && source(r.or, receipt.run_id) && r.or.path === `${runDocumentPath(receipt.run_id, '')}/OR.md`
     && r.lifecycle === 'completed' && hash(r.context_evidence_digest) && hash(r.confirmation_digest);
   if (receipt.kind === 'lifecycle_close.record') return exactObject(r, ['lifecycle', 'reason', 'successor', 'confirmed_by', 'preview'])
     && ENDED_LIFECYCLES.includes(r.lifecycle) && closureLine(r.reason, 1024)
     && (r.lifecycle === 'abandoned' ? r.successor === null : validSuccessor(r.successor, receipt.run_id)) && validConfirmer(r.confirmed_by)
     && exactObject(r.preview, ['id', 'digest']) && /^[0-9a-f]{8}$/u.test(r.preview.id) && hash(r.preview.digest);
   if (receipt.kind === 'prd_revision.reopen') return exactObject(r, ['prd', 'archive', 'confirmation_digest']) && source(r.prd, receipt.run_id)
-    && r.prd.path === `.agdf/control/artefacts/${receipt.run_id}/PRD.md`
-    && exactObject(r.archive, ['path', 'digest']) && r.archive.path === `.agdf/control/runs/${receipt.run_id}/revisions/${receipt.operation_id}/manifest.json`
+    && r.prd.path === `${runDocumentPath(receipt.run_id, '')}/PRD.md`
+    && exactObject(r.archive, ['path', 'digest']) && r.archive.path === runHistoryPath(receipt.run_id, `revisions/${receipt.operation_id}/manifest.json`)
     && hash(r.archive.digest) && hash(r.confirmation_digest)
     && r.confirmation_digest === digest(earlyPrdConfirmation(receipt.run_id, receipt.expected_revision_id, receipt.operation_id, r.prd.digest));
   return false;
@@ -66,8 +63,7 @@ export function validRunOperation(receipt) {
   if (!receipt) return false;
   const plannedCreation = receipt?.kind === 'run.create_from_planned';
   const creation = receipt?.kind === 'run.create' || plannedCreation;
-  const extended = creation || receipt?.kind === 'ur_draft.replace' || receipt?.kind === 'closeout.record' && receipt?.effect?.record?.mode === 'verified_change';
-  return exactObject(receipt, fields) && receipt.schema_version === (plannedCreation || receipt.kind === 'control_layout.migrate' ? '3' : extended ? '2' : '1') && RUN_OPERATION_KINDS.includes(receipt.kind)
+  return exactObject(receipt, fields) && receipt.schema_version === RUN_OPERATION_VERSION && RUN_OPERATION_KINDS.includes(receipt.kind)
     && uuid(receipt.operation_id) && hash(receipt.request_digest) && hash(receipt.target_id) && RUN_ID_PATTERN.test(receipt.run_id ?? '')
     && (creation ? receipt.expected_revision_id === null : uuid(receipt.expected_revision_id)) && exactObject(receipt.effect, ['previous_revision_id', 'resulting_revision_id', 'revision', 'record'])
     && receipt.effect.previous_revision_id === receipt.expected_revision_id && uuid(receipt.effect.resulting_revision_id)
@@ -127,7 +123,7 @@ export function runClosure(content) {
 }
 export const RUN_ENDED_NEXT_ACTION = 'Start a new run; it may reference the ended run.';
 export const closureSuccessorText = successor => successor ? ` by ${successor.value}${successor.verified ? '' : ' (unverified reference)'}` : '';
-// The archived backlog outcome of an ended Run: successor and reason, or the reason alone.
+// The archived closure outcome of an ended Run: successor and reason, or the reason alone.
 export const closureOutcomeText = (outcome, successor, reason) => outcome === 'superseded'
   ? `Superseded${closureSuccessorText(successor)}: ${reason ?? 'reason unavailable'}` : `Abandoned: ${reason ?? 'reason unavailable'}`;
 export const closureBacklogRecord = runId => `[RUN_STATE](runs/${runId}/RUN_STATE.md)`;

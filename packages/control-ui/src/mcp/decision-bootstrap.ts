@@ -1,3 +1,4 @@
+import { isRunDataPath } from '../../../core/lib/control-state/run-identity.js';
 import { DECISION_CARD_LABEL_KEYS } from '../../../core/lib/interaction-catalog.js';
 export interface DecisionBootstrap {
   delivery_state?: 'preview' | 'ui_primary' | 'retired'; display_nonce?: string; surface_id?: string | null; source_digest?: string;
@@ -43,7 +44,7 @@ export function readDecisionBootstrap(result: unknown): DecisionBootstrap | null
     || !hash(b.material_version) || !hash(b.presentation_digest) || typeof b.presentation_language !== 'string'
     || !Array.isArray(b.material_sources) || !b.material_sources.length || b.material_sources.length > 12
     || !b.material_sources.every(s => object(s) && typeof s.type === 'string' && hash(s.digest) && typeof s.path === 'string'
-      && s.path.startsWith(`.agdf/control/artefacts/${b.run_id}/`) && !s.path.includes('..'))
+      && isRunDataPath(String(b.run_id), s.path))
     || !(row.resource_id === null || uuid(row.resource_id)) || !(row.document_digest === null || hash(row.document_digest))
     || !Array.isArray(row.enabled_actions) || new Set(row.enabled_actions).size !== row.enabled_actions.length
     || !row.enabled_actions.every(action => ['approve', 'request_change', 'reject'].includes(String(action)))

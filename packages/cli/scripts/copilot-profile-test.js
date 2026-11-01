@@ -8,7 +8,7 @@ import { validateCopilotPayload } from "../../../scripts/public-plugin/copilot-p
 import { ensurePluginMcpRuntime } from '../lib/mcp-lifecycle/plugin-runtime.js';
 import { offlineNpm } from '../../../scripts/support/plugin-mcp-fixture.js';
 import { withStdioClient } from '../../mcp-server/test/helpers.js';
-import { initializeCanonicalControl } from '../lib/scaffold/canonical-init.js';
+import { initializeCurrentControl } from '../../core/test/fixtures/current-init.js';
 import { generatedFilesForTarget } from '../lib/scaffold/plan.js';
 import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 
@@ -86,7 +86,7 @@ try {
   const diagnosis = join(fixtureRoot, 'doctor-target'), dataRoot = join(fixtureRoot, 'mcp-data');
   mkdirSync(join(diagnosis, '.git'), { recursive: true });
   writeFileSync(join(diagnosis, '.git/HEAD'), 'ref: refs/heads/main\n');
-  initializeCanonicalControl(diagnosis, generatedFilesForTarget('init', diagnosis, false, 'en'));
+  initializeCurrentControl(diagnosis, 'en');
   createRun(diagnosis, 'copilot-diagnostic');
   const prepared = ensurePluginMcpRuntime({ pluginRoot: generatedRoot, dataRoot, exec: offlineNpm });
   await withStdioClient({ root: prepared.root, command: process.execPath,

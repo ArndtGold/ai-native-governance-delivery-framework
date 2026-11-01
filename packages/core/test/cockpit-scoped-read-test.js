@@ -11,47 +11,20 @@ import { parseCockpitArguments } from '../lib/control-inspect/cockpit-contract.j
 import { replaceFirstScalar } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
 
-const storedFacts = data => ({ ...data, entries: data.entries.map(({ row_id, ...facts }) => facts) });
-
-function backlog(f, rows = '| 1 | `fixture-a` | [framework-maintenance] Fixture document | In progress | [UR](artefacts/fixture-a/UR.md) | stored spec | Stored next step |') {
-  fs.writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), `# AGDF Master Backlog\n\n## Active Backlog\n\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n${rows}\n\n## Planned / Parking Lot\n\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n| old-key | Historical title | Superseded | [OR](artefacts/old/OR.md) | Historical outcome |\n`);
-}
-
-test('SCN-061/063/080: production overview reads only backlog even with >64 MiB unrelated history, and keeps original pointer facts', () => {
-  const f = fixture(); try {
-    backlog(f); const history = join(f.root, '.agdf/control/history'); fs.mkdirSync(history);
-    const large = Buffer.alloc(24 * 1024 ** 2, 1);
-    for (let i = 0; i < 3; i++) fs.writeFileSync(join(history, i + '.bin'), large);
-    const reads = [], reader = createCockpitReader(f.root, { limits: { total: 64 * 1024 ** 2 }, checkpoint(stage, path) { if (stage === 'file_read') reads.push(path); } });
-    const first = reader.snapshot(undefined, 'legacy');
-    assert.equal(first.state, 'available'); assert.equal(first.data.kind, 'backlog'); assert.equal(first.data.file_count, 1);
-    assert.deepEqual(reads, [join(f.root, '.agdf/control/MASTER_BACKLOG.md')]);
-    assert.equal(first.data.entries[0].original_key, '`fixture-a`'); assert.equal(first.data.entries[0].stored_status, 'In progress');
-    assert.equal(first.data.entries[1].stored_status, 'Superseded'); assert.equal(first.data.entries[0].stored_next_step, 'Stored next step');
-    fs.writeFileSync(join(history, '0.bin'), 'unrelated'); assert.equal(reader.freshness(first.snapshot_id).data.unchanged, true);
-    const again = reader.snapshot(undefined, 'legacy'); assert.deepEqual(storedFacts(again.data), storedFacts(first.data)); assert.notEqual(again.data.entries[0].row_id, first.data.entries[0].row_id); assert.notEqual(again.snapshot_id, first.snapshot_id);
-    const direct = reader.snapshot('fixture-a'); assert.equal(direct.state, 'available'); assert.equal(direct.data.run.run_id, 'fixture-a');
-  } finally { f.close(); }
-});
-
-test('SCN-062/083: duplicate/malformed pointers stay identifiable and nonselectable; missing/unsupported backlog never discovers Runs or writes', () => {
-  const f = fixture(); try {
-    backlog(f, '| 1 | `fixture-a` | Duplicate one | In progress | none | stored | next |\n| 2 | fixture-a | Duplicate two | In progress | none | stored | next |\n| 3 | malformed | Incomplete |');
-    const before = treeBytes(f.root), reads = [], reader = createCockpitReader(f.root, { checkpoint(stage, path) { if (stage === 'file_read') reads.push(path); } });
-    const partial = reader.snapshot(undefined, 'legacy'); assert.equal(partial.state, 'partial');
-    assert.equal(partial.data.entries.filter(r => r.key === 'fixture-a').every(r => !r.selectable), true);
-    assert.equal(partial.data.entries.find(r => r.key === 'malformed').selectable, false);
-    assert.equal(reads.length, 1); assert.deepEqual(treeBytes(f.root), before);
-    fs.writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), Buffer.from([255]));
-    assert.equal(reader.snapshot(undefined, 'legacy').code, 'backlog_unsupported');
-    fs.rmSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md')); const missing = reader.snapshot(undefined, 'legacy');
-    assert.equal(missing.code, 'backlog_missing'); assert.equal(missing.data, null);
-  } finally { f.close(); }
+test('current work inventory ignores retained foreign planning and unreferenced history bytes',()=>{
+  const f=fixture();try{
+    fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),'# Unrelated retained old planning\n');
+    const history=join(f.root,'.agdf/control/runs/fixture-a/history');fs.mkdirSync(history,{recursive:true});fs.writeFileSync(join(history,'large.bin'),Buffer.alloc(65*1024**2,1));
+    const before=treeBytes(f.root),reader=createCockpitReader(f.root),work=reader.snapshot();
+    assert.equal(work.data.kind,'work');assert.ok(work.data.entries.some(row=>row.key==='fixture-a'));assert.equal(work.data.entries.some(row=>row.title?.includes('old planning')),false);
+    assert.throws(()=>parseCockpitArguments({operation:'snapshot',session_id:randomUUID(),view:'legacy'}),/resource_denied/);
+    assert.deepEqual(treeBytes(f.root),before);
+  }finally{f.close();}
 });
 
 test('SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation', () => {
   const f = fixture(); try {
-    backlog(f, ''); const before = treeBytes(f.root);
+    const before = treeBytes(f.root);
     const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
     const actual = createCockpitReader(f.root).snapshot('fixture-a');
     assert.equal(actual.data.kind, 'run'); assert.equal(actual.data.run.evaluation.current_gate, expected.current_gate);
@@ -88,7 +61,7 @@ test('SCN-067/072: strict optional named snapshot and independent production wor
     const read = (session_id, args) => service.read({ session_id, ...args });
     const first = await read(a, { operation: 'snapshot', run_id: 'fixture-a' });
     assert.equal(first.data.kind, 'run');
-    const overview = await read(b, { operation: 'snapshot' }); assert.equal(overview.data.kind, 'runs');
+    const overview = await read(b, { operation: 'snapshot' }); assert.equal(overview.data.kind, 'work');
     const old = first.data.run.resources.find(r => r.type === 'UR');
     const invalid = await read(a, { operation: 'document', snapshot_id: first.snapshot_id, run_id: 'fixture-completed', resource_id: old.resource_id });
     assert.equal(invalid.code, 'resource_denied');
@@ -102,61 +75,13 @@ test('SCN-067/072: strict optional named snapshot and independent production wor
   } finally { await service.close(); f.close(); }
 });
 
-test('SCN-079/080/083: canonical approval without backlog membership leaves stored pointers unchanged; direct reading checks the new Run', async () => {
-  const { approvalFixture } = await import('./control-cockpit-fixtures.js');
-  const { createHash } = await import('node:crypto');
-  const f = await approvalFixture(), service = createCockpitSessionService(f.root);
-  try {
-    // Fixture setup precedes capture and approval. The canonical writer updates only an
-    // existing linked row; an unlinked Run is the legitimate Run-only approval case.
-    const path = join(f.root,'.agdf/control/MASTER_BACKLOG.md'), digest = () => createHash('sha256').update(fs.readFileSync(path)).digest('hex');
-    const setup = fs.readFileSync(path, 'utf8');
-    const addressedRow = line => line.split('|')[2]?.trim().replaceAll('`', '') === 'fixture-a';
-    assert.equal(setup.split('\n').filter(addressedRow).length, 0);
-    fs.writeFileSync(path, setup.split('\n').filter(line => !addressedRow(line)).join('\n'));
-    const previousRevision = f.revision(), previousDigest = digest(), reader = createCockpitReader(f.root), pointer = reader.snapshot(undefined, 'legacy');
-    const previousCore = evaluateGateCheck(f.root,{runId:'fixture-a',ignoreRunIdEnv:true});
-    assert.equal(f.approve().outcome,'approved'); assert.equal(digest(),previousDigest); assert.notEqual(f.revision(),previousRevision);
-    assert.equal(reader.freshness(pointer.snapshot_id).data.unchanged,true);
-    const before = treeBytes(f.root), stored = reader.snapshot(undefined, 'legacy'); assert.deepEqual(storedFacts(stored.data),storedFacts(pointer.data));
-    const session = (await service.render())._meta.agdf_cockpit.session_id;
-    const wire = await service.read({operation:'snapshot',session_id:session,view:'legacy'}); assert.deepEqual(storedFacts(wire.data),storedFacts(stored.data));
-    const expected = evaluateGateCheck(f.root,{runId:'fixture-a',ignoreRunIdEnv:true});
-    assert.notEqual(expected.next_allowed_action,previousCore.next_allowed_action);
-    const checked = await service.read({operation:'run',session_id:session,snapshot_id:wire.snapshot_id,run_id:'fixture-a'});
-    assert.equal(checked.data.run.revision_id,f.revision()); assert.equal(checked.data.run.evaluation.next_allowed_action,expected.next_allowed_action);
-    assert.equal(checked.authorizes,false); assert.equal(stored.data.entries.some(row=>row.key==='fixture-a'),false);
-    assert.deepEqual(treeBytes(f.root),before);
-  } finally { await service.close(); f.close(); }
-});
-
-test('SCN-080/082/083: canonical approval leaves retained legacy pointers unchanged while the Run revision advances', async () => {
-  const { approvalFixture } = await import('./control-cockpit-fixtures.js');
-  const f = await approvalFixture(), service = createCockpitSessionService(f.root);
-  try {
-    const path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
-    const previousBytes = fs.readFileSync(path), previousRevision = f.revision();
-    const reader = createCockpitReader(f.root), pointer = reader.snapshot(undefined, 'legacy');
-    const session_id = (await service.render())._meta.agdf_cockpit.session_id;
-    const wireBefore = await service.read({ operation: 'snapshot', session_id, view: 'legacy' });
-    assert.deepEqual(storedFacts(wireBefore.data), storedFacts(pointer.data));
-    assert.equal(f.approve().outcome, 'approved');
-    assert.deepEqual(fs.readFileSync(path), previousBytes);
-    assert.notEqual(f.revision(), previousRevision);
-    const before = treeBytes(f.root);
-    assert.equal(reader.freshness(pointer.snapshot_id).data.unchanged, true);
-    assert.equal((await service.read({ operation: 'freshness', session_id, snapshot_id: wireBefore.snapshot_id })).data.unchanged, true);
-    const stored = reader.snapshot(undefined, 'legacy');
-    const wire = await service.read({ operation: 'snapshot', session_id, view: 'legacy' });
-    assert.deepEqual(storedFacts(wire.data), storedFacts(stored.data));
-    assert.deepEqual(storedFacts(stored.data), storedFacts(pointer.data));
-    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
-    const checked = await service.read({ operation: 'run', session_id, snapshot_id: wire.snapshot_id, run_id: 'fixture-a' });
-    assert.equal(checked.data.run.revision_id, f.revision());
-    assert.equal(checked.data.run.evaluation.next_allowed_action, expected.next_allowed_action);
-    assert.equal(checked.authorizes, false);
-    assert.deepEqual(treeBytes(f.root), before);
-  } finally { await service.close(); f.close(); }
+test('canonical approval advances only its Run and leaves retained foreign planning untouched',async()=>{
+  const f=await approvalFixture();try{
+    const old=join(f.root,'.agdf/control/MASTER_BACKLOG.md');fs.writeFileSync(old,'# Unrelated planning\n');const beforeBytes=fs.readFileSync(old),beforeRevision=f.revision();
+    assert.equal(f.approve().outcome,'accepted');assert.notEqual(f.revision(),beforeRevision);assert.deepEqual(fs.readFileSync(old),beforeBytes);
+    const before=treeBytes(f.root),expected=evaluateGateCheck(f.root,{runId:'fixture-a'}),run=createCockpitReader(f.root).snapshot('fixture-a').data.run;
+    assert.equal(run.evaluation.current_gate,expected.current_gate);assert.equal(Object.hasOwn(run,'backlog_comparison'),false);assert.deepEqual(treeBytes(f.root),before);
+  }finally{f.close();}
 });
 
 test('UR readiness follows the configured project language exactly like the canonical gate-check', () => {
@@ -194,68 +119,19 @@ test('an artefact registered outside .agdf/control blocks only that resource and
       assert.equal(run.resources.find(r => r.type === 'UR').status, 'registered');
       assert.equal(run.evaluation.status, 'not_evaluated');
       assert.equal(run.evaluation.control_assessment.state, 'unconfirmed');
-      assert.equal(run.evaluation.current_gate, run.persisted.current_gate);
-      assert.equal(run.evaluation.next_allowed_action, run.persisted.next_allowed_action);
+      assert.equal(run.evaluation.current_gate, 'UR');
+      assert.equal(typeof run.evaluation.next_allowed_action, 'string');
       assert.deepEqual(run.evaluation.diagnostics.map(d => [d.code, d.path]), [['evaluation_out_of_scope', 'docs/notes.md']]);
       assert.deepEqual(treeBytes(f.root), before);
     } finally { f.close(); }
   }
 });
 
-test('a generated next step from an earlier gate is replaced; custom text and backward moves keep the stored values', async () => {
-  const f = await approvalFixture(); try {
-    const beforeApproval = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
-    assert.equal(beforeApproval.current_gate, 'UR');
-    const stale = beforeApproval.next_allowed_action;
-    assert.equal(f.approve().outcome, 'approved');
-    let source = replaceFirstScalar(fs.readFileSync(f.runPath, 'utf8'), 'current_gate', 'UR');
-    source = replaceFirstScalar(source, 'next_allowed_action', stale);
-    fs.writeFileSync(f.runPath, sealRunState(f.root, source));
-    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
-    const run = createCockpitReader(f.root).snapshot('fixture-a').data.run;
-    assert.notEqual(run.evaluation.current_gate, 'UR', 'the evaluated gate moved forward past the stored UR');
-    assert.equal(run.evaluation.next_allowed_action, expected.next_allowed_action);
-    assert.notEqual(run.evaluation.next_allowed_action, stale);
-    assert.equal(run.persisted.current_gate, 'UR');
-    assert.equal(run.persisted.next_allowed_action, stale);
-
-    const custom = 'Request exact UR approval before anything else.';
-    source = replaceFirstScalar(source, 'next_allowed_action', custom);
-    fs.writeFileSync(f.runPath, sealRunState(f.root, source));
-    const beforeRead = treeBytes(f.root);
-    const customRun = createCockpitReader(f.root).snapshot('fixture-a').data.run;
-    assert.equal(customRun.evaluation.current_gate, run.evaluation.current_gate);
-    assert.equal(customRun.evaluation.next_allowed_action, custom, 'a forward gate move preserves hand-authored instructions');
-    assert.equal(customRun.persisted.current_gate, 'UR');
-    assert.equal(customRun.persisted.next_allowed_action, custom);
-    assert.deepEqual(treeBytes(f.root), beforeRead, 'reading the cockpit never repairs stored state');
-  } finally { f.close(); }
-  const b = await approvalFixture(); try {
-    const retracted = 'Draft the PRD slice before anything else.';
-    let source = replaceFirstScalar(fs.readFileSync(b.runPath, 'utf8'), 'current_gate', 'PRD');
-    source = replaceFirstScalar(source, 'next_allowed_action', retracted);
-    fs.writeFileSync(b.runPath, sealRunState(b.root, source));
-    const run = createCockpitReader(b.root).snapshot('fixture-a').data.run;
-    assert.equal(run.evaluation.current_gate, 'UR');
-    assert.equal(run.evaluation.blocking_reason, 'none', 'the backward-move fixture has complete decision content');
-    assert.equal(run.evaluation.next_allowed_action, evaluateGateCheck(b.root, { runId: 'fixture-a', ignoreRunIdEnv: true }).next_allowed_action);
-    assert.equal(run.evaluation.next_allowed_action, retracted, 'a backward move keeps the stored next step');
-  } finally { b.close(); }
-});
-
-test('an actual decision-content blocker overrides a stored next step without repairing the source', () => {
-  const f = fixture(); try {
-    const custom = 'Draft the PRD slice before anything else.';
-    let source = replaceFirstScalar(fs.readFileSync(f.runPath, 'utf8'), 'current_gate', 'PRD');
-    source = replaceFirstScalar(source, 'next_allowed_action', custom);
-    fs.writeFileSync(f.runPath, sealRunState(f.root, source));
-    const before = treeBytes(f.root), expected = evaluateGateCheck(f.root, {runId:'fixture-a',ignoreRunIdEnv:true});
-    const run = createCockpitReader(f.root).snapshot('fixture-a').data.run;
-    assert.equal(run.evaluation.blocking_reason, 'AGDF_DECISION_CONTENT_INCOMPLETE');
-    assert.equal(run.evaluation.next_allowed_action, expected.next_allowed_action);
-    assert.notEqual(run.evaluation.next_allowed_action, custom);
-    assert.equal(run.persisted.current_gate, 'PRD');
-    assert.equal(run.persisted.next_allowed_action, custom);
-    assert.deepEqual(treeBytes(f.root), before);
-  } finally { f.close(); }
+test('current gate and next action are derived from typed facts without persisted control copies',async()=>{
+  const f=await approvalFixture();try{
+    const earlier=evaluateGateCheck(f.root,{runId:'fixture-a'});assert.equal(f.approve().outcome,'accepted');
+    const before=treeBytes(f.root),run=createCockpitReader(f.root).snapshot('fixture-a').data.run,expected=evaluateGateCheck(f.root,{runId:'fixture-a'});
+    assert.notEqual(expected.current_gate,earlier.current_gate);assert.equal(run.evaluation.current_gate,expected.current_gate);assert.equal(run.evaluation.next_allowed_action,expected.next_allowed_action);
+    assert.doesNotMatch(fs.readFileSync(f.runPath,'utf8'),/^## (?:Current Control State|Approvals|Artefacts|Evidence|Artefact Chain)\s*$/mu);assert.deepEqual(treeBytes(f.root),before);
+  }finally{f.close();}
 });

@@ -1,6 +1,6 @@
 // Private child-process harness. No public flags or environment variables enable these checkpoints.
 import { existsSync, writeFileSync } from "node:fs";
-import { executeApprovalCommand } from "../../packages/core/lib/control-state/approval-command.js";
+import { executeBoundApproval as executeApprovalCommand } from "./control-command-fixture.js";
 import { evaluateGateCheck } from "../../packages/core/lib/control-evaluation/gate-check.js";
 import { cliGitObservation } from "../../packages/cli/lib/control-evaluation/git-observation.js";
 process.once("message", ({ root, command, pauseAt, marker, release }) => {

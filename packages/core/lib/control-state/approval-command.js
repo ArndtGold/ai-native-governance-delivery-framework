@@ -1,3 +1,4 @@
+import { APPROVAL_OPERATION_VERSION } from './approval-operations.js';
 import { bindInputResolution } from './input-resolution.js';
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { randomUUID } from "node:crypto";
@@ -13,7 +14,6 @@ import { appendApprovalOperation, readApprovalOperations } from "./approval-oper
 import { approvalRequestDigest, commandBinding, COOPERATIVE_ASSURANCE, ownDataValue, resolveControlCommandTarget, validateApprovalCommand } from "./approval-command-contract.js";
 import { flushRunCommit } from "./run-state-writer.js";
 import { withRunMutationLock, writeRunMutationLocked } from "./run-mutation.js";
-import { backlogSkip } from "./run-backlog.js";
 
 function sealIsValid(root, content) {
   try { return runSealState(root, content).status === "valid"; } catch { return false; }
@@ -91,7 +91,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
         recovery: prepared.recovery ?? "Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply.",
       });
       const receipt = bindInputResolution({
-        schema_version: prepared.qaAcceptance ? "3" : "2", action: command.action, operation_id: command.operation_id,
+        schema_version: APPROVAL_OPERATION_VERSION, action: command.action, operation_id: command.operation_id,
         request_digest: requestDigest, command_digest: commandContext?.request_digest ?? null, binding: commandBinding(command), assurance: COOPERATIVE_ASSURANCE,
         created_at: new Date().toISOString(), producer: { contract: "approval-service/1", package_version: packageVersion },
         effect: { previous_revision_id: command.expected_revision_id, resulting_revision_id: randomUUID(),
@@ -109,7 +109,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
         operationContext,
       });
       checkpoint("before_response");
-      return result("accepted", null, receipt, backlogSkip({ status: written.backlog, reason: written.backlog_reason }));
+      return result("accepted", null, receipt);
     }, { checkpoint, operationContext });
   } catch (error) {
     if (error.message === 'AGDF_OPERATION_PAYLOAD_CONFLICT') return result('rejected', 'operation_payload_conflict');
@@ -119,7 +119,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
       { recovery: "Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply." });
     // Rename can succeed before sync or lock release fails. Never infer absence from an exception.
     let current = readRun(target.root, command.run_id);
-    // A committed receipt remains observable while its Backlog journal is pending.
+    // A committed receipt remains observable while its Run-local journal is pending.
     // This acknowledgement is recovery-required, never a readiness/approval claim.
     if (current.rejection?.reason === "run_step_recovery_required") {
       try {

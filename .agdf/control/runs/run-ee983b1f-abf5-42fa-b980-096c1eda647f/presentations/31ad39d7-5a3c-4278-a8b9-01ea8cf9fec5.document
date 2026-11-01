@@ -1,0 +1,27 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: One Run Folder And One Current Control Data Model
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Zwei Ablagestrukturen, Masterbacklog-Kompatibilität und mehrere alte Datenformate machen AGDF bereits vor dem Livebetrieb unnötig komplex; einzelne Metadaten werden mehrfach gespeichert.
+- Ziel: Ein aktuelles Datenmodell, ein gemeinsamer Ordner je gestartetem Run und genau eine kanonische Zuständigkeit je Information.
+- Betroffene Nutzer: Maintainer, Beitragende, AGDF-Nutzer sowie Agenten und Integrationen über Core/CLI, MCP und Cockpit.
+- Umfang: Masterbacklog und Altformat-Unterstützung vollständig entfernen; geplante URs unter planned behalten; Dokumente, Zustand, notwendige Historie und Nachweise je Run zusammenführen; Leser, Schreiber, Initialisierung, Verträge, Pakete und Tests angleichen.
+- Nicht-Ziele: Keine Migration oder Weiterunterstützung alter Entwicklungsbestände, keine neue zentrale Liste, keine neuen Gates oder Hostversprechen, keine pauschale Löschung fremder Daten, keine Installation oder Veröffentlichung.
+- Erfolgssignale: Neue Projekte und alle betroffenen Oberflächen nutzen dieselbe Struktur; jeder Run ist vollständig auffindbar; alte Daten werden klar und ohne automatische Änderung abgewiesen; aktuelle Freigaben, Wiederholbarkeit und Recovery bleiben erhalten.
+- Quellen: Die besprochenen Maintainer-Entscheidungen und main c204ab67 nach PR #50; vorhandene Core-Persistenz-, CLI/MCP-, Cockpit- und Plugin-Owner bleiben die Ausgangspunkte.
+- Risiken und offene Details: Der Run verändert seine eigene Ablage; dieser Übergang und der Ersatz betroffener Testbestände müssen vor Umsetzung geklärt werden. Erforderliche historische Nachweise dürfen nicht als vermeintliche Dubletten entfallen. Unterordner und genaue Schema-Kennung werden erst im Design festgelegt.
+- Arbeitskopie: Eigener Worktree run-model-clean-cut auf Branch agdf/run-model-clean-cut; bisherige Arbeitskopien bleiben getrennt.
+- Nächster Schritt: Diese konkrete UR-Fassung prüfen. Erst Approval: UR erlaubt Brownfield Review und weitere Planung; Umsetzung und spätere Gates bleiben separat.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-ee983b1f-abf5-42fa-b980-096c1eda647f` · Nutzeranforderungen · Revision: `178ccce7-f6fa-418a-aeb8-438f34147de4`
+
+SHA-256: `sha256:3d8f1db643d8851719f9367e025d25f17b8643b3f2c96adafdcbf6995a833ac6`

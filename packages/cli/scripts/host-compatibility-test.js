@@ -18,7 +18,7 @@ import { projectCodexHookObservation } from "../lib/runtime-check-consent/adapte
 import { createDispatchBinding } from "../lib/skill-dispatch/binding.js";
 import { createSkillDispatchService } from "#agdf-core/skill-dispatch/service.js";
 import { createRun } from "#agdf-core/control-state/index.js";
-import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
+import { initializeCurrentControl } from '../../core/test/fixtures/current-init.js';
 import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 import { proofState, HOSTS, SCENARIOS } from "../../../scripts/host-compatibility/contract.mjs";
 export { SCENARIOS } from "../../../scripts/host-compatibility/contract.mjs";
@@ -63,7 +63,7 @@ export async function runCompatibilitySuite({ onDiagnostic = () => {} } = {}) {
   const observations = [];
   const active = join(root, "active"); mkdirSync(active);
   assert.equal(spawnSync("git", ["init", "-q", active]).status, 0);
-  initializeCanonicalControl(active, generatedFilesForTarget("init", active, false, "en"));
+  initializeCurrentControl(active, "en");
   createRun(active, "fixture-run");
   const validator = fileURLToPath(new URL("../bin/agdf-validator.js", import.meta.url));
   const dispatch = createSkillDispatchService({ env: {} });

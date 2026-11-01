@@ -1,3 +1,4 @@
+import { CURRENT_RUN_VERSION } from './run-identity.js';
 import { createHash, randomUUID } from 'node:crypto';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { existsSync, lstatSync, mkdirSync, readdirSync, unlinkSync, openSync, writeFileSync, fsyncSync, closeSync } from 'node:fs';
@@ -9,12 +10,11 @@ import { REVISION_ID_PATTERN } from './run-identity.js';
 import { readContainedControlText } from '../control-read/snapshot.js';
 import { currentInputResolution, isOriginalInputResolution, bindInputResolution, resolutionRecord, recordedInputResolution } from './input-resolution.js';
 
-export const PLANNED_LAYOUT = 'planned-urs-v1';
-export const LEGACY_LAYOUT = 'master-backlog-v1';
+import { CURRENT_LAYOUT } from './run-identity.js';
+export { CURRENT_LAYOUT } from './run-identity.js';
 const CONFIG = '.agdf/control/config.json';
 const MAINTENANCE = '.agdf/control/maintenance';
 const CLAIMS = `${MAINTENANCE}/admission`;
-const MARKER = `${MAINTENANCE}/PLANNED_LAYOUT_PENDING.json`;
 const active = new AsyncLocalStorage();
 export function markControlMutationEffect() {
   const mutation = active.getStore();
@@ -47,32 +47,23 @@ function read(root, path, limit = 65536) {
 export function readControlLayout(root, { live = false } = {}) {
   const captured = currentInputResolution()?.configuration;
   const original = !live && isOriginalInputResolution() && captured?.root === root && captured.control === 'active' ? captured : null;
-  const originalLayout = original?.control_layout ?? LEGACY_LAYOUT;
   const originalSnapshot = () => {
-    // The existing original-operation proof binds the captured configuration.
-    // Historical resolved/1 records predate layout selection and mean legacy;
-    // new records retain the explicit layout. Current corrupt config must not
-    // veto recovery or silently select a different layout for that operation.
-    if (![LEGACY_LAYOUT, PLANNED_LAYOUT].includes(originalLayout)) fail('AGDF_CONTROL_LAYOUT_UNSUPPORTED');
-    return Object.freeze({ layout: originalLayout, generation: original.config_digest, config: null });
+    if (original.control_layout !== CURRENT_LAYOUT) fail('AGDF_CONTROL_LAYOUT_UNSUPPORTED');
+    return Object.freeze({ layout: CURRENT_LAYOUT, generation: original.config_digest, config: null });
   };
-  const text = read(root, CONFIG);
-  let config;
-  try { config = JSON.parse(text.replace(/^\uFEFF/u, '')); } catch { if (original) return originalSnapshot(); fail('AGDF_CONTROL_LAYOUT_INVALID'); }
+  let text, config;
+  try { text = read(root, CONFIG); config = JSON.parse(text.replace(/^\uFEFF/u, '')); }
+  catch (error) { if (original) return originalSnapshot(); if (error.message === 'AGDF_CONTROL_PATH_INVALID') throw error; fail('AGDF_CONTROL_LAYOUT_INVALID'); }
   if (!config || typeof config !== 'object' || Array.isArray(config)) {
     if (original) return originalSnapshot(); fail('AGDF_CONTROL_LAYOUT_INVALID');
   }
-  const layout = config.control_layout ?? LEGACY_LAYOUT;
-  if (![LEGACY_LAYOUT, PLANNED_LAYOUT].includes(layout)) fail('AGDF_CONTROL_LAYOUT_UNSUPPORTED');
-  // Physical cutover wins over a historical operation's old configuration.
-  // Within the same layout, original recovery retains its already-bound choices.
-  return Object.freeze({ layout, generation: original && layout === originalLayout ? original.config_digest : hash(text), config });
+  if (config.control_layout !== CURRENT_LAYOUT) { if (original) return originalSnapshot(); fail('AGDF_CONTROL_LAYOUT_UNSUPPORTED'); }
+  return Object.freeze({ layout: CURRENT_LAYOUT, generation: original ? originalSnapshot().generation : hash(text), config });
 }
 
 export function assertLayoutRunWrite(root, state) {
   const layout = readControlLayout(root);
-  const version = Number(state.meta.control_state_version);
-  if (version !== (layout.layout === PLANNED_LAYOUT ? 3 : 2)) fail('AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED');
+  if (state.meta.control_state_version !== String(CURRENT_RUN_VERSION)) fail('AGDF_RUN_VERSION_UNSUPPORTED');
   return layout;
 }
 
@@ -89,12 +80,6 @@ function ensureDirectory(root, path) {
 
 function ensureAdmission(root) {
   ensureDirectory(root, MAINTENANCE); ensureDirectory(root, CLAIMS);
-}
-
-function markerPresent(root) {
-  // A malformed or foreign marker freezes admission as well. Readers never repair it.
-  if (hasSymlinkComponent(root, MARKER)) fail('AGDF_CONTROL_PATH_INVALID');
-  return existsSync(join(root, MARKER));
 }
 
 function publishClaim(root, relative, text) {
@@ -120,7 +105,6 @@ export function withControlMutation(root, { resource, operation_id = null, check
   if (resume && operation_id && inspectMutationClaims(root, { strict: false }).some(row => row.resource === resource && row.operation_id === operation_id))
     return withControlRecovery(root, { resource, operation_id, proveOutcome }, work);
   const layout = readControlLayout(root);
-  if (markerPresent(root)) fail('AGDF_CONTROL_MAINTENANCE_REQUIRED');
   checkpoint('before_claim');
   const id = randomUUID(), path = `${CLAIMS}/${id}.json`;
   const text = JSON.stringify({ schema_version: 1, id, resource, operation_id, generation: layout.generation, pid: process.pid }) + '\n';
@@ -130,7 +114,7 @@ export function withControlMutation(root, { resource, operation_id = null, check
   const mutation = { root, layout, claim, resource, operation_id, effectStarted: false };
   try {
     checkpoint('claim_published');
-    if (markerPresent(root) || readControlLayout(root).generation !== layout.generation) fail('AGDF_CONTROL_MAINTENANCE_REQUIRED');
+    if (readControlLayout(root).generation !== layout.generation) fail('AGDF_CONTROL_MAINTENANCE_REQUIRED');
     admitted = true;
     checkpoint('admitted');
     const result = active.run(mutation, () => work(layout));
@@ -196,42 +180,4 @@ export function retireRecoveredMutationClaim(root, { path, digest, proveOutcome 
   const text = read(root, path, 4096);
   if (hash(text) !== digest) fail('AGDF_CONTROL_ADMISSION_UNKNOWN');
   retireClaim(root, { path, text });
-}
-
-// Maintenance retains the marker on interruption or undrained claims. A matching
-// original operation can resume under the rare exclusive epoch lock.
-export function inspectLayoutMaintenance(root) {
-  if (!markerPresent(root)) return { state: 'none', authorizes: false };
-  try {
-    const text = read(root, MARKER, 16384), stored = JSON.parse(text), marker = resolutionRecord(stored);
-    const fields = ['schema_version', 'operation_id', 'request_digest', ...(marker?.schema_version === 2 ? ['preview_digest', 'config_digest'] : [])];
-    if (!exactObject(marker, fields) || ![1, 2].includes(marker.schema_version) || !REVISION_ID_PATTERN.test(marker.operation_id)
-      || !/^sha256:[a-f0-9]{64}$/u.test(marker.request_digest) || marker.schema_version === 2
-        && ![marker.preview_digest, marker.config_digest].every(value => /^sha256:[a-f0-9]{64}$/u.test(value))) fail('AGDF_CONTROL_MAINTENANCE_UNKNOWN');
-    return { state: 'pending', marker, stored, digest: hash(text), input_resolution: recordedInputResolution(stored), authorizes: false };
-  } catch { return { state: 'unknown', authorizes: false }; }
-}
-
-export function withLayoutMaintenance(root, { operation_id, request_digest, preview_digest, config_digest, checkpoint = () => {} }, work) {
-  if (!REVISION_ID_PATTERN.test(operation_id) || !/^sha256:[a-f0-9]{64}$/u.test(request_digest)) fail('AGDF_CONTROL_MAINTENANCE_INVALID');
-  if (preview_digest !== undefined && ![preview_digest, config_digest].every(value => /^sha256:[a-f0-9]{64}$/u.test(value))) fail('AGDF_CONTROL_MAINTENANCE_INVALID');
-  ensureAdmission(root);
-  return withOwnedFileLock(join(root, MAINTENANCE, 'EPOCH'), () => {
-    const marker = { schema_version: preview_digest === undefined ? 1 : 2, operation_id, request_digest,
-      ...(preview_digest === undefined ? {} : { preview_digest, config_digest }) };
-    let text;
-    if (markerPresent(root)) {
-      const previous = inspectLayoutMaintenance(root);
-      if (previous.state !== 'pending' || canonicalJson(previous.marker) !== canonicalJson(marker)) fail('AGDF_CONTROL_MAINTENANCE_UNKNOWN');
-      text = read(root, MARKER, 16384);
-    } else { text = JSON.stringify(bindInputResolution(marker)) + '\n'; atomicWrite(join(root, MARKER), text); }
-    checkpoint('maintenance_frozen');
-    if (inspectMutationClaims(root).length) fail('AGDF_CONTROL_MUTATIONS_IN_FLIGHT');
-    checkpoint('maintenance_drained');
-    const result = work(readControlLayout(root, { live: true }));
-    if (result && typeof result.then === 'function') fail('AGDF_CONTROL_ASYNC_MUTATION_UNSUPPORTED');
-    if (read(root, MARKER, 16384) !== text) fail('AGDF_CONTROL_MAINTENANCE_UNKNOWN');
-    unlinkSync(join(root, MARKER)); fsyncDirectory(join(root, MAINTENANCE));
-    return result;
-  });
 }

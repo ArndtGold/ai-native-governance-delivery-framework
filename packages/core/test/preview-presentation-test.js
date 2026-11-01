@@ -1,3 +1,4 @@
+import { resolutionRecordVersion } from '../lib/control-state/input-resolution.js';
 import assert from 'node:assert/strict';
 import { inspectMutationClaims } from '../lib/control-state/control-layout.js';
 import { randomUUID } from 'node:crypto';
@@ -26,7 +27,7 @@ export function createPreviewPresentationFixture(runId = 'preview-presentation')
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const f = createPrdDefinitionTestRun(root, cli, runId, process.env, { typedApprovals: true, previewRequirement: true });
   const source = readFileSync(f.file('UR.md'), 'utf8'), preview = previewFixture(root, runId, source);
-  writeFileSync(f.file('PRD.md'), preview.prd()); assert.equal(f.record().value?.outcome, 'recorded');
+  writeFileSync(f.file('PRD.md'), preview.prd()); assert.equal(f.record().value?.outcome, 'accepted');
   const input = { schema_version: '1', presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'explicit_target',
     target_id: resolveControlCommandTarget(root).target_id, run_id: runId, expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local',
     command: { kind: 'presentation.prepare', payload: { gate: 'PRD' } } };
@@ -44,7 +45,7 @@ if (process.argv[1] === import.meta.filename) {
     const interruptedInput = { ...input, operation_id: randomUUID() };
     const interrupted = createRunCommandService({ checkpoint: point => { if (point === 'presentation_preview_file_published') throw Error('synthetic_interrupt'); } });
     assert.notEqual(interrupted('agdf_prepare', interruptedInput).outcome, 'accepted');
-    const partial=join(root,`.agdf/control/runs/${f.runId}/presentations/${interruptedInput.operation_id}.preview-file-0`),partialBytes=readFileSync(partial);
+    const partial=join(root,`.agdf/control/runs/${f.runId}/control/presentations/${interruptedInput.operation_id}.preview-file-0`),partialBytes=readFileSync(partial);
     // An interrupted original publication has owned effects and a retained claim.
     // Foreign replacement prevents a proven outcome; it is not a fresh rejection.
     writeFileSync(partial,'changed partial bytes');assert.equal(command('agdf_prepare',interruptedInput).outcome,'effect_unknown');assert.equal(readFileSync(partial,'utf8'),'changed partial bytes');
@@ -57,7 +58,7 @@ if (process.argv[1] === import.meta.filename) {
     assert.equal(command('agdf_prepare', interruptedInput).outcome, 'already_applied');
     const prepared = command('agdf_prepare', input); assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
     const selectors = { runId: f.runId, gate: 'PRD', revisionId: f.revision(), presentationId: prepared.family_result.presentation_id, targetId: input.target_id };
-    const envelope = validateRunPresentationRecord(root, selectors); assert.equal(envelope.record.schema_version, 6);
+    const envelope = validateRunPresentationRecord(root, selectors); assert.equal(resolutionRecordVersion(envelope.record), 7);
     assert.ok(prepared.family_result.text.includes('.preview.html'));
     const page = readPresentationPreview(root, selectors); assert.equal(page.available, true, JSON.stringify(page));
     assert.equal(page.content_digest, envelope.record.preview_review.rendered_digest); assert.equal(page.authorizes, false);
@@ -65,7 +66,7 @@ if (process.argv[1] === import.meta.filename) {
     assert.equal(readPresentationPreview(root, { ...selectors, cursor: 'wrong' }).available, false);
     assert.equal(readPresentationPreview(root, { ...selectors, targetId: 'sha256:' + '0'.repeat(64) }).available, false);
     const approve = { ...input, operation_id: randomUUID(), command: { kind: 'approval.record', payload: { gate: 'PRD', presentation_id: selectors.presentationId, response: 'Approval: PRD' } } };
-    const envelopePath=join(root,`.agdf/control/runs/${f.runId}/presentations/${selectors.presentationId}.json`),envelopeBytes=readFileSync(envelopePath);
+    const envelopePath=join(root,`.agdf/control/runs/${f.runId}/control/presentations/${selectors.presentationId}.json`),envelopeBytes=readFileSync(envelopePath);
     const legacy=structuredClone(envelope.record);legacy.schema_version=3;delete legacy.preview_review;
     writeFileSync(envelopePath,JSON.stringify({record:legacy,digest:digest(JSON.stringify(legacy))}));
     assert.equal(command('agdf_approve',{...approve,operation_id:randomUUID()}).outcome,'rejected','Required preview cannot use an older envelope without its binding');
@@ -83,7 +84,7 @@ if (process.argv[1] === import.meta.filename) {
     const rawPath=join(root,envelope.record.preview_review.files[0].snapshot),rawBytes=readFileSync(rawPath);
     writeFileSync(rawPath,'tampered raw snapshot');assert.equal(command('agdf_approve',{...approve,operation_id:randomUUID()}).outcome,'rejected');writeFileSync(rawPath,rawBytes);
     const result = command('agdf_approve', { ...approve, operation_id: randomUUID() }); assert.equal(result.outcome, 'accepted', JSON.stringify(result));
-    assert.equal(result.receipt.schema_version, '2');
+    assert.equal(resolutionRecordVersion(result.receipt), '4');
     let state = prepareRunContentState(root, readFileSync(f.state, 'utf8'), f.state);
     assert.equal(inspectApprovedArtefact(root, state, 'PRD').confirmed, true);
     writeFileSync(asset, 'changed after approval');
@@ -105,11 +106,11 @@ if (process.argv[1] === import.meta.filename) {
     assert.equal(readPresentationPreview(root,selectors).applicability,'historical');
     writeFileSync(asset,original);
     const next=structuredClone(preview.descriptor);next.version='review-v2';
-    cpSync(join(root,f.prefix+'previews/review-v1'),join(root,f.prefix+'previews/review-v2'),{recursive:true});
+    cpSync(join(root,`.agdf/control/runs/${f.runId}/evidence/`+'previews/review-v1'),join(root,`.agdf/control/runs/${f.runId}/evidence/`+'previews/review-v2'),{recursive:true});
     next.entry=next.entry.replace('/review-v1/','/review-v2/');next.files.forEach(file=>file.path=file.path.replace('/review-v1/','/review-v2/'));
     const nextAsset=next.files.find(file=>file.path.endsWith('main.js')),nextBytes=Buffer.from(original+'\n// Revised illustrative interaction\n');
     writeFileSync(join(root,nextAsset.path),nextBytes);nextAsset.bytes=nextBytes.length;nextAsset.digest=digest(nextBytes);
-    writeFileSync(f.file('PRD.md'),preview.prd(next));assert.equal(f.record(true).value.outcome,'recorded');
+    writeFileSync(f.file('PRD.md'),preview.prd(next));assert.equal(f.record(true).value.outcome,'accepted');
     assert.equal(command('agdf_approve',{...approve,operation_id:randomUUID()}).outcome,'rejected','Old reply cannot approve revised material');
     const nextInput={...input,operation_id:randomUUID(),expected_revision_id:f.revision()},nextPrepared=command('agdf_prepare',nextInput);
     assert.equal(nextPrepared.outcome,'accepted',JSON.stringify(nextPrepared));
@@ -120,7 +121,7 @@ if (process.argv[1] === import.meta.filename) {
     assert.equal(native(root,binding,nativeInput).outcome,'rejected');assert.equal(readFileSync(f.state,'utf8'),beforeNative);writeFileSync(join(root,nextAsset.path),nextBytes);
     assert.equal(native(root,binding,nativeInput).outcome,'accepted');assert.equal(native(root,binding,nativeInput).outcome,'already_applied');
     assert.equal(validateEarlyPrdHistory(root,receipt),true);
-    console.log('SCN-012/027: actual early PRD revision archives v5 files/chunks, ignores later live history changes, renews presentation and rejects old replies; native facade approval/replay passed.');
+    console.log('SCN-012/027: actual early PRD revision archives current files/chunks, ignores later live history changes, renews presentation and rejects old replies; native facade approval/replay passed.');
     console.log('SCN-009/010/011/015/018/021/025/030: exact preview preparation, interruption, actual approval denial/race, receipt and current proof passed (synthetic runs).');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }

@@ -1,3 +1,8 @@
+import { randomUUID } from 'node:crypto';
+import { createRun } from '#agdf-core/control-state/run-state-repository.js';
+import { parseRunState } from '#agdf-core/control-state/run-state-parser.js';
+import { artefactFileDigest } from '#agdf-core/control-state/run-seal.js';
+import { resolveControlCommandTarget } from '#agdf-core/control-state/approval-command-contract.js';
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -16,12 +21,12 @@ try {
   assert.equal(resolveConfiguredArtifactLanguage(join(temporary, "defaults")), "en", "missing config defaults to English");
   writeFileSync(join(configDir, "config.json"), "{ broken");
   assert.throws(() => resolveConfiguredArtifactLanguage(join(temporary, "defaults")), /configuration_invalid/, "corrupt JSON must not be silently defaulted");
-  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "not a tag!", chat_language: 'en', runtime_language: 'en' }));
+  writeFileSync(join(configDir, "config.json"), JSON.stringify({ control_layout: 'run-folders-v1', artifact_language: "not a tag!", chat_language: 'en', runtime_language: 'en' }));
   assert.throws(() => resolveConfiguredArtifactLanguage(join(temporary, "defaults")), /configuration_invalid/, "malformed recognized tags must be diagnosed");
-  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "de-DE", chat_language: 'en', runtime_language: 'en' }));
+  writeFileSync(join(configDir, "config.json"), JSON.stringify({ control_layout: 'run-folders-v1', artifact_language: "de-DE", chat_language: 'en', runtime_language: 'en' }));
   assert.equal(resolveConfiguredArtifactLanguage(join(temporary, "defaults")), "de", "region subtags reduce to the language");
   const configuredRoot = join(temporary, "defaults");
-  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "en", chat_language: "de", runtime_language: "en" }));
+  writeFileSync(join(configDir, "config.json"), JSON.stringify({ control_layout: 'run-folders-v1', artifact_language: "en", chat_language: "de", runtime_language: "en" }));
   assert.deepEqual(resolveArtifactPresentationLanguages(configuredRoot), {
     artifact_language: "en", presentation_language: "de", approval_summary_required: true,
     approval_summary_heading: "AGDF Approval Summary (de; source=en)",
@@ -33,7 +38,7 @@ try {
   assert.equal(englishOverride.approval_summary_heading, null);
   assert.equal(resolveArtifactPresentationLanguages(configuredRoot, "fr").presentation_language, "en",
     "unsupported presentation tags use the same full English fallback as rendering");
-  writeFileSync(join(configDir, "config.json"), JSON.stringify({ artifact_language: "de-DE", chat_language: "en", runtime_language: 'en' }));
+  writeFileSync(join(configDir, "config.json"), JSON.stringify({ control_layout: 'run-folders-v1', artifact_language: "de-DE", chat_language: "en", runtime_language: 'en' }));
   assert.equal(resolveArtifactPresentationLanguages(configuredRoot).approval_summary_heading, "AGDF Approval Summary (en; source=de)");
   assert.equal(resolveArtifactPresentationLanguages(configuredRoot, "de-DE").approval_summary_required, false);
 
@@ -80,24 +85,24 @@ try {
     mkdirSync(root);
     execFileSync("git", ["init", "-q", root]);
     execFileSync(process.execPath, [sourceCli, "init", "--dir", root, "--language", language], { stdio: "pipe" });
-    const created = { revision_id: spawnSync(process.execPath, [validator, "run-create", "--dir", root, "--run", "subtract"], { encoding: "utf8", env }).stdout.match(/revision_id: (\S+)/u)[1] };
-    mkdirSync(join(root, ".agdf/control/artefacts/subtract"), { recursive: true });
-    writeFileSync(join(root, ".agdf/control/artefacts/subtract/UR.md"), content ?? germanUr(root));
-    const step = call("run-step", "--dir", root, "--run", "subtract", "--revision", created.revision_id, "--step", "ur", "--title", "subtract ergänzen");
-    assert.equal(step.outcome, "recorded", JSON.stringify(step));
+    const statePath = createRun(root, 'subtract'), created = parseRunState(readFileSync(statePath, 'utf8')).meta;
+    const incoming = join(root, 'incoming-UR.md');
+    writeFileSync(incoming, content ?? germanUr(root));
+    const step = call("run-step", "--dir", root, "--run", "subtract", "--revision", created.revision_id, "--step", "ur", "--title", "subtract ergänzen", '--evidence', incoming);
+    assert.equal(step.outcome, "accepted", JSON.stringify(step));
     const dispatch = call("skill-dispatch", "--json", "--skill", "gate-check", "--surface", "codex", "--language", "de",
       "--working-directory", root, "--target-source", "explicit_target", "--primary-target", root,
-      "--intake", "--intake-mode", "resume", "--run", "subtract", "--revision", step.revision_id);
-    return { root, revision: step.revision_id, dispatch };
+      "--intake", "--intake-mode", "resume", "--run", "subtract", "--revision", step.current.revision_id);
+    return { root, revision: step.current.revision_id, dispatch };
   };
 
   const german = prepare("german", "de");
   assert.equal(german.dispatch.outcome, "intake_continuation", JSON.stringify(german.dispatch));
   assert.equal(german.dispatch.continuation.phase, "presentation_required");
   const presented = call("run-present", "--dir", german.root, "--run", "subtract", "--gate", "UR", "--revision", german.revision, "--language", "de");
-  assert.equal(presented.outcome, "prepared", JSON.stringify(presented));
-  assert.match(presented.text, /- Problem: Die Bibliothek bietet nur add und keine Subtraktion\./u);
-  assert.doesNotMatch(presented.text, /AGDF Approval Summary/u, "same source and presentation language needs no translated block");
+  assert.equal(presented.outcome, "accepted", JSON.stringify(presented));
+  assert.match(presented.family_result.text, /- Problem: Die Bibliothek bietet nur add und keine Subtraktion\./u);
+  assert.doesNotMatch(presented.family_result.text, /AGDF Approval Summary/u, "same source and presentation language needs no translated block");
 
   // Reproduce the first cockpit draft: complete English requirements, German review,
   // but no translated summary. Authoring resumes before a terminal renderer error.
@@ -117,7 +122,7 @@ try {
   const configPath = join(english.root, ".agdf/control/config.json");
   const config = JSON.parse(readFileSync(configPath, "utf8"));
   writeFileSync(configPath, JSON.stringify({ ...config, chat_language: "de" }));
-  const urPath = join(english.root, ".agdf/control/artefacts/subtract/UR.md");
+  const urPath = join(english.root, ".agdf/control/runs/subtract/documents/UR.md");
   const statePath = join(english.root, ".agdf/control/runs/subtract/RUN_STATE.md");
   const resume = revision => call("skill-dispatch", "--json", "--skill", "gate-check", "--surface", "codex", "--language", "de",
     "--working-directory", english.root, "--target-source", "explicit_target", "--primary-target", english.root,
@@ -140,13 +145,18 @@ try {
   assert.deepEqual([readFileSync(urPath), readFileSync(statePath), readFileSync(configPath)], before,
     "language preparation and routing do not write control state");
   assert.notEqual(call("run-present", "--dir", english.root, "--run", "subtract", "--gate", "UR",
-    "--revision", english.revision, "--language", "de").outcome, "prepared", "direct presentation still fails closed");
+    "--revision", english.revision, "--language", "de").outcome, "accepted", "direct presentation still fails closed");
   let revision = english.revision;
   const recordSummary = summary => {
-    writeFileSync(urPath, englishContent + summary);
-    const updated = call("run-update", "--dir", english.root, "--run", "subtract", "--revision", revision);
-    assert.equal(updated.outcome, "updated", JSON.stringify(updated));
-    revision = updated.revision_id;
+    const incoming = '.agdf/control/runs/subtract/evidence/incoming-summary.md'; mkdirSync(join(english.root, '.agdf/control/runs/subtract/evidence'), { recursive: true }); writeFileSync(join(english.root, incoming), englishContent + summary);
+    const commandPath = join(english.root, 'replace-input.json');
+    writeFileSync(commandPath, JSON.stringify({ schema_version: '1', presentation_language: 'de', working_directory: english.root,
+      primary_target: english.root, target_source: 'explicit_target', target_id: resolveControlCommandTarget(english.root).target_id,
+      run_id: 'subtract', expected_revision_id: revision, operation_id: randomUUID(), assurance: 'cooperative_local',
+      command: { kind: 'ur_draft.replace', payload: { title: 'Local control cockpit', source: { path: incoming, digest: artefactFileDigest(english.root, incoming) } } } }));
+    const updated = call('agdf-revise', '--command-file', commandPath, '--json');
+    assert.equal(updated.outcome, 'accepted', JSON.stringify(updated));
+    revision = updated.current.revision_id;
     return resume(revision);
   };
   const summary = "\n## AGDF Approval Summary (de; source=en)\n- Problem: Run-Informationen liegen in getrennten Dateien.\n- Ziel: Ein lokales lesendes Cockpit macht Run, Dokumente und Evidenz sichtbar.\n- Umfang: Übersicht, Details und Artefakte aus bestehenden Core-Diensten.\n";
@@ -157,13 +167,13 @@ try {
   const ready = recordSummary(summary);
   assert.equal(ready.continuation.phase, "presentation_required", JSON.stringify(ready));
   const fresh = call("run-present", "--dir", english.root, "--run", "subtract", "--gate", "UR", "--revision", revision, "--language", "de");
-  assert.equal(fresh.outcome, "prepared", JSON.stringify(fresh));
-  assert.match(fresh.text, /Ein lokales lesendes Cockpit/u);
-  assert.equal(fresh.summary_digest, ready.presentation.summary_digest, "prepared summary matches the checked preview");
+  assert.equal(fresh.outcome, "accepted", JSON.stringify(fresh));
+  assert.match(fresh.family_result.text, /Ein lokales lesendes Cockpit/u);
+  assert.equal(fresh.family_result.summary_digest, ready.presentation.summary_digest, "prepared summary matches the checked preview");
   assert.equal(JSON.parse(readFileSync(configPath, "utf8")).artifact_language, "en", "repair does not change project language");
   // Same-language PRD content errors still retain their concrete recovery heading;
   // a null optional authoring heading must not erase presentation diagnostics.
-  const prdPath = ".agdf/control/artefacts/subtract/PRD.md";
+  const prdPath = ".agdf/control/runs/subtract/documents/PRD.md";
   writeFileSync(join(english.root, prdPath), "# PRD\n\n## Acceptance Criteria\nMissing canonical criterion IDs.\n");
   assert.throws(() => renderReviewableApproval(english.root,
     { approval_presentation: { presentation_language: "en" } },

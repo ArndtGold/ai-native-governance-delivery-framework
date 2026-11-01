@@ -1,3 +1,5 @@
+import { transitionDecisionForRunState } from './gate-policy.js';
+import { runDocumentPath, isRunDataPath } from '../control-state/run-identity.js';
 import { userGateOrder, durableGateArtefacts, internalStepArtefacts, closeoutArtefacts, gateApprovalStatus, gateArtefactStatus, expectedDurableArtefactStatuses, describeDurableArtefactStatuses, modeSliceDecision } from "./run-state-policy.js";
 export { userGateOrder, durableGateArtefacts, internalStepArtefacts, closeoutArtefacts, gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, expectedDurableArtefactStatuses, describeDurableArtefactStatuses, isInternalStepSatisfied, modeSliceDecision } from "./run-state-policy.js";
 import { presentationDecisionState, approvedMaterialFindings, approvalMaterialTypes, reviewCorrections } from '../control-state/presentation-decision.js';
@@ -57,7 +59,7 @@ export function prepareRunContentState(targetDir, content, path = "", { readArte
     internalSteps: [...internalStepArtefacts],
     closeoutArtefacts: [...closeoutArtefacts],
   });
-  if ([...normalizedOverlay.keys()].some(name => !name.startsWith(`.agdf/control/artefacts/${parsed.run_id}/`))) throw Error("proposed_artefacts_invalid");
+  if ([...normalizedOverlay.keys()].some(name => !isRunDataPath(parsed.run_id, name))) throw Error("proposed_artefacts_invalid");
   const state = { path, content, ...parsed, meta: parseRunState(content).meta };
   const evidenceReader = overlayReader ?? (name => {
     const file = resolvedArtefactFile(targetDir, name);
@@ -89,7 +91,7 @@ export function prepareRunContentState(targetDir, content, path = "", { readArte
   let closeoutEvidence = { ready: false, findings: ['or_unavailable'] };
   try { if (or?.path && or.status === 'done') closeoutEvidence = evaluateCloseoutReadiness({ ...state, qa_acceptance: qaAcceptance, reconciliation_state: reconciliation, evidence_applicability: evidence }, evidenceReader(or.path), evidenceReader); }
   catch { closeoutEvidence = { ready: false, findings: ['or_observation_unavailable'] }; }
-  return {
+  const prepared = {
     ...state,
     evidence_applicability: evidence,
     qa_acceptance: qaAcceptance,
@@ -103,15 +105,17 @@ export function prepareRunContentState(targetDir, content, path = "", { readArte
       revisionId: extractField(content, "revision_id").replace(/^`|`$/g, ""),
     }),
   };
+  const decision = transitionDecisionForRunState(prepared);
+  return { ...prepared, current_gate: decision.current_gate, next_allowed_action: decision.next_allowed_action };
 }
 
 export function readRunState(targetDir, selection = {}) {
-  let runPath = join(".agdf", "control", "AGDF_RUN.md");
+  let runPath = join(".agdf", "control", "runs");
   const canonicalRoot = join(targetDir, ".agdf", "control", "runs");
   let resolutionError;
   let resolutionFindings = [];
   let candidateRuns = [];
-  if (existsSync(canonicalRoot)) {
+  {
     try {
       const selected = resolveRuns(targetDir, {
         runIdArg: selection.runId,
@@ -127,11 +131,8 @@ export function readRunState(targetDir, selection = {}) {
         ? error.run_path.slice(targetDir.length + 1) : error.run_path;
       if (resolutionError.startsWith("AGDF_ACTIVE_RUN_AMBIGUOUS")) {
         const active = resolveRuns(targetDir, { allActive: true }).runs.map((run) => {
-          const controlState = parseControlState(run.content, {
-            userGates: userGateOrder,
-            internalSteps: [...internalStepArtefacts],
-            closeoutArtefacts: [...closeoutArtefacts],
-          });
+          const prepared = prepareRunContentState(targetDir, run.content, run.path);
+          const controlState = { ...prepared, decision: transitionDecisionForRunState(prepared).status };
           return {
             ...run,
             control_state: controlState,

@@ -65,7 +65,7 @@ test('SCN-004: captured evaluator, original target and live-default parity', () 
 
 test('QA follow-up reads trusted contract resources without widening captured control scope', () => {
   const f = fixture(); try {
-    const prefix = '.agdf/control/artefacts/fixture-a/';
+    const prefix = '.agdf/control/runs/fixture-a/documents/';
     const qa = join(f.root, prefix, 'QA_REPORT.md');
     fs.writeFileSync(qa, '- decision: revise\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| F-01 | implementation_gap | CD+Tests | open | Approved assertion fails | Correct the approved implementation and refresh evidence |\n');
     fs.writeFileSync(join(f.root,prefix,'CR.md'), '- decision: pass\n');

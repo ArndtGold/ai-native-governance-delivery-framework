@@ -1,0 +1,30 @@
+skill dispatch tests passed
+presentation_required preview tests passed.
+Compact continuation policy and dispatcher boundaries passed
+40 adapter-to-dispatch cases passed (generated SessionStart and source-composed OpenCode, not loaded-host evidence)
+Skill dispatch binding tests passed
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"schema_version":"1","outcome":"rejected","reason":"material_resource_limit","operation_id":"ecf1a3d2-cd05-4f55-b398-957872ce8473","request_digest":"sha256:f88cfdc38f1d9d03a498124e4c9a9fde5dd88273655e6292a9b9d00dc7bb6ab5","binding":{"target_id":"sha256:1b346e41436ee1c440b764a1385ba2ab8f934d87664c1100885bd162dbd824e3","run_id":"run-aeb1e42f-a16a-4314-8af4-0731b44281fb","expected_revision_id":"9fd9746c-b060-476f-bb69-367dfae72707","kind":"material.stage"},"effect":null,"receipt":null,"current":{"available":false},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"historical_effect":false,"recovery":null,"authorizes":false,"family_result":{}}
++ actual - expected
+
++ 'rejected'
+- 'accepted'
+
+    at Object.material (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:49:12)
+    at vc (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/cli/scripts/verified-change-test.js:75:101)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/cli/scripts/verified-change-test.js:78:48
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'rejected',
+  expected: 'accepted',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

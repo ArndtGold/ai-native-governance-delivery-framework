@@ -1,0 +1,223 @@
+npm notice run @agdf/mcp-server@0.20.2 test:run-command-flow
+npm notice run node ./test/run-command.test.js && node --test ./test/planned-flow.test.js && node ./test/project-initialization.test.js && node ./test/decision-resource.test.js && node ./test/material-recovery.test.js && node ./test/whole-flow.test.js && node ./test/verified-change-flow.test.js && node ./test/structured-flow.test.js && node ./test/revision-command.test.js && node ./test/expanded-source-revision.test.js
+Actual legacy/modern STDIO group discovery, strict confinement, canonical recording/replay/status and worker uncertainty passed; native host consent remains unqualified.
+TAP version 13
+# Subtest: SCN-025/027: actual legacy-negotiated STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+not ok 1 - SCN-025/027: actual legacy-negotiated STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+  ---
+  duration_ms: 16501.808652
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/planned-flow.test.js:12:37'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /\| UR \| missing \|/u. Input:
+    
+    '# AGDF Run State\n' +
+      '\n' +
+      '## Run Meta\n' +
+      '\n' +
+      '- control_state_version: 4\n' +
+      '- run_id: run-50340e99-fee3-415b-844e-8d850dd7d3fb\n' +
+      '- lifecycle: active\n' +
+      '- revision: 1\n' +
+      '- revision_id: 2cf58366-35f5-49a0-9041-83a041379a74\n' +
+      '- content_seal: sha256:2d97f4a72b16ec9fec4245af5fb8f82ad636b883f16026919b799be20cd58d7a\n' +
+      '- approval_seal: sha256:c039a393aaefd049a41c67fcf8cbdc778b89d0a23087fa034b680a0317289022\n' +
+      '- updated_at: 2026-11-01T14:06:12.492Z\n' +
+      '- mode: undecided\n' +
+      '- owner: agent\n' +
+      '\n' +
+      '## Objective\n' +
+      '\n' +
+      'Preserve one explicit intent.\n' +
+      '\n' +
+      '## Mode/Slice Decision\n' +
+      '\n' +
+      '- scope_reason:\n' +
+      '- evidence:\n' +
+      '\n' +
+      '## Relationships\n' +
+      '\n' +
+      '| From | Relationship | To | Evidence |\n' +
+      '|---|---|---|---|\n' +
+      '\n' +
+      '## Closeout\n' +
+      '\n' +
+      '- quality_outlook:\n' +
+      '\n' +
+      '## Run Operations\n' +
+      '\n' +
+      '- schema_version: 1\n' +
+      '\n' +
+      '| operation_id | request_digest | receipt |\n' +
+      '|---|---|---|\n' +
+      '| 50340e99-fee3-415b-844e-8d850dd7d3fb | sha256:57642011ad51ab466f38aa243253f9780f193e58cea15955e3a30f5d4a5419a0 | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTQ6MDY6MTIuNDk4WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6bnVsbCwicmVjb3JkIjp7InBsYW5uZWQiOnsiZGlnZXN0Ijoic2hhMjU2OmIwZTJhMWQzNTdjODgxYWY1M2FjMTNlMTI0MTliMzc4NTJhYmZhNjA5YTA3Mzg5ZDI5MjQwMTUyYWY2MGNkMzEiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9wbGFubmVkL3BsYW4tNGFiY2U5OGQtNzVkZi00ZWRmLWI5MjctMjFmNjdkN2UzNjIyL1VSLm1kIiwicGxhbl9pZCI6InBsYW4tNGFiY2U5OGQtNzVkZi00ZWRmLWI5MjctMjFmNjdkN2UzNjIyIn0sInNuYXBzaG90Ijp7ImRpZ2VzdCI6InNoYTI1NjpiMGUyYTFkMzU3Yzg4MWFmNTNhYzEzZTEyNDE5YjM3ODUyYWJmYTYwOWEwNzM4OWQyOTI0MDE1MmFmNjBjZDMxIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvcnVucy9ydW4tNTAzNDBlOTktZmVlMy00MTViLTg0NGUtOGQ4NTBkZDdkM2ZiL2hpc3RvcnkvcGxhbm5pbmcvVVIubWQiLCJyYXdfZGlnZXN0Ijoic2hhMjU2OmIwZTJhMWQzNTdjODgxYWY1M2FjMTNlMTI0MTliMzc4NTJhYmZhNjA5YTA3Mzg5ZDI5MjQwMTUyYWY2MGNkMzEifSwidGl0bGUiOiJJbmRlcGVuZGVudCB3b3JrIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjJjZjU4MzY2LTM1ZjUtNDlhMC05MDQxLTgzYTA0MTM3OWE3NCIsInJldmlzaW9uIjoxfSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOm51bGwsImlucHV0X3Jlc29sdXRpb24iOnsiY29uZmlndXJhdGlvbiI6eyJjb25maWdfZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJjb250cm9sIjoiYWN0aXZlIiwiY29udHJvbF9sYXlvdXQiOiJydW4tZm9sZGVycy12MSIsImRlZmF1bHRzX2RpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwicm9vdCI6Ii9wcml2YXRlL3Zhci9mb2xkZXJzL3duL3BkYmp3dHZkM2Z4MHQzOG53Y3FycnBuYzAwMDBncC9UL2FnZGYtcGxhbm5lZC1TTHJaVlUiLCJzb3VyY2VzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjp7ImRpZ2VzdCI6InNoYTI1NjpiZmQwMTdhMTViZGIzYWZhMTIxZWM0ZTc4YmM5N2Q2OTA1NmU4MWEwMzY3ZTFjNzVhMzhlNTVkYmUzNTk0YzRiIiwia2luZCI6InByb2plY3QiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9jb25maWcuanNvbiJ9LCJjaGF0X2xhbmd1YWdlIjp7ImtpbmQiOiJleHBsaWNpdCJ9LCJnYXRlX2NoZWNrX3ZhcmlhbnQiOnsiZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJraW5kIjoicGx1Z2luIiwicGF0aCI6Im1ldGEvYWdkZi1kZWZhdWx0cy5qc29uIn0sInByZXNlbnRhdGlvbl9yb3V0ZSI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifX0sInZhbHVlcyI6eyJhcnRpZmFjdF9sYW5ndWFnZSI6ImVuIiwiY2hhdF9sYW5ndWFnZSI6ImVuIiwiZ2F0ZV9jaGVja192YXJpYW50IjpudWxsLCJwcmVzZW50YXRpb25fcm91dGUiOiJtYXJrZG93biJ9fSwiZWZmZWN0aXZlX2RpZ2VzdCI6InNoYTI1Njo1NzY0MjAxMWFkNTFhYjQ2NmYzOGFhMjQzMjUzZjk3ODBmMTkzZTU4Y2VhMTU5NTVlM2EzMGY1ZDRhNTQxOWEwIiwiZmllbGRzIjp7fSwia2luZCI6InJ1bi5jcmVhdGVfZnJvbV9wbGFubmVkIiwibG9naWNhbF9kaWdlc3QiOiJzaGEyNTY6NTc2NDIwMTFhZDUxYWI0NjZmMzhhYTI0MzI1M2Y5NzgwZjE5M2U1OGNlYTE1OTU1ZTNhMzBmNWQ0YTU0MTlhMCIsIm9wZXJhdGlvbl9pZCI6IjUwMzQwZTk5LWZlZTMtNDE1Yi04NDRlLThkODUwZGQ3ZDNmYiIsInJlY29yZF92ZXJzaW9uIjoiNCIsInNjaGVtYV92ZXJzaW9uIjoxfSwia2luZCI6InJ1bi5jcmVhdGVfZnJvbV9wbGFubmVkIiwib3BlcmF0aW9uX2lkIjoiNTAzNDBlOTktZmVlMy00MTViLTg0NGUtOGQ4NTBkZDdkM2ZiIiwicHJvZHVjZXIiOnsiY29udHJhY3QiOiJydW4tY29tbWFuZC8xIiwicGFja2FnZV92ZXJzaW9uIjoiMC4yMC4yIn0sInJlcXVlc3RfZGlnZXN0Ijoic2hhMjU2OjU3NjQyMDExYWQ1MWFiNDY2ZjM4YWEyNDMyNTNmOTc4MGYxOTNlNThjZWExNTk1NWUzYTMwZjVkNGE1NDE5YTAiLCJydW5faWQiOiJydW4tNTAzNDBlOTktZmVlMy00MTViLTg0NGUtOGQ4NTBkZDdkM2ZiIiwic2NoZW1hX3ZlcnNpb24iOiJyZXNvbHZlZC8xIiwidGFyZ2V0X2lkIjoic2hhMjU2OmZmM2ZjMjA4MjdkMTBmODdjMjkzYjQxZjk4YWRiNDYyNWMwOTYwM2ExZjM0MDQ0MjBjMWQ2M2MyMzYzNzU1NDIifQ |\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    # AGDF Run State
+    
+    ## Run Meta
+    
+    - control_state_version: 4
+    - run_id: run-50340e99-fee3-415b-844e-8d850dd7d3fb
+    - lifecycle: active
+    - revision: 1
+    - revision_id: 2cf58366-35f5-49a0-9041-83a041379a74
+    - content_seal: sha256:2d97f4a72b16ec9fec4245af5fb8f82ad636b883f16026919b799be20cd58d7a
+    - approval_seal: sha256:c039a393aaefd049a41c67fcf8cbdc778b89d0a23087fa034b680a0317289022
+    - updated_at: 2026-11-01T14:06:12.492Z
+    - mode: undecided
+    - owner: agent
+    
+    ## Objective
+    
+    Preserve one explicit intent.
+    
+    ## Mode/Slice Decision
+    
+    - scope_reason:
+    - evidence:
+    
+    ## Relationships
+    
+    | From | Relationship | To | Evidence |
+    |---|---|---|---|
+    
+    ## Closeout
+    
+    - quality_outlook:
+    
+    ## Run Operations
+    
+    - schema_version: 1
+    
+    | operation_id | request_digest | receipt |
+    |---|---|---|
+    | 50340e99-fee3-415b-844e-8d850dd7d3fb | sha256:57642011ad51ab466f38aa243253f9780f193e58cea15955e3a30f5d4a5419a0 | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTQ6MDY6MTIuNDk4WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6bnVsbCwicmVjb3JkIjp7InBsYW5uZWQiOnsiZGlnZXN0Ijoic2hhMjU2OmIwZTJhMWQzNTdjODgxYWY1M2FjMTNlMTI0MTliMzc4NTJhYmZhNjA5YTA3Mzg5ZDI5MjQwMTUyYWY2MGNkMzEiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9wbGFubmVkL3BsYW4tNGFiY2U5OGQtNzVkZi00ZWRmLWI5MjctMjFmNjdkN2UzNjIyL1VSLm1kIiwicGxhbl9pZCI6InBsYW4tNGFiY2U5OGQtNzVkZi00ZWRmLWI5MjctMjFmNjdkN2UzNjIyIn0sInNuYXBzaG90Ijp7ImRpZ2VzdCI6InNoYTI1NjpiMGUyYTFkMzU3Yzg4MWFmNTNhYzEzZTEyNDE5YjM3ODUyYWJmYTYwOWEwNzM4OWQyOTI0MDE1MmFmNjBjZDMxIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvcnVucy9ydW4tNTAzNDBlOTktZmVlMy00MTViLTg0NGUtOGQ4NTBkZDdkM2ZiL2hpc3RvcnkvcGxhbm5pbmcvVVIubWQiLCJyYXdfZGlnZXN0Ijoic2hhMjU2OmIwZTJhMWQzNTdjODgxYWY1M2FjMTNlMTI0MTliMzc4NTJhYmZhNjA5YTA3Mzg5ZDI5MjQwMTUyYWY2MGNkMzEifSwidGl0bGUiOiJJbmRlcGVuZGVudCB3b3JrIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjJjZjU4MzY2LTM1ZjUtNDlhMC05MDQxLTgzYTA0MTM3OWE3NCIsInJldmlzaW9uIjoxfSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOm51bGwsImlucHV0X3Jlc29sdXRpb24iOnsiY29uZmlndXJhdGlvbiI6eyJjb25maWdfZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJjb250cm9sIjoiYWN0aXZlIiwiY29udHJvbF9sYXlvdXQiOiJydW4tZm9sZGVycy12MSIsImRlZmF1bHRzX2RpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwicm9vdCI6Ii9wcml2YXRlL3Zhci9mb2xkZXJzL3duL3BkYmp3dHZkM2Z4MHQzOG53Y3FycnBuYzAwMDBncC9UL2FnZGYtcGxhbm5lZC1TTHJaVlUiLCJzb3VyY2VzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjp7ImRpZ2VzdCI6InNoYTI1NjpiZmQwMTdhMTViZGIzYWZhMTIxZWM0ZTc4YmM5N2Q2OTA1NmU4MWEwMzY3ZTFjNzVhMzhlNTVkYmUzNTk0YzRiIiwia2luZCI6InByb2plY3QiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9jb25maWcuanNvbiJ9LCJjaGF0X2xhbmd1YWdlIjp7ImtpbmQiOiJleHBsaWNpdCJ9LCJnYXRlX2NoZWNrX3ZhcmlhbnQiOnsiZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJraW5kIjoicGx1Z2luIiwicGF0aCI6Im1ldGEvYWdkZi1kZWZhdWx0cy5qc29uIn0sInByZXNlbnRhdGlvbl9yb3V0ZSI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifX0sInZhbHVlcyI6eyJhcnRpZmFjdF9sYW5ndWFnZSI6ImVuIiwiY2hhdF9sYW5ndWFnZSI6ImVuIiwiZ2F0ZV9jaGVja192YXJpYW50IjpudWxsLCJwcmVzZW50YXRpb25fcm91dGUiOiJtYXJrZG93biJ9fSwiZWZmZWN0aXZlX2RpZ2VzdCI6InNoYTI1Njo1NzY0MjAxMWFkNTFhYjQ2NmYzOGFhMjQzMjUzZjk3ODBmMTkzZTU4Y2VhMTU5NTVlM2EzMGY1ZDRhNTQxOWEwIiwiZmllbGRzIjp7fSwia2luZCI6InJ1bi5jcmVhdGVfZnJvbV9wbGFubmVkIiwibG9naWNhbF9kaWdlc3QiOiJzaGEyNTY6NTc2NDIwMTFhZDUxYWI0NjZmMzhhYTI0MzI1M2Y5NzgwZjE5M2U1OGNlYTE1OTU1ZTNhMzBmNWQ0YTU0MTlhMCIsIm9wZXJhdGlvbl9pZCI6IjUwMzQwZTk5LWZlZTMtNDE1Yi04NDRlLThkODUwZGQ3ZDNmYiIsInJlY29yZF92ZXJzaW9uIjoiNCIsInNjaGVtYV92ZXJzaW9uIjoxfSwia2luZCI6InJ1bi5jcmVhdGVfZnJvbV9wbGFubmVkIiwib3BlcmF0aW9uX2lkIjoiNTAzNDBlOTktZmVlMy00MTViLTg0NGUtOGQ4NTBkZDdkM2ZiIiwicHJvZHVjZXIiOnsiY29udHJhY3QiOiJydW4tY29tbWFuZC8xIiwicGFja2FnZV92ZXJzaW9uIjoiMC4yMC4yIn0sInJlcXVlc3RfZGlnZXN0Ijoic2hhMjU2OjU3NjQyMDExYWQ1MWFiNDY2ZjM4YWEyNDMyNTNmOTc4MGYxOTNlNThjZWExNTk1NWUzYTMwZjVkNGE1NDE5YTAiLCJydW5faWQiOiJydW4tNTAzNDBlOTktZmVlMy00MTViLTg0NGUtOGQ4NTBkZDdkM2ZiIiwic2NoZW1hX3ZlcnNpb24iOiJyZXNvbHZlZC8xIiwidGFyZ2V0X2lkIjoic2hhMjU2OmZmM2ZjMjA4MjdkMTBmODdjMjkzYjQxZjk4YWRiNDYyNWMwOTYwM2ExZjM0MDQ0MjBjMWQ2M2MyMzYzNzU1NDIifQ |
+    
+  operator: 'match'
+  stack: |-
+    file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/planned-flow.test.js:76:76
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/helpers.js:60:5)
+    async TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/planned-flow.test.js:18:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: SCN-025/027: actual 2026-07-28 STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+not ok 2 - SCN-025/027: actual 2026-07-28 STDIO uses shared pre-Run authoring/material/CAS/handoff and original replay/status
+  ---
+  duration_ms: 13959.216066
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/planned-flow.test.js:12:37'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /\| UR \| missing \|/u. Input:
+    
+    '# AGDF Run State\n' +
+      '\n' +
+      '## Run Meta\n' +
+      '\n' +
+      '- control_state_version: 4\n' +
+      '- run_id: run-2783e5d9-9e15-4b4b-aba3-5a3165106498\n' +
+      '- lifecycle: active\n' +
+      '- revision: 1\n' +
+      '- revision_id: f3799977-a557-44e2-825d-f76c762c585a\n' +
+      '- content_seal: sha256:7363adb8ddc006a4488068048d5abd7812f805e672856927eec6f8c72c859250\n' +
+      '- approval_seal: sha256:c039a393aaefd049a41c67fcf8cbdc778b89d0a23087fa034b680a0317289022\n' +
+      '- updated_at: 2026-11-01T14:06:28.387Z\n' +
+      '- mode: undecided\n' +
+      '- owner: agent\n' +
+      '\n' +
+      '## Objective\n' +
+      '\n' +
+      'Direct fixture Run\n' +
+      '\n' +
+      '## Mode/Slice Decision\n' +
+      '\n' +
+      '- scope_reason:\n' +
+      '- evidence:\n' +
+      '\n' +
+      '## Relationships\n' +
+      '\n' +
+      '| From | Relationship | To | Evidence |\n' +
+      '|---|---|---|---|\n' +
+      '\n' +
+      '## Closeout\n' +
+      '\n' +
+      '- quality_outlook:\n' +
+      '\n' +
+      '## Run Operations\n' +
+      '\n' +
+      '- schema_version: 1\n' +
+      '\n' +
+      '| operation_id | request_digest | receipt |\n' +
+      '|---|---|---|\n' +
+      '| 2783e5d9-9e15-4b4b-aba3-5a3165106498 | sha256:259ea41a54ba8fa6363bb94b7aa9296531db30fe634b2e86d46e4e66441fbf96 | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTQ6MDY6MjguMzg5WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6bnVsbCwicmVjb3JkIjp7InRpdGxlIjoiRGlyZWN0IGZpeHR1cmUgUnVuIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImYzNzk5OTc3LWE1NTctNDRlMi04MjVkLWY3NmM3NjJjNTg1YSIsInJldmlzaW9uIjoxfSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOm51bGwsImlucHV0X3Jlc29sdXRpb24iOnsiY29uZmlndXJhdGlvbiI6eyJjb25maWdfZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJjb250cm9sIjoiYWN0aXZlIiwiY29udHJvbF9sYXlvdXQiOiJydW4tZm9sZGVycy12MSIsImRlZmF1bHRzX2RpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwicm9vdCI6Ii9wcml2YXRlL3Zhci9mb2xkZXJzL3duL3BkYmp3dHZkM2Z4MHQzOG53Y3FycnBuYzAwMDBncC9UL2FnZGYtcGxhbm5lZC1CaGMzbnUiLCJzb3VyY2VzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjp7ImRpZ2VzdCI6InNoYTI1NjpiZmQwMTdhMTViZGIzYWZhMTIxZWM0ZTc4YmM5N2Q2OTA1NmU4MWEwMzY3ZTFjNzVhMzhlNTVkYmUzNTk0YzRiIiwia2luZCI6InByb2plY3QiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9jb25maWcuanNvbiJ9LCJjaGF0X2xhbmd1YWdlIjp7ImtpbmQiOiJleHBsaWNpdCJ9LCJnYXRlX2NoZWNrX3ZhcmlhbnQiOnsiZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJraW5kIjoicGx1Z2luIiwicGF0aCI6Im1ldGEvYWdkZi1kZWZhdWx0cy5qc29uIn0sInByZXNlbnRhdGlvbl9yb3V0ZSI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifX0sInZhbHVlcyI6eyJhcnRpZmFjdF9sYW5ndWFnZSI6ImVuIiwiY2hhdF9sYW5ndWFnZSI6ImVuIiwiZ2F0ZV9jaGVja192YXJpYW50IjpudWxsLCJwcmVzZW50YXRpb25fcm91dGUiOiJtYXJrZG93biJ9fSwiZWZmZWN0aXZlX2RpZ2VzdCI6InNoYTI1NjoyNTllYTQxYTU0YmE4ZmE2MzYzYmI5NGI3YWE5Mjk2NTMxZGIzMGZlNjM0YjJlODZkNDZlNGU2NjQ0MWZiZjk2IiwiZmllbGRzIjp7fSwia2luZCI6InJ1bi5jcmVhdGUiLCJsb2dpY2FsX2RpZ2VzdCI6InNoYTI1NjoyNTllYTQxYTU0YmE4ZmE2MzYzYmI5NGI3YWE5Mjk2NTMxZGIzMGZlNjM0YjJlODZkNDZlNGU2NjQ0MWZiZjk2Iiwib3BlcmF0aW9uX2lkIjoiMjc4M2U1ZDktOWUxNS00YjRiLWFiYTMtNWEzMTY1MTA2NDk4IiwicmVjb3JkX3ZlcnNpb24iOiI0Iiwic2NoZW1hX3ZlcnNpb24iOjF9LCJraW5kIjoicnVuLmNyZWF0ZSIsIm9wZXJhdGlvbl9pZCI6IjI3ODNlNWQ5LTllMTUtNGI0Yi1hYmEzLTVhMzE2NTEwNjQ5OCIsInByb2R1Y2VyIjp7ImNvbnRyYWN0IjoicnVuLWNvbW1hbmQvMSIsInBhY2thZ2VfdmVyc2lvbiI6IjAuMjAuMiJ9LCJyZXF1ZXN0X2RpZ2VzdCI6InNoYTI1NjoyNTllYTQxYTU0YmE4ZmE2MzYzYmI5NGI3YWE5Mjk2NTMxZGIzMGZlNjM0YjJlODZkNDZlNGU2NjQ0MWZiZjk2IiwicnVuX2lkIjoicnVuLTI3ODNlNWQ5LTllMTUtNGI0Yi1hYmEzLTVhMzE2NTEwNjQ5OCIsInNjaGVtYV92ZXJzaW9uIjoicmVzb2x2ZWQvMSIsInRhcmdldF9pZCI6InNoYTI1NjpmMWM1MjkwOWE4NGIyZDFlYTY1MTcwZTcwZmVjZTM4YTE3NWQ0N2I0MGJkMzljZmUzNTlmNjg0OGFlMTRjNDZlIn0 |\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    # AGDF Run State
+    
+    ## Run Meta
+    
+    - control_state_version: 4
+    - run_id: run-2783e5d9-9e15-4b4b-aba3-5a3165106498
+    - lifecycle: active
+    - revision: 1
+    - revision_id: f3799977-a557-44e2-825d-f76c762c585a
+    - content_seal: sha256:7363adb8ddc006a4488068048d5abd7812f805e672856927eec6f8c72c859250
+    - approval_seal: sha256:c039a393aaefd049a41c67fcf8cbdc778b89d0a23087fa034b680a0317289022
+    - updated_at: 2026-11-01T14:06:28.387Z
+    - mode: undecided
+    - owner: agent
+    
+    ## Objective
+    
+    Direct fixture Run
+    
+    ## Mode/Slice Decision
+    
+    - scope_reason:
+    - evidence:
+    
+    ## Relationships
+    
+    | From | Relationship | To | Evidence |
+    |---|---|---|---|
+    
+    ## Closeout
+    
+    - quality_outlook:
+    
+    ## Run Operations
+    
+    - schema_version: 1
+    
+    | operation_id | request_digest | receipt |
+    |---|---|---|
+    | 2783e5d9-9e15-4b4b-aba3-5a3165106498 | sha256:259ea41a54ba8fa6363bb94b7aa9296531db30fe634b2e86d46e4e66441fbf96 | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTQ6MDY6MjguMzg5WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6bnVsbCwicmVjb3JkIjp7InRpdGxlIjoiRGlyZWN0IGZpeHR1cmUgUnVuIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImYzNzk5OTc3LWE1NTctNDRlMi04MjVkLWY3NmM3NjJjNTg1YSIsInJldmlzaW9uIjoxfSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOm51bGwsImlucHV0X3Jlc29sdXRpb24iOnsiY29uZmlndXJhdGlvbiI6eyJjb25maWdfZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJjb250cm9sIjoiYWN0aXZlIiwiY29udHJvbF9sYXlvdXQiOiJydW4tZm9sZGVycy12MSIsImRlZmF1bHRzX2RpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwicm9vdCI6Ii9wcml2YXRlL3Zhci9mb2xkZXJzL3duL3BkYmp3dHZkM2Z4MHQzOG53Y3FycnBuYzAwMDBncC9UL2FnZGYtcGxhbm5lZC1CaGMzbnUiLCJzb3VyY2VzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjp7ImRpZ2VzdCI6InNoYTI1NjpiZmQwMTdhMTViZGIzYWZhMTIxZWM0ZTc4YmM5N2Q2OTA1NmU4MWEwMzY3ZTFjNzVhMzhlNTVkYmUzNTk0YzRiIiwia2luZCI6InByb2plY3QiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9jb25maWcuanNvbiJ9LCJjaGF0X2xhbmd1YWdlIjp7ImtpbmQiOiJleHBsaWNpdCJ9LCJnYXRlX2NoZWNrX3ZhcmlhbnQiOnsiZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJraW5kIjoicGx1Z2luIiwicGF0aCI6Im1ldGEvYWdkZi1kZWZhdWx0cy5qc29uIn0sInByZXNlbnRhdGlvbl9yb3V0ZSI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifX0sInZhbHVlcyI6eyJhcnRpZmFjdF9sYW5ndWFnZSI6ImVuIiwiY2hhdF9sYW5ndWFnZSI6ImVuIiwiZ2F0ZV9jaGVja192YXJpYW50IjpudWxsLCJwcmVzZW50YXRpb25fcm91dGUiOiJtYXJrZG93biJ9fSwiZWZmZWN0aXZlX2RpZ2VzdCI6InNoYTI1NjoyNTllYTQxYTU0YmE4ZmE2MzYzYmI5NGI3YWE5Mjk2NTMxZGIzMGZlNjM0YjJlODZkNDZlNGU2NjQ0MWZiZjk2IiwiZmllbGRzIjp7fSwia2luZCI6InJ1bi5jcmVhdGUiLCJsb2dpY2FsX2RpZ2VzdCI6InNoYTI1NjoyNTllYTQxYTU0YmE4ZmE2MzYzYmI5NGI3YWE5Mjk2NTMxZGIzMGZlNjM0YjJlODZkNDZlNGU2NjQ0MWZiZjk2Iiwib3BlcmF0aW9uX2lkIjoiMjc4M2U1ZDktOWUxNS00YjRiLWFiYTMtNWEzMTY1MTA2NDk4IiwicmVjb3JkX3ZlcnNpb24iOiI0Iiwic2NoZW1hX3ZlcnNpb24iOjF9LCJraW5kIjoicnVuLmNyZWF0ZSIsIm9wZXJhdGlvbl9pZCI6IjI3ODNlNWQ5LTllMTUtNGI0Yi1hYmEzLTVhMzE2NTEwNjQ5OCIsInByb2R1Y2VyIjp7ImNvbnRyYWN0IjoicnVuLWNvbW1hbmQvMSIsInBhY2thZ2VfdmVyc2lvbiI6IjAuMjAuMiJ9LCJyZXF1ZXN0X2RpZ2VzdCI6InNoYTI1NjoyNTllYTQxYTU0YmE4ZmE2MzYzYmI5NGI3YWE5Mjk2NTMxZGIzMGZlNjM0YjJlODZkNDZlNGU2NjQ0MWZiZjk2IiwicnVuX2lkIjoicnVuLTI3ODNlNWQ5LTllMTUtNGI0Yi1hYmEzLTVhMzE2NTEwNjQ5OCIsInNjaGVtYV92ZXJzaW9uIjoicmVzb2x2ZWQvMSIsInRhcmdldF9pZCI6InNoYTI1NjpmMWM1MjkwOWE4NGIyZDFlYTY1MTcwZTcwZmVjZTM4YTE3NWQ0N2I0MGJkMzljZmUzNTlmNjg0OGFlMTRjNDZlIn0 |
+    
+  operator: 'match'
+  stack: |-
+    file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/planned-flow.test.js:76:76
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/helpers.js:60:5)
+    async TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/mcp-server/test/planned-flow.test.js:18:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 31931.225235

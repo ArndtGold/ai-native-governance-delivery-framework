@@ -14,7 +14,7 @@ export function readingReducer(state: ReadingState, action: ReadingAction): Read
   if (action.type === 'begin') return { ...state, generation: action.generation, requestedRunId: action.route.runId ?? null, requestedRoute: action.route, phase: action.background ? 'ready' : 'loading', refreshing: !!action.background, stale: action.background || state.stale, sourceChanged: state.sourceChanged || !!action.background, problem: null };
   if (action.generation !== state.generation) return state;
   if (action.type === 'titles') return state.phase === 'ready' && state.route.view === 'overview'
-    && !state.stale && state.inventory?.data?.kind === 'backlog' && state.inventory.data.content_digest === action.inventory.data?.content_digest
+    && !state.stale && state.inventory?.data?.kind === 'work' && state.inventory.data.content_digest === action.inventory.data?.content_digest
     ? { ...state, inventory: action.inventory, scope: action.inventory } : state;
   if (action.type === 'draft-check') return state.phase === 'ready' && !state.stale && !state.problem && state.route.view === 'detail'
     && state.scope?.snapshot_id === action.snapshot && action.scope.target.target_id === state.scope.target.target_id

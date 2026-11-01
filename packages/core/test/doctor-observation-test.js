@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { initializeCanonicalControl } from '../../cli/lib/scaffold/canonical-init.js';
+import { initializeCurrentControl } from './fixtures/current-init.js';
 import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { resolveRuns } from '../lib/control-state/run-state-resolver.js';
@@ -19,31 +19,21 @@ import { createReadWorkerBudget, ReadWorkerPool } from '../lib/control-read/cock
 import { createHash } from 'node:crypto';
 import { readSourceRevisions } from '../lib/control-state/run-source-revisions.js';
 
-test('original Brownfield Analysis history is compatible with the current reader and unsupported by the archived reader', async () => {
+test('archived source history is unsupported by the current reader and is preserved byte for byte', () => {
   const base = new URL('./fixtures/diagnostic-compatibility/', import.meta.url);
   const provenance = JSON.parse(readFileSync(new URL('provenance.json', base), 'utf8'));
   const history = readFileSync(new URL('original-source-history.md', base));
-  const legacy = readFileSync(new URL('legacy-reader.js.txt', base));
   const hash = value => createHash('sha256').update(value).digest('hex');
   assert.equal(hash(history), provenance.history_sha256);
-  assert.equal(hash(legacy), provenance.legacy_reader_sha256);
-  // Preserve the complete archived reader; relocate only its imports to shared
-  // structural helpers. No validator branch is reconstructed or edited here.
-  const relocated = legacy.toString().replace(/from (["'])(\.\/[^"']+)\1/g,
-    (_match, _quote, specifier) => `from ${JSON.stringify(new URL(specifier, new URL('../lib/control-state/run-source-revisions.js', import.meta.url)).href)}`);
-  const older = await import(`data:text/javascript;base64,${Buffer.from(relocated).toString('base64')}`);
-  assert.equal(older.readSourceRevisions(history).valid, false);
-  const current = readSourceRevisions(history);
-  assert.equal(current.valid, true);
-  assert.ok(current.receipts.some(row => row.initiating_phase === 'Brownfield Analysis'));
-  assert.equal(hash(history), provenance.history_sha256, 'compatibility diagnosis never rewrites foreign evidence');
+  assert.equal(readSourceRevisions(history).valid, false);
+  assert.equal(hash(history), provenance.history_sha256, 'unsupported history is never rewritten');
 });
 
 function fixture(work) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-doctor-observation-')));
   try {
     execFileSync('git', ['init', '-q', root]);
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+    initializeCurrentControl(root, 'en');
     const path = createRun(root, 'selected');
     mkdirSync(join(root, '.agdf/control/runs/foreign'));
     const foreign = join(root, '.agdf/control/runs/foreign/RUN_STATE.md');
@@ -96,12 +86,12 @@ test('all-active diagnosis preserves same-source single/shared findings and acco
 
 test('selected diagnosis preserves a known unsupported version instead of hiding it as generic selection failure', () => fixture(({ root, path, foreign }) => {
   const beforeForeign = readFileSync(foreign);
-  writeFileSync(path, readFileSync(path, 'utf8').replace(/^- control_state_version: \d+$/mu, '- control_state_version: 4'));
+  writeFileSync(path, readFileSync(path, 'utf8').replace(/^- control_state_version: \d+$/mu, '- control_state_version: 5'));
   const report = evaluateDoctor(root, { runId: 'selected', ignoreRunIdEnv: true });
   const finding = report.findings.find(row => row.code === 'AGDF_RUN_VERSION_UNSUPPORTED');
   assert.ok(finding, 'the selected path must retain the existing parser classification for a future format');
   assert.equal(report.status, 'block');
-  assert.equal(finding.actual_version, '4');
+  assert.equal(finding.actual_version, '5');
   assert.equal(finding.classification, 'unsupported_version');
   assert.equal(finding.path, path, 'the finding names the exact selected source, not a legacy projection');
   assert.match(finding.message, /unsupported|incompatib/iu);
@@ -123,7 +113,7 @@ test('missing, malformed and conflicting versions remain unclassified rather tha
 test('bounded inventory pages account 0/1/10/100 active entries and preserve same-source findings', () => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-doctor-pages-')));
   try {
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+    initializeCurrentControl(root, 'en');
     let created = 0;
     for (const count of [0, 1, 10, 100]) {
       while (created < count) createRun(root, `run-${String(++created).padStart(3, '0')}`);
@@ -166,7 +156,7 @@ test('parent observation uses isolated reusable workers, shared capacity and tru
   const service = createDoctorObservationService({ budget, now: () => ticks, verifyRuntime: () => { provenances++; } });
   const input = { run_id: 'selected', presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'explicit_target' };
   try {
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en')); createRun(root, 'selected');
+    initializeCurrentControl(root, 'en'); createRun(root, 'selected');
     const first = await service.observe(root, input), second = await service.observe(root, input);
     assert.equal(first.available, true, JSON.stringify(first)); assert.equal(second.available, true);
     assert.ok(first.timing.total_ms > 0); assert.ok(first.timing.worker_startup_ms > 0);
@@ -189,7 +179,7 @@ test('foreign and out-of-order parent cursors cannot retire a valid advertised c
   const service = createDoctorObservationService({ budget });
   const input = { all_active: true, presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'explicit_target' };
   try {
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+    initializeCurrentControl(root, 'en');
     for (let i = 0; i < 21; i++) createRun(root, `cursor-${i}`);
     const first = await service.observe(root, input); assert.equal(first.overall_status, null); assert.ok(first.next_cursor);
     const foreign = await service.observe(other, { ...input, primary_target: other, working_directory: other, cursor: first.next_cursor });
@@ -214,7 +204,7 @@ test('actual silent read-worker timeout and cancellation never become clean diag
   const workerURL = new URL('data:text/javascript,' + encodeURIComponent("import {parentPort} from 'node:worker_threads';parentPort.postMessage({phase:'read_worker_ready'});parentPort.on('message',()=>{});"));
   const input = { run_id: 'selected', presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'explicit_target' };
   try {
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en')); createRun(root, 'selected');
+    initializeCurrentControl(root, 'en'); createRun(root, 'selected');
     for (const fault of ['timeout', 'cancelled', 'runtime_provenance_invalid']) {
       const budget = createReadWorkerBudget(1), controller = new AbortController();
       const service = createDoctorObservationService({ budget,

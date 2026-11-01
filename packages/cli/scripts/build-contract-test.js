@@ -41,4 +41,4 @@ try {
     rmSync(join(fixture, "quality.md"));
   }
 } finally { rmSync(fixture, { recursive: true, force: true }); }
-console.log("Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).");
+console.log("Build contracts passed (source references, three generated surfaces, current command-owned late-gate progression and refusal scenarios).");

@@ -35,7 +35,7 @@ export class ReadWorkerPool {
         return;
       }
       if (this.worker !== worker || this.active?.id !== id) return;
-      if (!error && result?.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context', 'artifact_readiness'].includes(this.active.request.operation)) {
+      if (!error && result?.snapshot_id && ['snapshot', 'run', 'document', 'context', 'artifact_readiness'].includes(this.active.request.operation)) {
         this.scope = { ...result, data: null }; this.changed = null;
         this.changeWaiter?.reject(new ControlReadError('cancelled'));
       }

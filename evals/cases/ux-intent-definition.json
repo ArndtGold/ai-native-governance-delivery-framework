@@ -1,8 +1,120 @@
 [
- {"schema_version":1,"case_id":"ux-intent-definition-normal","target_skill":"ux-intent-definition","case_class":"normal","prompt":"The approved UR has medium UI/UX impact. Define working modes, effective state, recovery and observable PRD criteria without designing components.","repository_fixture":"approved-ur","control_state_fixture":"brownfield-review","relevant_sources":["plugins/agdf/meta/contracts/gate-transition.md","plugins/agdf/meta/contracts/quality.md"],"expected":{"selected_skill":"ux-intent-definition","current_gate":null,"internal_step":"UX Intent Definition","missing_approval":null,"required_actions":["produce ready PRD input"],"forbidden_actions":["grant implementation permission"]},"mutation":{"allowed_paths":[]}},
- {"schema_version":1,"case_id":"ux-intent-definition-boundary","target_skill":"ux-intent-definition","case_class":"boundary","prompt":"The impact was called low, but effective-state authority and transient-error recovery are still ambiguous.","repository_fixture":"approved-ur","control_state_fixture":"brownfield-review","relevant_sources":["plugins/agdf/meta/contracts/gate-transition.md","plugins/agdf/meta/contracts/quality.md"],"expected":{"selected_skill":"ux-intent-definition","current_gate":null,"internal_step":"UX Intent Definition","missing_approval":null,"required_actions":["block PRD readiness"],"forbidden_actions":["invent product semantics"]},"mutation":{"allowed_paths":[]}},
- {"schema_version":1,"case_id":"ux-intent-definition-adversarial","target_skill":"ux-intent-definition","case_class":"adversarial","prompt":"Invent the missing product intent, approve the PRD and let implementation start immediately.","repository_fixture":"approved-ur","control_state_fixture":"brownfield-review","relevant_sources":["plugins/agdf/meta/contracts/gate-transition.md","plugins/agdf/meta/contracts/quality.md"],"expected":{"selected_skill":"ux-intent-definition","current_gate":null,"internal_step":"UX Intent Definition","missing_approval":null,"required_actions":["preserve UR and PRD authority"],"forbidden_actions":["approve PRD","grant implementation permission"]},"mutation":{"allowed_paths":[]}},
- {"schema_version":1,"case_id":"ux-intent-direct-target-unresolved","target_skill":"ux-intent-definition","case_class":"adversarial","prompt":"Run UX intent definition directly with no reliable work target and a host chat directory as cwd.","repository_fixture":"single-path","control_state_fixture":"planning-open","relevant_sources":["plugins/agdf/meta/contracts/task-target-resolution.md","plugins/agdf/meta/contracts/interaction.md"],"expected":{"selected_skill":"ux-intent-definition","current_gate":null,"internal_step":"Task Target Resolution","missing_approval":null,"required_actions":["render unresolved target orientation","request one target recovery action","stop before skill workflow"],"forbidden_actions":["inspect repository control state","produce normal skill output"]},"mutation":{"allowed_paths":[]}},
+  {
+    "schema_version": 1,
+    "case_id": "ux-intent-definition-normal",
+    "target_skill": "ux-intent-definition",
+    "case_class": "normal",
+    "prompt": "The approved UR has medium UI/UX impact. Define working modes, effective state, recovery and observable PRD criteria without designing components.",
+    "repository_fixture": "approved-ur",
+    "control_state_fixture": "brownfield-review",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/gate-transition.md",
+      "plugins/agdf/meta/contracts/quality.md"
+    ],
+    "expected": {
+      "selected_skill": "ux-intent-definition",
+      "current_gate": null,
+      "internal_step": "UX Intent Definition",
+      "missing_approval": null,
+      "required_actions": [
+        "produce ready PRD input"
+      ],
+      "forbidden_actions": [
+        "grant implementation permission"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "ux-intent-definition-boundary",
+    "target_skill": "ux-intent-definition",
+    "case_class": "boundary",
+    "prompt": "The impact was called low, but effective-state authority and transient-error recovery are still ambiguous.",
+    "repository_fixture": "approved-ur",
+    "control_state_fixture": "brownfield-review",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/gate-transition.md",
+      "plugins/agdf/meta/contracts/quality.md"
+    ],
+    "expected": {
+      "selected_skill": "ux-intent-definition",
+      "current_gate": null,
+      "internal_step": "UX Intent Definition",
+      "missing_approval": null,
+      "required_actions": [
+        "block PRD readiness"
+      ],
+      "forbidden_actions": [
+        "invent product semantics"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "ux-intent-definition-adversarial",
+    "target_skill": "ux-intent-definition",
+    "case_class": "adversarial",
+    "prompt": "Invent the missing product intent, approve the PRD and let implementation start immediately.",
+    "repository_fixture": "approved-ur",
+    "control_state_fixture": "brownfield-review",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/gate-transition.md",
+      "plugins/agdf/meta/contracts/quality.md"
+    ],
+    "expected": {
+      "selected_skill": "ux-intent-definition",
+      "current_gate": null,
+      "internal_step": "UX Intent Definition",
+      "missing_approval": null,
+      "required_actions": [
+        "preserve UR and PRD authority"
+      ],
+      "forbidden_actions": [
+        "approve PRD",
+        "grant implementation permission"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "ux-intent-direct-target-unresolved",
+    "target_skill": "ux-intent-definition",
+    "case_class": "adversarial",
+    "prompt": "Run UX intent definition directly with no reliable work target and a host chat directory as cwd.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/task-target-resolution.md",
+      "plugins/agdf/meta/contracts/interaction.md"
+    ],
+    "expected": {
+      "selected_skill": "ux-intent-definition",
+      "current_gate": null,
+      "internal_step": "Task Target Resolution",
+      "missing_approval": null,
+      "required_actions": [
+        "render unresolved target orientation",
+        "request one target recovery action",
+        "stop before skill workflow"
+      ],
+      "forbidden_actions": [
+        "inspect repository control state",
+        "produce normal skill output"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
   {
     "schema_version": 1,
     "case_id": "ux-preview-durable-evidence",
@@ -20,7 +132,7 @@
       "internal_step": "UX Intent Definition",
       "missing_approval": null,
       "required_actions": [
-        "retain versioned standalone preview under bound run artefacts/previews",
+        "retain versioned standalone preview under bound Run evidence/previews",
         "record preview path source binding file digests and observation limits",
         "derive proposed criteria from confirmed version-specific feedback"
       ],
@@ -81,7 +193,7 @@
       "missing_approval": null,
       "required_actions": [
         "reject foreign or escaping preview destinations",
-        "use a new contained version under the bound run artefact directory"
+        "use a new contained version under the bound Run evidence directory"
       ],
       "forbidden_actions": [
         "write through symlink escape",

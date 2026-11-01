@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { createHash } from 'node:crypto';
 import { readFileSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from '../control-state/contained-file.js';
@@ -6,7 +7,7 @@ import { effectiveNextAllowedAction } from './next-action.js';
 import { evaluateQaFollowUp, inspectQaReports } from './qa-follow-up.js';
 import { prepareRunContentState, modeSliceDecision } from './run-state.js';
 import { extractField } from './verified-change.js';
-import { summaryLabel } from './backlog-vocabulary.js';
+import { summaryLabel } from './work-vocabulary.js';
 import { readReportDecision } from './report-decision.js';
 
 // Shared projection; never invokes gate-check, changes control or grants permission. `proposed`
@@ -36,7 +37,7 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
     summary.qa_outcome = 'unconfirmed';
     const path = String(qa?.path ?? '').replace(/^`|`$/gu, '');
     if (!path) { summary.kind = 'qa_report_pending'; summary.qa_outcome = 'missing'; }
-    else if (!isSafeControlRelativePath(path) || /[%?#]/u.test(path) || !path.startsWith(`.agdf/control/artefacts/${runId}/`)
+    else if (!isSafeControlRelativePath(path) || /[%?#]/u.test(path) || !path.startsWith(`${runDocumentPath(runId, '')}/`)
         || hasSymlinkComponent(root, path)) unconfirmed('qa_source_unsafe');
     else {
       const overlay = proposed?.get(path), file = typeof overlay === 'string' ? null : containedRegularFile(root, path);

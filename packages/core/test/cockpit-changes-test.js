@@ -11,33 +11,20 @@ const deadline = async promise => {
   finally { clearTimeout(timer); }
 };
 const replace = (path, text) => { fs.writeFileSync(path + '.replacement', text); fs.renameSync(path + '.replacement', path); };
-test('atomic backlog writes notify every dependent view without replacing their private snapshots', async () => {
-  const f = fixture(), service = createCockpitSessionService(f.root);
-  try {
-    const open = async run_id => {
-      const session_id = (await service.render())._meta.agdf_cockpit.session_id;
-      const snapshot = await service.read({ operation: 'snapshot', session_id, ...(run_id ? { run_id } : { view: 'legacy' }) });
-      return { session_id, snapshot_id: snapshot.snapshot_id };
-    };
-    const a = await open(), b = await open(), run = await open('fixture-a');
-    const cancellation = new AbortController();
-    const waitingRun = service.read({ operation: 'changes', ...run }, cancellation.signal);
-    const waitingA = service.read({ operation: 'changes', ...a }), waitingB = service.read({ operation: 'changes', ...b });
-    const path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
-    replace(path, fs.readFileSync(path, 'utf8') + '\nSaved backlog update\n');
-    const beforeReads = treeBytes(f.root);
-    for (const event of await deadline(Promise.all([waitingA, waitingB]))) {
-      assert.equal(event.data.changed, true); assert.equal(event.authorizes, false);
-    }
-    assert.equal((await service.read({ operation: 'freshness', ...run })).data.unchanged, true, 'Run detail has no legacy dependency');
-    cancellation.abort(); await waitingRun;
-    assert.equal((await service.read({ operation: 'changes', session_id: b.session_id, snapshot_id: a.snapshot_id })).code, 'resource_denied');
-    assert.deepEqual(treeBytes(f.root), beforeReads);
-    const next = await service.read({ operation: 'snapshot', session_id: a.session_id, view: 'legacy' });
-    const cancel = new AbortController(), pending = service.read({ operation: 'changes', session_id: a.session_id, snapshot_id: next.snapshot_id }, cancel.signal);
-    cancel.abort(); await pending;
-    assert.notEqual((await service.read({ operation: 'changes', ...a })).code, null);
-  } finally { await service.close(); f.close(); }
+test('atomic Run replacement makes every independent view stale and explicit refresh reissues only its selectors', async () => {
+  const f=fixture(),service=createCockpitSessionService(f.root);
+  try{
+    const open=async run_id=>{const session_id=(await service.render())._meta.agdf_cockpit.session_id;const snapshot=await service.read({operation:'snapshot',session_id,...(run_id?{run_id}:{})});return {session_id,snapshot_id:snapshot.snapshot_id};};
+    const a=await open(),b=await open(),run=await open('fixture-a');
+    replace(f.runPath,fs.readFileSync(f.runPath,'utf8')+'\nRead-only change observation\n');
+    const before=treeBytes(f.root);
+    for(const view of [a,b,run])assert.equal((await service.read({operation:'freshness',...view})).code,'source_changed');
+    const refreshed=await service.read({operation:'snapshot',session_id:a.session_id});assert.notEqual(refreshed.snapshot_id,a.snapshot_id);
+    assert.equal((await service.read({operation:'freshness',session_id:a.session_id,snapshot_id:refreshed.snapshot_id})).data.unchanged,true);
+    assert.equal((await service.read({operation:'changes',session_id:b.session_id,snapshot_id:a.snapshot_id})).code,'resource_denied');
+    assert.deepEqual(treeBytes(f.root),before);
+    const abort=new AbortController(),pending=service.read({operation:'changes',session_id:a.session_id,snapshot_id:refreshed.snapshot_id},abort.signal);abort.abort();assert.equal((await pending).code,'cancelled');
+  }finally{await service.close();f.close();}
 });
 test('Run source replacement wakes only dependent views, and pending waits close with their session', async () => {
   const f = fixture(), service = createCockpitSessionService(f.root);

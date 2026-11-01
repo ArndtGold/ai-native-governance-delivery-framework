@@ -1,0 +1,17 @@
+npm notice run @agdf/mcp-server@0.20.2 test:generation
+npm notice run node ./test/owner-thread.test.js && node ./test/startup.test.js && node ./test/generation.test.js
+owner-protocol: pass
+owner-claims: genuine Worker binding, one lifetime, actual successful exit plus acknowledgement pass
+owner-threads: both actual STDIO protocols and independent claim teardown pass
+{"role":"facade","transport_failure":"Connection closed; server stderr: AGDF_MCP_PLUGIN_RUNTIME_FAILED: facade phase: the AGDF MCP runtime could not be started. Reinstall the AGDF plugin and restart."}
+{"test":"owner-fault","role":"facade","original_operation_id":"765fba34-1542-4c34-b20e-145fd2d19164","retained_claims":1,"actual_exit":17,"unique_effect":true,"protected_lock":false,"native_qualified":false}
+{"test":"owner-fault","role":"generation","original_operation_id":"76900a29-c7c0-46da-8b5e-9f5c503626bb","retained_claims":2,"actual_exit":17,"unique_effect":false,"protected_lock":true,"native_qualified":false}
+owner-boundary: real facade Worker rejects stale/unknown/extra/non-JSON/oversized frames before extra execution
+owner-pressure: real owned STDIO survives a paused reader with complete unique MCP replies and acknowledged exit
+owner-deadline: genuine unresolved write stays protected, validated late reply/original receipt and actual exits permit retirement
+Actual startup generation qualification before facade SDK availability passed; synthetic only.
+Actual startup transport failure before service with generation teardown passed; synthetic only.
+Actual owner bootstrap overlap and qualification before facade start passed.
+Actual owner bootstrap overlap and source refusal without facade/claims passed.
+Actual fresh inspection parity/marker drift and late SDK mutation refusal before transport import passed.
+Actual owned child IPC, exact manifest qualification, three live-view slots, original-view routing, capacity refusal, control replay/conflict and acknowledged real-exit retirement passed; synthetic host only.

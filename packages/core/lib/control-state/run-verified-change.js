@@ -1,7 +1,8 @@
+import { runDocumentPath, runControlPath } from './run-identity.js';
 import { canonicalJson, digest } from './approval-command-contract.js';
 import { canonicalRunText } from './run-seal.js';
 import { prepareOwnedOutput } from './run-owned-outputs.js';
-import { upsertTableRow, replaceFirstScalar } from './run-state-edits.js';
+import { replaceFirstScalar } from './run-state-edits.js';
 import { prepareRunContentState } from '../control-evaluation/run-state.js';
 import { evaluateVerifiedChange, extractField, parseVerifiedChangePathList, readVerifiedChangeRecord } from '../control-evaluation/verified-change.js';
 import { filled, isPlaceholderValue } from '../control-evaluation/shared.js';
@@ -12,7 +13,7 @@ import { currentOwnedMutationClaimPaths } from './control-layout.js';
 // owner. Caller paths, foreign locks and arbitrary suffixes are never ignored.
 export function ownedRecordingGitObservation(observation, runId) {
   const transient = new Set([`.agdf/control/runs/${runId}/RUN_STATE.md.lock`,
-    `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`]);
+    runControlPath(runId, 'RUN_STEP_PENDING.json')]);
   return { gitValue: observation?.gitValue, gitPathList(root, args) {
     const ownClaims = new Set(currentOwnedMutationClaimPaths(root));
     return observation?.gitPathList?.(root, args)?.filter(p => !transient.has(p) && !ownClaims.has(p)) ?? null;
@@ -40,7 +41,7 @@ export function prepareVerifiedChangeRecording(root, run, control, before, input
     tracked: observation.gitPathList(root, ['diff', 'HEAD', '--name-only']), untracked: observation.gitPathList(root, ['ls-files', '--others', '--exclude-standard']) });
   const seen = actual();
   if (!seen.head || seen.tracked === null || seen.untracked === null) throw Error('verified_change_git_unavailable');
-  const path = `.agdf/control/artefacts/${input.runId}/VERIFIED_CHANGE.md`;
+  const path = `${runDocumentPath(input.runId, '')}/VERIFIED_CHANGE.md`;
   let content = source.content;
   if (phase === 'eligibility') {
     content = scalar(content, 'baseline_commit', seen.head);
@@ -58,18 +59,18 @@ export function prepareVerifiedChangeRecording(root, run, control, before, input
       content = scalar(content, 'execution_changed_paths', changed.join(', ') || 'none');
     }
   }
-  let text = upsertTableRow(run.content, 'Artefacts', 0, 'Verified Change', ['Verified Change', path, extractField(content, 'status'), 'Canonical compact record']);
+  let text = run.content;
   const hash = digest(canonicalRunText(content)), proposedArtefacts = new Map([[path, { content, digest: hash }]]);
   const candidate = prepareRunContentState(root, text, run.path, { proposedArtefacts });
+  candidate.artefacts = new Map(candidate.artefacts);
+  candidate.artefacts.set('Verified Change', { path, status: extractField(content, 'status') });
   const evaluated = evaluateVerifiedChange(root, candidate, { ...observation, proposedArtefacts });
   if (evaluated.findings.length && evaluated.status !== 'escalated' || phase === 'closeout' && evaluated.status !== 'executed') throw Error('verified_change_validation_failed:' + evaluated.findings.map(f => f.code).join(','));
   if (phase === 'closeout') {
     if (before.current_gate !== 'OR' || ['revise', 'block'].includes(control.context_graph?.gate_effect)) throw Error('verified_change_closeout_not_ready');
     if (!['delivered', 'intentionally_not_delivered', 'residual_risk', 'next_step'].every(key => filled(extractField(content, key)) && !isPlaceholderValue(extractField(content, key)))) throw Error('verified_change_mini_closeout_incomplete');
     if (input.confirmation !== closeoutConfirmation(input.runId, input.revisionId, input.operationId, hash)) throw Error('confirmation_required');
-    text = upsertTableRow(text, 'Artefacts', 0, 'OR', ['OR', path, 'done', 'Verified Change Mini-Closeout; same canonical record']);
     text = replaceFirstScalar(text, 'lifecycle', 'completed');
-    text = replaceFirstScalar(text, 'decision', 'pass');
   }
   const record = phase === 'closeout' ? { mode: 'verified_change', verified_change: { path, digest: hash }, lifecycle: 'completed',
     context_evidence_digest: closeoutContextDigest(content), confirmation_digest: digest(input.confirmation) } : null;

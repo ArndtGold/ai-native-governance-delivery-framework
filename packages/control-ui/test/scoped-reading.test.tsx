@@ -10,8 +10,8 @@ const run: Detail = { run_id: 'run-a', title: 'Unterlagen zuordnen', revision_id
   persisted: { current_gate: 'CD+Tests', next_allowed_action: 'Implement approved scope', decision: 'in_progress', artefacts: [] },
   evaluation: { status: 'open', current_gate: 'CD+Tests', blocking_reason: 'none', missing_approval: 'none', next_allowed_action: 'Implement approved scope',
     next_action_de: 'Freigegebenen Umfang umsetzen.', doctor_status: 'pass', quality_outlook: '', git_evidence: 'unavailable', diagnostics: [], approvals: [], missing_evidence: [], control_assessment: { state: 'open', authorizes: false } } };
-const backlog: Inventory = { kind: 'backlog', entries: [{ section: 'Active Backlog', key: 'run-a', original_key: '`run-a`', title: 'Unterlagen zuordnen',
-  stored_status: 'Awaiting TP', scope: 'framework-maintenance', priority: '1', stored_next_step: 'Stored next step', source_links: '[UR](UR.md)', current_spec: 'old', selectable: true }], diagnostics: [], source_path: '.agdf/control/MASTER_BACKLOG.md', content_digest: 'digest', counts: { 'Active Backlog': 1 }, file_count: 1, byte_count: 100 };
+const backlog: Inventory = { kind: 'work', layout: 'run-folders-v1', entries: [{ kind: 'run', identity: 'run/run-a', source: { path: '.agdf/control/runs/run-a/RUN_STATE.md', digest: 'sha256:'+'a'.repeat(64) }, section: 'active', key: 'run-a', original_key: '`run-a`', title: 'Unterlagen zuordnen',
+  coverage: 'current', handoff_ready: false, actions: [], stored_status: 'Awaiting TP', scope: 'framework-maintenance', priority: '1', stored_next_step: 'Stored next step', source_links: '[UR](UR.md)', current_spec: 'old', selectable: true }], diagnostics: [], source_path: '.agdf/control/', content_digest: 'digest', counts: { active: 1, planned: 0, history: 0 }, file_count: 1, byte_count: 100 };
 const focused = { ...meta, data: { kind: 'run' as const, run } };
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -37,7 +37,7 @@ for (const compact of [true, false]) it(`SCN-071: named resource failure preserv
 it('SCN-062/079: fresh backlog labels stored status and next step, and only deliberate selection checks the Run', async () => {
   const read = vi.fn(async (path: string) => path === '/api/snapshot' ? { ...meta, data: backlog } : { ...focused, snapshot_id: 'selected' }) as unknown as ReadTransport;
   render(<App transport={read}/>);
-  await screen.findByText('Gespeicherter Stand laut Backlog: Awaiting TP'); expect(screen.getByText('Nächster Schritt laut Backlog: Stored next step')).toBeTruthy();
+  await screen.findByText('Beobachteter Quellenstand: Awaiting TP'); expect(screen.getByText('Nächster Schritt: Stored next step')).toBeTruthy();
   expect(screen.queryByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeNull();
   expect(vi.mocked(read).mock.calls.map(c => c[0])).toEqual(['/api/snapshot']);
   fireEvent.click(screen.getByRole('button', { name: run.title }));
@@ -45,45 +45,20 @@ it('SCN-062/079: fresh backlog labels stored status and next step, and only deli
   expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/runs/run-a?snapshot=snapshot');
 });
 
-it('SCN-092: selecting during a committed title replacement captures the named Run without old selectors', async () => {
-  const observers: { callback: IntersectionObserverCallback; targets: Element[] }[] = [];
-  class Observer {
-    targets: Element[] = [];
-    constructor(callback: IntersectionObserverCallback) { observers.push({ callback, targets: this.targets }); }
-    observe(target: Element) { this.targets.push(target); }
-    disconnect() {}
-  }
-  vi.stubGlobal('IntersectionObserver', Observer);
-  let completeTitles!: (value: Envelope<Inventory>) => void;
-  const row = { ...backlog.entries[0], row_id: '00000000-0000-0000-0000-000000000001' };
-  const initial = { ...meta, data: { ...backlog, entries: [row] } };
-  // The server committed the replacement, but its response is still in flight.
-  // Aborting that response cannot restore the old server-side snapshot.
+it('SCN-092: source selection replaces an expired inventory without title probes or stale selectors', async () => {
   const read = vi.fn(async (path: string) => {
-    if (path === '/api/snapshot') return initial;
-    if (path.startsWith('/api/backlog-titles')) return new Promise<Envelope<Inventory>>(resolve => { completeTitles = resolve; });
+    if (path === '/api/snapshot') return { ...meta, data: backlog };
     if (path.startsWith('/api/runs/')) throw Error('resource_denied');
     if (path === '/api/snapshot?run_id=run-a') return { ...focused, snapshot_id: 'selected' };
     throw Error('unexpected_request');
   }) as unknown as ReadTransport;
-  try {
-    render(<App transport={read}/>);
-    await screen.findByRole('button', { name: run.title });
-    await waitFor(() => {
-      const observer = [...observers].reverse().find(o => o.targets.some(target => target.hasAttribute('data-backlog-row')))!;
-      const target = observer.targets.find(target => target.hasAttribute('data-backlog-row'))!;
-      act(() => observer.callback([{ target, isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
-      expect(completeTitles).toBeTypeOf('function');
-    }, { interval: 150 });
-    fireEvent.click(screen.getByRole('button', { name: run.title }));
-    await screen.findByRole('heading', { name: run.title, level: 1 });
-    expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/snapshot?run_id=run-a');
-    expect(vi.mocked(read).mock.calls.some(call => call[0].startsWith('/api/runs/'))).toBe(false);
-    expect(vi.mocked(read).mock.calls.find(call => call[0].startsWith('/api/backlog-titles'))?.[1].aborted).toBe(true);
-    await act(async () => completeTitles({ ...initial, snapshot_id: 'late-title-snapshot' }));
-    expect(screen.getByRole('heading', { name: run.title, level: 1 })).toBeTruthy();
-    expect(screen.queryByRole('heading', { name: 'Aktive Vorhaben im Repository' })).toBeNull();
-  } finally { vi.unstubAllGlobals(); }
+  render(<App transport={read}/>);
+  fireEvent.click(await screen.findByRole('button', { name: run.title }));
+  await screen.findByText(/Dieser Zugriff ist gesperrt/);
+  fireEvent.click(screen.getByRole('button', { name: 'Wiederholen' }));
+  await screen.findByRole('heading', { name: run.title, level: 1 });
+  expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/snapshot?run_id=run-a');
+  expect(vi.mocked(read).mock.calls.filter(([path]) => path.includes('backlog-titles'))).toHaveLength(0);
 });
 
 it('SCN-070: fresh document bundle replaces the parent and return resolves the new source ID', async () => {

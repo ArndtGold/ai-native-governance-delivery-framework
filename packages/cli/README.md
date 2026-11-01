@@ -128,113 +128,29 @@ For prerequisites, all surface-specific flows and operational boundaries, use th
 
 ## Command overview
 
-### Existing repository control state during installation (development)
+### Current control format and installation
 
-Install and update commands inspect existing `.agdf` state in the invocation directory without
-changing it. Interactive setup shows a compact count of eligible runs and repair cases, then offers one
-migration decision for that exact repository. Choose 1 to migrate, 2 to defer, or 3 for details (d remains an alias);
-empty input keeps the inspection read-only, including recovery journals. Select a repository explicitly in automation:
+The only supported layout is explicit `run-folders-v1`, with version-4 Runs and
+current wrapped records. Installation and startup inspect the selected repository
+read-only. They report `absent`, `current`, `unsupported` or `repair_required`;
+these results never grant delivery permission. Unsupported data remains unchanged.
+There is no conversion, migration, reset, old-version reader or legacy projection.
+The optional planning package requires this current Core capability; Core remains
+usable without the extension.
 
-```bash
-node ./bin/create-agdf.js codex --control-dir /absolute/path/to/repository --control-migration safe
-```
+Inspect through the installed version-matched runtime, without reinstalling:
 
-The flags are part of the development version; they do not describe the currently published
-`@agdf/cli@latest`. `--control-migration inspect` disables all control writes. `--control-dir` is
-independent of the OpenCode host configuration directory. No other repositories are scanned.
-
-The installation report separates the plugin result from `control.status`: compatible, migration
-required or repair required. A verified plugin with unresolved control compatibility returns a
-partial setup result (exit 1); it does not roll back or misreport the installed plugin. Safe
-migration covers active version-2 runs with missing seals, complete approval tables containing only
-missing approvals with empty evidence, and resolvable artefacts. Existing seals that are malformed
-or no longer match are repair cases. Unsupported versions and conflicting/missing artefacts stop
-migration of the affected runs; other eligible runs can proceed. Historical unsealed completed, superseded or abandoned runs are retained as
-non-authorizing history and are not reopened or retrospectively attested.
-
-For eligible runs with historical approvals, the common decision explicitly describes the
-approval reset and return to UR. Original records and artefact hashes are backed up automatically.
-Details show the selected runs, source revisions, prior approvals and next gates. The decision
-binds to those exact source snapshots: concurrent edits stop the affected run, and newly discovered
-runs are not added after confirmation. Repair cases do not block other eligible runs.
-Noninteractive/JSON setup never resets historical approvals. The manual `run-recovery inspect|preview|apply` path remains available.
-Legacy authoritative `AGDF_RUN.md` is reported separately and requires explicit `run-migrate`
-followed by inspection; it is not silently converted during plugin installation.
-
-If repair cases remain after migration, interactive setup offers **1: Start repair assistant**,
-**2: Later**, **3: Details**. Starting the assistant searches private recovery checkpoints and this
-repository's Git history without writing. It then shows concrete proposals and missing original
-files; a second 1/2/3 selection applies only the displayed proposals or defers them. Missing originals
-and placeholder references remain explicit input requirements. Repair is disabled by
-`--control-migration inspect`, noninteractive/JSON setup, or a failed plugin operation.
-
-The assistant can restore missing artefacts from an exact Git path in the current checkout's
-history, reset unproven approvals in the unsealed run, and record the resulting state through the
-canonical recovery writer. A changed sealed run can use a valid original snapshot of the same
-revision with identical recorded approvals. The former self-reference hashing defect is repairable
-only when a validated recovery journal reconstructs the complete current record and all other
-artefact hashes still match. Unsupported formats, changed approvals, unsafe paths and absent
-originals require manual input. No missing report or approval is invented.
-
-Before applying a proposal, the assistant saves the existing record and selected originals in a
-private `repair-previews` journal and rechecks the displayed snapshots under the run lock. A failed
-write rolls back only restored files still owned by that attempt; an interruption after atomic
-replacement retains the original backup and does not cause another revision on reinstall.
-The report distinguishes a successfully installed plugin from unresolved repository repair and
-lists the concrete files or reference corrections still needed.
-
-Migration reuses the locked, atomic recovery writer, retains the source and artefact digests in the
-recovery journal, and resumes interrupted writes without adding a second revision. A repeated
-installation leaves already migrated runs byte-identical. The journal is a recovery checkpoint
-and original snapshot, not a blanket automatic rollback: concurrent edits stop recovery. Restoring
-an older state remains an explicit operation. A new seal records integrity; it cannot prove an old
-human approval. This compatibility check does not evaluate QA or grant delivery authority.
-
-| Existing control format | Installer behavior |
-|---|---|
-| Version 2, valid seals | Inspect and preserve exact bytes. |
-| Version 2, active, unsealed, all approvals missing | Recover automatically in the explicitly selected repository. |
-| Version 2, active, unsealed, historical approvals | Include in the common, snapshot-bound decision; reset approvals only after migration is selected. |
-| Version 2, inactive and unsealed | Retain as non-authorizing historical evidence. |
-| Unsupported version, invalid/mismatched seal or missing artefact | Report repair required; do not bless or overwrite the state. |
-| Authoritative legacy `AGDF_RUN.md` | Report the explicit `run-migrate` path, then inspect its canonical output. |
-
-New recovery journals use preview format 2, which binds the write timestamp into the preview
-digest. Existing format-1 journal digests remain readable. A legacy interrupted transaction whose
-recorded result does not match the actual bytes remains a repair conflict rather than being
-silently accepted.
-
-
-### Repository maintenance without reinstalling (development)
-
-Compatibility belongs to each repository. The installed full runtime can inspect and maintain
-its explicitly selected control root directly; no installer, registry or MCP setup is involved.
-Use the fixed runtime invocation supplied by your host, for example:
-
-```bash
+```sh
 node "<installed-plugin>/runtime/agdf-local.js" control-maintenance --dir /absolute/repository --json
 node "<installed-plugin>/runtime/agdf-local.js" control-maintenance --dir /absolute/repository --details --language de
-node "<installed-plugin>/runtime/agdf-local.js" control-maintenance --dir /absolute/repository --guided --language de
 ```
 
-These are invocation examples; use your host's actual supplied runtime path. Default, details and
-JSON inspect read-only. Guided mode needs interactive input and offers **1: Migration and repair**,
-**2: Later**, **3: Details**. Starting searches proposals only; applying a displayed migration
-batch or concrete repairs is a separate deliberate selection after scope, originals, backups and
-approval-reset consequences are shown. Blank/EOF defer. No new noninteractive apply API is exposed.
-Required originals remain named input; missing evidence is never synthesized.
-
-The prepared development CLI also exposes `agdf control-maintenance --dir /absolute/repository`.
-This new entry belongs to the development candidate; source/package tests do not refresh an older
-installed plugin or establish availability in the currently published release.
-
-Permitted startup checks report this repository's own compatibility and a compact direct invocation
-when maintenance is needed, separately from Doctor readiness. They never apply changes or wait for
-input. Disabled/stale check permission does not inspect automatically. Supported session/repository
-reentry binds fresh context; other surfaces use the explicit command fallback. Current or absent
-control needs no maintenance prompt. Package/fixture results and fresh installed-host observations
-remain separate evidence; executable identity changes retain existing permission-renewal rules.
-
+Use the actual runtime path supplied by the host. This operation only inspects;
+guided migration/repair and installation-time control-migration flags are removed.
+Current original-operation recovery uses its exact UUID, captured inputs, inspected
+pending digest and current recovery revision. Foreign bytes or unknown ownership
+stop recovery. Preserve unsupported stores separately and initialize a fresh
+explicitly confirmed Git target for current work.
 
 The Quick Start above is the recommended entry point. For the exact current command and option reference, run `npx --yes @agdf/cli@latest --help`; the groups below explain the supported surfaces, validation paths and canonical run lifecycle.
 
@@ -242,12 +158,12 @@ Installation, activation and explicit lifecycle changes:
 
 ```bash
 npx --yes @agdf/cli@latest codex
-npx --yes @agdf/cli@latest codex-repo
+npx --yes @agdf/cli@latest codex-repo --dir /absolute/project
 npx --yes @agdf/cli@latest claude
 npx --yes @agdf/cli@latest copilot
 npx --yes @agdf/cli@latest opencode
 npx --yes @agdf/cli@latest opencode-status
-npx --yes @agdf/cli@latest opencode-repo
+npx --yes @agdf/cli@latest opencode-repo --dir /absolute/project
 npx --yes @agdf/cli@latest codex --with-mcp --dir /absolute/path/to/repository
 npx --yes @agdf/cli@latest mcp status --surface codex --dir /absolute/path/to/repository --json
 npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absolute/path/to/repository
@@ -371,100 +287,56 @@ runtime. This differs from detected CLI system locale input and from `config --l
 persists the project preference after a governance target is available. A target-unresolved result
 cannot read project configuration safely because no project has been selected yet.
 
+`agdf control-maintenance --dir /absolute/project --json` inspects current compatibility read-only; unsupported stores are preserved without migration or repair.
+
+### Current Run commands
+
+Current aliases share Core input normalization, captured configuration and original
+operation replay with the fixed MCP command groups. Provide an operation UUID when
+an exact retry may be needed; preserve the returned identity and inspected revision.
+`run-create` derives its new Run ID from that UUID and requires an explicit title.
+
+```sh
+agdf run-create --dir /absolute/project --title 'Clarify one requirement' --operation <uuid>
+agdf run-step --dir /absolute/project --run <id> --revision <uuid> --operation <uuid> --step ur --title 'Clarify one requirement' --evidence /absolute/reviewed-UR.md
+agdf run-step --dir /absolute/project --run <id> --revision <uuid> --operation <uuid> --step artefact --gate PRD --evidence /absolute/reviewed-PRD.md --reviewer 'Source reviewer' --reviewed true --update-draft false
+agdf run-present --dir /absolute/project --run <id> --revision <uuid> --gate UR --operation <uuid>
+```
+
+These are input examples; use actual inspected identities and reviewed files.
+Show the exact prepared presentation before forwarding a new deliberate reply with
+`run-approve --presentation <id> --response 'Approval: UR'`. A historical reply
+cannot approve changed material. Staging grants no delivery or approval authority.
+
+For internal results, explicit bounded recovery and complete typed inputs use the
+fixed group routes `agdf-project`, `agdf-run`, `agdf-prepare`, `agdf-record`,
+`agdf-approve`, `agdf-revise` and `agdf-closeout` with `--command-file <regular.json>`.
+Only `--command-file` and `--json` are accepted on these routes; envelope fields
+cannot be overridden by CLI flags. Read the current operation-contract for the exact
+schema. No RECORD/REVIEW JSON input duplicates a reviewed source mapping.
+
 ### Late source revision
 
-At a valid active structured `CD+Tests` boundary, with exact approved UR/PRD/SD/TP and
-completed required preparation, source revision reopens the earliest changed source.
-It preserves exact unchanged upstream approvals and revokes affected current approvals,
-relationships, analytical inputs and implementation/review fulfillment. It retains code/tests.
-Awaiting CR, QA/UAT/OR, closed, damaged and pending states cannot use this path.
+`agdf run-revise` uses the same current source-revision owner; read its contract for the exact proposal, preview digest and confirmation before applying.
 
-Write a reviewed proposal under `.agdf/control/artefacts/<run_id>/`. Its exact JSON keys are
-`schema_version: "1"`, `target_id`, `run_id`, `expected_revision_id`, `operation_id`,
-`source_gate`, `reason`, `intended_change`, `sources`, and `impact_assessment`. `target_id`
-is the canonical local command target digest. `sources` contains the exact current
-`{type,path,digest}` entries in UR/PRD/SD/TP order. `impact_assessment` contains:
+The current source-revision owner retains policy 2: an actual eligible structured
+pre-UAT phase, the earliest changed approved source, exact unchanged upstream
+proof, reviewed analytical and quality impact, explicit preview and deliberate
+confirmation. It does not widen eligibility or infer approval from tool consent.
 
-- `reviewer`, `earliest_source` (matching `source_gate`) and `implementation_evidence`;
-- `upstream`: exact unchanged earlier source entries plus a concrete `rationale` for each;
-- `analyses`: every linked Brownfield Review/UX input, each with `type`, exact `path`/`digest`,
-  `disposition: "retain" | "reassess"` and `reason`; UR revision requires reassessment;
-- `unresolved: []`; unresolved or contradictory impact must be clarified before preview.
+Read the current `source_revision.preview`/`source_revision.apply` operation help
+and reviewed proposal format (version 3). Preview changes no Run. The apply command
+requires its exact preview digest and confirmation selector, the original operation
+UUID and unchanged reviewed proposal. The resulting version-4 receipt and version-2
+archive bind the historical sources below `runs/<id>/history/revisions/<operation>/`.
+Affected downstream approvals and fulfillment require renewed work; code files stay
+available without becoming current qualification evidence.
 
-```bash
-agdf run-revise --preview --dir /absolute/repository --run <run_id> \
-  --revision <revision_id> --source-gate TP --operation <uuid> \
-  --evidence .agdf/control/artefacts/<run_id>/proposal.json --json
-agdf run-revise --apply --dir /absolute/repository --run <run_id> \
-  --revision <revision_id> --source-gate TP --operation <same_uuid> \
-  --evidence .agdf/control/artefacts/<run_id>/proposal.json --preview-digest <returned_digest>
-agdf run-revise --inspect --dir /absolute/repository --run <run_id> \
-  --revision <observed_revision_id> --operation <same_uuid>
-agdf run-revise --recover --dir /absolute/repository --run <run_id> \
-  --revision <old_or_committed_revision_id> --operation <same_uuid>
-```
-
-Preview is nonmutating; cancellation needs no command. Apply rechecks its exact facts under
-Run then Backlog locks, stages/syncs immutable raw-byte history and commits the sealed Run
-before updating Backlog. `Source Revisions` is append-only Run evidence; archive manifests
-and snapshots remain subordinate historical proof. Historical resolution uses original-path
-archived bytes, including old mappings and presentations, after canonical drafts are replaced.
-Invalidated receipts remain inspectable but cannot satisfy current readiness.
-
-Sources are unlinked rather than edited by reopening. Their existing owners record new drafts,
-reviewed bindings, presentations and fresh deliberate approvals. Renewed TP requires fresh
-preparation and current-plan implementation/test/review evidence. Existing MCP dispatch/inspect
-observe this current state and history references; late apply/recover remain local CLI commands.
-No MCP write tool or argument is added. A matching operation replay is nonmutating and reports
-original versus current revision; changed same-ID requests are refused. Unknown/pending state
-blocks ordinary work until explicit recovery can prove rollback or one committed effect.
-
-Canonical run lifecycle:
-
-```bash
-agdf run-create --run <run_id>
-agdf run-update --run <run_id> --revision <revision_id>
-agdf run-revise --run <run_id> --revision <revision_id>
-agdf run-step --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]
-agdf run-present --run <run_id> --gate <gate> --revision <revision_id>
-agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response "Approval: <gate>"
-agdf run-migrate [--run <run_id>]
-agdf run-render-legacy --run <run_id>
-agdf run-close --action preview --run <run_id> --outcome <superseded|abandoned> --reason "<text>" [--successor-run <run_id> | --successor-ref "<text>"]
-agdf run-close --action preview --closure-file <entries.json>
-agdf run-close --action apply --preview-id <preview_id> --confirmation "Close runs: <preview_id>"
-```
-
-`run-close` ends active runs that will not be completed. The preview lists each run with its gate,
-open approvals, last activity, artefact count, outcome and warnings, stores an immutable file under
-`.agdf/control/closure-previews/` and changes no run. `--closure-file` takes
-`{"entries":[{"run_id","outcome","reason","successor_run"|"successor_reference"}]}`. `superseded`
-needs a successor: `--successor-run` must name an existing run, `--successor-ref` is a free
-reference recorded as unverified. Apply requires the exact phrase printed by the preview; each
-listed run that is still active, sealed and unchanged since the preview is closed with its own
-receipt, and the result names every run. Legacy or unknown pending recovery blocks the whole
-closure; a validated v6 journal for an unselected Run permits independent closure. The receipt records the local Git `user.name` and `user.email` as a
-cooperative statement (include directives are not followed; otherwise `unknown`). An ended run
-rejects every further run write, approval, presentation, revision, recovery and continuation; a
-closure cannot be reopened.
-
-`run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
-Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state
-and every file listed under Artefacts, so an edit made outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
-`run-update` records it as a new revision and refuses changed approval rows. With no mode,
-`run-revise` keeps its early PRD-to-SD boundary behavior before downstream artifacts are linked.
-The explicit late modes below cover source revision during approved-TP implementation.
-Run writers also reject duplicate `Artefacts` rows; replace the existing row for a type, or remove
-an extra row and retry `run-update` to record the correction.
-`run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
-presented `revision_id`, records it with the approved artefact's digest and advances the revision.
-`run-step` records one standard small-path transition per call (UR registration, Mode/Slice route,
-evidence, Code Review, `quick_task` closeout with OR-lite) and maintains the run tables and
-policy-derived next action, plus the `MASTER_BACKLOG.md` pointer in legacy projects. These commands print JSON and are
-also available through the plugin's surface-local validator. The
-seal detects unrecorded edits; it is not a signature. Normal write commands reject missing seal
-lines. Restore a trusted sealed revision before recording changes; `run-migrate` remains the explicit
-path for legacy control state and does not infer approvals.
+The current `run-revise --preview|--apply|--inspect|--recover` aliases use the same
+owner. Early PRD reopening uses `run-revise --gate PRD` and its exact confirmation.
+Unapproved draft replacement uses the inspected current recording operation; UR
+replacement uses `ur_draft.replace`. Never edit a bound source or Run and reseal it.
+Retired synchronization, migration, rendering and approval-reset commands are absent.
 
 ### Explicit local approval command (development)
 
@@ -508,9 +380,9 @@ agdf run-approve --dir /absolute/path/to/repository --run <run_id> --gate UR \
   --operation <uuid> --assurance cooperative_local
 ```
 
-Omitting `--assurance` defaults to the same visible cooperative lane. Without `--operation`, the
-existing CLI result/rejection semantics remain, with additive assurance and no receipt backfill.
-`--assurance` is restricted to `run-approve`; `--operation` also identifies explicit source revisions.
+Omitting `--assurance` defaults to the same visible cooperative lane; stronger values are rejected.
+An omitted `--operation` creates a fresh UUID and returns its receipt. Retain the original UUID
+and input for exact repetition. The current command aliases share this normalization boundary.
 
 The Run contains the append-only `Approval Operations` receipt and approval in one atomically
 replaced, sealed revision. The service holds the owned Run lock across validation and commit.
@@ -539,7 +411,7 @@ they do not install or publish the package.
 
 ### Advanced / Compatibility
 
-Backward-compatible scaffold usage:
+Alternative CLI invocation syntax:
 
 ```bash
 npm create agdf@latest -- codex
@@ -713,14 +585,15 @@ records the design evidence and its limits.
 
 ## Control scaffold
 
-New initialization uses `planned-urs-v1`, with independent planned URs and derived
-planned/Run inventory. It creates no live Master Backlog and no Run implicitly.
-Existing projects remain legacy until an explicit source-bound migration.
-See [planned UR commands, migration and optional Codex Planning](../../plugins/agdf/control/planned-urs.md).
+Initialization uses only `run-folders-v1`, with independent planned URs and derived
+planned/Run inventory. It creates no Masterbacklog and no Run implicitly. Other
+layouts and Run versions are unsupported and remain unchanged.
+See [planned UR commands and optional Codex Planning](../../plugins/agdf/control/planned-urs.md).
 
 The generated `.agdf/control/templates/` files are reusable starting points for durable AGDF state:
 
-- `runs/<run_id>/RUN_STATE.md` for each canonical current run dashboard
+- `runs/<run_id>/RUN_STATE.md` for canonical authored facts and typed records; current views are derived
+- `runs/<run_id>/documents/`, `evidence/`, `control/` and `history/` for all Run-owned files
 - `planned/<plan_id>/UR.md` for each planned need (UR-only; created on explicit capture)
 - `templates/artefacts/` for durable UR, PRD, SD, TP and QA report artefact templates
 - `SOT_REGISTRY.md` for one source of truth per domain
@@ -877,7 +750,7 @@ shows its digest, run, gate and revision. Before the approval action it includes
 gate-specific summary, bound by `summary_digest`; UAT summarizes and presents its existing evidence
 rows. A missing summary is a presentation failure. Supply its `presentation_id` as
 `run-approve --presentation`.
-Old stored approvals remain valid; new legacy calls without the binding are rejected with recovery.
+Only current wrapped approval records and exact presentation bindings are supported; old record formats are refused unchanged.
 Never prepare a missing record after receiving an answer and reuse that answer. Read-only gate
 previews are not preparation records. Install matching runtime and skills; older runtimes reject
 new intake/continuation fields rather than silently dropping them.

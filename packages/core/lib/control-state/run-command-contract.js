@@ -7,7 +7,7 @@ import { PRD_DECISION_FORMAT } from '../control-evaluation/prd-readiness.js';
 import { SD_DECISION_FORMAT } from '../control-evaluation/sd-readiness.js';
 import { ACCEPTANCE_CRITERIA_FORMAT, TP_AUTHORING_FORMAT } from '../control-evaluation/traceability-readiness.js';
 import { UX_DECISION_FORMAT } from '../control-evaluation/definition-sources.js';
-import { REVIEWED_REQUEST_FORMAT, REVISION_PROPOSAL_FORMAT } from './recording-formats.js';
+import { REVIEWED_BINDING_FORMAT, REVISION_PROPOSAL_FORMAT } from './recording-formats.js';
 import { relationshipForGate } from '../control-evaluation/delivery-relationships.js';
 import { PREVIEW_REVIEW_FORMAT } from './preview-review.js';
 import { closeoutConfirmation, QUICK_CLOSEOUT_AUTHORING_FORMAT } from '../control-evaluation/closeout-readiness.js';
@@ -24,7 +24,7 @@ export function operationContract(group, kind, { gate } = {}) {
       lifecycle: 'A receipt-confirmed canonical commit retires its consumed set; otherwise discard it explicitly or let it expire.' } } : {}),
     internal_result_formats: kind === 'step.record' ? { 'UX Intent Definition': UX_DECISION_FORMAT,
       reviews: { declaration: '- decision: pass | revise | block | not_applicable', result_scope: 'actual current owner report; no generated judgement or approval' } } : undefined,
-    reviewed_request_format: kind === 'artefact.record' ? { ...REVIEWED_REQUEST_FORMAT, current_relationship: relationshipForGate(gate) ?? null,
+    reviewed_binding_format: kind === 'artefact.record' ? { ...REVIEWED_BINDING_FORMAT, current_relationship: relationshipForGate(gate) ?? null,
       destination_status: gate === 'QA' ? 'pass | revise | block matching the actual QA report' : 'draft' } : undefined,
     proposal_format: kind.startsWith('source_revision.') ? REVISION_PROPOSAL_FORMAT : undefined,
     ...(kind === 'closeout.record' ? { confirmation_format: closeoutConfirmation('{run_id}', '{expected_revision_id}', '{operation_id}', '{or.digest}'),

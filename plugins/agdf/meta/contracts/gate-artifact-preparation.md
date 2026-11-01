@@ -16,7 +16,7 @@ Transfer UTF-8 material using agdf_record/material.stage: begin declares up to f
 
 Record UR/internal/evidence/route/review via step.record; replace only a registered unapproved UR with agdf_revise/ur_draft.replace. Formal artefact.record takes the material, exact gate, reviewer, explicit reviewed:true and update_draft. Follow authoring-inputs recording.mode/update_draft and current operation help: initial uses false; explicit replace_unapproved or renew_invalidated_binding uses true and fresh current source/review. draft_registered false after a source revision does not erase historical binding obligations. Effective analytical next_operation selects the actual template/format, including UX reassessment at an outer PRD gate; never substitute the gate template or require source-code lookup. Actual reviewed source mapping remains required; Core retains its reviewed relationship and proof atomically, never inventing an independent semantic review. Approved sources use the existing reviewed source_revision.preview/apply owner, including a staged EVIDENCE JSON proposal; archive/receipt retains its exact logical reference without publishing a generic caller-selected file. Preserve deliberate confirmation and original-UUID recovery.
 
-Verified Change uses verified_change.record phases eligibility/execution, the same read-only Git observations and unchanged compact evaluator. Core captures baseline/actual paths; scope escape escalates. Stage Mini-Closeout in its Verified Change slot and use closeout.record with the returned exact confirmation. Quick Task uses its existing review/evidence and OR-lite owner. No mode uses run-update as the routine MCP control path. Presentation prepare/deliver follows interaction.md; only a new deliberate exact human reply reaches approval.record.
+Verified Change uses verified_change.record phases eligibility/execution, the same read-only Git observations and unchanged compact evaluator. Core captures baseline/actual paths; scope escape escalates. Stage Mini-Closeout in its Verified Change slot and use closeout.record with the returned exact confirmation. Quick Task uses its existing review/evidence and OR-lite owner. No mode accepts hand edits or reseals as a control path. Presentation prepare/deliver follows interaction.md; only a new deliberate exact human reply reaches approval.record.
 
 The following local path/CLI forms remain compatibility fallback for hosts without these listed capabilities. They do not override typed MCP continuations.
 
@@ -32,7 +32,8 @@ The following local path/CLI forms remain compatibility fallback for hosts witho
 - Prepare only the named current-gate artifact from the supplied approved sources.
   With MCP use `agdf_record/artefact.record` and the bounded reviewed material above.
   CLI fallback records with `run-step --step artefact --gate <PRD|SD|TP|QA>
-  --evidence .agdf/control/artefacts/<run_id>/<input.json> --run <run_id> --revision <revision_id>`.
+  --evidence <reviewed-material.md> --reviewer <name> --reviewed true
+  --update-draft <true|false> --run <run_id> --revision <revision_id> --operation <uuid>`.
   Do not publish a pointer and its required source relationship in separate accepted revisions.
 - After persistence, redispatch `gate-check` for the same target/run and use its fresh revision,
   gate route and approval presentation. Do not reuse this operation or ask for approval until the
@@ -41,7 +42,7 @@ The following local path/CLI forms remain compatibility fallback for hosts witho
   dependent authoring. Use interaction.md Bounded internal recovery only for its dispatched eligible
   analytical owner; other conditions stay blocked. Never infer approval or create later-gate work.
 
-## Reviewed Recording Input (version 1)
+## Reviewed Material Recording
 
 ### Language and approval summary preparation
 
@@ -86,49 +87,27 @@ correction stays with the existing authoring continuation, once per diagnosed co
 by canonical replacement and fresh evaluation. A ready draft still needs actual editing intent;
 status is read-only, protected sources and unrelated blockers remain stopped.
 
-Prepare files under `.agdf/control/artefacts/<run_id>/` before recording. The single shared Core
-relationship registry selects PRD-derived_from-UR, SD-derived_from-PRD, TP-derived_from-SD or
-QA_REPORT-tests-TP. UR-approved_by remains exclusively approval-owned. QA recording copies an
-existing report's explicit Decision/Status value (`pass | revise | block`); it does not decide QA.
+Record reviewed material through `artefact.record`: `gate`, exact bounded `material`,
+`reviewer`, explicit `reviewed: true` and boolean `update_draft`. The writer derives
+PRD-derived_from-UR, SD-derived_from-PRD, TP-derived_from-SD and QA_REPORT-tests-TP
+from the existing registry and current exact approved source. UR-approved_by remains
+exclusively approval-owned. QA recording preserves the report's explicit result;
+it never decides QA. This is cooperative review attestation, not independent proof
+of human review or semantic correctness.
 
-The JSON object has exactly these fields:
+Core publishes the canonical document under the Run documents role, its binding
+and revision atomically. Source/destination mapping and reviewer are recorded once
+in the typed binding; there are no RECORD/REVIEW JSON inputs or duplicate proofs.
+An unapproved replacement supersedes its previous binding while retaining history.
+The previous canonical bytes must still be valid before recording; stage the new
+material instead of editing a bound document. Approved sources require the current
+source-revision preview/apply owner and exact deliberate confirmation.
 
-- `schema_version`: string `1`.
-- `target_id`: existing local command-target identity, SHA-256 of `agdf-command-target/1`, NUL,
-  and the canonical real absolute governance target. This is a binding, not authority.
-- `run_id`, `expected_revision_id`: the supplied selected run and current revision.
-- `destination`: exactly `type`, `path`, `digest`, `status`; logical registry type, canonical
-  run-local `<type>.md`, full canonical SHA-256 and `draft` for PRD/SD/TP, report decision for QA.
-- `source`: exactly `type`, `path`, `digest`; the registry's approved source and canonical digest.
-- `relationship`: exactly `from`, `relationship`, `to`; the explicit registry triple.
-- `review`: exactly `reviewer`, `path`, `digest`; named reviewer, separate contained mapping file
-  and its canonical SHA-256. Do not overwrite an earlier sealed proof file.
-- `update_draft`: boolean; true only for an explicit current-gate draft update.
-
-The mapping file is JSON with exactly `schema_version`, `target_id`, `run_id`, `relationship`,
-`destination`, `source`, `reviewer`, `reviewed`. Identity and source/destination objects match
-the recording input exactly; reviewer matches review.reviewer, and reviewed is boolean true.
-Digests use the existing canonical text/line-ending semantics. This is cooperative review
-attestation, never independent proof of a human review or semantic derivation. QA/review assesses
-the meaning. A prose header or gate order is not machine proof.
-
-The existing operation checks current permission, contained non-symlink files, exact approved
-sources and revision under locks. It appends its sealed Artefact Bindings receipt/history and
-publishes pointer, relationship and audit together. The receipt is writer-owned; do not hand-author
-it. An allowed draft replacement supersedes the prior active binding, retaining history. A changed
-draft is accepted only when its prior binding reconstructs the recorded seal and every other
-bound/approved byte remains unchanged. Otherwise stop with explicit maintenance/revision recovery.
-
-Before presentation/approval, a recorded eligible current artefact must have its evidenced source
-relationship. Missing artefacts remain draftable; a relationship-only blocker must not redraft the
-artefact repeatedly. Only authorized bound continuation can attempt one exact previously sealed
-proof correction before output. The shared Core continuation service coordinates this operation
-and fresh routing; the dispatcher service itself only reads and routes. Explicit status, doctor,
-evaluation and run-present never correct.
-Unknown/malformed/foreign/stale/ambiguous proof, missing full approval integrity or unrelated
-blockers remain blocked; legacy absence grants no correction permission. A successful correction
-creates a new audited revision and fresh evaluation without another approval. Terminal output
-already emitted is never intercepted. Older runtimes have no automatic correction capability.
+Before presentation, an eligible recorded artefact must have the exact current
+source relationship. Missing, stale, foreign or malformed bindings remain blocked.
+Do not hand-author a receipt, repair a seal or automatically adopt unknown edits.
+Read-only status, doctor, evaluation and presentation never correct state. After
+an allowed recording, evaluate the new revision and prepare a fresh exact decision.
 
 ## Gate-Specific Work
 

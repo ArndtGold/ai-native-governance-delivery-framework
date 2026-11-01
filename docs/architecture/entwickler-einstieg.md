@@ -70,7 +70,8 @@ funktionierender Export und die unveränderte bestehende API zu den zu prüfende
 Tests und Reviews müssen diese Wirkungen zeigen. Ein erfolgreicher Tool-Aufruf allein genügt nicht.
 
 Der Zustand des Vorhabens liegt im Zielprojekt unter `.agdf/control/runs/<run_id>/RUN_STATE.md`,
-zugehörige Artefakte unter `.agdf/control/artefacts/<run_id>/`. Die
+zugehörige Dokumente unter `.agdf/control/runs/<run_id>/documents/` und Evidenz unter
+`.agdf/control/runs/<run_id>/evidence/`. Die
 [Writer](../../packages/core/lib/control-state/) besitzen die Speicherung. Erforderliche
 Qualitätsentscheidungen, menschliche Abnahme und Abschluss bleiben eigene Schritte.
 

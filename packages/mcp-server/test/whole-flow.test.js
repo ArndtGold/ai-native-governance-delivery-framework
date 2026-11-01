@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { writeFileSync, readFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
@@ -15,14 +15,16 @@ import { evaluateGateCheck } from '../../core/lib/control-evaluation/gate-check.
 for (const modern of [false, true]) {
 const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
 try {
-  const legacyPath = join(root, '.agdf/control/MASTER_BACKLOG.md'), legacyBefore = readFileSync(legacyPath, 'utf8');
+  const legacyPath = join(root, '.agdf/control/MASTER_BACKLOG.md'), legacyBefore = '# Foreign historical bytes, never control authority\n';
+  assert.equal(existsSync(legacyPath), false, 'Current initialization has no Masterbacklog');
+  writeFileSync(legacyPath, legacyBefore);
   await withStdioClient({ ...fixture, modern }, async client => {
   const service = async (name, input) => { const result = await client.callTool({ name, arguments: input }); assert.ok(result.structuredContent, JSON.stringify(result)); return result.structuredContent; };
   const target = resolveControlCommandTarget(root).target_id;
   const creation = { schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
     target_id: target, operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind: 'run.create', payload: { title: 'Synthetic single function subtraction' } } };
   const created = await service('agdf_run', creation); assert.equal(created.outcome, 'accepted', JSON.stringify(created));
-  const run = created.binding.run_id, prefix = `.agdf/control/artefacts/${run}/`, path = join(root, `.agdf/control/runs/${run}/RUN_STATE.md`);
+  const run = created.binding.run_id, prefix = `.agdf/control/runs/${run}/documents/`, path = join(root, `.agdf/control/runs/${run}/RUN_STATE.md`);
   assert.equal((await service('agdf_run', creation)).outcome, 'already_applied');
   const observedCreation = await service('agdf_inspect', { operation: 'operation-status', module: creation.operation_id,
     presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'explicit_target' });
@@ -53,7 +55,7 @@ try {
   assert.equal(selected.presentation_id, prepared.family_result.presentation_id);
   const document = await service('agdf_inspect', selected.read_arguments);
   assert.equal(document.report.complete, true);
-  assert.equal(document.report.content, readFileSync(join(root, `.agdf/control/runs/${run}/presentations/${selected.presentation_id}.document`), 'utf8'));
+  assert.equal(document.report.content, readFileSync(join(root, `.agdf/control/runs/${run}/control/presentations/${selected.presentation_id}.document`), 'utf8'));
   const approved = await service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: prepared.family_result.presentation_id, response: 'Approval: UR' } } });
   assert.equal(approved.outcome, 'accepted', JSON.stringify(approved));
   const dispatch = async (continue_delivery = true) => service('agdf_dispatch', { skill_id: 'gate-check',

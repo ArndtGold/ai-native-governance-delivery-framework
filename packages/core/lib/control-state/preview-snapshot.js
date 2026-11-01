@@ -1,3 +1,5 @@
+import { runControlPath } from './run-identity.js';
+import { runDocumentPath } from './run-identity.js';
 import { resolutionRecordVersion } from './input-resolution.js';
 import { closeSync, constants, fsyncSync, openSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -7,7 +9,7 @@ import { canonicalRunText } from './run-text.js';
 import { readFileSync, statSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 
-const prefix = (runId, id) => `.agdf/control/runs/${runId}/presentations/${id}`;
+const prefix = (runId, id) => `${runControlPath(runId, 'presentations')}/${id}`;
 export function previewSnapshotBinding(preview, runId, id) {
   const start = prefix(runId, id), bytes = Buffer.from(preview.html);
   const chunks = [];
@@ -64,7 +66,7 @@ export function publishPreviewSnapshot(root, record, preview, { resume = false, 
 
 export function readPreviewSnapshot(root, record, { readBytes = path => readPreviewBytes(root, path), current = false } = {}) {
   const row = record.preview_review;
-  if (!([5, 6].includes(resolutionRecordVersion(record)) && record.preview_review) || !validPreviewSnapshot(row, record.run_id, record.presentation_id)) previewError('snapshot_invalid');
+  if (!(resolutionRecordVersion(record) === 7 && record.preview_review) || !validPreviewSnapshot(row, record.run_id, record.presentation_id)) previewError('snapshot_invalid');
   for (const file of row.files) {
     const bytes = readBytes(file.snapshot);
     if (!bytes || bytes.length !== file.bytes || digest(bytes) !== file.digest) previewError('snapshot_changed');
@@ -81,11 +83,11 @@ export function readPreviewSnapshot(root, record, { readBytes = path => readPrev
 }
 
 export function validateCurrentPreviewRecord(root, record) {
-  if (!([5, 6].includes(resolutionRecordVersion(record)) && record.preview_review)) return;
+  if (!(resolutionRecordVersion(record) === 7 && record.preview_review)) return;
   readPreviewSnapshot(root, record, { current: true });
   readStandalone(root, record);
-  const base = `.agdf/control/artefacts/${record.run_id}/`;
-  if (digest(readPreviewBytes(root, base + 'PRD.md')) !== (resolutionRecordVersion(record) === 6 ? record.artefact_digest : record.document_digest)
+  const base = `${runDocumentPath(record.run_id, '')}/`;
+  if (digest(readPreviewBytes(root, base + 'PRD.md')) !== (record.artefact_digest)
     || digest(canonicalRunText(readPreviewBytes(root, base + 'UR.md').toString('utf8'))) !== record.preview_review.descriptor.source_ur_digest) previewError('source_changed');
 }
 
@@ -105,5 +107,5 @@ export function previewProof(record, { rawFileDigest, fileDigest }) {
   if (!validPreviewSnapshot(row, record.run_id, record.presentation_id)) return false;
   if (row.files.some(file => rawFileDigest(file.snapshot) !== file.digest || rawFileDigest(file.path) !== file.digest)
     || row.chunks.some(chunk => rawFileDigest(chunk.snapshot) !== chunk.digest)) return false;
-  return fileDigest(`.agdf/control/artefacts/${record.run_id}/UR.md`) === row.descriptor.source_ur_digest;
+  return fileDigest(`${runDocumentPath(record.run_id, '')}/UR.md`) === row.descriptor.source_ur_digest;
 }

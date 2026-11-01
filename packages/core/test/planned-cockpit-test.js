@@ -3,9 +3,8 @@ import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { plannedFixture, clarifiedUr } from './planned-fixtures.js';
-import { mutatePlannedUr, plannedTextDigest } from '../lib/control-state/planned-entry.js';
-import { createRunFromPlanned } from '../lib/control-state/planned-handoff.js';
+import { plannedFixture, clarifiedUr, boundMutatePlannedUr as mutatePlannedUr, boundCreateRunFromPlanned as createRunFromPlanned } from './planned-fixtures.js';
+import { plannedTextDigest } from '../lib/control-state/planned-entry.js';
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { createCockpitSessionService } from '../lib/control-inspect/cockpit-session.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
@@ -17,9 +16,9 @@ const create = (root, title, priority) => mutatePlannedUr(root, { kind: 'planned
 test('SCN-010/011/026: genuine new-layout cockpit derives counts/order/per-entry sources without a backlog; selected planned UR is read-only and snapshot-bound', t => {
   const root = plannedFixture(t), beta = create(root, 'Beta', 'high'), alpha = create(root, 'Alpha', 'high');
   const before = treeBytes(root), reader = createCockpitReader(root), overview = reader.snapshot();
-  assert.equal(overview.state, 'available', JSON.stringify(overview)); assert.equal(overview.data.layout, 'planned-urs-v1');
-  assert.equal(overview.data.counts['Planned / Parking Lot'], 2); assert.equal(overview.data.counts['Active Backlog'], 1);
-  const list = projectCockpitList(overview.data, { section: 'Planned / Parking Lot' });
+  assert.equal(overview.state, 'available', JSON.stringify(overview)); assert.equal(overview.data.layout, 'run-folders-v1');
+  assert.equal(overview.data.counts['planned'], 2); assert.equal(overview.data.counts['active'], 1);
+  const list = projectCockpitList(overview.data, { section: 'planned' });
   assert.deepEqual(list.rows.map(row => row.entry.key), [alpha.plan_id, beta.plan_id]);
   assert.equal(list.rows[0].provenance.path, alpha.path); assert.equal(list.rows[0].provenance.digest, alpha.digest);
   assert.throws(() => reader.planned(randomUUID(), overview.snapshot_id), /resource_denied/u);

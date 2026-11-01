@@ -90,53 +90,33 @@ Suche und Vorhabenliste. „Anderen Run wählen“ blendet die aktive Liste bewu
 bleibt ausgewählt, bis der Nutzer einen anderen auswählt. Auswahl und Kontextpakete werden
 nicht aus URL oder Browser-Speicher wiederhergestellt.
 
-## 3. Run-Übersicht, Altbestand und Schreibgrenzen
+## 3. Aktueller Bestand und Schreibgrenzen
 
-Die Standardübersicht verwendet `readRunInventory` und dessen reine Inventarregeln. Aktiv enthält
-aktive Runs und berücksichtigte ungültige Einträge, Historie abgeschlossene/abgelöste/abgebrochene
-Runs. Beide Oberflächen verwenden dieselbe Gruppierung, Reihenfolge und Suche über den angezeigten
-Inventartitel, Run-ID und gespeicherten Status. Aufmerksamkeit, Aktivität aus Belegen/Freigaben und
-Run-ID bestimmen die vorhandene Reihenfolge; Dateizeit oder nachgeladenes UR-Heading verändern sie
-nicht. Rückfalltitel, unbekannte Aktivität, beobachtete Revision und eingeschränkte Abdeckung bleiben
-sichtbar. Zähler/keine Treffer versprechen keinen vollständigen Bestand bei Lesefehlern.
+Die Standardübersicht kombiniert unabhängige geplante URs und Runs aus dem aktuellen
+`run-folders-v1`-Bestand. Aktiv, Geplant und Archiv verwenden dieselbe Core-Reihenfolge,
+Suche, Zähler und Quellenidentität in großer und kompakter Ansicht. Titel und Status
+werden aus den kanonischen Einträgen abgeleitet. Es gibt weder einen Masterbacklog-
+Selektor noch einen zweiten Titel-Nachladedienst, gespeicherte Vergleichstabellen oder
+einen gepflegten zentralen Index. Geplante Einträge bleiben UR-Planung ohne Run-Freigabe.
 
-Die Liste liest Run-Dateien und Verzeichnismitgliedschaft über den begrenzten bestehenden Read-View,
-keine Einzelprüfung sämtlicher Artefakte, Git-Historie oder rekursive Worktree-Suche. Auswahl eines
-bestimmten Runs verwendet die bestehende aktuelle Gate-, Siegel-, Quellen- und Freigabeprüfung.
-Gespeicherte Lebenszyklen und gültige Siegel sind keine Liefer-/Freigabeentscheidung. Geänderte
-Quellen machen Selektoren ungültig. Fehlgeschlagene Aktualisierung behält sichtbar den vorherigen
-Stand, Wiederholung ersetzt ihn zusammenhängend; entfernte Runs behalten ihre Identität und bieten
-Rückkehr zur Übersicht. Keine benachbarte Auswahl und keine Reparatur durch Lesen.
+Run-Version 4 ist das einzige unterstützte Format. Nicht unterstützte Versionen und
+Layouts sind ausdrücklich von beschädigten aktuellen Daten, fehlenden Quellen und
+einem bestätigten leeren Bestand zu unterscheiden. Das Cockpit verändert keine Dateien,
+migriert oder repariert nichts. Ein fehlgeschlagener oder veralteter Leseversuch behält
+den vorherigen Stand erkennbar bei; bewusstes Neuladen ersetzt ihn zusammenhängend.
+Auswahl eines konkreten Runs verwendet dessen aktuelle Gate-, Quellen-, Siegel- und
+Freigabeprüfung. Inventarbeobachtungen erteilen keine Lieferberechtigung.
 
-`view: legacy` öffnet einen eigenen optionalen Snapshot des ursprünglichen Masterbacklogs.
-Zeilen/Bereiche/Quellen/Provenienz bleiben lesbar und getrennt von Run-Zählern; Ideen ohne Run werden
-nicht in Runs umgewandelt. Fehlendes, fehlerhaftes oder zu großes Legacy-Material betrifft nur diese
-Ansicht. Der vorhandene Parser und begrenztes `backlog_titles` gehören ausschließlich dorthin.
-Normale Run-Details benötigen keinen Vergleich mit dem Altbestand.
+Alle Run-eigenen Dokumente, Evidenz, Präsentationen und historischen Snapshots liegen
+unter seinem Run-Ordner. Die aktuelle Gate-/Freigabe-/Dokument-/Nachweisansicht wird aus
+seinen typisierten Belegen abgeleitet. Separate RECORD/REVIEW- und Herkunfts-JSON-Dateien
+wiederholen diese Fakten nicht. Aktuelle Version-7-Journale binden nur die ursprüngliche
+Operation und ihre Run-eigenen Ausgaben. Unabhängige Runs behalten getrennte Sperren;
+unbekannte Eigentümerschaft oder fremde Bytes stoppen die Wiederherstellung.
 
-Der Cockpit-Umschlag verwendet `schema_version: 2` und die passende Ressource
-`ui://agdf/cockpit/v2.html`. HTTP/MCP, Parser und gebaute große/kompakte Oberfläche werden zusammen
-qualifiziert. Neue UI lehnt alte/unbekannte Umschläge ab; verschachtelte Run-, Dokument-, Kontext-
-und Freigabe-Nachweisformate behalten ihre Version. Alte generationgebundene Sitzungen bleiben alte
-Beobachtungen. Dies ist keine automatische Hostinstallation.
-
-Neue Erstellung/Erfassung/Freigaben/Updates/Quellrevisionen/Abschlüsse schreiben und sperren das
-Backlog nicht. Bestehende Schreiber führen Run-lokale Ausgaben, exakte Quellen/Materialien, Revision,
-Siegel, Wiederholung und atomaren Run-Commit mit `backlog: null` fort. Unabhängige neue Runs müssen
-nicht wegen eines anderen Run-lokalen Journals warten. Alte Journale Version 1–5 behalten ihre
-Originalausgaben: nur ausdrückliche unterstützte Recovery darf eine gespeicherte alte Backlog-
-Verpflichtung unter Run-dann-Backlog-Sperre und ursprünglichen Konfliktprüfungen abschließen.
-Normale Operationen fordern diese Recovery an und erfinden keine neue Synchronisierung.
-
-Frische Einrichtung erzeugt kein erforderliches Live-Backlog. Bestehende Daten bleiben erhalten;
-Doctor/Gates/Beziehungen verwenden Run- und registrierte Quellen statt Backlog-Zeiger. Andere
-Pflichtkontrollen bleiben wirksam. Vor einer Umstellung alle Schreiber dieses Ziels anhalten,
-Nachweise einschließlich unversionierter Dateien sichern, alte Transaktionen ausdrücklich
-wiederherstellen und schreibende Laufzeiten gemeinsam umstellen. Keine gemischten alten/neuen
-Schreiber. Nach neuen Schreibvorgängen braucht ein Rückwechsel einen konkreten Kompatibilitätsnachweis
-auf einer Kopie; andernfalls lesend erhalten und vorwärts korrigieren. Keine erfundenen historischen
-Zeilen, übertragenen Freigaben oder Neuversiegelung. Native Host-Nachweise bleiben von Browser-
-und Protokolltests getrennt.
+Der Cockpit-Umschlag und die Ressource bleiben Version 2. Die neue Run-Version ist kein
+MCP-Protokollwechsel. HTTP/MCP, Parser und beide Oberflächen werden gemeinsam geprüft;
+Repository- und Browsertests sind keine native Host- oder Installationsqualifikation.
 
 ### Eine zusammenhängende Arbeitseinheit
 

@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { readFileSync } from "../control-read/fs.js";
 import { containedRegularFile, isSafeControlRelativePath } from "../control-state/contained-file.js";
 import { cleanStatusCell, isPlaceholderValue } from "./shared.js";
@@ -102,7 +103,7 @@ export function evaluateVerifiedChange(targetDir, runState, dependencies = {}) {
   if (dirtyCandidate) add("AGDF_VERIFIED_CHANGE_BASELINE_CANDIDATE_DIRTY", `Declared candidate path is already dirty at baseline: ${dirtyCandidate}.`, "Escalate or start from a clean candidate path; do not adopt pre-existing edits.", "block");
 
   const permittedControlPaths = new Set([record.path, runState.path]);
-  const runArtefactPrefix = `.agdf/control/artefacts/${runId}/`;
+  const runArtefactPrefix = `${runDocumentPath(runId, '')}/`;
   for (const artefact of runState.artefacts.values()) {
     if (artefact.path_format === "invalid") continue;
     if (isSafeRepoRelativePath(artefact.path) && artefact.path.startsWith(runArtefactPrefix)) permittedControlPaths.add(artefact.path);
@@ -124,7 +125,6 @@ export function evaluateVerifiedChange(targetDir, runState, dependencies = {}) {
   } else {
     // Completed pre-cutover records may legitimately retain the old projection
     // in their immutable execution snapshot. Active work has no such exemption.
-    permittedControlPaths.add('.agdf/control/MASTER_BACKLOG.md');
     const unsafeExecutionPath = executionChangedPaths.find((path) => !isSafeRepoRelativePath(path) || (!allowedPaths.has(path) && !permittedControlPaths.has(path)));
     if (unsafeExecutionPath) add("AGDF_VERIFIED_CHANGE_EXECUTION_SCOPE_INVALID", `Recorded execution path is outside the eligible scope: ${unsafeExecutionPath}.`, "Correct the historical execution snapshot or escalate.", "block");
   }

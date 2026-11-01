@@ -9,7 +9,9 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const entry = join(root, 'scripts/native-probes/codex-host-e2e.mjs');
 const args = ['--command-task', 'T7', '--repetitions', '2', '--model', 'gpt-6.1-sol', '--reasoning-effort', 'low'];
-const rawRun = (argumentsValue, env) => spawnSync(process.execPath, [entry, ...argumentsValue], { cwd: root, env: { ...process.env, ...env }, encoding: 'utf8', timeout: 120000 });
+// A mock cohort still qualifies two fresh production runtimes. Keep this outer
+// test watchdog above that setup cost; the guard/session deadlines are unchanged.
+const rawRun = (argumentsValue, env) => spawnSync(process.execPath, [entry, ...argumentsValue], { cwd: root, env: { ...process.env, ...env }, encoding: 'utf8', timeout: 240000 });
 
 const sha = value => createHash('sha256').update(value).digest('hex');
 const guardFiles = ['scripts/native-probes/codex-host-e2e.mjs', 'scripts/native-probes/lib/codex-command-guard.mjs'];
@@ -57,6 +59,8 @@ test('T7 dry-run binds exactly two low-effort account sessions without invoking 
   for (const changed of [args.map(v => v === '2' ? '3' : v), args.map(v => v === 'low' ? 'high' : v), [...args, '--keep'], [...args, '--single-session']]) {
     assert.notEqual(run([...changed, '--dry-run'], { CODEX_BIN: '/absent/no-host' }).status, 0);
   }
+  const current = run([...args.map(value=>value==='T7'?'RUN_MODEL':value),'--dry-run'],{CODEX_BIN:'/absent/no-host'});
+  assert.equal(current.status,0,current.stderr);assert.equal(JSON.parse(current.stdout).task,'RUN_MODEL');assert.equal(JSON.parse(current.stdout).sessions,2);
   const t4 = run(['--single-session', '--task', 'T4', '--model', 'gpt-6.1-sol', '--dry-run'], { CODEX_BIN: '/absent/no-host' });
   assert.equal(t4.status, 0, t4.stderr); assert.equal(JSON.parse(t4.stdout).reasoning_effort, 'high');
 });
@@ -87,7 +91,7 @@ else if(a.includes('features')) console.log('code_mode_host stable true');
 else if(a.includes('mcp')) { const get=k=>JSON.parse(a.find(v=>v.startsWith(k+'=')).slice(k.length+1));console.log(JSON.stringify({enabled:true,transport:{command:get('mcp_servers.agdf.command'),args:get('mcp_servers.agdf.args')},enabled_tools:get('mcp_servers.agdf.enabled_tools')})); }
 else if(a[0]==='exec') {
 const root=process.cwd(),run='demo-run-01',rd=join(root,'.agdf/control/runs',run),rev=readFileSync(join(rd,'RUN_STATE.md'),'utf8').match(/^- revision_id: (.+)$/m)[1].trim();
-const presentation=readdirSync(join(rd,'presentations')).find(x=>/^[a-f0-9-]{36}\\.json$/.test(x)).slice(0,-5);
+const presentation=readdirSync(join(rd,'control/presentations')).find(x=>/^[a-f0-9-]{36}\\.json$/.test(x)).slice(0,-5);
 const binding={target_id:resolveControlCommandTarget(root).target_id,run_id:run,expected_revision_id:rev,presentation_id:presentation};
 const input={schema_version:'1',presentation_language:'de',working_directory:root,primary_target:root,target_source:'explicit_target',target_id:binding.target_id,run_id:run,expected_revision_id:rev,operation_id:randomUUID(),assurance:'cooperative_local',command:{kind:'approval.record',payload:{gate:'UR',presentation_id:presentation,response:'Approval: UR'}}};
 const value=await createCoreServices().command('agdf_approve',input);

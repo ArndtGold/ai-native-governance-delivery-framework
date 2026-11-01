@@ -1,9 +1,15 @@
-import { resolutionRecordVersion, currentInputResolution, isOriginalInputResolution } from './input-resolution.js';
+import { runEvidencePath } from './run-identity.js';
+import { resolveMcpInput } from '../mcp-input-resolution.js';
+import { resources } from '../resources/context.js';
+import { commandGroupDefinition } from './run-command-schema.js';
+import { inspectRunInputResolution } from './run-input-resolution.js';
+
+import { resolutionRecordVersion, currentInputResolution, isOriginalInputResolution, withInputResolution } from './input-resolution.js';
 import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { initializeCanonicalProject, inspectCanonicalProject } from './canonical-initialization.js';
 import { assertProjectGitRoot, inspectProjectState, projectOperationStatusCall } from '../control-inspect/project-state.js';
 import { canonicalInitPlan } from '../resources/canonical-init-plan.js';
-import { join } from 'node:path';
+
 import { readFileSync } from 'node:fs';
 import { resolveTaskTarget } from '../task-target-resolution.js';
 import { withLiveControlReads } from '../control-read/fs.js';
@@ -22,7 +28,7 @@ import { executeApprovalCommand } from './approval-command.js';
 import { recordRunStep, recordRunPresentationDecision } from './run-steps.js';
 import { inspectRunOperation } from './run-operation-status.js';
 import { readOperationSource } from './run-operation-proof.js';
-import { pendingRunStepIds, pendingRunStepPath } from './run-step-pending.js';
+import { pendingRunStepPath } from './run-step-pending.js';
 import { readPendingRunStepJournal, recoverPendingRunStepLocked, pendingRunStepConflictIds, withRunStepRecoveryLock } from './run-step-transaction.js';
 import { previewSourceRevision, applySourceRevision, recoverSourceRevision, reopenPrdRevision } from './run-revision.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
@@ -32,12 +38,10 @@ import { createRunCommand, creationRunId } from './run-create-command.js';
 import { assertCanonicalRunStore } from './run-store-inspection.js';
 import { grantedMaterial } from './run-material.js';
 import { ownedRecordingGitObservation } from './run-verified-change.js';
-import { readControlLayout, PLANNED_LAYOUT, withControlRecovery } from './control-layout.js';
+import { withControlRecovery } from './control-layout.js';
 import { PLANNING_COMMAND_KINDS } from './run-command-schema.js';
 import { inspectPlannedOperation, replayPlannedUr, mutatePlannedUr } from './planned-entry.js';
 import { createRunFromPlanned } from './planned-handoff.js';
-import { previewPlannedLayout, applyPlannedLayout, recoverPlannedLayout } from '../control-maintenance/planned-layout.js';
-import { pagePlannedLayoutPreview } from '../control-maintenance/planned-layout-preview.js';
 
 function safeOperationStatus(root, input) {
   try { return inspectRunOperation(root, { runId: input.run_id ?? creationRunId(input.operation_id), operationId: input.operation_id, targetId: input.target_id }); }
@@ -67,7 +71,6 @@ function boundedRecover(root, input) {
   return withRunStepRecoveryLock(root, input.run_id, () => withControlRecovery(root, { resource: `run:${input.run_id}`, operation_id: input.operation_id,
     proveOutcome: result => result.outcome === 'recovered' && !existsSync(pendingRunStepPath(root, input.run_id))
       && runSealState(root, readFileSync(path, 'utf8')).status === 'valid' }, () => {
-    const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
     const perform = () => {
     const other = pendingRunStepConflictIds(root, input.run_id).find(id => id !== input.run_id);
     if (other) return { outcome: 'recovery_required', reason: 'another_pending_operation', pending_run_id: other };
@@ -78,7 +81,7 @@ function boundedRecover(root, input) {
         : { outcome: 'recovery_required', reason: 'original_operation_unconfirmed' };
     }
     const pending = readPendingRunStepJournal(root, input.run_id);
-    if (![3, 4, 6].includes(resolutionRecordVersion(pending)) || pending.kind !== payload.original_kind || pending.operation_id !== input.operation_id
+    if (resolutionRecordVersion(pending) !== 7 || pending.kind !== payload.original_kind || pending.operation_id !== input.operation_id
       || pending.target_id !== input.target_id || digest(canonicalJson(pending)) !== payload.pending_digest
       || ![pending.old_revision_id, pending.next_revision_id].includes(input.expected_revision_id)
       || payload.recovery_revision_id !== input.expected_revision_id) return { outcome: 'rejected', reason: 'recovery_binding_invalid' };
@@ -97,18 +100,29 @@ function boundedRecover(root, input) {
 function proposalInput(root, input, grants) {
   const reference = input.command.payload.proposal;
   if (!reference.material_id) return { reference };
-  const canonical = { path: `.agdf/control/artefacts/${input.run_id}/EVIDENCE-${reference.digest.slice(7)}.json`, digest: reference.digest };
+  const canonical = { path: runEvidencePath(input.run_id, `EVIDENCE-${reference.digest.slice(7)}.json`), digest: reference.digest };
   const observed = safeOperationStatus(root, input);
   if (observed.status === 'recorded' || input.command.kind === 'source_revision.recover' && observed.status === 'committed_recovery_required') return { reference: canonical };
   const material = grantedMaterial(input, reference, grants);
   if (material.slot !== 'EVIDENCE') throw Error('material_binding_invalid');
   return { reference: canonical, material: { path: canonical.path, digest: canonical.digest, content: material.content } };
 }
-export function createRunCommandService({ packageVersion = '0.14.5', enabledGroups = Object.keys(RUN_COMMAND_GROUPS), checkpoint = () => {}, runtimeControl, materialGrants = [], gitObservation, initializationProducer } = {}) {
+export function createRunCommandService({ packageVersion = '0.14.5', enabledGroups = Object.keys(RUN_COMMAND_GROUPS), checkpoint = () => {}, runtimeControl, materialGrants = [], gitObservation, initializationProducer, inputDefaults = resources.defaults } = {}) {
   if (!Array.isArray(enabledGroups) || new Set(enabledGroups).size !== enabledGroups.length) throw Error('command_group_unsupported');
   const enabled = new Set(enabledGroups);
   if ([...enabled].some(group => !Object.hasOwn(RUN_COMMAND_GROUPS, group))) throw Error('command_group_unsupported');
   return function executeRunCommand(group, input) {
+    // CLI and MCP enter the same normalization/replay seam, even when the CLI
+    // supplied every field explicitly. A family never stores an unwrapped record.
+    if (!currentInputResolution()) {
+      try {
+        const selected = resolveMcpInput(commandGroupDefinition(group), input, {
+          defaults: inputDefaults, lookupOriginal: inspectRunInputResolution,
+        });
+        return withInputResolution(selected.resolution, () => executeRunCommand(group, selected.arguments), selected.original);
+      } catch (error) { return { schema_version: '1', outcome: 'rejected', reason: error.code ?? error.message,
+        dispatch: 'not_dispatched', authorizes: false }; }
+    }
     return withLiveControlReads(() => {
       const diagnostics = validateRunCommand(group, input);
       if (diagnostics.length) return { schema_version: '1', outcome: 'rejected', reason: 'command_schema_invalid', diagnostics, authorizes: false };
@@ -151,14 +165,6 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
         const policy = (target, text, path, preparation = {}) => policyForRunContent(target, text, path, {
           ...preparation, gitObservation: ownedRecordingGitObservation(gitObservation, input.run_id) });
         const bound = { runId: input.run_id, revisionId: input.expected_revision_id, operationId: input.operation_id };
-        if (kind.startsWith('planned_layout.')) {
-          checkpoint('before_dispatch'); dispatched = true;
-          const family = kind === 'planned_layout.preview' ? pagePlannedLayoutPreview(root, payload)
-            : kind === 'planned_layout.apply' ? applyPlannedLayout(root, { ...payload, operation_id: input.operation_id, request_digest: requestDigest }, { checkpoint, packageVersion })
-              : recoverPlannedLayout(root, { ...payload, operation_id: input.operation_id }, { checkpoint });
-          checkpoint('before_result');
-          return result(family.outcome === 'already_applied' ? 'already_applied' : 'accepted', null, family);
-        }
         if (planning) {
           if (kind === 'planned_material.stage') return result('rejected', 'material_state_unavailable', {}, { dispatch: 'not_dispatched' });
           if (kind === 'run.create_from_planned') {
@@ -218,15 +224,7 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           return result(family.outcome === 'already_applied' ? 'already_applied' : 'accepted', null, family);
         }
         if (!scoped) assertCommandRunPath(root, input);
-        if (!scoped && readControlLayout(root).layout === PLANNED_LAYOUT) {
-          const historical = readRun(root, input.run_id);
-          if (!historical.rejection && historical.meta.control_state_version === '2' && historical.meta.lifecycle !== 'active') {
-            const status = safeOperationStatus(root, input);
-            if (status.status === 'recorded' && status.family === kind && status.receipt?.request_digest === requestDigest)
-              return result('already_applied', null, { receipt: status.receipt, historical_effect: true, read_only: true });
-            return result('rejected', 'historical_run_read_only', {}, { dispatch: 'not_dispatched' });
-          }
-        }
+
         let family;
         if (kind === 'runtime_generation.replace') {
           const current = observeCurrentRunCommand(root, input);
@@ -261,8 +259,7 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           family = recordRunPresentationDecision(root, { ...bound, gate: payload.gate, presentationId: payload.presentation_id,
             action: payload.action, comment: payload.comment, requestDigest }, { evaluateGateCheck, packageVersion, afterWrite: checkpoint });
         } else if (['step.record', 'artefact.record', 'ur_draft.replace', 'verified_change.record'].includes(kind)) {
-          const record = kind === 'artefact.record' ? { step: 'artefact', gate: payload.gate, evidence: payload.reviewed_request?.path, sourceBinding: payload.reviewed_request,
-              ...(payload.material ? { material: payload.material, reviewer: payload.reviewer, reviewed: payload.reviewed, updateDraft: payload.update_draft } : {}) }
+          const record = kind === 'artefact.record' ? { step: 'artefact', gate: payload.gate, material: payload.material, reviewer: payload.reviewer, reviewed: payload.reviewed, updateDraft: payload.update_draft }
             : { step: kind === 'ur_draft.replace' ? 'ur' : kind === 'verified_change.record' ? 'verified_change' : payload.step,
               phase: payload.phase, sourceBinding: payload.source, evidence: payload.source.path, title: payload.title,
               route: payload.route, reason: payload.reason, decision: payload.decision, covers: payload.covers, internalStep: payload.internal_step };

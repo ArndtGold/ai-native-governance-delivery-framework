@@ -50,53 +50,68 @@ in the surrounding control artefact when they are relevant.
 
 ### Run-Scoped Control State
 
-Canonical mutable run state lives at `.agdf/control/runs/<run_id>/RUN_STATE.md`, one file per run.
-Repository-level discovery is derived; do not maintain a writable active-run dashboard. Select with
-`--run`, then `AGDF_RUN_ID`, or automatically only when exactly one run is active. Ambiguity fails
-closed. Legacy `AGDF_RUN.md` is migration input or an explicitly rendered non-authoritative projection,
-never a second writable owner. Read-only commands must not migrate state.
+Canonical mutable state lives at `.agdf/control/runs/<run_id>/RUN_STATE.md`.
+Only explicit `control_layout: run-folders-v1` and Run version 4 are supported.
+Missing/old/unknown layouts or versions are unsupported, not an empty store or
+an invitation to migrate, reset or fall back. Read-only inspection preserves bytes.
 
-`run-create` writes a sealed run. The seal covers the run state and every file listed under
-Artefacts; an unrecorded edit blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH`. After
-changing either, call `run-update --run <run_id> --revision <revision_id>` before `gate-check`; it
-advances the revision and refuses Approvals changes. Only `run-approve` records an approval. Both run
-on the surface-local validator. The seal detects unrecorded edits; it is not a signature.
-Keep one `Artefacts` row per type: update the existing placeholder row instead of appending another.
-`run-update` and all run writers reject duplicate rows without advancing the revision. Remove the
-extra row and retry `run-update` to record the correction. Duplicate rows in older sealed runs also
-block `doctor` and gate presentation.
+One Run owns `documents/`, `evidence/`, `control/presentations/` and
+`history/` below its directory. Pending operation journals live in `control/` only
+while required; source archives live in `history/revisions/<operation_id>/`.
+The creation receipt and `history/planning/UR.md` preserve handed-off planning
+provenance without an origin JSON copy. Project configuration, templates, SoT,
+curated context and target-wide multi-Run closure previews remain project-wide.
 
-An active run that will not be completed ends as `superseded` (successor and reason) or `abandoned`
-(reason) only through `run-close` or the MCP `agdf_closeout` kinds `closure.preview` and
-`closure.apply`. The preview changes no run and is stored under `.agdf/control/closure-previews/`;
-the owner applies it with the exact phrase `Close runs: <preview_id>`. Each eligible run that is
-unchanged since the preview receives its own sealed `lifecycle_close.record` receipt; the result
-names every listed run. A pending run-step journal anywhere in the repository blocks the whole
-closure. An ended run is final: every run writer, approval, presentation, revision, recovery and
-delivery continuation rejects it with `lifecycle_ended`; `run-update` on an unchanged ended run only
-synchronizes its backlog row. Continuing the work needs a new run.
+Identity, objective, mode and typed records are canonical. Current gate, approval
+status, current document pointers, document relationships, evidence summaries and
+inventory derive through the existing parser/evaluator boundary. Do not persist
+parallel current tables, a generated state file, global dashboard or maintained index.
+Independent Parent/programme relations use the authored Relationships section;
+derived document bindings never become hand-editable rows.
 
-When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
+`run-create` creates a sealed unapproved Run. Current CLI aliases and fixed MCP
+groups share input normalization and captured configuration. Every original UUID
+binds its effective input. Exact replay acknowledges that original effect only;
+changed intent, stale bindings and unknown ownership fail closed. No command
+repairs arbitrary edits by resealing them. Only `approval.record` records a fresh
+deliberate exact gate reply to the frozen presentation. Local seals are cooperative
+integrity checks, not signatures or independent human identity proof.
 
-- `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts. `chat_language` is the direct-command presentation default; dispatcher calls supply `presentation_language` under their current-request language contract. This presentation override never changes `artifact_language`. Runtime rules remain English. Authoring continuations supply the resolved languages and any required localized approval-summary heading before drafting.
-- `.agdf/control/runs/<run_id>/RUN_STATE.md` is the canonical current-run dashboard; legacy `AGDF_RUN.md` is migration input or an explicit non-authoritative projection.
-- New initialization uses `control_layout: planned-urs-v1`, independent `planned/<plan_id>/UR.md` needs and derived inventory. Planning is UR-only through the existing `ur-definition` owner; it neither starts a Run nor approves a gate. Explicit source-bound handoff creates one unapproved Run and retains immutable origin. Core works without the optional Codex planning package. See `control/planned-urs.md` for typed commands, admission and lossless migration.
-- Retained `MASTER_BACKLOG.md` is optional read-only legacy planning/history in both layouts; normal Run writes do not update it or take its lock. No layout is inferred or migrated during a read. Explicit preview/apply/recover is required; do not edit config to bypass migration.
-- `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.
-- `SOT_REGISTRY.md` prevents parallel sources of truth.
-- `CONTEXT_GRAPH.md` stores durable Brownfield findings, decisions, risks, evidence and exit criteria.
-- `AGENT_QUALITY_CONTRACTS.json` stores reusable block, revise and warning conditions.
-- `memory_target`, `multi_scope_state` and branch/workspace evidence fields make ambiguity and persistence decisions visible without turning chat history into the source of truth.
-- OR reports live under `.agdf/control/artefacts/<key>/OR.md` when a run closeout is steering-relevant or should be auditable beyond the chat.
+Current persisted families are Run 4, RunOperation 4, ArtefactBinding 3,
+ApprovalOperation 4, presentation 7, source proposal 3, source receipt 4,
+revision archive 2 and transaction journal 7. Existing resolved/1 wrapping and
+resolution version 1 are mandatory; captured active configuration includes the
+current layout. Unchanged record families retain their current shape. Source
+revision policy 2 preserves its existing eligibility, confirmation, invalidation
+and reassessment boundaries. Content seal domain is agdf-run-seal/2; approval
+seal domain is agdf-approval-seal/4. No old codec/default omission is accepted.
+Current optional QA-deviation and preview payloads retain their capability semantics.
 
-### Historical human-readable Master Backlog
+An ArtefactBinding contains exact source/destination and inline reviewer attestation;
+there is no separate RECORD/REVIEW JSON. Internal steps reference their canonical
+EvidenceBinding identity instead of copying report and source-set metadata.
+The writer publishes typed facts and owned output atomically. Independent Run locks,
+resource claims and exact original-operation recovery remain mandatory. Unsupported
+journals and foreign bytes never grant relocation, deletion or recovery permission.
 
-The optional Markdown backlog preserves historical planning information. Its absence or corruption does not veto valid Run work. Only explicit recovery may finish a historical journal's captured backlog output.
+A Run ends as superseded or abandoned only through the current closure preview/apply
+owner with exact deliberate confirmation. The target-wide preview changes no Run.
+Each applied Run gets its own lifecycle receipt; its subsequent writers reject with
+lifecycle_ended. Continuing work needs a new Run. Pending repository closure conflicts
+retain the existing fail-closed boundary.
 
-The normative worktree placement/reuse/ignore rule is owned by
+Planning is UR-only under `planned/<plan_id>/UR.md`. Core inventory derives from
+planned entries and Runs. The optional Codex planning extension authors planning
+inputs through existing ur-definition; explicit source-bound handoff creates one
+unapproved Run. Core does not require that extension. See control/planned-urs.md.
+
+The normative worktree rule is owned by
 [task-target-resolution.md](task-target-resolution.md#worktree-placement-and-assigned-checkout).
-
-The scaffold is not a second documentation site. Link to authoritative artefacts instead of copying them.
+`config.json` stores project language preferences: artifact_language for authored artefacts,
+chat_language for direct presentation defaults; current explicit presentation_language
+never changes artifact_language. Runtime rules remain English.
+Keep config preferences, SoT, context and quality contracts under their existing
+project owners. No central Masterbacklog participates in reading or writing control.
 
 ## Agent-Native Runtime And CLI Verification
 
@@ -128,7 +143,7 @@ They make the repository state checkable, but they do not replace the native ski
 ## Delivery Map
 
 `delivery-map --json` is the machine-readable delivery picture for the selected canonical control state.
-It derives from the selected `RUN_STATE.md` and its registered sources. New-layout inventory additionally includes planned URs, without a shared mutable backlog.
+It derives from the selected `RUN_STATE.md` and its registered sources. Current inventory also includes independent planned URs.
 
 It must expose:
 

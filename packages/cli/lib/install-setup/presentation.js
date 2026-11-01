@@ -1,5 +1,4 @@
-export { renderControlMigration, renderControlMigrationDecision, renderControlRepairOffer, renderControlRepairPlan } from "#agdf-core/control-maintenance/presentation.js";
-import { renderControlMigration } from "#agdf-core/control-maintenance/presentation.js";
+import { renderControlCompatibility } from "#agdf-core/control-maintenance/presentation.js";
 import { interactionLocales } from "../cli/runtime-context.js";
 import { localePack } from "#agdf-core/interaction-presentation.js";
 
@@ -235,7 +234,7 @@ export function renderInstallSetupPreflight(preflight, { registry = interactionL
     `${labels.packageAcquisition}: ${preflight.package_acquisition_required ? value.required : value.not_required}`,
     `${labels.removal}: ${preflight.removal_overview}`,
     `${labels.authorizes}: ${preflight.authorizes}`,
-    renderControlMigration(preflight.control, { registry, language }),
+    renderControlCompatibility(preflight.control, { registry, language }),
     "",
   ];
   for (const option of options) {
@@ -326,7 +325,7 @@ export function renderInstallSetupText(report, { registry = interactionLocales, 
     `${labels.failure}: ${failure}`,
     `${labels.authorizes}: ${report.authorizes}`,
     `${labels.nextAction}: ${projected.next_action.text}`,
-    renderControlMigration(report.control, { registry, language, details: verbose }),
+    renderControlCompatibility(report.control, { registry, language, details: verbose }),
   ].join("\n");
 }
 

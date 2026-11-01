@@ -57,6 +57,7 @@ function checkDependencyClosure(entry, root) {
     for (const specifier of imports) {
       if (builtins.has(specifier)) continue;
       if (specifier.startsWith(".")) visit(createRequire(path).resolve(specifier));
+      else if (specifier === "#agdf-core") visit(resolve(root, "runtime/core/lib/index.js"));
       else if (specifier.startsWith("#agdf-core/")) visit(resolve(root, "runtime/core/lib", specifier.slice("#agdf-core/".length)));
       else {
         const allowed=rel.includes('/node_modules/')?production:parsers;
@@ -163,7 +164,9 @@ process.exitCode=['accepted','already_applied'].includes(result.outcome)?0:2;
     assert.equal(readFileSync(fixture.runPath, "utf8"), committed);
     const inspected = json(externalCli, ["gate-check", "--dir", fixture.root, "--run", fixture.runId, "--json"]);
     assert.equal(inspected.current_gate, accepted.current.gate);
-    assert.equal(inspected.status_card.presentation_language, "de");
+    assert.equal(inspected.status_card.presentation_language, "en", "fresh inspection uses the project preference, not a previous presentation's language");
+    const localized = json(externalCli, ["gate-check", "--dir", fixture.root, "--run", fixture.runId, "--language", "de", "--json"]);
+    assert.equal(localized.status_card.presentation_language, "de");
     console.log("PASS SCN-001/028/029 packed external CLI/API approve/replay/Git/locale parity");
     const resource = join(externalPackage, "generated/plugins/agdf/meta/agdf-interaction-locales.json");
     const resourceBytes = readFileSync(resource); rmSync(resource);
@@ -198,13 +201,13 @@ process.exitCode=['accepted','already_applied'].includes(result.outcome)?0:2;
 
   // Fixed measurement boundary: prepared UR -> presentation -> approval -> inspection. All replies
   // are simulated. Counts are observed scripted calls, not human reading time or UX improvement.
-  for (const lane of ["legacy", "command"]) {
+  for (const lane of ["generated_operation", "explicit_operation"]) {
     const fixture = commandFixture({ cli: externalCli, base: sandbox, runId: `metrics-${lane}` });
     try {
-      const args = lane === "legacy" ? approvalArgs(fixture).slice(0, -4) : approvalArgs(fixture);
-      const initial = json(externalCli, args); assert.equal(initial.outcome, lane === "legacy" ? "approved" : "accepted");
+      const args = lane === "generated_operation" ? approvalArgs(fixture).slice(0, -4) : approvalArgs(fixture);
+      const initial = json(externalCli, args); assert.equal(initial.outcome, "accepted");
       json(externalCli, ["gate-check", "--dir", fixture.root, "--run", fixture.runId, "--json"]);
-      const replay = json(externalCli, args, lane === "legacy" ? 2 : 0);
+      const replay = json(externalCli, args, lane === "generated_operation" ? 2 : 0);
       const stale = json(externalCli, approvalArgs(fixture, { ...fixture.command, operation_id: "99999999-9999-4999-8999-000000000099" }), 2);
       assert.equal(stale.outcome, "rejected");
       metrics.push({ lane, boundary: "recorded_UR_to_inspected_approval", success_calls: 3,
@@ -217,6 +220,6 @@ process.exitCode=['accepted','already_applied'].includes(result.outcome)?0:2;
   console.log(`SCN-030/031 QUALIFICATION ${JSON.stringify({ source: "passed", packed_external: "passed", generated_validator: "passed",
     native_platform: `${process.platform}/${process.arch}`, native_linux: "unavailable", native_windows: "unavailable",
     new_installed_plugin: "not_installed", visible_host: "not_observed", independent_human_proof: "unavailable" })}`);
-  console.log(`PACKAGE_IDENTITY ${JSON.stringify({ version: manifest.version, tarball_sha256: tarballDigest, command_schema_version: "1", receipt_schema_version: "1", approval_seal_legacy_version: "1", receipt_approval_seal_version: "2", files: report.files.length, node: process.version, platform: process.platform, arch: process.arch })}`);
+  console.log(`PACKAGE_IDENTITY ${JSON.stringify({ version: manifest.version, tarball_sha256: tarballDigest, command_schema_version: "1", receipt_schema_version: "resolved/1", approval_record_version: "4", content_seal_domain: "agdf-run-seal/2", approval_seal_domain: "agdf-approval-seal/4", files: report.files.length, node: process.version, platform: process.platform, arch: process.arch })}`);
   console.log(`Control command package tests passed (${report.files.length} real packed files).`);
 } finally { rmSync(sandbox, { recursive: true, force: true }); }

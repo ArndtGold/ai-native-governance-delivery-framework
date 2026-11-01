@@ -9,15 +9,15 @@ import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
-test('Run overview works without a legacy backlog and reads no registered artefacts', () => {
+test('Run overview works without a legacy backlog with bounded current source dependencies', () => {
   const f = fixture();
   try {
     fs.rmSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), { force: true });
     const before = treeBytes(f.root), reader = createCockpitReader(f.root), result = reader.snapshot();
     assert.equal(result.schema_version, '2');
-    assert.equal(result.data.kind, 'runs');
-    assert.ok(result.data.runs.some(run => run.run_id === 'fixture-a'));
-    assert.ok(result.data.runs.some(run => run.run_id === 'fixture-completed'));
+    assert.equal(result.data.kind, 'work');
+    assert.ok(result.data.entries.some(run => run.key === 'fixture-a'));
+    assert.ok(result.data.entries.some(run => run.key === 'fixture-completed'));
     assert.deepEqual(treeBytes(f.root), before);
   } finally { f.close(); }
 });
@@ -27,9 +27,9 @@ test('invalid directory identities stay accounted diagnostics with no Run select
     fs.mkdirSync(join(f.root, '.agdf/control/runs/BAD NAME'));
     const before = treeBytes(f.root), reader = createCockpitReader(f.root), result = reader.snapshot();
     assert.equal(result.state, 'partial');
-    assert.equal(result.data.runs.find(run => run.run_id === 'BAD NAME').selectable, false);
-    assert.equal(result.data.runs.find(run => run.run_id === 'fixture-a').selectable, true);
-    assert.equal(result.data.counts.total, result.data.runs.length);
+    assert.equal(result.data.entries.find(run => run.key === 'BAD NAME').selectable, false);
+    assert.equal(result.data.entries.find(run => run.key === 'fixture-a').selectable, true);
+    assert.equal(Object.values(result.data.counts).reduce((sum,n)=>sum+n,0), result.data.entries.length);
     assert.throws(() => reader.run('BAD NAME', result.snapshot_id), /resource_denied/);
     assert.deepEqual(treeBytes(f.root), before);
   } finally { f.close(); }
@@ -55,14 +55,8 @@ test('captured assessment matches canonical gate evaluation and performs no writ
 });
 test('cockpit title identifies the bound UR instead of a generic current artefact heading', () => {
   const f = fixture(); try {
-    const path = '.agdf/control/artefacts/fixture-a/CURRENT.md';
-    fs.writeFileSync(join(f.root, f.documentPath), '# UR: Fixture document\n');
-    fs.writeFileSync(join(f.root, path), '# Implementation Checkpoint\n');
-    f.register('UR', f.documentPath);
-    f.register('Brownfield Review', path);
-    const content = upsertTableRow(fs.readFileSync(f.runPath, 'utf8'), 'Approvals', 0, 'UR', ['UR', 'not_applicable', 'Synthetic projection fixture only']);
-    fs.writeFileSync(f.runPath, sealRunState(f.root, content));
-    assert.equal(evaluateGateCheck(f.root, {runId:'fixture-a',ignoreRunIdEnv:true}).status_card.humanPresentation.runTitle, 'Implementation Checkpoint');
+    const path = '.agdf/control/runs/fixture-a/documents/CURRENT.md';
+    fs.writeFileSync(join(f.root,path),'# Implementation Checkpoint\n');f.register('Brownfield Review',path);
     const before = treeBytes(f.root), reader = createCockpitReader(f.root), snapshot = reader.snapshot();
     const run = reader.run('fixture-a', snapshot.snapshot_id).data.run;
     assert.equal(run.title, 'Fixture document'); // Presentation omits the document-kind prefix.
@@ -76,7 +70,7 @@ test('SCN-001/002/008/020: Run inventory stays passive; selected valid, complete
   const f = fixture(); try {
     fs.mkdirSync(join(f.root, '.agdf/control/runs/broken')); fs.writeFileSync(join(f.root, '.agdf/control/runs/broken/RUN_STATE.md'), 'invalid');
     const before = treeBytes(f.root), reader = createCockpitReader(f.root), snapshot = reader.snapshot();
-    assert.equal(snapshot.data.kind, 'runs'); assert.equal(snapshot.data.runs.some(row => row.run_id === 'broken' && !row.valid), true);
+    assert.equal(snapshot.data.kind, 'work'); assert.equal(snapshot.data.entries.some(row => row.key === 'broken' && !row.selectable), true);
     const detail = reader.run('fixture-a', snapshot.snapshot_id); assert.equal(detail.state, 'available');
     assert.equal(detail.data.run.lifecycle, 'active');
     const resource = detail.data.run.resources.find(r => r.type === 'UR');
@@ -99,18 +93,18 @@ test('SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary', ()
       ['none.txt', null, 'missing', 'document_missing'], ['binary.pdf', Buffer.from('pdf'), 'unsupported', 'document_unsupported'],
       ['invalid.txt', Buffer.from([255]), 'unsupported', 'document_unsupported'], ['exact.txt', Buffer.alloc(READ_LIMITS.preview, 97), 'available', null],
       ['large.txt', Buffer.alloc(READ_LIMITS.preview + 1, 97), 'unsupported', 'resource_limit']]) {
-      const path = '.agdf/control/artefacts/fixture-a/' + name; if (bytes) fs.writeFileSync(join(f.root, path), bytes);
+      const path = '.agdf/control/runs/fixture-a/documents/' + name; if (bytes) fs.writeFileSync(join(f.root, path), bytes);
       f.register('UR', path); const s = reader.snapshot(), d = reader.run('fixture-a', s.snapshot_id), resource = d.data.run.resources.find(r => r.type === 'UR');
       const result = reader.document(resource.resource_id, d.snapshot_id); assert.equal(result.state, state, name); assert.equal(result.code, code, name);
     }
   } finally { f.close(); }
 });
-test('SCN-006/015: mutation of selected dependencies invalidates related reads, while backlog remains independent', () => {
+test('SCN-006/015: mutation of selected dependencies invalidates related reads, and current work captures its Run sources', () => {
   const f = fixture(); try {
     const reader = createCockpitReader(f.root), overview = reader.snapshot();
     fs.writeFileSync(join(f.root, f.documentPath), 'changed');
-    assert.equal(reader.freshness(overview.snapshot_id).data.unchanged, true);
-    const selected = reader.run('fixture-a', overview.snapshot_id);
+    assert.throws(()=>reader.freshness(overview.snapshot_id),/source_changed/);
+    const selected = reader.snapshot('fixture-a');
     fs.writeFileSync(join(f.root, f.documentPath), 'changed again');
     assert.throws(() => reader.run('fixture-a', selected.snapshot_id), /source_changed/);
     assert.throws(() => reader.freshness(selected.snapshot_id), /source_changed/);
@@ -120,12 +114,12 @@ test('SCN-006/015: mutation of selected dependencies invalidates related reads, 
 test('SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest', () => {
   const f = fixture(); try {
     const reader = createCockpitReader(f.root);
-    const json = '.agdf/control/artefacts/fixture-a/PRD.json', txt = '.agdf/control/artefacts/fixture-a/SD.txt';
+    const json = '.agdf/control/runs/fixture-a/documents/PRD.json', txt = '.agdf/control/runs/fixture-a/documents/SD.txt';
     fs.writeFileSync(join(f.root, json), '{"source":"日本語"}\n'); fs.writeFileSync(join(f.root, txt), 'Original text\n');
     fs.writeFileSync(join(f.root, f.documentPath), '# Links\n[JSON](PRD.json) [unknown](secret.txt) [outside](../../../../secret.txt)');
-    f.register('PRD', json); f.register('SD', txt);
+    f.register('Brownfield Analysis',json);f.register('CD+Tests',txt);
     let d = reader.snapshot('fixture-a');
-    for (const type of ['PRD', 'SD']) {
+    for (const type of ['Brownfield Analysis','CD+Tests']) {
       const r = d.data.run.resources.find(r => r.type === type);
       const doc = reader.document(r.resource_id, d.snapshot_id);
       assert.equal(doc.data.document.content, fs.readFileSync(join(f.root, r.path), 'utf8'));
@@ -135,18 +129,11 @@ test('SCN-002/008: absent and genuinely empty stores differ, JSON/text retain ex
     assert.deepEqual(Object.keys(doc.data.document.links), ['PRD.json']);
     fs.rmSync(join(f.root, '.agdf/control/runs'), { recursive: true }); fs.mkdirSync(join(f.root, '.agdf/control/runs'));
     // Empty canonical store remains distinct from optional legacy information.
-    assert.equal(reader.snapshot().data.kind, 'runs');
+    assert.equal(reader.snapshot().data.kind, 'work');
     const backlog = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
     fs.writeFileSync(backlog, '# AGDF Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
     assert.equal(reader.snapshot().state, 'empty');
-    fs.chmodSync(backlog, 0);
-    try {
-      // Windows and privileged users still read a mode-0 file, so the denial is not reproducible there.
-      let readable = true; try { fs.readFileSync(backlog); } catch { readable = false; }
-      if (readable) console.warn('SKIPPED permission-denial assertions: mode 0 does not deny reads in this environment');
-      else { const failed = reader.snapshot(undefined, 'legacy'); assert.equal(failed.code, 'resource_denied'); assert.equal(failed.state, 'error'); assert.equal(failed.data, null); }
-    }
-    finally { fs.chmodSync(backlog, 0o600); }
+    fs.chmodSync(backlog,0);try{assert.equal(reader.snapshot().state,'empty','Foreign old planning is never read or promoted into the current inventory');}finally{fs.chmodSync(backlog,0o600);}
     fs.rmSync(join(f.root, '.agdf/control'), { recursive: true }); assert.equal(reader.snapshot().code, 'control_absent');
   } finally { f.close(); }
 });
@@ -154,20 +141,20 @@ test('SCN-002/008: absent and genuinely empty stores differ, JSON/text retain ex
 test('Run membership captures creation/removal and invalid entries independently of legacy pointers', () => {
   const f = fixture();
   try {
-    fs.rmSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'));
+    fs.rmSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'),{force:true});
     const reader = createCockpitReader(f.root), first = reader.snapshot();
     const added = createRun(f.root, 'new.run');
     assert.throws(() => reader.freshness(first.snapshot_id), /source_changed/);
     let before = treeBytes(f.root), fresh = reader.snapshot();
-    assert.ok(fresh.data.runs.some(run => run.run_id === 'new.run'));
+    assert.ok(fresh.data.entries.some(run => run.key === 'new.run'));
     assert.notEqual(first.snapshot_id, fresh.snapshot_id);
     assert.deepEqual(treeBytes(f.root), before);
     fs.writeFileSync(added, '# Broken Run state\n');
     fresh = reader.snapshot();
-    const invalid = fresh.data.runs.find(run => run.run_id === 'new.run');
-    assert.equal(invalid.valid, false);
+    const invalid = fresh.data.entries.find(run => run.key === 'new.run');
+    assert.equal(invalid.selectable, false);
     assert.equal(fresh.state, 'partial');
-    assert.ok(fresh.data.runs.some(run => run.run_id === 'fixture-completed'));
+    assert.ok(fresh.data.entries.some(run => run.key === 'fixture-completed'));
     before = treeBytes(f.root);
     const selected = reader.run('new.run', fresh.snapshot_id);
     assert.equal(selected.code, 'invalid_run');
@@ -177,7 +164,7 @@ test('Run membership captures creation/removal and invalid entries independently
     assert.deepEqual(treeBytes(f.root), before);
     fs.rmSync(join(f.root, '.agdf/control/runs/new.run'), { recursive: true });
     fresh = reader.snapshot();
-    assert.equal(fresh.data.runs.some(run => run.run_id === 'new.run'), false);
+    assert.equal(fresh.data.entries.some(run => run.key === 'new.run'), false);
     assert.equal(fresh.state, 'available');
     assert.equal(fs.existsSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md')), false);
   } finally { f.close(); }

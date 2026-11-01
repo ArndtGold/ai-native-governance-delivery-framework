@@ -72,11 +72,11 @@ gate-check intake true, intake_mode resume, run_id, expected_revision_id and sd_
 (CLI --sd-action revise), exclusive of UR/PRD actions and continue_delivery. Never edit an
 approved design or transfer approvals. Source-intent changes use their existing revision owner.
 
-Use gate-artifact-preparation's shared Reviewed Recording Input with the supplied run/revision:
-run-step --step artefact --gate SD --evidence <recording-input.json>. Record SD-derived_from-PRD
+Use gate-artifact-preparation's shared reviewed-material contract with the supplied run/revision:
+run-step --step artefact --gate SD --evidence <reviewed-SD.md> --reviewer <name> --reviewed true --update-draft <true|false>. Record SD-derived_from-PRD
 from its exact approved source. Initial registration uses update_draft false; permitted explicit
 replacement uses true with fresh mapping/input paths, preserving previous proof/history and
-other protected bytes. No hand-authored receipt, run-update bypass or unknown-edit reseal.
+other protected bytes. No hand-authored receipt, manual reseal bypass or unknown-edit reseal.
 Use supported transaction/recovery with fresh state on failure.
 
 Redispatch gate-check after recording. Prepare its exact run-present when supplied, show returned

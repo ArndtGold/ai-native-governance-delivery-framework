@@ -72,48 +72,54 @@ try {
   assert.equal(dispatch("sd-definition","--run",f.runId,...valid).outcome,"invalid_input");
   assert.equal(revise(randomUUID()).continuation.reason,"stale_assignment");
 
-  const foreignId="foreign-sd"; assert.equal(f.call("run-create","--run",foreignId).code,0);
+  const foreignOperation=randomUUID(), foreignId=`run-${foreignOperation}`;
+  const foreignCreated=f.call("run-create","--title","Foreign SD scope","--operation",foreignOperation);
+  assert.equal(foreignCreated.code,0,foreignCreated.text);
+  assert.equal(foreignCreated.value.binding.run_id,foreignId);
   const foreignState=join(root,`.agdf/control/runs/${foreignId}/RUN_STATE.md`), foreignBytes=readFileSync(foreignState);
   const foreignRev=foreignBytes.toString().match(/^- revision_id: (.+)$/mu)[1];
   assert.equal(dispatch("gate-check","--run",foreignId,"--intake","--intake-mode","resume","--revision",foreignRev,"--sd-action","revise").terminal,true);
   assert.deepEqual(readFileSync(foreignState),foreignBytes);
   assert.equal(dispatch("sd-definition","--run",foreignId).terminal,true,"wrong stage cannot grant generic authoring");
-  const approvedBytes=readFileSync(f.file("PRD.md"));
-  writeFileSync(f.file("PRD.md"),approvedBytes.toString()+"\nUnapproved source edit.\n");
-  assert.equal(bound("--continue-delivery").terminal,true); writeFileSync(f.file("PRD.md"),approvedBytes);
+  const approvedBytes=readFileSync(f.canonicalFile("PRD.md"));
+  writeFileSync(f.canonicalFile("PRD.md"),approvedBytes.toString()+"\nUnapproved source edit.\n");
+  assert.equal(bound("--continue-delivery").terminal,true); writeFileSync(f.canonicalFile("PRD.md"),approvedBytes);
   if(process.platform!=="win32") {
-    const outside=join(temporary,"outside.md");writeFileSync(outside,"outside");symlinkSync(outside,f.file("SD.md"));
-    assert.equal(bound("--continue-delivery").terminal,true);assert.equal(readFileSync(outside,"utf8"),"outside");unlinkSync(f.file("SD.md"));
+    const outside=join(temporary,"outside.md");writeFileSync(outside,"outside");symlinkSync(outside,f.canonicalFile("SD.md"));
+    assert.equal(bound("--continue-delivery").terminal,true);assert.equal(readFileSync(outside,"utf8"),"outside");unlinkSync(f.canonicalFile("SD.md"));
   }
 
-  writeFileSync(f.file("SD.md"),syntheticSd(true)); assert.equal(f.recordSd().value.outcome,"recorded");
+  writeFileSync(f.file("SD.md"),syntheticSd(true)); assert.equal(f.recordSd().value.outcome,"accepted");
   const open=bound("--continue-delivery");assert.equal(open.continuation.phase,"sd_definition");
   assert.equal(open.control.blocking_reason,"AGDF_SD_DECISIONS_OPEN");
   assert.equal(f.present("SD","de").value.outcome,"rejected");
-  assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--response","Approval: SD").value.outcome,"rejected");
+  const missingPresentation=f.run("run-approve","--revision",f.revision(),"--gate","SD","--response","Approval: SD");
+  assert.notEqual(missingPresentation.code,0); assert.match(missingPresentation.text,/presentation/iu);
   // Unrelated source integrity outranks permission to clarify the declared question.
-  writeFileSync(f.file("PRD.md"),approvedBytes.toString()+"\nIntegrity violation.\n");
-  assert.equal(bound("--continue-delivery").terminal,true);writeFileSync(f.file("PRD.md"),approvedBytes);
-  writeFileSync(f.file("SD.md"),syntheticSd());assert.equal(f.recordSd(true).value.outcome,"recorded");
+  writeFileSync(f.canonicalFile("PRD.md"),approvedBytes.toString()+"\nIntegrity violation.\n");
+  assert.equal(bound("--continue-delivery").terminal,true);writeFileSync(f.canonicalFile("PRD.md"),approvedBytes);
+  writeFileSync(f.file("SD.md"),syntheticSd());assert.equal(f.recordSd(true).value.outcome,"accepted");
   const ready=bound("--continue-delivery");assert.equal(ready.continuation.phase,"presentation_required");
-  const oldPresentation=f.present("SD","de");assert.equal(oldPresentation.value.outcome,"prepared");
+  const oldPresentation=f.present("SD","de");assert.equal(oldPresentation.value.outcome,"accepted");
   const oldRevision=f.revision();assert.equal(revise().continuation.phase,"sd_definition");
   writeFileSync(f.file("SD.md"),syntheticSd().replace("Synthetic saved filter","Explicitly revised filter"));
-  assert.equal(f.recordSd(true).value.outcome,"recorded");
+  assert.equal(f.recordSd(true).value.outcome,"accepted");
   assert.equal(revise(oldRevision).continuation.reason,"stale_assignment");
-  assert.notEqual(f.run("run-approve","--revision",oldRevision,"--gate","SD","--presentation",oldPresentation.value.presentation_id,"--response","Approval: SD").value.outcome,"approved");
-  assert.deepEqual(readFileSync(f.file("PRD.md")),approvedBytes);
+  assert.notEqual(f.run("run-approve","--revision",oldRevision,"--gate","SD","--presentation",oldPresentation.value.family_result.presentation_id,"--response","Approval: SD").value.outcome,"accepted");
+  assert.deepEqual(readFileSync(f.canonicalFile("PRD.md")),approvedBytes);
   const currentSd=readFileSync(f.file("SD.md"),"utf8");
   // Incorrect source proof is rejected before pointer/history replacement.
-  assert.equal(f.recordSd(true,v=>{v.source.digest="sha256:"+"0".repeat(64);}).value.outcome,"rejected");
+  const beforeBadProof=readFileSync(f.state);
+  assert.equal(f.recordSd(true,v=>{v.material.digest="sha256:"+"0".repeat(64);}).value.outcome,"rejected");
+  assert.deepEqual(readFileSync(f.state),beforeBadProof);
   writeFileSync(f.file("SD.md"),currentSd.replace("| AC-001 |","| AC-999 |"));
-  assert.equal(f.recordSd(true).value.outcome,"recorded");
+  assert.equal(f.recordSd(true).value.outcome,"accepted");
   assert.equal(bound("--continue-delivery").control.blocking_reason,"AGDF_SD_TRACEABILITY_INCOMPLETE");
   assert.equal(f.present("SD","de").value.outcome,"rejected");
-  writeFileSync(f.file("SD.md"),currentSd);assert.equal(f.recordSd(true).value.outcome,"recorded");
-  const p=f.present("SD","de");assert.equal(p.value.outcome,"prepared");
-  assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--presentation",p.value.presentation_id,"--response","Approval: PRD").value.outcome,"rejected");
-  assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--presentation",p.value.presentation_id,"--response","Approval: SD").value.outcome,"approved");
+  writeFileSync(f.file("SD.md"),currentSd);assert.equal(f.recordSd(true).value.outcome,"accepted");
+  const p=f.present("SD","de");assert.equal(p.value.outcome,"accepted");
+  assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--presentation",p.value.family_result.presentation_id,"--response","Approval: PRD").value.outcome,"rejected");
+  assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--presentation",p.value.family_result.presentation_id,"--response","Approval: SD").value.outcome,"accepted");
   const approvedSd=readFileSync(f.file("SD.md"));assert.equal(revise().terminal,true);
   assert.equal(dispatch("sd-definition","--run",f.runId).terminal,true);
   assert.equal(bound("--continue-delivery").continuation.phase,"tp_definition");

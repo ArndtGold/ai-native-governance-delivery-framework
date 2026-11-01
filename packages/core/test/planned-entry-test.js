@@ -1,3 +1,4 @@
+import { boundMutatePlannedUr as mutatePlannedUr, boundCreateRunFromPlanned as createRunFromPlanned } from './planned-fixtures.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
@@ -5,7 +6,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, symlinkSync } fro
 import { symlinkOrSkip } from './control-cockpit-fixtures.js';
 import { join } from 'node:path';
 import { plannedFixture, completeUr } from './planned-fixtures.js';
-import { mutatePlannedUr, inspectPlannedEntry, plannedEntryPath, planningId, parsePlannedUr, recoverPlannedMutation } from '../lib/control-state/planned-entry.js';
+import { inspectPlannedEntry, plannedEntryPath, planningId, parsePlannedUr, recoverPlannedMutation } from '../lib/control-state/planned-entry.js';
 import { inspectMutationClaims } from '../lib/control-state/control-layout.js';
 
 const createInput = (content = completeUr) => ({ kind: 'planned_ur.create', operation_id: randomUUID(), expected_digest: null, content });
@@ -31,7 +32,7 @@ test('SCN-004/006: canonical source owns title/priority; incomplete draft saves 
 test('SCN-005/007: source-bound replacement, original UUID replay and conflicting inputs', t => {
   const { root, input, result, id } = created(t);
   assert.equal(mutatePlannedUr(root, input).outcome, 'already_applied');
-  assert.throws(() => mutatePlannedUr(root, { ...input, content: completeUr + 'Changed intent.\n' }), /PAYLOAD_CONFLICT/);
+  assert.throws(() => mutatePlannedUr(root, { ...input, content: completeUr + 'Changed intent.\n' }), /PAYLOAD_CONFLICT/iu);
   const replacement = { kind: 'planned_ur.replace', operation_id: randomUUID(), plan_id: id, expected_digest: result.entry.digest,
     content: result.entry.content.replace('Planning priority: normal', 'Planning priority: high') };
   const changed = mutatePlannedUr(root, replacement);
@@ -87,7 +88,7 @@ test('SCN-005: foreign pending bytes and original-UUID payload conflict are pres
   const input = { kind: 'planned_ur.replace', operation_id: randomUUID(), plan_id: id, expected_digest: result.entry.digest,
     content: result.entry.content.replace('Planning priority: normal', 'Planning priority: low') };
   assert.throws(() => mutatePlannedUr(root, input, { checkpoint(stage) { if (stage === 'replace_committed') throw Error('fault'); } }));
-  assert.throws(() => mutatePlannedUr(root, { ...input, content: input.content + '\nOther input.\n' }), /PAYLOAD_CONFLICT/);
+  assert.throws(() => mutatePlannedUr(root, { ...input, content: input.content + '\nOther input.\n' }), /PAYLOAD_CONFLICT/iu);
   const path = join(root, `${plannedEntryPath(id)}/UR.md`);
   const foreign = input.content + '\nForeign concurrent edit.\n'; writeFileSync(path, foreign);
   assert.throws(() => recoverPlannedMutation(root, id, input.operation_id), /RECOVERY_REQUIRED/);

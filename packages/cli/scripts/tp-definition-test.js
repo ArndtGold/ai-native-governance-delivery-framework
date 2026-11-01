@@ -39,7 +39,9 @@ withTpFixture(f => {
   assert.equal(f.dispatch('tp-definition', '--run', f.runId).continuation.phase, 'tp_definition');
   assert.notEqual(f.bound().continuation?.phase, 'tp_definition', 'status never drafts');
   assert.equal(f.dispatch('tp-definition', '--run', 'missing-tp-run').terminal, true);
-  const foreignId = 'foreign-tp-stage'; assert.equal(f.call('run-create', '--run', foreignId).code, 0);
+  const foreignOperation=randomUUID(), foreignId=`run-${foreignOperation}`;
+  const foreignCreated=f.call('run-create', '--title', 'Foreign TP stage', '--operation', foreignOperation);
+  assert.equal(foreignCreated.code,0,foreignCreated.text); assert.equal(foreignCreated.value.binding.run_id,foreignId);
   const foreignState = join(f.root, `.agdf/control/runs/${foreignId}/RUN_STATE.md`), foreignBytes = readFileSync(foreignState);
   assert.equal(f.dispatch('tp-definition', '--run', foreignId).terminal, true, 'wrong stage never falls through to generic TP authoring');
   assert.deepEqual(readFileSync(foreignState), foreignBytes);
@@ -59,28 +61,31 @@ withTpFixture(f => {
   for (const args of [['--tp-action', 'revise'], [...valid, '--sd-action', 'revise'], [...valid, '--prd-action', 'revise'], [...valid, '--ur-action', 'revise'],
     [...valid, '--continue-delivery'], [...valid.slice(0, -1), 'approve']]) assert.equal(f.bound(...args).outcome, 'invalid_input', args.join(' '));
   assert.equal(f.bound('--intake', '--intake-mode', 'resume', '--revision', randomUUID(), '--tp-action', 'revise').continuation.reason, 'stale_assignment');
-  const sourceBytes = readFileSync(f.file('SD.md'));
-  writeFileSync(f.file('SD.md'), sourceBytes + '\nUnapproved source tamper.\n'); { const blocked = f.bound('--continue-delivery'); assert.equal(blocked.terminal, true, JSON.stringify(blocked)); } writeFileSync(f.file('SD.md'), sourceBytes);
+  const sourceBytes = readFileSync(f.canonicalFile('SD.md'));
+  writeFileSync(f.canonicalFile('SD.md'), sourceBytes + '\nUnapproved source tamper.\n'); { const blocked = f.bound('--continue-delivery'); assert.equal(blocked.terminal, true, JSON.stringify(blocked)); } writeFileSync(f.canonicalFile('SD.md'), sourceBytes);
   if (process.platform !== 'win32') {
-    const outside = join(f.temporary, 'outside.md'); writeFileSync(outside, 'untouched'); symlinkSync(outside, f.file('TP.md'));
-    assert.equal(f.bound('--continue-delivery').terminal, true); assert.equal(readFileSync(outside, 'utf8'), 'untouched'); unlinkSync(f.file('TP.md'));
+    const outside = join(f.temporary, 'outside.md'); writeFileSync(outside, 'untouched'); symlinkSync(outside, f.canonicalFile('TP.md'));
+    assert.equal(f.bound('--continue-delivery').terminal, true); assert.equal(readFileSync(outside, 'utf8'), 'untouched'); unlinkSync(f.canonicalFile('TP.md'));
   }
-  writeFileSync(f.file('TP.md'), syntheticTp()); assert.equal(f.recordTp().value.outcome, 'recorded');
+  writeFileSync(f.file('TP.md'), syntheticTp()); assert.equal(f.recordTp().value.outcome, 'accepted');
   assert.equal(f.bound('--continue-delivery').continuation.phase, 'presentation_required');
   assert.notEqual(f.dispatch('tp-definition', '--run', f.runId).continuation?.phase, 'tp_definition', 'direct selection cannot rewrite a ready draft');
-  const old = f.present('TP', 'de'); assert.equal(old.value.outcome, 'prepared');
+  const old = f.present('TP', 'de'); assert.equal(old.value.outcome, 'accepted');
   assert.equal(f.revise().continuation.phase, 'tp_definition');
   writeFileSync(f.file('TP.md'), syntheticTp().replace('Saved filter verification', 'Explicitly revised plan'));
-  assert.equal(f.recordTp(true).value.outcome, 'recorded');
-  assert.notEqual(f.run('run-approve', '--revision', f.revision(), '--gate', 'TP', '--presentation', old.value.presentation_id, '--response', 'Approval: TP').value.outcome, 'approved');
-  writeFileSync(f.file('TP.md'), syntheticTp().replace('| resolved |', '| open |')); assert.equal(f.recordTp(true).value.outcome, 'recorded');
+  assert.equal(f.recordTp(true).value.outcome, 'accepted');
+  assert.notEqual(f.run('run-approve', '--revision', f.revision(), '--gate', 'TP', '--presentation', old.value.family_result.presentation_id, '--response', 'Approval: TP').value.outcome, 'accepted');
+  writeFileSync(f.file('TP.md'), syntheticTp().replace('| resolved |', '| open |')); assert.equal(f.recordTp(true).value.outcome, 'accepted');
   assert.equal(f.bound('--continue-delivery').continuation.phase, 'tp_definition');
   assert.equal(f.present('TP', 'de').value.outcome, 'rejected');
-  assert.equal(f.run('run-approve', '--revision', f.revision(), '--gate', 'TP', '--response', 'Approval: TP').value.outcome, 'rejected');
-  writeFileSync(f.file('TP.md'), syntheticTp()); assert.equal(f.recordTp(true).value.outcome, 'recorded');
-  assert.equal(f.recordTp(true, input => { input.source.digest = 'sha256:' + '0'.repeat(64); }).value.outcome, 'rejected');
-  const current = f.present('TP', 'de'); assert.equal(f.approve('TP', current.value.presentation_id).value.outcome, 'approved');
+  const missingPresentation=f.run('run-approve', '--revision', f.revision(), '--gate', 'TP', '--response', 'Approval: TP');
+  assert.notEqual(missingPresentation.code,0); assert.match(missingPresentation.text,/presentation/iu);
+  writeFileSync(f.file('TP.md'), syntheticTp()); assert.equal(f.recordTp(true).value.outcome, 'accepted');
+  const beforeBadProof=readFileSync(f.state);
+  assert.equal(f.recordTp(true, input => { input.material.digest = 'sha256:' + '0'.repeat(64); }).value.outcome, 'rejected');
+  assert.deepEqual(readFileSync(f.state),beforeBadProof);
+  const current = f.present('TP', 'de'); assert.equal(f.approve('TP', current.value.family_result.presentation_id).value.outcome, 'accepted');
   assert.equal(f.revise().terminal, true); assert.equal(f.dispatch('tp-definition', '--run', f.runId).terminal, true);
-  assert.equal(f.recordTp(true).value.outcome, 'rejected'); assert.deepEqual(readFileSync(f.file('SD.md')), sourceBytes);
+  assert.equal(f.recordTp(true).value.outcome, 'rejected'); assert.deepEqual(readFileSync(f.canonicalFile('SD.md')), sourceBytes);
 });
 console.log('TP assembled assignment, ready-draft/revision, protected-source, recording and approval boundaries passed.');

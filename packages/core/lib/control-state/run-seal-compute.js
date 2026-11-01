@@ -1,3 +1,4 @@
+import { runDocumentPath } from './run-identity.js';
 import { canonicalRunText } from "./run-text.js";
 export { canonicalRunText } from "./run-text.js";
 import { APPROVAL_GATES } from "./run-identity.js";
@@ -7,12 +8,12 @@ import { canonicalJson } from "./approval-command-contract.js";
 import { createHash } from "node:crypto";
 import { readFileSync, memoizeControlRead } from "../control-read/fs.js";
 import { basename, dirname } from "node:path";
-import { parseArtefactPathCell, scalarFields, sectionTableRows } from "./run-state-document.js";
+import { parseArtefactPathCell, scalarFields, sectionTableRows, projectRunFacts, canonicalRunDocument } from "./run-state-document.js";
 import { containedRegularFile, isSafeControlRelativePath } from "./contained-file.js";
 
-// The seal makes unrecorded edits visible: content_seal covers the run state and every file listed
-// under Artefacts, approval_seal covers only the recorded gate approvals. It detects changes made
-// outside run-update, run-revise and run-approve; it is not a signature and does not resist deliberate tampering.
+// The seal makes unrecorded edits visible: content_seal covers the run state and the files
+// derived from its records; approval_seal covers the recorded decisions and source revisions. It detects changes made
+// outside typed recording, revision and approval; it is not a signature and does not resist deliberate tampering.
 export { APPROVAL_GATES } from "./run-identity.js";
 export const APPROVAL_SECTIONS = Object.freeze(["Approvals", "Gate Checklist"]);
 const REVISION_META_LINE = /^- (?:revision|revision_id|content_seal|approval_seal):/u;
@@ -63,63 +64,36 @@ function capturedArtefactDigest(root, rawPath) {
 }
 
 export function listedArtefactPaths(text) {
-  const paths = [];
-  for (const [, cell = ""] of sectionTableRows(text, "Artefacts")) {
-    const parsed = parseArtefactPathCell(cell);
-    const path = parsed.format === "invalid" ? parsed.raw : parsed.path;
-    if (!path || /^path$/iu.test(path) || paths.includes(path)) continue;
-    paths.push(path);
-  }
-  return paths;
+  const facts = projectRunFacts(text);
+  return [...new Set([...facts.artefacts.values()].map(row => row.path)
+    .concat(facts.evidence_refs.map(row => row.source), facts.immutable_files).filter(Boolean))].sort();
 }
 
-// A declared future output is not lost evidence. Keep its path in the seal/snapshot so
-// creating or changing it remains visible; only recovery's existence check may defer it.
-export function pendingArtefactPaths(text) {
-  const rows = sectionTableRows(text, "Artefacts");
-  const runId = scalarFields(text).values.get("run_id");
-  return listedArtefactPaths(text).filter((path) => {
-    if (!path.startsWith(`.agdf/control/artefacts/${runId}/`) || !isSafeControlRelativePath(path)) return false;
-    const references = rows.filter(([, cell = ""]) => {
-      const parsed = parseArtefactPathCell(cell);
-      return parsed.format !== "invalid" && parsed.path === path;
-    });
-    return references.length > 0 && references.every(([, , status = ""]) =>
-      ["missing", "pending"].includes(status.replace(/^`|`$/gu, "").trim()));
-  });
-}
+// A current binding is published only with its owned output. Future files are
+// not writable current metadata and cannot exempt an absent bound document.
+export function pendingArtefactPaths() { return []; }
 
 export function approvalRecord(content) {
-  const text = canonicalRunText(content);
-  const approvals = new Map();
-  for (const heading of APPROVAL_SECTIONS) {
-    for (const [gate, status = "", evidence = ""] of sectionTableRows(text, heading)) {
-      if (APPROVAL_GATES.includes(gate)) {
-        approvals.set(gate, [status.replace(/^`|`$/gu, "").trim() || "missing", evidence.trim()]);
-      }
-    }
-  }
-  return APPROVAL_GATES.map((gate) => [gate, ...(approvals.get(gate) ?? ["missing", ""])].join("\t")).join("\n");
+  const facts = projectRunFacts(content);
+  return APPROVAL_GATES.map(gate => [gate, facts.approvals.get(gate).status, facts.approvals.get(gate).evidence].join('\t')).join('\n');
 }
 
 export function approvalSeal(content) {
   const operations = approvalOperationsRecord(content);
   const revisions = readSourceRevisions(content);
-  if (revisions.present) return sha256(["agdf-approval-seal/3", approvalRecord(content), operations ?? "", canonicalJson(revisions.receipts)].join("\n"));
-  return sha256(operations === null
-    ? ["agdf-approval-seal/1", approvalRecord(content)].join("\n")
-    : ["agdf-approval-seal/2", approvalRecord(content), operations].join("\n"));
+  if (!revisions.valid) throw Error('AGDF_SOURCE_REVISIONS_INVALID');
+  return sha256(['agdf-approval-seal/4', operations ?? '', canonicalJson(revisions.receipts)].join('\n'));
 }
 
 export function computeRunSeals(root, content, { selfReferenceDigest = "self", artefactDigests = new Map() } = {}) {
-  const text = canonicalRunText(content);
+  const text = canonicalRunDocument(canonicalRunText(content));
   const runId = scalarFields(text).values.get("run_id");
   const selfPath = `.agdf/control/runs/${runId}/RUN_STATE.md`;
   // The run body is already covered above. Hashing its on-disk copy as an artefact creates
   // a circular dependency and invalidates the seal immediately after every atomic write.
   const artefacts = listedArtefactPaths(text).map((path) => `${path}\t${path === selfPath ? selfReferenceDigest : artefactDigests.get(path) ?? artefactFileDigest(root, path)}`);
   return Object.freeze({
-    content_seal: sha256(["agdf-run-seal/1", withoutMetaLines(text, REVISION_META_LINE), "\0artefacts", ...artefacts].join("\n")),
+    content_seal: sha256(["agdf-run-seal/2", withoutMetaLines(text, REVISION_META_LINE), "\0artefacts", ...artefacts].join("\n")),
     approval_seal: approvalSeal(text),
   });
 }
@@ -136,6 +110,7 @@ export function applyRunSeals(content, seals) {
 }
 
 export function sealRunState(root, content) {
-  return applyRunSeals(content, computeRunSeals(root, content));
+  const canonical = canonicalRunDocument(canonicalRunText(content));
+  return applyRunSeals(canonical, computeRunSeals(root, canonical));
 }
 

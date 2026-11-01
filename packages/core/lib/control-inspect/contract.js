@@ -87,7 +87,7 @@ const inputSchema = {
 inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
 delete inputSchema.allOf;
 const conciseHelp = { target_source: 'Pair with primary_target.', primary_target: 'Confirmed root; pair target_source.',
-  module: 'contract: module; operation-contract: group/kind; operation-status: UUID.',
+  module: 'contract: module; operation-contract: group/kind; operation-status: UUID. Omit for authoring-inputs.',
   gate: 'Not for gate-check.' };
 for (const [key, field] of Object.entries(inputSchema.properties)) {
   delete field.description;
@@ -96,7 +96,7 @@ for (const [key, field] of Object.entries(inputSchema.properties)) {
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read-only. Help: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. Planning/migration help needs only target; Run help needs Run/revision. Follow navigation.next_calls sequentially; read all pages.',
+  description: 'Read-only. Help: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. Creation/planning help needs only target; Run help needs Run/revision. Follow navigation.next_calls sequentially; read all pages.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {

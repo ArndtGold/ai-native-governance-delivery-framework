@@ -12,8 +12,8 @@ export class CliUsageError extends Error {
   }
 }
 
-const STEP_FIELD_FLAGS = new Map(["title", "route", "reason", "evidence", "source", "covers", "decision", "result", "risk", "next"]
-  .map((name) => [`--${name}`, name]));
+const STEP_FIELD_FLAGS = new Map(["title", "route", "reason", "evidence", "source", "covers", "decision", "result", "risk", "next", "reviewer", "reviewed"]
+  .map((name) => [`--${name}`, name]).concat([['--update-draft', 'updateDraft']]));
 
 function requiredValue(args, index, option) {
   const next = args[index + 1];
@@ -87,7 +87,6 @@ export function parseArgs(argv, dependencies = {}) {
   let retireCockpit, restoreCockpit;
   let setupRequest;
   let controlDir;
-  let controlMigration;
   let targetSource;
   let primaryTarget;
   let workingDirectory = cwd;
@@ -145,18 +144,12 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
-    if (arg === "--control-dir" || arg === "--control-migration") {
+    if (arg === '--control-dir') {
       const next = requiredValue(args, i, arg);
-      if (arg === "--control-dir") {
-        if (!isAbsolute(next)) throw new CliUsageError("--control-dir requires an absolute repository path.");
-        controlDir = next;
-      } else {
-        if (!["inspect", "safe"].includes(next)) throw new CliUsageError("--control-migration must be inspect or safe.");
-        controlMigration = next;
-      }
-      i += 1;
-      continue;
+      if (!isAbsolute(next)) throw new CliUsageError('--control-dir requires an absolute repository path.');
+      controlDir = next; i += 1; continue;
     }
+
 
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
@@ -356,7 +349,7 @@ export function parseArgs(argv, dependencies = {}) {
   }
 
   if (!target || !resolveCommand(target)) {
-    throw new CliUsageError(`Please choose one target: ${supportedCommandNames().join(", ")}.`, { showUsage: true });
+    throw new CliUsageError(`${target ? `Unknown command: ${target}. ` : ""}Please choose one target: ${supportedCommandNames().join(", ")}.`, { showUsage: true });
   }
   if (revisionMode && ["--dir", "--run", "--revision", "--operation", "--source-gate", "--evidence", "--preview-digest"].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError("Source revision identity and evidence flags may not repeat");
@@ -364,22 +357,46 @@ export function parseArgs(argv, dependencies = {}) {
   if (target === "run-close" && ["--action", "--run", "--outcome", "--reason", "--successor-run", "--successor-ref", "--closure-file", "--preview-id", "--confirmation"].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError("run-close fields may not repeat");
   }
+  if (target === 'run-close') {
+    if (!['preview', 'apply'].includes(recoveryAction)) throw new CliUsageError('run-close requires --action preview or apply.');
+    if (successorRun !== undefined && successorReference !== undefined) throw new CliUsageError('Choose one successor kind: --successor-run or --successor-ref.');
+    if (recoveryAction === 'preview' && !closureFile && (!runId || !closureOutcome || !stepFields.reason)) throw new CliUsageError('A closure preview requires --run, --outcome and --reason, or --closure-file.');
+    if (recoveryAction === 'apply' && (!recoveryPreviewId || !closureConfirmation)) throw new CliUsageError('A closure apply requires --preview-id and the exact --confirmation.');
+  }
   if ((retireCockpit !== undefined || restoreCockpit !== undefined)
     && ['--dir', '--surface', '--scope', '--evidence'].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError('Cockpit transition identity and evidence flags may not repeat');
   }
 
   if (Object.hasOwn(commandGroupRoutes, target) && [...flagCounts.keys()].some(flag => !['--command-file', '--json'].includes(flag))) throw new CliUsageError('Bound command routes accept only --command-file and --json; no overriding envelope fields.');
-  if (['planned', 'layout-migrate'].includes(target)) {
+  if (target === 'planned') {
     const common = ['--dir', '--action', '--json', '--language'];
-    const fields = target === 'planned' ? {
+    const fields = {
       list: [], inspect: ['--plan-id'], create: ['--evidence', '--priority', '--operation'],
       replace: ['--plan-id', '--source-digest', '--evidence', '--operation'],
       start: ['--plan-id', '--source-digest', '--operation'], status: ['--plan-id', '--operation'],
-    } : { preview: [], apply: ['--operation', '--preview-digest', '--confirmation'], recover: ['--operation', '--pending-digest'], status: ['--operation'] };
+    };
     const allowed = new Set([...common, ...(fields[recoveryAction] ?? [])]);
     if ([...flagCounts].some(([flag, count]) => count !== 1 || !allowed.has(flag)))
       throw new CliUsageError('Planning accepts only the unique fields of its selected action.');
+  }
+  if (['run-create', 'run-present', 'run-approve', 'run-step', 'run-revise', 'run-close'].includes(target)) {
+    const common = ['--dir', '--working-directory', '--language', '--json', '--operation', '--assurance'];
+    const bound = ['--run', '--revision'];
+    const stepFlags = { ur: ['--title'], route: ['--route', '--reason'], review: ['--decision'], evidence: ['--reason', '--covers'],
+      artefact: ['--gate', '--reviewer', '--reviewed', '--update-draft'], closeout: ['--confirmation'] };
+    const fields = {
+      'run-create': ['--title'], 'run-present': [...bound, '--gate'],
+      'run-approve': [...bound, '--gate', '--presentation', '--response'],
+      'run-step': [...bound, '--step', '--evidence', ...(stepFlags[runStep] ?? [])],
+      'run-revise': [...bound, ...(revisionMode === 'inspect' ? ['--inspect'] : revisionMode
+        ? ['--' + revisionMode, '--source-gate', '--evidence', ...(revisionMode === 'apply' ? ['--preview-digest', '--confirmation'] : revisionMode === 'recover' ? ['--pending-digest'] : [])]
+        : ['--gate', '--confirmation'])],
+      'run-close': ['--action', ...(recoveryAction === 'apply' ? ['--preview-id', '--confirmation']
+        : closureFile ? ['--closure-file'] : ['--run', '--outcome', '--reason', '--successor-run', '--successor-ref'])],
+    };
+    const allowed = new Set([...common, ...fields[target]]);
+    if ([...flagCounts].some(([flag, count]) => count !== 1 || !allowed.has(flag))) throw new CliUsageError('Current Run commands accept only the unique fields of the selected operation.');
   }
   return {
     kind: "command",
@@ -450,7 +467,6 @@ export function parseArgs(argv, dependencies = {}) {
       ...(restoreCockpit !== undefined ? { restoreCockpit } : {}),
       setupRequest,
       controlDir,
-      controlMigration,
       generatorModel,
       maxGeneratedCandidates,
       generationTimeoutMs,

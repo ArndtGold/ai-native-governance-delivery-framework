@@ -9,7 +9,7 @@ import { syntheticSd } from '../../cli/scripts/fixtures/sd-definition.js';
 
 const root = mkdtempSync(join(tmpdir(), 'tp-planning-'));
 try {
-  const prefix = '.agdf/control/artefacts/tp-test/'; mkdirSync(join(root, prefix), { recursive: true });
+  const prefix = '.agdf/control/runs/tp-test/documents/'; mkdirSync(join(root, prefix), { recursive: true });
   const sd = syntheticSd().replace('## Design Decisions\n', '## Design Decisions\n').replace('| Store boundary |', '| Evidence environment | later_tp | deferred | Choose available runtime | Test owner |\n| Store boundary |');
   const artefacts = new Map(), approvals = new Map();
   for (const type of ['UR', 'PRD', 'SD']) {

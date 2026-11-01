@@ -1,0 +1,484 @@
+TAP version 13
+# Subtest: atomic Run replacement makes every independent view stale and explicit refresh reissues only its selectors
+ok 1 - atomic Run replacement makes every independent view stale and explicit refresh reissues only its selectors
+  ---
+  duration_ms: 4681.6715
+  type: 'test'
+  ...
+# Subtest: Run source replacement wakes only dependent views, and pending waits close with their session
+ok 2 - Run source replacement wakes only dependent views, and pending waits close with their session
+  ---
+  duration_ms: 2234.927716
+  type: 'test'
+  ...
+# Subtest: SCN-007/008: exact references preserve passive node bytes, fences and section boundaries without recursive expansion
+ok 3 - SCN-007/008: exact references preserve passive node bytes, fences and section boundaries without recursive expansion
+  ---
+  duration_ms: 6544.736748
+  type: 'test'
+  ...
+# Subtest: SCN-009/010/011: 64 refs, 16 selected, deliberate unavailable exclusion and scoped inspected-source packets
+ok 4 - SCN-009/010/011: 64 refs, 16 selected, deliberate unavailable exclusion and scoped inspected-source packets
+  ---
+  duration_ms: 1948.866149
+  type: 'test'
+  ...
+# Subtest: SCN-012: inclusive 64 KiB counts multibyte source plus all provenance, without truncation
+ok 5 - SCN-012: inclusive 64 KiB counts multibyte source plus all provenance, without truncation
+  ---
+  duration_ms: 1.139066
+  type: 'test'
+  ...
+# Subtest: SCN-013/020: changed captures, generation, supersession and invalidation prevent packet reuse
+ok 6 - SCN-013/020: changed captures, generation, supersession and invalidation prevent packet reuse
+  ---
+  duration_ms: 3275.001721
+  type: 'test'
+  ...
+# Subtest: SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+ok 7 - SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+  ---
+  duration_ms: 1390.027096
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+ok 8 - SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+  ---
+  duration_ms: 2723.556133
+  type: 'test'
+  ...
+# Subtest: SCN-004: missing or foreign/malformed approval presentation never confirms current version
+ok 9 - SCN-004: missing or foreign/malformed approval presentation never confirms current version
+  ---
+  duration_ms: 7451.719137
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+ok 10 - SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+  ---
+  duration_ms: 25698.119417
+  type: 'test'
+  ...
+# Subtest: SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+ok 11 - SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+  ---
+  duration_ms: 0.350078
+  type: 'test'
+  ...
+# Subtest: SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+ok 12 - SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+  ---
+  duration_ms: 44875.603723
+  type: 'test'
+  ...
+# Subtest: SCN-006: actual current SD traceability findings are shown without changing the original report
+ok 13 - SCN-006: actual current SD traceability findings are shown without changing the original report
+  ---
+  duration_ms: 11515.245025
+  type: 'test'
+  ...
+# Subtest: SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+ok 14 - SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+  ---
+  duration_ms: 11686.613152
+  type: 'test'
+  ...
+# Subtest: SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+ok 15 - SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+  ---
+  duration_ms: 31357.11302
+  type: 'test'
+  ...
+# Subtest: SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+ok 16 - SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+  ---
+  duration_ms: 5573.292352
+  type: 'test'
+  ...
+# Subtest: SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+ok 17 - SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+  ---
+  duration_ms: 11131.296588
+  type: 'test'
+  ...
+# Subtest: current document descriptions remain bounded by typed approval facts
+ok 18 - current document descriptions remain bounded by typed approval facts
+  ---
+  duration_ms: 852.309476
+  type: 'test'
+  ...
+# Subtest: SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+ok 19 - SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+  ---
+  duration_ms: 28542.794185
+  type: 'test'
+  ...
+# Subtest: SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+ok 20 - SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+  ---
+  duration_ms: 6978.339792
+  type: 'test'
+  ...
+# Subtest: SCN-006: changes during captured/replay/published check never publish success
+ok 21 - SCN-006: changes during captured/replay/published check never publish success
+  ---
+  duration_ms: 19782.378725
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+ok 22 - SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+  ---
+  duration_ms: 3863.645625
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+ok 23 - SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+  ---
+  duration_ms: 4098.087977
+  type: 'test'
+  ...
+# Subtest: SCN-001/003: current Core selected-area order, Completed preserved, raw input and selectors immutable
+ok 24 - SCN-001/003: current Core selected-area order, Completed preserved, raw input and selectors immutable
+  ---
+  duration_ms: 4.075326
+  type: 'test'
+  ...
+# Subtest: SCN-005/006/011: stored title provenance, deterministic per-field search independent of heading, known prefix display only
+ok 25 - SCN-005/006/011: stored title provenance, deterministic per-field search independent of heading, known prefix display only
+  ---
+  duration_ms: 0.577814
+  type: 'test'
+  ...
+# Subtest: SCN-007: per-entry source identity ignores metadata replacement, separates duplicates and source changes
+ok 26 - SCN-007: per-entry source identity ignores metadata replacement, separates duplicates and source changes
+  ---
+  duration_ms: 0.579534
+  type: 'test'
+  ...
+# Subtest: SCN-002/015/016: missing/layout unavailable has null counts; unrelated diagnostics leave confirmed areas complete
+ok 27 - SCN-002/015/016: missing/layout unavailable has null counts; unrelated diagnostics leave confirmed areas complete
+  ---
+  duration_ms: 0.65414
+  type: 'test'
+  ...
+# Subtest: SCN-015: cross-section duplicate disabled in selected area remains partial despite diagnostic on other occurrence
+ok 28 - SCN-015: cross-section duplicate disabled in selected area remains partial despite diagnostic on other occurrence
+  ---
+  duration_ms: 0.408821
+  type: 'test'
+  ...
+# Subtest: SCN-016: contradictory count, unknown section, missing populated area and invalid count reject data
+ok 29 - SCN-016: contradictory count, unknown section, missing populated area and invalid count reject data
+  ---
+  duration_ms: 0.426562
+  type: 'test'
+  ...
+# Subtest: SCN-008/015: full-area search precedes view limit; complete empty/no-match have distinct query state
+ok 30 - SCN-008/015: full-area search precedes view limit; complete empty/no-match have distinct query state
+  ---
+  duration_ms: 0.417123
+  type: 'test'
+  ...
+# Subtest: Run list preserves inventory order, groups invalid entries and searches only displayed stored fields
+ok 31 - Run list preserves inventory order, groups invalid entries and searches only displayed stored fields
+  ---
+  duration_ms: 0.608083
+  type: 'test'
+  ...
+# Subtest: SCN-050/052/053/054: deferred reservation excludes another publisher while independent equal-Run sources stay readable
+ok 32 - SCN-050/052/053/054: deferred reservation excludes another publisher while independent equal-Run sources stay readable
+  ---
+  duration_ms: 1036.536175
+  type: 'test'
+  ...
+# Subtest: SCN-052: a rejected never-returned preparation releases its reservation; successful ownership cannot be replaced without release
+ok 33 - SCN-052: a rejected never-returned preparation releases its reservation; successful ownership cannot be replaced without release
+  ---
+  duration_ms: 867.977021
+  type: 'test'
+  ...
+# Subtest: SCN-050: equal Run/source bytes do not make graph, snapshot or artefact selectors transferable between views
+ok 34 - SCN-050: equal Run/source bytes do not make graph, snapshot or artefact selectors transferable between views
+  ---
+  duration_ms: 927.837512
+  type: 'test'
+  ...
+# Subtest: SCN-053/054: nonowner refresh/close preserve the packet; only the newest single receipt can be retried
+ok 35 - SCN-053/054: nonowner refresh/close preserve the packet; only the newest single receipt can be retried
+  ---
+  duration_ms: 1038.11649
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: close owner loss quarantines publication without disabling other reading slots
+ok 36 - SCN-048/055/056: close owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 990.584761
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: idle owner loss quarantines publication without disabling other reading slots
+ok 37 - SCN-048/055/056: idle owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 1039.393375
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: lifetime owner loss quarantines publication without disabling other reading slots
+ok 38 - SCN-048/055/056: lifetime owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 2660.094389
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: worker owner loss quarantines publication without disabling other reading slots
+ok 39 - SCN-048/055/056: worker owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 981.355891
+  type: 'test'
+  ...
+# Subtest: SCN-054/055/056: failed begin grants no release; active owner can complete its same pending token after worker loss
+ok 40 - SCN-054/055/056: failed begin grants no release; active owner can complete its same pending token after worker loss
+  ---
+  duration_ms: 808.051397
+  type: 'test'
+  ...
+# Subtest: SCN-049/052: invalidate or shutdown during deferred preparation cannot return a newly usable packet
+ok 41 - SCN-049/052: invalidate or shutdown during deferred preparation cannot return a newly usable packet
+  ---
+  duration_ms: 1598.863458
+  type: 'test'
+  ...
+# Subtest: SCN-078: scoped replacement discards the owner packet but retains exclusive publication until matched release
+ok 42 - SCN-078: scoped replacement discards the owner packet but retains exclusive publication until matched release
+  ---
+  duration_ms: 914.602208
+  type: 'test'
+  ...
+# Subtest: SCN-078: source replacement during reserved preparation cannot publish a late packet or discard the new read scope
+ok 43 - SCN-078: source replacement during reserved preparation cannot publish a late packet or discard the new read scope
+  ---
+  duration_ms: 862.840389
+  type: 'test'
+  ...
+# Subtest: current work inventory ignores retained foreign planning and unreferenced history bytes
+ok 44 - current work inventory ignores retained foreign planning and unreferenced history bytes
+  ---
+  duration_ms: 1629.203978
+  type: 'test'
+  ...
+# Subtest: SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation
+ok 45 - SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation
+  ---
+  duration_ms: 691.42468
+  type: 'test'
+  ...
+# Subtest: SCN-067/068/069/074: production transitions reissue matching parents/resources and old or foreign selectors cannot discard a valid view
+ok 46 - SCN-067/068/069/074: production transitions reissue matching parents/resources and old or foreign selectors cannot discard a valid view
+  ---
+  duration_ms: 730.772842
+  type: 'test'
+  ...
+# Subtest: SCN-067/072: strict optional named snapshot and independent production workers retain only latest scoped selectors
+ok 47 - SCN-067/072: strict optional named snapshot and independent production workers retain only latest scoped selectors
+  ---
+  duration_ms: 1140.626953
+  type: 'test'
+  ...
+# Subtest: canonical approval advances only its Run and leaves retained foreign planning untouched
+ok 48 - canonical approval advances only its Run and leaves retained foreign planning untouched
+  ---
+  duration_ms: 956.249336
+  type: 'test'
+  ...
+# Subtest: UR readiness follows the configured project language exactly like the canonical gate-check
+ok 49 - UR readiness follows the configured project language exactly like the canonical gate-check
+  ---
+  duration_ms: 677.643448
+  type: 'test'
+  ...
+# Subtest: canonical Run State is a registered resource on every platform
+ok 50 - canonical Run State is a registered resource on every platform
+  ---
+  duration_ms: 618.643998
+  type: 'test'
+  ...
+# Subtest: an artefact registered outside .agdf/control blocks only that resource and leaves the evaluation unconfirmed
+ok 51 - an artefact registered outside .agdf/control blocks only that resource and leaves the evaluation unconfirmed
+  ---
+  duration_ms: 1245.981904
+  type: 'test'
+  ...
+# Subtest: current gate and next action are derived from typed facts without persisted control copies
+ok 52 - current gate and next action are derived from typed facts without persisted control copies
+  ---
+  duration_ms: 844.986804
+  type: 'test'
+  ...
+# Subtest: SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session
+ok 53 - SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session
+  ---
+  duration_ms: 1134.317309
+  type: 'test'
+  ...
+# Subtest: SCN-003/026/027: shared production worker reads same immutable source, no write and cross-run document denial
+ok 54 - SCN-003/026/027: shared production worker reads same immutable source, no write and cross-run document denial
+  ---
+  duration_ms: 1013.900051
+  type: 'test'
+  ...
+# Subtest: SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker
+ok 55 - SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker
+  ---
+  duration_ms: 630.253217
+  type: 'test'
+  ...
+# Subtest: SCN-022: fake clock proves idle and absolute session expiry without prolonged waits
+ok 56 - SCN-022: fake clock proves idle and absolute session expiry without prolonged waits
+  ---
+  duration_ms: 618.838983
+  type: 'test'
+  ...
+# Subtest: SCN-036: shared wire parser rejects extra fields, unknown/malformed selectors and forged target inputs
+ok 57 - SCN-036: shared wire parser rejects extra fields, unknown/malformed selectors and forged target inputs
+  ---
+  duration_ms: 0.842406
+  type: 'test'
+  ...
+# Subtest: SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview
+ok 58 - SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview
+  ---
+  duration_ms: 0.442928
+  type: 'test'
+  ...
+# Subtest: SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write
+ok 59 - SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write
+  ---
+  duration_ms: 681.546952
+  type: 'test'
+  ...
+# Subtest: SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen
+ok 60 - SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen
+  ---
+  duration_ms: 601.681072
+  type: 'test'
+  ...
+# Subtest: SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained
+ok 61 - SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained
+  ---
+  duration_ms: 655.380283
+  type: 'test'
+  ...
+# Subtest: SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do
+ok 62 - SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do
+  ---
+  duration_ms: 734.39937
+  type: 'test'
+  ...
+# Subtest: SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable
+ok 63 - SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable
+  ---
+  duration_ms: 1028.184288
+  type: 'test'
+  ...
+# Subtest: SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job
+ok 64 - SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job
+  ---
+  duration_ms: 1020.550137
+  type: 'test'
+  ...
+# Subtest: SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundary; worker budgets remain unchanged
+ok 65 - SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundary; worker budgets remain unchanged
+  ---
+  duration_ms: 1274.914972
+  type: 'test'
+  ...
+# Subtest: plugin views bind two projects once, share capacity, and keep failure identity
+ok 66 - plugin views bind two projects once, share capacity, and keep failure identity
+  ---
+  duration_ms: 1276.264582
+  type: 'test'
+  ...
+# Subtest: plugin production workers preserve cross-project data and one publication owner
+ok 67 - plugin production workers preserve cross-project data and one publication owner
+  ---
+  duration_ms: 2106.297413
+  type: 'test'
+  ...
+# Subtest: Run overview works without a legacy backlog with bounded current source dependencies
+ok 68 - Run overview works without a legacy backlog with bounded current source dependencies
+  ---
+  duration_ms: 821.713176
+  type: 'test'
+  ...
+# Subtest: invalid directory identities stay accounted diagnostics with no Run selector
+ok 69 - invalid directory identities stay accounted diagnostics with no Run selector
+  ---
+  duration_ms: 712.573007
+  type: 'test'
+  ...
+# Subtest: cockpit assessment projects the evaluated outcome without a second doctor-warning veto
+ok 70 - cockpit assessment projects the evaluated outcome without a second doctor-warning veto
+  ---
+  duration_ms: 0.322418
+  type: 'test'
+  ...
+# Subtest: captured assessment matches canonical gate evaluation and performs no writes
+ok 71 - captured assessment matches canonical gate evaluation and performs no writes
+  ---
+  duration_ms: 669.623241
+  type: 'test'
+  ...
+# Subtest: cockpit title identifies the bound UR instead of a generic current artefact heading
+ok 72 - cockpit title identifies the bound UR instead of a generic current artefact heading
+  ---
+  duration_ms: 758.960614
+  type: 'test'
+  ...
+# Subtest: SCN-001/002/008/020: Run inventory stays passive; selected valid, completed and invalid Runs retain Core semantics and no writes
+ok 73 - SCN-001/002/008/020: Run inventory stays passive; selected valid, completed and invalid Runs retain Core semantics and no writes
+  ---
+  duration_ms: 763.693753
+  type: 'test'
+  ...
+# Subtest: SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary
+ok 74 - SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary
+  ---
+  duration_ms: 4432.200364
+  type: 'test'
+  ...
+# Subtest: SCN-006/015: mutation of selected dependencies invalidates related reads, and current work captures its Run sources
+ok 75 - SCN-006/015: mutation of selected dependencies invalidates related reads, and current work captures its Run sources
+  ---
+  duration_ms: 707.045362
+  type: 'test'
+  ...
+# Subtest: SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest
+ok 76 - SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest
+  ---
+  duration_ms: 997.312332
+  type: 'test'
+  ...
+# Subtest: Run membership captures creation/removal and invalid entries independently of legacy pointers
+ok 77 - Run membership captures creation/removal and invalid entries independently of legacy pointers
+  ---
+  duration_ms: 864.316561
+  type: 'test'
+  ...
+# Subtest: SCN-010/011/026: genuine new-layout cockpit derives counts/order/per-entry sources without a backlog; selected planned UR is read-only and snapshot-bound
+ok 78 - SCN-010/011/026: genuine new-layout cockpit derives counts/order/per-entry sources without a backlog; selected planned UR is read-only and snapshot-bound
+  ---
+  duration_ms: 1016.149914
+  type: 'test'
+  ...
+# Subtest: SCN-026: production MCP cockpit session restricts planned selectors to the current overview; handoff becomes one Run reference
+ok 79 - SCN-026: production MCP cockpit session restricts planned selectors to the current overview; handoff becomes one Run reference
+  ---
+  duration_ms: 1069.605055
+  type: 'test'
+  ...
+1..79
+# tests 79
+# suites 0
+# pass 79
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 291584.493386

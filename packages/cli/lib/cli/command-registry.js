@@ -31,7 +31,7 @@ export const commandRegistry = Object.freeze([
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>] [--with-mcp]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--with-mcp --mcp-scope <project|user> --dir <absolute-target>] [--confirm]"] }),
   command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
-  command("init", { preferred: [""], scaffold: [""] }),
+  command("init", { preferred: [" [--operation <original-uuid>]"], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
   command("target-check", { local: [` --json [--language <tag>] [--working-directory <absolute-path>] [--target-source ${TASK_TARGET_SOURCE_GRAMMAR} --primary-target <absolute-path>]`] }),
   command("skill-dispatch", { local: [` ${skillDispatchCommandGrammar()}`] }),
@@ -40,24 +40,18 @@ export const commandRegistry = Object.freeze([
   command("delivery-map", { local: [" --json"], scaffold: [""] }),
   command("inventory", { local: [" [--json] [--language <tag>]"] }),
   command('planned', { local: [' --dir <absolute-target> --action <list|inspect|create|replace|start|status> [--plan-id <id> --source-digest <sha256>] [--evidence <UR.md> --priority <high|normal|low>] [--operation <uuid>]'] }),
-  command('layout-migrate', { local: [' --dir <absolute-target> --action <preview|apply|recover|status> [--operation <original-uuid> --preview-digest <sha256> --confirmation <exact-preview-phrase> | --pending-digest <sha256>]'] }),
   command("delivery-path-search", {
     local: [" --surface codex --json", " --surface claude --json", " --surface opencode --json"],
     scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
   }),
   command("contract", { local: [" --module <runtime-contract-module> [--json]"] }),
-  command("control-maintenance", { local: [" --dir <absolute-repository> [--guided | --details | --json] [--language <tag>]"] }),
-  command("run-present", { local: [" --run <run_id> --gate <gate> --revision <revision_id>"] }),
-  command("run-create", { local: [" --run <run_id>"] }),
-  command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
-  command("run-revise", { local: [" --run <run_id> --revision <revision_id>", " --preview|--apply --run <run_id> --revision <revision_id> --source-gate <UR|PRD|SD|TP> --operation <uuid> --evidence <proposal.json> [--preview-digest <sha256>]"] }),
-  command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout|artefact> [step fields]"] }),
-  command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
-  command("run-migrate", { local: [" [--run <run_id>]"] }),
-  command("run-recovery", { local: [" --run <run_id> --action <inspect|preview>", " --run <run_id> --action apply --preview-id <uuid> --recovery-confirmation \"RECOVER <run_id> <preview_id>\""] }),
-  command("run-close", { local: [" --action preview --closure-file <entries.json> [--json]", " --action preview --run <run_id> --outcome <superseded|abandoned> --reason <text> [--successor-run <run_id>|--successor-ref <text>] [--json]",
-    " --action apply --preview-id <8-hex> --confirmation \"Close runs: <preview_id>\" [--json]"] }),
-  command("run-render-legacy", { local: [" --run <run_id>"] }),
+  command("control-maintenance", { local: [" --dir <absolute-repository> [--details | --json] [--language <tag>]"] }),
+  command('run-create', { local: [' --title <title> [--operation <original-uuid>]'] }),
+  command('run-present', { local: [' --run <id> --revision <uuid> --gate <gate> [--operation <original-uuid>]'] }),
+  command('run-approve', { local: [' --run <id> --revision <uuid> --gate <gate> --presentation <uuid> --response <exact-reply> [--operation <original-uuid>]'] }),
+  command('run-step', { local: [' --run <id> --revision <uuid> --step <ur|route|review|evidence|artefact|closeout> --evidence <source-file> [step fields] [--operation <original-uuid>]'] }),
+  command('run-revise', { local: [' --run <id> --revision <uuid> --operation <original-uuid> [--preview|--apply|--inspect|--recover --source-gate <UR|PRD|SD|TP> --evidence <current-proposal.json>] [--confirmation <exact-selector>]'] }),
+  command('run-close', { local: [' --action <preview|apply> [--closure-file <entries.json>|--run <id> --outcome <superseded|abandoned> --reason <text>] [--preview-id <id> --confirmation <exact-selector>] [--operation <original-uuid>]'] }),
   ...Object.keys(commandGroupRoutes).map(name => command(name, { local: [' --command-file <bounded-command.json>'] })),
 ]);
 
@@ -72,10 +66,23 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
-  if (['planned', 'layout-migrate'].includes(options.target)) {
+  if (['run-create', 'run-present', 'run-approve', 'run-step', 'run-revise', 'run-close'].includes(options.target)) {
+    if (options.commandFile || options.allActive || options.force || options.intake || options.continueDelivery || options.packageSelection) throw Error('A current Run command rejects unrelated scopes and force.');
+    if (options.target === 'run-create' && (options.runId || !options.stepFields?.title)) throw Error('run-create requires --title; its original UUID determines the new Run ID.');
+    if (!['run-create', 'run-close'].includes(options.target) && (!options.runId || !options.revisionId)) throw Error('The current Run command requires --run and --revision.');
+    if (options.target === 'run-present' && !options.gate) throw Error('run-present requires --gate.');
+    if (options.target === 'run-approve' && (!options.gate || !options.response || !options.presentationId)) throw Error('run-approve requires --gate, --presentation and --response.');
+    if (options.target === 'run-step' && !options.runStep) throw Error('run-step requires --step.');
+    if (options.target === 'run-revise' && !options.revisionMode && options.gate !== 'PRD') throw Error('Early source reopening requires --gate PRD; other sources use explicit preview/apply.');
+    if (options.target === 'run-revise' && !options.operationId) throw Error('run-revise requires the original --operation UUID.');
+    if (options.target === 'run-close' && !['preview', 'apply'].includes(options.recoveryAction)) throw Error('run-close requires --action preview or apply.');
+    return options;
+  }
+
+  if (options.target === 'planned') {
     if (!options.dirExplicit || !options.dirInputAbsolute || options.runId || options.revisionId || options.gate || options.allActive
       || options.force || options.intake || options.continueDelivery || options.commandFile || options.packageSelection) throw Error('Planning requires an explicit absolute --dir and no Run/gate/force scope');
-    const actions = options.target === 'planned' ? ['list', 'inspect', 'create', 'replace', 'start', 'status'] : ['preview', 'apply', 'recover', 'status'];
+    const actions = ['list', 'inspect', 'create', 'replace', 'start', 'status'];
     if (!actions.includes(options.recoveryAction)) throw Error('Unsupported planning action');
     if (options.target === 'planned') {
       if (['inspect', 'replace', 'start', 'status'].includes(options.recoveryAction) && !options.planId) throw Error('--plan-id is required for the selected source');
@@ -89,14 +96,15 @@ export function validateCommandOptions(options) {
   }
   if (options.packageSelection !== undefined && (options.target !== 'codex' || !['core', 'planning'].includes(options.packageSelection))) throw Error('--package supports only codex core or planning');
   if (options.packageSelection === 'planning' && (options.setupRequest !== 'plugin_only' || options.acceptPluginCapabilities || options.runtimeChecksDecision
-    || options.controlDir || options.controlMigration || options.scope)) throw Error('The optional package requires --plugin-only and does not change Core setup, hooks or project control');
-  if ([options.planId, options.sourceDigest, options.priority, options.pendingDigest].some(value => value !== undefined)) throw Error('Planning source fields require planned or layout-migrate');
+    || options.controlDir || options.scope)) throw Error('The optional package requires --plugin-only and does not change Core setup, hooks or project control');
+  if ([options.planId, options.sourceDigest, options.priority, options.pendingDigest].some(value => value !== undefined)) throw Error('Planning source fields require planned');
   if (Object.hasOwn(commandGroupRoutes, options.target)) {
     if (!options.commandFile) throw new Error('Bound command routes require --command-file; target/Run/revision/UUID are taken only from that strict envelope.');
     return options;
   }
   if (options.commandFile) throw new Error('--command-file requires a fixed AGDF command-group route');
-  if ((options.guided || options.details) && options.target !== "control-maintenance") {
+  if (options.guided) throw Error('Guided migration/reset is unsupported; inspect current control and recover only the original bounded operation.');
+  if ((options.details) && options.target !== "control-maintenance") {
     throw new Error("--guided and --details are supported only by control-maintenance");
   }
   if (options.target === "control-maintenance") {
@@ -106,13 +114,10 @@ export function validateCommandOptions(options) {
   }
   const installTargets = ["codex", "claude", "copilot", "opencode"];
   const installTarget = installTargets.includes(options.target);
-  if ((options.controlDir || options.controlMigration) && !installTarget) {
-    throw new Error("--control-dir and --control-migration are supported only by installation commands");
+  if ((options.controlDir) && !installTarget) {
+    throw new Error("--control-dir is supported only by installation commands");
   }
-  if (options.controlMigration === "safe" && !options.controlDir
-      && !(options.dirExplicit && (options.target !== "opencode" || options.setupRequest === "full"))) {
-    throw new Error("--control-migration safe requires an explicit repository target (--control-dir or --dir).");
-  }
+
   if (options.target !== "mcp" && options.target !== "status" && !installTarget && ["project", "user"].includes(options.scope)) {
     throw new Error("project and user scopes are supported only by mcp or a full installation setup");
   }
@@ -145,13 +150,9 @@ export function validateCommandOptions(options) {
   }
   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
   if ((options.intakeMode || options.urAction || options.prdAction || options.sdAction || options.tpAction || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
-  if (options.assurance !== undefined && options.target !== "run-approve"
-      || options.operationId !== undefined && options.target !== "run-approve" && !(options.target === "run-revise" && options.revisionMode)) {
-    throw new Error("--operation requires run-approve or an explicit run-revise mode; --assurance requires run-approve");
-  }
-  if ((options.revisionMode || options.sourceGate !== undefined || options.previewDigest !== undefined) && options.target !== "run-revise") throw new Error("Source revision fields require run-revise");
-  if (options.presentationId && options.target !== "run-approve") throw new Error("--presentation is supported only by run-approve");
-  if (options.target === "run-present" && (!options.runId || !options.gate || !options.revisionId)) throw new Error("run-present requires --run, --gate and --revision");
+  if (options.operationId !== undefined && options.target !== 'init') throw Error('--operation is supported only by init or planned; other writes use the bound command file.');
+  if (options.assurance !== undefined || options.revisionMode || options.sourceGate !== undefined || options.previewDigest !== undefined || options.presentationId)
+    throw Error('Use the current bound AGDF command group and --command-file for delivery writes.');
   if (options.intake && options.target !== "skill-dispatch") throw new Error("--intake is supported only by skill-dispatch");
   if (options.target === "skill-dispatch") {
     if (!options.json) throw new Error("skill-dispatch requires --json");
@@ -166,82 +167,14 @@ export function validateCommandOptions(options) {
   // Shared read-selection rules (MCP agdf_inspect applies the same function). The gate-check
   // --status-card/--approval-envelope flags keep their historical CLI tolerance and are not passed here.
   validateReadSelection({ operation: options.target, allActive: options.allActive, contractModule: options.contractModule, runId: options.runId });
-  if (options.target === "run-create" && (!options.runId || options.allActive)) {
-    throw new Error("run-create requires --run and rejects --all-active");
-  }
-  if (options.target === "run-recovery") {
-    if (!options.runId || !["inspect", "preview", "apply"].includes(options.recoveryAction)) {
-      throw new Error("run-recovery requires --run and --action inspect, preview or apply");
-    }
-    if (options.recoveryAction === "apply" && (!options.recoveryPreviewId || !options.recoveryConfirmation)) {
-      throw new Error("run-recovery apply requires --preview-id and --recovery-confirmation");
-    }
-    if (options.recoveryAction !== "apply" && (options.recoveryPreviewId || options.recoveryConfirmation)) {
-      throw new Error("--preview-id and --recovery-confirmation are supported only by run-recovery apply");
-    }
-  } else if (options.target === "run-close") {
-    const single = [options.runId, options.closureOutcome, options.stepFields?.reason, options.successorRun, options.successorReference].some(value => value !== undefined);
-    if (options.recoveryConfirmation !== undefined || options.allActive || Object.keys(options.stepFields ?? {}).some(key => key !== "reason")) throw new Error("run-close accepts only its preview or apply fields");
-    if (options.recoveryAction === "preview") {
-      if (options.recoveryPreviewId !== undefined || options.closureConfirmation !== undefined) throw new Error("--preview-id and --confirmation require run-close --action apply");
-      if (Boolean(options.closureFile) === single) throw new Error("run-close preview requires either --closure-file or --run, --outcome and --reason");
-      if (single && (!options.runId || !options.closureOutcome || options.stepFields?.reason === undefined)) throw new Error("run-close preview requires --run, --outcome and --reason");
-      if (options.successorRun !== undefined && options.successorReference !== undefined) throw new Error("--successor-run and --successor-ref are mutually exclusive");
-    } else if (options.recoveryAction === "apply") {
-      if (!options.recoveryPreviewId || options.closureConfirmation === undefined) throw new Error("run-close apply requires --preview-id and --confirmation");
-      if (single || options.closureFile) throw new Error("run-close apply accepts only --preview-id and --confirmation");
-    } else throw new Error("run-close requires --action preview or apply");
-  } else if (options.recoveryAction || options.recoveryPreviewId || options.recoveryConfirmation) {
-    throw new Error("--action, --preview-id and --recovery-confirmation are supported only by run-recovery");
-  }
-  if ((options.closureFile || options.closureOutcome || options.successorRun !== undefined || options.successorReference !== undefined
-      || options.closureConfirmation !== undefined) && options.target !== "run-close") {
-    throw new Error("--closure-file, --outcome, --successor-run, --successor-ref and --confirmation are supported only by run-close");
-  }
-  if ((options.gate && !["run-approve", "run-present"].includes(options.target)
-      && !(options.target === "run-step" && options.runStep === "artefact")) || (options.response !== undefined && options.target !== "run-approve")) {
-    throw new Error("--gate is supported by run-present/run-approve; --response only by run-approve");
-  }
-  if (options.revisionId && !["run-update", "run-revise", "run-approve", "run-step", "run-present", "skill-dispatch"].includes(options.target)) {
-    throw new Error("--revision is supported only by run-update, run-revise, run-present, run-approve, run-step and skill-dispatch");
-  }
-  if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step"
-      && !(options.target === "run-close" && !options.runStep)
-      && !(options.target === "run-revise" && ["preview", "apply"].includes(options.revisionMode)
-        && !options.runStep && Object.keys(options.stepFields).every(key => key === "evidence"))
-      && !(options.target === 'mcp' && (options.retireCockpit || options.restoreCockpit)
-        && !options.runStep && Object.keys(options.stepFields).every(key => key === 'evidence'))) {
-    throw new Error("--step and step fields are supported only by run-step");
-  }
-  if (options.target === "run-step" && (!options.runId || !options.revisionId || !options.runStep)) {
-    throw new Error("run-step requires --run, --revision and --step");
-  }
-  if (options.target === "run-step" && options.runStep === "artefact"
-      && (!["PRD", "SD", "TP", "QA"].includes(options.gate) || !options.stepFields?.evidence
-        || Object.keys(options.stepFields).some(key => key !== "evidence"))) throw new Error("run-step artefact requires --gate PRD|SD|TP|QA and --evidence <recording-input.json>; other step fields are rejected");
-  if (options.target === "run-update" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
-    throw new Error("run-update requires --run and --revision and rejects --gate and --response");
-  }
-  if (options.target === "run-revise" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
-    throw new Error("run-revise requires --run and --revision and rejects --gate and --response");
-  }
-  if (options.target === "run-revise") {
-    const mode = options.revisionMode;
-    if (!mode && (options.sourceGate !== undefined || options.previewDigest !== undefined)) throw new Error("Late revision requires an explicit mode");
-    if (mode && !["preview", "apply", "inspect", "recover"].includes(mode)) throw new Error("Unsupported source revision mode");
-    if (mode && !options.operationId) throw new Error("Source revision requires --operation");
-    if (["preview", "apply"].includes(mode) && (!["UR", "PRD", "SD", "TP"].includes(options.sourceGate) || !options.stepFields?.evidence)) throw new Error("Source revision preview/apply requires --source-gate and --evidence");
-    if (mode === "apply" && !/^sha256:[a-f0-9]{64}$/u.test(options.previewDigest ?? "")) throw new Error("Source revision apply requires its --preview-digest");
-    if (mode !== "apply" && options.previewDigest !== undefined) throw new Error("--preview-digest requires --apply");
-    if (["inspect", "recover"].includes(mode) && (options.sourceGate !== undefined || Object.keys(options.stepFields ?? {}).length)) throw new Error("Source revision inspect/recover accepts only run, revision and operation identity");
-    if (mode && !options.dirExplicit) throw new Error("Source revision requires an explicit --dir target");
-  }
-  if (options.target === "run-approve" && (!options.runId || !options.gate || !options.revisionId || options.response === undefined)) {
-    throw new Error("run-approve requires --run, --gate, --revision and --response");
-  }
-  if (options.target === "run-render-legacy" && !options.runId) {
-    throw new Error("run-render-legacy requires --run");
-  }
+  if (options.gate || options.response !== undefined || options.runStep || options.recoveryAction || options.recoveryPreviewId
+    || options.recoveryConfirmation || options.closureFile || options.closureOutcome || options.successorRun !== undefined
+    || options.successorReference !== undefined || options.closureConfirmation !== undefined)
+    throw Error('Use the current bound AGDF command group and --command-file for delivery writes.');
+  if (options.revisionId && options.target !== 'skill-dispatch') throw Error('--revision is supported only by skill-dispatch; a bound write takes its revision from the command file.');
+  if (Object.keys(options.stepFields ?? {}).length && !(options.target === 'mcp' && (options.retireCockpit || options.restoreCockpit)
+    && Object.keys(options.stepFields).every(key => key === 'evidence')))
+    throw Error('Delivery sources belong to the bound command file; --evidence is reserved for explicit MCP cockpit retirement/recovery.');
   if (["disable", "uninstall"].includes(options.target) && ["", "generic", undefined].includes(options.surface)) {
     throw new Error(`${options.target} requires an explicit --surface`);
   }
@@ -335,9 +268,7 @@ Options:
   --with-mcp     Install the plugin and explicitly enable AGDF MCP for the selected target.
   --plugin-only  Install or update only the plugin and leave MCP unchanged.
   --control-dir <absolute-repository>
-                 Inspect existing .agdf state separately from host configuration; enables safe migrations.
-  --control-migration <inspect|safe>
-                 Inspect without changes, or migrate eligible unsealed runs in the explicit repository.
+                 Inspect existing project control separately from host configuration; inspection never resets or converts it.
   --force        Overwrite existing generated files
   --language <tag>
                  Set AGDF chat and artefact language. Defaults to detected system locale.
@@ -348,77 +279,8 @@ Options:
   --approval-envelope
                  Preview the current gate artefact; run-present is required before asking for approval
   --run <run_id> Select one canonical run
-  --action <inspect|preview|apply>
-                 run-recovery operation; apply also requires its preview ID and exact recovery confirmation
-  --preview-id <uuid>
-                 Bind run-recovery apply to one stored read-only preview
-  --recovery-confirmation <text>
-                 Exact confirmation printed by run-recovery preview
-  run-close --action <preview|apply>
-                 Close active runs as superseded or abandoned. Preview changes no run and prints the
-                 exact phrase "Close runs: <preview_id>"; apply closes each listed run that is still
-                 active and unchanged, gives each its own receipt and reports every run. A closed run
-                 is final: it rejects every further delivery operation; continuing needs a new run.
-  --closure-file <entries.json>
-                 run-close preview list: {"entries":[{"run_id","outcome","reason","successor_run"|"successor_reference"}]}
-  --outcome <superseded|abandoned>
-                 run-close preview of one --run; --reason is required, superseded needs a successor
-  --successor-run <run_id> | --successor-ref <text>
-                 Existing successor run (verified) or free reference such as a pull request (unverified)
-  --confirmation <text>
-                 The owner's verbatim reply for run-close apply: Close runs: <preview_id>
-  --module <runtime-contract-module>
-                 Runtime-contract module for contract, for example gate-transition
-  --step <ur|route|review|evidence|closeout|artefact>
-                 Standard transition for run-step. artefact --gate PRD|SD|TP|QA --evidence <recording-input.json>;
-                 other step fields: ur --title; route --route
-                 <quick_task|verified_change|structured_slice|structured_delivery|block> --reason
-                 --evidence; review --decision <pass|revise|block> --evidence [--source]; evidence
-                 --evidence [--source --covers]; closeout --result --evidence --risk --next
-  --revision <revision_id>
-                 Expected current run revision for run-update, run-revise, run-present, run-approve and run-step
-  --gate <UR|PRD|SD|TP|QA|UAT>
-                 Gate to present or approve
-  --response <text>
-                 The user's verbatim reply to the presented gate question
-  --target-source ${TASK_TARGET_SOURCE_GRAMMAR}
-                 Classify the semantic source for target-check
-  --primary-target <absolute-path>
-                 Supply exactly one target for target-check; cwd is never implied
-  --working-directory <absolute-path>
-                 Report execution context without granting target authority
-  --skill <skill-id>
-                 Select one canonical skill for skill-dispatch
-  --intake-mode <new|resume>  Explicit new scope or bound intake recovery; requires --intake and --run
-  --ur-action revise  Explicit unapproved UR revision; requires revision-bound resume intake
-  --prd-action revise Explicit unapproved PRD revision; requires revision-bound resume intake
-  --sd-action revise Explicit unapproved SD revision; requires revision-bound resume intake
-  --tp-action revise Explicit unapproved TP revision; requires revision-bound resume intake
-  --continue-delivery  Bound internal continuation; excludes intake and read-only status
-  --preview|--apply|--inspect|--recover
-                 Explicit run-revise mode; no mode keeps the early PRD revision path
-  --source-gate <UR|PRD|SD|TP>
-                 Earliest changed approved source in a reviewed late proposal
-  --preview-digest <sha256>
-                 Exact read-only late revision preview required by --apply
-  --operation <uuid>     Explicit idempotent approval or source revision command identity
-  --assurance <lane>     Only cooperative_local is supported; no independent human proof
-  --presentation <uuid>  Previously prepared run-present binding required for run-approve
-  --intake       Declare the governed delivery intake (delivery.start) for a gate-check skill-dispatch
-  --target-candidate <absolute-path>
-                 Repeat to expose competing plausible targets
-  --evidence-source <value>
-                 Repeat to report non-authorizing evidence sources
-  --target-changed
-                 Mark an explicit replacement of a previously confirmed target
-  --all-active   Evaluate every active run (doctor and delivery-map only)
-  --surface <codex|claude|copilot|opencode|generic>
-                 Declare the selected coding-agent surface
-  --scope <repository|global|project|user>
-                 Select the lifecycle mutation scope. MCP defaults to project.
-  --mcp-scope <project|user>
-                 Select the MCP scope for an explicitly coupled global uninstall.
-  --confirm      Apply a previously previewed global uninstall plan
+  Delivery writes use the fixed agdf-* command group and --command-file.
+  init --operation <original-uuid> preserves an interrupted initialization identity.
   --shared       Apply Copilot repository disable through shared .github/copilot/settings.json
   --runtime-checks <enable|manual|cancel>
                  Make the installation-time automatic-check decision explicitly; no TTY defaults to manual

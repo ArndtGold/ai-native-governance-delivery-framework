@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { extractField } from "../control-evaluation/verified-change.js";
 import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "../resources/artefact-templates.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
@@ -17,7 +18,7 @@ export function prdDefinitionEligible(control, input) {
       || !["done", "not_applicable"].includes(state.artefacts.get("Brownfield Review")?.status)
       || !["structured_delivery", "structured_slice"].includes(state.mode_slice_decision?.decision)) return null;
   if (input.skill_id !== "prd-definition" && !(input.intake || input.continue_delivery)) return null;
-  const artifactPath = `.agdf/control/artefacts/${input.run_id}/PRD.md`;
+  const artifactPath = `${runDocumentPath(input.run_id, '')}/PRD.md`;
   const artefact = state.artefacts.get("PRD");
   const registered = artefact?.status === "draft";
   if (artefact?.status === "approved" || (registered
@@ -32,7 +33,7 @@ export function prdDefinitionPhase(targetDir, control, input, sources) {
   const state = control.status_card.runState;
   const revisionId = extractField(state.content ?? "", "revision_id");
   if (!revisionId) return null;
-  const artifactPath = `.agdf/control/artefacts/${input.run_id}/PRD.md`;
+  const artifactPath = `${runDocumentPath(input.run_id, '')}/PRD.md`;
   const registered = state.artefacts.get("PRD")?.status === "draft";
   return Object.freeze({
     phase: "prd_definition", skill_id: "prd-definition", governance_target: targetDir,

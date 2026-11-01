@@ -177,11 +177,12 @@ nur aus einer belegten Zuordnung zur Person abgeleitet. Fehlt diese, heißt der 
 nennt die tatsächliche nächste Handlung und verwandelt einen geplanten Eintrag nicht in
 einen entscheidungsreifen Run.
 
-Der Hub muss auch Runs ohne Backlog-Eintrag auffindbar machen. Die vorhandene
-Masterbacklog-Projektion wird dafür durch einen gesondert definierten, begrenzten Run-Leseumfang
-ergänzt. Inventar, Suchabdeckung und Aktualisierung müssen zusammenpassen. Wurde nur ein Teil
-gelesen, wird dieser Umfang genannt; „keine Treffer“ darf dann keine vollständige Projektsuche
-behaupten. Dieses Ziel erweitert die heutige, zunächst auf Backlog-Einträge begrenzte Übersicht.
+Der Hub leitet den aktuellen Bestand aus unabhängigen geplanten URs und Runs ab.
+Es gibt keine Masterbacklog-Projektion oder zusätzliche gepflegte Statusdatenbank.
+Inventar, Suchabdeckung und Aktualisierung müssen zusammenpassen. Wurde nur ein
+Teil gelesen, wird dieser Umfang genannt; „keine Treffer“ darf dann keine
+vollständige Projektsuche behaupten. Nicht unterstützte Formate bleiben klar von
+einem bestätigten leeren Bestand getrennt und bieten bewusstes Neuladen.
 
 ### Statuskonflikte und offene Arbeit einordnen
 

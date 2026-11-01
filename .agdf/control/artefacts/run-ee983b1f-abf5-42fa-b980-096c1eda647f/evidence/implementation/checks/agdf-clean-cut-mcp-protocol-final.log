@@ -1,0 +1,7 @@
+npm notice run @agdf/mcp-server@0.20.2 test:protocol
+npm notice run node ./test/defaulted-inputs.test.js && node ./test/protocol.test.js && node ./test/skill-names.test.js && node ./test/tool-errors.test.js && node ./test/doctor-observation.test.js
+Defaulted MCP inputs: both SDK eras, discovery, read/write/replay, invalid config and authority negatives passed.
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+CLI/MCP host skill name parity passed
+MCP error contract: both protocol eras, seven actual owned stdio tool families, typed worker parse, independent error validation, safe faults and bounded fallback passed.
+Owned STDIO doctor: both protocols, absent control plus complete 0/1/10/100 inventories, exact finding parity, foreign/order/mutation failures and invalid-entry accounting passed.

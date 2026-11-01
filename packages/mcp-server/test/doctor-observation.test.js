@@ -83,7 +83,7 @@ try {
   mkdirSync(join(root, '.agdf/control/runs/unsupported'));
   writeFileSync(join(root, '.agdf/control/runs/unsupported/RUN_STATE.md'), '# Unsupported canonical history\n');
   const futurePath = createRun(root, 'future-format');
-  writeFileSync(futurePath, readFileSync(futurePath, 'utf8').replace(/^- control_state_version: \d+$/mu, '- control_state_version: 4'));
+  writeFileSync(futurePath, readFileSync(futurePath, 'utf8').replace(/^- control_state_version: \d+$/mu, '- control_state_version: 5'));
   const invalidReference = evaluateDoctor(root, { allActive: true });
   for (const modern of [false, true]) await withStdioClient({ ...fixture, modern }, async client => {
     let args = base, final, invalid = 0; const findings = [];
@@ -103,7 +103,7 @@ try {
     const report = reply.structuredContent.report;
     assert.equal(report.status, 'block');
     const incompatible = report.findings.find(finding => finding.code === 'AGDF_RUN_VERSION_UNSUPPORTED');
-    assert.equal(incompatible?.classification, 'unsupported_version'); assert.equal(incompatible.actual_version, '4');
+    assert.equal(incompatible?.classification, 'unsupported_version'); assert.equal(incompatible.actual_version, '5');
     assert.equal(incompatible.path, futurePath); assert.match(incompatible.next_step, /compatible reader/iu);
   });
   console.log('Owned STDIO doctor: both protocols, absent control plus complete 0/1/10/100 inventories, exact finding parity, foreign/order/mutation failures and invalid-entry accounting passed.');

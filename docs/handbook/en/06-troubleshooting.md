@@ -133,24 +133,11 @@ The canonical mutable run file is:
 .agdf/control/runs/<run_id>/RUN_STATE.md
 ```
 
-An older `.agdf/control/AGDF_RUN.md` may be migration input or an explicitly generated
-non-authoritative projection. It is not a second mutable owner.
-
-Do not delete or overwrite legacy files based on an assumption. First inspect the selected run:
-
-```bash
-agdf doctor --run payment-limit-fix --json
-agdf gate-check --run payment-limit-fix --json
-```
-
-If the diagnosis requires a migration, run it explicitly for the same run ID:
-
-```bash
-agdf run-migrate --run payment-limit-fix
-```
-
-Replace `payment-limit-fix` with the affected run ID. Read-only commands such as `doctor` and
-`gate-check` do not migrate the state automatically.
+Only the explicit `run-folders-v1` layout and Run version 4 are supported.
+Unsupported layouts, versions and old records remain unchanged. There is no migration,
+conversion, reset or legacy projection. Preserve those files and select a fresh current
+target for new work. Inspect the selected current Run with `doctor --run <run_id> --json`
+and `gate-check --run <run_id> --json`. These commands do not repair or approve anything.
 
 ## The agent reports `revise` or `block`
 

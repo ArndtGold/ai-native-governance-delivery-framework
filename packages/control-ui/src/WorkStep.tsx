@@ -36,8 +36,8 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
   const reportCount = data.work_summary?.open_obligation_count ?? 0;
   const reportSources = sources.filter(r => data.work_summary?.sources.some(s => s.path === r.path));
   return <section className={`work-step agdf-surface agdf-controlled-surface${compact ? ' work-step--compact' : ' panel'}${condensed ? ' work-step--condensed' : ''}`} aria-label={current ? 'So geht dein Vorhaben weiter' : 'Zuletzt beobachteter Arbeitsschritt'}>
-    <div className="work-step-heading"><span className="work-step-eyebrow">Gespeicherter Arbeitsstand</span><h2>{phaseName(data.persisted?.current_gate ?? e.current_gate)}</h2></div>
-    <p className="work-step-saved">{data.persisted ? <>Zuletzt als „{label(data.persisted.decision)}“ gespeichert.</> : 'Gespeicherte Entscheidung nicht verfügbar.'}</p>
+    <div className="work-step-heading"><span className="work-step-eyebrow">Aus dem Run abgeleiteter Arbeitsstand</span><h2>{phaseName(data.persisted?.current_gate ?? e.current_gate)}</h2></div>
+    <p className="work-step-saved">{data.persisted ? <>Aktuell als „{label(data.persisted.decision)}“ eingeordnet.</> : 'Aktuelle Einordnung nicht verfügbar.'}</p>
     <div className="work-step-prerequisites" data-assessment={assessment}>
       <h3>{title}</h3><p>{explanation}</p>
       {assessment === 'open' && <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>}

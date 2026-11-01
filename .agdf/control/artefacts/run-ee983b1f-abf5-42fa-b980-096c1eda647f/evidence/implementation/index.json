@@ -1,0 +1,595 @@
+{
+  "schema_version": "1",
+  "run_id": "run-ee983b1f-abf5-42fa-b980-096c1eda647f",
+  "baseline": "c204ab67f3ab212238bfd9ad81de4ddbecacece8",
+  "groups": {
+    "C-INIT": [
+      {
+        "path": "checks/agdf-clean-cut-final-initialization.log",
+        "sha256": "1e64313f6fb80b709e80ddae1feb4a445f295f024b5333284c869c62e53ec51c",
+        "bytes": 14147
+      },
+      {
+        "path": "checks/agdf-clean-cut-control-doctor.log",
+        "sha256": "bfa2ad624dc259be9aca27fc1017f2eac6b0d96ef6dc7f42e08f0e4cb02912d9",
+        "bytes": 5088
+      }
+    ],
+    "C-STATE": [
+      {
+        "path": "checks/agdf-clean-cut-current-structure.log",
+        "sha256": "389cdf70c6fc4136525602230de121e6a6d172b56232266a77d9baf3d9e8a133",
+        "bytes": 11209
+      },
+      {
+        "path": "checks/agdf-clean-cut-current-suite.log",
+        "sha256": "e9f33db9b06e9445b1b85e4d1799c5b4557eefd83a81d53f3dfa97338b55757d",
+        "bytes": 17339
+      },
+      {
+        "path": "checks/agdf-clean-cut-planned-inventory-closed.log",
+        "sha256": "18d0b182bf997581a51f726ddf35a057b217d024d2a7e082497adca727a3f907",
+        "bytes": 860
+      },
+      {
+        "path": "checks/agdf-clean-cut-inventory-next.log",
+        "sha256": "95fdb7dcb3c1476816010e7908263475015cbc99e7b68af38da0daaf7f73b66e",
+        "bytes": 165
+      },
+      {
+        "path": "checks/agdf-clean-cut-parent-current.log",
+        "sha256": "cd5f5840fe074534c41a68be46ccca5557f4059adebca0c63997e023564eed33",
+        "bytes": 40
+      },
+      {
+        "path": "checks/agdf-clean-cut-assignment-current.log",
+        "sha256": "81e7fea6e139785bc77a4c2b2e0695c386f35e38353b2f59be70692016824a52",
+        "bytes": 156
+      }
+    ],
+    "C-PLAN": [
+      {
+        "path": "checks/agdf-clean-cut-planned-read-boundary.log",
+        "sha256": "6d9b029ab2dc315c3832e65b18221d4b5fa910e9d0f760788092df7a95228262",
+        "bytes": 1510
+      },
+      {
+        "path": "checks/agdf-clean-cut-final-read-errors.log",
+        "sha256": "38164a243047da2b127ca376772a9922528b909a160aad65f08d33656086c894",
+        "bytes": 1769
+      },
+      {
+        "path": "checks/agdf-clean-cut-mcp-planning-recovery.log",
+        "sha256": "83e06a03adffe494973a02d0327a3b7f8db246cde24fdb4d2521902436189eb5",
+        "bytes": 741
+      },
+      {
+        "path": "checks/agdf-clean-cut-intake-concurrency-closed.log",
+        "sha256": "c28d7479b402c3c45339bd56e740ff831fc920bb98d0f7c91d98c859cb23ff62",
+        "bytes": 180
+      }
+    ],
+    "C-TXN": [
+      {
+        "path": "checks/agdf-clean-cut-transactions.log",
+        "sha256": "a897a1e6693cbfe21f0a70d6502883fecc95600d34ffdb3da5f70551b2df695e",
+        "bytes": 1792
+      },
+      {
+        "path": "checks/agdf-clean-cut-approval-recovery.log",
+        "sha256": "796d4a9a414a8ca7bc2762116ce9e0e41b2b9b1d8b3325bb7d6078775ad83a6b",
+        "bytes": 223
+      },
+      {
+        "path": "checks/agdf-clean-cut-public-api-current-final.log",
+        "sha256": "c5023f8b9144880b54e71ec090d25e41859c787e9b9f09dac91b0457a02ad1f7",
+        "bytes": 3567
+      }
+    ],
+    "C-PROCESS": [
+      {
+        "path": "checks/agdf-clean-cut-public-api-process-qualified.log",
+        "sha256": "4818a719fbbcc1243ab1124dba3c3e46586e876227d8eed2a2c3599d5e8641e9",
+        "bytes": 57765
+      },
+      {
+        "path": "checks/agdf-clean-cut-closure-current.log",
+        "sha256": "1ee13985c877f6de40d3645edbdfbbbc158d68ab10518a399ac548aed62f6f9d",
+        "bytes": 2222
+      },
+      {
+        "path": "checks/agdf-clean-cut-run-close-cli.log",
+        "sha256": "670aeddd20dfbce15bc34bfb3ed7e13a8e86eb855322e6307eae964c21edc89b",
+        "bytes": 422
+      }
+    ],
+    "C-DECISION": [
+      {
+        "path": "checks/agdf-clean-cut-command-flow-final.log",
+        "sha256": "b5f2730cdbb35bf2d75262cc4fdf08d9f6758517db182ee085805a618c2b861d",
+        "bytes": 22022
+      },
+      {
+        "path": "checks/agdf-clean-cut-approval-chain-next.log",
+        "sha256": "bbec50d1ebf1160110602e97b63c68b7f2b281ef4c2c9abd087ec57a83bb9d7e",
+        "bytes": 57
+      },
+      {
+        "path": "checks/agdf-clean-cut-preview-presentation-next2.log",
+        "sha256": "72a3fe35a1f3444d3d5e5d3fd4f9495cd758782868a837bbc7635cf875383ece",
+        "bytes": 347
+      },
+      {
+        "path": "checks/agdf-clean-cut-preview-session-next4.log",
+        "sha256": "fca85340f1ba4cf223dad4d310ae9e24456a4f4ebcc2e8bf6672894e8dc795c0",
+        "bytes": 148
+      },
+      {
+        "path": "checks/agdf-clean-cut-cli-gates-current.log",
+        "sha256": "909e109036c02e9d6e81ef203305703baec094e6cd73efdbd4666d5ce59edae2",
+        "bytes": 144
+      }
+    ],
+    "C-REVISION": [
+      {
+        "path": "checks/agdf-clean-cut-source-round10.log",
+        "sha256": "0f1372d89f1001c6ccbc828c3243ca8384e7e9b42e3f3a428880c26f4a2f57ad",
+        "bytes": 270
+      },
+      {
+        "path": "checks/agdf-clean-cut-early-ur-round7.log",
+        "sha256": "cef5aa6d6a7f09374ee0707d0d1e40a8c65da43b52bf39db88ced86ac00a0a26",
+        "bytes": 1981
+      },
+      {
+        "path": "checks/agdf-clean-cut-early-prd.log",
+        "sha256": "3ae0cb9e3b0bb9bccf17c4bb6f6c5f5279be116015d79a9ee9501de6958c723b",
+        "bytes": 158
+      },
+      {
+        "path": "checks/agdf-clean-cut-command-revision.log",
+        "sha256": "e8d37967cab02b825ea4b7310f4ab538f116415f159720aba06866f60f008ff1",
+        "bytes": 144
+      },
+      {
+        "path": "checks/agdf-clean-cut-expanded-revision.log",
+        "sha256": "6887eed1f2aeebdac0a3c310ebf43713d6a90c131d3f84681cb9f72dc74b81bf",
+        "bytes": 232
+      }
+    ],
+    "C-COCKPIT": [
+      {
+        "path": "checks/agdf-clean-cut-cockpit-all-final.log",
+        "sha256": "bbb6ffa09409f8294b61eb3c7a10e126bab0b0ac751c2e6325825c7954da27a6",
+        "bytes": 22015
+      }
+    ],
+    "C-UI": [
+      {
+        "path": "checks/agdf-clean-cut-ui-tests-allowed.log",
+        "sha256": "b2a4bb2da2ceab9991015201127c28bb63739e5bb5269c74be94682cf7d97ec4",
+        "bytes": 3001
+      },
+      {
+        "path": "checks/agdf-clean-cut-ui-typecheck-final.log",
+        "sha256": "c00dbcc3f47bf332450b1ed6d7a70be30ba769903f01daa91b2b0d78174a871b",
+        "bytes": 75
+      },
+      {
+        "path": "checks/agdf-clean-cut-browser.log",
+        "sha256": "290def8abad9804264cbb40432a71744ff2a42593efad95fc549435b512f0269",
+        "bytes": 2452
+      }
+    ],
+    "C-MCP": [
+      {
+        "path": "checks/agdf-clean-cut-mcp-protocol-final.log",
+        "sha256": "aaab85588f6c7cdc1190e5ad181c600a0b1c64b2567f93277ef46b02c4ecb997",
+        "bytes": 835
+      },
+      {
+        "path": "checks/agdf-clean-cut-provenance-final.log",
+        "sha256": "2f9bd9631dfb5295cb0cdfb9423a954b57ff4099736c08d8e49c907b3a769fe6",
+        "bytes": 348
+      },
+      {
+        "path": "checks/agdf-clean-cut-generation-evidence-final.log",
+        "sha256": "1f49036b6ff02e3c501d93f854e15952b6f56bbfa7ad15eba5a95e84868e4414",
+        "bytes": 2011
+      },
+      {
+        "path": "checks/agdf-clean-cut-mcp-flow-final.log",
+        "sha256": "cfd122a0595279ec96d2a4a72b31c2fa20e12da20e86ced44f7c5ba947dc86f5",
+        "bytes": 20931
+      },
+      {
+        "path": "checks/agdf-clean-cut-mcp-project-final.log",
+        "sha256": "146c1d57829f80638a7468b714cb537c385c849460d30c1f8dc54d75ad48a702",
+        "bytes": 141
+      },
+      {
+        "path": "checks/agdf-clean-cut-mcp-contract-qualified.log",
+        "sha256": "002a74a4161f9fe04d58b5ab6b4a87ebe1fcc6c1da94c276eee0ccde92813e3a",
+        "bytes": 428
+      }
+    ],
+    "C-SURFACE": [
+      {
+        "path": "checks/agdf-clean-cut-localization-final.log",
+        "sha256": "4ea1eb21105dd543808782cef6cac83e7ed87977c6be4cd3bb7a20552d05ecae",
+        "bytes": 38
+      },
+      {
+        "path": "checks/agdf-clean-cut-bounded-adapters-qualified.log",
+        "sha256": "318f909b4dd8b0a87fe48375ee5bdf6480f94c4a84b51d8e4c50e26ff74075fb",
+        "bytes": 2121
+      },
+      {
+        "path": "checks/agdf-clean-cut-bounded-remaining.log",
+        "sha256": "8a98d9e3f7c21e562b114c2e41cbcd598befa9b5b13d93270154b0e92887c9d3",
+        "bytes": 738
+      },
+      {
+        "path": "checks/agdf-clean-cut-prd-closed.log",
+        "sha256": "a849b6522ed27b3193d00921a9d5495c54bec358338f9e68287fc910c5c85532",
+        "bytes": 152
+      },
+      {
+        "path": "checks/agdf-clean-cut-sd-final-proof.log",
+        "sha256": "393d4b59f85d32744864476e82bf9e5aa2e9b8b9718d91cf4414302dddb783fe",
+        "bytes": 98
+      },
+      {
+        "path": "checks/agdf-clean-cut-tp-completed.log",
+        "sha256": "da97449f57e3ec46354bc92877f267e91a2317d19de61141c0ee02388e241658",
+        "bytes": 107
+      },
+      {
+        "path": "checks/agdf-clean-cut-artifact-language-next2.log",
+        "sha256": "f1c4160f28fc6d1f57f8872b65774f1a5214ef281f91d9c8dae2937a4dc68b0b",
+        "bytes": 113
+      },
+      {
+        "path": "checks/agdf-clean-cut-modularization-next9.log",
+        "sha256": "d352854f752de9931b8f24cdfe9efba40a61bbf8933b576a56e648a181ee284a",
+        "bytes": 32
+      },
+      {
+        "path": "checks/agdf-clean-cut-core-boundaries-final.log",
+        "sha256": "0583d18df2e9eb818bd45079510c3461547e1f83ca3da023e0a7bc1620c0e6a7",
+        "bytes": 299
+      }
+    ],
+    "C-PACK": [
+      {
+        "path": "checks/agdf-clean-cut-build-read-fixed.log",
+        "sha256": "428107fde57fa7dae576dabeb80a313044506bf00c8622ea9abb3955e3f74d4f",
+        "bytes": 3507
+      },
+      {
+        "path": "checks/agdf-clean-cut-pack-read-fixed.log",
+        "sha256": "81c3ba2ed69cad87832061e2b8395d1b870967762e0eaa8e9acede29426cf9ab",
+        "bytes": 229759
+      },
+      {
+        "path": "checks/agdf-clean-cut-sdk-restored-final.log",
+        "sha256": "a9c2ad8880a96fa6b42491b781ac391d5f4376945bb83beb333bc5fc053fae84",
+        "bytes": 140
+      },
+      {
+        "path": "checks/agdf-clean-cut-sdk-digest-final.log",
+        "sha256": "ff1ec3daec471eaca9c33fe8290e369905aed2ee682b4b2179d481a578b13855",
+        "bytes": 129
+      },
+      {
+        "path": "checks/agdf-clean-cut-payload-restored.log",
+        "sha256": "e94dd11c5922a481583b7f930f32a2dccee4da9c29b8839afd462cc441d10b41",
+        "bytes": 83
+      },
+      {
+        "path": "checks/agdf-clean-cut-package-integrity-closed.log",
+        "sha256": "d99964fde31c7d709c9fc5b4e1b8655fb2bfd663cdad6afbd6c4bcb2606600c2",
+        "bytes": 301
+      },
+      {
+        "path": "checks/agdf-clean-cut-packed-api-final.log",
+        "sha256": "3dc10fe12cd56de2739f604f3d0580025fabcfdda767955129b0547f1a001019",
+        "bytes": 18888
+      },
+      {
+        "path": "checks/agdf-clean-cut-archives-candidate.log",
+        "sha256": "8ed602a462d9c2d2e297cf352a0987366a861a296ec99997298fc6e70a47777a",
+        "bytes": 134
+      }
+    ],
+    "C-COMPAT": [
+      {
+        "path": "checks/agdf-clean-cut-compatibility-current.log",
+        "sha256": "165500ba85163ed133579ec2b17a6d0502691c1a2780c9ec91ad6fcdedcf70fc",
+        "bytes": 2281
+      },
+      {
+        "path": "checks/agdf-clean-cut-compatibility-read-fixed.log",
+        "sha256": "5f428b37b781b0269f36ee67d002b404d54aad5f8a10c23497d6400cd5e2acd4",
+        "bytes": 174
+      }
+    ],
+    "C-EVAL": [
+      {
+        "path": "checks/agdf-clean-cut-evals-qualified.log",
+        "sha256": "45c5546bf2158f683a89c628bc1adf5a1d174463044759d92f6663df8da4c001",
+        "bytes": 202
+      }
+    ],
+    "C-TIMING": [
+      {
+        "path": "checks/agdf-clean-cut-performance-complete.log",
+        "sha256": "f328be24c6030b7a704cf14c96d94abd43a4b278d48c4b9a57cbbc20f902146e",
+        "bytes": 5376
+      }
+    ],
+    "C-NATIVE-harness": [
+      {
+        "path": "checks/agdf-clean-cut-native-wrapper-array.log",
+        "sha256": "5425ecff9fc85ad7f822b4bb4beefc22d65ea960d8afae0f1338dc6143f46818",
+        "bytes": 1957
+      },
+      {
+        "path": "checks/agdf-clean-cut-native-document-proof.log",
+        "sha256": "5e63bfa61c10a2c3f2411475af2d309b99e9c8c10f6274b010a044c55e9e026d",
+        "bytes": 394
+      },
+      {
+        "path": "checks/agdf-clean-cut-native-runner-quiescent.log",
+        "sha256": "42babd3d50c46ef870d8c7974478e59f45a99f1457b8f9ad087961be26ff6fcd",
+        "bytes": 390
+      },
+      {
+        "path": "checks/agdf-clean-cut-native-repeat-wrapper-audit.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ]
+  },
+  "retained_initial_failures": [
+    {
+      "path": "checks/agdf-clean-cut-compatibility-read-fix.log",
+      "sha256": "66a4181e501054cfabe25734f2b5d68ea6f659574ad4e08a640cc36294753e55",
+      "result": "failed; never superseded as an execution result"
+    },
+    {
+      "path": "checks/agdf-clean-cut-native-runner-regression.log",
+      "sha256": "c1ddc8c4f42feca600987eb9541bbac03a2f2c6c3abca673b6cbde3a73e78bf5",
+      "result": "failed; never superseded as an execution result"
+    },
+    {
+      "path": "checks/agdf-clean-cut-control-state.log",
+      "sha256": "e5917f3d9b7311ad587472ef25b7bffd9fc1e411de3db68a0692a6a3ee6f5026",
+      "result": "failed; never superseded as an execution result"
+    },
+    {
+      "path": "checks/agdf-clean-cut-artefact-recording.log",
+      "sha256": "dcff205f387c6df717bc49b8c9222d2c64921eec760deda16c8efba817d81e53",
+      "result": "failed; never superseded as an execution result"
+    }
+  ],
+  "missing": [],
+  "native": [
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-hjar6R",
+      "observation": "native/codex-run-model-2026-11-01T15-53-48-193Z-1/observation.json",
+      "observation_sha256": "7593a3fa1c7b385628b33ec8c763743f01707ca5f995eb0035cfbfcc50f4353f",
+      "complete": false,
+      "preflight_only": false,
+      "session_invocations": 0,
+      "model_invocations": 0,
+      "raw_trace_provenance": []
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-qsiXEZ",
+      "observation": "native/codex-run-model-2026-11-01T16-02-26-926Z-1/observation.json",
+      "observation_sha256": "5b2be6734b38aff0bc4389cdcec87706c9918ff199d72aad46283f71a0062808",
+      "complete": false,
+      "preflight_only": true,
+      "session_invocations": 0,
+      "model_invocations": 0,
+      "raw_trace_provenance": []
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-qsiXEZ",
+      "observation": "native/codex-run-model-2026-11-01T16-06-44-010Z-1/observation.json",
+      "observation_sha256": "753d5d911a5405cb7b5decbf0a7edb14557819c587dcec348a2c1ec14077a628",
+      "complete": false,
+      "preflight_only": false,
+      "session_invocations": 1,
+      "model_invocations": 0,
+      "raw_trace_provenance": [
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-qsiXEZ/probe-results/codex-run-model-2026-11-01T16-06-44-010Z-1/events.jsonl",
+          "sha256": "c3ffa7f1ab3563f9e8cc0d1e3c26642363c1c34808025ec747238f62a23b2879",
+          "bytes": 637791,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        },
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-qsiXEZ/probe-results/codex-run-model-2026-11-01T16-06-44-010Z-1/rollouts.jsonl",
+          "sha256": "e811e9071a698bd9b959ff7e27e757582bf1ea7426e1b55e74b7ed3668b12b83",
+          "bytes": 1029622,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        }
+      ]
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-Fp8QjT",
+      "observation": "native/codex-run-model-2026-11-01T16-16-10-401Z-1/observation.json",
+      "observation_sha256": "7ff4b31e338f15e60596077dd19b6e31070f0df9c870870cad0ddaa6c403e2fb",
+      "complete": false,
+      "preflight_only": true,
+      "session_invocations": 0,
+      "model_invocations": 0,
+      "raw_trace_provenance": []
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-Fp8QjT",
+      "observation": "native/codex-run-model-2026-11-01T16-16-34-255Z-1/observation.json",
+      "observation_sha256": "9bdf955b5a10fd2d86558f077722291070c574d14b894dce7b3176fb08b48f90",
+      "complete": false,
+      "preflight_only": false,
+      "session_invocations": 1,
+      "model_invocations": 0,
+      "raw_trace_provenance": [
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-Fp8QjT/probe-results/codex-run-model-2026-11-01T16-16-34-255Z-1/events.jsonl",
+          "sha256": "717d2d88067f3e9d2699b48504fb9f5e5ced5bdbb40202c59192822f7197adf9",
+          "bytes": 734027,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        },
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-Fp8QjT/probe-results/codex-run-model-2026-11-01T16-16-34-255Z-1/rollouts.jsonl",
+          "sha256": "27f6b1983d6c82257ef8f03f435d753996c75f818446cd9f51f16c4f692510bf",
+          "bytes": 1150112,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        }
+      ]
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-fC04cv",
+      "observation": "native/codex-run-model-2026-11-01T16-23-54-905Z-1/observation.json",
+      "observation_sha256": "03e896620ba85f2b57a5170ab167beac0882f808b9df64e77a3d9ebdea2be493",
+      "complete": false,
+      "preflight_only": true,
+      "session_invocations": 0,
+      "model_invocations": 0,
+      "raw_trace_provenance": []
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-fC04cv",
+      "observation": "native/codex-run-model-2026-11-01T16-24-24-527Z-1/observation.json",
+      "observation_sha256": "0d3a585fb1c781d6adc2cc83d7e59633a5e58f0e8d3a17c7b2dc9b977a69b261",
+      "complete": false,
+      "preflight_only": false,
+      "session_invocations": 1,
+      "model_invocations": 0,
+      "raw_trace_provenance": [
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-fC04cv/probe-results/codex-run-model-2026-11-01T16-24-24-527Z-1/events.jsonl",
+          "sha256": "d835982b239a1378b7d27cb74b7d681ad1ea02dbe42e5bcaff20982229909796",
+          "bytes": 295758,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        },
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-fC04cv/probe-results/codex-run-model-2026-11-01T16-24-24-527Z-1/rollouts.jsonl",
+          "sha256": "c1b29c67173645adda5b9612405f025c544c5d6f15800104befd9b47ba7c17c6",
+          "bytes": 486419,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        }
+      ]
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-fC04cv",
+      "observation": "native/codex-run-model-2026-11-01T16-25-20-996Z-2/observation.json",
+      "observation_sha256": "2ef0238d8691a3561036873ba6b0be30d1b00a1d16a97447e65ac38353f87bea",
+      "complete": true,
+      "preflight_only": false,
+      "session_invocations": 1,
+      "model_invocations": 0,
+      "raw_trace_provenance": [
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-fC04cv/probe-results/codex-run-model-2026-11-01T16-25-20-996Z-2/events.jsonl",
+          "sha256": "fc63d62e56b3f5aa3c0a534413efee4571d8330db5fd1927f374741173df4f02",
+          "bytes": 660107,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        },
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-fC04cv/probe-results/codex-run-model-2026-11-01T16-25-20-996Z-2/rollouts.jsonl",
+          "sha256": "d1a779b8c3c9acfa8e7e4fa6808bcbb47d79211cb16be618ed8c0debe4c385aa",
+          "bytes": 1130742,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        }
+      ]
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-g2HXxI",
+      "observation": "native/codex-run-model-2026-11-01T17-08-10-753Z-1/observation.json",
+      "observation_sha256": "a16a4f55eb389aa4bc17675856868949717b944719adca0272fd75ac50b903f0",
+      "complete": false,
+      "preflight_only": true,
+      "session_invocations": 0,
+      "model_invocations": 0,
+      "raw_trace_provenance": []
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-g2HXxI",
+      "observation": "native/codex-run-model-2026-11-01T17-08-43-192Z-1/observation.json",
+      "observation_sha256": "6637d21726d259e9dc8e82425943cfd5f947ffacf379fad245d5d3accdf45a63",
+      "complete": true,
+      "preflight_only": false,
+      "session_invocations": 1,
+      "model_invocations": 0,
+      "raw_trace_provenance": [
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-g2HXxI/probe-results/codex-run-model-2026-11-01T17-08-43-192Z-1/events.jsonl",
+          "sha256": "a71f2147992f180f05b584c5df9a9de057b6ac21c1bd55409cca75c5fa75590e",
+          "bytes": 644464,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        },
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-g2HXxI/probe-results/codex-run-model-2026-11-01T17-08-43-192Z-1/rollouts.jsonl",
+          "sha256": "06ffd2d926c536b0677ff02cbbafe2a81b96b3b7d245af133af4271bc94445c1",
+          "bytes": 1039140,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        }
+      ]
+    },
+    {
+      "candidate": "/private/tmp/agdf-clean-cut-native-g2HXxI",
+      "observation": "native/codex-run-model-2026-11-01T17-10-47-778Z-2/observation.json",
+      "observation_sha256": "68a87b543b86b43d15206a0af271218f3187d717b0474d2d5267d8dedfc3e8a7",
+      "complete": true,
+      "preflight_only": false,
+      "session_invocations": 1,
+      "model_invocations": 0,
+      "raw_trace_provenance": [
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-g2HXxI/probe-results/codex-run-model-2026-11-01T17-10-47-778Z-2/events.jsonl",
+          "sha256": "091bfa7d0ea7b9f1107e46a069dc9b824d6f5f1fe8caec1a74308476c44de700",
+          "bytes": 773365,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        },
+        {
+          "path": "/private/tmp/agdf-clean-cut-native-g2HXxI/probe-results/codex-run-model-2026-11-01T17-10-47-778Z-2/rollouts.jsonl",
+          "sha256": "ae3f33115e1d006a043ff7bc0c233b6d98c1d015fe9730b95773f1d854d3c2f3",
+          "bytes": 1169585,
+          "retention": "outside repository; raw prompts/reasoning excluded from bundle"
+        }
+      ]
+    }
+  ],
+  "final_candidate": {
+    "path": "/private/tmp/agdf-clean-cut-native-g2HXxI",
+    "manifest_digest": "d0e4ea358b6e174acd0d81b38b72d35095312aff42a9f0b58e30255078c4860e",
+    "files": 7169,
+    "final_cohort": "2/2 complete",
+    "total_actual_sessions": 6,
+    "all_actual_outcomes": {
+      "complete": 3,
+      "failed": 3
+    }
+  },
+  "archives": [
+    {
+      "path": "dist/tarballs/agdf-cli-0.20.2.tgz",
+      "sha256": "c77cb01ffd47c7b78cb658c895f165524cdf1f7fea8d3676aecb8e838aa58d88",
+      "bytes": 9177
+    },
+    {
+      "path": "dist/tarballs/agdf-mcp-server-0.20.2.tgz",
+      "sha256": "78f836ea73ced912b616d503c541f1636711a6e5b74dd497bf1a21c9aef581c9",
+      "bytes": 872443
+    },
+    {
+      "path": "dist/tarballs/create-agdf-0.20.2.tgz",
+      "sha256": "88f2f7c419c970f46198bae5a3d13e12a7d208d7686932c5313f221d619496c6",
+      "bytes": 3350089
+    }
+  ]
+}

@@ -1,13 +1,13 @@
+import { boundMutatePlannedUr as mutatePlannedUr, boundCreateRunFromPlanned as createRunFromPlanned } from './planned-fixtures.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
-import { writeFileSync, mkdirSync, readdirSync, symlinkSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readdirSync, rmSync, symlinkSync } from 'node:fs';
 import { symlinkOrSkip } from './control-cockpit-fixtures.js';
 import { join } from 'node:path';
 import { plannedFixture, clarifiedUr } from './planned-fixtures.js';
-import { mutatePlannedUr, plannedTextDigest } from '../lib/control-state/planned-entry.js';
+import { plannedTextDigest } from '../lib/control-state/planned-entry.js';
 import { readPlannedInventory, readWorkInventory } from '../lib/control-state/planned-inventory.js';
-import { createRunFromPlanned } from '../lib/control-state/planned-handoff.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 
 function planned(root, title, priority = 'normal') {
@@ -41,9 +41,10 @@ test('SCN-011: malformed or denied entry is partial; valid entries and Runs rema
   assert.equal(inventory.entries.filter(row => row.coverage === 'unavailable').length, linked ? 2 : 1);
   assert.ok(inventory.entries.some(row => row.run_id === 'existing'));
 });
-test('SCN-011: absence is distinct from an unreadable planned store', t => {
+test('SCN-011: an empty planned store is distinct from an unreadable store', t => {
   const root = plannedFixture(t, []);
-  assert.equal(readPlannedInventory(root).state, 'absent');
+  assert.equal(readPlannedInventory(root).state, 'complete');
+  rmSync(join(root, '.agdf/control/planned'), { recursive: true });
   writeFileSync(join(root, '.agdf/control/planned'), 'not a directory');
   assert.equal(readPlannedInventory(root).state, 'unavailable');
 });

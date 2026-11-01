@@ -108,7 +108,9 @@ async function buildWorker(packageRoot) {
   const bundle = await rolldown({ cwd: packageRoot, input: output, platform: 'node', plugins: [sourceIdentity, capture] });
   let generated;
   try { generated = await bundle.generate({ file: output, format: 'esm', codeSplitting: false,
-    minify: { compress: false, mangle: false }, sourcemap: false }); } finally { await bundle.close(); }
+    // Reduce the executable image and parser work, without property mangling or
+    // changing observable function/class names at the original module boundary.
+    minify: true, keepNames: true, sourcemap: false }); } finally { await bundle.close(); }
   if (generated.output.length !== 1 || generated.output[0].type !== 'chunk') throw Error('AGDF_WORKER_BUILD_CHUNK_INVALID');
   const code = header + generated.output[0].code;
   if (code.includes(slash(repository)) || code.includes(slash(packageRoot))) throw Error('AGDF_WORKER_BUILD_ABSOLUTE_PATH');

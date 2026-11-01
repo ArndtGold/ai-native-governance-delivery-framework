@@ -282,16 +282,17 @@ none
     assert.equal(child.status, 71, child.stderr.toString());
     if (!beforeIntent(stage) && stage !== 'retired') {
       const pending = readPendingRunStepJournal(root, f.runId);
+      assert.equal(pending.schema_version, layout === 'master-backlog-v1' ? 3 : 6);
+      if (layout === 'planned-urs-v1') assert.equal(Object.hasOwn(pending, 'backlog'), false);
       // Synthetic old-writer fixture, retaining actual v3 receipt and output ownership.
-      if (stage === 'run_after_rename') {
-        assert.equal(pending.schema_version, 3);
+      if (layout === 'master-backlog-v1' && stage === 'run_after_rename') {
         writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), '# Captured legacy v3 old\n');
         pending.backlog = { old: '# Captured legacy v3 old\n', next: '# Captured legacy v3 next\n' };
         writeFileSync(join(root, '.agdf/control/runs', f.runId, 'RUN_STEP_PENDING.json'), JSON.stringify(pending));
       }
       const recovered = service('agdf_closeout', { ...request, expected_revision_id: f.revision(), command: { kind: 'operation.recover', payload: { original_kind: 'closeout.record', pending_digest: digest(canonicalJson(pending)), recovery_revision_id: f.revision() } } });
       assert.equal(recovered.outcome, 'accepted', JSON.stringify(recovered));
-      if (stage === 'run_after_rename') assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8'), '# Captured legacy v3 next\n');
+      if (layout === 'master-backlog-v1' && stage === 'run_after_rename') assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8'), '# Captured legacy v3 next\n');
     }
     assert.equal(runSealState(root, readFileSync(f.state, 'utf8')).status, 'valid');
     if (beforeRunCommit(stage)) assert.equal(readFileSync(f.state, 'utf8'), original, stage);

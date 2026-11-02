@@ -299,3 +299,33 @@ Die geänderte Dauertest-Fixture bestand lokal mit zehn Zyklen, 270 Archivdateie
 null Historienzugriffen beim fremden Run und echtem Prozesswettbewerb mit genau einem
 Schreibeffekt. Die 14 Planner-Tests bleiben grün. Alle Zeitgrenzen bleiben bestehen;
 die neue Windows-Ausführung muss im folgenden CI-Lauf am neuen SHA bestätigt werden.
+
+## Integration nach Merge von PR #51 (2026-11-02)
+
+PR #51 wurde als `945cd87f3120eca16336c3609767dc5727c28237` nach `main`
+übernommen. PR #52 wird deshalb auf `main` umgestellt und dieser Commit in einem
+isolierten Checkout in den Archiv-Branch integriert. Die bestehende Arbeitskopie
+einschließlich fremder unversionierter Dateien bleibt unverändert.
+
+Konflikte betreffen ausschließlich `docs/compatibility/HOST_COMPATIBILITY.md`,
+`evidence/facts.json` und `evidence/snapshot.json`. Produktquellen und Archiv-Feature
+werden automatisch zusammengeführt und bleiben gegenüber `a52ee723` bytegleich.
+Die drei vorhandenen Archiv-Nachweise werden gemeinsam erhalten: Der kanonische
+Checker bestätigt nach vollständiger Payload-Generierung 56/56 gebundene Fälle,
+keine Fehler und den unveränderten Source-Fingerprint
+`41f627288207d40ee8337d245ebf71f837bb4b982c7d894bd5be9ac603127456`.
+Es werden weder Nachweisfelder manuell angepasst noch native Beobachtungen neu
+aufgezeichnet. Der eigenständige Nachweis von PR #51 bleibt zusätzlich erhalten.
+
+Frischer Lockfile-Checkout: `npm run build:prepare`, separater Cockpit-Build,
+14/14 Archivimport-Tests einschließlich echtem MCP-/HTTP-Zugriff, 20/20 ausgewählte
+Core-Cockpit-Tests, 8/8 HTTP-Regressionsfälle und 29/29 UI-Fälle für Archiv,
+Arbeitsmodell und kompakte Ansicht bestanden. Der erste Archiv-/HTTP-Versuch
+benötigte noch Loopback-Berechtigung beziehungsweise den separaten Cockpit-Build;
+nach Herstellung dieser Voraussetzungen bestanden die unveränderten Prüfungen.
+`node scripts/host-compatibility/run.mjs check` bestand am integrierten Stand.
+
+Direkte Konfliktwartung ohne AGDF auf ausdrücklichen Maintainerauftrag; kein neuer
+Run, keine geerbte Freigabe. Kein lokaler Volltest, keine Installation und keine
+neue native Host- oder menschliche Abnahme. Die frühere CI #672 gilt für
+`a52ee723`; der neue Merge-Head benötigt einen eigenen vollständigen CI-Lauf.

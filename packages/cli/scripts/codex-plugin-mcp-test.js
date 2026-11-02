@@ -355,7 +355,7 @@ try {
   writeFileSync(join(source, 'LICENSE'), readFileSync(join(source, 'LICENSE'), 'utf8') + '\n');
   const replacement = prepareLocalMarketplace({ dataRoot: env.AGDF_DATA_DIR, builtPluginRoot: source, expectedVersion: version });
   replacement.commit({ retainCockpitRollbackFor: transitionTarget });
-  const dir = join(transitionTarget, '.agdf/control/artefacts/service-fixture'); mkdirSync(dir, { recursive: true });
+  const dir = join(transitionTarget, '.agdf/control/runs/service-fixture/documents'); mkdirSync(dir, { recursive: true });
   const raw = join(dir, 'synthetic-observation.txt'); writeFileSync(raw, 'Synthetic service test; no native host observed.\n');
   const record = { schema_version: 1, kind: 'cockpit_transition', surface: 'codex', result: 'qualified',
     authorizes: false, assurance: 'cooperative_local', target_id: resolveControlCommandTarget(transitionTarget).target_id,

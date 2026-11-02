@@ -3,13 +3,10 @@ import { readFileSync } from "../control-read/fs.js";
 import { containedRegularFile, isSafeControlRelativePath } from "../control-state/contained-file.js";
 import { cleanStatusCell, isPlaceholderValue } from "./shared.js";
 
-export function extractField(content, field) {
-  const pattern = new RegExp(`^- ${field}:[^\\S\\r\\n]*(.*)$`, "m");
-  return content.match(pattern)?.[1]?.trim() ?? "";
-}
+export { extractField, verifiedChangeEscalationTargets } from "./gate-policy-inputs.js";
+import { extractField, verifiedChangeEscalationTargets } from "./gate-policy-inputs.js";
 
 export const verifiedChangeStatuses = new Set(["draft", "eligible", "executed", "escalated"]);
-export const verifiedChangeEscalationTargets = new Set(["structured_slice", "structured_delivery"]);
 
 export function parseVerifiedChangePathList(value) {
   const cleaned = cleanStatusCell(value ?? "");

@@ -428,8 +428,8 @@ async function validateHandbookInvariants(root, findings) {
     "AGDF_RUN_ID=payment-limit-fix agdf gate-check",
     "agdf doctor --all-active",
     "agdf status --surface codex",
-    "agdf doctor --run payment-limit-fix --json",
-    "agdf run-migrate --run payment-limit-fix",
+    "doctor --run <run_id> --json",
+    "run-folders-v1",
     "Repository-Evidenz beweist keine externe Ausführung",
   ];
   const requiredEnglishMeaning = [
@@ -456,18 +456,20 @@ async function validateHandbookInvariants(root, findings) {
     "AGDF_RUN_ID=payment-limit-fix agdf gate-check",
     "agdf doctor --all-active",
     "agdf status --surface codex",
-    "agdf doctor --run payment-limit-fix --json",
-    "agdf run-migrate --run payment-limit-fix",
+    "doctor --run <run_id> --json",
+    "Unsupported layouts, versions and old records remain unchanged.",
     "Repository evidence does not prove external execution",
   ];
   const forbiddenGermanDrift = [
     "Grundsätzlich gibt es zwei Wege",
+    "agdf run-migrate",
     "Umsetzung und Tests dürfen beginnen",
     "entferne die alte Datei",
     "Änderungen eines Runs beeinflussen die anderen nicht",
   ];
   const forbiddenEnglishDrift = [
     "There are generally two paths",
+    "agdf run-migrate",
     "Implementation and tests may begin",
     "remove the old file",
     "Changes in one run do not affect other runs",

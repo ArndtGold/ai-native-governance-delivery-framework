@@ -1,4 +1,4 @@
-import { CURRENT_RUN_VERSION } from './run-identity.js';
+import { CURRENT_RUN_VERSION, RUN_MODES } from './run-identity.js';
 import { scalarFields, hasPersistedDerivedState } from "./run-state-document.js";
 export { scalarFields, sectionTableRows, duplicateArtefactRowTypes, parseArtefactPathCell, parseControlState } from "./run-state-document.js";
 import { normalizeLineEndings } from "./run-text.js";
@@ -38,7 +38,7 @@ export function parseRunState(content, expected) {
       actual_version: version ?? null, classification: unsupported ? 'unsupported_version' : 'unclassified' });
     return { content, meta: Object.fromEntries(values), findings, valid: false };
   }
-  if (!['undecided', 'quick_task', 'verified_change', 'structured_slice', 'structured_delivery', 'block'].includes(values.get('mode'))) findings.push({ code: 'AGDF_RUN_MODE_INVALID' });
+  if (!RUN_MODES.includes(values.get('mode'))) findings.push({ code: 'AGDF_RUN_MODE_INVALID' });
   if (values.has('decision')) findings.push({ code: 'AGDF_RUN_DERIVED_STATE_FORBIDDEN' });
   if (hasPersistedDerivedState(content)) findings.push({ code: 'AGDF_RUN_DERIVED_STATE_FORBIDDEN' });
   if (!LIFECYCLES.has(values.get("lifecycle")))

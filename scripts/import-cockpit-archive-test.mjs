@@ -148,7 +148,9 @@ test('production MCP session and actual HTTP route expose the same scoped histor
   const doc = await service.read({ session_id, operation: 'archive', snapshot_id: overview.snapshot_id, row_id: row.row_id, resource_id: resource.resource_id });
   assert.equal(doc.data.document.available, true);
   assert.equal((await service.read({ session_id, operation: 'archive', snapshot_id: overview.snapshot_id, row_id: row.row_id, resource_id: randomUUID() })).code, 'resource_denied');
-  const server = await startControlServer({ dir: f.root }); t.after(() => server.close());
+  // This integration checks API behavior, independently of an optional browser build.
+  const dist = join(f.root, 'test-ui'); fs.mkdirSync(dist); fs.writeFileSync(join(dist, 'index.html'), '<!doctype html><title>API fixture</title>');
+  const server = await startControlServer({ dir: f.root, dist }); t.after(() => server.close());
   const get = async path => { const r = await fetch(server.origin + path, { headers: { 'x-agdf-session': server.secret } }); assert.equal(r.status, 200); return r.json(); };
   const obsolete = await fetch(server.origin + `/api/history/${row.row_id}?snapshot=${overview.snapshot_id}`, { headers: { 'x-agdf-session': server.secret } });
   assert.equal(obsolete.status, 403, 'unpublished history alias is not retained');

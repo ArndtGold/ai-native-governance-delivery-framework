@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:721b4a478e296ed7c1804006ee99e6bf9d3576cad8841aa40cc79a6bb2851c0e
+source_revision: sha256:ae1c1cbeb041ffe1896a2f06ac99d8d35f415eb3b1253b646ec872ce91fa312c
 translation_status: reviewed
 ---
 

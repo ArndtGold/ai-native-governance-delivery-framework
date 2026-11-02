@@ -16,6 +16,7 @@ export const creationRunId = operationId => `run-${operationId}`;
 // older location or chooses a layout from files found on disk.
 export const CURRENT_LAYOUT = 'run-folders-v1';
 export const CURRENT_RUN_VERSION = 4;
+export const RUN_MODES = Object.freeze(['undecided', 'quick_task', 'verified_change', 'structured_slice', 'structured_delivery', 'block']);
 export function runRelativePath(runId, area = '', name = '') {
   if (!RUN_ID_PATTERN.test(String(runId ?? ''))) throw Error('AGDF_RUN_ID_INVALID');
   if (!['', 'documents', 'evidence', 'control', 'history'].includes(area)) throw Error('AGDF_RUN_PATH_INVALID');

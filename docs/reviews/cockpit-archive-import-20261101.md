@@ -147,3 +147,73 @@ Lokale Logs: `/private/tmp/agdf-archive-ci-fresh-before.log`,
 `/private/tmp/agdf-archive-ci-compat-record3.log`, `/private/tmp/agdf-archive-ci-compat-final.log`.
 Vollständige CI-Ergebnisse werden im PR mit dem tatsächlichen Head und Run-Link dokumentiert.
 Kein Merge und keine globale Installation gehören zu diesem Auftrag.
+
+## Direkte CI-Reparatur der Clean-Cut-Integration (2026-11-02)
+
+Auf `99929b662f0589221ca8102b59808c87fba5d827` beendete Guardrails #669
+(`41405347643`) alle 167 Jobs: 131 erfolgreich, 36 fehlgeschlagen. Die erfolgreiche
+Generierung machte weitere alte Integrationsannahmen sichtbar. Diese Reparatur erfolgt
+auf ausdrücklichen Wunsch direkt ohne AGDF-Aktivierung, neuen Run oder Gate-Freigaben.
+
+- Der Claude-Begleiter liest die aktuellen typisierten Run-Fakten. Seine passive
+  Gate-Anzeige verwendet dieselbe reine Policy wie der Core; deren Algorithmus ist
+  bei der Auslagerung unverändert geblieben. Die produktive Core-Komposition behält
+  den validierten Receipt-Leser. Quell- und generierter Begleiter werden auf Parität
+  geprüft; dies ist kein Nachweis nativer Claude-Hook-Ausführung.
+- `run-revise` rendert ohne `--json` wieder die lokalisierte Vorschau einschließlich
+  des exakten Bestätigungsselektors. JSON bleibt die strukturierte Command-Antwort.
+  Auch ein vor dem Dispatch abgewiesener Materialtransfer erhält die lesbare Ausgabe.
+- Nach einem unterbrochenen Source-Revision-Schreibvorgang darf der bestehende
+  Material-Owner den Vorschlag erneut laden. Die Eingabeauflösung lässt nur diesen
+  flüchtigen Transport an einem bestätigten aktuellen Source-Revision-Journal vorbei;
+  Target-, Revisions-, Lifecycle- und Seal-Prüfung bleiben beim Material-Owner.
+  Die eigentliche Wiederherstellung benötigt weiterhin ursprüngliche UUID,
+  Vorschlag, aktuelle Revision und exakten Pending-Digest.
+- Schema-, Lokalisierungs-, Inventur-, Wartungs- und Handbuchprüfungen verwenden die
+  aktuelle Struktur. Alte Run-Versionen und nachträglich eingefügte abgeleitete
+  Tabellen bleiben ausdrücklich unzulässig. Windows-Prozesse erhalten native
+  Dateipfade aus `fileURLToPath`.
+- Installations-/Protokollfixtures erzeugen eigene aktuelle Git-Projekte und Runs;
+  sie lesen keine echten Altbestände als heutige Steuerung. Revisionstests nutzen
+  den produktiven Command-Owner statt die alte direkte Mutationsschnittstelle.
+  Der HTTP-Archivtest stellt eine minimale eigene statische UI bereit, damit die
+  API-Prüfung nicht vom normalen Browser-Build abhängt.
+
+Keine bestehenden Produktlimits, CI-Anforderungen oder Assertionen wurden gelockert.
+Historische Übersetzungs-Source-Digests wurden auf ihre unveränderten aktuellen
+Quellen gebunden; eine neue menschliche Übersetzungsprüfung wird nicht behauptet.
+Der echte Kontrollbestand und vorbestehende fremde Dateien bleiben unberührt.
+
+Auch die eigenständige Sprachkonfiguration hatte noch eine Clean-Cut-Lücke: eine neu
+angelegte Datei enthielt keine Layout-Kennung und wurde beim nächsten Aufruf abgewiesen.
+Neue Sprachkonfigurationen erhalten jetzt explizit `run-folders-v1`; vorhandene Werte
+werden bewahrt, alte Layouts bleiben abgewiesen. Der vollständige CLI-Smoke prüft die
+zweimalige Konfigurationsänderung sowie Initialisierung, lokale Installation und Sprachen.
+
+Lokale Nachweise dieses Reparaturstands im isolierten Checkout:
+
+- Zwölf Core-Modell-/Journey-/Flow-Fälle, die Command-Service-/Revision-Integration
+  einschließlich echter Fault-Checkpoints und fünf Material-/Default-Eingabefälle bestanden.
+- Begleiterlogik einschließlich Parität des erzeugten Moduls, aktuelle Inventur,
+  Instruktions-Footprint und 22 deterministische Ergonomie-Prädikate bestanden.
+- Tatsächliche MCP-Continuations und CLI/Core/MCP-Revisionsparität einschließlich
+  unterbrochenem Schreibvorgang und expliziter Wiederherstellung bestanden.
+- Codex-Plugin-MCP, lokaler Marketplace einschließlich isolierter Legacy-Settlement-
+  und Rollback-Fälle sowie vollständiger CLI-Smoke bestanden. Keine globale Installation.
+- Konfigurationsdefaults, PRD-Readiness, 28 Initialisierungsfälle und Community-Health
+  mit 29 negativen Verträgen bestanden. Windows-native Prüfung bleibt Aufgabe der CI.
+- Archiv-API-Integration: 14/14 bestanden. Der erste Versuch dieses letzten Durchgangs
+  scheiterte ausschließlich an der Sandbox-Sperre für `127.0.0.1`; mit erlaubtem
+  temporärem Loopback-Server bestanden dieselben unveränderten Tests vollständig.
+- Reguläre Generierung und npm-Assembly bestanden. Neuer Fixture-Recorder: 56/56;
+  Source-Bindung auch in der ursprünglichen Arbeitskopie bestätigt, Fingerprint
+  `41f627288207d40ee8337d245ebf71f837bb4b982c7d894bd5be9ac603127456`.
+  Native Quellen und veröffentlichte native Originalnachweise sind bytegleich geblieben.
+
+Auch zehn Revisionszyklen mit anschließendem echten Prozesswettbewerb und 48
+lokalisierte CLI-Ausgabe-/Recovery-Fälle bestanden. Falsche Pending-Digests und
+falsche Revisionen bleiben ohne Änderung der dauerhaften Dateien abgewiesen.
+Der Fault-Worker hinterlässt absichtlich einen verwaisten Prozesslock; die Fixture
+löst ihn vor Byte-Vergleichen über den validierten Lock-Owner, ohne Journal oder
+Snapshots zu entfernen. Vollständige CI bleibt an den anschließend gepushten SHA gebunden. Kein lokaler Gesamtlauf,
+keine neue native Host-Abnahme oder menschliche QA/UAT wird aus diesen Tests abgeleitet.

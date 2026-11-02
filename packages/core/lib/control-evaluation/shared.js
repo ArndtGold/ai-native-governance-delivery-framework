@@ -1,3 +1,5 @@
+export { filled, isPlaceholderValue } from "./shared-value.js";
+import { filled, isPlaceholderValue } from "./shared-value.js";
 import { existsSync, readFileSync } from "../control-read/fs.js";
 import { join } from "node:path";
 
@@ -47,9 +49,7 @@ export function hasFilledTableRow(content, firstCellPattern) {
     .some((cells) => cells.slice(1).some((cell) => cell && !cell.startsWith("`")));
 }
 
-export function isPlaceholderValue(value) {
-  return !value || (value.startsWith("`") && value.includes("|"));
-}
+
 
 export function hasFilledEvidenceRow(content) {
   const evidenceSection = content.match(/## Evidence([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
@@ -76,9 +76,7 @@ export function markdownSection(content, heading) {
   return content.match(new RegExp(`(?:^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?:\\n## |\\n# |$)`))?.[1] ?? "";
 }
 
-export function filled(value) {
-  return Boolean(value && !isPlaceholderValue(value) && value.trim() !== "");
-}
+
 
 export function runSelectionRecovery(target) {
   const directSelection = "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run";

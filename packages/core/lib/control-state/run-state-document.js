@@ -23,7 +23,7 @@ export function canonicalRunDocument(content) {
 // Decode display facts only. Family codecs validate exact shapes, digests,
 // ordering and cross-record associations before a saved Run is accepted.
 // Browser consumers share this pure projection; it never reads a file or clock.
-function recordRows(content, heading) {
+export function recordRows(content, heading) {
   return sectionTableRows(content, heading).slice(1).map(row => {
     const encoded = row.at(-1);
     if (!/^[A-Za-z0-9_-]+$/u.test(encoded ?? '') || encoded.length > 131072) throw Error('AGDF_RUN_RECORDS_INVALID');

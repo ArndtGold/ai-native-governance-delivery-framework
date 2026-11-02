@@ -1,6 +1,12 @@
+import { withOwnedFileLock } from '../../../core/lib/owned-file-lock.js';
 import { inspectArtefactRecordingMode } from '../../../core/lib/control-state/run-artefact-recording.js';
 import { currentFixture } from '../../../core/test/fixtures/current-run.js';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { canonicalRunText } from '../../../core/lib/control-state/run-text.js';
+import { canonicalJson, digest } from '../../../core/lib/control-state/approval-command-contract.js';
+import { readPendingSourceRevisionJournal } from '../../../core/lib/control-state/run-step-transaction.js';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
@@ -55,3 +61,24 @@ export function sourceRevisionTestProposal(root, f, sourceGate, analyses = 'reta
   const evidence = `.agdf/control/runs/${f.runId}/evidence/proposals/${operationId}.json`; mkdirSync(dirname(join(root, evidence)), { recursive: true }); writeFileSync(join(root, evidence), JSON.stringify(value));
   return { input: { runId: f.runId, revisionId: f.revision(), operationId, sourceGate, evidence }, value };
 }
+
+// Interrupt the production command owner with an actual staged semantic proposal.
+// The worker is disposable; it does not bypass the command or input-resolution boundary.
+export function interruptSourceRevision(root, candidate, request, preview, env = process.env) {
+  const content = canonicalRunText(JSON.stringify(request.value));
+  const reference = { material_id: randomUUID(), digest: digest(content) };
+  const target_id = resolveControlCommandTarget(root).target_id;
+  const input = { working_directory: process.cwd(), primary_target: root, target_source: 'explicit_target', target_id,
+    run_id: request.input.runId, expected_revision_id: request.input.revisionId, operation_id: request.input.operationId,
+    command: { kind: 'source_revision.apply', payload: { source_gate: request.input.sourceGate, proposal: reference,
+      preview_digest: preview.preview_digest, confirmation: preview.confirmation_selector } } };
+  const grants = [{ ...reference, content, slot: 'EVIDENCE', target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id }];
+  const program = `import {createRunCommandService} from ${JSON.stringify(pathToFileURL(join(candidate, 'runtime/core/lib/control-state/run-command-service.js')).href)};
+    const result = createRunCommandService({materialGrants:JSON.parse(process.argv[2]),checkpoint(stage){if(stage==='archive_file')process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1])); console.log(JSON.stringify(result));`;
+  const worker = spawnSync(process.execPath, ['--input-type=module', '-e', program, JSON.stringify(input), JSON.stringify(grants)], { env, encoding: 'utf8' });
+  assert.equal(worker.status, 71, worker.stdout + worker.stderr);
+  // Settle only the dead worker's transient lock through its validated owner,
+  // before byte-for-byte assertions over the still-pending durable transaction.
+  withOwnedFileLock(join(root, '.agdf/control/runs', request.input.runId, 'RUN_STATE.md'), () => {});
+}
+export const pendingSourceRevisionDigest = (root, runId) => digest(canonicalJson(readPendingSourceRevisionJournal(root, runId)));

@@ -60,24 +60,20 @@ try {
       assert.equal(result.outcome, "inspect_result", JSON.stringify(result));
       assert.equal(result.terminal, false);
       assert.equal(result.authorizes, false);
-      assert.equal(result.report.state, state);
-      const open = result.report.runs.filter((run) => !run.valid || run.lifecycle === "active");
-      assert.deepEqual(open.map((run) => run.run_id).sort(), ids);
-      if (root === multiple) assert.equal(result.report.runs.at(-1).run_id, "completed", "history follows the active runs");
-      assert.equal(result.host_action.source, "presentation.markdown");
-      assert.equal(result.host_action.may_request_run_or_evidence, false);
-      const markdown = result.presentation.markdown;
-      for (const id of ids) assert.ok(markdown.includes(`\`${id}\``), id);
-      assert.ok(!markdown.includes("`completed`"), "history appears only as counts");
-      assert.doesNotMatch(markdown, /Approval:|Choose the delivery run|Nutzer.*Freigabe/u);
-      const german = language.startsWith("de");
-      if (state === "absent") assert.match(markdown, german ? /keinen Ordner/u : /no .agdf\/control directory/u);
-      else if (!ids.length) assert.match(markdown, german ? /Keine aktiven/u : /No active/u);
-      else assert.match(markdown, german ? /aktive AGDF-Runs gefunden/u : /active AGDF runs found/u);
-      if (state === "incomplete") assert.match(markdown, german ? /Gesamtzahl.*unbekannt/u : /total number.*unknown/u);
-      if (state !== "absent") assert.match(markdown, german ? /Historie: /u : /History: /u);
-      if (ids.length) assert.match(markdown, german ? /keine Live-Bewertung/u : /not a live evaluation/u);
-      if (state === "incomplete") assert.match(markdown, /doctor --run broken/u);
+      assert.equal(result.report.state, state === 'incomplete' ? 'partial' : state);
+      // Current work inventory keeps planned URs and Runs in one read-only contract.
+      if (state === "absent") {
+        assert.deepEqual(result.report.runs, []);
+      } else {
+        assert.equal(result.report.schema_version, 'work-inventory/1');
+        assert.equal(result.report.state, state === 'incomplete' ? 'partial' : 'complete');
+        const rows = result.report.entries.filter(row => row.kind === 'run');
+        const open = rows.filter(row => !row.valid || row.lifecycle === 'active');
+        assert.deepEqual(open.map(row => row.run_id).sort(), ids);
+        assert.ok(rows.every(row => row.authorizes === false && row.actions.includes('open_run')));
+        assert.equal(result.presentation, null, 'work inventory is structured data, not an old Markdown backlog');
+        if (root === multiple) assert.equal(rows.at(-1).run_id, 'completed');
+      }
       assert.equal(treeDigest(root), before, "inventory must not write any control or project file");
     }
   }
@@ -89,7 +85,7 @@ try {
   const mismatch = await inspectArgs({ operation: "inventory", presentation_language: "en",
     working_directory: empty, primary_target: multiple, target_source: "current_repository" });
   assert.equal(mismatch.outcome, "target_unresolved");
-  assert.equal(other.report.runs.length, 0);
+  assert.equal(other.report.entries.length, 0);
   // SCN-012: the inventory evaluates no gate and accepts no run selection.
   const noEvaluation = () => { throw new Error("inventory must not evaluate gates"); };
   const spied = createControlInspectService({ evaluateDoctor: noEvaluation, evaluateGateCheck: noEvaluation, evaluateDeliveryMap: noEvaluation });
@@ -119,7 +115,7 @@ try {
   const originalRunId = process.env.AGDF_RUN_ID;
   try {
     process.env.AGDF_RUN_ID = "completed";
-    assert.deepEqual((await inspect(multiple, "de")).report.runs.map((run) => run.run_id), ["first", "second", "completed"]);
+    assert.deepEqual((await inspect(multiple, "de")).report.entries.filter(row => row.kind === 'run').map((run) => run.run_id), ["first", "second", "completed"]);
   } finally {
     if (originalRunId === undefined) delete process.env.AGDF_RUN_ID;
     else process.env.AGDF_RUN_ID = originalRunId;

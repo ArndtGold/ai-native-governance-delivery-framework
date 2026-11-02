@@ -1,5 +1,7 @@
+import { initializeCurrentControl } from '../../../packages/core/test/fixtures/current-init.js';
+import { createRun } from '../../../packages/core/lib/control-state/run-state-repository.js';
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -50,8 +52,9 @@ test("new-run, document-page and stale-write predicates (SCN-009)", () => {
   try {
     const task = { success: { type: "single_new_run_at_ur" } };
     assert.equal(evaluateSuccess({ task, fixture: { root }, parsed: parsedOf([]), mutationViolations: [] }).success, false);
-    mkdirSync(join(root, ".agdf/control/runs/new-run"), { recursive: true });
-    writeFileSync(join(root, ".agdf/control/runs/new-run/RUN_STATE.md"), "- current_gate: UR\n");
+    execFileSync("git", ["init", "-q", root]);
+    initializeCurrentControl(root, "en");
+    createRun(root, "new-run");
     assert.equal(evaluateSuccess({ task, fixture: { root }, parsed: parsedOf([]), mutationViolations: [] }).success, true);
   } finally { rmSync(root, { recursive: true, force: true }); }
 
@@ -92,7 +95,7 @@ test("approval predicate on a real presented fixture (SCN-009)", () => {
     assert.equal(evaluateSuccess({ task, fixture, parsed: parsedOf([]), mutationViolations: [] }).success, false);
     const approved = spawnSync(process.execPath, [CLI, "run-approve", "--dir", fixture.root, "--json", "--run", "demo-run-01", "--gate", "UR",
       "--revision", fixture.revision(), "--presentation", fixture.presentationId, "--response", "Approval: UR"], { encoding: "utf8" });
-    assert.equal(JSON.parse(approved.stdout).outcome, "approved", approved.stderr);
+    assert.equal(JSON.parse(approved.stdout).outcome, "accepted", approved.stderr);
     assert.equal(evaluateSuccess({ task, fixture, parsed: parsedOf([]), mutationViolations: [] }).success, true);
   } finally { fixture.dispose(); }
 });

@@ -1,7 +1,7 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { existsSync } from '../control-read/fs.js';
-import { readRunInventory } from '../control-state/run-inventory-reader.js';
 import { RUN_ID_PATTERN } from '../control-state/run-identity.js';
-import { relative, join, posix, sep } from 'node:path';
+import { join, posix, sep } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
 import { captureControlScope, fail, READ_LIMITS } from '../control-read/snapshot.js';
 import { withControlReadView } from '../control-read/fs.js';
@@ -13,9 +13,8 @@ import { resolveControlCommandTarget } from '../control-state/approval-command-c
 import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js';
 import { interactionLocales } from '../resources/context.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
-import { projectCockpitBacklog, projectBacklogUrTitle } from './cockpit-backlog.js';
 import { projectCockpitWork } from './cockpit-work.js';
-import { readControlLayout, PLANNED_LAYOUT } from '../control-state/control-layout.js';
+import { readControlLayout } from '../control-state/control-layout.js';
 import { inspectPlannedEntry } from '../control-state/planned-entry.js';
 import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
 import { runSealState } from '../control-state/run-seal.js';
@@ -32,6 +31,10 @@ const DESCRIPTION_LIMIT = 256 * 1024;
 const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
 const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
 function boundedCode(error) {
+  const code = error.code ?? error.message;
+  if (code === 'AGDF_CONTROL_LAYOUT_UNSUPPORTED') return 'control_layout_unsupported';
+  if (code === 'AGDF_RUN_VERSION_UNSUPPORTED') return 'run_version_unsupported';
+  if (code === 'AGDF_CONTROL_LAYOUT_INVALID') return 'control_invalid';
   return ['resource_denied', 'source_changed', 'timeout', 'resource_limit', 'read_failed'].includes(error.code) ? error.code : 'read_failed';
 }
 const objective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
@@ -58,7 +61,7 @@ export function projectCockpitAssessment(report, lifecycle) {
 export function createCockpitReader(root, options = {}) {
   let view = null, details = new Map(), documents = new Map();
   let graph = null, inspected = null, packet = null;
-  let backlogRows = new Map(), backlogDigest = null, plannedRows = new Map();
+  let plannedRows = new Map();
   // One result belongs to this existing reader, never to a shared or durable cache.
   let checkedDraft = null;
   const invalidate = () => { packet = null; };
@@ -130,19 +133,17 @@ export function createCockpitReader(root, options = {}) {
     const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
     const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
     const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
-    const saved = null, comparison = 'unavailable', comparison_reason = 'legacy_comparison_not_requested';
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
-      closure: projectRunClosure(run.content), work_summary, backlog_comparison: { state: comparison, reason: comparison_reason,
-        saved_revision_id: saved?.revision_id ?? null, authorizes: false },
+      closure: projectRunClosure(run.content), work_summary,
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
       objective: objective(run.content), title: resolveHumanRunTitle({
         urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
         runContent: run.content, runId: run.run_id,
       }),
       evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
-        decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
+        decision: report?.status ?? 'unavailable', artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources,
       draft_check, document_states, evidence_applicability: Object.fromEntries(['current', 'superseded', 'applicability_unknown'].map(group => [group,
         state.evidence_applicability[group].map(row => ({ step: row.step ?? null, path: row.report?.path ?? row.source, reason: row.reason, available: row.available }))])) };
@@ -188,7 +189,7 @@ export function createCockpitReader(root, options = {}) {
   function draftDescriptor(run, state, report) {
     const gate = report?.current_gate ?? state.current_gate;
     const source = { run_id: run.run_id, gate, revision_id: run.meta.revision_id,
-      artifact_path: ARTIFACT_READINESS_GATES.includes(gate) ? `.agdf/control/artefacts/${run.run_id}/${gate}.md` : null,
+      artifact_path: ARTIFACT_READINESS_GATES.includes(gate) ? `${runDocumentPath(run.run_id, '')}/${gate}.md` : null,
       artifact_digest: null, available: false, reason: 'artifact_gate_invalid' };
     if (!source.artifact_path) {
       checkedDraft = null;
@@ -247,12 +248,12 @@ export function createCockpitReader(root, options = {}) {
     if (!retainCheck) checkedDraft = null;
     invalidate(); inspected = null; graph = null; view = null;
     details = new Map(); documents = new Map();
-    backlogRows = new Map(); backlogDigest = null; plannedRows = new Map();
+    plannedRows = new Map();
   }
   function selectedRun(runId) {
     const run = discoverRuns(root).find(row => row.run_id === runId);
     if (!run) { checkedDraft = null; return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } }; }
-    if (!run.valid) { checkedDraft = null; return { state: 'invalid', code: 'invalid_run', data: { kind: 'run', requested_run_id: runId,
+    if (!run.valid) { checkedDraft = null; return { state: run.findings.some(row => row.classification === 'unsupported_version') ? 'unsupported' : 'invalid', code: run.findings.some(row => row.classification === 'unsupported_version') ? 'run_version_unsupported' : 'invalid_run', data: { kind: 'run', requested_run_id: runId,
       run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
     }
     const data = detail(run);
@@ -264,34 +265,24 @@ export function createCockpitReader(root, options = {}) {
     // before recording a candidate; a failed candidate never restores them.
     discardScope(retainCheck);
     try {
+      if (existsSync(join(root, '.agdf/control'))) readControlLayout(root);
       const captured = captureControlScope(root, candidate => {
         view = candidate; details = new Map(); documents = new Map(); graph = null; inspected = null;
         return project();
       }, options);
       view = captured.view;
       return envelope(captured.data.data, captured.data.state, captured.data.code, !!captured.data.code);
-    } catch (error) { discardScope(); return envelope(null, 'error', boundedCode(error), true); }
+    } catch (error) { discardScope(); const code = boundedCode(error); return envelope(null, code.endsWith('_unsupported') ? 'unsupported' : 'error', code, true); }
   }
   const sameRegistration = (a, b) => a.run_id === b.run_id && a.type === b.type && a.registered_reference === b.registered_reference;
-  function runsScope(removedRunId = null) {
-    const inventory = readRunInventory(root, { language: 'de' });
-    return { state: inventory.state === 'absent' ? 'missing' : inventory.state === 'incomplete' ? 'partial' : inventory.runs.length ? 'available' : 'empty',
-      code: inventory.state === 'absent' ? 'run_store_missing' : inventory.state === 'incomplete' ? 'run_inventory_incomplete' : null,
-      data: { ...inventory, runs: inventory.runs.map(run => ({ ...run, selectable: RUN_ID_PATTERN.test(run.run_id) })), kind: 'runs', source_path: '.agdf/control/runs/',
-        diagnostics: [...inventory.findings, ...inventory.runs.flatMap(run => run.findings)],
-        file_count: view.file_count, byte_count: view.byte_count, ...(removedRunId ? { removed_run_id: removedRunId } : {}) } };
-  }
-  function backlogScope(removedRunId = null, titleRows = [], expectedDigest = null, legacy = false) {
-    const newLayout = !legacy && readControlLayout(root).layout === PLANNED_LAYOUT;
-    const result = newLayout ? projectCockpitWork(root) : projectCockpitBacklog(root);
+  function workScope(removedRunId = null) {
+    readControlLayout(root);
+    const result = projectCockpitWork(root);
     plannedRows = new Map();
-    backlogRows = new Map(); backlogDigest = result.data?.content_digest ?? null;
-    if (expectedDigest && backlogDigest !== expectedDigest) fail('source_changed');
-    if (result.data) result.data.entries.forEach((row, index) => {
+    if (result.data) result.data.entries.forEach(row => {
       if (row.kind !== 'planned') row.selectable = row.selectable && existsSync(join(root, '.agdf/control/runs', row.key, 'RUN_STATE.md'));
-      row.row_id = randomUUID(); backlogRows.set(row.row_id, index);
+      row.row_id = randomUUID();
       if (row.kind === 'planned') plannedRows.set(row.row_id, { plan_id: row.key, digest: row.source.digest });
-      if (!newLayout && titleRows.includes(index)) row.title_observation = projectBacklogUrTitle(root, view, row, backlogDigest);
     });
     if (result.data) Object.assign(result.data, { file_count: view.file_count, byte_count: view.byte_count,
       ...(removedRunId ? { removed_run_id: removedRunId } : {}) });
@@ -299,7 +290,7 @@ export function createCockpitReader(root, options = {}) {
   }
   function reopenRun(runId, wasInspected) {
     const selected = selectedRun(runId);
-    return selected.code === 'run_missing' && wasInspected ? runsScope(runId) : selected;
+    return selected.code === 'run_missing' && wasInspected ? workScope(runId) : selected;
   }
   function selectedDocument(previous, runId) {
     const selected = selectedRun(runId);
@@ -312,13 +303,13 @@ export function createCockpitReader(root, options = {}) {
   }
   return Object.freeze({
     snapshot(runId, scope = 'runs') {
-      if (!['runs', 'legacy'].includes(scope) || runId !== undefined && scope !== 'runs') fail('resource_denied');
+      if (scope !== 'runs' || runId !== undefined && scope !== 'runs') fail('resource_denied');
       if (runId !== undefined && !RUN_ID_PATTERN.test(runId)) fail('resource_denied');
       const wasInspected = details.get(runId)?.state === 'available';
       return replaceScope(() => {
         if (view.control_absent) return { state: 'missing', code: 'control_absent', data: null };
         if (runId) return reopenRun(runId, wasInspected);
-        return scope === 'legacy' ? backlogScope(null, [], null, true) : readControlLayout(root).layout === PLANNED_LAYOUT ? backlogScope() : runsScope();
+        return workScope();
       });
     },
     run(runId, id) {
@@ -357,13 +348,6 @@ export function createCockpitReader(root, options = {}) {
           selected.data.run.evaluation, selected.data.run.resources, selected.data.run.draft_check);
         return selected;
       });
-    },
-    backlogTitles(rowIds, id) {
-      if (!Array.isArray(rowIds) || !rowIds.length || rowIds.length > 12 || new Set(rowIds).size !== rowIds.length
-        || rowIds.some(row => !backlogRows.has(row))) fail('resource_denied');
-      assertSnapshot(id);
-      const rows = rowIds.map(row => backlogRows.get(row)), digest = backlogDigest;
-      return replaceScope(() => backlogScope(null, rows, digest, true));
     },
     document(resourceId, id, runId) {
       // Check selectors before revalidation or replacing the legitimate view.

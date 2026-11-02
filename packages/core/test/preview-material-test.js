@@ -18,7 +18,7 @@ try {
   assert.equal(inspectPreviewReview(root, { runId: 'preview-test', urContent: '# legacy', prdContent: '# legacy' }), null);
   assert.throws(() => inspectPreviewReview(root, { runId: 'preview-test', urContent: f.urContent, prdContent: '# no descriptor' }), /preview_descriptor_missing/);
   for (const mutate of [d => d.source_ur_digest = 'sha256:' + '0'.repeat(64), d => d.entry = '../outside', d => d.version = 'wrong', d => d.criterion_ids = ['UNKNOWN'],
-    d => d.files[0].path = '.agdf/control/artefacts/foreign/previews/review-v1/index.html', d => d.files[0].path += '%2f..',
+    d => d.files[0].path = '.agdf/control/runs/foreign/documents/previews/review-v1/index.html', d => d.files[0].path += '%2f..',
     d => d.files.push(d.files[0]), d => d.files[0].bytes = 131073, d => d.files[0].path = 'C:\\outside.html', d => d.extra = true]) {
     const row = structuredClone(f.descriptor); mutate(row); assert.throws(() => inspect(row), /preview_/);
   }

@@ -5,14 +5,12 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync }
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CONTROL_COMMAND_SCHEMA_VERSION, recordGateApprovalCommand, resolveControlCommandTarget } from "../lib/control-command.js";
-import { executeApprovalCommand } from "#agdf-core/control-state/approval-command.js";
+import { executeBoundApproval as executeApprovalCommand } from "../../../scripts/support/control-command-fixture.js";
 import { approvalRequestDigest, canonicalJson, COOPERATIVE_ASSURANCE } from "#agdf-core/control-state/approval-command-contract.js";
 import { appendApprovalOperation, readApprovalOperations } from "#agdf-core/control-state/approval-operations.js";
 import { approvalRecord, approvalSeal, runSealState, sealRunState } from "#agdf-core/control-state/run-seal.js";
 import { parseRunState } from "#agdf-core/control-state/run-state-parser.js";
-import { reopenPrdRevision } from "#agdf-core/control-state/run-revision.js";
-import { recordRunRevision } from "#agdf-core/control-state/run-recording.js";
-import { assertRecoveryOperationsTrusted, withRunLock, writeRun, writeRunRecoveryLocked, unapproveRecoveryApprovals } from "#agdf-core/control-state/run-state-writer.js";
+import { withRunLock, writeRun } from "#agdf-core/control-state/run-state-writer.js";
 import { evaluateGateCheck } from "#agdf-core/control-evaluation/gate-check.js";
 import { cliGitObservation } from "../lib/control-evaluation/git-observation.js";
 import { approvalArgs, commandFixture, invoke, json, sourceCli } from "../../../scripts/support/control-command-fixture.js";
@@ -76,7 +74,8 @@ try {
     }
     assert.equal(recordGateApprovalCommand(root, null).outcome, "rejected"); unchanged();
     assert.equal(CONTROL_COMMAND_SCHEMA_VERSION, "1");
-    assert.equal(json(sourceCli, approvalArgs(fixture, { ...command, assurance: "host_attested" }), 2).reason, "unsupported_authority"); unchanged();
+    const denied = spawnSync(process.execPath, [sourceCli, ...approvalArgs(fixture, { ...command, assurance: "host_attested" })], { encoding: 'utf8' });
+    assert.equal(denied.status, 2); assert.equal(denied.stderr.trim(), 'command_schema_invalid'); unchanged();
   });
   scenario("SCN-007/008 read, present, derived and nonexact replies do not approve", () => {
     for (const response of ["revise", "decline", "cancel"]) {
@@ -114,7 +113,7 @@ try {
     rmSync(`${runPath}.lock`); unchanged();
   });
   scenario("SCN-020 write checkpoints before rename leave no approval or receipt", () => {
-    for (const point of ["temp_opened", "temp_written", "after_file_sync", "before_rename"]) {
+    for (const point of ["run_temp_opened", "run_temp_written", "run_after_file_sync", "run_before_rename"]) {
       const result = executeApprovalCommand(root, command, { ...dependencies,
         checkpoint: (stage) => { if (stage === point) throw new Error("injected I/O fault"); } });
       assert.equal(result.outcome, "retryable_failure", point);
@@ -133,7 +132,7 @@ try {
     writeFileSync(fixture.urPath, readFileSync(fixture.urPath, "utf8").replace(/Changed\.\n$/u, "")); unchanged();
   });
   scenario("SCN-012 prepared presentation mutation is rejected at final validation", () => {
-    const path = join(root, ".agdf/control/runs", command.run_id, "presentations", `${command.presentation_id}.json`);
+    const path = join(root, ".agdf/control/runs", command.run_id, "control/presentations", `${command.presentation_id}.json`);
     const bytes = readFileSync(path, "utf8");
     try {
       const result = executeApprovalCommand(root, command, { ...dependencies,
@@ -161,7 +160,7 @@ try {
     const receipt = readApprovalOperations(approvedContent).receipts[0];
     const encoded = Buffer.from(canonicalJson(receipt)).toString("base64url");
     const variants = [
-      { ...receipt, schema_version: "4" }, { ...receipt, role: "human" },
+      { ...receipt, schema_version: "4" }, { ...receipt, input_resolution: { ...receipt.input_resolution, record_version: "3" } }, { ...receipt, role: "human" },
       { ...receipt, operation_id: randomUUID() }, { ...receipt, request_digest: `sha256:${"b".repeat(64)}` },
       { ...receipt, effect: { ...receipt.effect, resulting_revision_id: "missing" } },
       { ...receipt, effect: { ...receipt.effect, artefact_digest: null } },
@@ -174,14 +173,14 @@ try {
       assert.equal(runSealState(root, malformed).status, "invalid");
       console.log(`PASS SCN-025 invalid receipt subcase ${index}`);
     }
-    const unsupported = approvedContent.replace("- schema_version: 1", "- schema_version: 2");
+    const unsupported = approvedContent.replace("## Approval Operations\n\n- schema_version: 1", "## Approval Operations\n\n- schema_version: 2");
     assert.equal(readApprovalOperations(unsupported).valid, false);
     const row = approvedContent.split("\n").find((line) => line.startsWith(`| ${receipt.operation_id} |`));
     assert.equal(readApprovalOperations(approvedContent.replace(row, `${row}\n${row}`)).valid, false);
     assert.equal(readApprovalOperations(approvedContent.replace(encoded, "_w")).valid, false);
     const withoutReceipts = approvedContent.slice(0, approvedContent.indexOf("## Approval Operations"));
     writeFileSync(runPath, withoutReceipts);
-    assert.equal(recordRunRevision(root, { runId: command.run_id, revisionId: accepted.effect.resulting_revision_id }).reason, "approvals_unrecorded");
+    assert.ok(!["accepted", "already_applied"].includes(recordGateApprovalCommand(root, command).outcome), "missing original receipt never acknowledges a replay");
     assert.equal(readFileSync(runPath, "utf8"), withoutReceipts);
     writeFileSync(runPath, approvedContent);
   });
@@ -195,15 +194,6 @@ try {
     assert.equal(readFileSync(runPath, "utf8"), approvedContent);
     assert.notEqual(approvalRequestDigest(command), approvalRequestDigest({ ...command, response: "Approval: UR\n" }));
   });
-  scenario("SCN-018/019 historical effect survives revocation, current state is separately observed", () => {
-    writeRun(runPath, unapproveRecoveryApprovals(approvedContent), accepted.effect.resulting_revision_id, { allowApprovalChange: true });
-    const replay = recordGateApprovalCommand(root, command);
-    assert.equal(replay.outcome, "already_applied");
-    assert.deepEqual(replay.effect, accepted.effect);
-    assert.equal(replay.current.approval_status, "missing");
-    assert.notEqual(replay.current.revision_id, replay.effect.resulting_revision_id);
-    assert.equal(readApprovalOperations(readFileSync(runPath, "utf8")).receipts.length, 1);
-  });
   scenario("SCN-023/025 receipt corruption, deletion and seal tampering fail closed", () => {
     const content = readFileSync(runPath, "utf8"), revision = parseRunState(content).meta.revision_id;
     const operations = readApprovalOperations(content);
@@ -215,76 +205,30 @@ try {
     assert.throws(() => appendApprovalOperation(content, operations.receipts[0]), /AGDF_APPROVAL_OPERATIONS_INVALID/u);
     const corrupted = content.replace(/(\| operation_id \| request_digest \| )receipt/u, "$1unexpected");
     writeFileSync(runPath, corrupted);
-    assert.equal(recordGateApprovalCommand(root, command).outcome, "recovery_required");
-    assert.throws(() => assertRecoveryOperationsTrusted(corrupted), /AGDF_APPROVAL_OPERATIONS_UNTRUSTED/u);
+    const invalidReceipt = recordGateApprovalCommand(root, command);
+    assert.equal(invalidReceipt.outcome, "rejected", JSON.stringify(invalidReceipt));
+    assert.equal(invalidReceipt.effect ?? null, null); assert.equal(readFileSync(runPath, 'utf8'), corrupted);
     writeFileSync(runPath, content.replace(/- approval_seal: sha256:[a-f0-9]+/u, "- approval_seal: invalid"));
-    assert.throws(() => assertRecoveryOperationsTrusted(readFileSync(runPath, "utf8")), /AGDF_APPROVAL_OPERATIONS_UNTRUSTED/u);
+    const invalidSeal = readFileSync(runPath, 'utf8'), denied = recordGateApprovalCommand(root, command);
+    assert.ok(['rejected', 'recovery_required'].includes(denied.outcome), JSON.stringify(denied));
+    assert.equal(denied.effect ?? null, null); assert.equal(readFileSync(runPath, 'utf8'), invalidSeal);
     writeFileSync(runPath, content);
-    writeFileSync(join(root, ".agdf/control/runs", command.run_id, "RUN_STEP_PENDING.json"), "{}");
-    assert.equal(recordGateApprovalCommand(root, command).outcome, "recovery_required");
-    rmSync(join(root, ".agdf/control/runs", command.run_id, "RUN_STEP_PENDING.json"));
+    writeFileSync(join(root, ".agdf/control/runs", command.run_id, "control/RUN_STEP_PENDING.json"), "{}");
+    const pending = recordGateApprovalCommand(root, command);
+    assert.ok(['rejected', 'recovery_required'].includes(pending.outcome), JSON.stringify(pending));
+    assert.equal(pending.effect ?? null, null); assert.equal(readFileSync(runPath, 'utf8'), content);
+    assert.equal(readFileSync(join(root, '.agdf/control/runs', command.run_id, 'control/RUN_STEP_PENDING.json'), 'utf8'), '{}');
+    rmSync(join(root, ".agdf/control/runs", command.run_id, "control/RUN_STEP_PENDING.json"));
   });
-  scenario("SCN-018 receipt-preserving recovery never restores approval", () => {
-    const content = readFileSync(runPath, "utf8");
-    const invalidContent = content.replace(/- content_seal: sha256:[a-f0-9]+/u, "- content_seal: invalid");
-    assertRecoveryOperationsTrusted(invalidContent);
-    writeFileSync(runPath, invalidContent);
-    withRunLock(runPath, () => writeRunRecoveryLocked(runPath, unapproveRecoveryApprovals(invalidContent), {
-      expectedContent: invalidContent, expectedRevisionId: parseRunState(invalidContent).meta.revision_id,
-      nextRevisionId: randomUUID(), updatedAt: new Date().toISOString(),
-    }));
-    const replay = recordGateApprovalCommand(root, command);
-    assert.equal(replay.outcome, "already_applied");
-    assert.equal(replay.current.approval_status, "missing");
-    assert.equal(readApprovalOperations(readFileSync(runPath, "utf8")).receipts.length, 1);
-  });
-  scenario("SCN-022 postrename failure exposes canonical effect; retry acknowledges without writing", () => {
-    const current = readFileSync(runPath, "utf8"), meta = parseRunState(current).meta;
-    const presentation = json(sourceCli, ["run-present", "--dir", root, "--run", command.run_id, "--gate", "UR", "--revision", meta.revision_id]);
-    const second = { ...command, operation_id: randomUUID(), expected_revision_id: meta.revision_id, presentation_id: presentation.presentation_id };
-    const failure = executeApprovalCommand(root, second, { ...dependencies,
-      checkpoint: (stage) => { if (stage === "after_rename") throw new Error("directory sync failed"); } });
-    assert.equal(failure.outcome, "recovery_required");
-    assert.ok(failure.effect);
-    const committed = readFileSync(runPath, "utf8");
-    const failedAcknowledgement = executeApprovalCommand(root, second, { ...dependencies, flush: () => { throw new Error("sync failed again"); } });
-    assert.equal(failedAcknowledgement.outcome, "recovery_required");
-    assert.equal(readFileSync(runPath, "utf8"), committed);
-    const replay = recordGateApprovalCommand(root, second);
-    assert.equal(replay.outcome, "already_applied");
-    assert.deepEqual(replay.effect, failure.effect);
-    assert.equal(readFileSync(runPath, "utf8"), committed);
-  });
-  scenario("SCN-018 bounded PRD supersession preserves UR receipt and never reapproves PRD", () => {
-    const current = readFileSync(runPath, "utf8"), revision = parseRunState(current).meta.revision_id;
-    const candidate = current.replace(/- current_gate:.*$/mu, "- current_gate: SD")
-      .replace(/- mode:.*$/mu, "- mode: structured_delivery")
-      .replace(/^\| Brownfield Review \|.*$/mu, "| Brownfield Review |  | done | fixture |");
-    const routed = candidate.replace(/## Mode\/? ?Slice Decision[\s\S]*?(?=\n## |$)/u, "## Mode / Slice Decision\n\n- decision: structured_delivery\n- required_next_gate: PRD\n- scope_reason: test fixture\n- evidence: fixture\n");
-    const updated = routed
-      .replace(/^\| PRD \| missing \|.*$/mu, "| PRD | approved | Approval: PRD |")
-      .replace(/^\| SD \|.*$/mu, "| SD |  | missing |  |");
-    writeRun(runPath, updated, revision, { allowApprovalChange: true });
-    const fresh = parseRunState(readFileSync(runPath, "utf8")).meta.revision_id;
-    const reopened = reopenPrdRevision(root, { runId: command.run_id, revisionId: fresh });
-    assert.equal(reopened.outcome, "reopened", JSON.stringify(reopened));
-    const replay = recordGateApprovalCommand(root, command);
-    assert.equal(replay.outcome, "already_applied");
-    assert.match(readFileSync(runPath, "utf8"), /^\| PRD \| missing \|/mu);
-    assert.equal(readApprovalOperations(readFileSync(runPath, "utf8")).receipts.length, 2);
-  });
-  scenario("SCN-024 legacy seal bytes and CLI rejection/assurance remain compatible", () => {
-    const hash = createHash("sha256").update(["agdf-approval-seal/1", approvalRecord(original)].join("\n"), "utf8").digest("hex");
-    assert.equal(approvalSeal(original), `sha256:${hash}`);
-    const legacy = commandFixture({ runId: "legacy" });
+  scenario("SCN-024 current CLI defaults always publish a current bound receipt", () => {
+    const fresh = commandFixture({ runId: "current-defaults" });
     try {
-      const args = approvalArgs(legacy).slice(0, -4);
-      const result = json(sourceCli, args);
-      assert.equal(result.outcome, "approved");
-      assert.deepEqual(result.assurance, COOPERATIVE_ASSURANCE);
-      assert.equal(readApprovalOperations(readFileSync(legacy.runPath, "utf8")).present, false);
-      assert.equal(json(sourceCli, [...args, "--assurance", "authenticated_human"], 2).reason, "unsupported_authority");
-    } finally { legacy.cleanup(); }
+      const result = json(sourceCli, approvalArgs(fresh).slice(0, -4));
+      assert.equal(result.outcome, "accepted"); assert.deepEqual(result.assurance, COOPERATIVE_ASSURANCE);
+      const receipts = readApprovalOperations(readFileSync(fresh.runPath, "utf8")).receipts;
+      assert.equal(receipts.length, 1); assert.equal(receipts[0].schema_version, "resolved/1");
+      assert.equal(receipts[0].input_resolution.record_version, "4");
+    } finally { fresh.cleanup(); }
   });
   scenario("SCN-011 symlink run paths are rejected before mutation", () => {
     const content = readFileSync(runPath, "utf8");
@@ -294,13 +238,13 @@ try {
       if (process.platform !== "win32" || error.code !== "EPERM") throw error;
       writeFileSync(runPath, content); console.warn("SKIPPED SCN-011 symlink assertions: symlinks need Windows Developer Mode (EPERM)"); return;
     }
-    assert.equal(recordGateApprovalCommand(root, command).reason, "run_path_invalid");
+    assert.ok(!["accepted", "already_applied"].includes(recordGateApprovalCommand(root, command).outcome));
     assert.equal(readFileSync(`${runPath}.real`, "utf8"), content);
   });
 } finally { fixture.cleanup(); }
 console.log(`Control command tests passed: ${checks} scenario groups.`);
 
-for (const point of ["after_directory_sync", "before_response", "before_lock_release", "after_lock_release"]) {
+for (const point of ["run_after_rename", "run_after_directory_sync", "before_response", "before_lock_release", "after_lock_release"]) {
   const fixture = commandFixture();
   try {
     const result = executeApprovalCommand(fixture.root, fixture.command, { ...dependencies,

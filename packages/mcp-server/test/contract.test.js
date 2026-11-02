@@ -124,7 +124,7 @@ for (const selection of [
   { operation: "gate-check", variant: "status-card", all_active: true },
   { operation: "doctor", variant: "status-card" },
   { operation: "doctor", module: "quality" },
-  { operation: "contract" },
+  { operation: "operation-contract" },
 ]) {
   const before = calls;
   const rejected = await client.callTool({ name: "agdf_inspect", arguments: { ...inspectBase, ...selection } });

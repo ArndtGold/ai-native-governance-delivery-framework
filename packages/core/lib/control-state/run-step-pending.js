@@ -1,10 +1,11 @@
 import { existsSync, readdirSync } from "../control-read/fs.js";
 import { join } from "node:path";
 import { RUN_ID_PATTERN } from "./run-state-parser.js";
+import { runControlPath } from './run-identity.js';
 
 export function pendingRunStepPath(root, runId) {
   if (!RUN_ID_PATTERN.test(runId)) throw new Error("AGDF_RUN_STATE_INVALID");
-  return join(root, ".agdf", "control", "runs", runId, "RUN_STEP_PENDING.json");
+  return join(root, runControlPath(runId, 'RUN_STEP_PENDING.json'));
 }
 
 export function pendingRunStepIds(root) {

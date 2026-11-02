@@ -1,39 +1,28 @@
 import { resolutionRecord } from './input-resolution.js';
-// Immutable envelope validation is shared by live and archived proofs.
-import { digest as hash, exactObject, DIGEST_PATTERN } from "./approval-command-contract.js";
-import { validPreviewSnapshot } from "./preview-snapshot.js";
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
-const recovery = "Run run-present for the current run/gate/revision, show its exact presentation, then wait for a NEW deliberate user response. Never bind an earlier reply retroactively.";
-
-export { UUID as PRESENTATION_ID_PATTERN, recovery as PRESENTATION_RECOVERY };
-
-// Rechecks the immutable presentation envelope without evaluating a Run hidden by its
-// own pending journal. Full policy/binding validation must precede transaction intent.
-// Pure record check is also consumed inside captured read-only observations.
+import { digest as hash, exactObject, DIGEST_PATTERN } from './approval-command-contract.js';
+import { validPreviewSnapshot } from './preview-snapshot.js';
+import { REVISION_ID_PATTERN } from './run-identity.js';
+export const PRESENTATION_RECORD_VERSION = 7;
+export { REVISION_ID_PATTERN as PRESENTATION_ID_PATTERN } from './run-identity.js';
+export const PRESENTATION_RECOVERY = 'Run run-present for the current run/gate/revision, show its exact presentation, then wait for a NEW deliberate user response. Never bind an earlier reply retroactively.';
 export function validateRunPresentationEnvelope(envelope, { runId, gate, revisionId, presentationId }) {
-  const { record: storedRecord, digest } = envelope ?? {};
-  const record = resolutionRecord(storedRecord);
-  if (!record || ![1, 2, 3, 4, 5, 6].includes(record.schema_version) || record.presentation_id !== presentationId
-      || record.run_id !== runId || record.gate !== gate || record.revision_id !== revisionId
-      || digest !== hash(JSON.stringify(storedRecord)) || !Number.isFinite(Date.parse(record.created_at))) {
-    return { reason: "presentation_binding_invalid", recovery };
-  }
-  if (record.schema_version === 2 && (!exactObject(envelope, ['record', 'digest'])
-    || !exactObject(record, ['schema_version', 'presentation_id', 'operation_id', 'request_digest', 'created_at', 'run_id', 'gate', 'revision_id', 'content_digest', 'artefact_digest', 'summary_digest', 'presentation_language', 'presentation_digest'])
-    || record.operation_id !== presentationId || !UUID.test(record.operation_id) || !DIGEST_PATTERN.test(record.request_digest ?? ''))) return { reason: 'presentation_binding_invalid', recovery };
-  if ([3, 4, 5, 6].includes(record.schema_version) && (!exactObject(envelope, ['record', 'digest'])
-    || !exactObject(record, ['schema_version', 'presentation_id', ...(record.operation_id ? ['operation_id', 'request_digest'] : []),
-      'created_at', 'run_id', 'gate', 'revision_id', 'content_digest', 'artefact_digest', 'summary_digest', 'presentation_language',
-      'presentation_digest', 'document_digest', 'document_bytes', 'document_language', ...(record.schema_version === 4 || record.schema_version === 6 && record.qa_acceptance ? ['qa_acceptance'] : []), ...(record.schema_version === 5 || record.schema_version === 6 && record.preview_review ? ['preview_review'] : [])])
-    || record.operation_id && (record.operation_id !== presentationId || !UUID.test(record.operation_id) || !DIGEST_PATTERN.test(record.request_digest ?? ''))
+  const invalid = () => ({ reason: 'presentation_binding_invalid', recovery: PRESENTATION_RECOVERY });
+  const record = resolutionRecord(envelope?.record);
+  if (!record || !exactObject(envelope, ['record', 'digest']) || record.schema_version !== PRESENTATION_RECORD_VERSION
+    || !exactObject(record, ['schema_version', 'presentation_id', 'operation_id', 'request_digest', 'created_at', 'run_id', 'gate', 'revision_id',
+      'content_digest', 'artefact_digest', 'summary_digest', 'presentation_language', 'presentation_digest',
+      'document_digest', 'document_bytes', 'document_language', ...(record.qa_acceptance ? ['qa_acceptance'] : []), ...(record.preview_review ? ['preview_review'] : [])])
+    || record.presentation_id !== presentationId || record.operation_id !== presentationId || !REVISION_ID_PATTERN.test(presentationId ?? '')
+    || record.run_id !== runId || record.gate !== gate || record.revision_id !== revisionId
+    || ![record.request_digest, record.content_digest, record.summary_digest, record.presentation_digest, record.document_digest].every(value => DIGEST_PATTERN.test(value ?? ''))
+    || !DIGEST_PATTERN.test(record.artefact_digest ?? '')
+    || envelope.digest !== hash(JSON.stringify(envelope.record)) || !Number.isFinite(Date.parse(record.created_at))
     || !/^[a-z]{2}(?:-[A-Za-z0-9]{2,8})*$/u.test(record.document_language ?? '')
-    || !DIGEST_PATTERN.test(record.document_digest ?? '') || !Number.isInteger(record.document_bytes)
-    || record.document_bytes < 1 || record.document_bytes > 131072)) return { reason: 'presentation_binding_invalid', recovery };
-  if ((record.schema_version === 4 || record.schema_version === 6 && record.qa_acceptance) && (gate !== 'QA' || !exactObject(record.qa_acceptance, ['kind', 'digest'])
-    || record.qa_acceptance.kind !== 'accepted_with_deviations' || !DIGEST_PATTERN.test(record.qa_acceptance.digest ?? ''))) return { reason: 'presentation_binding_invalid', recovery };
-  if ((record.schema_version === 5 || record.schema_version === 6 && record.preview_review) && (gate !== 'PRD' || !validPreviewSnapshot(record.preview_review, runId, presentationId))) return { reason: 'presentation_binding_invalid', recovery };
-  if (record.schema_version === 6 && record.presentation_digest !== record.document_digest) return { reason: 'presentation_binding_invalid', recovery };
-  return { presentationId, digest, record: storedRecord };
+    || typeof record.presentation_language !== 'string' || !record.presentation_language
+    || !Number.isInteger(record.document_bytes) || record.document_bytes < 1 || record.document_bytes > 131072
+    || record.presentation_digest !== record.document_digest) return invalid();
+  if (record.qa_acceptance && (gate !== 'QA' || !exactObject(record.qa_acceptance, ['kind', 'digest'])
+    || record.qa_acceptance.kind !== 'accepted_with_deviations' || !DIGEST_PATTERN.test(record.qa_acceptance.digest ?? ''))) return invalid();
+  if (record.preview_review && (gate !== 'PRD' || !validPreviewSnapshot(record.preview_review, runId, presentationId))) return invalid();
+  return { presentationId, digest: envelope.digest, record: envelope.record };
 }
-

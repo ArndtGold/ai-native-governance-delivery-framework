@@ -1,6 +1,6 @@
-# Planned URs and legacy cutover
+# Planned URs in the current Run model
 
-New projects use `control_layout: "planned-urs-v1"`. Each planned need lives in
+New projects use `control_layout: "run-folders-v1"`. Each planned need lives in
 `.agdf/control/planned/<plan_id>/UR.md`, with exactly one initial `Planning schema:
 planned-ur-v1`, `Planning id:` and `Planning priority: high|normal|low` scalar.
 The existing UR template and `ur-definition` owner apply in both planning and Run
@@ -29,10 +29,14 @@ create-agdf planned --dir /absolute/project --action start --plan-id <id> --sour
 
 Replacement edits the same file and keeps its planning identity. Starting requires
 a complete, clarified UR and deliberate selected-source handoff. Exactly one Run
-receives its initial unapproved UR and immutable `PLANNED_UR.md` /
-`PLANNED_ORIGIN.json`. Retrying the original UUID returns that Run; a later start
+receives its initial unapproved `documents/UR.md` and immutable
+`history/planning/UR.md`. The creation receipt owns its origin binding; no separate
+origin JSON is written. Retrying the original UUID returns that Run; a later start
 of the same source also refers to it. After transfer, planning writes reject edits;
 active source revision belongs to the Run. Normal UR review/approval still follows.
+The planning-local `TRANSFER.json` is a transfer receipt protecting the source
+from reuse after its Run becomes unavailable. It is not origin authority or a
+maintained inventory; an unconfirmed marker is reported rather than trusted.
 
 `inventory` combines planned needs and canonical Runs. Planning order is priority,
 normalized title and identity; Runs retain existing Core ordering. Transferred
@@ -68,51 +72,19 @@ checks additionally detect disabled or missing Core. Removing the extension does
 not remove Core or project control. Neither planning nor native tests authorize a
 global installation, authentication change, release or Git operation.
 
-## Existing projects
+## Current-format boundary
 
-An absent `control_layout` retains historical `master-backlog-v1`; an unknown value
-blocks writes. A config edit alone is not a migration. Preview/apply/recover are
-explicit commands owned by control-maintenance:
+Only explicit `run-folders-v1`, version-4 Runs and current wrapped operation
+records are supported. Older layouts and record versions are reported as
+unsupported without mutation. There is no layout migration or legacy fallback.
+Use a fresh target for current work; preserve unsupported data separately.
 
-```sh
-create-agdf layout-migrate --dir /absolute/project --action preview
-create-agdf layout-migrate --dir /absolute/project --action apply --operation <uuid> --preview-digest <sha256> --confirmation 'Migrate planned layout: <sha256>'
-create-agdf layout-migrate --dir /absolute/project --action status --operation <original-uuid>
-create-agdf layout-migrate --dir /absolute/project --action recover --operation <original-uuid> --pending-digest <inspected-sha256>
-```
+A handoff publishes one unapproved Run with documents/UR.md and the exact
+immutable history/planning/UR.md snapshot. Its creation receipt binds that source;
+no separate origin JSON or current-pointer table is maintained. Replay keeps the
+original UUID and selected source digest. Pending recovery validates its captured
+owned files before completing or rolling back the original effect.
 
-Equivalent typed `agdf_project` kinds are `planned_layout.preview/apply/recover`.
-MCP preview pages bind the complete document digest and source snapshot. Decode
-and read all pages; a stale cursor is rejected. Every row, original priority/link,
-unknown row, prose and unparsed span is accounted for. Explicit unique links may
-associate a Run; title/key similarity never does. Usable explicit legacy URs are
-preserved as source snapshots and imported as open drafts. Missing/ambiguous
-associations, unreadable sources and custom priorities remain visible. No old
-status or approval is promoted to a new decision.
-
-Apply requires all writers upgraded/quiescent and a complete unblocked preview.
-The bounded synchronous cutover supports at most 256 Run locks per project and
-a 32 MiB transaction journal; oversized proposals are refused without truncation.
-It freezes new admission, drains independent in-flight operation claims, preserves
-raw original backlog/config/Run/source bytes, then audits active genuine sealed v2
-Runs to v3 with a new revision and `control_layout.migrate` receipt. Ended v2 Runs
-remain byte-exact/read-only. Genuine unsealed ended v2 is explicitly retained as
-unverified history; its declarations are not promoted to trusted approvals. An
-unsealed active Run or changed/invalid seal still blocks cutover. Existing
-approvals/source history are retained.
-Old pending journals/creation stages must be resolved before cutover. Old approval
-presentations become stale when the Run revision advances.
-
-Immutable snapshots and row dispositions live under
-`.agdf/control/maintenance/planned-layout/<source-digest>/`. The configuration
-change is the global commit point selecting the planned layout. Normal Run writes already leave retained legacy backlog bytes untouched in both layouts. Run-only legacy projects without a backlog are supported; its absence is bound by omission of that known optional path from the source manifest and rechecked before effects.
-Before commit, recovery restores only exact known owned effects; after commit it
-finishes the original operation. Unknown/foreign bytes or ownership stop recovery
-and retain the freeze. No timeout authorizes removal of a claim or marker.
-
-Ordinary v3 Run operations use the selected resource lock and strict v6 journal,
-with no backlog member or shared backlog lock. Another Run's validated v6 journal
-does not exclude independent work. Legacy journals 1–5 retain frozen semantics.
-The old 0.20.2 parser rejects v3, and its direct creation requires the now-absent
-mandatory backlog. This is cooperative compatibility, not protection against a
-deliberately invoked old binary or manual filesystem edits.
+Current Run mutations use independent Run/resource locks and wrapped version-7
+journals. Another valid Run journal does not exclude unrelated work. Unknown
+ownership, unsupported journals or changed bytes stop recovery without deletion.

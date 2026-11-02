@@ -1,3 +1,4 @@
+import { RUN_OPERATION_VERSION } from './run-operations.js';
 import { assertInputConfigurationCurrent } from '../resources/configuration.js';
 import { bindInputResolution } from './input-resolution.js';
 import { existsSync, readFileSync } from 'node:fs';
@@ -44,7 +45,7 @@ export function createRunCommand(root, input, { requestDigest, packageVersion, c
     createRun(root, runId, undefined, {
       prepare: content => {
         const parsed = parseRunState(content, runId);
-        receipt = bindInputResolution({ schema_version: '2', kind: 'run.create', operation_id: input.operation_id,
+        receipt = bindInputResolution({ schema_version: RUN_OPERATION_VERSION, kind: 'run.create', operation_id: input.operation_id,
           request_digest: requestDigest, target_id: input.target_id, run_id: runId, expected_revision_id: null,
           created_at: new Date().toISOString(), producer: { contract: 'run-command/1', package_version: packageVersion },
           assurance: COOPERATIVE_ASSURANCE, effect: { previous_revision_id: null,

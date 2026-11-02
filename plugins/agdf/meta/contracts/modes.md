@@ -161,7 +161,7 @@ Graph Impact, Knowledge Persistence Decision, Closeout):
 - `packages/cli/bin/**`
 - any other executable code file, in any language, anywhere in the repository
 
-No MASTER_BACKLOG.md entry is required for a Run. Retained legacy planning/history is optional;
+No central backlog participates in Run control; inventory derives from current records.
 normal Run operations do not maintain it. Existing Run relevance, approvals and evidence duties
 remain unchanged. Worktree placement is defined solely in task-target-resolution.md.
 

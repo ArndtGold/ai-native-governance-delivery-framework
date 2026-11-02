@@ -19,8 +19,8 @@ try {
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const f = createLateSourceRevisionTestRun(root, cli), service = createCoreServices().command;
   const before = readRunState(root, { runId: f.runId });
-  assert.equal(before.evidence_applicability.current.length, 0);
-  assert.ok(before.evidence_applicability.applicability_unknown.length > 0);
+  assert.equal(before.evidence_applicability.by_step.get('Brownfield Analysis').applicability, 'current');
+  assert.equal(before.evidence_applicability.applicability_unknown.length, 0, 'typed current prerequisites have exact evidence associations');
   const candidate = f.prefix + 'CR_CANDIDATE.md';
   writeFileSync(join(root, candidate), '# Code Review\n- decision: pass\nSynthetic exact result.\n');
   const input = { schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,

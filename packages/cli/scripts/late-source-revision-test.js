@@ -3,8 +3,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writ
 import { execFileSync, spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { pathToFileURL } from "node:url";
-import { createLateSourceRevisionTestRun } from "./fixtures/late-source-revision.js";
+import { createLateSourceRevisionTestRun, interruptSourceRevision, pendingSourceRevisionDigest } from "./fixtures/late-source-revision.js";
 import { byteDigest } from "../../core/lib/control-state/run-revision-history.js";
 import { renderSourceRevision, validateLocaleRegistry } from "../../core/lib/interaction-presentation.js";
 
@@ -26,13 +25,14 @@ const tree = () => {
 };
 const rawAt = (revision, ...args) => spawnSync(process.execPath, [validator, "run-revise", "--dir", root, "--run", f.runId, "--revision", revision, ...args], { env, encoding: "utf8" });
 const raw = (...args) => rawAt(f.revision(), ...args);
-const flags = input => ["--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", input.evidence];
+const flags = input => ["--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", join(root, input.evidence)];
+const family = value => { assert.equal(value?.outcome, 'accepted', JSON.stringify(value)); assert.ok(value.family_result); return value.family_result; };
 const observations = [];
 try {
   for (const gate of ["UR", "PRD", "SD", "TP"]) {
     reset(); const p = f.proposal(gate), before = tree();
     const preview = raw("--preview", ...flags(p.input), "--json"); assert.equal(preview.status, 0, preview.stderr);
-    const value = JSON.parse(preview.stdout); assert.equal(value.outcome, "preview"); assert.deepEqual(tree(), before);
+    const value = family(JSON.parse(preview.stdout)); assert.equal(value.outcome, "preview"); assert.deepEqual(tree(), before);
     for (const language of [...Object.keys(locales.locales), "fr-CA"]) {
       const rendered = raw("--preview", ...flags(p.input), "--language", language); assert.equal(rendered.status, 0, rendered.stderr);
       const pack = locales.locales[language] ?? locales.locales.en;
@@ -50,8 +50,8 @@ try {
       for (const step of value.impact.invalidated_steps) assert.ok(rendered.stdout.includes(step));
       observations.push({ gate, language, outcome: "preview", rendered: rendered.stdout });
     }
-    const applied = raw("--apply", ...flags(p.input), "--preview-digest", value.preview_digest, "--json");
-    assert.equal(applied.status, 0, applied.stderr); assert.equal(JSON.parse(applied.stdout).outcome, "reopened");
+    const applied = raw("--apply", ...flags(p.input), "--preview-digest", value.preview_digest, "--confirmation", value.confirmation_selector, "--json");
+    assert.equal(applied.status, 0, applied.stderr); assert.equal(family(JSON.parse(applied.stdout)).outcome, "reopened");
     const current = f.revision(), after = tree();
     for (const language of Object.keys(locales.locales)) {
       const inspected = raw("--inspect", "--operation", p.input.operationId, "--language", language);
@@ -59,7 +59,7 @@ try {
       assert.ok(inspected.stdout.includes(current)); assert.deepEqual(tree(), after);
       observations.push({ gate, language, outcome: "historical", rendered: inspected.stdout });
       const refused = raw("--preview", ...flags(p.input), "--language", language); assert.equal(refused.status, 2);
-      assert.ok(refused.stdout.includes(locales.locales[language].sourceRevision.rejected));
+      assert.ok(refused.stdout.includes(locales.locales[language].sourceRevision.rejected), refused.stdout + refused.stderr);
     }
     const report = f.run("gate-check").value; assert.equal(report.current_gate, gate); assert.equal(report.source_revisions.status, "verified");
     assert.equal(report.source_revisions.entries[0].operation_id, p.input.operationId);
@@ -72,31 +72,34 @@ try {
     ["--preview", ...flags(p.input), "--evidence", p.input.evidence], ["--preview", ...flags(p.input), "--run", "other"]]) {
     const result = raw(...args, "--json"); assert.notEqual(result.status, 0, args.join(" ")); assert.deepEqual(tree(), before);
   }
-  assert.equal(JSON.parse(raw("--json").stdout).reason, "prd_revision_boundary_invalid", "no mode remains the early owner");
+  assert.notEqual(raw('--json').status, 0, 'The early alias requires its explicit PRD gate, original operation and confirmation.');
+  const earlyBoundary = raw('--gate', 'PRD', '--operation', p.input.operationId, '--confirmation', 'Synthetic boundary probe', '--json');
+  assert.equal(JSON.parse(earlyBoundary.stdout).reason, 'prd_revision_boundary_invalid', earlyBoundary.stdout + earlyBoundary.stderr);
   for (const language of [...Object.keys(locales.locales), "fr-CA"]) {
-    reset(); const p = f.proposal("TP"), preview = JSON.parse(raw("--preview", ...flags(p.input), "--json").stdout);
+    reset(); const p = f.proposal("TP"), preview = family(JSON.parse(raw("--preview", ...flags(p.input), "--json").stdout));
     const pack = (locales.locales[language] ?? locales.locales.en).sourceRevision;
     for (const [outcome, result] of [
-      ["reopened", rawAt(p.input.revisionId, "--apply", ...flags(p.input), "--preview-digest", preview.preview_digest, "--language", language)],
-      ["replayed", rawAt(p.input.revisionId, "--apply", ...flags(p.input), "--preview-digest", preview.preview_digest, "--language", language)],
-      ["recovered", raw("--recover", "--operation", p.input.operationId, "--language", language)],
+      ["reopened", rawAt(p.input.revisionId, "--apply", ...flags(p.input), "--preview-digest", preview.preview_digest, "--confirmation", preview.confirmation_selector, "--language", language)],
+      ["replayed", rawAt(p.input.revisionId, "--apply", ...flags(p.input), "--preview-digest", preview.preview_digest, "--confirmation", preview.confirmation_selector, "--language", language)],
     ]) {
       assert.equal(result.status, 0, result.stdout + result.stderr); assert.ok(result.stdout.includes(pack[outcome]));
       assert.ok(result.stdout.includes(pack.authority)); observations.push({ language, outcome, rendered: result.stdout, actual_cli: true });
     }
-    reset(); const interrupted = f.proposal("TP"), v = JSON.parse(raw("--preview", ...flags(interrupted.input), "--json").stdout);
-    const program = `import {applySourceRevision} from ${JSON.stringify(pathToFileURL(join(candidate, "runtime/core/lib/control-state/run-revision.js")).href)};
-      applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(stage){if(stage==='archive_file')process.exit(71)}});`;
-    const worker = spawnSync(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify({ ...interrupted.input, previewDigest: v.preview_digest })], { env });
-    assert.equal(worker.status, 71);
+    reset(); const interrupted = f.proposal("TP"), v = family(JSON.parse(raw("--preview", ...flags(interrupted.input), "--json").stdout));
+    interruptSourceRevision(root, candidate, interrupted, v, env);
     const before = tree(), required = raw("--inspect", "--operation", interrupted.input.operationId, "--language", language);
     assert.equal(required.status, 2, required.stdout + required.stderr); assert.ok(required.stdout.includes(pack.recovery_required)); assert.deepEqual(tree(), before);
-    const recovered = raw("--recover", "--operation", interrupted.input.operationId, "--language", language);
+    const pendingDigest = pendingSourceRevisionDigest(root, f.runId);
+    const wrongDigest = raw('--recover', ...flags(interrupted.input), '--pending-digest', 'sha256:' + '0'.repeat(64), '--json');
+    assert.equal(wrongDigest.status, 2, wrongDigest.stdout + wrongDigest.stderr); assert.deepEqual(tree(), before);
+    const wrongRevision = rawAt('00000000-0000-4000-8000-000000000000', '--recover', ...flags(interrupted.input), '--pending-digest', pendingDigest, '--json');
+    assert.equal(wrongRevision.status, 2, wrongRevision.stdout + wrongRevision.stderr); assert.deepEqual(tree(), before);
+    const recovered = raw("--recover", ...flags(interrupted.input), "--pending-digest", pendingDigest, "--language", language);
     assert.equal(recovered.status, 0, recovered.stdout + recovered.stderr); assert.ok(recovered.stdout.includes(pack.recovered));
     observations.push({ language, outcome: "recovery_required", rendered: required.stdout, actual_cli: true }, { language, outcome: "recovered", rendered: recovered.stdout, actual_cli: true });
   }
   for (const language of Object.keys(locales.locales)) {
-    for (const outcome of ["preview", "reopened", "historical", "replayed", "recovered", "rejected", "recovery_required", "unknown"]) {
+    for (const outcome of ["preview", "reopened", "historical", "replayed", "recovered", "rejected", "recovery_required", "not_found"]) {
       const rendered = renderSourceRevision({ outcome, run_id: f.runId, operation_id: p.input.operationId, revision_id: f.revision(), authorizes: false }, locales, language, { target: root });
       const pack = locales.locales[language].sourceRevision;
       assert.ok(rendered.markdown.includes(pack[outcome] ?? pack.rejected)); assert.ok(rendered.markdown.includes(pack.authority));

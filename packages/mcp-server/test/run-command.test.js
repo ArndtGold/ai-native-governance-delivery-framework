@@ -1,3 +1,4 @@
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -149,7 +150,7 @@ for (const modern of [false, true]) {
   try {
     const cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
     mkdirSync(join(root, '.agdf', 'control', 'runs'), { recursive: true });
-    for (const id of ['mcp-close-a', 'mcp-close-b', 'mcp-close-c']) execFileSync(process.execPath, [cli, 'run-create', '--dir', root, '--run', id]);
+    for (const id of ['mcp-close-a', 'mcp-close-b', 'mcp-close-c']) createRun(root,id);
     const state = id => readFileSync(join(root, '.agdf', 'control', 'runs', id, 'RUN_STATE.md'), 'utf8');
     const revision = id => state(id).match(/^- revision_id: (.+)$/mu)[1];
     const previewsCreated = () => { try { return readdirSync(join(root, '.agdf', 'control', 'closure-previews')).length; } catch { return 0; } };
@@ -181,7 +182,7 @@ for (const modern of [false, true]) {
       }
       // Per-run kinds still need run_id and expected_revision_id; closure kinds refuse them.
       const unbound = await client.callTool({ name: 'agdf_closeout', arguments: { ...envelope, operation_id: randomUUID(),
-        command: { kind: 'closeout.record', payload: { or: { path: '.agdf/control/artefacts/x/OR.md', digest: 'sha256:' + 'a'.repeat(64) }, confirmation: 'x' } } } });
+        command: { kind: 'closeout.record', payload: { or: { path: '.agdf/control/runs/x/documents/OR.md', digest: 'sha256:' + 'a'.repeat(64) }, confirmation: 'x' } } } });
       // The adapter refuses at parse time with the same Core validation (field diagnostics: run-command-contract-test).
       assert.equal(unbound.isError, true); assert.match(JSON.stringify(unbound.structuredContent), /command_schema_invalid/u);
       const bound = await client.callTool({ name: 'agdf_closeout', arguments: { ...envelope, run_id: 'mcp-close-a', expected_revision_id: revision('mcp-close-a'),

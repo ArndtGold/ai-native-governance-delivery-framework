@@ -60,17 +60,12 @@ for (const compact of [false, true]) {
     expect(screen.getByRole('button', { name: 'Ergebnis erhalten' })).toBeTruthy();
     expect(vi.mocked(read).mock.calls.some(([path]) => path.includes('backlog-titles'))).toBe(false);
   });
-  it(`missing optional legacy source has its own view and safe return (${compact ? 'compact' : 'desktop'})`, async () => {
-    const read = vi.fn(async (path: string) => path.includes('view=legacy')
-      ? { ...fixtureMeta, state: 'missing', code: 'backlog_missing', data: null } : inventory()) as unknown as ReadTransport;
+  it(`current inventory offers no retired legacy selector (${compact ? 'compact' : 'desktop'})`, async () => {
+    const read = vi.fn(async () => inventory()) as unknown as ReadTransport;
     render(<App compact={compact} transport={read}/>);
     await screen.findByRole('button', { name: 'Angebote vergleichen' });
-    fireEvent.click(screen.getByRole('button', { name: 'Legacy-Backlog' }));
-    await screen.findByText(/Das Masterbacklog fehlt/);
-    expect(screen.queryByRole('button', { name: 'Angebote vergleichen' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: compact ? /^Runs$/ : /Run-Übersicht$/ }));
-    const title = await screen.findByRole('button', { name: 'Angebote vergleichen' });
-    expect((title as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.queryByRole('button', { name: 'Legacy-Backlog' })).toBeNull();
+    expect(vi.mocked(read).mock.calls.every(([path]) => !path.includes('legacy'))).toBe(true);
   });
 }
 it('Cockpit v2 rejects old envelopes and unknown scope kinds without changing nested evidence versions', () => {

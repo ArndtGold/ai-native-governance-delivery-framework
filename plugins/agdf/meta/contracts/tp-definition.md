@@ -76,7 +76,7 @@ use their existing source-revision owner. Eligible incomplete-draft correction n
 source/integrity blockers.
 
 Use gate-artifact-preparation's shared language/summary and Reviewed Recording Input procedure:
-run-step --step artefact --gate TP --evidence <input.json> with this run/revision, TP-derived_from-SD,
+run-step --step artefact --gate TP --evidence <reviewed-TP.md> --reviewer <name> --reviewed true --update-draft <true|false> with this run/revision, TP-derived_from-SD,
 update_draft false initially and true for permitted replacement. Retain reviewed derivation, prior
 proof/history and other protected bytes; never hand-author receipts or bypass the checked writer.
 After recording redispatch gate-check for this same run with `continue_delivery: true`

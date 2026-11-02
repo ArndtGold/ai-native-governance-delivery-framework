@@ -6,7 +6,7 @@ import { createRun } from "#agdf-core/control-state/index.js";
 import { evaluateGateCheck } from "#agdf-core/control-evaluation/gate-check.js";
 import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context.js";
 import { createSkillDispatchService } from "#agdf-core/skill-dispatch/service.js";
-import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
+import { initializeCurrentControl } from '../../core/test/fixtures/current-init.js';
 import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 import { runCli } from "../lib/cli/application.js";
 
@@ -121,7 +121,7 @@ try {
   assert.equal(controlCalls, 0);
 
   const configured = root("configured");
-  initializeCanonicalControl(configured, generatedFilesForTarget("init", configured, false, "de"));
+  initializeCurrentControl(configured, "de");
   const emptyRunStoreReport = evaluateGateCheck(configured);
   assert.equal(emptyRunStoreReport.status, "blocked");
   assert.equal(emptyRunStoreReport.current_gate, "UR");
@@ -129,7 +129,7 @@ try {
   assert.equal(emptyRunStoreReport.missing_approval, "none");
   assert.equal(emptyRunStoreReport.approval_presentation, null);
   assert.notEqual(emptyRunStoreReport.interaction_kind, "control_setup");
-  assert.ok(emptyRunStoreReport.allowed.includes("create or migrate a canonical run with an explicit run id"));
+  assert.ok(emptyRunStoreReport.allowed.includes("create a current Run with an operation UUID"));
   createRun(configured, "configured-run");
   const configuredReport = evaluateGateCheck(configured, { runId: "configured-run" });
   assert.notEqual(configuredReport.blocking_reason, "AGDF_CONTROL_FILE_MISSING");

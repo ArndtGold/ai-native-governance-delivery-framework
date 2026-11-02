@@ -8,9 +8,10 @@ import { createDispatchBinding, createRuntimeProbe, runtimeEnvironment, validate
 import { skillDispatchArgumentGrammar } from "../lib/cli/command-registry.js";
 import { TASK_TARGET_SOURCES } from "#agdf-core/task-target-resolution.js";
 import { AGDFPlugin } from "../opencode-plugin.js";
-import { createRun, renderRunState } from "#agdf-core/control-state/index.js";
-import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../../core/test/fixtures/legacy-init-plan.js";
+import { currentFixture, currentRun } from "../../core/test/fixtures/current-run.js";
+import { structuredCurrentRun } from "../../core/test/fixtures/current-structured-run.js";
+const disposers = [];
+const lifecycle = { after: callback => disposers.push(callback) };
 
 // Emulate a host following the supplied grammar, not a production enforcement layer.
 // Actual hosts still own semantic target values and their process/shell transport.
@@ -137,21 +138,13 @@ try {
   const active = join(temp, "active Ω project");
   mkdirSync(active);
   assert.equal(spawnSync("git", ["init", "-q", active]).status, 0);
-  initializeCanonicalControl(active, generatedFilesForTarget("init", active, false, "en"));
-  writeFileSync(join(active, ".agdf", "control", "config.json"), JSON.stringify({ artifact_language: "en", chat_language: "en", runtime_language: "en" }));
-  createRun(active, "early-run");
-  // A synthetic QA-input state proves transport and retained judgement, never a QA pass.
-  const qaPath = createRun(active, "qa-input");
-  const artifacts = [
-    ["UR", "UR", "approved"], ["Brownfield Review", "BROWNFIELD_REVIEW", "done"],
-    ["PRD", "PRD", "approved"], ["SD", "SD", "approved"], ["TP", "TP", "approved"],
-    ["Brownfield Analysis", "BROWNFIELD_ANALYSIS", "done"], ["CD+Tests", "CD_TESTS", "done"], ["CR", "CODE_REVIEW", "done"],
-  ];
-  const qaArtifacts = join(active, ".agdf/control/artefacts/qa-input");
-  mkdirSync(qaArtifacts, { recursive: true });
-  for (const [, name] of artifacts) writeFileSync(join(qaArtifacts, `${name}.md`), `# ${name}\nSynthetic transport fixture, not delivery evidence.\n`);
-  const qaBody = `## Objective\n\nSynthetic QA-input transport.\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n${["UR", "PRD", "SD", "TP"].map((gate) => `| ${gate} | approved | Approval: ${gate} |`).join("\n")}\n| QA | missing | |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n${artifacts.map(([type, name, status]) => `| ${type} | .agdf/control/artefacts/qa-input/${name}.md | ${status} | fixture |`).join("\n")}\n\n## Mode/Slice Decision\n\n- decision: structured_delivery\n- required_next_gate: PRD\n- scope_reason: transport fixture\n- evidence: fixture\n\n## Closeout\n\n- next_allowed_action: Run the QA gate, persist the QA report, and request exact approval: Approval: QA\n- quality_outlook: No additional quality follow-up identified from the current control state.\n`;
-  writeFileSync(qaPath, renderRunState("qa-input", qaBody, { current_gate: "QA" }));
+  const qaRun = structuredCurrentRun(lifecycle, { root: active });
+  const earlyId = currentRun(qaRun.f, "Early transport Run").id;
+  for (const step of ["Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "CR"]) {
+    const result = qaRun.step('internal', `# ${step}\n- decision: pass\nSynthetic transport prerequisite, not human delivery acceptance.\n`, { internal_step: step, decision: 'pass' });
+    assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+  }
+  const qaId = qaRun.id;
   const contextOnly = join(temp, "context only");
   mkdirSync(contextOnly);
   assert.equal(spawnSync("git", ["init", "-q", contextOnly]).status, 0);
@@ -216,16 +209,16 @@ try {
       assert.ok(missing.control, JSON.stringify(missing));
       assert.equal(missing.control.blocking_reason, "AGDF_CONTROL_FILE_MISSING");
       assert.equal(missing.outcome, skill === "gate-check" ? "control_result" : "skill_continuation");
-      const early = invoke(active, "early-run");
+      const early = invoke(active, earlyId);
       assert.ok(early.control, JSON.stringify(early));
       assert.equal(early.control.current_gate, "UR", "qa-gate does not skip an earlier gate");
       assert.equal(early.target.primary_target, active);
-      const qaInput = invoke(active, "qa-input");
+      const qaInput = invoke(active, qaId);
       assert.ok(qaInput.control, JSON.stringify({ surface, skill, qaInput }));
       assert.equal(qaInput.control.current_gate, "QA", JSON.stringify(qaInput));
       if (skill === "qa-gate") {
         assert.equal(qaInput.outcome, "skill_continuation");
-        assert.equal(qaInput.continuation.run_id, "qa-input");
+        assert.equal(qaInput.continuation.run_id, qaId);
         assert.ok(qaInput.continuation.runtime_contracts.some(contract => contract.module === "quality"
           && contract.content.length > 0 && /^[0-9a-f]{64}$/u.test(contract.sha256)), "every shipped CLI profile supplies its owned runtime contracts");
         assert.equal(qaInput.continuation.governance_target, active);
@@ -234,11 +227,9 @@ try {
       const ambiguousRoot = join(temp, `ambiguous-${surface}-${skill}`);
       mkdirSync(ambiguousRoot);
       assert.equal(spawnSync("git", ["init", "-q", ambiguousRoot]).status, 0);
-      initializeCanonicalControl(ambiguousRoot, generatedFilesForTarget("init", ambiguousRoot, false, {
-        artifact_language: "de", chat_language: "de", runtime_language: "en",
-      }));
-      createRun(ambiguousRoot, "one", "## Objective\n\nDeliver objective one.\n");
-      createRun(ambiguousRoot, "two", "## Objective\n\nDeliver objective two.\n");
+      const ambiguousFixture = currentFixture(lifecycle, { root: ambiguousRoot });
+      const one = currentRun(ambiguousFixture, "Deliver objective one.").id;
+      const two = currentRun(ambiguousFixture, "Deliver objective two.").id;
       const ambiguous = invoke(ambiguousRoot);
       assert.equal(ambiguous.outcome, skill === "gate-check" ? "control_result" : "skill_continuation", JSON.stringify(ambiguous));
       assert.equal(ambiguous.control.blocking_reason, "AGDF_ACTIVE_RUN_AMBIGUOUS");
@@ -248,14 +239,14 @@ try {
         assert.doesNotMatch(ambiguous.host_action.text, /Repair the existing/);
       } else if (skill === "qa-gate") {
         assert.deepEqual(ambiguous.control.candidate_runs.map(({ run_id, objective, current_gate, decision }) => ({ run_id, objective, current_gate, decision })), [
-          { run_id: "one", objective: "Deliver objective one.", current_gate: "UR", decision: "in_progress" },
-          { run_id: "two", objective: "Deliver objective two.", current_gate: "UR", decision: "in_progress" },
+          { run_id: one, objective: "Deliver objective one.", current_gate: "UR", decision: "open" },
+          { run_id: two, objective: "Deliver objective two.", current_gate: "UR", decision: "open" },
         ]);
       }
-      assert.ok(!["one", "two"].includes(ambiguous.control.run_id ?? ambiguous.control.status_card?.run_id), "transport must not choose a run");
+      assert.ok(![one, two].includes(ambiguous.control.run_id ?? ambiguous.control.status_card?.run_id), "transport must not choose a run");
     }
   }
   assert.equal(count, 40);
   console.log("40 adapter-to-dispatch cases passed (generated SessionStart and source-composed OpenCode, not loaded-host evidence)");
-} finally { rmSync(temp, { recursive: true, force: true }); }
+} finally { for (const dispose of disposers.reverse()) dispose(); rmSync(temp, { recursive: true, force: true }); }
 console.log("Skill dispatch binding tests passed");

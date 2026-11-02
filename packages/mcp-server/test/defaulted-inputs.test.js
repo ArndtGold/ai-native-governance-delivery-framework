@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, readdirSync, rmSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { initializeCanonicalControl } from '../../cli/lib/scaffold/canonical-init.js';
+import { initializeCurrentControl } from '../../core/test/fixtures/current-init.js';
 import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
 import { resolveControlCommandTarget } from '../../core/lib/control-state/approval-command-contract.js';
 import { runSealState } from '../../core/lib/control-state/run-seal.js';
@@ -16,7 +16,7 @@ for (const modern of [false, true]) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-defaulted-sdk-')));
   try {
     execFileSync('git', ['init', '-q', root]);
-    initializeCanonicalControl(root, generatedFilesForTarget('init', root, false, 'en'));
+    initializeCurrentControl(root, 'en');
     const config = join(root, '.agdf/control/config.json'), before = readFileSync(config);
     const base = { working_directory: root, target_source: 'explicit_target', primary_target: root };
     await withStdioClient({ modern, cwd: root }, async client => {
@@ -73,7 +73,7 @@ for (const modern of [false, true]) {
       const germanInvalid = await client.callTool({ name: 'agdf_inspect', arguments: { ...base, operation: 'project-state', presentation_language: 'de' } });
       assert.equal(germanInvalid.isError, true);
       assert.match(germanInvalid.content.at(-1).text, /Eingabe|Konfiguration|korrigier/u);
-      writeFileSync(config, JSON.stringify({ artifact_language: 'en', runtime_language: 'en', chat_language: 123, extension_secret: 'FIXTURE_PRIVATE_VALUE' }));
+      writeFileSync(config, JSON.stringify({ ...JSON.parse(before), artifact_language: 'en', runtime_language: 'en', chat_language: 123, extension_secret: 'FIXTURE_PRIVATE_VALUE' }));
       const typedInvalid = await client.callTool({ name: 'agdf_inspect', arguments: { ...base, operation: 'project-state' } });
       assert.equal(typedInvalid.isError, true);
       assert.ok(typedInvalid.structuredContent.diagnostics.some(d => d.code === 'configuration_invalid' && d.field === 'chat_language'));
@@ -129,7 +129,7 @@ for (const modern of [false, true]) {
         assert.equal(repeatedTransfer.structuredContent.outcome, 'accepted', JSON.stringify(repeatedTransfer));
         assert.equal(repeatedTransfer.structuredContent.family_result.transfer_id, transfer.result.family_result.transfer_id);
         writeFileSync(projectConfig, originalConfig);
-        const replacement = writeEvidenceNote(f, 'DEFAULTED_UR.md', readFileSync(join(f.root, `.agdf/control/artefacts/${f.runId}/UR.md`), 'utf8'));
+        const replacement = writeEvidenceNote(f, 'DEFAULTED_UR.md', readFileSync(join(f.root, `.agdf/control/runs/${f.runId}/documents/UR.md`), 'utf8'));
         const revised = await call('agdf_revise', 'ur_draft.replace', { source: replacement, title: 'Synthetic defaulted UR replacement' });
         assert.equal(revised.result.receipt.schema_version, 'resolved/1');
         const preferences = { ...JSON.parse(originalConfig), presentation_route: 'automatic', gate_check_variant: 'status-card' };

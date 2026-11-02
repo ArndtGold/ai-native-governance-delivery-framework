@@ -51,7 +51,7 @@ try {
       assert.equal('sha256:' + document.data.document.content_digest, view.document_digest);
       if (gate === 'UAT') {
         assert.equal(document.data.document.content,
-          readFileSync(join(root, `.agdf/control/runs/${f.runId}/presentations/${prepare.family_result.presentation_id}.document`), 'utf8'),
+          readFileSync(join(root, `.agdf/control/runs/${f.runId}/control/presentations/${prepare.family_result.presentation_id}.document`), 'utf8'),
           'UAT reads its exact immutable evidence document, independently of the Chat decision layout.');
         assert.match(document.data.document.content, /Intended outcome|Delivered result/u);
         assert.notEqual(document.data.document.content, readFileSync(join(root, qaPath), 'utf8'), 'QA is not substituted for the UAT evidence material.');

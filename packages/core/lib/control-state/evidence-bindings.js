@@ -1,3 +1,4 @@
+import { runDocumentPath, runEvidencePath } from './run-identity.js';
 import { createHash } from 'node:crypto';
 import { canonicalJson, digest, exactObject, DIGEST_PATTERN, COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN } from './run-identity.js';
@@ -14,17 +15,15 @@ export const EVIDENCE_PREREQUISITES = Object.freeze({
 });
 // Reviews a structured closeout requires (closeout-readiness.js). Gate order and late
 // recording use the same list, so no route can be approved into an unclosable state.
-export const STRUCTURED_REQUIRED_REVIEWS = Object.freeze(['TP Review', 'Clean Implementation Review']);
-// `Clean Review` is the supported legacy name of the Clean Implementation Review row.
-export const reviewArtefactType = (state, step) => step === 'Clean Implementation Review' && !state.artefacts.get(step)?.path
-  && state.artefacts.get('Clean Review')?.path ? 'Clean Review' : step;
+export { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from "../control-evaluation/gate-policy-inputs.js";
+import { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from "../control-evaluation/gate-policy-inputs.js";
 // Reviews whose normalized findings closeout inspects; at OR they may be recorded again only
 // to correct invalid rows (run-operation-proof.js, presentation-decision.js).
 export const CORRECTABLE_REVIEWS = Object.freeze([...STRUCTURED_REQUIRED_REVIEWS, 'CR']);
 export const evidenceSourceSetDigest = sources => digest(`agdf-operation-sources/1\0${canonicalJson(sources)}`);
 export const canonicalEvidenceDigest = text => 'sha256:' + createHash('sha256').update(String(text).replace(/\r\n?/gu, '\n').replace(/^\uFEFF/u, '')).digest('hex');
 const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
-const ownPath = (value, runId) => isSafeControlRelativePath(value) && value.startsWith(`.agdf/control/artefacts/${runId}/`);
+const ownPath = (value, runId) => isSafeControlRelativePath(value) && [runDocumentPath(runId, ''), runEvidencePath(runId, '')].some(prefix => value.startsWith(`${prefix}/`));
 export function validEvidenceBinding(row) {
   return exactObject(row, ['schema_version', 'run_id', 'operation_id', 'action', 'step', 'report', 'sources', 'source_set_digest', 'producer', 'assurance'])
     && row.schema_version === (row.action === 'ur_draft.replace' ? '2' : '1') && RUN_ID_PATTERN.test(row.run_id ?? '') && REVISION_ID_PATTERN.test(row.operation_id ?? '')

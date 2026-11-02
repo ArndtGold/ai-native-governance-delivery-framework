@@ -1,3 +1,4 @@
+import { isRunOwnedDataPath } from '#agdf-core/control-state/run-identity.js';
 import { execHostFileSync } from "../host-command.js";
 import { realpathSync, statSync, readFileSync, lstatSync, existsSync } from "node:fs";
 import { createHash } from 'node:crypto';
@@ -214,8 +215,8 @@ export function runMcpLifecycle({
       runtime: { status: 'not_evaluated', version: expectedVersion }, registration: null };
     try {
       const evidencePath = resolve(selectedTarget, cockpitEvidence);
-      const containment = relative(join(selectedTarget, '.agdf/control/artefacts'), evidencePath);
-      if (containment.startsWith('..') || isAbsolute(containment) || realpathSync(evidencePath) !== evidencePath
+      const containment = relative(selectedTarget, evidencePath).split('\\').join('/');
+      if (!isRunOwnedDataPath(containment) || realpathSync(evidencePath) !== evidencePath
         || lstatSync(evidencePath).size > 65_536) throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
       const bytes = readFileSync(evidencePath, 'utf8'), evidence = JSON.parse(bytes);
       const digest = 'sha256:' + createHash('sha256').update(bytes).digest('hex');
@@ -232,8 +233,8 @@ export function runMcpLifecycle({
           return 'sha256:' + createHash('sha256').update(readFileSync(path)).digest('hex');
         };
         for (const ref of evidence.evidence) {
-          const file = resolve(selectedTarget, ref.path), rel = relative(join(selectedTarget, '.agdf/control/artefacts'), file);
-          if (rel.startsWith('..') || isAbsolute(rel) || readDigest(file) !== ref.digest) throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+          const file = resolve(selectedTarget, ref.path), rel = relative(selectedTarget, file).split('\\').join('/');
+          if (!isRunOwnedDataPath(rel) || readDigest(file) !== ref.digest) throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
         }
         if (env.AGDF_DISPATCH_PLUGIN_ROOT && (resolve(env.AGDF_DISPATCH_PLUGIN_ROOT) !== evidence.plugin_root
           || existsSync(env.AGDF_DISPATCH_PLUGIN_ROOT) && realpathSync(env.AGDF_DISPATCH_PLUGIN_ROOT) !== evidence.plugin_root))

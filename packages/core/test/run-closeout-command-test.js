@@ -1,3 +1,4 @@
+import { initializeCurrentControl } from './fixtures/current-init.js';
 import { withSyntheticQaContent } from './fixtures/decision-content.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -20,11 +21,11 @@ import { intentStages, outputStages, commitStages, beforeIntent, beforeRunCommit
 import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
 import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 
-for (const layout of ['master-backlog-v1', 'planned-urs-v1']) {
+for (const layout of ['run-folders-v1']) {
 const root = mkdtempSync(join(tmpdir(), 'agdf-closeout-command-')), seed = mkdtempSync(join(tmpdir(), 'agdf-closeout-seed-'));
 try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
-  execFileSync('git', ['init', '-q', root]); initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout }));
+  initializeCurrentControl(root);
   const route = process.env.AGDF_TEST_STRUCTURED_ROUTE ?? 'structured_delivery';
   assert.ok(['structured_slice', 'structured_delivery'].includes(route));
   const f = createLateSourceRevisionTestRun(root, cli, 'structured-closeout-command', process.env, { route, prepare: false }), service = createCoreServices().command, target = resolveControlCommandTarget(root).target_id;
@@ -85,7 +86,7 @@ try {
       expected_revision_id: f.revision() };
     writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination: reviewed.destination, source, relationship, reviewer: reviewed.review.reviewer, reviewed: true }));
     reviewed.review = { ...reviewed.review, digest: artefactFileDigest(root, proof) }; writeFileSync(join(root, request), JSON.stringify(reviewed));
-    const registered = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+    const registered = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root, qaPath) }, reviewer: 'Synthetic current QA reviewer', reviewed: true, update_draft: false } } });
     assert.equal(registered.outcome, 'accepted', JSON.stringify(registered));
     const cdPath = f.prefix + 'CORRECTIVE_CD.md'; writeFileSync(join(root, cdPath), '# CD+Tests\n- decision: pass\nSynthetic registered corrective implementation completed.\n');
     const before = readFileSync(f.state, 'utf8');
@@ -106,7 +107,7 @@ try {
     candidate.review = { ...candidate.review, digest: artefactFileDigest(root, proof) };
     writeFileSync(join(root, request), JSON.stringify(candidate));
     const before = readFileSync(f.state, 'utf8');
-    const denied = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+    const denied = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root, qaPath) }, reviewer: 'Synthetic current QA reviewer', reviewed: true, update_draft: false } } });
     assert.equal(denied.outcome, 'rejected', 'Conflicting/unknown/missing results are refused by the actual QA registrar before approval.');
     assert.equal(readFileSync(f.state, 'utf8'), before);
   }
@@ -128,7 +129,7 @@ try {
     writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination: candidate.destination, source, relationship, reviewer: candidate.review.reviewer, reviewed: true }));
     candidate.review = { ...candidate.review, digest: artefactFileDigest(root, proof) }; writeFileSync(join(root, request), JSON.stringify(candidate));
     const unrecorded = readFileSync(f.state, 'utf8');
-    const recorded = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+    const recorded = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root, qaPath) }, reviewer: 'Synthetic current QA reviewer', reviewed: true, update_draft: false } } });
     // An invalid or duplicate finding row is refused already when the QA report is recorded,
     // so the Run stays unchanged and the report can never reach a decision presentation.
     if (reviewFindingDiagnostics('QA', report).length) {
@@ -151,14 +152,14 @@ try {
   writeFileSync(join(root,qaPath),passReport);
   writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
   command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
-  const qa = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+  const qa = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root, qaPath) }, reviewer: 'Synthetic current QA reviewer', reviewed: true, update_draft: false } } });
   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
   assert.equal(runWorkSummary(root, readFileSync(f.state, 'utf8')).kind, 'approval_pending', 'Agreeing initial Status and numbered Decision share the report observer');
   for (const gate of ['QA', 'UAT']) {
     const prepare = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } });
     assert.equal(prepare.outcome, 'accepted', JSON.stringify(prepare));
     if (gate === 'UAT') {
-      const exact = readFileSync(join(root,`.agdf/control/runs/${f.runId}/presentations/${prepare.family_result.presentation_id}.document`),'utf8');
+      const exact = readFileSync(join(root,`.agdf/control/runs/${f.runId}/control/presentations/${prepare.family_result.presentation_id}.document`),'utf8');
       for(const value of ['Intended outcome:', 'Delivered result:', 'Technical QA: pass', 'Qualification limits:', 'Risks and open issues:', 'Approval effect:']) assert.ok(exact.includes(value),value);
       assert.ok(exact.includes('The isolated fixture implements its declared scoped behavior'));
       assert.ok(exact.includes('native host qualification is unobserved'));
@@ -219,7 +220,7 @@ none
   const prepare = () => { const input = { ...bound(), command: { kind: 'closeout.record', payload: { or: { path: orPath, digest: artefactFileDigest(root, orPath) }, confirmation: '' } } };
     input.command.payload.confirmation = closeoutConfirmation(f.runId, input.expected_revision_id, input.operation_id, input.command.payload.or.digest); return input; };
   const input = prepare(), original = readFileSync(f.state, 'utf8');
-  const withParent = appendTableRow(original, 'Artefact Chain', ['OR', 'reconciles_with', 'parent_run:unavailable-parent', 'Synthetic explicit handoff']);
+  const withParent = appendTableRow(original, 'Relationships', ['OR', 'reconciles_with', 'parent_run:unavailable-parent', 'Synthetic explicit handoff']);
   const observedParent = prepareRunContentState(root, withParent);
   assert.equal(observedParent.reconciliation_state.parent_reconciliation.outcome, 'open');
   const readReport = path => readFileSync(join(root, path), 'utf8');
@@ -251,7 +252,7 @@ none
   for (const altered of [report.replace(`- run_id: ${f.runId}`, '- run_id: foreign-run'),
     report.replace('Status: done', 'Status: done\nStatus: block'), report.replace('Report mode: OR-full', 'Report mode: OR-full\n- report_mode: OR-lite'),
     report.replace('- decision: pass', '- decision: pass\n- decision: block'),
-    report.replace(`- related_tp: ${f.prefix}TP.md`, '- related_tp: .agdf/control/artefacts/foreign/TP.md'),
+    report.replace(`- related_tp: ${f.prefix}TP.md`, '- related_tp: .agdf/control/runs/foreign/documents/TP.md'),
     report.replace(`| CR | done | ${state.artefacts.get('CR').path} |`, '| CR | done | Fictional unregistered result |'),
     report.replace('- context_graph_impact: none', '- context_graph_impact: new_node_required'),
     report.replace('- memory_target: none', '- memory_target: context_graph'),
@@ -269,12 +270,11 @@ none
   assert.equal(readFileSync(f.state, 'utf8'), original);
   const closed = service('agdf_closeout', input); assert.equal(closed.outcome, 'accepted', JSON.stringify(closed));
   assert.equal(closed.current.lifecycle, 'completed'); assert.equal(closed.current.completion.fulfilled, true); assert.equal(closed.current.next_operation, null);
-  assert.equal(readFileSync(f.file('OR.md'), 'utf8'), report);
+  assert.equal(readFileSync(f.canonicalFile('OR.md'), 'utf8'), report);
   assert.equal(service('agdf_closeout', input).outcome, 'already_applied');
   assert.equal(service('agdf_closeout', { ...input, presentation_language: 'de' }).reason, 'operation_payload_conflict');
   assert.equal(service('agdf_closeout', prepare()).reason, 'closeout_not_ready');
-  for (const stage of [...intentStages, ...outputStages, ...commitStages].filter(stage => layout === 'master-backlog-v1' && !stage.startsWith('backlog')
-    || ['intent', 'output_after_rename', 'run_before_rename', 'run_after_rename', 'retired'].includes(stage))) {
+  for (const stage of [...intentStages, ...outputStages, ...commitStages]) {
     reset(); const request = prepare();
     const program = `import {createRunCommandService} from ${JSON.stringify(new URL('../lib/control-state/run-command-service.js', import.meta.url).href)};
       createRunCommandService({checkpoint(point){if(point===process.argv[2])process.exit(71)}})('agdf_closeout',JSON.parse(process.argv[1]));`;
@@ -282,17 +282,10 @@ none
     assert.equal(child.status, 71, child.stderr.toString());
     if (!beforeIntent(stage) && stage !== 'retired') {
       const pending = readPendingRunStepJournal(root, f.runId);
-      assert.equal(pending.schema_version, layout === 'master-backlog-v1' ? 3 : 6);
-      if (layout === 'planned-urs-v1') assert.equal(Object.hasOwn(pending, 'backlog'), false);
-      // Synthetic old-writer fixture, retaining actual v3 receipt and output ownership.
-      if (layout === 'master-backlog-v1' && stage === 'run_after_rename') {
-        writeFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), '# Captured legacy v3 old\n');
-        pending.backlog = { old: '# Captured legacy v3 old\n', next: '# Captured legacy v3 next\n' };
-        writeFileSync(join(root, '.agdf/control/runs', f.runId, 'RUN_STEP_PENDING.json'), JSON.stringify(pending));
-      }
+      assert.equal(pending.input_resolution.record_version, 7);
+      assert.equal(Object.hasOwn(pending, 'backlog'), false);
       const recovered = service('agdf_closeout', { ...request, expected_revision_id: f.revision(), command: { kind: 'operation.recover', payload: { original_kind: 'closeout.record', pending_digest: digest(canonicalJson(pending)), recovery_revision_id: f.revision() } } });
       assert.equal(recovered.outcome, 'accepted', JSON.stringify(recovered));
-      if (layout === 'master-backlog-v1' && stage === 'run_after_rename') assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8'), '# Captured legacy v3 next\n');
     }
     assert.equal(runSealState(root, readFileSync(f.state, 'utf8')).status, 'valid');
     if (beforeRunCommit(stage)) assert.equal(readFileSync(f.state, 'utf8'), original, stage);

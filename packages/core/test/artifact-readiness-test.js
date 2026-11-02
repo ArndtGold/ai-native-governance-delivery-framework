@@ -52,11 +52,14 @@ try {
   writeFileSync(f.path, readyPrd);
   f.reseal(text => text.replace('- lifecycle: active', '- lifecycle: completed'));
   assert.equal(inspectArtifactReadiness(f.root, input).diagnostics[0].code, 'artifact_run_inactive');
-  f.reseal(text => text.replace('- lifecycle: completed', '- lifecycle: active').replace('| PRD | missing | |', '| PRD | approved | Synthetic isolated test evidence |'));
-  assert.equal(inspectArtifactReadiness(f.root, input).diagnostics[0].code, 'artifact_already_approved');
-  f.reseal(text => text.replace('| PRD | approved | Synthetic isolated test evidence |', '| PRD | missing | |'));
-  writeFileSync(f.runPath, readFileSync(f.runPath, 'utf8').replace('Synthetic isolated authoring check.', 'Unrecorded change.'));
+  f.reseal(text => text.replace('- lifecycle: completed', '- lifecycle: active'));
+  const originalState = readFileSync(f.runPath, 'utf8'); const tampered = originalState.replace(/^- owner:.*$/mu, '- owner: Foreign owner'); assert.notEqual(tampered, originalState);
+  writeFileSync(f.runPath, tampered);
   assert.equal(inspectArtifactReadiness(f.root, input).diagnostics[0].code, 'artifact_run_integrity');
+  writeFileSync(f.runPath, originalState); // restore this deliberate test fault only
+  const recorded = f.recordCandidate(); assert.equal(recorded.value.outcome, 'accepted', recorded.text); const approved = f.approveCandidate(); assert.equal(approved.value.outcome, 'accepted', approved.text);
+  assert.equal(inspectArtifactReadiness(f.root, { ...input, expectedRevisionId: f.currentRevision() }).diagnostics[0].code, 'artifact_already_approved');
+
 } finally { rmSync(f.root, { recursive: true, force: true }); }
 
 for (const gate of ['UR', 'SD', 'TP']) {

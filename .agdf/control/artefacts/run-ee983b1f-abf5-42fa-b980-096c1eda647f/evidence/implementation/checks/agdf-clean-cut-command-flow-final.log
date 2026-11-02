@@ -1,0 +1,462 @@
+npm notice run create-agdf@0.20.2 test:run-command-flow
+npm notice run node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/decision-content-test.js ../core/test/run-command-contract-test.js ../core/test/run-create-command-test.js ../core/test/project-initialization-test.js ../core/test/authoring-reassessment-test.js ../core/test/run-material-test.js ../core/test/verified-change-command-test.js ../core/test/presentation-delivery-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js ../core/test/approval-chain-defects-test.js ../core/test/review-findings-correction-test.js && node ../core/test/preview-material-test.js && node ../core/test/preview-render-test.js && node ../core/test/preview-presentation-test.js && node ../core/test/preview-session-test.js
+TAP version 13
+# node:fs:2430
+#     return binding.writeFileUtf8(
+#                    ^
+# Error: ENOENT: no such file or directory, open '/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-approval-chain-MghkBw/ur/.agdf/control/runs/r/documents/UR.md'
+#     at writeFileSync (node:fs:2430:20)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/approval-chain-defects-test.js:90:3
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   errno: -2,
+#   code: 'ENOENT',
+#   syscall: 'open',
+#   path: '/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-approval-chain-MghkBw/ur/.agdf/control/runs/r/documents/UR.md'
+# }
+# Node.js v22.22.3
+# Subtest: ../core/test/approval-chain-defects-test.js
+not ok 1 - ../core/test/approval-chain-defects-test.js
+  ---
+  duration_ms: 581.229654
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/approval-chain-defects-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Approval journal run-folders-v1: 15 explicit and 15 defaulted child-process interruptions, original resolution across corrupt config after intent, one receipt and conflicting-envelope rejection passed; no power-loss claim.
+# Subtest: ../core/test/approval-command-recovery-test.js
+ok 2 - ../core/test/approval-command-recovery-test.js
+  ---
+  duration_ms: 91065.203625
+  type: 'test'
+  ...
+# Initial required UX authoring: missing, malformed, unrecorded, blocked and completed inputs match dispatch without writes.
+# Actual source-revision reassessment and discoverable historical-binding renewal passed (synthetic).
+# Subtest: ../core/test/authoring-reassessment-test.js
+ok 3 - ../core/test/authoring-reassessment-test.js
+  ---
+  duration_ms: 85154.982846
+  type: 'test'
+  ...
+# Private facade qualification/groups, inert comments, exact replay/conflict, unknown acknowledgement and actual opposed text/App processes passed (24702 definition bytes; synthetic targets only).
+# Subtest: ../core/test/decision-action-test.js
+ok 4 - ../core/test/decision-action-test.js
+  ---
+  duration_ms: 118933.468664
+  type: 'test'
+  ...
+# Closed authored-content contexts, field-local placeholder boundaries, current source/localization and historical/read-only limits passed.
+# Actual UR registration/replacement writer projection, custom preservation and read-only missing-content recovery passed (synthetic only).
+# Subtest: ../core/test/decision-content-test.js
+ok 5 - ../core/test/decision-content-test.js
+  ---
+  duration_ms: 2813.574903
+  type: 'test'
+  ...
+# Private qualification tuple/evidence containment, exact host/candidate/hash binding and unknown/missing/tampered/symlink rejection passed (synthetic contract only).
+# Subtest: ../core/test/decision-qualification-test.js
+ok 6 - ../core/test/decision-qualification-test.js
+  ---
+  duration_ms: 281.546257
+  type: 'test'
+  ...
+# Existing early PRD boundary, concrete confirmation, immutable exact archive, replay/conflict and current journal pre/post-commit process recovery passed (synthetic only).
+# Subtest: ../core/test/early-prd-command-test.js
+ok 7 - ../core/test/early-prd-command-test.js
+  ---
+  duration_ms: 73449.124284
+  type: 'test'
+  ...
+# Exact current/superseded/unknown evidence associations, immutable archive reads, writer guards and orphan rejection passed (synthetic only).
+# Subtest: ../core/test/evidence-bindings-test.js
+ok 8 - ../core/test/evidence-bindings-test.js
+  ---
+  duration_ms: 22057.244038
+  type: 'test'
+  ...
+# Shared material-version rejection/change guard, inert comments, replay/conflict, renewed material, exact approval and historical presentation passed (synthetic only).
+# Subtest: ../core/test/presentation-decision-test.js
+ok 9 - ../core/test/presentation-decision-test.js
+  ---
+  duration_ms: 14825.052042
+  type: 'test'
+  ...
+# Exact Markdown, private display, unqualified actions, monotonic replay, cross-presentation retirement and expiry capacity passed; private host fixtures are not native qualification.
+# Subtest: ../core/test/presentation-delivery-test.js
+ok 10 - ../core/test/presentation-delivery-test.js
+  ---
+  duration_ms: 18498.227947
+  type: 'test'
+  ...
+# Bound immutable document chunks, UTF-8 boundaries, exact-byte digest, shared Inspect projection and tamper/symlink approval denial passed (synthetic only).
+# Subtest: ../core/test/presentation-document-test.js
+ok 11 - ../core/test/presentation-document-test.js
+  ---
+  duration_ms: 73118.329809
+  type: 'test'
+  ...
+# Subtest: Git project confirmation accepts the same directory spelling alias and rejects another directory
+ok 12 - Git project confirmation accepts the same directory spelling alias and rejects another directory
+  ---
+  duration_ms: 83.774068
+  type: 'test'
+  ...
+# Subtest: prospective receipt is private until the same directory and anchor are atomically published
+ok 13 - prospective receipt is private until the same directory and anchor are atomically published
+  ---
+  duration_ms: 280.537197
+  type: 'test'
+  ...
+# Subtest: interruption at beforeProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+ok 14 - interruption at beforeProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 113.045263
+  type: 'test'
+  ...
+# Subtest: interruption at afterProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+ok 15 - interruption at afterProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 285.615771
+  type: 'test'
+  ...
+# Subtest: interruption at beforeWrite distinguishes unproven bytes from an exact prospective receipt
+ok 16 - interruption at beforeWrite distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 303.250319
+  type: 'test'
+  ...
+# Subtest: prospective stage recovery refuses a missing earlier seed with a later seed present
+ok 17 - prospective stage recovery refuses a missing earlier seed with a later seed present
+  ---
+  duration_ms: 172.289256
+  type: 'test'
+  ...
+# Subtest: fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+ok 18 - fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+  ---
+  duration_ms: 475.596666
+  type: 'test'
+  ...
+# Subtest: device-only remount preserves current ownership while old receipt formats remain unsupported
+ok 19 - device-only remount preserves current ownership while old receipt formats remain unsupported
+  ---
+  duration_ms: 1104.608484
+  type: 'test'
+  ...
+# Subtest: completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+ok 20 - completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+  ---
+  duration_ms: 528.844988
+  type: 'test'
+  ...
+# Subtest: an old caller stage2 marker is unsupported and cannot be converted
+ok 21 - an old caller stage2 marker is unsupported and cannot be converted
+  ---
+  duration_ms: 200.943707
+  type: 'test'
+  ...
+# Subtest: full-width filesystem inode values remain strings above Number precision
+ok 22 - full-width filesystem inode values remain strings above Number precision
+  ---
+  duration_ms: 652.067205
+  type: 'test'
+  ...
+# Subtest: legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+ok 23 - legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+  ---
+  duration_ms: 207.216387
+  type: 'test'
+  ...
+# Subtest: explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+ok 24 - explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+  ---
+  duration_ms: 866.253018
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_publish
+ok 25 - original setup identity survives actual publication response loss at project_after_publish
+  ---
+  duration_ms: 608.906256
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_receipt
+ok 26 - original setup identity survives actual publication response loss at project_after_receipt
+  ---
+  duration_ms: 624.393949
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_before_marker_cleanup
+ok 27 - original setup identity survives actual publication response loss at project_before_marker_cleanup
+  ---
+  duration_ms: 535.906705
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at before_result
+ok 28 - original setup identity survives actual publication response loss at before_result
+  ---
+  duration_ms: 519.286019
+  type: 'test'
+  ...
+# Subtest: foreign partial state, dangling control links and generic write arguments reject without adopting data
+ok 29 - foreign partial state, dangling control links and generic write arguments reject without adopting data
+  ---
+  duration_ms: 201.5008
+  type: 'test'
+  ...
+# Subtest: original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+ok 30 - original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+  ---
+  duration_ms: 604.064855
+  type: 'test'
+  ...
+# Subtest: owned recovery retains the originally resolved language configuration across process-locale drift
+ok 31 - owned recovery retains the originally resolved language configuration across process-locale drift
+  ---
+  duration_ms: 581.161692
+  type: 'test'
+  ...
+# Subtest: a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+ok 32 - a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+  ---
+  duration_ms: 236.979986
+  type: 'test'
+  ...
+# Subtest: an owned unpublished stage preserves its original request; another request cannot adopt it
+ok 33 - an owned unpublished stage preserves its original request; another request cannot adopt it
+  ---
+  duration_ms: 336.045815
+  type: 'test'
+  ...
+# Subtest: changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+ok 34 - changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+  ---
+  duration_ms: 956.397639
+  type: 'test'
+  ...
+# Subtest: an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+ok 35 - an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+  ---
+  duration_ms: 404.914817
+  type: 'test'
+  ...
+# Subtest: stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+ok 36 - stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+  ---
+  duration_ms: 441.25325
+  type: 'test'
+  ...
+# Subtest: changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+ok 37 - changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+  ---
+  duration_ms: 730.455423
+  type: 'test'
+  ...
+# Subtest: a non-regular pending marker blocks without reading a foreign FIFO
+ok 38 - a non-regular pending marker blocks without reading a foreign FIFO
+  ---
+  duration_ms: 510.647349
+  type: 'test'
+  ...
+# Subtest: real initializer retains its owned publication while a competing CLI request is rejected
+ok 39 - real initializer retains its owned publication while a competing CLI request is rejected
+  ---
+  duration_ms: 1487.413157
+  type: 'test'
+  ...
+# QA deviations: de/en Chat and assembled decision-session parity, one-effect/legacy guards, immutable report and UAT disclosure, exact revision archive, approved-update rejection, truthful OR closeout, refresh and stale/critical/malformed negatives passed (disposable only; no native qualification).
+# Subtest: ../core/test/qa-deviation-acceptance-test.js
+ok 13 - ../core/test/qa-deviation-acceptance-test.js
+  ---
+  duration_ms: 43251.507091
+  type: 'test'
+  ...
+# Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed Run projection passed. No VCS command executed.
+# Subtest: ../core/test/quick-closeout-command-test.js
+ok 14 - ../core/test/quick-closeout-command-test.js
+  ---
+  duration_ms: 10737.604991
+  type: 'test'
+  ...
+# Shared report-result compatibility, consistent duplicates, aliases, lifecycle metadata and conflict/unknown/missing refusal passed (19 cases).
+# Authored report contexts and code/quote/HTML exclusion passed (139 context cases, 6 internal cases, canonical template and default-domain check).
+# Subtest: ../core/test/report-decision-test.js
+ok 15 - ../core/test/report-decision-test.js
+  ---
+  duration_ms: 278.783582
+  type: 'test'
+  ...
+# Review finding detection and OR correction (D5) passed.
+# Subtest: ../core/test/review-findings-correction-test.js
+ok 16 - ../core/test/review-findings-correction-test.js
+  ---
+  duration_ms: 72864.595212
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-command-test.js
+ok 17 - ../core/test/run-closeout-command-test.js
+  ---
+  duration_ms: 96304.216575
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-slice-test.js
+ok 18 - ../core/test/run-closeout-slice-test.js
+  ---
+  duration_ms: 78169.174755
+  type: 'test'
+  ...
+# Bounded command schema/groups, side-effect annotations, accessor/injection rejection and generated definition budgets passed (23536 bytes; facade not yet included).
+# Expanded/compact SDK parity (2903 cases), direct field help, five output schemas and legitimate/malformed result variants passed.
+# Subtest: ../core/test/run-command-contract-test.js
+ok 19 - ../core/test/run-command-contract-test.js
+  ---
+  duration_ms: 928.840614
+  type: 'test'
+  ...
+# Shared revision preview, exact confirmation boundary, original receipt/archive and immutable historical request replay passed (synthetic only).
+# Subtest: ../core/test/run-command-revision-test.js
+ok 20 - ../core/test/run-command-revision-test.js
+  ---
+  duration_ms: 76140.344975
+  type: 'test'
+  ...
+# Shared service target/group confinement, source recording, historical replay/conflict and post-dispatch lost-result acknowledgement passed (synthetic only).
+# Actual English UAT over German defaults: bound locale for text/native approval, replay and rejection observation; protected sources unchanged.
+# Subtest: ../core/test/run-command-service-test.js
+ok 21 - ../core/test/run-command-service-test.js
+  ---
+  duration_ms: 24274.54472
+  type: 'test'
+  ...
+# Subtest: dedicated creation atomically publishes a sealed initial receipt and replays exactly one effect
+ok 49 - dedicated creation atomically publishes a sealed initial receipt and replays exactly one effect
+  ---
+  duration_ms: 635.806762
+  type: 'test'
+  ...
+# Subtest: creation without canonical control rejects before dispatch with a valid result and no setup side effects
+ok 50 - creation without canonical control rejects before dispatch with a valid result and no setup side effects
+  ---
+  duration_ms: 458.590786
+  type: 'test'
+  ...
+# Subtest: two concurrent original-UUID callers resolve one initial Run and one receipt
+ok 51 - two concurrent original-UUID callers resolve one initial Run and one receipt
+  ---
+  duration_ms: 814.837163
+  type: 'test'
+  ...
+# Subtest: an unexplained creation stage remains untouched and cannot be adopted
+ok 52 - an unexplained creation stage remains untouched and cannot be adopted
+  ---
+  duration_ms: 487.060898
+  type: 'test'
+  ...
+# Subtest: lost creation result is unknown until original receipt observation; replay never creates another Run
+ok 53 - lost creation result is unknown until original receipt observation; replay never creates another Run
+  ---
+  duration_ms: 540.06208
+  type: 'test'
+  ...
+# Subtest: semantic creation titles preserve literal dollar expressions and reject blank intent
+ok 54 - semantic creation titles preserve literal dollar expressions and reject blank intent
+  ---
+  duration_ms: 536.836445
+  type: 'test'
+  ...
+# Subtest: creation titles cannot inject line separators into canonical Run structure
+ok 55 - creation titles cannot inject line separators into canonical Run structure
+  ---
+  duration_ms: 458.656736
+  type: 'test'
+  ...
+# Subtest: an interrupted owned creation stage is recovered only for the exact original request
+ok 56 - an interrupted owned creation stage is recovered only for the exact original request
+  ---
+  duration_ms: 1000.03659
+  type: 'test'
+  ...
+# Subtest: defaulted creation retains its sealed resolution across actual process interruption and corrupt current config
+ok 57 - defaulted creation retains its sealed resolution across actual process interruption and corrupt current config
+  ---
+  duration_ms: 1027.269052
+  type: 'test'
+  ...
+# Subtest: a changed selected config rejects before new creation; an explicit retry selects the new snapshot
+ok 58 - a changed selected config rejects before new creation; an explicit retry selects the new snapshot
+  ---
+  duration_ms: 633.083842
+  type: 'test'
+  ...
+# SCN-004: English/German/misleading display wording leaves full reader and writer policy unchanged; missing prerequisite changes eligibility; stale write rejected without mutation.
+# Shared full-state/writer renewal, bounded internal recording/replay, invalid completion and shared criteria grammar passed (synthetic only).
+# Subtest: ../core/test/run-flow-coherence-test.js
+ok 23 - ../core/test/run-flow-coherence-test.js
+  ---
+  duration_ms: 31245.888425
+  type: 'test'
+  ...
+# Subtest: private multipart material records through the existing UR writer; restaging identity survives response loss
+ok 60 - private multipart material records through the existing UR writer; restaging identity survives response loss
+  ---
+  duration_ms: 1213.434434
+  type: 'test'
+  ...
+# Subtest: 128 KiB Unicode handoff is bounded and bad sizes/offsets/slots do not publish
+ok 61 - 128 KiB Unicode handoff is bounded and bad sizes/offsets/slots do not publish
+  ---
+  duration_ms: 663.611149
+  type: 'test'
+  ...
+# Subtest: invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry never publish material
+ok 62 - invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry never publish material
+  ---
+  duration_ms: 654.548998
+  type: 'test'
+  ...
+# Subtest: unsupported journal shape cannot publish foreign legacy output
+ok 63 - unsupported journal shape cannot publish foreign legacy output
+  ---
+  duration_ms: 1607.876311
+  type: 'test'
+  ...
+# Subtest: unsupported journal shape cannot publish foreign legacy output
+ok 64 - unsupported journal shape cannot publish foreign legacy output
+  ---
+  duration_ms: 1455.307898
+  type: 'test'
+  ...
+# Strict current owned-output process interruption, pre-commit rollback, post-commit forward recovery, receipt replay and interference rejection passed (no power-loss claim).
+# Subtest: ../core/test/run-owned-output-recovery-test.js
+ok 25 - ../core/test/run-owned-output-recovery-test.js
+  ---
+  duration_ms: 33056.422006
+  type: 'test'
+  ...
+# Subtest: Git facts disable filesystem monitors and preserve the actual changed path
+ok 66 - Git facts disable filesystem monitors and preserve the actual changed path
+  ---
+  duration_ms: 1427.763782
+  type: 'test'
+  ...
+# Subtest: Verified Change uses actual Git baseline and completes through canonical typed writers without run-update
+ok 67 - Verified Change uses actual Git baseline and completes through canonical typed writers without run-update
+  ---
+  duration_ms: 16248.989702
+  type: 'test'
+  ...
+1..67
+# tests 67
+# suites 0
+# pass 66
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1013815.641695

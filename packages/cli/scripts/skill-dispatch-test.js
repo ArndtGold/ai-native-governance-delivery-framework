@@ -354,7 +354,8 @@ const qaRevise = createSkillDispatchService({
 assert.deepEqual(qaRevise.control.gate_route, { gate: "QA", skills: ["qa-gate"] });
 assert.equal(qaRevise.outcome, "control_result");
 
-let intakeState = { phase: "run_missing", run_id: "delivery-run", revision_id: null };
+const newOperation = "4e5e77cf-e01d-42c3-bdd7-6681f99d9b47", newRun = `run-${newOperation}`;
+let intakeState = { phase: "run_missing", run_id: newRun, revision_id: null };
 const intakeCalls = [];
 const intakeDispatch = createSkillDispatchService({
   resolveTaskTarget: () => resolved,
@@ -374,8 +375,8 @@ assert.equal(runMissing.continuation.operation_id, "delivery.start");
 assert.equal(runMissing.continuation.phase, "run_missing");
 assert.equal(runMissing.continuation.governance_target, "/tmp/agdf-repo");
 assert.deepEqual(runMissing.continuation.steps.map((step) => step.id), ["create_run", "dispatch_again"]);
-assert.equal(runMissing.continuation.steps[0].command, "run-create --dir '/tmp/agdf-repo' --run delivery-run");
-assert.deepEqual(runMissing.continuation.steps[0].argv, ["run-create", "--dir", "/tmp/agdf-repo", "--run", "delivery-run"]);
+assert.equal(runMissing.continuation.steps[0].command, `run-create --dir '/tmp/agdf-repo' --title '${newRun}' --operation ${newOperation}`);
+assert.deepEqual(runMissing.continuation.steps[0].argv, ["run-create", "--dir", "/tmp/agdf-repo", "--title", newRun, "--operation", newOperation]);
 assert.match(runMissing.continuation.instruction, /approve no gate and authorize no implementation/u);
 assert.equal(Object.isFrozen(runMissing.continuation), true);
 assert.equal(Object.isFrozen(runMissing.continuation.steps[0]), true);
@@ -407,8 +408,8 @@ const sdContinuationDispatch = createSkillDispatchService({
     status_card: { run_id: "delivery-run", mode_slice_decision: structuredRoute },
     next_operation: {
       type: "prepare_gate_artifact", gate: "SD", skill_id: "gate-check",
-      artifact_path: ".agdf/control/artefacts/delivery-run/SD.md",
-      source_artifacts: [".agdf/control/artefacts/delivery-run/PRD.md"],
+      artifact_path: ".agdf/control/runs/delivery-run/documents/SD.md",
+      source_artifacts: [".agdf/control/runs/delivery-run/documents/PRD.md"],
     },
     delivery_map: { relationships: [{ from: "SD", relationship: "derived_from", to: "PRD", status: "missing" }] },
     approval_presentation: null,
@@ -427,9 +428,9 @@ assert.equal(sdContinuation.outcome, "skill_continuation", "PRD approval must le
 assert.equal(sdContinuation.terminal, false);
 assert.equal(sdContinuation.continuation.phase, "required_gate_artifact");
 assert.equal(sdContinuation.continuation.gate, "SD");
-assert.equal(sdContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/SD.md");
+assert.equal(sdContinuation.continuation.artifact_path, ".agdf/control/runs/delivery-run/documents/SD.md");
 assert.equal(sdContinuation.continuation.template_path, resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.SD));
-assert.deepEqual(sdContinuation.continuation.source_artifacts, [".agdf/control/artefacts/delivery-run/PRD.md"]);
+assert.deepEqual(sdContinuation.continuation.source_artifacts, [".agdf/control/runs/delivery-run/documents/PRD.md"]);
 assert.match(sdContinuation.continuation.instruction, /gate-artifact-preparation runtime contract/u);
 assert.equal(sdContinuation.host_action.mode, "continue_named_skill");
 assert.equal(sdContinuation.authorizes, false);
@@ -445,10 +446,10 @@ const tpContinuationDispatch = createSkillDispatchService({
     status_card: { run_id: "delivery-run", mode_slice_decision: structuredRoute },
     next_operation: {
       type: "prepare_gate_artifact", gate: "TP", skill_id: "gate-check",
-      artifact_path: ".agdf/control/artefacts/delivery-run/TP.md",
+      artifact_path: ".agdf/control/runs/delivery-run/documents/TP.md",
       source_artifacts: [
-        ".agdf/control/artefacts/delivery-run/PRD.md",
-        ".agdf/control/artefacts/delivery-run/SD.md",
+        ".agdf/control/runs/delivery-run/documents/PRD.md",
+        ".agdf/control/runs/delivery-run/documents/SD.md",
       ],
     },
     delivery_map: { relationships: [{ from: "TP", relationship: "derived_from", to: "SD", status: "missing" }] },
@@ -468,11 +469,11 @@ assert.equal(tpContinuation.outcome, "skill_continuation", "SD approval must lea
 assert.equal(tpContinuation.terminal, false);
 assert.equal(tpContinuation.continuation.phase, "required_gate_artifact");
 assert.equal(tpContinuation.continuation.gate, "TP");
-assert.equal(tpContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/TP.md");
+assert.equal(tpContinuation.continuation.artifact_path, ".agdf/control/runs/delivery-run/documents/TP.md");
 assert.equal(tpContinuation.continuation.template_path, resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.TP));
 assert.deepEqual(tpContinuation.continuation.source_artifacts, [
-  ".agdf/control/artefacts/delivery-run/PRD.md",
-  ".agdf/control/artefacts/delivery-run/SD.md",
+  ".agdf/control/runs/delivery-run/documents/PRD.md",
+  ".agdf/control/runs/delivery-run/documents/SD.md",
 ]);
 assert.match(tpContinuation.continuation.instruction, /gate-artifact-preparation runtime contract/u);
 assert.equal(tpContinuation.host_action.mode, "continue_named_skill");
@@ -925,7 +926,7 @@ const verifiedChangeDispatch = createSkillDispatchService({
   runId: "delivery-run", continueDelivery: true });
 assert.equal(verifiedChangeDispatch.continuation.phase, "verified_change_record");
 assert.equal(verifiedChangeDispatch.continuation.artifact_path,
-  ".agdf/control/artefacts/delivery-run/VERIFIED_CHANGE.md");
+  ".agdf/control/runs/delivery-run/documents/VERIFIED_CHANGE.md");
 assert.equal(verifiedChangeDispatch.continuation.template_path,
   resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.VERIFIED_CHANGE));
 

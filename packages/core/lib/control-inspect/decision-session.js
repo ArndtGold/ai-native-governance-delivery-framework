@@ -80,7 +80,7 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       const state = prepareRunContentState(root, run.content, run.path);
       const material = decisionMaterial(root, state, input.command.payload.gate);
       if (!material.available) return { ...result, app_capability: 'unavailable', app_reason: material.reason };
-      if ([3, 4, 5, 6].includes(resolutionRecordVersion(presentation.record)) && (typeof prepared.summary !== 'string'
+      if (resolutionRecordVersion(presentation.record) === 7 && (typeof prepared.summary !== 'string'
         || 'sha256:' + createHash('sha256').update(prepared.summary).digest('hex') !== presentation.record.summary_digest)) {
         return { ...result, app_capability: 'unavailable', app_reason: 'presentation_binding_changed' };
       }
@@ -103,8 +103,8 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       row.presentationDocument = binding.gate === 'UAT' ? Object.freeze({ resource_id: randomUUID(),
         run_id: binding.run_id, type: 'UAT', status: 'registered', path: null,
         registered_reference: `presentation:${binding.presentation_id}` }) : null;
-      row.hasSnapshot = [3, 4, 5, 6].includes(resolutionRecordVersion(presentation.record));
-      row.previewRecord = ([5, 6].includes(resolutionRecordVersion(presentation.record)) && presentation.record.preview_review) ? presentation.record : null;
+      row.hasSnapshot = resolutionRecordVersion(presentation.record) === 7;
+      row.previewRecord = (resolutionRecordVersion(presentation.record) === 7 && presentation.record.preview_review) ? presentation.record : null;
       row.previewResourceId = row.previewRecord ? randomUUID() : null;
       row.presentationText = row.presentationDocument ? prepared.text : null;
       row.presentedContentSeal = presentation.record.content_digest;

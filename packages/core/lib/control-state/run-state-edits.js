@@ -10,7 +10,6 @@ import { runClosure, endedRunMessage, RUN_ENDED_NEXT_ACTION } from './run-operat
 // addressed section or table row and keep every other byte of the run state.
 const WRITE_REJECTIONS = new Map([
   ['AGDF_CONTROL_MAINTENANCE_REQUIRED', 'control_maintenance_required'],
-  ['AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED', 'control_layout_migration_required'],
   ['AGDF_CONTROL_LAYOUT_UNSUPPORTED', 'control_layout_unsupported'],
   ['AGDF_OPERATION_PAYLOAD_CONFLICT', 'operation_payload_conflict'],
   ['AGDF_OPERATION_BINDING_INVALID', 'operation_binding_invalid'],
@@ -18,13 +17,9 @@ const WRITE_REJECTIONS = new Map([
   ['AGDF_RUN_OPERATION_SOURCE_INVALID', 'operation_source_invalid'],
   ['AGDF_RUN_OPERATION_SOURCE_CHANGED', 'operation_source_changed'],
   ["AGDF_RUN_PATH_INVALID", "run_path_invalid"],
-  ["AGDF_BACKLOG_PATH_INVALID", "backlog_path_invalid"],
-  ["AGDF_BACKLOG_LAYOUT_UNSUPPORTED", "backlog_layout_unsupported"],
-  ["AGDF_BACKLOG_IDENTITY_AMBIGUOUS", "backlog_identity_ambiguous"],
   ["AGDF_SOURCE_REVISIONS_INVALID", "source_revisions_invalid"],
   ["AGDF_SOURCE_REVISIONS_CHANGED", "source_revisions_changed"],
   ["AGDF_REVISION_HISTORY_INVALID", "revision_history_invalid"],
-  ["AGDF_CORRECTION_COMMIT_UNCONFIRMED", "correction_commit_unconfirmed"],
   ["AGDF_ARTEFACT_RECORDING_GATE_INVALID", "artefact_recording_gate_invalid"],
   ["AGDF_ARTEFACT_RECORDING_INPUT_INVALID", "artefact_recording_input_invalid"],
   ["AGDF_ARTEFACT_BINDING_PROOF_INVALID", "artefact_binding_proof_invalid"],
@@ -69,7 +64,7 @@ export function readRun(root, runId) {
   }
   const parsed = parseRunState(content, runId);
   if (!parsed.valid) {
-    return { rejection: rejected(runId, "run_state_invalid", { findings: parsed.findings.map((finding) => finding.code) }) };
+    return { rejection: rejected(runId, parsed.findings.some(row => row.classification === "unsupported_version") ? "run_version_unsupported" : "run_state_invalid", { findings: parsed.findings.map((finding) => finding.code) }) };
   }
   return { path, content, meta: parsed.meta };
 }

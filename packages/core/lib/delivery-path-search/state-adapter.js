@@ -31,7 +31,7 @@ export function searchInputFromControl(targetDir, options = {}, dependencies = {
   const evaluatedRevision = gate.status_presentation?.revision_id ?? "";
   const runId = metaField(content, "run_id");
   const runRevision = metaField(content, "revision_id");
-  const runGate = metaField(content, "current_gate");
+  const runGate = run.current_gate ?? "";
   let inputFailureCode = "";
   if (!content || run.resolution_error) inputFailureCode = "canonical_control_unavailable";
   else if (!evaluatedRunId || !evaluatedRevision) inputFailureCode = "canonical_snapshot_identity_missing";

@@ -81,14 +81,14 @@ assert.equal(evaluateApprovalSummaryReadiness('UR', french, { ...languages, arti
 const temporary = mkdtempSync(join(tmpdir(), 'agdf-approval-chain-'));
 try {
   const fixture = join(temporary, 'ur');
-  mkdirSync(join(fixture, '.agdf/control/artefacts/r'), { recursive: true });
-  writeFileSync(join(fixture, '.agdf/control/config.json'), JSON.stringify({ artifact_language: 'en', chat_language: 'de', runtime_language: 'en' }));
+  mkdirSync(join(fixture, '.agdf/control/runs/r/documents'), { recursive: true });
+  writeFileSync(join(fixture, '.agdf/control/config.json'), JSON.stringify({ control_layout: 'run-folders-v1', artifact_language: 'en', chat_language: 'de', runtime_language: 'en' }));
   const urText = ['# UR: Synthetic', '', 'Requirements clarification: complete', '',
     ...['Problem', 'Goal', 'Affected Users', 'Scope', 'Non-Goals', 'Acceptance Signals', 'Existing Source Of Truth', 'Risks And Unknowns', 'Next Step']
       .flatMap(section => [`## ${section}`, '', `Concrete synthetic ${section.toLowerCase()} content.`, '']),
     `## ${heading}`, '', '- Problem: Ein Problem.', 'Freier Satz ohne Feld.', goal, ''].join('\n');
-  writeFileSync(join(fixture, '.agdf/control/artefacts/r/UR.md'), urText);
-  const urState = { artefacts: new Map([['UR', { path: '.agdf/control/artefacts/r/UR.md' }]]) };
+  writeFileSync(join(fixture, '.agdf/control/runs/r/documents/UR.md'), urText);
+  const urState = { artefacts: new Map([['UR', { path: '.agdf/control/runs/r/documents/UR.md' }]]) };
   const urReadiness = evaluateUrReadiness(fixture, urState, { presentationLanguage: 'de' });
   assert.equal(urReadiness.ready, false);
   assert.ok(urReadiness.open_items.includes(heading));
@@ -96,15 +96,15 @@ try {
 
   // D1 / SCN-004: presentation readiness and UAT observation agree, through actual files.
   const qaText = withSyntheticQaContent('# QA: Synthetic\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n');
-  mkdirSync(join(fixture, '.agdf/control/runs/r'), { recursive: true });
+  mkdirSync(join(fixture, '.agdf/control/runs/r/documents'), { recursive: true });
   for (const [name, lines] of [['observed', null], ['missing', ['- Problem: Ein Problem.']], ['prose', ['- Problem: Ein Problem.', 'Satz.', goal]],
     ['qualified', ['- Ziel (Kurzform): Kurz.', goal]], ['only qualified', ['- Ziel (Kurzform): Kurz.']], ['duplicate', [goal, goal]]]) {
     const text = lines ? urText.slice(0, urText.indexOf(`## ${heading}`)) + `## ${heading}\n\n${lines.join('\n')}\n` : observed;
-    writeFileSync(join(fixture, '.agdf/control/artefacts/r/UR.md'), text);
-    writeFileSync(join(fixture, '.agdf/control/artefacts/r/QA_REPORT.md'), qaText);
+    writeFileSync(join(fixture, '.agdf/control/runs/r/documents/UR.md'), text);
+    writeFileSync(join(fixture, '.agdf/control/runs/r/documents/QA_REPORT.md'), qaText);
     const state = { run_id: 'r', meta: { lifecycle: 'active' }, mode_slice_decision: { decision: 'structured_slice' },
       content: '# Run\n\n## Objective\n\nA concrete synthetic objective.\n',
-      artefacts: new Map([['UR', { path: '.agdf/control/artefacts/r/UR.md' }], ['QA', { path: '.agdf/control/artefacts/r/QA_REPORT.md' }]]) };
+      artefacts: new Map([['UR', { path: '.agdf/control/runs/r/documents/UR.md' }], ['QA', { path: '.agdf/control/runs/r/documents/QA_REPORT.md' }]]) };
     const uat = observeDecisionContent(fixture, state, { gate: 'UAT', locale: 'de', sourceLanguage: 'en' });
     const goalGap = uat.gaps.some(gap => gap.field === 'ziel');
     assert.equal(evaluateApprovalSummaryReadiness('UR', text, languages).ready, !goalGap, name);
@@ -112,13 +112,13 @@ try {
 
   // D1 / SCN-005: QA presentation refuses an unreadable Grenzen line.
   const qaMissing = qaText.replace(/^- Grenzen:.*$/mu, '');
-  const qaReady = evaluateApprovalSummaryReadiness('QA', qaMissing, languages, { path: '.agdf/control/artefacts/r/QA_REPORT.md' });
+  const qaReady = evaluateApprovalSummaryReadiness('QA', qaMissing, languages, { path: '.agdf/control/runs/r/documents/QA_REPORT.md' });
   assert.equal(qaReady.reason, 'approval_summary_field_unreadable');
   assert.deepEqual(qaReady.diagnostics, [{ field: 'grenzen', expected: '- Grenzen:' }]);
-  assert.equal(evaluateApprovalSummaryReadiness('QA', qaText, languages, { path: '.agdf/control/artefacts/r/QA_REPORT.md' }).ready, true);
+  assert.equal(evaluateApprovalSummaryReadiness('QA', qaText, languages, { path: '.agdf/control/runs/r/documents/QA_REPORT.md' }).ready, true);
   assert.deepEqual(localizedDecisionFields('QA', qaText, { locale: 'de', sourceLanguage: 'en', path: 'x/QA_REPORT.md' }).gaps, []);
   const qaTwoMissing = qaMissing.replace(/^- Risiken:.*$/mu, '');
-  const twoMissing = evaluateApprovalSummaryReadiness('QA', qaTwoMissing, languages, { path: '.agdf/control/artefacts/r/QA_REPORT.md' });
+  const twoMissing = evaluateApprovalSummaryReadiness('QA', qaTwoMissing, languages, { path: '.agdf/control/runs/r/documents/QA_REPORT.md' });
   assert.deepEqual(twoMissing.diagnostics.map(row => row.field), ['grenzen', 'risiken']);
   const twoIssue = renderApprovalSummaryIssue(twoMissing, { path: 'QA_REPORT.md', presentationLanguage: 'de' });
   assert.ok(twoIssue.includes('- Grenzen:') && twoIssue.includes('- Risiken:'), 'The recovery names every unreadable field: ' + twoIssue);
@@ -158,7 +158,7 @@ const legacyCore = async () => {
   const core = resolve(import.meta.dirname, '..'), base = mkdtempSync(join(core, '../../node_modules', '.agdf-pre-fix-core-'));
   for (const part of ['lib', 'generated', 'package.json']) cpSync(join(core, part), join(base, 'packages/core', part), { recursive: true });
   cpSync(resolve(core, '../../plugins/agdf/control/templates'), join(base, 'plugins/agdf/control/templates'), { recursive: true });
-  const policy = join(base, 'packages/core/lib/control-evaluation/gate-policy.js'), source = readFileSync(policy, 'utf8');
+  const policy = join(base, 'packages/core/lib/control-evaluation/gate-policy-pure.js'), source = readFileSync(policy, 'utf8');
   const start = source.indexOf('  // The qa-gate forbids a QA pass without review evidence'), end = source.indexOf('  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA"))');
   assert.ok(start > 0 && end > start, 'The emulated pre-fix runtime removes exactly the new QA review branch.');
   writeFileSync(policy, source.slice(0, start) + source.slice(end));
@@ -188,13 +188,8 @@ try {
   for (const step of ['Brownfield Analysis', 'CD+Tests', 'CR']) assert.equal(internal(step).outcome, 'accepted', step);
   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
   writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic dead end\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests recorded.\n\n## Risks\nNo applicable open required finding.\n'));
-  const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
-    destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
-    relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
-  const { schema_version, target_id, run_id, destination, source, relationship } = command;
-  writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
-  command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
-  const qa = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+
+  const qa = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root, qaPath) }, reviewer: 'Synthetic QA reviewer', reviewed: true, update_draft: false } } });
   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
 
   // SCN-011: without both reviews the QA approval request is withheld and names the reviews.
@@ -279,13 +274,8 @@ try {
     for (const step of ['Brownfield Analysis', 'CD+Tests', 'CR']) assert.equal(internal(step).outcome, 'accepted', step);
     const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
     writeFileSync(join(root2, qaPath), withSyntheticQaContent('# QA: Synthetic\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n'));
-    const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
-      destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root2, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root2, f.prefix + 'TP.md') },
-      relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
-    const { schema_version, target_id, run_id, destination, source, relationship } = command;
-    writeFileSync(join(root2, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
-    command.review.digest = artefactFileDigest(root2, proof); writeFileSync(join(root2, request), JSON.stringify(command));
-    assert.equal(service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root2, request) } } } }).outcome, 'accepted');
+
+    assert.equal(service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root2, qaPath) }, reviewer: 'Synthetic QA reviewer', reviewed: true, update_draft: false } } }).outcome, 'accepted');
     const prepared = legacy2.services.command('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
     assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
     assert.equal(legacy2.services.command('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate: 'QA', presentation_id: prepared.family_result.presentation_id, response: 'Approval: QA' } } }).outcome, 'accepted');
@@ -322,13 +312,8 @@ try {
     writeFileSync(join(root3, qaPath), withSyntheticQaContent('# QA: Synthetic normal flow\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n'));
     const recordQa = suffix => {
       const proof = f.prefix + `QA_MAPPING-${suffix}.json`, request = f.prefix + `QA_RECORD-${suffix}.json`;
-      const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
-        destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root3, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root3, f.prefix + 'TP.md') },
-        relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
-      const { schema_version, target_id, run_id, destination, source, relationship } = command;
-      writeFileSync(join(root3, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
-      command.review.digest = artefactFileDigest(root3, proof); writeFileSync(join(root3, request), JSON.stringify(command));
-      return service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root3, request) } } } });
+
+      return service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root3, qaPath) }, reviewer: 'Synthetic QA reviewer', reviewed: true, update_draft: suffix !== '01' } } });
     };
     assert.equal(recordQa('01').outcome, 'accepted');
     assert.equal(evaluateGateCheck(root3, { runId: f.runId }).next_allowed_action, 'Record TP Review and Clean Implementation Review before requesting Approval: QA.');

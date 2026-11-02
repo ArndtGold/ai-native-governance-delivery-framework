@@ -96,7 +96,15 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   } };
   for (const tool of tools) {
     const { name, definition, serialize } = tool;
-    const schema = fromJsonSchema(definition.inputSchema, deferredSchemas);
+    const schema = fromJsonSchema(definition.inputSchema, { getValidator(inputSchema) {
+      const validate = deferredSchemas.getValidator(inputSchema);
+      return input => {
+        const checked = validate(input);
+        if (checked.valid) return checked;
+        const hint = runtime.inputValidationHint?.(name, input);
+        return hint ? { ...checked, errorMessage: `${hint} Schema: ${checked.errorMessage}` } : checked;
+      };
+    } });
     const registered = server.registerTool(
       name,
       {

@@ -33,7 +33,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
  });
  it('partial pointer diagnostics start closed and malformed stored rows cannot be opened',async()=>{
   const bad={...pointer('invalid-run','Broken pointer'),selectable:false};
-  const partial={...inventory,data:{...inventory.data!,entries:[...inventory.data!.entries,bad],counts:{...inventory.data!.counts,'Active Backlog':2},diagnostics:[{code:'malformed_pointer',message:'Broken stored row.'}]}};
+  const partial={...inventory,data:{...inventory.data!,entries:[...inventory.data!.entries,bad],counts:{...inventory.data!.counts,'active':2},diagnostics:[{code:'malformed_pointer',message:'Broken stored row.'}]}};
   const read=vi.fn(async()=>partial) as unknown as ReadTransport;render(<App compact transport={read}/>);await readySelection();
   expect(screen.getByText('Teilweise verfügbar · Aktiv · 1 Lesehinweis').closest('details')?.open).toBe(false);
   expect((screen.getByRole('button',{name:/Broken pointer/}) as HTMLButtonElement).disabled).toBe(true);
@@ -42,7 +42,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
  it('does not warn about active coverage when only another backlog area is unreadable',async()=>{
   const source=backlog([pointer('run-a')]);
   source.state='partial';source.code='backlog_partial';
-  source.data!.diagnostics=[{code:'backlog_layout_missing',section:'Planned / Parking Lot'}];
+  source.data!.diagnostics=[{code:'work_section_unavailable',section:'planned'}];
   render(<App compact transport={vi.fn(async()=>source) as unknown as ReadTransport} onExpand={vi.fn()}/>);
   await readySelection();
   expect(screen.queryByText(/Backlog-Hinweise/)).toBeNull();
@@ -90,7 +90,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   const view=render(<App compact transport={read} onExpand={expand}/>);const select=await readySelection();
   expect(screen.queryByRole('combobox')).toBeNull();expect(read).toHaveBeenCalledTimes(1);expect(screen.queryByText('Freigegebenen Umfang umsetzen.')).toBeNull();
   fireEvent.click(select);await screen.findByText('Freigegebenen Umfang umsetzen.');
-  expect(screen.getByText('Host context still unverified')).toBeTruthy();expect(screen.getByText('Zuletzt als „In Arbeit“ gespeichert.')).toBeTruthy();
+  expect(screen.getByText('Host context still unverified')).toBeTruthy();expect(screen.getByText('Aktuell als „In Arbeit“ eingeordnet.')).toBeTruthy();
   expect(screen.getByText('Dokumente · 0',{exact:true})).toBeTruthy();expect(screen.queryByText('Umsetzungs- und Prüfplan',{exact:true})).toBeNull();expect(screen.queryByText('QA',{exact:true})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Run ansehen'}));expect(expand).toHaveBeenCalledTimes(1);
   view.rerender(<App transport={read} onExpand={expand}/>);expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
@@ -182,16 +182,16 @@ it('opens the exact registered Run State from an unconfirmed inline card and ret
 });
 it('SCN-003/008/009: compact active preview and expanded projection share query/order, while other areas reset on return',async()=>{
  const active=Array.from({length:8},(_,i)=>pointer('active-'+i,'Gemeinsames Vorhaben '+i));
- const rows=[...active,{...pointer('later','Planned only'),section:'Planned / Parking Lot'},{...pointer('done','Archive only'),section:'Completed / Superseded Pointers'}];
+ const rows=[...active,{...pointer('later','Planned only'),section:'planned'},{...pointer('done','Archive only'),section:'history'}];
  const read=vi.fn(async()=>backlog(rows)) as unknown as ReadTransport;
  const view=render(<App compact transport={read} onExpand={vi.fn()}/>);await screen.findByRole('searchbox');
- expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice().reverse().map(r=>r.title));
+ expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.map(r=>r.title));
  expect(screen.queryByRole('button',{name:'Planned only'})).toBeNull();expect(screen.queryByRole('button',{name:'Archive only'})).toBeNull();
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:' Gemeinsames '}});
  expect(screen.getByText('8 Einträge · 8 Treffer')).toBeTruthy();
  view.rerender(<App transport={read}/>);
  expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe(' Gemeinsames ');
- expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice().reverse().map(r=>r.title));
+ expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.map(r=>r.title));
  fireEvent.click(screen.getByRole('button',{name:'Geplant 1'}));expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('');
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'Planned'}});
  view.rerender(<App compact transport={read}/>);
@@ -230,7 +230,7 @@ it('SCN-004/015/016: compact unavailable count and partial no-match never claim 
  const source=backlog([pointer('bad')]);source.data!.entries[0].selectable=false;
  const view=render(<App compact transport={vi.fn(async()=>source) as unknown as ReadTransport}/>);await screen.findByRole('searchbox');
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'absent'}});expect(screen.getByText(/weitere Vorhaben können fehlen/)).toBeTruthy();
- view.unmount();const missing=backlog([]);missing.data!.diagnostics=[{code:'backlog_layout_missing',section:'Active Backlog'}];
+ view.unmount();const missing=backlog([]);missing.data!.diagnostics=[{code:'work_section_unavailable',section:'active'}];
  render(<App compact transport={vi.fn(async()=>missing) as unknown as ReadTransport}/>);
  await screen.findByText('Bereich nicht verfügbar · Anzahl nicht bestimmbar');expect(screen.queryByText(/0 Einträge/)).toBeNull();
 });

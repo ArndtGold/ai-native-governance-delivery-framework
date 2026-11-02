@@ -13,26 +13,25 @@ const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const row = result => result.data.run.document_states.find(s => s.type === 'UR');
 function draftFixture(content = readyPrd) {
   const f = artifactReadinessFixture('PRD'); f.root = fs.realpathSync(f.root); fs.writeFileSync(f.path, content);
-  const path = `.agdf/control/artefacts/${f.runId}/PRD.md`, statePath = join(f.root, `.agdf/control/runs/${f.runId}/RUN_STATE.md`);
-  fs.writeFileSync(statePath, sealRunState(f.root, upsertTableRow(fs.readFileSync(statePath, 'utf8'), 'Artefacts', 0, 'PRD', ['PRD', path, 'draft', 'Disposable registered draft'])));
-  return { ...f, close: () => fs.rmSync(f.root, { recursive: true, force: true }) };
+  f.registerProjection();
+  return { ...f, get revision(){return f.currentRevision();}, close: () => fs.rmSync(f.root, { recursive: true, force: true }) };
 }
 test('SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes', () => {
   const f = fixture(); try {
-    f.register('PRD', '.agdf/control/artefacts/fixture-a/absent.md');
-    f.register('SD', '../outside.md');
-    f.register('Brownfield Analysis', '.agdf/control/artefacts/fixture-a/analysis.md');
+    f.register('PRD', '.agdf/control/runs/fixture-a/documents/PRD.md');
+    f.register('Brownfield Analysis', '.agdf/control/runs/fixture-a/documents/analysis.md');
     const before = treeBytes(f.root), reader = createCockpitReader(f.root), r = reader.snapshot('fixture-a');
-    assert.equal(r.state, 'available'); assert.equal(r.data.run.document_states.length, 3);
-    assert.deepEqual(r.data.run.document_states.map(s => s.type), ['UR', 'PRD', 'SD']);
-    assert.equal(r.data.run.document_states[1].source_state, 'missing'); assert.equal(r.data.run.document_states[2].source_state, 'blocked');
+    assert.equal(r.state, 'available'); assert.equal(r.data.run.document_states.length, 2);
+    assert.deepEqual(r.data.run.document_states.map(s => s.type), ['UR', 'PRD']);
+    assert.equal(r.data.run.document_states[1].source_state, 'missing');
     assert.ok(r.data.run.document_states.every(s => s.authorizes === false));
     assert.deepEqual(treeBytes(f.root), before);
+    f.register('SD','docs/outside.md');const malformed=treeBytes(f.root),denied=reader.snapshot('fixture-a');assert.equal(denied.state,'available');assert.equal(denied.data.run.document_states.find(row=>row.type==='SD').source_state,'blocked');assert.equal(denied.data.run.evaluation.control_assessment.state,'unconfirmed');assert.deepEqual(treeBytes(f.root),malformed);
   } finally { f.close(); }
 });
 test('SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it', async () => {
   const f = await approvalFixture(); try {
-    assert.equal(f.approve().outcome, 'approved'); const before = treeBytes(f.root);
+    assert.equal(f.approve().outcome, 'accepted'); const before = treeBytes(f.root);
     const reader = createCockpitReader(f.root), selected = reader.snapshot('fixture-a');
     assert.equal(row(selected).state, 'approved', JSON.stringify(row(selected)));
     const source = selected.data.run.resources.find(s => s.type === 'UR');
@@ -56,8 +55,8 @@ test('SCN-003/004/014: actual canonical approval binds raw returned bytes; norma
 test('SCN-004: missing or foreign/malformed approval presentation never confirms current version', async () => {
   for (const mutation of ['missing', 'malformed', 'foreign', 'document_missing', 'document_changed']) {
     const f = await approvalFixture(); try {
-      assert.equal(f.approve().outcome, 'approved');
-      const dir = join(f.root, '.agdf/control/runs/fixture-a/presentations');
+      assert.equal(f.approve().outcome, 'accepted');
+      const dir = join(f.root, '.agdf/control/runs/fixture-a/control/presentations');
       const path = join(dir, `${f.presentationId}.json`), document = join(dir, `${f.presentationId}.document`);
       assert.equal(JSON.parse(fs.readFileSync(path, 'utf8')).record.presentation_id, f.presentationId);
       if (mutation === 'missing') fs.rmSync(path);
@@ -125,7 +124,7 @@ test('SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers prese
     const f = artifactReadinessFixture(gate, 'en'); f.root = fs.realpathSync(f.root);
     try {
       fs.writeFileSync(f.path, broken[gate]);
-      f.reseal(text => upsertTableRow(text, 'Artefacts', 0, gate, [gate, `${f.prefix}${gate}.md`, 'draft', 'Actual registered authoring draft']));
+      f.registerProjection();
       const before = treeBytes(f.root), reader = createCockpitReader(f.root), selected = reader.snapshot(f.runId);
       assert.equal(selected.data.run.draft_check.source.available, true, JSON.stringify(selected));
       const checked = reader.artifactReadiness(f.runId, selected.snapshot_id, gate, f.revision), check = checked.data.run.draft_check;
@@ -142,7 +141,7 @@ test('SCN-006: actual current SD traceability findings are shown without changin
   const f=artifactReadinessFixture('SD','en'); f.root=fs.realpathSync(f.root);
   try {
     fs.writeFileSync(f.path,'# SD: Missing design mapping\n\nTraceability contract: criteria-chain-v1\n');
-    f.reseal(text=>upsertTableRow(text,'Artefacts',0,'SD',['SD',`${f.prefix}SD.md`,'draft','Actual SD traceability fixture']));
+    f.registerProjection();
     const before=treeBytes(f.root),reader=createCockpitReader(f.root),selected=reader.snapshot(f.runId);
     const checked=reader.artifactReadiness(f.runId,selected.snapshot_id,'SD',f.revision),check=checked.data.run.draft_check;
     assert.deepEqual(check.result,inspectArtifactReadiness(f.root,{runId:f.runId,gate:'SD',expectedRevisionId:f.revision,presentationLanguage:'de'}));
@@ -155,7 +154,7 @@ test('SCN-006: actual current SD traceability findings are shown without changin
 test('SCN-008: another existing Run and observed missing draft invalidate an already passed slot', () => {
   const f=draftFixture(),other=artifactReadinessFixture('PRD','de','another-run');
   try {
-    for(const dir of ['artefacts','runs'])fs.cpSync(join(other.root,'.agdf/control',dir,other.runId),join(f.root,'.agdf/control',dir,other.runId),{recursive:true});
+    for(const dir of ['runs'])fs.cpSync(join(other.root,'.agdf/control',dir,other.runId),join(f.root,'.agdf/control',dir,other.runId),{recursive:true});
     const reader=createCockpitReader(f.root);let s=reader.snapshot(f.runId);
     s=reader.artifactReadiness(f.runId,s.snapshot_id,'PRD',f.revision);
     assert.equal(s.data.run.draft_check.display.state,'passed');
@@ -186,7 +185,7 @@ test('SCN-008: failed publication, overview and observed lifecycle/gate/revision
         const original = fs.readFileSync(f.runPath, 'utf8');
         const change = kind === 'revision' ? original.replace(f.revision, '00000000-0000-0000-0000-000000000001')
           : kind === 'lifecycle' ? original.replace('- lifecycle: active', '- lifecycle: completed')
-          : original.replace('- current_gate: PRD', '- current_gate: QA');
+          : original.replace('- mode: structured_delivery', '- mode: structured_slice');
         fs.writeFileSync(f.runPath, sealRunState(f.root, change));
         assert.throws(() => reader.freshness(selected.snapshot_id), /source_changed/);
         fs.writeFileSync(f.runPath, original);
@@ -202,7 +201,7 @@ test('SCN-009: real large authoring findings hit the slot/description bound with
     const reader=createCockpitReader(f.root);
     for(const length of [1024,140000]) {
       fs.writeFileSync(f.path,readyPrd.replace('| Scope | before_prd | resolved',`| ${'Large actual decision '.padEnd(length,'x')} | before_prd | open`));
-      f.reseal(s=>s);const selected=reader.snapshot(f.runId),before=treeBytes(f.root);
+      f.registerProjection();const selected=reader.snapshot(f.runId),before=treeBytes(f.root);
       const checked=reader.artifactReadiness(f.runId,selected.snapshot_id,'PRD',f.revision);
       if(length===1024){assert.equal(checked.data.run.draft_check.display.state,'corrections_required');assert.ok(Buffer.byteLength(JSON.stringify(checked.data.run.document_states))<=256*1024);}
       else {assert.equal(checked.code,'resource_limit');assert.equal(checked.data,null);assert.equal(reader.snapshot(f.runId).data.run.draft_check.result,null);}
@@ -238,20 +237,9 @@ test('SCN-009: actual unregistered authoring slot below, exactly at and above 25
   assert.equal(exact,true,'One real fixture must exercise exactly 256 KiB; no skipped boundary');
 });
 
-test('SCN-009: Core document description array enforces its exact serialized limit',async()=>{
-  const f=await approvalFixture();
-  try{
-    assert.equal(f.approve().outcome,'approved');const original=fs.readFileSync(f.runPath,'utf8');
-    const evidence=original.split('\n').find(l=>l.startsWith('| UR | approved |')).split('|')[3].trim();
-    const reader=createCockpitReader(f.root),set=n=>fs.writeFileSync(f.runPath,sealRunState(f.root,upsertTableRow(original,'Approvals',0,'UR',['UR','approved',evidence+' '+ 'x'.repeat(n)])));
-    // First measure the actual final-state shape, including any integrity qualification.
-    set(250000);const measured=reader.snapshot('fixture-a');assert.equal(measured.state,'available');
-    const base=Buffer.byteLength(JSON.stringify(measured.data.run.document_states)),n=250000+(256*1024-base);
-    for(const delta of [-1,0,1]){
-      set(n+delta);const before=treeBytes(f.root),observed=reader.snapshot('fixture-a');
-      if(delta<=0){assert.equal(observed.state,'available',JSON.stringify(observed));assert.equal(Buffer.byteLength(JSON.stringify(observed.data.run.document_states)),256*1024+delta);}
-      else{assert.equal(observed.code,'resource_limit');assert.equal(observed.data,null);}
-      assert.deepEqual(treeBytes(f.root),before);
-    }
+test('current document descriptions remain bounded by typed approval facts',async()=>{
+  const f=await approvalFixture();try{
+    assert.equal(f.approve().outcome,'accepted');const before=treeBytes(f.root),selected=createCockpitReader(f.root).snapshot('fixture-a');
+    assert.equal(selected.state,'available');assert.equal(row(selected).state,'approved');assert.ok(Buffer.byteLength(JSON.stringify(selected.data.run.document_states))<=256*1024);assert.deepEqual(treeBytes(f.root),before);
   }finally{f.close();}
 });

@@ -1,3 +1,4 @@
+import { CURRENT_LAYOUT } from '../control-state/run-identity.js';
 import process from "node:process";
 import { canonicalizeLanguageTag } from "../interaction-presentation.js";
 import { configuredLanguage, resources } from "./context.js";
@@ -45,7 +46,7 @@ export function resolveLanguagePreference(explicitLanguage, env = process.env, c
   };
 }
 
-export function languageConfigContent(languagePreference, existing = {}) {
+export function languageConfigContent(languagePreference, existing = { control_layout: CURRENT_LAYOUT }) {
   return `${JSON.stringify({
     ...existing,
     ...languagePreference,

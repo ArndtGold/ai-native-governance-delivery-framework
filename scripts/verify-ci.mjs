@@ -34,7 +34,7 @@ const stages = [
   { id: 'cli-package', commands: [npm(['--prefix', 'packages/cli', 'run', 'test:package-contents'])] },
   { id: 'wrapper-package', commands: [npm(['--prefix', 'packages/cli/distribution/agdf', 'run', 'test:package'])] },
   { id: 'transactions', commands: [npm(['--prefix', 'packages/cli', 'run', 'test:run-step-transaction']), npm(['--prefix', 'packages/cli', 'run', 'test:run-lock']), npm(['--prefix', 'packages/cli', 'run', 'test:planned-urs'])] },
-  { id: 'delivery-map', repository: true, commands: [node('packages/cli/bin/create-agdf.js', ['delivery-map', '--dir', '.', '--all-active'])] },
+  { id: 'delivery-map', repository: true, commands: [node('scripts/check-current-delivery-map.mjs')] },
   { id: 'mcp-package', commands: [npm(['--prefix', 'packages/mcp-server', 'run', 'test:package'])] },
   { id: 'archives', commands: [node('scripts/pack-npm.mjs'), node('scripts/test-package-consumers.mjs')] },
   { id: 'cli-smoke', commands: [npm(['--prefix', 'packages/cli', 'run', 'smoke-test'])] },

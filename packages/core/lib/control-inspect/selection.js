@@ -18,7 +18,7 @@ export class ReadSelectionError extends Error {
 
 // `operation` is the CLI command name or the MCP operation. Rules apply to every command so that a
 // write command carrying a read-only flag is rejected exactly as before the extraction.
-export function validateReadSelection({ operation, allActive = false, contractModule, variant, runId } = {}) {
+export function validateReadSelection({ operation, allActive = false, contractModule, variant, runId, allowContractIndex = false } = {}) {
   // The inventory always lists every run; a run selection would silently narrow it.
   if (runId && [INVENTORY_OPERATION, 'planned-inventory', 'planned-entry'].includes(operation)) {
     throw new ReadSelectionError("run_id", "--run is not supported by inventory; it lists every run");
@@ -29,7 +29,7 @@ export function validateReadSelection({ operation, allActive = false, contractMo
   if (contractModule !== undefined && ![MODULE_OPERATION, 'operation-contract', 'operation-status'].includes(operation)) {
     throw new ReadSelectionError("module", "--module is supported only by contract");
   }
-  if ([MODULE_OPERATION, 'operation-contract', 'operation-status'].includes(operation) && !contractModule) {
+  if ((operation === MODULE_OPERATION && !allowContractIndex || ['operation-contract', 'operation-status'].includes(operation)) && !contractModule) {
     throw new ReadSelectionError("module", "contract requires --module");
   }
   if (variant !== undefined && operation !== VARIANT_OPERATION) {

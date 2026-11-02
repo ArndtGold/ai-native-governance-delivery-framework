@@ -62,7 +62,7 @@ const reviewText = (title, decision, rows) => `# ${title}\nStatus: ${decision}\n
 
 // SCN-003: inspectQaReports keeps its results and messages; an invalid row also carries its diagnostics.
 {
-  const prefix = '.agdf/control/artefacts/scn-003/';
+  const prefix = '.agdf/control/runs/scn-003/documents/';
   const files = { [prefix + 'QA_REPORT.md']: '# QA\nDecision: pass\n', [prefix + 'CODE_REVIEW.md']: reviewText('Code Review', 'pass', validRows) };
   const state = { artefacts: new Map([['QA', { path: prefix + 'QA_REPORT.md', status: 'pass' }], ['CR', { path: prefix + 'CODE_REVIEW.md', status: 'done' }]]) };
   const inspect = () => inspectQaReports('.', state, 'scn-003', 'pass', 64, true, { readArtefact: path => files[path] });
@@ -83,7 +83,7 @@ const reviewText = (title, decision, rows) => `# ${title}\nStatus: ${decision}\n
   assert.equal(internalStepEligibility(state, { current_gate: 'OR' }, { internalStep: 'Clean Implementation Review' }, '.'), false);
   // Without a UAT material receipt and step receipts the proof cannot hold, so nothing is eligible.
   const legacyUat = { ...state, run_id: 'scn-009', approvals: new Map([...approved, ['UAT', { status: 'approved', evidence: '`Approval: UAT` · 2026-01-01' }]]),
-    artefacts: new Map([['CR', { status: 'done', path: '.agdf/control/artefacts/scn-009/CODE_REVIEW.md' }]]) };
+    artefacts: new Map([['CR', { status: 'done', path: '.agdf/control/runs/scn-009/documents/CODE_REVIEW.md' }]]) };
   assert.equal(reviewRecordingChain(legacyUat, 'CR'), null);
   assert.equal(internalStepEligibility(legacyUat, { current_gate: 'OR' }, { internalStep: 'CR' }, '.'), false);
   assert.equal(reviewCorrectionAvailable(legacyUat, 'CR', [{ rule: 'required_next_step' }]), false, 'Closeout offers no correction the proof cannot hold.');
@@ -141,7 +141,7 @@ const legacyCore = async () => {
       writeFileSync(path, source.split(from).join(''));
     }
   };
-  strip('packages/core/lib/control-evaluation/gate-policy.js', '  // The qa-gate forbids a QA pass without review evidence', '  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA"))');
+  strip('packages/core/lib/control-evaluation/gate-policy-pure.js', '  // The qa-gate forbids a QA pass without review evidence', '  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA"))');
   strip('packages/core/lib/control-state/run-operation-proof.js', '  if (lateRequiredReviewEligible(state, before, input) || reviewCorrectionCandidate(state, before, input)) return true;\n');
   strip('packages/core/lib/control-state/run-steps.js', "      if (diagnostics.length) return findingsRefusal(runId, diagnostics);\n", null, 3);
   strip('packages/core/lib/control-evaluation/decision-content-readiness.js', "    if (groups.qa === 'pass') {\n      const quality = inspectQaReports(", "    const localized = localizedDecisionFields('QA'");
@@ -174,13 +174,7 @@ function createRun(name) {
   const recordQa = (rows = null, run = service, extra = '') => {
     const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + `QA_MAPPING-${++counter}.json`, request = f.prefix + `QA_RECORD-${counter}.json`;
     writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic correction\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests recorded.\n\n## Risks\nNo applicable open required finding.\n') + extra + (rows ? '\n' + table(rows) : ''));
-    const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
-      destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
-      relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
-    const { schema_version, target_id, run_id, destination, source: tp, relationship } = command;
-    writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source: tp, relationship, reviewer: command.review.reviewer, reviewed: true }));
-    command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
-    return run('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+    return run('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: {path:qaPath,digest:artefactFileDigest(root,qaPath)},reviewer:'Synthetic QA reviewer',reviewed:true,update_draft:false } } });
   };
   const approve = (gate, run = service) => {
     const prepared = run('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } });

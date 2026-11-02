@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: current closure preview reports derived facts and applies only the exact deliberately confirmed entries
+ok 1 - current closure preview reports derived facts and applies only the exact deliberately confirmed entries
+  ---
+  duration_ms: 1126.024051
+  type: 'test'
+  ...
+# Subtest: current closure rejects duplicate, unknown, self, mixed and unbounded entries without persisting a preview
+ok 2 - current closure rejects duplicate, unknown, self, mixed and unbounded entries without persisting a preview
+  ---
+  duration_ms: 972.66293
+  type: 'test'
+  ...
+# Subtest: changed and corrupt sources are reported per entry and do not block an unchanged independent selected Run
+ok 3 - changed and corrupt sources are reported per entry and do not block an unchanged independent selected Run
+  ---
+  duration_ms: 1213.269334
+  type: 'test'
+  ...
+# Subtest: current closure: real SIGKILL at intent retains original recovery and one effect
+ok 4 - current closure: real SIGKILL at intent retains original recovery and one effect
+  ---
+  duration_ms: 1792.546235
+  type: 'test'
+  ...
+# Subtest: current closure: real SIGKILL at run_before_rename retains original recovery and one effect
+ok 5 - current closure: real SIGKILL at run_before_rename retains original recovery and one effect
+  ---
+  duration_ms: 1532.076056
+  type: 'test'
+  ...
+# Subtest: current closure: real SIGKILL at run_after_rename retains original recovery and one effect
+ok 6 - current closure: real SIGKILL at run_after_rename retains original recovery and one effect
+  ---
+  duration_ms: 1498.96077
+  type: 'test'
+  ...
+# Subtest: current superseded Run refuses every new delivery operation and preserves historical replay
+ok 7 - current superseded Run refuses every new delivery operation and preserves historical replay
+  ---
+  duration_ms: 1745.511874
+  type: 'test'
+  ...
+# Subtest: current abandoned Run refuses every new delivery operation and preserves historical replay
+ok 8 - current abandoned Run refuses every new delivery operation and preserves historical replay
+  ---
+  duration_ms: 1912.660182
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 12725.757207

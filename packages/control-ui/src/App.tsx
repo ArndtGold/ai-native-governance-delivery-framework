@@ -3,7 +3,7 @@ import { createApi, type ReadTransport } from './api';
 import { initialState, readingReducer, hasExpiredSession } from './state';
 import type { Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
 import { ReadState, ReadingFeedback, readingStatus } from './feedback';
-import { Overview, type BacklogView } from './Overview';
+import { Overview, type WorkView } from './Overview';
 import { RunDetail } from './RunDetail';
 import { DocumentView } from './DocumentView';
 import { CompactCockpit } from './mcp/CompactCockpit';
@@ -17,19 +17,15 @@ import { useDraftCheck } from './useDraftCheck';
 import { DraftCheck } from './DraftCheck';
 import { ContextPanel } from './ContextPanel';
 import type { HandoffController } from './mcp/handoff';
-import { createBacklogTitleStore, type TitleLoader } from './useBacklogTitles';
-import { COCKPIT_BACKLOG_SECTIONS } from '../../core/lib/control-inspect/cockpit-list.js';
+import { COCKPIT_WORK_SECTIONS } from '../../core/lib/control-inspect/cockpit-list.js';
 
 export function App({ secret = '', transport, compact = false, onExpand, initialRunId, handoff }: { secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; initialRunId?: string; handoff?: HandoffController }) {
   const enabled = !!transport || !!secret;
   const [state, dispatch] = useReducer(readingReducer, initialState);
   const [readerMode, setReaderMode] = useState<'summary' | 'details'>('summary');
-  const [backlogView, setBacklogView] = useState<BacklogView>({ section: 'active', filter: '' });
+  const [backlogView, setWorkView] = useState<WorkView>({ section: 'active', filter: '' });
   const [backlogReturnNotice, setBacklogReturnNotice] = useState<string | null>(null);
-  const overviewLegacy = useRef(false);
-  const [titleEpoch, setTitleEpoch] = useState(0);
-  const titleStore = useRef(createBacklogTitleStore());
-  const titlePending = useRef<AbortController | null>(null), freshnessPending = useRef<AbortController | null>(null);
+  const freshnessPending = useRef<AbortController | null>(null);
   const draftPending = useRef<AbortController | null>(null);
   const contextPending = useRef<symbol | null>(null);
   const beforeContextRead = useCallback(() => {
@@ -88,9 +84,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     void handoff?.invalidate();
     // A cancelled title response may already have replaced the server capture.
     // Start a named capture instead of sending selectors from the previous one.
-    const replacingTitles = !!titlePending.current;
-    titlePending.current?.abort(); freshnessPending.current?.abort();
-    if (reload || live.current.stale) { titleStore.current.cache.clear(); titleStore.current.attempted.clear(); setTitleEpoch(value => value + 1); }
+    freshnessPending.current?.abort();
     if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
     pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
     const generation = ++sequence.current;
@@ -99,24 +93,23 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     dispatch({ type: 'begin', generation, route: requested, background });
     try {
       let scope = live.current.scope;
-      const refresh = reload || replacingTitles || live.current.stale || !scope?.snapshot_id;
+      const refresh = reload || live.current.stale || !scope?.snapshot_id;
       let route = requested;
       const expected = scope?.snapshot_id ? { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true } : undefined;
       if (refresh || requested.view === 'overview') {
-        scope = await read<ReadingScope>('/api/snapshot' + (requested.runId ? '?run_id=' + requested.runId : requested.legacy ? '?view=legacy' : ''), controller.signal, expected);
+        scope = await read<ReadingScope>('/api/snapshot' + (requested.runId ? '?run_id=' + requested.runId : ''), controller.signal, expected);
       } else if (requested.view === 'detail') {
         scope = await read<ReadingScope>(`/api/runs/${requested.runId}?snapshot=${scope!.snapshot_id}`, controller.signal, expected);
       }
       if (controller.signal.aborted || generation !== sequence.current) return;
       if (!scope) throw Error('read_failed');
       if (!scope.data) {
-        const sourceSwitch = requested.view === 'overview' && !!requested.legacy !== !!live.current.route.legacy;
-        if (live.current.scope?.data && !sourceSwitch) throw Error(scope.code ?? 'read_failed');
+        if (live.current.scope?.data) throw Error(scope.code ?? 'read_failed');
         dispatch({ type: 'ready', generation, route, scope, inventory: null, detail: null, document: null });
         return;
       }
       let removed = false;
-      if (requested.view === 'document' && scope.data.kind !== 'backlog' && scope.data.kind !== 'runs') {
+      if (requested.view === 'document' && scope.data.kind !== 'work' && scope.data.kind !== 'runs') {
         if (!('run' in scope.data) || !scope.data.run || scope.data.run.run_id !== route.runId) throw Error('dto_invalid');
         const resource = scope.data.run.resources.find(r => refresh
           ? r.registered_reference === route.resourcePath : r.resource_id === route.resourceId);
@@ -134,24 +127,23 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         }
       }
       const data = scope.data;
-      if (data.kind === 'backlog' || data.kind === 'runs') {
+      if (data.kind === 'work' || data.kind === 'runs') {
         if (requested.runId && (!data.removed_run_id || data.removed_run_id !== requested.runId
           || live.current.detail?.data?.run_id !== requested.runId || !live.current.detail.data.evaluation)) throw Error('dto_invalid');
         if (data.removed_run_id && data.removed_run_id !== requested.runId) throw Error('dto_invalid');
-        removed = !!data.removed_run_id; route = { view: 'overview', legacy: data.kind === 'backlog' };
-        overviewLegacy.current = route.legacy ?? false;
+        removed = !!data.removed_run_id; route = { view: 'overview' };
       }
       else if (!data.run && data.kind === 'run') {
         if (data.requested_run_id !== requested.runId) throw Error('dto_invalid');
       } else if (data.run?.run_id !== requested.runId) throw Error('dto_invalid');
-      const inventory = data.kind === 'backlog' || data.kind === 'runs' ? { ...scope, data } as Envelope<OverviewInventory> : null;
-      const detail = data.kind !== 'backlog' && data.kind !== 'runs' && data.run ? { ...scope, data: data.run } as Envelope<Detail> : null;
+      const inventory = data.kind === 'work' || data.kind === 'runs' ? { ...scope, data } as Envelope<OverviewInventory> : null;
+      const detail = data.kind !== 'work' && data.kind !== 'runs' && data.run ? { ...scope, data: data.run } as Envelope<Detail> : null;
       const document = data.kind === 'document' && data.document ? { ...scope, data: data.document } as Envelope<DocumentData> : null;
       dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
     } catch (error) { if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed' }); }
   }, [read, handoff]);
   const draftAction = useDraftCheck({ live, read, visible: cardVisible, pending: draftPending, handoff,
-    before: () => { freshnessPending.current?.abort(); titlePending.current?.abort(); },
+    before: () => { freshnessPending.current?.abort(); },
     commit: (scope, original) => {
       if (!scope.data || scope.data.kind !== 'run' || !scope.data.run || !original.scope?.snapshot_id) return;
       capturePosition(original.generation); focusAfterRead.current = false;
@@ -160,35 +152,6 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       live.current = readingReducer(live.current, action); dispatch(action);
     },
   });
-  const loadTitles = useCallback<TitleLoader>(async (ids, signal) => {
-    const current = live.current, scope = current.scope;
-    if (current.phase !== 'ready' || current.stale || current.route.view !== 'overview' || scope?.data?.kind !== 'backlog' || !scope.snapshot_id) return null;
-    freshnessPending.current?.abort();
-    const controller = new AbortController(), generation = sequence.current;
-    titlePending.current = controller;
-    const cancel = () => controller.abort(); signal.addEventListener('abort', cancel, { once: true });
-    if (signal.aborted) controller.abort();
-    try {
-      const result = await read<Inventory>(`/api/backlog-titles?snapshot=${scope.snapshot_id}&rows=${ids.join(',')}`, controller.signal,
-        { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true });
-      if (controller.signal.aborted || generation !== sequence.current || live.current.route.view !== 'overview') return null;
-      if (!result.data) throw Error(result.code ?? 'read_failed');
-      if (result.data.kind !== 'backlog' || result.data.content_digest !== scope.data.content_digest) throw Error('source_changed');
-      const fields = ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'priority', 'stored_next_step', 'source_links', 'current_spec', 'selectable'] as const;
-      const originalRows = scope.data.entries;
-      if (result.data.entries.length !== originalRows.length || result.data.entries.some((row, index) => fields.some(field => row[field] !== originalRows[index][field])
-        || JSON.stringify(row.saved_summary) !== JSON.stringify(originalRows[index].saved_summary))) throw Error('dto_invalid');
-      live.current = { ...live.current, inventory: result, scope: result };
-      dispatch({ type: 'titles', generation, inventory: result });
-      return result;
-    } catch (error) {
-      if (!controller.signal.aborted && generation === sequence.current) {
-        void handoff?.invalidate();
-        dispatch({ type: 'stale', snapshot: scope.snapshot_id, code: error instanceof Error ? error.message : 'read_failed' });
-      }
-      return null;
-    } finally { signal.removeEventListener('abort', cancel); if (titlePending.current === controller) titlePending.current = null; }
-  }, [read, handoff]);
   useEffect(() => { if (enabled) void navigate(initialRoute, true); return () => pending.current?.abort(); }, [navigate, enabled, initialRoute]);
   useLayoutEffect(() => {
     if (state.phase !== 'ready' || state.refreshing) return;
@@ -233,7 +196,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible || draftAction.busy) return;
     let checking = false; const controller = new AbortController();
     const check = async () => {
-      if (document.hidden || checking || titlePending.current || draftPending.current || contextPending.current) return; checking = true;
+      if (document.hidden || checking || draftPending.current || contextPending.current) return; checking = true;
       const generation = sequence.current;
       try {
         const request = new AbortController(); freshnessPending.current = request;
@@ -284,7 +247,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const showOverview = () => {
     setBacklogReturnNotice(null);
     returnFocus.current = state.route.runId ?? null;
-    void navigate({ view: 'overview', legacy: overviewLegacy.current });
+    void navigate({ view: 'overview' });
   };
   const showRun = () => {
     returnFocus.current = documentOrigin.current ?? state.route.resourceId ?? null;
@@ -313,7 +276,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
       {(state.phase === 'error' || state.scope?.retryable && !state.scope.data) && enabled && !expired && <button className="retry" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
       <div className={`reading-results${state.phase === 'loading' ? ' previous-content' : ''}`} aria-busy={state.phase === 'loading'}>
-        {state.inventory?.data && state.route.view === 'overview' && <Overview key={titleEpoch} result={state.inventory} current={state.phase === 'ready' && !state.stale && !state.problem} view={backlogView} onViewChange={setBacklogView} loadTitles={loadTitles} titleStore={titleStore.current} resetTitles={state.stale} titlesEnabled={state.phase === 'ready' && !state.stale && cardVisible} onSelect={id => void navigate({ view: 'detail', runId: id })}
+        {state.inventory?.data && state.route.view === 'overview' && <Overview result={state.inventory} current={state.phase === 'ready' && !state.stale && !state.problem} view={backlogView} onViewChange={setWorkView} onSelect={id => void navigate({ view: 'detail', runId: id })}
           loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })}/>}
         {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} draftCheck={<DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
         {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
@@ -330,10 +293,10 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   </>;
   if (compact) return <CompactCockpit draftCheck={state.detail && <DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
-    view={backlogView} onViewChange={setBacklogView} returnNotice={backlogReturnNotice}
-    onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview} onRuns={() => void navigate({ view: 'overview' })} onLegacy={() => void navigate({ view: 'overview', legacy: true })}
+    view={backlogView} onViewChange={setWorkView} returnNotice={backlogReturnNotice}
+    onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview} onRuns={() => void navigate({ view: 'overview' })}
     onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onBack={showRun} onExpand={onExpand}/>;
-  return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview', legacy: true })}>Legacy-Backlog</button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
+  return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
     <div className={`workspace${state.route.view === 'overview' ? ' workspace--overview' : ''}${documentVisible ? ' workspace--document' : ''}${summarizing ? ' workspace--summary' : ''}`} ref={workspace}><BrandHeader projectPath={state.scope?.target.display_path} contextTitle={state.route.view !== 'overview' ? runTitle : undefined} variant={documentVisible ? 'document' : 'view'}>
       <RefreshControl state={state} enabled={enabled} onReload={() => void navigate(reloadRoute, true)}/>
     </BrandHeader><main>
@@ -346,4 +309,4 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       <footer>Lokale Beobachtung · {status.title}{status.previous && ' · Vorheriger Datenstand bleibt sichtbar'} · Das Cockpit verändert keine Kontrolldateien.</footer>
     </main></div></div>;
 }
-const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'read_failed', 'busy', 'timeout', 'resource_limit', 'control_absent', 'dto_invalid', 'backlog_missing', 'backlog_unsupported', 'run_missing', 'invalid_run'].map(c => [c, true]));
+const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'read_failed', 'busy', 'timeout', 'resource_limit', 'control_absent', 'dto_invalid', 'control_layout_unsupported', 'run_version_unsupported', 'control_invalid', 'run_missing', 'invalid_run'].map(c => [c, true]));

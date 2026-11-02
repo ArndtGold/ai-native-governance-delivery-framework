@@ -16,15 +16,16 @@ import { commandGroupDefinition } from '../lib/control-state/run-command-schema.
 import { inspectRunInputResolution } from '../lib/control-state/run-input-resolution.js';
 import { withInputResolution } from '../lib/control-state/input-resolution.js';
 import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
-import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
+import { initializeCurrentControl } from './fixtures/current-init.js';
+import { resolutionRecord } from '../lib/control-state/input-resolution.js';
 
-for (const layout of ['master-backlog-v1', 'planned-urs-v1']) {
+for (const layout of ['run-folders-v1']) {
 const root = mkdtempSync(join(tmpdir(), 'agdf-approval-recovery-')), seed = root + '-seed';
 try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
-  execFileSync('git', ['init', '-q', root]); initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout }));
+  execFileSync('git', ['init', '-q', root]); initializeCurrentControl(root, 'en');
   const f = createSdDefinitionTestRun(root, cli, 'approval-recovery', process.env, { typedApprovals: true });
-  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
+  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'accepted');
   const service = createCoreServices().command;
   const envelope = { schema_version: '1', presentation_language: 'en', working_directory: root,
     target_source: 'explicit_target', primary_target: root, target_id: resolveControlCommandTarget(root).target_id,
@@ -36,6 +37,7 @@ try {
   cpSync(join(root, '.agdf'), seed, { recursive: true });
   const original = readFileSync(f.state, 'utf8'), initialReceipts = readApprovalOperations(original).receipts.length;
   const { schema_version, assurance, presentation_language, ...shortened } = input;
+  const fullSelected = resolveMcpInput(commandGroupDefinition('agdf_approve'), input, { defaults: resources.defaults });
   const selected = resolveMcpInput(commandGroupDefinition('agdf_approve'), shortened, { defaults: resources.defaults });
   const stages = [...intentStages, ...commitStages].filter(point => !/^backlog(?:_|$)/u.test(point));
   for (const defaulted of [false, true]) for (const point of stages) {
@@ -50,13 +52,13 @@ try {
         {evaluateGateCheck,packageVersion:'0.14.5',commandContext:{request_digest:runCommandRequestDigest(input)},
           afterWrite(stage){if(stage===process.argv[2])process.exit(71)}})); console.log(JSON.stringify(result));`;
     const stopped = spawnSync(process.execPath, ['--input-type=module', '-e', code, JSON.stringify(defaulted ? selected.arguments : input), point,
-      JSON.stringify(defaulted ? selected.resolution : null)], { encoding: 'utf8' });
+      JSON.stringify(defaulted ? selected.resolution : fullSelected.resolution)], { encoding: 'utf8' });
     assert.equal(stopped.status, 71, point + ': ' + stopped.stderr + stopped.stdout);
     const committed = !beforeRunCommit(point);
     if (defaulted && !beforeIntent(point)) writeFileSync(join(root, '.agdf/control/config.json'), '{');
     const restored = defaulted ? resolveMcpInput(commandGroupDefinition('agdf_approve'), shortened, { defaults: resources.defaults, lookupOriginal: inspectRunInputResolution }) : null;
     if (defaulted && point === 'run') {
-      const path = join(root, `.agdf/control/runs/${f.runId}/RUN_STEP_PENDING.json`), journal = readFileSync(path);
+      const path = join(root, `.agdf/control/runs/${f.runId}/control/RUN_STEP_PENDING.json`), journal = readFileSync(path);
       const altered = JSON.parse(journal); altered.input_resolution.configuration.values.artifact_language = 'fr';
       writeFileSync(path, JSON.stringify(altered));
       const before = readFileSync(f.state), rejected = withInputResolution(restored.resolution, () => service('agdf_approve', restored.arguments), true);

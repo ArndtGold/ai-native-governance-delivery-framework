@@ -4,21 +4,17 @@ import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSyn
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { approvalFixture, fixture } from "../../core/test/control-cockpit-fixtures.js";
+import { fixture } from "../../core/test/control-cockpit-fixtures.js";
 import { readRunState } from "../../core/lib/control-evaluation/run-state.js";
 import { LIFECYCLES as CORE_LIFECYCLES } from "../../core/lib/control-state/run-state-parser.js";
 import { replaceFirstScalar } from "../../core/lib/control-state/run-state-edits.js";
 import { createRun } from "../../core/lib/control-state/run-state-repository.js";
-import { recordRunPresentationDecision, recordRunStep } from "../../core/lib/control-state/run-steps.js";
 import { evaluateGateCheck } from "../../core/lib/control-evaluation/gate-check.js";
-import { policyForRunContent } from "../../core/lib/control-evaluation/run-step-policy.js";
+import { transitionDecisionForRunState } from "../../core/lib/control-evaluation/gate-policy.js";
 import { modeSliceDecision } from "../../core/lib/control-evaluation/run-state-policy.js";
 import { isDecisionContentPlaceholder } from "../../core/lib/control-evaluation/decision-content-readiness.js";
 import { parseRunState as parseCoreRunState } from "../../core/lib/control-state/run-state-parser.js";
-import { prepareRunPresentation } from "../../core/lib/control-state/run-presentation.js";
-import { approveRunGate } from "../../core/lib/control-state/run-recording.js";
 import { sealRunState } from "../../core/lib/control-state/run-seal.js";
-import { previewRunClosure, applyRunClosure } from "../../core/lib/control-state/run-closure.js";
 import { isOperationalValueRenderable } from "../../core/lib/interaction-presentation.js";
 import { resolveConfiguredChatLanguage } from "../../core/lib/resources/context.js";
 import { claudePluginDataRoot } from "../lib/mcp-lifecycle/plugin-runtime.js";
@@ -30,6 +26,7 @@ const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const companionDir = join(repoRoot, "plugins", "agdf", "host-templates", "claude", "companion");
 const companion = name => import(pathToFileURL(join(companionDir, name)).href);
 const { BUILD_GATES, LIFECYCLES, MAX_RUN_STATE_BYTES, isPlaceholderText, parseRunState, readSnapshot, settleSnapshot } = await companion("run-state.mjs");
+const { parseRunState: parseGeneratedRunState } = await import(pathToFileURL(join(repoRoot, 'packages/cli/generated/plugins/agdf/companion/run-state.mjs')).href);
 const { displayState, runState } = await companion("state.mjs");
 const { assignRun, namedRun, openRuns, stepSelection } = await companion("assignment.mjs");
 const { chatLocale, label, localizeNextStep, settingLocale } = await companion("localization.mjs");
@@ -65,28 +62,33 @@ function treeDigest(root) {
 
 // SCN-005: fixtures written by the canonical writers parse to the core reader's values and moods.
 const created = fixture();
+async function approvalFixture() {
+  const f = fixture();
+  const route = f.context.call('step.record', { step: 'route', route: 'quick_task', reason: 'Companion route fixture', source: f.context.material(f.binding(), 'Brownfield Review', '# Brownfield Review\n\nSmall isolated read-only fixture.') }, f.binding());
+  assert.equal(route.outcome, 'accepted', JSON.stringify(route));
+  const p = f.context.call('presentation.prepare', { gate: 'UR' }, f.binding());
+  assert.equal(p.outcome, 'accepted', JSON.stringify(p));
+  return { ...f, presentationId: p.family_result.presentation_id, approve: () => f.context.call('approval.record', { gate: 'UR', presentation_id: p.family_result.presentation_id, response: 'Approval: UR' }, f.binding()) };
+}
 const approval = await approvalFixture();
 try {
   const states = [];
+  createRun(created.root, "fixture-created");
   for (const [rootFixture, id, expectedMood, label] of [
-    [created, "fixture-a", "laeuft", "created"],
+    [created, "fixture-created", "laeuft", "created"],
     [created, "fixture-completed", "fertig", "completed"],
     [approval, "fixture-a", "wartet", "UR open"],
   ]) states.push({ root: rootFixture.root, id, expectedMood, label });
-  // Revise, block and awaiting states: a canonical run with the decision set by the core test builders.
-  for (const [decision, expectedMood] of [["revise", "blockiert"], ["block", "blockiert"], ["blocked", "blockiert"], ["decline", "blockiert"],
-    ["pending", "wartet"], ["awaiting_uat", "wartet"]]) {
-    const id = `fixture-${decision.replace("_", "-")}`;
-    createRun(created.root, id);
-    setScalar(created.root, id, "decision", decision);
-    states.push({ root: created.root, id, expectedMood, label: decision });
-  }
+  // These are display-rule inputs, not writable fields in a version-4 Run.
+  for (const [decision, expectedMood] of [["revise", "blockiert"], ["block", "blockiert"], ["blocked", "blockiert"], ["decline", "blockiert"], ["pending", "wartet"], ["awaiting_uat", "wartet"]])
+    assert.equal(runState(run({ decision })).mood, expectedMood);
   const checkParity = ({ root, id, expectedMood, label: name }) => {
     const result = parsed(root, id);
+    assert.deepEqual(parseGeneratedRunState(id, readFileSync(runFile(root, id), "utf8")), result, `${name}: generated companion uses the same Core policy`);
     assert.equal(result.ok, true, `${name}: canonical run state must parse`);
     const core = readRunState(root, { runId: id });
     for (const [mine, theirs] of [["lifecycle", "lifecycle"], ["gate", "current_gate"], ["decision", "decision"], ["updatedAt", "updated_at"]]) {
-      assert.equal(result.run[mine], String(core.meta[theirs] ?? "").replace(/`/gu, "").trim(), `${name}: ${theirs} parity`);
+      assert.equal(result.run[mine], String((theirs === "current_gate" ? transitionDecisionForRunState(core).current_gate : theirs === "decision" ? core.meta.lifecycle === "completed" ? "completed" : "in_progress" : core.meta[theirs]) ?? "").replace(/`/gu, "").trim(), `${name}: ${theirs} parity`);
     }
     const approvedByCore = [...core.approvals.entries()].filter(([, row]) => row.status === "approved").map(([gate]) => gate);
     assert.deepEqual([...result.run.approved].sort(), approvedByCore.sort(), `${name}: approved gates parity`);
@@ -96,7 +98,7 @@ try {
   for (const state of states) checkParity(state);
   // Run steps keep the control table's next step equal to the core's next allowed action.
   assert.equal(checkParity(states[2]).result.run.next, readRunState(approval.root, { runId: "fixture-a" }).next_allowed_action);
-  assert.equal(approval.approve().outcome, "approved");
+  assert.equal(approval.approve().outcome, "accepted");
   const approved = checkParity({ root: approval.root, id: "fixture-a", expectedMood: "laeuft", label: "UR approved" });
   assert.deepEqual(approved.result.run.approved, ["UR"]);
   assert.equal(approved.result.run.next, approved.core.next_allowed_action);
@@ -105,18 +107,17 @@ try {
 
   // CR-F02: the canonical writers keep a review result in the step's Artefacts row and a declined
   // presentation in the control table; the Run Meta decision stays `in_progress`. Both read as blockiert.
-  const review = recordRunStep(approval.root, { runId: "fixture-a", revisionId: approval.revision(), step: "review", decision: "revise", evidence: "review found a defect" },
-    { policy: policyForRunContent, date: "2026-10-26" });
-  assert.equal(review.outcome, "recorded", JSON.stringify(review));
+  const review = approval.context.call('step.record', { step: 'review', decision: 'revise',
+    source: approval.context.material(approval.binding(), 'CR', '# Code Review\n\nDecision: revise\n\nThe synthetic diff needs one bounded correction.\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| CR-01 | implementation_gap | CD+Tests | open | Synthetic direct regression exposes the bounded defect. | Correct the fixture defect and rerun its regression. |\n') }, approval.binding());
+  assert.equal(review.outcome, 'accepted', JSON.stringify(review));
   const revised = checkParity({ root: approval.root, id: "fixture-a", expectedMood: "blockiert", label: "Quick Task review revise" });
   assert.deepEqual([revised.result.run.decision, revised.result.run.gate, revised.result.run.gateResult], ["in_progress", "Quick Task Execution", "revise"]);
   assert.equal(revised.result.run.gateResult, revised.core.artefacts.get("CR").status, "the CR row status equals the core reader's");
   assert.deepEqual(runState(revised.result.run).reason, { key: "blocked", gate: "Quick Task Execution", decision: "revise" });
   const declined = await approvalFixture();
   try {
-    const rejected = recordRunPresentationDecision(declined.root, { runId: "fixture-a", revisionId: declined.revision(), operationId: "0b7b0c1e-4f2a-4d1b-9c3e-2a6f8d9e1b47",
-      gate: "UR", presentationId: declined.presentationId, action: "reject", comment: "", requestDigest: `sha256:${"a".repeat(64)}` }, { evaluateGateCheck });
-    assert.equal(rejected.outcome, "recorded", JSON.stringify(rejected));
+    const rejected = declined.context.call('presentation_decision.record', { gate: 'UR', presentation_id: declined.presentationId, action: 'reject', comment: '' }, declined.binding());
+    assert.equal(rejected.outcome, 'accepted', JSON.stringify(rejected));
     const decline = checkParity({ root: declined.root, id: "fixture-a", expectedMood: "blockiert", label: "UR declined" });
     assert.deepEqual([decline.result.run.gateDecision, runState(decline.result.run).reason.decision], ["reject", "decline"]);
   } finally {
@@ -138,9 +139,12 @@ try {
   }
   // AC-010 (run closure): a run closed through the real closure operation leaves the open-run list.
   createRun(created.root, "fixture-closed");
-  const closurePreview = previewRunClosure(created.root, { entries: [{ run_id: "fixture-closed", outcome: "abandoned", reason: "Companion regression" }] });
-  assert.equal(applyRunClosure(created.root, { previewId: closurePreview.preview_id, confirmation: closurePreview.confirmation_phrase },
-    { readIdentity: () => ({ statement: "unknown" }) }).results[0].result, "closed");
+  const closurePreviewResult = created.context.call('closure.preview', { entries: [{ run_id: 'fixture-closed', outcome: 'abandoned', reason: 'Companion regression' }] });
+  assert.equal(closurePreviewResult.outcome, 'accepted', JSON.stringify(closurePreviewResult));
+  const closurePreview = closurePreviewResult.family_result;
+  const closed = created.context.call('closure.apply', { preview_id: closurePreview.preview_id, confirmation: closurePreview.confirmation_phrase });
+  assert.equal(closed.outcome, 'accepted', JSON.stringify(closed));
+  assert.equal(closed.family_result.results[0].result, 'closed');
   const afterClosure = await readSnapshot(nodeFs, created.root, { now: 1 });
   assert.equal(afterClosure.runs.find(entry => entry.id === "fixture-closed")?.lifecycle, "abandoned");
   assert.ok(!openRuns(afterClosure.runs).some(entry => entry.id === "fixture-closed"), "a closed run is not an open run");
@@ -216,20 +220,20 @@ function routedRun(route) {
   const target = fixture();
   const id = "fixture-a";
   try {
-    writeFileSync(join(target.root, target.documentPath), UR_TEXT);
-    writeFileSync(target.runPath, sealRunState(target.root, readFileSync(target.runPath, "utf8")));
-    writeFileSync(join(target.root, ".agdf", "control", "artefacts", id, "BROWNFIELD_REVIEW.md"), "# Brownfield Review\n");
+    writeFileSync(join(target.root, ".agdf", "control", "runs", id, "documents", "BROWNFIELD_REVIEW.md"), "# Brownfield Review\n");
     const revision = () => parseCoreRunState(readFileSync(target.runPath, "utf8"), id).meta.revision_id;
     const step = values => {
-      const result = recordRunStep(target.root, { runId: id, revisionId: revision(), ...values }, { policy: policyForRunContent, date: "2026-10-27" });
-      assert.equal(result.outcome, "recorded", JSON.stringify(result));
+      const ur = values.step === 'ur';
+      const source = target.context.material(target.binding(), ur ? 'UR' : 'Brownfield Review', ur ? UR_TEXT : '# Brownfield Review\n\nA bounded synthetic route fixture.\n');
+      const result = target.context.call(ur ? 'ur_draft.replace' : 'step.record', ur ? { source, title: values.title } : { ...values, source }, target.binding());
+      assert.equal(result.outcome, 'accepted', JSON.stringify(result));
     };
     step({ step: "ur", title: "Route fixture" });
-    if (route) step({ step: "route", route, reason: `route fixture ${route}`, evidence: "companion parity test" });
-    const presentation = prepareRunPresentation(target.root, { runId: id, gate: "UR", revisionId: revision() }, { evaluateGateCheck });
-    assert.equal(presentation.outcome, "prepared", JSON.stringify(presentation));
-    const approvedUr = approveRunGate(target.root, { runId: id, gate: "UR", revisionId: revision(), response: "Approval: UR", presentationId: presentation.presentation_id }, { evaluateGateCheck });
-    assert.equal(approvedUr.outcome, "approved", JSON.stringify(approvedUr));
+    if (route) step({ step: "route", route, reason: `route fixture ${route}` });
+    const presentation = target.context.call("presentation.prepare", { gate: "UR" }, target.binding());
+    assert.equal(presentation.outcome, "accepted", JSON.stringify(presentation));
+    const approvedUr = target.context.call("approval.record", { gate: "UR", response: "Approval: UR", presentation_id: presentation.family_result.presentation_id }, target.binding());
+    assert.equal(approvedUr.outcome, "accepted", JSON.stringify(approvedUr));
     return target;
   } catch (error) {
     target.close();
@@ -239,7 +243,7 @@ function routedRun(route) {
 const CARD_MARK = Object.freeze({ fulfilled: "done", current: "current", open: "open" });
 const cardPath = root => evaluateGateCheck(root, { runId: "fixture-a" }).status_card.breadcrumb.map(({ gate, status }) => ({ gate, mark: CARD_MARK[status] }));
 const companionPath = runState => gateMarks(runState).filter(({ gate }) => gate !== "CD+Tests");
-for (const route of [null, "quick_task", "verified_change", "structured_slice", "structured_delivery", "block"]) {
+for (const route of [null, "quick_task", "verified_change", "structured_slice", "structured_delivery"]) {
   const target = routedRun(route);
   try {
     const name = route ?? "undecided";
@@ -248,7 +252,6 @@ for (const route of [null, "quick_task", "verified_change", "structured_slice", 
     assert.equal(result.run.route, modeSliceDecision(readRunState(target.root, { runId: "fixture-a" })), `${name}: route parity`);
     assert.deepEqual(companionPath(result.run), cardPath(target.root), `${name}: path parity`);
     setScalar(target.root, "fixture-a", "lifecycle", "completed");
-    setScalar(target.root, "fixture-a", "current_gate", "OR");
     const completed = parsed(target.root, "fixture-a").run;
     if (!["structured_slice", "structured_delivery"].includes(route)) {
       assert.ok(!gateMarks(completed).some(({ gate }) => ["PRD", "SD", "TP", "CD+Tests"].includes(gate)), `${name}: completed run shows no structured gate`);
@@ -258,6 +261,14 @@ for (const route of [null, "quick_task", "verified_change", "structured_slice", 
     target.close();
   }
 }
+// Retired blocked-route writes are refused by the current strict command schema.
+{
+  const f = fixture();
+  try {
+    const rejected = f.context.call('step.record', { step: 'route', route: 'block', reason: 'Unsupported current route', source: f.context.material(f.binding(), 'Brownfield Review', '# Review\n') }, f.binding());
+    assert.equal(rejected.reason, 'command_schema_invalid');
+  } finally { f.close(); }
+}
 // Format variants of the Mode/Slice Decision read like the core: backticks, a template value, a
 // missing scope reason or evidence, and the spaced heading.
 const variants = routedRun("quick_task");
@@ -265,50 +276,45 @@ try {
   const runPath = runFile(variants.root, "fixture-a");
   const original = readFileSync(runPath, "utf8");
   for (const [name, edit] of [
-    ["backticked decision", text => text.replace(/^- decision: quick_task$/mu, "- decision: `quick_task`")],
+    ["backticked decision", text => text.replace(/^- mode: quick_task$/mu, "- mode: `quick_task`")],
     ["empty evidence", text => text.replace(/^(- evidence:).*$/mu, "$1")],
     ["template scope reason", text => text.replace(/^(- scope_reason:).*$/mu, "$1 `a | b`")],
-    ["template decision", text => text.replace(/^- decision: quick_task$/mu, "- decision: `quick_task | verified_change | block`")],
+    ["template decision", text => text.replace(/^- mode: quick_task$/mu, "- mode: `quick_task | verified_change | block`")],
     ["spaced heading", text => text.replace(/^## Mode\/Slice Decision$/mu, "## Mode / Slice Decision")],
   ]) {
     const edited = edit(original);
     assert.notEqual(edited, original, `${name}: the variant changes the run state`);
     writeFileSync(runPath, sealRunState(variants.root, edited));
-    const variantRun = parsed(variants.root, "fixture-a").run;
+    const observedVariant = parsed(variants.root, "fixture-a");
+    if (name === "template decision") { assert.equal(observedVariant.ok, false, "invalid current mode is unreadable, never guessed"); continue; }
+    const variantRun = observedVariant.run;
     assert.equal(variantRun.route, modeSliceDecision(readRunState(variants.root, { runId: "fixture-a" })), `${name}: route parity`);
   }
 } finally {
   variants.close();
 }
-// CR-F04: an Approvals status in backticks counts as approved, as the core reader strips them; the
-// marks then still equal the status card.
-const backticked = routedRun("structured_delivery");
+// Current typed approvals match Core; an injected retired derived table must be refused.
+const typed = routedRun('structured_delivery');
 try {
-  const runPath = runFile(backticked.root, "fixture-a");
-  const original = readFileSync(runPath, "utf8");
-  const edited = original.replace(/^\| UR \| approved \|/mu, "| UR | `approved` |");
-  assert.notEqual(edited, original, "the UR approval row is rewritten with backticks");
-  writeFileSync(runPath, sealRunState(backticked.root, edited));
-  const tickedRun = parsed(backticked.root, "fixture-a").run;
-  const coreApproved = [...readRunState(backticked.root, { runId: "fixture-a" }).approvals.entries()].filter(([, row]) => row.status === "approved").map(([gate]) => gate);
-  assert.deepEqual(tickedRun.approved, coreApproved, "backticked approval parity");
-  assert.deepEqual(companionPath(tickedRun), cardPath(backticked.root), "backticked approval: path parity");
-} finally {
-  backticked.close();
-}
+  const path = runFile(typed.root, 'fixture-a'), text = readFileSync(path, 'utf8');
+  const observed = parseRunState('fixture-a', text);
+  assert.deepEqual(observed.run.approved, [...readRunState(typed.root, { runId: 'fixture-a' }).approvals].filter(([, row]) => row.status === 'approved').map(([gate]) => gate));
+  assert.equal(parseRunState('fixture-a', text + '\n## Approvals\n\n| UR | `approved` | forged table |\n').ok, false);
+  assert.equal(parseRunState('fixture-a', text.replace('control_state_version: 4', 'control_state_version: 2')).ok, false);
+} finally { typed.close(); }
 
 // SCN-008: valid localization agrees with the status-card/Core language rule.
 // Invalid control configuration is rejected by Core, even when the display-only
 // companion can read an incomplete setting; it never supplies execution authority.
 const configRoot = mkdtempSync(join(tmpdir(), "agdf-companion-locale-"));
 try {
-  const languageConfig = chat_language => JSON.stringify({ artifact_language: "en", chat_language, runtime_language: "en" });
+  const languageConfig = chat_language => JSON.stringify({ control_layout: "run-folders-v1", artifact_language: "en", chat_language, runtime_language: "en" });
   for (const config of [null, ...["de", "de-AT", "fr"].map(languageConfig)]) {
     rmSync(join(configRoot, ".agdf"), { recursive: true, force: true });
     if (config !== null) { mkdirSync(join(configRoot, ".agdf", "control"), { recursive: true }); writeFileSync(join(configRoot, ".agdf", "control", "config.json"), config); }
     assert.equal(chatLocale(registry, config), resolveConfiguredChatLanguage(configRoot), `chat language parity for ${config}`);
   }
-  for (const [config, field] of [["{", "config"], [JSON.stringify({ chat_language: "de" }), "artifact_language"], [languageConfig("not a tag"), "chat_language"]]) {
+  for (const [config, field] of [["{", "config"], [JSON.stringify({ control_layout: "run-folders-v1", chat_language: "de" }), "artifact_language"], [languageConfig("not a tag"), "chat_language"]]) {
     const path = join(configRoot, ".agdf", "control", "config.json");
     writeFileSync(path, config);
     assert.throws(() => resolveConfiguredChatLanguage(configRoot), error => error.code === "configuration_invalid"

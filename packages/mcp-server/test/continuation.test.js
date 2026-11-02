@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { createRun } from "../../core/lib/control-state/run-state-repository.js";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -20,14 +20,12 @@ try {
     if (entry !== "agdf-mcp-dispatch-server") rmSync(join(copiedRuns, entry), { recursive: true, force: true });
   }
   rmSync(join(fixture.governanceTarget, ".agdf/control/AGDF_RUN.md"), { force: true });
-  // Authoring setup uses canonical empty pointer tables, not mutable live backlog formatting.
-  writeFileSync(join(fixture.governanceTarget, ".agdf/control/MASTER_BACKLOG.md"),
-    readFileSync(join(fixture.dispatcherRoot, "generated/.agdf/control/templates/MASTER_BACKLOG.md")));
+  // Current authoring uses the Run store directly; no Masterbacklog fixture.
   const urRun = "ur-definition-mcp-test";
   const prdRun = createPrdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "prd-definition-mcp-test");
   const sdRun = createSdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "sd-definition-mcp-test");
   const tpRun = createTpDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "tp-definition-mcp-test");
-  execFileSync(process.execPath, [join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "run-create", "--dir", fixture.governanceTarget, "--run", urRun], { stdio: "pipe" });
+  createRun(fixture.governanceTarget, urRun);
   // A real stdio server, with no SessionStart hook or executable binding.
   const pluginRoot = join(fixture.dispatcherRoot, "generated", "plugins", "agdf");
   await withStdioClient({ ...fixture, env: { AGDF_DISPATCH_PLUGIN_ROOT: pluginRoot } }, async client => {

@@ -1,3 +1,4 @@
+import { CURRENT_LAYOUT } from '#agdf-core/control-state/run-identity.js';
 import { canonicalInitPlan } from "#agdf-core/resources/canonical-init-plan.js";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -17,9 +18,7 @@ const codexPluginFiles = [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "control", "README.md"),
-  join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
   join("plugins", "agdf", "control", "templates", "RUN_STATE.md"),
-  join("plugins", "agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join("plugins", "agdf", "control", "templates", "SOT_REGISTRY.md"),
   join("plugins", "agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join("plugins", "agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
@@ -44,9 +43,7 @@ const codexPluginFiles = [
 ];
 const controlFiles = [
   join(".agdf", "control", "README.md"),
-  join(".agdf", "control", "templates", "AGDF_RUN.md"),
   join(".agdf", "control", "templates", "RUN_STATE.md"),
-  join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
@@ -102,7 +99,7 @@ export function generatedFilesForTarget(target, targetDir, force, languagePrefer
 
   if (target === "config") {
     const configPath = join(targetDir, '.agdf', 'control', 'config.json');
-    let existing = {};
+    let existing = { control_layout: CURRENT_LAYOUT };
     try { existing = JSON.parse(readFileSync(configPath, 'utf8')); }
     catch (error) { if (error.code !== 'ENOENT') throw error; }
     if (!existing || typeof existing !== 'object' || Array.isArray(existing)) throw Error('invalid_control_config');

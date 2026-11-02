@@ -1,3 +1,9 @@
+import { CURRENT_RUN_VERSION } from './run-identity.js';
+import { canonicalRunDocument } from './run-state-document.js';
+import { runDocumentPath, runHistoryPath } from './run-identity.js';
+import { canonicalRunText, applyRunSeals, computeRunSeals } from './run-seal-compute.js';
+import { createHash } from 'node:crypto';
+import { hasSymlinkComponent } from './contained-file.js';
 import {
   closeSync,
   existsSync,
@@ -20,7 +26,7 @@ import { parseRunState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
 import { sealRunState } from "./run-seal-compute.js";
 import { fsyncDirectory, withOwnedFileLock } from './run-state-writer.js';
-import { readControlLayout, PLANNED_LAYOUT, withControlMutation, markControlMutationEffect, markControlMutationRollbackKnown } from './control-layout.js';
+import { readControlLayout, CURRENT_LAYOUT, withControlMutation, markControlMutationEffect, markControlMutationRollbackKnown } from './control-layout.js';
 
 export { discoverRuns, runPath } from "./run-state-reader.js";
 
@@ -102,71 +108,71 @@ function ensureStagedRunUnchanged(stageIdentity, stagedFile) {
   }
 }
 
+function creationOutputs(id, outputs = []) {
+  if (!Array.isArray(outputs) || outputs.length !== 0 && outputs.length !== 2) throw Error('AGDF_RUN_STAGE_INVALID');
+  const expected = [runDocumentPath(id, 'UR.md'), runHistoryPath(id, 'planning/UR.md')];
+  if (outputs.some((row, i) => row.path !== expected[i] || typeof row.content !== 'string'
+    || Buffer.byteLength(row.content) > 131072) || outputs.length && outputs[0].content !== outputs[1].content)
+    throw Error('AGDF_RUN_STAGE_INVALID');
+  return outputs;
+}
+const outputDigests = outputs => new Map(outputs.map(row => [row.path,
+  'sha256:' + createHash('sha256').update(canonicalRunText(row.content)).digest('hex')]));
+function stageOutputPath(stage, id, path) {
+  return join(stage, path.slice(`.agdf/control/runs/${id}/`.length));
+}
+function inspectCreationOutputs(stage, id, outputs, { partial = false } = {}) {
+  const files = ['RUN_STATE.md', ...outputs.map(row => row.path.slice(`.agdf/control/runs/${id}/`.length))];
+  const directories = new Set(files.flatMap(name => name.split('/').slice(0, -1).map((_, i, parts) => parts.slice(0, i + 1).join('/'))));
+  const visit = (relative = '') => {
+    for (const name of readdirSync(join(stage, relative))) {
+      const path = [relative, name].filter(Boolean).join('/'), stat = lstatSync(join(stage, path));
+      if (stat.isSymbolicLink()) throw Error('AGDF_RUN_STALE_STAGE');
+      if (stat.isDirectory() && directories.has(path)) visit(path);
+      else if (!stat.isFile() || !files.includes(path)) throw Error('AGDF_RUN_STALE_STAGE');
+    }
+  };
+  visit();
+  for (const row of outputs) {
+    const path = stageOutputPath(stage, id, row.path);
+    if (partial && !existsSync(path)) continue;
+    const bytes = regularFileSnapshot(path).content, expected = Buffer.from(row.content);
+    if (partial ? bytes.length > expected.length || !expected.subarray(0, bytes.length).equals(bytes) : !expected.equals(bytes))
+      throw Error('AGDF_RUN_STALE_STAGE');
+  }
+}
+
+function retireCreationOutputs(stage, id, outputs) {
+  // Retire only exact known bytes. Unknown siblings keep the stage recoverable.
+  inspectCreationOutputs(stage, id, outputs, { partial: true });
+  for (const row of outputs) if (existsSync(stageOutputPath(stage, id, row.path))) unlinkSync(stageOutputPath(stage, id, row.path));
+  const directories = [...new Set(outputs.flatMap(row => {
+    const parts = row.path.slice(`.agdf/control/runs/${id}/`.length).split('/').slice(0, -1);
+    return parts.map((_, i) => parts.slice(0, i + 1).join('/'));
+  }))].sort((a, b) => b.length - a.length);
+  for (const path of directories) if (existsSync(join(stage, path))) rmdirSync(join(stage, path));
+}
+
 const DEFAULT_BODY = `## Objective
 
 Describe the trustworthy outcome.
 
-## Current Control State
-
-| Question | Answer |
-|---|---|
-| What is known? | New run created. |
-| What is approved? | Nothing yet. |
-| What is missing? | Durable UR and exact approval. |
-| What is the next allowed action? | Draft the UR. |
-| What is explicitly forbidden right now? | Later artefacts and implementation. |
-
-## Approvals
-
-| Gate | Status | Evidence |
-|---|---|---|
-| UR | missing |  |
-| PRD | missing |  |
-| SD | missing |  |
-| TP | missing |  |
-| QA | missing |  |
-| UAT | missing |  |
-
-## Artefacts
-
-| Type | Path | Status | Notes |
-|---|---|---|---|
-| UR |  | missing |  |
-| Brownfield Review |  | missing |  |
-| Verified Change |  | missing |  |
-| PRD |  | missing |  |
-| SD |  | missing |  |
-| TP |  | missing |  |
-| Brownfield Analysis |  | missing |  |
-| CD+Tests |  | missing |  |
-| CR |  | missing |  |
-| QA |  | missing |  |
-
 ## Mode/Slice Decision
 
-- decision:
-- required_next_gate:
 - scope_reason:
 - evidence:
 
-## Artefact Chain
+## Relationships
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
 
-## Evidence
-
-| Evidence | Source | Covers | Strength |
-|---|---|---|---|
-| Run creation | run-create | Control initialization | direct |
-
 ## Closeout
 
-- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook:
 `;
 export function renderRunState(id, body = DEFAULT_BODY, meta = {}) {
-  return `# AGDF Run State\n\n## Run Meta\n\n- control_state_version: ${meta.control_state_version ?? 2}\n- run_id: ${id}\n- lifecycle: ${meta.lifecycle ?? "active"}\n- revision: 1\n- revision_id: ${randomUUID()}\n- updated_at: ${meta.updated_at ?? new Date().toISOString()}\n- mode: ${meta.mode ?? "structured_delivery"}\n- current_gate: ${meta.current_gate ?? "UR"}\n- decision: ${meta.decision ?? "in_progress"}\n- owner: ${meta.owner ?? "agent"}\n\n${body}`;
+  return canonicalRunDocument(`# AGDF Run State\n\n## Run Meta\n\n- control_state_version: ${meta.control_state_version ?? CURRENT_RUN_VERSION}\n- run_id: ${id}\n- lifecycle: ${meta.lifecycle ?? "active"}\n- revision: 1\n- revision_id: ${randomUUID()}\n- updated_at: ${meta.updated_at ?? new Date().toISOString()}\n- mode: ${meta.mode ?? "undecided"}\n- owner: ${meta.owner ?? "agent"}\n\n${body}`);
 }
 export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
   // Directory publication remains the creation commit point. The independent
@@ -176,6 +182,7 @@ export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
   return withOwnedFileLock(join(store.path, `.direct-create-${id}`), () => withControlMutation(root, { resource: `run.create:${id}` }, () => createRunAdmitted(root, id, body, hooks)));
 }
 function createRunAdmitted(root, id, body, hooks) {
+  const outputs = creationOutputs(id, hooks.outputs);
   const path = runPath(root, id);
   const runStore = assertCanonicalRunStore(root);
   const runDirectory = dirname(path);
@@ -193,9 +200,23 @@ function createRunAdmitted(root, id, body, hooks) {
   let stagedFile;
   try {
     hooks.beforeWrite?.({ root, id, path: stagedPath });
-      const initial = renderRunState(id, body, { control_state_version: readControlLayout(root).layout === PLANNED_LAYOUT ? 3 : 2 });
-      const rendered = sealRunState(root, hooks.prepare ? hooks.prepare(initial) : initial);
+      readControlLayout(root);
+      const initial = renderRunState(id, body);
+      const prepared = hooks.prepare ? hooks.prepare(initial) : initial;
+      const rendered = applyRunSeals(prepared, computeRunSeals(root, prepared, { artefactDigests: outputDigests(outputs) }));
     stagedFile = writeNewRunState(stagedPath, rendered);
+    for (const row of outputs) {
+      const file = stageOutputPath(stageDirectory, id, row.path);
+      const relative = row.path.slice(`.agdf/control/runs/${id}/`.length);
+      if (hasSymlinkComponent(stageDirectory, relative)) throw Error('AGDF_RUN_STAGE_INVALID');
+      mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
+      if (hasSymlinkComponent(stageDirectory, relative)) throw Error('AGDF_RUN_STAGE_INVALID');
+      writeNewRunState(file, row.content);
+      for (let directory = dirname(file); directory !== stageDirectory; directory = dirname(directory)) fsyncDirectory(directory);
+      hooks.checkpoint?.(`handoff_output_${row.path.endsWith('history/planning/UR.md') ? 'snapshot' : 'UR.md'}`);
+    }
+    fsyncDirectory(stageDirectory);
+    inspectCreationOutputs(stageDirectory, id, outputs);
     hooks.beforePublish?.({ root, id, path, stageDirectory });
     if (!sameCanonicalRunStore(runStore)) {
       throw Error("AGDF_RUN_TARGET_DRIFT");
@@ -207,6 +228,9 @@ function createRunAdmitted(root, id, body, hooks) {
     fsyncDirectory(runStore.path);
     return path;
   } catch (error) {
+    // Interrupted or partial owned outputs are retained for original-intent
+    // recovery; ordinary creation without outputs keeps its existing rollback.
+    if (outputs.length && existsSync(stageDirectory)) throw error;
     cleanupRunStage(stageIdentity, stagedFile);
     if (!existsSync(runDirectory) && !existsSync(stageDirectory)) markControlMutationRollbackKnown(`run.create:${id}`);
     throw error;
@@ -215,19 +239,21 @@ function createRunAdmitted(root, id, body, hooks) {
 
 // Recovery is confined to a single original creation identity under its store lock.
 // The creation owner must verify the staged sealed receipt and exact request first.
-export function recoverRunCreationStage(root, id, validate, { inspectOnly = false, discard = false } = {}) {
+export function recoverRunCreationStage(root, id, validate, { inspectOnly = false, discard = false, outputs: suppliedOutputs } = {}) {
+  const outputs = creationOutputs(id, suppliedOutputs);
   const store = assertCanonicalRunStore(root, { historicalRead: inspectOnly }), destination = dirname(runPath(root, id));
   const stages = readdirSync(store.path).filter(name => name.startsWith(`.run-stage-${id}-`));
   if (!stages.length) return null;
   if (stages.length !== 1 || existsSync(destination)) throw Error('AGDF_RUN_STALE_STAGE');
   const directory = join(store.path, stages[0]), stage = directoryIdentity(directory);
-  if (readdirSync(directory).join() !== 'RUN_STATE.md') throw Error('AGDF_RUN_STALE_STAGE');
+  inspectCreationOutputs(directory, id, outputs, { partial: discard });
   const file = regularFileSnapshot(join(directory, 'RUN_STATE.md'));
-  const receipt = validate(file.content.toString('utf8'));
+  const receipt = validate(file.content.toString('utf8'), { staged: true, artefactDigests: outputDigests(outputs) });
   if (!sameCanonicalRunStore(store)) throw Error('AGDF_RUN_TARGET_DRIFT');
   ensureStagedRunUnchanged(stage, file);
   if (inspectOnly) return receipt;
   if (discard) {
+    if (outputs.length) retireCreationOutputs(directory, id, outputs);
     cleanupRunStage(stage, file);
     if (existsSync(directory)) throw Error('AGDF_RUN_STALE_STAGE');
     fsyncDirectory(store.path);

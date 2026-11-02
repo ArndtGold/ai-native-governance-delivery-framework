@@ -1,3 +1,5 @@
+import { REVISION_ID_PATTERN } from '../control-state/run-identity.js';
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { lstatSync } from "node:fs";
 import { dirname } from "node:path";
 import { assertCanonicalRunStore } from "../control-state/run-store-inspection.js";
@@ -25,6 +27,7 @@ export function deliveryIntakePhase(targetDir, control, input = {}) {
     try { lstatSync(dirname(runPath(targetDir, input.run_id))); }
     catch (error) { if (error.code !== "ENOENT") throw error; exists = false; }
     if (exists) throw new Error("AGDF_RUN_COLLISION");
+    if (!input.run_id?.startsWith('run-') || !REVISION_ID_PATTERN.test(input.run_id.slice(4))) throw Error('AGDF_NEW_RUN_OPERATION_REQUIRED');
     return Object.freeze({ phase: "run_missing", run_id: input.run_id, revision_id: null });
   }
 
@@ -36,12 +39,14 @@ export function deliveryIntakeSteps(governanceTarget, intake) {
   if (!runId) throw new Error("AGDF_INTAKE_RUN_BINDING_REQUIRED");
   const dir = `--dir ${quoteDispatchArgument(governanceTarget)}`;
   if (intake.phase === "run_missing") {
+    const operation = runId.startsWith('run-') ? runId.slice(4) : '';
+    if (!REVISION_ID_PATTERN.test(operation)) throw Error('AGDF_NEW_RUN_OPERATION_REQUIRED');
     return Object.freeze([
       Object.freeze({
         id: "create_run",
-        command: `run-create ${dir} --run ${runId}`,
-        argv: ["run-create", "--dir", governanceTarget, "--run", runId],
-        rule: "Create this exact run; use its returned revision_id for the following resume dispatch.",
+        command: `run-create ${dir} --title ${quoteDispatchArgument(runId)} --operation ${operation}`,
+        argv: ["run-create", "--dir", governanceTarget, "--title", runId, "--operation", operation],
+        rule: "The original operation UUID determines this exact Run ID. Record the actual requirement title with UR content; use the returned Run/revision for resume dispatch.",
       }),
       Object.freeze({
         id: "dispatch_again",
@@ -63,7 +68,7 @@ export function urDefinitionPhase(targetDir, control, input) {
   const revisionId = extractField(runState.content ?? "", "revision_id");
   if (!revisionId) return null;
   const registered = isDurableApprovalArtefactPresent(targetDir, runState, "UR");
-  const canonicalPath = `.agdf/control/artefacts/${input.run_id}/UR.md`;
+  const canonicalPath = `${runDocumentPath(input.run_id, '')}/UR.md`;
   // Never substitute an existing noncanonical draft path.
   if (registered && String(runState.artefacts.get("UR")?.path ?? "").replaceAll("`", "") !== canonicalPath) return null;
   if (input.skill_id !== "ur-definition" && !(input.intake || input.continue_delivery)) return null;

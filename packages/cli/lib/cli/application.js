@@ -1,12 +1,8 @@
+import { executeProjectInit } from './project-init-command.js';
 import { isAbsolute, join } from "node:path";
 import { emitKeypressEvents } from "node:readline";
 import { createInterface } from "node:readline/promises";
 import process from "node:process";
-import {
-  migrateLegacy,
-  resolveRuns,
-  writeLegacyProjection,
-} from "#agdf-core/control-state/index.js";
 import {
   defaultOpenCodeConfigDir,
   evaluateOpenCodeGlobalStatus,
@@ -38,7 +34,6 @@ import { approveCodexDispatcher, revokeCodexDispatcher } from "../runtime-check-
 import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
 import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { generatedFilesForTarget } from "../scaffold/plan.js";
-import { initializeCanonicalControl } from "../scaffold/canonical-init.js";
 import { printNextSteps } from "../scaffold/presentation.js";
 import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
 import { renderUsage, resolveCommand, validateCommandOptions } from "./command-registry.js";
@@ -50,7 +45,7 @@ import { withOwnedFileLock } from '#agdf-core/owned-file-lock.js';
 import { withControlMutation } from '#agdf-core/control-state/control-layout.js';
 import { hasSymlinkComponent } from '#agdf-core/control-state/contained-file.js';
 import { printMcpLifecycleResult, runMcpLifecycle } from "../mcp-lifecycle/service.js";
-import { promptControlMigration, promptControlRepair, promptInstallScope, promptInstallSetup } from "../install-setup/interaction.js";
+import { promptInstallScope, promptInstallSetup } from "../install-setup/interaction.js";
 import {
   printInstallSetupResult,
   renderInstallProgress,
@@ -73,9 +68,6 @@ function createHandlers({
   askInstallSetupDecision,
   askInstallSetupScope,
   askRuntimeCheckDecision,
-  askControlMigration,
-  askControlRepair,
-  askControlRepairConfirmation,
   inspectPluginInstallation,
   interactive,
   observeCodexHookTrust = observeCodexHooks,
@@ -112,9 +104,6 @@ function createHandlers({
     askInstallSetupDecision,
     askInstallSetupScope,
     askRuntimeCheckDecision,
-    askControlMigration,
-    askControlRepair,
-    askControlRepairConfirmation,
     observeRuntimeChecks,
     approveCodexPluginDispatcher,
     evaluateOpenCodeGlobal,
@@ -130,17 +119,6 @@ function createHandlers({
     ["opencode-repo", scaffoldHandler],
     ["init", scaffoldHandler],
     ["config", scaffoldHandler],
-    ["run-migrate", (options) => {
-      io.log(JSON.stringify(migrateLegacy(options.dir, options.runId), null, 2));
-      return 0;
-    }],
-    ["run-render-legacy", (options) => {
-      const selected = resolveRuns(options.dir, { runIdArg: options.runId });
-      const output = join(options.dir, ".agdf", "control", "AGDF_RUN.md");
-      writeLegacyProjection(output, selected.run.path);
-      io.log(output);
-      return 0;
-    }],
     ["opencode-status", (options) => {
       const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
       const rawReport = options.dirExplicit
@@ -443,15 +421,6 @@ async function runGuidedInstall(options, dependencies) {
         }
         return finalized;
       },
-      confirmControlMigration: dependencies.askControlMigration
-        ? (plan) => dependencies.askControlMigration(plan)
-        : (plan) => promptControlMigration(plan, { language }),
-      chooseControlRepair: dependencies.askControlRepair
-        ? (control) => dependencies.askControlRepair(control)
-        : (control) => promptControlRepair(control, { language }),
-      confirmControlRepair: dependencies.askControlRepairConfirmation
-        ? (plan) => dependencies.askControlRepairConfirmation(plan)
-        : (plan) => promptControlRepair(plan, { language, phase: "plan" }),
     });
     printInstallSetupResult(outcome.report, { json: options.json, verbose: options.verbose, io: dependencies.io, language });
     printLoadedSessionsNotice(outcome.plugin_payload?.installed ?? {}, options, dependencies.io, language);
@@ -933,6 +902,7 @@ async function runUninstall(options, { io, env, exec, revokeCodexPolicy }) {
 }
 
 function runScaffold(options, io) {
+  if (options.target === 'init') return executeProjectInit(options, io);
   let files = [];
   let removedOpenCodeAgents = [];
   let initialization = null;
@@ -940,15 +910,10 @@ function runScaffold(options, io) {
   try {
     const write = () => {
     files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
-    if (options.target === "init") {
-      initialization = initializeCanonicalControl(options.dir, files, { force: options.force });
-      files = [...initialization.files];
-    } else {
       assertGeneratedWritePlan(options.dir, files, options.force);
       for (const file of files) {
         writeGeneratedFile(options.dir, file.path, file.content, options.force, file.allowOverwrite);
       }
-    }
     };
     const configPath = '.agdf/control/config.json';
     // Reject an existing destination before creating admission directories.
@@ -1038,9 +1003,6 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,
     askInstallSetupDecision: adapters.askInstallSetupDecision,
     askInstallSetupScope: adapters.askInstallSetupScope,
-    askControlMigration: adapters.askControlMigration,
-    askControlRepair: adapters.askControlRepair,
-    askControlRepairConfirmation: adapters.askControlRepairConfirmation,
     inspectPluginInstallation: adapters.inspectPluginInstallation,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
     observeCodexHookTrust: adapters.observeCodexHookTrust,

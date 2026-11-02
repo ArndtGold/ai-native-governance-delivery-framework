@@ -17,7 +17,7 @@ const sessions = createDecisionSessionService({now:()=>{
 try {
   const entry=preview.descriptor.files.find(row=>row.path===preview.descriptor.entry), entryBytes=Buffer.from(readFileSync(join(root,entry.path),'utf8').replace('</body>','<p>'+'🙂'.repeat(22000)+'</p></body>'));
   writeFileSync(join(root,entry.path),entryBytes);entry.bytes=entryBytes.length;entry.digest=digest(entryBytes);
-  writeFileSync(f.file('PRD.md'),preview.prd());assert.equal(f.record(true).value.outcome,'recorded');input.expected_revision_id=f.revision();
+  writeFileSync(f.file('PRD.md'),preview.prd());assert.equal(f.record(true).value.outcome,'accepted');input.expected_revision_id=f.revision();
   const prepared = command('agdf_prepare', input), before = readFileSync(f.state, 'utf8');
   const opened = await sessions.open(input, prepared), view = opened._meta?.agdf_decision;
   assert.ok(view?.preview, JSON.stringify(opened));

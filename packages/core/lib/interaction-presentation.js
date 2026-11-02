@@ -261,7 +261,7 @@ export function buildRunCandidates(runs) {
   return [...(runs ?? [])]
     .filter((run) => run?.valid && run?.meta?.lifecycle === "active" && typeof run.run_id === "string")
     .map((run) => {
-      const currentGate = stripMarkdown(run.control_state?.current_gate || run.meta?.current_gate || "unknown") || "unknown";
+      const currentGate = stripMarkdown(run.control_state?.current_gate || "unknown") || "unknown";
       const title = resolveHumanRunTitle({
         currentArtefactHeading: run.current_artefact_heading,
         urHeading: run.ur_heading,
@@ -273,7 +273,7 @@ export function buildRunCandidates(runs) {
         display_title: displaySafeTitle(title, normalizedRunTitle(run.run_id)),
         objective: displaySafeObjective(section(String(run.content ?? ""), "Objective"), normalizedRunTitle(run.run_id)),
         current_gate: currentGate,
-        decision: String(run.meta?.decision || "unknown").replaceAll("`", "").trim() || "unknown",
+        decision: String(run.control_state?.decision || "unknown").replaceAll("`", "").trim() || "unknown",
         next_allowed_action: String(run.control_state?.next_allowed_action ?? "").trim(),
         revision_id: String(run.meta?.revision_id ?? "").trim(),
         last_updated_at: String(run.meta?.updated_at || run.last_updated_at || "").trim(),
@@ -308,7 +308,7 @@ export function reconcileRunScope({ requestText = "", scopeKey = "", runs = [] }
       run_id: run.run_id,
       lifecycle: run.meta.lifecycle,
       display_title: displaySafeTitle(run.display_title || run.ur_heading || run.run_id, normalizedRunTitle(run.run_id)),
-      current_gate: run.control_state?.current_gate || run.meta?.current_gate || "unknown",
+      current_gate: run.control_state?.current_gate || "unknown",
     }))
     .sort((left, right) => left.run_id.localeCompare(right.run_id));
   if (matches.length !== 1) return Object.freeze({ outcome: matches.length ? "match_uncertain" : "no_match", matches, reason: matches.length > 1 ? "multiple_exact_matches" : "no_exact_match" });
@@ -1298,6 +1298,7 @@ export function renderSourceRevision(result, registry, language, input = {}) {
     `${copy.retained}: ${safe(result.impact.retained.join(", ") || copy.none)}`,
     `${copy.superseded}: ${safe(result.impact.superseded.join(", "))}`);
   if (outcome === "preview" && result.sources && result.impact) {
+    if (result.confirmation_selector) lines.push(`--confirmation: ${safe(result.confirmation_selector)}`);
     lines.push(`${copy.intent}: ${safe(result.intended_change)}`, `${copy.binding}: ${safe(result.preview_digest)}`,
       "", copy.sources, ...result.sources.map(source => `- ${safe(source.type)}: ${safe(source.path)} · ${safe(source.digest)}`),
       "", `${copy.artefacts}: ${safe(result.impact.superseded.join(", "))}`,

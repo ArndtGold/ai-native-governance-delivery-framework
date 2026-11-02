@@ -57,12 +57,9 @@ const runId = { type: 'string', pattern: RUN_ID_PATTERN.source };
 // Closure decides over several Runs of one target, without a single Run binding.
 const text = { type: 'string', minLength: 1 };
 const closureEntry = strictObject({ run_id: runId, outcome: enumeration(['superseded', 'abandoned']), reason: text, successor_run: runId, successor_reference: text }, ['run_id', 'outcome', 'reason']);
-export const TARGET_SCOPED_COMMAND_KINDS = Object.freeze(['closure.preview', 'closure.apply', 'planned_layout.preview', 'planned_layout.apply', 'planned_layout.recover']);
+export const TARGET_SCOPED_COMMAND_KINDS = Object.freeze(['closure.preview', 'closure.apply']);
 const descriptors = {
   'project.initialize': spec('agdf_project', strictObject({ language: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE } }, []), 'canonical-initialization.initializeCanonicalProject', ['initialize fixed canonical project control; no Run or approval']),
-  'planned_layout.preview': spec('agdf_project', strictObject({ cursor: { type: 'string', maxLength: 80, pattern: '^[a-f0-9]{64}:(0|[1-9][0-9]*)$' } }, []), 'control-maintenance.pagePlannedLayoutPreview', ['read all bounded source-bound preview pages before confirmation; no mutation'], 'no_mutation'),
-  'planned_layout.apply': spec('agdf_project', strictObject({ preview_digest: hash, confirmation: string(256) }), 'control-maintenance.applyPlannedLayout', ['explicit lossless cutover; audited active v2 upgrade; preserve ended v2'], 'exact_preview_confirmation'),
-  'planned_layout.recover': spec('agdf_project', strictObject({ pending_digest: hash }), 'control-maintenance.recoverPlannedLayout', ['recover original confirmed cutover; preserve unknown bytes'], 'original_confirmed_effect'),
   'ur_draft.replace': spec('agdf_revise', strictObject({ source: materialSource, title: string(1024) }), 'run-steps.recordRunStep', ['replace only current unapproved UR']),
   'verified_change.record': spec('agdf_record', strictObject({ phase: enumeration(['eligibility', 'execution']), source: materialSource }), 'run-steps.recordRunStep', ['record compact eligibility or actual execution; no VCS mutation']),
   'material.stage': spec('agdf_record', materialStage, 'run-material.createRunMaterialStore', ['bounded private transfer; no Run revision or approval']),
@@ -77,8 +74,7 @@ const descriptors = {
   'presentation.deliver': spec('agdf_prepare', strictObject({ gate: enumeration(APPROVAL_GATES), presentation_id: identity,
     route: enumeration(['automatic', 'markdown', 'fallback']) }), 'decision-session', ['select one primary delivery; no gate effect'], 'no_gate_approval'),
   'step.record': spec('agdf_record', recordStep, 'run-steps.recordRunStep', ['register bounded actual internal/evidence result; update selected Run']),
-  'artefact.record': spec('agdf_record', { oneOf: [strictObject({ gate: enumeration(['PRD', 'SD', 'TP', 'QA']), reviewed_request: source }),
-    strictObject({ gate: enumeration(['PRD', 'SD', 'TP', 'QA']), material: MATERIAL_REFERENCE_SCHEMA, reviewer: string(1024), reviewed: { const: true }, update_draft: { type: 'boolean' } })] }, 'run-artefact-recording.prepareArtefactRecording', ['register reviewed source mapping; replace only unapproved draft']),
+  'artefact.record': spec('agdf_record', strictObject({ gate: enumeration(['PRD', 'SD', 'TP', 'QA']), material: materialSource, reviewer: string(1024), reviewed: { const: true }, update_draft: { type: 'boolean' } }), 'run-artefact-recording.prepareArtefactRecording', ['register reviewed source mapping; replace only unapproved draft']),
   'approval.record': spec('agdf_approve', strictObject({ gate: enumeration(APPROVAL_GATES), presentation_id: identity, response: string(8192) }), 'approval-command.executeApprovalCommand', ['record one exact deliberate gate reply'], 'new_deliberate_exact_reply'),
   'presentation_decision.record': spec('agdf_record', strictObject({ gate: enumeration(APPROVAL_GATES), presentation_id: identity,
     action: enumeration(['request_change', 'reject']), comment: { type: 'string', maxLength: 8192 } }),
@@ -90,12 +86,12 @@ const descriptors = {
   'closeout.record': spec('agdf_closeout', closeout, 'run-steps.recordRunStep', ['publish exact OR; complete selected Run'], 'exact_material_confirmation'),
   'closure.preview': spec('agdf_closeout', strictObject({ entries: { type: 'array', minItems: 1, maxItems: 64, items: closureEntry } }), 'run-closure.previewRunClosure', ['no run_id/revision; show text verbatim'], 'no_mutation'),
   'closure.apply': spec('agdf_closeout', strictObject({ preview_id: { type: 'string', pattern: '^[0-9a-f]{8}$' }, confirmation: string(256) }), 'run-closure.applyRunClosure', ["no run_id/revision; owner's verbatim reply; final"], 'exact_owner_phrase'),
-  'operation.recover': { ...spec(null, recovery, 'run-step-transaction.recoverPendingRunStep', ['recover original bounded owned outputs, including captured legacy backlog only'], 'original_confirmed_effect'), groups: ['agdf_record', 'agdf_revise', 'agdf_closeout'] },
+  'operation.recover': { ...spec(null, recovery, 'run-step-transaction.recoverPendingRunStep', ['recover original bounded Run-owned outputs'], 'original_confirmed_effect'), groups: ['agdf_record', 'agdf_revise', 'agdf_closeout'] },
 };
 function freeze(value) { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
 export const RUN_COMMAND_DESCRIPTORS = freeze(descriptors);
 export const RUN_COMMAND_GROUPS = freeze({
-  agdf_project: ['project.initialize', 'planned_layout.preview', 'planned_layout.apply', 'planned_layout.recover'],
+  agdf_project: ['project.initialize'],
   agdf_run: ['run.create', 'run.create_from_planned'],
   agdf_prepare: ['presentation.prepare', 'presentation.deliver'], agdf_record: ['material.stage', 'planned_material.stage', 'planned_ur.create', 'planned_ur.replace', 'verified_change.record', 'step.record', 'artefact.record', 'presentation_decision.record', 'runtime_generation.replace', 'operation.recover'],
   agdf_approve: ['approval.record'], agdf_revise: ['ur_draft.replace', 'source_revision.preview', 'source_revision.apply', 'source_revision.recover', 'prd_revision.reopen', 'operation.recover'],
@@ -121,7 +117,7 @@ const fieldHelp = Object.freeze({
   primary_target: 'Confirmed absolute target.',
   target_id: 'Exact hash from target inspection; never guess.',
   run_id: 'Run from inspection; recency is no authority.',
-  planning: 'Pre-Run plan identity and exact selected canonical digest; never a Run binding.',
+  planning: 'Pre-Run scope. Initial material/create: reserve the future planned_ur.create UUID; plan_id is plan-<that UUID>, expected_digest is null. Reuse that plan_id for material and create; material calls have separate UUIDs. Existing plans use the exact selected id/digest. No Run binding.',
   expected_revision_id: 'Inspected revision; recovery keeps original.',
   operation_id: 'New UUID; retry with same UUID/payload.',
   assurance: 'Cooperative intent, not human proof.',
@@ -420,7 +416,7 @@ export function validateRunCommandResult(value) { return schemaDiagnostics(value
 export function commandGroupDefinition(group) {
   const definition = { name: group,
     description: {
-      agdf_project: 'Initialize project; preview/confirm/recover migration.',
+      agdf_project: 'Initialize fresh current project control.',
       agdf_run: 'Create an unapproved Run; replay its UUID.',
       agdf_prepare: 'Prepare/deliver documents; never approve.',
       agdf_record: 'Stage/save planned URs or record Run evidence.',

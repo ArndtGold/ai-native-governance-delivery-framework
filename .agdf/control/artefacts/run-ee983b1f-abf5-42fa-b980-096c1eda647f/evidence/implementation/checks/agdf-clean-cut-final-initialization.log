@@ -1,0 +1,356 @@
+TAP version 13
+# Subtest: current parser refuses unsupported Run 2 without changing original bytes
+ok 1 - current parser refuses unsupported Run 2 without changing original bytes
+  ---
+  duration_ms: 929.281885
+  type: 'test'
+  ...
+# Subtest: current parser refuses unsupported Run 3 without changing original bytes
+ok 2 - current parser refuses unsupported Run 3 without changing original bytes
+  ---
+  duration_ms: 679.511873
+  type: 'test'
+  ...
+# Subtest: current parser refuses unsupported Run 99 without changing original bytes
+ok 3 - current parser refuses unsupported Run 99 without changing original bytes
+  ---
+  duration_ms: 695.286157
+  type: 'test'
+  ...
+# Subtest: unsupported layout master-backlog-v1 never becomes an empty successful inventory
+ok 4 - unsupported layout master-backlog-v1 never becomes an empty successful inventory
+  ---
+  duration_ms: 691.280374
+  type: 'test'
+  ...
+# Subtest: unsupported layout planned-urs-v1 never becomes an empty successful inventory
+ok 5 - unsupported layout planned-urs-v1 never becomes an empty successful inventory
+  ---
+  duration_ms: 466.915744
+  type: 'test'
+  ...
+# Subtest: missing current runs container stays unavailable/incomplete and is never re-created by reading
+ok 6 - missing current runs container stays unavailable/incomplete and is never re-created by reading
+  ---
+  duration_ms: 484.265747
+  type: 'test'
+  ...
+# Subtest: missing current planned container stays unavailable/incomplete and is never re-created by reading
+ok 7 - missing current planned container stays unavailable/incomplete and is never re-created by reading
+  ---
+  duration_ms: 484.689032
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5142.082579
+npm notice run create-agdf@0.20.2 test:canonical-init
+npm notice run node scripts/canonical-init-test.js
+TAP version 13
+# Subtest: canonical init: current seed is atomic, wrapped, replayable and creates neither a Run nor approval
+ok 1 - canonical init: current seed is atomic, wrapped, replayable and creates neither a Run nor approval
+  ---
+  duration_ms: 775.034777
+  type: 'test'
+  ...
+# Subtest: canonical init: interruption at project_before_prospective_receipt retains exact original setup semantics
+ok 2 - canonical init: interruption at project_before_prospective_receipt retains exact original setup semantics
+  ---
+  duration_ms: 268.038919
+  type: 'test'
+  ...
+# Subtest: canonical init: interruption at project_after_prospective_receipt retains exact original setup semantics
+ok 3 - canonical init: interruption at project_after_prospective_receipt retains exact original setup semantics
+  ---
+  duration_ms: 644.947854
+  type: 'test'
+  ...
+# Subtest: canonical init: interruption at project_before_publish retains exact original setup semantics
+ok 4 - canonical init: interruption at project_before_publish retains exact original setup semantics
+  ---
+  duration_ms: 605.123007
+  type: 'test'
+  ...
+# Subtest: canonical init: interruption at project_after_publish retains exact original setup semantics
+ok 5 - canonical init: interruption at project_after_publish retains exact original setup semantics
+  ---
+  duration_ms: 577.033325
+  type: 'test'
+  ...
+# Subtest: canonical init: interruption at project_after_receipt retains exact original setup semantics
+ok 6 - canonical init: interruption at project_after_receipt retains exact original setup semantics
+  ---
+  duration_ms: 614.090536
+  type: 'test'
+  ...
+# Subtest: canonical init: interruption at project_before_marker_cleanup retains exact original setup semantics
+ok 7 - canonical init: interruption at project_before_marker_cleanup retains exact original setup semantics
+  ---
+  duration_ms: 558.861163
+  type: 'test'
+  ...
+# Subtest: canonical init: real SIGKILL at project_after_prospective_receipt recovers only its captured original operation
+ok 8 - canonical init: real SIGKILL at project_after_prospective_receipt recovers only its captured original operation
+  ---
+  duration_ms: 1122.354483
+  type: 'test'
+  ...
+# Subtest: canonical init: real SIGKILL at project_before_publish recovers only its captured original operation
+ok 9 - canonical init: real SIGKILL at project_before_publish recovers only its captured original operation
+  ---
+  duration_ms: 1091.151857
+  type: 'test'
+  ...
+# Subtest: canonical init: real SIGKILL at project_after_publish recovers only its captured original operation
+ok 10 - canonical init: real SIGKILL at project_after_publish recovers only its captured original operation
+  ---
+  duration_ms: 1059.93455
+  type: 'test'
+  ...
+# Subtest: canonical init: an unconfirmed Git target cannot acquire project control
+ok 11 - canonical init: an unconfirmed Git target cannot acquire project control
+  ---
+  duration_ms: 78.278488
+  type: 'test'
+  ...
+# Subtest: canonical init: foreign partial state is preserved without fill, merge or reset
+ok 12 - canonical init: foreign partial state is preserved without fill, merge or reset
+  ---
+  duration_ms: 149.650832
+  type: 'test'
+  ...
+# Subtest: canonical init: unsupported layout master-backlog-v1 remains unchanged
+ok 13 - canonical init: unsupported layout master-backlog-v1 remains unchanged
+  ---
+  duration_ms: 453.437091
+  type: 'test'
+  ...
+# Subtest: canonical init: unsupported layout planned-urs-v1 remains unchanged
+ok 14 - canonical init: unsupported layout planned-urs-v1 remains unchanged
+  ---
+  duration_ms: 519.82572
+  type: 'test'
+  ...
+# Subtest: canonical init: unsupported layout null remains unchanged
+ok 15 - canonical init: unsupported layout null remains unchanged
+  ---
+  duration_ms: 519.394161
+  type: 'test'
+  ...
+# Subtest: canonical init: altered terminal receipt cannot be adopted or reset
+ok 16 - canonical init: altered terminal receipt cannot be adopted or reset
+  ---
+  duration_ms: 513.873026
+  type: 'test'
+  ...
+# Subtest: canonical init: foreign_stage_file blocks recovery without adoption or deletion
+ok 17 - canonical init: foreign_stage_file blocks recovery without adoption or deletion
+  ---
+  duration_ms: 373.053475
+  type: 'test'
+  ...
+# Subtest: canonical init: old_marker_version blocks recovery without adoption or deletion
+ok 18 - canonical init: old_marker_version blocks recovery without adoption or deletion
+  ---
+  duration_ms: 428.254529
+  type: 'test'
+  ...
+# Subtest: canonical init: altered_prospective_receipt blocks recovery without adoption or deletion
+ok 19 - canonical init: altered_prospective_receipt blocks recovery without adoption or deletion
+  ---
+  duration_ms: 240.827984
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10613.16796
+TAP version 13
+# Subtest: Git project confirmation accepts the same directory spelling alias and rejects another directory
+ok 1 - Git project confirmation accepts the same directory spelling alias and rejects another directory
+  ---
+  duration_ms: 96.204661
+  type: 'test'
+  ...
+# Subtest: prospective receipt is private until the same directory and anchor are atomically published
+ok 2 - prospective receipt is private until the same directory and anchor are atomically published
+  ---
+  duration_ms: 293.566622
+  type: 'test'
+  ...
+# Subtest: interruption at beforeProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+ok 3 - interruption at beforeProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 106.178618
+  type: 'test'
+  ...
+# Subtest: interruption at afterProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+ok 4 - interruption at afterProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 290.683381
+  type: 'test'
+  ...
+# Subtest: interruption at beforeWrite distinguishes unproven bytes from an exact prospective receipt
+ok 5 - interruption at beforeWrite distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 276.607014
+  type: 'test'
+  ...
+# Subtest: prospective stage recovery refuses a missing earlier seed with a later seed present
+ok 6 - prospective stage recovery refuses a missing earlier seed with a later seed present
+  ---
+  duration_ms: 150.786413
+  type: 'test'
+  ...
+# Subtest: fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+ok 7 - fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+  ---
+  duration_ms: 490.272563
+  type: 'test'
+  ...
+# Subtest: device-only remount preserves current ownership while old receipt formats remain unsupported
+ok 8 - device-only remount preserves current ownership while old receipt formats remain unsupported
+  ---
+  duration_ms: 1193.98487
+  type: 'test'
+  ...
+# Subtest: completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+ok 9 - completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+  ---
+  duration_ms: 474.807089
+  type: 'test'
+  ...
+# Subtest: an old caller stage2 marker is unsupported and cannot be converted
+ok 10 - an old caller stage2 marker is unsupported and cannot be converted
+  ---
+  duration_ms: 202.94925
+  type: 'test'
+  ...
+# Subtest: full-width filesystem inode values remain strings above Number precision
+ok 11 - full-width filesystem inode values remain strings above Number precision
+  ---
+  duration_ms: 664.697199
+  type: 'test'
+  ...
+# Subtest: legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+ok 12 - legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+  ---
+  duration_ms: 211.684893
+  type: 'test'
+  ...
+# Subtest: explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+ok 13 - explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+  ---
+  duration_ms: 858.262389
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_publish
+ok 14 - original setup identity survives actual publication response loss at project_after_publish
+  ---
+  duration_ms: 692.338228
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_receipt
+ok 15 - original setup identity survives actual publication response loss at project_after_receipt
+  ---
+  duration_ms: 613.02346
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_before_marker_cleanup
+ok 16 - original setup identity survives actual publication response loss at project_before_marker_cleanup
+  ---
+  duration_ms: 579.213524
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at before_result
+ok 17 - original setup identity survives actual publication response loss at before_result
+  ---
+  duration_ms: 588.880656
+  type: 'test'
+  ...
+# Subtest: foreign partial state, dangling control links and generic write arguments reject without adopting data
+ok 18 - foreign partial state, dangling control links and generic write arguments reject without adopting data
+  ---
+  duration_ms: 206.72448
+  type: 'test'
+  ...
+# Subtest: original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+ok 19 - original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+  ---
+  duration_ms: 635.469081
+  type: 'test'
+  ...
+# Subtest: owned recovery retains the originally resolved language configuration across process-locale drift
+ok 20 - owned recovery retains the originally resolved language configuration across process-locale drift
+  ---
+  duration_ms: 588.183786
+  type: 'test'
+  ...
+# Subtest: a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+ok 21 - a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+  ---
+  duration_ms: 217.021888
+  type: 'test'
+  ...
+# Subtest: an owned unpublished stage preserves its original request; another request cannot adopt it
+ok 22 - an owned unpublished stage preserves its original request; another request cannot adopt it
+  ---
+  duration_ms: 340.860355
+  type: 'test'
+  ...
+# Subtest: changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+ok 23 - changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+  ---
+  duration_ms: 876.155563
+  type: 'test'
+  ...
+# Subtest: an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+ok 24 - an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+  ---
+  duration_ms: 299.352449
+  type: 'test'
+  ...
+# Subtest: stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+ok 25 - stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+  ---
+  duration_ms: 379.365613
+  type: 'test'
+  ...
+# Subtest: changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+ok 26 - changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+  ---
+  duration_ms: 609.675871
+  type: 'test'
+  ...
+# Subtest: a non-regular pending marker blocks without reading a foreign FIFO
+ok 27 - a non-regular pending marker blocks without reading a foreign FIFO
+  ---
+  duration_ms: 465.273377
+  type: 'test'
+  ...
+# Subtest: real initializer retains its owned publication while a competing CLI request is rejected
+ok 28 - real initializer retains its owned publication while a competing CLI request is rejected
+  ---
+  duration_ms: 1457.77574
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14330.926714

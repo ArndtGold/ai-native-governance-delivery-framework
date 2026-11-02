@@ -6,11 +6,11 @@ import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { buildStatusCard, evaluateGateCheck, postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../control-evaluation/gate-check.js";
 import { evaluateDoctor } from "../control-evaluation/doctor.js";
 import { evaluateDeliveryMap } from "../control-evaluation/delivery-map.js";
-import { readRuntimeContract } from "../resources/contracts.js";
+import { readRuntimeContract, runtimeContractModules } from "../resources/contracts.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation, renderActiveRunInventory, renderRunInventory } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
-import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, PRESENTATION_CATALOG_MODULE } from "./contract.js";
+import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, OPERATION_CONTRACT_MODULES, PRESENTATION_CATALOG_MODULE } from "./contract.js";
 import { RUN_COMMAND_DESCRIPTORS, operationContract } from '../control-state/run-command-contract.js';
 import { inspectRunOperation } from '../control-state/run-operation-status.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
@@ -28,11 +28,11 @@ import { readHistoryBytes } from '../control-state/run-revision-history.js';
 import { creationRunId } from '../control-state/run-create-command.js';
 import { inspectAuthoringInputs } from './authoring-inputs.js';
 import { PLANNING_COMMAND_KINDS } from '../control-state/run-command-schema.js';
-import { inspectPlannedEntry, inspectPlannedOperation } from '../control-state/planned-entry.js';
+import { inspectPlannedEntry, inspectPlannedOperation, plannedEntryPath } from '../control-state/planned-entry.js';
+import { controlPathPresent } from '../control-read/snapshot.js';
 import { inspectPlannedHandoffOperation } from '../control-state/planned-handoff.js';
 import { readPlannedInventory, readWorkInventory } from '../control-state/planned-inventory.js';
-import { inspectPlannedLayoutOperation } from '../control-maintenance/planned-layout.js';
-import { readControlLayout, PLANNED_LAYOUT } from '../control-state/control-layout.js';
+import { readControlLayout, CURRENT_LAYOUT } from '../control-state/control-layout.js';
 import { existsSync } from '../control-read/fs.js';
 import { join } from 'node:path';
 
@@ -102,6 +102,7 @@ export function createControlInspectService(dependencies = {}) {
   const gateCheck = dependencies.evaluateGateCheck ?? evaluateGateCheck;
   const deliveryMap = dependencies.evaluateDeliveryMap ?? evaluateDeliveryMap;
   const readContract = dependencies.readRuntimeContract ?? readRuntimeContract;
+  const readModules = dependencies.runtimeContractModules ?? runtimeContractModules;
   const validateControlReadBoundary = dependencies.validateControlReadBoundary;
   const deliveryMapDependencies = Object.freeze({ evaluateDoctor: doctor, buildStatusCard, postApprovalTransition });
 
@@ -155,6 +156,15 @@ export function createControlInspectService(dependencies = {}) {
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
+      if (input.target_id && resolveControlCommandTarget(target.governance_target).target_id !== input.target_id) {
+        const result = baseResult({ outcome: 'invalid_input', operation: input.operation, runtime, timing });
+        result.target = target;
+        result.diagnostics = [{ code: 'target_binding_mismatch', field: 'target_id' }];
+        result.recovery = { action: renderInputRecovery({ field: 'target_id', allowedValues: [] },
+          { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
       if (input.operation === 'doctor' && dependencies.observeDoctor) {
         const controlStarted = now();
         return Promise.resolve(dependencies.observeDoctor(target.governance_target, input, signal)).then(report => {
@@ -202,14 +212,15 @@ export function createControlInspectService(dependencies = {}) {
                 next_operation: decision.next_operation, blocking_reason: decision.blocking_reason }, authorizes: false }, presentation: null };
           }
           case 'operation-contract': {
-            if (PLANNING_COMMAND_KINDS.includes(input.kind) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
-              binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
-              next_calls: [{ tool: input.group, kind: input.kind, instruction: 'Use the confirmed planning scope and original UUID; no Run/revision. Planning never approves a gate. Start a Run only from a deliberately selected complete source.' }] }, presentation: null };
+            if (PLANNING_COMMAND_KINDS.includes(input.kind) && !input.run_id) {
+              const contract = operationContract(input.group, input.kind);
+              return { report: { ...contract, binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
+                next_calls: [{ tool: input.group, kind: input.kind, instruction: contract.planning_capture?.instructions
+                  ?? 'Use the confirmed planning scope and original UUID; no Run/revision. Planning never approves a gate. Start a Run only from a deliberately selected complete source.' }] }, presentation: null };
+            }
             if (['agdf_run', 'agdf_project'].includes(input.group) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
               binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
-              next_calls: [{ tool: input.group, kind: input.kind, instruction: input.kind.startsWith('planned_layout.')
-                ? 'Explicit legacy cutover only: preview first, review every row/blocker, confirm the exact digest. Apply/recover retain the original UUID. No implicit migration, Run/gate approval or installation.'
-                : input.group === 'agdf_project' ? 'Explicit fixed setup only. Use the confirmed existing Git root and one original UUID. No Run/revision, force, repair, install or approval.' : 'Use a new original operation UUID and confirmed title; there is no prior Run/revision.' }] }, presentation: null };
+              next_calls: [{ tool: input.group, kind: input.kind, instruction: input.group === 'agdf_project' ? 'Explicit fixed setup only. Use the confirmed existing Git root and one original UUID. No Run/revision, force, repair, install or approval.' : 'Use a new original operation UUID and confirmed title; there is no prior Run/revision.' }] }, presentation: null };
             const state = readRunState(target.governance_target, { runId: input.run_id });
             const targetId = resolveControlCommandTarget(target.governance_target).target_id;
             const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
@@ -241,7 +252,6 @@ export function createControlInspectService(dependencies = {}) {
           case 'project-state':
             return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
           case 'operation-status':
-            if (input.contract_module.startsWith('planned_layout.apply/')) return { report: inspectPlannedLayoutOperation(target.governance_target, input.operation_id), presentation: null };
             if (input.planning) return { report: input.contract_module.startsWith('run.create_from_planned/')
               ? inspectPlannedHandoffOperation(target.governance_target, input.planning.plan_id, input.operation_id)
               : inspectPlannedOperation(target.governance_target, input.planning.plan_id, input.operation_id), presentation: null };
@@ -259,6 +269,20 @@ export function createControlInspectService(dependencies = {}) {
             return { report: { ...inventory, available: inventory.state !== 'unavailable' }, presentation: null };
           }
           case 'planned-entry': {
+            const path = plannedEntryPath(input.planning.plan_id);
+            if (!controlPathPresent(target.governance_target, `${path}/UR.md`)) {
+              const inventory = readPlannedInventory(target.governance_target, { language: input.presentation_language });
+              const unavailable = inventory.state === 'unavailable', incomplete = existsSync(join(target.governance_target, path));
+              return { report: { available: false, state: unavailable ? 'unavailable' : 'missing',
+                reason: unavailable ? 'planning_store_unavailable' : incomplete ? 'planned_document_missing' : 'planned_entry_missing',
+                plan_id: input.planning.plan_id, authorizes: false,
+                ...(unavailable ? { findings: inventory.findings } : {}),
+                ...(!unavailable && !incomplete && input.planning.expected_digest === null ? { next_calls: [{ tool: 'agdf_inspect',
+                  arguments: { operation: 'authoring-inputs', working_directory: input.working_directory,
+                    target_source: input.target_source, primary_target: input.primary_target,
+                    presentation_language: input.presentation_language, planning: input.planning },
+                  instruction: 'Read the version-matched UR inputs before capture. Planning authoring needs no module, gate, Run or revision.' }] } : {}) }, presentation: null };
+            }
             const entry = inspectPlannedEntry(target.governance_target, input.planning.plan_id, { presentationLanguage: input.presentation_language });
             return { report: input.planning.expected_digest && input.planning.expected_digest !== entry.digest
               ? { available: false, reason: 'planning_source_stale', plan_id: input.planning.plan_id, authorizes: false }
@@ -298,7 +322,7 @@ export function createControlInspectService(dependencies = {}) {
             // Read-only inventory also works before control initialization. An
             // existing config still goes through strict layout validation.
             if (existsSync(join(target.governance_target, '.agdf/control/config.json'))
-              && readControlLayout(target.governance_target).layout === PLANNED_LAYOUT) return { report: readWorkInventory(target.governance_target, { language: input.presentation_language }), presentation: null };
+              && readControlLayout(target.governance_target).layout === CURRENT_LAYOUT) return { report: readWorkInventory(target.governance_target, { language: input.presentation_language }), presentation: null };
             const inventory = readRunInventory(target.governance_target, { language: input.presentation_language });
             return { report: inventory, presentation: renderRunInventory(inventory, rawInput.interactionLocales, input.presentation_language) };
           }
@@ -307,6 +331,9 @@ export function createControlInspectService(dependencies = {}) {
             return { report: evaluated, presentation: null };
           }
           case "contract": {
+            if (!input.contract_module) return { report: { available: true, modules: readModules(),
+              operation_modules: OPERATION_CONTRACT_MODULES, inspect_contract: inspectContractHelp(),
+              instruction: 'contract reads a listed runtime module. operation-contract reads an exact listed group/kind; omit planning, gate and Run/revision for creation help. Copy operation-specific arguments; never copy whole command bindings.', authorizes: false }, presentation: null };
             const read = readContract(input.contract_module, { pluginRoot: null });
             if (!read.ok) return { report: null, presentation: null, invalidModule: read };
             return { report: { module: read.module, content: read.content }, presentation: { markdown: read.content, authorizes: false } };

@@ -1,0 +1,70 @@
+{
+  "schema_version": "1",
+  "outcome": "rejected",
+  "reason": "closeout_obligations_unfulfilled",
+  "operation_id": "c896d08a-e44d-4553-a083-8817532c34f5",
+  "request_digest": "sha256:b1a31346f84f74aae151f9261b6842166f397473e11ed0d046947df036a1498f",
+  "binding": {
+    "target_id": "sha256:5f6965032dc4645ed997e7726d336309443acfb389c5dfa89da5078f4ce15ec3",
+    "run_id": "run-ee983b1f-abf5-42fa-b980-096c1eda647f",
+    "expected_revision_id": "e370c8bb-9b86-44ba-948b-79e8a409410a",
+    "kind": "closeout.record"
+  },
+  "effect": null,
+  "receipt": null,
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 21,
+    "revision_id": "e370c8bb-9b86-44ba-948b-79e8a409410a",
+    "lifecycle": "active",
+    "gate": "OR",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "record_closeout",
+      "skill_id": "release-or",
+      "operation_key": "closeout.record",
+      "actor": "agent",
+      "effect": "closeout",
+      "gate": "OR"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "rejected",
+    "run_id": "run-ee983b1f-abf5-42fa-b980-096c1eda647f",
+    "reason": "closeout_obligations_unfulfilled",
+    "findings": [
+      "or_source_reference_invalid:related_ur",
+      "or_source_reference_invalid:related_prd",
+      "or_source_reference_invalid:related_sd",
+      "or_source_reference_invalid:related_tp",
+      "or_source_reference_invalid:related_qa_report",
+      "or_gate_state_unconfirmed:UR",
+      "or_gate_state_unconfirmed:PRD",
+      "or_gate_state_unconfirmed:SD",
+      "or_gate_state_unconfirmed:TP",
+      "or_gate_state_unconfirmed:Brownfield Review",
+      "or_gate_state_unconfirmed:Brownfield Analysis",
+      "or_gate_state_unconfirmed:CD+Tests",
+      "or_gate_state_unconfirmed:CR",
+      "or_gate_state_unconfirmed:QA",
+      "or_gate_state_unconfirmed:UAT",
+      "or_required_approval_open"
+    ]
+  }
+}

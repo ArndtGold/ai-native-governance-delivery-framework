@@ -355,7 +355,7 @@ try {
   writeFileSync(join(source, 'LICENSE'), readFileSync(join(source, 'LICENSE'), 'utf8') + '\n');
   const replacement = prepareLocalMarketplace({ dataRoot: env.AGDF_DATA_DIR, builtPluginRoot: source, expectedVersion: version });
   replacement.commit({ retainCockpitRollbackFor: transitionTarget });
-  const dir = join(transitionTarget, '.agdf/control/artefacts/service-fixture'); mkdirSync(dir, { recursive: true });
+  const dir = join(transitionTarget, '.agdf/control/runs/service-fixture/documents'); mkdirSync(dir, { recursive: true });
   const raw = join(dir, 'synthetic-observation.txt'); writeFileSync(raw, 'Synthetic service test; no native host observed.\n');
   const record = { schema_version: 1, kind: 'cockpit_transition', surface: 'codex', result: 'qualified',
     authorizes: false, assurance: 'cooperative_local', target_id: resolveControlCommandTarget(transitionTarget).target_id,
@@ -375,7 +375,7 @@ try {
       { path: join(replacement.pluginRoot, 'mcp.json'), digest: hash(readFileSync(join(replacement.pluginRoot, 'mcp.json'))) }] },
     providers: [{ origin: replacement.pluginRoot, server_id: 'agdf-cockpit', connection_id: 'fixture-plugin',
       tools: ['agdf_cockpit', 'agdf_cockpit_read'], exposed_tools: { agdf_cockpit: 'fixture.render', agdf_cockpit_read: 'fixture.read' } }],
-    evidence: [{ path: '.agdf/control/artefacts/service-fixture/synthetic-observation.txt', digest: hash(readFileSync(raw)) }] };
+    evidence: [{ path: '.agdf/control/runs/service-fixture/documents/synthetic-observation.txt', digest: hash(readFileSync(raw)) }] };
   const recordPath = join(dir, 'transition.json'); writeFileSync(recordPath, JSON.stringify(record));
   const invoke = options => runMcpLifecycle({ surface: 'codex', scope: 'project', target: transitionTarget,
     env, cockpitEvidence: recordPath, ...options });

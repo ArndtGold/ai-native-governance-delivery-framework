@@ -26,8 +26,9 @@ export function mcpUiSourceDigest({ sourceRoot = repoRoot } = {}) {
     'packages/core/lib/interaction-catalog.js', 'packages/core/lib/mcp-resource-contract.js',
     'plugins/agdf/meta/agdf-interaction-locales.json',
     'packages/core/lib/control-inspect/cockpit-contract.js',
-    'packages/core/lib/control-inspect/cockpit-list.js', 'packages/core/lib/control-state/backlog-summary-shape.js',
-    'packages/core/lib/control-evaluation/backlog-vocabulary.js',
+    'packages/core/lib/control-state/run-identity.js',
+    'packages/core/lib/control-inspect/cockpit-list.js', 'packages/core/lib/control-state/run-work-summary-shape.js',
+    'packages/core/lib/control-evaluation/work-vocabulary.js',
     'pages/src/design/tokens.json', 'pages/src/styles/design-tokens.css', 'pages/scripts/design-tokens.mjs',
     'scripts/cockpit-ui-build.mjs']) collect(join(sourceRoot, path));
   const hash = createHash('sha256');

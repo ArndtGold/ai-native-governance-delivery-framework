@@ -7,7 +7,7 @@ import type { DocumentState, Detail } from '../src/types';
 afterEach(cleanup);
 it('SCN-001/015: multiple distinct references of one gate keep separate, disambiguated actions', () => {
   const data = documentFixture(), open = vi.fn();
-  const extra = {...data.resources[0], resource_id:'UR-second', registered_reference:'.agdf/control/artefacts/fixture-a/'+'long-name-'.repeat(30)+'UR.md'};
+  const extra = {...data.resources[0], resource_id:'UR-second', registered_reference:'.agdf/control/runs/fixture-a/documents/'+'long-name-'.repeat(30)+'UR.md'};
   data.resources.push(extra);
   data.document_states!.push({...data.document_states![0],resource_id:extra.resource_id,registered_reference:extra.registered_reference});
   render(<RunDocuments data={data} onOpen={open}/>);

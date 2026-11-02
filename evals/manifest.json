@@ -1,26 +1,26 @@
 {
   "schema_version": 1,
-  "corpus_version": "1.16.0",
+  "corpus_version": "1.17.0",
   "required_case_classes": [
     "normal",
     "boundary",
     "adversarial"
   ],
   "source_fingerprints": {
-    "delivery-path-search": "4c62e6ec8c4a7c57e5bfbd50d95b74ffb97b196b382bc085b3854727a3743482",
-    "brownfield-analysis": "86d1f182b8f70a5c18fbe9a69f2979a3e4bd82205b5b0780e1d341b1def9f231",
-    "ux-intent-definition": "61fedb2a04b42ca9c9a8e422f3850c20f5986975159d3270d3fd360ae6f94932",
-    "clean-implementation-review": "6d4144c13db2e963bd6eab62a87959a2fab3aeb52224fc83735ccd5ba867cd62",
-    "code-review": "722045ac76daa3d19845449e5c799b0360bcd6f80fe924e8c2092bb680899ce6",
-    "delivery-closeout": "1917bada447bad425fc5be0d27c1cad7a1d15701f466c82dca3c6608f3bad38a",
-    "ur-definition": "163a5f1b0636265cab027ea403aabf4ccf3289303a7d0a3efa10442201157582",
-    "prd-definition": "0cbac16a876764e8050e6bcf5109be55913556668a5b1ef636bc96b258ba0228",
-    "sd-definition": "39f80239623fdf3d567903d6f80b6f31367df8840246e1df2b78e3aaf9cfa0ad",
-    "tp-definition": "376eb29e6c0a4a376ae7174eac727d4a8e28494699e9e2c04df36d01601fa8c1",
-    "gate-check": "3e34f57637a303970eff8fdf3b9b31cb1e40f36884bda1e08a62a2226d6102d4",
-    "qa-gate": "e6ba54e62a37879faa22ca8568868fe30cf365a09429351af17ebadff0d3a81e",
-    "release-or": "78b83678244c94635563a24035f4e0205b8a5582b1c5a0c19a152840dc30082a",
-    "task-plan-review": "60f68d82543c0dbc5c1425330e3355c7f9e97965ea3a649c4af8c13bb4ec7559"
+    "delivery-path-search": "f3dfa87d54db817af6b52c6fa7dd1ea19304bd2d599bcce2b9dcd49a1d049f59",
+    "brownfield-analysis": "fe4aaa75d727f7e1ceb3f7c41ed36e9be8c75236c80c0158a2ddcdd361bdd0a0",
+    "ux-intent-definition": "111de2275eeca5ec5c70b624142f1e2eaad3dc891e1d4d32f9e11a29aa3cf821",
+    "clean-implementation-review": "896e7f983c084ce5f75d5893e4bfb966945b5c624d9100eccdc33d4680a8ed7a",
+    "code-review": "79365fe3a950ed5187663ce54185fd87dea59f07156c6a0b7b06dd8cdfb58827",
+    "delivery-closeout": "8a3c9dae2c73d29991e8091c44c76bdccb28b687923aa155e1b22b383191b4ad",
+    "ur-definition": "da69dc9ed2640ac33c323b61c3fc16c074347dd1c81a33ea5df37750982ed413",
+    "prd-definition": "ddeabd3fdb922a4afaf753fef11d30b839537cf2349382f4a9181f46e77910d0",
+    "sd-definition": "e2cecfa874926abc6e73d9fc1c88e51dd02b002d6a6f673ca78b77e1e15e63c7",
+    "tp-definition": "f4f61089ddcacc897749637f561a728bb10dc8cd0043513075a32a714f0815a2",
+    "gate-check": "aefde16e37e24dfb6feebe57436c40db9360e69fc789f5003768cf804923412e",
+    "qa-gate": "0c77a0b77788e52d770893c1528b8910b359dc058d2817eb6c0100c0287c69e7",
+    "release-or": "f8f62da8f8acd128b4a5e6b9bb372068e3dfba7daa9e5601815a346cd44fa7cf",
+    "task-plan-review": "2d0f6c18c065493e3dda8542f10c91c94d9c101dabaf7bfb5ab8fd2ec29ca7e3"
   },
   "thresholds": {
     "coverage": 1,
@@ -34,5 +34,52 @@
     "manifest": "request-activation/manifest.json",
     "schema": "request-activation/schema.json"
   },
-  "evidence_boundary": "deterministic replay is required in offline CI; live host recording is separate supporting evidence"
+  "evidence_boundary": "deterministic replay is required in offline CI; live host recording is separate supporting evidence",
+  "reference_revalidation": {
+    "run_id": "run-ee983b1f-abf5-42fa-b980-096c1eda647f",
+    "method": "Codex source-contract review of deterministic reference fixtures",
+    "previous_source_fingerprints": {
+      "delivery-path-search": "4c62e6ec8c4a7c57e5bfbd50d95b74ffb97b196b382bc085b3854727a3743482",
+      "brownfield-analysis": "86d1f182b8f70a5c18fbe9a69f2979a3e4bd82205b5b0780e1d341b1def9f231",
+      "ux-intent-definition": "61fedb2a04b42ca9c9a8e422f3850c20f5986975159d3270d3fd360ae6f94932",
+      "clean-implementation-review": "6d4144c13db2e963bd6eab62a87959a2fab3aeb52224fc83735ccd5ba867cd62",
+      "code-review": "722045ac76daa3d19845449e5c799b0360bcd6f80fe924e8c2092bb680899ce6",
+      "delivery-closeout": "1917bada447bad425fc5be0d27c1cad7a1d15701f466c82dca3c6608f3bad38a",
+      "ur-definition": "163a5f1b0636265cab027ea403aabf4ccf3289303a7d0a3efa10442201157582",
+      "prd-definition": "0cbac16a876764e8050e6bcf5109be55913556668a5b1ef636bc96b258ba0228",
+      "sd-definition": "39f80239623fdf3d567903d6f80b6f31367df8840246e1df2b78e3aaf9cfa0ad",
+      "tp-definition": "376eb29e6c0a4a376ae7174eac727d4a8e28494699e9e2c04df36d01601fa8c1",
+      "gate-check": "3e34f57637a303970eff8fdf3b9b31cb1e40f36884bda1e08a62a2226d6102d4",
+      "qa-gate": "e6ba54e62a37879faa22ca8568868fe30cf365a09429351af17ebadff0d3a81e",
+      "release-or": "78b83678244c94635563a24035f4e0205b8a5582b1c5a0c19a152840dc30082a",
+      "task-plan-review": "60f68d82543c0dbc5c1425330e3355c7f9e97965ea3a649c4af8c13bb4ec7559"
+    },
+    "changes": [
+      "Run documents/evidence role paths in fixture catalog",
+      "Unsupported old control remains read-only negative input",
+      "Unproven approval cannot authorize synthetic proof repair",
+      "Preview role is Run evidence"
+    ],
+    "boundary": "Regraded deterministic reference assertions only; no new model calls, native traces, live observations, human review or acceptance. Native observation files remain unchanged.",
+    "final_owner_review": {
+      "scope": "Current UUID-bound intake creation, shared derived selection and current source contracts reviewed against approved clean-cut intent; deterministic expectations unchanged.",
+      "previous_source_fingerprints": {
+        "delivery-path-search": "d8dfac78dacb9524da788d7d49e828718e2665b1bbd55e7291edca63fa34a66e",
+        "brownfield-analysis": "090789a1cb2a38f424efb521e0acfa2fe79fa356662e884b8e66cea8a6cb1bdb",
+        "ux-intent-definition": "512a441e41d64449ac30cc4621e1b515d8a843177a755d8523056c27a5054819",
+        "clean-implementation-review": "22fc3968668daa776310e57cb36224ee100f0c5ce67d538d2929a8a88f274d89",
+        "code-review": "862ee9e81da234ac79895003618b6827b1174ef86d503c5530d42d4aed212e28",
+        "delivery-closeout": "1022f41649029e1225dab0293a7a0f3200f363cb9620a2664010c98e3e8424e0",
+        "ur-definition": "ac78caa5b4925f0b55333b431e98da63bb9bfaad5ee644124c98410d3c181a66",
+        "prd-definition": "7153a8946f98bcaf17c2aab52dc17115ecbd9a3777fc6958f60518b7028b0bdb",
+        "sd-definition": "e2cecfa874926abc6e73d9fc1c88e51dd02b002d6a6f673ca78b77e1e15e63c7",
+        "tp-definition": "f4f61089ddcacc897749637f561a728bb10dc8cd0043513075a32a714f0815a2",
+        "gate-check": "5d642f7f5e71d09ba33b07d7700dea7dc145f4aa885c5305412a111a0fc926aa",
+        "qa-gate": "025cdd2402ec7784c09207fc3d6aed6b74b65b22006127fb9b9f097e4bab8be0",
+        "release-or": "8e70acea3804918aefc7303be232e958efc16ec2b6528eb970a8ee699ebec7f6",
+        "task-plan-review": "3bea37bab4f7a7888cb7cffa222f62109b17a9363ec4e6260ad04bbfa4426fbd"
+      },
+      "boundary": "Source-reference revalidation only; no new model sessions, live observations or human acceptance."
+    }
+  }
 }

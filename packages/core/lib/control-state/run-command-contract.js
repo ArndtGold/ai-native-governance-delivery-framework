@@ -7,7 +7,7 @@ import { PRD_DECISION_FORMAT } from '../control-evaluation/prd-readiness.js';
 import { SD_DECISION_FORMAT } from '../control-evaluation/sd-readiness.js';
 import { ACCEPTANCE_CRITERIA_FORMAT, TP_AUTHORING_FORMAT } from '../control-evaluation/traceability-readiness.js';
 import { UX_DECISION_FORMAT } from '../control-evaluation/definition-sources.js';
-import { REVIEWED_REQUEST_FORMAT, REVISION_PROPOSAL_FORMAT } from './recording-formats.js';
+import { REVIEWED_BINDING_FORMAT, REVISION_PROPOSAL_FORMAT } from './recording-formats.js';
 import { relationshipForGate } from '../control-evaluation/delivery-relationships.js';
 import { PREVIEW_REVIEW_FORMAT } from './preview-review.js';
 import { closeoutConfirmation, QUICK_CLOSEOUT_AUTHORING_FORMAT } from '../control-evaluation/closeout-readiness.js';
@@ -18,13 +18,18 @@ export function operationContract(group, kind, { gate } = {}) {
   return { schema_version: RUN_COMMAND_VERSION, available: true, group, kind, ...RUN_COMMAND_DESCRIPTORS[kind], payload_schema: projectMcpInputSchema(payloadSchema(group, kind)),
     schema: projectMcpInputSchema(describeFields(strictObject({ ...commandEnvelope(group, kind), command: strictObject({ kind: { const: kind }, payload: { ...payloadSchema(group, kind), description: RUN_COMMAND_DESCRIPTORS[kind].effects.join('; ') } }) }))), input_completion: { precedence: 'explicit > confirmed project config > versioned plugin defaults', constants: ['schema_version', 'assurance'], cwd: 'Explicit unless private trustworthy task context exists; current native adapters require it.', core: 'The adapter validates a complete envelope before dispatch; target/Run/revision/UUID/material/reply bindings remain explicit.' }, result_schema: RUN_COMMAND_RESULT_SCHEMA, retry_class: 'inspect_original_operation_after_dispatch', assurance: 'cooperative_local',
     reference_limits: { input_bytes: RUN_COMMAND_LIMITS.input_bytes, source_file_bytes: 131072, result_bytes: RUN_COMMAND_LIMITS.result_bytes },
+    ...(['planned_material.stage', 'planned_ur.create'].includes(kind) ? { planning_capture: {
+      applies_to: 'New planned UR creation only. Replacement retains the existing plan_id and current expected_digest.',
+      plan_id: 'plan-<planned_ur.create operation_id>', expected_digest: null,
+      instructions: 'For a new planned UR, reserve the future planned_ur.create UUID first. Use plan- followed by that exact UUID as planning.plan_id. Begin, append and seal planned_material.stage with the same plan_id and null expected_digest; each material call has its own operation_id. Create with the reserved UUID. Creation source material is the plain canonical UR: omit Planning schema, Planning id and Planning priority lines; the writer adds them from the request. Replacement instead stages the full selected UR with its existing planning metadata. Never use a title/slug as the creation plan_id.',
+    } } : {}),
     ...(['material.stage', 'planned_material.stage'].includes(kind) ? { material_transport: { part_bytes: 16384, file_bytes: 131072, set_bytes: 524288, max_sets: 4,
       total_bytes: 2097152, lifetime_ms: 600000, idle_ms: 120000, effect: 'private transfer only; no canonical files or gate decision',
       replay: 'begin preserves its original UUID; append uses exact offsets/base64 bytes. Seal returns Core identity/digest. Read transfer status after uncertainty; generation loss requires restaging semantic bytes. Preserve the future canonical write UUID.',
       lifecycle: 'A receipt-confirmed canonical commit retires its consumed set; otherwise discard it explicitly or let it expire.' } } : {}),
     internal_result_formats: kind === 'step.record' ? { 'UX Intent Definition': UX_DECISION_FORMAT,
       reviews: { declaration: '- decision: pass | revise | block | not_applicable', result_scope: 'actual current owner report; no generated judgement or approval' } } : undefined,
-    reviewed_request_format: kind === 'artefact.record' ? { ...REVIEWED_REQUEST_FORMAT, current_relationship: relationshipForGate(gate) ?? null,
+    reviewed_binding_format: kind === 'artefact.record' ? { ...REVIEWED_BINDING_FORMAT, current_relationship: relationshipForGate(gate) ?? null,
       destination_status: gate === 'QA' ? 'pass | revise | block matching the actual QA report' : 'draft' } : undefined,
     proposal_format: kind.startsWith('source_revision.') ? REVISION_PROPOSAL_FORMAT : undefined,
     ...(kind === 'closeout.record' ? { confirmation_format: closeoutConfirmation('{run_id}', '{expected_revision_id}', '{operation_id}', '{or.digest}'),
@@ -34,7 +39,7 @@ export function operationContract(group, kind, { gate } = {}) {
     ...(['planned_ur.create', 'planned_ur.replace', 'run.create_from_planned'].includes(kind) ? { planning_capability: { schema: 'planned-ur-v1', protocol_version: 1,
       owner: 'ur-definition', approval: 'none; explicit handoff starts an unapproved Run', metadata: ['Planning schema', 'Planning id', 'Planning priority'],
       priority: ['high', 'normal', 'low'], default_priority: 'normal only on explicit create', source_identity: 'SHA-256 of the whole canonical UR text',
-      fields: 'Preserve the canonical UR template and exactly one initial scalar of each planning metadata field. Planning id remains unchanged on replacement.' },
+      fields: kind === 'planned_ur.create' ? 'Stage the canonical UR without any Planning schema/id/priority lines. The create writer inserts all three from the request.' : 'Use the selected canonical UR including exactly one initial scalar of each planning metadata field. Planning id remains unchanged on replacement.' },
       authoring_format: UR_AUTHORING_FORMAT } : {}),
     authorizes: false, ...(!kind.startsWith('planned_ur.') && kind !== 'run.create_from_planned' ? { authoring_format: kind === 'closeout.record' ? { quick_task: QUICK_CLOSEOUT_AUTHORING_FORMAT } : kind === 'artefact.record' || kind === 'presentation.prepare' || kind === 'step.record'
       ? ({ UR: UR_AUTHORING_FORMAT, PRD: { decisions: PRD_DECISION_FORMAT, criteria: ACCEPTANCE_CRITERIA_FORMAT, preview_review: PREVIEW_REVIEW_FORMAT }, SD: SD_DECISION_FORMAT, TP: TP_AUTHORING_FORMAT }[gate] ?? null) : undefined,

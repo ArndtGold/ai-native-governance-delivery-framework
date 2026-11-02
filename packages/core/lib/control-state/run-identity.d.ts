@@ -1,0 +1,14 @@
+export const RUN_ID_PATTERN: RegExp;
+export const REVISION_ID_PATTERN: RegExp;
+export const APPROVAL_GATES: readonly ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
+export const CURRENT_LAYOUT: 'run-folders-v1';
+export const CURRENT_RUN_VERSION: 4;
+export function validateRunIdentity(input?: { runId?: string; revisionId?: string }): { code: string }[];
+export function creationRunId(operationId: string): string;
+export function runRelativePath(runId: string, area?: '' | 'documents' | 'evidence' | 'control' | 'history', name?: string): string;
+export function runDocumentPath(runId: string, name: string): string;
+export function runEvidencePath(runId: string, name: string): string;
+export function runControlPath(runId: string, name: string): string;
+export function runHistoryPath(runId: string, name: string): string;
+export function isRunDataPath(runId: string, value: unknown): value is string;
+export function isRunOwnedDataPath(value: unknown): value is string;

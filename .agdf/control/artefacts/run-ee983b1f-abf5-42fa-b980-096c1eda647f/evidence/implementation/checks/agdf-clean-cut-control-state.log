@@ -1,0 +1,309 @@
+TAP version 13
+# Subtest: exact gate reply validation preserves every deliberate-response boundary
+ok 1 - exact gate reply validation preserves every deliberate-response boundary
+  ---
+  duration_ms: 3.75714
+  type: 'test'
+  ...
+# Subtest: status rendering, narration, identity and localized labels remain independent of storage layout
+ok 2 - status rendering, narration, identity and localized labels remain independent of storage layout
+  ---
+  duration_ms: 73.698695
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Approvals source
+not ok 3 - current parser refuses a second writable Approvals source
+  ---
+  duration_ms: 616.508414
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:194:3'
+  failureType: 'testCodeFailure'
+  error: 'original_operation_unconfirmed'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    inspectRunInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-input-resolution.js:58:23)
+    resolveMcpInput (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/mcp-input-resolution.js:58:70)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:34:22)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:199:24)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+  ...
+# Subtest: current parser refuses a second writable Artefacts source
+not ok 4 - current parser refuses a second writable Artefacts source
+  ---
+  duration_ms: 515.028265
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:194:3'
+  failureType: 'testCodeFailure'
+  error: 'original_operation_unconfirmed'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    inspectRunInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-input-resolution.js:58:23)
+    resolveMcpInput (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/mcp-input-resolution.js:58:70)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:34:22)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:199:24)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+  ...
+# Subtest: current parser refuses a second writable Artefact Chain source
+not ok 5 - current parser refuses a second writable Artefact Chain source
+  ---
+  duration_ms: 580.424089
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:194:3'
+  failureType: 'testCodeFailure'
+  error: 'original_operation_unconfirmed'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    inspectRunInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-input-resolution.js:58:23)
+    resolveMcpInput (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/mcp-input-resolution.js:58:70)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:34:22)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:199:24)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+  ...
+# Subtest: current parser refuses a second writable Evidence source
+not ok 6 - current parser refuses a second writable Evidence source
+  ---
+  duration_ms: 602.176007
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:194:3'
+  failureType: 'testCodeFailure'
+  error: 'original_operation_unconfirmed'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    inspectRunInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-input-resolution.js:58:23)
+    resolveMcpInput (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/mcp-input-resolution.js:58:70)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:34:22)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:199:24)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+  ...
+# Subtest: current parser refuses a second writable Current Control State source
+not ok 7 - current parser refuses a second writable Current Control State source
+  ---
+  duration_ms: 498.020299
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:194:3'
+  failureType: 'testCodeFailure'
+  error: 'original_operation_unconfirmed'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    inspectRunInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-input-resolution.js:58:23)
+    resolveMcpInput (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/mcp-input-resolution.js:58:70)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:34:22)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:199:24)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+  ...
+# Subtest: current parser refuses a second writable Gate Checklist source
+not ok 8 - current parser refuses a second writable Gate Checklist source
+  ---
+  duration_ms: 578.083623
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:194:3'
+  failureType: 'testCodeFailure'
+  error: 'original_operation_unconfirmed'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    inspectRunInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-input-resolution.js:58:23)
+    resolveMcpInput (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/mcp-input-resolution.js:58:70)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:34:22)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:199:24)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+  ...
+# Subtest: recorded facts determine the next gate and read-only checks preserve exact bytes
+not ok 9 - recorded facts determine the next gate and read-only checks preserve exact bytes
+  ---
+  duration_ms: 1085.231558
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:203:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /^## (?:Approvals|Artefacts|Artefact Chain|Evidence|Current Control State)/mu. Input:
+    
+    '# AGDF Run State\n' +
+      '\n' +
+      '## Run Meta\n' +
+      '\n' +
+      '- control_state_version: 4\n' +
+      '- run_id: run-34e01b2e-b943-4869-9dcd-b97fd9bb1372\n' +
+      '- lifecycle: active\n' +
+      '- revision: 3\n' +
+      '- revision_id: 3c77a364-4ea3-4f4a-af1f-ec4d8f4f9ee3\n' +
+      '- content_seal: sha256:0723b2529dfaea53df83e8ee9e3967209cbb630ec8dccc7b82c1251b8f442789\n' +
+      '- approval_seal: sha256:a4522e49e1603b9035169a76d12d9370ddcee20e5a8bbdb01e7560a0394c908e\n' +
+      '- updated_at: 2026-11-01T12:43:32.023Z\n' +
+      '- mode: undecided\n' +
+      '- owner: agent\n' +
+      '\n' +
+      '## Objective\n' +
+      '\n' +
+      'Synthetic current Run\n' +
+      '\n' +
+      '## Mode/Slice Decision\n' +
+      '\n' +
+      '- scope_reason:\n' +
+      '- evidence:\n' +
+      '\n' +
+      '## Relationships\n' +
+      '\n' +
+      '| From | Relationship | To | Evidence |\n' +
+      '|---|---|---|---|\n' +
+      '\n' +
+      '## Closeout\n' +
+      '\n' +
+      '- quality_outlook:\n' +
+      '\n' +
+      '## Run Operations\n' +
+      '\n' +
+      '- schema_version: 1\n' +
+      '\n' +
+      '| operation_id | request_digest | receipt |\n' +
+      '|---|---|---|\n' +
+      '| 34e01b2e-b943-4869-9dcd-b97fd9bb1372 | sha256:0c57b6f11e7a3f838159d731af28fc0d951d4b70401de30c81ffca7a4e050ba6 | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTI6NDM6MzEuNjI0WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6bnVsbCwicmVjb3JkIjp7InRpdGxlIjoiU3ludGhldGljIGN1cnJlbnQgUnVuIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImIwYTUwN2UxLWY1NmUtNGMzMS04MThmLWY3NGQxNjBlZGYyYiIsInJldmlzaW9uIjoxfSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOm51bGwsImlucHV0X3Jlc29sdXRpb24iOnsiY29uZmlndXJhdGlvbiI6eyJjb25maWdfZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJjb250cm9sIjoiYWN0aXZlIiwiY29udHJvbF9sYXlvdXQiOiJydW4tZm9sZGVycy12MSIsImRlZmF1bHRzX2RpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwicm9vdCI6Ii9wcml2YXRlL3Zhci9mb2xkZXJzL3duL3BkYmp3dHZkM2Z4MHQzOG53Y3FycnBuYzAwMDBncC9UL2FnZGYtY3VycmVudC1tMDBvQjUiLCJzb3VyY2VzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjp7ImRpZ2VzdCI6InNoYTI1NjpiZmQwMTdhMTViZGIzYWZhMTIxZWM0ZTc4YmM5N2Q2OTA1NmU4MWEwMzY3ZTFjNzVhMzhlNTVkYmUzNTk0YzRiIiwia2luZCI6InByb2plY3QiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9jb25maWcuanNvbiJ9LCJjaGF0X2xhbmd1YWdlIjp7ImtpbmQiOiJleHBsaWNpdCJ9LCJnYXRlX2NoZWNrX3ZhcmlhbnQiOnsiZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJraW5kIjoicGx1Z2luIiwicGF0aCI6Im1ldGEvYWdkZi1kZWZhdWx0cy5qc29uIn0sInByZXNlbnRhdGlvbl9yb3V0ZSI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifX0sInZhbHVlcyI6eyJhcnRpZmFjdF9sYW5ndWFnZSI6ImVuIiwiY2hhdF9sYW5ndWFnZSI6ImVuIiwiZ2F0ZV9jaGVja192YXJpYW50IjpudWxsLCJwcmVzZW50YXRpb25fcm91dGUiOiJtYXJrZG93biJ9fSwiZWZmZWN0aXZlX2RpZ2VzdCI6InNoYTI1NjowYzU3YjZmMTFlN2EzZjgzODE1OWQ3MzFhZjI4ZmMwZDk1MWQ0YjcwNDAxZGUzMGM4MWZmY2E3YTRlMDUwYmE2IiwiZmllbGRzIjp7fSwia2luZCI6InJ1bi5jcmVhdGUiLCJsb2dpY2FsX2RpZ2VzdCI6InNoYTI1NjowYzU3YjZmMTFlN2EzZjgzODE1OWQ3MzFhZjI4ZmMwZDk1MWQ0YjcwNDAxZGUzMGM4MWZmY2E3YTRlMDUwYmE2Iiwib3BlcmF0aW9uX2lkIjoiMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyIiwicmVjb3JkX3ZlcnNpb24iOiI0Iiwic2NoZW1hX3ZlcnNpb24iOjF9LCJraW5kIjoicnVuLmNyZWF0ZSIsIm9wZXJhdGlvbl9pZCI6IjM0ZTAxYjJlLWI5NDMtNDg2OS05ZGNkLWI5N2ZkOWJiMTM3MiIsInByb2R1Y2VyIjp7ImNvbnRyYWN0IjoicnVuLWNvbW1hbmQvMSIsInBhY2thZ2VfdmVyc2lvbiI6IjAuMjAuMiJ9LCJyZXF1ZXN0X2RpZ2VzdCI6InNoYTI1NjowYzU3YjZmMTFlN2EzZjgzODE1OWQ3MzFhZjI4ZmMwZDk1MWQ0YjcwNDAxZGUzMGM4MWZmY2E3YTRlMDUwYmE2IiwicnVuX2lkIjoicnVuLTM0ZTAxYjJlLWI5NDMtNDg2OS05ZGNkLWI5N2ZkOWJiMTM3MiIsInNjaGVtYV92ZXJzaW9uIjoicmVzb2x2ZWQvMSIsInRhcmdldF9pZCI6InNoYTI1NjpkMDU1OGU1MGMwMzcwYzhmYWYzNjJmOGVjMmQyNThkODcyMTNlYzA2YWFkZTViOTUwOGNjY2JhYWY5MzFkNWE5In0 |\n' +
+      '| ab3451b4-b7fd-4851-b867-a3d81a36e953 | sha256:3230180da0e3c57cdb8d80e634fca1a9fdac309725ec5addf58614b77776173e | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTI6NDM6MzEuNjkzWiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6ImIwYTUwN2UxLWY1NmUtNGMzMS04MThmLWY3NGQxNjBlZGYyYiIsInJlY29yZCI6eyJjb3ZlcnMiOiJzZWxlY3RlZCBSdW4gc2NvcGUiLCJldmlkZW5jZV9iaW5kaW5nX2lkIjoiYWIzNDUxYjQtYjdmZC00ODUxLWI4NjctYTNkODFhMzZlOTUzIiwic3RhdHVzIjoiZG9uZSJ9LCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiIxN2U3Y2E3Mi1kYzgzLTQwZDYtODY3ZS1lODQzNGRjYzAwZjAiLCJyZXZpc2lvbiI6Mn0sImV4cGVjdGVkX3JldmlzaW9uX2lkIjoiYjBhNTA3ZTEtZjU2ZS00YzMxLTgxOGYtZjc0ZDE2MGVkZjJiIiwiaW5wdXRfcmVzb2x1dGlvbiI6eyJjb25maWd1cmF0aW9uIjp7ImNvbmZpZ19kaWdlc3QiOiJzaGEyNTY6YmZkMDE3YTE1YmRiM2FmYTEyMWVjNGU3OGJjOTdkNjkwNTZlODFhMDM2N2UxYzc1YTM4ZTU1ZGJlMzU5NGM0YiIsImNvbnRyb2wiOiJhY3RpdmUiLCJjb250cm9sX2xheW91dCI6InJ1bi1mb2xkZXJzLXYxIiwiZGVmYXVsdHNfZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJyb290IjoiL3ByaXZhdGUvdmFyL2ZvbGRlcnMvd24vcGRiand0dmQzZngwdDM4bndjcXJycG5jMDAwMGdwL1QvYWdkZi1jdXJyZW50LW0wMG9CNSIsInNvdXJjZXMiOnsiYXJ0aWZhY3RfbGFuZ3VhZ2UiOnsiZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJraW5kIjoicHJvamVjdCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2NvbmZpZy5qc29uIn0sImNoYXRfbGFuZ3VhZ2UiOnsia2luZCI6ImV4cGxpY2l0In0sImdhdGVfY2hlY2tfdmFyaWFudCI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifSwicHJlc2VudGF0aW9uX3JvdXRlIjp7ImRpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwia2luZCI6InBsdWdpbiIsInBhdGgiOiJtZXRhL2FnZGYtZGVmYXVsdHMuanNvbiJ9fSwidmFsdWVzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjoiZW4iLCJjaGF0X2xhbmd1YWdlIjoiZW4iLCJnYXRlX2NoZWNrX3ZhcmlhbnQiOm51bGwsInByZXNlbnRhdGlvbl9yb3V0ZSI6Im1hcmtkb3duIn19LCJlZmZlY3RpdmVfZGlnZXN0Ijoic2hhMjU2OjMyMzAxODBkYTBlM2M1N2NkYjhkODBlNjM0ZmNhMWE5ZmRhYzMwOTcyNWVjNWFkZGY1ODYxNGI3Nzc3NjE3M2UiLCJmaWVsZHMiOnt9LCJraW5kIjoic3RlcC5yZWNvcmQiLCJsb2dpY2FsX2RpZ2VzdCI6InNoYTI1NjozMjMwMTgwZGEwZTNjNTdjZGI4ZDgwZTYzNGZjYTFhOWZkYWMzMDk3MjVlYzVhZGRmNTg2MTRiNzc3NzYxNzNlIiwib3BlcmF0aW9uX2lkIjoiYWIzNDUxYjQtYjdmZC00ODUxLWI4NjctYTNkODFhMzZlOTUzIiwicmVjb3JkX3ZlcnNpb24iOiI0Iiwic2NoZW1hX3ZlcnNpb24iOjF9LCJraW5kIjoic3RlcC5yZWNvcmQiLCJvcGVyYXRpb25faWQiOiJhYjM0NTFiNC1iN2ZkLTQ4NTEtYjg2Ny1hM2Q4MWEzNmU5NTMiLCJwcm9kdWNlciI6eyJjb250cmFjdCI6InJ1bi1jb21tYW5kLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjIwLjIifSwicmVxdWVzdF9kaWdlc3QiOiJzaGEyNTY6MzIzMDE4MGRhMGUzYzU3Y2RiOGQ4MGU2MzRmY2ExYTlmZGFjMzA5NzI1ZWM1YWRkZjU4NjE0Yjc3Nzc2MTczZSIsInJ1bl9pZCI6InJ1bi0zNGUwMWIyZS1iOTQzLTQ4NjktOWRjZC1iOTdmZDliYjEzNzIiLCJzY2hlbWFfdmVyc2lvbiI6InJlc29sdmVkLzEiLCJ0YXJnZXRfaWQiOiJzaGEyNTY6ZDA1NThlNTBjMDM3MGM4ZmFmMzYyZjhlYzJkMjU4ZDg3MjEzZWMwNmFhZGU1Yjk1MDhjY2NiYWFmOTMxZDVhOSJ9 |\n' +
+      '\n' +
+      '## Evidence Bindings\n' +
+      '\n' +
+      '- schema_version: 1\n' +
+      '\n' +
+      '| operation_id | binding |\n' +
+      '|---|---|\n' +
+      '| ab3451b4-b7fd-4851-b867-a3d81a36e953 | eyJhY3Rpb24iOiJzdGVwLnJlY29yZCIsImFzc3VyYW5jZSI6eyJpbmRlcGVuZGVudF9odW1hbl9wcm9vZiI6InVuYXZhaWxhYmxlIiwibGFuZSI6ImNvb3BlcmF0aXZlX2xvY2FsIiwicmVwbHlfcHJvdmVuYW5jZSI6ImNhbGxlcl9mb3J3YXJkZWRfZGVsaWJlcmF0ZV9yZXBseSJ9LCJvcGVyYXRpb25faWQiOiJhYjM0NTFiNC1iN2ZkLTQ4NTEtYjg2Ny1hM2Q4MWEzNmU5NTMiLCJwcm9kdWNlciI6eyJjb250cmFjdCI6InJ1bi1jb21tYW5kLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjIwLjIifSwicmVwb3J0Ijp7ImRpZ2VzdCI6InNoYTI1NjpkNTdhY2ViNDMzNjUzODZkM2QyMWU4YWMyNjM1YzlhOTNmYzI2YWQ4ODEyMjc1NWJmMjEyMDc2NGNiYjlkOGJkIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvcnVucy9ydW4tMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyL2RvY3VtZW50cy9VUi5tZCJ9LCJydW5faWQiOiJydW4tMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyIiwic2NoZW1hX3ZlcnNpb24iOiIxIiwic291cmNlX3NldF9kaWdlc3QiOiJzaGEyNTY6ZTJkZDRiMDAwMGZkZDU2MTNhMzBlM2FiMTI1MGFhNWQ1ZDljMmVhNGM2ODBhODFmMDU1YzIwM2U1NzY1YmI2OSIsInNvdXJjZXMiOltdLCJzdGVwIjoidXIifQ |\n' +
+      '\n' +
+      '## Approval Operations\n' +
+      '\n' +
+      '- schema_version: 1\n' +
+      '\n' +
+      '| operation_id | request_digest | receipt |\n' +
+      '|---|---|---|\n' +
+      '| bc91b764-94d4-4b42-b7e9-8ce3cf9cf3e0 | sha256:bc698e79514d3cadb48c17e79ed11b27437e6e4f357920c34d6e433ad713a875 | eyJhY3Rpb24iOiJyZWNvcmRfZ2F0ZV9hcHByb3ZhbCIsImFzc3VyYW5jZSI6eyJpbmRlcGVuZGVudF9odW1hbl9wcm9vZiI6InVuYXZhaWxhYmxlIiwibGFuZSI6ImNvb3BlcmF0aXZlX2xvY2FsIiwicmVwbHlfcHJvdmVuYW5jZSI6ImNhbGxlcl9mb3J3YXJkZWRfZGVsaWJlcmF0ZV9yZXBseSJ9LCJiaW5kaW5nIjp7ImV4cGVjdGVkX3JldmlzaW9uX2lkIjoiMTdlN2NhNzItZGM4My00MGQ2LTg2N2UtZTg0MzRkY2MwMGYwIiwiZ2F0ZSI6IlVSIiwicHJlc2VudGF0aW9uX2lkIjoiN2I4MThmYmYtNDhkNS00ZTU1LTg0YjMtNjlmNjUzYWQ0NTBkIiwicnVuX2lkIjoicnVuLTM0ZTAxYjJlLWI5NDMtNDg2OS05ZGNkLWI5N2ZkOWJiMTM3MiIsInRhcmdldF9pZCI6InNoYTI1NjpkMDU1OGU1MGMwMzcwYzhmYWYzNjJmOGVjMmQyNThkODcyMTNlYzA2YWFkZTViOTUwOGNjY2JhYWY5MzFkNWE5In0sImNvbW1hbmRfZGlnZXN0Ijoic2hhMjU2OmYwOGU1NTkzMjU4ZTJlZjM2OTM2OGYyNmFkZmIzYzI0YzgxNjE0ZjNlMmFiZTRiYTM2NjBhNGE3YjNmZjY0M2EiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMS0wMVQxMjo0MzozMS45NjVaIiwiZWZmZWN0Ijp7ImFsbG93ZWRfYWZ0ZXJfYXBwcm92YWwiOiJSdW4gQnJvd25maWVsZCBSZXZpZXcgYWZ0ZXIgRy0wMCBiZWZvcmUgZHJhZnRpbmcgUFJELCBvciBtYXJrIEJyb3duZmllbGQgUmV2aWV3IG5vdF9hcHBsaWNhYmxlIHdpdGggZXZpZGVuY2UuIiwiYXBwcm92YWwiOiJBcHByb3ZhbDogVVIiLCJhcnRlZmFjdF9kaWdlc3QiOiJzaGEyNTY6ZDU3YWNlYjQzMzY1Mzg2ZDNkMjFlOGFjMjYzNWM5YTkzZmMyNmFkODgxMjI3NTViZjIxMjA3NjRjYmI5ZDhiZCIsImdhdGUiOiJVUiIsIm1hdGVyaWFsX3NvdXJjZXMiOlt7ImRpZ2VzdCI6InNoYTI1NjpkNTdhY2ViNDMzNjUzODZkM2QyMWU4YWMyNjM1YzlhOTNmYzI2YWQ4ODEyMjc1NWJmMjEyMDc2NGNiYjlkOGJkIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvcnVucy9ydW4tMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyL2RvY3VtZW50cy9VUi5tZCIsInR5cGUiOiJVUiJ9XSwibWF0ZXJpYWxfdmVyc2lvbiI6InNoYTI1NjpiMGI2OTg0YjdjMGFlOGY2ZWQ0ODg2ZDU0MTEzMjc5MjJjNWM3NGYwZjFmNGU3NzA5MGIzZmU5MTdhZWMxM2EzIiwibmV4dF9nYXRlX2FmdGVyX2FwcHJvdmFsIjoiQnJvd25maWVsZCBSZXZpZXciLCJwcmVzZW50YXRpb25fZGlnZXN0Ijoic2hhMjU2Ojk4NTJlODdjZGZhZGViNmQ5MmQ3OTk4OTYzMmRkYzAwMDhlODk1ODZhNDlhYjAyYTJiYWM3NzI3MDhhMjVmZmMiLCJwcmV2aW91c19yZXZpc2lvbl9pZCI6IjE3ZTdjYTcyLWRjODMtNDBkNi04NjdlLWU4NDM0ZGNjMDBmMCIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjNjNzdhMzY0LTRlYTMtNGY0YS1hZjFmLWVjNGQ4ZjRmOWVlMyIsInJldmlzaW9uIjozfSwiaW5wdXRfcmVzb2x1dGlvbiI6eyJjb25maWd1cmF0aW9uIjp7ImNvbmZpZ19kaWdlc3QiOiJzaGEyNTY6YmZkMDE3YTE1YmRiM2FmYTEyMWVjNGU3OGJjOTdkNjkwNTZlODFhMDM2N2UxYzc1YTM4ZTU1ZGJlMzU5NGM0YiIsImNvbnRyb2wiOiJhY3RpdmUiLCJj'... 1875 more characters
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    # AGDF Run State
+    
+    ## Run Meta
+    
+    - control_state_version: 4
+    - run_id: run-34e01b2e-b943-4869-9dcd-b97fd9bb1372
+    - lifecycle: active
+    - revision: 3
+    - revision_id: 3c77a364-4ea3-4f4a-af1f-ec4d8f4f9ee3
+    - content_seal: sha256:0723b2529dfaea53df83e8ee9e3967209cbb630ec8dccc7b82c1251b8f442789
+    - approval_seal: sha256:a4522e49e1603b9035169a76d12d9370ddcee20e5a8bbdb01e7560a0394c908e
+    - updated_at: 2026-11-01T12:43:32.023Z
+    - mode: undecided
+    - owner: agent
+    
+    ## Objective
+    
+    Synthetic current Run
+    
+    ## Mode/Slice Decision
+    
+    - scope_reason:
+    - evidence:
+    
+    ## Relationships
+    
+    | From | Relationship | To | Evidence |
+    |---|---|---|---|
+    
+    ## Closeout
+    
+    - quality_outlook:
+    
+    ## Run Operations
+    
+    - schema_version: 1
+    
+    | operation_id | request_digest | receipt |
+    |---|---|---|
+    | 34e01b2e-b943-4869-9dcd-b97fd9bb1372 | sha256:0c57b6f11e7a3f838159d731af28fc0d951d4b70401de30c81ffca7a4e050ba6 | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTI6NDM6MzEuNjI0WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6bnVsbCwicmVjb3JkIjp7InRpdGxlIjoiU3ludGhldGljIGN1cnJlbnQgUnVuIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImIwYTUwN2UxLWY1NmUtNGMzMS04MThmLWY3NGQxNjBlZGYyYiIsInJldmlzaW9uIjoxfSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOm51bGwsImlucHV0X3Jlc29sdXRpb24iOnsiY29uZmlndXJhdGlvbiI6eyJjb25maWdfZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJjb250cm9sIjoiYWN0aXZlIiwiY29udHJvbF9sYXlvdXQiOiJydW4tZm9sZGVycy12MSIsImRlZmF1bHRzX2RpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwicm9vdCI6Ii9wcml2YXRlL3Zhci9mb2xkZXJzL3duL3BkYmp3dHZkM2Z4MHQzOG53Y3FycnBuYzAwMDBncC9UL2FnZGYtY3VycmVudC1tMDBvQjUiLCJzb3VyY2VzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjp7ImRpZ2VzdCI6InNoYTI1NjpiZmQwMTdhMTViZGIzYWZhMTIxZWM0ZTc4YmM5N2Q2OTA1NmU4MWEwMzY3ZTFjNzVhMzhlNTVkYmUzNTk0YzRiIiwia2luZCI6InByb2plY3QiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9jb25maWcuanNvbiJ9LCJjaGF0X2xhbmd1YWdlIjp7ImtpbmQiOiJleHBsaWNpdCJ9LCJnYXRlX2NoZWNrX3ZhcmlhbnQiOnsiZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJraW5kIjoicGx1Z2luIiwicGF0aCI6Im1ldGEvYWdkZi1kZWZhdWx0cy5qc29uIn0sInByZXNlbnRhdGlvbl9yb3V0ZSI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifX0sInZhbHVlcyI6eyJhcnRpZmFjdF9sYW5ndWFnZSI6ImVuIiwiY2hhdF9sYW5ndWFnZSI6ImVuIiwiZ2F0ZV9jaGVja192YXJpYW50IjpudWxsLCJwcmVzZW50YXRpb25fcm91dGUiOiJtYXJrZG93biJ9fSwiZWZmZWN0aXZlX2RpZ2VzdCI6InNoYTI1NjowYzU3YjZmMTFlN2EzZjgzODE1OWQ3MzFhZjI4ZmMwZDk1MWQ0YjcwNDAxZGUzMGM4MWZmY2E3YTRlMDUwYmE2IiwiZmllbGRzIjp7fSwia2luZCI6InJ1bi5jcmVhdGUiLCJsb2dpY2FsX2RpZ2VzdCI6InNoYTI1NjowYzU3YjZmMTFlN2EzZjgzODE1OWQ3MzFhZjI4ZmMwZDk1MWQ0YjcwNDAxZGUzMGM4MWZmY2E3YTRlMDUwYmE2Iiwib3BlcmF0aW9uX2lkIjoiMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyIiwicmVjb3JkX3ZlcnNpb24iOiI0Iiwic2NoZW1hX3ZlcnNpb24iOjF9LCJraW5kIjoicnVuLmNyZWF0ZSIsIm9wZXJhdGlvbl9pZCI6IjM0ZTAxYjJlLWI5NDMtNDg2OS05ZGNkLWI5N2ZkOWJiMTM3MiIsInByb2R1Y2VyIjp7ImNvbnRyYWN0IjoicnVuLWNvbW1hbmQvMSIsInBhY2thZ2VfdmVyc2lvbiI6IjAuMjAuMiJ9LCJyZXF1ZXN0X2RpZ2VzdCI6InNoYTI1NjowYzU3YjZmMTFlN2EzZjgzODE1OWQ3MzFhZjI4ZmMwZDk1MWQ0YjcwNDAxZGUzMGM4MWZmY2E3YTRlMDUwYmE2IiwicnVuX2lkIjoicnVuLTM0ZTAxYjJlLWI5NDMtNDg2OS05ZGNkLWI5N2ZkOWJiMTM3MiIsInNjaGVtYV92ZXJzaW9uIjoicmVzb2x2ZWQvMSIsInRhcmdldF9pZCI6InNoYTI1NjpkMDU1OGU1MGMwMzcwYzhmYWYzNjJmOGVjMmQyNThkODcyMTNlYzA2YWFkZTViOTUwOGNjY2JhYWY5MzFkNWE5In0 |
+    | ab3451b4-b7fd-4851-b867-a3d81a36e953 | sha256:3230180da0e3c57cdb8d80e634fca1a9fdac309725ec5addf58614b77776173e | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTEtMDFUMTI6NDM6MzEuNjkzWiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6ImIwYTUwN2UxLWY1NmUtNGMzMS04MThmLWY3NGQxNjBlZGYyYiIsInJlY29yZCI6eyJjb3ZlcnMiOiJzZWxlY3RlZCBSdW4gc2NvcGUiLCJldmlkZW5jZV9iaW5kaW5nX2lkIjoiYWIzNDUxYjQtYjdmZC00ODUxLWI4NjctYTNkODFhMzZlOTUzIiwic3RhdHVzIjoiZG9uZSJ9LCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiIxN2U3Y2E3Mi1kYzgzLTQwZDYtODY3ZS1lODQzNGRjYzAwZjAiLCJyZXZpc2lvbiI6Mn0sImV4cGVjdGVkX3JldmlzaW9uX2lkIjoiYjBhNTA3ZTEtZjU2ZS00YzMxLTgxOGYtZjc0ZDE2MGVkZjJiIiwiaW5wdXRfcmVzb2x1dGlvbiI6eyJjb25maWd1cmF0aW9uIjp7ImNvbmZpZ19kaWdlc3QiOiJzaGEyNTY6YmZkMDE3YTE1YmRiM2FmYTEyMWVjNGU3OGJjOTdkNjkwNTZlODFhMDM2N2UxYzc1YTM4ZTU1ZGJlMzU5NGM0YiIsImNvbnRyb2wiOiJhY3RpdmUiLCJjb250cm9sX2xheW91dCI6InJ1bi1mb2xkZXJzLXYxIiwiZGVmYXVsdHNfZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJyb290IjoiL3ByaXZhdGUvdmFyL2ZvbGRlcnMvd24vcGRiand0dmQzZngwdDM4bndjcXJycG5jMDAwMGdwL1QvYWdkZi1jdXJyZW50LW0wMG9CNSIsInNvdXJjZXMiOnsiYXJ0aWZhY3RfbGFuZ3VhZ2UiOnsiZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJraW5kIjoicHJvamVjdCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2NvbmZpZy5qc29uIn0sImNoYXRfbGFuZ3VhZ2UiOnsia2luZCI6ImV4cGxpY2l0In0sImdhdGVfY2hlY2tfdmFyaWFudCI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifSwicHJlc2VudGF0aW9uX3JvdXRlIjp7ImRpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwia2luZCI6InBsdWdpbiIsInBhdGgiOiJtZXRhL2FnZGYtZGVmYXVsdHMuanNvbiJ9fSwidmFsdWVzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjoiZW4iLCJjaGF0X2xhbmd1YWdlIjoiZW4iLCJnYXRlX2NoZWNrX3ZhcmlhbnQiOm51bGwsInByZXNlbnRhdGlvbl9yb3V0ZSI6Im1hcmtkb3duIn19LCJlZmZlY3RpdmVfZGlnZXN0Ijoic2hhMjU2OjMyMzAxODBkYTBlM2M1N2NkYjhkODBlNjM0ZmNhMWE5ZmRhYzMwOTcyNWVjNWFkZGY1ODYxNGI3Nzc3NjE3M2UiLCJmaWVsZHMiOnt9LCJraW5kIjoic3RlcC5yZWNvcmQiLCJsb2dpY2FsX2RpZ2VzdCI6InNoYTI1NjozMjMwMTgwZGEwZTNjNTdjZGI4ZDgwZTYzNGZjYTFhOWZkYWMzMDk3MjVlYzVhZGRmNTg2MTRiNzc3NzYxNzNlIiwib3BlcmF0aW9uX2lkIjoiYWIzNDUxYjQtYjdmZC00ODUxLWI4NjctYTNkODFhMzZlOTUzIiwicmVjb3JkX3ZlcnNpb24iOiI0Iiwic2NoZW1hX3ZlcnNpb24iOjF9LCJraW5kIjoic3RlcC5yZWNvcmQiLCJvcGVyYXRpb25faWQiOiJhYjM0NTFiNC1iN2ZkLTQ4NTEtYjg2Ny1hM2Q4MWEzNmU5NTMiLCJwcm9kdWNlciI6eyJjb250cmFjdCI6InJ1bi1jb21tYW5kLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjIwLjIifSwicmVxdWVzdF9kaWdlc3QiOiJzaGEyNTY6MzIzMDE4MGRhMGUzYzU3Y2RiOGQ4MGU2MzRmY2ExYTlmZGFjMzA5NzI1ZWM1YWRkZjU4NjE0Yjc3Nzc2MTczZSIsInJ1bl9pZCI6InJ1bi0zNGUwMWIyZS1iOTQzLTQ4NjktOWRjZC1iOTdmZDliYjEzNzIiLCJzY2hlbWFfdmVyc2lvbiI6InJlc29sdmVkLzEiLCJ0YXJnZXRfaWQiOiJzaGEyNTY6ZDA1NThlNTBjMDM3MGM4ZmFmMzYyZjhlYzJkMjU4ZDg3MjEzZWMwNmFhZGU1Yjk1MDhjY2NiYWFmOTMxZDVhOSJ9 |
+    
+    ## Evidence Bindings
+    
+    - schema_version: 1
+    
+    | operation_id | binding |
+    |---|---|
+    | ab3451b4-b7fd-4851-b867-a3d81a36e953 | eyJhY3Rpb24iOiJzdGVwLnJlY29yZCIsImFzc3VyYW5jZSI6eyJpbmRlcGVuZGVudF9odW1hbl9wcm9vZiI6InVuYXZhaWxhYmxlIiwibGFuZSI6ImNvb3BlcmF0aXZlX2xvY2FsIiwicmVwbHlfcHJvdmVuYW5jZSI6ImNhbGxlcl9mb3J3YXJkZWRfZGVsaWJlcmF0ZV9yZXBseSJ9LCJvcGVyYXRpb25faWQiOiJhYjM0NTFiNC1iN2ZkLTQ4NTEtYjg2Ny1hM2Q4MWEzNmU5NTMiLCJwcm9kdWNlciI6eyJjb250cmFjdCI6InJ1bi1jb21tYW5kLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjIwLjIifSwicmVwb3J0Ijp7ImRpZ2VzdCI6InNoYTI1NjpkNTdhY2ViNDMzNjUzODZkM2QyMWU4YWMyNjM1YzlhOTNmYzI2YWQ4ODEyMjc1NWJmMjEyMDc2NGNiYjlkOGJkIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvcnVucy9ydW4tMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyL2RvY3VtZW50cy9VUi5tZCJ9LCJydW5faWQiOiJydW4tMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyIiwic2NoZW1hX3ZlcnNpb24iOiIxIiwic291cmNlX3NldF9kaWdlc3QiOiJzaGEyNTY6ZTJkZDRiMDAwMGZkZDU2MTNhMzBlM2FiMTI1MGFhNWQ1ZDljMmVhNGM2ODBhODFmMDU1YzIwM2U1NzY1YmI2OSIsInNvdXJjZXMiOltdLCJzdGVwIjoidXIifQ |
+    
+    ## Approval Operations
+    
+    - schema_version: 1
+    
+    | operation_id | request_digest | receipt |
+    |---|---|---|
+    | bc91b764-94d4-4b42-b7e9-8ce3cf9cf3e0 | sha256:bc698e79514d3cadb48c17e79ed11b27437e6e4f357920c34d6e433ad713a875 | eyJhY3Rpb24iOiJyZWNvcmRfZ2F0ZV9hcHByb3ZhbCIsImFzc3VyYW5jZSI6eyJpbmRlcGVuZGVudF9odW1hbl9wcm9vZiI6InVuYXZhaWxhYmxlIiwibGFuZSI6ImNvb3BlcmF0aXZlX2xvY2FsIiwicmVwbHlfcHJvdmVuYW5jZSI6ImNhbGxlcl9mb3J3YXJkZWRfZGVsaWJlcmF0ZV9yZXBseSJ9LCJiaW5kaW5nIjp7ImV4cGVjdGVkX3JldmlzaW9uX2lkIjoiMTdlN2NhNzItZGM4My00MGQ2LTg2N2UtZTg0MzRkY2MwMGYwIiwiZ2F0ZSI6IlVSIiwicHJlc2VudGF0aW9uX2lkIjoiN2I4MThmYmYtNDhkNS00ZTU1LTg0YjMtNjlmNjUzYWQ0NTBkIiwicnVuX2lkIjoicnVuLTM0ZTAxYjJlLWI5NDMtNDg2OS05ZGNkLWI5N2ZkOWJiMTM3MiIsInRhcmdldF9pZCI6InNoYTI1NjpkMDU1OGU1MGMwMzcwYzhmYWYzNjJmOGVjMmQyNThkODcyMTNlYzA2YWFkZTViOTUwOGNjY2JhYWY5MzFkNWE5In0sImNvbW1hbmRfZGlnZXN0Ijoic2hhMjU2OmYwOGU1NTkzMjU4ZTJlZjM2OTM2OGYyNmFkZmIzYzI0YzgxNjE0ZjNlMmFiZTRiYTM2NjBhNGE3YjNmZjY0M2EiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMS0wMVQxMjo0MzozMS45NjVaIiwiZWZmZWN0Ijp7ImFsbG93ZWRfYWZ0ZXJfYXBwcm92YWwiOiJSdW4gQnJvd25maWVsZCBSZXZpZXcgYWZ0ZXIgRy0wMCBiZWZvcmUgZHJhZnRpbmcgUFJELCBvciBtYXJrIEJyb3duZmllbGQgUmV2aWV3IG5vdF9hcHBsaWNhYmxlIHdpdGggZXZpZGVuY2UuIiwiYXBwcm92YWwiOiJBcHByb3ZhbDogVVIiLCJhcnRlZmFjdF9kaWdlc3QiOiJzaGEyNTY6ZDU3YWNlYjQzMzY1Mzg2ZDNkMjFlOGFjMjYzNWM5YTkzZmMyNmFkODgxMjI3NTViZjIxMjA3NjRjYmI5ZDhiZCIsImdhdGUiOiJVUiIsIm1hdGVyaWFsX3NvdXJjZXMiOlt7ImRpZ2VzdCI6InNoYTI1NjpkNTdhY2ViNDMzNjUzODZkM2QyMWU4YWMyNjM1YzlhOTNmYzI2YWQ4ODEyMjc1NWJmMjEyMDc2NGNiYjlkOGJkIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvcnVucy9ydW4tMzRlMDFiMmUtYjk0My00ODY5LTlkY2QtYjk3ZmQ5YmIxMzcyL2RvY3VtZW50cy9VUi5tZCIsInR5cGUiOiJVUiJ9XSwibWF0ZXJpYWxfdmVyc2lvbiI6InNoYTI1NjpiMGI2OTg0YjdjMGFlOGY2ZWQ0ODg2ZDU0MTEzMjc5MjJjNWM3NGYwZjFmNGU3NzA5MGIzZmU5MTdhZWMxM2EzIiwibmV4dF9nYXRlX2FmdGVyX2FwcHJvdmFsIjoiQnJvd25maWVsZCBSZXZpZXciLCJwcmVzZW50YXRpb25fZGlnZXN0Ijoic2hhMjU2Ojk4NTJlODdjZGZhZGViNmQ5MmQ3OTk4OTYzMmRkYzAwMDhlODk1ODZhNDlhYjAyYTJiYWM3NzI3MDhhMjVmZmMiLCJwcmV2aW91c19yZXZpc2lvbl9pZCI6IjE3ZTdjYTcyLWRjODMtNDBkNi04NjdlLWU4NDM0ZGNjMDBmMCIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjNjNzdhMzY0LTRlYTMtNGY0YS1hZjFmLWVjNGQ4ZjRmOWVlMyIsInJldmlzaW9uIjozfSwiaW5wdXRfcmVzb2x1dGlvbiI6eyJjb25maWd1cmF0aW9uIjp7ImNvbmZpZ19kaWdlc3QiOiJzaGEyNTY6YmZkMDE3YTE1YmRiM2FmYTEyMWVjNGU3OGJjOTdkNjkwNTZlODFhMDM2N2UxYzc1YTM4ZTU1ZGJlMzU5NGM0YiIsImNvbnRyb2wiOiJhY3RpdmUiLCJjb250cm9sX2xheW91dCI6InJ1bi1mb2xkZXJzLXYxIiwiZGVmYXVsdHNfZGlnZXN0Ijoic2hhMjU2OmMwNDVjNTI5NDg0NDZlZTBjMDc5MDk5YzUzYzIzYjVjZTBkNDgwNDdjMWVhOTliYzA4YzBjYmNiZWNiODBiMzMiLCJyb290IjoiL3ByaXZhdGUvdmFyL2ZvbGRlcnMvd24vcGRiand0dmQzZngwdDM4bndjcXJycG5jMDAwMGdwL1QvYWdkZi1jdXJyZW50LW0wMG9CNSIsInNvdXJjZXMiOnsiYXJ0aWZhY3RfbGFuZ3VhZ2UiOnsiZGlnZXN0Ijoic2hhMjU2OmJmZDAxN2ExNWJkYjNhZmExMjFlYzRlNzhiYzk3ZDY5MDU2ZTgxYTAzNjdlMWM3NWEzOGU1NWRiZTM1OTRjNGIiLCJraW5kIjoicHJvamVjdCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2NvbmZpZy5qc29uIn0sImNoYXRfbGFuZ3VhZ2UiOnsia2luZCI6ImV4cGxpY2l0In0sImdhdGVfY2hlY2tfdmFyaWFudCI6eyJkaWdlc3QiOiJzaGEyNTY6YzA0NWM1Mjk0ODQ0NmVlMGMwNzkwOTljNTNjMjNiNWNlMGQ0ODA0N2MxZWE5OWJjMDhjMGNiY2JlY2I4MGIzMyIsImtpbmQiOiJwbHVnaW4iLCJwYXRoIjoibWV0YS9hZ2RmLWRlZmF1bHRzLmpzb24ifSwicHJlc2VudGF0aW9uX3JvdXRlIjp7ImRpZ2VzdCI6InNoYTI1NjpjMDQ1YzUyOTQ4NDQ2ZWUwYzA3OTA5OWM1M2MyM2I1Y2UwZDQ4MDQ3YzFlYTk5YmMwOGMwY2JjYmVjYjgwYjMzIiwia2luZCI6InBsdWdpbiIsInBhdGgiOiJtZXRhL2FnZGYtZGVmYXVsdHMuanNvbiJ9fSwidmFsdWVzIjp7ImFydGlmYWN0X2xhbmd1YWdlIjoiZW4iLCJjaGF0X2xhbmd1YWdlIjoiZW4iLCJnYXRlX2NoZWNrX3ZhcmlhbnQiOm51bGwsInByZXNlbnRhdGlvbl9yb3V0ZSI6Im1hcmtkb3duIn19LCJlZmZlY3RpdmVfZGlnZXN0Ijoic2hhMjU2OmYwOGU1NTkzMjU4ZTJlZjM2OTM2OGYyNmFkZmIzYzI0YzgxNjE0ZjNlMmFiZTRiYTM2NjBhNGE3YjNmZjY0M2EiLCJmaWVsZHMiOnt9LCJraW5kIjoiYXBwcm92YWwucmVjb3JkIiwibG9naWNhbF9kaWdlc3QiOiJzaGEyNTY6ZjA4ZTU1OTMyNThlMmVmMzY5MzY4ZjI2YWRmYjNjMjRjODE2MTRmM2UyYWJlNGJhMzY2MGE0YTdiM2ZmNjQzYSIsIm9wZXJhdGlvbl9pZCI6ImJjOTFiNzY0LTk0ZDQtNGI0Mi1iN2U5LThjZTNjZjljZjNlMCIsInJlY29yZF92ZXJzaW9uIjoiNCIsInNjaGVtYV92ZXJzaW9uIjoxfSwib3BlcmF0aW9uX2lkIjoiYmM5MWI3NjQtOTRkNC00YjQyLWI3ZTktOGNlM2NmOWNmM2UwIiwicHJvZHVjZXIiOnsiY29udHJhY3QiOiJhcHByb3ZhbC1zZXJ2aWNlLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjIwLjIifSwicmVxdWVzdF9kaWdlc3QiOiJzaGEyNTY6YmM2OThlNzk1MTRkM2NhZGI0OGMxN2U3OWVkMTFiMjc0MzdlNmU0ZjM1NzkyMGMzNGQ2ZTQzM2FkNzEzYTg3NSIsInNjaGVtYV92ZXJzaW9uIjoicmVzb2x2ZWQvMSJ9 |
+    
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:215:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: unsupported typed operation records cannot be adopted or resealed by an ordinary command
+not ok 10 - unsupported typed operation records cannot be adopted or resealed by an ordinary command
+  ---
+  duration_ms: 714.882164
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:217:1'
+  failureType: 'testCodeFailure'
+  error: 'original_operation_unconfirmed'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    inspectRunInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-input-resolution.js:58:23)
+    resolveMcpInput (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/mcp-input-resolution.js:58:70)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:34:22)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/control-state-test.js:226:23)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 2
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5786.796701

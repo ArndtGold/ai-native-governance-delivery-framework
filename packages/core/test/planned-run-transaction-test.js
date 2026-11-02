@@ -15,7 +15,7 @@ test('SCN-001/002: new-layout Run writes and replay never create or lock a backl
   const service = createRunCommandService({ materialGrants });
   const result = service('agdf_record', input);
   assert.equal(result.outcome, 'accepted', JSON.stringify(result));
-  assert.equal(result.family_result.backlog, 'not_applicable');
+  assert.equal(Object.hasOwn(result.family_result, 'backlog'), false);
   assert.equal(service('agdf_record', input).outcome, 'already_applied');
   assert.equal(existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md')), false);
   assert.equal(existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md.lock')), false);
@@ -23,7 +23,7 @@ test('SCN-001/002: new-layout Run writes and replay never create or lock a backl
 });
 
 for (const stage of ['intent', 'output', 'run_after_rename', 'run', 'retired']) {
-  test(`SCN-002: v6 ${stage} interruption recovers only selected owned effects`, t => {
+  test(`SCN-002: v7 ${stage} interruption recovers only selected owned effects`, t => {
     const root = plannedFixture(t, ['first', 'second']);
     const { input, materialGrants } = stagedUr(t, commandBinding(root));
     const before = readFileSync(join(root, '.agdf/control/runs/first/RUN_STATE.md'), 'utf8');
@@ -32,10 +32,10 @@ for (const stage of ['intent', 'output', 'run_after_rename', 'run', 'retired']) 
       if (phase === stage && !failed) { failed = true; throw Error('injected_fault'); }
     } })('agdf_record', input);
     assert.equal(failed, true, JSON.stringify(result));
-    const pendingPath = join(root, '.agdf/control/runs/first/RUN_STEP_PENDING.json');
+    const pendingPath = join(root, '.agdf/control/runs/first/control/RUN_STEP_PENDING.json');
     if (existsSync(pendingPath)) {
       const journal = readPendingRunStepJournal(root, 'first');
-      assert.equal(resolutionRecordVersion(journal), 6);
+      assert.equal(resolutionRecordVersion(journal), 7);
       assert.equal(Object.hasOwn(journal, 'backlog'), false);
       // Another Run remains writable while the first needs its own recovery.
       const other = stagedUr(t, commandBinding(root, 'second'));
@@ -50,11 +50,11 @@ for (const stage of ['intent', 'output', 'run_after_rename', 'run', 'retired']) 
   });
 }
 
-test('SCN-002: foreign version-6 journal members stop recovery without deletion', t => {
+test('SCN-002: foreign version-7 journal members stop recovery without deletion', t => {
   const root = plannedFixture(t);
   const { input, materialGrants } = stagedUr(t, commandBinding(root));
   createRunCommandService({ materialGrants, checkpoint(phase) { if (phase === 'run') throw Error('injected_fault'); } })('agdf_record', input);
-  const path = join(root, '.agdf/control/runs/first/RUN_STEP_PENDING.json');
+  const path = join(root, '.agdf/control/runs/first/control/RUN_STEP_PENDING.json');
   const journal = JSON.parse(readFileSync(path, 'utf8'));
   journal.backlog = null;
   const foreign = JSON.stringify(journal); writeFileSync(path, foreign);

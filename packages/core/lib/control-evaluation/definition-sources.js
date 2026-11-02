@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { readFileSync } from '../control-read/fs.js';
 import { hasSymlinkComponent, containedRegularFile } from '../control-state/contained-file.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
@@ -14,7 +15,7 @@ export function inspectUxIntentDecision(content) {
 export function inspectDefinitionSources(root, state, runId, gate, sourceTypes) {
   const sources = [];
   const issue = (code, path, expected, observed, repairable = false) => ({ sources, issue: { code, path, expected, observed, repairable } });
-  const output = `.agdf/control/artefacts/${runId}/${gate}.md`;
+  const output = `${runDocumentPath(runId, '')}/${gate}.md`;
   if (!state || hasSymlinkComponent(root, output)) return issue('unsafe_destination', output, 'contained non-symlink output', 'unsafe');
   for (const type of sourceTypes) {
     const path = String(state.artefacts.get(type)?.path ?? '').replace(/^`|`$/gu, '');
@@ -29,7 +30,7 @@ export function inspectDefinitionSources(root, state, runId, gate, sourceTypes) 
   const reviewSource = sources.find(source => source.type === 'Brownfield Review');
   const review = reviewSource ? readFileSync(containedRegularFile(root, reviewSource.path).path, 'utf8') : '';
   if (extractField(review, 'ux_intent_definition_required') === 'yes') {
-    const canonical = `.agdf/control/artefacts/${runId}/UX_INTENT_DEFINITION.md`;
+    const canonical = `${runDocumentPath(runId, '')}/UX_INTENT_DEFINITION.md`;
     const analysis = state.artefacts.get('UX Intent Definition');
     const path = String(analysis?.path || canonical).replace(/^`|`$/gu, '');
     if (path !== canonical || hasSymlinkComponent(root, path)) return issue('unsafe_ux_source', path, canonical, 'foreign or unsafe source');

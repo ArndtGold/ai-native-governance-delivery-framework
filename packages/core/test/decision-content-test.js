@@ -7,7 +7,11 @@ import { execFileSync } from 'node:child_process';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { readRun } from '../lib/control-state/run-state-edits.js';
 import { recordRunStep } from '../lib/control-state/run-steps.js';
-import { recordRunRevision } from '../lib/control-state/run-recording.js';
+import { createCoreServices } from '../lib/index.js';
+import { randomUUID } from 'node:crypto';
+import { artefactFileDigest } from '../lib/control-state/run-seal.js';
+import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
+import { initializeCurrentControl } from './fixtures/current-init.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { policyForRunContent } from '../lib/control-evaluation/run-step-policy.js';
 import { readAuthoredContent, readReportDecision } from '../lib/control-evaluation/report-decision.js';
@@ -89,7 +93,7 @@ for (const [profile, text] of [
 
 const root=mkdtempSync(join(tmpdir(),'agdf-content-'));
 try {
-  const prefix='.agdf/control/artefacts/content/', files=join(root,prefix);mkdirSync(files,{recursive:true});
+  const prefix='.agdf/control/runs/content/documents/', files=join(root,prefix);mkdirSync(files,{recursive:true});
   const ur='# UR\n## 2. Goal\nInspect a concrete fixed result.\n## AGDF Approval Summary (de; source=en)\n- Ziel: Das konkrete Ergebnis prüfen.\n- Umfang: Begrenzter Fix.';
   const qa='# QA\nStatus: pass\n## 1. QA Decision\nDecision: pass\n## 2. TP Coverage\n'+field+'\n\nCoverage is complete.\n## 4. Missing Evidence\n- qualification_limits: Fresh native model not observed.\n## 5. Risks\n- delivery_risks: none\n## AGDF Approval Summary (de; source=en)\n- Ergebnis: Der konkrete Quellfehler ist korrigiert.\n- Grenzen: Native Modellprüfung nicht beobachtet.\n- Risiken: keine';
   writeFileSync(join(files,'UR.md'),ur);writeFileSync(join(files,'QA_REPORT.md'),qa);
@@ -221,15 +225,16 @@ console.log('Closed authored-content contexts, field-local placeholder boundarie
 
 const writerRoot=mkdtempSync(join(tmpdir(),'agdf-orientation-'));
 try {
-  execFileSync(process.execPath,[fileURLToPath(new URL('../../cli/bin/create-agdf.js',import.meta.url)),'init','--dir',writerRoot,'--language','en'],{stdio:'pipe'});
+  initializeCurrentControl(writerRoot);
+  const service=createCoreServices().command;
   for(const [id,goal,custom]of [['concrete','The declared fixture goal can be inspected.',null],['custom','The declared fixture goal can be inspected.','Keep this explicit custom orientation.'],['missing','> Example:\nA fabricated goal.',null]]){
-    const statePath=createRun(writerRoot,id),dir=join(writerRoot,'.agdf/control/artefacts',id);mkdirSync(dir,{recursive:true});
+    const statePath=createRun(writerRoot,id, `## Objective\n\n${custom??'Describe the trustworthy outcome.'}\n\n## Mode/Slice Decision\n\n- scope_reason:\n- evidence:\n\n## Relationships\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n\n## Closeout\n\n- quality_outlook:\n`),dir=join(writerRoot, '.agdf/control/runs', id, 'documents');mkdirSync(dir,{recursive:true});
     const ur='# UR\n## Problem\nOne isolated requirement.\n## Goal\n'+goal+'\n## Scope\nIsolated fixture only.\n## Non-Goals\nNo live approval.';
-    const path=join(dir,'UR.md');writeFileSync(path,ur);
+    const path=join(dir,'UR_INCOMING.md');writeFileSync(path,ur);
     let before=readRun(writerRoot,id);
-    if(custom){writeFileSync(statePath,before.content.replace('Describe the trustworthy outcome.',custom));assert.equal(recordRunRevision(writerRoot,{runId:id,revisionId:before.meta.revision_id}).outcome,'updated');before=readRun(writerRoot,id);}
-    const recorded=recordRunStep(writerRoot,{runId:id,revisionId:before.meta.revision_id,step:'ur',title:'Synthetic orientation behavior'},{policy:policyForRunContent});
-    assert.equal(recorded.outcome,'recorded',JSON.stringify(recorded));
+    const submit=(kind)=>service(kind==='step.record'?'agdf_record':'agdf_revise',{schema_version:'1',assurance:'cooperative_local',working_directory:writerRoot,primary_target:writerRoot,target_source:'explicit_target',presentation_language:'en',target_id:resolveControlCommandTarget(writerRoot).target_id,run_id:id,expected_revision_id:readRun(writerRoot,id).meta.revision_id,operation_id:randomUUID(),command:{kind,payload:{...(kind==='step.record'?{step:'ur'}:{}),source:{path:'.agdf/control/runs/'+id+'/documents/UR_INCOMING.md',digest:artefactFileDigest(writerRoot,'.agdf/control/runs/'+id+'/documents/UR_INCOMING.md')},title:'Synthetic orientation behavior'}}});
+    const recorded=submit('step.record');
+    assert.equal(recorded.outcome,'accepted',JSON.stringify(recorded));
     const current=readRun(writerRoot,id),objective=readAuthoredContent(current.content,'objective');
     assert.equal(objective,custom??(id==='missing'?'Describe the trustworthy outcome.':goal));
     assert.equal(readFileSync(path,'utf8'),ur,'Projection does not rewrite its source.');
@@ -238,7 +243,7 @@ try {
       assert.equal(check.blocking_reason,'AGDF_DECISION_CONTENT_INCOMPLETE');assert.notEqual(check.next_operation.type,'human_gate_decision');
       assert.equal(readRun(writerRoot,id).content,captured,'Inspection leaves the authorable incomplete draft unchanged.');
       writeFileSync(path,ur.replace(goal,'A now-concrete unapproved draft goal.'));
-      assert.equal(recordRunRevision(writerRoot,{runId:id,revisionId:current.meta.revision_id}).outcome,'updated');
+      const replaced=submit('ur_draft.replace');assert.equal(replaced.outcome,'accepted',JSON.stringify(replaced));
       assert.equal(readAuthoredContent(readRun(writerRoot,id).content,'objective'),'A now-concrete unapproved draft goal.');
     }
   }

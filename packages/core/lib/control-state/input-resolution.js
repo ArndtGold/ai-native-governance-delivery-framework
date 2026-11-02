@@ -1,3 +1,4 @@
+import { CURRENT_LAYOUT } from './run-identity.js';
 // Shared representation, not a file owner or replay ledger. Existing operation
 // families alone validate, persist and recover their versioned records.
 import { AsyncLocalStorage } from 'node:async_hooks';
@@ -40,8 +41,8 @@ export function validInputResolution(value) {
     || Object.hasOwn(f, 'assurance') && f.assurance !== 'cooperative_local'
     || Object.hasOwn(f, 'variant') && !['status-card', 'approval-envelope'].includes(f.variant)
     || Object.hasOwn(f, 'command.payload.route') && !['markdown', 'automatic', 'fallback'].includes(f['command.payload.route'])) return false;
-  if (!exactObject(c, ['root', 'control', 'config_digest', 'values', 'sources', 'defaults_digest', ...(Object.hasOwn(c, 'control_layout') ? ['control_layout'] : [])])
-    || Object.hasOwn(c, 'control_layout') && !['master-backlog-v1', 'planned-urs-v1'].includes(c.control_layout)
+  if (!exactObject(c, ['root', 'control', 'config_digest', 'values', 'sources', 'defaults_digest', 'control_layout'])
+    || (c.control === 'active' ? c.control_layout !== CURRENT_LAYOUT : c.control_layout !== null)
     || !(c.root === null || typeof c.root === 'string' && isAbsolute(c.root) && c.root.length <= 4096) || !['inactive', 'active'].includes(c.control)
     || !(c.config_digest === null || hash(c.config_digest)) || !hash(c.defaults_digest)
     || !exactObject(c.values, preferenceKeys) || !exactObject(c.sources, preferenceKeys)
@@ -72,12 +73,12 @@ export function bindInputResolution(record) {
   const resolution = currentInputResolution();
   // Dispatch/read inputs have no typed command UUID or command digest. Their
   // per-call preferences may flow to rendering, never into a family receipt.
-  if (!resolution?.kind || !resolution.operation_id) return record;
+  if (!resolution?.kind || !resolution.operation_id) throw Error('input_resolution_required');
   if (!validInputResolution(resolution)) throw Error('input_resolution_invalid');
   return { ...record, schema_version: FORMAT, input_resolution: { ...resolution, record_version: record.schema_version } };
 }
 export function resolutionRecord(record) {
-  if (record?.schema_version !== FORMAT) return record;
+  if (record?.schema_version !== FORMAT) return null;
   const { input_resolution: extension, ...body } = record;
   if (!plain(extension)) return null;
   const { record_version, ...resolution } = extension;

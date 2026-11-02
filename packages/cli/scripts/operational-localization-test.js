@@ -5,10 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { evaluateGateCheck } from "#agdf-core/control-evaluation/gate-check.js";
 import { transitionDecisionForRunState } from "#agdf-core/control-evaluation/gate-policy.js";
-import { createRun, recordRunRevision } from "#agdf-core/control-state/index.js";
+import { currentFixture, currentRun } from "../../core/test/fixtures/current-run.js";
+import { clarifiedUr } from "../../core/test/planned-fixtures.js";
+import { writeRun } from "#agdf-core/control-state/run-state-writer.js";
 import { isOperationalValueRenderable, renderOperationalStatusCard } from "#agdf-core/interaction-presentation.js";
-import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
-import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 
 const packageRoot = join(import.meta.dirname, "..");
 const repositoryRoot = join(packageRoot, "../..");
@@ -151,48 +151,37 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
   }
 }
 
-// Free text from the run state or from a finding never breaks a localized card; English keeps the text.
+// Source prose never becomes a writable current gate/action projection. Risk
+// facts still yield a localized clarification through the existing evaluator.
 {
-  const root = mkdtempSync(join(tmpdir(), "agdf-operational-localization-"));
+  const root = mkdtempSync(join(tmpdir(), "agdf-operational-localization-")), cleanup = [];
   try {
-    initializeCanonicalControl(root, generatedFilesForTarget("init", root, false, "de"));
-    const statePath = createRun(root, "loc");
-    mkdirSync(join(root, ".agdf", "control", "artefacts", "loc"), { recursive: true });
-    writeFileSync(join(root, ".agdf", "control", "artefacts", "loc", "UR.md"), "# UR: Localization\n\n## Goal\nDen aktuellen Kontrollzustand verständlich darstellen.\n");
+    const f = currentFixture({ after: action => cleanup.push(action) }, { root }), r = currentRun(f, 'Localization');
     const freeStep = "Frei formulierter nächster Schritt des Agenten.";
-    const edited = readFileSync(statePath, "utf8")
-      .replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/loc/UR.md` | draft |  |")
-      .replace(/^- next_allowed_action:.*$/mu, `- next_allowed_action: ${freeStep}`)
-      .replace(/^- quality_outlook:.*$/mu, "- quality_outlook: Freier Qualitätsausblick des Agenten.");
-    writeFileSync(statePath, edited);
-    const revision = () => readFileSync(statePath, "utf8").match(/^- revision_id: (.+)$/mu)[1];
-    assert.equal(recordRunRevision(root, { runId: "loc", revisionId: revision() }).outcome, "updated");
-    const german = evaluateGateCheck(root, { runId: "loc", presentationLanguage: "de" });
+    const text = clarifiedUr.replace('Review the UR and request explicit Approval: UR.', freeStep)
+      + '\n## Quality Note\nFreier Qualitätsausblick des Agenten.\n'
+      + '\n## AGDF Approval Summary (de; source=en)\n- Problem: Den Kontrollzustand verstehen.\n- Ziel: Die aktuelle Fassung bewusst prüfen.\n- Umfang: Ein lokaler Kontrolllauf.\n';
+    assert.equal(r.step('ur', text, { title: 'Localization' }).outcome, 'accepted');
+    const german = evaluateGateCheck(root, { runId: r.id, presentationLanguage: "de" });
     const germanCard = german.status_presentation?.markdown ?? "";
-    assert.equal(german.next_allowed_action, freeStep, "the machine report keeps the run-state next action");
-    assert.ok(germanCard, `the German card renders despite free text: ${JSON.stringify(german.presentation_diagnostics)}`);
-    assert.ok(!germanCard.includes(freeStep)
-      && germanCard.includes(registry.locales.de.statusCard.userDecision)
-      && germanCard.includes(registry.locales.de.statusCard.agentAllowed),
-    "the German approval card separates the user's decision from the agent's allowed work");
-    assert.ok(!germanCard.includes("Freier Qualitätsausblick"), "the German card derives the quality outlook instead of free text");
-    const english = evaluateGateCheck(root, { runId: "loc", presentationLanguage: "en" });
+    assert.notEqual(german.next_allowed_action, freeStep, "the action is derived from control facts, not document prose");
+    assert.ok(germanCard, JSON.stringify(german.presentation_diagnostics));
+    assert.ok(!germanCard.includes(freeStep) && germanCard.includes(registry.locales.de.statusCard.userDecision)
+      && germanCard.includes(registry.locales.de.statusCard.agentAllowed));
+    assert.ok(!germanCard.includes("Freier Qualitätsausblick"));
+    const english = evaluateGateCheck(root, { runId: r.id, presentationLanguage: "en" });
     assert.ok(english.status_presentation?.markdown.includes(registry.locales.en.statusCard.userDecision)
-      && english.status_presentation?.markdown.includes(registry.locales.en.statusCard.agentAllowed),
-    "the English approval card separates the user's decision from the agent's allowed work");
-
-    writeFileSync(statePath, readFileSync(statePath, "utf8").replace("## Evidence", "## Risks\n\n| Risk | Impact | Mitigation or owner |\n|---|---|---|\n| Fixture risk | block | Freie Minderung durch den Agenten. |\n\n## Evidence"));
-    assert.equal(recordRunRevision(root, { runId: "loc", revisionId: revision() }).outcome, "updated");
-    const blocked = evaluateGateCheck(root, { runId: "loc", presentationLanguage: "de" });
+      && english.status_presentation?.markdown.includes(registry.locales.en.statusCard.agentAllowed));
+    const risk = '\n## Risks\n\n| Risk | Impact | Mitigation or owner |\n|---|---|---|\n| Fixture risk | block | Freie Minderung durch den Agenten. |\n';
+    const current = r.content(), revised = /^## Risks\s*$/mu.test(current)
+      ? current.replace(/^## Risks[\s\S]*?(?=\n## |$)/mu, risk.trim()) : current + risk;
+    writeRun(r.path, revised, r.binding().expected_revision_id, { allowContentChange: true });
+    const blocked = evaluateGateCheck(root, { runId: r.id, presentationLanguage: "de" });
     assert.equal(blocked.blocking_reason, "AGDF_RISK_DECLARED");
-    assert.ok(blocked.status_presentation?.markdown.includes(registry.locales.de.operationalValues.unknownRunAction),
-      `an unknown selected-run action asks a localized focused clarification instead of substituting another action: ${JSON.stringify({ diagnostics: blocked.presentation_diagnostics, status_card: blocked.status_card, status_presentation: blocked.status_presentation })}`);
-    assert.equal(blocked.status_card.user_action_required, "yes", "an unknown next action correctly asks the user to clarify");
-    assert.equal(blocked.status_card.internal_next_step, "none", "the agent does not claim it can proceed while clarification is required");
-    assert.ok(blocked.status_presentation.markdown.includes(registry.locales.de.statusCard.userTurn), "the card labels the clarification as the user's turn");
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
+    assert.ok(blocked.status_presentation?.markdown.includes(registry.locales.de.operationalValues.unknownRunAction));
+    assert.equal(blocked.status_card.user_action_required, "yes");
+    assert.equal(blocked.status_card.internal_next_step, "none");
+    assert.ok(blocked.status_presentation.markdown.includes(registry.locales.de.statusCard.userTurn));
+  } finally { for (const action of cleanup.reverse()) action(); rmSync(root, { recursive: true, force: true }); }
 }
-
 console.log("operational localization tests passed");

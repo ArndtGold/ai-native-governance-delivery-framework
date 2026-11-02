@@ -1,80 +1,84 @@
-import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { createSdDefinitionTestRun, syntheticSd } from "./sd-definition.js";
-import { artefactFileDigest } from "../../../core/lib/control-state/run-seal.js";
-import { parseControlState, parseRunState } from "../../../core/lib/control-state/run-state-parser.js";
-import { upsertTableRow } from "../../../core/lib/control-state/run-state-edits.js";
-import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
-import { SOURCE_GATES } from "../../../core/lib/control-state/run-source-revisions.js";
-import { relationshipForGate } from "../../../core/lib/control-evaluation/delivery-relationships.js";
+import { withOwnedFileLock } from '../../../core/lib/owned-file-lock.js';
+import { inspectArtefactRecordingMode } from '../../../core/lib/control-state/run-artefact-recording.js';
+import { currentFixture } from '../../../core/test/fixtures/current-run.js';
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { canonicalRunText } from '../../../core/lib/control-state/run-text.js';
+import { canonicalJson, digest } from '../../../core/lib/control-state/approval-command-contract.js';
+import { readPendingSourceRevisionJournal } from '../../../core/lib/control-state/run-step-transaction.js';
+import { randomUUID } from 'node:crypto';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { join, relative, dirname } from 'node:path';
+import { createSdDefinitionTestRun, syntheticSd } from './sd-definition.js';
+import { syntheticTp } from './tp-definition.js';
+import { parseRunState } from '../../../core/lib/control-state/run-state-parser.js';
+import { prepareRunContentState } from '../../../core/lib/control-evaluation/run-state.js';
+import { createCoreServices } from '../../../core/lib/index.js';
+import { resolveControlCommandTarget } from '../../../core/lib/control-state/approval-command-contract.js';
+import { currentSourceProposalValue } from '../../../core/test/fixtures/current-source-proposal.js';
+import { artefactFileDigest } from '../../../core/lib/control-state/run-seal.js';
+export { syntheticTp };
 
-export const syntheticTp = () => `# TP: Synthetic saved filter
-Traceability contract: criteria-chain-v1
-
-## Task List
-| task_id | task |
-|---|---|
-| T-001 | Save and restore the user-owned filter using the existing store. |
-
-## Verification Traceability
-| criterion_id | design_decision_id | task_id | scenario_id | expected_result | evidence |
-|---|---|---|---|---|---|
-| AC-001 | SDD-001 | T-001 | SCN-001 | Restored values match saved values | Synthetic fixture observed result |
-`;
-
-// Every positive approval is a new synthetic reply through canonical services/commands.
-// No production Run, approval or source is copied or revised by this fixture.
-export function createLateSourceRevisionTestRun(root, validator, runId = "late-source-test", env = process.env, { tpEncoding = "lf", route = "structured_delivery", prepare = true } = {}) {
-  const f = createSdDefinitionTestRun(root, validator, runId, env, { typedApprovals: true, route });
-  const state = () => parseRunState(readFileSync(f.state, "utf8"), runId);
-  const control = () => parseControlState(state().content, { userGates: ["UR", "PRD", "SD", "TP", "QA", "UAT"], internalSteps: ["Brownfield Review", "UX Intent Definition", "Brownfield Analysis", "CD+Tests", "CR"] });
-  const recordSource = gate => {
-    const relation = relationshipForGate(gate), proof = f.prefix + `review-${randomUUID()}.json`, evidence = f.prefix + `record-${randomUUID()}.json`;
-    const command = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
-      expected_revision_id: f.revision(), destination: { type: gate, path: f.prefix + `${gate}.md`, digest: artefactFileDigest(root, f.prefix + `${gate}.md`), status: "draft" },
-      source: { type: relation.to, path: f.prefix + `${relation.to}.md`, digest: artefactFileDigest(root, f.prefix + `${relation.to}.md`) },
-      relationship: { from: relation.from, relationship: relation.relationship, to: relation.to },
-      review: { reviewer: "synthetic source revision reviewer", path: proof, digest: "" }, update_draft: false };
-    const { schema_version, target_id, run_id, destination, source, relationship } = command;
-    writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
-    command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, evidence), JSON.stringify(command));
-    const result = f.run("run-step", "--revision", f.revision(), "--step", "artefact", "--gate", gate, "--evidence", evidence);
-    assert.equal(result.value?.outcome, "recorded", result.text); return result.value;
-  };
+// Current sources and typed receipts only; positive approvals are synthetic.
+export function createLateSourceRevisionTestRun(root, validator, runId = 'late-source-test', env = process.env,
+  { tpEncoding = 'lf', route = 'structured_delivery', prepare = true, uxRecorded = false } = {}) {
+  const f = createSdDefinitionTestRun(root, validator, runId, env, { route, uxRecorded, uxRequired: uxRecorded });
+  const state = () => parseRunState(readFileSync(f.state, 'utf8'), runId);
+  const control = () => prepareRunContentState(root, readFileSync(f.state, 'utf8'), f.state);
+  const recordSource = gate => { const result = f.recordGate(gate, inspectArtefactRecordingMode(control(), gate).update_draft); assert.equal(result.value?.outcome, 'accepted', result.text); return result.value; };
   const approveSource = gate => {
-    const prepared = f.present(gate); assert.equal(prepared.value?.outcome, "prepared", prepared.text);
-    const approval = f.approve(gate, prepared.value.presentation_id); assert.equal(approval.value?.outcome, "accepted", approval.text);
+    const prepared = f.present(gate); assert.equal(prepared.value?.outcome, 'accepted', prepared.text);
+    const approval = f.approve(gate, prepared.value.family_result.presentation_id); assert.equal(approval.value?.outcome, 'accepted', approval.text);
     return { prepared: prepared.value, approval: approval.value };
   };
   const prepareImplementation = () => {
-    writeFileSync(f.file("BROWNFIELD_ANALYSIS.md"), "# Brownfield Analysis\nSynthetic current approved-TP preparation; existing filter store and tests reused.\n");
-    writeFileSync(f.state, upsertTableRow(state().content, "Artefacts", 0, "Brownfield Analysis", ["Brownfield Analysis", f.prefix + "BROWNFIELD_ANALYSIS.md", "done", "Synthetic fixture preparation"]));
-    const updated = f.run("run-update", "--revision", f.revision()); assert.equal(updated.value?.outcome, "updated", updated.text);
-    const recorded = f.run("run-step", "--revision", f.revision(), "--step", "evidence", "--evidence", "Synthetic current preparation observed", "--source", f.prefix + "BROWNFIELD_ANALYSIS.md");
-    assert.equal(recorded.value?.outcome, "recorded", recorded.text);
+    const path = relative(root, f.file('BROWNFIELD_ANALYSIS.md')).split('\\').join('/');
+    writeFileSync(join(root, path), '# Brownfield Analysis\n\nDecision: pass\n\nSynthetic current preparation reuses the existing filter store and tests.\n');
+    const cleanup = [], current = currentFixture({ after(fn) { cleanup.push(fn); } }, { root, initialize: false });
+    let result;
+    try {
+      const binding = { run_id: runId, expected_revision_id: f.revision() };
+      result = current.call('step.record', { step: 'internal', internal_step: 'Brownfield Analysis', decision: 'pass',
+        source: current.material(binding, 'Brownfield Analysis', readFileSync(join(root, path), 'utf8')) }, binding);
+    } finally { for (const close of cleanup.reverse()) close(); }
+    assert.equal(result.outcome, 'accepted', JSON.stringify(result));
   };
-  writeFileSync(f.file("SD.md"), syntheticSd()); recordSource("SD"); approveSource("SD");
-  writeFileSync(f.file("TP.md"), tpEncoding === "crlf_bom" ? "\ufeff" + syntheticTp().replace(/\n/gu, "\r\n") : syntheticTp());
-  recordSource("TP"); approveSource("TP"); if (prepare) prepareImplementation();
-  const proposal = (sourceGate, analyses = "retain", operationId = randomUUID()) => sourceRevisionTestProposal(root, { ...f, control }, sourceGate, analyses, operationId);
+  writeFileSync(f.file('SD.md'), syntheticSd()); recordSource('SD'); approveSource('SD');
+  writeFileSync(f.file('TP.md'), tpEncoding === 'crlf_bom' ? '\ufeff' + syntheticTp().replace(/\n/gu, '\r\n') : syntheticTp());
+  recordSource('TP'); approveSource('TP'); if (prepare) prepareImplementation();
+  const proposal = (sourceGate, analyses = 'retain', operationId = randomUUID()) => sourceRevisionTestProposal(root, { ...f, control }, sourceGate, analyses, operationId);
   return { ...f, readState: state, control, recordSource, approveSource, prepareImplementation, proposal };
 }
-
-export function sourceRevisionTestProposal(root, f, sourceGate, analyses = "retain", operationId = randomUUID()) {
-    const c = f.control(), runId = f.runId;
-    const sources = SOURCE_GATES.filter(type => c.artefacts.get(type)?.path)
-      .map(type => ({ type, path: c.artefacts.get(type).path, digest: artefactFileDigest(root, c.artefacts.get(type).path) }));
-    const value = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
-      expected_revision_id: f.revision(), operation_id: operationId, source_gate: sourceGate,
-      reason: "Synthetic reviewed source revision test", intended_change: "Revise the selected source while preserving reviewed upstream intent",
-      sources, impact_assessment: { reviewer: "synthetic impact owner", earliest_source: sourceGate,
-        upstream: sources.slice(0, SOURCE_GATES.indexOf(sourceGate)).map(row => ({ ...row, rationale: "Exact source remains applicable to this fixture change" })),
-        analyses: ["Brownfield Review", "UX Intent Definition"].filter(type => c.artefacts.get(type)?.path).map(type => ({ type,
-          disposition: sourceGate === "UR" ? "reassess" : analyses, path: c.artefacts.get(type).path, digest: artefactFileDigest(root, c.artefacts.get(type).path),
-          reason: "Synthetic reviewed applicability assessment under unchanged or renewed UR" })),
-        implementation_evidence: "Retain code/tests; reassess fulfillment and run fresh preparation/checks for renewed TP", unresolved: [] } };
-    const evidence = f.prefix + `proposal-${operationId}.json`; writeFileSync(join(root, evidence), JSON.stringify(value));
-    return { input: { runId, revisionId: f.revision(), operationId, sourceGate, evidence }, value };
+export function sourceRevisionTestProposal(root, f, sourceGate, analyses = 'retain', operationId = randomUUID()) {
+  const context = { id: f.runId, state: f.control, binding: () => ({ expected_revision_id: f.revision() }),
+    f: { root, base: { target_id: resolveControlCommandTarget(root).target_id } } };
+  const value = currentSourceProposalValue(context, sourceGate, { operationId, mutate(value) {
+    if (analyses === 'retain' || sourceGate === 'UR') return;
+    for (const row of value.impact_assessment.analyses) row.disposition = analyses;
+    for (const row of value.quality_assessment.filter(row => ['Brownfield Review', 'UX Intent Definition'].includes(row.record.type))) row.disposition = analyses;
+  } });
+  const evidence = `.agdf/control/runs/${f.runId}/evidence/proposals/${operationId}.json`; mkdirSync(dirname(join(root, evidence)), { recursive: true }); writeFileSync(join(root, evidence), JSON.stringify(value));
+  return { input: { runId: f.runId, revisionId: f.revision(), operationId, sourceGate, evidence }, value };
 }
+
+// Interrupt the production command owner with an actual staged semantic proposal.
+// The worker is disposable; it does not bypass the command or input-resolution boundary.
+export function interruptSourceRevision(root, candidate, request, preview, env = process.env) {
+  const content = canonicalRunText(JSON.stringify(request.value));
+  const reference = { material_id: randomUUID(), digest: digest(content) };
+  const target_id = resolveControlCommandTarget(root).target_id;
+  const input = { working_directory: process.cwd(), primary_target: root, target_source: 'explicit_target', target_id,
+    run_id: request.input.runId, expected_revision_id: request.input.revisionId, operation_id: request.input.operationId,
+    command: { kind: 'source_revision.apply', payload: { source_gate: request.input.sourceGate, proposal: reference,
+      preview_digest: preview.preview_digest, confirmation: preview.confirmation_selector } } };
+  const grants = [{ ...reference, content, slot: 'EVIDENCE', target_id, run_id: input.run_id, expected_revision_id: input.expected_revision_id }];
+  const program = `import {createRunCommandService} from ${JSON.stringify(pathToFileURL(join(candidate, 'runtime/core/lib/control-state/run-command-service.js')).href)};
+    const result = createRunCommandService({materialGrants:JSON.parse(process.argv[2]),checkpoint(stage){if(stage==='archive_file')process.exit(71)}})('agdf_revise',JSON.parse(process.argv[1])); console.log(JSON.stringify(result));`;
+  const worker = spawnSync(process.execPath, ['--input-type=module', '-e', program, JSON.stringify(input), JSON.stringify(grants)], { env, encoding: 'utf8' });
+  assert.equal(worker.status, 71, worker.stdout + worker.stderr);
+  // Settle only the dead worker's transient lock through its validated owner,
+  // before byte-for-byte assertions over the still-pending durable transaction.
+  withOwnedFileLock(join(root, '.agdf/control/runs', request.input.runId, 'RUN_STATE.md'), () => {});
+}
+export const pendingSourceRevisionDigest = (root, runId) => digest(canonicalJson(readPendingSourceRevisionJournal(root, runId)));

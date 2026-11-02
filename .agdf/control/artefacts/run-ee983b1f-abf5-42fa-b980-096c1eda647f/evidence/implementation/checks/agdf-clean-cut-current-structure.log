@@ -1,0 +1,274 @@
+TAP version 13
+# Subtest: current binding contains the reviewed attestation and exact source; it derives the chain without request/proof JSON
+ok 1 - current binding contains the reviewed attestation and exact source; it derives the chain without request/proof JSON
+  ---
+  duration_ms: 2240.854179
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 2 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 1379.620411
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 3 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 2053.5671
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 4 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 1299.742322
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 5 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 1133.150838
+  type: 'test'
+  ...
+# Subtest: draft replacement requires explicit reviewed intent and retains exact superseded binding history
+ok 6 - draft replacement requires explicit reviewed intent and retains exact superseded binding history
+  ---
+  duration_ms: 2178.064165
+  type: 'test'
+  ...
+# Subtest: changed upstream bytes cannot be adopted by recording a new downstream binding
+ok 7 - changed upstream bytes cannot be adopted by recording a new downstream binding
+  ---
+  duration_ms: 1631.453383
+  type: 'test'
+  ...
+# Subtest: exact gate reply validation preserves every deliberate-response boundary
+ok 8 - exact gate reply validation preserves every deliberate-response boundary
+  ---
+  duration_ms: 5.012231
+  type: 'test'
+  ...
+# Subtest: status rendering, narration, identity and localized labels remain independent of storage layout
+ok 9 - status rendering, narration, identity and localized labels remain independent of storage layout
+  ---
+  duration_ms: 155.003711
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Approvals source
+ok 10 - current parser refuses a second writable Approvals source
+  ---
+  duration_ms: 775.984684
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Artefacts source
+ok 11 - current parser refuses a second writable Artefacts source
+  ---
+  duration_ms: 916.131367
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Artefact Chain source
+ok 12 - current parser refuses a second writable Artefact Chain source
+  ---
+  duration_ms: 597.661861
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Evidence source
+ok 13 - current parser refuses a second writable Evidence source
+  ---
+  duration_ms: 597.098289
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Current Control State source
+ok 14 - current parser refuses a second writable Current Control State source
+  ---
+  duration_ms: 668.504763
+  type: 'test'
+  ...
+# Subtest: current parser refuses a second writable Gate Checklist source
+ok 15 - current parser refuses a second writable Gate Checklist source
+  ---
+  duration_ms: 769.90356
+  type: 'test'
+  ...
+# Subtest: recorded facts determine the next gate and read-only checks preserve exact bytes
+ok 16 - recorded facts determine the next gate and read-only checks preserve exact bytes
+  ---
+  duration_ms: 1815.501572
+  type: 'test'
+  ...
+# Subtest: unsupported typed operation records cannot be adopted or resealed by an ordinary command
+ok 17 - unsupported typed operation records cannot be adopted or resealed by an ordinary command
+  ---
+  duration_ms: 558.958286
+  type: 'test'
+  ...
+# Subtest: Git project confirmation accepts the same directory spelling alias and rejects another directory
+ok 18 - Git project confirmation accepts the same directory spelling alias and rejects another directory
+  ---
+  duration_ms: 103.047957
+  type: 'test'
+  ...
+# Subtest: prospective receipt is private until the same directory and anchor are atomically published
+ok 19 - prospective receipt is private until the same directory and anchor are atomically published
+  ---
+  duration_ms: 419.231604
+  type: 'test'
+  ...
+# Subtest: interruption at beforeProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+ok 20 - interruption at beforeProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 137.419525
+  type: 'test'
+  ...
+# Subtest: interruption at afterProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+ok 21 - interruption at afterProspectiveReceipt distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 369.907862
+  type: 'test'
+  ...
+# Subtest: interruption at beforeWrite distinguishes unproven bytes from an exact prospective receipt
+ok 22 - interruption at beforeWrite distinguishes unproven bytes from an exact prospective receipt
+  ---
+  duration_ms: 536.906725
+  type: 'test'
+  ...
+# Subtest: fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+ok 23 - fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity
+  ---
+  duration_ms: 582.833443
+  type: 'test'
+  ...
+# Subtest: device-only remount preserves current ownership while old receipt formats remain unsupported
+ok 24 - device-only remount preserves current ownership while old receipt formats remain unsupported
+  ---
+  duration_ms: 1212.606092
+  type: 'test'
+  ...
+# Subtest: completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+ok 25 - completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor
+  ---
+  duration_ms: 750.973095
+  type: 'test'
+  ...
+# Subtest: an old caller stage2 marker is unsupported and cannot be converted
+ok 26 - an old caller stage2 marker is unsupported and cannot be converted
+  ---
+  duration_ms: 349.436807
+  type: 'test'
+  ...
+# Subtest: full-width filesystem inode values remain strings above Number precision
+ok 27 - full-width filesystem inode values remain strings above Number precision
+  ---
+  duration_ms: 1238.958581
+  type: 'test'
+  ...
+# Subtest: legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+ok 28 - legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt
+  ---
+  duration_ms: 255.513872
+  type: 'test'
+  ...
+# Subtest: explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+ok 29 - explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes
+  ---
+  duration_ms: 1004.236839
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_publish
+ok 30 - original setup identity survives actual publication response loss at project_after_publish
+  ---
+  duration_ms: 612.891485
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_after_receipt
+ok 31 - original setup identity survives actual publication response loss at project_after_receipt
+  ---
+  duration_ms: 584.602046
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at project_before_marker_cleanup
+ok 32 - original setup identity survives actual publication response loss at project_before_marker_cleanup
+  ---
+  duration_ms: 590.618859
+  type: 'test'
+  ...
+# Subtest: original setup identity survives actual publication response loss at before_result
+ok 33 - original setup identity survives actual publication response loss at before_result
+  ---
+  duration_ms: 575.532834
+  type: 'test'
+  ...
+# Subtest: foreign partial state, dangling control links and generic write arguments reject without adopting data
+ok 34 - foreign partial state, dangling control links and generic write arguments reject without adopting data
+  ---
+  duration_ms: 195.393149
+  type: 'test'
+  ...
+# Subtest: original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+ok 35 - original completion remains observable when later current configuration is invalid; acknowledgement is not a repair
+  ---
+  duration_ms: 600.706456
+  type: 'test'
+  ...
+# Subtest: owned recovery retains the originally resolved language configuration across process-locale drift
+ok 36 - owned recovery retains the originally resolved language configuration across process-locale drift
+  ---
+  duration_ms: 821.759068
+  type: 'test'
+  ...
+# Subtest: a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+ok 37 - a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git directory into a confirmed project
+  ---
+  duration_ms: 272.320834
+  type: 'test'
+  ...
+# Subtest: an owned unpublished stage preserves its original request; another request cannot adopt it
+ok 38 - an owned unpublished stage preserves its original request; another request cannot adopt it
+  ---
+  duration_ms: 400.64387
+  type: 'test'
+  ...
+# Subtest: changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+ok 39 - changed stage plan or foreign bytes block public recovery guidance and preserve the original stage
+  ---
+  duration_ms: 884.694821
+  type: 'test'
+  ...
+# Subtest: an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+ok 40 - an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage
+  ---
+  duration_ms: 273.721762
+  type: 'test'
+  ...
+# Subtest: stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+ok 41 - stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory
+  ---
+  duration_ms: 369.225519
+  type: 'test'
+  ...
+# Subtest: changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+ok 42 - changed published content blocks marker cleanup while retaining original receipt and foreign bytes
+  ---
+  duration_ms: 579.7605
+  type: 'test'
+  ...
+# Subtest: a non-regular pending marker blocks without reading a foreign FIFO
+ok 43 - a non-regular pending marker blocks without reading a foreign FIFO
+  ---
+  duration_ms: 397.115708
+  type: 'test'
+  ...
+# Subtest: real initializer retains its owned publication while a competing CLI request is rejected
+ok 44 - real initializer retains its owned publication while a competing CLI request is rejected
+  ---
+  duration_ms: 1171.116806
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16085.485341

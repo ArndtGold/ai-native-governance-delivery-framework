@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { initializeCurrentControl } from '../../core/test/fixtures/current-init.js';
+import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync, realpathSync, lstatSync, linkSync, unlinkSync } from "node:fs";
 import { createHash } from 'node:crypto';
@@ -215,14 +217,18 @@ try {
   rolledBackCopilot.rollback();
   assert.equal(existsSync(rolledBackCopilot.root), false, "rolling back a first Copilot stage must remove only its isolated marketplace root");
   assert.equal(digestDirectory(rollbackShared.pluginRoot), rollbackSharedDigest, "Copilot rollback must retain the shared profile byte-for-byte");
+  const runtimeTarget = join(fixtureRoot, 'runtime-target');
+  initializeCurrentControl(runtimeTarget, 'en');
+  createRun(runtimeTarget, 'registry-free-runtime');
   for (const args of [
-    ["doctor", "--dir", repoRoot, "--all-active", "--json"],
-    ["gate-check", "--dir", repoRoot, "--run", "automatic-version-asset-sync", "--json"],
-    ["delivery-map", "--dir", repoRoot, "--run", "automatic-version-asset-sync", "--json"],
+    ["doctor", "--dir", runtimeTarget, "--all-active", "--json"],
+    ["gate-check", "--dir", runtimeTarget, "--run", "registry-free-runtime", "--json"],
+    ["delivery-map", "--dir", runtimeTarget, "--run", "registry-free-runtime", "--json"],
   ]) {
     const command = spawnSync(process.execPath, [localEntrypoint, ...args], { encoding: "utf8", env: { ...process.env, PATH: join(fixtureRoot, "no-tools") } });
     assert.doesNotMatch(command.stderr, /npm|npx|registry/i, `${args[0]} must not require registry tooling`);
-    assert.doesNotThrow(() => JSON.parse(command.stdout), `${args[0]} must return machine-readable installed-runtime evidence`);
+    assert.ifError(command.error);
+    assert.doesNotThrow(() => JSON.parse(command.stdout), `${args[0]} must return machine-readable installed-runtime evidence: status=${command.status}, signal=${command.signal}, stderr=${command.stderr}`);
   }
   first.commit();
 

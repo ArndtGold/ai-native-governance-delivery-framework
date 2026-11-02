@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { inspectArtefactRecordingMode } from '../control-state/run-artefact-recording.js';
 import { readFileSync, statSync } from '../control-read/fs.js';
 import { captureControlScope } from '../control-read/snapshot.js';
@@ -11,7 +12,7 @@ import { inspectDefinitionSources } from '../control-evaluation/definition-sourc
 import { prdDefinitionEligible } from '../skill-dispatch/prd-definition.js';
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { inspectPlannedEntry, inspectPlannedSelection } from '../control-state/planned-entry.js';
-import { assertPlannedNotTransferred } from '../control-state/planned-origin.js';
+import { assertPlannedNotTransferred } from '../control-state/planned-origin-reader.js';
 import { parseControlState } from '../control-state/run-state-parser.js';
 
 const templateId = gate => ({ UR: 'UR', PRD: 'PRD', SD: 'SD', TP: 'TP', QA: 'QA_REPORT', OR: 'OR',
@@ -47,7 +48,7 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
       if (rows.length > 32) throw Error('authoring_source_limit');
       const sources = rows.map(row => {
         const path = row.path.replace(/^`|`$/gu, '');
-        if (!path.startsWith(`.agdf/control/artefacts/${input.run_id}/`) || hasSymlinkComponent(root, path)) throw Error('authoring_source_unavailable');
+        if (!path.startsWith(`${runDocumentPath(input.run_id, '')}/`) || hasSymlinkComponent(root, path)) throw Error('authoring_source_unavailable');
         const file = containedRegularFile(root, path);
         if (file.status !== 'valid' || statSync(file.path).size > 131072) throw Error('authoring_source_unavailable');
         const content = new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(file.path));

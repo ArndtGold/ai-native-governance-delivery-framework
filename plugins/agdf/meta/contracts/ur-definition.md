@@ -75,7 +75,7 @@ Preserve the requirement and name a concrete recovery or obtain an explicit scop
 cannot be delivered. Record the responsible later UX/PRD step in Next Step; UR authoring still
 writes only its assigned UR, not a preview or product implementation. A requested before-PRD preview
 is created through UX intent clarification under the existing post-UR routing owner. Its durable
-output belongs to `.agdf/control/artefacts/<run_id>/previews/` for the bound run; the UX skill owns
+output belongs to `.agdf/control/runs/<run_id>/evidence/previews/` for the bound run; the UX skill owns
 creation, versioning, evidence and references. An inline chat rendering alone does not fulfill that
 run deliverable. In a new UR, set exactly one initial metadata line before the first section:
 `Preview requirement: before_prd_interactive` for a required interactive before-PRD preview,
@@ -119,8 +119,9 @@ A new draft is recorded through existing run-step --step ur --title <short title
 For an already registered unapproved draft, require explicit user revision intent. Resume
 through gate-check with intake true, intake_mode resume, run_id, expected_revision_id and
 ur_action revise (CLI --ur-action revise). Ordinary intake of a ready draft still presents it.
-After editing a registered draft use existing run-update, not run-step: the previous seal
-must be replaced by the canonical revision writer. Never edit an approved UR or its approval.
+Stage the replacement and use ur_draft.replace with the current binding. The writer
+publishes the document and typed evidence atomically. Never edit bound bytes, reseal
+an unknown change or alter an approved UR or its approval.
 Use the returned new revision, redispatch gate-check for this target/run, prepare the fresh
 run-present when supplied, show its returned text verbatim and wait for a NEW deliberate
 `Approval: UR`. Previous presentations/replies cannot approve a changed draft.

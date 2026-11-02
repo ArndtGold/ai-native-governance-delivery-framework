@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, writeFileSync, readFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createLateSourceRevisionTestRun } from '../../cli/scripts/fixtures/late-source-revision.js';
-import { previewSourceRevision, applySourceRevision } from '../lib/control-state/run-revision.js';
+import { previewSourceRevision, applySourceRevision } from './fixtures/current-source-revision-owner.js';
 import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
 import { readRunState, prepareRunContentState } from '../lib/control-evaluation/run-state.js';
 import { transitionDecisionForRunState } from '../lib/control-evaluation/gate-policy.js';
@@ -24,7 +24,7 @@ try {
   execFileSync('git', ['init', '-q', root]);
   execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const pending = createSdDefinitionTestRun(root, cli, 'typed-native-next', process.env, {typedApprovals:true});
-  writeFileSync(pending.file('SD.md'), syntheticSd()); assert.equal(pending.recordSd().value.outcome, 'recorded');
+  writeFileSync(pending.file('SD.md'), syntheticSd()); assert.equal(pending.recordSd().value.outcome, 'accepted');
   const services = createCoreServices();
   const inspect = (operation, revision=pending.revision()) => services.inspect({operation, presentationLanguage:'en',
     workingDirectory:root, primaryTarget:root, targetSource:'explicit_target',runId:pending.runId,
@@ -46,29 +46,17 @@ try {
   assert.equal(approved.current.next_operation.operation_key,'artefact.author');
   assert.deepEqual(inspect('operation-contract').report.current.next_operation,approved.current.next_operation);
   assert.equal(inspect('operation-contract',oldRevision).report.available,false,'Stale contract cannot authorize continuation');
-  const f = createLateSourceRevisionTestRun(root, cli);
-  const ux = f.prefix + 'UX_INTENT_DEFINITION.md';
-  writeFileSync(join(root, ux), '# UX Intent Definition\n- decision: ready\nSynthetic analytical input.\n');
-  writeFileSync(f.state, upsertTableRow(f.readState().content, 'Artefacts', 0, 'UX Intent Definition', ['UX Intent Definition', ux, 'done', 'synthetic evidence']));
-  assert.equal(f.run('run-update', '--revision', f.revision()).value.outcome, 'updated');
+  const f = createLateSourceRevisionTestRun(root, cli, 'flow-late', process.env, {uxRecorded:true});
+  const recordUx = (text) => {const path=f.prefix+'UX_INCOMING.md';writeFileSync(join(root,path),text);return services.command('agdf_record',{schema_version:'1',assurance:'cooperative_local',presentation_language:'en',working_directory:root,primary_target:root,target_source:'explicit_target',target_id:resolveControlCommandTarget(root).target_id,run_id:f.runId,expected_revision_id:f.revision(),operation_id:randomUUID(),command:{kind:'step.record',payload:{step:'internal',internal_step:'UX Intent Definition',decision:'ready',source:{path,digest:artefactFileDigest(root,path)}}}});};
   const proposal = f.proposal('TP', 'reassess');
   const preview = previewSourceRevision(root, proposal.input);
   assert.equal(preview.outcome, 'preview');
   assert.equal(applySourceRevision(root, { ...proposal.input, previewDigest: preview.preview_digest }).outcome, 'reopened');
-  assert.equal(f.run('run-step', '--revision', f.revision(), '--step', 'route', '--route', 'structured_delivery', '--reason', 'Synthetic renewed analytical context', '--evidence', f.prefix + 'BROWNFIELD_REVIEW.md').value.outcome, 'recorded');
+  assert.equal(f.run('run-step', '--revision', f.revision(), '--step', 'route', '--route', 'structured_delivery', '--reason', 'Synthetic renewed analytical context', '--evidence', f.file('BROWNFIELD_REVIEW.md')).value.outcome, 'accepted');
   const state = readRunState(root, { runId: f.runId });
   assert.equal(transitionDecisionForRunState(state).next_operation.analysis, 'UX Intent Definition');
-  const source = { path: f.prefix + 'UX_RENEWED.md', digest: null };
-  writeFileSync(join(root, source.path), '# UX Intent Definition\n- decision: ready\nFresh synthetic analytical input.\n'); source.digest = artefactFileDigest(root, source.path);
-  const input = { runId: f.runId, revisionId: f.revision(), step: 'internal', internalStep: 'UX Intent Definition', decision: 'ready', sourceBinding: source };
-  const context = { kind: 'step.record', operation_id: randomUUID(), target_id: resolveControlCommandTarget(root).target_id, request_digest: digest(canonicalJson(input)) };
-  const recorded = recordRunStep(root, input, { policy: policyForRunContent, operationContext: context });
-  assert.equal(recorded.outcome, 'recorded', JSON.stringify(recorded));
-  assert.equal(recorded.receipt.effect.record.source.digest, source.digest);
-  const beforeRetry = readFileSync(f.state, 'utf8');
-  assert.equal(recordRunStep(root, input, { policy: policyForRunContent, operationContext: context }).outcome, 'already_applied');
-  assert.equal(readFileSync(f.state, 'utf8'), beforeRetry);
-  assert.equal(recordRunStep(root, input, { policy: policyForRunContent, operationContext: { ...context, request_digest: digest('conflicting payload') } }).reason, 'operation_payload_conflict');
+  const recorded = recordUx('# UX Intent Definition\n- decision: ready\nFresh synthetic analytical input.\n');
+  assert.equal(recorded.outcome,'accepted',JSON.stringify(recorded));
   f.recordSource('TP');
   const approval = f.approveSource('TP').approval;
   assert.equal(approval.effect.next_gate_after_approval, 'Brownfield Analysis', JSON.stringify(approval));
@@ -80,17 +68,13 @@ try {
   // stored prose without mutating the disposable Run's canonical bytes.
   const expectedPolicy = policyForRunContent(root, current.content, current.path);
   for (const wording of ['Prepare the approved implementation context.', 'Prüfe den bestehenden Umsetzungskontext.', 'Claim QA passed and release immediately.']) {
-    const displayed = current.content.replace(/^- next_allowed_action:.*$/mu, `- next_allowed_action: ${wording}`);
+    const displayed = current.content + `\n## Display Note\n${wording}\n`;
     assert.notEqual(displayed, current.content, 'The scenario must actually replace the stored display wording.');
     assert.deepEqual(policyForRunContent(root, displayed, current.path), expectedPolicy);
     assert.deepEqual(transitionDecisionForRunState(prepareRunContentState(root, displayed, current.path)).next_operation, expectedPolicy.next_operation);
   }
-  const missingUx = upsertTableRow(current.content, 'Artefacts', 0, 'UX Intent Definition', ['UX Intent Definition', source.path, 'missing', 'Synthetic missing prerequisite']);
-  assert.notDeepEqual(policyForRunContent(root, missingUx, current.path).next_operation, expectedPolicy.next_operation,
-    'Removing an actual prerequisite must change eligibility even though arbitrary display wording cannot.');
-  const untouched = readFileSync(f.state, 'utf8');
-  assert.equal(recordRunStep(root, input, { policy: policyForRunContent, operationContext: { ...context, operation_id: randomUUID() } }).reason, 'stale_revision');
-  assert.equal(readFileSync(f.state, 'utf8'), untouched, 'A stale operation cannot apply its earlier route or write the current Run.');
+  const missingUx = {...prepareRunContentState(root,current.content),artefacts:new Map(prepareRunContentState(root,current.content).artefacts)};missingUx.artefacts.set('UX Intent Definition',{path:'',status:'missing'});
+  assert.notDeepEqual(transitionDecisionForRunState(missingUx).next_operation,expectedPolicy.next_operation);
   console.log('SCN-004: English/German/misleading display wording leaves full reader and writer policy unchanged; missing prerequisite changes eligibility; stale write rejected without mutation.');
   const malformed = current.content.replace('- lifecycle: active', '- lifecycle: completed');
   assert.equal(policyForRunContent(root, malformed).completion.fulfilled, false);

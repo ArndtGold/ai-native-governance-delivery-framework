@@ -49,7 +49,7 @@ assert.deepEqual(validateRunCommand('agdf_closeout', preview), []);
 assert.deepEqual(validateRunCommand('agdf_closeout', { ...targetEnvelope, command: { kind: 'closure.apply', payload: { preview_id: '0a1b2c3d', confirmation: 'Close runs: 0a1b2c3d' } } }), []);
 assert.deepEqual(validateRunCommand('agdf_closeout', { ...preview, run_id: input.run_id }), [{ path: '$.run_id', code: 'field_forbidden' }]);
 assert.deepEqual(validateRunCommand('agdf_closeout', { ...preview, expected_revision_id: input.expected_revision_id }), [{ path: '$.expected_revision_id', code: 'field_forbidden' }]);
-const closeoutRecord = { ...input, command: { kind: 'closeout.record', payload: { or: { path: '.agdf/control/artefacts/bounded-run/OR.md', digest: 'sha256:' + 'e'.repeat(64) }, confirmation: 'x' } } };
+const closeoutRecord = { ...input, command: { kind: 'closeout.record', payload: { or: { path: '.agdf/control/runs/bounded-run/documents/OR.md', digest: 'sha256:' + 'e'.repeat(64) }, confirmation: 'x' } } };
 assert.deepEqual(validateRunCommand('agdf_closeout', closeoutRecord), []);
 assert.deepEqual(validateRunCommand('agdf_closeout', { ...closeoutRecord, run_id: undefined, expected_revision_id: undefined }).length > 0, true);
 const { run_id: _r, expected_revision_id: _e, ...unboundCloseout } = closeoutRecord;
@@ -94,7 +94,7 @@ assert.match(tp.verification.cell_rule, /One design_decision_id.*pairs are uniqu
 assert.match(tp.verification.table_rule, /contiguous/);
 
 const replacement = { ...input, command: { kind: 'runtime_generation.replace', payload: {
-  candidate: { path: '.agdf/control/artefacts/bounded-run/candidate.json', digest: 'sha256:' + 'd'.repeat(64) },
+  candidate: { path: '.agdf/control/runs/bounded-run/documents/candidate.json', digest: 'sha256:' + 'd'.repeat(64) },
   confirmation: 'Replace owned runtime: sha256:' + 'd'.repeat(64) } } };
 assert.deepEqual(validateRunCommand('agdf_record', replacement), []);
 for (const group of Object.keys(RUN_COMMAND_GROUPS).filter(group => group !== 'agdf_record')) assert.ok(validateRunCommand(group, replacement).length);

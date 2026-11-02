@@ -20,6 +20,6 @@ export function inspectStartupCompatibility({ target, executable, validator, env
 }
 
 export function startupMaintenanceInvocation(facts, { executable, validator, language = "en" }) {
-  if (!["migration_required", "repair_required", "unavailable"].includes(facts.status)) return null;
-  return { executable, argv: [validator, "control-maintenance", "--dir", facts.target, "--guided", "--language", language], authorizes: false };
+  if (!["unsupported", "repair_required", "unavailable"].includes(facts.status)) return null;
+  return { executable, argv: [validator, "control-maintenance", "--dir", facts.target, "--language", language], authorizes: false };
 }

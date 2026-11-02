@@ -3,20 +3,14 @@ export interface Target { target_id: string; display_path: string }
 export interface Envelope<T> { schema_version: '2'; target: Target; snapshot_id: string | null; observed_as_of: string | null; source_digest: string | null; state: Availability; code: string | null; retryable: boolean; data: T | null }
 export interface Run { run_id: string; valid: boolean; lifecycle: string | null; revision_id: string | null; objective: string | null; title: string; source_path: string; status: string | null; current_gate: string | null; code: string | null;
   attention?: { blocking_reason: string; missing_approval: string; missing_evidence_count: number } }
-export interface BacklogEntry { section: string; key: string; original_key: string; title: string; stored_status: string; scope: string;
-  kind?: 'planned' | 'run'; identity?: string; source?: { path: string; digest: string | null }; coverage?: string; handoff_ready?: boolean; actions?: string[];
-  priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean; row_id?: string; title_observation?: TitleObservation; saved_summary?: SavedSummary }
+export interface WorkEntry { section: string; key: string; original_key: string; title: string; stored_status: string; scope: string;
+  kind: 'planned' | 'run'; identity: string; source: { path: string; digest: string | null }; coverage?: string; handoff_ready?: boolean; actions?: string[];
+  priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean; row_id?: string }
 export interface WorkSummary { kind: string; phase: string; qa_outcome: string; lifecycle: string; recorded_approvals: string[];
   decisive_obligation: null | { id: string; routing_target: string; action: string; source_path: string };
   open_obligation_count: number; display_action: string; sources: { path: string; digest: string; state: string }[];
   limitations: string[]; authorizes: false }
-export interface SummaryRecord extends WorkSummary { schema_version: 1; target_id: string; run_id: string; section: string;
-  row_digest: string; revision_id: string; observed_at: string }
-export interface SavedSummary { provenance_state: 'recorded' | 'unverified' | 'invalid'; code: string | null; record: SummaryRecord | null;
-  label_de: string | null; limitation_de: string; authorizes: false }
-export interface TitleObservation { state: 'available' | 'unavailable'; code: string | null; path: string | null;
-  heading: string | null; title: string | null; content_digest: string | null; observed_as_of: string; backlog_digest: string }
-export interface Inventory { kind: 'backlog'; layout?: 'planned-urs-v1'; entries: BacklogEntry[]; diagnostics: Diagnostic[]; source_path: string; content_digest: string;
+export interface Inventory { kind: 'work'; layout: 'run-folders-v1'; entries: WorkEntry[]; diagnostics: Diagnostic[]; source_path: string; content_digest: string;
   counts: Record<string, number>; file_count: number; byte_count: number; removed_run_id?: string }
 export interface PlannedDocument { kind: 'planned'; entry: { plan_id: string; title: string; priority: string; path: string; digest: string; content: string; readiness: { ready: boolean }; authorizes: false } }
 export interface RunInventoryEntry { run_id: string; valid: boolean; selectable: boolean; lifecycle: string | null; title: string; title_source: string;
@@ -41,7 +35,7 @@ export interface Detail { run_id: string; title?: string; revision_id: string | 
   evidence_applicability?: Record<'current' | 'superseded' | 'applicability_unknown', EvidenceAssociation[]>;
   document_states?: DocumentState[];
   draft_check?: DraftCheckData;
-  work_summary?: WorkSummary | null; backlog_comparison?: { state: 'matching' | 'different' | 'unavailable'; reason: string; saved_revision_id: string | null; authorizes: false };
+  work_summary?: WorkSummary | null;
   evaluation?: { status: string; current_gate: string; blocking_reason: string; missing_approval: string; next_allowed_action: string; next_action_de: string | null; doctor_status: string; quality_outlook: string;
     control_assessment?: { state: 'open' | 'blocked' | 'unconfirmed' | 'completed' | 'ended'; authorizes: false };
     next_operation?: NextOperation | null;
@@ -65,7 +59,7 @@ export interface DocumentState {
   check: (DraftCheckData & { content_digest: string }) | null; authorizes: false;
 }
 export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string; document_state?: DocumentState }
-export interface Route { legacy?: boolean; view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
+export interface Route { view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
 export interface GraphReference { resource_id: string; run_id: string; origin: string; path: string; node_id: string | null;
   graph_digest: string | null; content_digest: string | null; content: string | null;
   state: 'available' | 'unresolved' | 'missing' | 'blocked' | 'unsupported'; code: string | null }

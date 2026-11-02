@@ -133,6 +133,8 @@ jobs retain their ten-minute ceiling, with partition execution bounded to eight 
 Test groups budget at most six estimated minutes, including 50% headroom; preparation and
 cleanup have separate reserve. Job summaries and `ci-timings.json` report
 command durations, including failures; actual GitHub job timestamps establish total job duration.
+The ten-cycle source-revision endurance command runs as one complete invocation in an exclusive
+job per platform, so earlier revision tests cannot consume its execution reserve.
 Queue time and total workflow duration are separate. A timeout is not a passing result.
 
 For a narrower diagnosis, select an existing npm test script or a stage such as

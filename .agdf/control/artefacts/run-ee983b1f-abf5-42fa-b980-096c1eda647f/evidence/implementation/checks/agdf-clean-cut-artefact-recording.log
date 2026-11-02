@@ -1,0 +1,67 @@
+TAP version 13
+# Subtest: current binding contains the reviewed attestation and exact source; it derives the chain without request/proof JSON
+ok 1 - current binding contains the reviewed attestation and exact source; it derives the chain without request/proof JSON
+  ---
+  duration_ms: 1440.061919
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 2 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 983.824896
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 3 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 966.87708
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 4 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 985.15517
+  type: 'test'
+  ...
+# Subtest: unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+ok 5 - unreviewed, old request/proof or foreign material is rejected without changing canonical bytes
+  ---
+  duration_ms: 996.305809
+  type: 'test'
+  ...
+# Subtest: draft replacement requires explicit reviewed intent and retains exact superseded binding history
+ok 6 - draft replacement requires explicit reviewed intent and retains exact superseded binding history
+  ---
+  duration_ms: 1995.38574
+  type: 'test'
+  ...
+# Subtest: changed upstream bytes cannot be adopted by recording a new downstream binding
+not ok 7 - changed upstream bytes cannot be adopted by recording a new downstream binding
+  ---
+  duration_ms: 959.035674
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/artefact-recording-test.js:49:1'
+  failureType: 'testCodeFailure'
+  error: 'material_binding_invalid'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    current (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-material.js:50:102)
+    Object.grants (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/run-material.js:148:7)
+    file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:37:31
+    AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    withInputResolution (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/lib/control-state/input-resolution.js:25:86)
+    execute (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:35:12)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:41:44)
+    Object.call (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/fixtures/current-run.js:65:37)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut/packages/core/test/artefact-recording-test.js:54:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 6
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8746.569676

@@ -1,3 +1,5 @@
+import { initializeCurrentProjectOwner as initializeCanonicalProject, currentInitializationIntent } from './fixtures/current-init-owner.js';
+import { resolutionRecord } from '../lib/control-state/input-resolution.js';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID } from 'node:crypto';
@@ -5,10 +7,11 @@ import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, realpathSync, readFileSync, writeFileSync, readdirSync, mkdirSync, rmSync, symlinkSync, existsSync, renameSync, lstatSync, cpSync, linkSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createRunCommandService } from '../lib/control-state/run-command-service.js';
 import { validateRunCommandResult } from '../lib/control-state/run-command-contract.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
-import { inspectCanonicalProject, initializeCanonicalProject, initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
+import { inspectCanonicalProject } from '../lib/control-state/canonical-initialization.js';
 import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
 import { inspectProjectState, assertProjectGitRoot } from '../lib/control-inspect/project-state.js';
 import { cliGitObservation } from '../../cli/lib/control-evaluation/git-observation.js';
@@ -39,13 +42,13 @@ test('Git project confirmation accepts the same directory spelling alias and rej
 }));
 
 test('prospective receipt is private until the same directory and anchor are atomically published', () => fixture(({ root, input }) => {
-  const original = { operationId: input.operation_id, requestDigest: digest('prospective'), targetId: input.target_id, language: 'en', producer: 'test' };
+  const original = currentInitializationIntent(root, input.operation_id, 'test');
   let directoryInode, anchorInode;
   const done = initializeCanonicalProject(root, original, {
     beforePublish({ stagePath }) {
       const receipt = JSON.parse(readFileSync(join(stagePath, '.agdf-canonical-init.json')));
       const marker = JSON.parse(readFileSync(join(stagePath, '.agdf-canonical-init-stage.json')));
-      assert.equal(receipt.schema_version, 2); assert.equal(marker.schema_version, 3);
+      assert.equal(resolutionRecord(receipt).schema_version, 2); assert.equal(resolutionRecord(marker).schema_version, 3);
       directoryInode = String(lstatSync(stagePath, { bigint: true }).ino);
       anchorInode = String(lstatSync(join(stagePath, '.agdf-canonical-init.json'), { bigint: true }).ino);
       assert.equal(receipt.control.directory_ino, directoryInode); assert.equal(receipt.control.anchor.ino, anchorInode);
@@ -67,15 +70,29 @@ test('prospective receipt is private until the same directory and anchor are ato
 }));
 
 for (const phase of ['beforeProspectiveReceipt', 'afterProspectiveReceipt', 'beforeWrite'])
-  test(`interruption before a valid marker at ${phase} preserves unclaimed bytes without recovery authority`, () => fixture(({ root, input }) => {
-    const original = { operationId: input.operation_id, requestDigest: digest('unclaimed'), targetId: input.target_id, language: 'en', producer: 'test' };
+  test(`interruption at ${phase} distinguishes unproven bytes from an exact prospective receipt`, () => fixture(({ root, input }) => {
+    const original = currentInitializationIntent(root, input.operation_id, 'test');
     assert.throws(() => initializeCanonicalProject(root, original, { [phase]: () => { throw Error('early-loss'); } }), /early-loss/);
     const before = files(join(root, '.agdf'));
-    assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).operation_status, 'unknown');
-    assert.throws(() => initializeCanonicalProject(root, original));
+    if (phase === 'beforeProspectiveReceipt') {
+      assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).operation_status, 'unknown');
+      assert.throws(() => initializeCanonicalProject(root, original));
+    } else {
+      assert.equal(initializeCanonicalProject(root, original).status, 'created');
+      assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).status, 'initialized');
+      return;
+    }
     assert.equal(existsSync(join(root, '.agdf/control')), false);
     assert.deepEqual(files(join(root, '.agdf')), before);
   }));
+
+test('prospective stage recovery refuses a missing earlier seed with a later seed present',()=>fixture(({root,input})=>{
+  const intent=currentInitializationIntent(root,input.operation_id,'test'),written=[];
+  assert.throws(()=>initializeCanonicalProject(root,intent,{beforeWrite({index,file,stagePath}){if(index===2)throw Error('partial-prefix');written.push(join(stagePath,file.relativePath));}}),/partial-prefix/);
+  assert.equal(written.length,2);assert.equal(existsSync(written[1]),true);unlinkSync(written[0]);
+  const stage=join(root,'.agdf',`.control-stage-${input.operation_id}`),before=files(stage);
+  assert.throws(()=>initializeCanonicalProject(root,intent));assert.deepEqual(files(stage),before);assert.equal(existsSync(join(root,'.agdf/control')),false);
+}));
 
 test('fixed owner anchors reject copied objects, links, absent/rounded identifiers and preserve exact rename identity', () => fixture(({ root, run }) => {
   const initialized = run(); assert.equal(initialized.outcome, 'accepted', JSON.stringify(initialized));
@@ -92,7 +109,7 @@ test('fixed owner anchors reject copied objects, links, absent/rounded identifie
   assert.throws(() => ownerPlacement(moved, 'canonical-control', path), /owner_placement_unsafe/);
 }));
 
-test('device-only remount simulation preserves new receipts while legacy receipt predicates reject drift', () => fixture(({ root, run, input }) => {
+test('device-only remount preserves current ownership while old receipt formats remain unsupported', () => fixture(({ root, run, input }) => {
   const initialized = run(); assert.equal(initialized.outcome, 'accepted', JSON.stringify(initialized));
   const module = new URL('../lib/control-state/canonical-initialization.js', import.meta.url).href;
   const observe = () => spawnSync(process.execPath, ['--input-type=module', '--eval', `
@@ -113,17 +130,17 @@ test('device-only remount simulation preserves new receipts while legacy receipt
     target_id: receipt.target_id, control: { realpath: control, dev: String(stat.dev), ino: String(stat.ino) },
     status: 'recorded', created_run: false, created_gate_approval: false };
   writeFileSync(path, JSON.stringify({ ...legacy, receipt_digest: digest(canonicalJson(legacy)) }, null, 2) + '\n');
-  assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).operation_status, 'recorded');
+  assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).status, 'blocked');
   const before = readFileSync(path, 'utf8'), older = observe(); assert.equal(older.status, 0, older.stderr);
   assert.equal(JSON.parse(older.stdout).status, 'blocked');
   assert.equal(JSON.parse(older.stdout).operation_status, 'unknown');
-  assert.equal(JSON.parse(older.stdout).reason, 'AGDF_CANONICAL_INIT_LEGACY_PLACEMENT_UNCONFIRMED');
+  assert.equal(JSON.parse(older.stdout).reason, 'AGDF_CANONICAL_INIT_VERSION_UNSUPPORTED');
   assert.equal(readFileSync(path, 'utf8'), before);
 }));
 
 test('completed schema-3 markers cannot repair a subsequently removed seed or copied receipt anchor', () => {
   for (const change of ['missing-seed', 'copied-anchor']) fixture(({ root, input }) => {
-    const original = { operationId: input.operation_id, requestDigest: digest(change), targetId: input.target_id, language: 'en', producer: 'test' };
+    const original = currentInitializationIntent(root, input.operation_id, 'test');
     assert.throws(() => initializeCanonicalProject(root, original, { beforePublish: () => { throw Error('owned-stage'); } }), /owned-stage/);
     const stage = join(root, '.agdf', `.control-stage-${input.operation_id}`);
     if (change === 'missing-seed') unlinkSync(join(stage, 'config.json'));
@@ -138,8 +155,8 @@ test('completed schema-3 markers cannot repair a subsequently removed seed or co
   });
 });
 
-test('the existing caller stage2 format completes through its original receipt1 branch without conversion', () => fixture(({ root, input }) => {
-  const original = { operationId: input.operation_id, requestDigest: digest('legacy-stage'), targetId: input.target_id, language: 'en', producer: 'test' };
+test('an old caller stage2 marker is unsupported and cannot be converted', () => fixture(({ root, input }) => {
+  const original = currentInitializationIntent(root, input.operation_id, 'test');
   assert.throws(() => initializeCanonicalProject(root, original, { beforePublish: () => { throw Error('owned-stage'); } }), /owned-stage/);
   const stage = join(root, '.agdf', `.control-stage-${input.operation_id}`), path = join(stage, '.agdf-canonical-init-stage.json');
   const current = JSON.parse(readFileSync(path)), target = lstatSync(root, { bigint: true }), agdf = lstatSync(join(root, '.agdf'), { bigint: true });
@@ -148,10 +165,9 @@ test('the existing caller stage2 format completes through its original receipt1 
     agdf: { realpath: join(root, '.agdf'), dev: String(agdf.dev), ino: String(agdf.ino) },
     plan_fingerprint: current.plan_fingerprint, staged_files: current.staged_files };
   unlinkSync(join(stage, '.agdf-canonical-init.json')); writeFileSync(path, JSON.stringify(legacy, null, 2) + '\n');
-  assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).status, 'pending');
-  const result = initializeCanonicalProject(root, original);
-  assert.equal(result.receipt.schema_version, 1); assert.equal(result.status, 'created');
-  assert.deepEqual(result.receipt.control, { realpath: join(root, '.agdf/control'), dev: String(agdf.dev), ino: String(lstatSync(join(root, '.agdf/control'), { bigint: true }).ino) });
+  const before = files(stage);
+  assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).status, 'blocked');
+  assert.throws(() => initializeCanonicalProject(root, original)); assert.deepEqual(files(stage), before);
 }));
 
 test('full-width filesystem inode values remain strings above Number precision', () => fixture(({ root, run }) => {
@@ -173,7 +189,7 @@ test('full-width filesystem inode values remain strings above Number precision',
 }));
 
 test('legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup receipt', () => fixture(({ root, input }) => {
-  const original = { operationId: input.operation_id, requestDigest: digest('legacy-cli'), targetId: input.target_id, language: 'en', producer: 'test' };
+  const original = currentInitializationIntent(root, input.operation_id, 'test');
   assert.throws(() => initializeCanonicalProject(root, original, { beforePublish: () => { throw Error('owned-stage'); } }), /owned-stage/);
   const stage = join(root, '.agdf', `.control-stage-${input.operation_id}`), path = join(stage, '.agdf-canonical-init-stage.json');
   const current = JSON.parse(readFileSync(path)), target = lstatSync(root, { bigint: true }), agdf = lstatSync(join(root, '.agdf'), { bigint: true });
@@ -184,8 +200,7 @@ test('legacy CLI stage1 remains CLI-owned and cannot become a caller-bound setup
   unlinkSync(join(stage, '.agdf-canonical-init.json')); writeFileSync(path, JSON.stringify(legacy, null, 2) + '\n');
   assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).status, 'blocked');
   assert.throws(() => initializeCanonicalProject(root, original));
-  const done = initializeCanonicalControl(root, canonicalInitPlan(current.operation.language_preference));
-  assert.equal(done.status, 'created'); assert.equal(existsSync(join(root, '.agdf/control/.agdf-canonical-init.json')), false);
+  assert.equal(existsSync(join(root, '.agdf/control')), false);
 }));
 
 test('explicit pre-Run project setup publishes one fixed scaffold and original receipt; replay and authored observation preserve bytes', () => fixture(({ root, input, run }) => {
@@ -285,7 +300,7 @@ test('a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git 
     assert.equal(reported.dev, requested.dev, 'the inherited environment reports the requested directory device');
     assert.equal(reported.ino, requested.ino, 'the inherited environment falsely reports the same requested directory, including Windows short/long path aliases');
     const rejected = run(); assert.equal(rejected.outcome, 'rejected', JSON.stringify(rejected));
-    assert.equal(rejected.reason, 'target_not_in_repository', 'the existing canonical target resolver rejects before Git-provider or setup dispatch');
+    assert.equal(rejected.reason, 'target_unresolved', 'the existing canonical target resolver rejects before Git-provider or setup dispatch');
     assert.equal(rejected.dispatch, 'not_dispatched'); assert.equal(existsSync(join(root, '.agdf')), false);
   } finally {
     for (const [name, value] of Object.entries(previous)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
@@ -294,7 +309,7 @@ test('a foreign GIT_DIR/work-tree environment cannot turn an invalid local .git 
 }));
 
 test('an owned unpublished stage preserves its original request; another request cannot adopt it', () => fixture(({ root, input, run }) => {
-  const direct = { operationId: input.operation_id, requestDigest: 'sha256:' + 'a'.repeat(64), targetId: input.target_id, language: 'en', producer: 'test' };
+  const direct = currentInitializationIntent(root, input.operation_id, 'test');
   assert.throws(() => initializeCanonicalProject(root, direct, { beforePublish: () => { throw Error('partial-stage'); } }), /partial-stage/);
   assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).status, 'pending');
   assert.equal(run({ ...input, operation_id: randomUUID() }).outcome, 'rejected');
@@ -304,7 +319,7 @@ test('an owned unpublished stage preserves its original request; another request
 
 test('changed stage plan or foreign bytes block public recovery guidance and preserve the original stage', () => {
   for (const change of ['plan', 'foreign-file', 'version']) fixture(({ root, input }) => {
-    const original = { operationId: input.operation_id, requestDigest: 'sha256:' + 'a'.repeat(64), targetId: input.target_id, language: 'en', producer: 'original-producer' };
+    const original = currentInitializationIntent(root, input.operation_id, 'original-producer');
     assert.throws(() => initializeCanonicalProject(root, original, { beforePublish: () => { throw Error('owned-interruption'); } }), /owned-interruption/);
     const stage = join(root, '.agdf', `.control-stage-${input.operation_id}`), marker = join(stage, '.agdf-canonical-init-stage.json');
     const data = JSON.parse(readFileSync(marker, 'utf8'));
@@ -320,7 +335,7 @@ test('changed stage plan or foreign bytes block public recovery guidance and pre
 });
 
 test('an interrupted operation rejects a changed runtime producer without adopting or rebuilding the stage', () => fixture(({ root, input }) => {
-  const original = { operationId: input.operation_id, requestDigest: 'sha256:' + 'a'.repeat(64), targetId: input.target_id, language: 'en', producer: 'original-producer' };
+  const original = currentInitializationIntent(root, input.operation_id, 'original-producer');
   assert.throws(() => initializeCanonicalProject(root, original, { beforePublish: () => { throw Error('owned-interruption'); } }), /owned-interruption/);
   const stage = join(root, '.agdf', `.control-stage-${input.operation_id}`), before = files(stage);
   assert.throws(() => initializeCanonicalProject(root, { ...original, producer: 'changed-producer' }), /AGDF_CANONICAL_INIT_IDENTITY_CONFLICT/);
@@ -330,7 +345,7 @@ test('an interrupted operation rejects a changed runtime producer without adopti
 
 test('stage and ancestor replacement preserve foreign ownership without publishing or cleaning another directory', () => {
   for (const replace of ['stage', 'ancestor']) fixture(({ root, input }) => {
-    const original = { operationId: input.operation_id, requestDigest: 'sha256:' + 'a'.repeat(64), targetId: input.target_id, language: 'en', producer: 'original-producer' };
+    const original = currentInitializationIntent(root, input.operation_id, 'original-producer');
     let displaced;
     assert.throws(() => initializeCanonicalProject(root, original, { beforePublish({ stagePath }) {
       const path = replace === 'stage' ? stagePath : join(root, '.agdf'); displaced = path + '-displaced';
@@ -366,14 +381,14 @@ test('a non-regular pending marker blocks without reading a foreign FIFO', { ski
   assert.equal(existsSync(marker), true, 'the foreign object is preserved');
 }));
 
-test('real CLI and MCP initializer processes serialize publication using the same owned target lock', async () => {
+test('real initializer retains its owned publication while a competing CLI request is rejected', async () => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-project-concurrent-')));
   execFileSync('git', ['init', '-q', root]);
-  const intent = { operationId: randomUUID(), requestDigest: 'sha256:' + 'c'.repeat(64),
-    targetId: resolveControlCommandTarget(root).target_id, language: 'en', producer: 'test-concurrency' };
+  const intent = currentInitializationIntent(root, randomUUID(), 'test-concurrency');
   const module = new URL('../lib/control-state/canonical-initialization.js', import.meta.url).href;
   const release = join(root, 'release-fixture-writer');
-  const script = `import {initializeCanonicalProject} from ${JSON.stringify(module)};
+  const ownerHelper = new URL('./fixtures/current-init-owner.js', import.meta.url).href;
+  const script = `import {initializeCurrentProjectOwner as initializeCanonicalProject} from ${JSON.stringify(ownerHelper)};
     import {existsSync} from 'node:fs';
     const [root,intent,release]=process.argv.slice(1);
     initializeCanonicalProject(root,JSON.parse(intent),{beforePublish(){
@@ -387,13 +402,9 @@ test('real CLI and MCP initializer processes serialize publication using the sam
       const timer = setTimeout(() => reject(Error('fixture-ready-timeout: ' + stderr)), 8000);
       child.once('error', reject); child.stdout.once('data', () => { clearTimeout(timer); resolve(); });
     });
-    const cliModule = new URL('../../cli/lib/scaffold/canonical-init.js', import.meta.url).href;
-    const planModule = new URL('../../cli/lib/scaffold/plan.js', import.meta.url).href;
-    const contender = spawnSync(process.execPath, ['--input-type=module', '--eval',
-      `import {initializeCanonicalControl} from ${JSON.stringify(cliModule)};import {generatedFilesForTarget} from ${JSON.stringify(planModule)};
-       initializeCanonicalControl(process.argv[1],generatedFilesForTarget('init',process.argv[1],false,'en'));`, root], { encoding: 'utf8', timeout: 5000 });
-    assert.notEqual(contender.status, 0); assert.match(contender.stderr, /AGDF_RUN_WRITE_LOCKED/);
-    assert.match(contender.stderr, /lock_owner_status: 'live'/);
+    const cli = new URL('../../cli/bin/create-agdf.js', import.meta.url);
+    const contender = spawnSync(process.execPath, [fileURLToPath(cli), 'init', '--dir', root, '--language', 'en'], { encoding: 'utf8', timeout: 5000 });
+    assert.notEqual(contender.status, 0); assert.equal(JSON.parse(contender.stdout).reason, 'initialization_ownership_unconfirmed');
     const completed = new Promise((resolve, reject) => child.once('exit', code => code === 0 ? resolve() : reject(Error(stderr))));
     writeFileSync(release, 'release only this owned fixture'); await completed;
     const replay = initializeCanonicalProject(root, intent);

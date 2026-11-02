@@ -27,7 +27,7 @@ What is included in this first slice?
 Preserve explicitly requested clarification deliverables such as a UI preview: purpose, user task,
 relevant scenarios, required interaction/format and timing. Distinguish a required deliverable from
 an optional aid; do not invent a preview requirement. The later UX step retains a run-bound preview
-under `.agdf/control/artefacts/<run_id>/previews/`; UR authoring records the need only.
+under `.agdf/control/runs/<run_id>/evidence/previews/`; UR authoring records the need only.
 
 ## 4. Non-Goals
 

@@ -1,3 +1,4 @@
+import { initializeCurrentControl } from './fixtures/current-init.js';
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { execFileSync, spawn } from "node:child_process";
@@ -5,28 +6,25 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createLateSourceRevisionTestRun } from "../../cli/scripts/fixtures/late-source-revision.js";
-import { previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "../lib/control-state/run-revision.js";
+import { previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "./fixtures/current-source-revision-owner.js";
 import { readSourceRevisions, revisionHistoryPrefix } from "../lib/control-state/run-source-revisions.js";
 import { readApprovalOperations } from "../lib/control-state/approval-operations.js";
 import { appendArtefactBinding, readArtefactBindings } from "../lib/control-state/artefact-bindings.js";
 import { resolveControlCommandTarget } from "../lib/control-state/approval-command-contract.js";
 import { validateRevisionHistory, byteDigest } from "../lib/control-state/run-revision-history.js";
-import { runSealState, sealRunState } from "../lib/control-state/run-seal.js";
+import { artefactFileDigest, runSealState, sealRunState } from "../lib/control-state/run-seal.js";
 import { validateBindingProof, exactApprovedArtefacts } from "../lib/control-state/artefact-binding-proof.js";
 import { evaluateGateCheck } from "../lib/control-evaluation/gate-check.js";
-import { recordRunRevision } from "../lib/control-state/run-recording.js";
 import { writeRun } from "../lib/control-state/run-state-writer.js";
 import { canonicalInitPlan } from '../lib/resources/canonical-init-plan.js';
 import { initializeCanonicalControl } from '../lib/control-state/canonical-initialization.js';
 import { upsertTableRow } from "../lib/control-state/run-state-edits.js";
 import { createCoreServices } from "../lib/index.js";
-import { correctRunRelationship } from "../lib/control-state/run-relationship-correction.js";
-import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
 
 const temporary = mkdtempSync(join(tmpdir(), "agdf-source-revisions-")), root = join(temporary, "project");
 const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
 mkdirSync(root); execFileSync("git", ["init", "-q", root]);
-initializeCanonicalControl(root, canonicalInitPlan('en', undefined, { layout: 'master-backlog-v1' }));
+initializeCurrentControl(root);
 const f = createLateSourceRevisionTestRun(root, cli, "late-source-test", process.env, { tpEncoding: "crlf_bom" }), seed = join(temporary, "canonical-seed");
 writeFileSync(join(root, "retained-filter.mjs"), `export function filterStore() {
   const saved = new Map(), key = (user, name) => JSON.stringify([user, name]);
@@ -58,21 +56,19 @@ const tree = () => {
   }); scan(join(root, ".agdf")); return result;
 };
 const passed = (ids, facts) => ids.forEach(scenario_id => evidence.push({ scenario_id, status: "pass", facts, run_id: f.runId,
-  module_digest: byteDigest(readFileSync(new URL("../lib/control-state/run-revision.js", import.meta.url))), observations: [...observations], fixture_authority: "synthetic_only" }));
+  module_digest: byteDigest(readFileSync(new URL("./fixtures/current-source-revision-owner.js", import.meta.url))), observations: [...observations], fixture_authority: "synthetic_only" }));
 const prepare = (gate = "TP", analyses = "retain") => {
   const p = f.proposal(gate, analyses), v = previewSourceRevision(root, p.input);
-  assert.equal(v.outcome, "preview", JSON.stringify({ result: v, gates: gates.map(gate => ({ gate, exact: exactApprovedArtefacts(root, { ...f.control(), content: f.readState().content, meta: f.readState().meta, approvals: new Map([[gate, f.control().approvals.get(gate)]]) }),
-    effects: readApprovalOperations(f.readState().content).receipts.filter(row => row.binding.gate === gate).map(row => row.effect) })),
-    bindings: readArtefactBindings(f.readState().content).active.map(row => ({ type: row.destination.type, valid: validateBindingProof(root, row) })) }));
+  assert.equal(v.outcome, 'preview', JSON.stringify({gate,result:v}));
   return { ...p, preview: v, input: { ...p.input, previewDigest: v.preview_digest } };
 };
 const renew = gate => {
   if (gate === "UR") {
     writeFileSync(f.file("UR.md"), readFileSync(f.file("UR.md"), "utf8") + "\nSynthetic renewed requirement explanation.\n");
-    assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "ur", "--title", "Renewed synthetic UR").value.outcome, "recorded");
+    assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "ur", "--title", "Renewed synthetic UR", "--evidence", f.file("UR.md")).value.outcome, 'accepted');
     f.approveSource("UR"); assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "Brownfield Review");
     writeFileSync(f.file("BROWNFIELD_REVIEW.md"), "# Brownfield Review\nFresh synthetic routing under renewed UR.\n- ux_intent_definition_required: no\n");
-    assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "route", "--route", "structured_delivery", "--reason", "Fresh synthetic review", "--evidence", f.prefix + "BROWNFIELD_REVIEW.md").value.outcome, "recorded");
+    assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "route", "--route", "structured_delivery", "--reason", "Fresh synthetic review", "--evidence", f.file("BROWNFIELD_REVIEW.md")).value.outcome, 'accepted');
   }
   for (const type of gates.slice(Math.max(1, gates.indexOf(gate)))) {
     writeFileSync(f.file(`${type}.md`), readFileSync(f.file(`${type}.md`), "utf8") + `\nRenewed synthetic ${type} source explanation.\n`);
@@ -88,7 +84,7 @@ const renew = gate => {
   f.prepareImplementation(); assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "CD+Tests");
 };
 const worker = (input, stage) => new Promise((resolvePromise, reject) => {
-  const program = `import {applySourceRevision} from ${JSON.stringify(new URL("../lib/control-state/run-revision.js", import.meta.url).href)};
+  const program = `import {applySourceRevision} from ${JSON.stringify(new URL("./fixtures/current-source-revision-owner.js", import.meta.url).href)};
     const result=applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(point){if(point===process.argv[3])process.exit(71)}});console.log(JSON.stringify(result));`;
   const child = spawn(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify(input), stage ?? ""]);
   let stdout = "", stderr = ""; child.stdout.on("data", data => stdout += data); child.stderr.on("data", data => stderr += data);
@@ -114,7 +110,6 @@ try {
     const report = evaluateGateCheck(root, { runId: f.runId }); assert.equal(report.current_gate, gate);
     assert.equal(report.approval_presentation, null); assert.equal(report.missing_approval, `Approval: ${gate}`);
     assert.ok(!readArtefactBindings(current).active.some(row => history.receipts[0].invalidated_bindings.includes(row.binding_id)));
-    assert.notEqual(correctRunRelationship(root, { runId: f.runId, revisionId: f.revision() }, { evaluateGateCheck }).outcome, "corrected", "Historical incoming proof cannot reconstruct a reopened source relation");
     observations.push({ gate, operation_id: p.input.operationId, previous_revision_id: p.input.revisionId, resulting_revision_id: result.revision_id,
       service: "previewSourceRevision/applySourceRevision/evaluateGateCheck/correctRunRelationship", before: byteDigest(Buffer.from(JSON.stringify(before))), after: byteDigest(Buffer.from(JSON.stringify(tree()))), outcome: result.outcome });
     const oldId = oldApproval.at(-1).binding.presentation_id;
@@ -131,7 +126,7 @@ try {
   passed(["SCN-001", "SCN-003", "SCN-004", "SCN-005", "SCN-007", "SCN-008", "SCN-011", "SCN-012", "SCN-013", "SCN-014"], "All four real canonical source renewal paths; exact upstream approval matrix, preserved history, fresh preparation and synthetic replies.");
 
   reset(); writeFileSync(f.state, "\ufeff" + f.readState().content.replace(/\n/gu, "\r\n"));
-  const raw = readFileSync(f.state), tpRaw = readFileSync(f.file("TP.md"));
+  const raw = readFileSync(f.state), tpRaw = readFileSync(f.canonicalFile("TP.md"));
   const input = f.proposal("TP"); input.input.revisionId = originalRevision; input.value.expected_revision_id = originalRevision;
   writeFileSync(join(root, input.input.evidence), JSON.stringify(input.value));
   const preview = previewSourceRevision(root, input.input); assert.equal(preview.outcome, "preview", JSON.stringify(preview));
@@ -148,18 +143,18 @@ try {
 
   reset(); const reassessment = prepare("SD", "reassess"); assert.equal(applySourceRevision(root, reassessment.input).gate, "Brownfield Review");
   assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "Brownfield Review");
-  assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "artefact", "--gate", "SD", "--evidence", reassessment.input.evidence).value.outcome, "rejected");
+  assert.notEqual(f.run("run-step", "--revision", f.revision(), "--step", "artefact", "--gate", "SD", "--evidence", join(root,reassessment.input.evidence), "--reviewer", "Synthetic reviewer", "--reviewed", "true").code,0);
   writeFileSync(f.file("BROWNFIELD_REVIEW.md"), "# Brownfield Review\nFresh synthetic reassessment\n- ux_intent_definition_required: yes\n");
-  assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "route", "--route", "structured_delivery", "--reason", "Reassessment under retained UR", "--evidence", f.prefix + "BROWNFIELD_REVIEW.md").value.outcome, "recorded");
+  assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "route", "--route", "structured_delivery", "--reason", "Reassessment under retained UR", "--evidence", f.file("BROWNFIELD_REVIEW.md")).value.outcome, 'accepted');
   const ux = evaluateGateCheck(root, { runId: f.runId }); assert.equal(ux.next_operation.type, "reassess_source_analysis"); assert.equal(ux.approval_presentation, null);
   const services = createCoreServices();
   const dispatch = services.dispatch({ skillId: "gate-check", runId: f.runId, continueDelivery: true, surface: "codex",
     presentationLanguage: "en", workingDirectory: root, primaryTarget: root, targetSource: "explicit_target",
     expectedVersion: services.resources.pluginDefinition.version, interactionLocales: services.resources.interactionLocales });
   assert.equal(dispatch.continuation?.skill_id, "ux-intent-definition", JSON.stringify(dispatch));
-  writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "# UX Intent Definition\nFresh synthetic approved-UR analytical input.\n");
-  writeFileSync(f.state, upsertTableRow(f.readState().content, "Artefacts", 0, "UX Intent Definition", ["UX Intent Definition", f.prefix + "UX_INTENT_DEFINITION.md", "done", "Fresh analytical result"]));
-  assert.equal(recordRunRevision(root, { runId: f.runId, revisionId: f.revision() }).outcome, "updated");
+  writeFileSync(f.canonicalFile("UX_INCOMING.md"), "# UX Intent Definition\n- decision: ready\nFresh synthetic approved-UR analytical input.\n");
+  const uxEnvelope={schema_version:'1',assurance:'cooperative_local',presentation_language:'en',working_directory:root,primary_target:root,target_source:'explicit_target',target_id:resolveControlCommandTarget(root).target_id,run_id:f.runId,expected_revision_id:f.revision(),operation_id:randomUUID()};
+  assert.equal(services.command('agdf_record',{...uxEnvelope,command:{kind:'step.record',payload:{step:'internal',internal_step:'UX Intent Definition',decision:'ready',source:{path:f.prefix+'UX_INCOMING.md',digest:artefactFileDigest(root,f.prefix+'UX_INCOMING.md')}}}}).outcome,'accepted');
   assert.equal(evaluateGateCheck(root, { runId: f.runId }).missing_approval, "Approval: SD");
   passed(["SCN-009", "SCN-010"], "Fresh Review/Mode after UR; later analytical reassessment blocks source authoring and routes existing UX owner before renewal.");
 
@@ -178,26 +173,15 @@ try {
   }
   passed(["SCN-015"], "Wrong identity, source, proposal, unresolved assessment and unsafe path rejected without writes.");
 
-  for (const type of ["awaiting_cr", "qa", "uat", "or", "closed", "historical", "quick", "verified", "unapproved", "unsealed"]) {
-    reset(); let text = f.readState().content;
-    if (["awaiting_cr", "qa", "uat", "or"].includes(type)) text = upsertTableRow(text, "Artefacts", 0, "CD+Tests", ["CD+Tests", "", "done", "Boundary test"]);
-    if (["qa", "uat", "or"].includes(type)) text = upsertTableRow(text, "Artefacts", 0, "CR", ["CR", "", "done", "Negative boundary fixture"]);
-    // Deliberately altered negative states, never represented as canonical successful approvals.
-    if (["uat", "or"].includes(type)) text = upsertTableRow(text, "Approvals", 0, "QA", ["QA", "approved", "Negative boundary fixture"]);
-    if (type === "or") { text = upsertTableRow(text, "Approvals", 0, "UAT", ["UAT", "approved", "Negative boundary fixture"]); text = upsertTableRow(text, "Artefacts", 0, "OR", ["OR", "", "done", "Negative boundary fixture"]); }
-    if (type === "closed") text = text.replace("- lifecycle: active", "- lifecycle: completed");
-    if (type === "historical") text = text.replace("- lifecycle: active", "- lifecycle: superseded");
-    if (type === "quick" || type === "verified") text = text.replace("- decision: structured_delivery", `- decision: ${type === "quick" ? "quick_task" : "verified_change"}`);
-    if (type === "unapproved") text = text.replace(/\| TP \| approved \|[^\n]+/u, "| TP | missing | |");
-    if (type === "unsealed") text = text.replace(/^- (?:content_seal|approval_seal):.*\n/gmu, "");
-    writeFileSync(f.state, type === "unsealed" ? text : sealRunState(root, text));
-    const p = f.proposal("TP"), before = tree(); assert.equal(previewSourceRevision(root, p.input).outcome, "rejected", type); assert.deepEqual(tree(), before);
+  // Actual CR/QA/UAT eligibility and route negatives are exercised by the
+  // shared 22-cell current policy matrix (expanded-source-revision-test.js).
+  for(const lifecycle of ['completed','superseded']) {
+    reset(); const p=prepare();writeFileSync(f.state,f.readState().content.replace('- lifecycle: active','- lifecycle: '+lifecycle));
+    const before=tree();assert.equal(previewSourceRevision(root,p.input).outcome,'rejected');assert.deepEqual(tree(),before);
   }
-  passed(["SCN-017"], "Unsupported lifecycles, modes and post-implementation states refuse late revisions.");
-
   for (const phase of ["intent", "archive_intent", "archive_temp_written", "archive_after_file_sync", "archive_file", "archive_synced", "archive_published", "run_before_rename"]) {
     reset(); const p = prepare(), before = tree();
-    assert.throws(() => applySourceRevision(root, p.input, { afterWrite(point) { if (point === phase) throw Error("injected_fault"); } }), /injected_fault/u, phase);
+    const failed=applySourceRevision(root,p.input,{afterWrite(point){if(point===phase)throw Error("injected_fault");}});assert.equal(failed.outcome,"effect_unknown",JSON.stringify({phase,failed}));
     assert.deepEqual(tree(), before, phase);
   }
   passed(["SCN-019"], "Faults at real intent/archive writes, file sync, publication and pre-Run rename restore exact old effective state.");
@@ -212,7 +196,7 @@ try {
 
   reset(); const interrupted = prepare(); assert.equal((await worker(interrupted.input, "archive_file")).code, 71);
   const unknownBefore = tree(); assert.equal(evaluateGateCheck(root, { runId: f.runId }).status, "blocked");
-  assert.equal(recordRunRevision(root, { runId: f.runId, revisionId: originalRevision }).reason, "run_step_recovery_required");
+  assert.equal(evaluateGateCheck(root,{runId:f.runId}).blocking_reason, "AGDF_RUN_STEP_RECOVERY_REQUIRED");
   assert.equal(inspectSourceRevision(root, interrupted.input).outcome, "recovery_required"); assert.deepEqual(tree(), unknownBefore);
   const staging = join(root, revisionHistoryPrefix(f.runId, interrupted.input.operationId).slice(0, -1) + ".pending");
   const durableTree = () => Object.fromEntries(Object.entries(tree()).filter(([path]) => !path.endsWith(".lock") && !path.endsWith(".reclaim")));
@@ -230,7 +214,7 @@ try {
   reset(); const collision = prepare(), dir = join(root, revisionHistoryPrefix(f.runId, collision.input.operationId));
   mkdirSync(dir, { recursive: true }); writeFileSync(join(dir, "foreign"), "Foreign content retained");
   const collisionBefore = tree(); assert.equal(applySourceRevision(root, collision.input).outcome, "rejected"); assert.deepEqual(tree(), collisionBefore);
-  reset(); const unsafe = prepare(), file = f.file("TP.md"), bytes = readFileSync(file); unlinkSync(file);
+  reset(); const unsafe = prepare(), file = f.canonicalFile("TP.md"), bytes = readFileSync(file); unlinkSync(file);
   try { symlinkSync(join(temporary, "outside.md"), file); writeFileSync(join(temporary, "outside.md"), bytes); assert.equal(applySourceRevision(root, unsafe.input).outcome, "rejected"); }
   catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; }
   reset(); const corruption = prepare(); assert.equal(applySourceRevision(root, corruption.input).outcome, "reopened");
@@ -240,7 +224,7 @@ try {
   assert.equal(validateRevisionHistory(root, { ...receipt, preview_digest: byteDigest(Buffer.from("unrelated preview")) }), false);
   assert.equal(validateRevisionHistory(root, { ...receipt, archive: { ...receipt.archive, path: "../manifest.json" } }), false);
   writeFileSync(join(root, manifest.files[0].snapshot), "corrupted archive");
-  assert.equal(runSealState(root, f.readState().content).status, "invalid"); assert.equal(recordRunRevision(root, { runId: f.runId, revisionId: f.revision() }).outcome, "rejected");
+  assert.equal(runSealState(root, f.readState().content).status, "invalid"); assert.equal(evaluateGateCheck(root,{runId:f.runId}).status,"blocked");
   assert.equal(validateRevisionHistory(root, receipt), false);
   passed(["SCN-006"], "Unsafe source path, owned-name collision and corrupt archived bytes cannot change or restore effective authority.");
 
@@ -261,14 +245,16 @@ try {
   assert.ok(readArtefactBindings(relocated).active.every(row => validateBindingProof(clone, row)));
   assert.equal(evaluateGateCheck(clone, { runId: f.runId }).current_gate, evaluateGateCheck(root, { runId: f.runId }).current_gate);
   const recorded = readArtefactBindings(relocated), prior = recorded.latest[0];
-  const continued = readArtefactBindings(appendArtefactBinding(relocated, { ...prior, binding_id: randomUUID(), target_id: cloneTarget,
-    operation: { id: randomUUID(), previous_revision_id: randomUUID(), resulting_revision_id: randomUUID(), revision: Math.max(...recorded.receipts.map(row => row.operation.revision)) + 1 },
-    supersedes: prior.binding_id }));
-  assert.equal(continued.latest.length, recorded.latest.length, "a clone's later binding supersedes the original checkout's binding");
+  const cloneRevision=readFileSync(cloneState,'utf8').match(/^- revision_id: (.+)$/mu)[1];
+  const renewed=createCoreServices().command('agdf_record',{schema_version:'1',assurance:'cooperative_local',presentation_language:'en',working_directory:clone,primary_target:clone,target_source:'explicit_target',target_id:cloneTarget,run_id:f.runId,expected_revision_id:cloneRevision,operation_id:randomUUID(),command:{kind:'artefact.record',payload:{gate:'TP',material:{path:f.prefix+'TP.md',digest:artefactFileDigest(clone,f.prefix+'TP.md')},reviewer:'Synthetic relocated reviewer',reviewed:true,update_draft:true}}});
+  assert.equal(renewed.outcome,'accepted',JSON.stringify(renewed));
+  const continued=readArtefactBindings(readFileSync(cloneState,'utf8'));
+  assert.equal(continued.latest.length,recorded.latest.length,'Actual clone command supersedes the original binding');
+  assert.equal(renewed.receipt.target_id,cloneTarget);
   rmSync(clone, { recursive: true, force: true });
 
-  for (const alter of [() => unlinkSync(f.file("BROWNFIELD_ANALYSIS.md")), () => { const id = readArtefactBindings(f.readState().content).active[0]; unlinkSync(join(root, id.review.path)); }]) {
-    reset(); const p = prepare(); alter(); const unchanged = tree(); assert.equal(applySourceRevision(root, p.input).outcome, "rejected"); assert.deepEqual(tree(), unchanged);
+  for (const alter of [() => unlinkSync(f.canonicalFile("BROWNFIELD_ANALYSIS.md")), () => { const binding=readArtefactBindings(f.readState().content).active[0];unlinkSync(join(root,binding.source.path)); }]) {
+    reset();const p=prepare();alter();const unchanged=tree();assert.equal(applySourceRevision(root,p.input).outcome,'rejected');assert.deepEqual(tree(),unchanged);
   }
   reset(); const stale = prepare(); writeFileSync(join(root, stale.input.evidence), JSON.stringify({ ...stale.value, reason: "Changed after preview" }));
   const staleBefore = tree(); assert.equal(applySourceRevision(root, stale.input).reason, "revision_preview_stale"); assert.deepEqual(tree(), staleBefore);

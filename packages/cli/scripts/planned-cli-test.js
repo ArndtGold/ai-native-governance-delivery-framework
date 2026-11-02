@@ -15,7 +15,7 @@ import { validateCommandOptions } from '../lib/cli/command-registry.js';
 import { installCodexGlobalPlugin } from '../lib/host-adapters/codex/plugin.js';
 import { pluginDefinition } from '../lib/cli/runtime-context.js';
 const cli = fileURLToPath(new URL('../bin/create-agdf.js', import.meta.url));
-test('SCN-003/025/027: actual CLI initializes backlog-free v3, saves/refines/hands off once and derives inventory', t => {
+test('SCN-003/025/027: actual CLI initializes backlog-free v4, saves/refines/hands off once and derives inventory', t => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-planned-cli-'))); t.after(() => rmSync(root, { recursive: true, force: true }));
   execFileSync('git', ['init', '-q', root]);
   const invoke = (command, ...argv) => {
@@ -34,7 +34,7 @@ test('SCN-003/025/027: actual CLI initializes backlog-free v3, saves/refines/han
   const again = invoke('planned', '--action', 'start', '--plan-id', entry.plan_id, '--source-digest', refined.family_result.entry.digest, '--operation', randomUUID());
   assert.equal(start.family_result.run_id, again.family_result.run_id);
   const run = readFileSync(join(root, `.agdf/control/runs/${start.family_result.run_id}/RUN_STATE.md`), 'utf8');
-  assert.equal(parseRunState(run).meta.control_state_version, '3'); assert.match(run, /\| UR \| missing \|/u);
+  assert.equal(parseRunState(run).meta.control_state_version, '4'); assert.doesNotMatch(run, /^## Approvals$/mu);
   const inventory = invoke('inventory'); assert.equal(inventory.counts.runs, 1); assert.equal(inventory.counts.planned, 0); assert.equal(inventory.planning_references.length, 1);
 });
 test('SCN-014/030: optional package publishes through the existing selector without a runtime; Core stays separately selected', t => {
@@ -54,7 +54,7 @@ test('SCN-025/027: planning CLI rejects irrelevant, duplicate and mixed action f
     ['planned', '--action', 'list', '--force'], ['planned', '--action', 'list', '--source-digest', 'x'],
     ['planned', '--action', 'list', '--action', 'inspect'], ['planned', '--action', 'list', '--with-mcp'],
     ['layout-migrate', '--action', 'preview', '--plan-id', 'invented'], ['layout-migrate', '--action', 'apply', '--pending-digest', 'x'],
-  ]) assert.throws(() => parseArgs([...argv, '--dir', '/tmp/project']), /unique fields/u);
+  ]) assert.throws(() => parseArgs([...argv, '--dir', '/tmp/project']), /unique fields|Unknown command/u);
 });
 
 for (const marketplace of ['agdf', 'agdf-repo']) test(`SCN-014/030: optional installer verifies compatible ${marketplace} Core, changes only its own catalog and reports restart boundary`, t => {

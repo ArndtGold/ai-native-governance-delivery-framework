@@ -39,9 +39,9 @@ Planning Decisions contract: tp-decisions-v1
 
 export function createTpDefinitionTestRun(root, validator, runId = 'tp-authoring-test', env = process.env) {
   const f = createSdDefinitionTestRun(root, validator, runId, env);
-  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
-  const p = f.present('SD', 'de'); assert.equal(p.value.outcome, 'prepared');
-  assert.equal(f.approve('SD', p.value.presentation_id).value.outcome, 'approved');
+  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'accepted');
+  const p = f.present('SD', 'de'); assert.equal(p.value.outcome, 'accepted');
+  assert.equal(f.approve('SD', p.value.family_result.presentation_id).value.outcome, 'accepted');
   return f;
 }
 
@@ -69,17 +69,7 @@ export function withTpFixture(callback, { retain = false } = {}) {
       const value = JSON.parse(r.stdout); assert.equal(bytes(), before, 'dispatch changes no fixture control bytes');
       f.log.push({ skill, args, code: r.status, value }); return value;
     };
-    const recordTp = (update = false, mutate = () => {}) => {
-      const proof = f.prefix + `tp-mapping-${randomUUID()}.json`, input = f.prefix + `tp-recording-${randomUUID()}.json`;
-      const value = { schema_version: '1', target_id: resolveControlCommandTarget(root).target_id, run_id: f.runId, expected_revision_id: f.revision(),
-        destination: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md'), status: 'draft' },
-        source: { type: 'SD', path: f.prefix + 'SD.md', digest: artefactFileDigest(root, f.prefix + 'SD.md') },
-        relationship: { from: 'TP', relationship: 'derived_from', to: 'SD' }, review: { reviewer: 'synthetic TP reviewer', path: proof, digest: '' }, update_draft: update };
-      const { schema_version, target_id, run_id, relationship, destination, source } = value;
-      writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, relationship, destination, source, reviewer: value.review.reviewer, reviewed: true }));
-      value.review.digest = artefactFileDigest(root, proof); mutate(value); writeFileSync(join(root, input), JSON.stringify(value));
-      return f.run('run-step', '--revision', f.revision(), '--step', 'artefact', '--gate', 'TP', '--evidence', input);
-    };
+    const recordTp = (update = false, mutate) => f.recordGate('TP', update, mutate);
     const result = callback({ ...f, root, plugin, validator, env, temporary, dispatch, bytes, recordTp,
       bound: (...args) => dispatch('gate-check', '--run', f.runId, ...args),
       revise: () => dispatch('gate-check', '--run', f.runId, '--intake', '--intake-mode', 'resume', '--revision', f.revision(), '--tp-action', 'revise') });

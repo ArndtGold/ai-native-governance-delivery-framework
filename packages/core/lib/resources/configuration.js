@@ -1,3 +1,4 @@
+import { CURRENT_LAYOUT } from '../control-state/run-identity.js';
 import { readFileSync, existsSync, statSync } from '../control-read/fs.js';
 import { join } from 'node:path';
 import { canonicalizeLanguageTag } from '../interaction-presentation.js';
@@ -11,8 +12,9 @@ export const PREFERENCE_KEYS = Object.freeze(['chat_language', 'artifact_languag
 export const CONFIGURATION_PATH = '.agdf/control/config.json';
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 export function configurationError(source, field, action = 'Correct the named configuration field and retry the original operation safely.') {
-  return Object.assign(Error('configuration_invalid'), { code: 'configuration_invalid', facts: { code: 'configuration_invalid', dispatch: 'not_dispatched' },
-    diagnostic: { code: 'configuration_invalid', source, field, action } });
+  const code = field === 'control_layout' ? 'control_layout_unsupported' : 'configuration_invalid';
+  return Object.assign(Error(code), { code, facts: { code, dispatch: 'not_dispatched' },
+    diagnostic: { code, source, field, action } });
 }
 export function readPluginDefaults(generatedURL) {
   try {
@@ -44,8 +46,8 @@ export function resolveConfiguration(root, defaults, explicit = {}) {
     } catch { throw configurationError(projectSource, 'config', 'Correct the project configuration JSON; no operation was dispatched.'); }
     if (!plain(project))
       throw configurationError(projectSource, 'config', 'Restore the existing required language fields; defaults do not initialize project control.');
-    if (Object.hasOwn(project, 'control_layout') && !['master-backlog-v1', 'planned-urs-v1'].includes(project.control_layout))
-      throw configurationError(projectSource, 'control_layout', 'Use the supported layout or explicit migration owner.');
+    if (project.control_layout !== CURRENT_LAYOUT)
+      throw configurationError(projectSource, 'control_layout', 'Use the current explicit run-folders-v1 layout; old control stores are unsupported.');
     for (const key of ['chat_language', 'artifact_language', 'runtime_language'])
       if (typeof project[key] !== 'string' || !project[key].trim()) throw configurationError(projectSource, key, 'Restore the named required language field; defaults do not initialize project control.');
     configDigest = digest(bytes); control = 'active';
@@ -67,7 +69,7 @@ export function resolveConfiguration(root, defaults, explicit = {}) {
     if (key.endsWith('_language') && !values[key]) throw configurationError(sources[key], key);
   }
   return Object.freeze({ root: root ?? null, control, config_digest: configDigest, values: Object.freeze(values), sources: Object.freeze(sources),
-    control_layout: project.control_layout ?? 'master-backlog-v1',
+    control_layout: control === 'active' ? project.control_layout : null,
     defaults_digest: defaults.digest });
 }
 export function assertConfigurationCurrent(snapshot) {

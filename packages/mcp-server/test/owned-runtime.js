@@ -1,3 +1,5 @@
+import { initializeCurrentControl } from '../../core/test/fixtures/current-init.js';
+import { createLateSourceRevisionTestRun } from '../../cli/scripts/fixtures/late-source-revision.js';
 import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -16,19 +18,11 @@ const serverSourceRoot = resolve(fileURLToPath(new URL("../", import.meta.url)))
 const defaultDispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 
-// A hermetic control holds only the named runs and the control root files, so measurements do not
-// grow with the repository's run history. The legacy AGDF_RUN.md projection points at an unrelated
-// run and would report projection drift without it, so it is left out.
-function copyHermeticControl(destination, runIds) {
-  const source = join(repositoryRoot, ".agdf", "control");
-  mkdirSync(destination, { recursive: true });
-  for (const area of ['runs','artefacts']) mkdirSync(join(destination,area),{recursive:true});
-  for (const entry of readdirSync(source, { withFileTypes: true })) {
-    if (entry.isFile() && entry.name !== "AGDF_RUN.md") cpSync(join(source, entry.name), join(destination, entry.name));
-  }
-  for (const runId of runIds) {
-    for (const area of ["runs", "artefacts"]) cpSync(join(source, area, runId), join(destination, area, runId), { recursive: true });
-  }
+// Disposable current control only. Never copy repository Runs, actual approvals
+// or the governing old-writer store into a candidate qualification target.
+function createSyntheticControl(target, runIds = []) {
+  initializeCurrentControl(target, 'en');
+  for (const runId of runIds) createLateSourceRevisionTestRun(target, join(repositoryRoot, 'packages/cli/bin/create-agdf.js'), runId);
 }
 
 export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? defaultDispatcherSourceRoot,
@@ -44,8 +38,7 @@ export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.A
       const governanceTarget = join(work, 'governance-target');
       mkdirSync(join(governanceTarget,'.git'),{recursive:true});
       writeFileSync(join(governanceTarget,'.git/HEAD'),'ref: refs/heads/main\n');
-      if (controlRuns) copyHermeticControl(join(governanceTarget,'.agdf/control'),controlRuns);
-      else cpSync(join(repositoryRoot,'.agdf/control'),join(governanceTarget,'.agdf/control'),{recursive:true});
+      createSyntheticControl(governanceTarget, controlRuns);
       return Object.freeze({ root:runtime.root, serverRoot:runtime.packageRoot, dispatcherRoot:runtime.dispatcherRoot,
         governanceTarget, command:process.execPath,
         args:[join(frozen,'mcp/agdf-mcp-launch.js'),'--surface','codex','--data',dataRoot],
@@ -101,8 +94,7 @@ export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.A
   const governanceTarget = join(root, "governance-target");
   mkdirSync(join(governanceTarget, ".git"), { recursive: true });
   writeFileSync(join(governanceTarget, ".git", "HEAD"), "ref: refs/heads/main\n", "utf8");
-  if (controlRuns) copyHermeticControl(join(governanceTarget, ".agdf", "control"), controlRuns);
-  else cpSync(join(repositoryRoot, ".agdf", "control"), join(governanceTarget, ".agdf", "control"), { recursive: true });
+  createSyntheticControl(governanceTarget, controlRuns);
   const manifest = JSON.parse(readFileSync(join(serverRoot, "package.json"), "utf8"));
   writeFileSync(join(root, ".agdf-mcp-owned.json"), `${JSON.stringify({
     schema_version: 1,

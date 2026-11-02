@@ -540,18 +540,17 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
         && typeof control.status === "string" && control.status.length > 0
         && control.authorizes === false
         && (control.inspection_state === "unavailable" ? control.counts === null : (
-          control.counts && Object.keys(control.counts).sort().join(",") === "historical,migration,repair"
+          control.counts && Object.keys(control.counts).sort().join(",") === "current,unsupported"
           && Object.values(control.counts).every((count) => Number.isSafeInteger(count) && count >= 0)
         ))
         && (!Object.hasOwn(control, "notice") || (typeof control.notice === "string" && invocation))
         && (!Object.hasOwn(control, "invocation") || (
           invocation && Object.keys(invocation).sort().join(",") === "argv,authorizes,executable"
           && isAbsoluteInstructionPath(invocation.executable) && invocation.authorizes === false
-          && Array.isArray(invocation.argv) && invocation.argv.length === 7
+          && Array.isArray(invocation.argv) && invocation.argv.length === 6
           && isAbsoluteInstructionPath(invocation.argv[0])
           && invocation.argv[1] === "control-maintenance" && invocation.argv[2] === "--dir"
-          && invocation.argv[3] === control.target && invocation.argv[4] === "--guided"
-          && invocation.argv[5] === "--language" && /^[A-Za-z0-9-]{1,24}$/u.test(invocation.argv[6])
+          && invocation.argv[3] === control.target && invocation.argv[4] === "--language" && /^[A-Za-z0-9-]{1,24}$/u.test(invocation.argv[5])
         ))
       );
       if (

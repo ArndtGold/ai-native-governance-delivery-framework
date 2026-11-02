@@ -78,14 +78,7 @@ try {
   // These sources are authored before approval and remain byte-identical thereafter.
   const qaPath = f.prefix + 'QA_REPORT.md', proofPath = f.prefix + 'QA_LOCALE_MAPPING.json', requestPath = f.prefix + 'QA_LOCALE_RECORD.json';
   writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: English-only fixture\n- decision: pass\n').split('\n## AGDF Approval Summary')[0]);
-  const destination = { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' };
-  const source = { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') };
-  const relationship = { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, reviewer = 'Synthetic locale regression reviewer';
-  writeFileSync(join(root, proofPath), JSON.stringify({ schema_version: '1', target_id: target, run_id: f.runId, destination, source, relationship, reviewer, reviewed: true }));
-  writeFileSync(join(root, requestPath), JSON.stringify({ schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
-    destination, source, relationship, review: { reviewer, path: proofPath, digest: artefactFileDigest(root, proofPath) }, update_draft: false }));
-  assert.equal(service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: {
-    gate: 'QA', reviewed_request: { path: requestPath, digest: artefactFileDigest(root, requestPath) } } } }).outcome, 'accepted');
+  assert.equal(service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root, qaPath) }, reviewer: 'Synthetic locale reviewer', reviewed: true, update_draft: false } } }).outcome, 'accepted');
   const qaPresentation = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
   assert.equal(qaPresentation.outcome, 'accepted');
   assert.equal(service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: {

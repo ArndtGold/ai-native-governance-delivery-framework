@@ -1,6 +1,9 @@
+import { extractField } from '../control-evaluation/verified-change.js';
+import { transitionDecisionForRunState } from '../control-evaluation/gate-policy.js';
+import { runDocumentPath, runEvidencePath, isRunDataPath } from './run-identity.js';
 import { resolutionRecordVersion } from './input-resolution.js';
 import { resolveControlCommandTarget } from './approval-command-contract.js';
-import { policyForRunContent as policyForDecision } from '../control-evaluation/run-step-policy.js';
+
 import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
@@ -11,13 +14,13 @@ import { reviewFindingDiagnostics } from '../control-evaluation/normalized-gaps.
 import { qaReportReferences } from '../control-evaluation/qa-follow-up.js';
 import { COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
 import { INTERNAL_STEP_FILES, prepareOwnedOutput } from "./run-owned-outputs.js";
-import { readControlLayout, PLANNED_LAYOUT, withControlMutation, assertLayoutRunWrite } from './control-layout.js';
-import { canonicalJson, digest } from "./approval-command-contract.js";
+import { withControlMutation, assertLayoutRunWrite } from './control-layout.js';
+import { digest } from "./approval-command-contract.js";
 import { existsSync, readFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import { runPath } from "./run-state-reader.js";
-import { parseControlState, parseRunState } from "./run-state-parser.js";
-import { APPROVAL_GATES, canonicalRunText } from "./run-seal-compute.js";
+import { parseRunState } from "./run-state-parser.js";
+import { canonicalRunText } from "./run-seal-compute.js";
 import {
   firstSection,
   projectUrObjective,
@@ -27,10 +30,8 @@ import {
   endedRunRejection,
   replaceFirstScalar,
   replaceSectionScalar,
-  upsertTableRow,
-  appendTableRow,
 } from "./run-state-edits.js";
-import { withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
+import { withOwnedFileLock } from "./run-state-writer.js";
 import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingRunStepJournal, pendingRunStepConflictIds } from "./run-step-transaction.js";
 import { prepareArtefactRecording } from "./run-artefact-recording.js";
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
@@ -50,9 +51,8 @@ import { inspectUxIntentDecision } from '../control-evaluation/definition-source
 import { readReportDecision } from '../control-evaluation/report-decision.js';
 import { prepareVerifiedChangeRecording } from './run-verified-change.js';
 
-// run-step records one standard transition of the small path in a single sealed revision. The agent
-// supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
-// pointer and the policy-derived next action so no hand edit of the control state is needed.
+// Record one typed transition and its owned files in a single sealed revision.
+// Current control and next actions are derived from those canonical facts.
 export const RUN_STEPS = Object.freeze(["ur", "route", "review", "evidence", "closeout", "artefact", "internal"]);
 export const RUN_STEP_ROUTES = Object.freeze(["quick_task", "verified_change", "structured_slice", "structured_delivery", "block"]);
 // Internal steps are reachable only from their owning Core operation, never from run-step or step.record.
@@ -60,23 +60,16 @@ const INTERNAL_STEP_KINDS = Object.freeze({ lifecycle_close: "lifecycle_close.re
 const knownStep = (step, operationContext) => RUN_STEPS.includes(step) || Object.hasOwn(INTERNAL_STEP_KINDS, step) && INTERNAL_STEP_KINDS[step] === operationContext?.kind;
 export const RUN_CLOSED_NEXT_ACTION = "none, run ended";
 const REVIEW_DECISIONS = new Set(["pass", "revise", "block"]);
-const NEXT_GATE_BY_ROUTE = Object.freeze({
-  quick_task: "Quick Task Execution",
-  verified_change: "Verified Change Execution",
-  structured_slice: "PRD",
-  structured_delivery: "PRD",
-  block: "none",
-});
 const CONTROL_PREFIX = ".agdf/control/";
 
-const artefactPath = (key, file) => `${CONTROL_PREFIX}artefacts/${key}/${file}`;
+const artefactPath = (key, file) => file.startsWith('EVIDENCE-') ? runEvidencePath(key, file) : runDocumentPath(key, file);
 const filled = (value) => typeof value === "string" && value.trim() !== "";
 const recordingStep = (step, context) => knownStep(step, context) || step === 'verified_change' && context?.kind === 'step.record';
 const oneLine = (value) => String(value ?? "").replace(/\s+/gu, " ").trim();
 // Bounded strict-UTF-8 read of an artefact inside the selected Run; anything else is unavailable.
 function readRunArtefact(root, runId, rawPath, limit = 131072) {
   const path = String(rawPath ?? '').replace(/^`|`$/gu, '');
-  if (!path.startsWith(`.agdf/control/artefacts/${runId}/`) || posix.normalize(path) !== path || hasSymlinkComponent(root, path)) return undefined;
+  if (!isRunDataPath(runId, path) || posix.normalize(path) !== path || hasSymlinkComponent(root, path)) return undefined;
   const file = containedRegularFile(root, path);
   if (file.status !== 'valid' || statSync(file.path).size > limit) return undefined;
   try { return new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(file.path)); } catch { return undefined; }
@@ -114,44 +107,9 @@ function withSectionEdit(runId, text, edit) {
   return next === null ? { rejection: rejected(runId, "run_layout_unsupported") } : { text: next };
 }
 
-function artefactHeading(root, path) {
-  try {
-    return readFileSync(join(root, path), "utf8").match(/^#\s+(.+)$/mu)?.[1]?.trim() ?? "";
-  } catch {
-    return "";
-  }
-}
-
-function closeoutRecord({ title, runId, date, result, evidence, risk, next }) {
-  return [
-    `# OR-lite: ${title}`,
-    "",
-    "Report mode: OR-lite",
-    `Run: \`${runId}\``,
-    "Route: `quick_task` (Compact Delivery)",
-    `Date: ${date}`,
-    "",
-    "## Result",
-    "",
-    oneLine(result),
-    "",
-    "## Evidence",
-    "",
-    oneLine(evidence),
-    "",
-    "## Risk",
-    "",
-    oneLine(risk),
-    "",
-    "## Next Step",
-    "",
-    oneLine(next),
-    "",
-  ].join("\n");
-}
-
 function recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation }) {
   const { runId, revisionId, step } = input;
+  if (!operationContext) return rejected(runId, 'operation_context_required');
   if (!recordingStep(step, operationContext)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
@@ -182,7 +140,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     input = { ...input, sourceBinding: { path, digest: stagedSource.digest }, evidence: path };
   }
   if (input.material) {
-    const staged = resolveMaterial?.(input.material);
+    const sourceFile = input.material.path ? readOperationSource(root, runId, input.material) : null;
+    const staged = sourceFile ? { slot: input.gate, content: sourceFile.content, digest: input.material.digest, validate: sourceFile.validate } : resolveMaterial?.(input.material);
     if (!staged || staged.slot !== input.gate) return rejected(runId, 'material_slot_mismatch');
     input = { ...input, stagedMaterial: staged };
   }
@@ -198,9 +157,6 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
   const before = policy(root, text, run.path);
   if (operationContext?.kind === 'ur_draft.replace' && (before.current_gate !== 'UR'
     || !control.artefacts.get('UR')?.path || approved('UR'))) return rejected(runId, 'ur_draft_not_replaceable');
-  let known = "";
-  let evidenceRow = null;
-  let orContent = null;
   let recording = null;
   let ownedOutputs = [];
   let operationSource = null;
@@ -235,13 +191,12 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     const closure = input.closure;
     if (control.meta.lifecycle !== "active") return rejected(runId, "not_active");
     if (runSealState(root, run.content).status !== "valid") return rejected(runId, "seal_invalid");
-    for (const fn of [value => replaceFirstScalar(value, "lifecycle", closure.lifecycle), value => replaceFirstScalar(value, "decision", closure.lifecycle)]) {
+    for (const fn of [value => replaceFirstScalar(value, "lifecycle", closure.lifecycle)]) {
       const failed = edit(fn); if (failed) return failed;
     }
     const successor = closureSuccessorText(closure.successor);
     const confirmer = closure.confirmed_by.statement === "unknown" ? "unknown person" : [closure.confirmed_by.name, closure.confirmed_by.email && `<${closure.confirmed_by.email}>`].filter(Boolean).join(" ");
-    known = `Run closed as ${closure.lifecycle}${successor}: ${closure.reason}`;
-    evidenceRow = ["Run closure", `preview ${closure.preview.id}`, `${closure.lifecycle}${successor}; reason: ${closure.reason}; confirmed by ${confirmer}`, "cooperative local confirmation"];
+
     operationRecord = closure;
 
   } else if (step === 'verified_change') {
@@ -250,8 +205,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     catch (e) { if (e.message.startsWith('verified_change_') || e.message === 'confirmation_required') return rejected(runId, e.message); throw e; }
     text = compactPreparation.text; ownedOutputs = compactPreparation.outputs;
     operationRecord = { step: 'Verified Change', source: { path: compactPreparation.path, digest: compactPreparation.digest },
-      status: 'done', covers: `Verified Change ${input.phase}`, source_set_digest: operationSourceSetDigest(root, control, 'Verified Change') };
-    known = `Verified Change ${input.phase} recorded with actual Git observation.`;
+      status: extractField(compactPreparation.content, 'status'), covers: `Verified Change ${input.phase}`, source_set_digest: operationSourceSetDigest(root, control, 'Verified Change') };
+
   } else if (step === "internal") {
     const ux = input.internalStep === 'UX Intent Definition';
     if (!operationContext || !internalStepEligibility(control, before, input, root) || !(ux ? ['ready', 'blocked', 'not_applicable'] : ["pass", "revise", "block", "not_applicable"]).includes(input.decision)
@@ -278,11 +233,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     const path = artefactPath(key, INTERNAL_STEP_FILES[input.internalStep]);
     const status = ['pass', 'ready'].includes(input.decision) ? "done" : input.decision === 'blocked' ? 'block' : input.decision;
     ownedOutputs = [prepareOwnedOutput(root, runId, path, operationSource.content)];
-    const failed = edit(value => upsertTableRow(value, "Artefacts", 0, input.internalStep,
-      [input.internalStep, path, status, `Recorded exact internal result; operation ${operationContext.operation_id}`]));
-    if (failed) return failed;
-    known = `${input.internalStep} result recorded: ${input.decision}.`;
-    evidenceRow = [input.internalStep, path, oneLine(input.covers) || "approved TP scope", "bound cooperative result"];
+
     operationRecord = { step: input.internalStep, source: { path, digest: input.sourceBinding.digest }, status,
       covers: oneLine(input.covers) || "approved TP scope", source_set_digest: operationSourceSetDigest(root, control, input.internalStep) };
 
@@ -295,7 +246,6 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       if (diagnostics.length) return findingsRefusal(runId, diagnostics);
     }
     text = recording.text;
-    known = `${input.gate} artefact and reviewed source binding recorded together.`;
 
   } else if (step === "ur") {
     if (approved("UR")) return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
@@ -305,10 +255,6 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     if (missing) return missing;
     // Only this authorized UR writer projects orientation; reading never repairs.
     text = projectUrObjective(text, operationSource?.content ?? readFileSync(join(root, path), 'utf8'));
-    const failed = edit((value) => upsertTableRow(value, "Artefacts", 0, "UR", ["UR", `\`${path}\``, "draft"]));
-    if (failed) return failed;
-    known = `UR drafted at \`${path}\`.`;
-    evidenceRow = ["UR draft", `\`${path}\``, "problem, goal, scope and acceptance signals", "direct"];
 
   } else if (step === "route") {
     const routeBeforeUrApproval = !approved("UR")
@@ -324,9 +270,6 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     const missing = ownedOutputs.some(row => row.path === path) ? null : requireFile(root, runId, path, `${CONTROL_PREFIX}templates/artefacts/BROWNFIELD_REVIEW.md`);
     if (missing) return missing;
     for (const fn of [
-      (value) => upsertTableRow(value, "Artefacts", 0, "Brownfield Review", ["Brownfield Review", `\`${path}\``, "done"]),
-      (value) => replaceSectionScalar(value, "Mode/Slice Decision", "decision", input.route),
-      (value) => replaceSectionScalar(value, "Mode/Slice Decision", "required_next_gate", NEXT_GATE_BY_ROUTE[input.route]),
       (value) => replaceSectionScalar(value, "Mode/Slice Decision", "scope_reason", oneLine(input.reason)),
       (value) => replaceSectionScalar(value, "Mode/Slice Decision", "evidence", oneLine(input.evidence)),
       (value) => replaceFirstScalar(value, "mode", input.route),
@@ -334,27 +277,16 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       const failed = edit(fn);
       if (failed) return failed;
     }
-    known = `Brownfield Review at \`${path}\` selected \`${input.route}\`.`;
-    evidenceRow = ["Brownfield Review", `\`${path}\``, `Mode/Slice Decision \`${input.route}\``, "direct"];
 
   } else if (step === "review") {
     if (!RUN_STEP_ROUTES.includes(route)) return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
     if (!REVIEW_DECISIONS.has(input.decision)) return rejected(runId, "decision_invalid", { decisions: [...REVIEW_DECISIONS] });
     if (!filled(input.evidence)) return rejected(runId, "evidence_missing");
     const status = input.decision === "pass" ? "done" : input.decision;
-    const failed = edit((value) => upsertTableRow(value, "Artefacts", 0, "CR", ["CR", "", status, `Code Review ${input.decision}`]));
-    if (failed) return failed;
-    if (operationContext) {
-      const failed = edit(value => upsertTableRow(value, "Artefacts", 0, "CR", ["CR", operationRecord.source.path, status, "Bound actual Code Review result"]));
-      if (failed) return failed;
-    }
-    known = `Code Review decision \`${input.decision}\`.`;
-    evidenceRow = ["Code Review", oneLine(input.source) || "code-review", `decision ${input.decision}: ${oneLine(input.evidence)}`, "direct"];
 
   } else if (step === "evidence") {
     if (!filled(input.evidence)) return rejected(runId, "evidence_missing");
-    known = `Evidence recorded: ${oneLine(input.evidence)}.`;
-    evidenceRow = [oneLine(input.evidence), oneLine(input.source) || "agent", oneLine(input.covers) || "delivery", "direct"];
+
   } else if (step === 'closeout' && route === 'verified_change') {
     if (operationContext?.kind !== 'closeout.record') return rejected(runId, 'closeout_not_ready');
     operationSource = readSource();
@@ -362,7 +294,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     catch (e) { if (e.message.startsWith('verified_change_') || e.message === 'confirmation_required') return rejected(runId, e.message); throw e; }
     if (!exactApprovedArtefacts(root, control)) return rejected(runId, 'approved_source_proof_invalid');
     text = compactPreparation.text; ownedOutputs = compactPreparation.outputs; operationRecord = compactPreparation.record;
-    known = 'Verified Change completed with its canonical Mini-Closeout.';
+
   } else if (step === "closeout") {
     if (operationContext) {
       if (operationContext.kind !== 'closeout.record' || !input.sourceBinding || control.meta.lifecycle !== 'active'
@@ -388,8 +320,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       if (input.confirmation !== confirmation) return rejected(runId, 'closeout_confirmation_required', { confirmation_selector: confirmation });
       const path = artefactPath(key, 'OR.md');
       ownedOutputs = [prepareOwnedOutput(root, runId, path, report)];
-      for (const fn of [value => upsertTableRow(value, 'Artefacts', 0, 'OR', ['OR', path, 'done', 'Bound exact orchestration report']),
-        value => replaceFirstScalar(value, 'lifecycle', 'completed'), value => replaceFirstScalar(value, 'current_gate', 'OR'), value => replaceFirstScalar(value, 'decision', 'completed')]) {
+      for (const fn of [value => replaceFirstScalar(value, 'lifecycle', 'completed')]) {
         const failed = edit(fn); if (failed) return failed;
       }
       if (route !== 'quick_task') for (const [field, value] of Object.entries(closeoutContext(report))) {
@@ -399,44 +330,13 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
         const failed = edit(text => replaceSectionScalar(text, heading, field, value)); if (failed) return failed;
       }
       operationRecord = { or: { path, digest: input.sourceBinding.digest }, lifecycle: 'completed', context_evidence_digest: readiness.context_digest, confirmation_digest: digest(confirmation) };
-      known = `Run delivery completed; exact ${route === 'quick_task' ? 'OR-lite' : 'OR-full'} at ${path}.`;
-      evidenceRow = ['OR', path, 'selected Run closeout; no VCS or publication effect', 'bound cooperative result'];
-
-    } else {
-    if (route !== "quick_task") return rejected(runId, "closeout_route_unsupported", { route: route || "undecided" });
-    if (before.current_gate !== "Quick Task Execution") return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
-    if (control.artefacts.get("CR")?.status !== "done") return rejected(runId, "code_review_missing");
-    if (![input.result, input.evidence, input.risk, input.next].every(filled)) return rejected(runId, "closeout_fields_missing");
-    const path = artefactPath(key, "OR.md");
-    const title = artefactHeading(root, artefactPath(key, "UR.md")).replace(/^UR:\s*/u, "") || key;
-    for (const fn of [
-      (value) => upsertTableRow(value, "Artefacts", 0, "OR", ["OR", `\`${path}\``, "done"]),
-      (value) => replaceFirstScalar(value, "lifecycle", "completed"),
-      (value) => replaceFirstScalar(value, "current_gate", "OR"),
-      (value) => replaceFirstScalar(value, "decision", "completed"),
-    ]) {
-      const failed = edit(fn);
-      if (failed) return failed;
-    }
-    orContent = closeoutRecord({ title, runId, date, ...input });
-    known = `Quick task delivered; OR-lite at \`${path}\`.`;
-    evidenceRow = ["OR-lite", `\`${path}\``, "quick task closeout", "direct"];
 
     }
   }
 
-  if (evidenceRow) {
-    const failed = edit((value) => appendTableRow(value, "Evidence", evidenceRow));
-    if (failed) return failed;
-  }
   const proposedArtefacts = new Map(ownedOutputs.map(row => [row.path, { content: row.next, digest: digest(canonicalRunText(row.next)) }]));
-  if (orContent) proposedArtefacts.set(artefactPath(key, 'OR.md'), { content: orContent, digest: digest(canonicalRunText(orContent)) });
   const nextRevisionId = recording?.nextRevisionId ?? randomUUID();
   let appendedOperation = null, appendedEvidence = null;
-  if (operationContext && operationRecord) {
-    appendedOperation = operationReceipt(root, run, operationContext, nextRevisionId, operationRecord, packageVersion);
-    text = appendRunOperation(text, appendedOperation);
-  }
   if (operationContext && (operationRecord && ['step.record', 'ur_draft.replace'].includes(operationContext.kind) || recording && input.gate === 'QA')) {
     const evidenceStep = operationRecord?.step ?? input.gate;
     const sources = operationSources(root, control, evidenceStep);
@@ -445,38 +345,26 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       source_set_digest: evidenceSourceSetDigest(sources), producer: { contract: 'run-command/1', package_version: packageVersion }, assurance: COOPERATIVE_ASSURANCE };
     text = appendEvidenceBinding(text, appendedEvidence);
   }
-  const after = policy(root, text, run.path, { proposedArtefacts });
-  const approvedGates = APPROVAL_GATES.filter((gate) => parseControlState(text, { userGates: APPROVAL_GATES }).approvals.get(gate)?.status === "approved");
-  const closing = step === "lifecycle_close", nextAction = closing ? RUN_CLOSED_NEXT_ACTION : after.next_allowed_action;
-  for (const fn of [
-    (value) => closing ? value : replaceFirstScalar(value, "current_gate", after.current_gate),
-    (value) => replaceFirstScalar(value, "next_allowed_action", nextAction),
-    (value) => upsertTableRow(value, "Current Control State", 0, "What is known?", ["What is known?", known]),
-    (value) => upsertTableRow(value, "Current Control State", 0, "What is approved?", ["What is approved?", approvedGates.length ? approvedGates.map((gate) => `Approval: ${gate}`).join(", ") : "Nothing yet."]),
-    (value) => upsertTableRow(value, "Current Control State", 0, "What is missing?", ["What is missing?", after.missing_approval !== "none" ? `Exact ${after.missing_approval}.` : "No approval is pending."]),
-    (value) => upsertTableRow(value, "Current Control State", 0, "What is the next allowed action?", ["What is the next allowed action?", nextAction]),
-    (value) => upsertTableRow(value, "Current Control State", 0, "What is explicitly forbidden right now?", ["What is explicitly forbidden right now?", after.forbidden.join("; ") || "none"]),
-  ]) {
-    const failed = edit(fn);
-    if (failed) return failed;
+  if (operationContext && operationRecord) {
+    const record = appendedEvidence ? { evidence_binding_id: appendedEvidence.operation_id, status: operationRecord.status, covers: operationRecord.covers } : operationRecord;
+    appendedOperation = operationReceipt(root, run, operationContext, nextRevisionId, record, packageVersion);
+    text = appendRunOperation(text, appendedOperation);
   }
+  const after = policy(root, text, run.path, { proposedArtefacts });
+  const closing = step === 'lifecycle_close', nextAction = closing ? RUN_CLOSED_NEXT_ACTION : after.next_allowed_action;
 
   // Owned outputs are published before the precommit source check, so the summary reads them as proposed.
   const summary = runWorkSummary(root, text, run.path, after, { proposed: new Map([...proposedArtefacts].map(([path, row]) => [path, row.content])) });
-  const backlogPlan = { status: readControlLayout(root).layout === PLANNED_LAYOUT ? 'not_applicable' : 'not_required', update: null };
-  const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update || operationContext || readControlLayout(root).layout === PLANNED_LAYOUT)
-    ? commitRunStepLocked(root, {
+  const written = guardedWrite(runId, () => commitRunStepLocked(root, {
       runId, runPath: run.path, content: text, revisionId, expectedContent: run.content,
-      backlog: backlogPlan.update, or: orContent, afterWrite,
+      afterWrite,
       nextRevisionId, outputs: ownedOutputs, operationContext,
       writeOptions: { ...(appendedOperation ? { appendedOperation } : {}), ...(appendedEvidence ? { appendedEvidence } : {}), ...(recording ? { appendedBinding: recording.receipt, allowContentChange: recording.allowContentChange } : {}),
         validateBeforeWrite: () => { recording?.validateBeforeWrite(); operationSource?.validate(); compactPreparation?.validate();
           if (operationRecord?.step && operationSourceSetDigest(root, control, operationRecord.step) !== operationRecord.source_set_digest) throw Error("AGDF_RUN_OPERATION_SOURCE_CHANGED");
           if (operationContext?.kind === 'closeout.record' && !exactApprovedArtefacts(root, control)) throw Error('AGDF_RUN_OPERATION_SOURCE_CHANGED');
           assertSummarySources(root, summary); } },
-    })
-    : writeRunLocked(run.path, text, revisionId, { expectedContent: run.content, nextRevisionId,
-      validateBeforeWrite: () => assertSummarySources(root, summary) }));
+    }));
   if (written.rejection) return written.rejection;
   return Object.freeze({
     schema_version: "1",
@@ -486,10 +374,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     previous_revision_id: revisionId,
     revision: written.state.meta.revision,
     revision_id: written.state.meta.revision_id,
-    current_gate: closing ? run.meta.current_gate : after.current_gate,
+    current_gate: closing ? before.current_gate : after.current_gate,
     next_allowed_action: nextAction,
-    backlog: backlogPlan.status,
-    ...(backlogPlan.reason ? { backlog_reason: backlogPlan.reason } : {}),
     ...(appendedOperation ? { operation_id: appendedOperation.operation_id, receipt: appendedOperation }
       : recording ? { operation_id: recording.receipt.operation.id, receipt: recording.receipt } : {}),
   });
@@ -503,7 +389,6 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
   const locked = guardedWrite(runId, () => withOwnedFileLock(path, () => {
     return withControlMutation(root, { resource: `run:${runId}`, operation_id: operationContext?.operation_id ?? randomUUID(),
       resume: true, proveOutcome: result => ['recorded', 'recovered', 'already_applied'].includes(result?.outcome) }, () => {
-    const planned = readControlLayout(root).layout === PLANNED_LAYOUT;
     const perform = () => {
     const parsed = parseRunState(readFileSync(path, 'utf8'));
     if (!parsed.valid) return rejected(runId, 'run_state_invalid');
@@ -512,18 +397,15 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
     if (otherPending) return rejected(runId, "run_step_recovery_required", { pending_run_id: otherPending });
     if (operationContext && existsSync(pendingRunStepPath(root, runId))) {
       const pending = readPendingRunStepJournal(root, runId);
-      if (pending.backlog || ![3, 4, 6].includes(resolutionRecordVersion(pending)) || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
+      if (resolutionRecordVersion(pending) !== 7 || pending.kind !== operationContext.kind || pending.operation_id !== operationContext.operation_id
           || pending.request_digest !== operationContext.request_digest || pending.old_revision_id !== input.revisionId) return rejected(runId, "original_operation_recovery_required");
       recoverPendingRunStepLocked(root, runId);
       return recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation });
     }
-    if (existsSync(pendingRunStepPath(root, runId)) && readPendingRunStepJournal(root, runId).backlog)
-      return rejected(runId, 'run_step_recovery_required');
     const recovered = recoverPendingRunStepLocked(root, runId);
     if (recovered.status === "completed") {
       return Object.freeze({ schema_version: "1", outcome: "recovered", run_id: runId,
-        operation_id: recovered.operation_id, revision_id: recovered.revision_id,
-        backlog: 'not_required' });
+        operation_id: recovered.operation_id, revision_id: recovered.revision_id });
     }
     return recordRunStepLocked(root, input, { policy, date, afterWrite, operationContext, packageVersion, resolveMaterial, gitObservation });
     };
@@ -564,18 +446,13 @@ export function recordRunPresentationDecision(root, input, { evaluateGateCheck, 
       owner: decisionRemediationOwner(gate), artefact_digest: gate === 'UAT' ? null : artefactFileDigest(root, state.artefacts.get(gate)?.path) };
     const receipt = operationReceipt(root, run, context, nextRevisionId, record, packageVersion);
     let next = appendRunOperation(run.content, receipt);
-    next = appendTableRow(next, 'Evidence', [`Gate ${action}`, `presentation ${presentationId}`, `Version ${material.material_version}; comment: ${comment || '(none)'}`, 'cooperative bound decision']);
-    if (next === null) return rejected(runId, 'run_layout_unsupported');
-    const after = policyForDecision(root, next, run.path);
-    next = replaceFirstScalar(next, 'next_allowed_action', after.next_allowed_action) ?? next;
-    for (const [key, value] of [['What is known?', `${action} recorded for current ${gate} material.`], ['What is missing?', 'Changed material and a fresh deliberate decision.'],
-      ['What is the next allowed action?', after.next_allowed_action]]) next = upsertTableRow(next, 'Current Control State', 0, key, [key, value]) ?? next;
     const saved = writeRunMutationLocked(root, run.path, next, revisionId, { expectedContent: run.content,
       appendedOperation: receipt, nextRevisionId, operationContext: { ...context, target_id: receipt.target_id }, afterWrite,
       validateDuringTransaction: () => {
         const fresh = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });
         if (fresh.reason || fresh.digest !== presentation.digest || decisionMaterial(root, state, gate).material_version !== material.material_version) throw Error('AGDF_STALE_RUN_REVISION');
       } });
+    const after = transitionDecisionForRunState(prepareRunContentState(root, saved.content, run.path));
     return { outcome: 'recorded', receipt, revision_id: saved.meta.revision_id, next_operation: after.next_operation, authorizes: false };
   }, { operationContext: { ...context, target_id: resolveControlCommandTarget(root).target_id } }));
   return written.rejection ?? written.state;

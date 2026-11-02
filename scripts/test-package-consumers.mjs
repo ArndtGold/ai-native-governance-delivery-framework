@@ -56,7 +56,9 @@ try {
   assert.ok(existsSync(join(target, '.agdf/control')));
   const doctor = JSON.parse(node([bin, 'doctor', '--dir', target, '--json'], 2));
   assert.ok(doctor.findings.some(finding => finding.code === 'AGDF_ACTIVE_RUN_MISSING')); evidence.cli.push({ command: 'init/doctor', isolated_target: true, report: doctor });
-  node([bin, 'run-create', '--dir', target, '--run', 'archive-parity']);
+  const archiveRun = JSON.parse(node([bin, 'run-create', '--dir', target, '--title', 'Archive parity', '--operation', randomUUID(), '--json']));
+  assert.equal(archiveRun.outcome, 'accepted');
+  const archiveRunId = archiveRun.family_result.run_id;
   const auditPath = join(fixture.root, 'audit.mjs');
   writeFileSync(auditPath, `import fs from 'node:fs'; import cp from 'node:child_process'; import {syncBuiltinESMExports} from 'node:module';
 for(const name of ['writeFileSync','mkdirSync','renameSync','unlinkSync','rmSync']) fs[name]=()=>{throw Error('unexpected import write '+name)};
@@ -94,11 +96,11 @@ for(const key of ['spawn','exec','execSync','execFile','execFileSync','fork']) c
     assert.equal(dispatch.structuredContent.authorizes, false); assert.equal(dispatch.structuredContent.runtime.provenance_status, 'matched');
     const inspect = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'de', working_directory: fixture.root } });
     assert.equal(inspect.structuredContent.authorizes, false);
-    const boundInspect = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'de', working_directory: target, target_source: 'explicit_target', primary_target: target, run_id: 'archive-parity' } });
+    const boundInspect = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'de', working_directory: target, target_source: 'explicit_target', primary_target: target, run_id: archiveRunId } });
     assert.equal(boundInspect.structuredContent.outcome, 'inspect_result');
     assert.equal(boundInspect.structuredContent.authorizes, false);
     const report = boundInspect.structuredContent.report;
-    const cliReport = JSON.parse(node([bin, 'doctor', '--dir', target, '--run', 'archive-parity', '--json']));
+    const cliReport = JSON.parse(node([bin, 'doctor', '--dir', target, '--run', archiveRunId, '--json']));
     for (const [key, value] of Object.entries(cliReport)) if (key !== 'checked_at') assert.deepEqual(report[key], value, key);
     assert.equal(report.available, true); assert.equal(report.completeness, 'complete');
     assert.match(report.source_digest, /^[0-9a-f]{64}$/u);

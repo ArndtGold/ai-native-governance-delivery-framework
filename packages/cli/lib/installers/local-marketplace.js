@@ -1,3 +1,4 @@
+import { isRunOwnedDataPath } from '#agdf-core/control-state/run-identity.js';
 import { ownerPlacement, assertOwnerPlacement } from '#agdf-core/owner-placement.js';
 import { fsyncDirectory } from '#agdf-core/owned-file-lock.js';
 import { randomUUID } from 'node:crypto';
@@ -1109,7 +1110,7 @@ export function settleCodexCockpitPublication({ pluginRoot, target, sourceDigest
       throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
     for (const ref of finalEvidence.evidence) {
       const path = resolve(target, ref.path);
-      if (!pathInside(join(target, '.agdf/control/artefacts'), path) || digest(path) !== ref.digest)
+      if (!isRunOwnedDataPath(relative(target, path).split('\\').join('/')) || digest(path) !== ref.digest)
         throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
     }
     const runtime = inspectMcpExecutableRoot({ root: finalEvidence.runtime_root, expectedVersion: transaction.version });
@@ -1167,7 +1168,7 @@ function configurationSnapshot(paths) {
 }
 function settlementWitness(reference, target) {
   if (!reference || !isAbsolute(reference.path ?? '') || !/^sha256:[a-f0-9]{64}$/.test(reference.digest ?? '')
-    || ![join(target, 'probe-results'), join(target, '.agdf/control/artefacts')].some(root => pathInside(root, reference.path)))
+    || !(pathInside(join(target, 'probe-results'), reference.path) || isRunOwnedDataPath(relative(target, reference.path).split('\\').join('/'))))
     throw Error('AGDF_LEGACY_SETTLEMENT_WITNESS_REQUIRED');
   const bytes = settlementFile(reference.path);
   if (!bytes || 'sha256:' + settlementHash(bytes) !== reference.digest) throw Error('AGDF_LEGACY_SETTLEMENT_WITNESS_CHANGED');

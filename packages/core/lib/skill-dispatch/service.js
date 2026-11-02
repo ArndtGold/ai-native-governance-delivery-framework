@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { inspectDefinitionSources } from "../control-evaluation/definition-sources.js";
 import { prdDefinitionPhase } from "./prd-definition.js";
 import { sdDefinitionPhase } from "./sd-definition.js";
@@ -659,7 +660,7 @@ export function createSkillDispatchService(dependencies = {}) {
           run_id: result.control.run_id,
           revision_id: result.control.revision_id,
           presentation_language: input.presentation_language,
-          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/VERIFIED_CHANGE.md`,
+          artifact_path: `${runDocumentPath(result.control.run_id, '')}/VERIFIED_CHANGE.md`,
           template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.VERIFIED_CHANGE),
           instruction: "Create or repair the compact Verified Change record only through its existing gate-check/evaluator owner. Use the supplied plugin-owned template and canonical run-local artifact path, capture the required baseline, and prove every eligibility condition before implementation. Redispatch gate-check for the same run; never add another skill or route.",
           ...(dependencies.readSkillRuntimeContracts ? {
@@ -707,7 +708,7 @@ export function createSkillDispatchService(dependencies = {}) {
           result.continuation = Object.freeze({ phase: 'required_gate_artifact', skill_id: owner,
             governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
             presentation_language: input.presentation_language,
-            ...(!orientationOnly && unapprovedQa ? { artifact_path: `.agdf/control/artefacts/${result.control.run_id}/QA_REPORT.md`,
+            ...(!orientationOnly && unapprovedQa ? { artifact_path: `${runDocumentPath(result.control.run_id, '')}/QA_REPORT.md`,
               template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.QA_REPORT) } : {}),
             instruction: `${control.presentation_diagnostics.approval_presentation_recovery}\nComplete only this bound Run's permitted unapproved content through its existing writer; preserve approved intent and all protected sources. Record the current revision and redispatch the same Run once. An unchanged failure stops; no earlier reply is approval.`,
             ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),

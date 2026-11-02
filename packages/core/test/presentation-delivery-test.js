@@ -16,7 +16,7 @@ try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const f = createSdDefinitionTestRun(root, cli, 'primary', process.env, { typedApprovals: true });
-  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
+  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'accepted');
   const before = readFileSync(f.state, 'utf8'), command = createCoreServices().command;
   const prepare = () => {
     const input = { schema_version: '1', presentation_language: 'de', working_directory: root, primary_target: root,
@@ -75,17 +75,17 @@ try {
       'new Markdown must retire the earlier primary even when it belongs to a different prepared ID');
   } finally { await replacing.close(); }
   const changing = createDecisionSessionService({ surfaceBinding: host => host.surface });
-  const unchangedSd = readFileSync(f.file('SD.md'));
+  const unchangedSd = readFileSync(f.canonicalFile('SD.md'));
   try {
     const prepared = prepare(), view = (await changing.open(prepared.input, prepared.result, hostA))._meta.agdf_decision;
     await confirm(changing, view, hostA);
-    writeFileSync(f.file('SD.md'), `${unchangedSd}\nA changed decision source must invalidate delivery.\n`);
+    writeFileSync(f.canonicalFile('SD.md'), `${unchangedSd}\nA changed decision source must invalidate delivery.\n`);
     const stale = await changing.deliver(prepared.deliver('automatic'), hostA);
     assert.equal(stale.reason, 'presentation_binding_changed', 'unrecorded source edits invalidate the prepared decision before either primary route');
     assert.equal(stale.presentation_delivery, undefined, 'a stale decision must not be emitted as Markdown fallback');
     assert.equal((await changing.read({ operation: 'decision_state', session_id: view.read_session_id }, undefined, hostA)).reason,
       'session_expired', 'the stale preview loses its primary/action authority before rejection');
-  } finally { writeFileSync(f.file('SD.md'), unchangedSd); await changing.close(); }
+  } finally { writeFileSync(f.canonicalFile('SD.md'), unchangedSd); await changing.close(); }
   const serial = createPresentationDelivery(), waiting = prepare(), competing = prepare();
   serial.remember(waiting.input,waiting.result); serial.remember(competing.input,competing.result);
   let finishRetirement;

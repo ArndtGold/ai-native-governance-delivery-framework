@@ -9,7 +9,7 @@ import { interactionLocales, pluginDefinition } from '../lib/cli/runtime-context
 
 const root = mkdtempSync(join(tmpdir(), 'agdf-compact-dispatch-'));
 const id = 'compact', revision = '10000000-0000-4000-8000-000000000001';
-const prefix = `.agdf/control/artefacts/${id}/`;
+const prefix = `.agdf/control/runs/${id}/documents/`;
 const path = name => `${prefix}${name}.md`;
 const write = (name, content) => writeFileSync(join(root, path(name)), content);
 const state = mode => ({ content: `- run_id: ${id}\n- revision_id: ${revision}\n- lifecycle: active\n`,
@@ -92,7 +92,7 @@ try {
   const executed = { ...evaluated, status: 'executed' };
   actual = dispatch(report(verified, executed))(input);
   assert.equal(actual.continuation.phase, 'compact_closeout');
-  assert.match(actual.continuation.instruction, /run-update/);
+  assert.match(actual.continuation.instruction, /current.*record|verified_change\.record|agdf_record/);
   verified.content = verified.content.replace('active', 'completed');
   verified.artefacts.set('OR', { path: path('VERIFIED_CHANGE'), status: 'done' });
   r = report(verified, executed);

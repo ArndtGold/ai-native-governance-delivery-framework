@@ -9,12 +9,12 @@ import { once } from 'node:events';
 import { symlinkOrSkip } from './control-cockpit-fixtures.js';
 import { currentOwnedMutationClaimPaths } from '../lib/control-state/control-layout.js';
 import { ownedRecordingGitObservation } from '../lib/control-state/run-verified-change.js';
-import { readControlLayout, withControlMutation, withLayoutMaintenance, inspectMutationClaims, retireRecoveredMutationClaim, markControlMutationEffect } from '../lib/control-state/control-layout.js';
+import { readControlLayout, withControlMutation, inspectMutationClaims, retireRecoveredMutationClaim, markControlMutationEffect } from '../lib/control-state/control-layout.js';
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'agdf-planned-admission-'));
   mkdirSync(join(root, '.agdf/control'), { recursive: true });
-  writeFileSync(join(root, '.agdf/control/config.json'), JSON.stringify({ control_layout: 'planned-urs-v1' }));
+  writeFileSync(join(root, '.agdf/control/config.json'), JSON.stringify({ control_layout: 'run-folders-v1' }));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   return root;
 }
@@ -38,9 +38,9 @@ test('SCN-002/024: Git scope ignores only exact active admission bytes and retai
 
 test('SCN-029: layout is explicit and unsupported or unsafe config fails closed', t => {
   const root = fixture(t);
-  assert.equal(readControlLayout(root).layout, 'planned-urs-v1');
+  assert.equal(readControlLayout(root).layout, 'run-folders-v1');
   writeFileSync(join(root, '.agdf/control/config.json'), '{}');
-  assert.equal(readControlLayout(root).layout, 'master-backlog-v1');
+  assert.throws(() => readControlLayout(root), /LAYOUT_UNSUPPORTED/);
   writeFileSync(join(root, '.agdf/control/config.json'), '{"control_layout":"future"}');
   assert.throws(() => readControlLayout(root), /LAYOUT_UNSUPPORTED/);
   rmSync(join(root, '.agdf/control/config.json'));
@@ -49,19 +49,12 @@ test('SCN-029: layout is explicit and unsupported or unsafe config fails closed'
     assert.throws(() => readControlLayout(root), /PATH_INVALID/);
 });
 
-test('SCN-024: marker or config change between inspection and claim rejects before effect', t => {
-  const root = fixture(t);
-  for (const race of ['marker', 'generation']) {
-    let effect = false;
-    assert.throws(() => withControlMutation(root, { resource: 'run:a', checkpoint(stage) {
-      if (stage !== 'claim_published') return;
-      if (race === 'marker') writeFileSync(markerPath(root), 'foreign');
-      else writeFileSync(join(root, '.agdf/control/config.json'), '{"control_layout":"planned-urs-v1","changed":true}');
-    } }, () => { effect = true; }), /MAINTENANCE_REQUIRED/);
-    assert.equal(effect, false);
-    assert.deepEqual(inspectMutationClaims(root), []);
-    rmSync(markerPath(root), { force: true });
-  }
+test('SCN-024: selected config change between inspection and claim rejects before effect', t => {
+  const root = fixture(t); let effect = false;
+  assert.throws(() => withControlMutation(root, { resource: 'run:a', checkpoint(stage) {
+    if (stage === 'claim_published') writeFileSync(join(root, '.agdf/control/config.json'), '{"control_layout":"run-folders-v1","changed":true}');
+  } }, () => { effect = true; }), /MAINTENANCE_REQUIRED/);
+  assert.equal(effect, false); assert.deepEqual(inspectMutationClaims(root), []);
 });
 
 test('SCN-024: known failures retire claims; uncertain outcomes require exact proof, never TTL', t => {
@@ -78,19 +71,16 @@ test('SCN-024: known failures retire claims; uncertain outcomes require exact pr
   assert.equal(inspectMutationClaims(root).length, 0);
 });
 
-test('SCN-024: foreign claim/marker bytes remain untouched and maintenance stays frozen', t => {
-  const root = fixture(t), op = request();
+test('SCN-024: unknown foreign claims remain untouched while independent work stays admitted', t => {
+  const root = fixture(t);
   withControlMutation(root, { resource: 'run:a' }, () => {});
-  const foreign = join(root, '.agdf/control/maintenance/admission/foreign');
-  writeFileSync(foreign, 'keep');
-  assert.throws(() => withLayoutMaintenance(root, op, () => assert.fail('no effect')), /ADMISSION_UNKNOWN/);
+  const foreign = join(root, '.agdf/control/maintenance/admission/foreign'); writeFileSync(foreign, 'keep');
+  assert.throws(() => inspectMutationClaims(root), /ADMISSION_UNKNOWN/);
+  withControlMutation(root, { resource: 'run:b' }, () => assert.equal(readFileSync(foreign, 'utf8'), 'keep'));
   assert.equal(readFileSync(foreign, 'utf8'), 'keep');
-  assert.ok(existsSync(markerPath(root)));
-  assert.throws(() => withLayoutMaintenance(root, request(), () => {}), /MAINTENANCE_UNKNOWN/);
-  assert.throws(() => withControlMutation(root, { resource: 'run:b' }, () => {}), /MAINTENANCE_REQUIRED/);
 });
 
-test('SCN-023/024: independent processes overlap; maintenance drains admitted work and freezes new work', async t => {
+test('SCN-023/024: independent processes overlap and retire only their original admission', async t => {
   const root = fixture(t), release = join(root, 'release');
   const module = new URL('../lib/control-state/control-layout.js', import.meta.url).href;
   const source = `import { withControlMutation } from ${JSON.stringify(module)};
@@ -106,14 +96,8 @@ test('SCN-023/024: independent processes overlap; maintenance drains admitted wo
   withControlMutation(root, { resource: 'run:second' }, () => {
     assert.equal(inspectMutationClaims(root).length, 2, 'no common exclusive ordinary mutex');
   });
-  const op = request();
-  assert.throws(() => withLayoutMaintenance(root, op, () => assert.fail('must drain')), /MUTATIONS_IN_FLIGHT/);
-  assert.throws(() => withControlMutation(root, { resource: 'run:third' }, () => assert.fail('frozen')), /MAINTENANCE_REQUIRED/);
   writeFileSync(release, 'finish');
   assert.deepEqual(await exit, [0, null]);
   assert.equal(inspectMutationClaims(root).length, 0);
-  let migrated = false;
-  withLayoutMaintenance(root, op, () => { migrated = true; });
-  assert.equal(migrated, true);
-  assert.equal(existsSync(markerPath(root)), false);
+
 });

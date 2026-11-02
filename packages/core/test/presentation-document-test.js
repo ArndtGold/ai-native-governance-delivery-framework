@@ -21,7 +21,7 @@ try {
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const f = createSdDefinitionTestRun(root, cli, 'remote-document', process.env, { typedApprovals: true });
   const original = syntheticSd().replace('Reuse the existing user-owned filter store.', 'Reuse the existing user-owned filter store. ' + '🙂'.repeat(9000) + 'x'.repeat(40000));
-  writeFileSync(f.file('SD.md'), original); assert.equal(f.recordSd().value.outcome, 'recorded');
+  writeFileSync(f.file('SD.md'), original); assert.equal(f.recordSd().value.outcome, 'accepted');
   const command = createCoreServices().command;
   const input = { schema_version: '1', presentation_language: 'en', working_directory: root,
     target_source: 'explicit_target', primary_target: root, target_id: resolveControlCommandTarget(root).target_id,
@@ -69,7 +69,7 @@ try {
   const oldDocument = readPresentationDocument(root, { runId: originalBinding.run_id, gate: originalBinding.gate, revisionId: originalBinding.expected_revision_id, presentationId: originalBinding.presentation_id, targetId: originalBinding.target_id });
   assert.equal(oldDocument.available, true); assert.equal(oldDocument.applicability, 'historical');
   assert.equal(catalog({ targetId: `sha256:${'0'.repeat(64)}` }).state, 'unavailable');
-  const dir = join(root, `.agdf/control/runs/${f.runId}/presentations`);
+  const dir = join(root, `.agdf/control/runs/${f.runId}/control/presentations`);
   const originalOpenDirectory = fs.opendirSync, raceFile = join(dir, 'concurrent-observation.txt');
   try {
     fs.opendirSync = (path, ...options) => {
@@ -89,13 +89,11 @@ try {
     rmSync(raceFile, { force: true });
   }
   assert.equal(catalog().state, 'unique', 'a changed scan never establishes uniqueness; a fresh stable scan can');
-  const sourceRecord = JSON.parse(readFileSync(join(dir, `${binding.presentationId}.json`), 'utf8'));
   const clones = [];
   const clone = () => {
-    const id = randomUUID(), record = { ...sourceRecord.record, presentation_id: id };
-    delete record.operation_id; delete record.request_digest;
-    writeFileSync(join(dir, `${id}.json`), JSON.stringify({ record, digest: digest(JSON.stringify(record)) }));
-    copyFileSync(join(dir, `${binding.presentationId}.document`), join(dir, `${id}.document`));
+    const result = command('agdf_prepare', { ...input, operation_id: randomUUID() });
+    assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+    const id = result.family_result.presentation_id;
     clones.push(id); return id;
   };
   const cleanClones = () => { for (const id of clones.splice(0)) for (const ext of ['json', 'document']) rmSync(join(dir, `${id}.${ext}`), { force: true }); };
@@ -157,14 +155,14 @@ try {
   assert.equal(command('agdf_prepare', interruptedInput).outcome, 'already_applied');
   assert.equal(readFileSync(f.state, 'utf8'), before, 'Snapshot recovery never decides a gate.');
   const alteredInput = { ...input, operation_id: randomUUID() };
-  const alteredSnapshot = join(root, `.agdf/control/runs/${f.runId}/presentations/${alteredInput.operation_id}.document`);
+  const alteredSnapshot = join(root, `.agdf/control/runs/${f.runId}/control/presentations/${alteredInput.operation_id}.document`);
   writeFileSync(alteredSnapshot, 'unconfirmed partial bytes');
   assert.equal(command('agdf_prepare', alteredInput).reason, 'presentation_document_invalid');
   assert.equal(readFileSync(alteredSnapshot, 'utf8'), 'unconfirmed partial bytes');
   writeFileSync(f.file('SD.md'), 'Later mutable source');
   assert.equal(readPresentationDocument(root, binding).content_digest, digest(Buffer.from(exactDocument)));
   writeFileSync(f.file('SD.md'), original);
-  const snapshot = join(root, `.agdf/control/runs/${f.runId}/presentations/${binding.presentationId}.document`);
+  const snapshot = join(root, `.agdf/control/runs/${f.runId}/control/presentations/${binding.presentationId}.document`);
   writeFileSync(snapshot, exactDocument.replace('SHA-256', 'SHA-25X'));
   assert.equal(readPresentationDocument(root, binding).reason, 'presentation_document_digest_mismatch');
   const approve = { ...input, operation_id: randomUUID(), command: { kind: 'approval.record', payload: {

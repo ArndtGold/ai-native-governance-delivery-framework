@@ -7,7 +7,7 @@ export function decisionView(locale: 'en' | 'de' = 'en'): DecisionBootstrap {
     target: { target_id: hash, display_path: '/synthetic' }, title: 'Synthetic decision fixture', labels: registry.locales[locale].decisionCard,
     binding: { target_id: hash, run_id: 'synthetic-run', gate: 'SD', expected_revision_id: id, presentation_id: id,
       presentation_digest: hash, material_version: hash, presentation_language: locale,
-      material_sources: [{ type: 'SD', path: '.agdf/control/artefacts/synthetic-run/SD.md', digest: hash }] },
+      material_sources: [{ type: 'SD', path: '.agdf/control/runs/synthetic-run/documents/SD.md', digest: hash }] },
     summary: '# Presented summary\n\nFull intended change.\n\n## Open points\n\nNo applicable open issue.\n\n<script>never execute</script>\n',
     snapshot_id: id, resource_id: id, document_digest: hash,
     enabled_actions: ['approve', 'request_change', 'reject'], capability: 'available',

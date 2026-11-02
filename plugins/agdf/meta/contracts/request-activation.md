@@ -143,8 +143,6 @@ grant applicability or authority.
     { "operation_id": "control.inventory", "route_family": "deterministic_control_inspection", "target_boundary": "required_after_activation", "control_boundary": "missing_is_result", "owner_kind": "command", "owner": "inventory" },
     { "operation_id": "control.delivery_map", "route_family": "deterministic_control_inspection", "target_boundary": "required_after_activation", "control_boundary": "missing_is_result", "owner_kind": "command", "owner": "delivery-map" },
     { "operation_id": "run.create", "route_family": "run_lifecycle", "target_boundary": "required_after_activation", "control_boundary": "command_preconditions", "owner_kind": "command", "owner": "run-create" },
-    { "operation_id": "run.migrate", "route_family": "run_lifecycle", "target_boundary": "required_after_activation", "control_boundary": "command_preconditions", "owner_kind": "command", "owner": "run-migrate" },
-    { "operation_id": "run.render_legacy", "route_family": "run_lifecycle", "target_boundary": "required_after_activation", "control_boundary": "command_preconditions", "owner_kind": "command", "owner": "run-render-legacy" },
     { "operation_id": "continuation.current", "route_family": "active_run_continuation", "target_boundary": "required_after_activation", "control_boundary": "target_run_gate_revalidation", "owner_kind": "function", "owner": "existingTargetRunGateRevalidators" }
   ],
   "derived_operations": [
@@ -247,7 +245,7 @@ The requested effect, not discovery, decides AGDF activation.
 A delivery request without a confirmed run binding first dispatches gate-check with intake true
 and no run_id. Its resolve_delivery_run continuation supplies canonical UR scope evidence for the
 coding agent's assignment. One unequivocal same-scope continuation uses resume, its run_id and
-expected_revision_id; a clear independent scope uses new and an unused run_id even when unrelated
+expected_revision_id; a clear independent scope uses new and an unused `run-<original-operation-uuid>` ID even when unrelated
 runs exist. Single-run count, recency, shared files and ambient AGDF_RUN_ID prove no scope match.
 Overlapping plausible scopes require one question about the work, not a technical Run-ID choice.
 Incomplete inventory is a technical failure, never evidence for a new scope. Read-only requests omit intake and

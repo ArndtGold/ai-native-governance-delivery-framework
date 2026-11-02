@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:721b4a478e296ed7c1804006ee99e6bf9d3576cad8841aa40cc79a6bb2851c0e
+source_revision: sha256:ae1c1cbeb041ffe1896a2f06ac99d8d35f415eb3b1253b646ec872ce91fa312c
 translation_status: reviewed
 ---
 
@@ -151,8 +151,7 @@ Use an available visualization tool when useful.
 
 When a preview is explicitly requested, the UR already captures its purpose, scenarios, required
 interaction and review timing. UX clarification later creates a reopenable version under
-`.agdf/control/artefacts/<run_id>/previews/<name>-v1/index.html`. Keep `runs/<run_id>/` for control
-state. A revised preview gets a new path; the UX analysis and PRD reference the same inspected
+`.agdf/control/runs/<run_id>/evidence/previews/<name>-v1/index.html`. The same Run directory also owns documents, control records and immutable history. A revised preview gets a new path; the UX analysis and PRD reference the same inspected
 version with file digests and observation limits. A chat rendering alone does not fulfill this
 run deliverable.
 

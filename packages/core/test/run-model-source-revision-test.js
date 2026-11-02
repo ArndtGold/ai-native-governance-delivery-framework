@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { structuredCurrentRun } from './fixtures/current-structured-run.js';
+import { currentSourceProposal } from './fixtures/current-source-proposal.js';
+import { runSealState } from '../lib/control-state/run-seal.js';
+import { resolutionRecord } from '../lib/control-state/input-resolution.js';
+import { validateRevisionHistory } from '../lib/control-state/run-revision-history.js';
+for (const gate of ['UR', 'PRD', 'SD', 'TP']) test(`current source revision: policy 2 preserves exact ${gate} history and invalidates only the declared downstream approvals`, t => {
+  const run = structuredCurrentRun(t), original = run.content(), proposal = currentSourceProposal(run, gate);
+  const preview = run.f.execute(proposal.preview); assert.equal(preview.outcome, 'accepted', JSON.stringify(preview));
+  assert.equal(run.content(), original, 'preview never changes the Run');
+  const input = proposal.apply(preview), applied = run.f.execute(input);
+  assert.equal(applied.outcome, 'accepted', JSON.stringify(applied));
+  const receipt = applied.receipt, body = resolutionRecord(receipt);
+  assert.equal(body.schema_version, '4'); assert.equal(body.policy_version, 2);
+  assert.equal(body.archive.path, `.agdf/control/runs/${run.id}/history/revisions/${proposal.operationId}/manifest.json`);
+  assert.equal(validateRevisionHistory(run.f.root, receipt), true);
+  assert.equal(runSealState(run.f.root, run.content()).status, 'valid');
+  const gates = ['UR', 'PRD', 'SD', 'TP'], control = run.control();
+  for (const g of gates) assert.equal(control.approvals.get(g).status, gates.indexOf(g) < gates.indexOf(gate) ? 'approved' : 'missing');
+  for (const g of ['QA', 'UAT']) assert.equal(control.approvals.get(g).status, 'missing');
+  const current = run.content(); assert.equal(run.f.execute(input).outcome, 'already_applied'); assert.equal(run.content(), current);
+  const manifest = JSON.parse(readFileSync(join(run.f.root, body.archive.path), 'utf8')); assert.equal(manifest.schema_version, '2');
+  assert(readdirSync(join(run.f.root, '.agdf/control')).every(name => name !== 'history' && name !== 'artefacts'));
+});

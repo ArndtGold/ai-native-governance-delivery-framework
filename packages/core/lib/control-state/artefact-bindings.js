@@ -1,3 +1,4 @@
+import { runDocumentPath } from './run-identity.js';
 import { resolutionRecord } from './input-resolution.js';
 import { TextDecoder } from "node:util";
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject } from "./approval-command-contract.js";
@@ -15,27 +16,26 @@ export const artefactBindingDigest = receipt => digest(`agdf-artefact-binding/1\
 // One current binding per run relationship, whichever checkout recorded it.
 export const artefactBindingKey = receipt => canonicalJson([receipt.run_id, receipt.relationship]);
 
+export const ARTEFACT_BINDING_VERSION = '3';
 export function validArtefactBinding(receipt) {
   receipt = resolutionRecord(receipt);
   if (!receipt) return false;
-  if (!exactObject(receipt, fields) || !["1", "2"].includes(receipt.schema_version) || !uuid(receipt.binding_id)
+  if (!exactObject(receipt, fields) || receipt.schema_version !== ARTEFACT_BINDING_VERSION || !uuid(receipt.binding_id)
       || !DIGEST_PATTERN.test(receipt.target_id ?? "") || !RUN_ID_PATTERN.test(receipt.run_id ?? "")
       || !exactObject(receipt.relationship, ["from", "relationship", "to"])
       || !file(receipt.destination, ["type", "path", "digest", "status"])
       || !file(receipt.source, ["type", "path", "digest"])
-      || !exactObject(receipt.review, ["reviewer", "path", "digest"]) || !text(receipt.review.reviewer)
-      || !isSafeControlRelativePath(receipt.review.path) || !DIGEST_PATTERN.test(receipt.review.digest ?? "")
-      || receipt.origin !== "reviewed_mapping" || !exactObject(receipt.operation, ["id", "previous_revision_id", "resulting_revision_id", "revision", ...(receipt.schema_version === "2" ? ["request_digest"] : [])])
-      || receipt.schema_version === "2" && !DIGEST_PATTERN.test(receipt.operation.request_digest ?? "")
+      || !exactObject(receipt.review, ["reviewer", "reviewed"]) || !text(receipt.review.reviewer) || receipt.review.reviewed !== true
+      || receipt.origin !== "reviewed_mapping" || !exactObject(receipt.operation, ["id", "previous_revision_id", "resulting_revision_id", "revision", "request_digest"])
+      || !DIGEST_PATTERN.test(receipt.operation.request_digest ?? "")
       || ![receipt.operation.id, receipt.operation.previous_revision_id, receipt.operation.resulting_revision_id].every(uuid)
       || receipt.operation.previous_revision_id === receipt.operation.resulting_revision_id
       || !Number.isSafeInteger(receipt.operation.revision) || receipt.operation.revision < 2
       || !(receipt.supersedes === null || uuid(receipt.supersedes))) return false;
   const expected = deliveryRelationships.find(row => row.requiredBy !== "UR" && sameRelationship(receipt.relationship, row));
   if (!expected || receipt.destination.type !== expected.from || receipt.source.type !== expected.to) return false;
-  const prefix = `.agdf/control/artefacts/${receipt.run_id}/`;
+  const prefix = `${runDocumentPath(receipt.run_id, '')}/`;
   return receipt.destination.path === `${prefix}${expected.from}.md` && receipt.source.path === `${prefix}${expected.to}.md`
-    && receipt.review.path.startsWith(prefix) && receipt.review.path !== receipt.destination.path && receipt.review.path !== receipt.source.path
     && (expected.requiredBy === "QA" ? ["pass", "revise", "block"].includes(receipt.destination.status) : receipt.destination.status === "draft");
 }
 

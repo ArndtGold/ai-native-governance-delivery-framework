@@ -6,7 +6,6 @@ import { createRunMaterialStore } from '#agdf-core/control-state/run-material.js
 import { resolveControlCommandTarget } from '#agdf-core/control-state/approval-command-contract.js';
 import { planningId, inspectPlannedEntry, inspectPlannedOperation } from '#agdf-core/control-state/planned-entry.js';
 import { readPlannedInventory } from '#agdf-core/control-state/planned-inventory.js';
-import { inspectPlannedLayoutOperation, previewPlannedLayout } from '#agdf-core/control-maintenance/planned-layout.js';
 import { pluginDefinition } from './runtime-context.js';
 
 function readUr(path) {
@@ -28,17 +27,10 @@ export function executePlannedCli(options, io = console) {
     const emit = value => { io.log(JSON.stringify(value, null, 2)); return ['rejected', 'effect_unknown', 'recovery_required'].includes(value.outcome) ? 2 : 0; };
     if (options.target === 'planned' && action === 'list') return emit(readPlannedInventory(root.root));
     if (options.target === 'planned' && action === 'inspect') return emit(inspectPlannedEntry(root.root, options.planId));
-    if (options.target === 'layout-migrate' && action === 'preview') return emit(previewPlannedLayout(root.root));
-    if (action === 'status') return emit(options.target === 'planned' ? inspectPlannedOperation(root.root, options.planId, options.operationId)
-      : inspectPlannedLayoutOperation(root.root, options.operationId));
+    if (action === 'status') return emit(inspectPlannedOperation(root.root, options.planId, options.operationId));
     const operation_id = options.operationId ?? randomUUID();
     const base = { schema_version: '1', presentation_language: options.language?.chat_language ?? 'en', working_directory: root.root,
       primary_target: root.root, target_source: 'explicit_target', target_id: root.target_id, operation_id, assurance: 'cooperative_local' };
-    if (options.target === 'layout-migrate') {
-      const payload = action === 'preview' ? {} : action === 'apply' ? { preview_digest: options.previewDigest, confirmation: options.closureConfirmation }
-        : { pending_digest: options.pendingDigest };
-      return emit(createRunCommandService({ packageVersion: pluginDefinition.version })('agdf_project', { ...base, command: { kind: `planned_layout.${action}`, payload } }));
-    }
     const scope = { plan_id: action === 'create' ? planningId(operation_id) : options.planId, expected_digest: action === 'create' ? null : options.sourceDigest };
     const bound = { ...base, planning: scope };
     if (action === 'start') {

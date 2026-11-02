@@ -1,3 +1,4 @@
+import { runControlPath } from './run-identity.js';
 import { readFileSync, existsSync } from '../control-read/fs.js';
 import { join } from 'node:path';
 import { readApprovalOperations } from './approval-operations.js';
@@ -26,7 +27,7 @@ export function inspectRunOperation(root, { runId, operationId, targetId }) {
     ...readSourceRevisions(content).receipts.map(receipt => ({ kind: 'source_revision.apply', receipt, id: receipt.operation_id, request_digest: receipt.command_digest ?? receipt.request_digest })),
     ...readRunOperations(content).receipts.map(receipt => ({ kind: receipt.kind, receipt, id: receipt.operation_id, request_digest: receipt.request_digest })),
   ].filter(row => row.id === operationId);
-  const pendingPath = `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`;
+  const pendingPath = runControlPath(runId, 'RUN_STEP_PENDING.json');
   let pending = null;
   if (existsSync(join(root, pendingPath))) {
     try { const journal = readPendingRunStepJournal(root, runId, { readJournal: path => readFileSync(path, "utf8") }); pending = { kind: journal.kind ?? 'legacy',
@@ -43,7 +44,7 @@ export function inspectRunOperation(root, { runId, operationId, targetId }) {
   }
   if (pending) return result({ status: pending.matches_operation ? 'pending' : 'unknown', reason: pending.matches_operation ? null : 'another_pending_operation', pending, current_revision_id: parsed.meta.revision_id });
   // New immutable presentations use the original UUID as their presentation ID.
-  const path = `.agdf/control/runs/${runId}/presentations/${operationId}.json`;
+  const path = `${runControlPath(runId, 'presentations')}/${operationId}.json`;
   if (existsSync(join(root, path))) {
     if (hasSymlinkComponent(root, path) || containedRegularFile(root, path).status !== 'valid') return result({ status: 'unknown', reason: 'presentation_path_invalid' });
     try {

@@ -7,11 +7,11 @@ import { canonicalRunText } from './run-seal-compute.js';
 import { exactObject, canonicalJson } from './approval-command-contract.js';
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN } from './run-identity.js';
 import { hasSymlinkComponent, containedRegularFile } from './contained-file.js';
-import { PLANNED_LAYOUT, readControlLayout, withControlMutation, withControlRecovery, inspectMutationClaims, markControlMutationEffect } from './control-layout.js';
+import { CURRENT_LAYOUT, readControlLayout, withControlMutation, withControlRecovery, inspectMutationClaims, markControlMutationEffect } from './control-layout.js';
 import { evaluateUrContentReadiness } from '../control-evaluation/ur-readiness.js';
 import { resolveArtifactPresentationLanguages } from '../resources/context.js';
 import { readContainedControlText, controlPathPresent } from '../control-read/snapshot.js';
-import { assertPlannedNotTransferred } from './planned-origin.js';
+import { assertPlannedNotTransferred } from './planned-origin-reader.js';
 import { bindInputResolution, resolutionRecord } from './input-resolution.js';
 import { existsSync as observedExists } from '../control-read/fs.js';
 
@@ -87,7 +87,7 @@ export function inspectPlannedEntry(root, id, { presentationLanguage } = {}) {
 
 export function withPlannedEntryLock(root, id, work, { operation_id, recovery = false, resume = false, proveOutcome, checkpoint } = {}) {
   const path = plannedEntryPath(id);
-  if (readControlLayout(root).layout !== PLANNED_LAYOUT) fail('AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED');
+  readControlLayout(root);
   ensureDirectory(root, PLANNED_ROOT);
   if (hasSymlinkComponent(root, path)) fail('AGDF_PLANNED_PATH_INVALID');
   return withOwnedFileLock(join(root, PLANNED_ROOT, `.entry-${id}`), () => {
@@ -171,7 +171,7 @@ export function inspectPlannedOperation(root, id, operationId) {
 
 export function inspectPlannedSelection(root, scope, options) {
   plannedEntryPath(scope.plan_id);
-  if (readControlLayout(root).layout !== PLANNED_LAYOUT) fail('AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED');
+  if (readControlLayout(root).layout !== CURRENT_LAYOUT) fail('AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED');
   if (scope.expected_digest === null) return { available: true, planning: scope, authorizes: false };
   const entry = inspectPlannedEntry(root, scope.plan_id, options);
   if (entry.digest !== scope.expected_digest) {

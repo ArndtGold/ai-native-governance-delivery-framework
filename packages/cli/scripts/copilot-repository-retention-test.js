@@ -61,14 +61,14 @@ try {
       },
     });
     // The user-owned control fragment is deliberately incomplete. Plugin work succeeds,
-    // while the new control preflight reports repair without rewriting repository files.
+    // while the current preflight rejects its control path without rewriting repository files.
     assert.equal(code, 1, `${phase} fixture must report the retained control gap: ${output.join("\n")}`);
     const report = JSON.parse(output.at(-1));
     assert.equal(report.result, "partial");
     assert.equal(report.plugin.result, "success");
     assert.equal(report.effective_state, "control_repair_required");
     assert.equal(report.control.status, "repair_required");
-    assert.ok(report.control.diagnostics.some(({ code }) => code === "AGDF_CONTROL_SCAFFOLD_INCOMPLETE"), JSON.stringify(report.control));
+    assert.deepEqual(report.control.diagnostics.map(({ code }) => code), ["AGDF_CONTROL_PATH_INVALID"], JSON.stringify(report.control));
     output.length = 0;
     assertRetained(phase);
   }

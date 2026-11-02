@@ -19,7 +19,7 @@ try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
   const f = createSdDefinitionTestRun(root, cli, 'decision-fixture', process.env, { typedApprovals: true });
-  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'recorded');
+  writeFileSync(f.file('SD.md'), syntheticSd()); assert.equal(f.recordSd().value.outcome, 'accepted');
   const service = createCoreServices().command;
   const bound = () => ({ schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
     target_id: resolveControlCommandTarget(root).target_id, run_id: f.runId, expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local' });
@@ -57,10 +57,10 @@ try {
   assert.equal(report.next_operation.type, 'revise_gate_material');
   assert.equal(projectArtifactReadiness(root, { runId: f.runId, gate: 'SD', expectedRevisionId: f.revision(), presentationLanguage: 'en' }).ready, false);
   assert.equal(service('agdf_prepare', { ...bound(), command: input.command }).outcome, 'rejected');
-  assert.equal(f.recordSd(true).value.outcome, 'recorded');
+  assert.equal(f.recordSd(true).value.outcome, 'accepted');
   assert.equal(service('agdf_prepare', { ...bound(), command: input.command }).outcome, 'rejected', 'new recording UUID over unchanged material cannot clear rejection');
   writeFileSync(f.file('SD.md'), syntheticSd().replace('Reuse the existing user-owned filter store.', 'Reuse the existing user-owned filter store; verify the selected user before restoring values.'));
-  assert.equal(f.recordSd(true).value.outcome, 'recorded');
+  assert.equal(f.recordSd(true).value.outcome, 'accepted');
   const fresh = service('agdf_prepare', { ...bound(), command: input.command });
   assert.equal(fresh.outcome, 'accepted', JSON.stringify(fresh));
   const approval = { ...bound(), command: { kind: 'approval.record', payload: { gate: 'SD', presentation_id: fresh.family_result.presentation_id, response: 'Approval: SD' } } };
@@ -70,7 +70,7 @@ try {
   assert.equal(service('agdf_approve', { ...approval, presentation_language: 'de' }).reason, 'operation_payload_conflict');
   assert.equal(recordRunPresentationDecision(root, { ...decision, revisionId: f.revision(), operationId: randomUUID(), presentationId: fresh.family_result.presentation_id, action: 'reject', comment: '', requestDigest: digest('opposed late request') }, { evaluateGateCheck }).reason, 'presentation_version_decided');
   assert.equal(readFileSync(f.state, 'utf8'), approved);
-  assert.equal(readApprovalOperations(approved).receipts.at(-1).schema_version, '2');
+  assert.equal(readApprovalOperations(approved).receipts.at(-1).input_resolution.record_version, '4');
   assert.equal(service('agdf_prepare', input).outcome, 'already_applied');
   assert.equal(service('agdf_prepare', input).family_result.text, null, 'historical prepared envelope is not a fresh decision');
   console.log('Shared material-version rejection/change guard, inert comments, replay/conflict, renewed material, exact approval and historical presentation passed (synthetic only).');

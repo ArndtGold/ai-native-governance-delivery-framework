@@ -1,0 +1,418 @@
+TAP version 13
+# Subtest: SCN-004/006: canonical source owns title/priority; incomplete draft saves without a Run or approval
+ok 1 - SCN-004/006: canonical source owns title/priority; incomplete draft saves without a Run or approval
+  ---
+  duration_ms: 969.949852
+  type: 'test'
+  ...
+# Subtest: SCN-005/007: source-bound replacement, original UUID replay and conflicting inputs
+ok 2 - SCN-005/007: source-bound replacement, original UUID replay and conflicting inputs
+  ---
+  duration_ms: 1236.403157
+  type: 'test'
+  ...
+# Subtest: SCN-008/009: malformed metadata, unsafe identity, NUL/Unicode and source limits reject
+ok 3 - SCN-008/009: malformed metadata, unsafe identity, NUL/Unicode and source limits reject
+  ---
+  duration_ms: 806.510321
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_intent interruption replays the exact original effect
+ok 4 - SCN-005: creation create_intent interruption replays the exact original effect
+  ---
+  duration_ms: 717.717057
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_source interruption replays the exact original effect
+ok 5 - SCN-005: creation create_source interruption replays the exact original effect
+  ---
+  duration_ms: 712.152115
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_staged interruption replays the exact original effect
+ok 6 - SCN-005: creation create_staged interruption replays the exact original effect
+  ---
+  duration_ms: 682.648663
+  type: 'test'
+  ...
+# Subtest: SCN-005: creation create_committed interruption replays the exact original effect
+ok 7 - SCN-005: creation create_committed interruption replays the exact original effect
+  ---
+  duration_ms: 645.531498
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_intent interruption has a recoverable single source commit
+ok 8 - SCN-005: replacement replace_intent interruption has a recoverable single source commit
+  ---
+  duration_ms: 915.120036
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_committed interruption has a recoverable single source commit
+ok 9 - SCN-005: replacement replace_committed interruption has a recoverable single source commit
+  ---
+  duration_ms: 842.544892
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_receipt interruption has a recoverable single source commit
+ok 10 - SCN-005: replacement replace_receipt interruption has a recoverable single source commit
+  ---
+  duration_ms: 841.620027
+  type: 'test'
+  ...
+# Subtest: SCN-005: replacement replace_retired interruption has a recoverable single source commit
+ok 11 - SCN-005: replacement replace_retired interruption has a recoverable single source commit
+  ---
+  duration_ms: 992.986623
+  type: 'test'
+  ...
+# Subtest: SCN-005: foreign pending bytes and original-UUID payload conflict are preserved
+ok 12 - SCN-005: foreign pending bytes and original-UUID payload conflict are preserved
+  ---
+  duration_ms: 801.845204
+  type: 'test'
+  ...
+# Subtest: SCN-015/018: explicit source-bound handoff registers unapproved UR and immutable origin in exactly one Run
+ok 13 - SCN-015/018: explicit source-bound handoff registers unapproved UR and immutable origin in exactly one Run
+  ---
+  duration_ms: 1625.411368
+  type: 'test'
+  ...
+# Subtest: SCN-016: incomplete and stale planning sources cannot create a Run
+ok 14 - SCN-016: incomplete and stale planning sources cannot create a Run
+  ---
+  duration_ms: 867.152944
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_intent interruption resumes the original handoff without another Run
+ok 15 - SCN-017: handoff_intent interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 920.898037
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_output_UR.md interruption resumes the original handoff without another Run
+ok 16 - SCN-017: handoff_output_UR.md interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 866.81222
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_output_snapshot interruption resumes the original handoff without another Run
+ok 17 - SCN-017: handoff_output_snapshot interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 823.213229
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_before_run_publish interruption resumes the original handoff without another Run
+ok 18 - SCN-017: handoff_before_run_publish interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 875.553455
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_run_committed interruption resumes the original handoff without another Run
+ok 19 - SCN-017: handoff_run_committed interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 1106.008022
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_entry_receipt interruption resumes the original handoff without another Run
+ok 20 - SCN-017: handoff_entry_receipt interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 918.875222
+  type: 'test'
+  ...
+# Subtest: SCN-017: handoff_retired interruption resumes the original handoff without another Run
+ok 21 - SCN-017: handoff_retired interruption resumes the original handoff without another Run
+  ---
+  duration_ms: 905.797077
+  type: 'test'
+  ...
+# Subtest: SCN-017/019: committed Run origin remains authoritative when entry completion is missing
+ok 22 - SCN-017/019: committed Run origin remains authoritative when entry completion is missing
+  ---
+  duration_ms: 999.585678
+  type: 'test'
+  ...
+# Subtest: SCN-017: foreign sibling outputs are preserved before any publication
+ok 23 - SCN-017: foreign sibling outputs are preserved before any publication
+  ---
+  duration_ms: 948.838718
+  type: 'test'
+  ...
+# Subtest: SCN-018/019: active UR may change while origin remains immutable; missing origin or missing Run plus transfer never permits another Run
+ok 24 - SCN-018/019: active UR may change while origin remains immutable; missing origin or missing Run plus transfer never permits another Run
+  ---
+  duration_ms: 1291.100929
+  type: 'test'
+  ...
+# Subtest: SCN-018: a manually authored BOM/CRLF planned UR has canonical identity and byte-exact immutable origin
+ok 25 - SCN-018: a manually authored BOM/CRLF planned UR has canonical identity and byte-exact immutable origin
+  ---
+  duration_ms: 916.472277
+  type: 'test'
+  ...
+# Subtest: SCN-010/011: priority/title/id ordering and combined Run references are derived, read-only and nonduplicating
+ok 26 - SCN-010/011: priority/title/id ordering and combined Run references are derived, read-only and nonduplicating
+  ---
+  duration_ms: 1589.563994
+  type: 'test'
+  ...
+# Subtest: SCN-011: malformed or denied entry is partial; valid entries and Runs remain visible
+ok 27 - SCN-011: malformed or denied entry is partial; valid entries and Runs remain visible
+  ---
+  duration_ms: 907.147158
+  type: 'test'
+  ...
+# Subtest: SCN-011: absence is distinct from an unreadable planned store
+ok 28 - SCN-011: absence is distinct from an unreadable planned store
+  ---
+  duration_ms: 642.661934
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at create_intent; original UUID proves outcome and retires its retained admission claim
+ok 29 - SCN-005/017/024: real SIGKILL at create_intent; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 2237.294054
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at create_committed; original UUID proves outcome and retires its retained admission claim
+ok 30 - SCN-005/017/024: real SIGKILL at create_committed; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 1862.077355
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at replace_intent; original UUID proves outcome and retires its retained admission claim
+ok 31 - SCN-005/017/024: real SIGKILL at replace_intent; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 2165.827143
+  type: 'test'
+  ...
+# Subtest: SCN-005/017/024: real SIGKILL at replace_committed; original UUID proves outcome and retires its retained admission claim
+ok 32 - SCN-005/017/024: real SIGKILL at replace_committed; original UUID proves outcome and retires its retained admission claim
+  ---
+  duration_ms: 2105.7287
+  type: 'test'
+  ...
+# Subtest: SCN-017/019: real handoff SIGKILL at handoff_before_run_publish resumes exactly one unapproved Run
+ok 33 - SCN-017/019: real handoff SIGKILL at handoff_before_run_publish resumes exactly one unapproved Run
+  ---
+  duration_ms: 2309.8481
+  type: 'test'
+  ...
+# Subtest: SCN-017/019: real handoff SIGKILL at handoff_run_committed resumes exactly one unapproved Run
+ok 34 - SCN-017/019: real handoff SIGKILL at handoff_run_committed resumes exactly one unapproved Run
+  ---
+  duration_ms: 1946.847219
+  type: 'test'
+  ...
+# Subtest: SCN-019: two live processes starting the same entry serialize at its resource and converge on one Run
+ok 35 - SCN-019: two live processes starting the same entry serialize at its resource and converge on one Run
+  ---
+  duration_ms: 2161.988276
+  type: 'test'
+  ...
+# Subtest: SCN-001/002: new-layout Run writes and replay never create or lock a backlog
+ok 36 - SCN-001/002: new-layout Run writes and replay never create or lock a backlog
+  ---
+  duration_ms: 1289.268802
+  type: 'test'
+  ...
+# Subtest: SCN-002: v7 intent interruption recovers only selected owned effects
+ok 37 - SCN-002: v7 intent interruption recovers only selected owned effects
+  ---
+  duration_ms: 664.687368
+  type: 'test'
+  ...
+# Subtest: SCN-002: v7 output interruption recovers only selected owned effects
+ok 38 - SCN-002: v7 output interruption recovers only selected owned effects
+  ---
+  duration_ms: 777.663753
+  type: 'test'
+  ...
+# Subtest: SCN-002: v7 run_after_rename interruption recovers only selected owned effects
+ok 39 - SCN-002: v7 run_after_rename interruption recovers only selected owned effects
+  ---
+  duration_ms: 1011.542163
+  type: 'test'
+  ...
+# Subtest: SCN-002: v7 run interruption recovers only selected owned effects
+ok 40 - SCN-002: v7 run interruption recovers only selected owned effects
+  ---
+  duration_ms: 1183.294667
+  type: 'test'
+  ...
+# Subtest: SCN-002: v7 retired interruption recovers only selected owned effects
+ok 41 - SCN-002: v7 retired interruption recovers only selected owned effects
+  ---
+  duration_ms: 913.977283
+  type: 'test'
+  ...
+# Subtest: SCN-002: foreign version-7 journal members stop recovery without deletion
+ok 42 - SCN-002: foreign version-7 journal members stop recovery without deletion
+  ---
+  duration_ms: 676.826624
+  type: 'test'
+  ...
+# Subtest: current CLI normalizes explicit inputs and replays the original content across process restarts
+ok 43 - current CLI normalizes explicit inputs and replays the original content across process restarts
+  ---
+  duration_ms: 10318.930271
+  type: 'test'
+  ...
+# Subtest: current CLI exact presentation and synthetic gate reply use the common canonical receipt owner
+ok 44 - current CLI exact presentation and synthetic gate reply use the common canonical receipt owner
+  ---
+  duration_ms: 7430.045617
+  type: 'test'
+  ...
+# Subtest: removed migration, projection, reset and synchronization commands fail without changing current control
+ok 45 - removed migration, projection, reset and synchronization commands fail without changing current control
+  ---
+  duration_ms: 7906.584647
+  type: 'test'
+  ...
+# Subtest: current CLI refuses unrelated or repeated fields without changing its selected Run
+ok 46 - current CLI refuses unrelated or repeated fields without changing its selected Run
+  ---
+  duration_ms: 3798.705907
+  type: 'test'
+  ...
+# Subtest: current structured journey retains exact approved source mappings and derives each next gate
+ok 47 - current structured journey retains exact approved source mappings and derives each next gate
+  ---
+  duration_ms: 18516.009347
+  type: 'test'
+  ...
+# Subtest: current source revision: policy 2 preserves exact UR history and invalidates only the declared downstream approvals
+ok 48 - current source revision: policy 2 preserves exact UR history and invalidates only the declared downstream approvals
+  ---
+  duration_ms: 5044.019119
+  type: 'test'
+  ...
+# Subtest: current source revision: policy 2 preserves exact PRD history and invalidates only the declared downstream approvals
+ok 49 - current source revision: policy 2 preserves exact PRD history and invalidates only the declared downstream approvals
+  ---
+  duration_ms: 5509.718563
+  type: 'test'
+  ...
+# Subtest: current source revision: policy 2 preserves exact SD history and invalidates only the declared downstream approvals
+ok 50 - current source revision: policy 2 preserves exact SD history and invalidates only the declared downstream approvals
+  ---
+  duration_ms: 4881.600307
+  type: 'test'
+  ...
+# Subtest: current source revision: policy 2 preserves exact TP history and invalidates only the declared downstream approvals
+ok 51 - current source revision: policy 2 preserves exact TP history and invalidates only the declared downstream approvals
+  ---
+  duration_ms: 4827.118464
+  type: 'test'
+  ...
+# Subtest: fresh current store: creation, exact replay and no parallel current tables
+ok 52 - fresh current store: creation, exact replay and no parallel current tables
+  ---
+  duration_ms: 640.206222
+  type: 'test'
+  ...
+# Subtest: UR recording publishes the canonical document, binding and current journal atomically
+ok 53 - UR recording publishes the canonical document, binding and current journal atomically
+  ---
+  duration_ms: 674.280405
+  type: 'test'
+  ...
+# Subtest: unsupported old layouts and Run versions are refused without mutation
+ok 54 - unsupported old layouts and Run versions are refused without mutation
+  ---
+  duration_ms: 519.812095
+  type: 'test'
+  ...
+# Subtest: pure Run paths reject traversal and unsupported roles
+ok 55 - pure Run paths reject traversal and unsupported roles
+  ---
+  duration_ms: 0.795288
+  type: 'test'
+  ...
+# Subtest: planned handoff publishes UR and immutable origin together; replay creates no sibling
+ok 56 - planned handoff publishes UR and immutable origin together; replay creates no sibling
+  ---
+  duration_ms: 721.064777
+  type: 'test'
+  ...
+# Subtest: handoff interruption at handoff_output_UR.md preserves its original identity and exact snapshot
+ok 57 - handoff interruption at handoff_output_UR.md preserves its original identity and exact snapshot
+  ---
+  duration_ms: 714.134809
+  type: 'test'
+  ...
+# Subtest: handoff interruption at handoff_output_snapshot preserves its original identity and exact snapshot
+ok 58 - handoff interruption at handoff_output_snapshot preserves its original identity and exact snapshot
+  ---
+  duration_ms: 726.141208
+  type: 'test'
+  ...
+# Subtest: handoff interruption at handoff_before_run_publish preserves its original identity and exact snapshot
+ok 59 - handoff interruption at handoff_before_run_publish preserves its original identity and exact snapshot
+  ---
+  duration_ms: 839.100929
+  type: 'test'
+  ...
+# Subtest: handoff interruption at handoff_run_committed preserves its original identity and exact snapshot
+ok 60 - handoff interruption at handoff_run_committed preserves its original identity and exact snapshot
+  ---
+  duration_ms: 702.387325
+  type: 'test'
+  ...
+# Subtest: current UR presentation freezes the document and approval is projected from its receipt
+ok 61 - current UR presentation freezes the document and approval is projected from its receipt
+  ---
+  duration_ms: 890.67365
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at intent replays only the original operation
+ok 62 - current journal: real SIGKILL at intent replays only the original operation
+  ---
+  duration_ms: 1458.275569
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at output replays only the original operation
+ok 63 - current journal: real SIGKILL at output replays only the original operation
+  ---
+  duration_ms: 1328.353768
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at run_after_rename replays only the original operation
+ok 64 - current journal: real SIGKILL at run_after_rename replays only the original operation
+  ---
+  duration_ms: 1354.147184
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at run replays only the original operation
+ok 65 - current journal: real SIGKILL at run replays only the original operation
+  ---
+  duration_ms: 1278.614569
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at retired replays only the original operation
+ok 66 - current journal: real SIGKILL at retired replays only the original operation
+  ---
+  duration_ms: 1232.438242
+  type: 'test'
+  ...
+# Subtest: current journal: unsupported/foreign members remain byte-exact and cannot be silently recovered
+ok 67 - current journal: unsupported/foreign members remain byte-exact and cannot be silently recovered
+  ---
+  duration_ms: 1128.637635
+  type: 'test'
+  ...
+# Subtest: current journals: another live Run remains independent while one original transaction owns its lock
+ok 68 - current journals: another live Run remains independent while one original transaction owns its lock
+  ---
+  duration_ms: 1460.023225
+  type: 'test'
+  ...
+1..68
+# tests 68
+# suites 0
+# pass 68
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 71417.94441

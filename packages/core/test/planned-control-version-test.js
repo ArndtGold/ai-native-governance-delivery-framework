@@ -1,30 +1,36 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { plannedFixture } from './planned-fixtures.js';
+import { currentFixture, currentRun } from './fixtures/current-run.js';
 import { parseRunState } from '../lib/control-state/run-state-parser.js';
-import { legacyControlV2 } from './fixtures/load-legacy-control-v2.js';
-
-test('SCN-029: actual frozen pre-feature parser rejects v3; actual old creation requires absent legacy backlog', t => {
-  const project = plannedFixture(t), legacy = legacyControlV2(t);
-  const text = readFileSync(join(project, '.agdf/control/runs/first/RUN_STATE.md'), 'utf8');
-  assert.equal(parseRunState(text).meta.control_state_version, '3');
-  const env = { ...process.env };
-  for (const key of Object.keys(env)) if (key.startsWith('AGDF_')) delete env[key];
-  const code = `import {readFileSync} from 'node:fs';
-    import {parseRunState} from ${JSON.stringify(pathToFileURL(join(legacy.root, 'runtime/core/lib/control-state/run-state-parser.js')).href)};
-    import {createRun} from ${JSON.stringify(pathToFileURL(join(legacy.root, 'runtime/core/lib/control-state/run-state-repository.js')).href)};
-    const root=process.argv[1], text=readFileSync(root+'/.agdf/control/runs/first/RUN_STATE.md','utf8');
-    const parsed=parseRunState(text); let creation;
-    try {createRun(root,'old-attempt');creation={accepted:true}} catch(e){creation={code:e.code??e.message,path:e.path??null}};
-    console.log(JSON.stringify({valid:parsed.valid,findings:parsed.findings,creation}));`;
-  const observed = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', code, project], { env, encoding: 'utf8' }));
-  assert.equal(observed.valid, false);
-  assert.ok(observed.findings.some(f => f.code === 'AGDF_RUN_VERSION_UNSUPPORTED' && f.actual_version === '3'));
-  assert.equal(observed.creation.code, 'AGDF_CANONICAL_SCAFFOLD_REQUIRED');
-  assert.ok(observed.creation.path.endsWith('MASTER_BACKLOG.md'));
-  assert.deepEqual(readdirSync(join(project, '.agdf/control/runs')), ['first']);
+import { readWorkInventory, readPlannedInventory } from '../lib/control-state/planned-inventory.js';
+import { readRunInventory } from '../lib/control-state/run-inventory-reader.js';
+import { treeBytes } from './control-cockpit-fixtures.js';
+for (const version of ['2', '3', '99']) test(`current parser refuses unsupported Run ${version} without changing original bytes`, t => {
+  const f = currentFixture(t), run = currentRun(f), old = run.content().replace('control_state_version: 4', 'control_state_version: ' + version);
+  writeFileSync(run.path, old); const before = treeBytes(f.root), parsed = parseRunState(old, run.id);
+  assert.equal(parsed.valid, false); assert(parsed.findings.some(row => row.code === 'AGDF_RUN_VERSION_UNSUPPORTED'));
+  const inventory = readWorkInventory(f.root); assert.equal(inventory.state, 'partial');
+  assert(inventory.findings.some(row => row.code === 'AGDF_RUN_VERSION_UNSUPPORTED'));
+  assert.deepEqual(treeBytes(f.root), before);
+});
+for (const layout of ['master-backlog-v1', 'planned-urs-v1']) test(`unsupported layout ${layout} never becomes an empty successful inventory`, t => {
+  const f = currentFixture(t), path = join(f.root, '.agdf/control/config.json');
+  writeFileSync(path, JSON.stringify({ control_layout: layout })); const before = treeBytes(f.root), inventory = readWorkInventory(f.root);
+  assert.equal(inventory.state, 'unavailable'); assert(inventory.findings.some(row => row.code === 'AGDF_CONTROL_LAYOUT_UNSUPPORTED'));
+  assert.deepEqual(treeBytes(f.root), before);
+});
+for (const name of ['runs', 'planned']) test(`missing current ${name} container stays unavailable/incomplete and is never re-created by reading`, t => {
+  const f = currentFixture(t), path = join(f.root, '.agdf/control', name), held = path + '-held';
+  renameSync(path, held); const before = treeBytes(f.root);
+  if (name === 'runs') {
+    const runs = readRunInventory(f.root); assert.equal(runs.state, 'incomplete'); assert.equal(runs.findings[0].code, 'AGDF_RUN_STORE_MISSING');
+    assert.equal(readWorkInventory(f.root).state, 'partial');
+  } else {
+    const planned = readPlannedInventory(f.root); assert.equal(planned.state, 'unavailable'); assert.equal(planned.findings[0].code, 'AGDF_PLANNED_STORE_MISSING');
+    assert.equal(readWorkInventory(f.root).state, 'unavailable');
+  }
+  assert.equal(existsSync(path), false); assert.deepEqual(treeBytes(f.root), before); renameSync(held, path);
+  assert.equal(readWorkInventory(f.root).state, 'complete');
 });

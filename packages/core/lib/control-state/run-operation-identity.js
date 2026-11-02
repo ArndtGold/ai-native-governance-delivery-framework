@@ -1,3 +1,4 @@
+import { runControlPath } from './run-identity.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readRunOperations } from './run-operations.js';
@@ -19,7 +20,7 @@ export function assertRunOperationIdentity(root, run, operationId, family) {
     ...readSourceRevisions(run.content).receipts.map(r => [r.operation_id, 'source_revision.apply']),
   ].filter(([id]) => id === operationId);
   if (receipts.length > 1 || receipts.some(([, kind]) => kind !== family)) throw Error('AGDF_OPERATION_PAYLOAD_CONFLICT');
-  const path = `.agdf/control/runs/${run.meta.run_id}/presentations/${operationId}.json`;
+  const path = `${runControlPath(run.meta.run_id, 'presentations')}/${operationId}.json`;
   if (!existsSync(join(root, path))) return;
   if (hasSymlinkComponent(root, path) || containedRegularFile(root, path).status !== 'valid') throw Error('AGDF_OPERATION_IDENTITY_UNCONFIRMED');
   const bytes = readFileSync(join(root, path)); if (bytes.length > 262144) throw Error('AGDF_OPERATION_IDENTITY_UNCONFIRMED');

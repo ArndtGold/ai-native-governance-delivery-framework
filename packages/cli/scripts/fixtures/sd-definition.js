@@ -1,32 +1,16 @@
-import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { createPrdDefinitionTestRun, syntheticPrd } from "./prd-definition.js";
-import { artefactFileDigest } from "../../../core/lib/control-state/run-seal.js";
-import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
+import assert from 'node:assert/strict';
+import { writeFileSync } from 'node:fs';
+import { createPrdDefinitionTestRun, syntheticPrd } from './prd-definition.js';
 
-// Explicit synthetic authorizations in isolated fixtures, never live human approvals.
-export function createSdDefinitionTestRun(root, validator, runId = "sd-authoring-test", env = process.env, options) {
+// Current CLI commands; all authorization here is synthetic and disposable.
+export function createSdDefinitionTestRun(root, validator, runId = 'sd-authoring-test', env = process.env, options) {
   const f = createPrdDefinitionTestRun(root, validator, runId, env, options);
-  writeFileSync(f.file("PRD.md"), syntheticPrd());
-  assert.equal(f.record().value?.outcome, "recorded");
-  const presentation = f.present(); assert.equal(presentation.value?.outcome, "prepared");
-  assert.equal(f.approve("PRD", presentation.value.presentation_id).value?.outcome, options?.typedApprovals ? "accepted" : "approved");
-  const recordSd = (update = false, mutate = () => {}) => {
-    const proof = f.prefix + `sd-mapping-${randomUUID()}.json`, input = f.prefix + `sd-recording-${randomUUID()}.json`;
-    const value = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
-      expected_revision_id: f.revision(), destination: { type: "SD", path: f.prefix + "SD.md", digest: artefactFileDigest(root, f.prefix + "SD.md"), status: "draft" },
-      source: { type: "PRD", path: f.prefix + "PRD.md", digest: artefactFileDigest(root, f.prefix + "PRD.md") },
-      relationship: { from: "SD", relationship: "derived_from", to: "PRD" },
-      review: { reviewer: "synthetic SD test reviewer", path: proof, digest: "" }, update_draft: update };
-    const { schema_version, target_id, run_id, relationship, destination, source } = value;
-    writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, relationship, destination, source, reviewer: value.review.reviewer, reviewed: true }));
-    value.review.digest = artefactFileDigest(root, proof); mutate(value);
-    writeFileSync(join(root, input), JSON.stringify(value));
-    return f.run("run-step", "--revision", f.revision(), "--step", "artefact", "--gate", "SD", "--evidence", input);
-  };
-  return { ...f, recordSd };
+  writeFileSync(f.file('PRD.md'), syntheticPrd());
+  const recorded = f.record(); assert.equal(recorded.value?.outcome, 'accepted', recorded.text);
+  const presentation = f.present(); assert.equal(presentation.value?.outcome, 'accepted', presentation.text);
+  const approved = f.approve('PRD', presentation.value.family_result.presentation_id);
+  assert.equal(approved.value?.outcome, 'accepted', approved.text);
+  return { ...f, recordSd: (update = false, mutate) => f.recordGate('SD', update, mutate) };
 }
 
 export const syntheticSd = (open = false) => `# SD: Synthetic saved filter

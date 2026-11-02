@@ -184,6 +184,24 @@ test('the unchanged timing fixture runs once per lane without preceding fault or
   }
 });
 
+test('ten source-revision cycles retain one full invocation in an exclusive job per platform', () => {
+  const file = 'scripts/late-source-revision-performance-test.js';
+  const canonical = testInventory().filter(command => command.cwd === 'packages/cli' && command.args[0] === file);
+  assert.equal(canonical.length, 1);
+  assert.equal(canonical[0].isolated, true);
+  const owners = ciJobs().filter(row => row.commands?.some(command => command.args[0] === file));
+  assert.equal(owners.length, 3);
+  for (const row of owners) {
+    assert.ok(row.id.endsWith('-revision-performance'));
+    assert.equal(row.area, 'revisions');
+    assert.deepEqual(row.commands.map(command => [command.cwd, command.tool, command.args]), [['packages/cli', 'node', [file]]]);
+    assert.deepEqual(ciJobPlan(row).filter(stage => !preparation.includes(stage.id)).flatMap(stage => stage.commands.map(command => command.args)), [[file]]);
+  }
+  assert.equal(CI_TEST_BUDGET_SECONDS, 360);
+  assert.equal(CI_EXECUTION_BUDGET_MS, 480000);
+  assert.match(readFileSync(new URL('../packages/cli/scripts/late-source-revision-performance-test.js', import.meta.url), 'utf8'), /cycle <= 10/);
+});
+
 test('retained Main-CI Windows costs cannot rebuild the exhausted MCP partition', () => {
   const baseline = JSON.parse(readFileSync(new URL('./ci-duration-baseline.json', import.meta.url), 'utf8'));
   const observations = baseline.file_observations.filter(row => row.source_run === 41017974003);

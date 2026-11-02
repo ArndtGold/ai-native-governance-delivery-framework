@@ -1,5 +1,7 @@
+import { initializeCurrentControl } from '../../../packages/core/test/fixtures/current-init.js';
+import { createRun } from '../../../packages/core/lib/control-state/run-state-repository.js';
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -50,8 +52,9 @@ test("new-run, document-page and stale-write predicates (SCN-009)", () => {
   try {
     const task = { success: { type: "single_new_run_at_ur" } };
     assert.equal(evaluateSuccess({ task, fixture: { root }, parsed: parsedOf([]), mutationViolations: [] }).success, false);
-    mkdirSync(join(root, ".agdf/control/runs/new-run"), { recursive: true });
-    writeFileSync(join(root, ".agdf/control/runs/new-run/RUN_STATE.md"), "- current_gate: UR\n");
+    execFileSync("git", ["init", "-q", root]);
+    initializeCurrentControl(root, "en");
+    createRun(root, "new-run");
     assert.equal(evaluateSuccess({ task, fixture: { root }, parsed: parsedOf([]), mutationViolations: [] }).success, true);
   } finally { rmSync(root, { recursive: true, force: true }); }
 
@@ -92,7 +95,7 @@ test("approval predicate on a real presented fixture (SCN-009)", () => {
     assert.equal(evaluateSuccess({ task, fixture, parsed: parsedOf([]), mutationViolations: [] }).success, false);
     const approved = spawnSync(process.execPath, [CLI, "run-approve", "--dir", fixture.root, "--json", "--run", "demo-run-01", "--gate", "UR",
       "--revision", fixture.revision(), "--presentation", fixture.presentationId, "--response", "Approval: UR"], { encoding: "utf8" });
-    assert.equal(JSON.parse(approved.stdout).outcome, "approved", approved.stderr);
+    assert.equal(JSON.parse(approved.stdout).outcome, "accepted", approved.stderr);
     assert.equal(evaluateSuccess({ task, fixture, parsed: parsedOf([]), mutationViolations: [] }).success, true);
   } finally { fixture.dispose(); }
 });
@@ -227,7 +230,7 @@ test("a native run without token needs the explicit credential-copy opt-in and s
 });
 
 test('strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery', async () => {
-  const { strictT4DocumentFlow } = await import('../lib/native-run.js');
+  const { strictT4DocumentFlow, strictPresentedDocumentRead } = await import('../lib/native-run.js');
   const { createHash } = await import('node:crypto');
   const expectedBytes = Buffer.from('First page\n🙂\nLast page\n');
   const digest = `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}`;
@@ -244,6 +247,10 @@ test('strict T4 proof rejects omissions, duplication, substitution, cursor chang
   assert.equal(run(undefined, { detours: ['Read'] }).success, false);
   assert.equal(run(undefined, { trace_complete: false }).success, false);
   assert.equal(strictT4DocumentFlow({ parsed: { calls: [discovery, ...pages], trace_complete: true, detours: [] }, expectedBytes, binding, finalText: 'Document retrieved.' }).reason, 'complete_user_delivery_unproven');
+  const readOnly = calls => strictPresentedDocumentRead({ parsed: { calls, trace_complete: true, detours: [] }, expectedBytes, binding });
+  assert.equal(readOnly(pages).success, true, 'a newly prepared RUN_MODEL presentation needs a full read, without a user-delivery claim');
+  assert.equal(Object.hasOwn(readOnly(pages), 'complete_user_delivery'), false);
+  for (const calls of [[pages[0]], [pages[1], pages[0]], [pages[0], pages[0], pages[1]], [pages[0], bad], [pages[0], corrupt]]) assert.equal(readOnly(calls).success, false);
 });
 
 test('Codex trace audit includes failed detours and incomplete calls, preserving original task predicate', async () => {
@@ -281,11 +288,24 @@ test('code-mode discovery and inspect wrappers are audited without permitting sh
   const discovery = 'const matches = ALL_TOOLS.filter(x => /run|UR|artifact/i.test(x.name + " " + x.description)); text(matches);';
   assert.equal(pureInspectWrapper(discovery), true);
   assert.equal(pureInspectWrapper('const r = await tools.mcp__agdf__agdf_inspect({operation:"gate-check"}); text(r);'), true);
+  for (const code of [
+    'for(const module of ["ur-definition"]){const r={report:{schema:1}};const {schema,...rest}=r.report;text(rest);}',
+    'const doc="Größe".replace("Größe","Größe II");text(new TextEncoder().encode(doc).length);',
+    'const b=unescape(encodeURIComponent("Größe"));const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";let data="";for(let i=0;i<b.length;i+=3){const n=(b.charCodeAt(i)<<16)|((b.charCodeAt(i+1)||0)<<8)|(b.charCodeAt(i+2)||0);data+=chars[(n>>>18)&63];}text(data);',
+    'for(const [id,payload] of [["one",{action:"begin"}]])text({id,payload});',
+    'const bytes=Array.from(unescape(encodeURIComponent("Größe")),c=>c.charCodeAt(0));for(let i=0;i<bytes.length;i+=3){text(bytes[i]+(bytes[i+1]||0));}',
+  ]) assert.equal(pureInspectWrapper(code), true, code);
   for (const code of ['text(await tools.exec_command({cmd:"cat .agdf/control/runs/demo-run-01/RUN_STATE.md"}));',
     'const t=tools; const f=t.exec_command; text(await f({cmd:"cat control"}));',
     'const f=tools.mcp__agdf__agdf_inspect; text(await f({operation:"doctor"}));',
     'const k="constructor"; const F=text[k]; const run=F("return process"); text(run().env);',
-    'text(process.env);', 'const f = await import("node:fs"); text(f);', 'text(eval("1"));', 'text(({}).constructor);']) assert.equal(pureInspectWrapper(code), false, code);
+    'text(process.env);', 'const f = await import("node:fs"); text(f);', 'text(eval("1"));', 'text(({}).constructor);',
+    'const {constructor:F}=text;F("return process")();', 'const k="constructor";text(text[k]);',
+    'const k=0;tools[k&63]({});', 'const {tools}=load("data");text(tools);',
+    'text(new Function("return process"));', 'text(module.exports);',
+    'for(let i=0;i<1;i++){i="constructor";text(text[i]);}',
+    'for(let i=0;i<1;i++){const f=(i=>text[i])("constructor");f("return process");}',
+    'for(let i=0;i<1;i++){text(tools[i]);}']) assert.equal(pureInspectWrapper(code), false, code);
   const rollout = [
     { type: 'event_msg', payload: { type: 'item_completed', item: { type: 'UserMessage', id: 'user', content: [] } } },
     { type: 'response_item', payload: { type: 'custom_tool_call', name: 'exec', call_id: 'discovery', input: discovery } },

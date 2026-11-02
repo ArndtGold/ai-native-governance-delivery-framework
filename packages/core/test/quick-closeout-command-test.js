@@ -1,3 +1,4 @@
+import { createRun } from '../lib/control-state/run-state-repository.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -6,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createCoreServices } from '../lib/index.js';
 import { artefactFileDigest, runSealState } from '../lib/control-state/run-seal.js';
+import { prepareRunContentState } from '../lib/control-evaluation/run-state.js';
 import { parseRunState } from '../lib/control-state/run-state-parser.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { closeoutConfirmation } from '../lib/control-evaluation/closeout-readiness.js';
@@ -18,8 +20,8 @@ try {
   const cli = resolve(import.meta.dirname, '../../cli/bin/create-agdf.js');
   execFileSync('git', ['init', '-q', root]);
   execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
-  const run = 'quick-command', prefix = `.agdf/control/artefacts/${run}/`, path = join(root, `.agdf/control/runs/${run}/RUN_STATE.md`);
-  execFileSync(process.execPath, [cli, 'run-create', '--dir', root, '--run', run]);
+  const run = 'quick-command', prefix = `.agdf/control/runs/${run}/documents/`, path = join(root, `.agdf/control/runs/${run}/RUN_STATE.md`);
+  createRun(root, run);
   mkdirSync(join(root, prefix), { recursive: true });
   const core = createCoreServices(), service = core.command, target = resolveControlCommandTarget(root).target_id;
   const revision = () => parseRunState(readFileSync(path, 'utf8'), run).meta.revision_id;
@@ -90,29 +92,32 @@ try {
   assert.equal(completed.terminal, true); assert.equal(completed.control.next_operation, null);
   assert.equal(existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md')), false, 'new-layout quick closeout never creates a backlog');
 
-  // The documented CLI lane records the Code Review without a registered file; closeout must still be reachable.
-  const cliRun = 'quick-cli', cliPrefix = `.agdf/control/artefacts/${cliRun}/`, cliPath = join(root, `.agdf/control/runs/${cliRun}/RUN_STATE.md`);
+  // The documented CLI lane records the Code Review with its exact current source; closeout must still be reachable.
+  const cliRun = 'quick-cli', cliPrefix = `.agdf/control/runs/${cliRun}/documents/`, cliPath = join(root, `.agdf/control/runs/${cliRun}/RUN_STATE.md`);
   const cliRevision = () => parseRunState(readFileSync(cliPath, 'utf8'), cliRun).meta.revision_id;
   const runCli = (...args) => JSON.parse(execFileSync(process.execPath, [cli, ...args, '--dir', root, '--run', cliRun, '--json'], { encoding: 'utf8' }));
-  execFileSync(process.execPath, [cli, 'run-create', '--dir', root, '--run', cliRun]);
+  createRun(root, cliRun);
   mkdirSync(join(root, cliPrefix), { recursive: true });
   writeFileSync(join(root, cliPrefix, 'UR.md'), '# UR: Synthetic CLI subtraction\n\n## Problem\nA bounded numeric operation is missing.\n## Goal\nProvide the operation with a regression.\n## Scope\nOne function and its direct test.\n\n## AGDF Approval Summary (en; source=en)\n- Problem: A bounded subtraction operation is missing.\n- Goal: Provide the operation with its regression.\n- Scope: One function and its test.\n');
   writeFileSync(join(root, cliPrefix, 'BROWNFIELD_REVIEW.md'), '# Brownfield Review\nSynthetic disposable single-function scope.\n');
-  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'ur', '--title', 'Synthetic CLI subtraction').outcome, 'recorded');
-  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'route', '--route', 'quick_task', '--reason', 'One bounded function and regression.', '--evidence', `${cliPrefix}BROWNFIELD_REVIEW.md`).outcome, 'recorded');
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'ur', '--title', 'Synthetic CLI subtraction', '--evidence', join(root,cliPrefix,'UR.md')).outcome, 'accepted');
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'route', '--route', 'quick_task', '--reason', 'One bounded function and regression.', '--evidence', join(root,cliPrefix,'BROWNFIELD_REVIEW.md')).outcome, 'accepted');
   const presentation = runCli('run-present', '--gate', 'UR', '--revision', cliRevision(), '--language', 'en');
-  assert.equal(runCli('run-approve', '--gate', 'UR', '--revision', cliRevision(), '--presentation', presentation.presentation_id, '--response', 'Approval: UR').outcome, 'approved');
+  assert.equal(runCli('run-approve', '--gate', 'UR', '--revision', cliRevision(), '--presentation', presentation.family_result.presentation_id, '--response', 'Approval: UR').outcome, 'accepted');
   writeFileSync(join(root, cliPrefix, 'CODE_REVIEW.md'), '# Code Review\n- decision: pass\n');
-  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'review', '--decision', 'pass', '--evidence', 'Synthetic diff reviewed', '--source', `${cliPrefix}CODE_REVIEW.md`).outcome, 'recorded');
-  assert.match(readFileSync(cliPath, 'utf8'), /^\| CR \| +\| done \|/m, 'the CLI review step registers no CR file');
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'review', '--decision', 'pass', '--evidence', join(root,cliPrefix,'CODE_REVIEW.md')).outcome, 'accepted');
+  assert.ok(prepareRunContentState(root,readFileSync(cliPath, 'utf8')).artefacts.get('CR').path);
   const cliDispatch = () => core.dispatch({ skillId: 'gate-check', presentationLanguage: 'en', workingDirectory: root, primaryTarget: root,
     targetSource: 'continued_target', runId: cliRun, continueDelivery: true, surface: 'codex', expectedVersion: core.resources.pluginDefinition.version,
     skillSet: core.resources.pluginDefinition.skillSet, interactionLocales: core.resources.interactionLocales });
   const cliCloseout = cliDispatch();
   assert.equal(cliCloseout.continuation?.phase, 'compact_closeout', JSON.stringify(cliCloseout));
   assert.equal(cliCloseout.continuation.skill_id, 'release-or');
-  assert.deepEqual(cliCloseout.continuation.source_artifacts.map(source => source.type), ['UR', 'Brownfield Review']);
-  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'closeout', '--result', 'Synthetic subtraction complete.', '--evidence', 'Disposable test result recorded.', '--risk', 'none', '--next', 'Optional VCS handoff.').current_gate, 'OR');
+  assert.deepEqual(cliCloseout.continuation.source_artifacts.map(source => source.type), ['UR', 'Brownfield Review', 'CR']);
+  const cliOr = discoveredOr.replaceAll(run, cliRun);
+  writeFileSync(join(root, cliPrefix, 'OR_CANDIDATE.md'), cliOr);
+  const cliOp = randomUUID(), cliHash = artefactFileDigest(root, cliPrefix + 'OR_CANDIDATE.md');
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--operation', cliOp, '--step', 'closeout', '--evidence', join(root,cliPrefix,'OR_CANDIDATE.md'), '--confirmation', closeoutConfirmation(cliRun, cliRevision(), cliOp, cliHash)).outcome, 'accepted');
   assert.equal(runSealState(root, readFileSync(cliPath, 'utf8')).status, 'valid');
   assert.equal(evaluateGateCheck(root, { runId: cliRun }).completion.fulfilled, true);
   assert.equal(cliDispatch().terminal, true);

@@ -1,4 +1,5 @@
-import { scalarFields } from "./run-state-document.js";
+import { CURRENT_RUN_VERSION, RUN_MODES } from './run-identity.js';
+import { scalarFields, hasPersistedDerivedState } from "./run-state-document.js";
 export { scalarFields, sectionTableRows, duplicateArtefactRowTypes, parseArtefactPathCell, parseControlState } from "./run-state-document.js";
 import { normalizeLineEndings } from "./run-text.js";
 export { normalizeLineEndings } from "./run-text.js";
@@ -31,11 +32,15 @@ export function parseRunState(content, expected) {
   if (expected && id !== expected)
     findings.push({ code: "AGDF_RUN_PATH_MISMATCH" });
   const version = values.get('control_state_version');
-  if (!['2', '3'].includes(version)) {
+  if (version !== String(CURRENT_RUN_VERSION)) {
     const unsupported = /^[1-9]\d*$/u.test(version ?? '') && !duplicates.includes('control_state_version');
     findings.push({ code: unsupported ? 'AGDF_RUN_VERSION_UNSUPPORTED' : 'AGDF_RUN_VERSION_INVALID',
       actual_version: version ?? null, classification: unsupported ? 'unsupported_version' : 'unclassified' });
+    return { content, meta: Object.fromEntries(values), findings, valid: false };
   }
+  if (!RUN_MODES.includes(values.get('mode'))) findings.push({ code: 'AGDF_RUN_MODE_INVALID' });
+  if (values.has('decision')) findings.push({ code: 'AGDF_RUN_DERIVED_STATE_FORBIDDEN' });
+  if (hasPersistedDerivedState(content)) findings.push({ code: 'AGDF_RUN_DERIVED_STATE_FORBIDDEN' });
   if (!LIFECYCLES.has(values.get("lifecycle")))
     findings.push({ code: "AGDF_RUN_LIFECYCLE_INVALID" });
   if (!/^[1-9]\d*$/.test(values.get("revision") ?? ""))
@@ -77,8 +82,7 @@ export function parseRunState(content, expected) {
   const evidenceBindings = readEvidenceBindings(content);
   if (!evidenceBindings.valid || evidenceBindings.bindings.some(row => row.run_id !== id
     || (['step.record', 'ur_draft.replace'].includes(row.action)
-      ? !runOperations.receipts.some(r => r.operation_id === row.operation_id && r.kind === row.action && r.effect.record.step === row.step
-          && r.effect.record.source.path === row.report.path && r.effect.record.source.digest === row.report.digest && r.effect.record.source_set_digest === row.source_set_digest)
+      ? !runOperations.receipts.some(r => r.operation_id === row.operation_id && r.kind === row.action && r.effect.record.evidence_binding_id === row.operation_id)
       : !bindings.receipts.some(r => r.operation.id === row.operation_id && r.relationship.from === (row.step === 'QA' ? 'QA_REPORT' : row.step)
           && r.destination.path === row.report.path && r.destination.digest === row.report.digest)))) findings.push({ code: 'AGDF_EVIDENCE_BINDINGS_INVALID' });
   const existingEffects = [
@@ -87,7 +91,6 @@ export function parseRunState(content, expected) {
     ...revisions.receipts.map(r => ({ id: r.operation_id, revision: r.revision, next: r.resulting_revision_id })),
   ];
   if (!runOperations.valid || runOperations.receipts.some(r => r.run_id !== id
-      || ['control_layout.migrate', 'run.create_from_planned'].includes(r.kind) && version !== '3'
       || r.effect.revision > Number(values.get("revision"))
       || r.effect.revision === Number(values.get("revision")) && r.effect.resulting_revision_id !== values.get("revision_id")
       || existingEffects.some(e => e.id === r.operation_id || e.revision === r.effect.revision || e.next === r.effect.resulting_revision_id))) {

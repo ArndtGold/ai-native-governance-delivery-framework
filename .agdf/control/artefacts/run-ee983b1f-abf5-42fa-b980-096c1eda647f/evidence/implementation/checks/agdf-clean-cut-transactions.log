@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: current journal: real SIGKILL at intent replays only the original operation
+ok 1 - current journal: real SIGKILL at intent replays only the original operation
+  ---
+  duration_ms: 1398.635824
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at output replays only the original operation
+ok 2 - current journal: real SIGKILL at output replays only the original operation
+  ---
+  duration_ms: 1263.236219
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at run_after_rename replays only the original operation
+ok 3 - current journal: real SIGKILL at run_after_rename replays only the original operation
+  ---
+  duration_ms: 1339.467739
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at run replays only the original operation
+ok 4 - current journal: real SIGKILL at run replays only the original operation
+  ---
+  duration_ms: 1607.457505
+  type: 'test'
+  ...
+# Subtest: current journal: real SIGKILL at retired replays only the original operation
+ok 5 - current journal: real SIGKILL at retired replays only the original operation
+  ---
+  duration_ms: 1247.62863
+  type: 'test'
+  ...
+# Subtest: current journal: unsupported/foreign members remain byte-exact and cannot be silently recovered
+ok 6 - current journal: unsupported/foreign members remain byte-exact and cannot be silently recovered
+  ---
+  duration_ms: 1317.867443
+  type: 'test'
+  ...
+# Subtest: current journals: another live Run remains independent while one original transaction owns its lock
+ok 7 - current journals: another live Run remains independent while one original transaction owns its lock
+  ---
+  duration_ms: 1418.953614
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10008.554707

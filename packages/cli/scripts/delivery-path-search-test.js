@@ -9,7 +9,8 @@ import { fixtureEvaluator } from "../lib/delivery-path-search/evaluators/protoco
 import { fixtureGenerator } from "../lib/delivery-path-search/generators/protocol.js";
 import { persistSearchResult } from "#agdf-core/delivery-path-search/persistence.js";
 import { searchInputFromControl } from "#agdf-core/delivery-path-search/state-adapter.js";
-import { sealRunState } from "#agdf-core/control-state/run-seal.js";
+import { currentFixture, currentRun } from '../../core/test/fixtures/current-run.js';
+import { structuredCurrentRun } from '../../core/test/fixtures/current-structured-run.js';
 
 const baseInput = {
   contract_version: "1",
@@ -158,10 +159,11 @@ assert.equal(strictGenerationBudget.generation.failure_code, "generator_budget_e
 assert.equal(strictGenerationBudget.generation.cost_units, 2, "reported over-budget consumption must remain visible");
 assert.equal(strictGenerationBudget.status, "recommendation");
 
-const temp = mkdtempSync(join(tmpdir(), "agdf-dps-test-"));
+const persistenceCleanups = [], persistenceFixture = currentFixture({ after: callback => persistenceCleanups.push(callback) });
+const persistenceRun = currentRun(persistenceFixture), temp = persistenceFixture.root;
 try {
   const persisted = persistSearchResult(temp, {
-    ...result,
+    ...result, scope_key: persistenceRun.id, scope_revision: persistenceRun.binding().expected_revision_id,
     raw_prompt: "must not persist",
     hidden_reasoning: "must not persist",
   });
@@ -172,120 +174,24 @@ try {
   assert.throws(() => persistSearchResult(blockedRoot, inputUnavailable), /not persistable/);
   assert.equal(existsSync(blockedRoot), false, "non-persistable results must not create output directories");
 } finally {
-  rmSync(temp, { recursive: true, force: true });
+  for (const cleanup of persistenceCleanups.reverse()) cleanup();
 }
 
-const canonicalRoot = mkdtempSync(join(tmpdir(), "agdf-dps-canonical-"));
+const disposers = [];
+const current = structuredCurrentRun({ after: dispose => disposers.push(dispose) });
+const canonicalRoot = current.f.root, runId = current.id;
 try {
-  const cli = join(import.meta.dirname, "..", "bin", "create-agdf.js");
-  execFileSync(process.execPath, [cli, "init", "--dir", canonicalRoot]);
-  rmSync(join(canonicalRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });
-  execFileSync(process.execPath, [cli, "run-create", "--dir", canonicalRoot, "--run", "canonical-search"]);
-  const artefactRoot = join(canonicalRoot, ".agdf", "control", "artefacts", "canonical-search");
-  mkdirSync(artefactRoot, { recursive: true });
-  for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "BROWNFIELD_REVIEW.md", "BROWNFIELD_ANALYSIS.md"]) {
-    writeFileSync(join(artefactRoot, name), `# ${name}\n`);
-  }
-  writeFileSync(join(canonicalRoot, ".agdf", "control", "MASTER_BACKLOG.md"), `# AGDF Master Backlog
-
-## Active Backlog
-
-| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
-|---:|---|---|---|---|---|---|
-| 1 | \`canonical-search\` | Canonical search fixture | In Progress | [UR](artefacts/canonical-search/UR.md) · [Brownfield](artefacts/canonical-search/BROWNFIELD_REVIEW.md) · [PRD](artefacts/canonical-search/PRD.md) · [SD](artefacts/canonical-search/SD.md) · [TP](artefacts/canonical-search/TP.md) | [TP](artefacts/canonical-search/TP.md) | Implement approved tasks |
-`);
-  writeFileSync(join(canonicalRoot, ".agdf", "control", "runs", "canonical-search", "RUN_STATE.md"), sealRunState(canonicalRoot, `# AGDF Run State
-
-## Run Meta
-
-- control_state_version: 2
-- run_id: canonical-search
-- lifecycle: active
-- revision: 1
-- revision_id: 11111111-1111-4111-8111-111111111111
-- mode: structured_delivery
-- current_gate: CD+Tests
-- decision: in_progress
-- owner: test
-
-## Objective
-
-Verify canonical actions without a persisted Run Status Card.
-
-## Current Control State
-
-| Question | Answer |
-|---|---|
-| What is known? | Approved implementation fixture. |
-| What is approved? | UR through TP and Brownfield Analysis. |
-| What is missing? | Implementation. |
-| What is the next allowed action? | Implement approved tasks. |
-| What is explicitly forbidden right now? | QA pass; release. |
-
-## Approvals
-
-| Gate | Status | Evidence |
-|---|---|---|
-| UR | approved | Approval: UR |
-| PRD | approved | Approval: PRD |
-| SD | approved | Approval: SD |
-| TP | approved | Approval: TP |
-| QA | missing | none |
-| UAT | missing | none |
-
-## Artefacts
-
-| Type | Path | Status | Notes |
-|---|---|---|---|
-| UR | .agdf/control/artefacts/canonical-search/UR.md | approved | ready |
-| Brownfield Review | .agdf/control/artefacts/canonical-search/BROWNFIELD_REVIEW.md | done | ready |
-| PRD | .agdf/control/artefacts/canonical-search/PRD.md | approved | ready |
-| SD | .agdf/control/artefacts/canonical-search/SD.md | approved | ready |
-| TP | .agdf/control/artefacts/canonical-search/TP.md | approved | ready |
-| Brownfield Analysis | .agdf/control/artefacts/canonical-search/BROWNFIELD_ANALYSIS.md | done | pass |
-
-## Mode/Slice Decision
-
-- decision: structured_delivery
-- required_next_gate: PRD
-- scope_reason: Public contract fixture.
-- evidence: fixture
-
-## Artefact Chain
-
-| From | Relationship | To | Evidence |
-|---|---|---|---|
-| UR | approved_by | Approval: UR | fixture |
-| PRD | derived_from | UR | fixture |
-| SD | derived_from | PRD | fixture |
-| TP | derived_from | SD | fixture |
-
-## Evidence
-
-| Evidence | Source | Covers | Strength |
-|---|---|---|---|
-| Canonical fixture | test | action parity | direct |
-
-## Risks
-
-| Risk | Evidence | Severity | Required action |
-|---|---|---|---|
-| Regression | fixture | revise | test |
-
-## Closeout
-
-- next_allowed_action: Implement approved tasks.
-`));
-  const canonicalInput = searchInputFromControl(canonicalRoot, { scopeKey: "canonical-search" });
-  assert.equal(canonicalInput.scope_key, "canonical-search");
-  assert.equal(canonicalInput.scope_revision, "11111111-1111-4111-8111-111111111111");
+  assert.equal(current.step('internal', '# Brownfield Analysis\nDecision: pass\nSynthetic path-search prerequisite.\n', { internal_step: 'Brownfield Analysis', decision: 'pass' }).outcome, 'accepted');
+  const canonicalInput = searchInputFromControl(canonicalRoot, { scopeKey: runId });
+  assert.equal(canonicalInput.scope_key, runId);
+  assert.equal(canonicalInput.scope_revision, current.binding().expected_revision_id);
   assert.ok(canonicalInput.allowed_actions.includes("implement the approved TP tasks"));
   assert.equal(canonicalInput.input_failure_code, undefined);
-  assert.doesNotMatch(readFileSync(join(canonicalRoot, ".agdf", "control", "runs", "canonical-search", "RUN_STATE.md"), "utf8"), /## Run Status Card/);
+  assert.doesNotMatch(readFileSync(join(canonicalRoot, ".agdf", "control", "runs", runId, "RUN_STATE.md"), "utf8"), /## Run Status Card/);
 
-  const staleInput = searchInputFromControl(canonicalRoot, { scopeKey: "canonical-search" }, {
+  const staleInput = searchInputFromControl(canonicalRoot, { scopeKey: runId }, {
     evaluateGateCheck: () => ({
-      status_card: { run_id: "canonical-search" },
+      status_card: { run_id: runId },
       status_presentation: { revision_id: "stale-revision" },
       current_gate: "CD+Tests",
       allowed: ["implement the approved TP tasks"],
@@ -294,14 +200,14 @@ Verify canonical actions without a persisted Run Status Card.
       next_allowed_action: "Refresh control state.",
     }),
     readRunState: () => ({
-      content: readFileSync(join(canonicalRoot, ".agdf", "control", "runs", "canonical-search", "RUN_STATE.md"), "utf8"),
+      content: readFileSync(join(canonicalRoot, ".agdf", "control", "runs", runId, "RUN_STATE.md"), "utf8"),
       risks: [],
     }),
   });
   assert.equal(staleInput.input_failure_code, "stale_control_snapshot");
   assert.deepEqual(staleInput.allowed_actions, []);
 } finally {
-  rmSync(canonicalRoot, { recursive: true, force: true });
+  for (const dispose of disposers.reverse()) dispose();
 }
 
 console.log("Delivery Path Search focused tests passed.");

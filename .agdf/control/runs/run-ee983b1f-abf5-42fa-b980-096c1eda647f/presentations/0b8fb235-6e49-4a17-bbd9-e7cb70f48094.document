@@ -1,0 +1,30 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: One Run Folder And One Current Control Data Model
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Ein gemeinsamer Run-Ordner und genau ein aktuelles Datenmodell; keine Masterbacklog- oder Altformat-Unterstützung.
+- Umfang: Die bestehenden Core-, CLI/MCP-, Cockpit-, Planungs- und Paket-Owner werden gemeinsam auf die neue Ablage umgestellt; kein neuer Event-Store und keine zweite Zustandsdatei.
+- SDD-001: Layout run-folders-v1 und Run-Version 4. Unter jedem Run liegen RUN_STATE.md, documents, evidence, control und history. V2/V3 und alte Pfade werden abgewiesen.
+- SDD-002: RUN_STATE.md bleibt kanonisch. Aktueller Gate-/Freigabestand, Dokumentzuordnung und Übersichten werden aus den bestehenden typisierten Datensätzen abgeleitet statt mehrfach als aktuelle Tabellen gepflegt.
+- SDD-003: Review-Aussage und Quellenbindung werden zusammen gespeichert. RECORD-/REVIEW-Dateien und die separate Origin-JSON entfallen. Exakte Entscheidungsfassungen, Quellenhistorie und erforderliche Replay-/Recovery-Daten bleiben erhalten.
+- SDD-004: Je Datensatzfamilie genau ein aktuelles Format, Transaktionsjournal Version 7. Ursprüngliche UUID, Eingabeauflösung, Integritätsprüfung, gezielte Wiederherstellung und unabhängige Run-Sperren bleiben verbindlich.
+- SDD-005: Geplante URs bleiben getrennt. Erst ausdrücklicher Handoff erzeugt einen unfreigegebenen Run; seine Herkunft liegt im Erzeugungsdatensatz und einem unveränderlichen UR-Snapshot.
+- SDD-006: Cockpit und CLI/MCP zeigen nur das aktuelle Modell. Legacy-Ansicht, Masterbacklog- und Migrationsbefehle entfallen; alte, beschädigte und vorübergehend nicht lesbare Bestände werden unterscheidbar gemeldet.
+- SDD-007: Diesen steuernden Run führen wir mit der bereits gebundenen Laufzeit bis OR zu Ende. Das neue Paket wird an frischen isolierten Beständen geprüft. Danach bleibt dieser alte Bestand historisch und für die neue Laufzeit unsupported; keine Datenmigration, stille Neusiegelung oder automatische Neuinitialisierung.
+- SDD-008: Vorhandene Generatoren und Paketprüfungen weiterverwenden. Gezielte Funktions-/Unterbrechungs-/Concurrency-Tests, Pflicht-CI und frische Codex-CLI-Qualifikation belegen den neuen Kandidaten; andere Hosts erhalten dadurch keine neue native Abnahme.
+- Entscheidungen: Ordner, Zustandsrepräsentation, Metadatenhaltung, aktuelle Formate und der endliche Übergang dieses Runs sind entschieden. Im TP folgen konkrete Aufgaben, Szenarien und Prüfreihenfolge.
+- Grenzen und Risiken: Die Umstellung betrifft Pfade innerhalb von Freigaben, Seals und Historie; alle Leser und Schreiber müssen gemeinsam folgen. Noch keine Implementierung oder Hostqualifikation. Alte echte Projektbestände werden nicht automatisch umgestellt, andere Arbeitskopien nicht bereinigt und kein Plugin global installiert.
+- Nächster Schritt: Approval: SD erlaubt den Task-/Testplan; Umsetzung bleibt bis Approval: TP und Vorbereitung gesperrt.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-ee983b1f-abf5-42fa-b980-096c1eda647f` · Lösungsdesign · Revision: `4dfd40af-388c-49f8-b6ef-2187aa8f4326`
+
+SHA-256: `sha256:18e8718c42dd2b23f13038d8b1e0466146a0383fd336ef3c769fc9cd952c592a`

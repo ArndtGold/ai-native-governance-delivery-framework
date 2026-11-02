@@ -9,7 +9,7 @@ const revision = '11111111-1111-4111-8111-111111111111';
 const snapshot = '22222222-2222-4222-8222-222222222222';
 const replacement = '33333333-3333-4333-8333-333333333333';
 function source(id = 'run-a'): DraftCheckData {
-  return { source: { run_id: id, revision_id: revision, gate: 'PRD', artifact_path: `.agdf/control/artefacts/${id}/PRD.md`, artifact_digest: 'sha256:' + 'a'.repeat(64), available: true, reason: null },
+  return { source: { run_id: id, revision_id: revision, gate: 'PRD', artifact_path: `.agdf/control/runs/${id}/documents/PRD.md`, artifact_digest: 'sha256:' + 'a'.repeat(64), available: true, reason: null },
     display: { state: 'unchecked', reason: null, recovery: 'check' }, result: null };
 }
 function selected(id = 'run-a', checked = false): Envelope<ReadingScope> {

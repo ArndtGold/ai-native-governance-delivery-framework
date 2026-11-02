@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "kind": "agdf_codex_run_model",
+  "requested_model": "gpt-6.1-sol",
+  "evidence_class": "native_host_preflight",
+  "executable": "codex",
+  "task": "RUN_MODEL",
+  "variant": "mcp_only",
+  "repetitions": 2,
+  "repetition": 1,
+  "session_invocations": 0,
+  "timeout_ms": 600000,
+  "reasoning_effort": "low",
+  "additional_api_spend_authorized_usd": 0,
+  "cost_usd": "unavailable",
+  "auth": "existing_chatgpt_account",
+  "complete": false,
+  "isolation_manifests": {
+    "before": {
+      "repository_control": {},
+      "personal_config": {
+        "config.toml": "ca96edb8712343c9538777658e0e3fd365b16d42d362efeaac34ef0da7f22ab4",
+        "plugins/installed_plugins.json": "absent",
+        "plugins/known_marketplaces.json": "absent"
+      }
+    },
+    "after": {
+      "repository_control": {},
+      "personal_config": {
+        "config.toml": "ca96edb8712343c9538777658e0e3fd365b16d42d362efeaac34ef0da7f22ab4",
+        "plugins/installed_plugins.json": "absent",
+        "plugins/known_marketplaces.json": "absent"
+      }
+    }
+  },
+  "host_guard": {
+    "owner": "macos_sandbox_exec",
+    "policy_digest": "7d1b74f84852822a6d2c1bff86c97283a043b0dd60247ade7658b70300d41a68",
+    "input_digest": "eccde27d37eaf38645498a1810cba60982e181e63d2639f1b501c779c75a2076",
+    "root_write_denied": true,
+    "config_write_denied": true,
+    "positive_control": true,
+    "immutable_settings": [
+      "config.toml",
+      "plugins/installed_plugins.json",
+      "plugins/known_marketplaces.json"
+    ],
+    "protected_root": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/worktrees/run-model-clean-cut",
+    "model_invocations": 0
+  },
+  "host": {
+    "version": "codex-cli 0.163.0",
+    "platform": "darwin",
+    "arch": "x64",
+    "node": "v22.22.3"
+  },
+  "discovery": {
+    "inspect_definition_bytes": 6054,
+    "inspect_definition_digest": "sha256:dd7f5895a1c3abc97afe13db5a20400a97241112baee445fcf808c2d23f9114a",
+    "protocol": "2026-07-28"
+  },
+  "error": "CANDIDATE_COMMAND_CONTRACT_INVALID",
+  "isolation": {
+    "changed": [],
+    "credential_copy_removed": true,
+    "temporary_roots_removed": true
+  }
+}

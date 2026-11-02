@@ -1,13 +1,13 @@
 import type { ReadingState } from './state';
 
 export const messages: Record<string, string> = {
+  control_layout_unsupported: 'Dieser Kontrollbestand verwendet ein nicht unterstütztes Format. Er bleibt unverändert. Einen frischen aktuellen Zielbestand auswählen und bewusst neu laden.',
+  run_version_unsupported: 'Diese Run-Version wird nicht unterstützt. Die ursprünglichen Daten bleiben unverändert.',
+  control_invalid: 'Die aktuelle Kontrollkonfiguration ist ungültig. Die Quelle prüfen und bewusst erneut laden.',
   persisted_mismatch: 'Die gespeicherte Angabe weicht von der Core-Auswertung ab. Beide Quellen sind getrennt dargestellt; die Core-Auswertung bestimmt den Kontrollstatus.',
   control_absent: 'Für dieses Repository fehlen die Kontrolldaten. Quelle außerhalb des Cockpits einrichten und erneut laden.',
-  backlog_partial: 'Einige gespeicherte Vorhaben oder Tabellen sind nicht eindeutig lesbar. Die Übersicht bestätigt keine aktuellen Run-Voraussetzungen.',
   run_store_missing: 'Der Run-Bestand fehlt. Dies ist kein bestätigter leerer Bestand.',
   run_inventory_incomplete: 'Der gespeicherte Run-Bestand ist eingeschränkt lesbar.',
-  backlog_missing: 'Das Masterbacklog fehlt. Es wird keine Run-Liste als Ersatz geladen.',
-  backlog_unsupported: 'Das Masterbacklog ist nicht als UTF-8-Text lesbar.',
   run_missing: 'Der angefragte Run wurde nicht gefunden. Die Run-ID bleibt erhalten; bewusst erneut laden.',
   inventory_partial: 'Die Übersicht enthält ungültige oder nicht auswertbare Einträge. Betroffene Quellen außerhalb des Cockpits prüfen.',
   invalid_run: 'Dieser Run ist ungültig. Die Quelldaten außerhalb des Cockpits prüfen.',

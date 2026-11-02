@@ -151,7 +151,7 @@ async function stdioCase() {
   const { withStdioClient, unresolvedArguments } = await import('./helpers.js');
   const fixture = createOwnedRuntimeFixture({ pluginSourceRoot: pluginRoot, controlRuns: [] });
   createRun(fixture.governanceTarget, 'mcp-owner-thread-fixture');
-  mkdirSync(join(fixture.governanceTarget, '.agdf/control/artefacts/mcp-owner-thread-fixture'), { recursive: true });
+  mkdirSync(join(fixture.governanceTarget, '.agdf/control/runs/mcp-owner-thread-fixture/documents'), { recursive: true });
   const candidateSource = mkdtempSync(join(tmpdir(), 'agdf-owner-replacement-source-'));
   cpSync(pluginRoot, candidateSource, { recursive: true });
   writeFileSync(join(candidateSource, 'mcp/server/NOTICE'), readFileSync(join(candidateSource, 'mcp/server/NOTICE'), 'utf8') + '\nSynthetic owner-thread replacement candidate.\n');
@@ -172,7 +172,7 @@ async function stdioCase() {
         assert.equal(inspection.structuredContent.report.generations[0].usable, true);
         const runId = 'mcp-owner-thread-fixture';
         const revision = readFileSync(join(fixture.governanceTarget, `.agdf/control/runs/${runId}/RUN_STATE.md`), 'utf8').match(/^- revision_id: (.+)$/mu)[1];
-        const path = `.agdf/control/artefacts/${runId}/OWNER_CANDIDATE.json`;
+        const path = `.agdf/control/runs/${runId}/documents/OWNER_CANDIDATE.json`;
         writeFileSync(join(fixture.governanceTarget, path), JSON.stringify(publicationSelector(candidate)));
         const digest = artefactFileDigest(fixture.governanceTarget, path);
         const envelope = { schema_version: '1', presentation_language: 'en', working_directory: fixture.governanceTarget,

@@ -3,6 +3,82 @@ import { EventEmitter } from 'node:events';
 import { test } from 'node:test';
 import { createWorkerDispatchExecutor } from '../src/worker.js';
 
+test('parallel Inspect reads wait for confirmed worker exit instead of dispatch_busy', async () => {
+  let live = 0, maximum = 0, launches = 0;
+  class ReadingWorker extends EventEmitter {
+    constructor(_, { workerData }) {
+      super(); launches++; maximum = Math.max(maximum, ++live);
+      setTimeout(() => this.emit('message', { type: 'result', result: workerData.argumentsValue }), 5);
+    }
+    async terminate() { await new Promise(resolve => setTimeout(resolve, 5)); live--; }
+  }
+  const executor = createWorkerDispatchExecutor({ timeoutMs: 1_000, WorkerClass: ReadingWorker });
+  const results = await Promise.all([1, 2, 3].map(id => executor.execute({ id }, { toolName: 'agdf_inspect' })));
+  assert.deepEqual(results, [{ id: 1 }, { id: 2 }, { id: 3 }]);
+  assert.equal(maximum, 1); assert.equal(live, 0); assert.equal(launches, 3);
+  await executor.close();
+});
+
+test('read queue is bounded, cancellable and closed without launching waiting work', async () => {
+  let launches = 0;
+  class HeldWorker extends EventEmitter {
+    constructor() { super(); launches++; }
+    terminate() { return Promise.resolve(); }
+  }
+  const executor = createWorkerDispatchExecutor({ timeoutMs: 1_000, WorkerClass: HeldWorker });
+  const first = executor.execute({}, { toolName: 'agdf_inspect' }).catch(error => error);
+  const controller = new AbortController();
+  const queued = Array.from({ length: 8 }, (_, i) => executor.execute({ i }, { toolName: 'agdf_inspect',
+    ...(i === 0 ? { signal: controller.signal } : {}) }).catch(error => error));
+  await assert.rejects(executor.execute({}, { toolName: 'agdf_inspect' }), error => error.code === 'resource_limit' && error.dispatch === 'not_dispatched');
+  await assert.rejects(executor.execute({}, { toolName: 'agdf_record' }), error => error.code === 'dispatch_busy' && error.dispatch === 'not_dispatched');
+  controller.abort();
+  assert.equal((await queued[0]).code, 'dispatch_cancelled');
+  await executor.close();
+  assert.equal((await first).code, 'dispatch_cancelled');
+  for (const result of await Promise.all(queued)) { assert.equal(result.code, 'dispatch_cancelled'); assert.equal(result.dispatch, 'not_dispatched'); }
+  assert.equal(launches, 1); assert.equal(executor.active, false);
+});
+
+test('waiting time consumes the original read deadline', async () => {
+  let launches = 0;
+  class ReadingWorker extends EventEmitter {
+    constructor(_, { workerData }) {
+      super(); launches++;
+      this.timer = setTimeout(() => this.emit('message', { type: 'result', result: true }), workerData.argumentsValue.delay);
+    }
+    terminate() { clearTimeout(this.timer); return Promise.resolve(); }
+  }
+  const executor = createWorkerDispatchExecutor({ timeoutMs: 400, WorkerClass: ReadingWorker });
+  const first = executor.execute({ delay: 250 }, { toolName: 'agdf_inspect' });
+  const second = executor.execute({ delay: 200 }, { toolName: 'agdf_inspect' });
+  const failed = assert.rejects(second, error => error.code === 'dispatch_timeout');
+  assert.equal(await first, true); await failed;
+  assert.equal(launches, 2); assert.equal(executor.active, false);
+  await executor.close();
+});
+
+test('unknown worker termination refuses queued reads until a real exit releases capacity', async () => {
+  let worker, launches = 0;
+  class UnknownWorker extends EventEmitter {
+    constructor() { super(); worker = this; launches++; }
+    terminate() { return new Promise(() => {}); }
+  }
+  const executor = createWorkerDispatchExecutor({ timeoutMs: 100, WorkerClass: UnknownWorker });
+  const first = executor.execute({}, { toolName: 'agdf_inspect' }).catch(error => error);
+  worker.emit('message', { type: 'result', result: true });
+  await new Promise(resolve => setTimeout(resolve, 10));
+  const queued = executor.execute({}, { toolName: 'agdf_inspect' }).catch(error => error);
+  assert.equal((await first).code, 'dispatch_worker_termination_unconfirmed');
+  const denied = await queued;
+  assert.equal(denied.code, 'dispatch_busy'); assert.equal(denied.dispatch, 'not_dispatched');
+  assert.equal(launches, 1); assert.equal(executor.active, true);
+  await assert.rejects(executor.execute({}, { toolName: 'agdf_inspect' }), error => error.code === 'dispatch_busy');
+  worker.emit('exit', 1);
+  assert.equal(executor.active, false);
+  await executor.close();
+});
+
 test('timeout leaves time for asynchronous termination within the original deadline', async () => {
   class SlowTerminationWorker extends EventEmitter {
     terminate() { return new Promise(resolve => setTimeout(resolve, 25)); }

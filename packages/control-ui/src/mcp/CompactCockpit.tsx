@@ -1,7 +1,6 @@
 import { type ReactNode, type RefObject } from 'react';
-import { COCKPIT_BACKLOG_SECTIONS, projectCockpitList } from '../../../core/lib/control-inspect/cockpit-list.js';
-import { BacklogCounts, BacklogEmpty, BacklogRow } from '../BacklogRows';
-import { Overview, type BacklogView } from '../Overview';
+import { COCKPIT_WORK_SECTIONS, projectCockpitList } from '../../../core/lib/control-inspect/cockpit-list.js';
+import { Overview, type WorkView } from '../Overview';
 import { hasExpiredSession, type ReadingState } from '../state';
 import { ReadState, ReadingFeedback, readingStatus } from '../feedback';
 import { BrandHeader } from '../BrandHeader';
@@ -11,10 +10,10 @@ import { WorkStep } from '../WorkStep';
 import { DocumentView } from '../DocumentView';
 import type { Resource } from '../types';
 
-export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onRuns, onLegacy, onExpand, onOpen, onBack, view, onViewChange, returnNotice, draftCheck }: {
+export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onRuns, onExpand, onOpen, onBack, view, onViewChange, returnNotice, draftCheck }: {
   state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean;
-  initialRunId?: string; view: BacklogView; onViewChange: (view: BacklogView) => void; returnNotice?: string | null;
-  onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onRuns?: () => void; onLegacy: () => void; onExpand?: () => void;
+  initialRunId?: string; view: WorkView; onViewChange: (view: WorkView) => void; returnNotice?: string | null;
+  onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onRuns?: () => void; onExpand?: () => void;
   onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode;
 }) {
   const data = state.detail?.data, e = data?.evaluation;
@@ -28,8 +27,8 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
     <BrandHeader variant="card" projectPath={target} contextTitle={selected?.title} headingRef={headingRef}>
       <RefreshControl state={state} enabled={enabled} onReload={onReload}/>
     </BrandHeader>
-    <nav className="compact-actions" aria-label="Bestandsquelle"><button onClick={onRuns ?? onOverview} disabled={expired || busy}>Runs</button><button onClick={onLegacy} disabled={expired || busy}>Legacy-Backlog</button></nav>
-    {state.route.view === 'overview' && state.inventory?.data && <><p className="compact-muted compact-repository" title={target}>{repository}</p>{returnNotice && <p role="status">{returnNotice}</p>}<Overview result={state.inventory} onSelect={onSelect} current={usable} view={view} onViewChange={onViewChange} titlesEnabled={false}/></>}
+    <nav className="compact-actions" aria-label="Bestandsquelle"><button onClick={onRuns ?? onOverview} disabled={expired || busy}>Runs</button></nav>
+    {state.route.view === 'overview' && state.inventory?.data && <><p className="compact-muted compact-repository" title={target}>{repository}</p>{returnNotice && <p role="status">{returnNotice}</p>}<Overview result={state.inventory} onSelect={onSelect} current={usable} view={view} onViewChange={onViewChange}/></>}
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
     <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
     <div className={busy ? 'previous-content' : undefined}>

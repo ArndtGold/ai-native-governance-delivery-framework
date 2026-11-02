@@ -1,3 +1,4 @@
+import { runDocumentPath } from '../control-state/run-identity.js';
 import { extractField } from "../control-evaluation/verified-change.js";
 import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "../resources/artefact-templates.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
@@ -20,7 +21,7 @@ export function sdDefinitionPhase(targetDir, control, input, sources) {
   if (input.skill_id !== "sd-definition" && !(input.intake || input.continue_delivery)) return null;
   const revisionId = extractField(state.content ?? "", "revision_id");
   if (!revisionId) return null;
-  const artifactPath = `.agdf/control/artefacts/${input.run_id}/SD.md`;
+  const artifactPath = `${runDocumentPath(input.run_id, '')}/SD.md`;
   const artefact = state.artefacts.get("SD");
   const registered = artefact?.status === "draft";
   if (artefact?.status === "approved" || (registered

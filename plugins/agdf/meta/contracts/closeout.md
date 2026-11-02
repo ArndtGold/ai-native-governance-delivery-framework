@@ -65,7 +65,7 @@ An explicit Parent/programme run may project two independent evidence values:
 - `startable: true` requires at least one evidenced `Aggregate | includes | child_run:<run_id>` row
   whose Child has a completed OR;
 - `final_ready: true` additionally requires one valid declared acceptance artefact beneath
-  `.agdf/control/artefacts/`, concrete aggregation evidence and
+  the selected Run documents/evidence roles, concrete aggregation evidence and
   `programme_aggregation_missing_evidence: none`.
 
 `final_ready: true` always implies `startable: true`. Failed prerequisites stay false with explicit

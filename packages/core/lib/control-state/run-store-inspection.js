@@ -1,7 +1,7 @@
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { doctorRequiredFiles } from "../control-evaluation/required-files.js";
-import { readControlLayout, PLANNED_LAYOUT } from './control-layout.js';
+import { readControlLayout, CURRENT_LAYOUT } from './control-layout.js';
 
 export function canonicalScaffoldRequired(root, path) {
   const error = new Error(
@@ -30,6 +30,7 @@ export function assertCanonicalRunStore(root, { historicalRead = false } = {}) {
     root,
     join(root, ".agdf"),
     join(root, ".agdf", "control"),
+    join(root, ".agdf", "control", "planned"),
     join(root, ".agdf", "control", "runs"),
   ];
   const directories = [];
@@ -43,10 +44,9 @@ export function assertCanonicalRunStore(root, { historicalRead = false } = {}) {
   }
   // Original creation lookup reads its sealed staged receipt before resolving
   // today's configuration. This read-only path requires containment, not a
-  // current layout decision or a live legacy projection.
-  let planned = historicalRead;
+  // current layout decision.
   if (!historicalRead) {
-    try { planned = readControlLayout(root).layout === PLANNED_LAYOUT; }
+    try { readControlLayout(root); }
     catch (error) {
       if (error.message === 'AGDF_CONTROL_PATH_INVALID') throw canonicalScaffoldRequired(root, join(root, '.agdf/control/config.json'));
       throw error;
@@ -55,8 +55,7 @@ export function assertCanonicalRunStore(root, { historicalRead = false } = {}) {
   const requiredPaths = [...new Set([
     join(".agdf", "control", "config.json"),
     join(".agdf", "control", "README.md"),
-    ...doctorRequiredFiles.filter((path) => !path.endsWith("AGDF_RUN.md")
-      && !(path.endsWith('MASTER_BACKLOG.md') && planned)),
+    ...doctorRequiredFiles,
   ])];
   const files = [];
   for (const relativePath of requiredPaths) {

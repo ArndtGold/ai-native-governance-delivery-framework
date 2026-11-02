@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { evaluatePrdReadiness } from "../lib/control-evaluation/prd-readiness.js";
 
 // PRD approval requires a named owner and every before_prd decision resolved in one explicit table.
 const root = mkdtempSync(join(tmpdir(), "agdf-prd-readiness-"));
-const path = ".agdf/control/artefacts/run/PRD.md";
-mkdirSync(join(root, ".agdf", "control", "artefacts", "run"), { recursive: true });
+const path = ".agdf/control/runs/run/documents/PRD.md";
+mkdirSync(dirname(join(root, path)), { recursive: true });
 const runState = { artefacts: new Map([["PRD", { path }]]) };
 const header = "| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n";
 const readiness = (content) => {

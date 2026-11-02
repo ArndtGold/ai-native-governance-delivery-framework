@@ -1,8 +1,9 @@
+import { readControlLayout } from './control-layout.js';
 import { existsSync, readdirSync, lstatSync, currentControlReadView } from '../control-read/fs.js';
 import { captureControlScope, controlPathPresent } from '../control-read/snapshot.js';
 import { join } from 'node:path';
 import { inspectPlannedEntry, inspectPlannedOperation, PLANNED_ROOT } from './planned-entry.js';
-import { inspectPlannedOrigins } from './planned-origin.js';
+import { inspectPlannedOrigins } from './planned-origin-reader.js';
 import { readRunInventory } from './run-inventory-reader.js';
 import { artefactFileDigest } from './run-seal.js';
 import { RUN_ID_PATTERN } from './run-identity.js';
@@ -13,8 +14,9 @@ const titleKey = title => title.normalize('NFKC').replace(/\s+/gu, ' ').trim().t
 const rank = { high: 0, normal: 1, low: 2 };
 
 export function projectPlannedInventory(root, { language = 'en' } = {}) {
+  readControlLayout(root);
   const entries = [], findings = [];
-  if (!existsSync(join(root, PLANNED_ROOT))) return { schema_version: 'planned-inventory/1', state: 'absent', entries, findings, authorizes: false };
+  if (!existsSync(join(root, PLANNED_ROOT))) throw Error('AGDF_PLANNED_STORE_MISSING');
   if (hasSymlinkComponent(root, PLANNED_ROOT) || !lstatSync(join(root, PLANNED_ROOT)).isDirectory()) throw Error('AGDF_PLANNED_PATH_INVALID');
   const names = readdirSync(join(root, PLANNED_ROOT));
   if (names.length > 20000) throw Error('AGDF_PLANNED_INVENTORY_LIMIT');
@@ -66,6 +68,7 @@ export function readPlannedInventory(root, options) {
 
 export function readWorkInventory(root, options = {}) {
   try {
+    readControlLayout(root);
     const project = () => {
       const planned = projectPlannedInventory(root, options), runs = readRunInventory(root, options);
       const references = planned.entries.filter(row => row.coverage === 'transferred');
@@ -74,7 +77,7 @@ export function readWorkInventory(root, options = {}) {
         planning_origins: references.filter(ref => ref.run_id === row.run_id).map(ref => ({ plan_id: ref.plan_id, source: ref.source })),
         coverage: row.valid ? 'available' : 'unavailable', actions: ['open_run'], authorizes: false }))];
       return { schema_version: 'work-inventory/1', state: planned.state === 'partial' || runs.state !== 'complete' ? 'partial' : 'complete',
-        entries, planning_references: references, findings: [...planned.findings, ...runs.findings],
+        entries, planning_references: references, findings: [...planned.findings, ...runs.findings, ...runs.runs.flatMap(row => row.findings)],
         counts: { planned: planned.entries.length - references.length, runs: runs.runs.length, planning_references: references.length }, authorizes: false };
     };
     return currentControlReadView()?.readOptionalFileSync ? project() : captureControlScope(root, project).data;

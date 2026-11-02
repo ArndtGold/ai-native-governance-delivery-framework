@@ -20,7 +20,7 @@ import { mcpCalls as capturedCodexCalls } from './lib/codex-trace.mjs';
 // with process-only configuration: no credential copy or plugin installation.
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
@@ -29,9 +29,11 @@ import { spawnHostSync } from "../../packages/cli/lib/host-command.js";
 import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../../packages/cli/lib/host-adapters/codex/mcp-startup.js';
 import { CODEX_HOOK_STATES } from "../../packages/core/lib/interaction-catalog.js";
 import { CONTROL_INSPECT_MAX_DEFINITION_BYTES } from '../../packages/core/lib/control-inspect/contract.js';
+import { commandGroupDefinition } from '../../packages/core/lib/control-state/run-command-schema.js';
+import { canonicalJson } from '../../packages/core/lib/control-state/approval-command-contract.js';
 import { createProtocolRuntime } from '../../evals/mcp-ergonomics/lib/protocol-harness.js';
 import { withStdioClient } from '../../packages/mcp-server/test/helpers.js';
-import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess, CODEX_COMMAND_TASK } from '../../evals/mcp-ergonomics/lib/native-tasks.js';
+import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess, CODEX_COMMAND_TASK, CODEX_RUN_MODEL_TASK, strictRunModelFlow } from '../../evals/mcp-ergonomics/lib/native-tasks.js';
 import { compareManifests, hashManifest, parseCodexT4Trace, strictT4DocumentFlow, parseCodexCommandTrace, strictCommandFlow, nativeSessionMetrics, CODEX_T4_FEATURES, assertCodexT4HostReady } from '../../evals/mcp-ergonomics/lib/native-run.js';
 import { snapshotWorkspace, changedPaths, mutationViolations } from '../../evals/lib/skill-evals/workspace.js';
 import { sanitizeTranscript } from '../../evals/mcp-ergonomics/lib/redaction.js';
@@ -55,8 +57,8 @@ if (args.includes('--command-task')) {
     if (!permitted.has(args[i])) throw Error('COMMAND_TASK_ARGUMENT_INVALID');
     if (!['--dry-run', '--preflight-only'].includes(args[i])) i++;
   }
-  if (option('--command-task') !== 'T7' || option('--repetitions') !== '2' || option('--reasoning-effort') !== 'low' || model !== 'gpt-6.1-sol') throw Error('COMMAND_TASK_TUPLE_INVALID');
-  const plan = { task: 'T7', sessions: 2, repetitions: 2, model, reasoning_effort: 'low', timeout_ms: 600000,
+  if (!['T7','RUN_MODEL'].includes(option('--command-task')) || option('--repetitions') !== '2' || option('--reasoning-effort') !== 'low' || model !== 'gpt-6.1-sol') throw Error('COMMAND_TASK_TUPLE_INVALID');
+  const plan = { task: option('--command-task'), sessions: 2, repetitions: 2, model, reasoning_effort: 'low', timeout_ms: 600000,
     additional_api_spend_authorized_usd: 0, auth: 'existing_chatgpt_account', credential_copy: false, plugin_install: false, executes: false };
   if (args.includes('--dry-run')) console.log(JSON.stringify(plan));
   else if (!process.env.AGDF_T7_GUARD_WORKER) {
@@ -351,8 +353,9 @@ process.exitCode = observation.result === "pass" ? 0 : 1;
 // One new mode of the existing host owner; the default multi-session probe above
 // is unreachable from this path. No fixture identifier is inserted into the prompt.
 async function runFocusedTask(requestedModel, executable, { commandTask = false, repetition = 1, preflightOnly = false } = {}) {
+  const runModel = commandTask && option('--command-task') === 'RUN_MODEL';
   const taskRepo = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-  const outputDir = join(taskRepo, 'probe-results', `codex-${commandTask ? 't7' : 't4'}-${new Date().toISOString().replace(/[:.]/gu, '-')}-${repetition}`);
+  const outputDir = join(taskRepo, 'probe-results', `codex-${runModel ? 'run-model' : commandTask ? 't7' : 't4'}-${new Date().toISOString().replace(/[:.]/gu, '-')}-${repetition}`);
   const taskWork = join(outputDir, 'work-tmp'), taskHome = join(taskWork, 'codex-home');
   mkdirSync(taskHome, { recursive: true, mode: 0o700 });
   const authPath = join(taskHome, 'auth.json');
@@ -363,9 +366,9 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
   const manifests = () => ({ repository_control: hashManifest(join(taskRepo, '.agdf/control')),
     personal_config: hashManifest(personalHome, { files: ['config.toml', 'plugins/installed_plugins.json', 'plugins/known_marketplaces.json'] }) });
   const beforePersonal = manifests();
-  const report = { schema_version: '1', kind: commandTask ? 'agdf_codex_t7_commands' : 'agdf_codex_t4_single', requested_model: requestedModel,
+  const report = { schema_version: '1', kind: runModel ? 'agdf_codex_run_model' : commandTask ? 'agdf_codex_t7_commands' : 'agdf_codex_t4_single', requested_model: requestedModel,
     evidence_class: process.env.NODE_TEST_CONTEXT ? 'offline_mock_host' : preflightOnly ? 'native_host_preflight' : 'native_host_observation', executable,
-    task: commandTask ? 'T7' : 'T4', variant: 'mcp_only', repetitions: commandTask ? 2 : 1, repetition, session_invocations: 0, timeout_ms: commandTask ? 600000 : 300000, reasoning_effort: commandTask ? 'low' : 'high',
+    task: runModel ? 'RUN_MODEL' : commandTask ? 'T7' : 'T4', variant: 'mcp_only', repetitions: commandTask ? 2 : 1, repetition, session_invocations: 0, timeout_ms: commandTask ? 600000 : 300000, reasoning_effort: commandTask ? 'low' : 'high',
     additional_api_spend_authorized_usd: 0, cost_usd: 'unavailable', auth: 'existing_chatgpt_account', complete: false };
   if (commandTask) report.isolation_manifests = { before: beforePersonal };
   let hostExecutable = executable, hostPrefix = [];
@@ -389,10 +392,10 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
     if (auth.status !== 0 || !/Logged in using ChatGPT/iu.test(`${auth.stdout}${auth.stderr}`)) throw Error('EXISTING_CHATGPT_AUTH_UNAVAILABLE');
     report.host = { version: command(['--version']).stdout.trim(), platform: process.platform, arch: process.arch, node: process.version };
     if (commandTask && !/0\.163\.0(?:\s|$)/u.test(report.host.version)) throw Error('CODEX_VERSION_CHANGED');
-    const task = commandTask ? CODEX_COMMAND_TASK : loadTaskSet().tasks.find(entry => entry.id === 'T4');
+    const task = runModel ? CODEX_RUN_MODEL_TASK : commandTask ? CODEX_COMMAND_TASK : loadTaskSet().tasks.find(entry => entry.id === 'T4');
     fixture = buildTaskFixture(task); runtime = createProtocolRuntime();
     beforeFixture = snapshotWorkspace(fixture.root);
-    const document = join(fixture.root, `.agdf/control/runs/${fixture.runId}/presentations/${fixture.presentationId}.document`);
+    const document = commandTask ? null : join(fixture.root, `.agdf/control/runs/${fixture.runId}/control/presentations/${fixture.presentationId}.document`);
     expectedBytes = commandTask ? null : readFileSync(document);
     const binding = { target_id: fixture.targetId, run_id: fixture.runId, gate: 'UR', expected_revision_id: fixture.revision(), presentation_id: fixture.presentationId };
     const serverArgs = [join(runtime.fixture.serverRoot, 'bin/agdf-mcp.js'), '--surface', 'codex'];
@@ -402,14 +405,17 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
       if (!definition?.outputSchema || bytes > CONTROL_INSPECT_MAX_DEFINITION_BYTES) throw Error('CANDIDATE_INSPECT_CONTRACT_INVALID');
       report.discovery = { inspect_definition_bytes: bytes, inspect_definition_digest: `sha256:${createHash('sha256').update(JSON.stringify(definition)).digest('hex')}`, protocol: client.getNegotiatedProtocolVersion() };
       if (commandTask) {
-        report.discovery.commands = ['agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout'].map(name => {
+        report.discovery.commands = [...(runModel ? ['agdf_project', 'agdf_run'] : []), 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout'].map(name => {
           const tool = tools.find(value => value.name === name);
-          if (!tool?.outputSchema || Object.values(tool.inputSchema.properties).some(field => !field.description)) throw Error('CANDIDATE_COMMAND_CONTRACT_INVALID');
+          // Discovery deliberately compacts repeated prose; the canonical owner
+          // supplies full operation help. Verify the complete emitted constraints,
+          // rather than requiring annotations that this contract omits by design.
+          if (!tool?.outputSchema || !tool.description || canonicalJson(tool.inputSchema) !== canonicalJson(commandGroupDefinition(name).inputSchema)) throw Error('CANDIDATE_COMMAND_CONTRACT_INVALID:' + name);
           return { name, definition_bytes: Buffer.byteLength(JSON.stringify(tool)), digest: `sha256:${createHash('sha256').update(JSON.stringify(tool)).digest('hex')}` };
         });
       }
     });
-    const tools = commandTask ? ['agdf_inspect', 'agdf_approve'] : ['agdf_inspect'];
+    const tools = runModel ? ['agdf_inspect','agdf_project','agdf_run','agdf_record','agdf_prepare'] : commandTask ? ['agdf_inspect', 'agdf_approve'] : ['agdf_inspect'];
     let config, configCheck, features, scopedArgs = [];
     if (commandTask) {
       const overrides = { model: requestedModel, model_reasoning_effort: 'low', model_provider: 'openai', forced_login_method: 'chatgpt', web_search: 'disabled', project_doc_max_bytes: 0,
@@ -472,12 +478,12 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
     const sessionId = commandTask ? output.stdout.split('\n').filter(Boolean).map(line => { try { return JSON.parse(line); } catch { return {}; } }).find(event => event.type === 'thread.started')?.thread_id : null;
     if (commandTask && !/^[0-9a-f-]{36}$/u.test(sessionId ?? '')) throw Error('CODEX_SESSION_ID_UNAVAILABLE');
     visit(join(commandTask ? personalHome : taskHome, 'sessions'));
-    const parsed = commandTask ? parseCodexCommandTrace(output.stdout, rollouts) : parseCodexT4Trace(output.stdout, rollouts);
+    const parsed = commandTask ? parseCodexT4Trace(output.stdout, rollouts, tools) : parseCodexT4Trace(output.stdout, rollouts);
     if (output.code !== 0 || output.timedOut || output.output_limit) parsed.trace_complete = false;
     const finalText = existsSync(finalPath) ? readFileSync(finalPath, 'utf8') : '';
     report.process = { exit: output.code, timeout: output.timedOut, output_limit: output.output_limit, stderr: redactText(output.stderr).slice(0, 1000) };
     report.original_predicate = evaluateSuccess({ task, fixture, parsed, mutationViolations: mutationViolations(changedPaths(beforeFixture, snapshotWorkspace(fixture.root)), task.allowed_paths) });
-    report.strict = commandTask ? strictCommandFlow({ parsed, binding }) : strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText });
+    report.strict = runModel ? strictRunModelFlow({parsed,fixture}) : commandTask ? strictCommandFlow({ parsed, binding }) : strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText });
     report.observed_models = parsed.observed_models; report.observed_efforts = parsed.observed_efforts; report.usage = parsed.usage;
     report.metrics = { calls: parsed.calls.length, invalid_calls: parsed.calls.filter(call => call.result.is_error).length,
       ...(commandTask ? { ...nativeSessionMetrics({ ...parsed, result: { usage: parsed.usage } }, [...runtime.roots, { path: fixture.root, token: '<FIXTURE>' }, { path: personalHome, token: '<HOME>' }]), wall_time_ms: Math.round(performance.now() - sessionStarted) } : {}) };
@@ -492,6 +498,16 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
     if (!report.complete) process.exitCode = 1;
   } catch (error) { report.error = redactText(error.message); process.exitCode = 1; }
   finally {
+    if (runModel && fixture && report.session_invocations) {
+      try {
+        const snapshot = join(outputDir, 'fixture-after');
+        // Retain actual owned control bytes, including failed cases, before the
+        // disposable targets are removed. No Git metadata or account data.
+        for (const path of ['.agdf/control', 'legacy-negative/.agdf/control'])
+          if (existsSync(join(fixture.root, path))) cpSync(join(fixture.root, path), join(snapshot, path), { recursive: true });
+        report.fixture_after = { path: snapshot, files: hashManifest(snapshot) };
+      } catch (error) { report.error = 'FIXTURE_EVIDENCE_RETENTION_FAILED:' + redactText(error.message); report.complete = false; report.infrastructure_ok = false; process.exitCode = 1; }
+    }
     cleanup();
     const afterPersonal = manifests();
     if (commandTask) report.isolation_manifests.after = afterPersonal;

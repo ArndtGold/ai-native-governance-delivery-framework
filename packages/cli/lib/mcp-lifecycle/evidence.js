@@ -1,3 +1,4 @@
+import { isRunOwnedDataPath } from '#agdf-core/control-state/run-identity.js';
 const SURFACES = new Set(["codex", "claude", "opencode", "copilot"]);
 const SCOPES = new Set(["project", "user"]);
 const QUALIFICATION_FIELDS = Object.freeze([
@@ -28,7 +29,7 @@ function plainObject(value) {
 }
 
 function evidenceRef(value) {
-  return typeof value === "string" && value.startsWith(".agdf/control/artefacts/") && !value.includes("..");
+  return isRunOwnedDataPath(value);
 }
 
 export function validateMcpQualificationRecord(record) {

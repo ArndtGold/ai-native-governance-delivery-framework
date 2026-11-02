@@ -11,8 +11,8 @@ installing Core. Remove only this extension with
 
 Invoke `$planning` to capture or refine a planned UR and optional priority. Planning
 stops at the UR. Starting delivery requires deliberate source-bound handoff, then
-ordinary UR review and explicit approval. Existing projects need an explicit
-reviewed `layout-migrate` cutover before planning writes.
+ordinary UR review and explicit approval. Only the current explicit `run-folders-v1` layout and version-4 Runs are supported.
+Unsupported stores remain unchanged; this package never migrates or resets them.
 
 Sources: this directory owns orchestration and dependency metadata. The shared
 repository generator supplies version-matched portable/Codex manifests. No Core

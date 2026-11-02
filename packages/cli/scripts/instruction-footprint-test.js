@@ -400,9 +400,9 @@ function runNegativeFixtures(valid) {
 
   const runtimeFacts = JSON.parse(valid.surfaces.runtimeCheckSupplement[0].content.slice("AGDF runtime facts: ".length));
   const withControl = (control) => [{ id: "repository-control", content: `AGDF runtime facts: ${JSON.stringify({ ...runtimeFacts, repository_control: control })}` }];
-  const control = { target: runtimeFacts.working_directory, inspection_state: "complete", status: "current", counts: { migration: 0, repair: 0, historical: 1 }, authorizes: false };
+  const control = { target: runtimeFacts.working_directory, inspection_state: "complete", status: "current", counts: { current: 1, unsupported: 0 }, authorizes: false };
   assert.equal(validateSingle({ surfaceId: "runtimeCheckSupplement", records: withControl(control), canonicalKernel: valid.canonicalKernel }).status, "pass");
-  const withReentry = { ...control, status: "migration_required", notice: "Repository migration available.", invocation: { executable: process.execPath, argv: [join(repoRoot, "plugins/agdf/scripts/agdf-local.js"), "control-maintenance", "--dir", control.target, "--guided", "--language", "de"], authorizes: false } };
+  const withReentry = { ...control, status: "unsupported", notice: "Unsupported control remains unchanged.", invocation: { executable: process.execPath, argv: [join(repoRoot, "plugins/agdf/scripts/agdf-local.js"), "control-maintenance", "--dir", control.target, "--language", "de"], authorizes: false } };
   assert.equal(validateSingle({ surfaceId: "runtimeCheckSupplement", records: withControl(withReentry), canonicalKernel: valid.canonicalKernel }).status, "pass");
   for (const [target, workingDirectory] of [["/repo", "/repo/nested"], ["C:\\repo", "C:\\repo\\nested"]]) {
     const content = `AGDF runtime facts: ${JSON.stringify({ ...runtimeFacts, working_directory: workingDirectory, repository_control: { ...control, target } })}`;
@@ -411,8 +411,9 @@ function runNegativeFixtures(valid) {
   for (const invalid of [
     { ...control, authorizes: true },
     { ...control, target: "/different/repository" },
-    { ...control, counts: { ...control.counts, repair: -1 } },
+    { ...control, counts: { ...control.counts, unsupported: -1 } },
     { ...control, policy: "implementation permitted" },
+    { ...control, counts: { historical: 1, migration: 0, repair: 0 } },
     { ...control, invocation: { executable: process.execPath, argv: ["arbitrary-command"], authorizes: false } },
   ]) expectSingleFailure("invalid repository control facts", "runtimeCheckSupplement", withControl(invalid), "AGDF_INSTRUCTION_FOOTPRINT_RUNTIME_FACTS_INVALID");
 

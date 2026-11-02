@@ -101,7 +101,7 @@ requires fresh evaluator eligibility and carries the evaluated record scope and 
 missing Git observations retain their concrete refusal. Inspect current evidence before resuming and
 perform only unfinished obligations. Applicable completed Quick Task CR or executed Verified Change
 routes `compact_closeout` to release-or: Quick Task uses existing OR-lite recording, Verified Change
-uses its linked Mini-Closeout and existing run-update boundary, never unsupported closeout.record.
+uses its linked Mini-Closeout through the current typed recording/closeout owner and exact confirmation.
 Completed Runs stay terminal. No persistent execution marker or exactly-once guarantee is added.
 
 When a bound authorized continuation corrects one missing relationship from exact previously
@@ -606,7 +606,7 @@ For one same-scope match redispatch intake_mode resume with run_id and expected_
 the inventory. The dispatcher rechecks target, active lifecycle, integrity and revision before gate
 presentation or continuation. A changed assignment returns fresh evidence for comparison; it does
 not silently adopt the newer scope or another run. Missing or invalid inventory blocks assignment
-and never becomes a no-match result. For a clear independent scope with no match use intake_mode
+and never becomes a no-match result. A new intake uses `run-<original-operation-uuid>` as its prospective ID. The current `run-create --title ... --operation <uuid>` command derives that exact ID; arbitrary named Run creation is unsupported. For a clear independent scope with no match use intake_mode
 new and an unused run_id, even when unrelated runs exist, without asking the user to select an ID
 or authorize bookkeeping again. If plausible scopes overlap, ask one focused question about the
 requested work; do not offer a technical Run-ID choice. Status and explicit run-selection requests

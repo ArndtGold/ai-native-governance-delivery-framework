@@ -1,3 +1,4 @@
+import { runEvidencePath } from './run-identity.js';
 import { readFileSync, statSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from './contained-file.js';
 import { canonicalJson, digest, exactObject, DIGEST_PATTERN } from './approval-command-contract.js';
@@ -9,7 +10,7 @@ export const PREVIEW_LIMITS = Object.freeze({ descriptor: 16384, files: 32, file
 export const PREVIEW_REVIEW_FORMAT = Object.freeze({ section: 'Preview Review', fence: 'json', schema_version: '1',
   fields: Object.freeze(['schema_version', 'version', 'source_ur_digest', 'entry', 'files', 'review_task', 'scenarios', 'criterion_ids', 'open_questions']),
   file_fields: Object.freeze(['path', 'digest', 'bytes', 'media_type']), limits: PREVIEW_LIMITS,
-  entry: '.agdf/control/artefacts/<run_id>/previews/<short-name-vN>/index.html', digest_rule: 'raw bytes for files; canonical approved UR text for source_ur_digest',
+  entry: '.agdf/control/runs/<run_id>/evidence/previews/<short-name-vN>/index.html', digest_rule: 'raw bytes for files; canonical approved UR text for source_ur_digest',
 });
 export const previewError = code => { throw Error(`preview_${code}`); };
 const text = (value, max = 1200) => typeof value === 'string' && !!value.trim() && value.length <= max && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/u.test(value);
@@ -90,7 +91,7 @@ export function validatePreviewDescriptor(row, runId, criteria, urDigest) {
     || !Array.isArray(row.criterion_ids) || !row.criterion_ids.length || row.criterion_ids.length > 64
     || new Set(row.criterion_ids).size !== row.criterion_ids.length || !row.criterion_ids.every(id => /^[A-Z][A-Z0-9-]*$/u.test(id) && (!criteria || criteria.includes(id)))
     || !Array.isArray(row.files) || !row.files.length || row.files.length > PREVIEW_LIMITS.files) previewError('descriptor_invalid');
-  const prefix = `.agdf/control/artefacts/${runId}/previews/${row.version}/`;
+  const prefix = `${runEvidencePath(runId, '')}/previews/${row.version}/`;
   if (row.entry !== prefix + 'index.html') previewError('entry_invalid');
   let previous = '', total = 0;
   for (const file of row.files) {

@@ -622,8 +622,7 @@ vorhandenen Plugin-, Consent- und MCP-Eigentümer ein.
 | Jede Ausgabe bleibt nicht autorisierend | Technische Integration kann keine Governance-Freigabe vortäuschen. | Menschliche Gate-Entscheidungen bleiben ein eigener bewusster Schritt. |
 
 Weiterführende Entscheidungen und offene Lieferstände stehen im
-[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) und
-[Master Backlog](../../.agdf/control/MASTER_BACKLOG.md). Bedienungsabläufe erklärt das
+[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md), den unabhängigen geplanten URs und dem aus Runs abgeleiteten aktuellen Bestand. Bedienungsabläufe erklärt das
 [Handbuch](../handbook/de/README.md), Installationsschritte die
 [Installationsanleitung](../../INSTALL.md), Befehle die
 [CLI-Dokumentation](../../packages/cli/README.md).

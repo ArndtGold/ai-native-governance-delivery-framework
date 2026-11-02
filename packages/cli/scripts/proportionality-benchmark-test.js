@@ -473,13 +473,13 @@ rmSync(historyTemp, { recursive: true, force: true });
 
 const loaderTemp = mkdtempSync(join(tmpdir(), "agdf-v3-loader-test-"));
 mkdirSync(join(loaderTemp, "evals/proportionality/fixtures"), { recursive: true });
-mkdirSync(join(loaderTemp, ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3"), { recursive: true });
 const loaderManifest = structuredClone(v3Corpus.manifest);
+mkdirSync(dirname(join(loaderTemp, loaderManifest.baseline_path)), { recursive: true });
 loaderManifest.fixture_version = "3.0.1";
 writeFileSync(join(loaderTemp, "evals/proportionality/staged-v3-manifest.json"), `${JSON.stringify(loaderManifest)}\n`);
 writeFileSync(join(loaderTemp, "evals/proportionality/staged-v3-scenarios.json"), readFileSync(join(repoRoot, "evals/proportionality/staged-v3-scenarios.json")));
 writeFileSync(join(loaderTemp, "evals/proportionality/fixtures/staged-v3-catalog.json"), readFileSync(join(repoRoot, "evals/proportionality/fixtures/staged-v3-catalog.json")));
-writeFileSync(join(loaderTemp, ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/STAGED_PROPORTIONALITY_BASELINE_V3.json"), readFileSync(join(repoRoot, ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/STAGED_PROPORTIONALITY_BASELINE_V3.json")));
+writeFileSync(join(loaderTemp, loaderManifest.baseline_path), readFileSync(join(repoRoot, loaderManifest.baseline_path)));
 assert.throws(() => loadCorpus(loaderTemp, "staged-v3"), /version mismatch: fixtures.fixture_version/);
 loaderManifest.fixture_version = "3.0.0";
 loaderManifest.scenarios_path = "../outside.json";

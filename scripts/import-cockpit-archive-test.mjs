@@ -30,10 +30,12 @@ test('preview writes nothing; apply retains exact original files/empty directori
 });
 test('inert captured locks and unusual file names remain byte-exact historical documents', t => {
   const f = fixture(t); f.put('artefacts/old-run/evidence/capture/.coordination.lock', 'historical bytes');
-  f.put('artefacts/old-run/evidence/name:älter.txt', 'older unicode filename');
+  // A colon is an NTFS stream separator, not a portable file-name character.
+  const name = process.platform === 'win32' ? 'name% älter.txt' : 'name:älter.txt';
+  f.put(`artefacts/old-run/evidence/${name}`, 'older unicode filename');
   const plan = importCockpitArchive(f.root); assert.deepEqual(plan.blockers, []);
   importCockpitArchive(f.root, { apply: true, expected: plan.source_digest });
-  const index = readCockpitArchive(f.root), doc = index.entries.find(r => r.id === 'old-run').documents.find(d => d.original_path.endsWith('name:älter.txt'));
+  const index = readCockpitArchive(f.root), doc = index.entries.find(r => r.id === 'old-run').documents.find(d => d.original_path.endsWith(name));
   assert.equal(fs.readFileSync(join(f.root, doc.path), 'utf8'), 'older unicode filename');
 });
 test('current scaffold preserves valid separate chat and artefact language preferences', t => {

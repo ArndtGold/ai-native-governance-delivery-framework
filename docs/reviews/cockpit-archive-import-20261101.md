@@ -106,3 +106,44 @@ die ursprünglichen Fehlprotokolle bleiben lokal erhalten.
 Wesentliche KI-Unterstützung: Codex führte Analyse, Implementierung und technische Selbstprüfung
 aus. Eine unabhängige menschliche Codeprüfung oder neue QA/UAT-Abnahme ist nicht dokumentiert.
 Diese Dokumentation erteilt keine Release- oder Merge-Freigabe.
+
+## Direkte CI-Reparatur, 2026-11-02
+
+Auftrag: ohne AGDF reparieren und CI bis grün überwachen. CI #668 auf `736abf48` endete
+mit 166 fehlgeschlagenen Jobs: die untersuchten Gruppen brachen schon bei der Generierung
+ab, weil `sync-plugin-runtime.js` einen entfernten CLI-Ordner `lib/control-state` kopierte.
+Ein leerer lokaler Restordner hatte diesen Fehler verdeckt. Die Runtime verwendet weiterhin
+die vollständige kanonische Core-Projektion; nur der obsolete Kopiereintrag wurde entfernt.
+
+Der Archiv-Test verwendet auf Windows einen dort gültigen Dateinamen mit Prozentzeichen und
+Unicode; der POSIX-Fall mit Doppelpunkt bleibt erhalten. Byte-Erhalt und Pfadkodierung werden
+weiterhin geprüft. Keine Prüfung oder Produktgrenze wurde abgeschwächt.
+
+Nachweise im isolierten Quellcheckout mit Lockfile-Abhängigkeiten:
+
+- Unveränderter Generator: identisches `ENOENT` reproduziert. Mit Fix: vollständige Generierung,
+  Build-Verträge, alle 113 deterministischen Skill-Evaluationen und npm-Assembly bestanden.
+- Archiv-Integration: 14/14 bestanden, einschließlich tatsächlicher MCP-Session und HTTP-Route.
+- Source-bound Kompatibilitätsprüfung meldete erwartungsgemäß `source_snapshot_changed`.
+  Nach regulärem Fixture-Recorder: 56/56 Szenarien und anschließende Prüfung bestanden.
+  Die versionierten nativen Quellen und öffentlichen nativen Nachweise sind unverändert;
+  daraus folgt keine neue native Host-Abnahme.
+- `release:prepare` bestanden: elf historische Profile, transaktionale Versionsanpassung,
+  Versionskohärenz von 49 Oberflächen, öffentlicher Plugin-Build und portable Profile.
+  Normale Payloads wurden im frischen Checkout über die vorhandenen Build-Owner erzeugt.
+  Historische Git-Tags und versionierte Referenzdokumente gehören zu den Voraussetzungen
+  der Release- und Kompatibilitätsprüfungen; fehlende Inputs wurden im isolierten Checkout
+  bereitgestellt, ohne die Testanforderungen zu lockern.
+
+Frühere lokale Versuche warteten auf fremde, dataless Duplikatdateien in ignorierten
+Build-/Dependency-Ordnern. Sie wurden beendet und durch den frischen Checkout ersetzt;
+Originaldateien bleiben erhalten. Ein zusätzlicher Source-Copy-Selbsttest war wegen fehlender
+Repository-Governance-Fixtures nicht qualifiziert und wird nicht als bestanden gezählt.
+Diese Beobachtung änderte weder dessen Testanforderungen noch den kanonischen CI-Plan.
+
+Lokale Logs: `/private/tmp/agdf-archive-ci-fresh-before.log`,
+`/private/tmp/agdf-archive-ci-fresh-after.log`, `/private/tmp/agdf-archive-ci-import-clean.log`,
+`/private/tmp/agdf-archive-ci-build-contracts.log`, `/private/tmp/agdf-archive-ci-evals.log`,
+`/private/tmp/agdf-archive-ci-compat-record3.log`, `/private/tmp/agdf-archive-ci-compat-final.log`.
+Vollständige CI-Ergebnisse werden im PR mit dem tatsächlichen Head und Run-Link dokumentiert.
+Kein Merge und keine globale Installation gehören zu diesem Auftrag.

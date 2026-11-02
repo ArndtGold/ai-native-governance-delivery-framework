@@ -31,6 +31,20 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   await screen.findByText('Freigegebenen Umfang umsetzen.');expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
   expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
  });
+ it('opens an archive through the compact MCP view without loading a current Run',async()=>{
+  const row={...pointer('old-run','Archiviertes Vorhaben'),kind:'archive' as const,identity:'archive/old-run',section:'archive',row_id:'00000000-0000-4000-8000-000000000001'};
+  const archived={...fixtureMeta,data:{kind:'archive',entry:{id:'old-run',title:row.title,entry_kind:'run',recorded_lifecycle:'active',recorded_gate:'TP',source_control_version:'2',recorded_approvals:[],resources:[],authorizes:false},document:null}};
+  const read=vi.fn(async(path:string)=>path.startsWith('/api/archive/')?archived:backlog([row])) as unknown as ReadTransport;
+  render(<App compact transport={read}/>);await screen.findByRole('searchbox');
+  fireEvent.click(screen.getByRole('button',{name:'Archiv 1'}));
+  const button=await readySelection('old-run');fireEvent.click(button);
+  await screen.findByRole('article',{name:'Altbestandsarchiv'});
+  expect(screen.getByText(/Keine aktuelle Freigabe/)).toBeTruthy();expect(screen.getByText('active')).toBeTruthy();
+  expect(vi.mocked(read).mock.calls.map(call=>call[0])).toEqual(['/api/snapshot','/api/archive/'+row.row_id+'?snapshot=snapshot']);
+  expect(screen.queryByRole('button',{name:'Run ansehen'})).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Archiv schließen'}));
+  expect(document.activeElement).toBe(screen.getByRole('button',{name:row.title}));
+ });
  it('partial pointer diagnostics start closed and malformed stored rows cannot be opened',async()=>{
   const bad={...pointer('invalid-run','Broken pointer'),selectable:false};
   const partial={...inventory,data:{...inventory.data!,entries:[...inventory.data!.entries,bad],counts:{...inventory.data!.counts,'active':2},diagnostics:[{code:'malformed_pointer',message:'Broken stored row.'}]}};
@@ -182,7 +196,7 @@ it('opens the exact registered Run State from an unconfirmed inline card and ret
 });
 it('SCN-003/008/009: compact active preview and expanded projection share query/order, while other areas reset on return',async()=>{
  const active=Array.from({length:8},(_,i)=>pointer('active-'+i,'Gemeinsames Vorhaben '+i));
- const rows=[...active,{...pointer('later','Planned only'),section:'planned'},{...pointer('done','Archive only'),section:'history'}];
+ const rows=[...active,{...pointer('later','Planned only'),section:'planned'},{...pointer('done','Archive only'),section:'completed'}];
  const read=vi.fn(async()=>backlog(rows)) as unknown as ReadTransport;
  const view=render(<App compact transport={read} onExpand={vi.fn()}/>);await screen.findByRole('searchbox');
  expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.map(r=>r.title));

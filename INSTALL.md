@@ -34,6 +34,14 @@ your own installation.
 > GitHub Copilot declare MCP themselves; OpenCode uses separate registration. The public OpenAI
 > Skills-only candidate contains no MCP server. MCP availability alone does not establish UI support.
 
+## Archived development control in the Cockpit
+
+For a one-time, offline preservation of old development control as the read-only Cockpit archive,
+see [Cockpit archive import](docs/maintenance/cockpit-archive-import.md). The repository utility
+has a read-only preview, an exact source-digest check, a retained backup and explicit recovery.
+It creates no current Runs or approvals and does not reintroduce old runtime-format support.
+This is a repository development capability, not qualification of a published or installed host.
+
 ## Choose your installation path
 
 Before running a command, install Node.js 22 or later with npm and the selected agent runtime. Run

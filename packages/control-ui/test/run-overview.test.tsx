@@ -56,7 +56,7 @@ for (const compact of [false, true]) {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Angebote vergleichen' })));
     expect(screen.queryByText(/nicht mehr im gelesenen Bestand/)).toBeNull();
     expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('run-a');
-    fireEvent.click(screen.getByRole('button', { name: /^Historie / }));
+    fireEvent.click(screen.getByRole('button', { name: /^Beendet / }));
     expect(screen.getByRole('button', { name: 'Ergebnis erhalten' })).toBeTruthy();
     expect(vi.mocked(read).mock.calls.some(([path]) => path.includes('backlog-titles'))).toBe(false);
   });

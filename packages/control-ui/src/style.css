@@ -164,7 +164,7 @@ summary { cursor: pointer; overflow-wrap: anywhere; }
 .text-link:hover { background: transparent; }
 .document blockquote { border-left: 3px solid; padding-left: var(--agdf-space-5); }
 footer { padding: var(--agdf-space-6) 0 var(--agdf-space-2); font-size: var(--agdf-text-xs); }
-.backlog-switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--agdf-space-3); margin: 0 0 var(--agdf-space-5); }
+.backlog-switch { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: var(--agdf-space-3); margin: 0 0 var(--agdf-space-5); }
 .backlog-switch button { min-width: 0; min-height: 88px; padding: var(--agdf-space-4); text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: var(--agdf-space-1); border: 1px solid var(--cockpit-line); background: var(--cockpit-bg); color: var(--cockpit-muted); }
 .backlog-switch button[aria-pressed='true'] { color: var(--cockpit-accent); background: var(--cockpit-accent-bg); border-color: var(--cockpit-accent); box-shadow: inset 0 -3px 0 var(--cockpit-accent); }
 .backlog-switch button:hover { border-color: var(--cockpit-accent); color: var(--cockpit-accent); }
@@ -325,3 +325,8 @@ footer { padding: var(--agdf-space-6) 0 var(--agdf-space-2); font-size: var(--ag
   .rail .brand { flex: 1; min-width: 0; }
   .rail .nav-item { flex: 1; min-width: 0; margin-left: 0; overflow-wrap: anywhere; }
 }
+
+/* A historical document gets its own reading space, retaining the archive list on return. */
+.archive-detail { min-width: 0; overflow: auto; }
+.archive-detail select { display: block; width: 100%; max-width: 100%; min-height: 44px; margin-block: var(--agdf-space-3); }
+.archive-detail code, .archive-detail pre { overflow-wrap: anywhere; }

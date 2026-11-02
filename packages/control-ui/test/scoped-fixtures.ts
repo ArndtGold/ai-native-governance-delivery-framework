@@ -8,7 +8,7 @@ export function pointer(key: string, title = key): WorkEntry {
 }
 export function backlog(entries = [pointer('run-a'), pointer('run-b')]): Envelope<Inventory> {
   return { ...fixtureMeta, data: { kind: 'work', layout: 'run-folders-v1', entries, diagnostics: [], source_path: '.agdf/control/',
-    content_digest: 'backlog-digest', counts: Object.fromEntries(['active', 'planned', 'history'].map(section => [section, entries.filter(e => e.section === section).length])), file_count: 1, byte_count: 100 } };
+    content_digest: 'backlog-digest', counts: Object.fromEntries(['active', 'planned', 'completed', 'archive'].map(section => [section, entries.filter(e => e.section === section).length])), file_count: 1, byte_count: 100 } };
 }
 export function runData(id: string, title = id): Detail {
   return { run_id: id, title, revision_id: 'revision', lifecycle: 'active', resources: [],

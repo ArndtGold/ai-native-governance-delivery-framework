@@ -59,7 +59,7 @@ test('Run list preserves inventory order, groups invalid entries and searches on
  ];
  const data = { state: 'incomplete', runs }, before = JSON.stringify(data);
  assert.deepEqual(projectCockpitRuns(data).rows.map(r => r.run_id), ['b', 'a', 'broken']);
- assert.deepEqual(projectCockpitRuns(data, { section: 'history' }).rows.map(r => r.run_id), ['old']);
+ assert.deepEqual(projectCockpitRuns(data, { section: 'completed' }).rows.map(r => r.run_id), ['old']);
  assert.equal(projectCockpitRuns(data, { query: ' KLÄRUNG ' }).matchCount, 1);
  assert.equal(projectCockpitRuns(data, { query: 'a' }).sectionCount, 3);
  runs[0].supplementary_heading = 'Unsearched heading';

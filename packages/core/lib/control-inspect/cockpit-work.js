@@ -1,3 +1,4 @@
+import { readCockpitArchive, archiveRows } from './cockpit-archive.js';
 import { readWorkInventory } from '../control-state/planned-inventory.js';
 import { digest, canonicalJson } from '../control-state/approval-command-contract.js';
 import { COCKPIT_WORK_SECTIONS as sections } from './cockpit-list.js';
@@ -20,6 +21,9 @@ export function projectCockpitWork(root) {
       handoff_ready: planned ? row.handoff_ready : false, planning_origins: row.planning_origins ?? [],
       selectable: planned ? row.source.digest !== null && row.coverage !== 'unavailable' : row.valid, authorizes: false };
   });
+  let archive = null;
+  try { archive = readCockpitArchive(root); } catch (error) { inventory.findings.push({ code: error.code ?? 'archive_invalid', section: 'archive' }); inventory.state = 'partial'; }
+  entries.push(...archiveRows(archive));
   return { state: inventory.state === 'partial' ? 'partial' : entries.length ? 'available' : 'empty',
     code: inventory.state === 'partial' ? 'work_inventory_partial' : null,
     data: { kind: 'work', layout: 'run-folders-v1', entries, diagnostics: inventory.findings,

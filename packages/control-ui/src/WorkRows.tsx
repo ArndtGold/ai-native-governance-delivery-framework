@@ -11,12 +11,12 @@ export function WorkEmpty({ list }: { list: CockpitList<WorkEntry, Diagnostic> }
     : list.coverage === 'partial' ? 'Keine lesbaren Treffer. Der Bestand ist eingeschränkt; weitere Vorhaben können fehlen.'
     : list.query ? 'Keine Vorhaben für diese Suche.' : 'In diesem Bereich sind keine Vorhaben gespeichert.'}</p>;
 }
-export function WorkRow({ row, current, onSelect, onSelectPlanned }: { row: CockpitListRow<WorkEntry>; current: boolean;
-  onSelect: (id: string) => void; onSelectPlanned?: (rowId: string) => void }) {
+export function WorkRow({ row, current, onSelect, onSelectPlanned, onSelectArchive }: { row: CockpitListRow<WorkEntry>; current: boolean;
+  onSelect: (id: string) => void; onSelectPlanned?: (rowId: string) => void; onSelectArchive?: (rowId: string) => void }) {
   const r = row.entry;
   return <li data-work-row={row.identity}>
-    <h3><button className="run-link" disabled={!current || !row.selectable || r.kind === 'planned' && !onSelectPlanned}
-      data-focus-id={r.key} onClick={() => r.kind === 'planned' ? onSelectPlanned?.(r.row_id!) : onSelect(r.key)}>{row.displayTitle}</button></h3>
+    <h3><button className="run-link" disabled={!current || !row.selectable || r.kind === 'planned' && !onSelectPlanned || r.kind === 'archive' && !onSelectArchive}
+      data-focus-id={r.key} onClick={() => r.kind === 'planned' ? onSelectPlanned?.(r.row_id!) : r.kind === 'archive' ? onSelectArchive?.(r.row_id!) : onSelect(r.key)}>{row.displayTitle}</button></h3>
     <span className="status">Beobachteter Quellenstand: {r.stored_status || 'Nicht angegeben'}</span>
     <p>{r.scope}{r.priority ? ` · Priorität: ${r.priority}` : ''}</p>
     <p className="row-step">Nächster Schritt: {r.stored_next_step || 'Nicht angegeben'}</p>

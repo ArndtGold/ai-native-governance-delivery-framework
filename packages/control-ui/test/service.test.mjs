@@ -29,7 +29,7 @@ test('run model: HTTP overview and exact selected sources are current and read-o
   try {
     const overview=(await request(service,'/api/snapshot')).body;
     assert.equal(overview.data.kind,'work');assert.equal(overview.data.layout,'run-folders-v1');
-    assert.equal(overview.data.counts.active,1);assert.equal(overview.data.counts.history,1);
+    assert.equal(overview.data.counts.active,1);assert.equal(overview.data.counts.completed,1);
     assert(overview.data.entries.every(row=>!Object.hasOwn(row,'saved_summary')));
     const selected=(await request(service,'/api/runs/fixture-a?snapshot='+overview.snapshot_id)).body;
     assert.equal(selected.data.run.run_id,'fixture-a');assert(!Object.hasOwn(selected.data.run,'backlog_comparison'));

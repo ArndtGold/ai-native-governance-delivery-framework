@@ -1,3 +1,4 @@
+import { readCockpitArchive, readArchiveDocument } from './cockpit-archive.js';
 import { runDocumentPath } from '../control-state/run-identity.js';
 import { existsSync } from '../control-read/fs.js';
 import { RUN_ID_PATTERN } from '../control-state/run-identity.js';
@@ -61,7 +62,7 @@ export function projectCockpitAssessment(report, lifecycle) {
 export function createCockpitReader(root, options = {}) {
   let view = null, details = new Map(), documents = new Map();
   let graph = null, inspected = null, packet = null;
-  let plannedRows = new Map();
+  let plannedRows = new Map(), archiveRows = new Map();
   // One result belongs to this existing reader, never to a shared or durable cache.
   let checkedDraft = null;
   const invalidate = () => { packet = null; };
@@ -248,7 +249,7 @@ export function createCockpitReader(root, options = {}) {
     if (!retainCheck) checkedDraft = null;
     invalidate(); inspected = null; graph = null; view = null;
     details = new Map(); documents = new Map();
-    plannedRows = new Map();
+    plannedRows = new Map(); archiveRows = new Map();
   }
   function selectedRun(runId) {
     const run = discoverRuns(root).find(row => row.run_id === runId);
@@ -278,10 +279,11 @@ export function createCockpitReader(root, options = {}) {
   function workScope(removedRunId = null) {
     readControlLayout(root);
     const result = projectCockpitWork(root);
-    plannedRows = new Map();
+    plannedRows = new Map(); archiveRows = new Map();
     if (result.data) result.data.entries.forEach(row => {
-      if (row.kind !== 'planned') row.selectable = row.selectable && existsSync(join(root, '.agdf/control/runs', row.key, 'RUN_STATE.md'));
+      if (row.kind === 'run') row.selectable = row.selectable && existsSync(join(root, '.agdf/control/runs', row.key, 'RUN_STATE.md'));
       row.row_id = randomUUID();
+      if (row.kind === 'archive') archiveRows.set(row.row_id, { id: row.key, digest: row.source.digest });
       if (row.kind === 'planned') plannedRows.set(row.row_id, { plan_id: row.key, digest: row.source.digest });
     });
     if (result.data) Object.assign(result.data, { file_count: view.file_count, byte_count: view.byte_count,
@@ -327,6 +329,26 @@ export function createCockpitReader(root, options = {}) {
       view.revalidate();
       return envelope({ kind: 'planned', entry: { plan_id: entry.plan_id, title: entry.title, priority: entry.priority,
         path: entry.path, digest: entry.digest, content: entry.content, readiness: entry.readiness, authorizes: false } });
+    },
+    archive(rowId, id, resourceId) {
+      const selected = archiveRows.get(rowId); if (!selected) fail('resource_denied');
+      assertSnapshot(id);
+      // The overview capture is frozen. Read an immutable archive reference in a
+      // separate bounded capture, checking its index digest against that overview.
+      const captured = captureControlScope(root, () => {
+        const index = readCockpitArchive(root);
+        if (!index || index.digest !== selected.digest) fail('source_changed');
+        const run = index.entries.find(row => row.id === selected.id); if (!run) fail('resource_denied');
+        const resources = run.documents.map(doc => { const h = rawDigest(Buffer.from(doc.path)); return { ...doc,
+          resource_id: `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-8${h.slice(17, 20)}-${h.slice(20, 32)}` }; });
+        const doc = resourceId === undefined ? null : resources.find(row => row.resource_id === resourceId);
+        if (resourceId !== undefined && !doc) fail('resource_denied');
+        const document = doc ? { resource_id: doc.resource_id, ...readArchiveDocument(root, doc) } : null;
+        return { kind: 'archive', entry: { id: run.id, title: run.title, entry_kind: run.entry_kind, recorded_lifecycle: run.recorded_lifecycle,
+          recorded_gate: run.recorded_gate, source_control_version: run.source_control_version, recorded_approvals: run.recorded_approvals, resources, authorizes: false }, document };
+      }, options);
+      assertSnapshot(id);
+      return envelope(captured.data);
     },
     artifactReadiness(runId, id, gate, revision) {
       const previous = details.get(runId)?.data?.draft_check?.source;

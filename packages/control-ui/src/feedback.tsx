@@ -1,7 +1,7 @@
 import type { ReadingState } from './state';
 
 export const messages: Record<string, string> = {
-  control_layout_unsupported: 'Dieser Kontrollbestand verwendet ein nicht unterstütztes Format. Er bleibt unverändert. Einen frischen aktuellen Zielbestand auswählen und bewusst neu laden.',
+  control_layout_unsupported: 'Dieser Kontrollbestand verwendet ein nicht unterstütztes Format. Er bleibt unverändert. Altbestände können einmalig in das Cockpit-Archiv übernommen werden. Anschließend bewusst neu laden.',
   run_version_unsupported: 'Diese Run-Version wird nicht unterstützt. Die ursprünglichen Daten bleiben unverändert.',
   control_invalid: 'Die aktuelle Kontrollkonfiguration ist ungültig. Die Quelle prüfen und bewusst erneut laden.',
   persisted_mismatch: 'Die gespeicherte Angabe weicht von der Core-Auswertung ab. Beide Quellen sind getrennt dargestellt; die Core-Auswertung bestimmt den Kontrollstatus.',

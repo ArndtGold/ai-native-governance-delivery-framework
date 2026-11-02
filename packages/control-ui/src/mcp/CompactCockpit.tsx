@@ -9,12 +9,13 @@ import { Icon } from './Icon';
 import { WorkStep } from '../WorkStep';
 import { DocumentView } from '../DocumentView';
 import type { Resource } from '../types';
+import type { ArchiveLoader } from '../ArchiveDetail';
 
-export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onRuns, onExpand, onOpen, onBack, view, onViewChange, returnNotice, draftCheck }: {
+export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onRuns, onExpand, onOpen, onBack, view, onViewChange, returnNotice, draftCheck, loadArchive }: {
   state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean;
   initialRunId?: string; view: WorkView; onViewChange: (view: WorkView) => void; returnNotice?: string | null;
   onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onRuns?: () => void; onExpand?: () => void;
-  onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode;
+  onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode; loadArchive?: ArchiveLoader;
 }) {
   const data = state.detail?.data, e = data?.evaluation;
   const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
@@ -28,7 +29,7 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
       <RefreshControl state={state} enabled={enabled} onReload={onReload}/>
     </BrandHeader>
     <nav className="compact-actions" aria-label="Bestandsquelle"><button onClick={onRuns ?? onOverview} disabled={expired || busy}>Runs</button></nav>
-    {state.route.view === 'overview' && state.inventory?.data && <><p className="compact-muted compact-repository" title={target}>{repository}</p>{returnNotice && <p role="status">{returnNotice}</p>}<Overview result={state.inventory} onSelect={onSelect} current={usable} view={view} onViewChange={onViewChange}/></>}
+    {state.route.view === 'overview' && state.inventory?.data && <><p className="compact-muted compact-repository" title={target}>{repository}</p>{returnNotice && <p role="status">{returnNotice}</p>}<Overview loadArchive={loadArchive} result={state.inventory} onSelect={onSelect} current={usable} view={view} onViewChange={onViewChange}/></>}
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
     <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
     <div className={busy ? 'previous-content' : undefined}>

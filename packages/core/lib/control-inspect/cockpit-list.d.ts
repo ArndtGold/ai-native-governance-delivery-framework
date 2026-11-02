@@ -1,4 +1,4 @@
-export const COCKPIT_WORK_SECTIONS: readonly ['active', 'planned', 'history'];
+export const COCKPIT_WORK_SECTIONS: readonly ['active', 'planned', 'completed', 'archive'];
 export interface ListEntry { section: string; key: string; title: string; stored_status: string; selectable: boolean; identity: string; source: { path: string; digest: string | null } }
 export interface ListDiagnostic { code: string; section?: string; key?: string | null }
 export interface ListInventory<T extends ListEntry = ListEntry, D extends ListDiagnostic = ListDiagnostic> {

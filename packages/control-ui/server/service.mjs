@@ -88,6 +88,7 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     if (/[%.]/.test(url.pathname.slice(5))) return send(403, error('resource_denied'));
     let operation, selector;
     if (url.pathname === '/api/snapshot') operation = 'snapshot';
+    else if (/^\/api\/archive\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'archive'; selector = url.pathname.slice(13); }
     else if (/^\/api\/planned\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'planned'; selector = url.pathname.slice(13); }
     else if (url.pathname === '/api/freshness') operation = 'freshness';
     else if (url.pathname === '/api/changes') operation = 'changes';
@@ -101,13 +102,16 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
       && ['snapshot', 'gate', 'expected_revision'].every(key => params.includes(key))
       && ['UR', 'PRD', 'SD', 'TP'].includes(url.searchParams.get('gate'))
       && ['snapshot', 'expected_revision'].every(key => /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(url.searchParams.get(key) ?? ''));
-    if (operation === 'artifact_readiness' ? !draftParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && !((params[0] === 'run_id' && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(url.searchParams.get('run_id') ?? '')) || (params[0] === 'view' && ['runs'].includes(url.searchParams.get('view')))) : params.length !== 1 || params[0] !== 'snapshot'
+    const archiveParams = operation === 'archive' && params.length >= 1 && params.length <= 2 && new Set(params).size === params.length
+      && params.every(key => ['snapshot', 'resource'].includes(key)) && /^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')
+      && (!url.searchParams.has('resource') || /^[a-f0-9-]{36}$/.test(url.searchParams.get('resource') ?? ''));
+    if (operation === 'archive' ? !archiveParams : operation === 'artifact_readiness' ? !draftParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && !((params[0] === 'run_id' && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(url.searchParams.get('run_id') ?? '')) || (params[0] === 'view' && ['runs'].includes(url.searchParams.get('view')))) : params.length !== 1 || params[0] !== 'snapshot'
       || !/^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')) return send(403, error('resource_denied'));
     const cancellation = new AbortController();
     res.once('close', () => { if (!res.writableEnded) cancellation.abort(); });
     try {
       const result = operation === 'changes' ? await pool.waitForChange(url.searchParams.get('snapshot'), cancellation.signal) : await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
-        input: operation === 'artifact_readiness' ? { run_id: selector, gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') }
+        input: operation === 'archive' ? (url.searchParams.has('resource') ? { resource_id: url.searchParams.get('resource') } : {}) : operation === 'artifact_readiness' ? { run_id: selector, gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') }
           : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : operation === 'snapshot' && url.searchParams.has('view') ? { view: url.searchParams.get('view') } : undefined }, cancellation.signal);
       send(200, result);
     } catch (e) { send(e.code === 'busy' ? 429 : e.code === 'timeout' ? 504 : 409, error(['resource_denied', 'source_changed', 'read_failed', 'resource_limit', 'busy', 'timeout', 'cancelled'].includes(e.code) ? e.code : 'read_failed')); }

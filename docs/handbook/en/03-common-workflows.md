@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:ae1c1cbeb041ffe1896a2f06ac99d8d35f415eb3b1253b646ec872ce91fa312c
+source_revision: sha256:2cfa023c70898a328107677f8832339a358e447ba4b4fc1c185268bbee706d5a
 translation_status: reviewed
 ---
 
@@ -41,7 +41,7 @@ describes the intended discovery boundary. It does not prove that every host tec
 that boundary.
 
 Source, generation and package checks remain separate from installed and freshly loaded host
-evidence. The [Instruction Footprint Audit](../../../.agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md)
+evidence. The [Instruction Footprint Audit](../../../.agdf/control/archive/source/runs/agdf-request-activation-boundary/documents/INSTRUCTION_FOOTPRINT_AUDIT.md)
 records the rationale, measurements and evidence limits.
 
 ## Quick Task and Compact Delivery

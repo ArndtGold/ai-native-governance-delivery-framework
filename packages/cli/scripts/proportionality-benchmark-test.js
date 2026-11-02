@@ -12,6 +12,7 @@ import {
   sourceFingerprint, validateBaseline, validateHistoryInventory, validateStagedBlindScenario, validateV3Facts,
 } from "../../../evals/lib/proportionality-benchmark/index.js";
 import { tryLinkFile } from "../../../scripts/support/symlinks.js";
+import { historicalSourcePath } from "../../../evals/lib/proportionality-benchmark/corpus-loader.js";
 
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const corpus = loadCorpus(repoRoot);
@@ -456,8 +457,9 @@ for (const path of [
   ".agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md",
   ".agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md",
 ]) {
-  mkdirSync(dirname(join(historyTemp, path)), { recursive: true });
-  writeFileSync(join(historyTemp, path), "fixture\n");
+  const archivedPath = historicalSourcePath(path);
+  mkdirSync(dirname(join(historyTemp, archivedPath)), { recursive: true });
+  writeFileSync(join(historyTemp, archivedPath), "fixture\n");
   history.protected_files[path] = createHash("sha256").update("fixture\n").digest("hex");
 }
 writeFileSync(join(historyTemp, "evals/proportionality/history.json"), `${JSON.stringify(history)}\n`);
@@ -474,12 +476,14 @@ rmSync(historyTemp, { recursive: true, force: true });
 const loaderTemp = mkdtempSync(join(tmpdir(), "agdf-v3-loader-test-"));
 mkdirSync(join(loaderTemp, "evals/proportionality/fixtures"), { recursive: true });
 const loaderManifest = structuredClone(v3Corpus.manifest);
-mkdirSync(dirname(join(loaderTemp, loaderManifest.baseline_path)), { recursive: true });
+const archivedBaselinePath = historicalSourcePath(loaderManifest.baseline_path);
+mkdirSync(dirname(join(loaderTemp, archivedBaselinePath)), { recursive: true });
 loaderManifest.fixture_version = "3.0.1";
 writeFileSync(join(loaderTemp, "evals/proportionality/staged-v3-manifest.json"), `${JSON.stringify(loaderManifest)}\n`);
 writeFileSync(join(loaderTemp, "evals/proportionality/staged-v3-scenarios.json"), readFileSync(join(repoRoot, "evals/proportionality/staged-v3-scenarios.json")));
 writeFileSync(join(loaderTemp, "evals/proportionality/fixtures/staged-v3-catalog.json"), readFileSync(join(repoRoot, "evals/proportionality/fixtures/staged-v3-catalog.json")));
-writeFileSync(join(loaderTemp, loaderManifest.baseline_path), readFileSync(join(repoRoot, loaderManifest.baseline_path)));
+writeFileSync(join(loaderTemp, archivedBaselinePath), readFileSync(join(repoRoot, archivedBaselinePath)));
+assert.throws(() => historicalSourcePath('.agdf/control/artefacts/example/../../outside.json'), /unsafe corpus path/);
 assert.throws(() => loadCorpus(loaderTemp, "staged-v3"), /version mismatch: fixtures.fixture_version/);
 loaderManifest.fixture_version = "3.0.0";
 loaderManifest.scenarios_path = "../outside.json";

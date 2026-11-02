@@ -1,5 +1,10 @@
 # Planned URs in the current Run model
 
+Canonical initialization includes an empty `.gitkeep` in `runs/` and `planned/`
+so Git checkouts retain empty stores. The planned inventory ignores only this
+exact marker when it is an empty regular file; other unsupported entries remain
+findings. The marker is neither a planned UR nor a lock or approval record.
+
 New projects use `control_layout: "run-folders-v1"`. Each planned need lives in
 `.agdf/control/planned/<plan_id>/UR.md`, with exactly one initial `Planning schema:
 planned-ur-v1`, `Planning id:` and `Planning priority: high|normal|low` scalar.

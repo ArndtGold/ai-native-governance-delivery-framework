@@ -21,6 +21,8 @@ export function canonicalInitPlan(languagePreference, context = resources, { lay
   };
   const files = [{ path: '.agdf/control/config.json', content: languageConfigContent(language, { control_layout: layout }) },
     { path: '.agdf/control/README.md', content: load(dirname(root), 'README.md') }];
+  for (const store of ['runs', 'planned'])
+    files.push({ path: `.agdf/control/${store}/.gitkeep`, content: '' });
   for (const name of ['SOT_REGISTRY.md', 'CONTEXT_GRAPH.md', 'AGENT_QUALITY_CONTRACTS.json'])
     files.push({ path: `.agdf/control/${name}`, content: load(root, name) });
   for (const id of ['UR', 'BROWNFIELD_REVIEW', 'VERIFIED_CHANGE', 'PRD', 'UX_INTENT_DEFINITION', 'SD', 'TP', 'QA_REPORT', 'OR']) {

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { validateJsonSchema } from "../../../evals/lib/request-activation-evals/index.js";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const evidenceRoot = join(repoRoot, ".agdf", "control", "artefacts", "agdf-request-activation-boundary");
+const evidenceRoot = join(repoRoot, ".agdf", "control", "archive", "source", "runs", "agdf-request-activation-boundary", "documents");
 const schema = JSON.parse(readFileSync(join(evidenceRoot, "HOST_OBSERVATION_SCHEMA.json"), "utf8"));
 const unavailableMatrix = JSON.parse(readFileSync(join(evidenceRoot, "HOST_OBSERVATION_MATRIX.json"), "utf8"));
 // This schema is a frozen artefact of the agdf-request-activation-boundary run.

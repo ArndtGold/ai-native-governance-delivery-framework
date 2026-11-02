@@ -189,7 +189,7 @@ for (const [predictedCallbacks, expectedCode] of [
   assert.ok(result.failures.some(({ code }) => code === expectedCode));
 }
 
-const hostEvidenceRoot = join(repoRoot, ".agdf", "control", "artefacts", "agdf-request-activation-boundary");
+const hostEvidenceRoot = join(repoRoot, ".agdf", "control", "archive", "source", "runs", "agdf-request-activation-boundary", "documents");
 const hostSchema = JSON.parse(readFileSync(join(hostEvidenceRoot, "HOST_OBSERVATION_SCHEMA.json"), "utf8"));
 const hostMatrix = JSON.parse(readFileSync(join(hostEvidenceRoot, "HOST_OBSERVATION_MATRIX.json"), "utf8"));
 assert.equal(hostSchema.properties.hosts.minItems, 4);

@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { importCockpitArchive } from './import-cockpit-archive.mjs';
 import { legacyArchiveFixture } from './support/legacy-archive-fixture.mjs';
 import { createCockpitReader } from '../packages/core/lib/control-inspect/cockpit.js';
@@ -27,6 +29,23 @@ test('preview writes nothing; apply retains exact original files/empty directori
   assert.equal(JSON.parse(fs.readFileSync(join(f.root, '.agdf/control/config.json'))).control_layout, 'run-folders-v1');
   assert.equal(readRunInventory(f.root).runs.length, 0);
   assert.equal(importCockpitArchive(f.root, { apply: true, expected: plan.source_digest }).status, 'already_archived');
+});
+
+test('an imported archive stays readable after exporting only Git-tracked files', async t => {
+  const f = imported(t), checkout = fs.mkdtempSync(join(tmpdir(), 'agdf-archive-checkout-'));
+  t.after(() => fs.rmSync(checkout, { recursive: true, force: true }));
+  execFileSync('git', ['init', '-q', f.root]);
+  execFileSync('git', ['-C', f.root, 'add', '--force', '--', '.agdf/control']);
+  execFileSync('git', ['-C', f.root, 'checkout-index', '--all', `--prefix=${checkout.replace(/\\/gu, '/')}/`]);
+  assert.deepEqual(fs.readdirSync(join(checkout, '.agdf/control/planned')), ['.gitkeep']);
+  assert.deepEqual(fs.readdirSync(join(checkout, '.agdf/control/runs')), ['.gitkeep']);
+  const service = createCockpitSessionService(checkout);
+  try {
+    const session_id = (await service.render())._meta.agdf_cockpit.session_id;
+    const overview = await service.read({ session_id, operation: 'snapshot' });
+    assert.equal(overview.state, 'available');
+    assert.deepEqual(overview.data.counts, { active: 0, planned: 0, completed: 0, archive: 2 });
+  } finally { await service.close(); }
 });
 test('inert captured locks and unusual file names remain byte-exact historical documents', t => {
   const f = fixture(t); f.put('artefacts/old-run/evidence/capture/.coordination.lock', 'historical bytes');

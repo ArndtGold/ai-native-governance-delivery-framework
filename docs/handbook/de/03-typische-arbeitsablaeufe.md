@@ -33,7 +33,7 @@ Host diese Grenze technisch erzwingt.
 
 Quell-, Generierungs- und Paketprüfungen bleiben von installierter und frisch geladener
 Host-Evidenz getrennt. Die Gründe, Messwerte und Nachweisgrenzen stehen im
-[Instruction Footprint Audit](../../../.agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md).
+[Instruction Footprint Audit](../../../.agdf/control/archive/source/runs/agdf-request-activation-boundary/documents/INSTRUCTION_FOOTPRINT_AUDIT.md).
 
 ## Quick Task und Compact Delivery
 

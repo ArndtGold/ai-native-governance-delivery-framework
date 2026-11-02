@@ -22,7 +22,7 @@ const fixturePaths = [
   "docs/assets/intro.png",
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
-  ".agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md",
+  ".agdf/control/archive/source/runs/agdf-request-activation-boundary/documents/INSTRUCTION_FOOTPRINT_AUDIT.md",
   "docs/handbook",
   "docs/compatibility",
   "docs/architecture",
@@ -258,7 +258,13 @@ await withFixture(
 );
 
 await withFixture(
-  (root) => replace(root, ".agdf/control/CONTEXT_GRAPH.md", "CG-PUBLIC-COMMUNITY-GOVERNANCE", "CG-REMOVED"),
+  async (root) => {
+    const target = path.join(root, ".agdf/control/CONTEXT_GRAPH.md");
+    const content = await fs.readFile(target, "utf8");
+    assert.ok(content.includes("CG-PUBLIC-COMMUNITY-GOVERNANCE"));
+    // Remove the node from both its index and body before testing absence.
+    await fs.writeFile(target, content.replaceAll("CG-PUBLIC-COMMUNITY-GOVERNANCE", "CG-REMOVED"));
+  },
   "CONTEXT_GRAPH_NODE_MISSING",
 );
 

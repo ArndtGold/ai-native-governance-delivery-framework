@@ -26,7 +26,7 @@ test('canonical init: current seed is atomic, wrapped, replayable and creates ne
   const f = currentFixture(t, { initialize: false }), input = request(f), result = f.execute(input);
   assert.equal(result.outcome,'accepted',JSON.stringify(result));
   const control = join(f.root,'.agdf/control'), config = JSON.parse(readFileSync(join(control,'config.json'),'utf8'));
-  assert.equal(config.control_layout,'run-folders-v1'); assert.deepEqual(readdirSync(join(control,'runs')),[]); assert.deepEqual(readdirSync(join(control,'planned')),[]);
+  assert.equal(config.control_layout,'run-folders-v1'); assert.deepEqual(readdirSync(join(control,'runs')),['.gitkeep']); assert.deepEqual(readdirSync(join(control,'planned')),['.gitkeep']);
   assert(!existsSync(join(control,'MASTER_BACKLOG.md'))); assert(!existsSync(join(control,'AGDF_RUN.md'))); assert(!existsSync(join(control,'artefacts')));
   const receipt = readInitializationReceipt(control);
   assert.equal(resolutionRecord(receipt).schema_version,2); assert.equal(resolutionRecord(receipt).created_run,false); assert.equal(resolutionRecord(receipt).created_gate_approval,false);
@@ -46,7 +46,7 @@ for (const phase of ['project_before_prospective_receipt','project_after_prospec
     const retry=f.execute(input); assert(['accepted','already_applied'].includes(retry.outcome),JSON.stringify(retry));
     assert.equal(inspectCanonicalProject(f.root,{operationId:input.operation_id}).status,'initialized');
     assert(readdirSync(join(f.root,'.agdf')).every(name=>!name.startsWith('.control-stage-')));
-    assert.deepEqual(readdirSync(join(f.root,'.agdf/control/runs')),[]);
+    assert.deepEqual(readdirSync(join(f.root,'.agdf/control/runs')),['.gitkeep']);
   });
 }
 for (const phase of ['project_after_prospective_receipt','project_before_publish','project_after_publish']) {

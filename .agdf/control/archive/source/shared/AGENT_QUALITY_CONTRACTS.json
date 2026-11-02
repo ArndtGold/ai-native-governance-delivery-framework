@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "updated_at": "2026-07-08",
+  "contracts": [
+    {
+      "code": "AGDF_STATUS_CARD_PARALLEL_RULE_MODEL",
+      "category": "agent_process",
+      "impact": "block",
+      "title": "Run Status Card duplicates gate logic",
+      "description": "The Run Status Card must be a projection of gate-check, delivery-map and AGDF_RUN state, not a second independent transition model.",
+      "applies_to_modes": ["structured_delivery", "quick_task"],
+      "gate_effect": ["qa"],
+      "required_evidence": ["runtime_contract", "cli_output", "smoke_test"],
+      "evaluation": "review",
+      "owner": "governance"
+    }
+  ]
+}

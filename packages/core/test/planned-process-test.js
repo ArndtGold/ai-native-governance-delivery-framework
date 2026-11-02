@@ -42,7 +42,7 @@ for (const phase of ['handoff_before_run_publish', 'handoff_run_committed']) tes
   killed(root, '../lib/control-state/planned-handoff.js', 'createRunFromPlanned', input, phase);
   const result = createRunFromPlanned(root, input);
   assert.equal(result.run_id, `run-${input.operation_id}`); assert.equal(inspectMutationClaims(root).length, 0);
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), [result.run_id]);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep'), [result.run_id]);
   assert.match(readFileSync(join(root, `.agdf/control/runs/${result.run_id}/RUN_STATE.md`), 'utf8'), /control_state_version: 4/u);
   assert.equal(readFileSync(join(root, `.agdf/control/runs/${result.run_id}/history/planning/UR.md`), 'utf8'), entry.content);
 });
@@ -58,5 +58,5 @@ test('SCN-019: two live processes starting the same entry serialize at its resou
   assert.throws(() => createRunFromPlanned(root, second), /original_operation_unconfirmed/u, 'another UUID cannot adopt the live original handoff');
   writeFileSync(release, 'release'); assert.deepEqual(await exited, [0, null]);
   const retry = createRunFromPlanned(root, second); assert.equal(retry.run_id, `run-${first.operation_id}`);
-  assert.equal(retry.outcome, 'already_transferred'); assert.equal(readdirSync(join(root, '.agdf/control/runs')).length, 1);
+  assert.equal(retry.outcome, 'already_transferred'); assert.equal(readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep').length, 1);
 });

@@ -51,7 +51,8 @@ function normalizedPlan(files) {
       throw new CanonicalInitError("AGDF_CANONICAL_INIT_PLAN_INVALID", path);
     }
     if (relativePath === LEGACY_LIVE_RUN) throw new CanonicalInitError("AGDF_CANONICAL_INIT_LEGACY_AUTHORITY_FORBIDDEN", path);
-    if (relativePath === STAGE_MARKER || relativePath === TERMINAL_RECEIPT || ["runs", "planned"].some(name => relativePath === name || relativePath.startsWith(name + "/"))) {
+    const emptyStoreMarker = ["runs/.gitkeep", "planned/.gitkeep"].includes(relativePath) && file.content === "";
+    if (relativePath === STAGE_MARKER || relativePath === TERMINAL_RECEIPT || (!emptyStoreMarker && ["runs", "planned"].some(name => relativePath === name || relativePath.startsWith(name + "/")))) {
       throw new CanonicalInitError("AGDF_CANONICAL_INIT_PLAN_INVALID", path);
     }
     if (seen.has(relativePath)) throw new CanonicalInitError("AGDF_CANONICAL_INIT_PLAN_DUPLICATE", path);

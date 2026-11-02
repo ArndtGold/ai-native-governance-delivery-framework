@@ -115,8 +115,8 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
     const inventory = await call('agdf_inspect', { ...target, operation: 'inventory' });
     assert.equal(inventory.report.entries.length, 1); assert.equal(inventory.report.planning_references.length, 1);
     const direct = await call('agdf_run', { ...target, target_id, schema_version: '1', operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind: 'run.create', payload: { title: 'Direct fixture Run' } } });
-    assert.equal(direct.outcome, 'accepted'); assert.equal(readdirSync(join(root, '.agdf/control/runs')).length, 2);
-    for (const id of readdirSync(join(root, '.agdf/control/runs'))) assert.equal(prepareRunContentState(root,readFileSync(join(root, `.agdf/control/runs/${id}/RUN_STATE.md`),'utf8')).approvals.get('UR').status,'missing');
+    assert.equal(direct.outcome, 'accepted'); assert.equal(readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep').length, 2);
+    for (const id of readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep')) assert.equal(prepareRunContentState(root,readFileSync(join(root, `.agdf/control/runs/${id}/RUN_STATE.md`),'utf8')).approvals.get('UR').status,'missing');
     const plannedRoot = join(root, '.agdf/control/planned'), backup = plannedRoot + '.fixture-backup';
     const sourceBefore = readFileSync(join(plannedRoot, plan_id, 'UR.md'));
     renameSync(plannedRoot, backup); writeFileSync(plannedRoot, 'Unavailable fixture directory');

@@ -8,6 +8,7 @@ import { estimateTokens, byteLength, normalizeText } from "./normalize.js";
 import { classifyNativeCall, isAgdfMcpCall, isAgdfShellCall, normalizeToolName } from "./native-tasks.js";
 import { isSdkInputValidationText } from "./classify.js";
 import { parse as parseJavaScript } from 'acorn';
+import { canonicalJson } from '../../../packages/core/lib/control-state/approval-command-contract.js';
 
 export const AGDF_MCP_TOOLS = Object.freeze(["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
 // SD SDD-007: with_skills = AGDF MCP tools, Skill, Read and the shell (Bash, and PowerShell as its
@@ -405,15 +406,31 @@ export function strictPresentedDocumentRead(input) {
 }
 
 function presentedDocumentFlow({ parsed, expectedBytes, binding, finalText }, { requireDiscovery, requireDelivery }) {
-  const fail = reason => ({ check: requireDelivery ? 'strict_t4_document_flow_v1' : 'strict_presented_document_read_v1', success: false, reason });
+  const fail = reason => ({ check: requireDelivery ? 'strict_t4_document_flow_v2' : 'strict_presented_document_read_v1', success: false, reason });
   if (!parsed.trace_complete || parsed.detours.length) return fail('incomplete_trace_or_forbidden_detour');
   let discovered = !requireDiscovery, offset = 0, nextCursor, complete = false, pages = 0;
   const chunks = [], expectedDigest = `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}`;
   for (const call of parsed.calls) {
     if (call.result.is_error) continue;
     const result = JSON.parse(call.result.text), report = result?.report, input = call.input;
-    if (input?.operation === 'operation-contract' && input.module === 'agdf_prepare/presentation.prepare') {
-      const catalog = report?.presentation_catalog, candidate = catalog?.candidates?.[0];
+    const gateCatalog = isAgdfMcpCall(call) && normalizeToolName(call.name) === 'agdf_inspect'
+      && input?.operation === 'gate-check' && result?.outcome === 'inspect_result' && result.operation === 'gate-check'
+      && input.run_id === binding.run_id && result.target?.resolution_state === 'resolved'
+      && typeof input.primary_target === 'string' && input.primary_target.length > 0
+      && ['explicit_target', 'continued_target', 'current_repository'].includes(input.target_source)
+      && result.target.target_source === input.target_source
+      && result.target.primary_target === input.primary_target ? result.navigation?.presentation_catalog : null;
+    const gateDiscovery = gateCatalog?.page_complete === true && gateCatalog.next_cursor === null
+      && Array.isArray(gateCatalog.candidates) && gateCatalog.candidates.length === 1
+      && gateCatalog.binding?.target_id === binding.target_id && gateCatalog.binding.run_id === binding.run_id
+      && gateCatalog.candidates?.[0]?.read_arguments?.operation === 'presentation-document'
+      && Array.isArray(result.navigation?.next_calls)
+      && result.navigation.next_calls.some(next => next?.tool === 'agdf_inspect' && next.arguments
+        && canonicalJson(next.arguments) === canonicalJson(gateCatalog.candidates[0].read_arguments));
+    if (input?.operation === 'operation-contract' && input.module === 'agdf_prepare/presentation.prepare' || gateDiscovery) {
+      // v2 admits the Core's equally bound gate-check catalog. Every existing
+      // uniqueness, digest, page-order, byte and full-delivery check still runs.
+      const catalog = gateDiscovery ? gateCatalog : report?.presentation_catalog, candidate = catalog?.candidates?.[0];
       if (!call.result.is_error && catalog?.state === 'unique' && catalog.complete_scan && catalog.total_candidates === 1 && catalog.candidates.length === 1
         && candidate.presentation_id === binding.presentation_id && candidate.content_digest === expectedDigest
         && Object.entries(binding).every(([key, value]) => candidate.read_arguments?.[key] === value)) discovered = true;
@@ -433,5 +450,5 @@ function presentedDocumentFlow({ parsed, expectedBytes, binding, finalText }, { 
   if (!complete || !Buffer.concat(chunks).equals(expectedBytes)) return fail('document_incomplete');
   if (requireDelivery && (typeof finalText !== 'string' || !finalText.includes(expectedBytes.toString('utf8')))) return fail('complete_user_delivery_unproven');
   if (!requireDelivery) return { check: 'strict_presented_document_read_v1', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true };
-  return { check: 'strict_t4_document_flow_v1', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true, complete_user_delivery: true };
+  return { check: 'strict_t4_document_flow_v2', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true, complete_user_delivery: true };
 }

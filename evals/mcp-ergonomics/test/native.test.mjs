@@ -2,17 +2,62 @@ import { initializeCurrentControl } from '../../../packages/core/test/fixtures/c
 import { createRun } from '../../../packages/core/lib/control-state/run-state-repository.js';
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { buildFixture, CLI } from "../lib/fixtures.js";
-import { evaluateSuccess, loadTaskSet, normalizeToolName, SUCCESS_TYPES } from "../lib/native-tasks.js";
+import { renderCodexTaskPrompt, renderPrompt, CODEX_TASK_CONTEXT_VERSION, revisionSafetyObservations, evaluateSuccess, loadTaskSet, normalizeToolName, SUCCESS_TYPES } from "../lib/native-tasks.js";
 import { AGDF_MCP_TOOLS, nativeSessionMetrics, planCells, runSchedule, VARIANT_BUILTIN_TOOLS, VARIANT_TOOLS, verifyVariant } from "../lib/native-run.js";
 
 const INSPECT = "mcp__plugin_agdf_agdf__agdf_inspect";
 const call = (name, result, input = {}) => ({ id: name, name, input, result });
 const parsedOf = (calls, extra = {}) => ({ calls, init: {}, result: null, events: [], ...extra });
+
+test('Codex transport context selects the disposable target without leaking fixture answers or changing frozen tasks', () => {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-codex-prompt-')));
+  const fixture = { root, targetId: `sha256:${'1'.repeat(64)}`, presentationId: '00000000-0000-4000-8000-000000000001',
+    staleRevisionId: '00000000-0000-4000-8000-000000000002', revision: () => '00000000-0000-4000-8000-000000000003' };
+  try { for (const task of loadTaskSet().tasks) {
+      const original = renderPrompt(task, fixture), prompt = renderCodexTaskPrompt(task, fixture);
+      assert.ok(prompt.endsWith(original));
+      assert.ok(prompt.includes(JSON.stringify(fixture.root)));
+      assert.ok(prompt.includes(CODEX_TASK_CONTEXT_VERSION));
+      assert.match(prompt, /keine Freigabe/u);
+      assert.match(prompt, /TextEncoder stehen nicht zur Verfügung/u);
+      // No hidden revision, target hash or presentation answer is injected.
+      const prefix = prompt.slice(0, -original.length);
+      for (const secret of [fixture.targetId, fixture.presentationId, fixture.staleRevisionId, fixture.revision()].filter(Boolean))
+        assert.equal(prefix.includes(secret), false);
+      assert.equal(renderPrompt(task, fixture), original);
+  } } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('safe stale preflight stop is observed separately from the unchanged negative write requirement', () => {
+  const trace = calls => parsedOf(calls, { trace_complete: true });
+  const fixture = { root: '/synthetic/repo', runId: 'demo-run-01', targetId: `sha256:${'1'.repeat(64)}`,
+    staleRevisionId: '11111111-1111-4111-8111-111111111111', revision: () => '22222222-2222-4222-8222-222222222222' };
+  const base = { primary_target: fixture.root, target_source: 'explicit_target', run_id: fixture.runId };
+  const preflight = call(INSPECT, { text: JSON.stringify({ outcome: 'inspect_result', report: { available: false, reason: 'operation_binding_stale_or_invalid' } }) },
+    { ...base, operation: 'operation-contract', module: 'agdf_record/step.record', expected_revision_id: fixture.staleRevisionId });
+  const fresh = call(INSPECT, { text: JSON.stringify({ outcome: 'inspect_result', navigation: { presentation_catalog: { binding: {
+    target_id: fixture.targetId, run_id: fixture.runId, expected_revision_id: fixture.revision() } } } }) }, { ...base, operation: 'gate-check' });
+  const parsed = trace([preflight, fresh]);
+  assert.deepEqual(revisionSafetyObservations({ fixture, parsed }), { schema_version: '1', write_guard_observed: false,
+    stale_write_accepted: false, preflight_stop_observed: true, no_evidence_write_attempted: true });
+  const task = loadTaskSet().tasks.find(task => task.id === 'T6');
+  assert.equal(evaluateSuccess({ task, fixture, parsed, mutationViolations: [] }).success, false);
+  for (const calls of [[], [preflight], [fresh], [{ ...preflight, input: { ...preflight.input, primary_target: '/another/repo' } }, fresh]])
+    assert.equal(revisionSafetyObservations({ fixture, parsed: trace(calls) }).preflight_stop_observed, false);
+  const incomplete = revisionSafetyObservations({ fixture, parsed: { ...parsed, trace_complete: false } });
+  assert.equal(incomplete.preflight_stop_observed, false);
+  assert.equal(incomplete.no_evidence_write_attempted, null);
+  const write = outcome => call('mcp__plugin_agdf_agdf__agdf_record', { text: JSON.stringify({ outcome, reason: 'stale_revision' }) },
+    { ...base, expected_revision_id: fixture.staleRevisionId, command: { kind: 'step.record', payload: { step: 'evidence' } } });
+  assert.equal(revisionSafetyObservations({ fixture, parsed: parsedOf([write('rejected')]) }).write_guard_observed, true);
+  assert.equal(revisionSafetyObservations({ fixture, parsed: parsedOf([preflight, fresh, write('accepted')]) }).stale_write_accepted, true);
+  assert.equal(revisionSafetyObservations({ fixture, parsed: parsedOf([preflight, fresh, write('accepted')]) }).preflight_stop_observed, false);
+});
 
 function tempRun(content) {
   const root = mkdtempSync(join(tmpdir(), "agdf-mcp-ergonomics-test-"));
@@ -247,6 +292,43 @@ test('strict T4 proof rejects omissions, duplication, substitution, cursor chang
   assert.equal(run(undefined, { detours: ['Read'] }).success, false);
   assert.equal(run(undefined, { trace_complete: false }).success, false);
   assert.equal(strictT4DocumentFlow({ parsed: { calls: [discovery, ...pages], trace_complete: true, detours: [] }, expectedBytes, binding, finalText: 'Document retrieved.' }).reason, 'complete_user_delivery_unproven');
+  const readArguments = { operation: 'presentation-document', ...binding, primary_target: '/synthetic/project', target_source: 'explicit_target', working_directory: '/synthetic/project' };
+  const catalog = { ...JSON.parse(discovery.result.text).report.presentation_catalog, page_complete: true, next_cursor: null,
+    binding: { target_id: binding.target_id, run_id: binding.run_id, expected_revision_id: binding.expected_revision_id },
+    candidates: [{ presentation_id: binding.presentation_id, content_digest: digest, read_arguments: readArguments }] };
+  const statusResult = { outcome: 'inspect_result', operation: 'gate-check',
+    target: { resolution_state: 'resolved', primary_target: '/synthetic/project', target_source: 'explicit_target' },
+    navigation: { presentation_catalog: catalog, next_calls: [{ tool: 'agdf_inspect', arguments: readArguments }] } };
+  const statusCall = { name: INSPECT, input: { operation: 'gate-check', run_id: binding.run_id,
+    primary_target: '/synthetic/project', target_source: 'explicit_target' }, result: { text: JSON.stringify(statusResult) } };
+  const statusPages = pages.map(page => ({ ...page, input: { ...readArguments, ...page.input } }));
+  const fromStatus = (first = statusCall) => run([first, ...statusPages]);
+  assert.equal(fromStatus().success, true, 'the complete Core gate-check catalog supplies the same document provenance');
+  assert.equal(fromStatus().check, 'strict_t4_document_flow_v2');
+  for (const mutate of [
+    r => { r.outcome = 'invalid_input'; },
+    r => { r.target.primary_target = '/another/project'; },
+    r => { r.target.target_source = 'continued_target'; },
+    r => { r.navigation.presentation_catalog.state = 'ambiguous'; },
+    r => { r.navigation.presentation_catalog.complete_scan = false; },
+    r => { r.navigation.presentation_catalog.page_complete = false; },
+    r => { r.navigation.presentation_catalog.next_cursor = 'another-page'; },
+    r => { r.navigation.presentation_catalog.total_candidates = 2; },
+    r => { r.navigation.presentation_catalog.binding.target_id = `sha256:${'2'.repeat(64)}`; },
+    r => { r.navigation.presentation_catalog.binding.run_id = 'another-run'; },
+    r => { r.navigation.presentation_catalog.candidates[0].content_digest = 'sha256:foreign'; },
+    r => { r.navigation.presentation_catalog.candidates[0].read_arguments.expected_revision_id = 'foreign'; },
+    r => { r.navigation.next_calls = []; },
+    r => { r.navigation.next_calls = {}; },
+    r => { r.navigation.presentation_catalog.candidates = {}; },
+    r => { r.navigation.next_calls[0].tool = 'agdf_dispatch'; },
+  ]) {
+    const changed = structuredClone(statusResult); mutate(changed);
+    assert.equal(fromStatus({ ...statusCall, result: { text: JSON.stringify(changed) } }).success, false);
+  }
+  assert.equal(fromStatus({ ...statusCall, name: 'mcp__plugin_agdf_agdf__agdf_dispatch' }).success, false);
+  assert.equal(fromStatus({ ...statusCall, input: { ...statusCall.input, run_id: 'another-run' } }).success, false);
+  assert.equal(strictT4DocumentFlow({ parsed: { calls: [statusCall, ...statusPages], trace_complete: true, detours: [] }, expectedBytes, binding, finalText: 'Document retrieved.' }).reason, 'complete_user_delivery_unproven');
   const readOnly = calls => strictPresentedDocumentRead({ parsed: { calls, trace_complete: true, detours: [] }, expectedBytes, binding });
   assert.equal(readOnly(pages).success, true, 'a newly prepared RUN_MODEL presentation needs a full read, without a user-delivery claim');
   assert.equal(Object.hasOwn(readOnly(pages), 'complete_user_delivery'), false);

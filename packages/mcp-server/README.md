@@ -51,6 +51,27 @@ Keep the original document revision, including for historical reads. Catalog pag
 16 candidates; scans stop at 256 records, 1 MiB of record bytes or 1024 directory entries. Catalog,
 document and preview cursors are not interchangeable. Prepared records prove no human approval.
 
+For a known task target, always send `primary_target` together with its actual `target_source`:
+`explicit_target` for a named target, `continued_target` for a previously confirmed target, or
+`current_repository` for an unambiguous request about the current repository. `working_directory`
+alone never selects it. A bound `gate-check` returns `navigation.read_context`: copy those explicit
+selectors into later status reads, adding `operation: "gate-check"`. This is a reusable locator,
+not a connection session or permission; target and Run checks run again on every call. Never add
+`gate` or `expected_revision_id` to a status read. For document reads, copy the exact returned
+`read_arguments`, including the original revision. A uniquely selected document is the first
+`navigation.next_calls` entry, ahead of optional operation help. Follow every document page before
+that help. An ambiguous or incomplete catalog still requires selection and never chooses a record.
+
+Input-validation hints describe missing fields for the selected operation and invalid Run-ID
+syntax. They neither normalize IDs nor fill targets, replace revisions, replay writes or grant
+approval. The original SDK and Core validators continue to reject the original invalid request.
+For malformed status/document reads with individually valid explicit locators, the hint can include
+a complete new `gate-check` read. This suggestion is length-bounded, excludes write/revision/document
+selectors and is validated again when called. It never fabricates the missing presentation ID.
+Read the returned catalog and exact document arguments; `authoring-inputs` is not a substitute for
+reading the selected prepared document. A wrong operation group gets a correction only when the
+operation kind has exactly one registered owner; ambiguous kinds require contract discovery.
+
 Dispatch follows the canonical skill-dispatch contract;
 inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
 

@@ -309,11 +309,17 @@ export function createControlInspectService(dependencies = {}) {
                   primaryTarget: input.primary_target, language: input.presentation_language });
                 const kind = evaluated.next_operation?.operation_key;
                 const group = RUN_COMMAND_DESCRIPTORS[kind]?.group;
-                const nextCalls = catalog.state !== 'unavailable' && group ? [{ tool: 'agdf_inspect', arguments: {
-                  operation: 'operation-contract', ...common, module: `${group}/${kind}` } }] : [];
+                const nextCalls = [];
+                // Read the selected immutable document first. Operation help is
+                // optional and must not delay a user's read-only document task.
                 if (catalog.state === 'unique' && catalog.complete_scan && catalog.page_complete)
                   nextCalls.push({ tool: 'agdf_inspect', arguments: catalog.candidates[0].read_arguments });
-                navigation = { presentation_catalog: catalog, next_calls: nextCalls };
+                if (catalog.state !== 'unavailable' && group) nextCalls.push({ tool: 'agdf_inspect', arguments: {
+                  operation: 'operation-contract', ...common, module: `${group}/${kind}` } });
+                // An explicit reusable locator, not retained connection state or
+                // authority. Reuse passes through the ordinary target/Run checks.
+                const { expected_revision_id: _revision, ...readContext } = common;
+                navigation = { read_context: readContext, presentation_catalog: catalog, next_calls: nextCalls };
               }
             } catch { /* Advisory navigation unavailable. */ }
             return { report: evaluated, navigation, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };

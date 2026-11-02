@@ -18,6 +18,28 @@ Revision `v1.2` adds explicit `agdf_project/project.initialize` observation of a
 control, rejection of generic force input and rejection of a foreign target binding.
 Fresh Git-only initialization and original-operation recovery have separate setup tests.
 
+Codex-focused probes use `renderCodexTaskPrompt` with context version
+`explicit_fixture_mcp_only/1`. The harness explicitly names its disposable target and the actual
+MCP-only transport limitations; it supplies no hidden Run/revision, target hash, presentation
+answer or gate authority. The historical `tasks.v1.json`, `renderPrompt` and success predicates
+remain unchanged. Focused reports record the effective prompt hash and context version, so old
+unscoped prompts and new explicit-context measurements must not be presented as the same harness.
+
+`revisionSafetyObservations` supplements the frozen T6 predicate. It distinguishes an actual
+stale-write rejection from stopping after a stale operation-contract binding and observing a fresh
+same-target/Run revision. A preflight stop requires a complete trace with no evidence-write attempt;
+model prose alone is insufficient. It does not pass T6's negative write test or establish the
+server write guard. Historical results remain intact. Compare fresh native model trials on the
+same candidate, host, effort, task/context version and budgets; report task completion, safe stops,
+tool/schema errors and transport failures separately.
+
+Supplemental T4 grader `strict_t4_document_flow_v2` recognizes the complete unique catalog from
+either `operation-contract` or the Core's `gate-check` navigation. The latter additionally requires
+a matching resolved target/Run, complete catalog page with no cursor, an exact advertised read call,
+matching immutable document bindings/digest and every existing byte/order/full-delivery check.
+Partial, ambiguous, foreign and fabricated navigation is rejected. Historical v1 results are not
+rewritten; any reanalysis of retained traces must identify the v2 grader separately.
+
 ## Setup
 
 The unit tests and all three commands use the MCP test harness in `packages/mcp-server`, whose SDK

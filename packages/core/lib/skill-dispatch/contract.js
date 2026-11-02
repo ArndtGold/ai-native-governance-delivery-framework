@@ -44,7 +44,7 @@ function visibleDispatchInput(schema) {
 
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_dispatch",
-  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. Only authorized bound continue_delivery may record one previously sealed relationship correction through the Core continuation service before fresh routing; status stays read-only. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, follow its continuation instruction using only the returned target and control. ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`,
+  description: `Run the version-matched AGDF preflight for one canonical skill. Read status/documents and command contracts with agdf_inspect. ALWAYS supply primary_target + target_source when the target is known; working_directory alone never selects it. It resolves target and control state but never grants approval or delivery authority. Only authorized bound continue_delivery may record one previously sealed relationship correction through the Core continuation service before fresh routing; status stays read-only. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, follow its continuation instruction using only the returned target and control. ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`,
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,

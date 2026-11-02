@@ -217,3 +217,46 @@ Der Fault-Worker hinterlässt absichtlich einen verwaisten Prozesslock; die Fixt
 löst ihn vor Byte-Vergleichen über den validierten Lock-Owner, ohne Journal oder
 Snapshots zu entfernen. Vollständige CI bleibt an den anschließend gepushten SHA gebunden. Kein lokaler Gesamtlauf,
 keine neue native Host-Abnahme oder menschliche QA/UAT wird aus diesen Tests abgeleitet.
+
+## Nachgelagerte Vertragsprüfungen aus Guardrails #670
+
+Nach dem Push von `53a30e93151d0be699945f1ae9556ea620535c6b` erreichte die CI
+weitere, vorher durch frühe Abbrüche verdeckte Prüfungen. Die entfernten Operationen
+`run.migrate`/`run.render_legacy` und `--guided` dürfen auch in erwarteten Katalog-/
+Startup-Daten nicht mehr vorkommen. Der Strukturtest prüft die einzige deklarierende
+Policy-Datei am neuen Ort und zusätzlich die produktive Komposition mit dem validierten
+Receipt-Leser. Die Anzahl zulässiger Owner bleibt genau eins.
+
+Die Begleiter-Adapterfixtures erzeugen ihre Runs, Routen, Präsentationsentscheidungen,
+Freigaben und Review-Ergebnisse nun über die aktuellen typisierten Testgrenzen. Sie
+schreiben keine entfernten `decision`-Skalare und klonen keine Run-Dateien unter fremden
+IDs. Die Navigation wird mit explizit angeglichenen synthetischen Aktivitätszeiten
+stabil geprüft. Ein aktueller Run ohne UR ersetzt den alten unbekannten Entscheidungstyp;
+das Ablehnen alter Versionen/abgeleiteter Zustände und der defensive unbekannte Mood
+bleiben in den separaten Parser-/Logikprüfungen abgedeckt.
+
+Die TP-Klärungsprüfung verwendet vollständige Approval-Bindungen, registriert Antworten
+am tatsächlich referenzierten kanonischen Pfad und manipuliert für den Stale-Negativfall
+die tatsächlich gebundene PRD-Datei. Der QA-Abweichungstest prüft dieselbe unveränderliche
+Entscheidungsfassung über direkten und Session-Dokumentleser, wie es der aktuelle
+Presentation-Envelope verlangt; der Originalbericht wird gesondert bytegleich geprüft.
+
+Alle sechs betroffenen lokalen Tests bestanden im isolierten Checkout: Request Activation,
+CLI Modularization, Runtime-check Consent, Claude Companion Adapter, TP Clarification,
+QA Deviation Acceptance. Der Source-bound Kompatibilitätscheck bleibt ohne neue
+Beobachtungsaufzeichnung gültig. Dies sind Testkorrekturen, keine erneute native
+Host-Qualifikation oder zusätzliche Freigaben.
+
+Guardrails #670 ist vollständig beendet: 145/167 Jobs erfolgreich; 19 Fehler gehören
+zu den obigen Vertragsprüfungen. Drei Revisionspartitionen erschöpften zusätzlich ihr
+gemeinsames Acht-Minuten-Ausführungsbudget, nachdem die fachlichen Revisionstests
+bestanden waren. Für den anschließenden vollständigen Zehn-Zyklen-Test verblieben
+in den Linux-Jobs nur etwa 202/214 Sekunden, unter Windows etwa 250 Sekunden.
+
+Der bestehende Planner gibt diesem unveränderten Test jetzt pro Plattform einen
+exklusiven Job mit denselben Voraussetzungen. Keine Verringerung der zehn Zyklen,
+keine Zeitgrenzenerhöhung, keine Entfernung oder doppelte Zuordnung einer Prüfung.
+Die 14 Planner-Tests bestehen einschließlich vollständiger Inventarabdeckung,
+eindeutiger Zuordnung und unveränderten 360/480-Sekunden-Budgets. Die neue gesamte
+Matrix umfasst 168 Jobs. Ihr Remote-Ergebnis ist am folgenden Commit separat zu
+prüfen; die erfolgreiche lokale Ausführung ersetzt diesen Nachweis nicht.

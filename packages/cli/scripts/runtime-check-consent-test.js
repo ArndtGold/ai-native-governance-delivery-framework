@@ -411,11 +411,13 @@ try {
     if (repositoryControl.inspection_state === "unavailable") {
       assert.equal(repositoryControl.status, "unavailable");
       assert.equal(repositoryControl.counts, null);
-      assert.ok(repositoryControl.invocation.argv.includes("--guided"));
-      assert.equal(repositoryControl.invocation.argv[3], repositoryControl.target);
+      assert.ok(!repositoryControl.invocation.argv.includes("--guided"));
+      assert.equal(repositoryControl.invocation.argv.length, 6);
+      assert.deepEqual(repositoryControl.invocation.argv.slice(1, 5), ["control-maintenance", "--dir", repositoryControl.target, "--language"]);
+
     } else {
-      assert.ok(["absent", "current", "migration_required", "repair_required", "unsupported"].includes(repositoryControl.status));
-      assert.equal(typeof repositoryControl.counts.migration, "number");
+      assert.ok(["absent", "current", "unsupported"].includes(repositoryControl.status));
+      assert.equal(typeof repositoryControl.counts.unsupported, "number");
     }
     assert.equal(repositoryControl.authorizes, false);
     const { invocation, notice, ...compatibilityFacts } = repositoryControl;

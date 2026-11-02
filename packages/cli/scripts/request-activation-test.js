@@ -270,11 +270,10 @@ const expectedOperationIds = [
   "control.inventory",
   "control.delivery_map",
   "run.create",
-  "run.migrate",
-  "run.render_legacy",
   "continuation.current",
 ];
 assert.deepEqual(catalog.operations.map(({ operation_id: operationId }) => operationId), expectedOperationIds);
+for (const retired of ["run.migrate", "run.render_legacy"]) assert.ok(!expectedOperationIds.includes(retired));
 assert.deepEqual(catalog.derived_operations, [{
   operation_id_pattern: "skill.<slug>",
   route_family: "direct_skill",

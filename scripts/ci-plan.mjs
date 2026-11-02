@@ -104,6 +104,13 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
       const fileHints = baseline.files[relative(repository, resolve(repository, command.cwd, file)).replaceAll('\\', '/')];
       command.seconds = { ...command.seconds, ...fileHints };
     }
+    // Run 41414569076 exhausted the shared revision partition before this
+    // ten-cycle command could finish. Preserve its single full invocation and
+    // the existing execution budget, with no earlier revision work in its job.
+    if (command.cwd === 'packages/cli' && command.args[0] === 'scripts/late-source-revision-performance-test.js') {
+      return [{ ...command, isolated: true,
+        standalone: { id: 'revision-performance', label: 'Source revision endurance', graphLabel: 'Rev timing' } }];
+    }
     // Give timing acceptance its own runner, apart from deliberately faulting
     // and pressure fixtures; preserve the canonical invocation and limits.
     if (command.cwd === 'packages/mcp-server' && command.args[0] === './test/performance.test.js') {

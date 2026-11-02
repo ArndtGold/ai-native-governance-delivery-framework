@@ -4,11 +4,48 @@ import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSyn
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { approvalFixture, fixture } from "../../core/test/control-cockpit-fixtures.js";
+import { fixture } from "../../core/test/control-cockpit-fixtures.js";
 import { replaceFirstScalar } from "../../core/lib/control-state/run-state-edits.js";
 import { sealRunState } from "../../core/lib/control-state/run-seal.js";
-import { recordRunStep } from "../../core/lib/control-state/run-steps.js";
-import { policyForRunContent } from "../../core/lib/control-evaluation/run-step-policy.js";
+import { createRun } from "../../core/lib/control-state/run-state-repository.js";
+import { parseRunState } from "../../core/lib/control-state/run-state-parser.js";
+
+async function approvalFixture() {
+  const f = fixture();
+  const route = f.context.call('step.record', { step: 'route', route: 'quick_task', reason: 'Companion adapter fixture', source: f.context.material(f.binding(), 'Brownfield Review', '# Brownfield Review\n\nSmall isolated display fixture.') }, f.binding());
+  assert.equal(route.outcome, 'accepted', JSON.stringify(route));
+  const p = f.context.call('presentation.prepare', { gate: 'UR' }, f.binding());
+  assert.equal(p.outcome, 'accepted', JSON.stringify(p));
+  return { ...f, presentationId: p.family_result.presentation_id, approve: () => f.context.call('approval.record', { gate: 'UR', presentation_id: p.family_result.presentation_id, response: 'Approval: UR' }, f.binding()) };
+}
+function recordReview(f, decision) {
+  const text = `# Code Review\n\nDecision: ${decision}\n\nSynthetic current adapter observation.\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| CR-01 | implementation_gap | CD+Tests | open | Synthetic bounded fixture defect. | Correct the fixture and rerun its regression. |\n`;
+  const result = f.context.call('step.record', { step: 'review', decision, source: f.context.material(f.binding(), 'CR', text) }, f.binding());
+  assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+}
+function createListedRun(f, id, { empty = false, blocked = false } = {}) {
+  const path = createRun(f.root, id);
+  const binding = () => ({ run_id: id, expected_revision_id: parseRunState(readFileSync(path, 'utf8')).meta.revision_id });
+  // Pin synthetic activity times for deterministic id-order navigation; current
+  // typed records still determine the displayed gate and deliberate decisions.
+  const pinActivity = () => writeFileSync(path, sealRunState(f.root, replaceFirstScalar(readFileSync(path, 'utf8'), 'updated_at', parseRunState(readFileSync(f.runPath, 'utf8')).meta.updated_at)));
+  if (!empty) {
+    const ur = f.context.call('step.record', { step: 'ur', title: 'Synthetic listed Run', source: f.context.material(binding(), 'UR', readFileSync(join(f.root, f.documentPath), 'utf8')) }, binding());
+    assert.equal(ur.outcome, 'accepted', JSON.stringify(ur));
+    const route = f.context.call('step.record', { step: 'route', route: 'quick_task', reason: 'Synthetic listed Run', source: f.context.material(binding(), 'Brownfield Review', '# Brownfield Review\n\nSmall isolated display fixture.') }, binding());
+    assert.equal(route.outcome, 'accepted', JSON.stringify(route));
+  }
+  const requestChange = () => {
+    const p = f.context.call('presentation.prepare', { gate: 'UR' }, binding());
+    assert.equal(p.outcome, 'accepted', JSON.stringify(p));
+    const result = f.context.call('presentation_decision.record', { gate: 'UR', presentation_id: p.family_result.presentation_id, action: 'request_change', comment: 'Synthetic adapter change request' }, binding());
+    assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+    pinActivity();
+  };
+  if (blocked) requestChange();
+  else pinActivity();
+  return { path, requestChange };
+}
 
 // The Claude companion host adapter against a fake host (T-006; SCN-001, SCN-006, SCN-010, SCN-011,
 // SCN-014): command toggling and persistence, turn observation, refresh and stale marking, the pane per
@@ -264,17 +301,9 @@ try {
   try {
     const manyConfig = join(many.root, ".agdf", "control", "config.json");
     writeFileSync(manyConfig, `${JSON.stringify({ ...JSON.parse(readFileSync(manyConfig, "utf8")), chat_language: "en" }, null, 2)}\n`);
-    const runText = readFileSync(many.runPath, "utf8");
     for (let index = 1; index <= 12; index += 1) {
       const id = `extra-${String(index).padStart(2, "0")}`;
-      mkdirSync(join(many.root, ".agdf", "control", "runs", id), { recursive: true });
-      const extraText = runText.replaceAll("fixture-a", id);
-      // extra-12 is blocked, so the status line tells the chat's run from a browsed one (chat-run navigation).
-      // extra-11 is in an unknown state (Code Review CR-F01).
-      const stateText = index === 12 ? extraText.replace(/^- decision: in_progress$/mu, "- decision: revise")
-        : index === 11 ? extraText.replace(/^- decision: in_progress$/mu, "- decision: mystery").replace("| What is missing? | Exact Approval: UR. |", "| What is missing? | No approval is pending. |") : extraText;
-      if (index >= 11) assert.notEqual(stateText, extraText, "the fixture is derived");
-      writeFileSync(join(many.root, ".agdf", "control", "runs", id, "RUN_STATE.md"), sealRunState(many.root, stateText));
+      createListedRun(many, id, { empty: index === 11, blocked: index === 12 });
     }
     const lister = await session({ projectRoot: many.root });
     await lister.fire("session.start");
@@ -401,12 +430,12 @@ try {
     await settle();
     assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-12", "Named in the chat"], "a step onto the chat's run is no browsing");
 
-    // CR-F01: a chat run or a browsed run in an unknown state keeps stepping and the way back.
+    // A current Run with no UR yet keeps stepping and the way back; old unknown decision scalars are unsupported.
     await lister.fire("turn.start", { text: "Weiter mit extra-11." });
     await settle();
     let odd = await look(lister);
-    assert.ok(texts(odd.tree).includes("Run state not readable: run state matches no known state"));
-    assert.ok(button(odd.tree, "next"), "stepping from an unknown-state chat run");
+    assert.ok(texts(odd.tree).includes("working"));
+    assert.ok(button(odd.tree, "next"), "stepping from an undrafted chat run");
     await button(odd.tree, "next").props.onPress();
     await settle();
     odd = await look(lister);
@@ -416,7 +445,7 @@ try {
     await button((await look(lister)).tree, "previous").props.onPress();
     await settle();
     odd = await look(lister);
-    assert.deepEqual([texts(odd.tree).includes("Run state not readable: run state matches no known state"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an unknown-state run offers the way back");
+    assert.deepEqual([texts(odd.tree).includes("working"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an undrafted run offers the way back");
 
     // CR-F02: every recorded mention is announced, also one that names the chat's run again.
     const announced = lister.log.status.length;
@@ -429,8 +458,7 @@ try {
     await turnComplete(lister, "a summary that names extra-04", { answer: "Weiter mit extra-03." });
     await settle();
     assert.equal((await look(lister)).runId, "extra-03", "e.answer is the turn's answer");
-    mkdirSync(join(many.root, ".agdf", "control", "runs", "extra-13"), { recursive: true });
-    writeFileSync(join(many.root, ".agdf", "control", "runs", "extra-13", "RUN_STATE.md"), sealRunState(many.root, runText.replaceAll("fixture-a", "extra-13")));
+    const extra13 = createListedRun(many, 'extra-13');
     await turnComplete(lister, "", { answer: "Created extra-13." });
     await settle();
     assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-13", "Named in the chat"], "a run created during the turn counts");
@@ -446,8 +474,7 @@ try {
     assert.equal((await look(lister)).runId, "extra-13");
     const quietToasts = lister.log.toasts.length;
     const quietStatus = lister.log.status.at(-1);
-    writeFileSync(join(many.root, ".agdf", "control", "runs", "extra-13", "RUN_STATE.md"),
-      sealRunState(many.root, runText.replaceAll("fixture-a", "extra-13").replace(/^- decision: in_progress$/mu, "- decision: revise")));
+    extra13.requestChange();
     await (await entry(lister, "retry"))();
     await settle();
     assert.equal(texts((await look(lister)).tree).includes("blocked"), true, "the browsed run is now blocked");
@@ -513,7 +540,7 @@ try {
   assert.match(texts(terminal).join("\n"), /waiting for approval[\s\S]*[✓●○]UR[\s\S]*Next step: /u);
 
   // A change in this session takes over from the selection (most recent wins).
-  assert.equal(target.approve().outcome, "approved");
+  assert.equal(target.approve().outcome, "accepted");
   await (await entry(first, "retry"))();
   tree = await render(first);
   assert.ok(texts(tree).includes("Changed in this session") && texts(tree).includes("working"));
@@ -523,11 +550,7 @@ try {
   // nothing; a review result that blocks it raises exactly one toast, repeated reads none.
   const lastStatus = () => first.log.status.at(-1);
   const reread = async host => (await entry(host, "retry"))();
-  const review = decision => {
-    const result = recordRunStep(target.root, { runId: "fixture-a", revisionId: target.revision(), step: "review", decision, evidence: `companion adapter test: ${decision}` },
-      { policy: policyForRunContent, date: "2026-10-27" });
-    assert.equal(result.outcome, "recorded", JSON.stringify(result));
-  };
+  const review = decision => recordReview(target, decision);
   assert.equal(lastStatus(), "AGDF · Quick Task Execution · working");
   assert.deepEqual(first.log.toasts, [], "no toast for baselines, run switching or a working run");
   review("revise");
@@ -748,11 +771,7 @@ try {
   try {
     const raceConfig = join(race.root, ".agdf", "control", "config.json");
     writeFileSync(raceConfig, `${JSON.stringify({ ...JSON.parse(readFileSync(raceConfig, "utf8")), chat_language: "en" }, null, 2)}\n`);
-    const raceReview = decision => {
-      const result = recordRunStep(race.root, { runId: "fixture-a", revisionId: race.revision(), step: "review", decision, evidence: `companion race test: ${decision}` },
-        { policy: policyForRunContent, date: "2026-10-27" });
-      assert.equal(result.outcome, "recorded", JSON.stringify(result));
-    };
+    const raceReview = decision => recordReview(race, decision);
     const host = await session({ projectRoot: race.root, failToast: true });
     await host.fire("session.start");
     if (!JSON.parse(readFileSync(statePath, "utf8")).enabled) await host.fire("command.run", { command: COMMAND });
@@ -761,7 +780,7 @@ try {
       await (await entry(host, "sound"))();
     }
     assert.equal(JSON.parse(readFileSync(statePath, "utf8")).sound, true, "the sound is on for the toast-failure check");
-    assert.equal(race.approve().outcome, "approved");
+    assert.equal(race.approve().outcome, "accepted");
     await reread(host);
     raceReview("revise");
     await reread(host);

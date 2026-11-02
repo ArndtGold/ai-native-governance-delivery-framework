@@ -260,3 +260,42 @@ Die 14 Planner-Tests bestehen einschließlich vollständiger Inventarabdeckung,
 eindeutiger Zuordnung und unveränderten 360/480-Sekunden-Budgets. Die neue gesamte
 Matrix umfasst 168 Jobs. Ihr Remote-Ergebnis ist am folgenden Commit separat zu
 prüfen; die erfolgreiche lokale Ausführung ersetzt diesen Nachweis nicht.
+
+## Vervollständigte Prüfketten und Windows-Dauertest (#671)
+
+Guardrails #671 am Head `28fe64b2b1ce038339c5813513b351afc68c1ed4` beendete
+alle 169 Jobs (168 Matrixjobs plus Planung): 159 erfolgreich, neun mit weiteren
+veralteten Prüfannahmen fehlgeschlagen, ein Windows-Dauertest mit Zeitüberschreitung.
+
+Der Quellen-Fingerprint des Request-Activation-Korpus war gegenüber seinen beiden
+unveränderten kanonischen Ownern veraltet. Er wurde mit der vorhandenen Funktion
+`computeRequestActivationSourceFingerprint` aktualisiert; sämtliche 39 Fälle und
+Negativverträge bestehen. Dies aktualisiert keine Verhaltens-/Modellbeobachtung.
+Copilot-Retention prüft weiterhin sämtliche Benutzerdateien bytegleich, erwartet bei
+dem absichtlich fremden Kontrollfragment aber die aktuelle Pfaddiagnose. Die fehlende
+Run-Zuweisung bietet die aktuelle UUID-gebundene Erstellung an, keine Migration.
+
+Die lokale Aktivierungskette wurde bis zum Ende geprüft. Dabei wurden auch synthetische
+Benchmark-Fixtures auf die tatsächlich geschützten historischen Pfade zurückgeführt;
+der V3-Baseline-Loader verwendet seinen bestehenden Manifestpfad. Die echten historischen
+Inventare, Dateien und Hashes bleiben unverändert. Diese Benchmark-Profile sind keine
+Unterstützung alter Run-Versionen. Zwei gezielte Defekt-Reproduktionen mutieren dieselben
+Policy-Blöcke nun am neuen reinen Owner. Ihre Negativ-/Korrekturprüfungen bestehen,
+einschließlich der nachfolgenden Review-, Vorschau- und Summary-Prüfungen. OpenCode-
+Hardening und der Kompatibilitätscheck bestehen ebenfalls.
+
+Die exklusiven Dauertests bestanden unter Linux 22/24 in 206,9/301,5 Sekunden. Windows
+beendete den Test nicht in den nach seinen Voraussetzungen verbleibenden rund 401
+Sekunden. Die zehn gemessenen Revisionszyklen werden nicht reduziert. Ihre synthetische
+Vorbereitung zwischen den Messungen verwendet nun die öffentlichen Core-Kommandos des
+gebauten Kandidaten, statt für jede Erneuerung erneut CLI-Transfer und Bootstrap zu
+bezahlen. TP-Aufzeichnung, Präsentation, exakte synthetische Freigabe und Brownfield-
+Vorbereitung passieren weiterhin die tatsächlichen Command-, Revisions- und Proof-
+Grenzen. Nach jeder Erneuerung werden die verfügbare aktuelle Revision und `CD+Tests`
+zusätzlich geprüft. Die Kandidaten-Komposition liefert auch die tatsächliche Paketversion.
+Initiale CLI-Vorbereitung und separater CLI-/MCP-Protokollnachweis bleiben erhalten.
+
+Die geänderte Dauertest-Fixture bestand lokal mit zehn Zyklen, 270 Archivdateien,
+null Historienzugriffen beim fremden Run und echtem Prozesswettbewerb mit genau einem
+Schreibeffekt. Die 14 Planner-Tests bleiben grün. Alle Zeitgrenzen bleiben bestehen;
+die neue Windows-Ausführung muss im folgenden CI-Lauf am neuen SHA bestätigt werden.

@@ -4,6 +4,7 @@ import { syncBuiltinESMExports } from "node:module";
 import { spawn, execFileSync } from "node:child_process";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from "node:url";
 import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 import { createLateSourceRevisionTestRun } from "./fixtures/late-source-revision.js";
@@ -16,7 +17,8 @@ execFileSync("git", ["init", "-q", root]); execFileSync(process.execPath, [cli, 
 const f = createLateSourceRevisionTestRun(root, validator, "revision-performance", env);
 const moduleUrl = pathToFileURL(join(candidate, "runtime/core/lib/control-state/run-revision.js")).href;
 const { inspectSourceRevision, recoverSourceRevision } = await import(moduleUrl);
-const { createRunCommandService } = await import(pathToFileURL(join(candidate, 'runtime/core/lib/control-state/run-command-service.js')).href);
+const { createCoreServices } = await import(pathToFileURL(join(candidate, 'runtime/core/lib/index.js')).href);
+const command = createCoreServices().command;
 const { resolveControlCommandTarget } = await import(pathToFileURL(join(candidate, 'runtime/core/lib/control-state/approval-command-contract.js')).href);
 const { artefactFileDigest } = await import(pathToFileURL(join(candidate, 'runtime/core/lib/control-state/run-seal.js')).href);
 const envelope = (input, action) => ({ working_directory: root, primary_target: root, target_source: 'explicit_target',
@@ -25,12 +27,40 @@ const envelope = (input, action) => ({ working_directory: root, primary_target: 
     proposal: { path: input.evidence, digest: artefactFileDigest(root, input.evidence) },
     ...(action === 'apply' ? { preview_digest: input.previewDigest, confirmation: input.confirmation } : {}) } } });
 const action = (input, kind) => {
-  const result = createRunCommandService()('agdf_revise', envelope(input, kind));
+  const result = command('agdf_revise', envelope(input, kind));
   return { ...result.family_result, outcome: result.outcome === 'accepted' ? result.family_result.outcome : result.outcome === 'already_applied' ? 'replayed' : result.outcome };
 };
 const previewSourceRevision = (_, input) => action(input, 'preview');
 const applySourceRevision = (_, input) => action(input, 'apply');
 const { evaluateGateCheck } = await import(pathToFileURL(join(candidate, "runtime/core/lib/control-evaluation/gate-check.js")).href);
+// The benchmark measures repeated candidate Core revisions. Renew synthetic
+// fixture prerequisites through that same public command boundary, avoiding
+// repeated CLI transfer/bootstrap work outside the measured revision actions.
+const fixtureDirectory = `.agdf/control/runs/${f.runId}/evidence/endurance-inputs`;
+fs.mkdirSync(join(root, fixtureDirectory), { recursive: true });
+const fixtureSource = (name, content) => {
+  const path = `${fixtureDirectory}/${name}.md`; fs.writeFileSync(join(root, path), content);
+  return { path, digest: artefactFileDigest(root, path) };
+};
+const fixtureCommand = (group, kind, payload) => {
+  const result = command(group, { presentation_language: 'en', working_directory: root, primary_target: root,
+    target_source: 'explicit_target', target_id: resolveControlCommandTarget(root).target_id,
+    run_id: f.runId, expected_revision_id: f.revision(), operation_id: randomUUID(), command: { kind, payload } });
+  assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+  return result;
+};
+const renewFixture = cycle => {
+  fixtureCommand('agdf_record', 'artefact.record', { gate: 'TP',
+    material: fixtureSource(`tp-${cycle}`, fs.readFileSync(f.file('TP.md'), 'utf8')),
+    reviewer: 'Synthetic current test reviewer', reviewed: true, update_draft: true });
+  const prepared = fixtureCommand('agdf_prepare', 'presentation.prepare', { gate: 'TP' });
+  fixtureCommand('agdf_approve', 'approval.record', { gate: 'TP', presentation_id: prepared.family_result.presentation_id, response: 'Approval: TP' });
+  const analysis = fixtureCommand('agdf_record', 'step.record', { step: 'internal', internal_step: 'Brownfield Analysis', decision: 'pass',
+    source: fixtureSource(`analysis-${cycle}`, '# Brownfield Analysis\n\nDecision: pass\n\nSynthetic current preparation reuses the existing filter store and tests.\n') });
+  assert.equal(analysis.current.available, true);
+  assert.equal(analysis.current.gate, 'CD+Tests');
+  assert.equal(analysis.current.revision_id, f.revision());
+};
 const originalRead = fs.readFileSync, cycles = []; let reads = [];
 fs.readFileSync = (path, ...args) => {
   const value = originalRead(path, ...args);
@@ -45,8 +75,8 @@ const historyInventory = dir => {
   } return rows;
 };
 const worker = input => new Promise((resolveWorker, reject) => {
-  const program = `import {createRunCommandService} from ${JSON.stringify(pathToFileURL(join(candidate, 'runtime/core/lib/control-state/run-command-service.js')).href)};
-    const r = createRunCommandService()('agdf_revise',JSON.parse(process.argv[2]));console.log(JSON.stringify({...r.family_result,outcome:r.outcome==='accepted'?r.family_result.outcome:r.outcome==='already_applied'?'replayed':r.outcome}));`;
+  const program = `import {createCoreServices} from ${JSON.stringify(pathToFileURL(join(candidate, 'runtime/core/lib/index.js')).href)};
+    const r = createCoreServices().command('agdf_revise',JSON.parse(process.argv[2]));console.log(JSON.stringify({...r.family_result,outcome:r.outcome==='accepted'?r.family_result.outcome:r.outcome==='already_applied'?'replayed':r.outcome}));`;
   const child = spawn(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify(envelope(input, 'apply'))], { env }); let stdout = "";
   child.stdout.on("data", data => stdout += data); child.on("error", reject); child.on("exit", code => resolveWorker({ code, result: JSON.parse(stdout) }));
 });
@@ -62,7 +92,8 @@ try {
     cycles.push({ cycle, operation_id: input.operationId, revision_id: f.revision(), preview, apply, inspect: { ...inspect, value: { outcome: inspect.value.outcome } },
       recover: { ...recover, value: { outcome: recover.value.outcome } }, history_files: files.length, history_bytes: files.reduce((n,row) => n + row.bytes, 0) });
     fs.writeFileSync(f.file("TP.md"), fs.readFileSync(f.file("TP.md"), "utf8") + `\nSynthetic renewal ${cycle}.\n`);
-    f.recordSource("TP"); f.approveSource("TP"); f.prepareImplementation();
+    renewFixture(cycle);
+    console.log(JSON.stringify({ phase: "revision_endurance_cycle", cycle, history_files: files.length }));
   }
   const unrelated = "unrelated-performance"; createRun(root, unrelated);
   const observation = measure(() => evaluateGateCheck(root, { runId: unrelated }));

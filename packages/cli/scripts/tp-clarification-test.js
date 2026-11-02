@@ -25,7 +25,7 @@ withTpFixture(f => {
   assert.equal(check.continuation.questions[0].skill_id, 'prd-definition');
   for (const key of ['question', 'blocking_reason', 'required_answer', 'owner', 'source_ref']) assert.ok(check.continuation.questions[0][key]);
   assert.equal(f.present('TP', 'de').value.outcome, 'rejected');
-  assert.equal(f.run('run-approve', '--revision', f.revision(), '--gate', 'TP', '--response', 'Approval: TP').value.outcome, 'rejected');
+  assert.equal(f.run('run-approve', '--revision', f.revision(), '--gate', 'TP', '--presentation', randomUUID(), '--operation', randomUUID(), '--response', 'Approval: TP').value.outcome, 'rejected');
   const before = f.bytes(), status = f.bound(); assert.notEqual(status.continuation?.phase, 'tp_clarification'); assert.equal(f.bytes(), before);
   assert.equal(f.bound('--continue-delivery').control.revision_id, check.control.revision_id, 'repeated observation does not mutate or repair');
   const revision = f.revise();
@@ -53,7 +53,7 @@ withTpFixture(f => {
   const resolvedQuestions = questions.replace('| open | AC-001', '| resolved | AC-001');
   writeFileSync(f.file('TP.md'), syntheticTp() + resolvedQuestions); assert.equal(f.recordTp(true).value.outcome, 'accepted');
   assert.equal(f.present('TP', 'de').value.outcome, 'rejected');
-  writeFileSync(f.file('answer.md'), 'F-1: Synthetic fixture answer confirms same-user restoration only. Approved AC-001 stays unchanged.');
+  writeFileSync(f.canonicalFile('answer.md'), 'F-1: Synthetic fixture answer confirms same-user restoration only. Approved AC-001 stays unchanged.');
   const answerPath = f.prefix + 'answer.md', answerDigest = artefactFileDigest(f.root, answerPath);
   const result = createCoreServices().command('agdf_record', { schema_version: '1', presentation_language: 'en', working_directory: f.root,
     primary_target: f.root, target_source: 'explicit_target', target_id: resolveControlCommandTarget(f.root).target_id,
@@ -63,8 +63,8 @@ withTpFixture(f => {
   writeFileSync(f.file('TP.md'), syntheticTp() + resolvedQuestions.replace('| pending |', `| ${answerPath} @ ${answerDigest} |`));
   assert.equal(f.recordTp(true).value.outcome, 'accepted');
   assert.equal(f.bound('--continue-delivery').continuation.phase, 'presentation_required', 'only current recorded source-bound answer closes the material question');
-  const bytes = readFileSync(f.file('PRD.md')); writeFileSync(f.file('PRD.md'), bytes + '\nStale source.');
-  { const blocked = f.bound('--continue-delivery'); assert.equal(blocked.terminal, true, JSON.stringify(blocked)); } writeFileSync(f.file('PRD.md'), bytes);
+  const bytes = readFileSync(f.canonicalFile('PRD.md')); writeFileSync(f.canonicalFile('PRD.md'), bytes + '\nStale source.');
+  { const blocked = f.bound('--continue-delivery'); assert.equal(blocked.terminal, true, JSON.stringify(blocked)); } writeFileSync(f.canonicalFile('PRD.md'), bytes);
   assert.equal(f.present('TP', 'de').value.outcome, 'accepted');
 });
 console.log('TP production clarification routing, blocked approval, no-write status and source-bound answer resumption passed.');

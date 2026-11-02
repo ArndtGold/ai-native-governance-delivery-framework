@@ -1,3 +1,5 @@
+import { renderSourceRevision } from '#agdf-core/interaction-presentation.js';
+import { interactionLocales } from './runtime-context.js';
 import { resolveMcpInput } from '#agdf-core/mcp-input-resolution.js';
 import { withInputResolution } from '#agdf-core/control-state/input-resolution.js';
 import { commandGroupDefinition } from '#agdf-core/control-state/run-command-schema.js';
@@ -27,6 +29,12 @@ function sourceText(options, limit = 131072) {
     return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   } finally { closeSync(fd); }
 }
+function printResult(result, options, io, identity) {
+  if (options.target === 'run-revise' && !options.json) {
+    const shown = result.outcome === 'already_applied' ? { ...result, outcome: 'replayed' } : result.family_result ?? result;
+    io.log(renderSourceRevision(shown, interactionLocales, options.language.chat_language, identity).markdown);
+  } else io.log(JSON.stringify(result, null, 2));
+}
 export function executeRunAlias(options, io = console) {
   const store = createRunMaterialStore();
   try {
@@ -40,7 +48,10 @@ export function executeRunAlias(options, io = console) {
       const selected = resolveMcpInput(commandGroupDefinition(group), original, { defaults: resources.defaults, lookupOriginal: inspectRunInputResolution });
       return withInputResolution(selected.resolution, () => action(selected.arguments), selected.original);
     };
-    const emit = result => { io.log(JSON.stringify(result, null, 2)); return ['accepted', 'already_applied', 'preview', 'historical'].includes(result.outcome) ? 0 : 2; };
+    const emit = result => {
+      printResult(result, options, io, { target: target.root, runId: options.runId, operationId: input.operation_id, revisionId: options.revisionId });
+      return ['accepted', 'already_applied', 'preview', 'historical', 'recovered'].includes(result.outcome) ? 0 : 2;
+    };
     const material = (slot, content) => {
       // The Core digest binds canonical content, not an expiring transfer UUID.
       // A recorded original operation needs no new transfer or stale admission;
@@ -94,6 +105,12 @@ export function executeRunAlias(options, io = console) {
     } else throw Error('command_unsupported');
     const bound = { ...input, command };
     return emit(normalize(group, bound, value => services(store.grants(value)).command(group, value)));
-  } catch (error) { if (error.result) io.log(JSON.stringify(error.result, null, 2)); else io.error(error.code ?? error.message); return 2; }
+  } catch (error) {
+    const identity = { target: options.dir, runId: options.runId, operationId: options.operationId, revisionId: options.revisionId };
+    if (error.result) printResult(error.result, options, io, identity);
+    else if (options.target === 'run-revise' && !options.json) printResult({ outcome: 'rejected', reason: error.code ?? error.message }, options, io, identity);
+    else io.error(error.code ?? error.message);
+    return 2;
+  }
   finally { store.close(); }
 }

@@ -1080,7 +1080,8 @@ smokePhase("init");
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-init-"));
 
   try {
-    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync("git", ["init", "-q", tempDir]);
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
 
     for (const relativePath of [
       join(".agdf", "control", "config.json"),
@@ -1127,13 +1128,13 @@ smokePhase("init");
       if (gateCheckReport.current_gate !== "UR") {
         throw new Error(`Gate-check should fall back to UR for a fresh scaffold, got ${gateCheckReport.current_gate}.`);
       }
-      if (!gateCheckReport.allowed.includes("create or migrate a canonical run with an explicit run id")) {
-        throw new Error("Gate-check should require canonical run creation or migration before later artefacts.");
+      if (!gateCheckReport.allowed.includes("create a current Run with an operation UUID")) {
+        throw new Error("Gate-check should require canonical run creation before later artefacts.");
       }
       if (gateCheckReport.missing_approval !== "none" || gateCheckReport.approval_presentation !== null) {
         throw new Error("Gate-check must not request approval before a durable run and UR revision exist.");
       }
-      if (!gateCheckReport.next_allowed_action.includes("Create, migrate or select")) {
+      if (!gateCheckReport.next_allowed_action.includes("Create or select")) {
         throw new Error("Gate-check should make canonical run setup the constructive next action for a fresh scaffold.");
       }
       if (gateCheckReport.doctor_status !== "block") {
@@ -1163,6 +1164,7 @@ smokePhase("gate check status card");
 
   try {
     // Explicit English keeps this check independent of the machine locale.
+    execFileSync("git", ["init", "-q", tempDir]);
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
     createRun(tempDir, "status-card"); // Private current-format synthetic fixture identity.
     // The missing-run route now renders assignment orientation. Use an explicitly bound
@@ -1198,6 +1200,7 @@ smokePhase("language explicit");
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-explicit-"));
 
   try {
+    execFileSync("git", ["init", "-q", tempDir]);
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
     const config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
     if (config.artifact_language !== "de" || config.chat_language !== "de" || config.runtime_language !== "en") {
@@ -1218,7 +1221,7 @@ smokePhase("language config update");
   try {
     execFileSync(process.execPath, [binPath, "config", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
     let config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
-    if (config.artifact_language !== "de" || config.chat_language !== "de") {
+    if (config.control_layout !== "run-folders-v1" || config.artifact_language !== "de" || config.chat_language !== "de") {
       throw new Error("Config target should write only the requested project language.");
     }
     if (existsSync(join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md"))) {
@@ -1243,6 +1246,7 @@ smokePhase("language locale");
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-locale-"));
 
   try {
+    execFileSync("git", ["init", "-q", tempDir]);
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], {
       stdio: "pipe",
       env: {
@@ -1270,6 +1274,7 @@ smokePhase("localized status cards");
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-status-card-i18n-"));
 
   try {
+    execFileSync("git", ["init", "-q", tempDir]);
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
     createRun(tempDir, "locale-card"); // Private current-format synthetic fixture identity.
     const german = spawnSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "locale-card", "--status-card"], { encoding: "utf8" }).stdout;

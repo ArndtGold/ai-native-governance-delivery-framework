@@ -826,7 +826,7 @@ function visit(file, visiting = new Set(), visited = new Set()) {
 for (const file of moduleFiles) visit(file);
 
 const ownership = new Map([
-  ["transitionDecisionForRunState", "control-evaluation/gate-policy.js"],
+  ["transitionDecisionForRunState", "control-evaluation/gate-policy-pure.js"],
   ["evaluateDoctor", "control-evaluation/doctor.js"],
   ["evaluateDeliveryMap", "control-evaluation/delivery-map.js"],
   ["executeDeliveryPathSearch", "cli/delivery-path-search-command.js"],
@@ -835,6 +835,10 @@ for (const [symbol, owner] of ownership) {
   const declarations = moduleFiles.filter((file) => new RegExp(`function\\s+${symbol}\\s*\\(`).test(readFileSync(file, "utf8")));
   assert.deepEqual(declarations, [join(owner.startsWith("control-evaluation/") ? coreRoot : packageRoot, "lib", owner)], `${symbol} must have one owner`);
 }
+
+const gateComposition = readFileSync(join(coreRoot, 'lib/control-evaluation/gate-policy.js'), 'utf8');
+assert.match(gateComposition, /import \{ readSourceRevisions \} from "\.\.\/control-state\/run-source-revisions\.js"/);
+assert.match(gateComposition, /createGatePolicy\(readSourceRevisions\)/, 'the production composition keeps its validated receipt reader');
 
 // Failure evidence stays readable: objects become key:value entries instead of "[object Object]".
 assert.deepEqual(failureEvidenceEntries(undefined), []);

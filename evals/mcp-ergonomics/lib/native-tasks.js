@@ -122,7 +122,7 @@ const PREDICATES = {
     try { runs = readdirSync(join(fixture.root, ".agdf", "control", "runs"), { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => entry.name); } catch {}
     if (runs.length !== 1) return { success: false, reason: `expected exactly one new run, found ${runs.length}` };
     let gate = null;
-    try { gate = readRunState(fixture.root,{runId:runs[0]}).current_gate; } catch { return { success: false, reason: "new run has no readable RUN_STATE.md" }; }
+    try { const state = readRunState(fixture.root,{runId:runs[0]}); if (!state.content || !state.current_gate) throw Error("missing current Run"); gate = state.current_gate; } catch { return { success: false, reason: "new run has no readable RUN_STATE.md" }; }
     return gate === "UR" ? { success: true } : { success: false, reason: `new run is at ${gate}` };
   },
   single_ur_approval({ fixture, task }) {

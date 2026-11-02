@@ -15,7 +15,7 @@ import { inspectControlConfiguration } from '../lib/control-state/control-config
 import { languageConfigContent, resolveLanguagePreference } from '../lib/resources/language-preference.js';
 
 const roots = [mkdtempSync(join(tmpdir(), 'agdf-defaults-a-')), mkdtempSync(join(tmpdir(), 'agdf-defaults-b-'))].map(root => realpathSync(root));
-const config = { artifact_language: 'en', chat_language: 'de', runtime_language: 'en' };
+const config = { control_layout: 'run-folders-v1', artifact_language: 'en', chat_language: 'de', runtime_language: 'en' };
 const path = root => join(root, '.agdf/control/config.json');
 const put = (root, value) => { mkdirSync(join(root, '.agdf/control'), { recursive: true }); writeFileSync(path(root), typeof value === 'string' ? value : JSON.stringify(value)); };
 try {
@@ -59,7 +59,7 @@ try {
   const snapshot = resolveConfiguration(a, resources.defaults); assertConfigurationCurrent(snapshot);
   put(a, config); assert.throws(() => assertConfigurationCurrent(snapshot), /snapshot_stale/);
   assert.equal(resolveConfiguration(a, resources.defaults).values.presentation_route, 'markdown');
-  for (const bad of ['{', [], { chat_language: 'de' }, { ...config, chat_language: 'bad_tag' }, { ...config, runtime_language: 'bad_tag' }, { ...config, presentation_route: null }, { ...config, gate_check_variant: 'approve' }]) {
+  for (const bad of ['{', [], { control_layout: 'run-folders-v1', chat_language: 'de' }, { ...config, chat_language: 'bad_tag' }, { ...config, runtime_language: 'bad_tag' }, { ...config, presentation_route: null }, { ...config, gate_check_variant: 'approve' }]) {
     put(a, bad); const bytes = readFileSync(path(a));
     assert.throws(() => resolveConfiguration(a, resources.defaults, { chat_language: 'en' }), error => error.code === 'configuration_invalid' && error.diagnostic.source.kind === 'project');
     assert.deepEqual(readFileSync(path(a)), bytes);

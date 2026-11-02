@@ -1298,6 +1298,7 @@ export function renderSourceRevision(result, registry, language, input = {}) {
     `${copy.retained}: ${safe(result.impact.retained.join(", ") || copy.none)}`,
     `${copy.superseded}: ${safe(result.impact.superseded.join(", "))}`);
   if (outcome === "preview" && result.sources && result.impact) {
+    if (result.confirmation_selector) lines.push(`--confirmation: ${safe(result.confirmation_selector)}`);
     lines.push(`${copy.intent}: ${safe(result.intended_change)}`, `${copy.binding}: ${safe(result.preview_digest)}`,
       "", copy.sources, ...result.sources.map(source => `- ${safe(source.type)}: ${safe(source.path)} · ${safe(source.digest)}`),
       "", `${copy.artefacts}: ${safe(result.impact.superseded.join(", "))}`,

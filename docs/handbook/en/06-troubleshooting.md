@@ -2,7 +2,7 @@
 language: en
 chapter_role: troubleshooting
 translation_of: ../de/06-fehlerbehebung.md
-source_revision: sha256:9e2007dc125607a61069b9782137fc3ed036e84a71f34a84782ae110a9dfd421
+source_revision: sha256:f68dd821a498f4fa5267a4a116c437822f5964a6c1182ed275624d82a479abc8
 translation_status: reviewed
 ---
 

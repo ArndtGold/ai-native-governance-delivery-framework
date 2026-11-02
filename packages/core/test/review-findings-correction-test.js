@@ -141,7 +141,7 @@ const legacyCore = async () => {
       writeFileSync(path, source.split(from).join(''));
     }
   };
-  strip('packages/core/lib/control-evaluation/gate-policy.js', '  // The qa-gate forbids a QA pass without review evidence', '  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA"))');
+  strip('packages/core/lib/control-evaluation/gate-policy-pure.js', '  // The qa-gate forbids a QA pass without review evidence', '  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA"))');
   strip('packages/core/lib/control-state/run-operation-proof.js', '  if (lateRequiredReviewEligible(state, before, input) || reviewCorrectionCandidate(state, before, input)) return true;\n');
   strip('packages/core/lib/control-state/run-steps.js', "      if (diagnostics.length) return findingsRefusal(runId, diagnostics);\n", null, 3);
   strip('packages/core/lib/control-evaluation/decision-content-readiness.js', "    if (groups.qa === 'pass') {\n      const quality = inspectQaReports(", "    const localized = localizedDecisionFields('QA'");

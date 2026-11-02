@@ -224,7 +224,6 @@ export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = fa
     "lib/cli/control-maintenance-command.js",
     "lib/control-maintenance",
     "lib/control-evaluation",
-    "lib/control-state",
     "lib/delivery-path-search",
     "lib/repository-context.js",
     "generated/plugins/agdf/meta/agdf-plugin.definition.json",

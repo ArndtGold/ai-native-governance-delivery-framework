@@ -129,7 +129,7 @@ try {
   assert.equal(emptyRunStoreReport.missing_approval, "none");
   assert.equal(emptyRunStoreReport.approval_presentation, null);
   assert.notEqual(emptyRunStoreReport.interaction_kind, "control_setup");
-  assert.ok(emptyRunStoreReport.allowed.includes("create or migrate a canonical run with an explicit run id"));
+  assert.ok(emptyRunStoreReport.allowed.includes("create a current Run with an operation UUID"));
   createRun(configured, "configured-run");
   const configuredReport = evaluateGateCheck(configured, { runId: "configured-run" });
   assert.notEqual(configuredReport.blocking_reason, "AGDF_CONTROL_FILE_MISSING");

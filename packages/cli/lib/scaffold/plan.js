@@ -1,3 +1,4 @@
+import { CURRENT_LAYOUT } from '#agdf-core/control-state/run-identity.js';
 import { canonicalInitPlan } from "#agdf-core/resources/canonical-init-plan.js";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -98,7 +99,7 @@ export function generatedFilesForTarget(target, targetDir, force, languagePrefer
 
   if (target === "config") {
     const configPath = join(targetDir, '.agdf', 'control', 'config.json');
-    let existing = {};
+    let existing = { control_layout: CURRENT_LAYOUT };
     try { existing = JSON.parse(readFileSync(configPath, 'utf8')); }
     catch (error) { if (error.code !== 'ENOENT') throw error; }
     if (!existing || typeof existing !== 'object' || Array.isArray(existing)) throw Error('invalid_control_config');

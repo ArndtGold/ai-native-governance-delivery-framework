@@ -83,7 +83,7 @@ try {
         const display=await view.read({operation:'decision_state',session_id:meta.read_session_id},undefined,host);
         assert.deepEqual(display.data.enabled_actions,['approve']);
         const read=await view.read({operation:'document',session_id:meta.read_session_id,run_id:f.runId,snapshot_id:meta.snapshot_id,resource_id:meta.resource_id});
-        assert.equal(read.state,'available',JSON.stringify(read));assert.equal(read.data.document.content,bytes.toString(),'Document selector reads the exact registered QA report; the separate decision summary is the presentation.');
+        assert.equal(read.state,'available',JSON.stringify(read));assert.equal(read.data.document.content,prepared.family_result.text,'Document selector reads the exact immutable decision version captured by the current presentation contract.');assert.deepEqual(readFileSync(join(root,path)),bytes,'Reading the captured decision must preserve the original QA report.');
         approved=await view.action({session_id:meta.session_id,operation_id:input.operation_id,presentation_id:presentation,expected_revision_id:e.expected_revision_id,action:'approve'},host);
       } finally {await view.close();}
     }

@@ -2,10 +2,9 @@ import assert from "node:assert/strict";
 import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient } from "./helpers.js";
-import { createLateSourceRevisionTestRun } from "../../cli/scripts/fixtures/late-source-revision.js";
+import { createLateSourceRevisionTestRun, interruptSourceRevision, pendingSourceRevisionDigest } from "../../cli/scripts/fixtures/late-source-revision.js";
 import { createEarlyUrRevisionTestRun } from "../../cli/scripts/fixtures/early-ur-revision.js";
 import { byteDigest } from "../../core/lib/control-state/run-revision-history.js";
 
@@ -20,7 +19,8 @@ const tree = () => {
     const path = join(dir, entry.name); if (entry.isDirectory()) scan(path); else files[path.slice(root.length)] = byteDigest(readFileSync(path));
   }); scan(join(root, ".agdf")); return files;
 };
-const args = input => ["--revision", input.revisionId, "--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", input.evidence];
+const args = input => ["--revision", input.revisionId, "--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", join(root, input.evidence)];
+const family = value => { assert.equal(value?.outcome, 'accepted', JSON.stringify(value)); assert.ok(value.family_result); return value.family_result; };
 const observations = [];
 try {
   await withStdioClient(fixture, async client => {
@@ -34,8 +34,8 @@ try {
     const target = { presentation_language: "de", working_directory: root, target_source: "explicit_target", primary_target: root, run_id: f.runId };
     for (const gate of ["UR", "PRD", "SD", "TP"]) {
       reset(); const p = f.proposal(gate);
-      const preview = f.run("run-revise", "--preview", ...args(p.input)).value; assert.equal(preview.outcome, "preview");
-      const applied = f.run("run-revise", "--apply", ...args(p.input), "--preview-digest", preview.preview_digest).value;
+      const preview = family(f.run("run-revise", "--preview", ...args(p.input)).value); assert.equal(preview.outcome, "preview");
+      const applied = family(f.run("run-revise", "--apply", ...args(p.input), "--preview-digest", preview.preview_digest, "--confirmation", preview.confirmation_selector).value);
       assert.equal(applied.outcome, "reopened", JSON.stringify(applied)); const before = tree();
       const dispatch = (await client.callTool({ name: "agdf_dispatch", arguments: { ...target, skill_id: "gate-check" } })).structuredContent;
       const inspected = (await client.callTool({ name: "agdf_inspect", arguments: { ...target, operation: "gate-check" } })).structuredContent;
@@ -49,9 +49,9 @@ try {
       observations.push({ gate, dispatch: dispatch.control, inspect: { current_gate: inspected.report.current_gate, missing_approval: inspected.report.missing_approval, source_revisions: inspected.report.source_revisions }, authorizes: false });
     }
     reset(); const early = createEarlyUrRevisionTestRun(root, validator, "early-ur-mcp-test"), request = early.proposal();
-    const earlyPreview = early.run("run-revise", "--preview", ...args(request.input)).value;
+    const earlyPreview = family(early.run("run-revise", "--preview", ...args(request.input)).value);
     assert.equal(earlyPreview.outcome, "preview");
-    assert.equal(early.run("run-revise", "--apply", ...args(request.input), "--preview-digest", earlyPreview.preview_digest).value.outcome, "reopened");
+    assert.equal(family(early.run("run-revise", "--apply", ...args(request.input), "--preview-digest", earlyPreview.preview_digest, "--confirmation", earlyPreview.confirmation_selector).value).outcome, "reopened");
     const earlyBefore = tree(), earlyTarget = { ...target, run_id: early.runId };
     const earlyDispatch = (await client.callTool({ name: "agdf_dispatch", arguments: { ...earlyTarget, skill_id: "gate-check" } })).structuredContent;
     const earlyInspect = (await client.callTool({ name: "agdf_inspect", arguments: { ...earlyTarget, operation: "gate-check" } })).structuredContent;
@@ -66,15 +66,15 @@ try {
     observations.push({ boundary: "approved UR/PRD with linked draft SD", gate: "UR", dispatch: earlyDispatch.control,
       inspect: earlyInspect.report.current_gate, authoring: earlyAuthoring.continuation.phase, authorizes: false });
 
-    reset(); const p = f.proposal("TP"), preview = f.run("run-revise", "--preview", ...args(p.input)).value;
-    const program = `import {applySourceRevision} from ${JSON.stringify(pathToFileURL(join(fixture.dispatcherRoot, "runtime/core/lib/control-state/run-revision.js")).href)};
-      applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(stage){if(stage==='archive_file')process.exit(71)}});`;
-    try { execFileSync(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify({ ...p.input, previewDigest: preview.preview_digest })], { stdio: "pipe" }); assert.fail("worker should interrupt after an actual archive write"); }
-    catch (error) { assert.equal(error.status, 71); }
+    reset(); const p = f.proposal("TP"), preview = family(f.run("run-revise", "--preview", ...args(p.input)).value);
+    interruptSourceRevision(root, fixture.dispatcherRoot, p, preview);
     const before = tree();
     const pending = (await client.callTool({ name: "agdf_inspect", arguments: { ...target, operation: "gate-check" } })).structuredContent;
     assert.equal(pending.report.status, "blocked"); assert.ok(pending.report.doctor_report.findings.some(row => row.code === "AGDF_RUN_STEP_RECOVERY_REQUIRED"));
-    assert.deepEqual(tree(), before); assert.equal(f.run("run-revise", "--recover", "--revision", p.input.revisionId, "--operation", p.input.operationId).value.outcome, "recovered");
+    assert.deepEqual(tree(), before);
+    const recovery = f.run("run-revise", "--recover", ...args(p.input), "--pending-digest", pendingSourceRevisionDigest(root, f.runId));
+    assert.equal(recovery.code, 0, recovery.text);
+    assert.equal(family(recovery.value).outcome, "recovered");
     observations.push({ state: "pending", report: pending.report.status, observation: "read_only; explicit CLI recovery" });
   });
   if (process.env.AGDF_TEST_EVIDENCE_DIR) {

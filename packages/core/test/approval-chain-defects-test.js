@@ -158,7 +158,7 @@ const legacyCore = async () => {
   const core = resolve(import.meta.dirname, '..'), base = mkdtempSync(join(core, '../../node_modules', '.agdf-pre-fix-core-'));
   for (const part of ['lib', 'generated', 'package.json']) cpSync(join(core, part), join(base, 'packages/core', part), { recursive: true });
   cpSync(resolve(core, '../../plugins/agdf/control/templates'), join(base, 'plugins/agdf/control/templates'), { recursive: true });
-  const policy = join(base, 'packages/core/lib/control-evaluation/gate-policy.js'), source = readFileSync(policy, 'utf8');
+  const policy = join(base, 'packages/core/lib/control-evaluation/gate-policy-pure.js'), source = readFileSync(policy, 'utf8');
   const start = source.indexOf('  // The qa-gate forbids a QA pass without review evidence'), end = source.indexOf('  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA"))');
   assert.ok(start > 0 && end > start, 'The emulated pre-fix runtime removes exactly the new QA review branch.');
   writeFileSync(policy, source.slice(0, start) + source.slice(end));

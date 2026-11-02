@@ -1,5 +1,5 @@
 // Policy over prepared Run facts; no filesystem reads or state preparation.
-import { filled, isPlaceholderValue } from "./shared.js";
+import { filled, isPlaceholderValue } from "./shared-value.js";
 
 export const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 export const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);

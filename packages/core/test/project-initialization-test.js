@@ -7,6 +7,7 @@ import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, realpathSync, readFileSync, writeFileSync, readdirSync, mkdirSync, rmSync, symlinkSync, existsSync, renameSync, lstatSync, cpSync, linkSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createRunCommandService } from '../lib/control-state/run-command-service.js';
 import { validateRunCommandResult } from '../lib/control-state/run-command-contract.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
@@ -402,7 +403,7 @@ test('real initializer retains its owned publication while a competing CLI reque
       child.once('error', reject); child.stdout.once('data', () => { clearTimeout(timer); resolve(); });
     });
     const cli = new URL('../../cli/bin/create-agdf.js', import.meta.url);
-    const contender = spawnSync(process.execPath, [cli.pathname, 'init', '--dir', root, '--language', 'en'], { encoding: 'utf8', timeout: 5000 });
+    const contender = spawnSync(process.execPath, [fileURLToPath(cli), 'init', '--dir', root, '--language', 'en'], { encoding: 'utf8', timeout: 5000 });
     assert.notEqual(contender.status, 0); assert.equal(JSON.parse(contender.stdout).reason, 'initialization_ownership_unconfirmed');
     const completed = new Promise((resolve, reject) => child.once('exit', code => code === 0 ? resolve() : reject(Error(stderr))));
     writeFileSync(release, 'release only this owned fixture'); await completed;

@@ -1,7 +1,7 @@
-// Bounded, read-only parser for the RUN_STATE.md sections the companion shows (SDD-04). It reads only
-// Run Meta, Objective, Current Control State, Approvals, Artefacts and the Mode/Slice Decision; parity
-// tests bind it to the canonical writers and the core control-state reader. Host-independent: file
-// access is injected.
+import { projectStoredRun } from './core.mjs';
+// Bounded, read-only current-Run projection. Typed records and display policy come
+// from the canonical pure Core modules. This does not qualify seals or file evidence
+// and never authorizes a gate or command. File access remains injected by the host.
 
 export const GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT', 'OR']);
 // The internal steps between an approved TP and QA, shown as the build phase (SDD-02, SDD-03).
@@ -30,41 +30,11 @@ export function section(text, heading) {
 
 const field = (body, key) => plain(body.match(new RegExp(`^- ${key}:[ \\t]*(.*)$`, 'mu'))?.[1]);
 
-function answer(body, question) {
-  const escaped = question.replace(/[?]/gu, '\\?');
-  return plain(body.match(new RegExp(`^\\| ${escaped} \\| (.*) \\|$`, 'mu'))?.[1]);
-}
-
-// The core reader strips backticks from the status cell (`clean` in run-state-document.js), so a
-// backticked `approved` counts as approved here too (CR-F04).
-const approvedGates = body => [...body.matchAll(/^\| ([A-Z]+) \| `?approved`? \|/gmu)].map(row => row[1]);
-
 // Canonical writers keep a review or gate result in the Artefacts row of the step that produced it
 // (`CR | … | revise`, `QA | … | block`); a Quick Task's Code Review is the CR row. The Run Meta
 // `decision` stays `in_progress` (CR-F02).
 const RESULT_ROWS = Object.freeze({ 'Quick Task Execution': ['CR'] });
 const RESULTS = new Set(['revise', 'block', 'blocked']);
-const artefactStatuses = body => new Map([...body.matchAll(/^\| ([^|\n]+?) \| [^|\n]* \| ([^|\n]+?) \|/gmu)]
-  .map(row => [plain(row[1]), plain(row[2])]));
-// A deliberate decision on the current gate's presented material: `reject` declines it,
-// `request_change` asks for a revision.
-const presentationDecision = (known, gate) => {
-  const match = known.match(/^(reject|request_change) recorded for current (.+) material\.$/u);
-  return match && match[2] === gate ? match[1] : null;
-};
-
-// The run's route as the status card chooses its path (`modeSliceDecision`, run-state-policy.js):
-// the decision counts only with a filled scope reason and evidence, and a template value
-// (backticked alternatives) counts as empty. Anything else reads `undecided`.
-const templateValue = value => !value || (value.startsWith('`') && value.includes('|'));
-const filled = value => !templateValue(value) && value.trim() !== '';
-function route(text) {
-  const body = section(text, 'Mode/Slice Decision').trim() ? section(text, 'Mode/Slice Decision') : section(text, 'Mode / Slice Decision');
-  const raw = key => body.match(new RegExp(`^- ${key}:[ \\t]*(.*)$`, 'mu'))?.[1]?.trim() ?? '';
-  const decision = raw('decision').replace(/^`|`$/gu, '').trim();
-  return decision && !templateValue(decision) && filled(raw('scope_reason')) && filled(raw('evidence')) ? decision : 'undecided';
-}
-
 // The core's decision-content placeholder rule (`isDecisionContentPlaceholder`,
 // decision-content-readiness.js), so a template objective is never shown as the run's goal.
 const PROMPTS = new Set(['describe the trustworthy outcome.', 'what outcome should become possible?',
@@ -77,35 +47,35 @@ export function isPlaceholderText(value) {
 }
 
 // Returns { ok: true, run } or { ok: false, id, reason } with reason missing | too_large | format.
-// Older run states lack `updated_at` (never "changed in this session") or the control table (no
-// missing approval or next step); run identity, lifecycle and current gate are always required.
+// Only version 4 typed records are accepted; retired persisted derived tables are refused.
 export function parseRunState(id, text) {
   if (typeof text !== 'string') return { ok: false, id, reason: 'missing' };
   if (text.length > MAX_RUN_STATE_BYTES) return { ok: false, id, reason: 'too_large' };
   const normalized = text.replace(/^﻿/u, '').replace(/\r\n?/gu, '\n');
   const meta = section(normalized, 'Run Meta');
-  const control = section(normalized, 'Current Control State');
+  let projection; try { projection = projectStoredRun(normalized); } catch { return { ok: false, id, reason: 'format' }; }
+  const control = projection.control;
   const runId = field(meta, 'run_id');
   const lifecycle = field(meta, 'lifecycle');
-  const gate = field(meta, 'current_gate');
-  const decision = field(meta, 'decision');
+  const gate = control.current_gate;
+  const decision = lifecycle === 'completed' ? 'completed' : 'in_progress';
   const updatedAt = Number.isNaN(Date.parse(field(meta, 'updated_at'))) ? '' : field(meta, 'updated_at');
   if (!meta || runId !== id || !KNOWN_LIFECYCLES.has(lifecycle) || !gate) return { ok: false, id, reason: 'format' };
   const objective = section(normalized, 'Objective').split('\n').map(line => line.trim()).find(Boolean) ?? '';
-  const statuses = artefactStatuses(section(normalized, 'Artefacts'));
+  const statuses = new Map([...projection.facts.artefacts].map(([name, row]) => [name, row.status]));
   const gateResult = (RESULT_ROWS[gate] ?? [gate]).map(type => statuses.get(type)).find(status => RESULTS.has(status)) ?? null;
   return { ok: true, run: Object.freeze({
     id,
     lifecycle,
     gate,
     decision,
-    route: route(normalized),
+    route: projection.route,
     gateResult,
-    gateDecision: presentationDecision(answer(control, 'What is known?'), gate),
+    gateDecision: control.presentation_decision?.action ?? null,
     updatedAt,
-    missing: clip(answer(control, 'What is missing?')),
-    next: clip(answer(control, 'What is the next allowed action?')),
-    approved: Object.freeze(approvedGates(section(normalized, 'Approvals'))),
+    missing: clip(projection.facts.artefacts.get(gate)?.path || gate === 'UAT' ? control.missing_approval ?? '' : 'none'),
+    next: clip(control.next_allowed_action ?? ''),
+    approved: Object.freeze([...projection.facts.approvals].filter(([, row]) => row.status === 'approved').map(([name]) => name)),
     objective: isPlaceholderText(objective) ? '' : clip(objective),
   }) };
 }

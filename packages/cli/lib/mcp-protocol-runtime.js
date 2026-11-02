@@ -38,6 +38,9 @@ function checkCommandResult(name, result) {
     throw Object.assign(new Error('tool_result_invalid'), { facts: { code: 'tool_result_invalid', dispatch: 'unknown' } });
   }
 }
+// MCP text blocks carry compact JSON; indentation tripled deeply nested schema reports.
+const compactDispatchResult = (value) => serializeSkillDispatchResult(value, { space: 0 });
+const compactInspectResult = (value) => serializeControlInspectResult(value, { space: 0 });
 export function errorSupport(cockpit = false) {
   return {
     inputValidationHint: (name, input) => name === 'agdf_inspect' ? inspectInputValidationHint(input) : '',
@@ -46,7 +49,7 @@ export function errorSupport(cockpit = false) {
       const pack = localePack(interactionLocales, input.presentation_language ?? (cockpit ? 'de' : 'en'));
       checkCommandResult(name, result);
       const { _meta, ...domain } = result;
-      const serialize = name === 'agdf_dispatch' ? serializeSkillDispatchResult : name === 'agdf_inspect' ? serializeControlInspectResult : JSON.stringify;
+      const serialize = name === 'agdf_dispatch' ? compactDispatchResult : name === 'agdf_inspect' ? compactInspectResult : JSON.stringify;
       const checked = JSON.parse(serialize(domain));
       const projected = projectToolResult(name, input, { ...checked, ...(_meta ? { _meta } : {}) }, pack, facts);
       // Existing serializers can replace oversized output before projection.
@@ -188,14 +191,14 @@ export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispa
   const parse = (argumentsValue) => parseSkillDispatchFunctionArguments(argumentsValue, trustedContext);
   const failureEvidence = { ...inspected.runtimeEvidence, expected_version: inspected.expectedVersion };
   const rawTools = [
-    Object.freeze({ name: SKILL_DISPATCH_FUNCTION_DEFINITION.name, definition: SKILL_DISPATCH_FUNCTION_DEFINITION, parse, execute, serialize: serializeSkillDispatchResult }),
+    Object.freeze({ name: SKILL_DISPATCH_FUNCTION_DEFINITION.name, definition: SKILL_DISPATCH_FUNCTION_DEFINITION, parse, execute, serialize: compactDispatchResult }),
     Object.freeze({
       name: CONTROL_INSPECT_FUNCTION_DEFINITION.name,
       definition: CONTROL_INSPECT_FUNCTION_DEFINITION,
       parentOwned: value => value?.operation === 'doctor',
       parse: (argumentsValue) => parseControlInspectFunctionArguments(argumentsValue, trustedContext),
       execute: (input, signal) => executeInspect(input, { signal }),
-      serialize: serializeControlInspectResult,
+      serialize: compactInspectResult,
     }),
     ...commandGroups.map(group => Object.freeze({ name: group, definition: commandGroupDefinition(group),
       parentOwned: input => group === 'agdf_record' && ['material.stage', 'planned_material.stage'].includes(input?.command?.kind)
@@ -252,7 +255,7 @@ export function composeMcpProtocolRuntime({ surface, inspected = inspectMcpDispa
     },
     producerIdentity: inspected.generationIdentity ?? null,
     tool: name => tools.find(tool => tool.name === name) ?? null,
-    serialize: serializeSkillDispatchResult,
+    serialize: compactDispatchResult,
     failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name, argumentsValue, { dispatch = 'unknown', field, cause_code, worker_phase, elapsed_ms, configuration } = {}) {
       const facts = { code, dispatch, ...(field ? { field } : {}),
         ...(cause_code ? { cause_code } : {}), ...(worker_phase ? { worker_phase } : {}) };

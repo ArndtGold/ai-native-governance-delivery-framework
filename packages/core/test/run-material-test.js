@@ -17,7 +17,7 @@ import { readPendingRunStepJournal } from '../lib/control-state/run-step-transac
 import { canonicalJson, digest } from '../lib/control-state/approval-command-contract.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { runSealState } from '../lib/control-state/run-seal.js';
-import { validateRunCommandResult } from '../lib/control-state/run-command-contract.js';
+import { validateRunCommandResult, commandGroupDefinition, operationContract } from '../lib/control-state/run-command-contract.js';
 import { inspectAuthoringInputs } from '../lib/control-inspect/authoring-inputs.js';
 
 function fixture(work, { layout } = {}) {
@@ -63,6 +63,10 @@ test('private multipart material records through the existing UR writer; restagi
     assert.equal(page.available, true, JSON.stringify(page));
     assert.ok(page.documents.some(d => d.role === 'template' && d.source === 'version_matched_plugin'));
     if (page.chunk?.role === 'source' && page.chunk.type === 'UR') sourceText += page.chunk.content;
+    // Only the first page carries the full writer contract; later pages name the same one.
+    if (pages === 0) { assert.equal(page.formats.kind, 'step.record'); assert.ok(page.formats.payload_schema && page.formats.result_schema); }
+    else assert.deepEqual(page.formats, { schema_version: '1', available: true, group: 'agdf_record', kind: 'step.record',
+      omitted: 'identical to the first page of this manifest' });
     cursor = page.next_cursor; pages++;
   } while (cursor);
   assert.ok(pages >= 2);
@@ -75,6 +79,9 @@ test('private multipart material records through the existing UR writer; restagi
   const revisedResult = createRunCommandService({ packageVersion: '0.20.2', materialGrants: store.grants(reviseInput) })('agdf_revise', reviseInput);
   assert.equal(revisedResult.outcome, 'accepted', JSON.stringify(revisedResult));
   assert.equal(revisedResult.receipt.kind, 'ur_draft.replace');
+  assert.equal(Object.hasOwn(revisedResult.family_result, 'receipt'), false, 'the receipt is returned once, in the envelope');
+  assert.equal(revisedResult.family_result.operation_id, reviseInput.operation_id, 'the family result keeps its own fields');
+  assert.deepEqual(validateRunCommandResult(revisedResult), []);
   assert.equal(readFileSync(join(root, '.agdf/control/runs/material/documents/UR.md'), 'utf8'), revised);
   assert.equal(runSealState(root, readFileSync(path, 'utf8')).status, 'valid');
   store.close();
@@ -102,6 +109,55 @@ test('128 KiB Unicode handoff is bounded and bad sizes/offsets/slots do not publ
   assert.equal(call({ action: 'begin', files: [{ slot: 'UR', bytes: 131073 }] }).reason, 'command_schema_invalid');
 }));
 
+test('a rejected append names its concrete cause and keeps the stable reason', () => fixture(({ call }) => {
+  const text = Buffer.from('# Evidence\nÄnderung geprüft.\n');
+  const id = call({ action: 'begin', files: [{ slot: 'EVIDENCE', bytes: text.length }] }).family_result.transfer_id;
+  const append = (part) => call({ action: 'append', transfer_id: id, file: 0, offset: 0, data: text.toString('base64'), ...part });
+  const cases = [
+    [{ data: text.toString('utf8') }, 'material_part_invalid', 'data_not_base64'],
+    [{ data: text.toString('base64').replace(/=+$/u, '') }, 'material_part_invalid', 'data_not_base64'],
+    [{ data: `${text.toString('base64').slice(0, 8)}\n${text.toString('base64').slice(8)}` }, 'material_part_invalid', 'data_not_base64'],
+    [{ data: '' }, 'material_part_invalid', 'data_empty'],
+    [{ file: 1 }, 'material_part_invalid', 'file_index_unknown'],
+    [{ data: Buffer.concat([text, Buffer.from('x')]).toString('base64') }, 'material_part_invalid', 'part_exceeds_file'],
+    [{ offset: 3, data: Buffer.from('x').toString('base64') }, 'material_part_offset_invalid', 'offset_not_next'],
+  ];
+  for (const [part, reason, code] of cases) {
+    const rejected = append(part);
+    assert.equal(rejected.outcome, 'rejected', code);
+    assert.equal(rejected.reason, reason, code);
+    assert.equal(rejected.diagnostics[0].code, code);
+    assert.equal(typeof rejected.recovery, 'string');
+    assert.deepEqual(validateRunCommandResult(rejected), [], code);
+  }
+  assert.match(append({ data: text.toString('utf8') }).recovery, /base64/u);
+  assert.deepEqual(append({ data: Buffer.concat([text, Buffer.from('x')]).toString('base64') }).diagnostics[0],
+    { code: 'part_exceeds_file', offset: 0, decoded_bytes: text.length + 1, declared_bytes: text.length });
+  assert.deepEqual(append({ offset: 3, data: Buffer.from('x').toString('base64') }).diagnostics[0],
+    { code: 'offset_not_next', offset: 3, received: 0, sealed: false });
+  const incomplete = call({ action: 'seal', transfer_id: id });
+  assert.equal(incomplete.reason, 'material_incomplete');
+  assert.deepEqual(incomplete.diagnostics, [{ code: 'file_incomplete', files: [{ received: 0, bytes: text.length }] }]);
+  assert.equal(append({}).outcome, 'accepted', 'the transfer stays usable after rejected parts');
+  assert.equal(call({ action: 'seal', transfer_id: id }).family_result.files[0].sealed, true);
+}));
+
+test('the material contract states the encoding and the time bounds', () => {
+  const contract = operationContract('agdf_record', 'material.stage');
+  assert.equal(contract.material_transport.idle_ms, MATERIAL_LIMITS.idle);
+  assert.equal(contract.material_transport.lifetime_ms, MATERIAL_LIMITS.lifetime);
+  assert.equal(contract.material_transport.part_bytes, MATERIAL_LIMITS.part);
+  assert.match(contract.material_transport.encoding, /base64/u);
+  assert.ok(MATERIAL_LIMITS.idle >= 300000, 'one slow part fits the idle bound');
+  assert.ok(MATERIAL_LIMITS.lifetime >= MATERIAL_LIMITS.idle * Math.ceil(MATERIAL_LIMITS.file / MATERIAL_LIMITS.part) * 0.75);
+  const data = contract.payload_schema.oneOf.find((row) => row.properties.action.const === 'append').properties.data;
+  assert.equal(data.contentEncoding, 'base64');
+  assert.match(data.description, /base64/u);
+  const tool = commandGroupDefinition('agdf_record');
+  assert.match(tool.description, /base64/u);
+  assert.match(JSON.stringify(tool.inputSchema), /"contentEncoding":"base64"/u, 'the visible MCP schema keeps the encoding');
+});
+
 test('invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry never publish material', () => fixture(({ root, path, bound, call }) => {
   const before = readFileSync(path, 'utf8');
   const id = call({ action: 'begin', files: [{ slot: 'EVIDENCE', bytes: 2 }] }).family_result.transfer_id;
@@ -118,12 +174,18 @@ test('invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry n
     for (let i = 1; i < 4; i++) assert.equal(stage(begin).outcome, 'accepted');
     assert.equal(stage(begin).reason, 'material_resource_limit');
     tick = 120001;
-    assert.equal(stage({ action: 'status', transfer_id: first }).reason, 'material_transfer_expired');
+    assert.equal(stage({ action: 'status', transfer_id: first }).outcome, 'accepted', 'a slow part of two minutes keeps the transfer');
+    tick += MATERIAL_LIMITS.idle;
+    const expired = stage({ action: 'status', transfer_id: first });
+    assert.equal(expired.reason, 'material_transfer_expired');
+    assert.deepEqual(expired.diagnostics, [{ code: 'transfer_expired', idle_ms: MATERIAL_LIMITS.idle, lifetime_ms: MATERIAL_LIMITS.lifetime }]);
+    assert.match(expired.recovery, /begin a new transfer/u);
+    assert.deepEqual(validateRunCommandResult(expired), []);
     assert.equal(clocked.inspectOwnership().sets, 0);
-    const alive = stage(begin).family_result.transfer_id;
-    for (let i = 0; i < 9; i++) { tick += 60000; assert.equal(stage({ action: 'status', transfer_id: alive }).outcome, 'accepted'); }
-    tick += 60000;
-    assert.equal(stage({ action: 'status', transfer_id: alive }).reason, 'material_transfer_expired', 'activity cannot extend the absolute ten-minute bound');
+    const alive = stage(begin).family_result.transfer_id, created = tick, step = MATERIAL_LIMITS.idle - 60000;
+    while (tick + step < created + MATERIAL_LIMITS.lifetime) { tick += step; assert.equal(stage({ action: 'status', transfer_id: alive }).outcome, 'accepted'); }
+    tick += step;
+    assert.equal(stage({ action: 'status', transfer_id: alive }).reason, 'material_transfer_expired', 'activity cannot extend the absolute lifetime bound');
     clocked.close(); assert.equal(stage(begin).reason, 'material_transfer_expired');
   } finally { clocked.close(); }
   assert.equal(readFileSync(path, 'utf8'), before);

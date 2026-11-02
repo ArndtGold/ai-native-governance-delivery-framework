@@ -93,14 +93,17 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
     if (!Number.isSafeInteger(index) || index < 0 || index >= Math.max(chunks.length, 1)) throw Error('authoring_cursor_stale_or_invalid');
     captured.view.revalidate();
     if (JSON.stringify(observeGit()) !== JSON.stringify(git)) throw Error('authoring_binding_stale_or_invalid');
+    const formats = input.planning ? operationContract('agdf_record', data.recording.kind) : data.authoring_owner === 'OR' ? operationContract('agdf_closeout', 'closeout.record')
+      : operationContract('agdf_record', ['PRD', 'SD', 'TP', 'QA'].includes(data.authoring_owner) ? 'artefact.record' : 'step.record', { gate: data.authoring_owner });
     return { available: true, run_id: input.run_id, revision_id: input.expected_revision_id, gate: data.gate, mode: data.mode,
       ...(input.planning ? { planning: input.planning, canonical_skill: 'ur-definition' } : {}),
       authoring_owner: data.authoring_owner, recording: data.recording,
       status: data.status, blocking_reason: data.blocking_reason, next_operation: data.next_operation,
       manifest_digest: `sha256:${manifest}`, documents: documents.map(({ content, ...r }) => r),
       chunk: chunks[index] ?? null, complete: index + 1 >= chunks.length, next_cursor: index + 1 < chunks.length ? `${prefix}${index + 1}` : null,
-      formats: input.planning ? operationContract('agdf_record', data.recording.kind) : data.authoring_owner === 'OR' ? operationContract('agdf_closeout', 'closeout.record')
-        : operationContract('agdf_record', ['PRD', 'SD', 'TP', 'QA'].includes(data.authoring_owner) ? 'artefact.record' : 'step.record', { gate: data.authoring_owner }),
+      // The writer contract is identical on every page of one manifest; later pages only name it.
+      formats: index === 0 ? formats : { schema_version: formats.schema_version, available: formats.available, group: formats.group, kind: formats.kind,
+        omitted: 'identical to the first page of this manifest' },
       material_transport: { tool: 'agdf_record', kind: input.planning ? 'planned_material.stage' : 'material.stage', limits: { request_bytes: 65536, part_bytes: 16384, source_bytes: 131072 },
         instructions: 'Read all chunks. Stage exact permitted material; seal to obtain identity. Record via the eligible typed writer with explicit cooperative review. No file/path discovery or shell hashing.' }, authorizes: false };
   } catch (e) { return unavailable(e.code ?? e.message); }

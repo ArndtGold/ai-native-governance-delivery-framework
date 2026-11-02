@@ -331,8 +331,9 @@ export { ReadSelectionError };
 export const CONTROL_INSPECT_OUTPUT_TOO_LARGE_RECOVERY = "The inspect result exceeds the 1 MiB MCP output limit. Narrow the selection (one run_id instead of all_active) or use the CLI with --json.";
 
 // Preserve the result envelope when enforcing the shared 1 MiB output ceiling.
-export function serializeControlInspectResult(result) {
-  const output = JSON.stringify(result, null, 2);
+// space 0 is the compact transport form; the CLI keeps its indented output.
+export function serializeControlInspectResult(result, { space = 2 } = {}) {
+  const output = JSON.stringify(result, null, space);
   if (Buffer.byteLength(output, "utf8") <= SKILL_DISPATCH_MAX_OUTPUT_BYTES) return output;
   return JSON.stringify({
     schema_version: CONTROL_INSPECT_SCHEMA_VERSION,

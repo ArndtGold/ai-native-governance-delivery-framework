@@ -3,6 +3,7 @@ import { buildSkillDispatchRegistry, serializeSkillDispatchResult } from "#agdf-
 import { createSkillDispatchService } from "#agdf-core/skill-dispatch/service.js";
 import { CD_TESTS_NEXT_ALLOWED_ACTION } from "#agdf-core/control-evaluation/gate-policy.js";
 import { deliveryIntakePhase } from "#agdf-core/skill-dispatch/delivery-intake.js";
+import { mcpControlContinuation } from "#agdf-core/skill-dispatch/mcp-continuation.js";
 import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "#agdf-core/resources/artefact-templates.js";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
@@ -807,6 +808,11 @@ const oversized = serializeSkillDispatchResult(
 const oversizedResult = JSON.parse(oversized);
 assert.equal(oversizedResult.diagnostics[0].code, "dispatch_output_too_large");
 assert.equal(oversizedResult.host_action.text, "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen.");
+// The MCP transport form is compact JSON with identical content; the CLI default stays indented.
+const compact = serializeSkillDispatchResult(controlResult, { space: 0 });
+assert.doesNotMatch(compact, /\n/u);
+assert.deepEqual(JSON.parse(compact), JSON.parse(serializeSkillDispatchResult(controlResult)));
+assert.match(serializeSkillDispatchResult(controlResult), /\n {2}"/u);
 
 const evaluatorFailure = createSkillDispatchService({
   resolveTaskTarget: () => resolved,
@@ -873,6 +879,45 @@ assert.match(scaffold.recovery.action, /Kontrollgerüst/u);
 const unexpected = intakeFailure(Object.assign(new Error("EACCES: permission denied"), { code: "EACCES" }));
 assert.equal(unexpected.outcome, "evaluator_error", "an unrelated failure is not reported as a missing scaffold");
 assert.equal(unexpected.diagnostics[0].code, "dispatch_control_evaluation_failed");
+assert.equal(Object.hasOwn(unexpected.diagnostics[0], "cause"), false, "a free-form error message never becomes a cause");
+
+// intake_mode new with a run id that cannot create a Run names the cause, the doctor blockers and the next step.
+const runIdIntake = (language) => createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, doctor_report: { findings: [{ severity: "block", code: "AGDF_ACTIVE_RUN_MISSING" }] } }),
+  deliveryIntakePhase: () => { throw new Error("AGDF_NEW_RUN_OPERATION_REQUIRED"); },
+  env: {},
+})({ ...base, presentationLanguage: language, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo",
+  intake: true, intakeMode: "new", runId: "ase-review-prd" });
+const runIdInvalid = runIdIntake("de");
+assert.equal(runIdInvalid.outcome, "control_result");
+assert.equal(runIdInvalid.terminal, true);
+assert.deepEqual(runIdInvalid.diagnostics, [{ code: "AGDF_NEW_RUN_OPERATION_REQUIRED", blockers: ["AGDF_ACTIVE_RUN_MISSING"],
+  run_id: "ase-review-prd", expected_run_id: "run-<uuid>" }]);
+assert.match(runIdInvalid.recovery.action, /run-<uuid>/u);
+assert.match(runIdInvalid.recovery.action, /agdf_run run\.create/u);
+assert.doesNotMatch(runIdInvalid.recovery.action, /Gate-Auswertung reparieren/u, "the cause replaces the generic repair text");
+assert.match(runIdIntake("en").recovery.action, /A new run id must be run-<uuid>/u);
+const mcpRunIdInvalid = mcpControlContinuation({ presentationLanguage: "de", workingDirectory: "/tmp/agdf-repo", targetSource: "continued_target" },
+  runIdInvalid, ["agdf_run"]);
+assert.deepEqual(mcpRunIdInvalid.recovery.next_calls, [{ tool: "agdf_inspect", arguments: { operation: "operation-contract", module: "agdf_run/run.create",
+  presentation_language: "de", working_directory: "/tmp/agdf-repo", primary_target: runIdInvalid.target.governance_target, target_source: "continued_target" } }]);
+assert.equal(mcpRunIdInvalid.recovery.action, runIdInvalid.recovery.action);
+assert.equal(mcpControlContinuation({}, runIdInvalid, []).recovery.next_calls, undefined, "without agdf_run there is no MCP next call");
+
+// An unknown AGDF code from an evaluation stage is surfaced as the cause; the outcome class stays.
+const coded = intakeFailure(new Error("AGDF_SOMETHING_UNEXPECTED"));
+assert.equal(coded.outcome, "evaluator_error");
+assert.deepEqual(coded.diagnostics, [{ code: "dispatch_control_evaluation_failed", cause: "AGDF_SOMETHING_UNEXPECTED" }]);
+const evaluatorCause = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => { throw Object.assign(new Error("run missing at /secret/path"), { code: "AGDF_ACTIVE_RUN_MISSING" }); },
+  env: {},
+})({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
+assert.deepEqual(evaluatorCause.diagnostics, [{ code: "dispatch_control_evaluation_failed", cause: "AGDF_ACTIVE_RUN_MISSING" }]);
+assert.doesNotMatch(JSON.stringify(evaluatorCause), /secret\/path/u);
 
 // intake_mode new: only the expected run-selection blocker lets intake prepare the new run.
 const newModeControl = (codes) => ({ doctor_report: { findings: codes.map((code) => ({ severity: "block", code })) } });

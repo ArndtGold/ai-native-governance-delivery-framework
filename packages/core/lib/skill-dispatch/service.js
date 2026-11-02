@@ -49,21 +49,28 @@ function judgementTemplateId(skillId, currentGate) {
 }
 
 class SkillDispatchRuntimeError extends Error {
-  constructor(code, details = "") {
+  constructor(code, details = "", cause = null) {
     super(code);
     this.name = "SkillDispatchRuntimeError";
     this.code = code;
     this.details = details;
+    this.cause_code = cause;
   }
 }
+
+// Only a bare AGDF finding code is safe to surface; free-form messages may carry paths or content.
+const AGDF_CAUSE_PATTERN = /^AGDF_[A-Z0-9_]+$/u;
+const agdfCause = (error) => [error?.code, error?.message].find((value) => typeof value === "string" && AGDF_CAUSE_PATTERN.test(value)) ?? null;
+const blockingFindingCodes = (control) => [...new Set((control?.doctor_report?.findings ?? [])
+  .filter((finding) => finding.severity === "block").map((finding) => finding.code).filter(Boolean))];
 
 const presentationRecovery = (control) => String(control?.presentation_diagnostics?.approval_presentation_recovery ?? "").trim();
 
 function runDispatchStage(code, callback) {
   try {
     return callback();
-  } catch {
-    throw new SkillDispatchRuntimeError(code);
+  } catch (error) {
+    throw new SkillDispatchRuntimeError(code, "", agdfCause(error));
   }
 }
 
@@ -209,14 +216,14 @@ function controlSnapshot(report, { includeCandidateRuns = false } = {}) {
   });
 }
 
-export function createSkillDispatchFailure({ skill, runtime, timing, code, details, interactionLocales,
+export function createSkillDispatchFailure({ skill, runtime, timing, code, details, cause, interactionLocales,
   presentationLanguage, renderRecovery = renderSkillDispatchRecovery }) {
   const result = baseResult({ outcome: "evaluator_error", terminal: true, skill, runtime, timing });
   let action;
   try { action = renderRecovery({ code }, { registry: interactionLocales, requestedLocale: presentationLanguage }); }
   catch { action = null; }
   result.recovery = { action: [action ?? "Repair the installed locale registry and retry once.", details].filter(Boolean).join("\n\n") };
-  result.diagnostics = [{ code: artefactTemplateErrors.has(code) ? code : `dispatch_${code}` }];
+  result.diagnostics = [{ code: artefactTemplateErrors.has(code) ? code : `dispatch_${code}`, ...(cause ? { cause } : {}) }];
   return bindHostAction(result);
 }
 
@@ -363,15 +370,20 @@ export function createSkillDispatchService(dependencies = {}) {
         : null;
       } catch (error) {
         const code = error.message === "AGDF_RUN_COLLISION" ? "AGDF_RUN_COLLISION"
-          : error.code === "AGDF_CANONICAL_SCAFFOLD_REQUIRED" ? "AGDF_CANONICAL_SCAFFOLD_REQUIRED" : null;
-        // Only the two known intake refusals are reported as such; anything else keeps its real class.
-        if (!code) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_evaluation_failed);
+          : error.code === "AGDF_CANONICAL_SCAFFOLD_REQUIRED" ? "AGDF_CANONICAL_SCAFFOLD_REQUIRED"
+            : error.message === "AGDF_NEW_RUN_OPERATION_REQUIRED" ? "AGDF_NEW_RUN_OPERATION_REQUIRED" : null;
+        // Only the known intake refusals are reported as such; anything else keeps its real class.
+        if (!code) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_evaluation_failed, "", agdfCause(error));
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
-        result.diagnostics = [{ code }];
+        // The expected run-selection blockers explain why doctor reports the target as blocked.
+        const blockers = blockingFindingCodes(control);
+        result.diagnostics = [{ code, ...(blockers.length ? { blockers } : {}),
+          ...(code === "AGDF_NEW_RUN_OPERATION_REQUIRED" ? { run_id: input.run_id, expected_run_id: "run-<uuid>" } : {}) }];
         result.recovery = { action: renderRecovery({ code: code === "AGDF_RUN_COLLISION" ? DISPATCH_RECOVERY.intake_run_collision
-          : DISPATCH_RECOVERY.intake_scaffold_required }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
+          : code === "AGDF_NEW_RUN_OPERATION_REQUIRED" ? DISPATCH_RECOVERY.intake_run_id_invalid
+            : DISPATCH_RECOVERY.intake_scaffold_required }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
         return bindHostAction(result);
       }
       const urPhase = input.prd_action || input.sd_action || input.tp_action ? null : urDefinitionPhase(target.governance_target, control, input);
@@ -849,6 +861,7 @@ export function createSkillDispatchService(dependencies = {}) {
       timing.total_ms = round(milliseconds(started, now()));
       timing.wrapper_ms = round(wrapperMilliseconds(now, env));
       return createSkillDispatchFailure({ skill, runtime, timing, code: recoveryCode, details: error?.details,
+        cause: error instanceof SkillDispatchRuntimeError ? error.cause_code : agdfCause(error),
         interactionLocales: rawInput.interactionLocales, presentationLanguage: input.presentation_language, renderRecovery });
     }
   };

@@ -66,7 +66,7 @@ test('prospective receipt is private until the same directory and anchor are ato
     },
   });
   assert.equal(done.receipt.control.anchor.ino, anchorInode);
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
 }));
 
 for (const phase of ['beforeProspectiveReceipt', 'afterProspectiveReceipt', 'beforeWrite'])
@@ -207,7 +207,7 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   const absent = inspectProjectState(root, input, cliGitObservation);
   assert.equal(absent.status, 'absent'); assert.equal(existsSync(join(root, '.agdf')), false);
   assert.equal(absent.repository.root, root); assert.match(absent.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
-  assert.equal(absent.plan.version, '0.20.2'); assert.equal(absent.plan.file_count, 14, 'new layout omits the mandatory shared backlog');
+  assert.equal(absent.plan.version, '0.20.2'); assert.equal(absent.plan.file_count, 16, 'current scaffold retains empty Git stores without a shared backlog');
   assert.equal(absent.setup.binding.target_id, input.target_id); assert.equal(absent.setup.requires_explicit_intent, true);
   assert.deepEqual(absent.setup.required_agent_fields, ['operation_id']);
   const created = run();
@@ -216,7 +216,7 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   assert.equal(created.family_result.status, 'created');
   assert.equal(created.receipt.kind, 'project.initialize');
   assert.equal(created.receipt.operation.operation_id, input.operation_id);
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
   assert.equal(Buffer.byteLength(JSON.stringify(created)) < 16384, true);
   const control = join(root, '.agdf/control'), config = join(control, 'config.json');
   const authored = JSON.parse(readFileSync(config, 'utf8')); authored.chat_language = 'de';
@@ -243,7 +243,7 @@ for (const phase of ['project_after_publish', 'project_after_receipt', 'project_
     assert.equal(lost.outcome, 'effect_unknown', JSON.stringify(lost));
     const observed = inspectCanonicalProject(root, { operationId: input.operation_id });
     assert.equal(['pending', 'initialized'].includes(observed.status), true, JSON.stringify(observed));
-    assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+    assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
     const done = run(); assert.equal(['accepted', 'already_applied'].includes(done.outcome), true, JSON.stringify(done));
     assert.equal(done.receipt.operation.operation_id, input.operation_id);
     assert.equal(inspectCanonicalProject(root, { operationId: input.operation_id }).operation_status, 'recorded');
@@ -411,7 +411,7 @@ test('real initializer retains its owned publication while a competing CLI reque
     assert.equal(replay.historical_effect, true);
     assert.equal(replay.receipt.operation.operation_id, intent.operationId);
     assert.equal(existsSync(join(root, '.agdf/.canonical-init.lock')), false);
-    assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+    assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
   } finally {
     if (child.exitCode === null && child.signalCode === null) {
       const stopped = new Promise(resolve => child.once('exit', resolve)); child.kill(); await stopped;

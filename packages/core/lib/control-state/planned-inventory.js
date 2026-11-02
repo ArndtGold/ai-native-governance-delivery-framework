@@ -21,6 +21,10 @@ export function projectPlannedInventory(root, { language = 'en' } = {}) {
   const names = readdirSync(join(root, PLANNED_ROOT));
   if (names.length > 20000) throw Error('AGDF_PLANNED_INVENTORY_LIMIT');
   for (const name of names.filter(name => !RUN_ID_PATTERN.test(name))) {
+    if (name === '.gitkeep') {
+      const marker = lstatSync(join(root, PLANNED_ROOT, name));
+      if (marker.isFile() && !marker.isSymbolicLink() && marker.size === 0) continue;
+    }
     if (/^\.entry-[a-z0-9][a-z0-9._-]{0,127}\.lock(?:\.reclaim)?$/u.test(name)) continue;
     const staged = name.match(/^\.stage-(plan-[a-f0-9-]{36})-([a-f0-9-]{36})$/u);
     if (staged) {

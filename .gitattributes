@@ -16,4 +16,7 @@
 # Imported native references bind original bytes, including Windows log line endings.
 evals/host-compatibility/native/** -text
 
+# Archived documents are bound to their original byte digests.
+.agdf/control/archive/source/** -text
+
 .agdf/control/AGDF_RUN.md merge=union

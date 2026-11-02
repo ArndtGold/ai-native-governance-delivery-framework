@@ -167,7 +167,7 @@ try {
   });
   for (const path of Object.keys(source.files)) { mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path)); }
   copyFixtureDependencies(temp);
-  for (const path of ["packages/core/generated", "packages/cli/generated/plugins/agdf", "packages/cli/generated/plugins/copilot/agdf", ".agdf/control/artefacts/agdf-live-host-conformance-matrix"]) {
+  for (const path of ["packages/core/generated", "packages/cli/generated/plugins/agdf", "packages/cli/generated/plugins/copilot/agdf", ".agdf/control/archive/source/runs/agdf-live-host-conformance-matrix/documents"]) {
     mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path), { recursive: true });
   }
   // Approved public evidence and imported native sources are inputs too, even when they supply no comparison rows.

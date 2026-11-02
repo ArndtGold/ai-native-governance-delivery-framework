@@ -82,7 +82,7 @@ for (const modern of [false, true]) {
       const conflict = await client.callTool({ name: 'agdf_run', arguments: { ...original, presentation_language: 'en' } });
       assert.equal(conflict.isError, true);
       assert.equal(conflict.structuredContent.reason, 'operation_payload_conflict');
-      assert.equal(readdirSync(join(root, '.agdf/control/runs')).length, 1);
+      assert.equal(readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep').length, 1);
       assert.equal(readFileSync(path, 'utf8'), state);
       for (const bad of [{ schema_version: '2' }, { assurance: 'human_approved' }, { trusted_context: { working_directory: root } }]) {
         let rejected = false;
@@ -90,7 +90,7 @@ for (const modern of [false, true]) {
         catch { rejected = true; }
         assert.equal(rejected, true, JSON.stringify(bad));
       }
-      assert.equal(readdirSync(join(root, '.agdf/control/runs')).length, 1);
+      assert.equal(readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep').length, 1);
       const setupRoot = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-defaulted-setup-')));
       try {
         execFileSync('git', ['init', '-q', setupRoot]);

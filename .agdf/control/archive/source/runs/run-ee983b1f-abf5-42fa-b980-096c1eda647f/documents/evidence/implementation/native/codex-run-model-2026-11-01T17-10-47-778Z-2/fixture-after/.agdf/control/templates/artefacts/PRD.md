@@ -1,0 +1,113 @@
+# PRD: <Title>
+
+Status: draft
+Gate: PRD
+Gate approval: open
+Based on: UR
+Date:
+Owner:
+Traceability contract: criteria-chain-v1
+
+## 1. Product Scope
+
+What exactly must be delivered?
+
+## 2. UX Intent And Success
+
+- ui_ux_impact: none | low | medium | high
+- ux_intent_definition: <ready analysis reference | directly defined low-impact semantics | justified not_applicable>
+- primary_user_intent:
+- success_signal:
+- primary_decision_or_action:
+
+Every field must be populated or explicitly justified as `not_applicable`. Medium/high impact requires
+a `ready` UX Intent Definition result before this PRD is ready.
+
+If UI previews or scenario walkthroughs informed clarification, summarize the user task and confirmed
+findings here. Map adopted behavior to criterion IDs in Acceptance Criteria, retain observation limits
+in Evidence Requirements and resolve material choices in Approval Decisions. Keep the PRD sufficient
+to understand the required behavior without opening the preview. Link the same run-local preview
+version, file/asset digests and observations recorded by UX. An explicitly required preview must
+exist at the agreed fidelity before its obligation is closed; a chat rendering alone is insufficient.
+A mockup is supporting input and carries no separate approval or implementation proof.
+
+For a required preview, include a concise review task, readable versioned preview reference and
+covered scenarios with their criterion IDs. State what the reviewer should judge about the proposed
+behavior. The existing presentation owner uses this review material; authoring must not add a second
+approval card. See interaction.md PRD Preview Review At Approval for the integration requirements.
+When the approved UR declares `Preview requirement: before_prd_interactive`, add the exact
+`## Preview Review` JSON section defined by prd-definition.md, binding the approved UR digest,
+versioned run-local files, review task, scenarios, criterion IDs and open questions. Its machine
+format is also available through the existing PRD authoring-format contract. Do not create an empty
+descriptor for an unrelated legacy PRD or turn illustrative unanswered policy into a resolved choice.
+
+## 3. Working Modes And Effective State
+
+For every user-relevant working mode, define:
+
+| working_mode | effective_state | visible_state_types | effective_state_authority | primary_state_presentation_owner |
+|---|---|---|---|---|
+|  |  |  |  |  |
+
+Product/system authority decides what is effectively true. Presentation ownership identifies the
+primary surface that communicates state and next action. Technical storage, derivation and component
+ownership remain Solution Design concerns.
+
+## 4. Activation, Blockers, Recovery And Transitions
+
+- activation_and_deactivation:
+- blockers_and_visible_next_actions:
+- recovery_paths: <include visible retry for recoverable transient failure>
+- relevant_state_transitions: <trigger, source, target, visible feedback, next action, failure/rollback>
+
+## 5. Acceptance Criteria
+
+Give every acceptance criterion a unique, stable `criterion_id` (for example `AC-001`) so SD, TP
+and QA can refer to the same requirement without copying or renaming it. Every applicable UX
+criterion must also include `working_mode`, `source_state`, trigger/action, expected effective state,
+visible feedback, blocker/failure behavior, recovery/next action, observable success and required
+evidence. Specify observable behavior, not implementation. Do not leave the section empty or retain
+placeholders when requesting approval.
+
+## 6. Non-Goals
+
+What remains out of scope?
+
+## 7. Users And Roles
+
+Who is affected and who decides?
+
+## 8. Constraints
+
+Which business, operational, legal, security or compatibility constraints apply?
+
+## 9. Evidence Requirements
+
+Which evidence must later support QA?
+
+## 10. Risks And Open Questions
+
+Record risks and questions that can be answered later. Move every decision that changes product
+scope, acceptance, accountable ownership or release acceptance into Approval Decisions below.
+
+## Approval Decisions
+
+Before presenting this PRD, collect all `before_prd` answers in one request and record their
+resolution here. Use `later_sd` or `later_tp` only for genuine design or planning decisions;
+name the responsible owner in the final column. Keep at least one explicit row.
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| <product decision or none> | before_prd | open | <answer> | <accountable owner> |
+
+## 11. Next Step
+
+Present this PRD only after every `before_prd` row is `resolved` with a concrete answer and
+the named PRD Owner is filled. Then review and approve only with:
+
+`Approval: PRD`
+
+The approval confirms the specified behavior, scope and criteria and permits the existing SD step.
+For a required preview, present its review task and exact applicable version together with the PRD
+through the supported canonical presentation. Opening or liking the preview is no approval. A
+missing required review basis or unsupported binding must remain visible, not silently count as ready.

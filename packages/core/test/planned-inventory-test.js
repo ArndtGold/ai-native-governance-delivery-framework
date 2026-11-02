@@ -8,6 +8,20 @@ import { join } from 'node:path';
 import { plannedFixture, clarifiedUr } from './planned-fixtures.js';
 import { plannedTextDigest } from '../lib/control-state/planned-entry.js';
 import { readPlannedInventory, readWorkInventory } from '../lib/control-state/planned-inventory.js';
+
+test('empty Git store markers are inert; nonempty files and directories are not markers', t => {
+  const root = plannedFixture(t, []), marker = join(root, '.agdf/control/planned/.gitkeep');
+  writeFileSync(marker, '');
+  assert.equal(readWorkInventory(root).state, 'complete');
+  assert.equal(readPlannedInventory(root).entries.length, 0);
+  writeFileSync(marker, 'unexpected content');
+  assert.equal(readPlannedInventory(root).state, 'partial');
+  rmSync(marker); mkdirSync(marker);
+  assert.equal(readPlannedInventory(root).state, 'partial');
+  rmSync(marker, { recursive: true });
+  const target = join(root, 'foreign-marker'); writeFileSync(target, '');
+  if (symlinkOrSkip(target, marker, undefined, 'file')) assert.notEqual(readPlannedInventory(root).state, 'complete');
+});
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 
 function planned(root, title, priority = 'normal') {

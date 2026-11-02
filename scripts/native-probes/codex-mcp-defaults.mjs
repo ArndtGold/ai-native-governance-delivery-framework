@@ -153,7 +153,7 @@ export async function runProbe({ out, executable = process.env.CODEX_BIN || 'cod
     const replay = await host.call('mcpServer/tool/call', { threadId, server: 'agdf', tool: 'agdf_run', arguments: writes[0].args });
     report.calls.push({ tool: 'agdf_run', arguments: writes[0].args, result: replay });
     assertNativeReplay(replay, writes[0].receipt);
-    if (roots.some(root => readdirSync(join(root, '.agdf/control/runs')).length !== 1)) throw Error('PROBE_EFFECT_COUNT_FAILED');
+    if (roots.some(root => readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep').length !== 1)) throw Error('PROBE_EFFECT_COUNT_FAILED');
     assertFixtureCall('agdf_inspect', { operation: 'inventory' }, roots);
     const missing = await host.call('mcpServer/tool/call', { threadId, server: 'agdf', tool: 'agdf_inspect', arguments: { operation: 'inventory' } });
     report.calls.push({ tool: 'agdf_inspect', arguments: { operation: 'inventory' }, result: missing });

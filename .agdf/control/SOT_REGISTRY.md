@@ -30,7 +30,7 @@
 |---|---|---|
 | Control state, validators, dispatch/inspect and pure evaluation | packages/core/lib/ | Embedded Core in npm/profile outputs; private source workspace only |
 | Immutable control read capture and cockpit DTO/resource projection | packages/core/lib/control-read/; packages/core/lib/control-inspect/cockpit.js | Private local read service; existing Core evaluators retain rule authority |
-| Local read-only cockpit service, browser interface and reproduction | packages/control-ui/; packages/control-ui/README.md | Private source package only; no public CLI/plugin UI payload or gate authority |
+| Local read-only cockpit service, browser interface and reproduction | packages/control-ui/; packages/control-ui/README.md | Local read service and generated embedded MCP UI; no gate authority |
 | Immutable resource context and allowed contract reader | packages/core/lib/resources/; plugins/agdf/meta/ | Generated package resources with explicit binding descriptor |
 | Git, process/runtime probes, locale and host composition | packages/cli/lib/ | create-agdf and focused offline runtime |
 | MCP SDK, worker and stdio adapter | packages/mcp-server/ | @agdf/mcp-server |
@@ -57,4 +57,19 @@ Verified 2026-10-01; authority remains with the existing AGDF contracts. See
 
 When a secondary document, generated output, old snapshot or chat summary conflicts with the primary SoT, the primary SoT wins until a new approved artefact changes it.
 
-Run-only delivery ownership: `.agdf/control/runs/<run_id>/RUN_STATE.md` and registered artefacts own current control. `packages/core/lib/control-state/run-inventory.js` and its existing reader own stored inventory; Cockpit v2 adapts it without a second evaluator/index. MASTER_BACKLOG.md is optional retained legacy information. New operations have no backlog output/lock; explicit recovery retains old journal responsibility. Worktree placement is normative only in `plugins/agdf/meta/contracts/task-target-resolution.md`. Candidate local evidence: `.agdf/control/artefacts/run-9d38b698-fa0d-4c11-9c9f-92a97c503fa5/CD_TESTS.md` and its hashed `evidence/manifest.json`; context packets keep v1 independently of the v2 reader. Independent baseline CI completion and isolated reconciliation at c79972c2f3fc3d8bd21d45d10e90a1dd79c5d763 are verified; compatibility record/check passes 56 scenarios with current source fingerprint 0103db4de2473a79bc9eebb989a28eb26c02960a4ab54c6a0f080bdbf9a9e618. The required TP/Clean/Code reviews are recorded; technical QA passes and deliberate QA/UAT approvals are recorded. The feature exact-head platform matrix, including its unchanged dedicated performance check, remains mandatory before integration/merge; baseline success is not feature qualification. No installed-host qualification or release authority is claimed.
+## Current Control and Historical Archive
+
+Current delivery uses `run-folders-v1`: `.agdf/control/runs/<run_id>/RUN_STATE.md`
+and its typed documents own current Runs; `.agdf/control/planned/<plan_id>/UR.md`
+owns planned URs. Existing Core inventory readers own discovery. The Cockpit is
+read-only and does not create a parallel evaluator or approval authority.
+
+`.agdf/control/archive/INDEX.json` registers immutable historical originals under
+`archive/source/`. The former master backlog and old Run formats exist only there
+as historical sources; they are not current planning or delivery control.
+`scripts/import-cockpit-archive.mjs` owns offline transfer. Current consumers read
+only `cockpit-archive/1`. Original ownership maps and the complete former context
+graph are preserved in `archive/source/shared/` as historical evidence.
+
+See `docs/reviews/repository-archive-migration-20261102.md` for this repository's
+source snapshot and verification. No old approval gains current validity.

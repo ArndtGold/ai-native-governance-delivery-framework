@@ -10,8 +10,19 @@ function inside(root, candidate) {
   if (!rel || rel === ".." || rel.startsWith(`..${sep}`)) fail(`unsafe corpus path ${candidate}`);
   return target;
 }
+export function historicalSourcePath(candidate) {
+  // Frozen evidence inventories keep their original paths and hashes. Resolve
+  // those historical locators into the read-only archive, never old control.
+  const historical = candidate.match(/^\.agdf\/control\/artefacts\/([a-z0-9][a-z0-9._-]{0,127})\/(.+)$/u);
+  if (historical) {
+    const parts = historical[2].split('/');
+    if (parts.some(part => !part || part === '.' || part === '..')) fail(`unsafe corpus path ${candidate}`);
+    candidate = `.agdf/control/archive/source/runs/${historical[1]}/documents/${parts.map(encodeURIComponent).join('/')}`;
+  }
+  return candidate;
+}
 function existingInside(root, candidate) {
-  const target = inside(root, candidate);
+  const target = inside(root, historicalSourcePath(candidate));
   if (!existsSync(target)) fail(`missing corpus path ${candidate}`);
   const canonicalRoot = realpathSync(root);
   const canonicalTarget = realpathSync(target);
@@ -203,10 +214,13 @@ export function loadCorpus(repoRoot, profileId = "legacy-v1") {
   if (Object.values(index.case_contexts ?? {}).some((value) => typeof value !== "string" || /expected_delivery_path|compact_delivery|structured_slice|structured_delivery|verified_change|trivial_change/i.test(value))) fail("case context contains result label");
   const baselineIds = new Set(baseline.cases.map((item) => item.case_id));
   if (index.case_ids.some((id) => !baselineIds.has(id)) || baseline.cases.some((item) => !index.case_ids.includes(item.case_id))) fail("baseline/corpus ids differ");
-  const artefactRoot = realpathSync(resolve(repoRoot, ".agdf/control/artefacts"));
+  const artefactRoot = realpathSync(resolve(repoRoot, ".agdf/control/archive/source/runs"));
+  const originalRoot = resolve(repoRoot, ".agdf/control/artefacts");
   for (const item of baseline.cases) {
-    const evidence = resolve(dirname(baselinePath), item.evidence_ref);
-    if (!existsSync(evidence)) fail(`unresolvable evidence_ref ${item.case_id}`);
+    const original = resolve(dirname(resolve(repoRoot, manifest.baseline_path)), item.evidence_ref);
+    const originalRelative = relative(originalRoot, original);
+    if (originalRelative === ".." || originalRelative.startsWith(`..${sep}`)) fail(`unsafe evidence_ref ${item.case_id}`);
+    const evidence = existingInside(repoRoot, relative(repoRoot, original).split(sep).join('/'));
     const rel = relative(artefactRoot, realpathSync(evidence));
     if (rel === ".." || rel.startsWith(`..${sep}`)) fail(`unsafe evidence_ref ${item.case_id}`);
   }

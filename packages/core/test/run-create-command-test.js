@@ -89,7 +89,7 @@ test('two concurrent original-UUID callers resolve one initial Run and one recei
     assert.equal(replay.outcome, 'already_applied'); assert.equal(replay.receipt.operation_id, original.receipt.operation_id);
     const content = readFileSync(join(root, `.agdf/control/runs/${original.binding.run_id}/RUN_STATE.md`), 'utf8');
     assert.equal(readRunOperations(content).receipts.length, 1);
-    assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), [original.binding.run_id]);
+    assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep'), [original.binding.run_id]);
   } finally { await Promise.all(workers.map(row => row.worker.terminate())); }
 }));
 
@@ -131,7 +131,7 @@ test('creation titles cannot inject line separators into canonical Run structure
     const result = service('agdf_run', { ...input, operation_id: randomUUID(), command: { kind: 'run.create', payload: { title } } });
     assert.equal(result.reason, 'command_schema_invalid', JSON.stringify({ title, result }));
   }
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
 }));
 
 test('an interrupted owned creation stage is recovered only for the exact original request', () => fixture(({ root, input, service }) => {
@@ -180,7 +180,7 @@ test('a changed selected config rejects before new creation; an explicit retry s
   config.chat_language = 'de'; writeFileSync(configPath, JSON.stringify(config));
   const rejected = withInputResolution(selected.resolution, () => service('agdf_run', selected.arguments));
   assert.equal(rejected.reason, 'snapshot_stale'); assert.equal(rejected.dispatch, 'not_dispatched'); assert.equal(rejected.outcome, 'rejected');
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
   const fresh = resolveMcpInput(definition, original, { defaults: resources.defaults });
   const accepted = withInputResolution(fresh.resolution, () => service('agdf_run', fresh.arguments));
   assert.equal(accepted.outcome, 'accepted', JSON.stringify(accepted));

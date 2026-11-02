@@ -158,9 +158,9 @@ assert.equal(readiness.evidence.post_publication.state, "unverified");
 assert.equal(readiness.externalState.availability, "pending");
 
 const evidenceTemplates = [
-  join(repoRoot, ".agdf", "control", "artefacts", "agdf-public-plugin-distribution", "HOST_UAT_TEMPLATE.json"),
-  join(repoRoot, ".agdf", "control", "artefacts", "agdf-public-plugin-distribution", "EXTERNAL_STATE_EVIDENCE_TEMPLATE.json"),
-  join(repoRoot, ".agdf", "control", "artefacts", "agdf-public-plugin-distribution", "POST_PUBLICATION_CHECKLIST.md"),
+  join(repoRoot, ".agdf", "control", "archive", "source", "runs", "agdf-public-plugin-distribution", "documents", "HOST_UAT_TEMPLATE.json"),
+  join(repoRoot, ".agdf", "control", "archive", "source", "runs", "agdf-public-plugin-distribution", "documents", "EXTERNAL_STATE_EVIDENCE_TEMPLATE.json"),
+  join(repoRoot, ".agdf", "control", "archive", "source", "runs", "agdf-public-plugin-distribution", "documents", "POST_PUBLICATION_CHECKLIST.md"),
 ];
 const evidenceText = evidenceTemplates.map((path) => readFileSync(path, "utf8")).join("\n");
 for (const forbiddenKey of ["inquiryUrl", "sessionUrl", "identityDocument", "identityImage", "accessToken", "refreshToken", "sessionToken", "cookie", "credential"]) {

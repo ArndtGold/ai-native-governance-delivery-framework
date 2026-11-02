@@ -1104,7 +1104,7 @@ smokePhase("init");
     }
     if (existsSync(join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md"))
         || existsSync(join(tempDir, ".agdf", "control", "AGDF_RUN.md"))
-        || readdirSync(join(tempDir, ".agdf", "control", "runs")).length !== 0) {
+        || readdirSync(join(tempDir, ".agdf", "control", "runs")).filter(name => name !== '.gitkeep').length !== 0) {
       throw new Error("Canonical init must create an empty run store without a live legacy run.");
     }
 

@@ -21,7 +21,7 @@ test('archive import is visible and readable in the real passive Cockpit without
     await archive.getByLabel('Archivdokument').selectOption(ur);
     await expect(archive.getByText('Unveränderte Übernahme: äöü.', { exact: false })).toBeVisible();
     await expect(page.getByRole('button', { name: /freigeben|approve|fortsetzen/i })).toHaveCount(0);
-    expect(fs.readdirSync(join(f.root, '.agdf/control/runs'))).toEqual([]);
+    expect(fs.readdirSync(join(f.root, '.agdf/control/runs'))).toEqual(['.gitkeep']);
     expect(fs.readFileSync(join(f.root, '.agdf/control/archive/INDEX.json'))).toEqual(before);
     await page.screenshot({ path: evidencePath('agdf-cockpit-archive.png'), fullPage: true });
   } finally { await service?.close(); f.dispose(); }

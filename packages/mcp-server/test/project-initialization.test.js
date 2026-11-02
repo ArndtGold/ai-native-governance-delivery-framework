@@ -23,7 +23,7 @@ for (const modern of [false, true]) {
       const state = await call('agdf_inspect', { ...common, operation: 'project-state' });
       assert.equal(state.report.status, 'absent', JSON.stringify(state));
       assert.equal(state.report.repository.root, root); assert.equal(state.report.plan.version, '0.20.2');
-      assert.equal(state.report.plan.file_count, 14); assert.match(state.report.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
+      assert.equal(state.report.plan.file_count, 16); assert.match(state.report.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
       assert.equal(Buffer.byteLength(JSON.stringify(state)) <= 16384, true);
       assert.equal(existsSync(join(root, '.agdf')), false, 'inspection cannot initialize');
       const help = await call('agdf_inspect', state.report.next_calls[0].arguments);
@@ -38,7 +38,7 @@ for (const modern of [false, true]) {
       assert.equal(existsSync(join(root, '.agdf/control/MASTER_BACKLOG.md')), false, 'fresh MCP setup does not create a legacy backlog');
       assert.equal(existsSync(join(root, '.agdf/control/SOT_REGISTRY.md')), true);
       assert.equal(existsSync(join(root, '.agdf/control/CONTEXT_GRAPH.md')), true);
-      assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+      assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
       assert.equal(Buffer.byteLength(JSON.stringify(initialized)) <= 16384, true);
       const observed = await call('agdf_inspect', { ...common, operation: 'operation-status', module: `project.initialize/${original.operation_id}` });
       assert.equal(observed.report.status, 'recorded', JSON.stringify(observed));

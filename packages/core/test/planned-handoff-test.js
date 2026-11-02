@@ -41,7 +41,7 @@ test('SCN-015/018: explicit source-bound handoff registers unapproved UR and imm
   const another = createRunFromPlanned(root, { ...input, operation_id: randomUUID() });
   assert.equal(another.run_id, id);
   assert.equal(another.outcome, 'already_transferred');
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), [id]);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')).filter(name => name !== '.gitkeep'), [id]);
   assert.equal(inspectPlannedOrigins(root, entry.plan_id).matches.length, 1);
   assert.throws(() => mutatePlannedUr(root, { kind: 'planned_ur.replace', operation_id: randomUUID(), plan_id: entry.plan_id,
     expected_digest: entry.digest, content: entry.content + '\nLater planning edit.\n' }), /ALREADY_TRANSFERRED/);

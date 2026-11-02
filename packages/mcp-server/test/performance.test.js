@@ -30,7 +30,7 @@ const coldPhases = [];
 const cpuTimes = () => cpus().reduce((sum, cpu) => ({ idle: sum.idle + cpu.times.idle,
   total: sum.total + Object.values(cpu.times).reduce((a, b) => a + b, 0) }), { idle: 0, total: 0 });
 try {
-  assert.deepEqual(readdirSync(join(control, "runs")), [RUN_ID]);
+  assert.deepEqual(readdirSync(join(control, "runs")).filter(name => name !== '.gitkeep'), [RUN_ID]);
   assert.equal(existsSync(join(control, "artefacts")), false);
   assert.equal(existsSync(join(control, "AGDF_RUN.md")), false);
   const controlFiles = readdirSync(control, { recursive: true, withFileTypes: true }).filter((entry) => entry.isFile());

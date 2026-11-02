@@ -309,7 +309,7 @@ async function boundaryCase() {
     await withStdioClient(fixture, async client => {
       assert.equal((await client.listTools()).tools.length, 9, 'invalid real owner-channel input cannot poison valid SDK admission');
       assert.equal(readdirSync(join(fixture.root, '.agdf-executable-claims')).length, 2, 'no extra generation can be spawned by rejected real Worker frames');
-      assert.deepEqual(readdirSync(join(fixture.governanceTarget, '.agdf/control/runs')), [], 'rejected owner frames have no canonical Run effect');
+      assert.deepEqual(readdirSync(join(fixture.governanceTarget, '.agdf/control/runs')), ['.gitkeep'], 'rejected owner frames have no canonical Run effect');
     });
     console.log('owner-boundary: real facade Worker rejects stale/unknown/extra/non-JSON/oversized frames before extra execution');
   } finally { fixture.dispose(); rmSync(source, { recursive: true, force: true }); }

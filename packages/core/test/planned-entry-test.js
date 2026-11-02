@@ -22,7 +22,7 @@ test('SCN-004/006: canonical source owns title/priority; incomplete draft saves 
   assert.equal(result.entry.priority, 'normal');
   assert.equal(result.entry.readiness.ready, false, 'new planning cannot use legacy clarification-marker absence');
   assert.equal(result.entry.authorizes, false);
-  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), []);
+  assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
   const source = readFileSync(join(root, `${plannedEntryPath(id)}/UR.md`), 'utf8');
   for (const field of ['Planning schema', 'Planning id', 'Planning priority']) assert.equal(source.match(new RegExp(`^${field}:`, 'gm')).length, 1);
   assert.ok(!source.includes('Approval: UR received'));

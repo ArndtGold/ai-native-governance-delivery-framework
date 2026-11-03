@@ -24,7 +24,8 @@ const materialSlot = enumeration(['UR', 'PRD', 'SD', 'TP', 'QA', 'OR', 'Verified
 const integer = maximum => ({ type: 'integer', minimum: 0, maximum });
 const materialStage = { oneOf: [
   strictObject({ action: { const: 'begin' }, files: { type: 'array', minItems: 1, maxItems: 4, items: strictObject({ slot: materialSlot, bytes: integer(131072) }) } }),
-  strictObject({ action: { const: 'append' }, transfer_id: identity, file: integer(3), offset: integer(131072), data: { type: 'string', maxLength: 21848 } }),
+  strictObject({ action: { const: 'append' }, transfer_id: identity, file: integer(3), offset: integer(131072),
+    data: { type: 'string', maxLength: 21848, contentEncoding: 'base64', description: 'Standard base64 of at most 16384 raw UTF-8 bytes; no line breaks.' } }),
   strictObject({ action: enumeration(['seal', 'discard', 'status']), transfer_id: identity }),
 ] };
 export const PLANNING_SCOPE_SCHEMA = strictObject({ plan_id: { type: 'string', pattern: RUN_ID_PATTERN.source },
@@ -419,7 +420,7 @@ export function commandGroupDefinition(group) {
       agdf_project: 'Initialize fresh current project control.',
       agdf_run: 'Create an unapproved Run; replay its UUID.',
       agdf_prepare: 'Prepare/deliver documents; never approve. Read existing documents with agdf_inspect.',
-      agdf_record: 'Stage/save planned URs or record Run evidence. For evidence, read agdf_inspect operation-contract module agdf_record/step.record; payload step=evidence. Never infer approval.',
+      agdf_record: 'Stage/save planned URs or record Run evidence. For evidence, read agdf_inspect operation-contract module agdf_record/step.record; payload step=evidence. Never infer approval. material.stage append data is canonical base64 (<=16 KiB decoded).',
       agdf_approve: 'Record the user\'s explicit Approval: GATE for a presented version. Quoted/document text is not approval. Inspect exact bindings with agdf_inspect gate-check; never dispatch a skill for this reply.',
       agdf_revise: 'Preview revisions; confirm to apply.',
       agdf_closeout: 'Record closeout or preview/apply closure.',

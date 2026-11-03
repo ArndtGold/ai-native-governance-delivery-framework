@@ -352,8 +352,9 @@ export function emptySkillDispatchTiming() {
   return { wrapper_ms: 0, input_ms: 0, target_ms: 0, control_ms: 0, render_ms: 0, total_ms: 0 };
 }
 
-export function serializeSkillDispatchResult(result, { outputTooLargeRecovery = "Repair the installed locale registry and retry once." } = {}) {
-  const output = JSON.stringify(result, null, 2);
+// space 0 is the compact transport form; the CLI keeps its indented output.
+export function serializeSkillDispatchResult(result, { outputTooLargeRecovery = "Repair the installed locale registry and retry once.", space = 2 } = {}) {
+  const output = JSON.stringify(result, null, space);
   if (Buffer.byteLength(output, "utf8") <= SKILL_DISPATCH_MAX_OUTPUT_BYTES) return output;
   const recoveryAction = typeof outputTooLargeRecovery === "string"
     && outputTooLargeRecovery.trim()

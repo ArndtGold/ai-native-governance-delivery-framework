@@ -209,6 +209,7 @@ for (const modern of [false, true]) {
       assert.equal(result.structuredContent.presentation.presentation_language, row.expectedLocale, `${protocol}:${row.id}`);
       assert.equal(result.structuredContent.host_action.text, result.structuredContent.presentation.markdown, `${protocol}:${row.id}`);
       assert.deepEqual(JSON.parse(result.content[0].text), result.structuredContent, `${protocol}:${row.id}`);
+      assert.equal(result.content[0].text, JSON.stringify(result.structuredContent), `${protocol}:${row.id}:compact dispatch text retains all structured data`);
       validResults.set(row.id, result.structuredContent.presentation);
     }
     assert.deepEqual(validResults.get("unsupported_fr"), validResults.get("supported_en"), `${protocol}:unsupported fr uses one complete English pack`);

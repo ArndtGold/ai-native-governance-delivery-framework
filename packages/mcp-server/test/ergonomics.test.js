@@ -37,6 +37,7 @@ try { for (const modern of [false, true]) {
       args: [join(runtime.serverRoot, 'bin/agdf-mcp.js'), '--surface', 'codex'] }, async client => {
       const status = await client.callTool({ name: 'agdf_inspect', arguments: { ...base, operation: 'gate-check' } });
       assert.equal(status.isError, undefined, JSON.stringify(status));
+      assert.equal(status.content[0].text, JSON.stringify(status.structuredContent), 'compact MCP text preserves the complete structured result');
       const navigation = status.structuredContent.navigation;
       assert.deepEqual(navigation.read_context, base, 'reusable context contains only validated read selectors, no revision or authority');
       assert.equal(navigation.next_calls[0].arguments.operation, 'presentation-document', 'document read precedes optional command help');
@@ -45,6 +46,7 @@ try { for (const modern of [false, true]) {
       do {
         const document = await client.callTool({ name: 'agdf_inspect', arguments: read });
         assert.equal(document.isError, undefined, JSON.stringify(document));
+        assert.equal(document.content[0].text, JSON.stringify(document.structuredContent), 'compact MCP text preserves document bytes and navigation');
         const report = document.structuredContent.report;
         assert.match(report.delivery_instruction, /Tool output alone is not delivery/u);
         assert.equal(report.byte_start, offset);

@@ -25,6 +25,7 @@ export function operationContract(group, kind, { gate } = {}) {
     } } : {}),
     ...(['material.stage', 'planned_material.stage'].includes(kind) ? { material_transport: { part_bytes: 16384, file_bytes: 131072, set_bytes: 524288, max_sets: 4,
       total_bytes: 2097152, lifetime_ms: 600000, idle_ms: 120000, effect: 'private transfer only; no canonical files or gate decision',
+      encoding: 'append data is canonical standard base64 (no whitespace) of raw UTF-8 bytes; bytes and offsets count decoded bytes, not characters',
       replay: 'begin preserves its original UUID; append uses exact offsets/base64 bytes. Seal returns Core identity/digest. Read transfer status after uncertainty; generation loss requires restaging semantic bytes. Preserve the future canonical write UUID.',
       lifecycle: 'A receipt-confirmed canonical commit retires its consumed set; otherwise discard it explicitly or let it expire.' } } : {}),
     internal_result_formats: kind === 'step.record' ? { 'UX Intent Definition': UX_DECISION_FORMAT,

@@ -4,6 +4,12 @@ import { resolveControlCommandTarget } from '../control-state/approval-command-c
 
 // Transport guidance over existing routes; code, tests and Git remain external.
 export function mcpControlContinuation(input, result, availableGroups = []) {
+  // A new Run over MCP is created by agdf_run/run.create; point at its contract instead of a retry.
+  if (result.terminal && result.diagnostics?.[0]?.code === 'AGDF_NEW_RUN_OPERATION_REQUIRED' && result.recovery
+      && availableGroups.includes('agdf_run') && result.target?.governance_target)
+    return { ...result, recovery: { ...result.recovery, next_calls: [{ tool: 'agdf_inspect', arguments: { operation: 'operation-contract',
+      module: 'agdf_run/run.create', presentation_language: input.presentationLanguage, working_directory: input.workingDirectory,
+      primary_target: result.target.governance_target, target_source: input.targetSource } }] } };
   if (result.terminal || !result.continuation || !result.target?.governance_target) return result;
   const continuation = result.continuation, root = result.target.governance_target;
   const run = continuation.run_id ?? result.control?.run_id, revision = continuation.revision_id ?? result.control?.revision_id;

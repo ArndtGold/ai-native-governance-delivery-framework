@@ -147,7 +147,9 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
             ? 'Inspect the supplied project.initialize/original-UUID status call without Run/revision. Preserve the exact saved original request; never create another setup or Run to escape uncertainty.'
             : 'Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer absence or create another decision.' : null,
           ...(['effect_unknown', 'recovery_required'].includes(outcome) && input.command.kind === 'project.initialize' ? { next_calls: [projectOperationStatusCall(input)] } : {}),
-          family_result: family, ...extra };
+          // The envelope already carries this exact receipt; the family copy only doubled the response.
+          family_result: family.receipt && receipt && canonicalJson(family.receipt) === canonicalJson(receipt)
+            ? (({ receipt: _receipt, ...rest }) => rest)(family) : family, ...extra };
         if (['accepted', 'already_applied'].includes(outcome)) {
           const common = { presentation_language: input.presentation_language, working_directory: input.working_directory,
             primary_target: input.primary_target, target_source: input.target_source, target_id: input.target_id };

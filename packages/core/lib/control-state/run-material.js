@@ -15,10 +15,8 @@ import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { readPendingSourceRevisionJournal } from './run-step-transaction.js';
 import { inspectPlannedOperation, inspectPlannedSelection } from './planned-entry.js';
 
-// Producing a full base64 part can take a model minutes, so the idle bound spans one slow part
-// and the lifetime one maximum file. Byte and set bounds, not time, limit retained memory.
 export const MATERIAL_LIMITS = Object.freeze({ part: 16384, file: 131072, set: 524288, sets: 4, total: 2097152,
-  lifetime: 1800000, idle: 300000 });
+  lifetime: 600000, idle: 120000 });
 
 // A rejected transfer step names its concrete cause; the reason code stays stable for clients.
 const MATERIAL_RECOVERY = Object.freeze({

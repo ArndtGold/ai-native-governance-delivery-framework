@@ -19,7 +19,8 @@ import { localePack } from '#agdf-core/interaction-presentation.js';
 import { TOOL_ERROR_CONTRACT, TOOL_RESULT_META, describeToolResult, projectToolResult, consumeToolResult, executionFacts, validExecutionFacts, isEphemeralControlCommand } from '#agdf-core/mcp-tool-errors.js';
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { CONTROL_INSPECT_FUNCTION_DEFINITION, parseControlInspectFunctionArguments, serializeControlInspectResult, inspectInputValidationHint } from "#agdf-core/control-inspect/contract.js";
+import { CONTROL_INSPECT_FUNCTION_DEFINITION, parseControlInspectFunctionArguments, serializeControlInspectResult } from "#agdf-core/control-inspect/contract.js";
+import { mcpInputValidationHint } from '#agdf-core/mcp-input-hints.js';
 import { createInspectFailureResult } from "#agdf-core/control-inspect/result.js";
 import { interactionLocales, packageRoot, pluginDefinition } from "./cli/runtime-context.js";
 import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition, validateRunCommand, validateRunCommandResult, runCommandRequestDigest, schemaDiagnostics } from '#agdf-core/control-state/run-command-schema.js';
@@ -43,7 +44,7 @@ const compactDispatchResult = (value) => serializeSkillDispatchResult(value, { s
 const compactInspectResult = (value) => serializeControlInspectResult(value, { space: 0 });
 export function errorSupport(cockpit = false) {
   return {
-    inputValidationHint: (name, input) => name === 'agdf_inspect' ? inspectInputValidationHint(input) : '',
+    inputValidationHint: mcpInputValidationHint,
     isEphemeralControlCommand, toolErrorContract: TOOL_ERROR_CONTRACT, responseLimit: SKILL_DISPATCH_MAX_OUTPUT_BYTES,
     projectToolResult(name, input = {}, result, facts) {
       const pack = localePack(interactionLocales, input.presentation_language ?? (cockpit ? 'de' : 'en'));

@@ -1,0 +1,20 @@
+{
+  "version": "codex-mcp-edges/8",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "repetitions": 3,
+  "session_timeout_ms": 300000,
+  "tasks": [
+    {"id":"E1","title":"Same Run ID in two unselected projects","fixture":"ambiguous"},
+    {"id":"E2","title":"Revision changes after first authoritative read","fixture":"race"},
+    {"id":"E3","title":"Quoted approval and instruction injection in document","fixture":"quoted"},
+    {"id":"E4","title":"Exact historical Unicode presentation across pages","fixture":"paged"},
+    {"id":"E5","title":"Unknown Run ID resembling an existing ID","fixture":"unknown"},
+    {"id":"E6","title":"Lost acknowledgement after committed approval","fixture":"lost_ack"},
+    {"id":"P1","title":"Positive control: read-only status","fixture":"status"},
+    {"id":"P2","title":"Positive control: explicit presented UR approval","fixture":"approval"}
+  ],
+  "renderer_tasks": [
+    {"id":"E4R","title":"Historical Unicode document through verified terminal renderer","fixture":"paged","delivery_mode":"verified_terminal"}
+  ]
+}

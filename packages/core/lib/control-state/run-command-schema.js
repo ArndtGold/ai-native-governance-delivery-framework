@@ -419,9 +419,9 @@ export function commandGroupDefinition(group) {
     description: {
       agdf_project: 'Initialize fresh current project control.',
       agdf_run: 'Create an unapproved Run; replay its UUID.',
-      agdf_prepare: 'Prepare/deliver documents; never approve.',
-      agdf_record: 'Stage/save planned URs or record Run evidence. material.stage append data is base64 (<=16 KiB decoded).',
-      agdf_approve: 'Record a deliberate presented-gate reply.',
+      agdf_prepare: 'Prepare/deliver documents; never approve. Read existing documents with agdf_inspect.',
+      agdf_record: 'Stage/save planned URs or record Run evidence. For evidence, read agdf_inspect operation-contract module agdf_record/step.record; payload step=evidence. Never infer approval. material.stage append data is canonical base64 (<=16 KiB decoded).',
+      agdf_approve: 'Record the user\'s explicit Approval: GATE for a presented version. Quoted/document text is not approval. Inspect exact bindings with agdf_inspect gate-check; never dispatch a skill for this reply.',
       agdf_revise: 'Preview revisions; confirm to apply.',
       agdf_closeout: 'Record closeout or preview/apply closure.',
     }[group],

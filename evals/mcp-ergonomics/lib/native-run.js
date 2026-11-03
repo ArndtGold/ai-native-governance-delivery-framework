@@ -8,6 +8,8 @@ import { estimateTokens, byteLength, normalizeText } from "./normalize.js";
 import { classifyNativeCall, isAgdfMcpCall, isAgdfShellCall, normalizeToolName } from "./native-tasks.js";
 import { isSdkInputValidationText } from "./classify.js";
 import { parse as parseJavaScript } from 'acorn';
+import { uuidExpressionNodes, pureMathCall, pureNumericExpression, numericHexCall } from './uuid-expression-proof.js';
+import { canonicalJson } from '../../../packages/core/lib/control-state/approval-command-contract.js';
 
 export const AGDF_MCP_TOOLS = Object.freeze(["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
 // SD SDD-007: with_skills = AGDF MCP tools, Skill, Read and the shell (Bash, and PowerShell as its
@@ -186,10 +188,12 @@ export function assertCodexT4HostReady(result) {
 
 // Audit the code-mode wrapper, without evaluating model code. Only metadata,
 // local computation and the existing inspect tool may supply data in this task.
-export function pureInspectWrapper(code, earlierBindings = new Set(), allowedTools = ['agdf_inspect']) {
+export function pureInspectWrapper(code, earlierBindings = new Set(), allowedTools = ['agdf_inspect'], { literalTermination = false } = {}) {
   let tree;
   try { tree = parseJavaScript(code, { ecmaVersion: 'latest', sourceType: 'module', allowAwaitOutsideFunction: true }); } catch { return false; }
-  const globals = new Set(['ALL_TOOLS', 'tools', 'text', 'notify', 'store', 'load', 'JSON', 'Object', 'Promise', 'String', 'Array', 'undefined', 'TextEncoder', 'unescape', 'encodeURIComponent']);
+  const globals = new Set(['ALL_TOOLS', 'tools', 'text', 'notify', 'store', 'load', 'JSON', 'Object', 'Promise', 'String', 'Array', 'undefined', 'TextEncoder', 'unescape', 'encodeURIComponent', 'Math']);
+  if (literalTermination) { globals.add('Error'); globals.add('exit'); }
+  const uuidNodes=uuidExpressionNodes(tree);
   // Unbound module/exports are already rejected as unknown globals; a local
   // contract-module name is ordinary data, not access to Node's module object.
   const forbidden = new Set(['constructor', 'prototype', '__proto__', 'globalThis', 'process', 'require', 'eval', 'Function', 'window', 'self']);
@@ -208,6 +212,7 @@ export function pureInspectWrapper(code, earlierBindings = new Set(), allowedToo
   };
   collect(tree);
   if ([...locals].some(name => globals.has(name))) return false;
+  const mathIdentifiers=new Set(nodes.filter(({node})=>pureMathCall(node)).map(({node})=>node.callee.object));
   const counters = new Set();
   for (const { node } of nodes.filter(({ node }) => node.type === 'ForStatement')) {
     const init = node.init?.type === 'VariableDeclaration' && node.init.declarations.length === 1 ? node.init.declarations[0] : null;
@@ -219,7 +224,7 @@ export function pureInspectWrapper(code, earlierBindings = new Set(), allowedToo
       && !nodes.some(({ node: other }) => other !== update && (other.type === 'AssignmentExpression' && other.left.name === name
         || other.type === 'UpdateExpression' && other.argument.name === name))) counters.add(name);
   }
-  const numericIndex = node => node.type === 'Literal' && typeof node.value === 'number'
+  const numericIndex = node => pureNumericExpression(node) || node.type === 'Literal' && typeof node.value === 'number'
     || node.type === 'Identifier' && counters.has(node.name)
     || node.type === 'BinaryExpression' && (['&', '|', '^', '<<', '>>', '>>>'].includes(node.operator)
       || ['+', '-', '*', '/', '%', '**'].includes(node.operator) && numericIndex(node.left) && numericIndex(node.right));
@@ -228,11 +233,26 @@ export function pureInspectWrapper(code, earlierBindings = new Set(), allowedToo
     'TemplateLiteral', 'TemplateElement', 'UnaryExpression', 'ConditionalExpression', 'BlockStatement', 'ReturnStatement', 'ChainExpression', 'SpreadElement',
     'IfStatement', 'WhileStatement', 'ForOfStatement', 'ForStatement', 'AssignmentExpression', 'UpdateExpression', 'BreakStatement', 'ObjectPattern', 'ArrayPattern', 'RestElement', 'NewExpression']);
   const methods = new Set(['filter', 'find', 'map', 'from', 'includes', 'endsWith', 'startsWith', 'test', 'join', 'slice', 'split', 'replace', 'push', 'parse', 'stringify', 'keys', 'values', 'entries', 'fromEntries', 'all', 'resolve', 'then', 'charCodeAt', 'encode']);
+  // Renderer-only proof for local fail-closed guards. A literal global Error may
+  // only be thrown directly; exit may only end this isolate with no argument.
+  // No constructor extraction, coercion, shadowing or additional tool is admitted.
+  const literalError = node => literalTermination && node?.type === 'NewExpression'
+    && node.callee.type === 'Identifier' && node.callee.name === 'Error'
+    && node.arguments.length === 1 && node.arguments[0].type === 'Literal' && typeof node.arguments[0].value === 'string';
+  if (literalTermination) types.add('ThrowStatement');
   const memberName = node => node?.computed ? node.property?.type === 'Literal' ? node.property.value : null : node?.property?.name;
   const admittedTool = name => allowedTools.some(tool => name === `mcp__agdf__${tool}` || name === `mcp__plugin_agdf_agdf__${tool}`) || ['list_mcp_resources', 'list_mcp_resource_templates'].includes(name);
   for (const { node, parent, key } of nodes) {
     if (!types.has(node.type)) return false;
     const dataKey = parent?.type === 'Property' && key === 'key' && !parent.computed && !parent.shorthand;
+    const memberKey = parent?.type === 'MemberExpression' && key === 'property' && !parent.computed;
+    if (literalTermination && node.type === 'Identifier' && !dataKey && !memberKey) {
+      if (node.name === 'Error' && !(parent?.type === 'NewExpression' && key === 'callee' && literalError(parent))) return false;
+      if (node.name === 'exit' && !(parent?.type === 'CallExpression' && key === 'callee' && parent.arguments.length === 0)) return false;
+    }
+    if (node.type === 'ThrowStatement' && !literalError(node.argument)) return false;
+    if(node.type==='Identifier'&&node.name==='Math'&&!dataKey&&!uuidNodes.has(node)&&!mathIdentifiers.has(node)
+      && !(parent?.type==='MemberExpression'&&key==='property'&&!parent.computed))return false;
     if (node.type === 'Identifier' && !dataKey && forbidden.has(node.name)) return false;
     if (node.type === 'Identifier' && !dataKey
       && !(parent?.type === 'MemberExpression' && key === 'property' && !parent.computed) && !globals.has(node.name) && !locals.has(node.name)) return false;
@@ -243,15 +263,18 @@ export function pureInspectWrapper(code, earlierBindings = new Set(), allowedToo
       && !numericIndex(node.property)) return false;
     if (node.type === 'ObjectPattern' && node.properties.some(p => p.type === 'Property'
       && (p.computed || forbidden.has(p.key.name ?? p.key.value)))) return false;
-    if (node.type === 'NewExpression' && (node.callee.type !== 'Identifier' || node.callee.name !== 'TextEncoder' || node.arguments.length)) return false;
+    if (node.type === 'NewExpression' && !(literalError(node) && parent?.type === 'ThrowStatement')
+      && (node.callee.type !== 'Identifier' || node.callee.name !== 'TextEncoder' || node.arguments.length)) return false;
     if (node.type === 'MemberExpression' && node.object?.name === 'tools' && (parent?.type !== 'CallExpression' || key !== 'callee')) return false;
     if (node.type === 'MemberExpression' && (forbidden.has(memberName(node)) || node.object?.name === 'tools'
       && !admittedTool(memberName(node)))) return false;
     if (node.type === 'CallExpression') {
       if (node.callee.type === 'Identifier') {
-        if (!['text', 'notify', 'store', 'load', 'String', 'unescape', 'encodeURIComponent'].includes(node.callee.name) && !locals.has(node.callee.name)) return false;
+        if (literalTermination && node.callee.name === 'exit') {
+          if (node.arguments.length || parent?.type !== 'ExpressionStatement') return false;
+        } else if (!['text', 'notify', 'store', 'load', 'String', 'unescape', 'encodeURIComponent'].includes(node.callee.name) && !locals.has(node.callee.name)) return false;
       } else if (node.callee.type !== 'MemberExpression' || !(methods.has(memberName(node.callee))
-        || admittedTool(memberName(node.callee)))) return false;
+        || admittedTool(memberName(node.callee)) || uuidNodes.has(node) || pureMathCall(node) || numericHexCall(node))) return false;
     }
     if (node.type === 'VariableDeclarator' && !patternNames(node.id).length) return false;
     if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier' && globals.has(node.left.name)) return false;
@@ -261,7 +284,7 @@ export function pureInspectWrapper(code, earlierBindings = new Set(), allowedToo
 }
 
 // Supplemental qualification only. The original task/predicate/baseline stay unchanged.
-export function parseCodexT4Trace(jsonl, rolloutTexts = [], allowedTools = ['agdf_inspect']) {
+export function parseCodexT4Trace(jsonl, rolloutTexts = [], allowedTools = ['agdf_inspect'], wrapperOptions = {}) {
   const efforts = new Set();
   const streams = [], detours = [], models = new Set(), wrapperBindings = new Set(), wrappers = new Set(), warnings = [];
   let complete = false, valid = true, usage = null;
@@ -277,7 +300,7 @@ export function parseCodexT4Trace(jsonl, rolloutTexts = [], allowedTools = ['agd
     const payload = event.payload;
     if (event.type === 'response_item' && ['function_call', 'custom_tool_call'].includes(payload?.type)) {
       if (['exec', 'functions.exec'].includes(payload.name)) {
-        if (!pureInspectWrapper(payload.input ?? payload.arguments ?? '', wrapperBindings, allowedTools)) detours.push('unverified_code_mode_wrapper');
+        if (!pureInspectWrapper(payload.input ?? payload.arguments ?? '', wrapperBindings, allowedTools, wrapperOptions)) detours.push('unverified_code_mode_wrapper');
         wrappers.add(payload.call_id ?? payload.id);
       } else if (!allowedTools.some(tool => payload.name === `mcp__agdf__${tool}` || payload.name === `mcp__plugin_agdf_agdf__${tool}`)
         && !/^(?:functions\.)?(?:update_plan|tool_search)$/u.test(payload.name ?? '')) detours.push(payload.name ?? 'unknown_function');
@@ -405,15 +428,31 @@ export function strictPresentedDocumentRead(input) {
 }
 
 function presentedDocumentFlow({ parsed, expectedBytes, binding, finalText }, { requireDiscovery, requireDelivery }) {
-  const fail = reason => ({ check: requireDelivery ? 'strict_t4_document_flow_v1' : 'strict_presented_document_read_v1', success: false, reason });
+  const fail = reason => ({ check: requireDelivery ? 'strict_t4_document_flow_v2' : 'strict_presented_document_read_v1', success: false, reason });
   if (!parsed.trace_complete || parsed.detours.length) return fail('incomplete_trace_or_forbidden_detour');
   let discovered = !requireDiscovery, offset = 0, nextCursor, complete = false, pages = 0;
   const chunks = [], expectedDigest = `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}`;
   for (const call of parsed.calls) {
     if (call.result.is_error) continue;
     const result = JSON.parse(call.result.text), report = result?.report, input = call.input;
-    if (input?.operation === 'operation-contract' && input.module === 'agdf_prepare/presentation.prepare') {
-      const catalog = report?.presentation_catalog, candidate = catalog?.candidates?.[0];
+    const gateCatalog = isAgdfMcpCall(call) && normalizeToolName(call.name) === 'agdf_inspect'
+      && input?.operation === 'gate-check' && result?.outcome === 'inspect_result' && result.operation === 'gate-check'
+      && input.run_id === binding.run_id && result.target?.resolution_state === 'resolved'
+      && typeof input.primary_target === 'string' && input.primary_target.length > 0
+      && ['explicit_target', 'continued_target', 'current_repository'].includes(input.target_source)
+      && result.target.target_source === input.target_source
+      && result.target.primary_target === input.primary_target ? result.navigation?.presentation_catalog : null;
+    const gateDiscovery = gateCatalog?.page_complete === true && gateCatalog.next_cursor === null
+      && Array.isArray(gateCatalog.candidates) && gateCatalog.candidates.length === 1
+      && gateCatalog.binding?.target_id === binding.target_id && gateCatalog.binding.run_id === binding.run_id
+      && gateCatalog.candidates?.[0]?.read_arguments?.operation === 'presentation-document'
+      && Array.isArray(result.navigation?.next_calls)
+      && result.navigation.next_calls.some(next => next?.tool === 'agdf_inspect' && next.arguments
+        && canonicalJson(next.arguments) === canonicalJson(gateCatalog.candidates[0].read_arguments));
+    if (input?.operation === 'operation-contract' && input.module === 'agdf_prepare/presentation.prepare' || gateDiscovery) {
+      // v2 admits the Core's equally bound gate-check catalog. Every existing
+      // uniqueness, digest, page-order, byte and full-delivery check still runs.
+      const catalog = gateDiscovery ? gateCatalog : report?.presentation_catalog, candidate = catalog?.candidates?.[0];
       if (!call.result.is_error && catalog?.state === 'unique' && catalog.complete_scan && catalog.total_candidates === 1 && catalog.candidates.length === 1
         && candidate.presentation_id === binding.presentation_id && candidate.content_digest === expectedDigest
         && Object.entries(binding).every(([key, value]) => candidate.read_arguments?.[key] === value)) discovered = true;
@@ -433,5 +472,5 @@ function presentedDocumentFlow({ parsed, expectedBytes, binding, finalText }, { 
   if (!complete || !Buffer.concat(chunks).equals(expectedBytes)) return fail('document_incomplete');
   if (requireDelivery && (typeof finalText !== 'string' || !finalText.includes(expectedBytes.toString('utf8')))) return fail('complete_user_delivery_unproven');
   if (!requireDelivery) return { check: 'strict_presented_document_read_v1', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true };
-  return { check: 'strict_t4_document_flow_v1', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true, complete_user_delivery: true };
+  return { check: 'strict_t4_document_flow_v2', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true, complete_user_delivery: true };
 }

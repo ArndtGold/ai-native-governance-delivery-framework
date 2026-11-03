@@ -148,8 +148,8 @@ test('the material contract states the encoding and the time bounds', () => {
   assert.equal(contract.material_transport.lifetime_ms, MATERIAL_LIMITS.lifetime);
   assert.equal(contract.material_transport.part_bytes, MATERIAL_LIMITS.part);
   assert.match(contract.material_transport.encoding, /base64/u);
-  assert.ok(MATERIAL_LIMITS.idle >= 300000, 'one slow part fits the idle bound');
-  assert.ok(MATERIAL_LIMITS.lifetime >= MATERIAL_LIMITS.idle * Math.ceil(MATERIAL_LIMITS.file / MATERIAL_LIMITS.part) * 0.75);
+  assert.equal(MATERIAL_LIMITS.idle, 120000, 'the existing two-minute idle protection is retained');
+  assert.equal(MATERIAL_LIMITS.lifetime, 600000, 'the existing ten-minute absolute lifetime is retained');
   const data = contract.payload_schema.oneOf.find((row) => row.properties.action.const === 'append').properties.data;
   assert.equal(data.contentEncoding, 'base64');
   assert.match(data.description, /base64/u);
@@ -173,9 +173,7 @@ test('invalid UTF-8, stale revision, capacity, idle expiry and absolute expiry n
     assert.equal(stale.reason, 'stale_revision');
     for (let i = 1; i < 4; i++) assert.equal(stage(begin).outcome, 'accepted');
     assert.equal(stage(begin).reason, 'material_resource_limit');
-    tick = 120001;
-    assert.equal(stage({ action: 'status', transfer_id: first }).outcome, 'accepted', 'a slow part of two minutes keeps the transfer');
-    tick += MATERIAL_LIMITS.idle;
+    tick = MATERIAL_LIMITS.idle + 1;
     const expired = stage({ action: 'status', transfer_id: first });
     assert.equal(expired.reason, 'material_transfer_expired');
     assert.deepEqual(expired.diagnostics, [{ code: 'transfer_expired', idle_ms: MATERIAL_LIMITS.idle, lifetime_ms: MATERIAL_LIMITS.lifetime }]);

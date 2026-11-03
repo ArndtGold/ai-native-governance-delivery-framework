@@ -33,7 +33,7 @@ import { commandGroupDefinition } from '../../packages/core/lib/control-state/ru
 import { canonicalJson } from '../../packages/core/lib/control-state/approval-command-contract.js';
 import { createProtocolRuntime } from '../../evals/mcp-ergonomics/lib/protocol-harness.js';
 import { withStdioClient } from '../../packages/mcp-server/test/helpers.js';
-import { buildTaskFixture, loadTaskSet, renderPrompt, evaluateSuccess, CODEX_COMMAND_TASK, CODEX_RUN_MODEL_TASK, strictRunModelFlow } from '../../evals/mcp-ergonomics/lib/native-tasks.js';
+import { buildTaskFixture, loadTaskSet, renderCodexTaskPrompt, CODEX_TASK_CONTEXT_VERSION, evaluateSuccess, CODEX_COMMAND_TASK, CODEX_RUN_MODEL_TASK, strictRunModelFlow } from '../../evals/mcp-ergonomics/lib/native-tasks.js';
 import { compareManifests, hashManifest, parseCodexT4Trace, strictT4DocumentFlow, parseCodexCommandTrace, strictCommandFlow, nativeSessionMetrics, CODEX_T4_FEATURES, assertCodexT4HostReady } from '../../evals/mcp-ergonomics/lib/native-run.js';
 import { snapshotWorkspace, changedPaths, mutationViolations } from '../../evals/lib/skill-evals/workspace.js';
 import { sanitizeTranscript } from '../../evals/mcp-ergonomics/lib/redaction.js';
@@ -351,7 +351,8 @@ console.log(`\nErgebnisse: ${resultsRel}/ (summary.txt, observation.json)`);
 process.exitCode = observation.result === "pass" ? 0 : 1;
 
 // One new mode of the existing host owner; the default multi-session probe above
-// is unreachable from this path. No fixture identifier is inserted into the prompt.
+// is unreachable from this path. Only the explicit disposable target is added;
+// no answer, prepared binding or hidden fixture identifier is supplied.
 async function runFocusedTask(requestedModel, executable, { commandTask = false, repetition = 1, preflightOnly = false } = {}) {
   const runModel = commandTask && option('--command-task') === 'RUN_MODEL';
   const taskRepo = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -451,7 +452,10 @@ async function runFocusedTask(requestedModel, executable, { commandTask = false,
       protected_inputs: hashManifest(join(taskRepo, 'evals/mcp-ergonomics'), { files: ['tasks.v1.json', 'lib/fixtures.js', 'lib/native-tasks.js'] }) };
     writeFileSync(join(outputDir, 'effective-config.toml'), redactText(config));
     const finalPath = join(outputDir, 'final-message.txt');
-    const argv = ['exec', ...(commandTask ? ['--ignore-user-config', ...scopedArgs] : []), '--json', '--sandbox', commandTask ? 'workspace-write' : 'read-only', '--skip-git-repo-check', '-m', requestedModel, '-o', finalPath, renderPrompt(task, fixture)];
+    const taskPrompt = renderCodexTaskPrompt(task, fixture);
+    report.prompt_context_version = CODEX_TASK_CONTEXT_VERSION;
+    report.prompt_sha256 = createHash('sha256').update(taskPrompt).digest('hex');
+    const argv = ['exec', ...(commandTask ? ['--ignore-user-config', ...scopedArgs] : []), '--json', '--sandbox', commandTask ? 'workspace-write' : 'read-only', '--skip-git-repo-check', '-m', requestedModel, '-o', finalPath, taskPrompt];
     if (commandTask) {
       report.isolation_manifests.before_session = manifests();
       if (compareManifests(beforePersonal, report.isolation_manifests.before_session).length) throw Error('PROTECTED_SETTINGS_CHANGED_DURING_PREFLIGHT');

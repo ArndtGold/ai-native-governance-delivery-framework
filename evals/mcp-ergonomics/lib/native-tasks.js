@@ -103,6 +103,16 @@ export function renderPrompt(task, fixture) {
   return resolveTemplate(task.prompt, { presentation_id: fixture.presentationId, stale_revision_id: fixture.staleRevisionId });
 }
 
+export const CODEX_TASK_CONTEXT_VERSION = 'explicit_fixture_mcp_only/1';
+export function renderCodexTaskPrompt(task, fixture) {
+  // The harness explicitly selects its disposable target; cwd alone must never
+  // be mistaken for that selection. Keep historical task text/criteria intact.
+  const target = realpathSync(fixture.root);
+  return `Testkontext (${CODEX_TASK_CONTEXT_VERSION}): Das ausdrücklich ausgewählte Ziel dieses isolierten Testfalls ist ${JSON.stringify(target)}. Verwende diesen Pfad als primary_target mit target_source explicit_target und als working_directory. Dies erteilt keine Freigabe und ersetzt keine Run-/Revisionsbindung.\n`
+    + 'Transport: Nur die bereitgestellten AGDF-MCP-Werkzeuge. Entdecke ihre tatsächlichen Namen und rufe sie direkt über tools auf. Shell, tools.exec_command, Node-Imports, Buffer und TextEncoder stehen nicht zur Verfügung. Für lokale UTF-8-Bytefolgen ist unescape(encodeURIComponent(text)) verfügbar. Kopiere gültige next_calls; lies angeforderte Dokumente vollständig.\n\n'
+    + renderPrompt(task, fixture);
+}
+
 const runStatePath = (root, runId) => join(root, ".agdf", "control", "runs", runId, "RUN_STATE.md");
 const agdfCalls = parsed => parsed.calls.filter(call => isAgdfMcpCall(call) || isAgdfShellCall(call));
 // An evidence write through MCP (agdf_record step.record with step evidence) or through the CLI (run-step --step evidence).
@@ -166,6 +176,40 @@ export function evaluateSuccess({ task, fixture, parsed, mutationViolations }) {
   const predicate = PREDICATES[task.success.type];
   if (!predicate) throw new Error(`unknown success predicate: ${task.success.type}`);
   return predicate({ task, fixture, parsed });
+}
+
+// Supplemental observations, not a replacement for frozen T6's requirement to
+// actually attempt and reject a stale write. An early safe stop is distinct from
+// a server write-guard test; neither model prose nor unrelated errors prove it.
+export function revisionSafetyObservations({ fixture, parsed }) {
+  const calls = agdfCalls(parsed), writes = calls.filter(isEvidenceWrite);
+  const stale = fixture.staleRevisionId;
+  const forStale = call => !!stale && call.input?.expected_revision_id === stale;
+  const staleWrites = writes.filter(forStale);
+  const rejected = staleWrites.some(call => {
+    const value = parsedResult(call);
+    return value?.outcome === 'rejected' && value.reason === 'stale_revision';
+  });
+  const preflight = calls.some(call => {
+    const value = parsedResult(call), input = call.input;
+    return isAgdfMcpCall(call) && normalizeToolName(call.name) === 'agdf_inspect'
+      && input?.operation === 'operation-contract' && input.module === 'agdf_record/step.record'
+      && input.primary_target === fixture.root && input.run_id === fixture.runId && forStale(call)
+      && value?.outcome === 'inspect_result' && value.report?.available === false
+      && value.report.reason === 'operation_binding_stale_or_invalid';
+  });
+  const currentRead = calls.some(call => {
+    const value = parsedResult(call), input = call.input, binding = value?.navigation?.presentation_catalog?.binding;
+    return isAgdfMcpCall(call) && normalizeToolName(call.name) === 'agdf_inspect'
+      && input?.operation === 'gate-check' && input.primary_target === fixture.root && input.run_id === fixture.runId
+      && value?.outcome === 'inspect_result' && binding?.target_id === fixture.targetId && binding.run_id === fixture.runId
+      && binding.expected_revision_id === fixture.revision()
+      && fixture.revision() !== stale;
+  });
+  return { schema_version: '1', write_guard_observed: rejected,
+    stale_write_accepted: staleWrites.some(call => ['accepted', 'recorded', 'already_applied'].includes(parsedResult(call)?.outcome)),
+    preflight_stop_observed: parsed.trace_complete === true && !!stale && preflight && currentRead && writes.length === 0,
+    no_evidence_write_attempted: parsed.trace_complete === true ? writes.length === 0 : null };
 }
 
 export const SUCCESS_TYPES = Object.freeze(Object.keys(PREDICATES));

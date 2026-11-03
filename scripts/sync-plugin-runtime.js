@@ -214,6 +214,8 @@ export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = fa
     "lib/runtime/validator-application.js",
     "lib/skill-dispatch",
     "lib/cli/command-registry.js",
+    // A read-only command leaf required by the shared registry, not a host installer.
+    "lib/cli/codex-document-command.js",
     "lib/cli/contract-command.js",
     "lib/cli/delivery-path-search-command.js",
     "lib/cli/parse-args.js",

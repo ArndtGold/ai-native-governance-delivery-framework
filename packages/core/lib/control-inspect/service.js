@@ -192,11 +192,14 @@ export function createControlInspectService(dependencies = {}) {
         };
         switch (input.operation) {
           case 'presentation-document':
-          case 'presentation-preview':
-            return { report: (input.operation === 'presentation-preview' ? readPresentationPreview : readPresentationDocument)(target.governance_target, {
+          case 'presentation-preview': {
+            const report = (input.operation === 'presentation-preview' ? readPresentationPreview : readPresentationDocument)(target.governance_target, {
               runId: input.run_id, gate: input.gate, revisionId: input.expected_revision_id,
               presentationId: input.presentation_id, targetId: input.target_id, cursor: input.cursor,
-            }), presentation: null };
+            });
+            if (input.operation === 'presentation-document' && report.available) report.delivery_instruction = 'If full text is requested and an explicitly configured verified host renderer consumes these MCP pages, fetch all next_cursor pages with the exact original binding; let that renderer verify and output the bytes. Otherwise send this content verbatim in a user-visible agent message BEFORE fetching next_cursor, repeating in byte order. Tool output alone is not delivery. Retain already read pages. Never claim complete delivery from a successful read alone. Rendering is not human approval.';
+            return { report, presentation: null };
+          }
           case 'runtime-generations':
           case 'native-qualification': {
             const state = readRunState(target.governance_target, { runId: input.run_id });
@@ -256,7 +259,8 @@ export function createControlInspectService(dependencies = {}) {
               ? inspectPlannedHandoffOperation(target.governance_target, input.planning.plan_id, input.operation_id)
               : inspectPlannedOperation(target.governance_target, input.planning.plan_id, input.operation_id), presentation: null };
             if (input.contract_module.startsWith('project.initialize/')) return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
-            return { report: { ...inspectRunOperation(target.governance_target, { runId: input.run_id ?? creationRunId(input.operation_id), operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id }), expected_revision_id: input.expected_revision_id ?? null }, presentation: null };
+            return { report: { ...inspectRunOperation(target.governance_target, { runId: input.run_id ?? creationRunId(input.operation_id), operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id }), expected_revision_id: input.expected_revision_id ?? null,
+              ...(!input.run_id ? { lookup_scope: 'run_creation', recovery_instruction: 'This target-only lookup is for Run creation. For a write to an existing Run, inspect operation-status with the original run_id, original expected_revision_id and the same original UUID in module. An unavailable creation lookup does not prove an approval effect. Never substitute a fresh UUID or infer success from a changed gate alone.' } : {}) }, presentation: null };
           case "artifact-readiness":
             return { report: inspectArtifactReadiness(target.governance_target, {
               runId: input.run_id, gate: input.gate, expectedRevisionId: input.expected_revision_id,
@@ -309,11 +313,17 @@ export function createControlInspectService(dependencies = {}) {
                   primaryTarget: input.primary_target, language: input.presentation_language });
                 const kind = evaluated.next_operation?.operation_key;
                 const group = RUN_COMMAND_DESCRIPTORS[kind]?.group;
-                const nextCalls = catalog.state !== 'unavailable' && group ? [{ tool: 'agdf_inspect', arguments: {
-                  operation: 'operation-contract', ...common, module: `${group}/${kind}` } }] : [];
+                const nextCalls = [];
+                // Read the selected immutable document first. Operation help is
+                // optional and must not delay a user's read-only document task.
                 if (catalog.state === 'unique' && catalog.complete_scan && catalog.page_complete)
                   nextCalls.push({ tool: 'agdf_inspect', arguments: catalog.candidates[0].read_arguments });
-                navigation = { presentation_catalog: catalog, next_calls: nextCalls };
+                if (catalog.state !== 'unavailable' && group) nextCalls.push({ tool: 'agdf_inspect', arguments: {
+                  operation: 'operation-contract', ...common, module: `${group}/${kind}` } });
+                // An explicit reusable locator, not retained connection state or
+                // authority. Reuse passes through the ordinary target/Run checks.
+                const { expected_revision_id: _revision, ...readContext } = common;
+                navigation = { read_context: readContext, presentation_catalog: catalog, next_calls: nextCalls };
               }
             } catch { /* Advisory navigation unavailable. */ }
             return { report: evaluated, navigation, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };

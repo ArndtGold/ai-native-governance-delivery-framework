@@ -85,12 +85,12 @@ const inputSchema = {
 
 inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
 delete inputSchema.allOf;
-const conciseHelp = { target_source: 'Pair with primary_target.', primary_target: 'Confirmed root; pair target_source.',
-  module: 'contract: omit for index; operation-contract: group/kind; operation-status: UUID.',
-  run_id: 'Omit on inventory/project/planned reads.',
-  expected_revision_id: 'Omit on gate-check, delivery-map and inventory.',
-  planning: 'Omit on operation-contract; authoring-inputs/planned-entry/status only.',
-  target_id: 'Required with gate on presentation-document.',
+const conciseHelp = { target_source: 'Pair primary_target; explicit=named; continued=confirmed; current=unambiguous repo.', primary_target: 'Confirmed root; pair target_source.',
+  module: 'contract:index; operation-contract:group/kind; status:UUID.',
+  run_id: 'Not for inventory/project/planned.',
+  expected_revision_id: 'Bound reads only; not gate-check.',
+  planning: 'Planning reads only.',
+  target_id: 'Required for docs; gate-check.',
   gate: 'Not for gate-check.' };
 for (const [key, field] of Object.entries(inputSchema.properties)) {
   delete field.description;
@@ -99,7 +99,7 @@ for (const [key, field] of Object.entries(inputSchema.properties)) {
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read-only. Help: {"operation":"operation-contract","module":"agdf_run/run.create","presentation_language":"de","working_directory":"/repo","target_source":"explicit_target","primary_target":"/repo"}. contract lists modules. Copy next_calls. Follow navigation.next_calls sequentially; read all pages.',
+  description: 'Read-only. Status/docs=gate-check. primary_target+target_source; cwd=context. Ex:{"operation":"operation-contract","module":"agdf_run/run.create","working_directory":"/r","target_source":"explicit_target","primary_target":"/r"}. Docs:navigation.next_calls sequentially; read all pages; never dispatch. operation-status:original UUID+run_id+expected_revision_id.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {
@@ -175,17 +175,37 @@ export function inspectContractHelp() {
 export function inspectInputValidationHint(input) {
   if (!input || typeof input !== 'object' || !CONTROL_INSPECT_OPERATIONS.includes(input.operation)) return '';
   const operation = input.operation, messages = [];
+  if (operation === 'operation-contract' && typeof input.module === 'string' && input.module.length <= 64
+    && !OPERATION_CONTRACT_MODULES.includes(input.module)) {
+    const kind = input.module.split('/').at(-1);
+    const matches = OPERATION_CONTRACT_MODULES.filter(module => module.split('/').at(-1) === kind);
+    messages.push(matches.length === 1 ? `Use module ${matches[0]}; this is the registered owner of ${kind}.`
+      : 'Read contract without module for the registered operation_modules; do not guess a group/kind.');
+  }
   for (const [name, field] of Object.entries(fieldModel)) {
     if (Object.hasOwn(input, name) && field.operations && !field.operations.includes(operation))
       messages.push(`Remove ${name} for ${operation}.`);
   }
   if (input.run_id && ['inventory', 'project-state', 'planned-inventory', 'planned-entry'].includes(operation))
     messages.push(`Remove run_id for ${operation}; it reads the target scope.`);
+  // Diagnose the selected operation, rather than making the model interpret
+  // errors from every alternative of the discovery schema's oneOf branches.
+  const unboundContract = operation === 'operation-contract' &&
+    (['agdf_run/run.create', 'agdf_project/project.initialize'].includes(input.module)
+      || OPERATION_CONTRACT_MODULES.includes(input.module) && /\/(?:planned_|run\.create_from_planned)/u.test(input.module));
+  const bound = BOUND_INSPECT_OPERATIONS.includes(operation) && !unboundContract
+    && !(operation === 'operation-status' && !input.run_id && !input.expected_revision_id)
+    && !(operation === 'authoring-inputs' && input.planning);
   const required = [...(['operation-contract', 'operation-status'].includes(operation) ? ['module'] : []),
-    ...(PRESENTATION_OPERATIONS.includes(operation) ? ['gate', 'presentation_id', 'target_id', 'run_id', 'expected_revision_id'] : [])];
+    ...(bound ? ['run_id', 'expected_revision_id'] : []),
+    ...(BOUND_INSPECT_OPERATIONS.includes(operation) || ['project-state', 'planned-inventory', 'planned-entry'].includes(operation)
+      ? ['primary_target', 'target_source'] : []),
+    ...(PRESENTATION_OPERATIONS.includes(operation) ? ['gate', 'presentation_id', 'target_id'] : [])];
   for (const key of required) if (!Object.hasOwn(input, key)) messages.push(`Supply ${key} for ${operation}.`);
   if (PRESENTATION_OPERATIONS.includes(operation)) messages.push('Copy the exact agdf_inspect arguments from presentation.prepare next_calls or the presentation catalog.');
-  return messages.slice(0, 5).join(' ').slice(0, 768);
+  if (bound && (!input.run_id || !input.expected_revision_id))
+    messages.push('Read gate-check with the confirmed target and run_id to inspect the current binding; never silently replace a requested revision.');
+  return messages.join(' ').slice(0, 768);
 }
 
 export function controlInspectDefinitionBytes(definition = CONTROL_INSPECT_FUNCTION_DEFINITION) {

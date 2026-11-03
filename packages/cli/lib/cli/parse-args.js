@@ -54,6 +54,8 @@ export function parseArgs(argv, dependencies = {}) {
   let intakeMode;
   let continueDelivery = false;
   let presentationId;
+  let documentServer;
+  let documentRequest = false;
   let operationId, assurance, planId, sourceDigest, priority, pendingDigest, packageSelection;
   let revisionMode, sourceGate, previewDigest;
   let fixture;
@@ -101,6 +103,10 @@ export function parseArgs(argv, dependencies = {}) {
     if (!arg) continue;
     if (arg.startsWith("--")) flagCounts.set(arg, (flagCounts.get(arg) ?? 0) + 1);
     if (arg === "--help" || arg === "-h") return { kind: "help" };
+    if (arg === '--server') {
+      documentServer = requiredValue(args, i, arg); i++; continue;
+    }
+    if (arg === '--request') { documentRequest = true; continue; }
     if (['--plan-id', '--source-digest', '--priority', '--pending-digest', '--package'].includes(arg)) {
       if (flagCounts.get(arg) !== 1) throw new CliUsageError(`${arg} may not repeat`);
       const value = requiredValue(args, i, arg); i++;
@@ -354,6 +360,13 @@ export function parseArgs(argv, dependencies = {}) {
   if (revisionMode && ["--dir", "--run", "--revision", "--operation", "--source-gate", "--evidence", "--preview-digest"].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError("Source revision identity and evidence flags may not repeat");
   }
+  if (documentServer !== undefined && target !== 'render-document') throw new CliUsageError('--server requires render-document');
+  if (documentRequest && target !== 'render-document') throw new CliUsageError('--request requires render-document');
+  if (target === 'render-document') {
+    const allowed = new Set(['--dir', '--run', '--revision', '--gate', '--presentation', '--server', '--request']);
+    if ([...flagCounts].some(([flag, count]) => count !== 1 || !allowed.has(flag)))
+      throw new CliUsageError('render-document accepts only unique explicit document selectors and --server.');
+  }
   if (target === "run-close" && ["--action", "--run", "--outcome", "--reason", "--successor-run", "--successor-ref", "--closure-file", "--preview-id", "--confirmation"].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError("run-close fields may not repeat");
   }
@@ -426,6 +439,8 @@ export function parseArgs(argv, dependencies = {}) {
     tpAction,
       continueDelivery,
       presentationId,
+      ...(documentServer !== undefined ? { documentServer } : {}),
+      ...(documentRequest ? { documentRequest: true } : {}),
       ...(operationId !== undefined ? { operationId } : {}),
       ...(planId !== undefined ? { planId } : {}), ...(sourceDigest !== undefined ? { sourceDigest } : {}),
       ...(priority !== undefined ? { priority } : {}), ...(pendingDigest !== undefined ? { pendingDigest } : {}),

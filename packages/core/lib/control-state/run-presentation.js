@@ -324,7 +324,10 @@ export function readPresentationDocument(root, { runId, gate, revisionId, presen
       || !/^(0|[1-9][0-9]*)$/u.test(cursor.slice(prefix.length)))) return fail('presentation_document_cursor_invalid');
     const start = cursor === undefined ? 0 : Number(cursor.slice(prefix.length));
     if (!Number.isSafeInteger(start) || start < 0 || start >= bytes.length || (bytes[start] & 0xc0) === 0x80) return fail('presentation_document_cursor_invalid');
-    let end = Math.min(start + 32768, bytes.length);
+    // Keep a full text page small enough for a model to transmit before reading
+    // the next one. The existing digest/offset cursor and UTF-8 checks still own
+    // continuity; previously issued larger-page cursors remain readable.
+    let end = Math.min(start + 8192, bytes.length);
     while (end < bytes.length && (bytes[end] & 0xc0) === 0x80) --end;
     const content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes.subarray(start, end));
     const currentRun = readRun(root, runId);

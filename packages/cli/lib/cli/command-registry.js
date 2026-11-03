@@ -2,6 +2,7 @@ import { TASK_TARGET_SOURCES } from "#agdf-core/task-target-resolution.js";
 import { skillDispatchArgumentGrammar, skillDispatchCommandGrammar } from "#agdf-core/skill-dispatch/contract.js";
 import { validateReadSelection } from "#agdf-core/control-inspect/selection.js";
 import { RUN_COMMAND_GROUPS } from '#agdf-core/control-state/run-command-contract.js';
+import { validateDocumentSelection } from './codex-document-command.js';
 export { skillDispatchArgumentGrammar };
 export const commandGroupRoutes = Object.freeze(Object.fromEntries(Object.keys(RUN_COMMAND_GROUPS).map(group => [group.replace('_', '-'), group])));
 
@@ -48,6 +49,7 @@ export const commandRegistry = Object.freeze([
   command("control-maintenance", { local: [" --dir <absolute-repository> [--details | --json] [--language <tag>]"] }),
   command('run-create', { local: [' --title <title> [--operation <original-uuid>]'] }),
   command('run-present', { local: [' --run <id> --revision <uuid> --gate <gate> [--operation <original-uuid>]'] }),
+  command('render-document', { local: [' --dir <absolute-target> --run <id> --revision <uuid> --gate <gate> --presentation <uuid> [--server <codex-mcp-server-id>] [--request | < codex-events.jsonl]'] }),
   command('run-approve', { local: [' --run <id> --revision <uuid> --gate <gate> --presentation <uuid> --response <exact-reply> [--operation <original-uuid>]'] }),
   command('run-step', { local: [' --run <id> --revision <uuid> --step <ur|route|review|evidence|artefact|closeout> --evidence <source-file> [step fields] [--operation <original-uuid>]'] }),
   command('run-revise', { local: [' --run <id> --revision <uuid> --operation <original-uuid> [--preview|--apply|--inspect|--recover --source-gate <UR|PRD|SD|TP> --evidence <current-proposal.json>] [--confirmation <exact-selector>]'] }),
@@ -66,6 +68,11 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  if (options.target === 'render-document') {
+    if (!options.dirExplicit || !options.dirInputAbsolute) throw Error('render-document requires an explicit absolute --dir');
+    validateDocumentSelection(options);
+    return options;
+  }
   if (['run-create', 'run-present', 'run-approve', 'run-step', 'run-revise', 'run-close'].includes(options.target)) {
     if (options.commandFile || options.allActive || options.force || options.intake || options.continueDelivery || options.packageSelection) throw Error('A current Run command rejects unrelated scopes and force.');
     if (options.target === 'run-create' && (options.runId || !options.stepFields?.title)) throw Error('run-create requires --title; its original UUID determines the new Run ID.');

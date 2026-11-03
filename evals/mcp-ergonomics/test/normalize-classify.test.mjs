@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync, writeFileSync, existsSync, lstatSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, existsSync, lstatSync, mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -71,11 +71,19 @@ test("the pinned SDK input-validation text matches the installed MCP server SDK"
 test("a failing fixture build leaves no temporary directory behind", async () => {
   const { tmpdir } = await import("node:os");
   const { runProtocolMatrix } = await import("../lib/protocol-run.js");
-  const leftovers = () => readdirSync(tmpdir()).filter(name => /^agdf-mcp-ergonomics-(?:f2|scratch)-/u.test(name)).sort();
-  const before = leftovers();
+  // Other test workers create/dispose the same fixture prefixes concurrently.
+  // Inspect every entry in this worker's own temporary root, not global /tmp.
+  const directory = mkdtempSync(join(tmpdir(), 'agdf-ergonomics-cleanup-'));
+  const keys = ['TMPDIR', 'TMP', 'TEMP'], previous = Object.fromEntries(keys.map(key => [key, process.env[key]]));
   const matrix = { executions_per_call: 1, calls: [{ id: "X-1", tool: "agdf_inspect", fixture: "F2" }, { id: "X-2", tool: "agdf_inspect", fixture: "F9" }] };
-  await assert.rejects(runProtocolMatrix({ roots: [] }, { matrix }), /unknown fixture: F9/u);
-  assert.deepEqual(leftovers(), before);
+  try {
+    for (const key of keys) process.env[key] = directory;
+    await assert.rejects(runProtocolMatrix({ roots: [] }, { matrix }), /unknown fixture: F9/u);
+    assert.deepEqual(readdirSync(directory), []);
+  } finally {
+    for (const key of keys) if (previous[key] === undefined) delete process.env[key]; else process.env[key] = previous[key];
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test('fixture reset preserves original initialization ownership and receipt while restoring authored bytes', async () => {

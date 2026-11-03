@@ -308,6 +308,39 @@ Show the exact prepared presentation before forwarding a new deliberate reply wi
 `run-approve --presentation <id> --response 'Approval: UR'`. A historical reply
 cannot approve changed material. Staging grants no delivery or approval authority.
 
+For full-text terminal delivery through Codex CLI, the optional `render-document`
+frontend consumes `codex exec --json` output. Its `--request` mode generates the
+matching read-only model request from an explicitly selected, validated canonical
+presentation envelope. This supplies the verified target hash and original
+historical selectors, the `structuredContent.report` path and a bounded loop over
+all actual `next_cursor` values. It includes no document body or approval.
+Use the same selectors for request generation and rendering; replace the quoted
+placeholder IDs below with the real inspected selection (Bash example):
+
+```sh
+set -euo pipefail
+selection=(--dir /absolute/project --run '<id>' --revision '<uuid>' --gate UR --presentation '<uuid>')
+request=$(agdf render-document "${selection[@]}" --request)
+codex exec --json "$request" | agdf render-document "${selection[@]}"
+```
+
+`--server` selects the exact Codex MCP server ID (default `agdf`); plugin server
+names must be supplied explicitly. Use a read-only Codex tool profile for this
+flow. The renderer rejects unexpected tool/write traffic, incomplete turns,
+conflicting responses, changed bindings, missing pages, bad digests and unsafe
+terminal control characters before printing any document text. It reads the
+canonical presentation envelope and receives document bytes only through MCP.
+The complete verified document is written to stdout without an extra newline;
+an `AGDF_DOCUMENT_DELIVERY` receipt goes to stderr. This is a distinct terminal
+delivery mode, not an agent-chat message, human-review proof or gate approval.
+Stored JSONL can be replayed; the receipt alone does not attest a live model run.
+Request generation reads only canonical metadata, grants no tool permission and
+does not launch Codex. The generated request keeps progress metadata in model
+context while the frontend receives the full original MCP frames directly.
+Its tool call uses a literal name; dynamic `tools[match.name]` dispatch remains
+outside the observer's proof. If necessary, discover the actual name separately
+and replace only that literal, preserving all selected values and the read loop.
+
 For internal results, explicit bounded recovery and complete typed inputs use the
 fixed group routes `agdf-project`, `agdf-run`, `agdf-prepare`, `agdf-record`,
 `agdf-approve`, `agdf-revise` and `agdf-closeout` with `--command-file <regular.json>`.

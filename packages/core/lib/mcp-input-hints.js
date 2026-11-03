@@ -9,9 +9,10 @@ export function mcpInputValidationHint(name, input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return '';
   const messages = [];
   if (name === 'agdf_inspect') {
+    if (input.operation === 'status') messages.push('Run status uses agdf_inspect operation gate-check. status is invalid; never dispatch a skill for a read.');
     const hint = inspectInputValidationHint(input);
     if (hint) messages.push(hint);
-    if (['gate-check', 'presentation-document', 'presentation-preview'].includes(input.operation)) {
+    if (['status', 'gate-check', 'presentation-document', 'presentation-preview'].includes(input.operation)) {
       // A new *read* suggestion, not a repaired/replayed original request. Copy
       // only explicit locators; never infer a target, select a Run, refresh a
       // write revision, fabricate a presentation ID or invoke a tool here.

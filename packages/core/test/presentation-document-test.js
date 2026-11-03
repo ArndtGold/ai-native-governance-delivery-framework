@@ -38,7 +38,7 @@ try {
     assert.equal(page.available, true, JSON.stringify(page)); assert.equal(page.byte_start, offset);
     assert.equal(Buffer.byteLength(page.content), page.byte_end - page.byte_start);
     assert.equal(page.content_digest, digest(Buffer.from(exactDocument)));
-    assert.equal(page.authorizes, false); assert.equal(page.document_language, 'en'); assert.equal(page.applicability, 'current'); assert.ok(page.byte_end - page.byte_start <= 32768);
+    assert.equal(page.authorizes, false); assert.equal(page.document_language, 'en'); assert.equal(page.applicability, 'current'); assert.ok(page.byte_end - page.byte_start <= 8192);
     content += page.content; offset = page.byte_end; cursor = page.next_cursor ?? undefined; ++parts;
     assert.equal(page.complete, cursor === undefined);
   } while (cursor);

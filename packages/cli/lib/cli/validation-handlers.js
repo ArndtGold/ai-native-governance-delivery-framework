@@ -1,4 +1,5 @@
 import { executeRunAlias } from './run-command-aliases.js';
+import { renderCodexDocument } from '../host-adapters/codex/document-renderer.js';
 import { readFileSync, lstatSync, openSync, fstatSync, closeSync, constants } from "node:fs";
 import { commandGroupRoutes } from './command-registry.js';
 import { RUN_COMMAND_LIMITS } from '#agdf-core/control-state/run-command-contract.js';
@@ -42,6 +43,7 @@ export function createValidationHandlers(io = console) {
     readSkillRuntimeContracts,
   } }).dispatch;
   return new Map([
+    ['render-document', options => renderCodexDocument(options)],
     ...['run-create', 'run-present', 'run-approve', 'run-step', 'run-revise', 'run-close'].map(name => [name, options => executeRunAlias(options, io)]),
     ...Object.entries(commandGroupRoutes).map(([route, group]) => [route, options => {
       let fd;

@@ -10,7 +10,7 @@ import { createCoreServices, resources } from '../../../packages/core/lib/index.
 import { parseControlInspectFunctionArguments } from '../../../packages/core/lib/control-inspect/contract.js';
 import { buildEdgeFixture, edgeContext, edgeBinding, loadEdgeTasks, fixtureCommand } from '../lib/edge-tasks.js';
 import { CLI, writeEvidenceNote } from '../lib/fixtures.js';
-import { readCodexDocument, renderCodexDocument, createCodexDocumentRequest } from '../../../packages/cli/lib/host-adapters/codex/document-renderer.js';
+import { readCodexDocument, renderCodexDocument, createCodexDocumentRequest } from '../../../packages/cli/lib/cli/codex-document-command.js';
 import { pureInspectWrapper } from '../lib/native-run.js';
 import { parseArgs } from '../../../packages/cli/lib/cli/parse-args.js';
 import { validateCommandOptions } from '../../../packages/cli/lib/cli/command-registry.js';

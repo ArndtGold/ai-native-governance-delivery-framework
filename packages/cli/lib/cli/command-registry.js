@@ -2,7 +2,7 @@ import { TASK_TARGET_SOURCES } from "#agdf-core/task-target-resolution.js";
 import { skillDispatchArgumentGrammar, skillDispatchCommandGrammar } from "#agdf-core/skill-dispatch/contract.js";
 import { validateReadSelection } from "#agdf-core/control-inspect/selection.js";
 import { RUN_COMMAND_GROUPS } from '#agdf-core/control-state/run-command-contract.js';
-import { validateDocumentSelection } from '../host-adapters/codex/document-renderer.js';
+import { validateDocumentSelection } from './codex-document-command.js';
 export { skillDispatchArgumentGrammar };
 export const commandGroupRoutes = Object.freeze(Object.fromEntries(Object.keys(RUN_COMMAND_GROUPS).map(group => [group.replace('_', '-'), group])));
 

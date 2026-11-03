@@ -1,5 +1,5 @@
 import { executeRunAlias } from './run-command-aliases.js';
-import { renderCodexDocument } from '../host-adapters/codex/document-renderer.js';
+import { renderCodexDocument } from './codex-document-command.js';
 import { readFileSync, lstatSync, openSync, fstatSync, closeSync, constants } from "node:fs";
 import { commandGroupRoutes } from './command-registry.js';
 import { RUN_COMMAND_LIMITS } from '#agdf-core/control-state/run-command-contract.js';

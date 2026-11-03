@@ -13,7 +13,7 @@ import { buildFixture, writeEvidenceNote } from './fixtures.js';
 import { strictPresentedDocumentRead, strictCommandFlow } from './native-run.js';
 import { renderCodexTaskPrompt } from './native-tasks.js';
 import { deliveredDocumentPages } from './edge-output.js';
-import { createCodexDocumentRequest } from '../../../packages/cli/lib/host-adapters/codex/document-renderer.js';
+import { createCodexDocumentRequest } from '../../../packages/cli/lib/cli/codex-document-command.js';
 
 export const EDGE_TASKS_PATH = new URL('../edge-tasks.v1.json', import.meta.url);
 export const loadEdgeTasks = () => JSON.parse(readFileSync(EDGE_TASKS_PATH, 'utf8'));

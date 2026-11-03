@@ -6,7 +6,7 @@ import { validateRunPresentationRecord } from '#agdf-core/control-state/run-pres
 import { resolutionRecordVersion } from '#agdf-core/control-state/input-resolution.js';
 import { resolveControlCommandTarget, canonicalJson } from '#agdf-core/control-state/approval-command-contract.js';
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN, APPROVAL_GATES } from '#agdf-core/control-state/run-identity.js';
-import { pluginDefinition } from '../../runtime/control-context.js';
+import { pluginDefinition } from '../runtime/control-context.js';
 
 const fail = code => { throw Error(`document_delivery_${code}`); };
 const hash = bytes => 'sha256:' + createHash('sha256').update(bytes).digest('hex');

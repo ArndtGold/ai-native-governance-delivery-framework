@@ -183,7 +183,7 @@ The source-level implementation and assembled npm CLI both passed output/request
 regression tests. All **61** offline ergonomics tests and **56** adapter scenarios
 passed; final compatibility source fingerprint:
 `4890df48b4ce71a41103f3f0bff4f1048819b64086b2604526e12126dbdfcd59`.
-The actual Inspect definition is **6,143 bytes** under the unchanged 6,144-byte cap.
+The J Inspect definition was **6,143 bytes** under the unchanged 6,144-byte cap.
 Canonical approval/revision/seal owners and tracked CI/native guard scripts are
 byte-identical to HEAD. The owning control, Git HEAD/index and protected Codex
 settings remained preserved; real write-denial and positive controls passed.
@@ -218,3 +218,24 @@ version control, at `probe-results/codex-mcp-edges-20261102/`. They contain synt
 fixture data and are not installed-host qualification records. The reproducible
 suite and execution limits are documented in
 [EDGE_CASES.md](../../evals/mcp-ergonomics/EDGE_CASES.md).
+
+## Publishing CI follow-up
+
+The first publishing commit `9e721e4958ba36984ea22b5100b3255826d43e02`
+exposed a missing transitive dependency in the surface-local plugin runtime:
+`validation-handlers` and the command registry imported the new document renderer,
+but the strict runtime file list did not include that module. Source-level and
+standalone npm CLI observations did not cover that embedded entrypoint. The
+canonical runtime builder now includes exactly the CLI command leaf
+`lib/cli/codex-document-command.js`; the renderer was moved out of the host-adapter
+layer to preserve the existing session-command-only package boundary. A copied-plugin
+validator boot regression verifies that the installed graph resolves independently
+of the checkout. Installer/lifecycle modules remain excluded.
+
+CI also detected lost published-contract wording. The discovery text again names
+version-matched AGDF preflight and sequential `navigation.next_calls` over all
+pages. The original contract assertions remain unchanged. The compact Inspect
+definition fits the original **6,144-byte** limit exactly; no budget was raised.
+The repaired runtime's derived assets and deterministic adapter evidence are
+regenerated. These packaging/contract checks do not rebind the earlier native
+observations to a new installed-host candidate or alter their original grades.

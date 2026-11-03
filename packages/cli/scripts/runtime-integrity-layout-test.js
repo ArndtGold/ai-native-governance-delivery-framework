@@ -90,6 +90,14 @@ function assertSessionBase(stdout, pluginRoot, expectedSurface, { facts = false 
 
 try {
   stageInstalledPlugin();
+  // Boot the complete registry from a copied plugin, without source-checkout
+  // modules rescuing a missing transitive runtime dependency.
+  const isolatedValidator = spawnSync(process.execPath, [join(installedPluginRoot, 'runtime/agdf-local.js'), '--version', '--json'], {
+    cwd: fixtureRoot, encoding: 'utf8',
+  });
+  assert.equal(isolatedValidator.status, 0, combinedOutput(isolatedValidator));
+  assert.equal(JSON.parse(isolatedValidator.stdout).version,
+    JSON.parse(readFileSync(join(installedPluginRoot, 'meta/agdf-plugin.definition.json'), 'utf8')).version);
   const isolatedContract = join(installedPluginRoot, "runtime/create-agdf/lib/runtime-check-consent/contract.js");
   const isolatedCommands = spawnSync(process.execPath, ["--input-type=module", "-e", `
     import { fixedRuntimeCheckCommand } from ${JSON.stringify(pathToFileURL(isolatedContract).href)};
@@ -99,7 +107,7 @@ try {
   assert.equal(isolatedCommands.status, 0, isolatedCommands.stderr);
   assert.deepEqual(JSON.parse(isolatedCommands.stdout), ["codex", "claude", "copilot", "opencode"].flatMap(host =>
     ["darwin", "linux", "win32"].map(platform => fixedRuntimeCheckCommand(host, "/fixture/plugin", platform))));
-  for (const forbidden of ["installers", "lifecycle", "runtime-check-consent/service.js", "host-adapters/codex/plugin.js"]) {
+  for (const forbidden of ["installers", "lifecycle", "runtime-check-consent/service.js", "host-adapters/codex/plugin.js", "host-adapters/codex/document-renderer.js"]) {
     assert.equal(existsSync(join(installedPluginRoot, "runtime/create-agdf/lib", forbidden)), false, `runtime excludes ${forbidden}`);
   }
   const installedDefault = runIntegrity(join(installedPluginRoot, "scripts", "check-runtime-integrity.mjs"));

@@ -99,7 +99,7 @@ for (const [key, field] of Object.entries(inputSchema.properties)) {
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read-only. Status/docs=gate-check. primary_target+target_source; cwd=context. Ex: {"operation":"operation-contract","module":"agdf_run/run.create","working_directory":"/r","target_source":"explicit_target","primary_target":"/r"}. Docs: navigation.next_calls in order/all pages; never dispatch. operation-status: original UUID+run_id+expected_revision_id (Run).',
+  description: 'Read-only. Status/docs=gate-check. primary_target+target_source; cwd=context. Ex:{"operation":"operation-contract","module":"agdf_run/run.create","working_directory":"/r","target_source":"explicit_target","primary_target":"/r"}. Docs:navigation.next_calls sequentially; read all pages; never dispatch. operation-status:original UUID+run_id+expected_revision_id.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {

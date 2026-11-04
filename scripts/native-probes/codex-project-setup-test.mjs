@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { randomUUID } from 'node:crypto';
-import { rmSync, writeFileSync, mkdirSync } from 'node:fs';
+import { rmSync, writeFileSync, mkdirSync, mkdtempSync } from 'node:fs';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { currentFixture } from '../../packages/core/test/fixtures/current-run.js';
 import { evaluateSetupObservation, auditSetupProject, runSetupProbe, SETUP_PROMPT, SETUP_TIMEOUT_MS } from './codex-project-setup.mjs';
 
@@ -53,4 +56,18 @@ test('unavailable host preflight retains measured elapsed times and starts no mo
   assert(Number.isFinite(report.preflight_elapsed_ms) && report.preflight_elapsed_ms >= 0);
   assert(report.elapsed_ms >= report.preflight_elapsed_ms);
   assert.deepEqual(report.reasons, ['configured_model_cli_or_plugin_unavailable']);
+});
+test('pure setup oracle imports without the optional live MCP SDK stack', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'agdf-no-live-sdk-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const loader = join(directory, 'deny-mcp-sdk.mjs');
+  writeFileSync(loader, `export async function resolve(specifier, context, next) {
+    if (specifier.startsWith('@modelcontextprotocol/')) throw Error('LIVE_SDK_NOT_INSTALLED');
+    return next(specifier, context);
+  }\n`);
+  const probe = new URL('./codex-project-setup.mjs', import.meta.url).href;
+  const child = spawnSync(process.execPath, ['--experimental-loader', pathToFileURL(loader).href,
+    '--input-type=module', '--eval', `const m = await import(${JSON.stringify(probe)}); if (typeof m.evaluateSetupObservation !== 'function') throw Error('ORACLE_MISSING');`],
+  { encoding: 'utf8', timeout: 15000 });
+  assert.equal(child.status, 0, child.stderr);
 });

@@ -9,7 +9,6 @@ import { resolveHostCommand, spawnHostSync } from '../../packages/cli/lib/host-c
 import { pluginVersionFromList } from '../../packages/cli/lib/installers/plugin-command.js';
 import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../../packages/cli/lib/host-adapters/codex/mcp-startup.js';
 import { observeCodexOrigins } from '../../packages/cli/lib/mcp-lifecycle/adapters/codex-origin-probe.js';
-import { parseCodexT4Trace } from '../../evals/mcp-ergonomics/lib/native-run.js';
 import { canonicalInitPlan } from '../../packages/core/lib/resources/canonical-init-plan.js';
 import { inspectCanonicalProject } from '../../packages/core/lib/control-state/canonical-initialization.js';
 import { resolutionRecord } from '../../packages/core/lib/control-state/input-resolution.js';
@@ -108,6 +107,11 @@ export async function runSetupProbe(out, { env = process.env } = {}) {
     report.reasons = ['configured_model_cli_or_plugin_unavailable'];
     writeFileSync(join(out, 'observation.json'), JSON.stringify(report, null, 2) + '\n'); return report;
   }
+  // The live parser also loads MCP protocol helpers. Pure oracle tests and an
+  // unavailable host preflight must not require that optional live-test stack.
+  // Resolve it before starting a model session so missing dependencies do not
+  // leave a completed initialization without its final observation report.
+  const { parseCodexT4Trace } = await import('../../evals/mcp-ergonomics/lib/native-run.js');
   const command = resolveHostCommand(executable, { env: hostEnv });
   const args = [...command.prefixArgs, 'exec', ...CODEX_MCP_STARTUP_ARGS, '--ephemeral', '--json', '--sandbox', 'workspace-write', '--skip-git-repo-check', '-m', model, SETUP_PROMPT];
   const sessionStarted = performance.now();

@@ -4,6 +4,8 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync, lstatSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
 import { currentFixture } from '../../core/test/fixtures/current-run.js';
 import { createCoreServices } from '../../core/lib/index.js';
 import { resources } from '../lib/runtime/control-context.js';
@@ -12,7 +14,7 @@ import { runValidatorCli } from '../lib/runtime/validator-application.js';
 import { readInitializationReceipt } from '../../core/lib/control-state/canonical-initialization.js';
 
 const entry = new URL('../bin/create-agdf.js', import.meta.url);
-const call = args => spawnSync(process.execPath, [entry.pathname, ...args], { encoding: 'utf8', timeout: 30000 });
+const call = args => spawnSync(process.execPath, [fileURLToPath(entry), ...args], { encoding: 'utf8', timeout: 30000 });
 function manifest(root) {
   const rows = {};
   function walk(path, rel) { for (const name of readdirSync(path)) { const p = join(path, name), key = rel + '/' + name;
@@ -64,7 +66,7 @@ test('project reads reject irrelevant selectors and unconfirmed targets', t => {
   for (const module of ['', randomUUID(), `run.create/${randomUUID()}`, 'project.initialize/bad']) {
     assert.equal(call(['operation-status', '--dir', f.root, ...(module ? ['--module', module] : [])]).status, 1);
   }
-  const r = call(['project-state', '--dir', '/private/tmp', '--json']);
+  const r = call(['project-state', '--dir', tmpdir(), '--json']);
   assert.equal(r.status, 2); assert.equal(JSON.parse(r.stdout).report?.available ?? false, false);
 });
 test('broken current configuration cannot hide a confirmed original setup receipt', t => {

@@ -27,6 +27,8 @@ const fixturePaths = [
   "docs/compatibility",
   "docs/architecture",
   "docs/development",
+  "docs/releases",
+  "docs/maintenance/cockpit-archive-import.md",
   "docs/maintenance/release-0.20.0.md",
   "docs/00-manifest.md",
   "docs/01-framework-ueberblick.md",

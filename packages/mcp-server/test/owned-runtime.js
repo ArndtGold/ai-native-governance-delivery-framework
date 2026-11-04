@@ -15,6 +15,7 @@ import { ensurePluginMcpRuntime } from '../../cli/lib/mcp-lifecycle/plugin-runti
 import { offlineNpm } from '../../../scripts/support/plugin-mcp-fixture.js';
 
 const serverSourceRoot = resolve(fileURLToPath(new URL("../", import.meta.url)));
+export const MCP_PACKAGE_VERSION = JSON.parse(readFileSync(join(serverSourceRoot, "package.json"), "utf8")).version;
 const defaultDispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 

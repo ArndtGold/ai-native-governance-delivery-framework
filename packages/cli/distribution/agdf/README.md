@@ -7,7 +7,7 @@ delivery: repository-local agent instructions, durable control files,
 machine-checkable gate decisions and consistent setup for Codex, Claude Code,
 GitHub Copilot and OpenCode.
 
-GitHub Copilot and OpenCode are **experimentally supported in 0.20.x**. Both have adapters and
+GitHub Copilot and OpenCode are **experimentally supported in 0.30.0**. Both have adapters and
 automated regression tests; native qualification is not currently claimed. Tests with simulated
 hosts do not establish behavior in an actual Copilot or OpenCode session. See the
 [host compatibility report](https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/docs/compatibility/HOST_COMPATIBILITY.md)
@@ -98,7 +98,7 @@ Claude Desktop UI support. See [MCP and UI by host](https://github.com/ArndtGold
 
 ### OpenCode
 
-**Experimental support in 0.20.x.**
+**Experimental support in 0.30.0.**
 
 ```bash
 npx --yes @agdf/cli@latest opencode
@@ -121,7 +121,7 @@ command from that repository, then load `agdf-global-gate-check` for an AGDF del
 
 ### GitHub Copilot
 
-**Experimental support in 0.20.x.**
+**Experimental support in 0.30.0.**
 
 ```bash
 npx --yes @agdf/cli@latest copilot
@@ -185,10 +185,10 @@ authoritative reusable format, not AGDF's internal project backlog.
 | `codex` | Install the AGDF plugin globally for Codex. |
 | `codex-repo` | Add a repository-local Codex marketplace and AGDF plugin copy. |
 | `claude` | Install the AGDF plugin globally for Claude Code. |
-| `opencode` | Experimental in 0.20.x: install the AGDF npm plugin and global native skills for OpenCode. |
+| `opencode` | Experimental in 0.30.0: install the AGDF npm plugin and global native skills for OpenCode. |
 | `opencode-status` | Report OpenCode global config, package loadability, session signals and repository surface presence. |
-| `opencode-repo` | Experimental in 0.20.x: add durable repository activation and control templates for the global OpenCode runtime. |
-| `copilot` | Experimental in 0.20.x: install the AGDF plugin globally through Copilot CLI and verify its skills. |
+| `opencode-repo` | Experimental in 0.30.0: add durable repository activation and control templates for the global OpenCode runtime. |
+| `copilot` | Experimental in 0.30.0: install the AGDF plugin globally through Copilot CLI and verify its skills. |
 | `init` | Create durable `.agdf/control` files when repository-owned control state is required. |
 | `config --language <tag>` | Persist a BCP 47 project language such as `de`, `en` or `fr-CA` without creating the full control scaffold. |
 | `doctor [--json]` | Check whether the durable control state is consistent and actionable. |
@@ -245,7 +245,7 @@ evidence. It writes `DELIVERY_PATH_SEARCH.json` and
 ## Surface Notes
 
 See [Quick Start](#quick-start) for what each command installs and its global-vs-repository scope.
-Copilot and OpenCode remain experimental in 0.20.x. OpenCode loads global native skills from
+Copilot and OpenCode remain experimental in 0.30.0. OpenCode loads global native skills from
 `skills/agdf-global-*/` in its configuration directory; `.agdf/control/` owns durable repository
 state. Load `agdf-global-gate-check` through OpenCode's native `skill` tool for an AGDF delivery
 request. Copilot loads its `agdf-` skills from the installed plugin, not a generated repository

@@ -2,9 +2,9 @@
 
 Bootstrap AGDF into the coding-agent surface and repository where work actually happens. It installs or generates the surface-specific guidance, skills and optional durable control files that help teams make scope, approvals, evidence and delivery state visible.
 
-AGDF is useful when AI-assisted work can affect an existing system and a team needs a traceable answer to: what is allowed next, who approved it and what evidence supports it. It is deliberately not a substitute for engineering judgement, security review, tests, product ownership or human acceptance. For the framework's fit, limits and examples, start with the [project overview](../README.md).
+AGDF is useful when AI-assisted work can affect an existing system and a team needs a traceable answer to: what is allowed next, who approved it and what evidence supports it. It is deliberately not a substitute for engineering judgement, security review, tests, product ownership or human acceptance. For the framework's fit, limits and examples, start with the [project overview](../../README.md).
 
-GitHub Copilot and OpenCode are **experimentally supported in 0.20.x**. Both have adapters and
+GitHub Copilot and OpenCode are **experimentally supported in 0.30.0**. Both have adapters and
 automated regression tests; native qualification is not currently claimed. Tests with simulated
 hosts do not establish behavior in an actual Copilot or OpenCode session. See the
 [host compatibility report](../../docs/compatibility/HOST_COMPATIBILITY.md) for dated evidence and gaps.
@@ -80,9 +80,9 @@ Use a different target when Codex is not your agent surface:
 | Surface or goal | Start with | What it gives you |
 |---|---|---|
 | Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin with MCP; the shared default build does not enable the Codex UI paths. |
-| GitHub Copilot (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest copilot` | The AGDF plugin with prefixed skills and a consent-bound session hook. |
-| OpenCode, user-wide discovery (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
-| OpenCode, one repository (**experimental in 0.20.x**) | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
+| GitHub Copilot (**experimental in 0.30.0**) | `npx --yes @agdf/cli@latest copilot` | The AGDF plugin with prefixed skills and a consent-bound session hook. |
+| OpenCode, user-wide discovery (**experimental in 0.30.0**) | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
+| OpenCode, one repository (**experimental in 0.30.0**) | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
 | Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
 In the next AGDF version, an interactive runtime-bearing installer will first show the plugin state,
@@ -155,7 +155,7 @@ pending; it does not ask you to grant the same trust again. Missing, ambiguous o
 native metadata stays unverified. AGDF never writes Codex trust hashes, and native trust alone
 does not prove that a session hook ran. After an update, fully restart Codex and open a fresh task.
 
-For prerequisites, all surface-specific flows and operational boundaries, use the authoritative [installation guide](../INSTALL.md). Do not run `init` merely to ask a fresh question: an agent can first clarify the request and ask for `Approval: UR` when durable control state is needed.
+For prerequisites, all surface-specific flows and operational boundaries, use the authoritative [installation guide](../../INSTALL.md). Do not run `init` merely to ask a fresh question: an agent can first clarify the request and ask for `Approval: UR` when durable control state is needed.
 
 ## Command overview
 
@@ -572,7 +572,7 @@ select the fallback with an explicit PowerShell `if` expression. They never conc
 values. The generated runtime and SessionStart hook use the same resolver, so a compatibility
 variable cannot override the native root of the active host.
 
-**Copilot support remains experimental in 0.20.x.** Staging uses the independent path
+**Copilot support remains experimental in 0.30.0.** Staging uses the independent path
 `<AGDF data directory>/marketplaces/agdf-copilot`. This
 prevents Copilot updates and rollbacks from replacing the shared Codex and Claude payload while the
 host-facing Marketplace identity remains `agdf` and the install identity remains `agdf@agdf`.
@@ -599,7 +599,7 @@ After `npm create agdf@latest -- codex-repo`, restart Codex in that repository, 
 runtime-free source checkout and is validated before lifecycle status treats `agdf@agdf-repo` as
 active.
 
-**OpenCode support remains experimental in 0.20.x.** Use the `opencode` target to install the
+**OpenCode support remains experimental in 0.30.0.** Use the `opencode` target to install the
 AGDF npm plugin as a user-wide OpenCode hook:
 
 ```bash
@@ -644,7 +644,7 @@ Source, generated and package evidence do not prove what an installed host ultim
 orders. Fresh loaded-host evidence remains separate. In particular, OpenCode keeps one bounded
 kernel-only compaction recovery block until same-version and same-digest host observations prove
 that the system transform is reapplied and the current dispatcher binding remains available. The
-[Instruction Footprint Audit](../.agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md)
+[historical Instruction Footprint Audit](../../.agdf/control/archive/source/runs/agdf-request-activation-boundary/documents/INSTRUCTION_FOOTPRINT_AUDIT.md)
 records the design evidence and its limits.
 
 ## Control scaffold
@@ -777,7 +777,7 @@ The routing test installs `both` into a temporary target repository and checks t
 
 ## Project, contribution and support
 
-This README is the package guide. Keep framework rationale, limits and examples in the [project overview](../README.md); keep target-specific installation in [INSTALL.md](../INSTALL.md); and use [RELEASE.md](../RELEASE.md) only when maintaining a published AGDF release.
+This README is the package guide. Keep framework rationale, limits and examples in the [project overview](../../README.md); keep target-specific installation in [INSTALL.md](../../INSTALL.md); and use [RELEASE.md](../../RELEASE.md) only when maintaining a published AGDF release.
 
 Non-sensitive feedback, examples and contributions are welcome through [GitHub Issues](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues). To validate a local package change before proposing it, run:
 
@@ -792,7 +792,7 @@ npm --prefix create-agdf run eval:skills:record -- --surface codex --case gate-c
 
 `eval:skills` is the credential-free deterministic CI lane. The recorder is an explicit supporting-evidence lane; it uses a disposable repository, records live provenance and refuses to persist a failing or mutation-violating result.
 
-The repository is licensed under [Apache-2.0](../LICENSE). No separate public `CONTRIBUTING.md`, `SECURITY.md` or private security-reporting channel is currently published. Do not treat a public issue as a private vulnerability disclosure.
+The repository is licensed under [Apache-2.0](../../LICENSE). Follow the repository [contribution guide](../../CONTRIBUTING.md), [governance](../../GOVERNANCE.md) and [security reporting policy](../../SECURITY.md). Do not treat a public issue as a private vulnerability disclosure.
 
 ## Publishing
 

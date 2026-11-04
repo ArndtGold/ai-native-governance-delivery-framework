@@ -16,7 +16,7 @@ import { artefactFileDigest, runSealState } from '../../core/lib/control-state/r
 import { readRunOperations } from '../../core/lib/control-state/run-operations.js';
 import { digestDirectory, digestMcpDispatcherPackage } from '../../core/lib/runtime/plugin-provenance.js';
 import { pluginRoot, offlineNpm } from '../../../scripts/support/plugin-mcp-fixture.js';
-import { createOwnedRuntimeFixture } from './owned-runtime.js';
+import { createOwnedRuntimeFixture, MCP_PACKAGE_VERSION } from './owned-runtime.js';
 import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 
 // One canonical owner-thread test owner. Selectors are for focused engineering;
@@ -59,7 +59,7 @@ async function protocolCase() {
       port2.postMessage(encodeOwnerFrame(ownerFrame(binding, 'opened', { opened: true }, input.request_id, row), binding, { reply: true }));
     }
   });
-  const connection = await client.open({ packageInfo: { publication_id: row.publication_id, version: '0.20.2', digest: 'b'.repeat(64), dispatcherDigest: 'c'.repeat(64), sdkDigest: 'd'.repeat(64) }, epoch: row.epoch, generation: 1 });
+  const connection = await client.open({ packageInfo: { publication_id: row.publication_id, version: MCP_PACKAGE_VERSION, digest: 'b'.repeat(64), dispatcherDigest: 'c'.repeat(64), sdkDigest: 'd'.repeat(64) }, epoch: row.epoch, generation: 1 });
   assert.equal(opened.payload.publication_id, binding.publication_id);
   let rejected = 0;
   for (let index = 0; index <= OWNER_LIMITS.frames; ++index) {
@@ -79,7 +79,7 @@ async function protocolCase() {
     const input = decodeOwnerFrame(wire, binding);
     if (input.kind === 'open') bytePorts.port2.postMessage(encodeOwnerFrame(ownerFrame(binding, 'opened', { opened: true }, input.request_id, row), binding, { reply: true }));
   });
-  const byteConnection = await byteClient.open({ packageInfo: { publication_id: row.publication_id, version: '0.20.2', digest: 'b'.repeat(64), dispatcherDigest: 'c'.repeat(64), sdkDigest: 'd'.repeat(64) }, epoch: row.epoch, generation: 1 });
+  const byteConnection = await byteClient.open({ packageInfo: { publication_id: row.publication_id, version: MCP_PACKAGE_VERSION, digest: 'b'.repeat(64), dispatcherDigest: 'c'.repeat(64), sdkDigest: 'd'.repeat(64) }, epoch: row.epoch, generation: 1 });
   let byteRejections = 0;
   for (let index = 0; index < 60; ++index) byteConnection.send(generationMessage(row.epoch, 1, 'invoke', { name: 'agdf_dispatch', arguments: { bounded: 'x'.repeat(60000) } }, {}, null, randomUUID()), error => { if (error) ++byteRejections; });
   assert.ok(byteRejections > 0 && byteRejections < 60, 'aggregate bytes reject before the frame cap without an unbounded queue');
@@ -109,7 +109,7 @@ async function protocolCase() {
 async function claimsCase() {
   const fixture = createOwnedRuntimeFixture({ pluginSourceRoot: pluginRoot, controlRuns: [] });
   try {
-    const runtime = inspectMcpServerPackage({ dataRoot: dirname(fixture.root), expectedVersion: '0.20.2' });
+    const runtime = inspectMcpServerPackage({ dataRoot: dirname(fixture.root), expectedVersion: MCP_PACKAGE_VERSION });
     assert.equal(runtime.status, 'matched'); assert.equal(runtime.executionModel, 'owner_threads_v1');
     const count = () => readdirSync(join(fixture.root, '.agdf-executable-claims')).length;
     // Rehashed negative images separate interface qualification from a mere
@@ -125,7 +125,7 @@ async function claimsCase() {
         if (mode === 'owner_export_missing') delete dispatcher.exports['./mcp-owner-protocol'];
         writeFileSync(serverManifest, JSON.stringify(server)); writeFileSync(dispatcherManifest, JSON.stringify(dispatcher));
         writeFileSync(runtime.markerPath, JSON.stringify({ ...JSON.parse(originalMarker), server_digest: digestDirectory(runtime.packageRoot), dispatcher_digest: digestMcpDispatcherPackage(runtime.dispatcherRoot) }));
-        assert.equal(inspectMcpServerPackage({ dataRoot: dirname(fixture.root), expectedVersion: '0.20.2' }).status, 'mismatch', mode);
+        assert.equal(inspectMcpServerPackage({ dataRoot: dirname(fixture.root), expectedVersion: MCP_PACKAGE_VERSION }).status, 'mismatch', mode);
       } finally { writeFileSync(serverManifest, originalServer); writeFileSync(dispatcherManifest, originalDispatcher); writeFileSync(runtime.markerPath, originalMarker); }
     }
     let retained = 0;

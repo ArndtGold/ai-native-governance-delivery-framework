@@ -1,4 +1,12 @@
-# AGDF 0.20.2 — Initial OpenAI Public Plugin Candidate
+# AGDF 0.30.0 — Simplified Project Model, Skills-only Candidate
+
+The full repository release prepares a simpler .agdf model: independent planned URs, one
+Run-folder layout and canonical inventory without a shared Master Backlog. The
+[full 0.30.0 release notes](https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/docs/releases/0.30.0.md)
+explain the changes since 0.20.2, unsupported old layouts and the separate offline archive path.
+Those runtime and project-management capabilities are not bundled into this public Skills-only
+profile. Its shared workflow guidance reflects the current model; no publication or exact-candidate
+native qualification is established by this source record.
 
 This candidate packages the canonical AGDF workflow skills for public discovery in ChatGPT and
 Codex. It helps users assess delivery fit, preserve explicit human approvals, inspect existing-system

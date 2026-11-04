@@ -3,6 +3,10 @@
 AGDF releases are coupled across the repository packages and public surfaces.
 Use one version and one release tag for the whole release.
 
+Version-specific notes: [AGDF 0.30.0 — simplified project model](docs/releases/0.30.0.md).
+These notes describe the prepared source version; registry publication and native qualification
+retain their separate checks below.
+
 ## Release scope
 
 A release includes:
@@ -54,9 +58,9 @@ invocation restores or completes only that declared transaction and asks you to 
 Run the validation printed by the script before tagging:
 
 ```bash
-npm --prefix create-agdf run smoke-test
-npm --prefix agdf-mcp-server test
-npm --prefix agdf run smoke-test
+npm --prefix packages/cli run smoke-test
+npm --prefix packages/mcp-server test
+npm --prefix packages/cli/distribution/agdf run smoke-test
 node plugins/agdf/scripts/check-runtime-integrity.mjs
 npm --prefix pages run build
 ```

@@ -3,11 +3,16 @@
 # AI native Governance and Delivery Framework
 
 AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex und Claude Code.
-GitHub Copilot und OpenCode werden in der Versionsreihe **0.20.x experimentell unterstützt**.
+GitHub Copilot und OpenCode werden in **0.30.0 experimentell unterstützt**.
 Für beide sind Adapter und automatisierte Regressionstests vorhanden; eine native Qualifizierung
 wird derzeit nicht beansprucht. Automatisierte Tests mit simulierten Hosts belegen keine Funktion
 in einer tatsächlichen Copilot- oder OpenCode-Sitzung.
 Zugleich ist AGDF ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
+
+**0.30.0 vereinfacht das Projektmodell:** kein Masterbacklog, einheitliche Run-Ordner und
+unabhängige geplante URs. Die [Release Notes](docs/releases/0.30.0.md) erklären die Änderungen
+seit 0.20.2 und die Grenzen für bestehende Projekte. Die folgenden 0.20.0-Nachweise bleiben historisch
+und qualifizieren keinen 0.30.0-Kandidaten.
 
 **0.20.0:** Native Qualifizierungsziele sind Claude Code CLI unter Windows und Codex CLI unter macOS,
 je mit fünf kandidatengebundenen Fällen. Native Nachweise sind freiwillig und keine Veröffentlichungsvoraussetzung;
@@ -24,9 +29,12 @@ Die vollständige native Abnahme des finalen 0.20.0-Kandidaten bleibt offen. Sie
 
 Neue Projekte verwalten geplante Anforderungen als einzelne URs in
 `.agdf/control/planned/`; der Bestand entsteht aus diesen Quellen und den Runs.
-Bestehende Projekte wechseln ausschließlich über eine ausdrückliche Migration.
+Unterstützt sind ausschließlich `run-folders-v1` und Run-Version 4; ältere Projektformate bleiben
+unverändert und werden nicht automatisch migriert. Eine ausdrückliche
+[Offline-Archivübernahme](docs/maintenance/cockpit-archive-import.md) bewahrt Altbestände lesend,
+ohne daraus aktuelle Runs oder Freigaben zu machen.
 Die optionale Erweiterung **AGDF Planning** ergänzt den Planungsdialog für Codex CLI;
-Core bleibt ohne sie nutzbar. [Bedienung und Migrationsgrenze](plugins/agdf/control/planned-urs.md).
+Core bleibt ohne sie nutzbar. [Bedienung und Übergabegrenzen](plugins/agdf/control/planned-urs.md).
 
 Im normalen Betrieb gibt es keine zwei konkurrierenden Bedienoberflächen:
 
@@ -50,7 +58,7 @@ Für Claude Code:
 npx --yes @agdf/cli@latest claude
 ```
 
-Für GitHub Copilot und OpenCode (**experimentelle Unterstützung in 0.20.x**):
+Für GitHub Copilot und OpenCode (**experimentelle Unterstützung in 0.30.0**):
 
 ```bash
 npx --yes @agdf/cli@latest copilot
@@ -69,7 +77,7 @@ Nachweise. Produktive Klickaktionen der Gate-Entscheidungsansicht sind bis zur Q
 deaktiviert. Details: [MCP und UI je Host](INSTALL.md#claude-code-and-codex-mcp-and-ui).
 
 GitHub Copilot erhält MCP ebenfalls über sein Runtime-Plugin. Für OpenCode kann der lokale
-MCP-Server separat registriert werden; beide Integrationen bleiben experimentell in 0.20.x.
+MCP-Server separat registriert werden; beide Integrationen bleiben experimentell in 0.30.0.
 MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`, `agdf_project`, `agdf_run`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 `agdf_dispatch` verwendet dieselbe kanonische
 Funktionsbeschreibung und Gate-Auswertung wie die CLI; `agdf_inspect` bietet lesenden Zugriff auf

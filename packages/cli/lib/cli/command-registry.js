@@ -26,13 +26,15 @@ export const commandRegistry = Object.freeze([
   command("copilot", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"] }),
   command("opencode", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"], scaffold: [""] }),
   command("opencode-status", { preferred: [""], scaffold: [""] }),
-  command("status", { preferred: [" [--surface <surface>] [--dir <absolute-target> [--scope <project|user>]] [--run <run_id>] [--json]"] }),
+  command("status", { preferred: [" [--surface <surface>] [--dir <absolute-target> [--scope <project|user>]] [--run <run_id>] [--native] [--json]"] }),
   command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]"] }),
   command("mcp", { preferred: [" <status|enable|disable> --surface <codex|claude|copilot|opencode> [--scope <project|user>] --dir <absolute-target> [--json]"] }),
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>] [--with-mcp]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--with-mcp --mcp-scope <project|user> --dir <absolute-target>] [--confirm]"] }),
   command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
   command("init", { preferred: [" [--operation <original-uuid>]"], scaffold: [""] }),
+  command('project-state', { local: [' --dir <absolute-git-root> [--json] [--language <tag>]'] }),
+  command('operation-status', { local: [' --dir <absolute-git-root> --module project.initialize/<original-uuid> [--json] [--language <tag>]'] }),
   command("config", { scaffold: [" --language de"] }),
   command("target-check", { local: [` --json [--language <tag>] [--working-directory <absolute-path>] [--target-source ${TASK_TARGET_SOURCE_GRAMMAR} --primary-target <absolute-path>]`] }),
   command("skill-dispatch", { local: [` ${skillDispatchCommandGrammar()}`] }),
@@ -68,6 +70,14 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  if (options.native && (options.target !== 'status' || options.surface !== 'codex' || !options.dirExplicit || !options.dirInputAbsolute))
+    throw Error('--native requires status --surface codex --dir <absolute-target>.');
+  if (['project-state', 'operation-status'].includes(options.target)) {
+    if (!options.dirExplicit || !options.dirInputAbsolute) throw Error('Project reads require an explicit absolute --dir Git root.');
+    if (options.target === 'operation-status' && !/^project\.initialize\/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/u.test(options.contractModule ?? ''))
+      throw Error('operation-status requires --module project.initialize/<original-uuid>.');
+    return options;
+  }
   if (options.target === 'render-document') {
     if (!options.dirExplicit || !options.dirInputAbsolute) throw Error('render-document requires an explicit absolute --dir');
     validateDocumentSelection(options);
@@ -271,6 +281,7 @@ Backward-compatible create-agdf usage:
 ${usageLines("legacy", "npx --yes create-agdf@latest ")}
 
 Options:
+  --native      Explicit bounded Codex catalog observation on status; requires --surface codex and absolute --dir.
   --dir <path>   Select an explicit target directory. OpenCode installation uses it as its config directory; MCP requires an absolute repository target.
   --with-mcp     Install the plugin and explicitly enable AGDF MCP for the selected target.
   --plugin-only  Install or update only the plugin and leave MCP unchanged.

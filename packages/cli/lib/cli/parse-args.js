@@ -35,6 +35,7 @@ export function parseArgs(argv, dependencies = {}) {
   let dirInput = ".";
   let force = false;
   let json = false;
+  let native = false;
   let verbose = false;
   let guided = false;
   let details = false;
@@ -119,6 +120,7 @@ export function parseArgs(argv, dependencies = {}) {
     }
     if (arg === "--force") { force = true; continue; }
     if (arg === "--json") { json = true; continue; }
+    if (arg === '--native') { native = true; continue; }
     if (arg === "--verbose") { verbose = true; continue; }
     if (arg === "--guided") { guided = true; continue; }
     if (arg === "--details") { details = true; continue; }
@@ -361,6 +363,11 @@ export function parseArgs(argv, dependencies = {}) {
     throw new CliUsageError("Source revision identity and evidence flags may not repeat");
   }
   if (documentServer !== undefined && target !== 'render-document') throw new CliUsageError('--server requires render-document');
+  if (['project-state', 'operation-status'].includes(target)) {
+    const allowed = new Set(['--dir', '--json', '--language', '--lang', ...(target === 'operation-status' ? ['--module'] : [])]);
+    if ([...flagCounts].some(([flag, count]) => count !== 1 || !allowed.has(flag)))
+      throw new CliUsageError('Project reads accept only unique --dir, --json, --language and operation-status --module selectors.');
+  }
   if (documentRequest && target !== 'render-document') throw new CliUsageError('--request requires render-document');
   if (target === 'render-document') {
     const allowed = new Set(['--dir', '--run', '--revision', '--gate', '--presentation', '--server', '--request']);
@@ -420,6 +427,7 @@ export function parseArgs(argv, dependencies = {}) {
       dirInputAbsolute: dirExplicit && isAbsolute(dirInput),
       force,
       json,
+      ...(native ? { native: true } : {}),
       verbose,
       ...(guided ? { guided: true } : {}),
       ...(details ? { details: true } : {}),

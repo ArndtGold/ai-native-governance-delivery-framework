@@ -10,6 +10,18 @@ When the current host lists the fixed MCP control groups, use them for every eli
 
 For explicit first setup, read agdf_inspect/project-state with the confirmed existing Git target and no Run/revision. Only deliberate setup uses agdf_project/project.initialize with the returned target_id and one original UUID. This fixed canonical scaffold operation creates no Run/approval and never repairs/migrates/installs or grants permissions. Matching authored governance is read-only unchanged observation; conflicts/unowned partial states stay protected. After uncertainty inspect operation-status module project.initialize/<original UUID> before exact replay. Setup success returns the creation help next call. No diagnosis or creation implicitly initializes.
 
+When native MCP is unavailable, the installed CLI/validator supports read-only
+`project-state --dir ABSOLUTE_GIT_ROOT --json` and
+`operation-status --dir ABSOLUTE_GIT_ROOT --module project.initialize/ORIGINAL_UUID --json`.
+These share Core facts; optional `--language TAG` selects presentation. This CLI status route
+supports project.initialize only; existing MCP operation families are unchanged. For explicit setup,
+`agdf-project --command-file REQUEST.json` uses the exact project.initialize envelope returned by
+project-state. Preserve target, original UUID, payload and receipt; inspect original status after
+uncertainty before eligible exact replay. Read exits: 0 complete available (including pending),
+2 blocked/unavailable/incomplete, 1 usage error. Unknown/absent never proves nonexecution.
+Missing Run/document, stale revision and runtime failures retain distinct causes. Preserve deleted
+state and original identity; never recreate sources or wait blindly for a known missing path.
+
 Create independent work with agdf_run/run.create using a semantic title and one original operation UUID; observe lost responses with pre-Run operation-status for that original UUID. Never ask the human for Run/revision IDs. An unbound or incomplete inventory cannot establish assignment.
 
 Transfer UTF-8 material using agdf_record/material.stage: begin declares up to four slots and byte counts (128 KiB/file, 512 KiB/set); append supplies exact canonical base64 (no line breaks) of at most 16 KiB raw bytes at the returned offset; seal validates all bytes and returns material references/digests. Requests remain <=64 KiB. Buffers are private to the serving generation, expire after ten minutes/two idle minutes and are bounded to four sets/two MiB. They are not files or approval. Correct a rejected offset/slot/revision using the returned diagnostics; never publish protected files as a workaround. After a generation loss, restage identical semantic bytes, preserve the original mutation UUID and inspect its receipt before retrying. Reference IDs may change; semantic digests may not.

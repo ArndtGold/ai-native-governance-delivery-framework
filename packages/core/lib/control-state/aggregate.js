@@ -14,5 +14,7 @@ export function aggregate(results, { allowNoActiveRuns = false } = {}) {
       ? "pass"
       : "revise";
 
-  return { status, runs };
+  return { status, runs, ...(!runs.length ? { empty_inventory: {
+    reason: 'no_active_runs', allow_no_active_runs: allowNoActiveRuns,
+  } } : {}) };
 }

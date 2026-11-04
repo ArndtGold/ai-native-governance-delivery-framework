@@ -36,7 +36,9 @@
     "verify:ci": "node scripts/verify-ci.mjs",
     "verify:commit": "node scripts/verify-commit.mjs",
     "test:verification": "node --test scripts/verification-test.mjs",
-    "test:release-qualification": "node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs"
+    "test:release-qualification": "node --test scripts/native-probes/release-candidate-test.mjs scripts/native-probes/release-handoff-test.mjs scripts/native-probes/release-lifecycle-test.mjs",
+    "native:codex-project-setup": "node scripts/native-probes/codex-project-setup.mjs",
+    "test:codex-project-setup": "node scripts/native-probes/codex-project-setup-test.mjs"
   },
   "devDependencies": {
     "acorn": "8.17.0",

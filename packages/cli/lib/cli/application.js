@@ -33,6 +33,7 @@ import { observeCodexHooks } from "../runtime-check-consent/codex-hooks.js";
 import { approveCodexDispatcher, revokeCodexDispatcher } from "../runtime-check-consent/codex-plugin-consent.js";
 import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
 import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../lifecycle/status.js";
+import { inspectCodexStartup } from '../lifecycle/codex-startup-status.js';
 import { generatedFilesForTarget } from "../scaffold/plan.js";
 import { printNextSteps } from "../scaffold/presentation.js";
 import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
@@ -74,6 +75,7 @@ function createHandlers({
   approveCodexPluginDispatcher = approveCodexDispatcher,
   revokeCodexPluginDispatcher = revokeCodexDispatcher,
   evaluateStatus = evaluateStatusOverview,
+  observeCodexStartup = inspectCodexStartup,
   evaluateOpenCodeGlobal = evaluateOpenCodeGlobalStatus,
   evaluateOpenCodeRepository = evaluateOpenCodeStatus,
   installOpenCodePackage = installOpenCodeGlobalPlugin,
@@ -157,7 +159,9 @@ function createHandlers({
         });
       }
       report = { ...report, runtime_checks: runtimeChecks, mcp };
+      if (options.surface === 'codex' && options.dirExplicit) report.codex_startup = await observeCodexStartup({ target: options.dir, native: options.native, env });
       printGeneralStatus(report, { json: options.json, io });
+      if (options.native && report.codex_startup?.catalog.status !== 'discovered_ready') return 2;
       return report.installation.status === "healthy" ? 0 : 1;
     }],
     ["runtime-checks", async (options) => {
@@ -1006,6 +1010,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     inspectPluginInstallation: adapters.inspectPluginInstallation,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
     observeCodexHookTrust: adapters.observeCodexHookTrust,
+    observeCodexStartup: adapters.observeCodexStartup,
     approveCodexPluginDispatcher: adapters.approveCodexPluginDispatcher,
     revokeCodexPluginDispatcher: adapters.revokeCodexPluginDispatcher,
     evaluateStatus: adapters.evaluateStatusOverview,

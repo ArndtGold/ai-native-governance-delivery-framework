@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { randomUUID } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Client } from '@modelcontextprotocol/client';
@@ -28,6 +28,16 @@ for (const modern of [false, true]) {
   try {
     createRun(fixture.governanceTarget, 'mcp-tool-error-fixture');
     await withStdioClient({ ...fixture, modern }, async client => {
+      const deletedPath = createRun(fixture.governanceTarget, 'deleted-tool-source');
+      const deletedRevision = readFileSync(deletedPath, 'utf8').match(/^- revision_id: (.+)$/mu)[1];
+      rmSync(deletedPath);
+      const missing = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'operation-status', module: randomUUID(),
+        run_id: 'deleted-tool-source', expected_revision_id: deletedRevision, presentation_language: 'en',
+        working_directory: fixture.governanceTarget, primary_target: fixture.governanceTarget, target_source: 'explicit_target' } });
+      failed(missing, 'run_missing');
+      assert.equal(missing.structuredContent.report.reason, 'run_missing');
+      assert.equal(missing.structuredContent.report.source_path, '.agdf/control/runs/deleted-tool-source/RUN_STATE.md');
+      assert(!existsSync(deletedPath));
       failed(await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments }), 'no_reliable_target');
       failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: tmpdir() } }), 'no_reliable_target');
       const invalid = await client.callTool({ name: 'agdf_dispatch', arguments: { ...unresolvedArguments, skill_id: 'not-a-skill' } });

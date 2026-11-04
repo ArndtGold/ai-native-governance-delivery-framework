@@ -1,0 +1,503 @@
+{
+  "schema_version": 1,
+  "purpose": "bounded_native_project_setup",
+  "observed_date": "2026-11-04",
+  "run_id": "run-73cf90ea-e42b-4ed9-a698-82589c31ac7e",
+  "source_baseline": "3d0069ce5479434a49d746a6899eb5589c387eb3",
+  "source_state": "uncommitted candidate; repository evidence document added afterward",
+  "reviewed_product_scope_digest": "sha256:42556c57add1c44c94c8b25072137a57e9ee22fe4340e1f0f05a291426bac422",
+  "cli": "codex-cli 0.163.0",
+  "plugin": "0.20.2+codex.local-0efcc9d75052",
+  "model": "gpt-6.1-sol",
+  "environment": {
+    "platform": "darwin",
+    "node": "v22.22.3",
+    "sandbox": "workspace-write",
+    "parent_session_ids_removed": true
+  },
+  "invocation_overrides": [
+    "-c",
+    "mcp_optional_startup_grace_ms=0",
+    "-m",
+    "gpt-6.1-sol"
+  ],
+  "session_timeout_ms": 300000,
+  "installed_source_digest": "0efcc9d750528efbc058d022dab5bca8f50ab21862461bf85206c8ec62b2ec43",
+  "generated_source_digest": "0efcc9d750528efbc058d022dab5bca8f50ab21862461bf85206c8ec62b2ec43",
+  "candidate_source_matches": true,
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "version": "0.20.2",
+    "runtime_digest": "a9c9088e48f1da6c441450fac7081e3073ed592b1058dfb810ff62217d49cc57",
+    "provenance_status": "matched",
+    "installed_core_digest": "a02bf1539aba51f0f2a84a796579bfd3c447a985dbc868513dbcd26f750b481d",
+    "assembled_candidate_core_digest": "a02bf1539aba51f0f2a84a796579bfd3c447a985dbc868513dbcd26f750b481d",
+    "candidate_core_matches": true
+  },
+  "result": {
+    "success": true,
+    "reasons": [],
+    "process": {
+      "code": 0,
+      "timeout": false,
+      "output_limit": false
+    },
+    "turn_completed": true,
+    "structured_trace_complete": true,
+    "preflight_elapsed_ms": 2210.617352,
+    "session_elapsed_ms": 74818.640415,
+    "elapsed_ms": 77079.645047,
+    "original_operation_id": "d8fca0bf-5596-4793-8a7f-df401e5451df",
+    "audit": {
+      "status": "initialized",
+      "operation_status": "recorded",
+      "operation_id": "d8fca0bf-5596-4793-8a7f-df401e5451df",
+      "file_count": 16,
+      "hashes": {
+        ".agdf/control/config.json": "sha256:236f9886a193dadaff4970cfda1baf7b195d8bc174deb5ee503a2bb5e962b353",
+        ".agdf/control/README.md": "sha256:9c913528479ee294f5d91a2bbf54f6e343af5ed3b7ff461144dd63cca3ac053f",
+        ".agdf/control/runs/.gitkeep": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ".agdf/control/planned/.gitkeep": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ".agdf/control/SOT_REGISTRY.md": "sha256:95b64c86e6d14d902880698e903aaaca8229994330e366489d8499c0f11a9130",
+        ".agdf/control/CONTEXT_GRAPH.md": "sha256:5c86ad1ce3331bfa147efa53dec4ca6991fdbd46bc5a630e7ca503939ddf418d",
+        ".agdf/control/AGENT_QUALITY_CONTRACTS.json": "sha256:031c294112c54c03636e53234b9a5583c6a5a3a0e37427d075638bbcc265ea59",
+        ".agdf/control/templates/artefacts/UR.md": "sha256:b7068b6037f594171a3fa271b4556efc2734d9dcd8a9a2b1c00cafbfd69905b8",
+        ".agdf/control/templates/artefacts/BROWNFIELD_REVIEW.md": "sha256:e8566a98c08b88565149b74562a6593806ccd69749088c118f0fe360a731f699",
+        ".agdf/control/templates/artefacts/VERIFIED_CHANGE.md": "sha256:0cb5f1626d28d44ada11b103078afec1533d72a0f999cfd4812f715f91e10662",
+        ".agdf/control/templates/artefacts/PRD.md": "sha256:81eb253519b26115cfb84fd39f0446e1d50b7fe4f6d87f719000ad5e7262e0e0",
+        ".agdf/control/templates/artefacts/UX_INTENT_DEFINITION.md": "sha256:502241f2f78605bf1c36e10e925636e80e12d298f5afa3e73b96bbe07233bb35",
+        ".agdf/control/templates/artefacts/SD.md": "sha256:1bb2f883bd5bc6a548db79dbdc91296718e438f459a0bfcf50e44bdad6b08ff2",
+        ".agdf/control/templates/artefacts/TP.md": "sha256:cc35f454045dd4a625ec48aa85b3054668d2f4cf54eeaa9d78cff9e41c9b5839",
+        ".agdf/control/templates/artefacts/QA_REPORT.md": "sha256:606c4213b8f00e409b9dcba2b45be9131d7b90705c0911d6a38c5fbbe256bd68",
+        ".agdf/control/templates/artefacts/OR.md": "sha256:63bde2e942e18b3ae1ba34a48474043b78c2e3782689eb691cf3918cff42c2dd"
+      },
+      "hashes_match": true,
+      "extra_files": [],
+      "run_count": 0,
+      "approval_created": false,
+      "receipt_digest": "sha256:af67b84bc4447fa464f6be5b3ce93a32df307b1cf5580fafb1fa244b7e704050",
+      "staging_clean": true
+    }
+  },
+  "trace": {
+    "transcript_digest": "sha256:deb0224abe30bd6ec1ba731b131d43c8c59f165d084a7dd92379f372a51c01ec",
+    "transcript_bytes": 270983,
+    "malformed_lines": 0,
+    "event_counts": {
+      "thread.started": 1,
+      "item.completed": 16,
+      "turn.started": 1,
+      "item.started": 12,
+      "turn.completed": 1
+    },
+    "ordered_event_count": 31,
+    "started_item_count": 12,
+    "unresolved_item_count": 0,
+    "native_calls": [
+      {
+        "id": "item_5",
+        "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+        "operation": "project-state",
+        "operation_id": null,
+        "module": null,
+        "failed": true,
+        "outcome": "target_unresolved",
+        "status": null
+      },
+      {
+        "id": "item_8",
+        "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+        "operation": "project-state",
+        "operation_id": null,
+        "module": null,
+        "failed": false,
+        "outcome": "inspect_result",
+        "status": "absent"
+      },
+      {
+        "id": "item_9",
+        "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+        "operation": "operation-contract",
+        "operation_id": null,
+        "module": "agdf_project/project.initialize",
+        "failed": false,
+        "outcome": "inspect_result",
+        "status": null
+      },
+      {
+        "id": "item_12",
+        "tool": "mcp__plugin_agdf_agdf__agdf_project",
+        "operation": "project.initialize",
+        "operation_id": "d8fca0bf-5596-4793-8a7f-df401e5451df",
+        "module": null,
+        "failed": false,
+        "outcome": "accepted",
+        "status": null
+      },
+      {
+        "id": "item_13",
+        "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+        "operation": "operation-status",
+        "operation_id": null,
+        "module": "project.initialize/d8fca0bf-5596-4793-8a7f-df401e5451df",
+        "failed": false,
+        "outcome": "inspect_result",
+        "status": "recorded"
+      },
+      {
+        "id": "item_14",
+        "tool": "mcp__plugin_agdf_agdf__agdf_inspect",
+        "operation": "project-state",
+        "operation_id": null,
+        "module": null,
+        "failed": false,
+        "outcome": "inspect_result",
+        "status": "initialized"
+      }
+    ],
+    "ordered_redacted_events": [
+      {
+        "line": 1,
+        "event_type": "thread.started",
+        "event_digest": "sha256:bc1cf2729fcd1400031b04b31488e2a52909367d9e26ef450f7efed0a290bdbf"
+      },
+      {
+        "line": 2,
+        "event_type": "item.completed",
+        "event_digest": "sha256:7255cb189635f50c1e579e78be08836a256d696a8dd0144d022358b8d312ed21",
+        "item_id": "item_0",
+        "item_type": "error",
+        "item_status": null
+      },
+      {
+        "line": 3,
+        "event_type": "turn.started",
+        "event_digest": "sha256:7306b54975174c6eb5111d663a47de795d167520e43cf66ee2923218b19fdb75"
+      },
+      {
+        "line": 4,
+        "event_type": "item.completed",
+        "event_digest": "sha256:e4ef9a3123d8807d1d7ea5789d4f7dd05b84058d4968f4e554bcc0cff4e5a5b7",
+        "item_id": "item_1",
+        "item_type": "agent_message",
+        "item_status": null
+      },
+      {
+        "line": 5,
+        "event_type": "item.started",
+        "event_digest": "sha256:72989a98c752d911c52a08df86d487e6cb982ea997c01bd64b98812df4c7d97b",
+        "item_id": "item_2",
+        "item_type": "command_execution",
+        "item_status": "in_progress"
+      },
+      {
+        "line": 6,
+        "event_type": "item.started",
+        "event_digest": "sha256:1884a39d94680ddf639c1222c2ae86dbc035551d16b9dd1109fd72dbd457a673",
+        "item_id": "item_3",
+        "item_type": "command_execution",
+        "item_status": "in_progress"
+      },
+      {
+        "line": 7,
+        "event_type": "item.completed",
+        "event_digest": "sha256:4e2d5074c7705b4fafbc79ab2ecc63d334f85f59a5578361b2cbe676ad28d07c",
+        "item_id": "item_3",
+        "item_type": "command_execution",
+        "item_status": "completed"
+      },
+      {
+        "line": 8,
+        "event_type": "item.completed",
+        "event_digest": "sha256:5f845c29533729baa01ebb3efbe995d2d1ef6d1818350c08c016ef136aa9082c",
+        "item_id": "item_2",
+        "item_type": "command_execution",
+        "item_status": "completed"
+      },
+      {
+        "line": 9,
+        "event_type": "item.started",
+        "event_digest": "sha256:c881e747267386cc7bf6635159d9f79cecd352ffb452fff59086e0bf146cfc63",
+        "item_id": "item_4",
+        "item_type": "command_execution",
+        "item_status": "in_progress"
+      },
+      {
+        "line": 10,
+        "event_type": "item.completed",
+        "event_digest": "sha256:17cbcae4aba5a65bf19770430473b571f6590c1080fdc9c71dfb431107acf8e5",
+        "item_id": "item_4",
+        "item_type": "command_execution",
+        "item_status": "failed"
+      },
+      {
+        "line": 11,
+        "event_type": "item.started",
+        "event_digest": "sha256:5f45aeec5864963d8ee371dde33b8cd0b844214ed4a20d81603a4b6408b6a065",
+        "item_id": "item_5",
+        "item_type": "mcp_tool_call",
+        "item_status": "in_progress",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:b1e4d68c097ac025edacb7eed328056b4c24e6005e2bebcd02c4abc36d195c58",
+        "output_digest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "has_error": false
+      },
+      {
+        "line": 12,
+        "event_type": "item.completed",
+        "event_digest": "sha256:de5ee4cfb053326e081341b24feb398dbe2702221b047f8becb2b3cf05a919a2",
+        "item_id": "item_5",
+        "item_type": "mcp_tool_call",
+        "item_status": "failed",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:b1e4d68c097ac025edacb7eed328056b4c24e6005e2bebcd02c4abc36d195c58",
+        "output_digest": "sha256:ca1a5097132cfa814173b264d1ace7e1564a0f5a57a8cd0d5fc0d0646d7f9945",
+        "has_error": false
+      },
+      {
+        "line": 13,
+        "event_type": "item.started",
+        "event_digest": "sha256:87227ed20dd5e9c8fde69c481c3198b27cf80c274a3f56821ebf33ae21ec7190",
+        "item_id": "item_6",
+        "item_type": "command_execution",
+        "item_status": "in_progress"
+      },
+      {
+        "line": 14,
+        "event_type": "item.completed",
+        "event_digest": "sha256:b7cafd34ee1d722328483bd5aad19dfa728cc1a153d3cb91ce33b857391271c0",
+        "item_id": "item_6",
+        "item_type": "command_execution",
+        "item_status": "failed"
+      },
+      {
+        "line": 15,
+        "event_type": "item.started",
+        "event_digest": "sha256:6ae6dee9eb8757c7d7ec9787db56a9ac19768fedbe1b4f220a425e44f22ad30e",
+        "item_id": "item_7",
+        "item_type": "command_execution",
+        "item_status": "in_progress"
+      },
+      {
+        "line": 16,
+        "event_type": "item.completed",
+        "event_digest": "sha256:07acea90c9fa4c798d0f7b058ce07ce56fb618956c1780cb12457721c2864cc3",
+        "item_id": "item_7",
+        "item_type": "command_execution",
+        "item_status": "completed"
+      },
+      {
+        "line": 17,
+        "event_type": "item.started",
+        "event_digest": "sha256:7ef78e8b868ee87a86c3044d29efd7791d2125c5f057f03b06b1b73605853dde",
+        "item_id": "item_8",
+        "item_type": "mcp_tool_call",
+        "item_status": "in_progress",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:b1e4d68c097ac025edacb7eed328056b4c24e6005e2bebcd02c4abc36d195c58",
+        "output_digest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "has_error": false
+      },
+      {
+        "line": 18,
+        "event_type": "item.completed",
+        "event_digest": "sha256:d7c4b817cd57f927f9b164d01d3c1456dcde079a0774fec1926452e7cfdff244",
+        "item_id": "item_8",
+        "item_type": "mcp_tool_call",
+        "item_status": "completed",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:b1e4d68c097ac025edacb7eed328056b4c24e6005e2bebcd02c4abc36d195c58",
+        "output_digest": "sha256:87f11ad8a444b36eb0efc20171986bb6fb9aa38a71004c4cea9aaaf78c971591",
+        "has_error": false
+      },
+      {
+        "line": 19,
+        "event_type": "item.started",
+        "event_digest": "sha256:34273cff676289bff4aa77fd4b58f6aec2059d6dc952ee04fabe398d8073b428",
+        "item_id": "item_9",
+        "item_type": "mcp_tool_call",
+        "item_status": "in_progress",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:2ab7c6e7dd8868d2d750c3ffc29a3c38a11050ca2a20440ba8458f77b3914c98",
+        "output_digest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "has_error": false
+      },
+      {
+        "line": 20,
+        "event_type": "item.completed",
+        "event_digest": "sha256:105b9d50fc9d2c868463506244ad59445309db7654260d5b784ed63fee9ee378",
+        "item_id": "item_9",
+        "item_type": "mcp_tool_call",
+        "item_status": "completed",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:2ab7c6e7dd8868d2d750c3ffc29a3c38a11050ca2a20440ba8458f77b3914c98",
+        "output_digest": "sha256:963696025a7aa89a7f3b1c320609f7138cf9dff0db7b63fea539bb365a80a21e",
+        "has_error": false
+      },
+      {
+        "line": 21,
+        "event_type": "item.completed",
+        "event_digest": "sha256:e911411b62ca7f6c3373234258bac4e4fbf782ef51277bceb4e5fd2d51b43860",
+        "item_id": "item_10",
+        "item_type": "agent_message",
+        "item_status": null
+      },
+      {
+        "line": 22,
+        "event_type": "item.started",
+        "event_digest": "sha256:727c339d09b7dbf0b29c47b349c614e8253028ae07062c11678489781c4de6ed",
+        "item_id": "item_11",
+        "item_type": "command_execution",
+        "item_status": "in_progress"
+      },
+      {
+        "line": 23,
+        "event_type": "item.completed",
+        "event_digest": "sha256:f8cc38398b412703588c42b8c345ab1ff9b070573c51fa1e7bb361f4fb23cf58",
+        "item_id": "item_11",
+        "item_type": "command_execution",
+        "item_status": "completed"
+      },
+      {
+        "line": 24,
+        "event_type": "item.started",
+        "event_digest": "sha256:734f3ba78ed0da1c365e8f72939b74d56df9f4ababdfd463ce404c662145cd5b",
+        "item_id": "item_12",
+        "item_type": "mcp_tool_call",
+        "item_status": "in_progress",
+        "server": "agdf",
+        "tool": "agdf_project",
+        "input_digest": "sha256:05026129cc6c862cc32fc0f3f5911c7c2b207056579f63795c92c60ca2c90f35",
+        "output_digest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "has_error": false
+      },
+      {
+        "line": 25,
+        "event_type": "item.completed",
+        "event_digest": "sha256:27ba2934d7b5d9491d6f8b737ea24731ca9633095b91ce728784c28e98315da9",
+        "item_id": "item_12",
+        "item_type": "mcp_tool_call",
+        "item_status": "completed",
+        "server": "agdf",
+        "tool": "agdf_project",
+        "input_digest": "sha256:05026129cc6c862cc32fc0f3f5911c7c2b207056579f63795c92c60ca2c90f35",
+        "output_digest": "sha256:bb91b83f8960b881545b420f7291333e30eccb39d29a445c0bd02d7ae311bd3d",
+        "has_error": false
+      },
+      {
+        "line": 26,
+        "event_type": "item.started",
+        "event_digest": "sha256:1da490a98109a451777f804f49bc152cad442a9a0d5a3f6c6a4db98a3e6cbde1",
+        "item_id": "item_13",
+        "item_type": "mcp_tool_call",
+        "item_status": "in_progress",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:6139aeacf812212aa4bdee3e623489b3aece8ff1184b87f022bd0d8cca7c09a0",
+        "output_digest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "has_error": false
+      },
+      {
+        "line": 27,
+        "event_type": "item.completed",
+        "event_digest": "sha256:bd5875044b677a44fb8e3731b7993e26255989ca5e819477fba926fcafc25675",
+        "item_id": "item_13",
+        "item_type": "mcp_tool_call",
+        "item_status": "completed",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:6139aeacf812212aa4bdee3e623489b3aece8ff1184b87f022bd0d8cca7c09a0",
+        "output_digest": "sha256:6aa2d2e94ee49d27f293215963892d6d19bc26f78a45464813f1d18e350ffd69",
+        "has_error": false
+      },
+      {
+        "line": 28,
+        "event_type": "item.started",
+        "event_digest": "sha256:61bc01cc19f9af6d64b17073a557e9a881f6a228c68ab959cff7cd9555824bab",
+        "item_id": "item_14",
+        "item_type": "mcp_tool_call",
+        "item_status": "in_progress",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:9c08efb503ea50cdaf59a56c016207bfe5bb5cc84f92204aad41e4f945dc2987",
+        "output_digest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "has_error": false
+      },
+      {
+        "line": 29,
+        "event_type": "item.completed",
+        "event_digest": "sha256:1014a4ab6e444ea05d7db406235837b56914b44884a309c56adccda16dec21fb",
+        "item_id": "item_14",
+        "item_type": "mcp_tool_call",
+        "item_status": "completed",
+        "server": "agdf",
+        "tool": "agdf_inspect",
+        "input_digest": "sha256:9c08efb503ea50cdaf59a56c016207bfe5bb5cc84f92204aad41e4f945dc2987",
+        "output_digest": "sha256:31b39bc097eeaaf78def48c97a17b1c9e4e9edc6d8cb07ba1d6845d44c670c8b",
+        "has_error": false
+      },
+      {
+        "line": 30,
+        "event_type": "item.completed",
+        "event_digest": "sha256:e75a0c82b8890916d86e36464ae405fdcdf117788436f4e3936def2ae2f32415",
+        "item_id": "item_15",
+        "item_type": "agent_message",
+        "item_status": null
+      },
+      {
+        "line": 31,
+        "event_type": "turn.completed",
+        "event_digest": "sha256:7a83e7e7ee17e5fbad7648fce459a1ce76b00dce4f259354461edb077b0921b2"
+      }
+    ],
+    "development_feature_warning": "Existing parser permits the known Under-development features enabled warning; no warning filter was changed."
+  },
+  "isolation": {
+    "parent_assistance": "Fixed test request only; no feedback to the native child. Passive parent-side event observer.",
+    "credentials": "Existing account; no credential copy",
+    "precreated_fixture": "Empty directory only; child created Git and derived target, UUID and native requests",
+    "raw_transcript_persisted": false,
+    "oracle_modified": false,
+    "timeout_modified": false
+  },
+  "previous_candidate_attempts": [
+    {
+      "attempt": 1,
+      "result": "failed",
+      "reason": "trace_integrity_unconfirmed",
+      "functional_setup_observed": true
+    },
+    {
+      "attempt": 2,
+      "result": "failed",
+      "reason": "trace_integrity_unconfirmed",
+      "functional_setup_observed": true,
+      "diagnosed_cause": "Codex reported ignored AGDF trusted_content_hash metadata as an error item"
+    }
+  ],
+  "host_cleanup": {
+    "removed_key": "hooks.state.<AGDF session-start hook>.trusted_content_hash",
+    "removed_key_count": 1,
+    "regular_trusted_hash_retained": true,
+    "backup_created": true,
+    "scope": "Explicit local host follow-up only; no automatic configuration repair is implemented in this change"
+  },
+  "formal_gate_boundary": {
+    "qa_decision": "revise",
+    "qa_acceptance": "accepted_with_deviations",
+    "uat": "approved",
+    "run_lifecycle": "completed",
+    "later_native_evidence": "This post-closeout successful observation is separate; historical gate artefacts were not rewritten."
+  },
+  "limits": [
+    "One local macOS installed tuple, not a general reliability rate or other-host qualification",
+    "Invocation wait override is disclosed; ordinary unmodified startup is not qualified",
+    "No human UI acceptance, release authorization or current-head CI result is asserted"
+  ]
+}

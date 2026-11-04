@@ -70,12 +70,10 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
       run_id: run.run_id,
       report: evaluateDoctor(targetDir, { runId: run.run_id }, dependencies),
     }));
-    const status = selected.findings.length
-      ? "block"
-      : aggregate(
-          runs.map((item) => ({ run_id: item.run_id, status: item.report.status })),
-          { allowNoActiveRuns: allowNoActiveRuns(targetDir) },
-        ).status;
+    const aggregated = selected.findings.length ? { status: 'block' }
+      : aggregate(runs.map(item => ({ run_id: item.run_id, status: item.report.status })),
+        { allowNoActiveRuns: allowNoActiveRuns(targetDir) });
+    const status = aggregated.status;
     const findings = [
       ...doctorInventoryFindings(selected.findings),
       ...runs.flatMap((item) => item.report.findings.map((finding) => ({ ...finding, run_id: item.run_id }))),
@@ -85,6 +83,8 @@ function evaluateDoctorObserved(targetDir, selection, dependencies) {
     return { report: {
       schema_version: "1",
       status,
+      ...(!selected.findings.length && existsSync(join(targetDir, '.agdf/control')) && aggregated.empty_inventory
+        ? { empty_inventory: aggregated.empty_inventory } : {}),
       checked_at: new Date().toISOString(),
       target_dir: targetDir,
       inventory: {
@@ -321,7 +321,7 @@ function sharedDoctorContext(targetDir, runId) {
   });
 }
 
-export function printDoctorReport(report, json, io = console) {
+export function printDoctorReport(report, json, io = console, { emptyInventoryText } = {}) {
   if (json) {
     io.log(JSON.stringify(report, null, 2));
     return;
@@ -330,6 +330,8 @@ export function printDoctorReport(report, json, io = console) {
   io.log(`AGDF doctor: ${report.status}`);
   io.log(`Checked: ${report.target_dir}`);
   io.log(`Findings: ${report.summary.findings} (${report.summary.block} block, ${report.summary.revise} revise, ${report.summary.warn} warn)`);
+  if (report.empty_inventory) io.log(emptyInventoryText
+    ?? `No active Runs; allow_no_active_runs=${report.empty_inventory.allow_no_active_runs}. The aggregate status reflects this policy, with no synthetic findings. Project health and delivery readiness are separate.`);
 
   for (const finding of report.findings) {
     io.log("");

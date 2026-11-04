@@ -26,6 +26,9 @@ test('full plan preserves dependency ordering and mandatory package consumers in
     }
     assert.ok(ids.indexOf('assemble') < ids.indexOf('mcp-dependencies'), 'MCP consumes the self-contained assembly');
     assert.ok(ids.indexOf('prepare') < ids.indexOf('mcp-dependencies'));
+    const setupOwners = plan.filter(stage => stage.commands.some(command => command.args.includes('test:codex-project-setup')));
+    assert.deepEqual(setupOwners.map(stage => stage.id), ['runtime'], 'setup oracle runs once after canonical resources are generated');
+    assert.ok(ids.indexOf('generate') < ids.indexOf('runtime'));
     assert.ok(ids.indexOf('mcp-dependencies') < ids.indexOf('archives'));
     assert.ok(ids.indexOf('archives') < ids.indexOf('cli-smoke'));
     assert.ok(ids.includes('wrapper-smoke') && ids.includes('transactions') && ids.includes('evals'));

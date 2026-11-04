@@ -1337,8 +1337,14 @@
           "presentation_missing": "Read the current binding and prepare its presentation. Obtain the required bound human reply before approval; do not substitute an old presentation.",
           "closeout_not_ready": "Read the current gate and missing prerequisites. Complete required evidence and human decisions before closeout; this attempt cannot complete the Run.",
           "control_layout_unsupported": "Preserve the unsupported data. Select a fresh current target or supported current Run; do not convert, reset or reseal the old store.",
-          "run_version_unsupported": "Preserve the unsupported data. Select a fresh current target or supported current Run; do not convert, reset or reseal the old store."
+          "run_version_unsupported": "Preserve the unsupported data. Select a fresh current target or supported current Run; do not convert, reset or reseal the old store.",
+          "run_missing": "Inspect named source/original UUID. Earlier effect is unconfirmed. Preserve bytes; do not recreate deleted state, wait blindly or replace identity.",
+          "document_missing": "Inspect named source/original UUID. Earlier effect is unconfirmed. Preserve bytes; do not recreate deleted state, wait blindly or replace identity.",
+          "run_path_invalid": "Inspect named source/original UUID. Earlier effect is unconfirmed. Preserve bytes; do not recreate deleted state, wait blindly or replace identity."
         }
+      },
+      "doctorEmptyInventory": {
+        "policyDescription": "No active Runs. Status follows allow_no_active_runs={policy}; zero findings. This is delivery policy, not a project-health verdict."
       }
     },
     "de": {
@@ -2665,8 +2671,14 @@
           "presentation_missing": "Aktuelle Bindung und Präsentation vorbereiten. Gebundene menschliche Antwort vor der Freigabe einholen; keine alte Präsentation einsetzen.",
           "closeout_not_ready": "Aktuelles Gate und fehlende Voraussetzungen lesen. Erforderliche Nachweise und menschliche Entscheidungen vor dem Abschluss erfüllen; jetzt kein Abschluss.",
           "control_layout_unsupported": "Altbestand erhalten. Frisches aktuelles Ziel oder unterstützten Run wählen. Keine Konvertierung oder Rücksetzung.",
-          "run_version_unsupported": "Altbestand erhalten. Frisches aktuelles Ziel oder unterstützten Run wählen. Keine Konvertierung oder Rücksetzung."
+          "run_version_unsupported": "Altbestand erhalten. Frisches aktuelles Ziel oder unterstützten Run wählen. Keine Konvertierung oder Rücksetzung.",
+          "run_missing": "Quelle/Original-UUID prüfen. Frühere Wirkung unbestätigt. Daten erhalten; gelöschten Zustand nicht neu anlegen, nicht blind warten, Identität erhalten.",
+          "document_missing": "Quelle/Original-UUID prüfen. Frühere Wirkung unbestätigt. Daten erhalten; gelöschten Zustand nicht neu anlegen, nicht blind warten, Identität erhalten.",
+          "run_path_invalid": "Quelle/Original-UUID prüfen. Frühere Wirkung unbestätigt. Daten erhalten; gelöschten Zustand nicht neu anlegen, nicht blind warten, Identität erhalten."
         }
+      },
+      "doctorEmptyInventory": {
+        "policyDescription": "Keine aktiven Runs. Status folgt allow_no_active_runs={policy}; null Befunde. Dies ist Lieferrichtlinie, kein Urteil über den Projektzustand."
       }
     }
   }

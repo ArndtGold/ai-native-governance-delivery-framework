@@ -26,7 +26,7 @@ const stages = [
   { id: 'assemble', build: true, prepare: true, commands: [node('scripts/assemble-npm.mjs')] },
   { id: 'prepare', prepare: true, commands: [npm(['--prefix', 'packages/cli', 'run', 'release:prepare'])] },
   { id: 'mcp-dependencies', commands: [npm(['ci', '--ignore-scripts'], { cwd: 'packages/mcp-server' })] },
-  { id: 'runtime', commands: [node('plugins/agdf/scripts/check-runtime-integrity.mjs')] },
+  { id: 'runtime', commands: [node('plugins/agdf/scripts/check-runtime-integrity.mjs'), npm(['run', 'test:codex-project-setup'])] },
   { id: 'community', repository: true, commands: [npm(['run', 'test:community-health']), npm(['run', 'check:community-health'])] },
   { id: 'host-compatibility', repository: true, commands: [npm(['run', 'test:host-compatibility'])] },
   { id: 'mcp-ergonomics', repository: true, commands: [npm(['run', 'test:mcp-ergonomics'])] },

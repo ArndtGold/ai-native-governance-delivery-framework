@@ -47,6 +47,8 @@ try {
         } else break;
       } while (pages < 64);
       assert.equal(final.completeness, 'complete'); assert.equal(final.status, reference.status);
+      assert.deepEqual(final.empty_inventory, reference.empty_inventory);
+      if (wanted === 0) assert.deepEqual(final.empty_inventory, { reason: 'no_active_runs', allow_no_active_runs: false });
       assert.equal(final.inventory.accounted_count, wanted); assert.equal(new Set(runs).size, wanted);
       assert.deepEqual(findingKeys(findings), findingKeys(reference.findings));
       if (wanted === 100) {

@@ -60,7 +60,15 @@ try {
   const discovery = inspect({ ...readInput, operation: 'operation-contract', presentationId: undefined, targetId: undefined,
     contractModule: 'agdf_prepare/presentation.prepare' });
   assert.equal(discovery.report.presentation_catalog.state, 'unique', JSON.stringify(discovery));
-  assert.equal(discovery.report.inspect_contract.examples.length, 3);
+  assert.equal(discovery.report.inspect_contract.examples.length, 5);
+  const setupExamples = discovery.report.inspect_contract.examples.filter(example => ['project-state', 'operation-status'].includes(example.operation));
+  assert.deepEqual(setupExamples.map(example => example.operation), ['project-state', 'operation-status']);
+  assert.match(setupExamples[1].module, /^project\.initialize\/[0-9a-f-]{36}$/u);
+  for (const example of setupExamples) {
+    assert.equal(Object.hasOwn(example, 'run_id'), false);
+    assert.equal(Object.hasOwn(example, 'expected_revision_id'), false);
+    assert.equal(example.primary_target, example.working_directory);
+  }
   assert.equal(catalog({ gate: 'QA' }).state, 'none');
   const historical = catalog({ gate: 'UR' });
   assert.equal(historical.state, 'unique');

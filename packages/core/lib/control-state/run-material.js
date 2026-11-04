@@ -50,6 +50,10 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
     if (resolveControlCommandTarget(root).target_id !== input.target_id) throw Error('target_binding_mismatch');
     assertInputConfigurationCurrent(root);
     if (planning(input)) return inspectPlannedSelection(root, input.planning, { presentationLanguage: input.presentation_language });
+    const runPath = `.agdf/control/runs/${input.run_id}/RUN_STATE.md`;
+    if (hasSymlinkComponent(root, runPath)) throw Error('run_path_invalid');
+    const source = containedRegularFile(root, runPath);
+    if (source.status !== 'valid') throw Error(source.status === 'missing' ? 'run_missing' : 'run_path_invalid');
     let run = readRun(root, input.run_id);
     if (run.rejection?.reason === 'run_step_recovery_required') {
       const pending = readPendingSourceRevisionJournal(root, input.run_id), path = `.agdf/control/runs/${input.run_id}/RUN_STATE.md`;
@@ -60,7 +64,8 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
         if (parsed.valid) run = { ...parsed, content };
       }
     }
-    if (run.rejection || run.meta.revision_id !== input.expected_revision_id) throw Error('stale_revision');
+    if (run.rejection) throw Error(run.rejection.reason);
+    if (run.meta.revision_id !== input.expected_revision_id) throw Error('stale_revision');
     if (run.meta.lifecycle !== 'active' || runSealState(root, run.content).status !== 'valid') throw Error('material_binding_invalid');
     return { available: true, revision: Number(run.meta.revision), revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle };
   }

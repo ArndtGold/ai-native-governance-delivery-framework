@@ -46,7 +46,7 @@ const packageRoot = join(__dirname, "..");
 const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
-  "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
+  "opencode-repo", "init", "project-state", "operation-status", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
   "delivery-map", "inventory", "planned", "delivery-path-search", "contract", "control-maintenance", "run-create", "run-present", "render-document", "run-approve", "run-step", "run-revise", "run-close",
   "agdf-project", "agdf-run", "agdf-prepare", "agdf-record", "agdf-approve", "agdf-revise", "agdf-closeout",
 ];

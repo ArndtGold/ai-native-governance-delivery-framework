@@ -1058,11 +1058,23 @@ assert.equal(await runCli(["status", "--surface", "codex", "--dir", blockedRoot,
   io: { log(value) { explicitStatusOutput.push(value); }, error(message) { throw new Error(message); } },
   evaluateStatusOverview(options) { handlerCalls.push(options); return { ...statusResult, operation_status: { ...statusResult.operation_status, target_scope: "repository", target: options.targetDir } }; },
   mcpLifecycle(input) { explicitStatusMcpCalls.push(input); return mcpLifecycleFixture(input); },
+  observeCodexStartup: async () => ({ configuration: { status: 'unknown' }, catalog: { status: 'not_observed' } }),
 }), 0);
 assert.equal(handlerCalls[1].targetDir, blockedRoot);
 assert.equal(explicitStatusMcpCalls.length, 1);
 assert.equal(explicitStatusMcpCalls[0].action, "status");
 assert.equal(JSON.parse(explicitStatusOutput[0]).mcp.result, "not_configured");
+
+for (const state of ['unavailable', 'discovered_ready']) {
+  const output = [];
+  const result = await runCli(['status', '--surface', 'codex', '--dir', blockedRoot, '--native', '--json'], {
+    parser: { cwd: statusRoot }, io: { log: line => output.push(line), error: message => { throw Error(message); } },
+    evaluateStatusOverview: () => statusResult, mcpLifecycle: mcpLifecycleFixture,
+    observeCodexStartup: async options => { assert.equal(options.native, true); return { configuration: { status: 'unknown' }, catalog: { status: state } }; },
+  });
+  assert.equal(result, state === 'discovered_ready' ? 0 : 2);
+  assert.equal(JSON.parse(output[0]).codex_startup.catalog.status, state);
+}
 
 const openCodeStatusConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-cli-config-"));
 const decoyOpenCodeCwd = mkdtempSync(join(tmpdir(), "agdf-opencode-cli-decoy-"));

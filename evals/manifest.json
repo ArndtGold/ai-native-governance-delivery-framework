@@ -14,9 +14,9 @@
     "code-review": "79365fe3a950ed5187663ce54185fd87dea59f07156c6a0b7b06dd8cdfb58827",
     "delivery-closeout": "8a3c9dae2c73d29991e8091c44c76bdccb28b687923aa155e1b22b383191b4ad",
     "ur-definition": "da69dc9ed2640ac33c323b61c3fc16c074347dd1c81a33ea5df37750982ed413",
-    "prd-definition": "9a2c297b2c94957eabd9477cfc4cbf42bbc10ff7b04d1ecb38d63e3965f9c79a",
-    "sd-definition": "bba564aaf27c6b1f285548c27acbad8d00ab6c4e200409ab7f901de28a9335a7",
-    "tp-definition": "2c65bc511c3f5d2d06f919d5d82c7130e349b6a9910cea36698f23cbf32bd7e3",
+    "prd-definition": "e9e44eb8cb0ba977e50dad465a9268220df377262880921fead48dcf74b6a9df",
+    "sd-definition": "4de2d533dc3efd4699952cc7cb3912c478a308f5fa23029f79eb6b580834be9f",
+    "tp-definition": "e4a31d3ce1489c08691814eed25996565dc5e0eb10bc948063930c8e065260d6",
     "gate-check": "aefde16e37e24dfb6feebe57436c40db9360e69fc789f5003768cf804923412e",
     "qa-gate": "0c77a0b77788e52d770893c1528b8910b359dc058d2817eb6c0100c0287c69e7",
     "release-or": "f8f62da8f8acd128b4a5e6b9bb372068e3dfba7daa9e5601815a346cd44fa7cf",
@@ -80,6 +80,34 @@
         "task-plan-review": "3bea37bab4f7a7888cb7cffa222f62109b17a9363ec4e6260ad04bbfa4426fbd"
       },
       "boundary": "Source-reference revalidation only; no new model sessions, live observations or human acceptance."
+    },
+    "cli_setup_reference_review": {
+      "run_id": "run-73cf90ea-e42b-4ed9-a698-82589c31ac7e",
+      "scope": "Explicit post-closeout PR/CI follow-up: reviewed the 15 PRD/SD/TP deterministic cases against the additive CLI setup/recovery paragraph in gate-artifact-preparation.md. Source derivation, draft preservation, decision readiness, exact human approval and preview boundaries are unchanged.",
+      "previous_source_fingerprints": {
+        "prd-definition": "9a2c297b2c94957eabd9477cfc4cbf42bbc10ff7b04d1ecb38d63e3965f9c79a",
+        "sd-definition": "bba564aaf27c6b1f285548c27acbad8d00ab6c4e200409ab7f901de28a9335a7",
+        "tp-definition": "2c65bc511c3f5d2d06f919d5d82c7130e349b6a9910cea36698f23cbf32bd7e3"
+      },
+      "changed_source": "plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+      "case_ids": [
+        "prd-definition-normal",
+        "prd-definition-boundary",
+        "prd-definition-adversarial",
+        "prd-definition-direct-target-unresolved",
+        "prd-preview-stale-or-chat-only",
+        "prd-preview-review-handoff",
+        "prd-preview-changed-after-presentation",
+        "sd-definition-normal",
+        "sd-definition-boundary",
+        "sd-definition-adversarial",
+        "sd-definition-direct-target-unresolved",
+        "tp-definition-normal",
+        "tp-definition-boundary",
+        "tp-definition-adversarial",
+        "tp-definition-direct-target-unresolved"
+      ],
+      "boundary": "Source-reference revalidation of deterministic fixtures only; no changed expectations, thresholds, source governance, new model observations or human approval. Existing live evidence is unchanged."
     }
   }
 }

@@ -63,5 +63,10 @@ export function inspectRunInputResolution(root, input) {
     if (resolutionRecordVersion(pending) === 7 && pending.kind === 'source_revision' && pending.target_id === input.target_id) return null;
   }
   if (observed.status === 'absent') return null;
+  // A read must reach the original-operation owner even when its source is gone.
+  // Original input restoration is not needed to perform this non-mutating read.
+  if (input.operation === 'operation-status') return null;
+  if (['run_missing', 'document_missing', 'run_path_invalid'].includes(observed.reason))
+    throw Object.assign(Error(observed.reason), { facts: { code: observed.reason, dispatch: 'not_dispatched' } });
   throw Object.assign(Error('original_operation_unconfirmed'), { facts: { code: 'original_operation_unconfirmed', dispatch: 'not_dispatched' } });
 }

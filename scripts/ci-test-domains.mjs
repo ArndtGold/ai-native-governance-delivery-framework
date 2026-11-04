@@ -9,7 +9,7 @@ export const TEST_DOMAINS = {
     'test:delivery-path-search-generator',
   ] },
   installation: { label: 'Installation & hosts', shortLabel: 'Install', scripts: [
-    'test:canonical-init', 'test:install-setup-contract', 'test:install-setup-interaction',
+    'test:canonical-init', 'test:project-read', 'test:codex-startup-status', 'test:install-setup-contract', 'test:install-setup-interaction',
     'test:install-setup-service', 'test:control-compatibility',
     'test:control-maintenance', 'test:runtime-check-consent', 'test:local-marketplace',
     'test:claude-cache-recovery', 'test:claude-packaged-app-copy', 'test:claude-install-hardening', 'test:claude-companion',

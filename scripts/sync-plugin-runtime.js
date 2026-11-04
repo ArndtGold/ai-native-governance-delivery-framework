@@ -221,6 +221,7 @@ export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = fa
     "lib/cli/parse-args.js",
     "lib/cli/runtime-context.js",
     "lib/cli/validation-handlers.js",
+    "lib/cli/project-read-command.js",
     "lib/cli/planned-command.js",
     "lib/cli/run-command-aliases.js",
     "lib/cli/control-maintenance-command.js",

@@ -45,7 +45,7 @@ const fieldModel = {
   target_id: { help: 'Optional confirmed target hash on target-bound reads; when supplied it must match. Required for presentation reads; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Optional verified target hash.' },
   cursor: { help: 'Omit initially; copy next_cursor. doctor requires all_active; catalog requires its declared module. Never exchange cursor types.', schema: cursorSchema, description: 'Copy next_cursor.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract', 'authoring-inputs', 'doctor'] },
   variant: { help: 'gate-check view only; never records approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
-  module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
+  module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: project.initialize/ORIGINAL_UUID without Run/revision for setup, otherwise the saved original Run operation UUID with Run/revision. Never use a new UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
   all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'doctor/delivery-map only.' },
 };
 const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule', planning: 'planning' };
@@ -99,7 +99,7 @@ for (const [key, field] of Object.entries(inputSchema.properties)) {
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read-only. Status/docs=gate-check. primary_target+target_source; cwd=context. Ex:{"operation":"operation-contract","module":"agdf_run/run.create","working_directory":"/r","target_source":"explicit_target","primary_target":"/r"}. Docs:navigation.next_calls sequentially; read all pages; never dispatch. operation-status:original UUID+run_id+expected_revision_id.',
+  description: 'Read-only. Status/docs=gate-check; primary_target+target_source; cwd=context. Read navigation.next_calls sequentially and every page; never dispatch. Setup status: module project.initialize/UUID, no Run/revision. Run status: original UUID+run_id+expected_revision_id.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {
@@ -147,6 +147,7 @@ export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
 
 export function inspectContractHelp() {
   const base = { presentation_language: 'de', working_directory: '/workspace/project', target_source: 'explicit_target', primary_target: '/workspace/project', run_id: 'demo-run-01' };
+  const { run_id: _exampleRun, ...projectBase } = base;
   const revision = '00000000-0000-4000-8000-000000000001';
   return deepFreeze({ schema_version: '1', authorizes: false,
     input_completion: 'MCP inherits matching configured language. Current native adapters require explicit working_directory; private trustworthy task context alone may supply it. Bindings remain explicit.',
@@ -158,7 +159,7 @@ export function inspectContractHelp() {
       omit: [...Object.entries(fieldModel).filter(([, field]) => field.operations && !field.operations.includes(operation)).map(([name]) => name),
         ...(['inventory', 'planned-inventory', 'planned-entry', 'project-state'].includes(operation) ? ['run_id'] : [])],
       ...(['operation-contract', 'operation-status'].includes(operation) ? { unbound: {
-        module: operation === 'operation-contract' ? 'agdf_run/run.create' : 'original run.create operation UUID',
+        module: operation === 'operation-contract' ? 'agdf_run/run.create' : 'project.initialize/original-UUID or original run.create UUID',
         required: [...CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, 'target_source', 'primary_target', 'module'],
         omit: ['run_id', 'expected_revision_id'],
       } } : {}),
@@ -166,7 +167,9 @@ export function inspectContractHelp() {
     examples_are_illustrative: true,
     examples: [ { ...base, operation: 'gate-check' },
       { ...base, operation: 'operation-contract', module: PRESENTATION_CATALOG_MODULE, expected_revision_id: revision, gate: 'UR' },
-      { ...base, operation: 'presentation-document', expected_revision_id: revision, gate: 'UR', presentation_id: '00000000-0000-4000-8000-000000000002', target_id: `sha256:${'0'.repeat(64)}` } ],
+      { ...base, operation: 'presentation-document', expected_revision_id: revision, gate: 'UR', presentation_id: '00000000-0000-4000-8000-000000000002', target_id: `sha256:${'0'.repeat(64)}` },
+      { ...projectBase, operation: 'project-state' },
+      { ...projectBase, operation: 'operation-status', module: `project.initialize/${revision}` } ],
     provenance: 'Preserve exact conversation bindings; otherwise require unique complete catalog discovery or explicit selection. Reads keep original revisions. Prepared proves neither viewing nor approval. Catalog cursors require the catalog module.',
     catalog_limits: { page_candidates: 16, record_files: 256, record_bytes: 1048576, directory_entries: 1024 },
   });

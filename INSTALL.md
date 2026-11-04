@@ -674,6 +674,25 @@ node` (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS install
 
 ## Codex
 
+Development-build setup diagnosis keeps configuration, registration and actual native tools separate:
+`agdf status --surface codex --dir /absolute/git/root --native --json` explicitly observes the owned
+AGDF catalog with the existing invocation wait policy and a 45-second total ceiling. Without
+`--native`, status reads relevant startup configuration only (15-second ceiling), without a model turn
+or configuration write. Unsupported wait/provenance fields stay unknown. No server timeout is raised.
+
+The installed CLI/validator also exposes `project-state --dir /absolute/git/root --json` and
+`operation-status --dir /absolute/git/root --module project.initialize/ORIGINAL_UUID --json`.
+These are Core reads, not initialization. The latter CLI route is limited to project.initialize.
+Use the existing `agdf-project --command-file REQUEST.json` writer only for explicit setup; keep its
+exact target, original UUID/payload and receipt. After uncertainty inspect that original operation.
+Exit 0 means complete available (including pending), 2 blocked/unavailable/incomplete, 1 invalid usage.
+Missing state never proves nonexecution and does not authorize recreating deleted Runs.
+
+An empty Doctor inventory explains its `allow_no_active_runs` policy without adding findings or Runs.
+For a repeatable independent installed-host probe, see the development CLI README's
+[project setup diagnosis](packages/cli/README.md#project-setup-diagnosis-development-build).
+Repository/package checks and an older installed tuple do not qualify candidate-host behavior.
+
 AGDF is delivered to Codex and Claude Code from one complete generated plugin bundle. The paths
 below are canonical source projections that are copied into that bundle; the repository `plugins/agdf/`
 directory itself is not an installable runtime.

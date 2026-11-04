@@ -18,6 +18,22 @@ import { createDoctorObservationService } from '../lib/control-inspect/doctor-ob
 import { createReadWorkerBudget, ReadWorkerPool } from '../lib/control-read/cockpit-pool.js';
 import { createHash } from 'node:crypto';
 import { readSourceRevisions } from '../lib/control-state/run-source-revisions.js';
+import { currentFixture } from './fixtures/current-run.js';
+
+test('empty Doctor explains its policy consistently without findings or new Runs', t => {
+  const f = currentFixture(t), path = join(f.root, '.agdf/control/config.json');
+  for (const policy of [false, true]) {
+    const config = JSON.parse(readFileSync(path, 'utf8')); config.allow_no_active_runs = policy; writeFileSync(path, JSON.stringify(config));
+    const before = readFileSync(path, 'utf8');
+    const direct = evaluateDoctor(f.root, { allActive: true });
+    const paged = createDoctorReader(f.root).open({ all_active: true, git_snapshot: { head: null, tracked: [], untracked: [] } });
+    assert.equal(direct.status, policy ? 'pass' : 'revise'); assert.equal(paged.status, direct.status);
+    assert.deepEqual(direct.empty_inventory, { reason: 'no_active_runs', allow_no_active_runs: policy });
+    assert.deepEqual(paged.empty_inventory, direct.empty_inventory);
+    assert.equal(direct.summary.findings, 0); assert.equal(paged.summary.findings, 0);
+    assert.equal(direct.inventory.active_count, 0); assert.equal(readFileSync(path, 'utf8'), before);
+  }
+});
 
 test('archived source history is unsupported by the current reader and is preserved byte for byte', () => {
   const base = new URL('./fixtures/diagnostic-compatibility/', import.meta.url);

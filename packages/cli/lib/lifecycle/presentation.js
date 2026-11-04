@@ -140,5 +140,11 @@ export function printGeneralStatus(report, { json = false, io = console } = {}) 
   io.log(`Automatic runtime checks: requested=${report.runtime_checks.requested}; effective=${report.runtime_checks.effective}; reason=${report.runtime_checks.reason}`);
   if (report.runtime_checks.verification) io.log(`Automatic-check verification: ${report.runtime_checks.verification}`);
   io.log(`MCP: ${report.mcp?.result ?? report.mcp?.status ?? "not_checked"}`);
+  if (report.codex_startup) {
+    const { configuration, catalog, next_action } = report.codex_startup;
+    io.log(`Codex startup configuration: ${configuration.status}; wait_ms=${configuration.wait_ms ?? 'unknown'}; origin=${configuration.origin?.kind ?? 'unknown'}; reason=${configuration.reason ?? 'none'}`);
+    io.log(`Codex native catalog: ${catalog.status}; reason=${catalog.reason ?? 'none'}`);
+    io.log(`Codex next action: ${next_action}`);
+  }
   io.log(`Next action: ${report.next_action.text}`);
 }

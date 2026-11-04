@@ -32,9 +32,12 @@ export function inspectProjectState(root, input, gitObservation) {
     const next = state.status === 'initialized' ? { tool: 'agdf_inspect', arguments: { ...common, operation: 'operation-contract', module: 'agdf_run/run.create' } }
       : state.status === 'absent' ? { tool: 'agdf_inspect', arguments: { ...common, operation: 'operation-contract', module: 'agdf_project/project.initialize' } }
       : state.operation && input.operation !== 'operation-status' ? projectOperationStatusCall({ ...input, operation_id: state.operation.operation_id }) : null;
+    const original = state.receipt?.operation?.operation_id;
+    const statusCall = state.status === 'initialized' && original && input.operation !== 'operation-status'
+      ? projectOperationStatusCall({ ...input, operation_id: original }) : null;
     const report = { available: true, target_id, repository, plan: inspectCanonicalInitializationPlan(), ...state,
       setup: { tool: 'agdf_project', kind: 'project.initialize', binding: { schema_version: '1', assurance: 'cooperative_local', ...common, target_id },
-        required_agent_fields: ['operation_id'], requires_explicit_intent: true }, next_calls: next ? [next] : [],
+        required_agent_fields: ['operation_id'], requires_explicit_intent: true }, next_calls: [...(next ? [next] : []), ...(statusCall ? [statusCall] : [])],
       ...(input.operation === 'operation-status' ? { operation_id: input.operation_id, status: state.operation_status, current_setup: state.status } : {}),
       ...(state.status === 'pending' ? { recovery: { action: 'replay_original', operation_id: state.operation.operation_id,
         request_digest: state.operation.request_digest, instruction: 'Replay only the saved original project.initialize UUID/payload. Owned stage, target, plan and producer are revalidated before any effect.', authorizes: false } } : {}),

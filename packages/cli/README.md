@@ -9,6 +9,37 @@ automated regression tests; native qualification is not currently claimed. Tests
 hosts do not establish behavior in an actual Copilot or OpenCode session. See the
 [host compatibility report](../../docs/compatibility/HOST_COMPATIBILITY.md) for dated evidence and gaps.
 
+## Project setup diagnosis (development build)
+
+For a confirmed existing Git root, CLI and installed validator share Core's read-only setup facts:
+
+```bash
+agdf project-state --dir /absolute/git/root --json
+agdf operation-status --dir /absolute/git/root --module project.initialize/ORIGINAL_UUID --json
+agdf status --surface codex --dir /absolute/git/root --native --json
+```
+
+The first two reads accept optional `--language TAG`; operation-status here supports project.initialize.
+Exit 0 means a complete available result, including pending; 2 means blocked/unavailable/incomplete;
+1 means invalid usage. Keep the original UUID and exact request after uncertainty. The existing
+`agdf-project --command-file REQUEST.json` writer remains the explicit setup fallback.
+Reads never initialize or create a Run. Missing evidence does not prove a past write never happened.
+
+Codex status distinguishes installation/registration, configuration and actual owned-provider tools.
+Without `--native`, it observes only relevant configuration, with no thread or model turn. Unsupported
+settings/provenance remain unknown. Explicit catalog observation uses the existing per-invocation
+startup wait override and stays within 45 seconds including cleanup; configuration observation has a
+15-second ceiling. It changes no global settings or server timeout. This is no general speed guarantee.
+
+An empty Doctor inventory explains `allow_no_active_runs`: default revise with zero findings;
+explicit true preserves pass. Project health and delivery readiness remain separate. Preserve
+specific missing-source, stale-revision and runtime causes, deleted state and original identity.
+
+Run `npm run native:codex-project-setup -- --out /absolute/unused/report-directory` from the source
+checkout for one finite independent session using the existing authenticated host and configured model.
+It starts from an empty directory, supplies no identities or seeds, and audits native events, original
+receipt and all 16 file hashes. A baseline installed tuple does not qualify an uninstalled candidate.
+
 ## Quick start
 
 AGDF's normal operating model has three roles: chat/skills provide the user interaction,

@@ -50,8 +50,10 @@ export function createDoctorReader(root, { limits = {} } = {}) {
     const nextInvalid = invalidCount + rows.filter(r => r.invalid).length;
     const nextStatuses = [...statuses, ...rows.filter(r => r.report).map(r => ({ run_id: r.run_id, status: r.report.status }))];
     const complete = end === items.length && !nextUnevaluated;
-    const result = { schema_version: '1', available: true, status: complete ? nextInvalid ? 'block' : aggregate(nextStatuses, { allowNoActiveRuns: allowEmpty }).status : 'partial',
+    const aggregated = aggregate(nextStatuses, { allowNoActiveRuns: allowEmpty });
+    const result = { schema_version: '1', available: true, status: complete ? nextInvalid ? 'block' : aggregated.status : 'partial',
       target_dir: root, checked_at: current.view.observed_as_of, observed_as_of: scope.view.observed_as_of,
+      ...(complete && !nextInvalid && controlPresent && aggregated.empty_inventory ? { empty_inventory: aggregated.empty_inventory } : {}),
       source_digest: current.view.digest, completeness: complete ? 'complete' : 'partial',
       inventory: { state: !controlPresent ? 'absent' : nextInvalid ? 'incomplete' : end === items.length ? 'complete' : 'partial', active_count: items.filter(r => !r.invalid).length,
         total_entries: items.length, accounted_count: end, evaluated_count: end - nextUnevaluated,

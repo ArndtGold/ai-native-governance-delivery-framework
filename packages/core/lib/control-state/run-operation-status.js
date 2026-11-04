@@ -7,6 +7,7 @@ import { readSourceRevisions } from './run-source-revisions.js';
 import { readRunOperations } from './run-operations.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { parseRunState } from './run-state-parser.js';
+import { projectRunFacts } from './run-state-document.js';
 import { runSealState } from './run-seal.js';
 import { readPendingRunStepJournal } from './run-step-transaction.js';
 import { validateRunPresentationEnvelope } from './run-presentation.js';
@@ -18,7 +19,12 @@ export function inspectRunOperation(root, { runId, operationId, targetId }) {
   const result = extra => ({ schema_version: '1', run_id: runId, operation_id: operationId, authorizes: false, ...extra });
   if (!RUN_ID_PATTERN.test(runId ?? '') || !REVISION_ID_PATTERN.test(operationId ?? '') || targetId !== resolveControlCommandTarget(root).target_id) return result({ status: 'unavailable', reason: 'operation_binding_invalid' });
   const relative = `.agdf/control/runs/${runId}/RUN_STATE.md`;
-  if (hasSymlinkComponent(root, relative) || containedRegularFile(root, relative).status !== 'valid') return result({ status: 'unavailable', reason: 'run_path_invalid' });
+  const unavailable = (reason, source_path) => result({ available: false, status: 'unavailable', reason,
+    ...(source_path ? { source_path } : {}), historical_effect: null,
+    recovery_instruction: 'Inspect the named source and original operation. The current read changes nothing; the prior effect is unconfirmed. Preserve existing bytes and identity; do not recreate deleted state or retry with a new UUID.' });
+  if (hasSymlinkComponent(root, relative)) return unavailable('run_path_invalid', relative);
+  if (!existsSync(join(root, relative))) return unavailable('run_missing', relative);
+  if (containedRegularFile(root, relative).status !== 'valid') return unavailable('run_path_invalid', relative);
   const content = readFileSync(join(root, relative), 'utf8'), parsed = parseRunState(content, runId);
   if (!parsed.valid) return result({ status: 'unavailable', reason: 'run_state_invalid' });
   const records = [
@@ -38,7 +44,16 @@ export function inspectRunOperation(root, { runId, operationId, targetId }) {
   if (records.length > 1) return result({ status: 'unknown', reason: 'operation_identity_ambiguous' });
   if (records.length === 1) {
     const record = records[0], seal = runSealState(root, content);
-    if (seal.status !== 'valid') return result({ status: 'unknown', reason: 'current_seal_unconfirmed', receipt: record.receipt, pending });
+    if (seal.status !== 'valid') {
+      // Only emit canonical contained paths from the parsed registry; no raw
+      // exception or arbitrary path is exposed, and no missing file is repaired.
+      for (const artefact of projectRunFacts(content).artefacts.values()) {
+        if (artefact.path?.startsWith(`.agdf/control/runs/${runId}/documents/`)
+          && !hasSymlinkComponent(root, artefact.path) && !existsSync(join(root, artefact.path)))
+          return unavailable('document_missing', artefact.path);
+      }
+      return result({ status: 'unknown', reason: 'current_seal_unconfirmed', receipt: record.receipt, pending });
+    }
     return result({ status: pending?.matches_operation ? 'committed_recovery_required' : 'recorded', family: record.kind,
       request_digest: record.request_digest, receipt: record.receipt, historical_effect: true, current_revision_id: parsed.meta.revision_id, pending });
   }

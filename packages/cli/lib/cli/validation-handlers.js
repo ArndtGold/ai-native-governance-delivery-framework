@@ -1,4 +1,6 @@
 import { executeRunAlias } from './run-command-aliases.js';
+import { executeProjectRead } from './project-read-command.js';
+import { localePack } from '#agdf-core/interaction-presentation.js';
 import { renderCodexDocument } from './codex-document-command.js';
 import { readFileSync, lstatSync, openSync, fstatSync, closeSync, constants } from "node:fs";
 import { commandGroupRoutes } from './command-registry.js';
@@ -43,6 +45,7 @@ export function createValidationHandlers(io = console) {
     readSkillRuntimeContracts,
   } }).dispatch;
   return new Map([
+    ...['project-state', 'operation-status'].map(name => [name, options => executeProjectRead(options, io)]),
     ['render-document', options => renderCodexDocument(options)],
     ...['run-create', 'run-present', 'run-approve', 'run-step', 'run-revise', 'run-close'].map(name => [name, options => executeRunAlias(options, io)]),
     ...Object.entries(commandGroupRoutes).map(([route, group]) => [route, options => {
@@ -111,7 +114,13 @@ export function createValidationHandlers(io = console) {
     }],
     ["doctor", (options) => {
       const report = evaluateDoctorWithCliGit(options.dir, options);
-      printDoctorReport(report, options.json, io);
+      let emptyInventoryText;
+      if (report.empty_inventory && !options.json) {
+        const language = options.languageExplicit ? options.language.chat_language : resolveConfiguredChatLanguage(options.dir);
+        emptyInventoryText = localePack(interactionLocales, language).doctorEmptyInventory?.policyDescription
+          .replace('{policy}', String(report.empty_inventory.allow_no_active_runs));
+      }
+      printDoctorReport(report, options.json, io, { emptyInventoryText });
       return report.status === "block" ? 2 : 0;
     }],
     ["gate-check", (options) => {

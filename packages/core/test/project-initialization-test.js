@@ -18,6 +18,8 @@ import { cliGitObservation } from '../../cli/lib/control-evaluation/git-observat
 import { ownerPlacement, assertOwnerPlacement } from '../lib/owner-placement.js';
 import { canonicalJson, digest } from '../lib/control-state/approval-command-contract.js';
 
+const packageVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
+
 function fixture(work) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-project-init-')));
   execFileSync('git', ['init', '-q', root]);
@@ -25,7 +27,7 @@ function fixture(work) {
     working_directory: root, primary_target: root, target_source: 'explicit_target',
     target_id: resolveControlCommandTarget(root).target_id, operation_id: randomUUID(),
     command: { kind: 'project.initialize', payload: { language: 'en' } } };
-  const run = (value = input, checkpoint) => createRunCommandService({ packageVersion: '0.20.2', gitObservation: cliGitObservation, checkpoint })('agdf_project', value);
+  const run = (value = input, checkpoint) => createRunCommandService({ packageVersion, gitObservation: cliGitObservation, checkpoint })('agdf_project', value);
   try { return work({ root, input, run }); } finally { rmSync(root, { recursive: true, force: true }); }
 }
 const files = root => Object.fromEntries(readdirSync(root, { recursive: true, withFileTypes: true }).filter(e => e.isFile())
@@ -207,7 +209,7 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   const absent = inspectProjectState(root, input, cliGitObservation);
   assert.equal(absent.status, 'absent'); assert.equal(existsSync(join(root, '.agdf')), false);
   assert.equal(absent.repository.root, root); assert.match(absent.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
-  assert.equal(absent.plan.version, '0.20.2'); assert.equal(absent.plan.file_count, 16, 'current scaffold retains empty Git stores without a shared backlog');
+  assert.equal(absent.plan.version, packageVersion); assert.equal(absent.plan.file_count, 16, 'current scaffold retains empty Git stores without a shared backlog');
   assert.equal(absent.setup.binding.target_id, input.target_id); assert.equal(absent.setup.requires_explicit_intent, true);
   assert.deepEqual(absent.setup.required_agent_fields, ['operation_id']);
   const created = run();

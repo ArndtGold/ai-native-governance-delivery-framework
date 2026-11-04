@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { createOwnedRuntimeFixture } from './owned-runtime.js';
+import { createOwnedRuntimeFixture, MCP_PACKAGE_VERSION } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
 import { pluginRoot, offlineNpm } from '../../../scripts/support/plugin-mcp-fixture.js';
 import { GENERATION_LIMITS } from '../src/generation-protocol.js';
@@ -18,7 +18,7 @@ const independent = spawnSync(process.execPath, ['--input-type=module', '--eval'
   const hook = "export async function resolve(specifier,context,next){if(specifier.startsWith('@modelcontextprotocol/'))throw Error('worker_factory_sdk_coupling');if(['parse5','postcss'].includes(specifier))throw Error('startup_preview_parser_coupling');const result=await next(specifier,context);if(result.url.endsWith('/src/server.js'))throw Error('worker_factory_server_coupling');return result;}";
   register('data:text/javascript,'+encodeURIComponent(hook));
   const {createAgdfWorkerExecutor}=await import(${JSON.stringify(workerModule)});
-  const executor=createAgdfWorkerExecutor({trustedContext:{surface:'codex',expectedVersion:'0.20.2',commandGroups:[]}});
+  const executor=createAgdfWorkerExecutor({trustedContext:{surface:'codex',expectedVersion:${JSON.stringify(MCP_PACKAGE_VERSION)},commandGroups:[]}});
   await executor.close();
   const {createMcpDispatchRuntime}=await import(${JSON.stringify(new URL('../../cli/lib/mcp-dispatch-runtime.js', import.meta.url).href)});
   const actual=createMcpDispatchRuntime({surface:'copilot'});
@@ -167,7 +167,8 @@ try {
       const {inspectMcpExecutableRoot,createMcpGenerationPublisher}=await import(${JSON.stringify(pathToFileURL(join(fixture.dispatcherRoot, 'lib/mcp-lifecycle/package.js')).href)});
       const protocol=await import(${JSON.stringify(pathToFileURL(join(fixture.dispatcherRoot, 'lib/mcp-protocol-runtime.js')).href)});
       const root=${JSON.stringify(fixture.root)};
-      const observed=inspectMcpExecutableRoot({root,expectedVersion:'0.20.2'});
+      const observed=inspectMcpExecutableRoot({root,expectedVersion:${JSON.stringify(MCP_PACKAGE_VERSION)}});
+      assert.equal(observed.status,'matched','late-mutation fixture starts at the declared current version');
       const base={...observed,immutable:true,publication_id:basename(dirname(root)),publisher_root:dirname(dirname(dirname(root)))};
       const fresh=protocol.inspectMcpDispatcherRuntime();
       const runtime=protocol.createMcpTransportRuntime({surface:'codex'});

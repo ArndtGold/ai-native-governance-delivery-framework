@@ -45,6 +45,15 @@ function designDecisionIds(value) {
   return text.split(",").map((item) => item.trim().toUpperCase());
 }
 
+// A quoted command such as `done <id>` is concrete CLI syntax. Preserve
+// placeholder detection outside that command and for standalone `<why>` spans.
+function unfinishedDecisionPrompt(value) {
+  const text = value.replace(/`([^`\n]+)`/gu, (span, code) =>
+    /^[a-z][a-z0-9._/-]*(?:[ \t]+(?:--?[a-z0-9][a-z0-9_-]*|[a-z0-9._/-]+|<[a-z][a-z0-9_-]*>))+$/iu.test(code)
+      ? code.replace(/<([a-z][a-z0-9_-]*)>/giu, '$1') : span);
+  return /<[^>]+>|\b(?:tbd|to confirm|todo)\b/iu.test(text);
+}
+
 function architectureDecisionIds(markdown) {
   const body = section(markdown, "Architecture Decisions");
   const openItems = [];
@@ -54,7 +63,7 @@ function architectureDecisionIds(markdown) {
   for (const line of body.split("\n").map((item) => item.trim()).filter((item) => /^[-*]\s+/u.test(item))) {
     const decision = line.replace(/^[-*]\s+/u, "").trim();
     if (/^none\b/iu.test(decision)) {
-      if (!reasonedNone(decision) || /<[^>]+>|\b(?:tbd|to confirm|todo)\b/iu.test(decision)) {
+      if (!reasonedNone(decision) || unfinishedDecisionPrompt(decision)) {
         openItems.push("State why no binding SD decision is needed after 'none'");
       }
       if (none || ids.length) openItems.push("SD cannot combine 'none' with binding design decisions");
@@ -73,7 +82,7 @@ function architectureDecisionIds(markdown) {
     const detail = match[2];
     const rationale = detail.match(/(?:^|;\s*)rationale:\s*([^;]+)/iu)?.[1]?.trim();
     const consequence = detail.match(/(?:^|;\s*)(?:consequence|trade-off):\s*([^;]+)/iu)?.[1]?.trim();
-    if (unfinished(detail) || /<[^>]+>|\b(?:tbd|to confirm|todo)\b/iu.test(detail)
+    if (unfinished(detail) || unfinishedDecisionPrompt(detail)
         || unfinished(rationale) || unfinished(consequence)) {
       openItems.push(`SD design decision ${id} needs a concrete rationale and consequence`);
     }
@@ -192,7 +201,7 @@ export function evaluateTpTraceability(targetDir, runState) {
     for (const column of ["expected_result", "evidence"]) if (unfinished(row[column])) openItems.push(`TP scenario ${scenario || "without id"} needs ${column}`);
     const expectedDecisions = decisionsByCriterion.get(criterion) ?? [];
     if (expectedDecisions.length) {
-      if (!expectedDecisions.includes(decision)) openItems.push(`TP scenario ${scenario || "without id"} must reference an SD decision for ${criterion}`);
+      if (!expectedDecisions.includes(decision)) openItems.push(`TP scenario ${scenario || "without id"} for ${criterion} has design_decision_id ${decision || "empty"}; set that table column to one of the mapped SD IDs: ${expectedDecisions.join(", ")}. Scenario prose cannot replace this cell.`);
       else {
         if (!verifiedDecisions.has(criterion)) verifiedDecisions.set(criterion, new Set());
         verifiedDecisions.get(criterion).add(decision);

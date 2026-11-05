@@ -43,12 +43,13 @@ const fieldModel = {
   expected_revision_id: { help: 'Bound inspections use current gate-check revision. Document/preview reads preserve the original selected catalog or conversation revision.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
   presentation_id: { help: 'Exact prepared ID from validated catalog or conversation. Never guess, select by timestamp, or prepare a replacement to read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
   target_id: { help: 'Optional confirmed target hash on target-bound reads; when supplied it must match. Required for presentation reads; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Optional verified target hash.' },
+  bundle: { help: 'authoring-inputs only: bounded multi-document pages with exact source bytes.', schema: { type: 'boolean' }, operations: ['authoring-inputs'] },
   cursor: { help: 'Omit initially; copy next_cursor. doctor requires all_active; catalog requires its declared module. Never exchange cursor types.', schema: cursorSchema, description: 'Copy next_cursor.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract', 'authoring-inputs', 'doctor'] },
   variant: { help: 'gate-check view only; never records approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
   module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID. Setup uses project.initialize/ORIGINAL_UUID without Run/revision; Run operations require Run/revision.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
   all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'doctor/delivery-map only.' },
 };
-const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule', planning: 'planning' };
+const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule', planning: 'planning', bundle: 'bundle' };
 const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-status'];
 const inputSchema = {
   type: 'object', additionalProperties: false,
@@ -85,21 +86,17 @@ const inputSchema = {
 
 inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
 delete inputSchema.allOf;
-const conciseHelp = { target_source: 'Pair primary_target; explicit=named; continued=confirmed; current=unambiguous repo.', primary_target: 'Confirmed root; pair target_source.',
-  module: 'contract:index; operation-contract:group/kind; status:UUID.',
-  run_id: 'Not for inventory/project/planned.',
-  expected_revision_id: 'Bound reads only; not gate-check.',
-  planning: 'Planning reads only.',
-  target_id: 'Required for docs; gate-check.',
-  gate: 'Not for gate-check.' };
-for (const [key, field] of Object.entries(inputSchema.properties)) {
-  delete field.description;
-  if (conciseHelp[key]) field.description = conciseHelp[key];
-}
+// Full selector help is available on demand; discovery keeps the exact guards.
+for (const field of Object.values(inputSchema.properties)) delete field.description;
+Object.assign(inputSchema.properties.target_source, { description: 'Pair primary_target.' });
+Object.assign(inputSchema.properties.primary_target, { description: 'Confirmed target.' });
+Object.assign(inputSchema.properties.module, { description: 'operation-contract: group/kind (setup: agdf_project/project.initialize, no Run). Run operation-status: original UUID alone.' });
+Object.assign(inputSchema.properties.gate, { description: 'Not for gate-check.' });
+Object.assign(inputSchema.properties.target_id, { description: 'Required for docs; gate-check.' });
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read-only. Ex:{"operation":"operation-contract","module":"agdf_run/run.create","working_directory":"/r","target_source":"explicit_target","primary_target":"/r"}. navigation.next_calls sequentially; read all pages; never dispatch. Setup status: project.initialize/UUID, no Run/revision. Run status: original UUID+run_id+expected_revision_id.',
+  description: 'Read only. project-state: primary_target+target_source; no Run/revision. gate-check: omit gate/expected_revision_id. authoring-inputs bundle:true. Status module: UUID alone for Run; project.initialize/UUID for setup. Raw calls need working_directory and the requested presentation_language. Copy next_calls exactly',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {
@@ -178,10 +175,12 @@ export function inspectContractHelp() {
 export function inspectInputValidationHint(input) {
   if (!input || typeof input !== 'object' || !CONTROL_INSPECT_OPERATIONS.includes(input.operation)) return '';
   const operation = input.operation, messages = [];
+  let diagnosedModule = input.module;
   if (operation === 'operation-contract' && typeof input.module === 'string' && input.module.length <= 64
     && !OPERATION_CONTRACT_MODULES.includes(input.module)) {
     const kind = input.module.split('/').at(-1);
     const matches = OPERATION_CONTRACT_MODULES.filter(module => module.split('/').at(-1) === kind);
+    if (matches.length === 1) diagnosedModule = matches[0]; // Help only; the original invalid request remains rejected.
     messages.push(matches.length === 1 ? `Use module ${matches[0]}; this is the registered owner of ${kind}.`
       : 'Read contract without module for the registered operation_modules; do not guess a group/kind.');
   }
@@ -194,8 +193,8 @@ export function inspectInputValidationHint(input) {
   // Diagnose the selected operation, rather than making the model interpret
   // errors from every alternative of the discovery schema's oneOf branches.
   const unboundContract = operation === 'operation-contract' &&
-    (['agdf_run/run.create', 'agdf_project/project.initialize'].includes(input.module)
-      || OPERATION_CONTRACT_MODULES.includes(input.module) && /\/(?:planned_|run\.create_from_planned)/u.test(input.module));
+    (['agdf_run/run.create', 'agdf_project/project.initialize'].includes(diagnosedModule)
+      || OPERATION_CONTRACT_MODULES.includes(diagnosedModule) && /\/(?:planned_|run\.create_from_planned)/u.test(diagnosedModule));
   const bound = BOUND_INSPECT_OPERATIONS.includes(operation) && !unboundContract
     && !(operation === 'operation-status' && !input.run_id && !input.expected_revision_id)
     && !(operation === 'authoring-inputs' && input.planning);
@@ -254,6 +253,7 @@ export function parseControlInspectFunctionArguments(argumentsValue, trustedCont
 
 // Shared language, target and read-selection rules; errors carry the invalid field.
 export function normalizeControlInspectInput(input) {
+  if (input.bundle !== undefined && typeof input.bundle !== 'boolean') throw new SkillDispatchInputError('bundle', 'bundle must be boolean');
   const operation = requireText(input.operation, "operation", 64);
   if (!CONTROL_INSPECT_OPERATIONS.includes(operation)) throw new SkillDispatchInputError("operation", `Unsupported inspect operation: ${operation}`);
   let requestedPresentationLanguage;
@@ -336,7 +336,7 @@ export function normalizeControlInspectInput(input) {
     target_source: targetSource,
     primary_target: primaryTarget,
     run_id: runId,
-    planning,
+    planning, bundle: input.bundle,
     gate: input.gate,
     expected_revision_id: input.expectedRevisionId,
     presentation_id: input.presentationId, target_id: input.targetId, cursor: input.cursor,

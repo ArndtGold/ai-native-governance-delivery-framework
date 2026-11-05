@@ -28,10 +28,17 @@ export function mcpInputValidationHint(name, input) {
       }
     }
   } else if (name === 'agdf_dispatch' || Object.hasOwn(RUN_COMMAND_GROUPS, name)) {
+    if (name === 'agdf_dispatch' && ['ur_action', 'prd_action', 'sd_action', 'tp_action'].some(k => input[k] !== undefined))
+      messages.push('Source revision actions use skill_id gate-check, intake:true, intake_mode:resume and expected_revision_id (never revision). An already bound incomplete-draft authoring continuation needs no additional author dispatch/intake: use its supplied writer forms.');
     for (const key of name === 'agdf_dispatch' ? ['skill_id'] : ['command', 'operation_id', 'target_id', 'primary_target', 'target_source'])
       if (!Object.hasOwn(input, key)) messages.push(`Supply ${key}.`);
     const kind = input.command?.kind, descriptor = RUN_COMMAND_DESCRIPTORS[kind];
     if (descriptor?.group === name) {
+      if (['material.stage', 'planned_material.stage'].includes(kind) && input.command.payload?.action === 'put') {
+        const limit = RUN_COMMAND_DESCRIPTORS['material.stage'].payload_schema.oneOf[0].properties.files.items.properties.content.maxLength;
+        const oversized = Array.isArray(input.command.payload.files) && input.command.payload.files.find(file => typeof file?.content === 'string' && Buffer.byteLength(file.content, 'utf8') > limit);
+        if (oversized) messages.push(`put file is ${Buffer.byteLength(oversized.content, 'utf8')} UTF-8 bytes; maximum ${limit}. Preserve the entire text and use multipart begin/append/seal; measure bytes before submitting. No transfer was dispatched by this validation failure.`);
+      }
       if (!['project.initialize', 'run.create', ...PLANNING_COMMAND_KINDS, ...TARGET_SCOPED_COMMAND_KINDS].includes(kind))
         for (const key of ['run_id', 'expected_revision_id']) if (!Object.hasOwn(input, key)) messages.push(`Supply ${key} for ${kind}.`);
       if (PLANNING_COMMAND_KINDS.includes(kind) && !input.planning) messages.push(`Supply planning for ${kind}; no Run/revision.`);

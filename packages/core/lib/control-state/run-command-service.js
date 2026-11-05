@@ -1,6 +1,7 @@
 import { runEvidencePath } from './run-identity.js';
 import { resolveMcpInput } from '../mcp-input-resolution.js';
 import { resources } from '../resources/context.js';
+import { continueDeliveryCall, preparedCommandCall, originalOperationCall } from './prepared-control-calls.js';
 import { commandGroupDefinition } from './run-command-schema.js';
 import { inspectRunInputResolution } from './run-input-resolution.js';
 
@@ -150,6 +151,7 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           // The envelope already carries this exact receipt; the family copy only doubled the response.
           family_result: family.receipt && receipt && canonicalJson(family.receipt) === canonicalJson(receipt)
             ? (({ receipt: _receipt, ...rest }) => rest)(family) : family, ...extra };
+        response.operation_status_call = originalOperationCall(input);
         if (['accepted', 'already_applied'].includes(outcome)) {
           const common = { presentation_language: input.presentation_language, working_directory: input.working_directory,
             primary_target: input.primary_target, target_source: input.target_source, target_id: input.target_id };
@@ -164,8 +166,14 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
                 module: 'agdf_prepare/presentation.prepare', run_id, expected_revision_id: response.current.revision_id, gate: 'UR' })];
           }
           if (input.command.kind === 'presentation.prepare' && family.presentation_id && family.revision_id)
-            response.next_calls = [inspect({ operation: 'presentation-document', run_id: input.run_id,
-              expected_revision_id: family.revision_id, gate: family.gate, presentation_id: family.presentation_id })];
+            response.next_calls = response.current.lifecycle === 'active' && response.current.revision_id === family.revision_id
+              ? [preparedCommandCall('agdf_prepare', 'presentation.deliver', { ...input, expected_revision_id: family.revision_id },
+                { gate: family.gate, presentationId: family.presentation_id }).call]
+              : [inspect({ operation: 'presentation-document', run_id: input.run_id,
+                expected_revision_id: family.revision_id, gate: family.gate, presentation_id: family.presentation_id })];
+          if (!response.historical_effect && response.current.available && response.current.lifecycle === 'active'
+              && ['run.create', 'run.create_from_planned', 'step.record', 'artefact.record', 'ur_draft.replace', 'approval.record'].includes(input.command.kind))
+            response.next_calls = [continueDeliveryCall({ ...input, primary_target: root }, response.current.run_id ?? family.run_id ?? selectedInput.run_id)];
         }
         if (Buffer.byteLength(JSON.stringify(response)) > (input.command.kind === 'project.initialize' ? 16384 : RUN_COMMAND_LIMITS.result_bytes)) return { schema_version: '1', outcome: dispatched ? 'effect_unknown' : 'rejected',
           reason: 'command_result_budget_exceeded', operation_id: input.operation_id, binding: response.binding, authorizes: false,

@@ -1,4 +1,4 @@
-import { readAcceptanceCriteria } from "../control-evaluation/traceability-readiness.js";
+import { readAcceptanceCriteria, ACCEPTANCE_CRITERIA_FORMAT, TRACEABILITY_CONTRACT } from "../control-evaluation/traceability-readiness.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "../control-read/fs.js";
 import { basename } from "node:path";
@@ -111,14 +111,14 @@ function substantiveMarkdown(markdown) {
   return markdown.replace(/^## AGDF Approval Summary \([^\r\n]*\)\s*\r?\n[\s\S]*?(?=^#{1,2}\s|(?![\s\S]))/gmu, "");
 }
 
-function criterionEntries(markdown) {
-  const parsed = readAcceptanceCriteria(substantiveMarkdown(markdown));
+function criterionEntries(markdown, source) {
+  const parsed = readAcceptanceCriteria(substantiveMarkdown(markdown), { source });
   if (parsed.diagnostics.length) throw Object.assign(new Error("approval_summary_source_criteria_invalid"), { diagnostics: parsed.diagnostics });
   return parsed.entries;
 }
 
 function criterionDescription(entry) {
-  for (const field of ["observable_success", "visible_feedback", "expected_effective_state"]) {
+  for (const field of ACCEPTANCE_CRITERIA_FORMAT.description_fields) {
     const value = String(entry.fields[field] ?? "").trim();
     if (value) return capitalizeSummary(compactSummaryText(value));
   }
@@ -186,6 +186,11 @@ function requiredLocalizedSummary(gate, markdown, languages, { path } = {}) {
 export function evaluateApprovalSummaryReadiness(gate, markdown, languages, { path } = {}) {
   try {
     requiredLocalizedSummary(gate, markdown, languages, { path });
+    if (gate === "PRD" && markdown.includes(TRACEABILITY_CONTRACT)
+        && languages.artifact_language === languages.presentation_language.split("-")[0]) {
+      artifactSummary(gate, markdown, { language: languages.presentation_language,
+        sourceLanguage: languages.artifact_language, artefactPath: path });
+    }
     return Object.freeze({ ready: true, required_heading: languages.approval_summary_heading, reason: null });
   } catch (error) {
     if (!String(error.message).startsWith("approval_summary_")) throw error;
@@ -197,6 +202,22 @@ export function evaluateApprovalSummaryReadiness(gate, markdown, languages, { pa
 export function renderApprovalSummaryIssue(summary, { path, presentationLanguage }) {
   const locale = resolvePresentationLocale(interactionLocales, presentationLanguage);
   const pack = localePack(interactionLocales, locale), german = locale.split("-")[0] === "de";
+  if (summary.reason === "approval_summary_criterion_content_missing") {
+    const fields = ACCEPTANCE_CRITERIA_FORMAT.description_fields.map(field => `\`${field}\``).join(" / ");
+    const locations = (summary.diagnostics ?? []).map(row =>
+      `- ${row.criterion_id}${row.line ? ` (${german ? 'Zeile' : 'line'} ${row.line})` : ''}`).join("\n");
+    return [
+      `${german ? 'PRD-Quellkriterien korrigieren' : 'Correct PRD source criteria'}: \`${path}\``,
+      `${pack.statusCard.summaryReason}: \`${summary.reason}\``,
+      locations,
+      german
+        ? `Je betroffenem Kriterium mindestens eines dieser Felder einzeln und mit Inhalt angeben: ${fields}. Zusammengesetzte Feldnamen werden nicht aufgeteilt.`
+        : `For each affected criterion, provide at least one separate nonempty field: ${fields}. Combined field names are not split.`,
+      german
+        ? 'Eine zusätzliche AGDF Approval Summary ersetzt diese Quellfelder nicht. Die Kriterien-IDs und den fachlichen Inhalt erhalten; über den bestehenden Autorpfad korrigieren und erneut prüfen.'
+        : 'An additional AGDF Approval Summary does not replace these source fields. Preserve criterion IDs and product intent; correct through the existing authoring route and recheck.',
+    ].filter(Boolean).join("\n");
+  }
   const expected = {
     approval_summary_user_goal_missing: german ? "- Ziel:" : "- Goal:",
     approval_summary_scope_missing: german ? "- Umfang:" : "- Scope:",
@@ -275,14 +296,15 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
     if (decision) items.unshift(`- ${german ? 'Entscheidung' : 'Decision'}: ${decision}`);
   }
   if (gate === "PRD") {
-    const criteria = criterionEntries(source);
+    const criteria = criterionEntries(source, artefactPath);
     if (!criteria.length) throw new Error("approval_summary_criteria_missing");
     if (new Set(criteria.map((entry) => entry.id)).size !== criteria.length) throw new Error("approval_summary_source_criteria_duplicate");
-    const criterionRows = criteria.map((entry) => {
-      const description = criterionDescription(entry);
-      if (!description) throw new Error("approval_summary_criterion_content_missing");
-      return `  - ${entry.id}: ${description}`;
+    const missing = criteria.filter(entry => !criterionDescription(entry));
+    if (missing.length) throw Object.assign(new Error("approval_summary_criterion_content_missing"), {
+      diagnostics: missing.map(entry => ({ code: 'criterion_description_missing', source: entry.source,
+        line: entry.line, criterion_id: entry.id, expected: ACCEPTANCE_CRITERIA_FORMAT.description_fields })),
     });
+    const criterionRows = criteria.map(entry => `  - ${entry.id}: ${criterionDescription(entry)}`);
     items.push(`- ${german ? "Abnahmekriterien" : "Acceptance criteria"}:\n${criterionRows.join("\n")}`);
     const decisions = approvalDecisionEntries(source);
     if (decisions.length) {
@@ -388,16 +410,17 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
         const languageName = pack.statusCard[locale.split("-")[0] === "de" ? "languageGerman" : "languageEnglish"];
         const artifactLabel = german ? "Artefakt" : "Artefact";
         const requiredHeading = languages.approval_summary_heading ?? `AGDF Approval Summary (${locale}; source=${sourceLanguage})`;
+        const sourceIssue = error.message === 'approval_summary_criterion_content_missing';
         error.recovery = [
-          `## ${pack.statusCard.summaryRecovery}`,
+          `## ${sourceIssue ? (german ? 'PRD-Quellkriterien korrigieren' : 'Correct PRD source criteria') : pack.statusCard.summaryRecovery}`,
           `Run: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\``,
           renderApprovalSummaryIssue({ reason: error.message, required_heading: requiredHeading, diagnostics: error.diagnostics }, {
             path, presentationLanguage: p.presentation_language,
           }),
-          pack.operationalValues.approvalSummaryRecovery.replace("{language}", languageName),
-          `${german ? "Erforderlicher Abschnitt" : "Required section"}: \`${requiredHeading}\``,
+          ...(!sourceIssue ? [pack.operationalValues.approvalSummaryRecovery.replace("{language}", languageName),
+            `${german ? "Erforderlicher Abschnitt" : "Required section"}: \`${requiredHeading}\``] : []),
           `${artifactLabel}: [${basename(path)}](<${path}>)`,
-          pack.operationalValues.completeMissingApprovalSummary,
+          ...(!sourceIssue ? [pack.operationalValues.completeMissingApprovalSummary] : []),
         ].join("\n\n");
       }
       throw error;

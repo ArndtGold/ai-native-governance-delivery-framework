@@ -9,7 +9,7 @@ import { evaluateUrReadiness } from '../control-evaluation/ur-readiness.js';
 import { evaluateSdReadiness } from '../control-evaluation/sd-readiness.js';
 import { evaluateSdTraceability, evaluateTpTraceability } from '../control-evaluation/traceability-readiness.js';
 import { resolveArtifactPresentationLanguages } from '../resources/context.js';
-import { evaluateApprovalSummaryReadiness } from '../control-state/run-presentation-render.js';
+import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue } from '../control-state/run-presentation-render.js';
 import { artefactFileDigest, runSealState } from '../control-state/run-seal.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { extractField } from '../control-evaluation/verified-change.js';
@@ -88,7 +88,8 @@ export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId
   const languages = resolveArtifactPresentationLanguages(targetRoot, presentationLanguage);
   const summary = evaluateApprovalSummaryReadiness(gate, content, languages);
   checks.push({ name: 'approval_summary', ...summary });
-  if (!summary.ready) diagnostics.push({ code: summary.reason, message: `Prepare ${summary.required_heading} using the existing summary rules.` });
+  if (!summary.ready) diagnostics.push({ code: summary.reason,
+    message: renderApprovalSummaryIssue(summary, { path, presentationLanguage: languages.presentation_language }) });
   // Supply only an in-memory draft pointer; no Run, approval or binding is written.
   const candidate = { ...state, artefacts: new Map(state.artefacts) };
   candidate.artefacts.set(gate, { path, status: 'draft' });

@@ -4,6 +4,8 @@ const CRITERION_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$/u;
 export const ACCEPTANCE_CRITERIA_FORMAT = Object.freeze({
   section: "Acceptance Criteria", declaration: "criterion_id: <stable id>",
   fields: "semicolon-separated inline fields or following bullet key: value lines",
+  description_fields: Object.freeze(["observable_success", "visible_feedback", "expected_effective_state"]),
+  description_rule: "For same-language approval rendering, provide at least one nonempty description field separately. Never concatenate field names or infer their meaning from combined keys.",
   id_pattern: CRITERION_ID.source,
   examples: Object.freeze([
     "## Acceptance Criteria\n- criterion_id: AC-001; observable_success: Saved choice remains selected",

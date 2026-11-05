@@ -29,6 +29,12 @@ Users And Roles; Constraints; Evidence Requirements; Risks And Open Questions; A
 Next Step. Populate relevant fields concretely or justify not_applicable. Product authority and
 visible presentation owner are distinct; technical storage/architecture/task choices belong later.
 
+Use the exact separate criterion keys advertised by the existing PRD authoring-format contract.
+Do not concatenate field names to shorten the document. Its description fields are source data,
+including when artefact and chat use the same language; a localized approval-summary section
+cannot replace missing source fields. Use the existing authoring-readiness check to find affected
+criterion IDs and correct their fields before requesting a presentation.
+
 Derive supported scope, roles, constraints and observable acceptance from the approved need and
 confirmed context. Preserve non-goals and unique stable criterion_id values; never invent users,
 product promises, approval, new scope or later design. Each applicable UX criterion names working
@@ -97,6 +103,14 @@ A changed or unavailable required file requires repair/revision and a fresh pres
 an approval reply. Existing unmarked URs need no descriptor; an authored descriptor always binds.
 
 ## Explicit revision and recording
+
+A returned bound authoring continuation for an incomplete own unapproved draft already
+selects its correction route. Consume its authoring-inputs/material_call/recording_calls
+forms directly and use the supplied update_draft value. Do not dispatch this author again
+or add another intake for that same snapshot. The *_action revise route below is only for
+NEW editing intent on an already READY draft, and uses skill_id gate-check, never an author
+skill ID or a host skill alias. After saving, follow the returned continuation once.
+
 
 Before recording, use the continuation's resolved language and summary fields with
 gate-artifact-preparation's Language and approval summary preparation. A translated summary

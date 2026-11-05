@@ -85,8 +85,14 @@ Unknown/unowned partial states remain blocked. Successful setup returns creation
 `agdf_run/run.create` creates an unapproved Run from a semantic title and original operation UUID;
 pre-Run `operation-status` resolves a lost response without inventing a second Run.
 `authoring-inputs` returns versioned templates and exact sources with bounded cursors.
-`agdf_record/material.stage` transfers at most 16 KiB per part and 128 KiB per file, then seals
-Core-owned references for existing typed writers, including reviewed formal artefacts, unapproved
+`authoring-inputs.material_call` supplies a bound form: fill its UTF-8 content and use
+`agdf_record/material.stage` action `put` to seal files of at most 48 KiB each within the 64 KiB whole JSON request bound in one call.
+The Core computes byte counts, material identities and digests. Larger files retain the bounded
+multipart path (16 KiB per part, 128 KiB per file). Each multipart action has its own operation UUID;
+only an identical retry reuses a UUID. Returned `recording_calls` provide the binding and material
+reference; fill only the listed author/review fields. Ready `next_calls` are executable as supplied;
+do not add intake/revision fields to a supplied `continue_delivery` dispatch.
+These Core-owned references feed existing typed writers, including reviewed formal artefacts, unapproved
 UR replacement, Verified Change and closeout. Code edits, actual tests and Git execution remain
 external work; none of these operations grants approval.
 
@@ -246,3 +252,7 @@ They do not qualify an installed host or another OS. The fixed performance test 
 the actual owned plugin launcher with 20/20 samples and p95 limits of 2500 ms cold /
 1000 ms warm. Performance acceptance and native qualification are separate
 required evidence, not consequences of the topology declaration.
+
+Prepared forms may expose a connection-local `submit` call using `prepared_call_id` and `inputs` keyed by the exact required JSON pointers. The original permission group and Core validators still execute the stored immutable command. References expire after 30 minutes or disconnect; keep the full original call for uncertain-outcome recovery. `authoring-inputs` supports `bundle:true` for bounded multi-document pages; read every chunk and cursor, without a duplicate writer-contract lookup.
+
+Prepared references apply only to the existing write permission groups. Reads and dispatch retain their original schemas. Bundled authoring reports use `document_bundle_v2`: `documents` contains complete text, `document_manifest` is metadata only, and `fragments` must be joined by identity and byte offsets across all cursors before editing. Missing content must never be coerced into a replacement string.

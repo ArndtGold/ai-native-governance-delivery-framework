@@ -9,7 +9,8 @@ import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js
 import { effectiveNextAllowedAction } from "./next-action.js";
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from "./run-state.js";
-import { renderReviewableApproval } from "../control-state/run-presentation-render.js";
+import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue, renderReviewableApproval } from "../control-state/run-presentation-render.js";
+import { readFileSync } from "../control-read/fs.js";
 import { evaluateUrReadiness } from "./ur-readiness.js";
 import { inspectDefinitionSources } from "./definition-sources.js";
 import { evaluatePrdReadiness } from "./prd-readiness.js";
@@ -438,12 +439,26 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     // Fixed text keeps the card localizable; detailed gaps travel separately in prd_readiness.open_decisions.
     nextAllowedAction = "complete the open PRD readiness items together, then record the revision through the inspected current recording operation";
   }
-  const sdReadiness = currentGate === "SD" && approvalArtefactReady ? evaluateSdReadiness(targetDir, runState) : null;
-  const traceabilityReadiness = status === "open" && approvalArtefactReady && currentGate === "SD"
+  let sdReadiness = currentGate === "SD" && approvalArtefactReady ? evaluateSdReadiness(targetDir, runState) : null;
+  let traceabilityReadiness = status === "open" && approvalArtefactReady && currentGate === "SD"
     ? evaluateSdTraceability(targetDir, runState)
     : status === "open" && approvalArtefactReady && currentGate === "TP"
       ? evaluateTpTraceability(targetDir, runState)
       : null;
+  // Presentation readiness belongs to the existing authoring gate, not to the
+  // traceability grammar. Use the same summary owner as preflight and rendering
+  // before a registered SD/TP draft can bypass its author and request approval.
+  if (status === "open" && approvalArtefactReady && ["SD", "TP"].includes(currentGate)) {
+    const path = runState.artefacts.get(currentGate).path;
+    const file = resolvedArtefactFile(targetDir, path);
+    const languages = resolveArtifactPresentationLanguages(targetDir, presentationLocale);
+    const summary = evaluateApprovalSummaryReadiness(currentGate, readFileSync(file, "utf8"), languages, { path });
+    if (!summary.ready) {
+      const issue = renderApprovalSummaryIssue(summary, { path, presentationLanguage: presentationLocale });
+      if (currentGate === "SD") sdReadiness = { ...sdReadiness, ready: false, open_decisions: [...sdReadiness.open_decisions, issue] };
+      else traceabilityReadiness = { ...traceabilityReadiness, ready: false, open_items: [...traceabilityReadiness.open_items, issue] };
+    }
+  }
   if (status === "open" && sdReadiness && !sdReadiness.ready) {
     status = "blocked";
     blockingReason = "AGDF_SD_DECISIONS_OPEN";

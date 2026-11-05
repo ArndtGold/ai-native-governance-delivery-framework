@@ -1,5 +1,6 @@
 import { baseResult, bindHostAction } from "./result.js";
 import { inspectArtefactRecordingMode } from '../control-state/run-artefact-recording.js';
+import { preparedCommandCall } from '../control-state/prepared-control-calls.js';
 import { inspectProjectState } from './project-state.js';
 import process from "node:process";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
@@ -208,7 +209,7 @@ export function createControlInspectService(dependencies = {}) {
             if (!valid) return { report: { available: false, reason: 'operation_binding_stale_or_invalid', authorizes: false }, presentation: null };
             if (input.operation === 'runtime-generations') return { report: dependencies.runtimeControl?.status()
               ?? { available: false, reason: 'connection_control_unavailable', authorizes: false }, presentation: null };
-            const decision = gateCheck(target.governance_target, { runId: input.run_id, presentationLanguage: input.presentationLanguage });
+            const decision = gateCheck(target.governance_target, { runId: input.run_id, presentationLanguage: input.presentation_language });
             return { report: { available: true, run_id: input.run_id, revision_id: state.meta.revision_id,
               ui_rendering_support: 'unknown', action_qualification: { qualified: false, reason: 'host_context_unavailable', authorizes: false },
               business_readiness: { current_gate: decision.current_gate, status: decision.status,
@@ -221,14 +222,22 @@ export function createControlInspectService(dependencies = {}) {
                 next_calls: [{ tool: input.group, kind: input.kind, instruction: contract.planning_capture?.instructions
                   ?? 'Use the confirmed planning scope and original UUID; no Run/revision. Planning never approves a gate. Start a Run only from a deliberately selected complete source.' }] }, presentation: null };
             }
-            if (['agdf_run', 'agdf_project'].includes(input.group) && !input.run_id) return { report: { ...operationContract(input.group, input.kind),
+            if (['agdf_run', 'agdf_project'].includes(input.group) && !input.run_id) {
+              const prepared = preparedCommandCall(input.group, input.kind, { ...input, presentation_language: input.presentation_language,
+                target_id: resolveControlCommandTarget(target.governance_target).target_id });
+              return { report: { ...operationContract(input.group, input.kind),
               binding: { target_id: resolveControlCommandTarget(target.governance_target).target_id },
-              next_calls: [{ tool: input.group, kind: input.kind, instruction: input.group === 'agdf_project' ? 'Explicit fixed setup only. Use the confirmed existing Git root and one original UUID. No Run/revision, force, repair, install or approval.' : 'Use a new original operation UUID and confirmed title; there is no prior Run/revision.' }] }, presentation: null };
+              prepared_call: prepared, next_calls: prepared?.state === 'ready' ? [prepared.call] : [],
+              next_action: input.group === 'agdf_project' ? 'Explicit fixed setup only. No Run, repair, installation or approval.'
+                : 'Fill the prepared title from the authorized original request, preserving its UUID and target. No prior Run/revision.' }, presentation: null };
+            }
             const state = readRunState(target.governance_target, { runId: input.run_id });
             const targetId = resolveControlCommandTarget(target.governance_target).target_id;
             const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
               && runSealState(target.governance_target, state.content).status === 'valid';
             return { report: valid ? { ...operationContract(input.group, input.kind, { gate: input.gate ?? state.current_gate }),
+              prepared_call: preparedCommandCall(input.group, input.kind, { ...input, presentation_language: input.presentation_language, target_id: targetId },
+                { gate: input.gate ?? state.current_gate, recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) }),
               ...(input.kind === 'artefact.record' ? { recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) } : {}),
               ...(input.contract_module === PRESENTATION_CATALOG_MODULE ? {
                 inspect_contract: inspectContractHelp(),
@@ -243,7 +252,7 @@ export function createControlInspectService(dependencies = {}) {
                 quality_records: sourceRevisionQualityFacts(state, path => { try { return readHistoryBytes(target.governance_target, path).toString('utf8'); } catch { return undefined; } }),
               } } : {}),
               binding: { target_id: targetId, run_id: input.run_id, expected_revision_id: input.expected_revision_id },
-              current: (() => { const decision = gateCheck(target.governance_target, { runId: input.run_id, presentationLanguage: input.presentationLanguage });
+              current: (() => { const decision = gateCheck(target.governance_target, { runId: input.run_id, presentationLanguage: input.presentation_language });
                 return { current_gate: decision.current_gate, lifecycle: state.meta.lifecycle, status: decision.status, missing_approval: decision.missing_approval,
                   next_operation: decision.next_operation, completion: decision.completion,
                   artefacts: [...state.artefacts].filter(([type]) => ['UR', 'PRD', 'SD', 'TP', 'Brownfield Review', 'UX Intent Definition', 'Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR', 'QA', 'OR'].includes(type))

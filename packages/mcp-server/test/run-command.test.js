@@ -1,3 +1,4 @@
+import { preparedTransportSchema } from '../src/prepared-call-transport.js';
 import { createRun } from '../../core/lib/control-state/run-state-repository.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -10,7 +11,7 @@ import { createMcpDispatchRuntime, configuredMcpCommandGroups } from '../../cli/
 import { createLateSourceRevisionTestRun } from '../../cli/scripts/fixtures/late-source-revision.js';
 import { resolveControlCommandTarget } from '../../core/lib/control-state/approval-command-contract.js';
 import { artefactFileDigest } from '../../core/lib/control-state/run-seal.js';
-import { RUN_COMMAND_GROUPS, commandGroupDefinition } from '../../core/lib/control-state/run-command-contract.js';
+import { RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, commandGroupDefinition } from '../../core/lib/control-state/run-command-contract.js';
 import { createTestRuntime } from './runtime-fixture.js';
 import { withStdioClient } from './helpers.js';
 import { OPERATION_CONTRACT_MODULES, CONTROL_INSPECT_FUNCTION_DEFINITION } from '../../core/lib/control-inspect/contract.js';
@@ -45,7 +46,8 @@ for (const modern of [false, true]) {
       assert.equal(tools.find(tool => tool.name === 'agdf_inspect').description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
       for (const group of groups) {
         const tool = tools.find(tool => tool.name === group), definition = commandGroupDefinition(group);
-        assert.deepEqual(tool.inputSchema, definition.inputSchema); assert.deepEqual(tool.annotations, definition.annotations);
+        assert.ok(Buffer.byteLength(JSON.stringify(tool)) <= (RUN_COMMAND_LIMITS.definition_bytes_by_group[group] ?? RUN_COMMAND_LIMITS.definition_bytes), group + ' actual discovery budget');
+        assert.deepEqual(tool.inputSchema, preparedTransportSchema(group, definition.inputSchema)); assert.deepEqual(tool.annotations, definition.annotations);
       }
       const uninitialized = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-mcp-pre-run-empty-')));
       try {
@@ -167,7 +169,7 @@ for (const modern of [false, true]) {
       assert.ok(Buffer.byteLength(JSON.stringify(commandGroupDefinition('agdf_closeout'))) <= 8192);
       assert.ok(groups.reduce((sum, group) => sum + Buffer.byteLength(JSON.stringify(commandGroupDefinition(group))), 0) <= 24576);
       for (const group of groups.filter(group => !['agdf_project', 'agdf_run', 'agdf_record', 'agdf_closeout'].includes(group))) {
-        const required = tools.find(tool => tool.name === group).inputSchema.required;
+        const required = tools.find(tool => tool.name === group).inputSchema.anyOf[0].required;
         assert.ok(required.includes('run_id') && required.includes('expected_revision_id'), group);
       }
       const record = tools.find(tool => tool.name === 'agdf_record').inputSchema;

@@ -1,3 +1,4 @@
+import { preparedTransportSchema } from '../src/prepared-call-transport.js';
 import assert from "node:assert/strict";
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -140,10 +141,9 @@ for (const modern of [false, true]) {
     assert.ok(tools[1].outputSchema, 'output validation retained');
     for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.type || field.enum || field.$ref, 'discovery retains input types');
     for (const name of ['target_source', 'primary_target', 'module', 'gate']) assert.ok(tools[1].inputSchema.properties[name].description?.length > 10);
-    const help = JSON.parse(tools[1].description.match(/\{[^\n]+\}/u)[0]);
-    assert.equal(help.module, 'agdf_run/run.create', 'complete creation help is discoverable before selecting a Run');
+    assert.match(tools[1].description, /project-state: primary_target\+target_source; no Run\/revision/u, 'First setup discovery keeps target authority explicit.');
     assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
-    assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+    assert.deepEqual(tools[1].inputSchema, preparedTransportSchema('agdf_inspect', CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema));
     await assertGuidedInspection(client);
     const draft = artifactReadinessFixture();
     try {
@@ -181,7 +181,7 @@ for (const modern of [false, true]) {
     assert.equal(inspectRejected.structuredContent, undefined);
     assert.equal(tools[0].name, "agdf_dispatch");
     assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
-    assert.deepEqual(tools[0].inputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema);
+    assert.deepEqual(tools[0].inputSchema, preparedTransportSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema));
     assert.deepEqual(tools[0].outputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema);
 
     for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {

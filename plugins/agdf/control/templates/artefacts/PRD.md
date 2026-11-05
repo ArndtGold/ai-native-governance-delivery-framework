@@ -69,6 +69,17 @@ visible feedback, blocker/failure behavior, recovery/next action, observable suc
 evidence. Specify observable behavior, not implementation. Do not leave the section empty or retain
 placeholders when requesting approval.
 
+Use separate field names; never combine them (for example,
+`observable_success_required_evidence` is not `observable_success`). For same-language approval,
+each criterion needs at least one nonempty `observable_success`, `visible_feedback` or
+`expected_effective_state`. Keep applicable UX fields separate as well. Example:
+
+```markdown
+- criterion_id: AC-001
+  - observable_success: A later list command shows the saved task unchanged.
+  - required_evidence: A real CLI test across separate processes.
+```
+
 ## 6. Non-Goals
 
 What remains out of scope?

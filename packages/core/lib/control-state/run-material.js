@@ -15,8 +15,8 @@ import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { readPendingSourceRevisionJournal } from './run-step-transaction.js';
 import { inspectPlannedOperation, inspectPlannedSelection } from './planned-entry.js';
 
-export const MATERIAL_LIMITS = Object.freeze({ part: 16384, file: 131072, set: 524288, sets: 4, total: 2097152,
-  lifetime: 600000, idle: 120000 });
+import { MATERIAL_LIMITS } from './material-limits.js';
+export { MATERIAL_LIMITS } from './material-limits.js';
 
 // A rejected transfer step names its concrete cause; the reason code stays stable for clients.
 const MATERIAL_RECOVERY = Object.freeze({
@@ -108,23 +108,34 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
         const state = current(input), p = input.command.payload;
         expire();
         let row;
-        if (p.action === 'begin') {
+        if (p.action === 'begin' || p.action === 'put') {
+          // The small-text path bundles only private transfer work. Validate the
+          // whole set before allocating; canonical recording still uses its owner.
+          const files = p.action === 'put' ? p.files.map(({ slot, content }) => {
+            const bytes = Buffer.from(content, 'utf8');
+            if (bytes.length > MATERIAL_LIMITS.inline || new TextDecoder('utf-8', { fatal: true }).decode(bytes) !== content)
+              throw Error('material_text_invalid');
+            return { slot, bytes: bytes.length, content, data: bytes };
+          }) : p.files;
           const request = digest(canonicalJson(input));
           row = sets.get(input.operation_id);
           if (row) {
             if (row.request !== request || row.binding !== binding(input)) throw Error('operation_payload_conflict');
           } else {
-            const size = p.files.reduce((n, f) => n + f.bytes, 0);
+            const size = files.reduce((n, f) => n + f.bytes, 0);
             const resolutionBytes = currentInputResolution() ? Buffer.byteLength(canonicalJson(currentInputResolution())) : 0;
-            if (!p.files.length || p.files.length > 4 || p.files.some(f => !Number.isSafeInteger(f.bytes) || f.bytes < 0 || f.bytes > MATERIAL_LIMITS.file)
+            if (!files.length || files.length > 4 || files.some(f => !Number.isSafeInteger(f.bytes) || f.bytes < 0 || f.bytes > MATERIAL_LIMITS.file)
               || size + resolutionBytes > MATERIAL_LIMITS.set || sets.size >= MATERIAL_LIMITS.sets
               || [...sets.values()].reduce((n, r) => n + r.size + r.resolutionBytes, size + resolutionBytes) > MATERIAL_LIMITS.total) throw Error('material_resource_limit');
             row = { request, binding: binding(input), size, created: now(), touched: now(), resolutions: new Map(), resolutionBytes: 0,
-              files: p.files.map(f => ({ ...f, parts: [], received: 0, material_id: randomUUID(), content: null, digest: null })) };
+              files: files.map(f => ({ slot: f.slot, bytes: f.bytes, parts: f.data ? [f.data] : [],
+                received: f.data ? f.bytes : 0, material_id: randomUUID(), content: f.content ?? null,
+                digest: f.data ? digest(canonicalRunText(f.content)) : null })) };
             sets.set(input.operation_id, row);
           }
           rememberResolution(row, input);
-          return envelope('accepted', null, { transfer_id: input.operation_id, files: row.files.map(({ slot, bytes, received }) => ({ slot, bytes, received })), limits: MATERIAL_LIMITS }, state);
+          return envelope('accepted', null, { transfer_id: input.operation_id, files: row.files.map(({ slot, bytes, received, content, material_id, digest }) => ({ slot, bytes, received,
+            ...(content !== null ? { sealed: true, reference: { material_id, digest } } : {}) })), limits: MATERIAL_LIMITS }, state);
         }
         row = rowFor(input, p.transfer_id);
         rememberResolution(row, input);

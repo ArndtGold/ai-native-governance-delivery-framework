@@ -14,6 +14,9 @@ const missingBinding = mcpInputValidationHint('agdf_inspect', { operation: 'oper
 for (const field of ['run_id', 'expected_revision_id', 'primary_target', 'target_source']) assert.ok(missingBinding.includes(field));
 assert.match(missingBinding, /never silently replace a requested revision/u);
 assert.doesNotMatch(mcpInputValidationHint('agdf_inspect', { operation: 'operation-contract', module: 'agdf_run/run.create' }), /Supply run_id|Supply expected_revision_id/u);
+const setupHint = mcpInputValidationHint('agdf_inspect', { operation: 'operation-contract', module: 'project.initialize' });
+assert.match(setupHint, /agdf_project\/project.initialize/u);
+assert.doesNotMatch(setupHint, /Supply run_id|Supply expected_revision_id/u);
 assert.match(mcpInputValidationHint('agdf_dispatch', { skill_id: 'gate-check', run_id: 'Demo-Run-01' }), /canonical Run ID/u);
 assert.equal(mcpInputValidationHint('agdf_inspect', { operation: 'not-an-operation' }), '');
 assert.match(mcpInputValidationHint('agdf_inspect', { operation:'status' }), /status is invalid/u);

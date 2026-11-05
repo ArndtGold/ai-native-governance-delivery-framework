@@ -4,6 +4,7 @@ import { readRun } from './run-state-edits.js';
 import { runSealState } from './run-seal.js';
 import { currentInputResolution } from './input-resolution.js';
 import { assertInputConfigurationCurrent } from '../resources/configuration.js';
+import { preparedCommandCall } from './prepared-control-calls.js';
 
 export const presentationDeliveryKey = input => [input.target_id, input.run_id, input.expected_revision_id,
   input.command?.payload?.presentation_id ?? input.presentation_id ?? input.operation_id].join(':');
@@ -45,7 +46,9 @@ export function createPresentationDelivery({ now = Date.now } = {}) {
       if (row.pending || pendingRuns.has(runKey)) return { ...base, ...failure('busy') };
       const selected = row.selected;
       if (selected?.operation_id === input.operation_id && selected.digest !== base.request_digest) return { ...base, ...failure('operation_payload_conflict') };
-      const emit = (mode, text, historical = false) => ({ ...base, historical_effect: historical, presentation_delivery: {
+      const emit = (mode, text, historical = false) => ({ ...base, historical_effect: historical, next_calls: [],
+        ...(!historical ? { approval_call: preparedCommandCall('agdf_approve', 'approval.record', input,
+          { gate: payload.gate, presentationId: payload.presentation_id }) } : {}), presentation_delivery: {
         delivery_id: selected?.operation_id ?? input.operation_id, mode, text, historical_delivery: historical,
         presentation_id: payload.presentation_id, revision_id: input.expected_revision_id, document_digest: row.result.family_result.document_digest,
         cleanup_state: row.cleanup ?? 'not_required',

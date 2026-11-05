@@ -1,3 +1,4 @@
+import { createPreparedCallTransport, preparedTransportSchema } from './prepared-call-transport.js';
 import { boundStdioOutput } from './stdio-output.js';
 import { McpServer, ProtocolError, ProtocolErrorCode, fromJsonSchema } from "@modelcontextprotocol/server";
 import { serveStdio, StdioServerTransport } from "@modelcontextprotocol/server/stdio";
@@ -11,14 +12,14 @@ import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabili
 
 export const SERVER_NAME = "agdf-mcp";
 
-function toolResult(runtime, name, input, result, serialize = runtime.serialize, provider, peer, facts) {
+function toolResult(runtime, name, input, result, serialize = runtime.serialize, provider, peer, facts, preparedCalls) {
   // A generation must supply its own descriptor. Never reinterpret old results
   // with the facade's current runtime. Local owners project after postprocessing.
   const emit = value => {
     const projected = Object.hasOwn(value._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? value
       : runtime.projectToolResult(name, input, value, facts);
     const { domain, metadata, descriptor } = runtime.consumeToolResult(name, projected);
-    const text = serialize(domain);
+    const text = serialize(preparedCalls ? preparedCalls.decorate(domain) : domain);
     const response = {
       content: [{ type: 'text', text: domain.presentation_delivery?.text ?? text },
         ...(descriptor.failed ? [{ type: 'text', text: descriptor.message }] : [])],
@@ -59,7 +60,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     },
     close: async () => runtime.close?.(),
   };
-  const registrations = new Map();
+  const registrations = new Map(), preparedCalls = createPreparedCallTransport();
   class AgdfServer extends McpServer {
     async connect(transport) {
       return super.connect(capabilityTransport(transport, message => modernToolUiDenial(message,
@@ -83,7 +84,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   }) : undefined;
   const respond = (name, input, result, serialize, context, facts) => toolResult(runtime, name, input, result, serialize, provider, provider ? {
     client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
-  } : undefined, facts);
+  } : undefined, facts, preparedCalls);
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   // Discovery needs the exact schemas, but does not execute any tool. Compile
@@ -96,12 +97,12 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   } };
   for (const tool of tools) {
     const { name, definition, serialize } = tool;
-    const schema = fromJsonSchema(definition.inputSchema, { getValidator(inputSchema) {
+    const schema = fromJsonSchema(preparedTransportSchema(name, definition.inputSchema), { getValidator(inputSchema) {
       const validate = deferredSchemas.getValidator(inputSchema);
       return input => {
         const checked = validate(input);
         if (checked.valid) return checked;
-        const hint = runtime.inputValidationHint?.(name, input);
+        const hint = preparedCalls.validationHint(name, input) || runtime.inputValidationHint?.(name, input);
         return hint ? { ...checked, errorMessage: `${hint} Schema: ${checked.errorMessage}` } : checked;
       };
     } });
@@ -123,10 +124,12 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
           const failure = runtime.projectToolResult(name, argumentsValue, runtime.failure(denied, name, argumentsValue, facts), facts);
           return respond(name, argumentsValue, failure, serialize ?? runtime.serialize, context, facts);
         }
-        const parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(argumentsValue) : tool.parentOwned;
-        let phase = parentOwned ? 'parse' : 'execute';
+        let parentOwned;
+        let phase = 'parse';
         try {
           phase = 'parse';
+          argumentsValue = preparedCalls.resolve(name, argumentsValue);
+          parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(argumentsValue) : tool.parentOwned;
           argumentsValue = runtime.prepareInput?.(name, argumentsValue) ?? argumentsValue;
           phase = parentOwned ? 'parse' : 'execute';
           let result;
@@ -141,7 +144,9 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
           return respond(name, argumentsValue, result, serialize ?? runtime.serialize, context);
         } catch (error) {
           const facts = runtime.normalizeFailure(error, { phase });
-          const failure = runtime.failure(facts.code, name, argumentsValue, { ...facts, elapsed_ms: performance.now() - started });
+          const help = phase === 'parse' ? preparedCalls.validationHint(name, argumentsValue) : '';
+          const failure = { ...runtime.failure(facts.code, name, argumentsValue, { ...facts, elapsed_ms: performance.now() - started }),
+            ...(help ? { prepared_call_help: help } : {}) };
           // A local execution/delivery failure is owned here, including malformed
           // producer output. It never causes re-execution or a second write.
           const projected = runtime.projectToolResult(name, argumentsValue, failure, facts);
@@ -177,7 +182,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     }
   }
   return Object.assign(server, {
-    closeAgdfRuntime: async () => { await dispatchExecutor.close(); return runtime.close?.(); },
+    closeAgdfRuntime: async () => { preparedCalls.close(); await dispatchExecutor.close(); return runtime.close?.(); },
   });
 }
 

@@ -27,7 +27,8 @@ try {
     const inspect = () => {
       const before = treeBytes(initialRoot);
       const report = inspectAuthoringInputs(initialRoot, { run_id: initial.runId,
-        expected_revision_id: initial.revision(), presentation_language: 'en' });
+        expected_revision_id: initial.revision(), presentation_language: 'en',
+        working_directory: initialRoot, primary_target: initialRoot, target_source: 'explicit_target' });
       assert.equal(report.available, true, JSON.stringify(report));
       assert.equal(report.gate, 'PRD');
       assert.deepEqual(treeBytes(initialRoot), before, 'authoring-inputs preserves every control file');
@@ -47,6 +48,21 @@ try {
       assert.equal(report.documents.some(row => row.role === 'template' && row.type === 'PRD'), false);
     };
     assertUxInput(); // The first post-UR analysis is missing; no source revision exists.
+    const stagingInput = inspect().material_call.call;
+    const beforeStaging = treeBytes(initialRoot);
+    stagingInput.arguments.command.payload.files[0].content = '# UX intent\nDecision: ready\n';
+    const invalidStaging = services.material.stage(stagingInput.arguments);
+    assert.equal(invalidStaging.outcome, 'accepted');
+    assert.equal(invalidStaging.source_validation.reason, 'ux_decision_malformed');
+    assert.deepEqual(invalidStaging.recording_calls, []);
+    assert.deepEqual(treeBytes(initialRoot), beforeStaging, 'Malformed staged analysis does not reach the canonical writer.');
+    const validStagingInput = invalidStaging.material_call.call;
+    validStagingInput.arguments.command.payload.files[0].content = '# UX intent\n- decision: ready\n';
+    const validStaging = services.material.stage(validStagingInput.arguments);
+    assert.equal(validStaging.recording_calls[0].call.arguments.command.payload.decision, 'ready');
+    assert.equal(validStaging.source_validation.recordable, true);
+    services.material.close();
+
     writeFileSync(initial.canonicalFile('UX_INTENT_DEFINITION.md'), '# UX intent\nDecision: ready\n');
     assertUxInput(); // Malformed declaration is the existing owner's correction path.
     writeFileSync(initial.canonicalFile('UX_INTENT_DEFINITION.md'), '# UX intent\n- decision: blocked\n');

@@ -9,6 +9,21 @@ import { createTpDefinitionTestRun } from "../../cli/scripts/fixtures/tp-definit
 import { createSdDefinitionTestRun } from "../../cli/scripts/fixtures/sd-definition.js";
 import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient } from "./helpers.js";
+import { mcpControlContinuation } from "../../core/lib/skill-dispatch/mcp-continuation.js";
+
+const setupCard = { terminal: true, control: { blocking_reason: 'AGDF_CONTROL_FILE_MISSING' },
+  target: { governance_target: '/confirmed/project' }, presentation: { text: 'Exact setup card' },
+  host_action: { text: 'Exact setup card', allow_surrounding_text: false }, diagnostics: [], recovery: null };
+const setupInput = { presentationLanguage: 'de', workingDirectory: '/confirmed/project', targetSource: 'explicit_target' };
+const setupGuidance = mcpControlContinuation(setupInput, setupCard, ['agdf_project']);
+assert.equal(setupGuidance.terminal, true);
+assert.deepEqual(setupGuidance.host_action, setupCard.host_action);
+assert.deepEqual(setupGuidance.presentation, setupCard.presentation);
+assert.equal(setupGuidance.recovery.next_calls[0].arguments.module, 'agdf_project/project.initialize');
+assert.equal(mcpControlContinuation(setupInput, setupCard, []), setupCard);
+assert.equal(mcpControlContinuation({ ...setupInput, targetSource: undefined }, setupCard, ['agdf_project']), setupCard);
+const unresolvedSetup = { ...setupCard, target: {} };
+assert.equal(mcpControlContinuation(setupInput, unresolvedSetup, ['agdf_project']), unresolvedSetup);
 
 const definition = JSON.parse(readFileSync(new URL("../../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url)));
 const fixture = createOwnedRuntimeFixture({ controlRuns: ['agdf-mcp-dispatch-server'] });
@@ -54,7 +69,8 @@ try {
           assert.equal(reply.isError,undefined,JSON.stringify(reply));
           const input=reply.structuredContent.report;
           assert.equal(input.available,true,JSON.stringify(input));
-          if(input.chunk?.role==='template' && input.chunk.type===id) content+=input.chunk.content;
+          assert.equal(input.format, 'document_bundle_v2');
+          for (const chunk of [...input.documents,...input.fragments]) if(chunk.role==='template' && chunk.type===id) content+=chunk.content;
           if(input.complete){complete=true;break;} cursor=input.next_cursor;
         }
         assert.equal(complete,true);

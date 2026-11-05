@@ -62,6 +62,14 @@ or manufacture answers; use supported revision/recovery and fresh source approva
 
 ## Explicit revision and recording
 
+A returned bound authoring continuation for an incomplete own unapproved draft already
+selects its correction route. Consume its authoring-inputs/material_call/recording_calls
+forms directly and use the supplied update_draft value. Do not dispatch this author again
+or add another intake for that same snapshot. The *_action revise route below is only for
+NEW editing intent on an already READY draft, and uses skill_id gate-check, never an author
+skill ID or a host skill alias. After saving, follow the returned continuation once.
+
+
 Before recording, use the continuation's resolved language and summary fields with
 gate-artifact-preparation's Language and approval summary preparation. A translated summary
 must be part of the draft before presentation, not deferred until a renderer failure.

@@ -8,6 +8,7 @@ import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
 import { createMcpDeliveryHarness } from './delivery-harness.js';
 import { readRunOperations } from '../../core/lib/control-state/run-operations.js';
+import { clarifiedUr } from '../../core/test/planned-fixtures.js';
 
 for (const modern of [false, true]) {
   const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
@@ -53,5 +54,72 @@ await runMcpServer({surface:'codex'});`);
       assert.equal(readFileSync(join(root, '.agdf/control/runs', original.run_id, 'documents', 'UR.md'), 'utf8'), content);
     });
     console.log(`Actual generation loss/restaging, dropped acknowledgement, original receipt and one canonical UR effect passed (${modern ? 'modern' : 'legacy'}).`);
+  } finally { fixture.dispose(); }
+}
+
+for (const modern of [false, true]) {
+  const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
+  try {
+    await withStdioClient({ ...fixture, modern }, async client => {
+      const h = await createMcpDeliveryHarness(client, root, 'Synthetic prepared-call need');
+      const { operation_id: _operation, schema_version: _schema, assurance: _assurance, ...inspectContext } = h.bound();
+      const page = await h.call('agdf_inspect', { ...inspectContext, operation: 'authoring-inputs' });
+      const upload = page.report.material_call;
+      assert.equal(upload.state, 'requires_author_input');
+      assert.deepEqual(upload.required_inputs, ['/command/payload/files/0/content']);
+      upload.call.arguments.command.payload.files[0].content = clarifiedUr;
+      const before = readFileSync(join(root, '.agdf/control/runs', upload.call.arguments.run_id, 'RUN_STATE.md'), 'utf8');
+      const staged = await h.call(upload.call.tool, upload.call.arguments);
+      assert.equal(staged.outcome, 'accepted', JSON.stringify(staged));
+      assert.equal(staged.family_result.files[0].sealed, true);
+      const replay = await h.call(upload.call.tool, upload.call.arguments);
+      assert.deepEqual(replay.family_result.files, staged.family_result.files);
+      assert.equal(readFileSync(join(root, '.agdf/control/runs', upload.call.arguments.run_id, 'RUN_STATE.md'), 'utf8'), before);
+      const record = staged.recording_calls[0];
+      assert.equal(record.state, 'requires_author_input');
+      assert.deepEqual(record.required_inputs, ['/command/payload/title']);
+      assert.notEqual(record.call.arguments.operation_id, upload.call.arguments.operation_id);
+      record.call.arguments.command.payload.title = 'Synthetic prepared-call need';
+      const written = await h.call(record.call.tool, record.call.arguments);
+      assert.equal(written.outcome, 'accepted', JSON.stringify(written));
+      const next = written.next_calls[0];
+      assert.equal(next.arguments.continue_delivery, true);
+      assert.equal(next.arguments.expected_revision_id, undefined);
+      assert.equal(next.arguments.intake, undefined);
+      const routed = await h.call(next.tool, next.arguments);
+      assert.equal(routed.continuation.phase, 'presentation_required', JSON.stringify(routed));
+      const prepareCall = routed.continuation.next_calls[0];
+      assert.equal(prepareCall.tool, 'agdf_prepare');
+      const prepared = await h.call(prepareCall.tool, prepareCall.arguments);
+      assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
+      const deliverCall = prepared.next_calls[0];
+      assert.equal(deliverCall.arguments.command.kind, 'presentation.deliver');
+      assert.notEqual(deliverCall.arguments.operation_id, prepareCall.arguments.operation_id);
+      const delivered = await h.call(deliverCall.tool, deliverCall.arguments);
+      assert.equal(delivered.presentation_delivery.mode, 'full_markdown');
+      assert.equal(delivered.presentation_delivery.text, prepared.family_result.text);
+      assert.deepEqual(delivered.next_calls, []);
+      const approval = delivered.approval_call;
+      assert.equal(approval.state, 'requires_author_input');
+      assert.deepEqual(approval.required_inputs, ['/command/payload/response']);
+      assert.equal(approval.call.arguments.command.payload.response, undefined);
+      assert.equal(approval.call.arguments.command.payload.presentation_id, prepared.family_result.presentation_id);
+      approval.call.arguments.command.payload.response = 'Approval: UR'; // Synthetic fixture decision only.
+      const approved = await h.call(approval.call.tool, approval.call.arguments);
+      assert.equal(approved.outcome, 'accepted', JSON.stringify(approved));
+      const after = approved.next_calls[0];
+      const control = await h.call(after.tool, after.arguments);
+      assert.equal(control.control.current_gate, 'Brownfield Review');
+      const statePath = join(root, '.agdf/control/runs', upload.call.arguments.run_id, 'RUN_STATE.md');
+      const afterApproval = readFileSync(statePath, 'utf8');
+      const historical = await h.call(prepareCall.tool, prepareCall.arguments);
+      assert.ok((historical.next_calls ?? []).every(call => call.tool === 'agdf_inspect'),
+        'An old presentation may offer historical reads, never a fresh delivery action.');
+      assert.equal(readFileSync(statePath, 'utf8'), afterApproval);
+      const old = await h.call(record.call.tool, record.call.arguments);
+      assert.equal(old.outcome, 'already_applied');
+      assert.equal(old.next_calls, undefined);
+    });
+    console.log(`Prepared UTF-8 transport/record/dispatch/presentation chain, withheld approval and original replay passed (${modern ? 'modern' : 'legacy'}).`);
   } finally { fixture.dispose(); }
 }

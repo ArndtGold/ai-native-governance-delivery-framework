@@ -40,6 +40,9 @@ for (const modern of [false, true]) {
       assert.equal(state.report.repository.root, root); assert.equal(state.report.plan.version, MCP_PACKAGE_VERSION);
       assert.equal(state.report.plan.file_count, 16); assert.match(state.report.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
       assert.equal(Buffer.byteLength(JSON.stringify(state)) <= 16384, true);
+      assert.equal(state.next_read, undefined, 'Bootstrap state does not embed the full setup command contract.');
+      assert.equal(state.next_action.state, 'ready');
+      assert.deepEqual(state.next_action.call, state.report.next_calls[0], 'The exact setup contract remains the explicit next action.');
       assert.equal(existsSync(join(root, '.agdf')), false, 'inspection cannot initialize');
       const help = await call('agdf_inspect', state.report.next_calls[0].arguments);
       assert.equal(help.report.group, 'agdf_project'); assert.equal(help.report.kind, 'project.initialize');
@@ -55,10 +58,24 @@ for (const modern of [false, true]) {
       assert.equal(existsSync(join(root, '.agdf/control/CONTEXT_GRAPH.md')), true);
       assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
       assert.equal(Buffer.byteLength(JSON.stringify(initialized)) <= 16384, true);
-      const observed = await call('agdf_inspect', { ...common, operation: 'operation-status', module: `project.initialize/${original.operation_id}` });
+      assert.equal(initialized.family_result.next_calls.length, 1, 'Run creation is the sole normal initialized-project continuation.');
+      assert.equal(initialized.next_read, undefined, 'The full Run command contract stays outside the compact initialization receipt.');
+      assert.equal(initialized.next_action.state, 'ready');
+      assert.deepEqual(initialized.next_action.call, initialized.family_result.next_calls[0]);
+      assert.equal(initialized.next_action.call.arguments.module, 'agdf_run/run.create');
+      const originalStatus = initialized.family_result.recovery_only.status_call;
+      assert.equal(initialized.family_result.recovery_only.authorizes, false);
+      assert.equal(originalStatus.tool, 'agdf_inspect');
+      assert.equal(originalStatus.arguments.operation, 'operation-status');
+      assert.equal(originalStatus.arguments.module, `project.initialize/${original.operation_id}`);
+      assert.equal(originalStatus.arguments.run_id, undefined); assert.equal(originalStatus.arguments.expected_revision_id, undefined);
+      const observed = await call(originalStatus.tool, originalStatus.arguments);
       assert.equal(observed.report.status, 'recorded', JSON.stringify(observed));
       const replay = await call('agdf_project', original);
       assert.equal(replay.outcome, 'already_applied'); assert.deepEqual(replay.receipt, initialized.receipt);
+      assert.deepEqual(replay.family_result.next_calls, initialized.family_result.next_calls);
+      assert.deepEqual(replay.family_result.recovery_only, initialized.family_result.recovery_only);
+      assert.deepEqual(replay.next_action.call, initialized.next_action.call);
       const creationHelp = await call('agdf_inspect', initialized.family_result.next_calls[0].arguments);
       assert.equal(creationHelp.report.kind, 'run.create');
       const created = await call('agdf_run', { ...common, schema_version: '1', assurance: 'cooperative_local',

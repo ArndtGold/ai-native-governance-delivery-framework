@@ -21,6 +21,16 @@ assert.equal(suppliedReadContinuation({ ...accepted, outcome: 'effect_unknown' }
 assert.equal(suppliedReadContinuation({ ...accepted, outcome: 'inspect_result', operation: 'authoring-inputs',
   report: { available: true, complete: false, next_calls: [call] } }), null,
   'Source pagination stays explicit and cannot hide the first-page form behind a nested page.');
+const setupContractCall = { tool: 'agdf_inspect', arguments: { operation: 'operation-contract', module: 'agdf_project/project.initialize',
+  primary_target: '/confirmed', target_source: 'explicit_target' } };
+assert.equal(suppliedReadContinuation({ outcome: 'inspect_result', operation: 'project-state', terminal: false,
+  report: { available: true, next_calls: [setupContractCall] } }), null,
+  'Project-state keeps its compact bootstrap contract and exposes setup help as an explicit read.');
+assert.equal(suppliedReadContinuation({ ...accepted, binding: { kind: 'project.initialize' }, next_calls: [setupContractCall] }), null,
+  'Initialization keeps its compact receipt while the sole normal Run contract remains an explicit read.');
+assert.deepEqual(suppliedReadContinuation({ outcome: 'inspect_result', operation: 'gate-check', terminal: false,
+  report: { available: true, next_calls: [setupContractCall] } }), setupContractCall,
+  'The compact project-state boundary does not disable other exact operation-contract continuations.');
 for (const unsafe of [
   { tool: 'agdf_dispatch', arguments: { continue_delivery: true } },
   { tool: 'agdf_prepare', arguments: { command: { kind: 'presentation.deliver' } } },

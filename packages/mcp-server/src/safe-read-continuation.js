@@ -10,6 +10,10 @@ export function suppliedReadContinuation(result) {
   // Source pages are consumed explicitly, in order. Folding page N+1 into page N
   // would create two competing source locations and could lose the first form.
   if (result.operation === 'authoring-inputs') return null;
+  // Bootstrap state and initialization have compact response contracts. Their
+  // supplied setup/Run operation-contract remains an explicit next action
+  // instead of duplicating the full command schema inside the bootstrap result.
+  if (result.operation === 'project-state' || result.binding?.kind === 'project.initialize') return null;
   // These are authoritative normal next steps, not recovery or optional preview.
   const lists = [result.next_calls, result.continuation?.next_calls,
     result.report?.next_calls, result.family_result?.next_calls].filter(Array.isArray);

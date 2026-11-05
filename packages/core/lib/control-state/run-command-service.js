@@ -225,9 +225,13 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           const state = inspectCanonicalProject(root, { operationId: input.operation_id });
           if (state.receipt?.operation.operation_id === input.operation_id && state.receipt.operation.request_digest !== requestDigest)
             return result('rejected', 'operation_payload_conflict', {}, { dispatch: 'not_dispatched' });
-          if (state.operation_status === 'recorded' && state.status !== 'pending') return result('already_applied', null, {
-            receipt: state.receipt, historical_effect: true, status: 'unchanged', created_run: false,
-            created_gate_approval: false, next_calls: inspectProjectState(root, input, gitObservation).next_calls });
+          if (state.operation_status === 'recorded' && state.status !== 'pending') {
+            const continuation = inspectProjectState(root, input, gitObservation);
+            return result('already_applied', null, {
+              receipt: state.receipt, historical_effect: true, status: 'unchanged', created_run: false,
+              created_gate_approval: false, next_calls: continuation.next_calls,
+              ...(continuation.recovery_only ? { recovery_only: continuation.recovery_only } : {}) });
+          }
           if (state.status === 'blocked') return result('rejected', state.reason, {}, { dispatch: 'not_dispatched' });
           canonicalInitPlan(payload.language); // Resource/plan failures are known before dispatch.
           if (state.operation?.operation_id === input.operation_id && state.operation.request_digest !== requestDigest)
@@ -243,8 +247,10 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
               afterPublish: () => checkpoint('project_after_publish'), afterReceipt: () => checkpoint('project_after_receipt'),
               beforeMarkerCleanup: () => checkpoint('project_before_marker_cleanup') });
           checkpoint('before_result');
+          const continuation = inspectProjectState(root, input, gitObservation);
           return result(family.historical_effect ? 'already_applied' : 'accepted', null,
-            { ...family, next_calls: inspectProjectState(root, input, gitObservation).next_calls });
+            { ...family, next_calls: continuation.next_calls,
+              ...(continuation.recovery_only ? { recovery_only: continuation.recovery_only } : {}) });
         }
         if (kind === 'run.create') {
           // Preflight only; the writer repeats validation before publication.

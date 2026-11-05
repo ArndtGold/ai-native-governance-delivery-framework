@@ -112,11 +112,22 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
       expected_revision_id: started.current.revision_id, operation_id: randomUUID(),
       command: { kind: 'presentation.prepare', payload: { gate: 'UR' } } });
     assert.equal(prepared.next_calls.length, 1);
-    assert.equal(prepared.next_calls[0].arguments.command.kind, 'presentation.deliver');
-    const delivered = await call(prepared.next_calls[0].tool, prepared.next_calls[0].arguments);
+    assert.equal(prepared.next_action.state, 'ready');
+    assert.equal(prepared.next_action.operation.kind, 'presentation.deliver');
+    assert.equal(prepared.next_action.operation.run_id, started.family_result.run_id);
+    assert.equal(prepared.next_action.operation.expected_revision_id, started.current.revision_id);
+    assert.equal(prepared.next_action.operation.presentation_id, prepared.family_result.presentation_id);
+    assert.equal(prepared.next_action.recovery_only.original_call.arguments.command.kind, 'presentation.deliver');
+    assert.deepEqual(prepared.next_action.call.arguments, prepared.next_calls[0].arguments);
+    assert.deepEqual(Object.keys(prepared.next_action.call.arguments).sort(), ['inputs', 'prepared_call_id']);
+    const delivered = await call(prepared.next_action.call.tool, prepared.next_action.call.arguments);
     assert.equal(delivered.presentation_delivery.text, prepared.family_result.text);
     assert.deepEqual(delivered.next_calls, []);
-    assert.equal(delivered.approval_call.call.arguments.command.payload.response, undefined);
+    assert.equal(delivered.next_action.state, 'requires_new_reply');
+    assert.deepEqual(delivered.next_action.call.arguments.inputs, {}, 'No gate reply is populated by delivery.');
+    assert.deepEqual(delivered.next_action.required_inputs, ['response']);
+    assert.equal(delivered.next_action.recovery_only.original_call.arguments.command.payload.response, undefined);
+    assert.equal(delivered.next_action.operation.presentation_id, prepared.family_result.presentation_id);
     const document = await call('agdf_inspect', { ...target, target_id, run_id: started.family_result.run_id,
       expected_revision_id: started.current.revision_id, operation: 'presentation-document', gate: 'UR',
       presentation_id: prepared.family_result.presentation_id });

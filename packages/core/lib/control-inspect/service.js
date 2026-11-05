@@ -11,7 +11,7 @@ import { readRuntimeContract, runtimeContractModules } from "../resources/contra
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation, renderActiveRunInventory, renderRunInventory } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
-import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, OPERATION_CONTRACT_MODULES, PRESENTATION_CATALOG_MODULE } from "./contract.js";
+import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, inspectModuleRecoveryCall, OPERATION_CONTRACT_MODULES, PRESENTATION_CATALOG_MODULE } from "./contract.js";
 import { RUN_COMMAND_DESCRIPTORS, operationContract } from '../control-state/run-command-contract.js';
 import { inspectRunOperation } from '../control-state/run-operation-status.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
@@ -133,6 +133,19 @@ export function createControlInspectService(dependencies = {}) {
       result.diagnostics = [{ code: "inspect_input_invalid", field,
         ...(inputError?.allowedValues?.length ? { allowed_values: [...inputError.allowedValues] } : {}),
       }];
+      if (field === 'module') {
+        const supplied = { operation: rawInput.operation,
+          ...Object.fromEntries([['module', 'contractModule'], ['working_directory', 'workingDirectory'],
+            ['primary_target', 'primaryTarget'], ['target_source', 'targetSource'], ['presentation_language', 'presentationLanguage'],
+            ['run_id', 'runId'], ['expected_revision_id', 'expectedRevisionId'], ['gate', 'gate'], ['target_id', 'targetId']]
+            .filter(([, key]) => rawInput[key] !== undefined).map(([field, key]) => [field, rawInput[key]])) };
+        // Preserve unsupported selectors too, so they prevent a misleading
+        // executable suggestion rather than disappearing from the new lookup.
+        for (const [field, key] of [['presentation_id', 'presentationId'], ['cursor', 'cursor'], ['planning', 'planning'], ['all_active', 'allActive']])
+          if (rawInput[key] !== undefined) supplied[field] = rawInput[key];
+        const next = inspectModuleRecoveryCall(supplied);
+        if (next) result.recovery.next_calls = [next];
+      }
       return bindHostAction(result);
     }
     timing.input_ms = round(milliseconds(started, now()));

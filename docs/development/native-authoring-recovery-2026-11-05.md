@@ -123,6 +123,34 @@ validation of this follow-up is separate from the two historical observations.
 
 ## Validation boundary
 
+The later candidate `0.30.0+codex.local-78156d8093e4` at source commit
+`62428882402bcc51efe39ae0877f10c1951c65d2` completed both functional SD/TP cases,
+with one canonical correction per gate. It used 84 MCP calls and 95 outer tool
+round trips in 20:14.804 active CLI time. All three invocations stayed within the
+unchanged 20-minute per-invocation limit. Seven malformed MCP calls and four
+host-script failures remained; this was not a clean native qualification. One
+reference was empty, another differed from the supplied UUID by one character.
+There was no evidence of reference expiry or registry exhaustion. All 34 compared
+candidate files, 758 older evidence files, 49 repository Run files and 45 untracked
+working files were preserved. The global Codex config digest changed near CLI
+startup; timing alone did not identify the writer or the changed keys.
+
+Its retained audit SHA-256 is
+`e94d21f403b3dad16e2df70b90cf3e12256ac56dde26243c88f27a3ac528a245`;
+comparison `3451e2684261d3cdbda3cf12b15a8d0fd4355ff918c8bbbe506f0fae18f02ca2`;
+84-file manifest `98d342583839af7f38809e70331d1e91da9eaf1158b846124b9d9557917b5a16`.
+
+The subsequent normal-path change exposes one `next_action.call`, maps named
+inputs in the adapter, and moves original Raw requests to `recovery_only`.
+One uniquely supplied safe inspect can be included without repeating a host tool
+round; dispatch, mutation, presentation and approval remain explicit. Source pages
+stay explicit, and failed follow-up reads cannot replace a successful write result.
+The duplicate delivery call that requested a freshly generated UUID is removed.
+These changes require their own installed-candidate evidence. Three fresh Luna
+cases are selected before execution; no failed case may be replaced. Their config
+observer retains keyed value hashes and sanitized key identities, never raw config
+or authentication data. Native verdicts and current-head CI belong in the PR.
+
 Repository and actual STDIO regressions cover source reconstruction, UTF-8 and
 request limits, immutable prepared arguments, original-operation replay, language,
 summary recovery, and the final diagnostic/help changes. Compatibility fixtures and

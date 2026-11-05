@@ -157,6 +157,7 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
       manifest_digest: `sha256:${manifest}`, ...(input.bundle ? { document_manifest: documents.map(({ content, ...r }) => r) } : { documents: documents.map(({ content, ...r }) => r) }),
       ...(input.bundle ? { format: 'document_bundle_v2', ...documentPage, page_bytes_limit: 49152,
         page_index: index, page_count: Math.max(selection.length, 1),
+        first_page_call: pageCall(0),
         current_draft: currentDraft ? { type: currentDraft.type, path: currentDraft.path, status: currentDraft.status, digest: currentDraft.digest,
           content_state: draftRow?.complete ? 'complete' : draftRow ? 'fragment' : 'not_on_page',
           ...(draftPage >= 0 && (!draftRow || draftRow.byte_start > 0) ? { read_call: pageCall(draftPage) } : {}),

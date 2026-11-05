@@ -1,4 +1,5 @@
 import { preparedTransportSchema } from '../src/prepared-call-transport.js';
+import { nextActionOutputSchema } from '../src/safe-read-continuation.js';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
 import { execFileSync, spawnSync } from "node:child_process";
@@ -77,7 +78,7 @@ assert.equal(tools[1].annotations.readOnlyHint, true);
 assert.equal(tools[0].name, SKILL_DISPATCH_FUNCTION_DEFINITION.name);
 assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
 assert.deepEqual(tools[0].inputSchema, preparedTransportSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema));
-assert.deepEqual(tools[0].outputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema);
+assert.deepEqual(tools[0].outputSchema, nextActionOutputSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema));
 assert.deepEqual(tools[0].annotations, SKILL_DISPATCH_FUNCTION_DEFINITION.annotations);
 assert.equal(tools[0].annotations.readOnlyHint, false);
 

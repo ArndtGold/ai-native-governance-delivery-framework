@@ -96,6 +96,33 @@ try { for (const modern of [false, true]) {
       const badRun = await client.callTool({ name: 'agdf_dispatch', arguments: { ...base, skill_id: 'gate-check', run_id: 'Demo-Run-01' } });
       assert.equal(badRun.isError, true);
       assert.match(JSON.stringify(badRun), /canonical Run ID/u);
+      const { run_id: _selectedRun, ...unbound } = base;
+      const malformedBootstrap = await client.callTool({ name: 'agdf_dispatch', arguments: {
+        ...unbound, skill_id: 'gate-check', intake: true, intake_mode: 'new' } });
+      assert.equal(malformedBootstrap.isError, true);
+      assert.match(JSON.stringify(malformedBootstrap), /omits BOTH run_id and intake_mode/u);
+      assert.match(JSON.stringify(malformedBootstrap), /never invent a Run ID/u);
+      const nullRun = await client.callTool({ name: 'agdf_dispatch', arguments: { ...unbound, skill_id: 'gate-check', intake: true, run_id: null } });
+      assert.equal(nullRun.isError, true, 'null never substitutes for omitted initial selectors.');
+      const malformedCreator = await client.callTool({ name: 'agdf_run', arguments: { ...unbound,
+        schema_version: '1', target_id: fixture.targetId, operation_id: '00000000-0000-4000-8000-000000000001', assurance: 'cooperative_local',
+        command: { kind: 'run.create', payload: { title: 'Rejected malformed creator', language: 'en' } } } });
+      assert.equal(malformedCreator.isError, true);
+      assert.match(JSON.stringify(malformedCreator), /accepts only command.payload.title/u);
+      const wrongApprovalModule = await client.callTool({ name: 'agdf_inspect', arguments: { ...base,
+        operation: 'operation-contract', module: 'agdf_approve/run-approve', expected_revision_id: revision, gate: 'UR', target_id: fixture.targetId } });
+      assert.equal(wrongApprovalModule.isError, true);
+      assert.equal(wrongApprovalModule.structuredContent.outcome, 'invalid_input');
+      const moduleRecovery = wrongApprovalModule.structuredContent.recovery.next_calls[0];
+      assert.deepEqual(moduleRecovery, { tool: 'agdf_inspect', arguments: { ...base,
+        operation: 'operation-contract', module: 'agdf_approve/approval.record', expected_revision_id: revision, gate: 'UR', target_id: fixture.targetId } });
+      const suppliedHelp = await client.callTool({ name: moduleRecovery.tool, arguments: moduleRecovery.arguments });
+      assert.equal(suppliedHelp.isError, undefined, 'Only the registered read-only schema lookup is suggested; no approval is recorded.');
+      const incompleteDocument = await client.callTool({ name: 'agdf_inspect', arguments: { ...base,
+        operation: 'presentation-document', presentation_id: fixture.presentationId, target_id: fixture.targetId } });
+      assert.equal(incompleteDocument.isError, true);
+      assert.match(JSON.stringify(incompleteDocument), /Supply expected_revision_id.*Supply gate/u);
+      assert.match(JSON.stringify(incompleteDocument), /never silently replace a requested revision/u);
       const stale = await client.callTool({ name: 'agdf_inspect', arguments: { ...base, operation: 'operation-contract', module: 'agdf_record/step.record', expected_revision_id: '00000000-0000-4000-8000-000000000001' } });
       assert.equal(stale.isError, true);
       assert.equal(stale.structuredContent.report.reason, 'operation_binding_stale_or_invalid');

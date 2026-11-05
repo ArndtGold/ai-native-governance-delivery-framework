@@ -70,7 +70,9 @@ assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
 assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /governed delivery intake \(catalog delivery\.start\) is the active route/u);
 assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /delivery wins mixed intent/u);
-assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /Omit it for status, approval or next-step questions/u);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /Omit intake for status, approval or next-step questions/u);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /omit BOTH run_id and intake_mode/u);
+assert.match(SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION, /supplied agdf_run\/run\.create form/u);
 assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /never grants approval or delivery authority/u);
 assert.ok(definition.description.endsWith(` ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`));
 assert.equal(schema.additionalProperties, false);
@@ -101,6 +103,8 @@ assert.match(schema.properties.presentation_language.description, /Invalid expli
 assert.match(schema.properties.presentation_language.description, /Core input remains complete/u);
 assert.match(schema.properties.primary_target.description, /Never derive it from working_directory alone/u);
 assert.match(schema.properties.run_id.description, /unequivocal same-scope assignment/u);
+assert.match(schema.properties.run_id.description, /never null/u);
+assert.match(schema.properties.run_id.description, /never invent an ID/u);
 assert.match(schema.properties.expected_revision_id.description, /resolve_delivery_run/u);
 assert.match(schema.properties.continue_delivery.description, /implementation-preparation Brownfield Analysis after TP approval/u);
 assert.match(schema.properties.continue_delivery.description, /OR closeout after UAT approval/u);
@@ -157,6 +161,14 @@ const deliveryInput = { skill_id: "gate-check", presentation_language: "de", wor
 const registry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
 const expectedRevision = "12345678-1234-4123-8123-123456789abc";
 const validateDispatch = new Ajv2020({ strict: false }).compile(schema);
+const initialIntake = { skill_id: 'gate-check', presentation_language: 'de', working_directory: '/tmp/agdf',
+  primary_target: '/tmp/agdf', target_source: 'explicit_target', intake: true };
+assert.equal(validateDispatch(initialIntake), true);
+for (const invalid of [{ ...initialIntake, intake_mode: 'new' }, { ...initialIntake, run_id: null },
+  { ...initialIntake, intake_mode: 'new', run_id: null }]) {
+  assert.equal(validateDispatch(invalid), false);
+  assert.throws(() => normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments(invalid, transportContext), registry));
+}
 for (const intake of [undefined, false, true]) for (const mode of [undefined, "new", "resume"])
 for (const continuation of [undefined, false, true]) for (const run of [undefined, "bound-run"])
 for (const revision of [undefined, expectedRevision]) {

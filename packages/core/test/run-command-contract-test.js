@@ -5,6 +5,10 @@ import * as contractFacade from '../lib/control-state/run-command-contract.js';
 import * as structuralContract from '../lib/control-state/run-command-schema.js';
 import { ARTIFACT_READINESS_GATES as selectedGates } from '../lib/control-inspect/selection.js';
 import { ARTIFACT_READINESS_GATES as evaluatedGates } from '../lib/control-inspect/artifact-readiness.js';
+import { readFileSync } from 'node:fs';
+import { mcpInputValidationHint } from '../lib/mcp-input-hints.js';
+import { CONTROL_INSPECT_FUNCTION_DEFINITION, inspectModuleRecoveryCall } from '../lib/control-inspect/contract.js';
+import { createControlInspectService } from '../lib/control-inspect/service.js';
 for (const name of Object.keys(contractFacade).filter(name => name !== 'operationContract'))
   assert.equal(contractFacade[name], structuralContract[name], `one canonical structural owner: ${name}`);
 assert.equal(selectedGates, evaluatedGates, 'the evaluator reexports the canonical selector values');
@@ -192,3 +196,48 @@ assert.ok(validateRunCommandResult({ ...success, outcome: 'effect_unknown', reas
 console.log(`Expanded/compact SDK parity (${parityCases} cases), direct field help, five output schemas and legitimate/malformed result variants passed.`);
 
 assert.ok(validateRunCommandResult({ schema_version: '1', outcome: 'effect_unknown', reason: 'dispatch_worker_failed', authorizes: false }).length, 'uncertainty retains original-operation field and recovery guidance');
+
+// Native bootstrap/recovery mistakes stay rejected; hints supply only new
+// read-only schema lookups with exact original selection, never repaired writes.
+{
+  const context = { working_directory: '/tmp/project', primary_target: '/tmp/project', target_source: 'explicit_target', presentation_language: 'de' };
+  const bootstrap = { ...context, skill_id: 'gate-check', intake: true, intake_mode: 'new' };
+  const before = JSON.stringify(bootstrap), hint = mcpInputValidationHint('agdf_dispatch', bootstrap);
+  assert.match(hint, /omits BOTH run_id and intake_mode/u);
+  assert.match(hint, /null is invalid/u);
+  const lookup = JSON.parse(hint.match(/Next read-only schema call \(no Run creation\): (\{.*\})$/u)[1]);
+  assert.deepEqual(lookup, { tool: 'agdf_inspect', arguments: { operation: 'operation-contract', module: 'agdf_run/run.create', ...context } });
+  assert.equal(JSON.stringify(bootstrap), before);
+  assert.doesNotMatch(mcpInputValidationHint('agdf_dispatch', { ...bootstrap, intake_mode: 'resume' }), /Next read-only schema call/u,
+    'A missing selected Run never becomes new-scope creation guidance.');
+  assert.doesNotMatch(mcpInputValidationHint('agdf_dispatch', { ...bootstrap, run_id: null }), /Next read-only schema call/u);
+  assert.match(mcpInputValidationHint('agdf_dispatch', { ...context, skill_id: 'gate-check', intake: true, run_id: null }), /canonical Run ID/u);
+  assert.doesNotMatch(mcpInputValidationHint('agdf_dispatch', { ...bootstrap, primary_target: 'relative' }), /Next read-only schema call/u);
+  const creator = { ...targetEnvelope, command: { kind: 'run.create', payload: { title: 'Native request', language: 'en' } } };
+  assert.ok(validateRunCommand('agdf_run', creator).length, 'Extra create payload fields remain rejected.');
+  assert.match(mcpInputValidationHint('agdf_run', creator), /accepts only command\.payload\.title/u);
+  const selected = { ...context, operation: 'operation-contract', module: 'agdf_approve/run-approve', run_id: input.run_id,
+    expected_revision_id: input.expected_revision_id, gate: 'TP', target_id: input.target_id };
+  const original = JSON.stringify(selected), recovery = inspectModuleRecoveryCall(selected);
+  assert.deepEqual(recovery, { tool: 'agdf_inspect', arguments: { ...selected, module: 'agdf_approve/approval.record' } });
+  assert.equal(JSON.stringify(selected), original);
+  assert.equal(fromJsonSchema(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema)['~standard'].validate(recovery.arguments).issues, undefined);
+  for (const delta of [{ run_id: undefined }, { expected_revision_id: undefined }, { expected_revision_id: 'wrong' }, { primary_target: 'relative' },
+    { gate: 'wrong' }, { presentation_language: 'not_a_tag' }, { target_id: 'wrong' }, { cursor: 'a'.repeat(64) + ':0' }])
+    assert.equal(inspectModuleRecoveryCall({ ...selected, ...delta }), null, JSON.stringify(delta));
+  let targetCalls = 0;
+  const inspect = createControlInspectService({ env: {}, resolveTaskTarget: () => { targetCalls++; throw Error('invalid input must not resolve a target'); } });
+  const result = inspect({ operation: selected.operation, contractModule: selected.module, workingDirectory: context.working_directory,
+    primaryTarget: context.primary_target, targetSource: context.target_source, presentationLanguage: context.presentation_language,
+    runId: selected.run_id, expectedRevisionId: selected.expected_revision_id, gate: selected.gate, targetId: selected.target_id,
+    expectedVersion: '0.30.0', surface: 'codex', interactionLocales: JSON.parse(readFileSync(new URL('../../../plugins/agdf/meta/agdf-interaction-locales.json', import.meta.url))) });
+  assert.equal(result.outcome, 'invalid_input'); assert.equal(result.terminal, true); assert.equal(result.authorizes, false);
+  assert.deepEqual(result.recovery.next_calls, [recovery]); assert.equal(targetCalls, 0);
+  assert.match(mcpInputValidationHint('agdf_inspect', selected), /agdf_approve\/approval\.record/u);
+  const requestedRead = { ...context, operation: 'presentation-document', run_id: input.run_id,
+    presentation_id: input.command.payload.presentation_id, target_id: input.target_id };
+  const missingReadHint = mcpInputValidationHint('agdf_inspect', requestedRead);
+  assert.match(missingReadHint, /Supply expected_revision_id.*Supply gate/u);
+  assert.match(missingReadHint, /never silently replace a requested revision/u);
+  assert.ok(!Object.hasOwn(requestedRead, 'expected_revision_id') && !Object.hasOwn(requestedRead, 'gate'));
+}

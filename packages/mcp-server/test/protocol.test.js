@@ -1,4 +1,5 @@
 import { preparedTransportSchema } from '../src/prepared-call-transport.js';
+import { nextActionOutputSchema } from '../src/safe-read-continuation.js';
 import assert from "node:assert/strict";
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -182,7 +183,7 @@ for (const modern of [false, true]) {
     assert.equal(tools[0].name, "agdf_dispatch");
     assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
     assert.deepEqual(tools[0].inputSchema, preparedTransportSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema));
-    assert.deepEqual(tools[0].outputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema);
+    assert.deepEqual(tools[0].outputSchema, nextActionOutputSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema));
 
     for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
       const result = await client.callTool({

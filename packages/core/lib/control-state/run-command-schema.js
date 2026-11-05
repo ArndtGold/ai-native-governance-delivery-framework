@@ -423,7 +423,7 @@ export function commandGroupDefinition(group) {
       agdf_project: 'Initialize fresh current project control.',
       agdf_run: 'Create an unapproved Run; replay its UUID.',
       agdf_prepare: 'Prepare/deliver documents; never approve. Read existing documents with agdf_inspect.',
-      agdf_record: 'Stage evidence; submit stores IDs. Raw multipart: base64.',
+      agdf_record: 'Use next_action.call with named inputs. Raw multipart: base64 via contract/recovery.',
       agdf_approve: 'Record NEW deliberate reply for the presented version. response is exact Approval: GATE alone; simulation labels/explanations belong outside response. Quoted text is not approval',
       agdf_revise: 'Preview revisions; confirm to apply.',
       agdf_closeout: 'Record closeout or preview/apply closure.',

@@ -29,6 +29,7 @@ function deepFreeze(value) {
 export const PRESENTATION_OPERATIONS = Object.freeze(['presentation-document', 'presentation-preview']);
 export const BOUND_INSPECT_OPERATIONS = Object.freeze(['artifact-readiness', 'authoring-inputs', 'operation-contract', 'operation-status', 'native-qualification', ...PRESENTATION_OPERATIONS, 'runtime-generations']);
 export const PRESENTATION_CATALOG_MODULE = 'agdf_prepare/presentation.prepare';
+const CLI_MODULE_HINTS = Object.freeze({ 'agdf_approve/run-approve': 'agdf_approve/approval.record' });
 const uuidSchema = { type: 'string', pattern: REVISION_ID_PATTERN.source };
 const cursorSchema = { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$' };
 const fieldModel = {
@@ -90,7 +91,7 @@ delete inputSchema.allOf;
 for (const field of Object.values(inputSchema.properties)) delete field.description;
 Object.assign(inputSchema.properties.target_source, { description: 'Pair primary_target.' });
 Object.assign(inputSchema.properties.primary_target, { description: 'Confirmed target.' });
-Object.assign(inputSchema.properties.module, { description: 'operation-contract: group/kind (setup: agdf_project/project.initialize, no Run). Run operation-status: original UUID alone.' });
+Object.assign(inputSchema.properties.module, { description: 'operation-contract: group/kind; approval: agdf_approve/approval.record (setup: agdf_project/project.initialize, no Run). Run operation-status: original UUID alone.' });
 Object.assign(inputSchema.properties.gate, { description: 'Not for gate-check.' });
 Object.assign(inputSchema.properties.target_id, { description: 'Required for docs; gate-check.' });
 
@@ -172,16 +173,42 @@ export function inspectContractHelp() {
   });
 }
 
+function correctedOperationModule(module) {
+  if (typeof module !== 'string' || module.length > 64 || OPERATION_CONTRACT_MODULES.includes(module)) return null;
+  const exact = CLI_MODULE_HINTS[module];
+  if (exact && OPERATION_CONTRACT_MODULES.includes(exact)) return exact;
+  const kind = module.split('/').at(-1);
+  const matches = OPERATION_CONTRACT_MODULES.filter(value => value.split('/').at(-1) === kind);
+  return matches.length === 1 ? matches[0] : null;
+}
+
+// A new read-only schema lookup for one unambiguous registered owner. This
+// preserves explicit bindings; it never executes or repairs the invalid request.
+export function inspectModuleRecoveryCall(input) {
+  if (!input || input.operation !== 'operation-contract') return null;
+  const module = correctedOperationModule(input.module);
+  const allowed = new Set(['operation', 'module', 'working_directory', 'primary_target', 'target_source',
+    'presentation_language', 'run_id', 'expected_revision_id', 'gate', 'target_id']);
+  if (!module || Object.keys(input).some(key => !allowed.has(key))) return null;
+  for (const key of ['working_directory', 'primary_target', 'target_source', 'run_id'])
+    if (!Object.hasOwn(input, key) || schemaDiagnostics(input[key], fieldModel[key].schema).length) return null;
+  if (!isAbsolute(input.working_directory) || !isAbsolute(input.primary_target)
+    || typeof input.expected_revision_id !== 'string' || !REVISION_ID_PATTERN.test(input.expected_revision_id)
+    || input.presentation_language !== undefined && schemaDiagnostics(input.presentation_language, fieldModel.presentation_language.schema).length
+    || input.gate !== undefined && !APPROVAL_GATES.includes(input.gate)
+    || input.target_id !== undefined && (typeof input.target_id !== 'string' || !/^sha256:[0-9a-f]{64}$/u.test(input.target_id))) return null;
+  return { tool: 'agdf_inspect', arguments: { ...input, module } };
+}
+
 export function inspectInputValidationHint(input) {
   if (!input || typeof input !== 'object' || !CONTROL_INSPECT_OPERATIONS.includes(input.operation)) return '';
   const operation = input.operation, messages = [];
   let diagnosedModule = input.module;
   if (operation === 'operation-contract' && typeof input.module === 'string' && input.module.length <= 64
     && !OPERATION_CONTRACT_MODULES.includes(input.module)) {
-    const kind = input.module.split('/').at(-1);
-    const matches = OPERATION_CONTRACT_MODULES.filter(module => module.split('/').at(-1) === kind);
-    if (matches.length === 1) diagnosedModule = matches[0]; // Help only; the original invalid request remains rejected.
-    messages.push(matches.length === 1 ? `Use module ${matches[0]}; this is the registered owner of ${kind}.`
+    const correction = correctedOperationModule(input.module);
+    if (correction) diagnosedModule = correction; // Help only; the original invalid request remains rejected.
+    messages.push(correction ? `Use module ${correction}; the original module is invalid and was not executed.`
       : 'Read contract without module for the registered operation_modules; do not guess a group/kind.');
   }
   for (const [name, field] of Object.entries(fieldModel)) {

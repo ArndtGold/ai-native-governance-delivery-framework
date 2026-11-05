@@ -26,6 +26,9 @@ import { continueDeliveryCall, preparedCommandCall } from '../lib/control-state/
 import { SKILL_DISPATCH_FUNCTION_DEFINITION } from '../lib/skill-dispatch/contract.js';
 import { CONTROL_INSPECT_FUNCTION_DEFINITION } from '../lib/control-inspect/contract.js';
 import { clarifiedUr } from './planned-fixtures.js';
+import { syntheticPrd } from '../../cli/scripts/fixtures/prd-definition.js';
+import { syntheticSd } from '../../cli/scripts/fixtures/sd-definition.js';
+import { evaluateApprovalSummaryReadiness } from '../lib/control-state/run-presentation-render.js';
 
 test('put atomically seals bounded UTF-8, replays exact bytes and never publishes canonical state', () => fixture(({ store, bound, path }) => {
   const before = readFileSync(path, 'utf8');
@@ -359,6 +362,107 @@ test('bundled authoring bounds encoded JSON pages and reconstructs exact escaped
   } while (cursor);
   assert.ok(pages > 1);assert.equal(recovered, text);
 }));
+
+test('bundled authoring prioritizes its own draft and returns bound calls through fragmented source pages', t => {
+  const f = currentFixture(t), run = currentRun(f), sourceTexts = new Map();
+  const ur = clarifiedUr + '\n## Synthetic captured detail\n' + 'u'.repeat(30000) + '\n';
+  assert.equal(run.step('ur', ur, { title: 'Synthetic source page regression' }).outcome, 'accepted');
+  assert.equal(run.approve('UR').outcome, 'accepted');
+  const review = '# Brownfield Review\n- ux_intent_definition_required: no\n\n' + 'r'.repeat(22000) + '\n';
+  assert.equal(run.step('route', review, { route: 'structured_delivery', reason: 'Synthetic source page regression' }).outcome, 'accepted');
+  const prd = syntheticPrd();
+  assert.equal(run.record('PRD', prd).outcome, 'accepted');
+  const prdAuthoring = inspectAuthoringInputs(f.root, { ...f.base, ...run.binding(), presentation_language: 'de', bundle: true });
+  assert.deepEqual(prdAuthoring.approval_summary_format.required_fields, ['- Ziel:', '- Umfang:', '- Entscheidungen:']);
+  assert.deepEqual(prdAuthoring.approval_summary_format.criterion_fields, ['- AC-001:']);
+  assert.equal(prdAuthoring.approval_summary_format.criteria_state, 'available');
+  assert.match(prdAuthoring.approval_summary_format.criteria_instruction, /exactly once/u);
+  assert.equal(evaluateApprovalSummaryReadiness('PRD', prd, prdAuthoring).ready, true, 'The same presentation owner accepts the declared exact grammar.');
+  const combinedCriteria = prd.replace('- AC-001: Wiederherstellung', '- Kriterien: AC-001 Wiederherstellung');
+  assert.equal(evaluateApprovalSummaryReadiness('PRD', combinedCriteria, prdAuthoring).reason, 'approval_summary_criteria_incomplete',
+    'A generic criteria item still fails the unchanged canonical validator.');
+  assert.equal(run.approve('PRD').outcome, 'accepted');
+  const sd = syntheticSd() + '\n## Synthetic captured detail\n' + 's'.repeat(10000) + '\n';
+  assert.equal(run.record('SD', sd).outcome, 'accepted');
+  const bound = () => ({ ...f.base, ...run.binding(), operation: 'authoring-inputs', bundle: true });
+  const first = inspectAuthoringInputs(f.root, bound());
+  assert.equal(first.available, true, JSON.stringify(first));
+  assert.equal(first.current_draft.type, 'SD');
+  assert.equal(first.current_draft.content_state, 'complete');
+  assert.equal(first.current_draft.content, undefined, 'The draft locator is metadata, never a duplicate text source.');
+  assert.equal(first.documents[0].role, 'source');
+  assert.equal(first.documents[0].type, 'SD');
+  assert.equal(first.documents[0].content, sd, 'Unrelated large registered sources cannot evict a bounded current draft.');
+  assert.equal(first.page_index, 0);
+  assert.ok(first.page_count > 1, 'The fixture exercises real pagination rather than only a small source set.');
+  const legacy = inspectAuthoringInputs(f.root, { ...bound(), bundle: false });
+  assert.equal(legacy.chunk.role, 'template', 'Legacy readers retain their template-first chunk order.');
+  assert.equal(legacy.current_draft, undefined);
+  assert.ok(legacy.documents.every(row => row.content === undefined));
+  const sdSummary = inspectAuthoringInputs(f.root, { ...bound(), presentation_language: 'de' }).approval_summary_format;
+  assert.equal(sdSummary.heading, 'AGDF Approval Summary (de; source=en)');
+  assert.equal(sdSummary.body_required, true);
+  assert.deepEqual(sdSummary.required_fields, [], 'SD guidance does not invent stricter named fields than the summary validator.');
+  const staleCursor = first.next_cursor;
+
+  // JSON escaping, not just raw UTF-8 length, makes this own draft span pages.
+  const fragmentedSd = sd + '\n## Synthetic escaped detail\n' + '\u0001'.repeat(20000) + '😀'.repeat(500) + '\n';
+  assert.equal(run.record('SD', fragmentedSd, true).outcome, 'accepted');
+  sourceTexts.set('UR', ur); sourceTexts.set('Brownfield Review', review); sourceTexts.set('PRD', prd); sourceTexts.set('SD', fragmentedSd);
+  assert.equal(inspectAuthoringInputs(f.root, { ...bound(), cursor: staleCursor }).reason, 'authoring_cursor_stale_or_invalid');
+  const before = readFileSync(run.path, 'utf8'), recovered = new Map();
+  let args = bound(), pages = 0, locatedDraftFromLaterPage = false, recoveredEarlierFragment = false;
+  for (;;) {
+    const report = inspectAuthoringInputs(f.root, args);
+    assert.equal(report.available, true, JSON.stringify(report));
+    assert.equal(report.page_index, pages);
+    assert.ok(Buffer.byteLength(JSON.stringify({ documents: report.documents, fragments: report.fragments })) <= 49152);
+    assert.ok(report.documents.every(row => row.complete && typeof row.content === 'string'));
+    assert.ok(report.fragments.every(row => !row.complete && typeof row.content === 'string'));
+    assert.ok(report.document_manifest.every(row => row.content === undefined));
+    if (pages === 0) {
+      assert.equal(report.current_draft.content_state, 'fragment');
+      assert.equal(report.fragments[0].type, 'SD');
+    }
+    if (report.current_draft.content_state === 'not_on_page') {
+      const locator = report.current_draft.read_call;
+      assert.equal(locator.tool, 'agdf_inspect');
+      assert.deepEqual(schemaDiagnostics(locator.arguments, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema), []);
+      const located = inspectAuthoringInputs(f.root, locator.arguments);
+      assert.equal(located.current_draft.content_state, 'fragment');
+      assert.equal(located.fragments[0].digest, report.current_draft.digest);
+      locatedDraftFromLaterPage = true;
+    }
+    if (report.current_draft.content_state === 'fragment' && report.fragments.some(row => row.type === 'SD' && row.byte_start > 0)) {
+      const locator = report.current_draft.read_call;
+      assert.equal(locator.tool, 'agdf_inspect', 'A reader resuming from a middle fragment can recover missing earlier bytes.');
+      assert.deepEqual(schemaDiagnostics(locator.arguments, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema), []);
+      const located = inspectAuthoringInputs(f.root, locator.arguments);
+      assert.equal(located.page_index, 0);
+      assert.equal(located.fragments[0].type, 'SD');
+      assert.equal(located.fragments[0].byte_start, 0);
+      recoveredEarlierFragment = true;
+    }
+    for (const row of [...report.documents, ...report.fragments]) if (row.role === 'source')
+      recovered.set(row.type, (recovered.get(row.type) ?? '') + row.content);
+    pages++;
+    if (report.complete) { assert.deepEqual(report.next_calls, []); assert.equal(report.page_count, pages); break; }
+    assert.equal(report.next_calls.length, 1);
+    const next = report.next_calls[0];
+    assert.equal(next.tool, 'agdf_inspect');
+    assert.deepEqual(schemaDiagnostics(next.arguments, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema), []);
+    assert.equal(next.arguments.cursor, report.next_cursor);
+    for (const key of ['working_directory', 'primary_target', 'target_source', 'target_id', 'run_id', 'expected_revision_id', 'presentation_language', 'bundle'])
+      assert.deepEqual(next.arguments[key], bound()[key], 'The cursor call preserves the exact source binding: ' + key);
+    assert.equal(next.arguments.operation_id, undefined, 'Read calls never inherit an unrelated command UUID.');
+    args = next.arguments;
+  }
+  assert.ok(pages > 2);
+  assert.equal(locatedDraftFromLaterPage, true);
+  assert.equal(recoveredEarlierFragment, true);
+  for (const [type, text] of sourceTexts) assert.equal(recovered.get(type), text, type + ' source bytes survive bounded paging.');
+  assert.equal(readFileSync(run.path, 'utf8'), before, 'Reading or locating pages never revises the Run.');
+});
 
 test('an already bound incomplete UR is corrected directly with the current writer, without another intake', () => fixture(({ root, bound }) => {
   const services = createCoreServices();

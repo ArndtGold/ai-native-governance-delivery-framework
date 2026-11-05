@@ -10,7 +10,7 @@ export function prdDefinitionEligible(control, input) {
   if (input.ur_action !== undefined || input.sd_action !== undefined || input.tp_action !== undefined || !input.run_id || control?.status_card?.run_id !== input.run_id || !state
       || control.current_gate !== "PRD" || !["open", "blocked"].includes(control.status)
       || !["none", "Approval: PRD"].includes(control.missing_approval)
-      || !["none", "AGDF_PRD_DECISIONS_OPEN"].includes(control.blocking_reason)
+      || !["none", "AGDF_PRD_DECISIONS_OPEN", "AGDF_PRD_READINESS_INCOMPLETE", "AGDF_APPROVAL_SUMMARY_INCOMPLETE"].includes(control.blocking_reason)
       || (control.doctor_report?.findings ?? []).some(f => ["block", "revise"].includes(f.severity))
       || state.approvals.get("UR")?.status !== "approved"
       || state.artefacts.get("UR")?.status !== "approved"

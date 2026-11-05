@@ -100,7 +100,7 @@ console.log('Artifact authoring readiness: validator parity, incomplete input, r
     assert.equal(f.recordCandidate().value.outcome, 'accepted', 'Draft registration is not readiness or approval.');
     const registered = readFileSync(f.runPath, 'utf8');
     const gate = evaluateGateCheck(f.root, { runId: f.runId, presentationLanguage: 'en' });
-    assert.equal(gate.blocking_reason, 'AGDF_PRD_DECISIONS_OPEN', JSON.stringify(gate));
+    assert.equal(gate.blocking_reason, 'AGDF_PRD_READINESS_INCOMPLETE', JSON.stringify(gate));
     assert.ok(gate.prd_readiness.open_decisions.some(row => row.includes('AC-001') && row.includes('observable_success')));
     assert.equal(prdDefinitionEligible(gate, { run_id: f.runId, skill_id: 'gate-check', continue_delivery: true }), true,
       'The registered unready draft remains with its existing PRD author instead of a terminal evaluator error.');
@@ -119,7 +119,7 @@ console.log('Artifact authoring readiness: validator parity, incomplete input, r
 }
 console.log('Same-language source-field defects remain repairable by the PRD author and cannot be approved.');
 
-for (const gate of ['SD', 'TP']) {
+for (const gate of ['PRD', 'SD', 'TP']) {
   const f = artifactReadinessFixture(gate, 'de', `localized-${gate.toLowerCase()}-repair`);
   const input = () => ({ runId: f.runId, gate, expectedRevisionId: f.revision, presentationLanguage: 'de' });
   const services = createCoreServices();
@@ -154,8 +154,9 @@ for (const gate of ['SD', 'TP']) {
       const registered = snapshot(f.root);
       const control = evaluateGateCheck(f.root, { runId: f.runId, presentationLanguage: 'de' });
       assert.equal(control.status, 'blocked');
-      assert.equal(control.blocking_reason, gate === 'SD' ? 'AGDF_SD_DECISIONS_OPEN' : 'AGDF_TP_TRACEABILITY_INCOMPLETE');
-      const findings = gate === 'SD' ? control.sd_readiness.open_decisions : control.traceability_readiness.open_items;
+      assert.equal(control.blocking_reason, 'AGDF_APPROVAL_SUMMARY_INCOMPLETE');
+      const findings = gate === 'PRD' ? control.prd_readiness.open_decisions
+        : gate === 'SD' ? control.sd_readiness.open_decisions : control.traceability_readiness.open_items;
       assert.ok(findings.some(row => row.includes(reason) && row.includes('AGDF Approval Summary (de; source=en)')), JSON.stringify(findings));
       assert.equal(evaluateGateCheck(f.root, { runId: f.runId, presentationLanguage: 'en' }).status, 'open',
         'A presentation-language override uses the source language and needs no translation.');
@@ -176,6 +177,23 @@ for (const gate of ['SD', 'TP']) {
       const corrected = f.recordCandidate(true, valid);
       assert.equal(corrected.value.outcome, 'accepted', corrected.text);
     }
+    // A simultaneous summary defect must not hide a real decision or mapping gap.
+    const otherGaps = gate === 'PRD'
+      ? [[source.replace('before_prd | resolved', 'before_prd | open'), 'AGDF_PRD_DECISIONS_OPEN']]
+      : gate === 'SD' ? [
+        [source.replace('before_sd | resolved', 'before_sd | open'), 'AGDF_SD_DECISIONS_OPEN'],
+        [source.replace('| SDD-001 |', '| SDD-404 |'), 'AGDF_SD_TRACEABILITY_INCOMPLETE'],
+      ] : [[source.replace('| AC-001 | SDD-001 |', '| AC-001 | SDD-404 |'), 'AGDF_TP_TRACEABILITY_INCOMPLETE']];
+    for (const [broken, expectedReason] of otherGaps) {
+      assert.notEqual(broken, source, 'The fixture must actually introduce the distinct decision or mapping defect.');
+      assert.equal(f.recordCandidate(true, broken).value.outcome, 'accepted');
+      const control = evaluateGateCheck(f.root, { runId: f.runId, presentationLanguage: 'de' });
+      assert.equal(control.blocking_reason, expectedReason);
+      assert.equal(control.status, 'blocked');
+      assert.equal(dispatch().continuation?.phase, `${gate.toLowerCase()}_definition`);
+      assert.equal(f.approveCandidate().value.outcome, 'rejected');
+      assert.equal(f.recordCandidate(true, valid).value.outcome, 'accepted');
+    }
     const ready = evaluateGateCheck(f.root, { runId: f.runId, presentationLanguage: 'de' });
     assert.equal(ready.status, 'open');
     assert.ok(ready.approval_presentation);
@@ -186,4 +204,4 @@ for (const gate of ['SD', 'TP']) {
     assert.equal(f.approveCandidate().value.outcome, 'accepted', 'Corrected material requires a fresh presentation and simulated test approval.');
   } finally { f.close(); }
 }
-console.log('SD/TP localized summaries: preflight, gate readiness, author routing, read-only failures and corrected approval agree.');
+console.log('PRD/SD/TP localized summaries: precise blocker, preflight, author routing, read-only failures and corrected approval agree.');

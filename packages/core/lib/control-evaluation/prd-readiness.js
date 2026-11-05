@@ -22,7 +22,8 @@ export function evaluatePrdReadiness(targetDir, runState, { presentationLanguage
     return { ready: false, open_decisions: ["Approval Decisions table is empty or malformed"] };
   }
   const open = [];
-  try { previewForState(targetDir, runState); } catch (error) { open.push(error.message); }
+  let previewReady = true, previewIssue;
+  try { previewForState(targetDir, runState); } catch (error) { previewReady = false; previewIssue = error.message; }
   const seen = new Set();
   const incomplete = (value) => !value || /^(?:<|tbd\b|to confirm\b)/iu.test(value);
   for (const [decision, timing, status, resolution, owner, ...extra] of rows.slice(2)) {
@@ -38,6 +39,8 @@ export function evaluatePrdReadiness(targetDir, runState, { presentationLanguage
   // [ \t] rather than \s: an empty Owner line must not capture the following line.
   const owner = content.match(/^Owner:[ \t]*(.*)$/mu)?.[1]?.trim();
   if (incomplete(owner) || /\bto confirm\b|named individual/iu.test(owner)) open.unshift("Named PRD owner");
+  const decisionsReady = open.length === 0;
+  if (!previewReady) open.unshift(previewIssue);
   const criteria = evaluatePrdCriteriaReadiness(content);
   open.push(...criteria.open_items);
   // Use the presentation owner's validator before a registered draft can take the ready route.
@@ -47,5 +50,7 @@ export function evaluatePrdReadiness(targetDir, runState, { presentationLanguage
   if (!summary.ready) open.push(renderApprovalSummaryIssue(summary, {
     path, presentationLanguage: languages.presentation_language,
   }));
-  return { ready: open.length === 0, open_decisions: open };
+  return { ready: open.length === 0, open_decisions: open,
+    readiness_checks: { decisions_ready: decisionsReady, preview_ready: previewReady, criteria_ready: criteria.ready,
+      approval_summary: summary } };
 }

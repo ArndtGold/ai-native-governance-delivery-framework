@@ -26,7 +26,8 @@ export function describeArtifactReadiness(result) {
     'approval_summary_criteria_incomplete', 'approval_summary_user_goal_missing', 'approval_summary_scope_missing',
     'approval_summary_decisions_missing', 'approval_summary_criterion_content_missing', 'approval_summary_content_missing']);
   let findings = result.diagnostics.filter(row => names.has(row.code));
-  const readinessOwner = { AGDF_UR_REQUIREMENTS_INCOMPLETE: 'ur', AGDF_PRD_DECISIONS_OPEN: 'prd',
+  const readinessOwner = { AGDF_UR_REQUIREMENTS_INCOMPLETE: 'ur', AGDF_PRD_DECISIONS_OPEN: 'prd', AGDF_PRD_READINESS_INCOMPLETE: 'prd',
+    AGDF_APPROVAL_SUMMARY_INCOMPLETE: { PRD: 'prd', SD: 'sd', TP: 'traceability' }[result.gate],
     AGDF_SD_DECISIONS_OPEN: 'sd', AGDF_SD_TRACEABILITY_INCOMPLETE: 'traceability', AGDF_TP_TRACEABILITY_INCOMPLETE: 'traceability' };
   const key = readinessOwner[result.blocking_reason];
   const details = key && result.current_gate === result.gate && result.readiness_details?.[key];

@@ -27,7 +27,7 @@ Canonical owners are `packages/core/lib/`, `packages/mcp-server/src/`, and the
 contracts/templates under `plugins/agdf/`. Package payloads are regenerated through
 the existing synchronization/build process; installed caches are not edited.
 
-## Last completed native observation
+## Earlier completed native observation
 
 This observation applies to **an earlier local candidate**, not the final PR head:
 
@@ -76,6 +76,51 @@ included in the contribution. Their retained audit identities are:
 These hashes identify retained local evidence; they do not make its contents
 publicly reviewable or establish independent acceptance.
 
+## Native observation at PR head e8da5f2f
+
+The resumed test installed `0.30.0+codex.local-b9b1a90cb926` from commit
+`e8da5f2f0407e30baeb884425efdbf8c756cf004`, using the same task, Codex CLI,
+OS and `gpt-6-luna/high` model tuple. Both SD/TP negative-summary cases reached
+canonical replacement, fresh German presentation and authorized simulated approval.
+The run stopped before implementation, with Brownfield Analysis as its next step.
+
+The overall result remained `audit_findings`: 91 MCP calls, three malformed calls,
+four host-script failures, 24:29.664 active CLI time, and one exceeded 20-minute
+invocation cap. There were 91 outer tool round trips. The MCP calls themselves
+took 2:29.512; time outside outer tool calls includes provider/model, host and
+context processing and cannot be interpreted as pure model reasoning time.
+
+The retained trace identifies the causes directly:
+
+- One request combined the raw command envelope with reference-only `inputs`.
+- Two requests read `submit.prepared_call_id` instead of
+  `submit.arguments.prepared_call_id` and submitted `inputs` without a reference.
+- An own SD source moved beyond the first bounded page; code accessed it without
+  following the supplied cursor. A separate failure accessed an unsuccessful
+  response as though it contained a successful structured result.
+- Other host-script failures used unescaped Markdown in executable text and a
+  cloning helper unavailable in that host's execution environment.
+- The PRD summary grouped criteria instead of naming each required criterion on
+  its own line. The umbrella diagnostic incorrectly described this as open product
+  decisions. A later SD traceability gap correctly identified an unmapped decision.
+
+All 30 compared candidate files matched the source, including the complete PRD
+template actually read through MCP. Config, context graph and SoT registry were
+created; no Masterbacklog was created. All 45 untracked working files, 49 existing
+Run files, 686 older evidence files and the global Codex configuration were unchanged.
+
+| Local audit artifact | SHA-256 |
+|---|---|
+| `native-result.json` | `6ddd49fcf9ae894415a2205906cf62cd01f7bfbe6603de4c4f833e1501e733d1` |
+| `comparison-result.json` | `dd56de1d49a184f528191957620decc19b48ba5fb72f70d3db108627033b1d84` |
+| `manifest.json` | `2c0331b07430dd4beced94d8e78d8af905a197f0ea32444c30233f3e643382db` |
+
+The follow-up makes reference extraction explicit, provides bounded transport
+corrections before dispatch, makes own-draft and page access actionable, and
+distinguishes summary readiness from real decision and traceability gaps. It does
+not relax validators, infer missing bindings or prefill approval replies. Native
+validation of this follow-up is separate from the two historical observations.
+
 ## Validation boundary
 
 Repository and actual STDIO regressions cover source reconstruction, UTF-8 and
@@ -83,11 +128,11 @@ request limits, immutable prepared arguments, original-operation replay, languag
 summary recovery, and the final diagnostic/help changes. Compatibility fixtures and
 deterministic eval reference hashes are separate from native host qualification.
 
-The final diagnostic/help changes and integration with the subsequent main-branch
-pre-dispatch fix **have not received a new native Luna run**. That follow-up remains
-paused at the user's request. No QA, UAT, release qualification, merge authorization
-or independent human approval is claimed. Exact local checks and current-head CI
-belong in the PR evidence section; the draft must retain this native validation gap.
+The e8da5f2f observation exercises the previous diagnostic/help changes and main
+integration; the later follow-up above requires its own exact-candidate native run.
+No QA, UAT, release qualification, merge authorization or independent human approval
+is claimed. Exact local checks, current-head CI and the latest native observation
+belong in the PR evidence section; a historical result does not qualify a later head.
 
 Local PR preparation on the integrated source passed the build, all 56 synthetic
 compatibility scenarios, the SD/TP diagnostic regressions, the selected Core
@@ -95,4 +140,4 @@ regressions (18 tests), prepared-reference guards/budgets, the actual legacy/mod
 prepared submission chain, and pre-dispatch failure checks for both facade protocols
 and the plugin generation. Compiled-worker relocation/tamper checks and MCP contract
 checks also passed. Full repository regression remains in CI; these results do not
-replace the paused native follow-up.
+replace the native follow-up for the current candidate.

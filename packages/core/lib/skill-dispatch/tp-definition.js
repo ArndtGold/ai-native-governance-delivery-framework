@@ -11,7 +11,7 @@ export function tpDefinitionPhase(targetDir, control, input, sources) {
       || control?.status_card?.run_id !== input.run_id || !state || !sources
       || control.current_gate !== "TP" || !["open", "blocked"].includes(control.status)
       || !["none", "Approval: TP"].includes(control.missing_approval)
-      || !["none", "AGDF_TP_TRACEABILITY_INCOMPLETE"].includes(control.blocking_reason)
+      || !["none", "AGDF_TP_TRACEABILITY_INCOMPLETE", "AGDF_APPROVAL_SUMMARY_INCOMPLETE"].includes(control.blocking_reason)
       || (control.doctor_report?.findings ?? []).some(f => ["block", "revise"].includes(f.severity))
       || state.approvals.get("SD")?.status !== "approved"
       || state.artefacts.get("SD")?.status !== "approved"

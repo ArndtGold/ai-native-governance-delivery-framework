@@ -71,7 +71,11 @@ open until actually answered. Scope changes return to the earliest affected owne
 does not prescribe SD choices or prove working implementation.
 
 Gate-check alone evaluates readiness. Permission to finish clarification under
-AGDF_PRD_DECISIONS_OPEN does not remove the blocker or permit approval. Missing required UX input
+AGDF_PRD_DECISIONS_OPEN, AGDF_PRD_READINESS_INCOMPLETE or
+AGDF_APPROVAL_SUMMARY_INCOMPLETE does not remove the blocker or permit approval.
+The first code identifies product-decision gaps; the latter codes identify source/criteria
+or approval-summary gaps. Follow the concrete findings and the supplied recording call;
+do not treat a summary-format defect as a new product decision. Missing required UX input
 and unrelated integrity/source blockers are not PRD clarification permission. Use the interaction
 contract Bounded internal recovery route for eligible UX preparation; do not author PRD first.
 

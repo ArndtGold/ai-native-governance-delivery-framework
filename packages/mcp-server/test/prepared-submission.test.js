@@ -17,6 +17,23 @@ for (const modern of [false, true]) {
     const german=localized.report.prepared_call.submit;german.arguments.inputs={'/command/payload/title':'Synthetic German request'};
     const germanRun=await h.call(german.tool,german.arguments);assert.equal(germanRun.outcome,'accepted');assert.equal(germanRun.receipt.input_resolution.configuration.values.chat_language,'de');assert.equal(germanRun.receipt.input_resolution.configuration.sources.chat_language.kind,'explicit');
     const upload = page.report.material_call.submit;
+    const beforeMalformed = readFileSync(h.state, 'utf8');
+    const authorInputs = { '/command/payload/files/0/content': clarifiedUr };
+    for (const [label, argumentsValue, diagnosis] of [
+      ['raw mixed with inputs', { ...page.report.material_call.call.arguments, inputs: authorInputs }, /A full raw call cannot contain inputs/u],
+      ['inputs only', { inputs: authorInputs }, /The prepared reference is missing/u],
+      ['reference read from the wrong level', JSON.parse(JSON.stringify({ prepared_call_id: upload.prepared_call_id, inputs: authorInputs })), /The prepared reference is missing/u],
+    ]) {
+      const malformed = await client.callTool({ name: upload.tool, arguments: argumentsValue });
+      const message = malformed.content.map(block => block.text ?? '').join('\n');
+      assert.equal(malformed.isError, true, label);
+      assert.match(message, diagnosis, label);
+      assert.match(message, /submit\.arguments/u, label);
+      assert.match(message, /No operation was dispatched/u, label);
+      assert.doesNotMatch(message, /Schema:/u, 'Transport correction must not dump unrelated command-union failures.');
+      assert.ok(Buffer.byteLength(message) < 1024, 'The actionable pre-dispatch error stays bounded.');
+      assert.equal(readFileSync(h.state, 'utf8'), beforeMalformed, label);
+    }
     const large = page.report.material_call.content_contract;
     assert.equal(large.max_utf8_bytes_per_file, 49152);
     assert.equal(large.larger_source_call.arguments.run_id, context.run_id);

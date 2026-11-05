@@ -102,7 +102,11 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
       return input => {
         const checked = validate(input);
         if (checked.valid) return checked;
-        const hint = preparedCalls.validationHint(name, input) || runtime.inputValidationHint?.(name, input);
+        const preparedHint = preparedCalls.validationHint(name, input);
+        // Validation has already failed. The exact transport correction is more
+        // useful here than every unrelated alternative in the raw-command union.
+        if (preparedHint) return { ...checked, errorMessage: preparedHint };
+        const hint = runtime.inputValidationHint?.(name, input);
         return hint ? { ...checked, errorMessage: `${hint} Schema: ${checked.errorMessage}` } : checked;
       };
     } });

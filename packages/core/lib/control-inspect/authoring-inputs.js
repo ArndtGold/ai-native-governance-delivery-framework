@@ -1,5 +1,5 @@
 import { MATERIAL_LIMITS } from '../control-state/material-limits.js';
-import { localizedDecisionFields } from '../control-evaluation/decision-content-readiness.js';
+import { approvalSummaryAuthoringFormat } from '../control-state/run-presentation-render.js';
 import { resolveArtifactPresentationLanguages } from '../resources/context.js';
 import { runDocumentPath } from '../control-state/run-identity.js';
 import { preparedCommandCall } from '../control-state/prepared-control-calls.js';
@@ -77,7 +77,13 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
       const content = new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(path));
       return { role: 'template', type: id, digest: digest(canonicalRunText(content)), content, source: 'version_matched_plugin' };
     });
-    const documents = [...templates, ...data.sources.map(s => ({ role: 'source', ...s }))];
+    const sources = data.sources.map(s => ({ role: 'source', ...s }));
+    const currentDraft = sources.find(source => source.type === data.authoring_owner);
+    // The source being corrected must not move behind unrelated, growing sources.
+    // Keep the legacy template-first view; bundles put the current source first.
+    const documents = input.bundle && currentDraft
+      ? [currentDraft, ...templates, ...sources.filter(source => source !== currentDraft)]
+      : [...templates, ...sources];
     if (documents.length > 32) throw Error('authoring_source_limit');
     const manifest = digest(JSON.stringify({ target_id: resolveControlCommandTarget(root).target_id, run_id: input.run_id,
       ...(input.planning ? { planning: input.planning } : {}),
@@ -128,33 +134,42 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
     const documentRows = [...grouped.values()].map(row => ({ ...row, complete: row.byte_start === 0 && row.byte_end === row.total_bytes }));
     const documentPage = { documents: documentRows.filter(row => row.complete), fragments: documentRows.filter(row => !row.complete) };
     if (input.bundle && Buffer.byteLength(JSON.stringify(documentPage)) > 49152) throw Error('authoring_page_limit');
+    const pageCall = page => ({ tool: 'agdf_inspect', arguments: { operation: 'authoring-inputs',
+      ...Object.fromEntries(['presentation_language', 'working_directory', 'primary_target', 'target_source', 'target_id',
+        'run_id', 'expected_revision_id', 'planning', 'bundle'].filter(key => input[key] !== undefined).map(key => [key, input[key]])),
+      cursor: `${prefix}${page}` } });
+    const draftRow = currentDraft && documentRows.find(row => row.role === 'source' && row.type === currentDraft.type && row.path === currentDraft.path && row.digest === currentDraft.digest);
+    const draftPage = input.bundle && currentDraft ? pages.findIndex(page => page.some(row => row.role === 'source'
+      && row.type === currentDraft.type && row.path === currentDraft.path && row.digest === currentDraft.digest && row.byte_start === 0)) : -1;
+    const nextPage = index + 1 < selection.length ? pageCall(index + 1) : null;
     const registeredUr = data.authoring_owner === 'UR' && data.sources.some(source => source.type === 'UR' && source.path);
     const formats = input.planning ? operationContract('agdf_record', data.recording.kind)
       : registeredUr ? operationContract('agdf_revise', 'ur_draft.replace', { gate: 'UR' }) : data.authoring_owner === 'OR' ? operationContract('agdf_closeout', 'closeout.record')
       : operationContract('agdf_record', ['PRD', 'SD', 'TP', 'QA'].includes(data.authoring_owner) ? 'artefact.record' : 'step.record', { gate: data.authoring_owner });
+    const summaryFormat = approvalSummaryAuthoringFormat(data.authoring_owner, currentDraft?.content ?? '', data.languages);
     return { available: true, ...data.languages, run_id: input.run_id, revision_id: input.expected_revision_id, gate: data.gate, mode: data.mode,
       ...(input.planning ? { planning: input.planning, canonical_skill: 'ur-definition' } : {}),
       authoring_owner: data.authoring_owner, recording: data.recording,
-      ...(data.languages.approval_summary_required && ['UR', 'QA'].includes(data.authoring_owner) ? {
-        approval_summary_format: { heading: data.languages.approval_summary_heading,
-          required_fields: localizedDecisionFields(data.authoring_owner, '', {
-            locale: data.languages.presentation_language.toLowerCase().startsWith('de') ? 'de' : 'en',
-            sourceLanguage: data.languages.artifact_language }).gaps.map(gap => gap.expected),
-          instruction: 'Use these exact list field declarations with concrete authored content. A heading or prose alone is not a named field. This describes syntax, never supplied product content or approval.' },
-      } : {}),
+      ...(summaryFormat ? { approval_summary_format: summaryFormat } : {}),
       ...(!input.planning && index === 0 ? { material_call: preparedCommandCall('agdf_record', 'material.stage',
         { ...input, target_id: resolveControlCommandTarget(root).target_id }, { gate: data.authoring_owner }) } : {}),
       status: data.status, blocking_reason: data.blocking_reason, next_operation: data.next_operation,
       manifest_digest: `sha256:${manifest}`, ...(input.bundle ? { document_manifest: documents.map(({ content, ...r }) => r) } : { documents: documents.map(({ content, ...r }) => r) }),
-      ...(input.bundle ? { format: 'document_bundle_v2', ...documentPage, page_bytes_limit: 49152 }
+      ...(input.bundle ? { format: 'document_bundle_v2', ...documentPage, page_bytes_limit: 49152,
+        page_index: index, page_count: Math.max(selection.length, 1),
+        current_draft: currentDraft ? { type: currentDraft.type, path: currentDraft.path, status: currentDraft.status, digest: currentDraft.digest,
+          content_state: draftRow?.complete ? 'complete' : draftRow ? 'fragment' : 'not_on_page',
+          ...(draftPage >= 0 && (!draftRow || draftRow.byte_start > 0) ? { read_call: pageCall(draftPage) } : {}),
+          instruction: 'Metadata only, never document text or edit permission. Use the matching complete report.documents row. For a fragment, join matching report.fragments by byte offsets across next_calls before editing. If not_on_page or earlier fragment bytes were not retained, copy read_call.arguments unchanged to read its first page.' } : null }
         : { chunk: chunks[index] ?? null }), complete: index + 1 >= selection.length,
       next_cursor: index + 1 < selection.length ? `${prefix}${index + 1}` : null,
+      next_calls: nextPage ? [{ ...nextPage, instruction: 'Copy arguments unchanged to read the next page of this manifest. Retain earlier bytes; repeat until complete before editing a fragmented source. No JavaScript cloning or source/path discovery is needed.' }] : [],
       // The writer contract is identical on every page of one manifest; later pages only name it.
       formats: index === 0 ? input.bundle ? (({ schema, result_schema, ...authoring }) => authoring)(formats) : formats : { schema_version: formats.schema_version, available: formats.available, group: formats.group, kind: formats.kind,
         omitted: 'identical to the first page of this manifest' },
       material_transport: { tool: 'agdf_record', kind: input.planning ? 'planned_material.stage' : 'material.stage', limits: { request_bytes: 65536, inline_file_bytes: MATERIAL_LIMITS.inline, part_bytes: MATERIAL_LIMITS.part, source_bytes: MATERIAL_LIMITS.file },
         instructions: (input.bundle
-          ? 'MCP access: response.structuredContent.report (or JSON.parse(response.content[0].text).report). Read complete report.documents[].content; report.document_manifest is metadata only. Join report.fragments by identity and byte offsets across all next_cursor pages before editing. Absent content is an error, never the string undefined. Preserve bundle:true. '
+          ? 'MCP access: response.structuredContent.report (or JSON.parse(response.content[0].text).report). Read complete report.documents[].content; report.document_manifest and current_draft are metadata only. The registered current draft is prioritized; inspect current_draft.content_state before looking for its complete document. Join report.fragments by identity and byte offsets across all next_calls pages before editing. Absent content is an error, never the string undefined. Copy call.arguments unchanged and supply only authored content in the named fields; no JavaScript helper is required. Preserve bundle:true. '
           : 'MCP access: response.structuredContent.report (or JSON.parse(response.content[0].text).report). This legacy view puts text in report.chunk.content; report.documents is metadata only. Follow every next_cursor with this exact binding, or request bundle:true for fewer round trips. ')
           + 'The included formats and bound forms replace a second operation-contract read. Retain unchanged sources for this manifest. Prefer material_call: put takes exact UTF-8 <=48 KiB per file within the 64 KiB JSON request bound and seals once. Use returned recording_calls, adding only required author/review inputs. Larger files use multipart; each action has its own UUID. Follow next_calls exactly. No file/path discovery or shell hashing.' }, authorizes: false };
   } catch (e) { return unavailable(e.code ?? e.message); }

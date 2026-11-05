@@ -44,7 +44,7 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
       for (const owner of [value, value.report, value.continuation, value.recovery, value.navigation].filter(Boolean)) {
         for (const form of [owner.prepared_call, owner.material_call, owner.approval_call, ...owner.recording_calls ?? []].filter(Boolean)) {
           const short = submit(form.call, form.required_inputs);
-          if (short) { form.submit = short; form.instruction = 'Prefer submit on this connection; after reconnect retain the full original call for original-operation recovery. Fill inputs using the exact required_inputs JSON pointers. Stored binding and UUID cannot be overwritten. ' + form.instruction; }
+          if (short) { form.submit = short; form.instruction = 'Call submit.tool with a copy of submit.arguments; the reference is submit.arguments.prepared_call_id. Fill only its inputs object at the exact required_inputs JSON pointers. Never merge call.arguments with inputs. Keep authored text as string data using host-supported serialization. Check the tool result for failure before reading returned fields. Retain the full original call for original-UUID recovery after reconnect. Stored binding and UUID cannot be overwritten. ' + (form.instruction ?? ''); }
         }
         for (const call of [...owner.next_calls ?? [], ...(owner.resume_call ? [owner.resume_call] : []), ...(owner.operation_status_call ? [owner.operation_status_call] : [])]) {
           const short = submit(call); if (short) { call.submit = short; call.required_inputs = []; call.submission_instruction = 'This call is already complete. Copy submit.arguments unchanged with inputs:{}. The original UUID and bindings are already stored; never generate or supply IDs in inputs. Core still checks current eligibility.'; }
@@ -55,7 +55,13 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     validationHint(name, input) {
       if (!tools.has(name) || !input || typeof input !== 'object') return '';
       const id = input.prepared_call_id ?? input.submit_id;
-      if (typeof id !== 'string') return '';
+      const prefix = 'Choose raw OR prepared mode. Prepared arguments contain only prepared_call_id and inputs; never submit_id or duplicated raw fields. ';
+      if (typeof id !== 'string') {
+        if (!Object.hasOwn(input, 'inputs')) return '';
+        const raw = Object.keys(input).some(key => !['inputs', 'prepared_call_id', 'submit_id'].includes(key));
+        return prefix + (raw ? 'A full raw call cannot contain inputs. ' : 'The prepared reference is missing. ')
+          + 'Copy the complete offered form.submit.arguments, including its existing prepared_call_id, then fill only inputs at the named JSON pointers. The reference is nested under submit.arguments. Alternatively use the full original call.arguments with authored payload fields and no inputs. Do not guess a reference or UUID. No operation was dispatched.';
+      }
       expire();
       const row = rows.get(id);
       if (!row) return 'Prepared reference unavailable on this connection. Use the retained full original call and original-UUID observation/recovery; never guess a new binding or UUID.';
@@ -63,7 +69,6 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
       const conflict = Object.entries(input).some(([key, value]) => !['prepared_call_id', 'submit_id', 'inputs'].includes(key)
         && JSON.stringify(row.call.arguments[key]) !== JSON.stringify(value));
       if (conflict) return 'Do not merge raw and prepared calls: their fixed fields conflict. Review the intended binding; neither binding was executed.';
-      const prefix = 'Choose raw OR prepared mode. Prepared arguments contain only prepared_call_id and inputs; never submit_id or duplicated raw fields. ';
       return (prefix + (row.required.length
         ? `Fill inputs only at these required JSON pointers from actual author/review/reply input: ${JSON.stringify(row.required)}. Do not invent values.`
         : `Exact ready call: ${JSON.stringify({ tool: name, arguments: { prepared_call_id: id, inputs: {} } })}`)).slice(0, 768);

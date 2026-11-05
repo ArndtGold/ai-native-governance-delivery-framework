@@ -43,6 +43,14 @@ export function presentationVersionComparison(root, state, gate, currentDigest) 
 const MAX_APPROVAL_ARTEFACT_BYTES = 131072;
 const MAX_LOCALIZED_SUMMARY_ITEM_CHARS = 1200;
 const MAX_LOCALIZED_SUMMARY_CHARS = 24000;
+const PRD_LOCALIZED_SUMMARY_FIELDS = Object.freeze([
+  { pattern: /^(?:[-*]\s*)?(?:Nutzerziel|User intent|Ziel|Goal)\s*:/iu,
+    de: '- Ziel:', en: '- Goal:', reason: 'approval_summary_user_goal_missing' },
+  { pattern: /^(?:[-*]\s*)?(?:Umfang|Scope|Produktumfang|Product scope)\s*:/iu,
+    de: '- Umfang:', en: '- Scope:', reason: 'approval_summary_scope_missing' },
+  { pattern: /^(?:[-*]\s*)?(?:Entscheidungen|Decisions|Geklärte Entscheidungen|Resolved decisions|Offene Entscheidungen|Open decisions)\s*:/iu,
+    de: '- Entscheidungen:', en: '- Decisions:', reason: 'approval_summary_decisions_missing', conditional: true },
+]);
 const SUMMARY_SECTIONS = Object.freeze({
   UR: [
     ["Problem", /problem|need|anlass/iu], ["Ziel", /goal|objective|ziel/iu],
@@ -158,14 +166,33 @@ function validateLocalizedSummaryBlock(gate, block, sourceMarkdown, sourceLangua
     if (summaryIds.some((id) => !sourceSet.has(id))) throw new Error("approval_summary_criteria_unknown");
     if (summaryIds.length !== sourceIds.length || sourceIds.some((id) => !summaryIds.includes(id)))
       throw new Error("approval_summary_criteria_incomplete");
-    if (!lines.some((line) => /^(?:[-*]\s*)?(?:Nutzerziel|User intent|Ziel|Goal)\s*:/iu.test(line)))
-      throw new Error("approval_summary_user_goal_missing");
-    if (!lines.some((line) => /^(?:[-*]\s*)?(?:Umfang|Scope|Produktumfang|Product scope)\s*:/iu.test(line)))
-      throw new Error("approval_summary_scope_missing");
     const decisions = approvalDecisionEntries(sourceMarkdown);
-    if (decisions.length && !lines.some((line) => /^(?:[-*]\s*)?(?:Entscheidungen|Decisions|Geklärte Entscheidungen|Resolved decisions|Offene Entscheidungen|Open decisions)\s*:/iu.test(line)))
-      throw new Error("approval_summary_decisions_missing");
+    for (const field of PRD_LOCALIZED_SUMMARY_FIELDS)
+      if ((!field.conditional || decisions.length) && !lines.some(line => field.pattern.test(line))) throw new Error(field.reason);
   }
+}
+
+// Syntax guidance comes from the presentation owner, never inferred product
+// content. An incomplete source remains readable through its authoring route.
+export function approvalSummaryAuthoringFormat(gate, markdown, languages) {
+  if (!languages.approval_summary_required || !['UR', 'PRD', 'SD', 'TP', 'QA'].includes(gate)) return null;
+  const locale = languages.presentation_language.toLowerCase().startsWith('de') ? 'de' : 'en';
+  const format = { heading: languages.approval_summary_heading, body_required: true,
+    required_fields: localizedDecisionFields(gate, '', { locale, sourceLanguage: languages.artifact_language }).gaps.map(gap => gap.expected),
+    instruction: 'Use the exact heading and a nonempty authored summary in the presentation language. Required fields are separate list declarations with concrete content; a heading or generic criteria paragraph does not replace them. This is syntax guidance, never supplied product content, review or approval.' };
+  if (gate === 'PRD') {
+    const decisions = approvalDecisionEntries(markdown);
+    format.required_fields = PRD_LOCALIZED_SUMMARY_FIELDS.filter(field => !field.conditional || decisions.length).map(field => field[locale]);
+    format.conditional_fields = [{ field: PRD_LOCALIZED_SUMMARY_FIELDS.find(field => field.conditional)[locale],
+      when: 'Required when the source PRD contains Approval Decisions rows.' }];
+    try {
+      const entries = criterionEntries(markdown);
+      format.criterion_fields = entries.map(entry => `- ${entry.id}:`);
+      format.criteria_state = entries.length ? 'available' : 'not_declared';
+    } catch { format.criterion_fields = []; format.criteria_state = 'source_invalid'; }
+    format.criteria_instruction = 'For every exact criterion_id in the authored PRD, write one separate list item beginning with that ID followed by a colon, exactly once. Retain the source IDs; do not combine them in a generic criteria item. If IDs are not yet available, complete the source criteria first.';
+  }
+  return format;
 }
 
 function requiredLocalizedSummary(gate, markdown, languages, { path } = {}) {
@@ -218,12 +245,9 @@ export function renderApprovalSummaryIssue(summary, { path, presentationLanguage
         : 'An additional AGDF Approval Summary does not replace these source fields. Preserve criterion IDs and product intent; correct through the existing authoring route and recheck.',
     ].filter(Boolean).join("\n");
   }
-  const expected = {
-    approval_summary_user_goal_missing: german ? "- Ziel:" : "- Goal:",
-    approval_summary_scope_missing: german ? "- Umfang:" : "- Scope:",
-    approval_summary_decisions_missing: german ? "- Entscheidungen:" : "- Decisions:",
-    approval_summary_field_unreadable: summary.diagnostics?.map(row => row.expected).join("` · `") || undefined,
-  }[summary.reason] ?? summary.required_heading;
+  const expected = PRD_LOCALIZED_SUMMARY_FIELDS.find(field => field.reason === summary.reason)?.[german ? 'de' : 'en']
+    ?? (summary.reason === 'approval_summary_field_unreadable' ? summary.diagnostics?.map(row => row.expected).join("` · `") || undefined : undefined)
+    ?? summary.required_heading;
   return [
     `${pack.statusCard.summaryRecovery}: \`${path}\``,
     `${pack.statusCard.summaryReason}: \`${summary.reason}\``,

@@ -7,11 +7,29 @@ import { createPresentationDelivery } from '#agdf-core/control-state/presentatio
 import { mcpControlContinuation } from '#agdf-core/skill-dispatch/mcp-continuation.js';
 import { inspectRunInputResolution } from '#agdf-core/control-state/run-input-resolution.js';
 import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.js";
+import { knownExecutionCode, validExecutionFacts } from '#agdf-core/mcp-tool-errors.js';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
 import { composeMcpProtocolRuntime, errorSupport, inspectMcpDispatcherRuntime, configuredMcpCommandGroups } from './mcp-protocol-runtime.js';
 export { inspectMcpDispatcherRuntime, configuredMcpCommandGroups, CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION,
   parseControlInspectFunctionArguments, parseSkillDispatchFunctionArguments, serializeSkillDispatchResult, DECISION_UI_URI, OWNED_LOCK_CHANNEL, releaseAbandonedOwnedLock } from './mcp-protocol-runtime.js';
+// Core reasons that the tool-error contract names differently. Core's command service maps
+// RECOVERY_REQUIRED the same way and rejects the others under these existing codes.
+const PREPARATION_REASONS = Object.freeze([
+  [/RECOVERY_REQUIRED/iu, 'recovery_required'],
+  [/^AGDF_PLANNED_SOURCE_STALE$/u, 'planning_source_stale'],
+  [/^(?:run_state_invalid|run_id_invalid)$/u, 'invalid_run'],
+  [/^AGDF_CONTROL_LAYOUT_MIGRATION_REQUIRED$/u, 'control_layout_unsupported'],
+]);
+// Dispatch preparation only reads the input context and grants staged material; no command has
+// been dispatched yet. Its failures therefore carry typed not_dispatched facts, so the facade and
+// generation call sites report a rejected command with its classified reason, never an unknown effect.
+export function preDispatchFailure(error) {
+  if (validExecutionFacts(error?.facts)) return Object.assign(error, { facts: { ...error.facts, dispatch: 'not_dispatched' } });
+  const reason = String(error?.message ?? '');
+  const code = knownExecutionCode(PREPARATION_REASONS.find(([pattern]) => pattern.test(reason))?.[1] ?? reason);
+  return Object.assign(new Error(code), { facts: { code, dispatch: 'not_dispatched' } });
+}
 export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected = inspectMcpDispatcherRuntime() } = {}) {
   const pluginMode = cockpitMode === 'plugin';
   if (cockpitMode !== undefined && !pluginMode || pluginMode && (surface !== 'codex' || cockpitDir !== undefined)
@@ -76,7 +94,11 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
       : input.command.kind === 'presentation.deliver' ? delivery.deliver(input, host) : services.command(group, input) });
   return Object.freeze({ ...protocol,
     verifyProducer,
-    prepareDispatch(name, input) { return { inputContext: protocol.inputContextFor(input), materialGrants: ['agdf_record', 'agdf_revise', 'agdf_closeout'].includes(name) ? services.material.grants(input) : [] }; },
+    prepareDispatch(name, input) {
+      try {
+        return { inputContext: protocol.inputContextFor(input), materialGrants: ['agdf_record', 'agdf_revise', 'agdf_closeout'].includes(name) ? services.material.grants(input) : [] };
+      } catch (error) { throw preDispatchFailure(error); }
+    },
     readBudget,
     delivery,
     async postprocessToolResult(name, input, result) {

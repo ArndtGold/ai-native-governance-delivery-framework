@@ -1,0 +1,26 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Report pre-dispatch MCP command failures as not dispatched
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Scheitert ein MCP-Schreibaufruf schon bei der Vorbereitung, weil die Materialreferenz verbraucht oder veraltet ist, meldet AGDF trotzdem „Wirkung unbekannt“ (`effect_unknown/dispatch_worker_failed`) und schickt den Agenten zur Statusprüfung. Tatsächlich wurde nichts ausgeführt, und der eigentliche Grund geht verloren. Ursache: `server.js` wertet `prepareDispatch` erst in der Phase „execute“ aus.
+- Ziel: Fehler bei der Vorbereitung eines Dispatch werden als „nicht ausgeführt“ mit ihrem echten Grund gemeldet.
+- Betroffene: Agenten, die AGDF über die MCP-Schreibwerkzeuge steuern, und die Projektverantwortlichen, die deren Fehlermeldungen lesen.
+- Umfang: Fehler in `prepareDispatch` gelten als `not_dispatched` und `rejected`. Bekannte Gründe des Materialspeichers (`stale_revision`, `material_transfer_expired`, `material_binding_mismatch`) werden durchgereicht. Dazu kommen Regressionstests über den echten MCP-Werkzeugpfad.
+- Nicht im Umfang: keine Änderung am Materialspeicher, an der Core-Fehlerklasse von `source_revision.preview`, an der Base64-Übertragung, an Antwortgrößen oder am nativen E2E-Fehlerfall.
+- Abnahme: Verbrauchte Referenz ergibt `rejected/material_transfer_expired`, veraltete Revision ergibt `rejected/stale_revision`, beide mit `not_dispatched` und unverändertem Kontrollordner. Unerwartete Fehler in der Vorbereitung bleiben `not_dispatched`. Fehler nach dem Dispatch bleiben `effect_unknown`. Bestehende Tests bleiben grün.
+- Quellen: `packages/mcp-server/src/server.js`, `packages/cli/lib/mcp-dispatch-runtime.js`, `packages/core/lib/mcp-tool-errors.js`, `packages/core/lib/control-state/run-material.js` und die vorhandenen MCP-Tests.
+- Risiken: Die Änderung in `packages/cli/lib` kann eine Neuaufnahme der Copilot-Nutzlastgrenze und des Kompatibilitätsnachweises erfordern. Der Worker darf bei Erfolg nichts anderes erhalten als bisher. Die Brownfield Review prüft weitere Fehlerquellen in `prepareDispatch`.
+- Nächster Schritt: UR prüfen und nur mit `Approval: UR` freigeben.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-8ede6acb-e0ce-4072-907a-aedad626635c` · Nutzeranforderungen · Revision: `81aea445-3703-4137-bfba-a626ca26128a`
+
+SHA-256: `sha256:99306653dc8999bf79919f2e6cb5a236588e10f9e9f8d7eff2a7b9d0948c3f29`

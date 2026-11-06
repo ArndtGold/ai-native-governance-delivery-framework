@@ -6,6 +6,11 @@ import {tmpdir} from 'node:os';
 import {planGlobalUninstall,applyLifecyclePlan} from '../../lib/lifecycle/operations.js';
 import {ensurePluginMcpRuntime,inspectPluginMcpDataRoot} from '../../lib/mcp-lifecycle/plugin-runtime.js';
 
+// These cases qualify exit/retention with separate fresh packages. Cold offline
+// SDK copying and full source verification can exceed 30s on Windows runners;
+// bound fixture setup independently of the launcher's production allowance.
+const COLD_PREPARE_BUDGET_MS = 120_000;
+
 // One actual process/retention harness shared by full and focused startup checks.
 export async function assertFacadeExit(mode, {pluginRoot,offlineNpm}) {
   const killed = mode === 'killed' || mode === 'startup-killed';
@@ -15,9 +20,11 @@ export async function assertFacadeExit(mode, {pluginRoot,offlineNpm}) {
   const expectedSignal = killed ? 'SIGKILL' : terminated && process.platform === 'win32' ? 'SIGTERM' : null;
   const work = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-real-facade-exit-')));
   const dataRoot = join(work, 'data/mcp/codex-plugin');
-  let child, stderr = '';
+  let child, stderr = '', phase = 'cold-prepare';
   try {
-    const prepared = ensurePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm });
+    const prepared = ensurePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm,
+      publicationDeadline: performance.now() + COLD_PREPARE_BUDGET_MS });
+    phase = 'startup-and-exit';
     await new Promise((resolve, reject) => {
       let pending = '', ready = false;
       const timer = setTimeout(() => { child?.stdin.end(); child?.kill(); reject(Error('facade_test_deadline:' + stderr)); }, 10000);
@@ -58,13 +65,17 @@ export async function assertFacadeExit(mode, {pluginRoot,offlineNpm}) {
         })().catch(reject);
       } else send({ id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'owned-exit-regression', version: '1' } } });
     });
+    phase = 'retention';
     const deadline = performance.now() + 10000;
     while (inspectPluginMcpDataRoot(dataRoot) === 'protected' && performance.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
     assert.equal(inspectPluginMcpDataRoot(dataRoot), 'owned', `${process.platform}/${mode}: the direct owner must acknowledge and observe facade exit even after its host launcher is killed; ${stderr}`);
+    phase = 'uninstall';
     const plan = planGlobalUninstall('codex', { env: { AGDF_DATA_DIR: join(work, 'data') } });
     assert.equal(applyLifecyclePlan(plan, { exec() {} }).status, 'success');
     assert.equal(existsSync(dataRoot), false, 'the production cleanup owner removes only the now-retirable runtime');
     console.log(`PASS real facade ${process.platform}/${mode}: confirmed exit, released claims and complete uninstall`);
+  } catch (cause) {
+    throw new Error(`facade_fixture:${process.platform}/${mode}/${phase}`, { cause });
   } finally {
     child?.stdin.end();
     if (!existsSync(dataRoot) || inspectPluginMcpDataRoot(dataRoot) === 'owned') rmSync(work, { recursive: true, force: true });

@@ -43,7 +43,9 @@ assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.oper
 assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "inventory", "planned-inventory", "planned-entry"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Copy next_calls exactly/);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Use next_action\.call/);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /primary_target,target_source/);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Run status needs run_id\+expected_revision_id/);
 assert.match(inspectContractHelp().parameters.cursor.description, /copy next_cursor/);
 
 // Published operation dependencies agree with the shared runtime policy.

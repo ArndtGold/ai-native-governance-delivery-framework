@@ -256,7 +256,9 @@ export function retirePreparedCallJournals(publisherRoot) {
       const dir = join(root, namespace);
       for (const name of readdirSync(dir)) unlinkSync(join(dir, name));
       rmdirSync(dir);
-    unlinkSync(join(root, MARKER)); rmdirSync(root);
     }
+    // The owner marker goes last: an interrupted cleanup still leaves a
+    // verifiable owned root instead of unmarked namespaces.
+    unlinkSync(join(root, MARKER)); rmdirSync(root);
   });
 }

@@ -1,6 +1,6 @@
 # Richtlinien für neue und überarbeitete MCP-Schnittstellen
 
-**Stand: 26. Oktober 2026.** Diese Seite ist der gemeinsame Entwicklungs- und Review-Leitfaden
+**Stand: 6. November 2026.** Diese Seite ist der gemeinsame Entwicklungs- und Review-Leitfaden
 für weitere MCP-Schnittstellen in AGDF. Sie überträgt die
 [belegten Codex-Erkenntnisse](04-mcp-schnittstellen.md#belegte-erkenntnisse-zur-codex-mcp-inspektion)
 auf wiederverwendbare Prüfkriterien. Entwickler und LLM-Agenten sollen sie vor einer
@@ -16,6 +16,8 @@ begründen; die Dokumentation allein belegt keine Umsetzung oder Host-Unterstüt
 Für eine MCP-Änderung beginne mit den [zehn Kriterien](#2-wiederverwendbare-integrationskriterien)
 und der [Arbeitsfolge](#5-arbeitsfolge-für-entwickler-und-llm-agenten). Die
 [Nachweis-Lesehilfe](lesestand-und-nachweise.md) erklärt die Grenzen von Quell- und Host-Prüfungen.
+Die [Erkenntnisse vom 6. November](#7-erkenntnisse-aus-dem-nativen-fortsetzungstest-vom-6-november-2026)
+konkretisieren die Kriterien anhand des abgeschlossenen SD-/TP-Fortsetzungstests.
 
 ## 1 Gemeinsame Verantwortung vor dem Transport festlegen
 
@@ -138,7 +140,7 @@ Methodik von [Anthropic: Writing effective tools for agents](https://www.anthrop
 Die hier beschriebenen AGDF-Bindungen, Owner und festen Grenzen stammen dagegen aus unseren
 eigenen Verträgen und Originalnachweisen.
 
-## 6 Aktueller Beleg und Grenzen der Übertragung
+## 6 Historischer Beleg vom Oktober und Grenzen der Übertragung
 
 Die [finale Codex-Produktkohorte](04-mcp-schnittstellen.md#nachweiskette-und-qualifikationsgrenzen)
 umfasst zwei echte normale T7-Sitzungen mit je vier MCP-Aufrufen, null SDK-/sonstigen Fehlern und
@@ -148,5 +150,105 @@ allgemeine Erfolgsquote, andere Modelle/Hosts oder eine aktualisierte Installati
 Weitere Schnittstellen übernehmen die nachvollziehbare Entwicklungs- und Prüfmethode.
 Eigene Vertrags-, Sicherheits-, Größen- und Host-Nachweise bleiben erforderlich. Historische
 Run-Artefakte und Originalmanifeste werden durch spätere Erkenntnisse nicht umgeschrieben.
-Der [Context-Graph](../../.agdf/control/CONTEXT_GRAPH.md#cg-mcp-dispatch-adapter) verweist auf
-dieselben Owner und hält die Erkenntnisse auffindbar.
+
+## 7 Erkenntnisse aus dem nativen Fortsetzungstest vom 6. November 2026
+
+Die [datierte Prüfung](../development/native-authoring-recovery-2026-11-05.md#completed-resumption-campaign-on-2026-11-06)
+und ihre [prüfbare Ergebniszusammenfassung](../development/native-authoring-evidence-2026-11-06.json)
+dokumentieren drei funktionale SD-/TP-Abschlüsse, aber keinen vollständig fehlerfreien Lauf.
+Die folgenden Folgerungen konkretisieren MCP-01 bis MCP-10. Sie schaffen keinen zweiten Vertrag,
+kein zusätzliches Gate und keine neue Hostqualifikation. Beobachtung, umgesetzte Regel und offene
+Arbeit bleiben jeweils getrennt.
+
+### 7.1 Gebundene Fortsetzungen müssen den zugesagten Lebenszyklus überstehen
+
+Eine zuvor angebotene Referenz für privaten Materialtransfer wurde nach einem CLI-Neustart ohne
+erneutes Anbieten akzeptiert.
+Für unsere Funktionen folgt daraus: den ursprünglichen Aufruf erhalten, statt Ziel, Run, Revision
+oder Operations-UUID beim Wiederaufnehmen zu rekonstruieren (MCP-04/05/08).
+**Umgesetzt:** [Transport](../../packages/mcp-server/src/prepared-call-transport.js) und
+[Owned-Journal](../../packages/cli/lib/mcp-lifecycle/prepared-call-journal.js), geprüft durch
+[echte SDK-Neuverbindungen](../../packages/mcp-server/test/prepared-reconnect.test.js).
+**Grenze:** gleiche verifizierte Runtime-Identität und ursprüngliche 30-Minuten-Frist, keine
+Verlängerung oder Neubindung. Gespeichert werden Vorlagen, keine eingereichten Texte oder Belege.
+Andere direkte Transporte bleiben verbindungslokal; die Aussage gilt nicht pauschal für jeden
+MCP-Client.
+
+### 7.2 Fachlicher Werkzeugname und Hostfunktion sind verschiedene Bindungen
+
+Ein Hostaufruf scheiterte mit `tools[call.tool]`, obwohl der vorherige MCP-Read erfolgreich war.
+`next_action.call.tool` nennt das fachliche Werkzeug; der Host kann es unter einem qualifizierten
+Namen registrieren. Diese Zuordnung muss vor der Ausführung eindeutig feststehen (MCP-02/03).
+**Bestehender Owner:** [Serverregistrierung](../../packages/mcp-server/src/server.js).
+**Offen:** eine zuverlässig genutzte Hostzuordnung; der neue Test belegt keine allgemeine Lösung.
+Keine Hostpräfixe in Core-Verträge übernehmen und einen Rückgabewert nicht blind als JS-Eigenschaft
+ausführen. Den Befund samt tatsächlich erreichtem Aufruf in der datierten Prüfung erhalten.
+
+### 7.3 Autoreninhalt als Daten übergeben
+
+Ungeschützte Markdown-Backticks verursachten Fehler im aufrufenden JavaScript vor dem beabsichtigten
+Schreibaufruf. Strukturierte Eingaben beziehungsweise ein Host-Dateieditor mit UTF-8-Einlesen
+vermeiden diese Codekonstruktion; Inhalte gehören nicht in ausführbare Templates (MCP-02/03/06).
+**Umgesetzt:** gemeinsame [Handoff-Anleitung](../../packages/core/lib/control-state/authoring-text-handoff.js);
+[Materialtests](../../packages/core/test/run-material-test.js) belegen unveränderte UTF-8-Bytes
+einschließlich Backticks und Interpolationssyntax nach Eintritt in den Core.
+**Grenze/offen:** Die Anleitung ist kein neuer Dateileser und keine mechanisch sichere
+Hostserialisierung. Ihre vorherige Ausgabe verhinderte die nativen Hostfehler nicht zuverlässig.
+
+### 7.4 Eine korrigierbare Lücke braucht den konkreten Korrekturaufruf
+
+Eine Inhaltsdiagnose allein genügt nicht, wenn das bereits vorhandene Autorenformular nicht zur
+normalen nächsten Aktion wird. Unsere Funktionen sollen genau dieses gebundene Formular liefern,
+statt vom Modell eine neue Anfragekonstruktion zu verlangen (MCP-04/05).
+**Umgesetzt:** [Next-Action-Projektion](../../packages/mcp-server/src/next-action.js), mit
+[Negativfällen](../../packages/mcp-server/test/next-action.test.js) und
+[tatsächlicher SDK-/UX-Kette](../../packages/mcp-server/test/prepared-submission.test.js).
+**Grenze:** akzeptierter privater Transfer ist kein kanonisches Record. Unvollständige,
+historische, widersprüchliche oder terminale Ergebnisse erzeugen keine Ersatz-Schreibaktion.
+
+### 7.5 Fehler an der tatsächlich erreichten Grenze erklären
+
+Host-Syntax, Host-Namensauflösung, SDK-Schema, Referenzspeicher und fachlicher Gate-Befund sind
+verschiedene Ursachen. Insbesondere ist eine unbekannte Referenz kein Beleg ihres Ablaufs
+(MCP-06). **Umgesetzt:** getrennte Ursachen im [Transport](../../packages/mcp-server/src/prepared-call-transport.js)
+und [Fehler-Owner](../../packages/core/lib/mcp-tool-errors.js), geprüft über
+[Transportfälle](../../packages/mcp-server/test/prepared-call-transport.test.js) und
+[echte SDK-Fehler](../../packages/mcp-server/test/tool-errors.test.js).
+**Grenze:** Ein absichtlich ausgelöster Gate-Befund kann erfolgreiche Validierung sein.
+Eine fehlgeschlagene Hostzelle beweist nicht, dass vorher darin kein Read oder Effekt stattfand.
+
+### 7.6 Ein Folgefehler darf das erfolgreiche Hauptergebnis nicht verdecken
+
+Scheitert das nächste Lesen oder die Veröffentlichung eines Folgeformulars nach einem erfolgreichen
+Schreibschritt, müssen dessen ursprüngliches Ergebnis und Beleg erhalten bleiben (MCP-07).
+**Umgesetzt:** [Next-Action-Auswertung](../../packages/mcp-server/src/next-action.js) und
+[Transportprojektion](../../packages/mcp-server/src/prepared-call-transport.js); die
+[SDK-/Server-Antwortfixture](../../packages/mcp-server/test/safe-read-continuation.test.js) injiziert
+ein akzeptiertes Schreibergebnis und prüft nachgelagerte Speicherfehler sowie genau einen
+Schreib-/Leseaufruf. Das belegt diese Antwortgrenze, keine echte Core-Persistenz unter dem Fehler.
+**Grenze:** Bei unbekanntem Ausgang zuerst die ursprüngliche Operation beobachten; weder neue UUID
+noch neue Revision oder veränderte Nutzlast als Ersatz für diese Wiederherstellung verwenden.
+
+### 7.7 Paketprojektion und Laufzeitvergleich brauchen dieselbe deklarierte Grenze
+
+Eine fehlende transitive Bootstrap-Abhängigkeit und ein zu breit zugeordneter Prüfpfad waren
+unterschiedliche Fehler. Quelle, Bootstrap und reduziertes Dispatcherimage sind keine identischen
+Dateimengen (MCP-01/09). **Umgesetzt:** deklarierte [Imageauswahl](../../packages/core/lib/runtime/plugin-provenance.js),
+[Import des erzeugten Bootstraps](../../scripts/sync-plugin-runtime.js) und
+[Layoutregression](../../packages/cli/scripts/runtime-integrity-layout-test.js).
+**Offen:** Das native Prüfskript erwartete einen Bootstrap-Owner zusätzlich im Dispatcherimage.
+Den Rohbefund erhalten und die belegte Zuordnungsursache separat erklären; weder vorhandene
+MCP-Metadaten als unbeobachtet behandeln noch das ursprüngliche Audit nachträglich auf Pass setzen.
+
+### 7.8 Aufgabe, technische Fehlerfreiheit und Prüferurteil getrennt ausweisen
+
+Funktionaler Abschluss, fehlerfreie Ausführung, beobachtete Runtime-Identität und menschliche
+Abnahme sind eigene Aussagen (MCP-09/10). Der Prüfer muss auch fehlende Beobachtung von einer
+beobachteten, aber nicht erfolgreich verifizierten Identität unterscheiden. Seine Projektion und
+Fehlannahmen gehören selbst in den Reviewumfang.
+**Prüfpraxis:** Kandidat und Hostkombination binden, Budgets vorher festlegen, alle ausgewählten
+Fälle und Originalurteile erhalten und nur tatsächlich ausgeübte Zweige qualifizieren.
+Die neue lokale Setup-Erkennung wurde in diesen drei MCP-Läufen nicht nativ ausgeübt.
+**Messgrenze:** Zeit außerhalb gemessener Werkzeugausführung umfasst auch Anbieter, Host und
+Übergaben; sie ist kein isolierter Denkzeit-Nachweis. Geänderte Controller, andere Delivery-Modi
+oder schnell abgebrochene Fälle begründen keinen allgemeinen Geschwindigkeitsgewinn.

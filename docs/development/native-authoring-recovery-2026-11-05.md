@@ -1,9 +1,15 @@
-# Native authoring recovery: retained observations and remaining validation
+# Native authoring recovery: retained observations, results and lessons
 
 This change addresses repeated malformed MCP calls, redundant authoring reads, and
 SD/TP draft-recovery loops. The repair was performed directly with repository tools,
 as explicitly requested, without an AGDF workflow or a new repair Run. Existing
 repository Runs and earlier native records were preserved.
+
+This document retains the successive candidate-specific observations, including what was still
+pending at each stage. The [completed campaign on 2026-11-06](#completed-resumption-campaign-on-2026-11-06)
+is the latest result below. Its [sanitized evidence projection](native-authoring-evidence-2026-11-06.json)
+records the measured identities, cases and private-archive manifest hashes. Historical results do
+not qualify a later candidate or the documentation commit containing this report.
 
 ## Source and transport changes
 
@@ -267,3 +273,144 @@ The shared observer is versioned in
 `scripts/native-probes/setup-card-observation.mjs`; the existing MCP-specific
 finite setup oracle remains unchanged. A display before the actual card result
 or a later tool/file action cannot establish a fresh setup-card observation.
+
+## Completed resumption campaign on 2026-11-06
+
+### Profile and method
+
+The frozen product source was
+[`b89156e1f1dba9f179299daf3f593d3bd9b2ccbe`](https://github.com/ArndtGold/ai-native-governance-delivery-framework/commit/b89156e1f1dba9f179299daf3f593d3bd9b2ccbe),
+installed successfully as local candidate `0.30.0+codex.local-92f767cea8eb` from a separate empty Git
+project. This is local-candidate evidence, not qualification of the published 0.30.0 package.
+
+| Input or boundary | Recorded value |
+|---|---|
+| Host and model | Codex CLI 0.163.0; `gpt-6-luna`, reasoning `high` |
+| Observer process | Node.js v22.22.3, `darwin/x64`; physical CPU, translation layer and exact OS release are not established by these fields |
+| Task identity | SHA-256 `2755116443cb439b1a4c46bb779615eb0afa3f331d64b9fd33f790a29ed9b6f8` |
+| Selected cases | Exactly three fresh Git projects, fixed before the first CLI start, sequential; no replacement or repeated case |
+| Invocation budget | Original 20-minute cap per CLI invocation, maximum ten invocations per case; a reached cap remains a finding after resumption |
+| Decisions | Authorized simulated UR/PRD/SD/TP replies; no independent human acceptance |
+| Parent assistance | No parent-chat history, technical hints or semantic answers; observers did not act inside the cases |
+| Host context | Ordinary host documentation and memory access remained possible; this was not a memory-hermetic experiment |
+| Frozen boundary | Product sources and immutable installed files were not changed during the cases; normal product-owned mutable runtime state was allowed |
+
+The controller deliberately added recognition of the equivalent fresh local CLI setup card while
+retaining the original task, replies, model, generic continuations and budgets. All three new cases
+actually used MCP and did **not** exercise that local CLI setup branch. Synthetic observer tests
+and native proof of that branch remain different evidence. Earlier descriptions of an `arm64`
+profile were incorrect: the launch records describe the observer process as `darwin/x64`.
+
+### Results
+
+| Case | Run | Observed mode | Active CLI time | MCP calls / outer rounds | Internal reads / failures | Host-code failures | Reached caps |
+|---|---|---|---:|---:|---:|---:|---:|
+| 01 | `run-c32046ee-984e-49d1-9c3f-9c704e9992b7` | `structured_slice` | 23:10.646 | 60 / 82 | 13 / 0 | 1 | 1 |
+| 02 | `run-2feb85d1-2b01-4f95-9649-7a6744f50e7b` | `structured_delivery` | 26:58.401 | 67 / 83 | 19 / 0 | 2 | 1 |
+| 03 | `run-47272e59-4e91-4100-b1aa-1293127d3603` | `structured_delivery` | 19:28.133 | 54 / 68 | 7 / 0 | 1 | 0 |
+
+**3/3 functional SD/TP completions; 0/3 clean passes.** All cases retained the first SD and TP drafts
+without the German summary, observed the concrete missing-summary diagnosis, corrected through the
+offered authoring path, delivered a fresh German presentation and recorded a simulated approval.
+Readiness evidence can be part of the authoring/prepare response; this does not assert that every
+case made an additional explicit readiness call. No application implementation was attempted.
+
+All 181 MCP calls and 39 internal adapter reads had zero recorded MCP execution/read failures.
+Expected content findings are successful validation results, not evidence that MCP execution failed.
+The aggregate remains `findings`: the four host-code failures and two reached invocation caps are
+counted, along with the retained runtime-mapping finding described below.
+
+The decisive native resumption witness is in **case 01 only**: invocation `02-native`, item 87,
+offered a bound `agdf_record` reference for `material.stage` / `put`; invocation `03-native`, item 6,
+submitted that same reference and was accepted without a fresh offer in between. This is private
+material transfer, not a cross-invocation canonical artefact-record witness. The selected Run,
+target, revision and original request binding were retained. The sanitized evidence projection records this event chain and
+binding/request hashes. Cases 02 and 03 used fresh offers; they are not additional direct
+cross-invocation reuse witnesses. No unobserved connection ID or journal-backend access is inferred.
+
+### Retained failures and limits
+
+| Finding | Observed cause | Consequence |
+|---|---|---|
+| Case 01 host failure | Missing closing parenthesis in the calling JavaScript expression | Parser failure before its intended MCP call; this was not a Markdown/backtick failure. |
+| Case 02 first host failure | An inline backtick broke the outer JavaScript template string | Markdown was treated as code syntax despite prior data-handoff guidance. |
+| Case 02 second host failure | A canonical `agdf_record` name was used as `tools[call.tool]` without resolving the registered host function | The cell had already completed a dispatch read; its intended record call was never invoked. A failed cell does not establish zero preceding effects. |
+| Case 03 host failure | An inline backtick closed the outer template before a Run path | The path was parsed as JavaScript; the intended MCP call was not reached. |
+| Cases 01 and 02 cap | An invocation reached its original 20-minute limit | Generic continuation completed the workflow; the reached cap remains a failed clean-run predicate. |
+
+The shared UTF-8 handoff is guidance, not a mechanically safe host serializer or a new file API.
+Likewise a logical tool name is not a guaranteed property of the host's JavaScript tool object.
+These remaining integration failures prevent a claim that the whole invocation path is fixed.
+
+Actual MCP runtime metadata was observed in **all three cases**, with dispatcher digest
+`5257735ac18825b088ff3e7deec458f586c3efdcd73c96e1e7585994d02e4d3f`.
+The raw verifier nevertheless reports 47/48 matching source paths. Its extra expectation places
+the bootstrap owner `packages/cli/lib/mcp-lifecycle/plugin-runtime.js` inside the reduced dispatcher
+image. That file is absent there by the canonical
+[`mcpDispatcherRuntimeEntries` inventory](../../packages/core/lib/runtime/plugin-provenance.js);
+the separately installed bootstrap copy matches the source. The raw labels
+`mcp_runtime_observed:false` and `not_observed` conflate actual observation with a failed comparison
+predicate. They remain unchanged in the original aggregate; the separate mapping assessment
+explains the false expectation. Fixing this evaluator would still leave all three cases with
+host-code failures. No pass threshold or case outcome was retroactively changed.
+
+All 33 keyed configuration snapshots parsed successfully. Each case added exactly one project
+trust leaf; no existing leaves changed or disappeared. Observation timing does not identify the
+writer. Raw values, authentication data and the ephemeral hashing key were not retained, and no
+automatic restoration was performed. All 1,517 older proof files, 48 affected source files, 365
+canonical files, 49 existing repository Run files and 45 unrelated working files remained unchanged.
+
+### Timing and comparison
+
+The three cases used 69:37.180 active CLI time. Of that, 89.5% was outside the measured union of
+outer tool execution. That remainder includes provider/model, host and serialization work; it is
+not an isolated measurement of model thinking. Tool counts alone do not explain total latency.
+
+Case 01 improved against the retained previous case 01 from 25:12.454 to 23:10.646 and from 78 to
+60 MCP calls. Case 02 took longer and selected `structured_delivery`, while its previous baseline
+selected `structured_slice`. The previous blocked third case remains in the comparison and cannot
+serve as a fast successful reference. Controller changes, different routing and model variability
+prevent a general speed claim or a strict unchanged-controller benchmark.
+
+### Traceability and evidence classes
+
+The [sanitized JSON projection](native-authoring-evidence-2026-11-06.json) is derived from retained
+recorded metadata. It supplies durable, reviewable results without publishing author text, raw
+prompts, hidden reasoning, credentials, configuration values or personal machine paths. Hashes
+identify the private original archives; they do not make those archives publicly accessible or
+permit independent replay of their contents from this report alone.
+
+| Retained evidence | Files | SHA-256 of manifest |
+|---|---:|---|
+| Native campaign and all three cases | 669 | `e9d2948750011d8087756fcd44683833191704b667eac0fc5a093f2fe15f7cb6` |
+| Separate cause/mapping assessments | 56 | `fc396bbb4fbb931a5024fd1a38c1ad8b8b720722fbc9d7dad27136324b4da6da` |
+| Initial exact-head CI evidence | 125 | `078a037a4472ec9e906acaf108bc2f1cd6e6987ccbc7e507005fcd57b029465d` |
+| Post-native CI refresh | 11 | `3a36ec8a251be907e3a5784b34ed93230c8501e6a21927d5777d59aa779010a0` |
+
+All four inventories and hashes were verified after sealing.
+[CI #702, attempt 1](https://github.com/ArndtGold/ai-native-governance-delivery-framework/actions/runs/42198544253),
+associated with product head `b89156e1f1dba9f179299daf3f593d3bd9b2ccbe`, completed successfully:
+173/173 canonical jobs and 174/174 head checks, including the separate Cloudflare check, with no
+open/failed/skipped checks or legacy contexts. The post-native refresh used fully paginated
+inventories and verified SHA/run/attempt/job/check bindings. This CI result does not qualify a
+later documentation head; its own checks must be reported separately.
+
+### Consequences and open follow-up
+
+The reusable criteria live in the existing
+[MCP integration guidelines](../architecture/09-mcp-integrationsrichtlinien.md); this report adds no
+new gate, authority source or host-support claim. The handbook explains
+[how to read native results](../handbook/de/05-abschluss-und-auslieferung.md#native-agententests-lesen)
+and [how to distinguish failed calls](../handbook/de/06-fehlerbehebung.md#der-nächste-werkzeugaufruf-schlägt-fehl).
+
+| Open item | Responsible surface | Evidence needed for closure |
+|---|---|---|
+| Safe transfer of long author text | Host invocation/data handoff; Core remains owner of content validation | Actual text reaches the writer unchanged without JavaScript delimiter failures; a new instruction alone is insufficient. |
+| Logical name to host-function resolution | Host adapter/invocation boundary, not hard-coded host prefixes in Core | The returned normal action resolves to the actually registered function; unavailable mappings stay explicit. |
+| Runtime evaluator mapping and labels | Native verifier and canonical package inventory | Declared bootstrap/dispatcher inventories determine expected paths; metadata observation and comparison verdict are separate fields, including a missing/wrong-runtime negative control. |
+| Local setup branch | Versioned setup observer and targeted native qualification | A separate authorized case actually exercises the equivalent local card; these three cases provide no such proof. |
+| Comparable performance | Native evaluation profile and timing method | Fixed controller, task, budgets and comparable delivery path; retain failures and distinguish tool time from unattributed remainder. |
+
+These are remaining findings, not implemented fixes or authorization for another native campaign.
+The observed three-case repeatability supports this task and candidate only; it establishes no
+general model reliability, other-host/platform qualification, human QA/UAT or release approval.

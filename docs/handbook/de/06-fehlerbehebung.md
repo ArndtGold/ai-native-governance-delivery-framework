@@ -155,6 +155,29 @@ Ein Befund wird an seinen zuständigen Eigentümer zurückgeführt. Er darf nich
 späteren Gate überschrieben werden. Wenn der Agent keinen konkreten nächsten Schritt nennen kann,
 bitte um einen AGDF-Gate-Check für den ausdrücklich benannten Run.
 
+## Der nächste Werkzeugaufruf schlägt fehl
+
+Bitte den Agenten, den letzten tatsächlich gesendeten Aufruf und seine Antwort zuzuordnen.
+Die passende Wiederherstellung hängt von der betroffenen Grenze ab:
+
+| Beobachtung | Nächster Schritt |
+|---|---|
+| Der Host kann den aufrufenden Hilfscode oder Werkzeugnamen nicht ausführen. | Aufruf und registrierten Hostzugang korrigieren. Ein solcher Fehler beweist keine fehlende MCP-Verfügbarkeit. Frühere erfolgreiche Aufrufe derselben Folge bleiben berücksichtigt. |
+| Eine angebotene Referenz ist unbekannt oder abgelaufen. | Den gemeldeten Wiederaufnahmeweg für genau dieses Projekt und diesen Run verwenden. Ziel, Revision und Kennungen nicht selbst ersetzen. |
+| Die Inhaltsprüfung nennt einen fehlenden oder widersprüchlichen Abschnitt. | Den konkreten Befund über den angebotenen Autorenpfad korrigieren und die neue Fassung erneut prüfen und vorlegen. Eine berechtigte Ablehnung zeigt eine arbeitende Prüfung. |
+| Nach einem Schreibversuch ist sein Ergebnis unklar. | Zuerst den ursprünglichen Vorgang und seinen gespeicherten Beleg prüfen. Eine neue Schreibaktion darf nicht allein aus einer fehlenden Folgeantwort abgeleitet werden. |
+
+Längere Dokumente müssen als Textdaten übergeben werden. Wenn der Agent Markdown in eigenen
+Hilfscode einsetzt, können Zeichen des Dokuments den Aufruf beschädigen, bevor die beabsichtigte
+AGDF-Aktion erreicht wird. Zusätzliche fachliche Erklärungen beheben diesen Integrationsfehler
+nicht. Die [MCP-Integrationsrichtlinien](../../architecture/09-mcp-integrationsrichtlinien.md)
+beschreiben die zuständigen technischen Prüfungen und die verbleibenden Grenzen.
+
+Melde deshalb Aufruf, beobachtete Antwort, Projekt/Run und Version gemeinsam. Eine
+Fehlerbeschreibung des Modells allein ersetzt diese Spur nicht. Das
+[dokumentierte Testbeispiel](../../development/native-authoring-recovery-2026-11-05.md#completed-resumption-campaign-on-2026-11-06)
+zeigt, warum funktionaler Abschluss und fehlerfreier Ablauf getrennt ausgewiesen werden.
+
 ## Versions- oder Paketfehler
 
 Ein Quelltest, installiertes Plugin und öffentliches Bundle sind unterschiedliche Evidenzklassen.

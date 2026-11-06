@@ -76,6 +76,28 @@ A product-scope/acceptance conflict stays unresolved and returns to the earliest
 UR/PRD revision owner. Do not edit approved sources, invent a transition after downstream linking
 or manufacture answers; use supported revision/recovery and fresh source approval where required.
 
+### Realize brand-informed criteria
+
+For applicable design work, read the adopted PRD criteria together with the exact project brand
+source references retained by UX/PRD: path, version or content digest and relevant passages. Keep
+that source identity in the existing Ownership And Source Of Truth and Constraints And Compatibility
+sections and confirm the consumed version matches it. A framework example or another project's
+brand file cannot replace the selected source; brand context cannot silently expand approved
+product intent or acceptance.
+
+SD owns the concrete realization: design tokens, typography, layout, information hierarchy and
+controls. Record the relevant choices, reuse, rationale and trade-offs with the existing SDD IDs
+and map each approved criterion once through Acceptance Traceability. Preserve the approved
+perception and information priorities rather than inventing a parallel brand specification.
+
+In Test And Evidence Strategy, identify representative states, observable checks and the evidence
+needed to judge those criteria. Plan evidence for quality.md's UX Intent Fidelity matrix under the
+same PRD criterion IDs; its existing review owner produces that matrix at the appropriate stage.
+Add no second matrix, gate or automatic fidelity claim. A preview or source-file match is not
+implementation evidence or independent human acceptance. Non-applicable work requires no new brand
+file. Missing material design facts remain before_sd decisions below;
+product conflicts return to the existing PRD/UR revision owner.
+
 ## Explicit revision and recording
 
 A returned bound authoring continuation for an incomplete own unapproved draft already

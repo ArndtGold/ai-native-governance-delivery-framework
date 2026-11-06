@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:2cfa023c70898a328107677f8832339a358e447ba4b4fc1c185268bbee706d5a
+source_revision: sha256:4107cda418ae16f67781305aab81b42e563c8e39ce226599baa16c1350f24c31
 translation_status: reviewed
 ---
 
@@ -141,6 +141,36 @@ Only the questions needed for the change are answered:
 This clarification is not another user gate. It provides testable criteria for the PRD and prevents
 the coding agent from making missing product decisions during implementation. A small, unambiguous
 change can explicitly record that this clarification is not required.
+
+### Translate brand sources into observable UX criteria
+
+For design-relevant work, the agent reads the target project's explicitly declared brand source.
+It describes intended perception and information priorities. AGDF's own English profile is
+[BRAND.md](../../../BRAND.md); other products use their own sources. Generic adjectives or existing
+colors do not substitute for confirmed brand intent.
+
+The [shared quality rule](../../../plugins/agdf/meta/contracts/quality.md#brand-source-use-across-delivery-paths)
+also applies to compact paths. They retain the source and observable checks in their existing
+approved scope and compact result/evidence; this alone creates no PRD/SD documents or additional
+analytical step.
+
+The UX analysis records the source, owner, scope and revision or digest in the existing `evidence`
+field. It translates the relevant passage into a priority, a concrete scenario and an observable
+outcome. These become proposals in the existing `proposed_prd_acceptance_criteria` field, together
+with the evidence needed to assess them. The presence of a file alone does not demonstrate a
+suitable interface.
+
+For AGDF, the brand profile illustrates testable distinctions between decided and pending matters,
+reachable result sources, the next permitted step and visibly missing evidence. It includes
+concrete scenarios and proposed checks. PRD adopts confirmed, in-scope criteria under its existing
+identifiers. SD then owns concrete design and realization.
+
+If a source required for a material decision is missing or conflicts with the approved need, the
+question remains open through the existing clarification or revision path. Irrelevant brand input
+can be justified as `not_applicable` in the existing `evidence` field; an otherwise required UX
+analysis remains required. This adds neither a gate nor a
+mandatory brand file for every project. Reviews apply the existing UX Intent Fidelity to adopted
+criteria; inspection, actual user observation and untested behavior remain distinguishable.
 
 ### Try a proposed interface before PRD approval
 

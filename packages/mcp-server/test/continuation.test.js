@@ -60,18 +60,24 @@ try {
         assert.equal(result.continuation.approval_summary_required, true);
         assert.equal(result.continuation.approval_summary_heading, "AGDF Approval Summary (de; source=en)");
         assert.equal(result.continuation.control_transport, 'typed_mcp');
-        const read = result.continuation.next_calls.find(call => call.arguments.operation === 'authoring-inputs');
+        let read = result.continuation.next_calls.find(call => call.operation.operation === 'authoring-inputs');
         assert.ok(read, 'authoring inputs replace local template discovery');
         const id = {'ur-definition':'UR','prd-definition':'PRD','sd-definition':'SD','tp-definition':'TP'}[skill.slug];
-        let cursor, content = '', complete = false;
+        let content = '', complete = false;
         for(let page=0;page<160;page++) {
-          const reply = await client.callTool({name:read.tool,arguments:{...read.arguments,...(cursor?{cursor}:{})}});
+          assert.deepEqual(Object.keys(read.arguments).sort(), ['inputs', 'prepared_call_id']);
+          assert.deepEqual(read.arguments.inputs, {});
+          const reply = await client.callTool({name:read.tool,arguments:read.arguments});
           assert.equal(reply.isError,undefined,JSON.stringify(reply));
           const input=reply.structuredContent.report;
           assert.equal(input.available,true,JSON.stringify(input));
           assert.equal(input.format, 'document_bundle_v2');
           for (const chunk of [...input.documents,...input.fragments]) if(chunk.role==='template' && chunk.type===id) content+=chunk.content;
-          if(input.complete){complete=true;break;} cursor=input.next_cursor;
+          if(input.complete){complete=true;break;}
+          read = input.next_calls.find(call => call.operation.operation === 'authoring-inputs');
+          assert.ok(read, 'the next source page is supplied as an exact normal read');
+          assert.equal(read.operation.cursor, input.next_cursor);
+          assert.equal(read.recovery_only.original_call.arguments.cursor, input.next_cursor);
         }
         assert.equal(complete,true);
         assert.equal(content,readFileSync(join(pluginRoot,'control/templates/artefacts',id+'.md'),'utf8'));

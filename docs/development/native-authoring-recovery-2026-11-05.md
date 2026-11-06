@@ -169,3 +169,38 @@ prepared submission chain, and pre-dispatch failure checks for both facade proto
 and the plugin generation. Compiled-worker relocation/tamper checks and MCP contract
 checks also passed. Full repository regression remains in CI; these results do not
 replace the native follow-up for the current candidate.
+
+## Retained three-case observation and 2026-11-06 follow-up
+
+The frozen `d249ce80` candidate `0.30.0+codex.local-e9d01c065d25` completed
+all three original independent Luna/high cases. The functional SD/TP negative,
+repair, fresh German presentation and simulated approval path passed in all three;
+only case 03 was fully error-free. Active times were 22:35.643, 22:31.547 and
+10:27.876; MCP calls 90/63/45; MCP failures 2/2/0; host-script failures 0/1/0;
+per-invocation 20-minute caps reached 1/1/0. All 26 internal adapter reads passed.
+All 40 compared sources, 855 older evidence files, 49 existing Run files and
+45 unrelated untracked files were preserved. These are observations, not human
+acceptance or a general reliability claim. The 311-file sealed manifest is
+`6291c39be2efbff79067b6ee6352be46dcb82909ce52fdad7612eea493a7e3f1`.
+
+The four failed MCP calls were reconstructed read/status envelopes with missing
+target or original Run/revision selectors. They did not expose malformed supplied
+calls. The follow-up retains explicitly offered normal read requests by reference,
+using the original SDK validator and read-only declaration; it never supplies an
+inferred target or refreshes a revision. Executed internal read arguments remain
+separate observations; explicit Raw recovery retains the original request across
+reconnect. Existing byte, lifetime, permission and input limits remain unchanged.
+
+One SD source already had concrete rationale and consequence, but its labelled
+inline JSON schema example contained `<uuid>` and `<non-empty string>`. The old
+whole-decision prompt scan emitted a generic rationale/consequence error, causing
+three further replacements over 128.664 seconds. The follow-up recognizes typed
+JSON string-value metavariables only in explicitly labelled, parseable inline
+schema examples in the decision clause. Actual author prompts, unknown schema
+choices, malformed examples and missing/duplicate author fields remain blocked;
+diagnostics identify the affected field and token.
+
+A new frozen-candidate campaign must qualify this follow-up separately. It uses
+three fresh projects, the same original task, Luna/high and the same per-invocation
+budget; observer-only changes do not supply technical or semantic answers.
+Earlier failed cases remain retained and are never substituted by later passes.

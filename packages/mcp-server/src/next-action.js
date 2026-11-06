@@ -93,7 +93,7 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
     const report = result.report;
     if (!object(report) || report.available === false || !report.material_call
       || report.page_index !== undefined && report.page_index !== 0) return;
-    for (const owner of [result, result.continuation, result.navigation, report].filter(object))
+    for (const owner of [result, result.continuation, result.navigation, report, result.family_result].filter(object))
       if (owner.next_calls !== undefined && owner.next_calls !== null && !Array.isArray(owner.next_calls)
         || owner.recording_calls !== undefined && owner.recording_calls !== null && !Array.isArray(owner.recording_calls)) return;
     remember(authoringKey(result, report), report.material_call);
@@ -103,7 +103,7 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
     if (['rejected', 'recovery_required', 'effect_unknown', 'invalid_input', 'evaluator_error', 'target_unresolved'].includes(result.outcome))
       return base('requires_source', 'This operation did not establish a successful normal continuation. Preserve its original receipt and recovery instructions; no write form is selected.', source);
     const report = object(result.report) ? result.report : null;
-    for (const owner of [result, result.continuation, result.navigation, report].filter(object))
+    for (const owner of [result, result.continuation, result.navigation, report, result.family_result].filter(object))
       if (owner.next_calls !== undefined && owner.next_calls !== null && !Array.isArray(owner.next_calls)
         || owner.recording_calls !== undefined && owner.recording_calls !== null && !Array.isArray(owner.recording_calls))
         return base('requires_source', 'The supplied action list is malformed. Preserve the existing outcome and obtain the canonical action source.', source);
@@ -161,13 +161,16 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
       if (result.terminal === true) result.next_action = terminal(result, 'outer');
       else if (result.next_read) {
         const read = result.next_read, nested = read.result;
+        // An explicit null means the exact read could not be retained. Its Raw
+        // execution record remains evidence/recovery, never a normal fallback.
+        const retry = Object.hasOwn(read, 'call') ? read.call : read;
         if (read.failure?.phase === 'validation') result.next_action = base('requires_source',
           'The supplied read could not be validated. Preserve the original outcome and receipt; obtain the canonical read source without repeating the write.', 'next_read');
         else if (nested?.terminal === true) result.next_action = terminal(nested, 'next_read.result');
         else if (!read.error && read.failed !== true && nested?.outcome === 'inspect_result' && nested.report?.available !== false)
           result.next_action = fromContext(nested, 'next_read.result');
-        else if (callValue(read.call ?? read)?.tool === 'agdf_inspect') {
-          const next = selectForms([read.call ?? read], 'next_read', { readOnly: true });
+        else if (callValue(retry)?.tool === 'agdf_inspect') {
+          const next = selectForms([retry], 'next_read', { readOnly: true });
           result.next_action = next.state === 'ready' ? { ...next, state: 'read_required',
             instruction: 'The follow-up read did not produce an available nonterminal result. Retry only this exact read when appropriate; never repeat the outer write. ' + next.instruction } : next;
         } else result.next_action = base('requires_source', 'The follow-up read failed without an exact supplied read call. Preserve the outer outcome/receipt; do not retry the outer write.', 'next_read');

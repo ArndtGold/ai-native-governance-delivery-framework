@@ -27,6 +27,8 @@ for (const modern of [false, true]) {
       assert.ok(setup.host_action.text);
       const setupRead = setup.recovery.next_calls[0];
       assert.equal(setupRead.tool, 'agdf_inspect');
+      assert.equal(setupRead.arguments.prepared_call_id, undefined, 'Terminal bootstrap recovery preserves its exact Raw read across reconnect.');
+      assert.equal(setupRead.arguments.inputs, undefined);
       assert.equal(setupRead.arguments.module, 'agdf_project/project.initialize');
       assert.equal(setupRead.arguments.run_id, undefined);
       assert.equal(setupRead.arguments.expected_revision_id, undefined);
@@ -42,9 +44,12 @@ for (const modern of [false, true]) {
       assert.equal(Buffer.byteLength(JSON.stringify(state)) <= 16384, true);
       assert.equal(state.next_read, undefined, 'Bootstrap state does not embed the full setup command contract.');
       assert.equal(state.next_action.state, 'ready');
-      assert.deepEqual(state.next_action.call, state.report.next_calls[0], 'The exact setup contract remains the explicit next action.');
+      assert.deepEqual(state.next_action.call, { tool: state.report.next_calls[0].tool,
+        arguments: state.report.next_calls[0].arguments }, 'The exact setup contract remains the explicit next action.');
+      assert.deepEqual(state.next_action.operation, state.report.next_calls[0].operation);
+      assert.deepEqual(state.next_action.recovery_only.original_call, state.report.next_calls[0].recovery_only.original_call);
       assert.equal(existsSync(join(root, '.agdf')), false, 'inspection cannot initialize');
-      const help = await call('agdf_inspect', state.report.next_calls[0].arguments);
+      const help = await call(state.next_action.call.tool, state.next_action.call.arguments);
       assert.equal(help.report.group, 'agdf_project'); assert.equal(help.report.kind, 'project.initialize');
       assert.equal(state.report.setup.binding.target_id, help.report.binding.target_id);
       const original = { ...state.report.setup.binding, operation_id: randomUUID(),
@@ -61,8 +66,13 @@ for (const modern of [false, true]) {
       assert.equal(initialized.family_result.next_calls.length, 1, 'Run creation is the sole normal initialized-project continuation.');
       assert.equal(initialized.next_read, undefined, 'The full Run command contract stays outside the compact initialization receipt.');
       assert.equal(initialized.next_action.state, 'ready');
-      assert.deepEqual(initialized.next_action.call, initialized.family_result.next_calls[0]);
-      assert.equal(initialized.next_action.call.arguments.module, 'agdf_run/run.create');
+      assert.deepEqual(initialized.next_action.call, { tool: initialized.family_result.next_calls[0].tool,
+        arguments: initialized.family_result.next_calls[0].arguments });
+      assert.deepEqual(initialized.next_action.operation, initialized.family_result.next_calls[0].operation);
+      assert.deepEqual(initialized.next_action.recovery_only.original_call, initialized.family_result.next_calls[0].recovery_only.original_call);
+      assert.equal(initialized.next_action.operation.kind, 'inspect.read');
+      assert.equal(initialized.next_action.operation.module, 'agdf_run/run.create');
+      assert.equal(initialized.next_action.recovery_only.original_call.arguments.module, 'agdf_run/run.create');
       const originalStatus = initialized.family_result.recovery_only.status_call;
       assert.equal(initialized.family_result.recovery_only.authorizes, false);
       assert.equal(originalStatus.tool, 'agdf_inspect');
@@ -76,7 +86,7 @@ for (const modern of [false, true]) {
       assert.deepEqual(replay.family_result.next_calls, initialized.family_result.next_calls);
       assert.deepEqual(replay.family_result.recovery_only, initialized.family_result.recovery_only);
       assert.deepEqual(replay.next_action.call, initialized.next_action.call);
-      const creationHelp = await call('agdf_inspect', initialized.family_result.next_calls[0].arguments);
+      const creationHelp = await call(initialized.next_action.call.tool, initialized.next_action.call.arguments);
       assert.equal(creationHelp.report.kind, 'run.create');
       const created = await call('agdf_run', { ...common, schema_version: '1', assurance: 'cooperative_local',
         operation_id: randomUUID(), target_id: creationHelp.report.binding.target_id,

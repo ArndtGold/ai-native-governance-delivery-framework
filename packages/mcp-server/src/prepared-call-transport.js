@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 
-const tools = new Set(['agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+const writeTools = new Set(['agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+const tools = new Set([...writeTools, 'agdf_inspect']);
 const referencePattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/u;
 const referenceSchema = { type: 'object', additionalProperties: false, required: ['prepared_call_id', 'inputs'], properties: {
   prepared_call_id: { type: 'string', pattern: '^[0-9a-f-]{36}$' },
@@ -32,13 +33,16 @@ export function preparedTransportSchema(name, schema) {
   if (!tools.has(name)) return schema;
   const { properties, $defs, type, additionalProperties, ...guards } = schema;
   return { type, additionalProperties, required: [], ...($defs ? { $defs } : {}),
-    properties: { ...properties, ...referenceSchema.properties, ...(name === 'agdf_prepare' ? { inputs: { ...referenceSchema.properties.inputs, description: 'Named required fields; ready: {}.' } } : {}) },
+    properties: { ...properties, ...referenceSchema.properties,
+      ...(name === 'agdf_inspect' ? { inputs: { type: 'object', maxProperties: 0 } }
+        : name === 'agdf_prepare' ? { inputs: { ...referenceSchema.properties.inputs, description: 'Named required fields; ready: {}.' } } : {}) },
     anyOf: [{ ...guards, not: { anyOf: [...(guards.not ? [guards.not] : []),
       { required: ['prepared_call_id'] }, { required: ['inputs'] }] } },
       { required: referenceSchema.required, maxProperties: 2 }],
   };
 }
-export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, lifetimeMs = 30 * 60_000 } = {}) {
+export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, lifetimeMs = 30 * 60_000, validateRead = () => false } = {}) {
+  if (typeof validateRead !== 'function') throw Error('prepared_read_validator_invalid');
   const rows = new Map(), signatures = new Map(), expired = new Map();
   const fail = code => { throw Object.assign(Error(code), { facts: { code, dispatch: 'not_dispatched', field: 'arguments' } }); };
   function expire() {
@@ -55,13 +59,27 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     expire();
     return rows.has(id) ? 'available' : expired.has(id) ? 'reference_expired' : 'reference_unknown';
   }
-  const operation = call => ({ kind: call.arguments.command?.kind ?? null,
+  const operation = call => call.tool === 'agdf_inspect'
+    ? { kind: 'inspect.read', read_only: true, operation: call.arguments.operation,
+      ...Object.fromEntries(['target_id', 'run_id', 'expected_revision_id',
+        'planning', 'gate', 'presentation_id', 'module', 'cursor']
+        .filter(key => call.arguments[key] !== undefined).map(key => [key, structuredClone(call.arguments[key])])) }
+    : ({ kind: call.arguments.command?.kind ?? null,
     ...Object.fromEntries(['operation_id', 'target_id', 'run_id', 'expected_revision_id']
       .filter(key => call.arguments[key] !== undefined).map(key => [key, call.arguments[key]])),
     ...Object.fromEntries(['gate', 'presentation_id'].filter(key => call.arguments.command?.payload?.[key] !== undefined)
       .map(key => [key, call.arguments.command.payload[key]])) });
   function validTemplate(call, required = []) {
-    if (!tools.has(call?.tool) || !call.arguments || !referencePattern.test(call.arguments.operation_id ?? '')
+    if (!tools.has(call?.tool) || !call.arguments || typeof call.arguments !== 'object' || Array.isArray(call.arguments)
+        || !Array.isArray(required)) return false;
+    if (call.tool === 'agdf_inspect') {
+      if (required.length || typeof call.arguments.operation !== 'string' || !call.arguments.operation
+          || ['prepared_call_id', 'inputs', 'command'].some(key => Object.hasOwn(call.arguments, key))) return false;
+      // Only the owning server can attest the original read schema and tool's
+      // read-only declaration. This callback never fills missing selectors.
+      try { return validateRead(structuredClone(call)) === true; } catch { return false; }
+    }
+    if (!referencePattern.test(call.arguments.operation_id ?? '')
         || typeof call.arguments.command?.kind !== 'string' || !call.arguments.command.kind || !Array.isArray(required)
         || required.length > 16 || new Set(required).size !== required.length
         || required.some(p => !/^\/command\/payload\/(?:[a-z_]+|[0-9]+)(?:\/(?:[a-z_]+|[0-9]+))*$/u.test(p)
@@ -72,7 +90,9 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     return { required_inputs: names, input_fields: names.map(name => ({ name, required: true })), operation: operation(raw), recovery_only: {
       original_call: structuredClone(raw), required_inputs: [...fields], authorizes: false,
       input_fields: names.map((name, index) => ({ name, pointer: fields[index] })),
-      instruction: 'Recovery only, never the normal call path. Preserve this exact original raw call and UUID across reconnect. For an uncertain dispatch, first observe the original operation and retain exactly the inputs already submitted; never refresh the revision, invent a UUID or change the payload to escape uncertainty.' } };
+      instruction: raw.tool === 'agdf_inspect'
+        ? 'Recovery only, never the normal call path. Across reconnect, preserve this exact original read and its target, Run, revision, cursor and original operation-status selection. Never infer a target, refresh a selected revision or replace the original status UUID.'
+        : 'Recovery only, never the normal call path. Preserve this exact original raw call and UUID across reconnect. For an uncertain dispatch, first observe the original operation and retain exactly the inputs already submitted; never refresh the revision, invent a UUID or change the payload to escape uncertainty.' } };
   }
   const unregisteredRecovery = (call, required = []) => validTemplate(call, required) ? originalProjection(call, required) : null;
   function submit(call, required = []) {
@@ -95,7 +115,9 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     const saved = alreadyPrepared && referenceState(call.arguments.prepared_call_id) === 'available'
       ? rows.get(call.arguments.prepared_call_id) : null;
     if (alreadyPrepared && (!saved || saved.call.tool !== call.tool
-        || Object.keys(call.arguments).some(key => !['prepared_call_id', 'inputs'].includes(key)))) return null;
+        || Object.keys(call.arguments).some(key => !['prepared_call_id', 'inputs'].includes(key))
+        || !call.arguments.inputs || typeof call.arguments.inputs !== 'object' || Array.isArray(call.arguments.inputs)
+        || call.tool === 'agdf_inspect' && Object.keys(call.arguments.inputs).length)) return null;
     const raw = saved?.call ?? call, fields = saved?.required ?? required;
     const prepared = alreadyPrepared ? { tool: call.tool, arguments: structuredClone(call.arguments) } : submit(raw, fields);
     if (!prepared) return null;
@@ -112,31 +134,31 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
           || !args.inputs || typeof args.inputs !== 'object' || Array.isArray(args.inputs)
           || Object.keys(args).some(key => !['prepared_call_id', 'inputs'].includes(key))
           || referenceState(args.prepared_call_id) !== 'available') return false;
-      return rows.get(args.prepared_call_id).call.tool === call.tool;
+      return rows.get(args.prepared_call_id).call.tool === call.tool
+        && (call.tool !== 'agdf_inspect' || Object.keys(args.inputs).length === 0);
     },
     decorate: function projectResult(result) {
       const value = structuredClone(result);
+      // Explicit terminal/uncertain recovery can be resumed on a new connection.
+      // Keep its read requests independent of shared normal-form objects.
+      if (value.recovery && typeof value.recovery === 'object') value.recovery = structuredClone(value.recovery);
       if (value.next_read?.result) value.next_read.result = projectResult(value.next_read.result);
+      if (value.next_read?.tool === 'agdf_inspect' && value.next_read.arguments) {
+        // tool/arguments are the honest record of the adapter's actual read.
+        // A separate normal retry retains that exact read without retyping it.
+        const raw = { tool: value.next_read.tool, arguments: value.next_read.arguments };
+        const retry = projectCall(raw);
+        value.next_read.call = retry ? { tool: retry.tool, arguments: retry.arguments } : null;
+        const projection = retry ?? unregisteredRecovery(raw);
+        if (projection) for (const key of ['required_inputs', 'input_fields', 'operation', 'recovery_only'])
+          value.next_read[key] = projection[key];
+        if (!retry) value.next_read.transport_reason = 'prepared_call_unavailable';
+      }
       for (const owner of [value, value.report, value.continuation, value.recovery, value.navigation,
-        value.family_result, value.presentation_delivery].filter(Boolean)) {
-        for (const form of [owner.prepared_call, owner.material_call, owner.approval_call, ...owner.recording_calls ?? []].filter(Boolean)) {
-          const raw = form.call, projected = projectCall(raw, form.required_inputs);
-          delete form.submit;
-          if (!tools.has(raw?.tool)) continue;
-          form.call = projected ? { tool: projected.tool, arguments: projected.arguments } : null;
-          if (projected) {
-            form.required_inputs = projected.required_inputs; form.input_fields = projected.input_fields;
-            form.operation = projected.operation; form.recovery_only = projected.recovery_only;
-            form.instruction = 'Use call.tool with call.arguments. Fill only call.arguments.inputs using the named required_inputs fields; keep its reference unchanged. The adapter maps those names to the exact stored command fields and retains binding and UUID. Do not construct a raw envelope or copy technical JSON paths. Keep authored text as string data using host-supported serialization. Check failure before reading returned fields. recovery_only is separate original-request recovery, never the normal write path. ' + (form.instruction ?? '');
-          } else {
-            const recovery = unregisteredRecovery(raw, form.required_inputs);
-            if (recovery) Object.assign(form, recovery);
-            form.state = 'transport_unavailable'; form.transport_reason = 'prepared_call_unavailable';
-            form.authorizes = false;
-          }
-        }
+        value.family_result, value.presentation_delivery, value.next_action].filter(Boolean)) {
         const unavailable = [];
         const projectReadyCall = call => {
+          if (owner === value.recovery && call?.tool === 'agdf_inspect') return call;
           const projected = projectCall(call);
           if (!projected) {
             const recovery = unregisteredRecovery(call);
@@ -144,8 +166,34 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
           }
           return projected;
         };
+        const projectHelpers = container => {
+          for (const key of ['resume_call', 'operation_status_call', 'contract_call', 'first_page_call', 'larger_source_call'])
+            if (container?.[key]) container[key] = projectReadyCall(container[key]);
+        };
+        for (const form of [owner.prepared_call, owner.material_call, owner.approval_call, ...owner.recording_calls ?? []].filter(Boolean)) {
+          if (owner === value.recovery && form.call?.tool === 'agdf_inspect') continue;
+          const raw = form.call, projected = projectCall(raw, form.required_inputs);
+          delete form.submit;
+          if (!tools.has(raw?.tool)) continue;
+          form.call = projected ? { tool: projected.tool, arguments: projected.arguments } : null;
+          if (projected) {
+            form.required_inputs = projected.required_inputs; form.input_fields = projected.input_fields;
+            form.operation = projected.operation; form.recovery_only = projected.recovery_only;
+            form.instruction = (raw.tool === 'agdf_inspect'
+              ? 'Use call.tool with call.arguments unchanged, including inputs:{}. The adapter retains the exact read target and selectors. Do not rebuild an envelope or fill any inputs. recovery_only retains the original read for reconnect; it grants no authority. '
+              : 'Use call.tool with call.arguments. Fill only call.arguments.inputs using the named required_inputs fields; keep its reference unchanged. The adapter maps those names to the exact stored command fields and retains binding and UUID. Do not construct a raw envelope or copy technical JSON paths. Keep authored text as string data using host-supported serialization. Check failure before reading returned fields. recovery_only is separate original-request recovery, never the normal write path. ') + (form.instruction ?? '');
+          } else {
+            const recovery = unregisteredRecovery(raw, form.required_inputs);
+            if (recovery) Object.assign(form, recovery);
+            form.state = 'transport_unavailable'; form.transport_reason = 'prepared_call_unavailable';
+            form.authorizes = false;
+          }
+          projectHelpers(form);
+          projectHelpers(form.content_contract);
+        }
         if (owner.next_calls) owner.next_calls = owner.next_calls.map(projectReadyCall).filter(Boolean);
-        for (const key of ['resume_call', 'operation_status_call']) if (owner[key]) owner[key] = projectReadyCall(owner[key]);
+        projectHelpers(owner);
+        projectHelpers(owner.content_contract);
         if (unavailable.length) owner.recovery_only = { ...owner.recovery_only, authorizes: false,
           unavailable_calls: [...(owner.recovery_only?.unavailable_calls ?? []), ...unavailable] };
         for (const call of owner.next_calls ?? []) if (call?.arguments?.prepared_call_id) {

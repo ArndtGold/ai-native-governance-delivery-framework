@@ -259,6 +259,22 @@ test('malformed action lists and fields never promote another path', () => {
   const projection = createNextActionProjection();
   assert.equal(projection.project({ recording_calls: {}, next_calls: [read()] }).next_action.call, null);
   assert.equal(projection.project({ next_calls: 'invalid' }).next_action.call, null);
+  assert.equal(projection.project({ family_result: { next_calls: {} } }).next_action.call, null);
   const bad = form(17); bad.required_inputs = ['content', 3];
   assert.equal(projection.project({ recording_calls: [bad] }).next_action.call, null);
+});
+
+test('failed internal read uses its exact retained reference, never a Raw fallback when unavailable', () => {
+  const raw = read(), retry = { tool: 'agdf_inspect', arguments: { prepared_call_id: reference(30), inputs: {} } };
+  const original = { outcome: 'accepted', receipt: { original: true }, next_read: { ...raw, call: retry, result: null,
+    failure: { phase: 'execute', original_effect_unchanged: true } } };
+  const observed = createNextActionProjection().project(original);
+  assert.equal(observed.next_action.state, 'read_required');
+  assert.deepEqual(observed.next_action.call, retry);
+  assert.deepEqual(observed.next_read.arguments, raw.arguments);
+  assert.deepEqual(observed.receipt, original.receipt);
+  const unavailable = createNextActionProjection().project({ ...original, next_read: { ...original.next_read, call: null } });
+  assert.equal(unavailable.next_action.state, 'requires_source');
+  assert.equal(unavailable.next_action.call, null);
+  assert.deepEqual(unavailable.receipt, original.receipt);
 });

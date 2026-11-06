@@ -91,7 +91,12 @@ try {
   assert.deepEqual(format.required_sections, ['Result', 'Evidence', 'Risk', 'Next Step']);
   assert.deepEqual(format.required_metadata.map(row => row.label), ['Run', 'Report mode']);
   while (!inputs.complete) {
-    inputs = (await service('agdf_inspect', { ...authoringArgs, cursor: inputs.next_cursor })).report;
+    const next = inputs.next_calls[0];
+    assert.equal(next.operation.operation, 'authoring-inputs');
+    assert.equal(next.operation.cursor, inputs.next_cursor);
+    assert.deepEqual(Object.keys(next.arguments).sort(), ['inputs', 'prepared_call_id']);
+    assert.deepEqual(next.arguments.inputs, {});
+    inputs = (await service(next.tool, next.arguments)).report;
     assert.equal(inputs.available, true, JSON.stringify(inputs));
   }
   // Author the successful closeout from public discovery, not private format knowledge.

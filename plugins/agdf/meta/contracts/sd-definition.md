@@ -33,6 +33,22 @@ PRD criterion exactly once to realization, authoritative owner, stable SDD IDs o
 and compatibility/risk. Never duplicate acceptance, invent scope/users or claim implementation.
 Retain actual sources/draft and a reasoned derivation review; structure alone is not semantic proof.
 
+Architecture Decisions use `SDD-...: decision; rationale: reason; consequence: trade-off`.
+Each bullet has one concrete decision statement, exactly one nonempty `rationale:` field and
+exactly one nonempty `consequence:` field (`trade-off:` is its alias, not an additional field).
+The readiness check distinguishes absent decision/rationale/consequence fields from unresolved
+author prompts and identifies the exact offending token and field. Quoted CLI syntax such as
+`done <id>` stays literal. An inline, parseable JSON object/array introduced immediately by
+`schema`, `JSON schema`, `schema example` or `JSON example` may use full quoted string values
+`"<uuid>"`, `"<string>"`, `"<non-empty string>"`, `"<number>"`, `"<integer>"`,
+`"<positive number>"`, `"<non-negative number>"`, `"<positive integer>"`,
+`"<non-negative integer>"`, `"<boolean>"`, `"<null>"`, `"<object>"` or `"<array>"`.
+This exception applies only to the decision clause, not type placeholders in JSON keys, arbitrary
+inline code, malformed JSON, or the rationale/consequence. Regular JSON keys such as `"todo"`
+are literal schema property names; angle-bracket prompts in keys remain unresolved.
+Unknown prompts such as `<choose encoding>`,
+`<why>`, `TBD` and `TODO` remain blockers; type notation cannot settle a material design choice.
+
 A decision that selects or changes a framework, library, external API, protocol, service or major
 version not already evidenced in the repository needs current authoritative sources through the
 host's available tools: official documentation/specification, release notes or migration guide of

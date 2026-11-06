@@ -25,6 +25,10 @@ Use stable IDs. If no binding design decision is needed, record one reasoned bul
 When a decision selects or changes external technology (framework, library, API, protocol,
 service or major version), name the checked authoritative source, version and check date in its
 rationale.
+Quoted CLI arguments such as `done <id>` are literal syntax. In a decision clause, a labelled
+inline JSON schema/example may use quoted type metavariables such as `"<uuid>"` and
+`"<non-empty string>"`; keep actual choices, rationale and consequence concrete. The complete
+notation and unresolved-prompt boundary are defined in `meta/contracts/sd-definition.md`.
 
 ## 4. Integration Points
 

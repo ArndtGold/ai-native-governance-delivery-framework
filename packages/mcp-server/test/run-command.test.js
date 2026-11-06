@@ -66,7 +66,15 @@ for (const modern of [false, true]) {
         assert.equal(result.dispatch, 'not_dispatched');
         assert.equal(result.operation_id, originalId);
         assert.equal(result.reason, 'AGDF_CANONICAL_SCAFFOLD_REQUIRED');
-        assert.equal(result.next_calls[0].arguments.operation, 'project-state');
+        const setupRead = result.next_calls[0];
+        assert.equal(setupRead.operation.kind, 'inspect.read');
+        assert.equal(setupRead.operation.operation, 'project-state');
+        assert.equal(setupRead.recovery_only.original_call.arguments.operation, 'project-state');
+        assert.deepEqual(Object.keys(setupRead.arguments).sort(), ['inputs', 'prepared_call_id']);
+        assert.deepEqual(setupRead.arguments.inputs, {});
+        const setupState = await client.callTool({ name: setupRead.tool, arguments: setupRead.arguments });
+        assert.equal(setupState.isError, undefined);
+        assert.equal(setupState.structuredContent.report.status, 'absent');
         assert.equal(existsSync(join(uninitialized, '.agdf')), false);
       } finally { rmSync(uninitialized, { recursive: true, force: true }); }
       const before = readFileSync(f.state, 'utf8');

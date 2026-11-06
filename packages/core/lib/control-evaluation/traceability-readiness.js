@@ -45,13 +45,47 @@ function designDecisionIds(value) {
   return text.split(",").map((item) => item.trim().toUpperCase());
 }
 
-// A quoted command such as `done <id>` is concrete CLI syntax. Preserve
-// placeholder detection outside that command and for standalone `<why>` spans.
-function unfinishedDecisionPrompt(value) {
-  const text = value.replace(/`([^`\n]+)`/gu, (span, code) =>
-    /^[a-z][a-z0-9._/-]*(?:[ \t]+(?:--?[a-z0-9][a-z0-9_-]*|[a-z0-9._/-]+|<[a-z][a-z0-9_-]*>))+$/iu.test(code)
-      ? code.replace(/<([a-z][a-z0-9_-]*)>/giu, '$1') : span);
-  return /<[^>]+>|\b(?:tbd|to confirm|todo)\b/iu.test(text);
+const JSON_TYPE_METAVARIABLE = /^<(?:uuid|string|non-empty string|number|integer|(?:positive|non-negative) (?:integer|number)|boolean|null|object|array)>$/iu;
+
+// Only typed JSON string values in an explicitly labelled schema/example are
+// metavariables. Literal JSON keys may name words such as "todo"; angle-bracket
+// key prompts, unknown values, arbitrary code and author fields stay checked.
+function schemaExampleText(code) {
+  let parsed;
+  try { parsed = JSON.parse(code); } catch { return code; }
+  if (parsed === null || typeof parsed !== 'object') return code;
+  return code.replace(/"(?:\\.|[^"\\])*"/gu, (quoted, offset) => {
+    const key = /^[ \t]*:/u.test(code.slice(offset + quoted.length));
+    const value = JSON.parse(quoted);
+    if (key && !/<[^>]+>/u.test(value)) return '"literal-key"';
+    return JSON.stringify(!key && JSON_TYPE_METAVARIABLE.test(value) ? value.slice(1, -1) : value);
+  });
+}
+
+// A quoted command such as `done <id>` is concrete CLI syntax. Schema examples
+// are permitted only in the decision clause, never instead of its rationale or
+// consequence. The source text itself is never changed.
+function unfinishedDecisionPrompts(value, { schemaExamples = false } = {}) {
+  const text = value.replace(/`([^`\n]+)`/gu, (span, code, offset) => {
+    if (/^[a-z][a-z0-9._/-]*(?:[ \t]+(?:--?[a-z0-9][a-z0-9_-]*|[a-z0-9._/-]+|<[a-z][a-z0-9_-]*>))+$/iu.test(code))
+      return code.replace(/<([a-z][a-z0-9_-]*)>/giu, '$1');
+    if (schemaExamples && /\b(?:(?:json[ \t]+)?schema(?:[ \t]+example)?|json[ \t]+example)[ \t]*[:=]?[ \t]*$/iu.test(value.slice(0, offset)))
+      return schemaExampleText(code);
+    return span;
+  });
+  // Preserve the original unfinished-field prefix guard even when an author
+  // has not closed its opening angle bracket yet.
+  return [...new Set(text.match(/<[^>]+>|^<[^>\s;]*|\b(?:tbd|to confirm|todo)\b/giu) ?? [])];
+}
+
+function decisionClauses(detail) {
+  // Semicolons or field-looking strings inside literal examples cannot declare
+  // the required author fields. Keep character offsets into the original text.
+  const labels = [...detail.replace(/`[^`\n]+`/gu, span => '_'.repeat(span.length))
+    .matchAll(/(?:^|;[ \t]*)(rationale|consequence|trade-off):[ \t]*/giu)];
+  return [{ field: 'decision', text: detail.slice(0, labels[0]?.index ?? detail.length).trim() },
+    ...labels.map((label, index) => ({ field: label[1].toLowerCase() === 'rationale' ? 'rationale' : 'consequence',
+      text: detail.slice(label.index + label[0].length, labels[index + 1]?.index ?? detail.length).trim() }))];
 }
 
 function architectureDecisionIds(markdown) {
@@ -63,7 +97,7 @@ function architectureDecisionIds(markdown) {
   for (const line of body.split("\n").map((item) => item.trim()).filter((item) => /^[-*]\s+/u.test(item))) {
     const decision = line.replace(/^[-*]\s+/u, "").trim();
     if (/^none\b/iu.test(decision)) {
-      if (!reasonedNone(decision) || unfinishedDecisionPrompt(decision)) {
+      if (!reasonedNone(decision) || unfinishedDecisionPrompts(decision).length) {
         openItems.push("State why no binding SD decision is needed after 'none'");
       }
       if (none || ids.length) openItems.push("SD cannot combine 'none' with binding design decisions");
@@ -79,12 +113,18 @@ function architectureDecisionIds(markdown) {
     if (none) openItems.push("SD cannot combine 'none' with binding design decisions");
     if (ids.includes(id)) openItems.push(`Duplicate SD design decision ID: ${id}`);
     ids.push(id);
-    const detail = match[2];
-    const rationale = detail.match(/(?:^|;\s*)rationale:\s*([^;]+)/iu)?.[1]?.trim();
-    const consequence = detail.match(/(?:^|;\s*)(?:consequence|trade-off):\s*([^;]+)/iu)?.[1]?.trim();
-    if (unfinished(detail) || unfinishedDecisionPrompt(detail)
-        || unfinished(rationale) || unfinished(consequence)) {
-      openItems.push(`SD design decision ${id} needs a concrete rationale and consequence`);
+    const clauses = decisionClauses(match[2]);
+    for (const field of ['decision', 'rationale', 'consequence']) {
+      const declarations = clauses.filter(clause => clause.field === field);
+      if (declarations.length > 1)
+        openItems.push(`SD design decision ${id} needs exactly one nonempty ${field}: field; found ${declarations.length} declarations`);
+      else if (!declarations.length || !declarations[0].text)
+        openItems.push(field === 'decision' ? `SD design decision ${id} needs a concrete decision statement`
+          : `SD design decision ${id} is missing a nonempty ${field}: field`);
+    }
+    for (const clause of clauses) {
+      const prompts = unfinishedDecisionPrompts(clause.text, { schemaExamples: clause.field === 'decision' });
+      if (prompts.length) openItems.push(`SD design decision ${id} contains unresolved author prompts in ${clause.field}: ${prompts.slice(0, 8).map(token => JSON.stringify(token)).join(', ')}${prompts.length > 8 ? ` (${prompts.length - 8} more)` : ''}`);
     }
   }
   if (!ids.length && !none) openItems.push("List binding SD decisions by SDD ID, or record a reasoned none");

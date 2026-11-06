@@ -91,13 +91,13 @@ delete inputSchema.allOf;
 for (const field of Object.values(inputSchema.properties)) delete field.description;
 Object.assign(inputSchema.properties.target_source, { description: 'Pair primary_target.' });
 Object.assign(inputSchema.properties.primary_target, { description: 'Confirmed target.' });
-Object.assign(inputSchema.properties.module, { description: 'operation-contract: group/kind; approval: agdf_approve/approval.record (setup: agdf_project/project.initialize, no Run). Run operation-status: original UUID alone.' });
+Object.assign(inputSchema.properties.module, { description: 'Contract group/kind; status original UUID. Setup project.initialize/UUID, no Run/revision.' });
 Object.assign(inputSchema.properties.gate, { description: 'Not for gate-check.' });
 Object.assign(inputSchema.properties.target_id, { description: 'Required for docs; gate-check.' });
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read only. project-state: primary_target+target_source; no Run/revision. gate-check: omit gate/expected_revision_id. authoring-inputs bundle:true. Status module: UUID alone for Run; project.initialize/UUID for setup. Raw calls need working_directory and the requested presentation_language. Copy next_calls exactly',
+  description: 'Read only. Use next_action.call. Raw bound reads need working_directory,presentation_language,primary_target,target_source. Run status needs run_id+expected_revision_id; creation status does not.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {

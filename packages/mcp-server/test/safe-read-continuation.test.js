@@ -91,8 +91,9 @@ const largeRead = { ...actualRuntime.failure('dispatch_busy', 'agdf_inspect', re
 async function boundaryReply({ autoRead, limit }) {
   let writes = 0, reads = 0;
   const runtime = { ...actualRuntime, responseLimit: limit, prepareInput: undefined, prepareDispatch: undefined, postprocessToolResult: undefined,
-    tools: actualRuntime.tools.map(tool => tool.name === 'agdf_inspect' ? { ...tool, definition: { ...tool.definition,
-      annotations: { ...tool.definition.annotations, readOnlyHint: autoRead } } } : tool) };
+    // Keep the original readonly schema/reference projection in both branches.
+    // Missing UI admission disables automatic execution only in the baseline.
+    tools: actualRuntime.tools.map(tool => tool.name === 'agdf_inspect' ? { ...tool, requiresUi: !autoRead } : tool) };
   const executor = { async execute(input, { toolName }) {
     if (toolName === 'agdf_record') { writes++; return structuredClone(acceptedWrite); }
     assert.equal(toolName, 'agdf_inspect'); assert.deepEqual(input, readCall.arguments);
@@ -108,7 +109,9 @@ async function boundaryReply({ autoRead, limit }) {
 }
 const baseline = await boundaryReply({ autoRead: false, limit: 1024 * 1024 });
 assert.equal(baseline.reply.isError, undefined); assert.equal(baseline.writes, 1); assert.equal(baseline.reads, 0);
-const wireLimit = Buffer.byteLength(JSON.stringify(baseline.reply)) + 5000;
+const full = await boundaryReply({ autoRead: true, limit: 1024 * 1024 });
+const wireLimit = Buffer.byteLength(JSON.stringify(full.reply)) - 1;
+assert.ok(wireLimit > Buffer.byteLength(JSON.stringify(baseline.reply)));
 const limited = await boundaryReply({ autoRead: true, limit: wireLimit });
 assert.equal(limited.writes, 1, 'Wire fallback never repeats the original accepted write.');
 assert.equal(limited.reads, 1, 'Wire fallback never executes the read again to obtain a smaller result.');
@@ -120,7 +123,11 @@ assert.equal(limited.reply.structuredContent.next_read.result, null);
 assert.equal(limited.reply.structuredContent.next_read.failure.phase, 'wire_budget');
 assert.equal(limited.reply.structuredContent.next_read.failure.original_effect_unchanged, true);
 assert.equal(limited.reply.structuredContent.next_action.state, 'read_required');
-assert.deepEqual(limited.reply.structuredContent.next_action.call, readCall);
+assert.deepEqual(limited.reply.structuredContent.next_action.call, limited.reply.structuredContent.next_read.call);
+assert.deepEqual(limited.reply.structuredContent.next_action.call.arguments.inputs, {});
+assert.deepEqual(limited.reply.structuredContent.next_read.recovery_only.original_call, readCall);
+assert.deepEqual(limited.reply.structuredContent.next_read.arguments, readCall.arguments,
+  'The executed read remains a Raw observation; its normal retry is a separate retained call.');
 assert.ok(Buffer.byteLength(JSON.stringify(limited.reply)) <= wireLimit);
 const exactLimit = Buffer.byteLength(JSON.stringify(baseline.reply));
 const noDiagnosticRoom = await boundaryReply({ autoRead: true, limit: exactLimit });

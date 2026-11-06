@@ -343,7 +343,9 @@ const preRunHelp = inspectContractHelp().operations['operation-contract'].unboun
 assert.equal(preRunHelp.module,'agdf_run/run.create');
 assert.equal(preRunHelp.required.includes('run_id'),false,'creation help is discoverable before a Run exists');
 assert.deepEqual(preRunHelp.omit,['run_id','expected_revision_id']);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Copy next_calls exactly/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Use next_action\.call/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /primary_target,target_source/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Run status needs run_id\+expected_revision_id/u);
 assert.match(inspectContractHelp().parameters.cursor.description, /copy next_cursor/u);
 // Creation guidance moved out of the bounded discovery description. Build the
 // advertised unbound recipe from the on-demand example and its declared module.

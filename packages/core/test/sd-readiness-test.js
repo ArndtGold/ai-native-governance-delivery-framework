@@ -49,6 +49,88 @@ try {
     put('SD', incomplete);
     assert.equal(evaluateSdTraceability(root, state).ready, false, incomplete);
   }
+
+  const withDecision = detail => sd.replace(/^- SDD-001:.*$/mu, '- SDD-001: ' + detail);
+  const rationale = 'rationale: one versioned local store keeps ownership explicit';
+  const consequence = 'consequence: incompatible changes require a deliberate migration.';
+  const suffix = `; ${rationale}; ${consequence}`;
+  // Native regression: quoted type metavariables describe a concrete versioned
+  // schema; they do not mean that its rationale/consequence remains unauthored.
+  const nativeSchema = 'Store versioned JSON with schema `{ "version": 1, "tasks": [{ "id": "<uuid>", "text": "<non-empty string>", "completed": false }] }`';
+  for (const example of [
+    nativeSchema,
+    'Use JSON schema example: `{"value":"<string>","count":"<non-negative integer>","ratio":"<positive number>","active":"<boolean>","empty":"<null>","nested":["<object>","<array>"]}`',
+    'Use JSON example `[{"id":"<uuid>","text":"<non-empty string>"}]`',
+    'Use schema `{"todo":"<string>","TBD":"<uuid>","to confirm":{"owner":"<non-empty string>"}}`',
+  ]) {
+    put('SD', withDecision(example + suffix));
+    const result = evaluateSdTraceability(root, state);
+    assert.equal(result.ready, true, JSON.stringify({ example, result }));
+  }
+  put('SD', withDecision(nativeSchema + suffix.replace('consequence:', 'trade-off:')));
+  assert.equal(evaluateSdTraceability(root, state).ready, true, 'The existing trade-off alias remains supported.');
+  for (const [detail, field, token] of [
+    ['Use schema `{"id":"<choose UUID or integer>"}`' + suffix, 'decision', '<choose UUID or integer>'],
+    ['Use schema `{"id":"<uuid>","encoding":"<choose encoding>"}`' + suffix, 'decision', '<choose encoding>'],
+    ['Use schema `{"id":"<why>"}`' + suffix, 'decision', '<why>'],
+    ['Use schema `{"<uuid>":"value"}`' + suffix, 'decision', '<uuid>'],
+    ['Use schema `{"<why>":"<string>"}`' + suffix, 'decision', '<why>'],
+    ['Use schema `{"\\u003cwhy>":"<string>"}`' + suffix, 'decision', '<why>'],
+    ['Use schema `{id:"<uuid>"}`' + suffix, 'decision', '<uuid>'],
+    ['Use schema `"<uuid>"`' + suffix, 'decision', '<uuid>'],
+    ['Use `format("<uuid>")`' + suffix, 'decision', '<uuid>'],
+    ['Use `{"id":"<uuid>"}`' + suffix, 'decision', '<uuid>'],
+    ['Use schema `{"id":"<uuid>","owner":"TBD"}`' + suffix, 'decision', 'TBD'],
+    ['Use schema `{"todo":"<string>","owner":"TBD"}`' + suffix, 'decision', 'TBD'],
+    ['Use schema `{"todo":"<string>","encoding":"<choose encoding>"}`' + suffix, 'decision', '<choose encoding>'],
+    ['Store JSON; rationale: use schema `{"id":"<uuid>"}`; ' + consequence, 'rationale', '<uuid>'],
+    ['Store JSON; rationale: `<why>`; ' + consequence, 'rationale', '<why>'],
+    ['Store JSON; ' + rationale + '; consequence: TODO', 'consequence', 'TODO'],
+    ['<why' + suffix, 'decision', '<why'],
+    ['<' + suffix, 'decision', '<'],
+    [nativeSchema + '; rationale: <why; ' + consequence, 'rationale', '<why'],
+    [nativeSchema + '; rationale: <; ' + consequence, 'rationale', '<'],
+    [nativeSchema + '; ' + rationale + '; consequence: <trade-off', 'consequence', '<trade-off'],
+    [nativeSchema + '; ' + rationale + '; consequence: <', 'consequence', '<'],
+  ]) {
+    put('SD', withDecision(detail));
+    const result = evaluateSdTraceability(root, state);
+    assert.equal(result.ready, false, detail);
+    assert.ok(result.open_items.some(item => item.includes(`unresolved author prompts in ${field}:`)
+      && item.includes(JSON.stringify(token))), JSON.stringify(result));
+    assert.ok(!result.open_items.some(item => item.includes('is missing a nonempty')),
+      'An unresolved token does not falsely report absent rationale/consequence fields.');
+    if (token === '<choose encoding>') assert.ok(!result.open_items.some(item => item.includes('"<uuid>"')),
+      'The diagnosis identifies the unresolved choice, not an adjacent valid schema type.');
+  }
+  for (const [detail, missing] of [
+    [nativeSchema + '; ' + consequence, 'rationale'],
+    [nativeSchema + '; ' + rationale, 'consequence'],
+    [nativeSchema + '; rationale: ; ' + consequence, 'rationale'],
+    ['Use schema `{"note":"; rationale: concrete text"}`; ' + consequence, 'rationale'],
+  ]) {
+    put('SD', withDecision(detail));
+    const result = evaluateSdTraceability(root, state);
+    assert.equal(result.ready, false, detail);
+    assert.ok(result.open_items.some(item => item.includes(`is missing a nonempty ${missing}: field`)), JSON.stringify(result));
+  }
+  put('SD', withDecision('rationale: concrete motivation; ' + consequence));
+  assert.ok(evaluateSdTraceability(root, state).open_items.some(item => item.includes('needs a concrete decision statement')));
+  for (const [detail, duplicate] of [
+    ['Store JSON; rationale: ; ' + rationale + '; ' + consequence, 'rationale'],
+    ['Store JSON; ' + rationale + '; rationale: ; ' + consequence, 'rationale'],
+    ['Store JSON; ' + rationale + '; rationale: another concrete reason; ' + consequence, 'rationale'],
+    ['Store JSON; ' + rationale + '; consequence: ; ' + consequence, 'consequence'],
+    ['Store JSON; ' + rationale + '; trade-off: concrete trade-off; ' + consequence, 'consequence'],
+  ]) {
+    put('SD', withDecision(detail));
+    const result = evaluateSdTraceability(root, state);
+    assert.equal(result.ready, false, detail);
+    assert.ok(result.open_items.some(item => item.includes(`exactly one nonempty ${duplicate}: field; found 2 declarations`)), JSON.stringify(result));
+  }
+  put('SD', withDecision(nativeSchema + suffix).replace('| SDD-001 |', '| SDD-999 |'));
+  assert.ok(evaluateSdTraceability(root, state).open_items.some(item => item.includes('undeclared decision SDD-999')),
+    'A valid schema example does not bypass real SD mapping defects.');
   put('SD', sd);
   const tp = `${TRACEABILITY_CONTRACT}\n## Task List\n| task_id | task |\n|---|---|\n| T-001 | Implement completion |\n\n## Verification Traceability\n| criterion_id | design_decision_id | task_id | scenario_id | expected_result | evidence |\n|---|---|---|---|---|---|\n| AC-001 | SDD-999 | T-001 | SCN-001 | SDD-001 preserves bytes for an unknown ID | Observed JSON bytes and exit code |\n`;
   put('TP', tp);
@@ -60,3 +142,4 @@ try {
   assert.equal(evaluateTpTraceability(root, state).ready, true);
 } finally { rmSync(root, { recursive: true, force: true }); }
 console.log('SD literal command arguments, preserved placeholder guards and actionable TP mapping diagnostics passed.');
+console.log('SD JSON schema metavariables: explicit example/value scope, precise unresolved-token and missing-field diagnostics passed.');

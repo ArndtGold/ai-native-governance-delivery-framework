@@ -36,7 +36,11 @@ for (const modern of [false, true]) {
     }
     const large = page.report.material_call.content_contract;
     assert.equal(large.max_utf8_bytes_per_file, 49152);
-    assert.equal(large.larger_source_call.arguments.run_id, context.run_id);
+    assert.equal(large.larger_source_call.operation.kind, 'inspect.read');
+    assert.equal(large.larger_source_call.operation.run_id, context.run_id);
+    assert.equal(large.larger_source_call.recovery_only.original_call.arguments.run_id, context.run_id);
+    assert.deepEqual(Object.keys(large.larger_source_call.arguments).sort(), ['inputs', 'prepared_call_id']);
+    assert.deepEqual(large.larger_source_call.arguments.inputs, {});
     const multipartHelp = await h.call(large.larger_source_call.tool, large.larger_source_call.arguments);
     assert.equal(multipartHelp.report.kind, 'material.stage');
     const tooLarge = await client.callTool({ name: 'agdf_record', arguments: {

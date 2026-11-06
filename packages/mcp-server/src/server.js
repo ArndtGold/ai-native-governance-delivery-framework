@@ -76,6 +76,15 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     throw new TypeError("AGDF MCP owned runtime is required");
   }
   const tools = runtime.tools ?? [{ name: runtime.definition.name, definition: runtime.definition, parse: runtime.parse, execute: runtime.execute }];
+  // Discovery and retained reads share the original SDK validators. Compile
+  // lazily; constructing the transport never validates or executes a request.
+  const schemaProvider = new AjvJsonSchemaValidator();
+  const deferredSchemas = { getValidator(schema) {
+    let validate;
+    return value => (validate ??= schemaProvider.getValidator(schema))(value);
+  } };
+  const inspectTool = tools.find(tool => tool.name === 'agdf_inspect');
+  const validateInspect = inspectTool && deferredSchemas.getValidator(inspectTool.definition.inputSchema);
   const dispatchExecutor = executor ?? {
     execute: async (argumentsValue, { toolName, signal } = {}) => {
       const tool = tools.find((entry) => entry.name === (toolName ?? runtime.definition.name));
@@ -87,7 +96,12 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     },
     close: async () => runtime.close?.(),
   };
-  const registrations = new Map(), preparedCalls = createPreparedCallTransport(),
+  const registrations = new Map(), preparedCalls = createPreparedCallTransport({
+    // A read reference retains a supplied canonical request, never an inferred
+    // target. Validate the unwrapped arguments with the original SDK schema.
+    validateRead: call => inspectTool?.definition.annotations?.readOnlyHint === true
+      && validateInspect(call.arguments).valid,
+  }),
     actions = createNextActionProjection({ isAvailable: call => preparedCalls.isAvailable(call) });
   class AgdfServer extends McpServer {
     async connect(transport) {
@@ -98,7 +112,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   const server = new AgdfServer(
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
     { capabilities: { tools: {}, ...(runtime.ui ? { resources: {} } : {}) },
-      instructions: 'Use the returned next_action.call as the normal path. Fill only its named inputs from actual authored content, review or a new deliberate reply; ready calls are forwarded unchanged. Bindings and original UUIDs are retained by the adapter. Do not retype references, construct competing raw envelopes or use cloning helpers. Full original requests belong only to recovery_only. A safe inspect may already be included as next_read.result; consume it without repeating that read. A terminal action stops work. No form, reference or adapter continuation grants authority or approval.' },
+      instructions: 'Use the returned next_action.call as the normal path for reads and writes. Fill only its named inputs from actual authored content, review or a new deliberate reply; ready calls retain inputs:{} and are forwarded unchanged. The adapter retains the exact target, Run, revision, selectors and original operation identity. Do not reconstruct raw reads or status requests, retype references or use cloning helpers. References belong to this connection; after reconnect use explicit recovery_only instructions and the saved original request. A safe inspect may already be included as next_read.result; consume it without repeating it. next_read.tool/arguments describe that executed read; next_read.call is its supplied retry only. A terminal action stops work. No reference or continuation grants authority or approval.' },
   );
   // Capability checks guard execution and resource access. Codex must first
   // discover the plugin tool metadata before selecting its UI-capable route.
@@ -116,16 +130,6 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   } : undefined, facts, preparedCalls, actions, nextRead);
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
-  // Discovery needs the exact schemas, but does not execute any tool. Compile
-  // each validator on its first validation, using the same SDK provider/options.
-  // Input validation still precedes execution; successful output is still checked.
-  const schemaProvider = new AjvJsonSchemaValidator();
-  const deferredSchemas = { getValidator(schema) {
-    let validate;
-    return value => (validate ??= schemaProvider.getValidator(schema))(value);
-  } };
-  const inspectTool = tools.find(tool => tool.name === 'agdf_inspect');
-  const validateInspect = inspectTool && deferredSchemas.getValidator(inspectTool.definition.inputSchema);
   const nextRead = async (result, context) => appendSafeReadContinuation(result, {
     allowed: !context.signal?.aborted && !!inspectTool && inspectTool.definition.annotations?.readOnlyHint === true
       && uiAllowed(context) && (!inspectTool.requiresUi || supportsUi(context)),

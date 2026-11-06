@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { AjvJsonSchemaValidator } from '@modelcontextprotocol/server/validators/ajv';
 import { commandGroupDefinition, RUN_COMMAND_GROUPS, RUN_COMMAND_LIMITS, validateRunCommand } from '../../core/lib/control-state/run-command-schema.js';
 import { decisionActionDefinition, DECISION_VIEW_DEFINITION } from '../../core/lib/control-state/decision-action-contract.js';
+import { CONTROL_INSPECT_FUNCTION_DEFINITION, CONTROL_INSPECT_MAX_DEFINITION_BYTES } from '../../core/lib/control-inspect/contract.js';
 import { preparedTransportSchema, createPreparedCallTransport } from '../src/prepared-call-transport.js';
 let time = 0;
 const registry = createPreparedCallTransport({ now: () => time, maxEntries: 2, lifetimeMs: 10 });
@@ -57,13 +58,15 @@ const publishedBytes = groups.reduce((sum, name) => {
 assert.ok(publishedBytes <= RUN_COMMAND_LIMITS.aggregate_definition_bytes, String(publishedBytes));
 
 const originalReadSchema={type:'object',properties:{operation:{type:'string'}}};
-for(const name of ['agdf_inspect','agdf_dispatch'])assert.equal(preparedTransportSchema(name,originalReadSchema),originalReadSchema);
-assert.equal(createPreparedCallTransport().decorate({next_calls:[{tool:'agdf_inspect',arguments:{operation:'gate-check'}}]}).next_calls[0].submit,undefined);
+assert.equal(preparedTransportSchema('agdf_dispatch',originalReadSchema),originalReadSchema,'Dispatch never gains a read-only reference path.');
+assert.notEqual(preparedTransportSchema('agdf_inspect',originalReadSchema),originalReadSchema);
+assert.deepEqual(createPreparedCallTransport().decorate({next_calls:[{tool:'agdf_inspect',arguments:{operation:'gate-check'}}]}).next_calls,[],
+  'A read template cannot be registered without the owning canonical validator.');
 const hints=createPreparedCallTransport();const f=hints.decorate(original).material_call;
 assert.match(hints.validationHint('agdf_record',{...f.call.arguments,target_id:'immutable'}),/Normal call arguments/u);
 assert.match(hints.validationHint('agdf_record',{...f.call.arguments,target_id:'another'}),/fixed fields conflict/u);
 assert.match(hints.validationHint('agdf_approve',f.call.arguments),/cannot cross permission groups/u);
-assert.equal(hints.validationHint('agdf_inspect',f.call.arguments),'');
+assert.match(hints.validationHint('agdf_inspect',f.call.arguments),/cannot cross permission groups/u);
 
 // Native authoring mistakes must remain rejected by the real published schema,
 // while the hint identifies the exact copy/fill boundary without inventing IDs.
@@ -214,3 +217,143 @@ assert.deepEqual(resultFiles.command.payload.files,[{slot:'SD',content:texts[0]}
 assert.throws(()=>canonical.resolve('agdf_record',{...files.call.arguments,inputs:{content:texts[0],files_1_content:texts[1]}}),/command_schema_invalid/);
 assert.throws(()=>canonical.resolve('agdf_record',{...files.call.arguments,inputs:{files_0_content:texts[0],'/command/payload/files/1/content':texts[1]}}),/command_schema_invalid/);
 console.log('Single named-input prepared path, exact recovery, bounded truthful diagnostics and rejected native malformed shapes passed.');
+
+// R0: the native SD failures reconstructed this complete read without its target
+// pair twice. The supplied reference retains every original field server-side;
+// no target/default/Run/revision is inferred from the malformed raw retries.
+const inspectDefinition = CONTROL_INSPECT_FUNCTION_DEFINITION;
+const validateRawRead = new AjvJsonSchemaValidator().getValidator(inspectDefinition.inputSchema);
+const validatePreparedRead = new AjvJsonSchemaValidator().getValidator(preparedTransportSchema('agdf_inspect',inspectDefinition.inputSchema));
+const readOptions = { validateRead: offeredCall => offeredCall.tool === 'agdf_inspect'
+  && inspectDefinition.annotations.readOnlyHint === true && validateRawRead(offeredCall.arguments).valid };
+const reads = createPreparedCallTransport(readOptions);
+const readRaw = { tool:'agdf_inspect',arguments:{ operation:'authoring-inputs',presentation_language:'de',
+  working_directory:'/tmp/native-bound-read',primary_target:'/tmp/native-bound-read',target_source:'explicit_target',
+  run_id:'run-fixed',expected_revision_id:'00000000-0000-4000-8000-000000000002',bundle:true } };
+assert.equal(validateRawRead(readRaw.arguments).valid,true);
+const offeredRead = reads.decorate({next_calls:[readRaw]}).next_calls[0];
+assert.deepEqual(Object.keys(offeredRead.arguments).sort(),['inputs','prepared_call_id']);
+assert.deepEqual(offeredRead.arguments.inputs,{});
+assert.deepEqual(offeredRead.required_inputs,[]);
+assert.deepEqual(offeredRead.input_fields,[]);
+assert.equal(offeredRead.operation.kind,'inspect.read');assert.equal(offeredRead.operation.read_only,true);
+assert.equal(offeredRead.operation.operation,'authoring-inputs');
+assert.equal(Object.hasOwn(offeredRead.operation,'operation_id'),false,'A read reference never invents an operation UUID.');
+assert.deepEqual(offeredRead.recovery_only.original_call,readRaw);
+assert.deepEqual(offeredRead.recovery_only.required_inputs,[]);
+assert.equal(offeredRead.recovery_only.authorizes,false);
+assert.equal(reads.isAvailable(offeredRead),true);
+assert.equal(validatePreparedRead(offeredRead.arguments).valid,true);
+assert.deepEqual(reads.resolve('agdf_inspect',offeredRead.arguments),readRaw.arguments);
+assert.deepEqual(reads.resolve('agdf_inspect',offeredRead.arguments),readRaw.arguments,'Identical read retries retain exactly the selected source.');
+assert.equal(validatePreparedRead(reads.resolve('agdf_inspect',offeredRead.arguments)).valid,true,'Resolved reads still satisfy the original published schema.');
+const missingReadTargets = structuredClone(readRaw.arguments);
+delete missingReadTargets.primary_target;delete missingReadTargets.target_source;
+for(let attempt=0;attempt<2;attempt++) {
+  assert.equal(validateRawRead(missingReadTargets).valid,false,'The two observed wrong Raw reads remain rejected.');
+  assert.equal(validatePreparedRead(missingReadTargets).valid,false);
+  assert.equal(reads.resolve('agdf_inspect',missingReadTargets),missingReadTargets,'Transport never repairs or fills an invalid Raw read.');
+}
+assert.equal(reads.validationHint('agdf_inspect',missingReadTargets),'','Missing Raw target diagnostics remain canonical Core responsibility.');
+for(const inputs of [{primary_target:'/another'},{run_id:'run-other'},{expected_revision_id:'00000000-0000-4000-8000-000000000003'},{operation:'gate-check'}]) {
+  const changed={...offeredRead.arguments,inputs};
+  assert.equal(validatePreparedRead(changed).valid,false);assert.equal(reads.isAvailable({tool:'agdf_inspect',arguments:changed}),false);
+  assert.throws(()=>reads.resolve('agdf_inspect',changed),/command_schema_invalid/);
+  assert.deepEqual(reads.decorate({next_calls:[{tool:'agdf_inspect',arguments:changed}]}).next_calls,[],
+    'An already prepared read with supplied selector inputs is not reoffered as a normal action.');
+}
+for(const field of ['primary_target','target_source','expected_revision_id','operation']) {
+  const mixed={...offeredRead.arguments,[field]:readRaw.arguments[field]};
+  assert.equal(validatePreparedRead(mixed).valid,false,'Prepared reads cannot mix duplicated Raw selectors.');
+  assert.throws(()=>reads.resolve('agdf_inspect',mixed),/command_schema_invalid/);
+}
+assert.throws(()=>reads.resolve('agdf_record',offeredRead.arguments),/command_schema_invalid/);
+assert.equal(reads.isAvailable({...offeredRead,tool:'agdf_dispatch'}),false);
+assert.match(reads.validationHint('agdf_record',offeredRead.arguments),/cannot cross permission groups/u);
+assert.deepEqual(reads.decorate({next_calls:[{tool:'agdf_inspect',arguments:missingReadTargets}]}).next_calls,[],
+  'Malformed offered Raw reads are not promoted to a registered normal path.');
+assert.deepEqual(reads.decorate({next_calls:[{tool:'agdf_dispatch',arguments:{continue_delivery:true}}]}).next_calls,
+  [{tool:'agdf_dispatch',arguments:{continue_delivery:true}}],'Dispatch is never classified as a read-only operation.');
+
+// Bound original-operation status is distinct from legitimate unbound creation
+// lookup. The reference preserves the offered Run/revision and original UUID.
+const statusRaw={tool:'agdf_inspect',arguments:{...readRaw.arguments,operation:'operation-status',
+  module:'00000000-0000-4000-8000-000000000051'}};
+delete statusRaw.arguments.bundle;
+assert.equal(validateRawRead(statusRaw.arguments).valid,true);
+const status = reads.decorate({operation_status_call:statusRaw}).operation_status_call;
+assert.deepEqual(reads.resolve('agdf_inspect',status.arguments),statusRaw.arguments);
+assert.equal(status.operation.module,statusRaw.arguments.module);
+assert.equal(status.operation.run_id,statusRaw.arguments.run_id);
+assert.equal(status.operation.expected_revision_id,statusRaw.arguments.expected_revision_id);
+assert.equal(Object.hasOwn(status.operation,'operation_id'),false);
+const partialStatus=structuredClone(statusRaw.arguments);delete partialStatus.expected_revision_id;
+assert.equal(validatePreparedRead(partialStatus).valid,false);
+assert.equal(reads.resolve('agdf_inspect',partialStatus),partialStatus);
+assert.throws(()=>reads.resolve('agdf_inspect',{...status.arguments,inputs:{run_id:'run-other',expected_revision_id:'replacement'}}),/command_schema_invalid/);
+assert.deepEqual(status.recovery_only.original_call,statusRaw);
+
+// All explicitly offered normal read helpers share the one reference shape.
+// Raw recovery branches remain exact data and cannot acquire an invented ref.
+const helpers=reads.decorate({report:{first_page_call:readRaw},prepared_call:{call,required_inputs:original.material_call.required_inputs,
+  contract_call:statusRaw,content_contract:{larger_source_call:readRaw}},recovery_only:{status_call:statusRaw},
+  next_action:{call:readRaw,required_inputs:[],contract_call:statusRaw,content_contract:{larger_source_call:readRaw}}});
+for(const helper of [helpers.report.first_page_call,helpers.prepared_call.contract_call,helpers.prepared_call.content_contract.larger_source_call,
+  helpers.next_action.contract_call,helpers.next_action.content_contract.larger_source_call]) {
+  assert.ok(helper.arguments.prepared_call_id);assert.deepEqual(helper.arguments.inputs,{});
+  assert.deepEqual(reads.resolve('agdf_inspect',helper.arguments),helper.recovery_only.original_call.arguments);
+}
+assert.deepEqual(helpers.recovery_only.status_call,statusRaw);
+assert.deepEqual(helpers.next_action.call,{tool:'agdf_inspect',arguments:offeredRead.arguments});
+assert.deepEqual(helpers.next_action.recovery_only.original_call,readRaw);
+const recoveryReadForm={call:readRaw,required_inputs:[]};
+const explicitRecovery=reads.decorate({next_calls:[readRaw],prepared_call:recoveryReadForm,
+  recovery:{next_calls:[readRaw],contract_call:statusRaw,prepared_call:recoveryReadForm}});
+assert.ok(explicitRecovery.next_calls[0].arguments.prepared_call_id);
+assert.ok(explicitRecovery.prepared_call.call.arguments.prepared_call_id);
+assert.deepEqual(explicitRecovery.recovery,{next_calls:[readRaw],contract_call:statusRaw,prepared_call:recoveryReadForm},
+  'Explicit recovery reads retain exact Raw requests across a new connection, including forms shared with the normal path.');
+assert.deepEqual(createPreparedCallTransport(readOptions).resolve('agdf_inspect',explicitRecovery.recovery.next_calls[0].arguments),readRaw.arguments);
+const recoveryWrite=reads.decorate({recovery:{next_calls:[readyRaw]}}).recovery.next_calls[0];
+assert.ok(recoveryWrite.arguments.prepared_call_id,'Existing mutating recovery call semantics are unchanged.');
+const readForm=reads.decorate({prepared_call:{call:readRaw,required_inputs:[]}}).prepared_call;
+assert.deepEqual(readForm.call,{tool:'agdf_inspect',arguments:offeredRead.arguments});
+assert.match(readForm.instruction,/including inputs:\{\}/u);
+assert.ok(!readForm.instruction.includes('retains binding and UUID'),'Ordinary reads are not claimed to have a command UUID.');
+const adapterRead=reads.decorate({next_read:{...readRaw,result:{outcome:'inspect_result',report:{next_calls:[statusRaw]}}}}).next_read;
+assert.deepEqual(adapterRead.arguments,readRaw.arguments,'The adapter execution record remains the actual Raw read.');
+assert.deepEqual(adapterRead.call,{tool:'agdf_inspect',arguments:offeredRead.arguments});
+assert.deepEqual(adapterRead.recovery_only.original_call,readRaw);
+assert.ok(adapterRead.result.report.next_calls[0].arguments.prepared_call_id);
+const repeatedReadProjection=reads.decorate({next_calls:[offeredRead]}).next_calls[0];
+assert.deepEqual(repeatedReadProjection.arguments,offeredRead.arguments);
+assert.deepEqual(repeatedReadProjection.recovery_only.original_call,readRaw);
+const mutation=structuredClone(offeredRead);mutation.recovery_only.original_call.arguments.primary_target='/changed';
+assert.deepEqual(reads.resolve('agdf_inspect',offeredRead.arguments),readRaw.arguments);
+const noReadPermission=createPreparedCallTransport({validateRead:()=>false});
+assert.deepEqual(noReadPermission.decorate({next_calls:[readRaw]}).next_calls,[]);
+const throwingReadValidator=createPreparedCallTransport({validateRead:()=>{throw Error('invalid read');}});
+assert.deepEqual(throwingReadValidator.decorate({next_calls:[readRaw]}).next_calls,[],'Validation failure never registers a read.');
+
+let readTime=0;const limitedReads=createPreparedCallTransport({...readOptions,now:()=>readTime,maxEntries:1,lifetimeMs:10});
+const retainedRead=limitedReads.decorate({next_calls:[readRaw]}).next_calls[0];
+const cappedRead=limitedReads.decorate({next_calls:[statusRaw]});
+assert.deepEqual(cappedRead.next_calls,[]);
+assert.deepEqual(cappedRead.recovery_only.unavailable_calls[0].original_call,statusRaw);
+assert.equal(cappedRead.recovery_only.unavailable_calls[0].operation.read_only,true);
+assert.equal(limitedReads.isAvailable(retainedRead),true);
+const cappedAdapter=limitedReads.decorate({next_read:{...statusRaw,result:null}}).next_read;
+assert.deepEqual(cappedAdapter.arguments,statusRaw.arguments);assert.equal(cappedAdapter.call,null);
+assert.deepEqual(cappedAdapter.recovery_only.original_call,statusRaw);
+readTime=10;
+assert.equal(limitedReads.isAvailable(retainedRead),false);
+assert.throws(()=>limitedReads.resolve('agdf_inspect',retainedRead.arguments),/session_expired/);
+const readAfterReconnect=createPreparedCallTransport(readOptions);
+assert.throws(()=>readAfterReconnect.resolve('agdf_inspect',retainedRead.arguments),/command_schema_invalid/);
+assert.deepEqual(readAfterReconnect.resolve('agdf_inspect',retainedRead.recovery_only.original_call.arguments),readRaw.arguments,
+  'Reconnect recovery retains the original Raw read and exact selectors.');
+
+const publishedInspect={...inspectDefinition,inputSchema:preparedTransportSchema('agdf_inspect',inspectDefinition.inputSchema)};
+assert.ok(Buffer.byteLength(JSON.stringify(publishedInspect))<=CONTROL_INSPECT_MAX_DEFINITION_BYTES,
+  `Prepared inspect definition exceeds unchanged ${CONTROL_INSPECT_MAX_DEFINITION_BYTES}-byte budget: ${Buffer.byteLength(JSON.stringify(publishedInspect))}`);
+console.log('Bound read references retain exact targets, source/status revisions and recovery; malformed Raw retries, cross-group use and selector overrides remain rejected.');

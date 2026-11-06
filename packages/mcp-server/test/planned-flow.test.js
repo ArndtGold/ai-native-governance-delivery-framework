@@ -53,14 +53,20 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
 
     const dispatch = await call('agdf_dispatch', { ...target, skill_id: 'ur-definition', planning });
     assert.equal(dispatch.outcome, 'skill_continuation'); assert.equal(dispatch.terminal, false); assert.equal(dispatch.authorizes, false);
-    let cursor, template = '';
+    let template = '', read = { tool: 'agdf_inspect', arguments: { ...target, operation: 'authoring-inputs', planning } };
     do {
-      const input = await call('agdf_inspect', { ...target, operation: 'authoring-inputs', planning, ...(cursor ? { cursor } : {}) });
+      const input = await call(read.tool, read.arguments);
       assert.equal(input.report.available, true, JSON.stringify(input));
       const chunk = input.report.chunk;
       if (chunk) template += JSON.stringify(chunk);
-      cursor = input.report.next_cursor;
-    } while (cursor);
+      read = input.report.complete ? null : input.report.next_calls[0];
+      if (read) {
+        assert.equal(read.operation.operation, 'authoring-inputs');
+        assert.equal(read.operation.cursor, input.report.next_cursor);
+        assert.deepEqual(Object.keys(read.arguments).sort(), ['inputs', 'prepared_call_id']);
+        assert.deepEqual(read.arguments.inputs, {});
+      }
+    } while (read);
     assert.match(template, /UR/u);
     const stage = async (scope, content) => {
       const bytes = Buffer.from(content);

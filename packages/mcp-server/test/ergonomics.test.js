@@ -43,11 +43,14 @@ try { for (const modern of [false, true]) {
       assert.equal(status.content[0].text, JSON.stringify(status.structuredContent), 'compact MCP text preserves the complete structured result');
       const navigation = status.structuredContent.navigation;
       assert.deepEqual(navigation.read_context, base, 'reusable context contains only validated read selectors, no revision or authority');
-      assert.equal(navigation.next_calls[0].arguments.operation, 'presentation-document', 'document read precedes optional command help');
-      assert.equal(navigation.next_calls[0].arguments.presentation_id, fixture.presentationId);
-      let read = navigation.next_calls[0].arguments, content = '', offset = 0;
+      assert.equal(navigation.next_calls[0].operation.operation, 'presentation-document', 'document read precedes optional command help');
+      assert.equal(navigation.next_calls[0].operation.presentation_id, fixture.presentationId);
+      assert.equal(navigation.next_calls[0].recovery_only.original_call.arguments.presentation_id, fixture.presentationId);
+      let read = navigation.next_calls[0], content = '', offset = 0;
       do {
-        const document = await client.callTool({ name: 'agdf_inspect', arguments: read });
+        assert.deepEqual(Object.keys(read.arguments).sort(), ['inputs', 'prepared_call_id']);
+        assert.deepEqual(read.arguments.inputs, {});
+        const document = await client.callTool({ name: read.tool, arguments: read.arguments });
         assert.equal(document.isError, undefined, JSON.stringify(document));
         assert.equal(document.content[0].text, JSON.stringify(document.structuredContent), 'compact MCP text preserves document bytes and navigation');
         const report = document.structuredContent.report;
@@ -55,7 +58,11 @@ try { for (const modern of [false, true]) {
         assert.equal(report.byte_start, offset);
         content += report.content;
         offset = report.byte_end;
-        read = report.complete ? null : { ...read, cursor: report.next_cursor };
+        read = report.complete ? null : report.next_calls[0];
+        if (read) {
+          assert.equal(read.operation.cursor, report.next_cursor);
+          assert.equal(read.recovery_only.original_call.arguments.cursor, report.next_cursor);
+        }
       } while (read);
       const expected = readFileSync(join(fixture.root, `.agdf/control/runs/${fixture.runId}/control/presentations/${fixture.presentationId}.document`));
       assert.deepEqual(Buffer.from(content), expected, 'exact immutable document bytes retained');
@@ -114,6 +121,8 @@ try { for (const modern of [false, true]) {
       assert.equal(wrongApprovalModule.isError, true);
       assert.equal(wrongApprovalModule.structuredContent.outcome, 'invalid_input');
       const moduleRecovery = wrongApprovalModule.structuredContent.recovery.next_calls[0];
+      assert.equal(moduleRecovery.arguments.prepared_call_id, undefined, 'Explicit invalid-input recovery stays usable across reconnect.');
+      assert.equal(moduleRecovery.arguments.inputs, undefined);
       assert.deepEqual(moduleRecovery, { tool: 'agdf_inspect', arguments: { ...base,
         operation: 'operation-contract', module: 'agdf_approve/approval.record', expected_revision_id: revision, gate: 'UR', target_id: fixture.targetId } });
       const suppliedHelp = await client.callTool({ name: moduleRecovery.tool, arguments: moduleRecovery.arguments });

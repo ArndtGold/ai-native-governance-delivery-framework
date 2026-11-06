@@ -160,6 +160,10 @@ Die folgenden Folgerungen konkretisieren MCP-01 bis MCP-10. Sie schaffen keinen 
 kein zusätzliches Gate und keine neue Hostqualifikation. Beobachtung, umgesetzte Regel und offene
 Arbeit bleiben jeweils getrennt.
 
+Der [Context Graph](../../.agdf/control/CONTEXT_GRAPH.md#cg-mcp-dispatch-adapter) verbindet diese
+Owner, Nachweise und offenen Abschlusskriterien im Projektgedächtnis. Die Regeln und detaillierten
+Prüfergebnisse bleiben bei den hier verlinkten Quellen.
+
 ### 7.1 Gebundene Fortsetzungen müssen den zugesagten Lebenszyklus überstehen
 
 Eine zuvor angebotene Referenz für privaten Materialtransfer wurde nach einem CLI-Neustart ohne

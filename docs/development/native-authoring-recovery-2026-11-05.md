@@ -204,3 +204,66 @@ A new frozen-candidate campaign must qualify this follow-up separately. It uses
 three fresh projects, the same original task, Luna/high and the same per-invocation
 budget; observer-only changes do not supply technical or semantic answers.
 Earlier failed cases remain retained and are never substituted by later passes.
+
+## Retained read-path campaign and resumption follow-up
+
+The frozen `919d3cbf` candidate `0.30.0+codex.local-58c7c68c5f3e` ran exactly
+three fresh Luna/high cases with Codex CLI 0.163.0. The first two completed both
+SD/TP negative-readiness, canonical-correction, fresh German presentation and
+simulated-approval paths; neither was error-free. Their active CLI times were
+25:12.454 and 14:41.465, with 78/64 MCP calls, 95/69 outer tool rounds, one MCP
+rejection each, zero/two host-script errors and no reached per-invocation cap.
+All 37 internal adapter reads passed. Both actual MCP runtimes had digest
+`409f7d202fbd45ae34ead42aad59deb208128a12171bc00a46da30f7c8efaa55`;
+all 41 compared files matched.
+
+Case 03 stopped after 57.806 seconds and four successful shell calls, without
+an MCP invocation. The installed local CLI returned a terminal `control_setup`
+card. The unchanged controller recognized setup only from MCP results and
+provided no further input. There is no MCP runtime or tool-inventory proof for
+that case. Its missing audit/comparison outputs and the once-attempted audit
+errors remain retained; the local CLI identity is not substituted for MCP proof.
+Zero MCP use does not establish tool unavailability or a startup failure.
+
+The aggregate is `findings`: 2/3 functional completions, 0/3 clean passes. All
+three selected cases remain; none was repeated or replaced. The 270-file sealed
+manifest is `67ce920dbbcdf90bdcc1185fe9d2d81563eb9c4df72652efd134b4256e4e7ebb`.
+Final comparisons retained 362 canonical sources, 49 existing Run files,
+45 unrelated files and 1,202 older proof files. CI #701 passed all 173 jobs and
+174 checks for `919d3cbf`; that result qualifies only that commit.
+
+The observed next-action defect is concrete: an accepted private UX stage
+returns a complete corrective `material_call`, but the normal action is
+`idle/null`. The follow-up projects that exact authored correction, preserving
+the negative source verdict and the separate explicit canonical recording step.
+Newly observed authoring revisions retire only matching cached source scopes;
+the Core still rejects an old revision even when a client selects an older form.
+
+The other rejection used a reference offered by an earlier CLI invocation. The
+serving connection reported it unknown before argument expansion or Core
+execution; the reconstructed original request passes offline validation. A
+connection-local reference registry explains this boundary, although the
+observation contains no explicit serving connection ID. The follow-up retains
+offered templates in a private, integrity-checked, bounded owned-runtime journal,
+preserving the original identity, lifetime, target and revision. It never records
+submitted author/review/reply inputs or grants permission. Unknown references
+and unavailable storage receive separate transport causes; a failed future-form
+publication must preserve any already accepted operation and receipt.
+
+Two JavaScript syntax errors arose in host-authored helper code. Shared Core
+guidance now treats Markdown as UTF-8 data, preferring structured input or a
+host file-editing tool followed by a file read. This adds no server-side file
+reader. Backticks and interpolation-like text remain literal transfer bytes.
+The plugin contract also removes its obsolete `submit`/JSON-pointer guidance.
+
+The next campaign keeps the original task, Luna/high, CLI version, invocation
+budget and maximum turns. It deliberately expands the controller to recognize
+the same fresh, bound, verbatim setup card from the installed local CLI as from
+MCP. That controller change is an explicit comparison boundary, not an
+observer-only change or a retroactive pass for case 03. No technical hints or
+semantic answers from this chat may be supplied. Source and installed-host
+checks, current-head CI and independent human acceptance remain separate.
+The shared observer is versioned in
+`scripts/native-probes/setup-card-observation.mjs`; the existing MCP-specific
+finite setup oracle remains unchanged. A display before the actual card result
+or a later tool/file action cannot establish a fresh setup-card observation.

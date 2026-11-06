@@ -68,7 +68,7 @@ function toolResult(runtime, name, input, result, serialize = runtime.serialize,
   return response;
 }
 
-export function buildAgdfServer({ runtime, executor, era } = {}) {
+export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = {}) {
   if (!runtime?.definition || typeof runtime.serialize !== "function") {
     throw new TypeError("AGDF MCP runtime is required");
   }
@@ -97,6 +97,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     close: async () => runtime.close?.(),
   };
   const registrations = new Map(), preparedCalls = createPreparedCallTransport({
+    store: preparedCallStore,
     // A read reference retains a supplied canonical request, never an inferred
     // target. Validate the unwrapped arguments with the original SDK schema.
     validateRead: call => inspectTool?.definition.annotations?.readOnlyHint === true
@@ -112,7 +113,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   const server = new AgdfServer(
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
     { capabilities: { tools: {}, ...(runtime.ui ? { resources: {} } : {}) },
-      instructions: 'Use the returned next_action.call as the normal path for reads and writes. Fill only its named inputs from actual authored content, review or a new deliberate reply; ready calls retain inputs:{} and are forwarded unchanged. The adapter retains the exact target, Run, revision, selectors and original operation identity. Do not reconstruct raw reads or status requests, retype references or use cloning helpers. References belong to this connection; after reconnect use explicit recovery_only instructions and the saved original request. A safe inspect may already be included as next_read.result; consume it without repeating it. next_read.tool/arguments describe that executed read; next_read.call is its supplied retry only. A terminal action stops work. No reference or continuation grants authority or approval.' },
+      instructions: 'Use the returned next_action.call as the normal path for reads and writes. Fill only its named inputs from actual authored content, review or a new deliberate reply; ready calls retain inputs:{} and are forwarded unchanged. The adapter retains the exact target, Run, revision, selectors and original operation identity. Do not reconstruct raw reads or status requests, retype references or use cloning helpers. Owned plugin references retain their original lifetime across reconnects at the same runtime; other connections use explicit recovery_only instructions and the saved original request. A safe inspect may already be included as next_read.result; consume it without repeating it. next_read.tool/arguments describe that executed read; next_read.call is its supplied retry only. A terminal action stops work. No reference or continuation grants authority or approval.' },
   );
   // Capability checks guard execution and resource access. Codex must first
   // discover the plugin tool metadata before selecting its UI-capable route.
@@ -253,10 +254,10 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   });
 }
 
-export function serveAgdfStdio({ runtime, executor, onerror } = {}) {
+export function serveAgdfStdio({ runtime, executor, onerror, preparedCallStore } = {}) {
   const instances = new Set();
   const handle = serveStdio(({ era }) => {
-    const server = buildAgdfServer({ runtime, executor, era });
+    const server = buildAgdfServer({ runtime, executor, era, preparedCallStore });
     instances.add(server);
     return server;
   }, {

@@ -45,7 +45,7 @@ assert.equal(registry.isAvailable(form.call),false,'A cached form must not be of
 assert.throws(() => registry.resolve('agdf_record', filled), /session_expired/);
 const next = registry.decorate(original).material_call.call;
 assert.notEqual(next.arguments.prepared_call_id, form.call.arguments.prepared_call_id);
-registry.close();assert.throws(() => registry.resolve('agdf_record', next.arguments), /command_schema_invalid/);
+registry.close();assert.throws(() => registry.resolve('agdf_record', next.arguments), /prepared_call_unknown/);
 console.log('Prepared transport immutable binding, exact replay, group/input isolation, expiry and close passed.');
 
 const groups = Object.keys(RUN_COMMAND_GROUPS);
@@ -122,7 +122,7 @@ assert.throws(() => canonical.resolve('agdf_record', empty), /command_schema_inv
 const unknown = { prepared_call_id: '00000000-0000-4000-8000-000000000099', inputs: {} };
 assert.equal(canonical.isAvailable({tool:'agdf_record',arguments:unknown}),false);
 assert.match(canonical.validationHint('agdf_record', unknown), /unknown.*not proof of expiry/u);
-assert.throws(() => canonical.resolve('agdf_record', unknown), /command_schema_invalid/);
+assert.throws(() => canonical.resolve('agdf_record', unknown), /prepared_call_unknown/);
 assert.match(registry.validationHint('agdf_record', filled), /unknown/u, 'A closed connection does not establish TTL expiry.');
 const expiring = createPreparedCallTransport({ now: () => time, lifetimeMs: 10 });
 const expires = expiring.decorate(original).material_call.call;
@@ -349,7 +349,7 @@ readTime=10;
 assert.equal(limitedReads.isAvailable(retainedRead),false);
 assert.throws(()=>limitedReads.resolve('agdf_inspect',retainedRead.arguments),/session_expired/);
 const readAfterReconnect=createPreparedCallTransport(readOptions);
-assert.throws(()=>readAfterReconnect.resolve('agdf_inspect',retainedRead.arguments),/command_schema_invalid/);
+assert.throws(()=>readAfterReconnect.resolve('agdf_inspect',retainedRead.arguments),/prepared_call_unknown/);
 assert.deepEqual(readAfterReconnect.resolve('agdf_inspect',retainedRead.recovery_only.original_call.arguments),readRaw.arguments,
   'Reconnect recovery retains the original Raw read and exact selectors.');
 

@@ -88,23 +88,39 @@ const largeRead = { ...actualRuntime.failure('dispatch_busy', 'agdf_inspect', re
   target: { resolution_state: 'resolved' }, report: { available: true, padding: 'x'.repeat(20000) }, diagnostics: [],
   timing: { wrapper_ms: 0, input_ms: 0, target_ms: 0, control_ms: 0, render_ms: 0, total_ms: 0 },
   host_action: { mode: 'consume_report_and_continue', source: 'report', allow_surrounding_text: true, may_request_run_or_evidence: false } };
-async function boundaryReply({ autoRead, limit }) {
-  let writes = 0, reads = 0;
+const postCommitRead = { tool: 'agdf_inspect', arguments: { ...readCall.arguments,
+  operation: 'operation-contract', module: 'agdf_record/step.record', expected_revision_id: acceptedWrite.current.revision_id } };
+const postCommitWrite = { tool: 'agdf_record', arguments: { ...request,
+  expected_revision_id: acceptedWrite.current.revision_id, operation_id: '00000000-0000-4000-8000-000000000004' } };
+const postCommitHelp = { ...largeRead, operation: 'operation-contract', report: { available: true,
+  group: 'agdf_record', kind: 'step.record', prepared_call: { state: 'ready', call: postCommitWrite, required_inputs: [], authorizes: false } } };
+async function boundaryReply({ autoRead, limit, storeFailure }) {
+  let writes = 0, reads = 0, registrations = 0, committed = false, registrationBeforeCommit = false;
   const runtime = { ...actualRuntime, responseLimit: limit, prepareInput: undefined, prepareDispatch: undefined, postprocessToolResult: undefined,
     // Keep the original readonly schema/reference projection in both branches.
     // Missing UI admission disables automatic execution only in the baseline.
     tools: actualRuntime.tools.map(tool => tool.name === 'agdf_inspect' ? { ...tool, requiresUi: !autoRead } : tool) };
   const executor = { async execute(input, { toolName }) {
-    if (toolName === 'agdf_record') { writes++; return structuredClone(acceptedWrite); }
-    assert.equal(toolName, 'agdf_inspect'); assert.deepEqual(input, readCall.arguments);
-    reads++; return structuredClone(largeRead);
+    if (toolName === 'agdf_record') {
+      writes++; assert.deepEqual(input, request); committed = true;
+      return structuredClone(storeFailure ? { ...acceptedWrite, next_calls: [postCommitRead] } : acceptedWrite);
+    }
+    assert.equal(toolName, 'agdf_inspect'); assert.deepEqual(input, storeFailure ? postCommitRead.arguments : readCall.arguments);
+    reads++; return structuredClone(storeFailure ? postCommitHelp : largeRead);
   }, async close() {} };
-  const server = buildAgdfServer({ runtime, executor }), client = new Client({ name: 'wire-budget-boundary-fixture', version: '1' });
+  const preparedCallStore = storeFailure ? {
+    load() { return { state: 'reference_unknown' }; },
+    register() {
+      registrations++; if (!committed) registrationBeforeCommit = true;
+      throw Error(storeFailure);
+    },
+  } : undefined;
+  const server = buildAgdfServer({ runtime, executor, preparedCallStore }), client = new Client({ name: 'wire-budget-boundary-fixture', version: '1' });
   const [a, b] = InMemoryTransport.createLinkedPair();
   try {
     await server.connect(b); await client.connect(a);
     const reply = await client.callTool({ name: 'agdf_record', arguments: request });
-    return { reply, writes, reads };
+    return { reply, writes, reads, registrations, registrationBeforeCommit };
   } finally { await client.close(); await server.closeAgdfRuntime(); await server.close(); }
 }
 const baseline = await boundaryReply({ autoRead: false, limit: 1024 * 1024 });
@@ -139,3 +155,29 @@ assert.equal(noDiagnosticRoom.reply.structuredContent.next_read, undefined,
   'When no additive failure framing fits, preserve the original result before reporting any whole-result budget failure.');
 assert.ok(Buffer.byteLength(JSON.stringify(noDiagnosticRoom.reply)) <= exactLimit);
 console.log('Actual SDK wire-budget fallback preserves the accepted receipt and executes each write/read only once.');
+
+for (const [failure, reason] of [['EIO', 'prepared_call_store_unavailable'], ['runtime_provenance_invalid', 'runtime_provenance_invalid']]) {
+  const failedStorage = await boundaryReply({ autoRead: true, limit: 1024 * 1024, storeFailure: failure });
+  const result = failedStorage.reply.structuredContent;
+  assert.equal(failedStorage.registrationBeforeCommit, false, 'The injected storage failure occurs after the accepted write, not before dispatch.');
+  assert.ok(failedStorage.registrations > 0);
+  assert.equal(failedStorage.writes, 1, 'Failed continuation registration never repeats the committed write.');
+  assert.equal(failedStorage.reads, 1, 'Failed continuation registration never repeats its completed read.');
+  assert.equal(failedStorage.reply.isError, undefined, JSON.stringify(failedStorage.reply));
+  for (const key of ['outcome', 'operation_id', 'request_digest', 'binding', 'effect', 'receipt', 'current', 'assurance', 'historical_effect', 'recovery', 'family_result'])
+    assert.deepEqual(result[key], acceptedWrite[key], key + ': additive storage failure must not reinterpret the accepted operation.');
+  assert.equal(result.next_read.result.outcome, 'inspect_result');
+  assert.deepEqual(result.next_read.arguments, postCommitRead.arguments, 'The actual executed read remains observable.');
+  assert.equal(result.next_read.call, null);
+  assert.equal(result.next_read.transport_reason, reason);
+  assert.deepEqual(result.next_read.recovery_only.original_call, postCommitRead);
+  const unavailable = result.next_read.result.report.prepared_call;
+  assert.equal(unavailable.state, 'transport_unavailable');
+  assert.equal(unavailable.call, null);
+  assert.equal(unavailable.transport_reason, reason);
+  assert.deepEqual(unavailable.recovery_only.original_call, postCommitWrite);
+  assert.equal(unavailable.authorizes, false);
+  assert.equal(result.next_action.state, 'requires_source');
+  assert.equal(result.next_action.call, null, 'No reconstructed Raw write becomes the normal path.');
+}
+console.log('Actual SDK storage-failure boundary preserves original receipt, exact recovery and single write/read execution.');

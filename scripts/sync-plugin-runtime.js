@@ -2,9 +2,10 @@ import { projectCore, coreImports } from "./core-projection.mjs";
 import { compileMcpWorkerRuntime } from './compile-mcp-worker-runtime.mjs';
 import { getPluginSourceRoot } from "./public-plugin/source-root.js";
 import { createHash } from "node:crypto";
+import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   REQUEST_ACTIVATION_MARKERS,
   computeRequestActivationGuardFingerprint,
@@ -142,11 +143,23 @@ export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
   "lib/mcp-protocol-runtime.js",
   "lib/mcp-decision-protocol.js",
   "lib/mcp-lifecycle/package.js",
+  "lib/mcp-lifecycle/prepared-call-journal.js",
   "lib/mcp-lifecycle/plugin-runtime.js",
   "lib/mcp-lifecycle/facade-entry.js",
   "lib/mcp-lifecycle/facade-owner-entry.js",
   "lib/npm-invocation.js",
 ]);
+
+// Import the actual unbundled launcher dependency tree from its emitted package.
+// A missing transitive module must fail the build before a manifest can bless an
+// incomplete image. This SDK-free import performs no launch or governance call.
+export function assertPluginMcpBootstrapClosure(bundledPackageRoot) {
+  try {
+    execFileSync(process.execPath, ['--input-type=module', '--eval',
+      `await import(${JSON.stringify(pathToFileURL(join(bundledPackageRoot, 'lib/mcp-lifecycle/plugin-runtime.js')).href)});`],
+    { cwd: bundledPackageRoot, encoding: 'utf8', timeout: 10000, maxBuffer: 256 * 1024, stdio: 'pipe' });
+  } catch (cause) { throw new Error('AGDF_MCP_BOOTSTRAP_IMPORT_INVALID', { cause }); }
+}
 
 const COPILOT_CONTEXT_EMITTER = `  const emitContext = (additionalContext) => {
     if (surface === "copilot") console.log(JSON.stringify({ additionalContext }));
@@ -255,6 +268,7 @@ export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = fa
   expectedPackageFiles.add("package.json");
   if (mcpRuntime) compileMcpWorkerRuntime(bundledPackageRoot);
   pruneRuntimeOutput(bundledPackageRoot, expectedPackageFiles);
+  if (mcpRuntime) assertPluginMcpBootstrapClosure(bundledPackageRoot);
   const manifest = {
     schema_version: "1",
     generated: true,

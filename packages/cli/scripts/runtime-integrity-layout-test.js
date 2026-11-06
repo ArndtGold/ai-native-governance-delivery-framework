@@ -6,6 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
 import { digestNormalizedPluginSource, renderCodexPluginMcpConfig } from "#agdf-core/runtime/plugin-provenance.js";
+import { assertPluginMcpBootstrapClosure } from '../../../scripts/sync-plugin-runtime.js';
 import {
   DISPATCHER_BINDING_PREFIX,
   REQUEST_ACTIVATION_MARKERS,
@@ -90,6 +91,16 @@ function assertSessionBase(stdout, pluginRoot, expectedSurface, { facts = false 
 
 try {
   stageInstalledPlugin();
+  const isolatedPackage = join(installedPluginRoot, 'runtime/create-agdf');
+  assertPluginMcpBootstrapClosure(isolatedPackage);
+  const journalPath = join(isolatedPackage, 'lib/mcp-lifecycle/prepared-call-journal.js');
+  const journalBytes = readFileSync(journalPath);
+  assert.deepEqual(journalBytes, readFileSync(join(repoRoot, 'packages/cli/lib/mcp-lifecycle/prepared-call-journal.js')),
+    'The isolated launcher ships its canonical transitive journal dependency.');
+  unlinkSync(journalPath);
+  assert.throws(() => assertPluginMcpBootstrapClosure(isolatedPackage), /AGDF_MCP_BOOTSTRAP_IMPORT_INVALID/,
+    'A complete manifest cannot excuse a missing unbundled bootstrap dependency.');
+  writeFileSync(journalPath, journalBytes);
   // Boot the complete registry from a copied plugin, without source-checkout
   // modules rescuing a missing transitive runtime dependency.
   const isolatedValidator = spawnSync(process.execPath, [join(installedPluginRoot, 'runtime/agdf-local.js'), '--version', '--json'], {

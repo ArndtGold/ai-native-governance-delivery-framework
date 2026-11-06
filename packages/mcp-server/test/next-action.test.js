@@ -278,3 +278,83 @@ test('failed internal read uses its exact retained reference, never a Raw fallba
   assert.equal(unavailable.next_action.call, null);
   assert.deepEqual(unavailable.receipt, original.receipt);
 });
+
+test('accepted private staging offers the exact authored correction after invalid UX source', () => {
+  const supplied = form(31), receipt = { operation_id: reference(130), effect: 'private_transfer_only' };
+  const input = { outcome: 'accepted', receipt, source_validation: { recordable: false, reason: 'ux_decision_malformed' },
+    recording_calls: [], material_call: supplied };
+  const before = structuredClone(input), result = createNextActionProjection().project(input);
+  assert.equal(result.next_action.state, 'form');
+  assert.equal(result.next_action.source, 'outer.material_call');
+  for (const key of ['call', 'operation', 'required_inputs', 'input_fields', 'recovery_only', 'content_contract'])
+    assert.deepEqual(result.next_action[key], supplied[key]);
+  assert.equal(result.next_action.authorizes, false);
+  assert.deepEqual(result.source_validation, input.source_validation);
+  assert.deepEqual(result.receipt, receipt);
+  assert.deepEqual(input, before);
+});
+
+test('a correction form cannot conceal a failed result, incomplete source, or unavailable transport', () => {
+  const correction = { outcome: 'accepted', source_validation: { recordable: false }, material_call: form(32), recording_calls: [] };
+  for (const outcome of ['rejected', 'recovery_required', 'effect_unknown', 'invalid_input', 'evaluator_error', 'target_unresolved']) {
+    const next = createNextActionProjection().project({ ...correction, outcome }).next_action;
+    assert.equal(next.state, 'requires_source', outcome); assert.equal(next.call, null);
+  }
+  const terminal = createNextActionProjection().project({ ...correction, terminal: true, host_action: { text: 'Stop.' } });
+  assert.equal(terminal.next_action.state, 'terminal'); assert.equal(terminal.next_action.call, null);
+  for (const report of [{ available: false }, { available: true, complete: false }]) {
+    const next = createNextActionProjection().project({ ...correction, report, next_calls: [read()] }).next_action;
+    assert.equal(next.state, 'requires_source'); assert.equal(next.call, null);
+  }
+  const unavailable = createNextActionProjection({ isAvailable: () => false }).project(correction);
+  assert.equal(unavailable.next_action.state, 'requires_source'); assert.equal(unavailable.next_action.call, null);
+  for (const input of [{ ...correction, historical_effect: true }, { ...correction, outcome: 'already_applied' }]) {
+    assert.equal(createNextActionProjection().project(input).next_action.call, null,
+      'A historical private transfer does not establish a new authored correction.');
+  }
+});
+
+test('conflicting correction actions require selection, while malformed corrections never fall through', () => {
+  const correction = { outcome: 'accepted', source_validation: { recordable: false }, material_call: form(33), recording_calls: [] };
+  for (const competing of [{ recording_calls: [form(34, [], 'step.record')] }, { next_calls: [read()] },
+    { family_result: { next_calls: [read()] } }, { approval_call: form(34, ['response'], 'approval.record', 'agdf_approve') },
+    { report: { prepared_call: form(34) } }]) {
+    const next = createNextActionProjection().project({ ...correction, ...competing }).next_action;
+    assert.equal(next.state, 'requires_selection'); assert.equal(next.call, null);
+  }
+  const malformed = [null, false, {}, { ...form(33), call: form(33).recovery_only.original_call },
+    { ...form(33), required_inputs: [] }, { ...form(33), required_inputs: ['content', 'content'] },
+    { ...form(33), state: 'transport_unavailable' },
+    { ...form(33), operation: { kind: 'approval.record' } },
+    { ...form(33), call: { ...form(33).call, arguments: { prepared_call_id: reference(33), inputs: { content: 'Old invalid draft' } } } }];
+  for (const material_call of malformed) {
+    const next = createNextActionProjection().project({ ...correction, material_call, next_calls: [form(34, []).call] }).next_action;
+    assert.equal(next.state, 'requires_source'); assert.equal(next.call, null);
+  }
+  for (const source_validation of [undefined, { recordable: true }]) {
+    const next = createNextActionProjection().project({ ...correction, source_validation }).next_action;
+    assert.equal(next.state, 'requires_source'); assert.equal(next.call, null);
+  }
+  assert.equal(createNextActionProjection().project({ ...correction, recording_calls: [null] }).next_action.call, null);
+});
+
+test('a new first-page revision retires only its scoped cache and late old pages cannot revive it', () => {
+  const projection = createNextActionProjection(), oldForm = form(35), otherForm = form(36), freshForm = form(37);
+  const old = authoring({ complete: false, material: oldForm }); old.report.next_calls = [read('1')];
+  const other = authoring({ complete: false, material: otherForm, root: '/other-target' }); other.report.next_calls = [read('1')];
+  projection.project(old); projection.project(other);
+  const fresh = authoring({ complete: false, material: freshForm });
+  fresh.report.revision_id = presentation;
+  fresh.report.material_call.operation.expected_revision_id = presentation;
+  fresh.report.material_call.recovery_only.original_call.arguments.expected_revision_id = presentation;
+  fresh.report.next_calls = [read('1')]; fresh.report.next_calls[0].arguments.expected_revision_id = presentation;
+  assert.equal(projection.project(fresh).next_action.state, 'read_required');
+  assert.equal(projection.project(authoring({ page: 1 })).next_action.state, 'requires_source', 'Late old page has no cached write.');
+  assert.equal(projection.project(old).next_action.state, 'requires_source', 'An older first page cannot reintroduce a retired form.');
+  const completeFresh = authoring({ page: 1 }); completeFresh.report.revision_id = presentation;
+  assert.deepEqual(projection.project(completeFresh).next_action.call, freshForm.call, 'Old pages do not evict the current form.');
+  assert.deepEqual(projection.project(authoring({ page: 1, root: '/other-target' })).next_action.call, otherForm.call,
+    'The identical revision on a different target stays independent.');
+  projection.close();
+  assert.equal(projection.project(old).next_action.state, 'read_required', 'Close discards revision observations as well as cached forms.');
+});

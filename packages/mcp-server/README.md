@@ -92,6 +92,10 @@ multipart path (16 KiB per part, 128 KiB per file). Each multipart action has it
 only an identical retry reuses a UUID. Returned `recording_calls` provide the binding and material
 reference; fill only the listed author/review fields. Ready `next_calls` are executable as supplied;
 do not add intake/revision fields to a supplied `continue_delivery` dispatch.
+Pass authored Markdown as UTF-8 string data through structured input. If a host uses JavaScript,
+author with its file-editing tool and pass the UTF-8 file read as the content value; embedding
+the whole document in a backtick literal makes Markdown syntax executable JavaScript syntax.
+This guidance adds no server-side file reader and changes no byte or input limit.
 These Core-owned references feed existing typed writers, including reviewed formal artefacts, unapproved
 UR replacement, Verified Change and closeout. Code edits, actual tests and Git execution remain
 external work; none of these operations grants approval.
@@ -253,7 +257,11 @@ the actual owned plugin launcher with 20/20 samples and p95 limits of 2500 ms co
 1000 ms warm. Performance acceptance and native qualification are separate
 required evidence, not consequences of the topology declaration.
 
-The normal MCP path is `next_action.call`: either a ready call forwarded unchanged or a form with named `required_inputs` such as `content`, `title`, `reviewer`, `reviewed` or `response`. The adapter maps those names to the stored canonical payload fields. It retains the original target, Run, revision, permission group and operation UUID; it never fills authored content, review attestations or approval replies. The former competing `submit` form is absent. Raw requests remain accepted for compatibility, but the full original request is exposed only under the explicit `recovery_only` branch, with the exact field map and original UUID. Retain that branch and the actual submitted inputs for uncertain-outcome recovery; do not generate a replacement identity. References expire after 30 minutes or disconnect. Empty, malformed, unknown and known-expired references are distinguished without guessing or correcting an ID.
+The normal MCP path is `next_action.call`: either a ready call forwarded unchanged or a form with named `required_inputs` such as `content`, `title`, `reviewer`, `reviewed` or `response`. The adapter maps those names to the stored canonical payload fields. It retains the original target, Run, revision, permission group and operation UUID; it never fills authored content, review attestations or approval replies. The former competing `submit` form is absent. Raw requests remain accepted for compatibility, but the full original request is exposed only under the explicit `recovery_only` branch, with the exact field map and original UUID. Retain that branch and the actual submitted inputs for uncertain-outcome recovery; do not generate a replacement identity.
+
+Verified owned plugin launchers retain offered templates in a private bounded journal under their existing MCP data root. The namespace includes the serving surface, version and server/dispatcher/SDK identity. A reconnect at that same identity can resolve the original reference without a new UUID or refreshed revision. The original 30-minute lifetime is never renewed. No submitted author/review/reply inputs or execution receipts are added to this journal; it is transport storage, not canonical Run State or authority. Direct transports without this verified owner remain connection-local. Private material buffers have their separate existing generation lifetime and still require exact semantic-byte recovery after generation loss.
+
+Empty, malformed, unknown and known-expired references remain distinct. An unavailable live reference returns `prepared_call_unknown`, rather than blaming the authored command schema. Store failures are distinguished from missing references. A failed publication of a future reference never discards an already successful operation receipt; its exact original request remains in recovery. Every restored call still passes the current SDK, permission-group, Core and revision checks.
 
 For a unique Core-supplied normal next step, the adapter may execute one exact `agdf_inspect` call for `authoring-inputs`, `gate-check` or `operation-contract` and include it as `next_read.result`. `next_action.context_path` names that already-loaded context. The original operation outcome and receipt remain intact if this separate read fails. No dispatch, write, presentation or approval is chained automatically; `agdf_dispatch` is not read-only. Source pagination remains explicit. Internal read attempts/failures are accounted separately from outer MCP invocations in native observations.
 

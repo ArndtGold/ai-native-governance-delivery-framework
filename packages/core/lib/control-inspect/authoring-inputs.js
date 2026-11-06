@@ -1,4 +1,5 @@
 import { MATERIAL_LIMITS } from '../control-state/material-limits.js';
+import { AUTHORING_TEXT_HANDOFF } from '../control-state/authoring-text-handoff.js';
 import { approvalSummaryAuthoringFormat } from '../control-state/run-presentation-render.js';
 import { resolveArtifactPresentationLanguages } from '../resources/context.js';
 import { runDocumentPath } from '../control-state/run-identity.js';
@@ -172,6 +173,6 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
         instructions: (input.bundle
           ? 'MCP access: response.structuredContent.report (or JSON.parse(response.content[0].text).report). Read complete report.documents[].content; report.document_manifest and current_draft are metadata only. The registered current draft is prioritized; inspect current_draft.content_state before looking for its complete document. Join report.fragments by identity and byte offsets across all next_calls pages before editing. Absent content is an error, never the string undefined. Copy call.arguments unchanged and supply only authored content in the named fields; no JavaScript helper is required. Preserve bundle:true. '
           : 'MCP access: response.structuredContent.report (or JSON.parse(response.content[0].text).report). This legacy view puts text in report.chunk.content; report.documents is metadata only. Follow every next_cursor with this exact binding, or request bundle:true for fewer round trips. ')
-          + 'The included formats and bound forms replace a second operation-contract read. Retain unchanged sources for this manifest. Prefer material_call: put takes exact UTF-8 <=48 KiB per file within the 64 KiB JSON request bound and seals once. Use returned recording_calls, adding only required author/review inputs. Larger files use multipart; each action has its own UUID. Follow next_calls exactly. No file/path discovery or shell hashing.' }, authorizes: false };
+          + 'The included formats and bound forms replace a second operation-contract read. Retain unchanged sources for this manifest. Prefer material_call: put takes exact UTF-8 <=48 KiB per file within the 64 KiB JSON request bound and seals once. Use returned recording_calls, adding only required author/review inputs. Larger files use multipart; each action has its own UUID. Follow next_calls exactly. No file/path discovery or shell hashing. ' + AUTHORING_TEXT_HANDOFF }, authorizes: false };
   } catch (e) { return unavailable(e.code ?? e.message); }
 }

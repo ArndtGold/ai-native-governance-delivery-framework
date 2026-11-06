@@ -30,14 +30,20 @@ import { syntheticPrd } from '../../cli/scripts/fixtures/prd-definition.js';
 import { syntheticSd } from '../../cli/scripts/fixtures/sd-definition.js';
 import { evaluateApprovalSummaryReadiness } from '../lib/control-state/run-presentation-render.js';
 
-test('put atomically seals bounded UTF-8, replays exact bytes and never publishes canonical state', () => fixture(({ store, bound, path }) => {
+test('put atomically seals bounded UTF-8, replays exact bytes and never publishes canonical state', () => fixture(({ store, bound, path, root }) => {
   const before = readFileSync(path, 'utf8');
+  const markdown = '# Bedarf\nÄnderung 😀\n\n## AGDF Approval Summary\nUse `node` and keep ${globalThis.__agdfTextExecution = true} as text.\n';
+  const authored = join(root, 'authored-input.md');
+  writeFileSync(authored, markdown, 'utf8');
   const input = { ...bound(), command: { kind: 'material.stage', payload: { action: 'put', files: [
-    { slot: 'UR', content: '# Bedarf\nÄnderung 😀\n' }, { slot: 'EVIDENCE', content: '' }] } } };
+    { slot: 'UR', content: readFileSync(authored, 'utf8') }, { slot: 'EVIDENCE', content: '' }] } } };
   const first = store.stage(input);
   assert.equal(first.outcome, 'accepted', JSON.stringify(first));
   assert.ok(first.family_result.files.every(f => f.sealed && f.reference));
   assert.equal(first.family_result.files[0].bytes, Buffer.byteLength(input.command.payload.files[0].content));
+  const granted = store.grants({ ...input, command: { kind: 'step.record', payload: { source: first.family_result.files[0].reference } } });
+  assert.equal(granted[0].content, markdown, 'File-read Markdown stays exact data, including backticks and interpolation syntax.');
+  assert.equal(Object.hasOwn(globalThis, '__agdfTextExecution'), false, 'Authored text is never executed.');
   assert.deepEqual(store.stage(input).family_result.files, first.family_result.files, 'Exact replay retains material identities.');
   assert.equal(store.stage({ ...input, command: { kind: 'material.stage', payload: { action: 'put', files: [{ slot: 'UR', content: 'changed' }] } } }).reason, 'operation_payload_conflict');
   assert.deepEqual(validateRunCommandResult(first), []);

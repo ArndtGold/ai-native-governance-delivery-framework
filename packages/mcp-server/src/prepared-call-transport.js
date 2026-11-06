@@ -27,7 +27,8 @@ const inputNames = pointers => {
   });
 };
 
-// Connection-local argument storage, never permission or policy. The original
+// Argument storage, never permission or policy. Owned plugin publishers may
+// retain exact templates across connections; ad-hoc servers stay connection-local. The original
 // group, immutable binding, UUID and every Core validator still execute unchanged.
 export function preparedTransportSchema(name, schema) {
   if (!tools.has(name)) return schema;
@@ -41,9 +42,13 @@ export function preparedTransportSchema(name, schema) {
       { required: referenceSchema.required, maxProperties: 2 }],
   };
 }
-export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, lifetimeMs = 30 * 60_000, validateRead = () => false } = {}) {
+export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, lifetimeMs = 30 * 60_000, validateRead = () => false, store } = {}) {
   if (typeof validateRead !== 'function') throw Error('prepared_read_validator_invalid');
+  if (store && (typeof store.load !== 'function' || typeof store.register !== 'function')) throw Error('prepared_call_store_unavailable');
   const rows = new Map(), signatures = new Map(), expired = new Map();
+  let unavailableReason = 'prepared_call_unavailable';
+  const storeError = error => ['runtime_provenance_invalid', 'dispatch_busy', 'prepared_call_store_unavailable'].includes(error?.message)
+    ? error.message : 'prepared_call_store_unavailable';
   const fail = code => { throw Object.assign(Error(code), { facts: { code, dispatch: 'not_dispatched', field: 'arguments' } }); };
   function expire() {
     for (const [id, row] of rows) if (now() - row.created >= lifetimeMs) {
@@ -57,6 +62,23 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     if (typeof id !== 'string' || !id) return 'reference_empty';
     if (!referencePattern.test(id)) return 'reference_invalid';
     expire();
+    if (store) {
+      try {
+        const retained = store.load(id);
+        if (retained.state === 'available') {
+          const parsed = JSON.parse(retained.value), signature = createHash('sha256').update(retained.value).digest('hex');
+          if (retained.signature !== signature || !Number.isSafeInteger(retained.created) || retained.created < 0
+              || Buffer.byteLength(retained.value) > 65536 || !validTemplate(parsed.call, parsed.required)) throw Error('runtime_provenance_invalid');
+          if (now() - retained.created >= lifetimeMs) return 'reference_expired';
+          if (!rows.has(id) && rows.size >= maxEntries) { unavailableReason = 'prepared_call_unavailable'; return 'reference_unavailable'; }
+          rows.set(id, { call: parsed.call, required: parsed.required, names: inputNames(parsed.required), signature, created: retained.created });
+          signatures.set(signature, id); return 'available';
+        }
+        if (retained.state === 'reference_expired') return 'reference_expired';
+        if (retained.state !== 'reference_unknown') throw Error('runtime_provenance_invalid');
+        return 'reference_unknown';
+      } catch (error) { unavailableReason = storeError(error); return 'reference_unavailable'; }
+    }
     return rows.has(id) ? 'available' : expired.has(id) ? 'reference_expired' : 'reference_unknown';
   }
   const operation = call => call.tool === 'agdf_inspect'
@@ -104,12 +126,24 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     let id = signatures.get(signature);
     if (!id) {
       if (rows.size >= maxEntries) return undefined;
-      id = randomUUID(); signatures.set(signature, id);
-      rows.set(id, { call: JSON.parse(value).call, required: [...required], names: inputNames(required), signature, created: now() });
+      let created = now();
+      if (store) {
+        try {
+          const retained = store.register({ value, signature, created });
+          if (!retained) return undefined;
+          if (!referencePattern.test(retained.id ?? '') || !Number.isSafeInteger(retained.created) || retained.created < 0) throw Error('runtime_provenance_invalid');
+          id = retained.id; created = retained.created;
+        } catch (error) { unavailableReason = storeError(error); return undefined; }
+      } else id = randomUUID();
+      signatures.set(signature, id);
+      rows.set(id, { call: JSON.parse(value).call, required: [...required], names: inputNames(required), signature, created });
+    } else if (store && referenceState(id) !== 'available') {
+      return undefined;
     }
     return { tool: call.tool, arguments: { prepared_call_id: id, inputs: {} } };
   }
   function projectCall(call, required = []) {
+    unavailableReason = 'prepared_call_unavailable';
     if (!tools.has(call?.tool)) return call;
     const alreadyPrepared = Object.hasOwn(call.arguments ?? {}, 'prepared_call_id');
     const saved = alreadyPrepared && referenceState(call.arguments.prepared_call_id) === 'available'
@@ -152,7 +186,7 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
         const projection = retry ?? unregisteredRecovery(raw);
         if (projection) for (const key of ['required_inputs', 'input_fields', 'operation', 'recovery_only'])
           value.next_read[key] = projection[key];
-        if (!retry) value.next_read.transport_reason = 'prepared_call_unavailable';
+        if (!retry) value.next_read.transport_reason = unavailableReason;
       }
       for (const owner of [value, value.report, value.continuation, value.recovery, value.navigation,
         value.family_result, value.presentation_delivery, value.next_action].filter(Boolean)) {
@@ -162,7 +196,7 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
           const projected = projectCall(call);
           if (!projected) {
             const recovery = unregisteredRecovery(call);
-            if (recovery) unavailable.push({ ...recovery.recovery_only, operation: recovery.operation });
+            if (recovery) unavailable.push({ ...recovery.recovery_only, operation: recovery.operation, transport_reason: unavailableReason });
           }
           return projected;
         };
@@ -185,7 +219,7 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
           } else {
             const recovery = unregisteredRecovery(raw, form.required_inputs);
             if (recovery) Object.assign(form, recovery);
-            form.state = 'transport_unavailable'; form.transport_reason = 'prepared_call_unavailable';
+            form.state = 'transport_unavailable'; form.transport_reason = unavailableReason;
             form.authorizes = false;
           }
           projectHelpers(form);
@@ -208,9 +242,9 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
         if (projected) value.next_action = { ...value.next_action,
           call: { tool: projected.tool, arguments: projected.arguments }, required_inputs: projected.required_inputs,
           input_fields: projected.input_fields, operation: projected.operation, recovery_only: projected.recovery_only };
-        else if (tools.has(value.next_action.call?.tool) && !Object.hasOwn(value.next_action.call.arguments ?? {}, 'prepared_call_id'))
-          value.next_action = { ...(unregisteredRecovery(value.next_action.call, value.next_action.required_inputs) ?? {}),
-            state: 'transport_unavailable', authorizes: false, transport_reason: 'prepared_call_unavailable', call: null };
+        else if (tools.has(value.next_action.call?.tool))
+          value.next_action = { ...value.next_action, ...(unregisteredRecovery(value.next_action.call, value.next_action.required_inputs) ?? {}),
+            state: 'transport_unavailable', authorizes: false, transport_reason: unavailableReason, call: null };
       }
       return value;
     },
@@ -225,8 +259,9 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
           + 'Fill only its named required_inputs fields. Raw requests belong only to the explicit recovery path. No operation was dispatched.';
       }
       const state = referenceState(id);
+      if (state === 'reference_unavailable') return 'The owned reference store is unavailable or could not establish its integrity. Preserve the original receipt and saved request; no operation was dispatched by this attempt.';
       if (state !== 'available') return state === 'reference_expired'
-        ? 'The supplied reference was issued on this connection and has expired. Use saved original-request/UUID observation and recovery; never generate another binding or UUID. No operation was dispatched.'
+        ? 'The supplied reference was issued previously and its original lifetime has expired. Use saved original-request/UUID observation and recovery; never generate another binding or UUID. No operation was dispatched.'
         : state === 'reference_empty' ? 'The prepared reference is empty. Copy the existing reference in the supplied call.arguments; never use an empty placeholder. No operation was dispatched.'
           : state === 'reference_invalid' ? 'The prepared reference is malformed. Copy the supplied call.arguments unchanged; never retype or autocorrect a reference. No operation was dispatched.'
             : 'The reference is unknown on this connection; this is not proof of expiry. Copy the exact supplied call.arguments or use saved original-request/UUID recovery. Never guess or autocorrect. No operation was dispatched.';
@@ -242,7 +277,10 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     resolve(name, input) {
       if (!Object.hasOwn(input, 'prepared_call_id')) return input;
       const state = referenceState(input.prepared_call_id);
-      if (state !== 'available') return fail(state === 'reference_expired' ? 'session_expired' : 'command_schema_invalid');
+      if (state !== 'available') return fail(state === 'reference_expired' ? 'session_expired'
+        : state === 'reference_unknown' ? 'prepared_call_unknown'
+          : state === 'reference_unavailable' ? unavailableReason === 'prepared_call_unavailable' ? 'resource_limit' : unavailableReason
+            : 'command_schema_invalid');
       const row = rows.get(input.prepared_call_id);
       if (row.call.tool !== name || Object.keys(input).some(k => !['prepared_call_id', 'inputs'].includes(k))
           || !input.inputs || typeof input.inputs !== 'object' || Array.isArray(input.inputs)

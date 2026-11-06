@@ -70,13 +70,21 @@ function authoringKey(result, report) {
     owner: report.authoring_owner ?? null, artifact_language: report.artifact_language ?? null,
     presentation_language: report.presentation_language ?? null });
 }
+function authoringRevision(key) {
+  const { manifest, ...binding } = JSON.parse(key);
+  return canonical(binding);
+}
+function authoringScope(key) {
+  const { manifest, revision_id, ...scope } = JSON.parse(key);
+  return canonical(scope);
+}
 
 // A connection-local projection of supplied actions, not an executor, permission
 // decision or proof that the model has read/reviewed all source pages.
 export function createNextActionProjection({ maxEntries = 32, isAvailable = () => true } = {}) {
   if (!Number.isSafeInteger(maxEntries) || maxEntries < 1 || maxEntries > 32) throw Error('next_action_cache_limit_invalid');
   if (typeof isAvailable !== 'function') throw Error('next_action_availability_invalid');
-  const forms = new Map();
+  const forms = new Map(), superseded = new Set();
   function available(form) {
     const normal = formValue(form);
     if (!normal) return false;
@@ -84,7 +92,17 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
   }
   function remember(key, form) {
     if (!key) return;
+    const revision = authoringRevision(key);
+    if (superseded.has(revision)) return;
     if (!available(form)) { forms.delete(key); return; }
+    // A newly supplied first-page form for this exact authoring scope replaces
+    // cached forms from its earlier revision. Never refresh their bindings, or
+    // let a later old page revive them. Other targets/Runs/owners stay intact.
+    const scope = authoringScope(key);
+    for (const prior of forms.keys()) if (authoringScope(prior) === scope && authoringRevision(prior) !== revision) {
+      forms.delete(prior); superseded.add(authoringRevision(prior));
+    }
+    while (superseded.size > maxEntries) superseded.delete(superseded.values().next().value);
     forms.delete(key); forms.set(key, clone(form));
     while (forms.size > maxEntries) forms.delete(forms.keys().next().value);
   }
@@ -107,6 +125,26 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
       if (owner.next_calls !== undefined && owner.next_calls !== null && !Array.isArray(owner.next_calls)
         || owner.recording_calls !== undefined && owner.recording_calls !== null && !Array.isArray(owner.recording_calls))
         return base('requires_source', 'The supplied action list is malformed. Preserve the existing outcome and obtain the canonical action source.', source);
+    if (Object.hasOwn(result, 'material_call')) {
+      const material = formValue(result.material_call);
+      // This is an explicit correction after accepted private staging, not a
+      // ready write or permission to bypass the source's recording decision.
+      if (result.outcome !== 'accepted' || result.historical_effect === true || result.source_validation?.recordable !== false
+          || report?.available === false || report?.complete === false
+          || !material || material.call.tool !== 'agdf_record' || material.operation?.kind !== 'material.stage'
+          || material.state === 'transport_unavailable' || material.transport_reason
+          || !material.required_inputs.length || new Set(material.required_inputs).size !== material.required_inputs.length
+          || Object.keys(material.call.arguments.inputs).length || !available(material))
+        return base('requires_source', 'No complete authored correction form was supplied. Preserve the source validation and receipt; obtain the canonical correction source without constructing a new call.', source + '.material_call');
+      const competing = [...(result.recording_calls ?? []), ...(result.next_calls ?? []),
+        ...(result.continuation?.next_calls ?? []), ...(report?.next_calls ?? []),
+        ...(result.navigation?.next_calls ?? []), ...(result.family_result?.next_calls ?? []),
+        ...(result.approval_call ? [result.approval_call] : []), ...(report?.prepared_call ? [report.prepared_call] : []),
+        ...(report?.material_call ? [report.material_call] : [])];
+      if (competing.some(value => !value))
+        return base('requires_source', 'The correction action list is malformed. Preserve the source validation and obtain the canonical correction source.', source + '.material_call');
+      return selectForms([result.material_call, ...competing], source + '.material_call');
+    }
     if (result.approval_call && result.presentation_delivery && !result.historical_effect && !result.presentation_delivery.historical_delivery
       && ['accepted', 'already_applied'].includes(result.outcome)) return selectForms([result.approval_call], source + '.approval_call', { forceReply: true });
     if (Array.isArray(result.recording_calls) && result.recording_calls.length)
@@ -120,6 +158,8 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
         return base('requires_source', 'The authoring source is unavailable. Preserve its original binding and recovery instructions; no staging form is selected.', source + '.report');
       const key = authoringKey(result, report);
       if (report.material_call && (report.page_index === 0 || report.page_index === undefined)) remember(key, report.material_call);
+      if (key && superseded.has(authoringRevision(key)))
+        return base('requires_source', 'A newly supplied first-page form superseded this authoring revision. Preserve the selected source and obtain its canonical current form; no older binding or cached form is revived.', source + '.report');
       if (report.complete !== true) {
         if (report.next_calls?.length) {
           const next = selectForms(report.next_calls, source + '.report.next_calls', { readOnly: true });
@@ -180,6 +220,6 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
         ' The already loaded source report is response.structuredContent.next_read.result.report. Consume that report without another inspect call.';
       return result;
     },
-    close() { forms.clear(); },
+    close() { forms.clear(); superseded.clear(); },
   });
 }

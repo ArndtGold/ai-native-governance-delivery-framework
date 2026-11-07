@@ -1,0 +1,2287 @@
+{
+  "F01": {
+    "name": "open UR without artefact",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Synthetic current Run · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | offen |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | den Nutzerbedarf klären · die Nutzeranforderungen formulieren und dauerhaft festhalten · Nachweise erfassen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Nächster erlaubter Agentenschritt | die Nutzeranforderungen formulieren und dauerhaft festhalten |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "formulate and persist UR",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "author_gate_artifact",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "formulate and persist UR",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Synthetic current Run · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | offen |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | den Nutzerbedarf klären · die Nutzeranforderungen formulieren und dauerhaft festhalten · Nachweise erfassen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Nächster erlaubter Agentenschritt | die Nutzeranforderungen formulieren und dauerhaft festhalten |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Synthetic current Run · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | offen |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | den Nutzerbedarf klären · die Nutzeranforderungen formulieren und dauerhaft festhalten · Nachweise erfassen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Nächster erlaubter Agentenschritt | die Nutzeranforderungen formulieren und dauerhaft festhalten |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "formulate and persist UR",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "author_gate_artifact",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "formulate and persist UR",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Synthetic current Run · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Allowed now | clarify user need · formulate and persist UR · record evidence |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · run Brownfield Analysis as implementation preparation · implement code · claim QA or release readiness |\n| Next permitted agent action | formulate and persist UR |\n| Missing approval | none |",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "formulate and persist UR",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "author_gate_artifact",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "formulate and persist UR",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Synthetic current Run · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Allowed now | clarify user need · formulate and persist UR · record evidence |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · run Brownfield Analysis as implementation preparation · implement code · claim QA or release readiness |\n| Next permitted agent action | formulate and persist UR |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Synthetic current Run · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Allowed now | clarify user need · formulate and persist UR · record evidence |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · run Brownfield Analysis as implementation preparation · implement code · claim QA or release readiness |\n| Next permitted agent action | formulate and persist UR |\n| Missing approval | none |",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "formulate and persist UR",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "author_gate_artifact",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "formulate and persist UR",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F02": {
+    "name": "ready UR draft awaiting approval",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | die UR-Anforderungen klären und eine neue Run-Revision festhalten |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten · UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind |\n| Blockiert durch | UR-Anforderungen müssen geklärt werden (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| Nächster erlaubter Agentenschritt | die UR-Anforderungen klären, dann die Revision mit der angezeigten aktuellen Aufzeichnungsoperation festhalten |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+          "allowed": [
+            "complete the UR requirement clarification and record a new run revision"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness",
+            "present or approve UR before requirement clarification is complete"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+            "next_step": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | die UR-Anforderungen klären und eine neue Run-Revision festhalten |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten · UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind |\n| Blockiert durch | UR-Anforderungen müssen geklärt werden (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| Nächster erlaubter Agentenschritt | die UR-Anforderungen klären, dann die Revision mit der angezeigten aktuellen Aufzeichnungsoperation festhalten |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | die UR-Anforderungen klären und eine neue Run-Revision festhalten |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten · UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind |\n| Blockiert durch | UR-Anforderungen müssen geklärt werden (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| Nächster erlaubter Agentenschritt | die UR-Anforderungen klären, dann die Revision mit der angezeigten aktuellen Aufzeichnungsoperation festhalten |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+          "allowed": [
+            "complete the UR requirement clarification and record a new run revision"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness",
+            "present or approve UR before requirement clarification is complete"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+            "next_step": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "- Problem: The current flow loses the selected intent.\n- Goal: Preserve one explicit intent.\n- Scope: Only the selected undertaking.\n- Acceptance: The selected intent is visible after handoff.\n- Open questions: No unresolved clarification.\n\n## Review artefact · UR\n\nRun: `run-{{volatile-1}}` · Gate: `UR` · Revision: `{{volatile-2}}`\n\nArtefact: [UR.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\UR.md>)\n\nSHA-256: `sha256:d57aceb43365386d3d21e8ac2635c9a93fc26ad88122755bf2120764cbb9d8bd`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence",
+            "request exact UR approval"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "Approval: UR",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need · formulate and persist UR · record evidence · request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · run Brownfield Analysis as implementation preparation · implement code · claim QA or release readiness |\n| Waiting for | Approval: UR |",
+        "status_card_variant": "- Problem: The current flow loses the selected intent.\n- Goal: Preserve one explicit intent.\n- Scope: Only the selected undertaking.\n- Acceptance: The selected intent is visible after handoff.\n- Open questions: No unresolved clarification.\n\n## Review artefact · UR\n\nRun: `run-{{volatile-1}}` · Gate: `UR` · Revision: `{{volatile-2}}`\n\nArtefact: [UR.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\UR.md>)\n\nSHA-256: `sha256:d57aceb43365386d3d21e8ac2635c9a93fc26ad88122755bf2120764cbb9d8bd`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence",
+            "request exact UR approval"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "Approval: UR",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F03": {
+    "name": "PRD gate with draft",
+    "de": {
+      "cli": {
+        "status_card": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel: Einen persönlichen Filter speichern und wiederherstellen.\n- Umfang: Ein benannter Filter ohne Freigabe für andere Nutzer.\n- AC-001: Wiederherstellung reproduziert die gespeicherten Filterwerte desselben Nutzers.\n- Entscheidungen: Persönliche Eigentümerschaft ist geklärt.\n\n## Prüfartefakt · PRD\n\nRun: `run-{{volatile-1}}` · Gate: `PRD` · Revision: `{{volatile-2}}`\n\nArtefakt: [PRD.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\PRD.md>)\n\nSHA-256: `sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+        "fields": {
+          "status": "open",
+          "current_gate": "PRD",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: PRD",
+          "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+          "allowed": [
+            "draft or refine PRD",
+            "define scope",
+            "define acceptance criteria",
+            "define non-goals",
+            "request exact PRD approval"
+          ],
+          "forbidden": [
+            "create SD",
+            "create TP",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "PRD",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "current"
+              },
+              {
+                "gate": "SD",
+                "status": "open"
+              },
+              {
+                "gate": "TP",
+                "status": "open"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: PRD",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "SD",
+            "user_action_required": "yes"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | PRD: Synthetic saved filter · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ● PRD · ○ SD · ○ TP · ○ QA · ○ UAT · ○ OR |\n| Status | offen |\n| Aktuelles Gate | Produktanforderungen (`PRD`) |\n| Deine Entscheidung | Approval: PRD · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | PRD entwerfen oder überarbeiten · den Umfang festlegen · Akzeptanzkriterien festlegen · Nicht-Ziele festlegen · die exakte PRD-Freigabe anfordern |\n| Aktuell verboten | das Lösungsdesign erstellen · den Aufgaben- und Testplan erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Wartet auf | Approval: PRD |",
+        "status_card_variant": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel: Einen persönlichen Filter speichern und wiederherstellen.\n- Umfang: Ein benannter Filter ohne Freigabe für andere Nutzer.\n- AC-001: Wiederherstellung reproduziert die gespeicherten Filterwerte desselben Nutzers.\n- Entscheidungen: Persönliche Eigentümerschaft ist geklärt.\n\n## Prüfartefakt · PRD\n\nRun: `run-{{volatile-1}}` · Gate: `PRD` · Revision: `{{volatile-2}}`\n\nArtefakt: [PRD.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\PRD.md>)\n\nSHA-256: `sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+        "fields": {
+          "status": "open",
+          "current_gate": "PRD",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: PRD",
+          "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+          "allowed": [
+            "draft or refine PRD",
+            "define scope",
+            "define acceptance criteria",
+            "define non-goals",
+            "request exact PRD approval"
+          ],
+          "forbidden": [
+            "create SD",
+            "create TP",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "PRD",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "current"
+              },
+              {
+                "gate": "SD",
+                "status": "open"
+              },
+              {
+                "gate": "TP",
+                "status": "open"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: PRD",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "SD",
+            "user_action_required": "yes"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "- Product scope: Save and restore one named user-owned filter. No sharing or permissions change.\n- Acceptance criteria:\n  - AC-001: The restored filter values equal the saved values.\n- Decisions:\n  - Saved-filter ownership (resolved): Only the saving user owns the filter\n\n## Review artefact · PRD\n\nRun: `run-{{volatile-1}}` · Gate: `PRD` · Revision: `{{volatile-2}}`\n\nArtefact: [PRD.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\PRD.md>)\n\nSHA-256: `sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "PRD",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: PRD",
+          "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+          "allowed": [
+            "draft or refine PRD",
+            "define scope",
+            "define acceptance criteria",
+            "define non-goals",
+            "request exact PRD approval"
+          ],
+          "forbidden": [
+            "create SD",
+            "create TP",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "PRD",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "current"
+              },
+              {
+                "gate": "SD",
+                "status": "open"
+              },
+              {
+                "gate": "TP",
+                "status": "open"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: PRD",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "SD",
+            "user_action_required": "yes"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | PRD: Synthetic saved filter · `run-{{volatile-1}}` |\n| Path | ✓ UR · ● PRD · ○ SD · ○ TP · ○ QA · ○ UAT · ○ OR |\n| Status | open |\n| Current gate | Product requirements (`PRD`) |\n| Your decision | Approval: PRD · Revise · Decline |\n| Agent may work on now | draft or refine PRD · define scope · define acceptance criteria · define non-goals · request exact PRD approval |\n| Forbidden now | create SD · create TP · run Brownfield Analysis as implementation preparation · implement code · claim QA or release readiness |\n| Waiting for | Approval: PRD |",
+        "status_card_variant": "- Product scope: Save and restore one named user-owned filter. No sharing or permissions change.\n- Acceptance criteria:\n  - AC-001: The restored filter values equal the saved values.\n- Decisions:\n  - Saved-filter ownership (resolved): Only the saving user owns the filter\n\n## Review artefact · PRD\n\nRun: `run-{{volatile-1}}` · Gate: `PRD` · Revision: `{{volatile-2}}`\n\nArtefact: [PRD.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\PRD.md>)\n\nSHA-256: `sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "PRD",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: PRD",
+          "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+          "allowed": [
+            "draft or refine PRD",
+            "define scope",
+            "define acceptance criteria",
+            "define non-goals",
+            "request exact PRD approval"
+          ],
+          "forbidden": [
+            "create SD",
+            "create TP",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "PRD",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "current"
+              },
+              {
+                "gate": "SD",
+                "status": "open"
+              },
+              {
+                "gate": "TP",
+                "status": "open"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: PRD",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "SD",
+            "user_action_required": "yes"
+          }
+        }
+      }
+    }
+  },
+  "F04": {
+    "name": "pending structured internal step (Brownfield Review after approved UR)",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ✓ UR |\n| Status | offen |\n| Aktuelles Gate | Brownfield-Prüfung (`Brownfield Review`) |\n| Jetzt erlaubt | Brownfield Review nach G-00 durchführen · bestehenden Arbeitsstrang, Owner, SoT, Wiederverwendungsrisiken und offene PRD-/SD-Fragen ermitteln · Brownfield Review im ausgewählten RUN_STATE.md als erledigt oder nicht zutreffend markieren |\n| Aktuell verboten | PRD erstellen, bevor Brownfield Review geklärt ist · das Lösungsdesign erstellen · den Aufgaben- und Testplan erstellen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Nächster erlaubter Agentenschritt | Brownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "open",
+          "current_gate": "Brownfield Review",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+          "allowed": [
+            "run Brownfield Review after G-00",
+            "identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions",
+            "mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md"
+          ],
+          "forbidden": [
+            "create PRD before Brownfield Review is resolved",
+            "create SD",
+            "create TP",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "analyse_existing_system",
+          "card": {
+            "status": "open",
+            "current_gate": "Brownfield Review",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ✓ UR |\n| Status | offen |\n| Aktuelles Gate | Brownfield-Prüfung (`Brownfield Review`) |\n| Jetzt erlaubt | Brownfield Review nach G-00 durchführen · bestehenden Arbeitsstrang, Owner, SoT, Wiederverwendungsrisiken und offene PRD-/SD-Fragen ermitteln · Brownfield Review im ausgewählten RUN_STATE.md als erledigt oder nicht zutreffend markieren |\n| Aktuell verboten | PRD erstellen, bevor Brownfield Review geklärt ist · das Lösungsdesign erstellen · den Aufgaben- und Testplan erstellen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Nächster erlaubter Agentenschritt | Brownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ✓ UR |\n| Status | offen |\n| Aktuelles Gate | Brownfield-Prüfung (`Brownfield Review`) |\n| Jetzt erlaubt | Brownfield Review nach G-00 durchführen · bestehenden Arbeitsstrang, Owner, SoT, Wiederverwendungsrisiken und offene PRD-/SD-Fragen ermitteln · Brownfield Review im ausgewählten RUN_STATE.md als erledigt oder nicht zutreffend markieren |\n| Aktuell verboten | PRD erstellen, bevor Brownfield Review geklärt ist · das Lösungsdesign erstellen · den Aufgaben- und Testplan erstellen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Nächster erlaubter Agentenschritt | Brownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "open",
+          "current_gate": "Brownfield Review",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+          "allowed": [
+            "run Brownfield Review after G-00",
+            "identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions",
+            "mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md"
+          ],
+          "forbidden": [
+            "create PRD before Brownfield Review is resolved",
+            "create SD",
+            "create TP",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "analyse_existing_system",
+          "card": {
+            "status": "open",
+            "current_gate": "Brownfield Review",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ✓ UR |\n| Status | open |\n| Current gate | Brownfield review (`Brownfield Review`) |\n| Allowed now | run Brownfield Review after G-00 · identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions · mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md |\n| Forbidden now | create PRD before Brownfield Review is resolved · create SD · create TP · implement code · claim QA or release readiness |\n| Next permitted agent action | Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence. |\n| Missing approval | none |",
+        "fields": {
+          "status": "open",
+          "current_gate": "Brownfield Review",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+          "allowed": [
+            "run Brownfield Review after G-00",
+            "identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions",
+            "mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md"
+          ],
+          "forbidden": [
+            "create PRD before Brownfield Review is resolved",
+            "create SD",
+            "create TP",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "analyse_existing_system",
+          "card": {
+            "status": "open",
+            "current_gate": "Brownfield Review",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ✓ UR |\n| Status | open |\n| Current gate | Brownfield review (`Brownfield Review`) |\n| Allowed now | run Brownfield Review after G-00 · identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions · mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md |\n| Forbidden now | create PRD before Brownfield Review is resolved · create SD · create TP · implement code · claim QA or release readiness |\n| Next permitted agent action | Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ✓ UR |\n| Status | open |\n| Current gate | Brownfield review (`Brownfield Review`) |\n| Allowed now | run Brownfield Review after G-00 · identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions · mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md |\n| Forbidden now | create PRD before Brownfield Review is resolved · create SD · create TP · implement code · claim QA or release readiness |\n| Next permitted agent action | Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence. |\n| Missing approval | none |",
+        "fields": {
+          "status": "open",
+          "current_gate": "Brownfield Review",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+          "allowed": [
+            "run Brownfield Review after G-00",
+            "identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions",
+            "mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md"
+          ],
+          "forbidden": [
+            "create PRD before Brownfield Review is resolved",
+            "create SD",
+            "create TP",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "analyse_existing_system",
+          "card": {
+            "status": "open",
+            "current_gate": "Brownfield Review",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F05": {
+    "name": "TP gate with draft",
+    "de": {
+      "cli": {
+        "status_card": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel: Persönliche Filterwerte mit bestehenden Eigentumsgrenzen prüfen.\n- Aufgaben: Speichern und Wiederherstellen im isolierten Laufzeitpfad testen.\n- Nachweise: Konkrete Werte vergleichen; fehlender Zugriff bleibt als Lücke sichtbar.\n\n## Prüfartefakt · TP\n\nRun: `run-{{volatile-1}}` · Gate: `TP` · Revision: `{{volatile-2}}`\n\nArtefakt: [TP.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\TP.md>)\n\nSHA-256: `sha256:cfca20cc7559e2376ce57d5c12db45cb146621c94dad5c73b588d81be2914671`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+        "fields": {
+          "status": "open",
+          "current_gate": "TP",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: TP",
+          "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "allowed": [
+            "draft or refine Task/Test Plan",
+            "define task IDs",
+            "define test evidence",
+            "request exact TP approval"
+          ],
+          "forbidden": [
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "TP",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "current"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: TP",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | TP: Saved filter verification · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT · ○ OR |\n| Status | offen |\n| Aktuelles Gate | Aufgaben- und Testplan (`TP`) |\n| Deine Entscheidung | Approval: TP · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | den Aufgaben- und Testplan entwerfen oder überarbeiten · Aufgaben-IDs festlegen · Testnachweise festlegen · die exakte TP-Freigabe anfordern |\n| Aktuell verboten | Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Wartet auf | Approval: TP |",
+        "status_card_variant": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel: Persönliche Filterwerte mit bestehenden Eigentumsgrenzen prüfen.\n- Aufgaben: Speichern und Wiederherstellen im isolierten Laufzeitpfad testen.\n- Nachweise: Konkrete Werte vergleichen; fehlender Zugriff bleibt als Lücke sichtbar.\n\n## Prüfartefakt · TP\n\nRun: `run-{{volatile-1}}` · Gate: `TP` · Revision: `{{volatile-2}}`\n\nArtefakt: [TP.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\TP.md>)\n\nSHA-256: `sha256:cfca20cc7559e2376ce57d5c12db45cb146621c94dad5c73b588d81be2914671`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+        "fields": {
+          "status": "open",
+          "current_gate": "TP",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: TP",
+          "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "allowed": [
+            "draft or refine Task/Test Plan",
+            "define task IDs",
+            "define test evidence",
+            "request exact TP approval"
+          ],
+          "forbidden": [
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "TP",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "current"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: TP",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "- Tasks: T-001 — Exercise save and restore through the existing filter store\n- Tests: AC-001 — SCN-001 — Execute local integration fixture — Local isolated Node runtime — Local temp write only — Test plan owner — Saved/restored value comparison — Keep evidence missing and repair local fixture access\n\n## Review artefact · TP\n\nRun: `run-{{volatile-1}}` · Gate: `TP` · Revision: `{{volatile-2}}`\n\nArtefact: [TP.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\TP.md>)\n\nSHA-256: `sha256:cfca20cc7559e2376ce57d5c12db45cb146621c94dad5c73b588d81be2914671`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "TP",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: TP",
+          "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "allowed": [
+            "draft or refine Task/Test Plan",
+            "define task IDs",
+            "define test evidence",
+            "request exact TP approval"
+          ],
+          "forbidden": [
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "TP",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "current"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: TP",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | TP: Saved filter verification · `run-{{volatile-1}}` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT · ○ OR |\n| Status | open |\n| Current gate | Task and test plan (`TP`) |\n| Your decision | Approval: TP · Revise · Decline |\n| Agent may work on now | draft or refine Task/Test Plan · define task IDs · define test evidence · request exact TP approval |\n| Forbidden now | implement code · claim QA or release readiness |\n| Waiting for | Approval: TP |",
+        "status_card_variant": "- Tasks: T-001 — Exercise save and restore through the existing filter store\n- Tests: AC-001 — SCN-001 — Execute local integration fixture — Local isolated Node runtime — Local temp write only — Test plan owner — Saved/restored value comparison — Keep evidence missing and repair local fixture access\n\n## Review artefact · TP\n\nRun: `run-{{volatile-1}}` · Gate: `TP` · Revision: `{{volatile-2}}`\n\nArtefact: [TP.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\TP.md>)\n\nSHA-256: `sha256:cfca20cc7559e2376ce57d5c12db45cb146621c94dad5c73b588d81be2914671`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "TP",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: TP",
+          "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "allowed": [
+            "draft or refine Task/Test Plan",
+            "define task IDs",
+            "define test evidence",
+            "request exact TP approval"
+          ],
+          "forbidden": [
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "TP",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "current"
+              },
+              {
+                "gate": "QA",
+                "status": "open"
+              },
+              {
+                "gate": "UAT",
+                "status": "open"
+              },
+              {
+                "gate": "OR",
+                "status": "open"
+              }
+            ],
+            "missing_approval": "Approval: TP",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F06": {
+    "name": "completed quick_task",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR-lite: Synthetic saved filter · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ✓ Compact Delivery |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen · VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |\n\nQuality Readiness: Überarbeitung erforderlich\nPlanabdeckung: Nachweis fehlt\nLösungsintegrität: Nachweis fehlt\nCode-Qualität: bestanden\nQA-Entscheidung: Nachweis fehlt\nGrund: Die QA-Nachweise müssen vor einem QA-Pass überarbeitet werden.\nNächste Aktion: Run completed; prepare a VCS handoff only when explicitly requested.\nEntscheidungsinstanz: QA-Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "Compact Delivery",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR-lite: Synthetic saved filter · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ✓ Compact Delivery |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen · VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR-lite: Synthetic saved filter · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ✓ Compact Delivery |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen · VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |\n\nQuality Readiness: Überarbeitung erforderlich\nPlanabdeckung: Nachweis fehlt\nLösungsintegrität: Nachweis fehlt\nCode-Qualität: bestanden\nQA-Entscheidung: Nachweis fehlt\nGrund: Die QA-Nachweise müssen vor einem QA-Pass überarbeitet werden.\nNächste Aktion: Run completed; prepare a VCS handoff only when explicitly requested.\nEntscheidungsinstanz: QA-Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "Compact Delivery",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | OR-lite: Synthetic saved filter · `run-{{volatile-1}}` |\n| Path | ✓ UR · ✓ Compact Delivery |\n| Status | passed |\n| Current gate | Delivery report (`OR`) |\n| Allowed now | prepare an explicitly requested VCS handoff |\n| Forbidden now | repeat completed Run work · perform VCS or release actions automatically |\n| Next permitted agent action | Run completed; prepare a VCS handoff only when explicitly requested. |\n| Missing approval | none |\n\nQuality Readiness: revision needed\nPlan coverage: evidence missing\nSolution integrity: evidence missing\nCode quality: passed\nQA decision: evidence missing\nReason: QA evidence requires revision before the gate can pass.\nNext action: Run completed; prepare a VCS handoff only when explicitly requested.\nDecision owner: QA Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "Compact Delivery",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | OR-lite: Synthetic saved filter · `run-{{volatile-1}}` |\n| Path | ✓ UR · ✓ Compact Delivery |\n| Status | passed |\n| Current gate | Delivery report (`OR`) |\n| Allowed now | prepare an explicitly requested VCS handoff |\n| Forbidden now | repeat completed Run work · perform VCS or release actions automatically |\n| Next permitted agent action | Run completed; prepare a VCS handoff only when explicitly requested. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | OR-lite: Synthetic saved filter · `run-{{volatile-1}}` |\n| Path | ✓ UR · ✓ Compact Delivery |\n| Status | passed |\n| Current gate | Delivery report (`OR`) |\n| Allowed now | prepare an explicitly requested VCS handoff |\n| Forbidden now | repeat completed Run work · perform VCS or release actions automatically |\n| Next permitted agent action | Run completed; prepare a VCS handoff only when explicitly requested. |\n| Missing approval | none |\n\nQuality Readiness: revision needed\nPlan coverage: evidence missing\nSolution integrity: evidence missing\nCode quality: passed\nQA decision: evidence missing\nReason: QA evidence requires revision before the gate can pass.\nNext action: Run completed; prepare a VCS handoff only when explicitly requested.\nDecision owner: QA Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "Compact Delivery",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F07": {
+    "name": "completed structured run",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR: Synthetic current Run · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen · VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |\n\nQuality Readiness: bestanden\nPlanabdeckung: bestanden\nLösungsintegrität: bestanden\nCode-Qualität: bestanden\nQA-Entscheidung: bestanden\nGrund: keine\nNächste Aktion: Run completed; prepare a VCS handoff only when explicitly requested.\nEntscheidungsinstanz: QA-Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "QA",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "UAT",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "OR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR: Synthetic current Run · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen · VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR: Synthetic current Run · `run-{{volatile-1}}` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen · VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |\n\nQuality Readiness: bestanden\nPlanabdeckung: bestanden\nLösungsintegrität: bestanden\nCode-Qualität: bestanden\nQA-Entscheidung: bestanden\nGrund: keine\nNächste Aktion: Run completed; prepare a VCS handoff only when explicitly requested.\nEntscheidungsinstanz: QA-Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "QA",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "UAT",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "OR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | OR: Synthetic current Run · `run-{{volatile-1}}` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | passed |\n| Current gate | Delivery report (`OR`) |\n| Allowed now | prepare an explicitly requested VCS handoff |\n| Forbidden now | repeat completed Run work · perform VCS or release actions automatically |\n| Next permitted agent action | Run completed; prepare a VCS handoff only when explicitly requested. |\n| Missing approval | none |\n\nQuality Readiness: passed\nPlan coverage: passed\nSolution integrity: passed\nCode quality: passed\nQA decision: passed\nReason: none\nNext action: Run completed; prepare a VCS handoff only when explicitly requested.\nDecision owner: QA Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "QA",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "UAT",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "OR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | OR: Synthetic current Run · `run-{{volatile-1}}` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | passed |\n| Current gate | Delivery report (`OR`) |\n| Allowed now | prepare an explicitly requested VCS handoff |\n| Forbidden now | repeat completed Run work · perform VCS or release actions automatically |\n| Next permitted agent action | Run completed; prepare a VCS handoff only when explicitly requested. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | OR: Synthetic current Run · `run-{{volatile-1}}` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | passed |\n| Current gate | Delivery report (`OR`) |\n| Allowed now | prepare an explicitly requested VCS handoff |\n| Forbidden now | repeat completed Run work · perform VCS or release actions automatically |\n| Next permitted agent action | Run completed; prepare a VCS handoff only when explicitly requested. |\n| Missing approval | none |\n\nQuality Readiness: passed\nPlan coverage: passed\nSolution integrity: passed\nCode quality: passed\nQA decision: passed\nReason: none\nNext action: Run completed; prepare a VCS handoff only when explicitly requested.\nDecision owner: QA Gate",
+        "fields": {
+          "status": "pass",
+          "current_gate": "OR",
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "allowed": [
+            "prepare an explicitly requested VCS handoff"
+          ],
+          "forbidden": [
+            "repeat completed Run work",
+            "perform VCS or release actions automatically"
+          ],
+          "next_operation": null,
+          "card": {
+            "status": "pass",
+            "current_gate": "OR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "PRD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "SD",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "TP",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "QA",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "UAT",
+                "status": "fulfilled"
+              },
+              {
+                "gate": "OR",
+                "status": "fulfilled"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "none",
+            "next_step": "Run completed; prepare a VCS handoff only when explicitly requested.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F08": {
+    "name": "legacy v2 only",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_VERSION_UNSUPPORTED) |\n| Nächster erlaubter Agentenschritt | Einen kompatiblen Reader für das gespeicherte Format verwenden; ursprüngliche Historie und Herkunftsnachweise unverändert erhalten. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_UNSUPPORTED",
+            "next_step": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_VERSION_UNSUPPORTED) |\n| Nächster erlaubter Agentenschritt | Einen kompatiblen Reader für das gespeicherte Format verwenden; ursprüngliche Historie und Herkunftsnachweise unverändert erhalten. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_VERSION_UNSUPPORTED) |\n| Nächster erlaubter Agentenschritt | Einen kompatiblen Reader für das gespeicherte Format verwenden; ursprüngliche Historie und Herkunftsnachweise unverändert erhalten. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_UNSUPPORTED",
+            "next_step": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_VERSION_UNSUPPORTED) |\n| Next permitted agent action | Use a compatible reader supporting the recorded format; preserve original history bytes and provenance. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_UNSUPPORTED",
+            "next_step": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_VERSION_UNSUPPORTED) |\n| Next permitted agent action | Use a compatible reader supporting the recorded format; preserve original history bytes and provenance. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_VERSION_UNSUPPORTED) |\n| Next permitted agent action | Use a compatible reader supporting the recorded format; preserve original history bytes and provenance. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_UNSUPPORTED",
+            "next_step": "Use a compatible reader supporting the recorded format; preserve original history bytes and provenance.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F09": {
+    "name": "unsupported control layout",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_CONTROL_LAYOUT_UNSUPPORTED) |\n| Nächster erlaubter Agentenschritt | Eine unterstützte Konfiguration innerhalb des gebundenen Control-Verzeichnisses wiederherstellen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Restore a supported contained configuration.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+            "next_step": "Restore a supported contained configuration.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_CONTROL_LAYOUT_UNSUPPORTED) |\n| Nächster erlaubter Agentenschritt | Eine unterstützte Konfiguration innerhalb des gebundenen Control-Verzeichnisses wiederherstellen. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_CONTROL_LAYOUT_UNSUPPORTED) |\n| Nächster erlaubter Agentenschritt | Eine unterstützte Konfiguration innerhalb des gebundenen Control-Verzeichnisses wiederherstellen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Restore a supported contained configuration.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+            "next_step": "Restore a supported contained configuration.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_CONTROL_LAYOUT_UNSUPPORTED) |\n| Next permitted agent action | Restore a supported contained configuration. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Restore a supported contained configuration.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+            "next_step": "Restore a supported contained configuration.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_CONTROL_LAYOUT_UNSUPPORTED) |\n| Next permitted agent action | Restore a supported contained configuration. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_CONTROL_LAYOUT_UNSUPPORTED) |\n| Next permitted agent action | Restore a supported contained configuration. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Restore a supported contained configuration.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_CONTROL_LAYOUT_UNSUPPORTED",
+            "next_step": "Restore a supported contained configuration.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F10": {
+    "name": "mixed current and legacy",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | die UR-Anforderungen klären und eine neue Run-Revision festhalten |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten · UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind |\n| Blockiert durch | UR-Anforderungen müssen geklärt werden (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| Nächster erlaubter Agentenschritt | die UR-Anforderungen klären, dann die Revision mit der angezeigten aktuellen Aufzeichnungsoperation festhalten |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+          "allowed": [
+            "complete the UR requirement clarification and record a new run revision"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness",
+            "present or approve UR before requirement clarification is complete"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+            "next_step": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | die UR-Anforderungen klären und eine neue Run-Revision festhalten |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten · UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind |\n| Blockiert durch | UR-Anforderungen müssen geklärt werden (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| Nächster erlaubter Agentenschritt | die UR-Anforderungen klären, dann die Revision mit der angezeigten aktuellen Aufzeichnungsoperation festhalten |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | die UR-Anforderungen klären und eine neue Run-Revision festhalten |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · die Brownfield-Analyse als Implementierungsvorbereitung durchführen · Code implementieren · QA- oder Veröffentlichungsbereitschaft behaupten · UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind |\n| Blockiert durch | UR-Anforderungen müssen geklärt werden (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| Nächster erlaubter Agentenschritt | die UR-Anforderungen klären, dann die Revision mit der angezeigten aktuellen Aufzeichnungsoperation festhalten |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+          "allowed": [
+            "complete the UR requirement clarification and record a new run revision"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness",
+            "present or approve UR before requirement clarification is complete"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+            "next_step": "complete the UR requirement clarification, then record the revision through the inspected current recording operation",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "- Problem: The current flow loses the selected intent.\n- Goal: Preserve one explicit intent.\n- Scope: Only the selected undertaking.\n- Acceptance: The selected intent is visible after handoff.\n- Open questions: No unresolved clarification.\n\n## Review artefact · UR\n\nRun: `run-{{volatile-1}}` · Gate: `UR` · Revision: `{{volatile-2}}`\n\nArtefact: [UR.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\UR.md>)\n\nSHA-256: `sha256:d57aceb43365386d3d21e8ac2635c9a93fc26ad88122755bf2120764cbb9d8bd`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence",
+            "request exact UR approval"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "Approval: UR",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need · formulate and persist UR · record evidence · request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · run Brownfield Analysis as implementation preparation · implement code · claim QA or release readiness |\n| Waiting for | Approval: UR |",
+        "status_card_variant": "- Problem: The current flow loses the selected intent.\n- Goal: Preserve one explicit intent.\n- Scope: Only the selected undertaking.\n- Acceptance: The selected intent is visible after handoff.\n- Open questions: No unresolved clarification.\n\n## Review artefact · UR\n\nRun: `run-{{volatile-1}}` · Gate: `UR` · Revision: `{{volatile-2}}`\n\nArtefact: [UR.md](<{{volatile-3}}\\.agdf\\control\\runs\\run-{{volatile-1}}\\documents\\UR.md>)\n\nSHA-256: `sha256:d57aceb43365386d3d21e8ac2635c9a93fc26ad88122755bf2120764cbb9d8bd`\n\nOpen the linked version before deciding.",
+        "fields": {
+          "status": "open",
+          "current_gate": "UR",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+          "allowed": [
+            "clarify user need",
+            "formulate and persist UR",
+            "record evidence",
+            "request exact UR approval"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "run Brownfield Analysis as implementation preparation",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "human_gate_decision",
+          "card": {
+            "status": "open",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "Approval: UR",
+            "blocking_condition": "none",
+            "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F11": {
+    "name": "invalid RUN_STATE",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_VERSION_INVALID) |\n| Nächster erlaubter Agentenschritt | Ursprüngliche Version und Integritätsnachweise prüfen; fremde Historie nicht automatisch umschreiben, migrieren oder entfernen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_VERSION_INVALID) |\n| Nächster erlaubter Agentenschritt | Ursprüngliche Version und Integritätsnachweise prüfen; fremde Historie nicht automatisch umschreiben, migrieren oder entfernen. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_VERSION_INVALID) |\n| Nächster erlaubter Agentenschritt | Ursprüngliche Version und Integritätsnachweise prüfen; fremde Historie nicht automatisch umschreiben, migrieren oder entfernen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_VERSION_INVALID) |\n| Next permitted agent action | Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_VERSION_INVALID) |\n| Next permitted agent action | Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_VERSION_INVALID) |\n| Next permitted agent action | Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_VERSION_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_VERSION_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F12": {
+    "name": "oversized RUN_STATE",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_OPERATIONS_INVALID) |\n| Nächster erlaubter Agentenschritt | Ursprüngliche Version und Integritätsnachweise prüfen; fremde Historie nicht automatisch umschreiben, migrieren oder entfernen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_OPERATIONS_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_OPERATIONS_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_OPERATIONS_INVALID) |\n| Nächster erlaubter Agentenschritt | Ursprüngliche Version und Integritätsnachweise prüfen; fremde Historie nicht automatisch umschreiben, migrieren oder entfernen. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Unknown · `unknown` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_OPERATIONS_INVALID) |\n| Nächster erlaubter Agentenschritt | Ursprüngliche Version und Integritätsnachweise prüfen; fremde Historie nicht automatisch umschreiben, migrieren oder entfernen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_OPERATIONS_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_OPERATIONS_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_OPERATIONS_INVALID) |\n| Next permitted agent action | Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_OPERATIONS_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_OPERATIONS_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_OPERATIONS_INVALID) |\n| Next permitted agent action | Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Unknown · `unknown` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_OPERATIONS_INVALID) |\n| Next permitted agent action | Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_OPERATIONS_INVALID",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_OPERATIONS_INVALID",
+            "next_step": "Inspect the original version and integrity evidence; do not automatically rewrite, migrate or remove unrelated history.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  },
+  "F13": {
+    "name": "current run with a doctor finding (broken seal)",
+    "de": {
+      "cli": {
+        "status_card": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_SEAL_MISMATCH) |\n| Nächster erlaubter Agentenschritt | Unaufgezeichnete Bytes sichern, vertrauenswürdigen Zustand wiederherstellen und die Änderung beim aktuellen Eigentümer erfassen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_SEAL_MISMATCH",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_SEAL_MISMATCH",
+            "next_step": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_SEAL_MISMATCH) |\n| Nächster erlaubter Agentenschritt | Unaufgezeichnete Bytes sichern, vertrauenswürdigen Zustand wiederherstellen und die Änderung beim aktuellen Eigentümer erfassen. |\n| Fehlende Freigabe | keine |",
+        "status_card_variant": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Independent work · `run-{{volatile-1}}` |\n| Pfad | ● UR |\n| Status | blockiert |\n| Aktuelles Gate | Nutzeranforderungen (`UR`) |\n| Jetzt erlaubt | das AGDF-Kontrollgerüst reparieren · doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen · gesperrte Arbeit implementieren · QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_SEAL_MISMATCH) |\n| Nächster erlaubter Agentenschritt | Unaufgezeichnete Bytes sichern, vertrauenswürdigen Zustand wiederherstellen und die Änderung beim aktuellen Eigentümer erfassen. |\n| Fehlende Freigabe | keine |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_SEAL_MISMATCH",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_SEAL_MISMATCH",
+            "next_step": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    },
+    "en": {
+      "cli": {
+        "status_card": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_SEAL_MISMATCH) |\n| Next permitted agent action | Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_SEAL_MISMATCH",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_SEAL_MISMATCH",
+            "next_step": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      },
+      "mcp": {
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_SEAL_MISMATCH) |\n| Next permitted agent action | Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner. |\n| Missing approval | none |",
+        "status_card_variant": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Independent work · `run-{{volatile-1}}` |\n| Path | ● UR |\n| Status | blocked |\n| Current gate | User requirements (`UR`) |\n| Allowed now | repair the AGDF control scaffold · run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate · implement gated work · claim QA or release readiness |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_SEAL_MISMATCH) |\n| Next permitted agent action | Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner. |\n| Missing approval | none |",
+        "fields": {
+          "status": "blocked",
+          "current_gate": "UR",
+          "blocking_reason": "AGDF_RUN_SEAL_MISMATCH",
+          "missing_approval": "Approval: UR",
+          "next_allowed_action": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+          "allowed": [
+            "repair the AGDF control scaffold",
+            "run doctor again"
+          ],
+          "forbidden": [
+            "create later-gate artefacts beyond the current allowed gate",
+            "implement gated work",
+            "claim QA or release readiness"
+          ],
+          "next_operation": "resolve_control_blocker",
+          "card": {
+            "status": "blocked",
+            "current_gate": "UR",
+            "breadcrumb": [
+              {
+                "gate": "UR",
+                "status": "current"
+              }
+            ],
+            "missing_approval": "none",
+            "blocking_condition": "AGDF_RUN_SEAL_MISMATCH",
+            "next_step": "Preserve unrecorded bytes, restore the trusted sealed state, then stage the intended change through its current recording owner.",
+            "next_user_gate": "none",
+            "user_action_required": "no"
+          }
+        }
+      }
+    }
+  }
+}

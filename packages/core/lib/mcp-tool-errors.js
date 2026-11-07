@@ -14,7 +14,9 @@ const actions = {
   stop: ['unknown', ['dispatch_worker_failed', 'generation_runtime_failed', 'tool_result_invalid', 'unclassified_tool_failure', 'generation_manifest_incompatible']],
 };
 const causes = new Map(Object.entries(actions).flatMap(([action, [category, codes]]) => codes.map(code => [code, { action, category }])));
-const commandNames = new Set(['agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout', 'agdf_decision_action']);
+// The command tools of the MCP tool-error contract; every other tool is a read. Companion events use the same list.
+export const COMMAND_TOOL_NAMES = Object.freeze(['agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout', 'agdf_decision_action']);
+const commandNames = new Set(COMMAND_TOOL_NAMES);
 export const isEphemeralControlCommand = (name, input = {}) => commandNames.has(name)
   && ['presentation.deliver', 'material.stage', 'planned_material.stage'].includes(input.command?.kind);
 const commandOutcomes = new Set(['accepted', 'already_applied', 'rejected', 'recovery_required', 'effect_unknown']);

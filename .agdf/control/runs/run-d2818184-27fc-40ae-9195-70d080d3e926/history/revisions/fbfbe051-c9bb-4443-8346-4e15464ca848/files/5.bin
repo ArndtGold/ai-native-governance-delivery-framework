@@ -1,0 +1,24 @@
+## Aufgaben- und Testplan prüfen und entscheiden
+
+TP: Companion core in Core: host-neutral run view, MCP events and figure states
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Aufgaben- und Testplan für den Begleiter-Kern nach der zweiten SD-Revision, ergänzt um den Selektor `--run` für den Befehl run-view: Die Run-Ansicht entsteht Node-seitig aus dem unveränderten Gate-Check-Bewerter und erreicht den Begleiter über den lesenden Befehl `run-view`; danach folgen Ereignisse und Review-Fakten aus echten MCP-Ergebnissen.
+- Aufgaben: Schritt 1: T-001 Fixtures F01 bis F13, Golden-Ausgangsstand und Regressionsfälle (bereits umgesetzt); T-002 Run-Ansicht in Core mit Node-Leser über evaluateGateCheck, gate-check.js bleibt unverändert; T-003 lesender Befehl `run-view` mit versioniertem JSON und optionalem `--run ID`, Golden-Test in einem npm-Skript; T-004 Diagnose unlesbarer Bestände; T-005 Figurzustände und Texte im zentralen Katalog; T-006 Begleiter ruft den Befehl über `$.process.run` auf, ohne Core-Import, mit veralteter oder nicht verfügbarer Ansicht bei Fehlern, Integritätstest und Regressionsfälle im Begleiter-Test. Schritt 2: T-007 Ereignismodell; T-008 Protokoll an der finalen Ergebnisprojektion; T-009 Review-Fakten und Abweichungswarnung mit dem vorhandenen Node-Digest; T-010 Begleiter liest das Protokoll alle 2 Sekunden und ruft den Befehl nur bei Änderungen oder Ereignissen; T-011 hostneutraler Prüfstand; T-012 Pakete, Nutzlast, Kompatibilität und volle Regression; T-013 Live-Prüfung im Claude-Desktop mit gemessener Aktualisierungszeit.
+- Tests: 22 Szenarien decken AC-001 bis AC-011 und alle zugeordneten SDD ab. Neu sind SCN-002 (Befehlsausgabe mit `--run` gleich Statuskarte für alle 13 Fixtures, auch abgeschlossene Runs und nicht unterstütztes Layout, gate-check.js unverändert), SCN-020 (Begleiter zeigt die Doctor-Blockade wie die Statuskarte) und SCN-022 (Prozessfehler, Zeitlimit und kaputte Ausgabe führen zu veralteter oder nicht verfügbarer Ansicht, nie zu einer eigenen Ableitung). Die Regressionsfälle aus T-001 müssen nach T-006 unverändert grün werden. Golden-Vergleich, Integritätstest und Katalogvollständigkeit bleiben, die SHA-256-Parität entfällt.
+- Entscheidungen: Der SD-Punkt Fixture-Satz bleibt geklärt (13 Zustände). Neu im TP festgelegt: Form des Befehls `run-view` (Flags inklusive optionalem `--run ID`, Schema `run-view/1`, Exit-Codes wie `project-state`) und dass Adapter-Tests einen gefälschten `$.process` nutzen, echte Node-Prozesse nur im Befehlstest, im Prüfstand und in der Live-Prüfung. Schritt 1 muss grün sein, bevor Schritt 2 beginnt.
+- Abgrenzung: Kein Umbau von evaluateGateCheck, kein SHA-256 im Mod, keine Codex-Oberfläche, keine neue MCP-Operation oder Schemaänderung, keine Freigabe oder Blockade durch den Begleiter, keine Migration alter Bestände.
+- Risiken: Jede Golden-Abweichung, eine Änderung an gate-check.js und ein Verstoß gegen Import-, Prozess- oder Schreibgrenzen blockieren die QA. Jede Aktualisierung kostet einen Node-Prozess (0,5 bis 0,65 Sekunden). `$.process` ist nur in der Desktop-App geprüft. Nutzlast und Kompatibilitätsaufzeichnung wachsen mit.
+- Nächster Schritt: TP prüfen und nur mit `Approval: TP` freigeben; danach folgt erneut die Brownfield-Analyse vor der Umsetzung.
+
+Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Aufgaben- und Testplan · Revision: `0a8f6072-92d5-4fff-9b2e-fc9faf498905`
+
+SHA-256: `sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330`

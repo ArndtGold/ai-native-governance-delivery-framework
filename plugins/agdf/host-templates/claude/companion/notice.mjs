@@ -14,12 +14,13 @@ const NOTICE_MOODS = new Set(['wartet', 'blockiert']);
 // mention: the chat's named run (chat-run navigation SDD-06); browsing never changes what is observed.
 export function observedRun({ snapshot, sessionStartedAt, selection = null, mention = null }) {
   if (!snapshot) return { kind: 'idle' };
-  if (snapshot.status === 'failed') return { kind: 'unreadable' };
+  if (snapshot.status === 'failed' || snapshot.status === 'unavailable') return { kind: 'unreadable' };
   if (snapshot.status !== 'ok') return { kind: 'idle' };
   const { run } = assignRun({ runs: snapshot.runs, sessionStartedAt, selection, mention });
   if (!run) return selection && snapshot.unreadable.some(item => item.id === selection) ? { kind: 'unreadable' } : { kind: 'idle' };
-  const state = runState(run);
-  return state.mood === null ? { kind: 'unreadable' } : { kind: 'run', runId: run.id, state };
+  const figure = runState(run);
+  // The blocking text arrives localized in the run view; the signature keeps the code.
+  return { kind: 'run', runId: run.id, state: { ...figure, reason: { ...figure.reason, decisionText: run.blockingText || undefined } } };
 }
 
 const signature = ({ mood, reason }) => [mood, reason.key, reason.gate ?? '', reason.decision ?? ''].join('|');
@@ -35,11 +36,12 @@ export function observeNotice(previous, observed) {
   return { observation, notice: changed && NOTICE_MOODS.has(observed.state.mood) ? observed.state : null };
 }
 
-// The toast for a notice, e.g. "<run> wartet auf Freigabe: Qualitätssicherung".
-export function noticeText(runId, state, { registry, labels, locale }) {
+// The toast for a notice, e.g. "Wartet auf Freigabe: Qualitätssicherung". A notice always concerns
+// the run the status line follows, so it names no run (owner request of 2026-11-06, T-013).
+export function noticeText(state, { registry, labels, locale }) {
   const t = (path, params) => label(labels, locale, path, params);
-  const params = { run: runId, gate: gateTitle(registry, locale, state.reason.gate) };
-  if (state.reason.decision) params.decision = t(`decisions.${state.reason.decision}`);
+  const params = { gate: gateTitle(registry, locale, state.reason.gate) };
+  if (state.reason.decision) params.decision = state.reason.decisionText ?? state.reason.decision;
   return t(`notices.${state.reason.key}`, params);
 }
 
@@ -47,7 +49,7 @@ export function noticeText(runId, state, { registry, labels, locale }) {
 export function statusText(observed, { labels, locale }) {
   const t = path => label(labels, locale, path);
   if (observed.kind === 'unreadable') return `AGDF · ${t('statusStates.unreadable')}`;
-  if (observed.kind !== 'run') return `AGDF · ${t('statusStates.neutral')}`;
+  if (observed.kind !== 'run') return `AGDF · ${t('statusStates.bereit')}`;
   const { mood, reason } = observed.state;
   return mood === 'fertig' || !reason.gate ? `AGDF · ${t(`statusStates.${mood}`)}` : `AGDF · ${reason.gate} · ${t(`statusStates.${mood}`)}`;
 }

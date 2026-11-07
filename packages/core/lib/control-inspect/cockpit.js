@@ -22,7 +22,10 @@ import { runSealState } from '../control-state/run-seal.js';
 import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactReadiness } from './artifact-readiness.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
-import { runClosure, ENDED_LIFECYCLES } from '../control-state/run-operations.js';
+import { runClosure } from '../control-state/run-operations.js';
+// Shared with the companion run view, in a module every runtime profile carries.
+import { boundedCode, projectCockpitAssessment } from './run-classification.js';
+export { boundedCode, projectCockpitAssessment };
 
 const CONTROL = '.agdf/control/';
 const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
@@ -31,13 +34,6 @@ const DOCUMENT_GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
 const DESCRIPTION_LIMIT = 256 * 1024;
 const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
 const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
-function boundedCode(error) {
-  const code = error.code ?? error.message;
-  if (code === 'AGDF_CONTROL_LAYOUT_UNSUPPORTED') return 'control_layout_unsupported';
-  if (code === 'AGDF_RUN_VERSION_UNSUPPORTED') return 'run_version_unsupported';
-  if (code === 'AGDF_CONTROL_LAYOUT_INVALID') return 'control_invalid';
-  return ['resource_denied', 'source_changed', 'timeout', 'resource_limit', 'read_failed'].includes(error.code) ? error.code : 'read_failed';
-}
 const objective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
 // History of an ended Run, read only from its sealed closure receipt; null for every other Run.
 export function projectRunClosure(content) {
@@ -46,18 +42,6 @@ export function projectRunClosure(content) {
     closed_at: closure.closed_at, operation_id: closure.operation_id, receipt: closure.receipt, authorizes: false };
 }
 
-// Read-only projection of the evaluated decision, never a second gate evaluator.
-// Doctor warnings are already considered by evaluateGateCheck; they are not a UI veto.
-export function projectCockpitAssessment(report, lifecycle) {
-  const state = ENDED_LIFECYCLES.includes(lifecycle) ? 'ended'
-    : lifecycle === 'completed' ? report.completion?.fulfilled === true ? 'completed' : 'unconfirmed'
-    : lifecycle !== 'active' ? 'unconfirmed'
-    : report.status === 'blocked' || (report.blocking_reason && report.blocking_reason !== 'none')
-      || (report.missing_approval && report.missing_approval !== 'none') ? 'blocked'
-    : report.status === 'open' && report.blocking_reason === 'none' && report.missing_approval === 'none' ? 'open'
-    : 'unconfirmed';
-  return { state, authorizes: false };
-}
 
 export function createCockpitReader(root, options = {}) {
   let view = null, details = new Map(), documents = new Map();

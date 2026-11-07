@@ -1,5 +1,6 @@
 import { INSTALL_SETUP_STATES, INSTALL_ACTIONS, INSTALL_FAILURE_PHASES, INSTALL_FAILURE_CODES,
-  DISPATCH_RECOVERY_CODES, CODEX_HOOK_STATES, DECISION_CARD_LABEL_KEYS, FLOW_EVIDENCE_LABEL_KEYS } from "./interaction-catalog.js";
+  DISPATCH_RECOVERY_CODES, CODEX_HOOK_STATES, DECISION_CARD_LABEL_KEYS, FLOW_EVIDENCE_LABEL_KEYS,
+  COMPANION_MOODS, COMPANION_UNREADABLE_REASONS } from "./interaction-catalog.js";
 
 // Build-time validation, not a second vocabulary. Unknown and missing copy both fail closed.
 export function validateInteractionCatalog(registry) {
@@ -18,6 +19,10 @@ export function validateInteractionCatalog(registry) {
     check(`${language}.skillDispatch.recoveries`, pack.skillDispatch?.recoveries, DISPATCH_RECOVERY_CODES);
     check(`${language}.decisionCard`, pack.decisionCard, DECISION_CARD_LABEL_KEYS);
     check(`${language}.flowEvidence`, pack.flowEvidence, FLOW_EVIDENCE_LABEL_KEYS);
+    check(`${language}.companion.states`, pack.companion?.states, COMPANION_MOODS);
+    check(`${language}.companion.statusStates`, pack.companion?.statusStates, [...COMPANION_MOODS, "unreadable"]);
+    const unreadable = pack.companion?.unreadable;
+    check(`${language}.companion.unreadable`, unreadable && Object.fromEntries(COMPANION_UNREADABLE_REASONS.map(key => [key, unreadable[key]])), COMPANION_UNREADABLE_REASONS);
   }
   for (const row of Object.values(CODEX_HOOK_STATES)) {
     if (!INSTALL_SETUP_STATES[row.state]?.actions.includes(row.action)) throw new Error("AGDF_INTERACTION_CATALOG_HOOK_INVALID");

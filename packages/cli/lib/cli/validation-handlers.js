@@ -1,5 +1,5 @@
 import { executeRunAlias } from './run-command-aliases.js';
-import { executeProjectRead } from './project-read-command.js';
+import { executeProjectRead, executeRunView } from './project-read-command.js';
 import { localePack } from '#agdf-core/interaction-presentation.js';
 import { renderCodexDocument } from './codex-document-command.js';
 import { readFileSync, lstatSync, openSync, fstatSync, closeSync, constants } from "node:fs";
@@ -46,6 +46,7 @@ export function createValidationHandlers(io = console) {
   } }).dispatch;
   return new Map([
     ...['project-state', 'operation-status'].map(name => [name, options => executeProjectRead(options, io)]),
+    ['run-view', options => executeRunView(options, io)],
     ['render-document', options => renderCodexDocument(options)],
     ...['run-create', 'run-present', 'run-approve', 'run-step', 'run-revise', 'run-close'].map(name => [name, options => executeRunAlias(options, io)]),
     ...Object.entries(commandGroupRoutes).map(([route, group]) => [route, options => {

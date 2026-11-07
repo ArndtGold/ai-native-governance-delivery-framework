@@ -127,7 +127,7 @@ function validateReadLocaleRegistry(registry) {
       const budget = cardBudget ? budgets[cardBudget]
         : key.startsWith("sourceRevision.") || key.startsWith("mcpErrors.") ? budgets.description
         : key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("skillDispatch.sourceInput.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("companion.") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("skillDispatch.sourceInput.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -434,6 +434,29 @@ export function isOperationalValueRenderable(value, { registry, requestedLocale 
     return Boolean(localizedOperationalValue(value, localePack(registry, locale), localePack(registry, fallbackLocale), locale === fallbackLocale));
   } catch {
     return false;
+  }
+}
+
+// The localized status-card text of one operational value (next step, after-approval action),
+// exactly as the status card renders it; null when the locale cannot render it.
+export function localizeOperationalValue(value, { registry, requestedLocale } = {}) {
+  try {
+    const locale = resolvePresentationLocale(registry, requestedLocale);
+    const fallbackLocale = resolvePresentationLocale(registry, registry.fallbackLocale);
+    return localizedOperationalValue(value, localePack(registry, locale), localePack(registry, fallbackLocale), locale === fallbackLocale);
+  } catch {
+    return null;
+  }
+}
+
+// The localized status-card text of a blocking condition, exactly as the status card renders it.
+export function localizeBlockingCondition(value, { registry, requestedLocale } = {}) {
+  try {
+    const locale = resolvePresentationLocale(registry, requestedLocale);
+    const fallbackLocale = resolvePresentationLocale(registry, registry.fallbackLocale);
+    return localizedBlockingCondition(value, localePack(registry, locale), localePack(registry, fallbackLocale), locale === fallbackLocale);
+  } catch {
+    return null;
   }
 }
 

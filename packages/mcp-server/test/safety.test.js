@@ -81,7 +81,7 @@ visit(resolve(dispatcherRoot, 'lib/mcp-decision-protocol.js'));
 // per-owner audit of the canonical full factory that the build compiles.
 visit(resolve(dispatcherRoot, 'lib/mcp-dispatch-runtime.js'));
 const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlinkSync", "rmSync",
-  "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"];
+  "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync", "appendFileSync"];
 // Bound continuation composes the existing writer; the MCP adapter adds no write owner.
 const continuationWriteOwners = new Map([
   // Existing immutable preview publication owner; no new writer is introduced
@@ -113,6 +113,11 @@ const continuationWriteOwners = new Map([
   ["runtime/core/lib/control-state/control-layout.js", ["writeFileSync", "unlinkSync", "mkdirSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/control-state/planned-entry.js", ["renameSync", "unlinkSync", "mkdirSync"]],
   ["runtime/core/lib/control-state/planned-handoff.js", ["unlinkSync", "rmdirSync", "mkdirSync"]],
+  // Companion event journal (companion core SDD-005): appends one line per projected tool result
+  // below the plugin data root handed over by the launcher, creates only its own directory and
+  // rotates its own file once. It never writes inside a project root or the control store.
+  // appendFileSync is scanned too, so no other reachable module gains an append (CR finding C5).
+  ["runtime/core/lib/companion/journal.js", ["renameSync", "mkdirSync", "appendFileSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],

@@ -209,7 +209,7 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   const absent = inspectProjectState(root, input, cliGitObservation);
   assert.equal(absent.status, 'absent'); assert.equal(existsSync(join(root, '.agdf')), false);
   assert.equal(absent.repository.root, root); assert.match(absent.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
-  assert.equal(absent.plan.version, packageVersion); assert.equal(absent.plan.file_count, 16, 'current scaffold retains empty Git stores without a shared backlog');
+  assert.equal(absent.plan.version, packageVersion); assert.equal(absent.plan.file_count, 17, 'current scaffold includes the brand worksheet and empty Git stores');
   assert.equal(absent.setup.binding.target_id, input.target_id); assert.equal(absent.setup.requires_explicit_intent, true);
   assert.deepEqual(absent.setup.required_agent_fields, ['operation_id']);
   const created = run();
@@ -231,11 +231,13 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
   assert.equal(Buffer.byteLength(JSON.stringify(created)) < 16384, true);
   const control = join(root, '.agdf/control'), config = join(control, 'config.json');
+  const brandTemplate = new URL('../../../plugins/agdf/control/templates/BRAND.md', import.meta.url);
+  assert.deepEqual(readFileSync(join(control, 'BRAND.md')), readFileSync(brandTemplate));
   const authored = JSON.parse(readFileSync(config, 'utf8')); authored.chat_language = 'de';
   writeFileSync(config, JSON.stringify(authored, null, 2) + '\n');
   assert.equal(existsSync(join(control, 'MASTER_BACKLOG.md')), false);
   writeFileSync(join(control, 'MASTER_BACKLOG.md'), '# Preserved legacy planning\n');
-  for (const name of ['MASTER_BACKLOG.md', 'CONTEXT_GRAPH.md', 'SOT_REGISTRY.md'])
+  for (const name of ['MASTER_BACKLOG.md', 'CONTEXT_GRAPH.md', 'SOT_REGISTRY.md', 'BRAND.md'])
     writeFileSync(join(control, name), readFileSync(join(control, name), 'utf8') + '\nHuman authored context retained.\n');
   const before = files(control), replay = run();
   assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));

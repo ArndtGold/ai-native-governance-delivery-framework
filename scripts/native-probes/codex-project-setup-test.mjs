@@ -16,7 +16,7 @@ const observation = () => ({ process: { code: 0, timeout: false, output_limit: f
   parsed: { trace_complete: true, calls: [call('agdf_inspect', { operation: 'project-state', primary_target: target }, { report: { available: true } }),
     call('agdf_project', { operation_id, primary_target: target }, { outcome: 'accepted' }),
     call('agdf_inspect', { operation: 'operation-status', primary_target: target, module: `project.initialize/${operation_id}` }, { report: { status: 'recorded' } })] },
-  audit: { status: 'initialized', operation_status: 'recorded', operation_id, target, file_count: 16, hashes_match: true,
+  audit: { status: 'initialized', operation_status: 'recorded', operation_id, target, file_count: 17, hashes_match: true,
     extra_files: [], run_count: 0, approval_created: false, staging_clean: true }, commands: ['git init -q'] });
 
 test('finite native oracle requires turn, process, original operation and exact canonical effects', () => {
@@ -40,7 +40,7 @@ test('filesystem oracle audits actual canonical receipt, all seeds, authored dri
   assert.equal(f.execute(input).outcome, 'accepted');
   let audit = auditSetupProject(f.root, input.operation_id);
   assert.equal(audit.status, 'initialized'); assert.equal(audit.hashes_match, true, JSON.stringify(audit));
-  assert.equal(audit.file_count, 16); assert.equal(audit.approval_created, false);
+  assert.equal(audit.file_count, 17); assert.equal(audit.approval_created, false);
   assert.equal(auditSetupProject(f.root, randomUUID()).operation_status, 'unknown');
   writeFileSync(join(f.root, '.agdf/control/CONTEXT_GRAPH.md'), 'authored drift\n');
   audit = auditSetupProject(f.root, input.operation_id); assert.equal(audit.hashes_match, false);

@@ -11,7 +11,6 @@ import { validateCommunityHealth } from "./check-community-health.mjs";
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const fixturePaths = [
   "README.md",
-  "BRAND.md",
   "RELEASE.md",
   "CODE_OF_CONDUCT.md",
   "CONTRIBUTING.md",
@@ -21,6 +20,7 @@ const fixturePaths = [
   ".github",
   "docs/assets/github-social-preview.png",
   "docs/assets/intro.png",
+  ".agdf/control/BRAND.md",
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
   ".agdf/control/archive/source/runs/agdf-request-activation-boundary/documents/INSTRUCTION_FOOTPRINT_AUDIT.md",

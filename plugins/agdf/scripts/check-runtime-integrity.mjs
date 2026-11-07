@@ -163,6 +163,7 @@ const expectedControlFiles = [
   "templates/SOT_REGISTRY.md",
   "templates/CONTEXT_GRAPH.md",
   "templates/AGENT_QUALITY_CONTRACTS.json",
+  "templates/BRAND.md",
   "templates/artefacts/UR.md",
   "templates/artefacts/BROWNFIELD_REVIEW.md",
   "templates/artefacts/VERIFIED_CHANGE.md",

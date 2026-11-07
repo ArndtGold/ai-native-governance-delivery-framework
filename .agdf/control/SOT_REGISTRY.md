@@ -2,6 +2,8 @@
 
 ## Primary Sources of Truth
 
+Primary entries identify the authoritative source and accountable owner for a domain. Use each Run’s bindings to locate its documents and evidence.
+
 | Domain | SoT Document | Status | Owner | Last Verified |
 |---|---|---|---|---|
 | Portable plugin identity/profile projection, repository source root and build-only schema validation | plugins/agdf/meta/agdf-plugin.definition.json; scripts/public-plugin/source-root.js; scripts/public-plugin/manifest.js; scripts/public-plugin/validator.js; scripts/support/portable-schema.js; plugins/agdf/meta/schemas/agent-plugins/1.0.0/ | active | AGDF; Arndt Gold accountable | 2026-10-01 |
@@ -14,7 +16,7 @@
 | Control templates | plugins/agdf/control/templates/ | active | AGDF | 2026-07-08 |
 | Unapproved UR drafting and material clarification | plugins/agdf/skills/ur-definition/SKILL.md; plugins/agdf/meta/contracts/ur-definition.md | active | AGDF; gate-check retains readiness and approval control | 2026-10-04 |
 | Unapproved PRD product drafting, clarification and explicit revision | plugins/agdf/skills/prd-definition/SKILL.md; plugins/agdf/meta/contracts/prd-definition.md | active | AGDF; gate-check retains readiness, existing control writers and deliberate approval authority | 2026-10-04 |
-| AGDF-owned product brand intent and information-design priorities | [BRAND.md](../../BRAND.md) | active | AGDF maintainer; UX consumes the intent, existing token/style owners retain implementation values and TRADEMARKS.md retains legal policy | 2026-11-06 |
+| AGDF brand intent and information design | [BRAND.md](BRAND.md) | active | AGDF maintainer owns project-wide design intent for AGDF surfaces and communication. UX, PRD and SD apply it through the Quality Contract. Tokens and styles own implementation values. TRADEMARKS.md owns legal mark usage. | 2026-11-07 |
 | Brand-source use, proposed UX criteria and approved design traceability | plugins/agdf/meta/contracts/quality.md; plugins/agdf/meta/contracts/modes.md; plugins/agdf/skills/ux-intent-definition/SKILL.md; plugins/agdf/meta/contracts/prd-definition.md; plugins/agdf/meta/contracts/sd-definition.md | active | Quality owns the shared rule; Modes connects compact paths; UX proposes, PRD adopts product criteria and SD owns realization; existing quality review owns evidence assessment | 2026-11-06 |
 | Skill routing | plugins/agdf/meta/agdf-plugin.definition.json | active | AGDF | 2026-07-18 |
 | Agent Skills conformance baseline and plugin-scoped portability policy | plugins/agdf/meta/agent-skills-conformance.json | active | AGDF | 2026-08-19 |

@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:4107cda418ae16f67781305aab81b42e563c8e39ce226599baa16c1350f24c31
+source_revision: sha256:f43b72410deea5d7d3f9b2471656835f14528b7e993d72c4ad2412846adab0c4
 translation_status: reviewed
 ---
 
@@ -145,8 +145,9 @@ change can explicitly record that this clarification is not required.
 ### Translate brand sources into observable UX criteria
 
 For design-relevant work, the agent reads the target project's explicitly declared brand source.
-It describes intended perception and information priorities. AGDF's own English profile is
-[BRAND.md](../../../BRAND.md); other products use their own sources. Generic adjectives or existing
+It describes intended perception and information priorities. AGDF keeps its English profile at
+[.agdf/control/BRAND.md](../../../.agdf/control/BRAND.md) and declares it in the Source-of-Truth
+Registry as its project-wide design source. Other products use their own sources. Generic adjectives or existing
 colors do not substitute for confirmed brand intent.
 
 The [shared quality rule](../../../plugins/agdf/meta/contracts/quality.md#brand-source-use-across-delivery-paths)

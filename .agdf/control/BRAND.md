@@ -72,12 +72,12 @@ applicability decision without removing an otherwise required UX analysis.
 
 ## Related owners
 
-- The [shared source-use rule](plugins/agdf/meta/contracts/quality.md#brand-source-use-across-delivery-paths)
-  applies through [existing delivery modes](plugins/agdf/meta/contracts/modes.md).
-- [UX intent](plugins/agdf/skills/ux-intent-definition/SKILL.md) owns analytical source use and proposed criteria.
-- [PRD definition](plugins/agdf/meta/contracts/prd-definition.md) owns adopted product criteria.
-- [SD definition](plugins/agdf/meta/contracts/sd-definition.md) owns concrete solution design.
-- [Website tokens](pages/src/design/tokens.json), [website styles](pages/src/styles/) and
-  [Control UI brand styles](packages/control-ui/src/brand.css) own their implementation values.
-- [TRADEMARKS.md](TRADEMARKS.md) owns legal mark-usage policy.
-- The [Source-of-Truth Registry](.agdf/control/SOT_REGISTRY.md) records these responsibility boundaries.
+- The [shared source-use rule](../../plugins/agdf/meta/contracts/quality.md#brand-source-use-across-delivery-paths)
+  applies through [existing delivery modes](../../plugins/agdf/meta/contracts/modes.md).
+- [UX intent](../../plugins/agdf/skills/ux-intent-definition/SKILL.md) owns analytical source use and proposed criteria.
+- [PRD definition](../../plugins/agdf/meta/contracts/prd-definition.md) owns adopted product criteria.
+- [SD definition](../../plugins/agdf/meta/contracts/sd-definition.md) owns concrete solution design.
+- [Website tokens](../../pages/src/design/tokens.json), [website styles](../../pages/src/styles/) and
+  [Control UI brand styles](../../packages/control-ui/src/brand.css) own their implementation values.
+- [TRADEMARKS.md](../../TRADEMARKS.md) owns legal mark-usage policy.
+- The [Source-of-Truth Registry](SOT_REGISTRY.md) records these responsibility boundaries.

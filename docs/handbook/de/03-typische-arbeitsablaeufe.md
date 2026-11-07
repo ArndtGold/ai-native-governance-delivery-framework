@@ -140,7 +140,8 @@ sein.
 
 Bei gestaltungsrelevanten Vorhaben liest der Agent die ausdrücklich benannte Markenquelle des
 Zielprojekts. Sie beschreibt gewünschte Wahrnehmung und Informationsprioritäten. Für AGDF selbst
-steht dieses englische Profil in [BRAND.md](../../../BRAND.md); andere Produkte verwenden ihre
+liegt das englische Profil unter [.agdf/control/BRAND.md](../../../.agdf/control/BRAND.md).
+Das Quellenregister weist es als projektweite Gestaltungsquelle aus. Andere Produkte verwenden ihre
 eigenen Quellen. Allgemeine Adjektive oder vorhandene Farben ersetzen keine geklärte Markenabsicht.
 
 Die [gemeinsame Qualitätsregel](../../../plugins/agdf/meta/contracts/quality.md#brand-source-use-across-delivery-paths)

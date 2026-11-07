@@ -168,6 +168,8 @@ export function createNextActionProjection({ maxEntries = 32, isAvailable = () =
         }
         return base('requires_source', 'The authoring source is incomplete and no exact next-page call was supplied. Do not stage or edit incomplete content.', source + '.report');
       }
+      if (report.authoring_scope === 'delivery-closeout')
+        return base('idle', 'The bound closeout evidence is complete. Use the current control and evidence for the requested handoff.', source + '.report');
       let material = report.material_call ?? (key && forms.get(key));
       if (material && !available(material)) {
         if (key) forms.delete(key);

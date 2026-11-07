@@ -2,6 +2,7 @@ import { readRunState } from '../control-evaluation/run-state.js';
 import { inspectArtefactRecordingMode } from '../control-state/run-artefact-recording.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { continueDeliveryCall, preparedCommandCall } from '../control-state/prepared-control-calls.js';
+import { CLOSEOUT_AUTHORING_SCOPE } from '../control-inspect/selection.js';
 
 // Transport guidance over existing routes; code, tests and Git remain external.
 export function mcpControlContinuation(input, result, availableGroups = []) {
@@ -33,6 +34,11 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
   const bound = { ...common, run_id: run, expected_revision_id: revision };
   const inspect = (operation, extra = {}, bind = true) => ({ tool: 'agdf_inspect', arguments: { operation, ...(bind ? bound : common), ...extra } });
   const { steps, template_path, artifact_path, ...retained } = continuation;
+  if (continuation.phase === 'completed_delivery_closeout' && run && revision) {
+    return { ...result, continuation: { ...retained, control_transport: 'typed_mcp', external_execution: ['Git operations'],
+      instruction: 'Use the current control snapshot and the exact registered OR and QA evidence returned by the supplied read. Follow only its supplied evidence pages. Inspect Git separately for the explicitly requested handoff. This read grants no write or VCS authority.',
+      next_calls: [inspect('authoring-inputs', { bundle: true, authoring_scope: CLOSEOUT_AUTHORING_SCOPE })] } };
+  }
   let recording;
   if (['prd_definition', 'sd_definition', 'tp_definition'].includes(continuation.phase))
     recording = inspectArtefactRecordingMode(readRunState(root, { runId: run, ignoreRunIdEnv: true }), result.control.current_gate);

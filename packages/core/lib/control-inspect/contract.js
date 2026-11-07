@@ -11,6 +11,7 @@ import {
 import { normalizeTaskTargetSource, TASK_TARGET_SOURCES } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_MAX_OUTPUT_BYTES, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
 import { ARTIFACT_READINESS_GATES, ALL_ACTIVE_OPERATIONS, VARIANT_OPERATION, MODULE_OPERATION, CONTROL_INSPECT_OPERATIONS, GATE_CHECK_VARIANTS, ReadSelectionError, validateReadSelection } from "./selection.js";
+import { CLOSEOUT_AUTHORING_SCOPE } from './selection.js';
 
 export const CONTROL_INSPECT_SCHEMA_VERSION = "1";
 export const CONTROL_INSPECT_CONTRACT_VERSION = 1;
@@ -45,36 +46,45 @@ const fieldModel = {
   presentation_id: { help: 'Exact prepared ID from validated catalog or conversation. Never guess, select by timestamp, or prepare a replacement to read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
   target_id: { help: 'Optional confirmed target hash on target-bound reads; when supplied it must match. Required for presentation reads; never grants authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Optional verified target hash.' },
   bundle: { help: 'authoring-inputs only: bounded multi-document pages with exact source bytes.', schema: { type: 'boolean' }, operations: ['authoring-inputs'] },
+  authoring_scope: { help: 'Bundled authoring-inputs for a completed structured Run: read only its current OR and QA.', schema: { type: 'string', const: CLOSEOUT_AUTHORING_SCOPE }, operations: ['authoring-inputs'] },
   cursor: { help: 'Omit initially; copy next_cursor. doctor requires all_active; catalog requires its declared module. Never exchange cursor types.', schema: cursorSchema, description: 'Copy next_cursor.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract', 'authoring-inputs', 'doctor'] },
   variant: { help: 'gate-check view only; never records approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
   module: { help: 'contract: advertised module; operation-contract: group/kind; operation-status: original operation UUID from saved receipt, never a new UUID. Setup uses project.initialize/ORIGINAL_UUID without Run/revision; Run operations require Run/revision.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
   all_active: { help: 'true: doctor/delivery-map only; false: selected Run.', schema: { type: 'boolean' }, description: 'doctor/delivery-map only.' },
 };
-const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule', planning: 'planning', bundle: 'bundle' };
+const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule', planning: 'planning', bundle: 'bundle', authoring_scope: 'authoringScope' };
 const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-status'];
 const inputSchema = {
   type: 'object', additionalProperties: false,
   required: ['operation', 'presentation_language', 'working_directory'],
-  $defs: { i: uuidSchema, b: { not: { enum: CONTROL_INSPECT_OPERATIONS.filter(op => !BOUND_INSPECT_OPERATIONS.includes(op)) } }, d: { enum: PRESENTATION_OPERATIONS }, m: { enum: ['operation-contract', 'operation-status'] } },
+  $defs: {
+    i: uuidSchema,
+    b: { not: { enum: CONTROL_INSPECT_OPERATIONS.filter(op => !BOUND_INSPECT_OPERATIONS.includes(op)) } },
+    d: { enum: PRESENTATION_OPERATIONS },
+    m: { enum: ['operation-contract', 'operation-status'] },
+    u: { not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } },
+  },
   properties: Object.fromEntries(Object.entries(fieldModel).map(([name, field]) => [name, { ...field.schema, description: field.description }])),
   dependentRequired: { target_source: ['primary_target'], primary_target: ['target_source'], target_id: ['primary_target', 'target_source'] },
   dependentSchemas: Object.fromEntries(Object.entries(fieldModel).filter(([, f]) => f.operations).map(([name, field]) => [name,
-    name === 'cursor' ? { anyOf: [ { properties: { operation: { enum: [...PRESENTATION_OPERATIONS, 'authoring-inputs'] } } },
+    // Bundle selects authoring-inputs, whose Run binding requires an expected revision.
+    name === 'authoring_scope' ? { properties: { bundle: { const: true } }, required: ['bundle', 'run_id'] }
+      : name === 'cursor' ? { anyOf: [ { properties: { operation: { enum: [...PRESENTATION_OPERATIONS, 'authoring-inputs'] } } },
       { properties: { operation: { const: 'doctor' }, all_active: { const: true } }, required: ['all_active'] },
       { properties: { operation: { const: 'operation-contract' }, module: { const: PRESENTATION_CATALOG_MODULE } } } ] }
       : { properties: { operation: field.operations === BOUND_INSPECT_OPERATIONS ? { $ref: '#/$defs/b' }
         : field.operations === PRESENTATION_OPERATIONS ? { $ref: '#/$defs/d' } : name === 'module' ? { enum: moduleOperations } : { enum: field.operations } } },
   ])),
   allOf: [
-    { if: { properties: { operation: { enum: ['project-state', 'planned-inventory', 'planned-entry'] } } }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
+    { if: { properties: { operation: { enum: ['project-state', 'planned-inventory', 'planned-entry'] } } }, then: { required: ['target_source', 'primary_target'], $ref: '#/$defs/u' } },
     { if: { properties: { operation: { const: 'planned-entry' } } }, then: { required: ['planning'] } },
-    { if: { required: ['planning'] }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
+    { if: { required: ['planning'] }, then: { required: ['target_source', 'primary_target'], $ref: '#/$defs/u' } },
     { not: { properties: { all_active: { const: true } }, required: ['all_active', 'run_id'] } },
     { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
     { if: { properties: { operation: { $ref: '#/$defs/m' } } }, then: { required: ['module'] } },
     { if: { properties: { operation: { $ref: '#/$defs/b' } } }, then: { required: ['target_source'], anyOf: [
       { required: ['run_id', 'expected_revision_id'] },
-      { not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] }, oneOf: [
+      { $ref: '#/$defs/u', oneOf: [
         { properties: { operation: { const: 'operation-status' } } },
         { properties: { operation: { const: 'operation-contract' }, module: { anyOf: [{ enum: ['agdf_run/run.create', 'agdf_project/project.initialize'] }, { pattern: '/(?:planned_|run\\.create_from_planned)' }] } }, required: ['module'] },
         { properties: { operation: { const: 'authoring-inputs' } }, required: ['planning'] },
@@ -91,7 +101,7 @@ delete inputSchema.allOf;
 for (const field of Object.values(inputSchema.properties)) delete field.description;
 Object.assign(inputSchema.properties.target_source, { description: 'Pair primary_target.' });
 Object.assign(inputSchema.properties.primary_target, { description: 'Confirmed target.' });
-Object.assign(inputSchema.properties.module, { description: 'Contract group/kind. Setup: agdf_project/project.initialize or status project.initialize/UUID.' });
+Object.assign(inputSchema.properties.module, { description: 'Contract, group/kind or receipt UUID.' });
 Object.assign(inputSchema.properties.gate, { description: 'Not for gate-check.' });
 Object.assign(inputSchema.properties.target_id, { description: 'Required for docs; gate-check.' });
 
@@ -303,6 +313,9 @@ export function normalizeControlInspectInput(input) {
     throw new SkillDispatchInputError('target_id', 'A valid target hash requires a confirmed target');
   const runId = input.runId || null;
   const planning = input.planning;
+  if (input.authoringScope !== undefined && (input.authoringScope !== CLOSEOUT_AUTHORING_SCOPE
+    || input.bundle !== true || !runId || planning !== undefined))
+    throw new SkillDispatchInputError('authoring_scope', 'Closeout scope requires a bundled Run read');
   if (planning !== undefined && (schemaDiagnostics(planning, PLANNING_SCOPE_SCHEMA).length || runId || input.expectedRevisionId !== undefined || input.gate !== undefined
     || !primaryTarget || !fieldModel.planning.operations.includes(operation))) throw new SkillDispatchInputError('planning', 'Planning requires one exact pre-Run source scope and confirmed target; no Run/revision/gate');
   if (operation === 'operation-status' && Boolean(planning) !== /^(?:planned_ur\.|run\.create_from_planned\/)/u.test(input.contractModule ?? ''))
@@ -363,7 +376,7 @@ export function normalizeControlInspectInput(input) {
     target_source: targetSource,
     primary_target: primaryTarget,
     run_id: runId,
-    planning, bundle: input.bundle,
+    planning, bundle: input.bundle, authoring_scope: input.authoringScope,
     gate: input.gate,
     expected_revision_id: input.expectedRevisionId,
     presentation_id: input.presentationId, target_id: input.targetId, cursor: input.cursor,

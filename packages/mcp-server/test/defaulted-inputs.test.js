@@ -8,6 +8,7 @@ import { initializeCurrentControl } from '../../core/test/fixtures/current-init.
 import { generatedFilesForTarget } from '../../cli/lib/scaffold/plan.js';
 import { resolveControlCommandTarget } from '../../core/lib/control-state/approval-command-contract.js';
 import { runSealState } from '../../core/lib/control-state/run-seal.js';
+import { recordedInputResolution, validInputResolution } from '../../core/lib/control-state/input-resolution.js';
 import { readRunOperations } from '../../core/lib/control-state/run-operations.js';
 import { withStdioClient } from './helpers.js';
 import { buildFixture, writeEvidenceNote } from '../../../evals/mcp-ergonomics/lib/fixtures.js';
@@ -50,10 +51,43 @@ for (const modern of [false, true]) {
       assert.equal(receipt.input_resolution.fields.presentation_language, 'en');
       assert.equal(receipt.input_resolution.fields.schema_version, '1');
       assert.equal(receipt.input_resolution.fields.assurance, 'cooperative_local');
+      // The receipt is historical data. A checkout on another OS still reads it.
+      const windowsReceipt = structuredClone(receipt);
+      const windowsRoot = String.raw`C:\Workspace\project`;
+      windowsReceipt.input_resolution.configuration.root = windowsRoot;
+      windowsReceipt.input_resolution.fields.working_directory = windowsRoot;
+      const recorded = recordedInputResolution(windowsReceipt);
+      assert.equal(recorded?.configuration.root, windowsRoot);
+      assert.equal(recorded?.fields.working_directory, windowsRoot);
+      assert.equal(validInputResolution(recorded), process.platform === 'win32');
+      const posixReceipt = structuredClone(windowsReceipt);
+      posixReceipt.input_resolution.configuration.root = '/work/project';
+      posixReceipt.input_resolution.fields.working_directory = '/work/project';
+      assert.deepEqual([recordedInputResolution(posixReceipt)?.configuration.root,
+        recordedInputResolution(posixReceipt)?.fields.working_directory], ['/work/project', '/work/project']);
+      for (const relative of ['C:relative', './relative']) {
+        const badRoot = structuredClone(windowsReceipt), badDirectory = structuredClone(windowsReceipt);
+        badRoot.input_resolution.configuration.root = relative;
+        badDirectory.input_resolution.fields.working_directory = relative;
+        assert.equal(recordedInputResolution(badRoot), null, 'relative persisted configuration root');
+        assert.equal(recordedInputResolution(badDirectory), null, 'relative persisted working directory');
+      }
       const runId = made.structuredContent.binding.run_id, path = join(root, `.agdf/control/runs/${runId}/RUN_STATE.md`);
       const state = readFileSync(path, 'utf8');
       assert.equal(runSealState(root, state).status, 'valid');
       assert.equal(readRunOperations(state).receipts.length, 1);
+      const runsDir = join(root, '.agdf/control/runs'), runsBefore = readdirSync(runsDir);
+      const { primary_target, target_source, ...unbound } = original;
+      const invalidTarget = await client.callTool({ name: 'agdf_run', arguments: {
+        ...original, primary_target: join(root, 'absent-target'), operation_id: randomUUID() } });
+      assert.deepEqual([invalidTarget.structuredContent?.outcome, invalidTarget.structuredContent?.reason,
+        invalidTarget.structuredContent?.dispatch], ['rejected', 'target_unresolved', 'not_dispatched'], JSON.stringify(invalidTarget));
+      const missingBinding = await client.callTool({ name: 'agdf_run', arguments: { ...unbound, operation_id: randomUUID() } });
+      assert.equal(missingBinding.isError, true);
+      assert.equal(missingBinding.structuredContent, undefined, 'missing binding fails at the SDK boundary');
+      assert.match(missingBinding.content[0].text, /Supply primary_target.*Supply target_source/u);
+      assert.deepEqual(readdirSync(runsDir), runsBefore);
+      assert.equal(readFileSync(path, 'utf8'), state);
       writeFileSync(config, JSON.stringify({ artifact_language: 'en', chat_language: 'de', runtime_language: 'en' }));
       const replay = await client.callTool({ name: 'agdf_run', arguments: original });
       assert.equal(replay.structuredContent.outcome, 'already_applied', JSON.stringify(replay));

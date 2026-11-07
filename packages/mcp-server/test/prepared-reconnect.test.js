@@ -8,6 +8,9 @@ import { pluginRoot } from '../../../scripts/support/plugin-mcp-fixture.js';
 import { clarifiedUr } from '../../core/test/planned-fixtures.js';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
+import { createMcpDeliveryHarness } from './delivery-harness.js';
+import { parseEventLines } from '../../core/lib/companion/events.js';
+import { journalPath } from '../../core/lib/companion/journal.js';
 
 for (const modern of [false, true]) {
   const fixture = createOwnedRuntimeFixture({ pluginSourceRoot: pluginRoot, controlRuns: [] });
@@ -55,7 +58,9 @@ for (const modern of [false, true]) {
     }
     return entries;
   }
-  let savedRead, savedCreate, originalCreate, created, staleStage, staleRevision;
+  let savedRead, savedCreate, originalCreate, created, staleStage, staleRevision, tpPrepare, tpDelivery;
+  const requestCount = operation => parseEventLines(readFileSync(journalPath(dataRoot), 'utf8'))
+    .filter(row => row.kind === 'approval_requested' && row.operation_id === operation).length;
   try {
     assert.equal(existsSync(journal), false, 'Preparing an owned runtime does not create the lazy transport journal.');
     // Each helper constructs and closes a distinct STDIO child process. No
@@ -159,7 +164,41 @@ for (const modern of [false, true]) {
         assert.equal(readFileSync(statePath, 'utf8'), before);
       } finally { writeFileSync(entry.path, entry.bytes); }
       journalEntries();
+
+      const tp = await createMcpDeliveryHarness(client, root, 'Synthetic TP replay across launcher processes');
+      await tp.startStructured('structured_delivery', { beforeTpApproval: true });
+      tpPrepare = { ...tp.bound(), command: { kind: 'presentation.prepare', payload: { gate: 'TP' } } };
+      const prepared = await call(client, 'agdf_prepare', tpPrepare);
+      tpDelivery = { ...tp.bound(), command: { kind: 'presentation.deliver', payload: {
+        gate: 'TP', presentation_id: prepared.family_result.presentation_id, route: 'markdown' } } };
+      const delivered = await call(client, 'agdf_prepare', tpDelivery);
+      assert.equal(delivered.outcome, 'accepted');
+      assert.equal(delivered.presentation_delivery.historical_delivery, false);
+      assert.equal(requestCount(tpDelivery.operation_id), 1);
     });
-    console.log(`Owned launcher references survive three SDK/STDIO processes with unchanged bindings and replay receipts (${modern ? 'modern' : 'legacy'}).`);
+
+    await withStdioClient({ ...fixture, modern }, async client => {
+      const absent = await client.callTool({ name: 'agdf_prepare', arguments: tpDelivery });
+      assert.equal(absent.structuredContent?.outcome, 'rejected');
+      assert.equal(absent.structuredContent?.reason, 'delivery_state_unavailable');
+      assert.equal(requestCount(tpDelivery.operation_id), 1);
+
+      const prepared = await call(client, 'agdf_prepare', tpPrepare);
+      assert.equal(prepared.outcome, 'already_applied');
+      assert.equal(prepared.family_result.presentation_id, tpDelivery.command.payload.presentation_id);
+      const replay = await call(client, 'agdf_prepare', tpDelivery);
+      assert.equal(replay.outcome, 'accepted');
+      assert.equal(replay.operation_id, tpDelivery.operation_id);
+      assert.equal(replay.presentation_delivery.historical_delivery, false, 'restored delivery has no in-memory selection history');
+      assert.equal(requestCount(tpDelivery.operation_id), 1, 'the journal remembers the request across producers');
+
+      const otherPrepare = { ...tpPrepare, operation_id: randomUUID() };
+      const independent = await call(client, 'agdf_prepare', otherPrepare);
+      const otherDelivery = { ...tpDelivery, operation_id: randomUUID(), command: { ...tpDelivery.command, payload: {
+        ...tpDelivery.command.payload, presentation_id: independent.family_result.presentation_id } } };
+      assert.equal((await call(client, 'agdf_prepare', otherDelivery)).outcome, 'accepted');
+      assert.equal(requestCount(otherDelivery.operation_id), 1);
+    });
+    console.log(`Owned launcher references and TP request identity survive SDK/STDIO process changes (${modern ? 'modern' : 'legacy'}).`);
   } finally { fixture.dispose(); }
 }

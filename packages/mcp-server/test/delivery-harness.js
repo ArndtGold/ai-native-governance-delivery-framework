@@ -74,14 +74,18 @@ export async function createMcpDeliveryHarness(client, root, title = 'Synthetic 
     await inputs(); const material = await stage(gate, content);
     return invoke('agdf_record', 'artefact.record', { gate, material, reviewer: 'Synthetic protocol reviewed-source fixture', reviewed: true, update_draft: false });
   };
-  const startStructured = async route => {
+  const startStructured = async (route, { beforeTpApproval = false } = {}) => {
     const ur = '# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n## Goal\nAn operator can save and restore one named filter.\n## Scope\nOne user-owned saved filter, no sharing.\n## Non-Goals\nNo shared filters or permissions change.\n';
     await inputs(); await invoke('agdf_record', 'step.record', { step: 'ur', title, source: await stage('UR', ur) });
     await invoke('agdf_revise', 'ur_draft.replace', { title, source: await stage('UR', ur + '\nClarification: the saving user retains ownership.\n') });
     await approve('UR');
     await invoke('agdf_record', 'step.record', { step: 'route', route, reason: 'Synthetic current writer-owned analytical proof',
       source: await stage('Brownfield Review', '# Brownfield Review\nSynthetic existing filter owner.\n- ux_intent_definition_required: no\n') });
-    for (const [gate, text] of [['PRD', syntheticPrd()], ['SD', syntheticSd()], ['TP', syntheticTp()]]) { await formal(gate, text); await approve(gate); }
+    for (const [gate, text] of [['PRD', syntheticPrd()], ['SD', syntheticSd()], ['TP', syntheticTp()]]) {
+      await formal(gate, text);
+      if (gate === 'TP' && beforeTpApproval) return;
+      await approve(gate);
+    }
     const preparation = await inputs();
     assert.equal(preparation[0].gate, 'Brownfield Analysis');
     assert.ok(preparation[0].documents.some(row => row.role === 'template' && row.type === 'BROWNFIELD_REVIEW'));

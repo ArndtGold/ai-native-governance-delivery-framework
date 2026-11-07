@@ -74,9 +74,12 @@ export function commandGate(command = {}) {
   return typeof payload.gate === 'string' ? payload.gate : null;
 }
 
-function successKind(command) {
+function successKind(command, result) {
   const kind = command?.kind;
-  if (kind === 'presentation.deliver') return 'approval_requested';
+  if (kind === 'presentation.deliver') {
+    return result.historical_effect === true || result.presentation_delivery?.historical_delivery === true
+      ? null : 'approval_requested';
+  }
   if (kind === 'approval.record') return 'approval_recorded';
   if (kind === 'closeout.record') return 'run_completed';
   if (kind === 'material.stage' && command.payload?.action === 'seal') return 'material_staged';
@@ -90,7 +93,7 @@ function successKind(command) {
 export function eventKind(toolName, input, result) {
   if (!COMMAND_TOOLS.has(toolName) || !result || typeof result !== 'object') return null;
   const descriptor = result._meta?.[TOOL_RESULT_META_KEY] ?? null;
-  if (result.outcome === 'accepted') return successKind(input?.command);
+  if (result.outcome === 'accepted') return successKind(input?.command, result);
   if (result.outcome === 'already_applied') return null;
   if (result.outcome === 'recovery_required') return 'recovery_required';
   if (result.outcome === 'effect_unknown' || descriptor?.effect_state === 'unknown') return 'effect_unknown';

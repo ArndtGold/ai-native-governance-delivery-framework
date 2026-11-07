@@ -3,7 +3,8 @@ import { withSyntheticQaContent } from '../../core/test/fixtures/decision-conten
 import assert from 'node:assert/strict';
 import { deliveryModeCases } from './fixtures/delivery-mode-cases.js';
 import { randomUUID } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
@@ -15,14 +16,125 @@ import { closeoutConfirmation } from '../../core/lib/control-evaluation/closeout
 import { COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
 import { MCP_APP_UI_EXTENSION } from '../src/ui-capability.js';
 
+function slowAuthoringGit(fixture, enabled) {
+  if (!enabled) return {};
+  const bin = join(fixture.governanceTarget, 'test-bin');
+  const log = join(bin, 'git.log');
+  const marker = join(bin, 'slow');
+  mkdirSync(bin);
+  writeFileSync(join(bin, 'git'), [
+    '#!/bin/sh',
+    'if [ -f "$AGDF_TEST_SLOW_GIT" ]; then',
+    '  case "$*" in',
+    '    "--no-optional-locks -c core.fsmonitor=false diff --no-ext-diff --no-textconv HEAD --name-only -z")',
+    '      printf "diff\\n" >> "$AGDF_TEST_GIT_LOG"; sleep 2.6 ;;',
+    '    "--no-optional-locks -c core.fsmonitor=false rev-parse HEAD") printf "head\\n" >> "$AGDF_TEST_GIT_LOG" ;;',
+    '    "--no-optional-locks -c core.fsmonitor=false ls-files --others --exclude-standard -z") printf "untracked\\n" >> "$AGDF_TEST_GIT_LOG" ;;',
+    '  esac',
+    'fi',
+    'exec "$AGDF_TEST_REAL_GIT" "$@"',
+  ].join('\n') + '\n', { mode: 0o755 });
+  return {
+    env: { PATH: bin + ':' + process.env.PATH, AGDF_TEST_SLOW_GIT: marker, AGDF_TEST_GIT_LOG: log,
+      AGDF_TEST_REAL_GIT: execFileSync('which', ['git'], { encoding: 'utf8' }).trim() },
+    enable: () => writeFileSync(marker, ''),
+    observed: () => existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n') : [],
+  };
+}
+
+async function checkCloseoutRead(f, context, slow) {
+  const status = readRunState(context.primary_target, { runId: f.runId });
+  const source = type => {
+    const path = status.artefacts.get(type).path.replace(/^`|`$/gu, '');
+    return readFileSync(join(context.primary_target, path), 'utf8');
+  };
+  const expected = { OR: source('OR'), QA: source('QA') };
+  const stateBefore = readFileSync(f.state, 'utf8');
+  slow.enable?.();
+  const start = performance.now();
+  const dispatch = await f.call('agdf_dispatch', { ...context, skill_id: 'delivery-closeout', run_id: f.runId });
+  assert.equal(dispatch.outcome, 'skill_continuation', JSON.stringify(dispatch.diagnostics));
+  assert.equal(dispatch.control.completion.fulfilled, true);
+  const offered = dispatch.continuation.next_calls[0];
+  const first = dispatch.next_read?.result ?? await f.call('agdf_inspect', offered.arguments);
+  const readArguments = offered.recovery_only?.original_call.arguments ?? offered.arguments;
+  const elapsed = Math.round(performance.now() - start);
+  const calls = slow.observed?.() ?? [];
+  assert.equal(readFileSync(f.state, 'utf8'), stateBefore);
+  assert.equal(readArguments.authoring_scope, 'delivery-closeout',
+    `Completed structured handoff did not offer its scoped read (elapsed_ms=${elapsed}, Git=${calls.join(',')}, page=${first.report?.page_index}, failure=${first.diagnostics?.[0]?.code}).`);
+  assert.equal(first.report.available, true);
+  assert.equal(first.report.complete, true);
+  assert.equal(first.report.material_call, undefined);
+  assert.equal(first.report.formats, undefined);
+  assert.equal(first.report.material_transport, undefined);
+  assert.deepEqual(Object.fromEntries(first.report.documents.map(row => [row.type, row.content])), expected);
+  assert.ok(first.report.documents.every(row => row.role === 'source'));
+  assert.deepEqual(first.report.document_manifest.map(row => row.type).sort(), ['OR', 'QA']);
+  assert.equal((dispatch.next_read?.result ? dispatch : first).next_action?.call, null);
+  if (slow.enable) assert.ok(elapsed < 10_000, `Scoped handoff took ${elapsed} ms`);
+  assert.deepEqual(calls, []);
+
+  const { authoring_scope, ...ordinaryRead } = readArguments;
+  let page = (await f.call('agdf_inspect', ordinaryRead)).report;
+  assert.ok(page.available);
+  assert.ok(page.document_manifest.some(row => row.role === 'template'));
+  assert.ok(page.next_cursor, 'The ordinary read covers multiple pages.');
+  const scoped = { ...ordinaryRead, authoring_scope };
+  assert.equal((await f.call('agdf_inspect', { ...scoped, cursor: page.next_cursor })).report.reason, 'authoring_cursor_stale_or_invalid');
+  assert.equal((await f.call('agdf_inspect', { ...scoped, expected_revision_id: randomUUID() })).report.reason, 'authoring_binding_stale_or_invalid');
+  const sources = new Map();
+  const manifest = page.document_manifest;
+  const manifestDigest = page.manifest_digest;
+  assert.equal(manifestDigest, digest(JSON.stringify({
+    target_id: f.target, run_id: f.runId, revision_id: f.revision(),
+    languages: { artifact_language: page.artifact_language, presentation_language: page.presentation_language,
+      approval_summary_required: page.approval_summary_required, approval_summary_heading: page.approval_summary_heading },
+    bundle: 2, gate: page.gate, authoring_owner: page.authoring_owner, recording: page.recording, documents: manifest,
+  })), 'Ordinary cursor still uses the existing unscoped manifest identity.');
+  let pageCount = 0;
+  for (;;) {
+    assert.equal(page.manifest_digest, manifestDigest);
+    assert.deepEqual(page.document_manifest, manifest);
+    assert.ok(++pageCount <= 8);
+    for (const row of [...page.documents, ...page.fragments]) {
+      const key = row.digest + ':' + row.type;
+      const prior = sources.get(key) ?? '';
+      assert.equal(Buffer.byteLength(prior), row.byte_start);
+      sources.set(key, prior + row.content);
+    }
+    if (page.complete) break;
+    page = (await f.call('agdf_inspect', page.next_calls[0].arguments)).report;
+    assert.ok(page.available);
+  }
+  for (const row of manifest.filter(row => row.role === 'source')) {
+    assert.equal(sources.get(row.digest + ':' + row.type), source(row.type));
+  }
+  const qa = f.file('QA_REPORT.md');
+  try {
+    writeFileSync(qa, expected.QA + '\nChanged protected source.\n');
+    assert.equal((await f.call('agdf_inspect', scoped)).report.reason, 'authoring_binding_stale_or_invalid');
+    assert.equal(readFileSync(qa, 'utf8'), expected.QA + '\nChanged protected source.\n');
+  } finally {
+    writeFileSync(qa, expected.QA);
+  }
+  assert.equal(readFileSync(f.state, 'utf8'), stateBefore);
+  assert.deepEqual(slow.observed?.() ?? [], []);
+  console.log(JSON.stringify({ closeout_scope: authoring_scope, elapsed_ms: elapsed, git_calls: calls,
+    ordinary_pages: pageCount, or_digest: digest(expected.OR), qa_digest: digest(expected.QA), state_unchanged: true }));
+}
+
 for (const { modern, route } of deliveryModeCases(process.argv.slice(2), { structured: true })) {
 const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
 try {
-  await withStdioClient({ ...fixture, modern, capabilities: { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } } }, async client => {
+  const slow = slowAuthoringGit(fixture, process.env.AGDF_TEST_SLOW_CLOSEOUT_GIT === '1' && route === 'structured_delivery' && !modern);
+  const context = { presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'explicit_target' };
+  await withStdioClient({ ...fixture, env: slow.env, modern, capabilities: { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } } }, async client => {
   const f = await createMcpDeliveryHarness(client, root); await f.startStructured(route);
   const service = f.call, target = f.target, bound = f.bound;
   for (const step of ['CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR']) {
-    const source = await f.stage(step, '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n');
+    const padding = step === 'CD+Tests' ? 'Synthetic evidence for ordinary paging.\n'.repeat(1200) : '';
+    const source = await f.stage(step, '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n' + padding);
     const recorded = await service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source } } });
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
   }
@@ -157,6 +269,7 @@ none
   assert.equal(result.current.lifecycle, 'completed'); assert.equal(result.current.completion.fulfilled, true); assert.equal(result.current.next_operation, null);
   assert.equal((await service('agdf_closeout', input)).outcome, 'already_applied');
   assert.equal(runSealState(root, readFileSync(f.state, 'utf8')).status, 'valid');
+  await checkCloseoutRead(f, context, slow);
   console.log(`Actual default-entrypoint STDIO ${route}: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.`);
   });
 } finally { fixture.dispose(); }

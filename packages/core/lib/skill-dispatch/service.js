@@ -4,6 +4,7 @@ import { prdDefinitionPhase } from "./prd-definition.js";
 import { sdDefinitionPhase } from "./sd-definition.js";
 import { tpDefinitionPhase } from "./tp-definition.js";
 import { inspectAuthoringInputs } from '../control-inspect/authoring-inputs.js';
+import { isCompletedStructuredCloseout } from '../control-inspect/selection.js';
 import { compactContinuation } from "./compact-continuation.js";
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
@@ -840,6 +841,7 @@ export function createSkillDispatchService(dependencies = {}) {
       result.target = target;
       result.control = snapshot;
       const templateId = judgementTemplateId(skill.skill_id, control.current_gate);
+      const completedCloseout = skill.skill_id === "delivery-closeout" && isCompletedStructuredCloseout(control, route);
       result.continuation = Object.freeze({
         instruction: "Execute the named skill using only this target, presentation language and control snapshot. Do not set continue_delivery on a judgement skill; use it only when redispatching gate-check for the same run.",
         skill_id: skill.skill_id,
@@ -847,6 +849,7 @@ export function createSkillDispatchService(dependencies = {}) {
         governance_target: target.governance_target,
         run_id: snapshot?.run_id ?? input.run_id,
         revision_id: snapshot?.revision_id ?? null,
+        ...(completedCloseout ? { phase: "completed_delivery_closeout" } : {}),
         ...(templateId ? { template_path: resolveArtefactTemplatePath(templateId) } : {}),
         ...(dependencies.readSkillRuntimeContracts ? {
           runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(skill.skill_id)),

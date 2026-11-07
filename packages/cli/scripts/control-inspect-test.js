@@ -96,6 +96,18 @@ for (const fields of [{ run_id: 'foreign-run' }, { expected_revision_id: '000000
 const draftBinding = { operation: "artifact-readiness", presentation_language: "de", working_directory: "/tmp",
   target_source: "explicit_target", primary_target: "/tmp", run_id: "draft-run", gate: "PRD",
   expected_revision_id: "00000000-0000-4000-8000-000000000000" };
+const { gate: _draftGate, ...runBinding } = draftBinding;
+const closeoutInputs = { ...runBinding, operation: 'authoring-inputs', bundle: true, authoring_scope: 'delivery-closeout' };
+const normalizeInspect = args => normalizeControlInspectInput(parseControlInspectFunctionArguments(args, trustedContext));
+assert.equal(validateInspectSchema(closeoutInputs), true);
+assert.equal(normalizeInspect(closeoutInputs).authoring_scope, 'delivery-closeout');
+for (const invalid of [
+  { ...closeoutInputs, bundle: false }, { ...closeoutInputs, authoring_scope: 'unknown' },
+  { ...closeoutInputs, operation: 'project-state' }, { ...closeoutInputs, planning: { plan_id: 'planned', expected_digest: null } },
+]) {
+  assert.equal(validateInspectSchema(invalid), false);
+  assert.throws(() => normalizeInspect(invalid));
+}
 assert.equal(validateInspectSchema(draftBinding), true);
 for (const field of ["run_id", "gate", "expected_revision_id", "target_source", "primary_target"]) {
   const incomplete = { ...draftBinding }; delete incomplete[field];

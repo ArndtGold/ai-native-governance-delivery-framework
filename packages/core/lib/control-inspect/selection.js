@@ -2,6 +2,12 @@
 
 export const ARTIFACT_READINESS_GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP']);
 export const CONTROL_INSPECT_OPERATIONS = Object.freeze(["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "inventory", "planned-inventory", "planned-entry"]);
+export const CLOSEOUT_AUTHORING_SCOPE = 'delivery-closeout';
+
+export function isCompletedStructuredCloseout(control, mode) {
+  return control.current_gate === 'OR' && control.completion?.fulfilled === true
+    && ['structured_delivery', 'structured_slice'].includes(mode);
+}
 export const ALL_ACTIVE_OPERATIONS = Object.freeze(["doctor", "delivery-map"]);
 export const VARIANT_OPERATION = "gate-check";
 export const MODULE_OPERATION = "contract";

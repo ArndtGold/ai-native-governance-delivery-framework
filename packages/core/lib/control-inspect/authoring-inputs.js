@@ -19,6 +19,7 @@ import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { inspectPlannedEntry, inspectPlannedSelection } from '../control-state/planned-entry.js';
 import { assertPlannedNotTransferred } from '../control-state/planned-origin-reader.js';
 import { parseControlState } from '../control-state/run-state-parser.js';
+import { CLOSEOUT_AUTHORING_SCOPE, isCompletedStructuredCloseout } from './selection.js';
 
 const templateId = gate => ({ UR: 'UR', PRD: 'PRD', SD: 'SD', TP: 'TP', QA: 'QA_REPORT', OR: 'OR',
   'Brownfield Review': 'BROWNFIELD_REVIEW', 'Brownfield Analysis': 'BROWNFIELD_REVIEW', 'Mode/Slice Decision': 'BROWNFIELD_REVIEW',
@@ -29,11 +30,14 @@ const templateId = gate => ({ UR: 'UR', PRD: 'PRD', SD: 'SD', TP: 'TP', QA: 'QA_
 export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
   const unavailable = reason => ({ available: false, reason, authorizes: false });
   try {
-    const observeGit = () => !input.planning && gitObservation ? { head: gitObservation.gitValue(root, ['rev-parse', 'HEAD']),
+    const scopedCloseout = input.authoring_scope === CLOSEOUT_AUTHORING_SCOPE;
+    const observeGit = () => ({ head: gitObservation.gitValue(root, ['rev-parse', 'HEAD']),
       tracked: gitObservation.gitPathList(root, ['diff', 'HEAD', '--name-only']),
-      untracked: gitObservation.gitPathList(root, ['ls-files', '--others', '--exclude-standard']) } : null;
-    const git = observeGit(), observedGit = git ? { gitValue: () => git.head,
-      gitPathList: (_root, args) => args[0] === 'diff' ? git.tracked : git.untracked } : undefined;
+      untracked: gitObservation.gitPathList(root, ['ls-files', '--others', '--exclude-standard']) });
+    let git;
+    const currentGit = () => git ??= observeGit();
+    const observedGit = !input.planning && gitObservation ? { gitValue: () => currentGit().head,
+      gitPathList: (_root, args) => args[0] === 'diff' ? currentGit().tracked : currentGit().untracked } : undefined;
     const captured = captureControlScope(root, () => {
       const languages = resolveArtifactPresentationLanguages(root, input.presentation_language);
       if (input.planning) {
@@ -49,10 +53,14 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
       const state = readRunState(root, { runId: input.run_id, ignoreRunIdEnv: true });
       if (state.resolution_error || state.meta?.revision_id !== input.expected_revision_id || runSealState(root, state.content).status !== 'valid') throw Error('authoring_binding_stale_or_invalid');
       const evaluated = evaluateGateCheck(root, { runId: input.run_id, ignoreRunIdEnv: true, presentationLanguage: input.presentation_language }, observedGit);
+      const mode = state.mode_slice_decision?.decision;
+      if (scopedCloseout && !isCompletedStructuredCloseout(evaluated, mode)) throw Error('authoring_closeout_unavailable');
       const protectedSources = parseControlState(state.content, { closeoutArtefacts: ['Planned UR Snapshot', 'Planned UR Origin'] }).artefacts;
       const rows = [...new Map([...state.artefacts, ...protectedSources])].filter(([, r]) => r.path).map(([type, row]) => ({ type, ...row }));
       if (rows.length > 32) throw Error('authoring_source_limit');
-      const sources = rows.map(row => {
+      const selected = scopedCloseout ? rows.filter(row => row.type === 'OR' || row.type === 'QA') : rows;
+      if (scopedCloseout && selected.length !== 2) throw Error('authoring_closeout_unavailable');
+      const sources = selected.map(row => {
         const path = row.path.replace(/^`|`$/gu, '');
         if (!path.startsWith(`${runDocumentPath(input.run_id, '')}/`) || hasSymlinkComponent(root, path)) throw Error('authoring_source_unavailable');
         const file = containedRegularFile(root, path);
@@ -60,6 +68,8 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
         const content = new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(file.path));
         return { type: row.type, path, status: row.status, digest: artefactFileDigest(root, path), content };
       });
+      if (scopedCloseout) return { languages, gate: evaluated.current_gate, mode, status: evaluated.status,
+        blocking_reason: evaluated.blocking_reason, next_operation: evaluated.next_operation, sources };
       // Match dispatch's initial UX prerequisite route as well as source reassessment.
       // Reuse its eligibility and contained-source facts; inspection grants no repair permission.
       const prdEligible = prdDefinitionEligible(evaluated, { ...input, skill_id: 'prd-definition' });
@@ -67,10 +77,10 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
       const nextOperation = uxRequired ? { type: 'reassess_source_analysis', skill_id: 'ux-intent-definition', analysis: 'UX Intent Definition' } : evaluated.next_operation;
       return { languages, gate: evaluated.current_gate, authoring_owner: nextOperation?.type === 'record_closeout' ? 'OR'
         : nextOperation?.analysis ?? nextOperation?.internal_step ?? nextOperation?.gate ?? evaluated.current_gate,
-        recording: inspectArtefactRecordingMode(state, evaluated.current_gate), mode: state.mode_slice_decision?.decision, next_operation: nextOperation, status: evaluated.status,
+        recording: inspectArtefactRecordingMode(state, evaluated.current_gate), mode, next_operation: nextOperation, status: evaluated.status,
         blocking_reason: evaluated.blocking_reason, sources };
     });
-    const data = captured.data, ids = [data.gate === 'OR' && data.mode === 'verified_change' ? 'VERIFIED_CHANGE' : templateId(data.authoring_owner),
+    const data = captured.data, ids = scopedCloseout ? [] : [data.gate === 'OR' && data.mode === 'verified_change' ? 'VERIFIED_CHANGE' : templateId(data.authoring_owner),
       ...(['Brownfield Review', 'Mode/Slice Decision'].includes(data.gate) ? ['VERIFIED_CHANGE'] : [])].filter(Boolean);
     const templates = ids.map(id => {
       const path = resolveArtefactTemplatePath(id);
@@ -88,6 +98,7 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
     if (documents.length > 32) throw Error('authoring_source_limit');
     const manifest = digest(JSON.stringify({ target_id: resolveControlCommandTarget(root).target_id, run_id: input.run_id,
       ...(input.planning ? { planning: input.planning } : {}),
+      ...(scopedCloseout ? { authoring_scope: input.authoring_scope } : {}),
       revision_id: input.expected_revision_id, languages: data.languages, ...(input.bundle ? { bundle: 2 } : {}), gate: data.gate, authoring_owner: data.authoring_owner, recording: data.recording, documents: documents.map(({ content, ...r }) => r) })).slice(7);
     const chunks = [];
     for (const document of documents) {
@@ -121,8 +132,8 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
     if (input.cursor !== undefined && (!input.cursor.startsWith(prefix) || !/^(0|[1-9][0-9]*)$/u.test(input.cursor.slice(prefix.length)))) throw Error('authoring_cursor_stale_or_invalid');
     const index = input.cursor === undefined ? 0 : Number(input.cursor.slice(prefix.length));
     if (!Number.isSafeInteger(index) || index < 0 || index >= Math.max(selection.length, 1)) throw Error('authoring_cursor_stale_or_invalid');
+    if (git && JSON.stringify(observeGit()) !== JSON.stringify(git)) throw Error('authoring_binding_stale_or_invalid');
     captured.view.revalidate();
-    if (JSON.stringify(observeGit()) !== JSON.stringify(git)) throw Error('authoring_binding_stale_or_invalid');
     const grouped = new Map();
     for (const part of pages[index] ?? []) {
       const key = JSON.stringify([part.role, part.type, part.path, part.digest]);
@@ -137,12 +148,18 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
     if (input.bundle && Buffer.byteLength(JSON.stringify(documentPage)) > 49152) throw Error('authoring_page_limit');
     const pageCall = page => ({ tool: 'agdf_inspect', arguments: { operation: 'authoring-inputs',
       ...Object.fromEntries(['presentation_language', 'working_directory', 'primary_target', 'target_source', 'target_id',
-        'run_id', 'expected_revision_id', 'planning', 'bundle'].filter(key => input[key] !== undefined).map(key => [key, input[key]])),
+        'run_id', 'expected_revision_id', 'planning', 'bundle', 'authoring_scope'].filter(key => input[key] !== undefined).map(key => [key, input[key]])),
       cursor: `${prefix}${page}` } });
+    const nextPage = index + 1 < selection.length ? pageCall(index + 1) : null;
+    if (scopedCloseout) return { available: true, ...data.languages, run_id: input.run_id, revision_id: input.expected_revision_id,
+      gate: data.gate, mode: data.mode, status: data.status, blocking_reason: data.blocking_reason, next_operation: data.next_operation,
+      authoring_scope: input.authoring_scope, manifest_digest: `sha256:${manifest}`,
+      document_manifest: documents.map(({ content, ...metadata }) => metadata), format: 'document_bundle_v2',
+      ...documentPage, page_bytes_limit: 49152, page_index: index, page_count: Math.max(selection.length, 1),
+      complete: !nextPage, next_cursor: nextPage?.arguments.cursor ?? null, next_calls: nextPage ? [nextPage] : [], authorizes: false };
     const draftRow = currentDraft && documentRows.find(row => row.role === 'source' && row.type === currentDraft.type && row.path === currentDraft.path && row.digest === currentDraft.digest);
     const draftPage = input.bundle && currentDraft ? pages.findIndex(page => page.some(row => row.role === 'source'
       && row.type === currentDraft.type && row.path === currentDraft.path && row.digest === currentDraft.digest && row.byte_start === 0)) : -1;
-    const nextPage = index + 1 < selection.length ? pageCall(index + 1) : null;
     const registeredUr = data.authoring_owner === 'UR' && data.sources.some(source => source.type === 'UR' && source.path);
     const formats = input.planning ? operationContract('agdf_record', data.recording.kind)
       : registeredUr ? operationContract('agdf_revise', 'ur_draft.replace', { gate: 'UR' }) : data.authoring_owner === 'OR' ? operationContract('agdf_closeout', 'closeout.record')

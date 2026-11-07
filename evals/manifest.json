@@ -7,20 +7,20 @@
     "adversarial"
   ],
   "source_fingerprints": {
-    "delivery-path-search": "cbae66d43ebbfa2f24802b3f021a38305def597da54d60d3c0d0a79c904204c4",
-    "brownfield-analysis": "92d14b35fa9e992c1a8440b1444b1f3efbfaad855e3ccd107b774edfcb416578",
-    "ux-intent-definition": "2331a1f0ee04a686bcc76e85bb5045f177edb0dd2c562826b72f44c08a5b8f5b",
-    "clean-implementation-review": "85aa4eea0c172dbf93d79c2ff12f48afa94da8b4c8fd51066a05b7b3d8dde18a",
-    "code-review": "c11e97b3bac2d0ed4c3d81810823c66e0ebc0f17938b8c222ccc89b2e00f94ea",
+    "delivery-path-search": "b3d73d30e40c5b544538d4a2f49287d2f47eaa95089d6ff85e4193acb72c604a",
+    "brownfield-analysis": "b1c10a7cc034e4c1784cee0bdf3be6b571781afab1d5e96830d09f863d51a0e3",
+    "ux-intent-definition": "a485e59fadaa86ed65a3dd857d4208b086217e8fbb4a93decf4c7cc361851bac",
+    "clean-implementation-review": "0fa1da1648b213bf3ff4cdc381e0a1712c2d1aff5c46b0bb8d1836b90069fde0",
+    "code-review": "888b0af0b895979c637a4cb85ac28d83d68afce4e499175fd0031c07b01c2f8a",
     "delivery-closeout": "415982516b5cf3c3cabf28dc2f17360424d0dd0077ff8479fc27ca174ccdb896",
     "ur-definition": "369a0763f298f8b33c527bed4de82f374dca6ef260ccbbaf966b97fa19beb693",
     "prd-definition": "e81ec4e9c3055dff38093481f65b22a19d9341525d406e085cea7f6ed0cb98c8",
     "sd-definition": "a4b990a6c1218e53278a8486ba0e7135940c545cf9e5b5eea0a232a190f4c57c",
-    "tp-definition": "47bc9da2947bc331f137a2a7a88496cda330c245fbc7230921138e60e81a1708",
-    "gate-check": "cac269f4e5a97a3b9fa2b6cf9143fe9e6612a0cc3ffd64764cf5339c23f840d2",
-    "qa-gate": "24acd81f956ff485f49ea562fc4f72fcd4568ae68d1906098f16e30a8e4931f4",
-    "release-or": "67589bb95427cf0e9fe983ac313584a5989ddaabfd8f64ee9581b14f33b45c65",
-    "task-plan-review": "c7a0e736e14c56c1fc088dca480ad3ab7f94402a35a70d3183d4b7c62ad42d10"
+    "tp-definition": "836698db7eed43122cbbadb19922540f80da2cdcb4127fb016a3c0dd9829a587",
+    "gate-check": "6d490b1c72c9f8760f2d7d4dcfb5e6a289a25a26d6ef7f759406c74a3182bb28",
+    "qa-gate": "56c6562a59fe51c4b3df5ea677107e7ee6e01a3932799f4c1b542ef7acfdd7d4",
+    "release-or": "8cef218a815175d405835062dc125eca43563192065521bf1c7cea0c28346648",
+    "task-plan-review": "2e9c055c6159226851e4ae5e4f7c8f51d4c56a912b9cb968e612f75ea3495b9c"
   },
   "thresholds": {
     "coverage": 1,
@@ -389,6 +389,29 @@
         "ux-preview-foreign-or-escaping-path"
       ],
       "boundary": "Source-reference revalidation only. No live model evaluation, native observation, brand-source-consumption or UI-fidelity proof, human review or acceptance."
+    },
+    "brand_hash_fallback_reference_review": {
+      "work_boundary": "Direct source-contract change without an AGDF Run. Existing Runs are preserved.",
+      "scope": "Resolve brand links relative to the project registry and record the SHA-256 of consumed bytes when an exact Git revision is unavailable. Align the UX template decision field with the existing validator.",
+      "changed_sources": [
+        "plugins/agdf/meta/contracts/quality.md",
+        "plugins/agdf/skills/ux-intent-definition/SKILL.md",
+        "plugins/agdf/control/templates/artefacts/UX_INTENT_DEFINITION.md"
+      ],
+      "previous_source_fingerprints": {
+        "delivery-path-search": "cbae66d43ebbfa2f24802b3f021a38305def597da54d60d3c0d0a79c904204c4",
+        "brownfield-analysis": "92d14b35fa9e992c1a8440b1444b1f3efbfaad855e3ccd107b774edfcb416578",
+        "ux-intent-definition": "2331a1f0ee04a686bcc76e85bb5045f177edb0dd2c562826b72f44c08a5b8f5b",
+        "clean-implementation-review": "85aa4eea0c172dbf93d79c2ff12f48afa94da8b4c8fd51066a05b7b3d8dde18a",
+        "code-review": "c11e97b3bac2d0ed4c3d81810823c66e0ebc0f17938b8c222ccc89b2e00f94ea",
+        "tp-definition": "47bc9da2947bc331f137a2a7a88496cda330c245fbc7230921138e60e81a1708",
+        "gate-check": "cac269f4e5a97a3b9fa2b6cf9143fe9e6612a0cc3ffd64764cf5339c23f840d2",
+        "qa-gate": "24acd81f956ff485f49ea562fc4f72fcd4568ae68d1906098f16e30a8e4931f4",
+        "release-or": "67589bb95427cf0e9fe983ac313584a5989ddaabfd8f64ee9581b14f33b45c65",
+        "task-plan-review": "c7a0e736e14c56c1fc088dca480ad3ab7f94402a35a70d3183d4b7c62ad42d10"
+      },
+      "replay_rows": 89,
+      "boundary": "Existing fixtures have no declared material brand source. Their assertions, results and thresholds remain unchanged. Only deterministic source fingerprints were refreshed."
     }
   }
 }

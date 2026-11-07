@@ -149,8 +149,9 @@ gilt auch für kompakte Wege. Dort werden Quelle und beobachtbare Prüfungen im 
 freigegebenen Umfang sowie im kompakten Ergebnis und Nachweis festgehalten; allein dafür werden
 keine PRD-/SD-Dokumente oder zusätzliche Analyseschritte erzeugt.
 
-Die UX-Analyse hält Quelle, Eigentümer, Geltungsbereich und Version oder Prüfsumme im bestehenden
-Feld `evidence` fest. Sie übersetzt die relevante Textstelle in eine Priorität, ein konkretes
+Die UX-Analyse hält Quelle, Eigentümer, Geltungsbereich und passende Git-Revision im bestehenden
+Feld `evidence` fest. Fehlt eine verifizierte Revision für die gelesenen Bytes, erfasst sie vor der
+Ableitung den SHA-256-Hash der Datei. Sie übersetzt die relevante Textstelle in eine Priorität, ein konkretes
 Szenario und ein beobachtbares Ergebnis. Daraus entstehen Vorschläge im bestehenden Feld
 `proposed_prd_acceptance_criteria`, zusammen mit der benötigten Evidenz. Eine vorhandene Datei
 allein ist kein Nachweis für eine passende Oberfläche.

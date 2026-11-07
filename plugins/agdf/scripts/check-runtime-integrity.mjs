@@ -2248,7 +2248,7 @@ if (isFile(brownfieldReviewTemplatePath)) {
 
 if (isFile(uxIntentTemplatePath)) {
   const template = read(uxIntentTemplatePath);
-  for (const required of ["Decision: ready | blocked | not_applicable", "effective_state_authority_by_mode", "primary_state_presentation_owner_by_mode", "recovery_paths", "Proposed PRD Acceptance Criteria", "non-authorizing analytical input"]) {
+  for (const required of ["- decision: ready | blocked | not_applicable", "effective_state_authority_by_mode", "primary_state_presentation_owner_by_mode", "recovery_paths", "Proposed PRD Acceptance Criteria", "non-authorizing analytical input"]) {
     if (!template.includes(required)) failures.push(`UX_INTENT_DEFINITION.md missing contract field: ${required}`);
   }
   if (/^Gate:|^Gate approval:|Approval:/m.test(template)) failures.push("UX_INTENT_DEFINITION.md must not carry gate or approval authority");

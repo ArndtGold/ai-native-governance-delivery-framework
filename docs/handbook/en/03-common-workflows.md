@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:f43b72410deea5d7d3f9b2471656835f14528b7e993d72c4ad2412846adab0c4
+source_revision: sha256:41891062f1644cc0dd8e6cde0d740ea7d4579c0ac51503d980f88a9dffa09589
 translation_status: reviewed
 ---
 
@@ -155,8 +155,9 @@ also applies to compact paths. They retain the source and observable checks in t
 approved scope and compact result/evidence; this alone creates no PRD/SD documents or additional
 analytical step.
 
-The UX analysis records the source, owner, scope and revision or digest in the existing `evidence`
-field. It translates the relevant passage into a priority, a concrete scenario and an observable
+The UX analysis records the source, owner, scope and matching Git revision in the existing `evidence`
+field. Without a verified revision for the bytes read, it records the file's SHA-256 digest before
+deriving criteria. It translates the relevant passage into a priority, a concrete scenario and an observable
 outcome. These become proposals in the existing `proposed_prd_acceptance_criteria` field, together
 with the evidence needed to assess them. The presence of a file alone does not demonstrate a
 suitable interface.

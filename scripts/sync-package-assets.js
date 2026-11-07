@@ -636,8 +636,7 @@ export function syncPackageAssets({
   syncDirectory(join(sourcePluginRoot, "host-templates", "shared", "hooks"), join(generatedCodexPluginRoot, "hooks"));
   // Only the runtime Claude manifest declares it; Codex sees the files inert, Copilot never receives them.
   syncDirectory(join(sourcePluginRoot, "host-templates", "claude", "companion"), join(generatedCodexPluginRoot, "companion"));
-  const companionBridge = join(generatedCodexPluginRoot, "companion", "core.mjs");
-  write(companionBridge, read(companionBridge).replaceAll("../../../../../packages/core/lib/", "../runtime/create-agdf/runtime/core/lib/"));
+  // The companion imports no Core module; it reads the run view through the runtime command (SDD-010).
   // Shared bundle identity is also used by the CLI and its offline validator.
   writeCodexMarketplace();
   if (opencode) {

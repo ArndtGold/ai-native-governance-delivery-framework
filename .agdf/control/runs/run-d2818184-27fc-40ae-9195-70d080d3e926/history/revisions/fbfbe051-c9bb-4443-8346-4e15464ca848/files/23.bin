@@ -1,0 +1,26 @@
+## Qualitätssicherung prüfen und entscheiden
+
+QA Report: Companion core in Core: host-neutral run view, MCP events and figure states
+
+QA mit Abweichungen freigeben
+
+Geltungsbereich: Acceptance of this QA version for the UAT step of this run only; the native desktop check T-013 follows as UAT input; no native production qualification of the companion is claimed.
+
+- TPR-01 (mittel): The companion has not been observed in the Claude desktop app with this build: native rendering, the measured refresh time and the legacy-store hint (PRD AC-002 live check) are evidenced only through automated tests with a fake host.
+  Folge: A rendering or timing defect that only the real desktop host shows could reach UAT; automated parity, adapter, integrity and journal tests reduce but do not exclude it.
+  Nacharbeit: Run T-013 in the Claude desktop app with the locally built plugin (current project, disposable copy of .agdf/control/archive/source, live events during a short run) and store screenshots, observation note and measured refresh time as UAT input before Approval: UAT.
+  Verantwortlich: Arndt Gold
+
+Der QA-Befund bleibt „Nachbessern“. Mit deiner Freigabe akzeptierst du diese Abweichungen und deren Folgen; anschließend folgt UAT. Fehlende Prüfungen und native Produktionsqualifikation sind damit nicht bestanden.
+
+Du akzeptierst die aufgeführten Abweichungen. Als Nächstes folgt UAT.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: QA.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Qualitätssicherung · Revision: `6022d6e9-9049-47e8-adec-8bd4242f79ff`
+
+SHA-256: `sha256:c3ca8daa31a42b10e58e408fd35b89eae7482d72f2aec6007f60a0e502aafd34`

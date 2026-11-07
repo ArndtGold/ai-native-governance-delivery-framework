@@ -17,6 +17,8 @@ export const creationRunId = operationId => `run-${operationId}`;
 export const CURRENT_LAYOUT = 'run-folders-v1';
 export const CURRENT_RUN_VERSION = 4;
 export const RUN_MODES = Object.freeze(['undecided', 'quick_task', 'verified_change', 'structured_slice', 'structured_delivery', 'block']);
+// The artefact slot each recorded run step writes (internal steps name their own slot).
+export const RUN_STEP_SLOTS = Object.freeze({ ur: 'UR', route: 'Brownfield Review', review: 'CR', evidence: 'EVIDENCE', closeout: 'OR' });
 export function runRelativePath(runId, area = '', name = '') {
   if (!RUN_ID_PATTERN.test(String(runId ?? ''))) throw Error('AGDF_RUN_ID_INVALID');
   if (!['', 'documents', 'evidence', 'control', 'history'].includes(area)) throw Error('AGDF_RUN_PATH_INVALID');

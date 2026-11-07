@@ -12,6 +12,11 @@ export function startGenerationRuntime({ epoch, generation, channel }) {
     return { ...owned, inflight: inflight + (starting ? 1 : 0) + (owned.inflight ?? 0),
       executor: executor?.active ? 1 : 0, uncertain: unknown.size + (owned.uncertain ?? 0), closing };
   }
+  // Companion events (SD SDD-006): this generation executed the call, so it journals the final result
+  // once, before the result leaves; a failing journal never changes or delays the result.
+  function journal(name, args, projected) {
+    try { runtime.observeOutcome?.(name, args, projected); } catch { /* notification only */ }
+  }
   function send(input, kind, payload) {
     const reply = generationMessage(epoch, generation, kind, payload, {}, input.original_operation_id, input.request_id);
     if (validGenerationMessage(reply, { epoch, generation, reply: true })) channel.send(reply);
@@ -76,11 +81,15 @@ export function startGenerationRuntime({ epoch, generation, channel }) {
           if (input.original_operation_id && result.outcome === 'effect_unknown') unknown.add(input.original_operation_id);
           if (name === 'agdf_inspect' && args.operation === 'operation-status' && result.report?.status === 'recorded'
             && (result.report.receipt?.operation_id ?? result.report.receipt?.operation?.operation_id) === args.module.split('/').at(-1)) unknown.delete(args.module.split('/').at(-1));
-          send(input, 'result', runtime.projectToolResult(name, args, result));
+          const projected = runtime.projectToolResult(name, args, result);
+          journal(name, args, projected);
+          send(input, 'result', projected);
         } catch (error) {
           const facts = runtime.normalizeFailure(error, { phase });
           if (input.original_operation_id && facts.dispatch !== 'not_dispatched') unknown.add(input.original_operation_id);
-          send(input, 'result', runtime.projectToolResult(name, args, runtime.failure(facts.code, name, args, { ...facts, elapsed_ms: performance.now() - started }), facts));
+          const projected = runtime.projectToolResult(name, args, runtime.failure(facts.code, name, args, { ...facts, elapsed_ms: performance.now() - started }), facts);
+          journal(name, args, projected);
+          send(input, 'result', projected);
         } finally { --inflight; }
       }
     } catch (error) { if (input.kind === 'qualify') starting = false; send(input, 'failure', { reason: generationFailureReason(error) }); }

@@ -1,0 +1,22 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Companion core in Core: host-neutral run view, MCP events and figure states
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Ein neuer Core-Bereich `packages/core/lib/companion/` trägt Run-Ansicht, Figurzustände, Ereignisse und Review-Fakten. Claude-Begleiter und MCP-Statuskarte nutzen ihn gemeinsam.
+- Umfang: Schritt 1 bringt eine reine Run-Ansicht aus eingelesenen Fakten (Lesezugriff injiziert: Node-fs oder `$.fs`). Dazu wird der Gate-Check-Bewerter in reine Regeln aufgeteilt, die Diagnose unlesbarer Bestände kommt hinzu, Figurzustände und Texte wandern in den zentralen Katalog. Schritt 2 bringt Ereignisse aus den echten MCP-Ergebnissen: Der MCP-Server schreibt sie in ein begrenztes Protokoll im Plugin-Datenverzeichnis, der Begleiter liest es alle 2 Sekunden. Review-Fakten umfassen Vorschau, Größe, Digest und Abgleich mit angegebenen Quelldateien.
+- Entscheidungen: SDD-001 und SDD-002 Lese-Teil plus reine Auswertung, Statuskarte bytegleich (Golden-Vergleich). SDD-003 Diagnose mit den MCP-Grundcodes. SDD-004 Figurzustände und Texte im zentralen Katalog. SDD-005 bis SDD-007 Ereignismodell, Protokoll (256 KiB, eine Rotationsdatei, nur Benachrichtigung) und 2-Sekunden-Abfrage. SDD-008 Review-Fakten mit reinem SHA-256 für den Mod. SDD-009 keine neue MCP-Operation und keine Schemaänderung, die Codex-Anbindung kommt im eigenen Run. SDD-010 Anbindung des Begleiters über die vorhandene Bridge, Integritätstest für Reinheit und Schreibverbot.
+- Risiken: Der Umbau des zentralen Gate-Check-Pfads wird über Golden-Vergleiche abgesichert. Bei mehreren MCP-Servern können Protokollzeilen verloren gehen, was als Benachrichtigungskanal hingenommen wird. Die Nutzlast wächst.
+- Nächster Schritt: SD prüfen und nur mit `Approval: SD` freigeben; danach folgt der Aufgaben- und Testplan (TP).
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Lösungsdesign · Revision: `4fe801f2-b69f-407c-ae18-56d1e277830d`
+
+SHA-256: `sha256:df33245488fe2b983ddff08993511e87131a94572fad518e4b8105c4174a7019`

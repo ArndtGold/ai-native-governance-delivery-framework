@@ -1,0 +1,22 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Companion core in Core: host-neutral run view, MCP events and figure states
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Ein neuer Core-Bereich `packages/core/lib/companion/` trägt Run-Ansicht, Figurzustände, Ereignisse und Review-Fakten. Claude-Begleiter und MCP-Statuskarte zeigen dasselbe. Diese Fassung ersetzt die reine Aufteilung des Gate-Check-Bewerters, weil sie rund 25 zentrale Module umgebaut hätte.
+- Umfang: Schritt 1 bringt eine Run-Ansicht, die der Core auf der Node-Seite aus dem unveränderten evaluateGateCheck-Bericht ableitet, mit Diagnose unlesbarer Bestände und Figurzustand. Ein neuer lesender Befehl `run-view` der Plugin-Laufzeit gibt sie als versioniertes JSON aus. Der Begleiter ruft ihn über `$.process.run` auf und importiert kein Core-Modul mehr. Texte wandern in den zentralen Katalog. Schritt 2 bringt Ereignisse aus den echten MCP-Ergebnissen: Der MCP-Server schreibt sie an der finalen Ergebnisprojektion, auch für abgelehnte und fehlgeschlagene Aufrufe, in ein begrenztes Protokoll im Plugin-Datenverzeichnis, der Begleiter liest es alle 2 Sekunden. Review-Fakten umfassen Vorschau, Größe, Digest und Abgleich mit angegebenen Quelldateien.
+- Entscheidungen: SDD-001 und SDD-002 Run-Ansicht Node-seitig aus dem unveränderten Bewerter, kein Umbau von gate-check.js, die Statuskarte bleibt bytegleich, der Begleiter zeigt auch Doctor-Blockaden wie die Statuskarte. SDD-003 Diagnose mit den MCP-Grundcodes. SDD-004 Figurzustände und Texte im zentralen Katalog. SDD-005 bis SDD-007 Ereignismodell, Protokoll (256 KiB, eine Rotationsdatei, nur Benachrichtigung) und 2-Sekunden-Abfrage, der Befehl läuft nur bei geänderten Run-Dateien, neuen Ereignissen oder Sprachwechsel. SDD-008 Abweichungswarnung mit dem vorhandenen Node-Digest, kein SHA-256 im Mod. SDD-009 keine neue MCP-Operation und keine Schemaänderung. SDD-010 Begleiter über `$.process.run` mit 10 Sekunden Zeitlimit, bei Fehlern bleibt die letzte Ansicht als veraltet markiert.
+- Risiken: Jede Aktualisierung startet einen Node-Prozess (gemessen 0,5 bis 0,65 Sekunden). `$.process` ist nur in der Desktop-App geprüft, andere Oberflächen zeigen „Run-Ansicht nicht verfügbar“. Node muss im PATH liegen, wie schon für den SessionStart-Hook. Bei mehreren MCP-Servern können Protokollzeilen verloren gehen.
+- Nächster Schritt: SD prüfen und nur mit `Approval: SD` freigeben; danach folgt die angepasste TP-Fassung.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Lösungsdesign · Revision: `36a84c10-f6d2-49c1-a550-5e0136ce5f2d`
+
+SHA-256: `sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9`

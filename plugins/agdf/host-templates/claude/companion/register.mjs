@@ -1,13 +1,18 @@
-// AGDF Companion host adapter (SDD-07 to SDD-10; follow-up SDD-05 to SDD-12): the `/agdf-companion`
-// command, the persisted choices, main-loop turn observation, the refresh cadence, the own pane, the
-// status line and toasts. Observation only: no gating hook, every hook passes its event on through a
-// catch path, and nothing is written under .agdf/control. Session state lives in this module and is
+// AGDF Companion host adapter (SDD-07 to SDD-10; follow-up SDD-05 to SDD-12; companion core SDD-007, SDD-010):
+// the `/agdf-companion` command, the persisted choices, main-loop turn observation, the refresh cadence,
+// the own pane, the status line and toasts. Run state comes only from the plugin runtime's read-only
+// `run-view` command through `$.process`, called on a changed run-file fingerprint, a new journal event
+// of this root or a changed language; the companion imports no Core module. Observation only: no
+// gating hook, every hook passes its event on through a catch path, and nothing is written under
+// .agdf/control. Session state lives in this module and is
 // redrawn through `$.ui.invalidate`. Elements come from the surface table and are built with the
 // host's global `h`.
 
 import { assignRun, namedRun, openRuns, stepSelection } from './assignment.mjs';
+import { EVENT_POLL_MS, JOURNAL_FILE, JOURNAL_READ_LIMIT, JOURNAL_ROTATED_FILE, PANE_EVENTS, STICKY_KINDS, TOAST_KINDS, eventText,
+  isConfirmed, isStillUncertain, journalDirectory, namedEventText, parseJournal, unseenEvents } from './events.mjs';
 import { figureSvg } from './figure.mjs';
-import { chatLocale, label } from './localization.mjs';
+import { chatLocale, companionLabels, gateTitle, label } from './localization.mjs';
 import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
 import { STATE_FILE, defaultCompanionState, parseCompanionState, pluginDataDir, serializeCompanionState } from './persistence.mjs';
 import { readSnapshot, settleSnapshot } from './run-state.mjs';
@@ -36,10 +41,17 @@ const ID_ROOM = 18;
 const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
 
 function createSession() {
-  return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, version: null, icon: null,
+  return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, dataDir: null, version: null, icon: null,
     choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
-    isAboutShown: false, isMenuOpen: false, timer: null, reads: 0, appliedRead: 0, observation: null,
-    chatMention: null, isBrowsing: false, conversation: null };
+    isPreviewExpanded: false, isAboutShown: false, isMenuOpen: false, timer: null, eventTimer: null, reads: 0, appliedRead: 0,
+    observation: null, chatMention: null, isBrowsing: false, conversation: null,
+    // Companion core SDD-007: the run-file fingerprint of the last run-view call, the journal cursor and
+    // stamp, this root's events since the last main-loop turn and the drift warnings already announced.
+    fingerprint: null, journalCursor: null, journalStamp: null, eventsAvailable: null, events: [], driftSeen: null,
+    // Durable events of this root waiting for a fresh run view to confirm them (CR delta review RV-1).
+    unconfirmed: [],
+    // The start's first read, running beside the host (CR finding B5).
+    background: null };
 }
 
 // One companion per session: the module is loaded once per session.
@@ -47,8 +59,15 @@ const session = createSession();
 const t = (path, params) => label(session.labels, session.locale, path, params);
 const selection = () => session.choices.selections[session.root] ?? null;
 const redraw = $ => $.ui.invalidate('ui.render');
-// File access for the host-independent reader, each call spelled on `$` (read-only).
-const files = $ => ({ exists: path => $.fs.exists(path), list: path => $.fs.list(path), read: path => $.fs.read(path) });
+// Event toasts name a run only when it is not the run the status line and toasts follow; another run
+// is named by its objective (owner request of 2026-11-06, T-013).
+const eventNaming = () => ({
+  shownRunId: observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(), mention: session.chatMention }).runId ?? null,
+  runs: session.snapshot?.status === 'ok' ? session.snapshot.runs : [] });
+// The host loads a hooks module only when every use of `$` is spelled `$.noun.member(...)` at the call
+// site; passing `$.process` itself refuses the whole module (T-013 native check). The run-view reader
+// receives this call-site wrapper instead.
+const processes = $ => ({ run: (argv, init) => $.process.run(argv, init) });
 
 // Applies one change to this session's choices and, where the AGDF plugin data directory already
 // exists, to the freshly read state file, so choices another session stored meanwhile survive.
@@ -67,7 +86,7 @@ async function persist($, change) {
 // The status line and toasts follow the run-derived state of the run the panel shows without browsing,
 // so browsing never changes them (follow-up SDD-05 to SDD-07; chat-run navigation SDD-06). A stale snapshot keeps the last observation, so a failed read never
 // announces anything. Each host call has its own catch path: a missing channel stays silent (SDD-12).
-function announce($) {
+function announce($, { quiet = new Set() } = {}) {
   const observed = observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
     mention: session.chatMention });
   // Every applied read sets the line again, unchanged text included: the desktop dropped the one set
@@ -76,16 +95,33 @@ function announce($) {
   if (session.snapshot?.stale) return;
   const { observation, notice } = observeNotice(session.observation, observed);
   session.observation = observation;
-  if (!notice || !session.choices.notice) return;
-  try {
-    $.ui.toast(noticeText(observed.runId, notice, { registry: session.registry, labels: session.labels, locale: session.locale }));
-  } catch {
-    return; // no toast on this host, and so no chime either (CR-F01)
-  }
+  // A run whose own event raises a toast in the same read gets no second state toast (decision P1).
+  if (notice && !quiet.has(observed.runId)) toast($, noticeText(notice, { registry: session.registry, labels: session.labels, locale: session.locale }));
+  announceDrift($);
+}
+
+// One toast, with the chime only when it was shown; a missing channel stays silent (SDD-12, CR-F01).
+function toast($, text) {
+  if (!session.choices.notice) return false;
+  try { $.ui.toast(text); } catch { return false; }
   // The chime plays only with a shown toast; a host without a player skips it, a failure stays silent.
   if (session.choices.sound) {
     try { $.audio.play(chimeClip(), { gain: CHIME.gain }).catch(() => {}); } catch { /* no audio on this host */ }
   }
+  return true;
+}
+
+// A bound document changed after recording raises one toast per change (decision P1, PRD AC-008); the
+// pane keeps the warning while the run view reports it. The first read is a baseline.
+function announceDrift($) {
+  if (session.snapshot?.status !== 'ok') return;
+  const warnings = session.snapshot.runs.flatMap(run => (run.drift ?? []).map(item => ({ run: run.id, document: item.document,
+    key: `${run.id}|${item.path}|${item.current_digest}` })));
+  const seen = session.driftSeen;
+  session.driftSeen = new Set(warnings.map(item => item.key));
+  if (!seen) return;
+  const naming = eventNaming();
+  for (const item of warnings.filter(warning => !seen.has(warning.key))) toast($, namedEventText(t('events.drift', { document: item.document }), item.run, t, naming));
 }
 
 // Switching off clears the status line, forgets the observation and discards reads still running, so
@@ -96,19 +132,38 @@ function silence($) {
   try { $.ui.status(undefined); } catch { /* no status line on this host */ }
 }
 
-// Reads the run states of the current project root, which `/cd` or a worktree move can change.
+// Reads the run view of the current project root, which `/cd` or a worktree move can change; a
+// remembered selection is requested by id, so a selected completed run is shown in full.
 // Only the newest of overlapping reads is applied. A snapshot without any runs, as during a branch
 // switch, never drops the remembered selection.
-async function refresh($) {
+async function refresh($, { quiet } = {}) {
   const read = ++session.reads;
   try {
     const root = await $.session.root();
     await followConversation($);
-    const next = await readSnapshot(files($), root, { now: await $.clock.now() });
+    const remembered = session.choices.selections[root];
+    // Taken before the call: a change during the call shows up at the next check.
+    const ids = fingerprintIds(root);
+    const print = await fingerprint($, root, ids);
+    const next = await readSnapshot(processes($), { pluginRoot: $.plugin.root, root, language: session.locale,
+      runIds: remembered ? [remembered] : [], now: await $.clock.now(), clock: () => $.clock.now() });
     if (read < session.appliedRead) return;
     session.appliedRead = read;
+    if (root !== session.root) {
+      // Another project root: its drift baseline, pane entries and preview start over (CR finding B3).
+      session.driftSeen = null;
+      session.events = [];
+      session.unconfirmed = [];
+      session.isPreviewExpanded = false;
+    }
     session.root = root;
     session.snapshot = settleSnapshot(session.snapshot, next);
+    if (next.status === 'ok') session.events = session.events.filter(event => !STICKY_KINDS.includes(event.kind) || isStillUncertain(event, next.runs));
+    // A changed set of open runs is listed again, so the next check compares like with like. A failed
+    // read keeps no fingerprint, so the next check reads again (CR finding B1).
+    const after = fingerprintIds(root);
+    session.fingerprint = next.status === 'failed' ? null
+      : `${session.locale}|${after.join() === ids.join() ? print : await fingerprint($, root, after)}`;
     const chosen = selection();
     if (chosen && next.status === 'ok' && next.runs.length) {
       const { dropSelection } = assignRun({ runs: next.runs, sessionStartedAt: session.startedAt, selection: chosen });
@@ -117,10 +172,98 @@ async function refresh($) {
   } catch (error) {
     if (read < session.appliedRead) return;
     session.appliedRead = read;
-    session.snapshot = settleSnapshot(session.snapshot, { status: 'failed', runs: [], unreadable: [], readAt: Date.now(), error: String(error?.message ?? error) });
+    session.fingerprint = null;
+    session.snapshot = settleSnapshot(session.snapshot, { status: 'failed', runs: [], unreadable: [], readAt: Date.now(), error: 'unavailable' });
   }
-  if (session.choices.enabled) announce($);
+  if (session.choices.enabled) announce($, { quiet });
   redraw($);
+}
+
+// The run-file fingerprint (SDD-007): the run folders, `config.json` and, for each open or selected
+// run, its RUN_STATE and documents entries with size and modification time from `$.fs.list`. It reads
+// listings only, never a run file.
+const fingerprintIds = root => [...new Set([...(session.snapshot?.runs ?? []).filter(run => run.lifecycle === 'active').map(run => run.id),
+  session.choices.selections[root]].filter(Boolean))].sort();
+
+async function fingerprint($, root, ids = fingerprintIds(root)) {
+  const list = async path => { try { return await $.fs.list(path); } catch { return null; } };
+  const files = entries => (entries ?? []).filter(entry => entry.kind === 'file').map(entry => `${entry.name}:${entry.size}:${entry.mtimeMs}`).sort().join(',');
+  const control = `${root}/.agdf/control`;
+  const runs = await list(`${control}/runs`);
+  const parts = [`config:${files((await list(control))?.filter(entry => entry.name === 'config.json'))}`,
+    `runs:${(runs ?? []).map(entry => entry.name).sort().join(',')}`];
+  for (const id of ids) parts.push(`${id}:${files(await list(`${control}/runs/${id}`))}|${files(await list(`${control}/runs/${id}/documents`))}`);
+  return parts.join(';');
+}
+
+// The 30-second check and the check after a main-loop turn (SDD-007): the run view is read again only
+// when the conversation, the root, the language or the run-file fingerprint changed.
+async function check($) {
+  try {
+    const root = await $.session.root();
+    session.locale = await readLocale($, root);
+    const conversationChanged = await followConversation($);
+    if (!conversationChanged && root === session.root && `${session.locale}|${await fingerprint($, root)}` === session.fingerprint) return false;
+    await refresh($);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Reads the journal (SDD-007): a bounded read of its own file in the plugin data directory, only when
+// its size or time changed. New events of this root are kept for the pane, read the run view once and
+// raise the toasts of decision P1. A missing or unreadable journal shows "events unavailable".
+async function pollEvents($) {
+  const available = value => { if (session.eventsAvailable !== value) { session.eventsAvailable = value; redraw($); } };
+  try {
+    if (!session.dataDir) { available(false); return; }
+    // The current root, which `/cd` or a worktree move can change since the last read (CR finding B3).
+    const root = await $.session.root();
+    if (root !== session.root) await refresh($);
+    const directory = journalDirectory(session.dataDir);
+    const listing = await $.fs.list(directory);
+    const entry = listing.find(item => item.name === JOURNAL_FILE && item.kind === 'file');
+    if (!entry || entry.size > JOURNAL_READ_LIMIT) { available(false); return; }
+    const stamp = `${entry.size}:${entry.mtimeMs}`;
+    let fresh = [];
+    if (stamp !== session.journalStamp) {
+      let events = parseJournal(await $.fs.read(`${directory}/${JOURNAL_FILE}`));
+      // Lines written after the last read but before a rotation sit in the rotation file (CR finding B6).
+      const cursorId = session.journalCursor?.id;
+      const rotated = listing.find(item => item.name === JOURNAL_ROTATED_FILE && item.kind === 'file');
+      if (cursorId && !events.some(event => event.id === cursorId) && rotated && rotated.size <= JOURNAL_READ_LIMIT) {
+        events = parseJournal(await $.fs.read(`${directory}/${JOURNAL_ROTATED_FILE}`)).concat(events);
+      }
+      session.journalStamp = stamp;
+      const unseen = unseenEvents(events, { root, cursor: session.journalCursor });
+      fresh = unseen.fresh;
+      session.journalCursor = unseen.cursor;
+    }
+    available(true);
+    if (!fresh.length && !session.unconfirmed.length) return;
+    if (fresh.length) {
+      const toasts = fresh.filter(event => TOAST_KINDS.includes(event.kind));
+      await refresh($, { quiet: new Set(toasts.map(event => event.run_id)) });
+    }
+    // A durable fact is shown, in the pane and as a toast, only once the run view confirms it (SD 2,
+    // CR finding B4). Without a fresh view it waits for one instead of being dropped (CR delta review
+    // RV-1); a fresh view that does not confirm it drops it.
+    const current = session.snapshot?.status === 'ok' && !session.snapshot.stale;
+    const runs = current ? session.snapshot.runs : [];
+    const candidates = session.unconfirmed.concat(fresh);
+    const shown = candidates.filter(event => isConfirmed(event, runs));
+    session.unconfirmed = current ? [] : candidates.filter(event => !shown.includes(event)).slice(-PANE_EVENTS);
+    if (!shown.length) return;
+    session.events = [...shown].reverse().concat(session.events).slice(0, PANE_EVENTS);
+    if (!session.choices.enabled) { redraw($); return; }
+    const gate = value => gateTitle(session.registry, session.locale, value);
+    const naming = eventNaming();
+    for (const event of shown.filter(item => TOAST_KINDS.includes(item.kind))) toast($, eventText(event, t, { gateTitle: gate, ...naming }));
+    redraw($);
+  } catch {
+    available(false);
+  }
 }
 
 // Takes the last open run a main-loop text names as the chat's run at host time `at` (chat-run navigation
@@ -139,43 +282,50 @@ function noteMention(text, at) {
 async function followConversation($) {
   let conversation = session.conversation;
   try { conversation = await $.session.id(); } catch { /* no conversation id on this host */ }
-  if (session.conversation && conversation !== session.conversation) {
+  const changed = Boolean(session.conversation) && conversation !== session.conversation;
+  if (changed) {
     session.chatMention = null;
     session.isBrowsing = false;
     session.observation = null;
     session.startedAt = await $.clock.now();
   }
   session.conversation = conversation;
+  return changed;
 }
 
 function stopRefreshing() {
   session.timer?.cancel();
+  session.eventTimer?.cancel();
   session.timer = null;
+  session.eventTimer = null;
 }
 
-// The timer is replaced before the first read, so overlapping starts never leave a second timer.
+// The timers are replaced before the first read, so overlapping starts never leave a second one: the
+// journal is read every 2 seconds, the run files are checked every 30 seconds (SDD-007). Events written
+// before the start are history, never announced.
 async function startRefreshing($) {
   stopRefreshing();
-  session.timer = $.clock.every(REFRESH_MS, () => { void refresh($); });
-  await refresh($);
+  session.journalCursor = { id: null, at: new Date(await $.clock.now()).toISOString() };
+  session.journalStamp = null;
+  session.eventTimer = $.clock.every(EVENT_POLL_MS, () => { void pollEvents($); });
+  session.timer = $.clock.every(REFRESH_MS, () => { void check($); });
+  // The first read runs beside the host: session start and the command never wait for the run-view
+  // process (CR finding B5); the pane draws "reading" until it lands.
+  session.background = (async () => { await refresh($); await pollEvents($); })().catch(() => {});
   return $.ui.open({ id: PANE, title: t('title') });
 }
+
+// Settles once the latest background read finished (for the adapter test).
+export const whenIdle = () => session.background ?? Promise.resolve();
 
 const openedText = opened => (opened?.isPlaced === false ? t('command.waiting', { reason: opened.reason }) : t('command.enabled'));
 
 async function loadSession($) {
   session.startedAt = await $.clock.now();
   session.root = await $.session.root();
-  session.labels = JSON.parse(await $.fs.read(`${$.plugin.root}/companion/locales.json`));
   session.registry = JSON.parse(await $.fs.read(`${$.plugin.root}/meta/agdf-interaction-locales.json`));
-  const config = `${session.root}/.agdf/control/config.json`;
-  const configText = (await $.fs.exists(config)) ? await $.fs.read(config) : null;
-  // Without AGDF control, Claude's own `language` setting chooses the language (follow-up SDD-11).
-  let setting = null;
-  if (configText === null) {
-    try { setting = await $.settings.read({ key: 'language' }); } catch { /* no setting: the fallback locale */ }
-  }
-  session.locale = chatLocale(session.registry, configText, { setting, labels: session.labels });
+  session.labels = companionLabels(session.registry);
+  session.locale = await readLocale($, session.root);
   // The About entry names the plugin version; a missing or unreadable manifest only leaves it out.
   try {
     const { version } = JSON.parse(await $.fs.read(`${$.plugin.root}/.claude-plugin/plugin.json`));
@@ -188,7 +338,21 @@ async function loadSession($) {
   } catch { /* no icon shown */ }
   const dir = pluginDataDir({ configDir: await $.env.get('CLAUDE_CONFIG_DIR'), userProfile: await $.env.get('USERPROFILE'), home: await $.env.get('HOME') });
   session.statePath = dir ? `${dir}/${STATE_FILE}` : null;
+  // The MCP server journals below the same plugin data root (companion core SDD-006).
+  session.dataDir = dir;
   if (session.statePath && (await $.fs.exists(session.statePath))) session.choices = parseCompanionState(await $.fs.read(session.statePath));
+}
+
+// The AGDF chat language of the project; without AGDF control, Claude's own `language` setting
+// (follow-up SDD-11). Read again at every check, so a language change reads the run view again.
+async function readLocale($, root) {
+  const config = `${root}/.agdf/control/config.json`;
+  const configText = (await $.fs.exists(config)) ? await $.fs.read(config) : null;
+  let setting = null;
+  if (configText === null) {
+    try { setting = await $.settings.read({ key: 'language' }); } catch { /* no setting: the fallback locale */ }
+  }
+  return chatLocale(session.registry, configText, { setting, labels: session.labels });
 }
 
 const wrappedRows = (value, columns) => (value ? Math.ceil(value.length / Math.max(columns, 10)) : 0);
@@ -196,7 +360,9 @@ const wrappedRows = (value, columns) => (value ? Math.ceil(value.length / Math.m
 // How many open runs the desktop list shows: the body rows left beside the other blocks, never fewer
 // than the terminal's six (the pane then scrolls). One row of them goes to "+ N more" when runs remain.
 export function listCapacity(view, { rows, columns, isAboutShown = false }) {
-  const blocks = [view.message, view.hint, view.stale].filter(Boolean);
+  const blocks = [view.message, view.hint, view.unreadableHint !== view.message ? view.unreadableHint : null, view.stale,
+    ...(view.drift ?? []), ...(view.events ? [view.events.join(' '), ...view.events.map(() => ' ')] : []),
+    ...(view.review ? [view.review.summary, view.review.match, ' ', ' '] : []), view.eventsHint].filter(Boolean);
   const fixed = DESKTOP_ROWS.figure + DESKTOP_ROWS.footer + DESKTOP_ROWS.spare + (isAboutShown ? DESKTOP_ROWS.about : 0) + 1
     + blocks.reduce((sum, value) => sum + wrappedRows(value, columns), 0) + DESKTOP_ROWS.gap * (blocks.length + 3);
   return Math.max(LISTED_RUNS, Math.floor(rows - fixed));
@@ -238,7 +404,7 @@ function body($, e, view) {
   const commands = [
     ...(canReturn ? [['chat', t('actions.backToChat'), back]] : []),
     ['still', session.choices.still ? t('actions.stillOff') : t('actions.stillOn'), toggle('still')],
-    ['retry', t('actions.retry'), () => refresh($)],
+    ['retry', t('actions.retry'), async () => { session.journalStamp = null; await refresh($); await pollEvents($); }],
     ['notice', session.choices.notice ? t('actions.noticeOff') : t('actions.noticeOn'), toggle('notice')],
     ['sound', session.choices.sound ? t('actions.soundOff') : t('actions.soundOn'), toggle('sound')],
     ['about', t('actions.about'), async () => { session.isAboutShown = true; }],
@@ -322,6 +488,7 @@ function body($, e, view) {
       view.reason ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.reason) : null),
     view.message ? h(Text, {}, view.message) : null,
     view.hint ? h(Text, { dimColor: true }, view.hint) : null,
+    view.unreadableHint && view.unreadableHint !== view.message ? h(Text, { color: 'warning' }, view.unreadableHint) : null,
     view.gateBar ? h(Text, { mono: true, wrap: 'truncate-end' }, view.gateBar) : null,
     view.runId ? h(Box, { flexDirection: 'column' },
       h(Text, { weight: 'semibold', wrap: 'truncate-end' }, view.runId),
@@ -333,6 +500,19 @@ function body($, e, view) {
     view.nextStep ? h(Box, { flexDirection: 'column' },
       h(Text, { dimColor: true }, t('fields.nextStep')),
       h(Text, {}, view.nextStep)) : null,
+    ...(view.drift ?? []).map(text => h(Text, { color: 'warning' }, text)),
+    view.events ? h(Box, { flexDirection: 'column' },
+      h(Text, { dimColor: true }, t('fields.events')),
+      ...view.events.map(line => h(Text, { wrap: 'truncate-end' }, line))) : null,
+    view.review ? h(Box, { flexDirection: 'column' },
+      h(Text, { dimColor: true }, t('fields.material')),
+      h(Text, {}, `${view.review.summary} · ${view.review.match}`),
+      view.review.preview ? h(Text, { mono: true, dimColor: true, wrap: session.isPreviewExpanded ? 'wrap' : 'truncate-end' },
+        session.isPreviewExpanded ? view.review.preview : view.review.preview.split('\n')[0]) : null,
+      view.review.preview ? h(Button, { key: 'preview', plain: true, label: session.isPreviewExpanded ? t('actions.collapse') : t('actions.expand'),
+        onPress: press($, async () => { session.isPreviewExpanded = !session.isPreviewExpanded; }) }) : null,
+      view.review.truncated ? h(Text, { dimColor: true }, view.review.truncated) : null) : null,
+    view.eventsHint ? h(Text, { dimColor: true }, view.eventsHint) : null,
     runList,
     view.stale ? h(Text, { color: 'warning' }, view.stale) : null,
     about),
@@ -387,6 +567,9 @@ export const register = on => {
         // A main-loop turn ends browsing and may name the chat's run (chat-run navigation SDD-02, SDD-04);
         // the host clock is read beside the event, never before it is passed on (SDD-11).
         session.isBrowsing = false;
+        // Pane entries of events clear at the next main-loop turn (PRD state transitions); an uncertain
+        // outcome stays until its run recorded a later operation (CR finding B7).
+        session.events = session.events.filter(event => STICKY_KINDS.includes(event.kind));
         if (!session.isHidden) session.isTurnActive = true;
         redraw($);
         const prompt = e.text;
@@ -402,15 +585,17 @@ export const register = on => {
       if (e.agentId === undefined) {
         // Cleared on every main-loop completion, also while switched off, so no stale overlay remains.
         session.isTurnActive = false;
-        // The read runs after the host has its answer, never inside the hook; a hidden pane keeps
-        // the status line and toasts current (follow-up SDD-08). The turn's final answer (`e.answer`,
-        // else the text `next(e)` returned) is matched against that read at the turn's end time, so a
-        // run created during the turn counts (CR-F05, CR-F06).
+        // The check runs after the host has its answer, never inside the hook; a hidden pane keeps
+        // the status line and toasts current (follow-up SDD-08). It reads the journal and, on a
+        // changed run-file fingerprint, the run view (SDD-007); the turn overlay ends with a redraw
+        // either way. The turn's final answer (`e.answer`, else the text `next(e)` returned) is matched
+        // at the turn's end time, so a run created during the turn counts (CR-F05, CR-F06).
         if (session.choices.enabled) {
           const answer = typeof e.answer === 'string' ? e.answer : answered?.text;
           void (async () => {
             const at = await $.clock.now();
-            await refresh($);
+            await pollEvents($);
+            if (!(await check($))) redraw($);
             if (session.choices.enabled && noteMention(answer, at)) { announce($); redraw($); }
           })().catch(() => {});
         }
@@ -435,7 +620,8 @@ export const register = on => {
       return body($, e, buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
         mention: session.chatMention, isBrowsing: session.isBrowsing,
         isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
-        columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded }));
+        columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded,
+        events: session.events, eventsAvailable: session.eventsAvailable ?? undefined }));
     } catch (error) {
       const { Text } = $.ui.resolve(e);
       return h(Text, { dimColor: true }, `AGDF Companion: ${String(error?.message ?? error).slice(0, 200)}`);

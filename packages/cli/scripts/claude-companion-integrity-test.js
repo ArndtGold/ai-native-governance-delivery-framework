@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { fixture, treeBytes } from "../../core/test/control-cockpit-fixtures.js";
 import { validateCopilotPayload } from "../../../scripts/public-plugin/copilot-profile.js";
 import { validatePortableProfile } from "../../../scripts/public-plugin/validator.js";
+import { processCalls } from "./companion-host-spelling.js";
 
 // The generated runtime plugin carries the Claude companion only where SDD-01 and SDD-02 allow it
 // (T-006; SCN-015, SCN-016): every deviation fails the integrity check, the portable runtime validator
@@ -23,6 +25,46 @@ const failuresOf = root => {
     { encoding: "utf8", env: { ...process.env, AGDF_RUNTIME_INTEGRITY_ROOT: root } });
   return { status: run.status, failures: `${run.stdout}${run.stderr}`.split(/\r?\n/u).filter(line => line.startsWith("- ")) };
 };
+
+// Companion core SDD-010 / SCN-022: the generated companion imports only its own modules, keeps no Core
+// bridge or text file of its own, starts no process but the runtime's read-only run view, and the
+// runtime it names answers that command without touching the control state.
+const companionRoot = join(generated, "companion");
+// The call finder sees what a text match missed: `spawn`, spacing before the parenthesis, and comments.
+assert.deepEqual(processCalls("$.process.spawn({ argv: [] }); $.process.run (argv); // processes.run(x)\n"), ["$.process.spawn", "$.process.run"]);
+const companionFiles = readdirSync(companionRoot);
+for (const stale of ["core.mjs", "locales.json"]) assert.ok(!companionFiles.includes(stale), `the generated companion carries no ${stale}`);
+for (const name of companionFiles.filter(file => file.endsWith(".mjs"))) {
+  const source = readFileSync(join(companionRoot, name), "utf8");
+  for (const [, specifier] of source.matchAll(/\bfrom\s*['"]([^'"]+)['"]/gu)) {
+    assert.match(specifier, /^\.\/[a-z-]+\.mjs$/u, `${name} imports only companion modules, not ${specifier}`);
+    assert.ok(companionFiles.includes(specifier.slice(2)), `${name} imports an existing companion module`);
+  }
+  assert.doesNotMatch(source, /\bimport\s*\(/u, `${name} uses no dynamic import`);
+  // The host demands `$.process.run(...)` at the call site, so register.mjs holds the one wrapper that
+  // the single run-view call of run-state.mjs goes through (T-013 finding F1); no module spawns (SDD-010).
+  // Parsed, so comments cannot fake a call and `spawn` or spacing cannot hide one (delta review 2026-11-07).
+  const expectedCalls = { "register.mjs": ["$.process.run"], "run-state.mjs": ["processes.run"] };
+  assert.deepEqual(processCalls(source), expectedCalls[name] ?? [], `${name} process calls`);
+}
+{
+  const { runViewArgv, snapshotFromRunView } = await import(pathToFileURL(join(companionRoot, "run-state.mjs")).href);
+  const probe = fixture();
+  try {
+    const before = treeBytes(probe.root);
+    const argv = runViewArgv({ pluginRoot: generated, root: probe.root, language: "de", runIds: ["fixture-completed"] });
+    assert.deepEqual([argv[0], argv[2]], ["node", "run-view"]);
+    assert.ok(existsSync(argv[1]), "the companion names the generated runtime entry");
+    const ran = spawnSync(process.execPath, argv.slice(1), { encoding: "utf8", timeout: 60_000 });
+    assert.equal(ran.status, 0, ran.stderr);
+    const snapshot = snapshotFromRunView(ran.stdout, { now: 1 });
+    assert.deepEqual([snapshot.status, snapshot.runs.map(run => run.id).sort()], ["ok", ["fixture-a", "fixture-completed"]]);
+    assert.ok(snapshot.runs.every(run => run.figure?.mood), "every run carries the Core figure");
+    assert.deepEqual(treeBytes(probe.root), before, "the run view leaves the project byte-identical");
+  } finally {
+    probe.close();
+  }
+}
 
 // Short names: the copied MCP runtime is deep, and Windows paths stay below MAX_PATH.
 const work = mkdtempSync(join(tmpdir(), "agdf-ci-"));

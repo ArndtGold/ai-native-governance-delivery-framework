@@ -13,7 +13,7 @@ export const ACCESSORY_BOUNDS = Object.freeze({
   wartet: { x: 8, y: 8, width: 32, height: 32 },
   blockiert: { x: 6, y: 6, width: 36, height: 36 },
   fertig: { x: 1, y: 1, width: 46, height: 46 },
-  neutral: null,
+  bereit: null,
 });
 // The build accessory in region coordinates: a hammer swinging around the end of its handle between
 // the two angles (degrees, clockwise positive), and three bricks; strokes are at most 1.5 px wide.
@@ -28,7 +28,7 @@ const BODY = Object.freeze({
   wartet: { fill: '#E0A030', stroke: '#9A6A12' },
   blockiert: { fill: '#D9534F', stroke: '#8F2D2A' },
   fertig: { fill: '#3FA66A', stroke: '#23663F' },
-  neutral: { fill: '#9AA3B2', stroke: '#5C6575' },
+  bereit: { fill: '#9AA3B2', stroke: '#5C6575' },
 });
 const INK = '#1F2430';
 
@@ -60,7 +60,7 @@ const MOUTH = Object.freeze({
   wartet: `<path d="M72 97 h16" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
   blockiert: `<path d="M70 101 q10 -9 20 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
   fertig: `<path d="M68 93 q12 12 24 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-  neutral: `<path d="M73 97 h14" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
+  bereit: `<path d="M73 97 h14" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
 });
 
 const MOTION = Object.freeze({
@@ -70,7 +70,7 @@ const MOTION = Object.freeze({
   wartet: '<animateTransform attributeName="transform" type="rotate" values="-4 80 124;4 80 124;-4 80 124" dur="2.6s" repeatCount="indefinite"/>',
   blockiert: '<animateTransform attributeName="transform" type="translate" values="0 0;-4 0;4 0;-4 0;4 0;0 0;0 0" keyTimes="0;0.04;0.08;0.12;0.16;0.2;1" dur="2.2s" repeatCount="indefinite"/>',
   fertig: '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -10;0 0" keyTimes="0;0.6;0.8;1" dur="2s" repeatCount="indefinite"/>',
-  neutral: '',
+  bereit: '',
 });
 
 // Drawn in region coordinates (0..48); ACCESSORY_BOUNDS states each extent.
@@ -108,7 +108,7 @@ function accessory(mood, isMoving) {
   return '';
 }
 
-// mood: one of the five moods or 'neutral' (no run assigned, status unreadable).
+// mood: one of the six moods; bereit also stands for no run assigned or an unreadable status.
 export function figureSvg(mood, { still = false, title = '' } = {}) {
   const isMoving = !still;
   const { fill, stroke } = BODY[mood];
@@ -133,5 +133,5 @@ export const FIGURE_TEXT = Object.freeze({
   wartet: '(-_-) ⧗',
   blockiert: '(x_x) !',
   fertig: '(^_^) ✓',
-  neutral: '(·_·)',
+  bereit: '(·_·)',
 });

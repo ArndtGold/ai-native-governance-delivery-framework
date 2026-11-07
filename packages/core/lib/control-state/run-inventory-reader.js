@@ -7,8 +7,10 @@ import { discoverRuns } from "./run-state-reader.js";
 import { buildRunInventory } from "./run-inventory.js";
 
 // Feeds the pure inventory from the run discovery of the current read view: each run's parsed text
-// and, when the full parser rejected it, its findings. No run state is read a second time.
-export function readRunInventory(root, { language = "en" } = {}) {
+// and, when the full parser rejected it, its findings. No run state is read a second time. `observe: false`
+// skips the per-run gate observation, which reads registered documents, for a caller that evaluates the
+// runs itself (the companion run view, which reads each run in its own captured snapshot).
+export function readRunInventory(root, { language = "en", observe = true } = {}) {
   if (!existsSync(join(root, '.agdf/control'))) return buildRunInventory(null, { language });
   readControlLayout(root);
   if (!existsSync(join(root, '.agdf/control/runs'))) return buildRunInventory([], { language,
@@ -18,7 +20,7 @@ export function readRunInventory(root, { language = "en" } = {}) {
   const store = discovered.filter((run) => run.run_id === "<repository>");
   const sources = discovered.filter(run => run.run_id !== '<repository>').map(run => {
     const source = { run_id: run.run_id, ...(typeof run.content === 'string' ? { text: run.content } : {}), findings: run.valid ? [] : run.findings };
-    if (run.valid) {
+    if (run.valid && observe) {
       try {
         const state = prepareRunContentState(root, run.content, run.path), decision = transitionDecisionForRunState(state);
         source.observation = { current_gate: decision.current_gate, decision: decision.status, missing: decision.missing_approval,

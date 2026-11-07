@@ -1,0 +1,24 @@
+## Aufgaben- und Testplan prüfen und entscheiden
+
+TP: Companion core in Core: host-neutral run view, MCP events and figure states
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Aufgaben- und Testplan für den Begleiter-Kern in zwei Schritten: erst die gemeinsame Run-Ansicht mit Diagnose, Figurzuständen und Katalogtexten, dann Ereignisse und Review-Fakten aus echten MCP-Ergebnissen. Diese Fassung folgt dem überarbeiteten SD (Doctor als optionaler Fakt, Ereignisse an der finalen Ergebnisprojektion).
+- Aufgaben: Schritt 1: T-001 Fixtures F01 bis F13, Golden-Ausgangsstand der Statuskarte auf main 53e8e900 und Regressionsfälle für die beobachtete Abweichung; T-002 Statusregeln von evaluateGateCheck samt Run-Vorbereitung und Doctor-Übersteuerung rein herauslösen; T-003 Run-Ansicht mit Lese-Teil, die Statuskarte nutzt sie; T-004 Diagnose unlesbarer Bestände; T-005 Figurzustände und Texte im zentralen Katalog; T-006 Begleiter über die Bridge anbinden, Integritätstest. Schritt 2: T-007 Ereignismodell; T-008 Protokoll im Plugin-Datenverzeichnis, geschrieben an der finalen Ergebnisprojektion; T-009 Review-Fakten mit reinem SHA-256 und Abweichungswarnung; T-010 Begleiter liest das Protokoll alle 2 Sekunden; T-011 hostneutraler Prüfstand; T-012 Pakete, Nutzlast, Kompatibilität und volle Regression; T-013 Live-Prüfung im Claude-Desktop.
+- Tests: 21 Szenarien decken AC-001 bis AC-011 und alle zugeordneten SDD ab. Neu sind SCN-020 (Run mit Doctor-Befund: Node-Ansicht gleich blockierter Statuskarte, Begleiter zeigt „Integrität nicht geprüft“) und SCN-021 (abgelehnte und fehlgeschlagene Aufrufe erzeugen genau ein Ereignis). Kern sind der Golden-Vergleich der Statuskarte (CLI und MCP, de und en), der Paritätstest Begleiter gegen Statuskarte, Diagnose-, Ereignis- und Review-Fakten-Tests über den echten MCP-Pfad, SHA-256-Parität mit node crypto, der Integritätstest gegen Schreibzugriffe unter .agdf/control und die Katalogvollständigkeit. Die beobachtete Abweichung (nächster Schritt, „Keine offenen Runs“) wird zuerst am unveränderten Stand als Fehlschlag gezeigt. Vor dem Merge läuft die PR-CI.
+- Entscheidungen: Der SD-Punkt Fixture-Satz ist geklärt: dreizehn Zustände von offenem UR bis gemischtem Bestand und einem Run mit Doctor-Befund, Golden-Inhalt sind Statuskartentexte und Statusfelder. F08 nutzt eine echte archivierte v2-RUN_STATE, weil es für das eingefrorene Archiv keinen Testlader gibt. Flüchtige Werte werden nur exakt ersetzt. Schritt 1 muss grün sein, bevor Schritt 2 beginnt. Die Live-Prüfung läuft nur im Claude-Desktop unter Windows, mit einer Kopie des archivierten Altbestands in einem Wegwerfprojekt.
+- Abgrenzung: Keine Codex-Oberfläche, keine neue MCP-Operation oder Schemaänderung, keine Freigabe oder Blockade durch den Begleiter, keine Migration alter Bestände, kein Mehrprozess-Stresstest.
+- Risiken: Jede Golden-Abweichung, ein Verstoß gegen Reinheit oder Schreibverbot und eine Vertragsänderung am MCP blockieren die QA. Nicht deterministische Fixtures führen zu einer TP-Korrektur statt einem lockereren Vergleich. Nutzlast und Kompatibilitätsaufzeichnung wachsen mit, es bleiben nur 11 Dateien Spielraum. Falls effect_unknown oder recovery_required über den echten Tool-Pfad nicht erreichbar sind, wird das als Nachweisgrenze vermerkt.
+- Nächster Schritt: TP prüfen und nur mit `Approval: TP` freigeben; danach folgt die Brownfield-Analyse vor der Umsetzung.
+
+Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Aufgaben- und Testplan · Revision: `6a5863fb-ebff-4eea-8eff-4ff367ecc120`
+
+SHA-256: `sha256:974adb56efb667fa7ea2e0ebc89f9f72d7cf71be7d699ec565d5e191652b4045`

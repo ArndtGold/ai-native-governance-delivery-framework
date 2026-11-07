@@ -206,6 +206,13 @@ export function createRunMaterialStore({ now = Date.now } = {}) {
       // parts in that same set cannot be used for another current write.
       for (const [id, row] of sets) if (row.files.some(file => ids.has(file.material_id))) sets.delete(id);
     },
+    // Review facts (companion core SDD-008): the sealed text of one transfer for the runtime's bounded
+    // preview, or null when it is unknown or not sealed. It reads only; it is never a material grant.
+    sealedFiles(transferId) {
+      const row = sets.get(transferId);
+      if (closed || !row || row.files.some(file => file.content === null)) return null;
+      return row.files.map(({ slot, content, digest: hash }) => Object.freeze({ slot, content, digest: hash }));
+    },
     close() { closed = true; sets.clear(); },
     inspectOwnership() { expire(); return { sets: sets.size, bytes: [...sets.values()].reduce((n, r) => n + r.size, 0) }; },
   });

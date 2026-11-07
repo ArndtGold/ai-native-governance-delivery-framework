@@ -1,0 +1,22 @@
+## Qualitätssicherung prüfen und entscheiden
+
+QA Report: Companion core in Core: host-neutral run view, MCP events and figure states
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Der Begleiter zeigt auf einen Blick und wahrheitsgetreu, wo jeder Run steht und was der Agent über AGDF getan hat, aus einer gemeinsamen Run-Ansicht in Core und echten MCP-Ereignissen.
+- Ergebnis: T-001 bis T-015 sind umgesetzt und belegt, die technische QA-Bewertung ist pass; Code Review, Clean Review und TP Review bestanden, kein Befund offen.
+- Nativer Test: In der Desktop-App lädt der Begleiter, zeigt Runs, Ereignisse, Abweichungen und Toasts im Hauptfenster und nennt für den alten Bestand „189 Runs nicht lesbar“; die drei Befunde des Tests sind über die TP-Revision vom 7. November behoben.
+- Grenzen: Die volle MCP-Server-Suite und Linux/macOS laufen erst in der PR-CI; nativ geprüft ist nur die Claude-Desktop-App unter Windows 11.
+- Risiken: Eine Aktualisierung kostet 1,2 bis 2,8 Sekunden; Toasts erscheinen nur im Hauptfenster; die Formulierungspunkte F4 folgen in einem eigenen Auftrag.
+
+Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: QA.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Qualitätssicherung · Revision: `f6be2fa9-ccb7-48b0-81e9-7ed8ab4b237d`
+
+SHA-256: `sha256:cbb8bbc375b856ecbc7572a9168b39b12d09c270a5fa41afaca7e76b1bbe3f02`

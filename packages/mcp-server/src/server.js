@@ -149,6 +149,15 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
     serialize, consume, provider, facts, preparedCalls, actions, nextRead, peer: provider ? {
       client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
     } : undefined });
+  // Companion events (SD SDD-006): only the process that executed a call journals its final result.
+  // Behind the generation facade (projected results) the generation has journaled every result it
+  // produced; a failure thrown here (lost connection, unknown response, unavailable generation,
+  // expired session) never reached a generation result, so the facade journals it itself.
+  const journaling = () => !runtime.requiresProjectedResult && typeof runtime.observeOutcome === 'function';
+  const journalingFailures = () => typeof runtime.observeOutcome === 'function';
+  const journal = (name, input, projected) => {
+    try { runtime.observeOutcome(name, input, projected); } catch { /* notification only */ }
+  };
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const nextRead = async (result, context) => appendSafeReadContinuation(result, {
@@ -228,6 +237,7 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
           const checked = Object.hasOwn(result._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? result
             : runtime.projectToolResult(name, argumentsValue, result);
           const { domain } = consume(name, checked);
+          if (journaling()) journal(name, argumentsValue, checked);
           const continued = await nextRead(domain, context);
           return respond(name, argumentsValue, checked, serialize ?? runtime.serialize, context, undefined, continued.next_read);
         } catch (error) {
@@ -238,6 +248,7 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
           // A local execution/delivery failure is owned here, including malformed
           // producer output. It never causes re-execution or a second write.
           const projected = runtime.projectToolResult(name, argumentsValue, failure, facts);
+          if (journalingFailures()) journal(name, argumentsValue, projected);
           return respond(name, argumentsValue, projected, serialize ?? runtime.serialize, context, facts);
         }
       },

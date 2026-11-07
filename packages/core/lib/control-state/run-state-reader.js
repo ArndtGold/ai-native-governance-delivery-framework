@@ -41,6 +41,15 @@ export function readSelectedRun(root, id) {
     last_updated_at: parsed.meta.updated_at || stateStats.mtime.toISOString() };
 }
 
+// The entry names discovery treats as runs: every non-dot entry of the runs folder, sorted. Empty when the
+// folder is missing or no directory. It reads no layout, so the companion run view also counts the run
+// folders of a store whose layout is not supported (PRD AC-002, TP T-004).
+export function runFolderEntries(root) {
+  const dir = join(root, ".agdf", "control", "runs");
+  if (!existsSync(dir) || lstatKindSync(dir) !== 'directory') return [];
+  return readdirSync(dir).filter((entry) => !entry.startsWith(".")).sort();
+}
+
 function discoverCapturedRuns(root) {
   const dir = join(root, ".agdf", "control", "runs");
   if (!existsSync(dir)) return [];
@@ -48,9 +57,7 @@ function discoverCapturedRuns(root) {
   if (lstatKindSync(dir) !== 'directory') {
     return [invalidRun("<repository>", dir)];
   }
-  return readdirSync(dir)
-    .filter((entry) => !entry.startsWith("."))
-    .sort()
+  return runFolderEntries(root)
     .map((id) => {
       const directory = join(dir, id);
       const path = join(directory, "RUN_STATE.md");

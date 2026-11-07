@@ -96,3 +96,11 @@ export const DECISION_CARD_COPY_BUDGETS = freeze(Object.fromEntries(DECISION_CAR
       'previewUnavailable', 'previewChanged', 'previewIllustrative', 'previewUnsupported'].includes(key)
       ? 'description' : 'label'
 ])));
+
+// Companion figure moods (SD SDD-004) and the per-run reasons it names; the catalog's companion
+// section must carry copy for exactly these keys in every locale.
+export const COMPANION_MOODS = freeze(['laeuft', 'baut', 'wartet', 'blockiert', 'fertig', 'bereit']);
+// The store reasons are every bounded code `boundedCode` can return (CR finding B9).
+export const COMPANION_UNREADABLE_REASONS = freeze(['run_version_unsupported', 'run_state_invalid', 'too_large', 'missing',
+  'control_layout_unsupported', 'control_invalid', 'read_failed', 'resource_denied', 'source_changed', 'timeout', 'resource_limit',
+  'unavailable', 'exit', 'malformed']);

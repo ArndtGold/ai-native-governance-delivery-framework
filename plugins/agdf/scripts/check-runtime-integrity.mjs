@@ -1646,8 +1646,8 @@ if (pluginDefinition) {
 // The AGDF companion is Claude-only (SDD-01, SDD-02): its build-only descriptor owns the runtime Claude
 // manifest's hooks declaration; the Codex manifest, the shared hooks, the shared definition and the
 // Copilot profile never reference it.
-const companionFiles = ["companion.json", "hooks.json", "register.mjs", "assignment.mjs", "figure.mjs", "gate-bar.mjs",
-  "localization.mjs", "notice.mjs", "persistence.mjs", "run-state.mjs", "state.mjs", "view.mjs", "locales.json"];
+const companionFiles = ["companion.json", "hooks.json", "register.mjs", "assignment.mjs", "events.mjs", "figure.mjs", "gate-bar.mjs",
+  "localization.mjs", "notice.mjs", "persistence.mjs", "run-state.mjs", "state.mjs", "view.mjs"];
 const copilotRuntimeProfile = !sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugin";
 const companionRoot = sourceMode ? join(pluginRoot, "host-templates", "claude", "companion") : join(pluginRoot, "companion");
 const mentionsCompanion = (value) => /companion/iu.test(JSON.stringify(value ?? null));

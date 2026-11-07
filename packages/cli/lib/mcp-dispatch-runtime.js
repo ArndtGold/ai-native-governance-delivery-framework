@@ -8,6 +8,7 @@ import { mcpControlContinuation } from '#agdf-core/skill-dispatch/mcp-continuati
 import { inspectRunInputResolution } from '#agdf-core/control-state/run-input-resolution.js';
 import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.js";
 import { knownExecutionCode, validExecutionFacts } from '#agdf-core/mcp-tool-errors.js';
+import { createCompanionJournal } from '#agdf-core/companion/journal.js';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
 import { composeMcpProtocolRuntime, errorSupport, inspectMcpDispatcherRuntime, configuredMcpCommandGroups } from './mcp-protocol-runtime.js';
@@ -84,6 +85,9 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
     commandGroups, runtimeControl, materialGrants, gitObservation: cliGitObservation,
     observeDoctor: (root, input, signal) => diagnostic.observe(root, input, signal),
   } });
+  // Companion events (companion core SDD-006): the executing process journals each final command result
+  // once, below the data root the launcher hands over; review facts read the sealed material here.
+  const journal = createCompanionJournal({ sealedFiles: transferId => services.material.sealedFiles(transferId) });
   const execute = input => mcpControlContinuation(input, services.dispatch(input), commandGroups);
   const executeInspect = services.inspect;
   const protocol = composeMcpProtocolRuntime({ surface, inspected, commandGroups, execute, executeInspect, inputContext, executionContext,
@@ -101,6 +105,7 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
     },
     readBudget,
     delivery,
+    observeOutcome: (name, input, result) => journal.observe(name, input, result),
     async postprocessToolResult(name, input, result) {
       const configuration = protocol.configurationProjection(input);
       if (configuration && name === 'agdf_inspect' && result.report) result = { ...result, report: { ...result.report, effective_configuration: configuration } };
@@ -136,6 +141,7 @@ export async function createMcpDecisionRuntime({ runtime, ui, appOnlyMediationQu
     open: (input, result, host) => session.open(input, result, host), read: (input, signal, host) => session.read(input, signal, host),
     action: (input, host) => session.action(input, host), close: () => session.close() });
   return Object.freeze({ ...protocol,
+    observeOutcome: (name, input, result) => runtime.observeOutcome?.(name, input, result) ?? false,
     async postprocessToolResult(name, input, result, { uiSupported, client } = {}) {
       if (name === 'agdf_inspect' && input.operation === 'native-qualification' && result.report?.available) {
         return { ...result, report: { ...result.report, ui_rendering_support: uiSupported ? 'supported' : 'unsupported',

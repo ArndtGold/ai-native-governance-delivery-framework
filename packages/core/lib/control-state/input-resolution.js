@@ -2,7 +2,7 @@ import { CURRENT_LAYOUT } from './run-identity.js';
 // Shared representation, not a file owner or replay ledger. Existing operation
 // families alone validate, persist and recover their versioned records.
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { isAbsolute } from 'node:path';
+import { isAbsolute, posix, win32 } from 'node:path';
 import { canonicalJson, exactObject, DIGEST_PATTERN } from './approval-command-contract.js';
 import { runCommandRequestDigest } from './run-command-schema.js';
 import { canonicalizeLanguageTag } from '../interaction-presentation.js';
@@ -28,7 +28,9 @@ export function createInputResolution(original, effective, configuration) {
     operation_id: original.operation_id ?? null, kind: original.command?.kind ?? null,
     fields: Object.fromEntries(paths.filter(path => get(original, path) === undefined && get(effective, path) !== undefined).map(path => [path, get(effective, path)])), configuration };
 }
-export function validInputResolution(value) {
+export function validInputResolution(value, { persisted = false } = {}) {
+  // Stored paths describe the writer's host. Live requests still use the serving host's paths.
+  const absolutePath = persisted ? path => posix.isAbsolute(path) || win32.isAbsolute(path) : isAbsolute;
   if (!exactObject(value, ['schema_version', 'logical_digest', 'effective_digest', 'operation_id', 'kind', 'fields', 'configuration']) || value.schema_version !== 1
     || !(value.operation_id === null || typeof value.operation_id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u.test(value.operation_id))
     || !(value.kind === null || typeof value.kind === 'string' && /^[a-z_]+\.[a-z_]+$/u.test(value.kind) && value.kind.length <= 64)
@@ -36,14 +38,14 @@ export function validInputResolution(value) {
     || Buffer.byteLength(canonicalJson(value)) > 8192 || Object.keys(value.fields).some(key => !paths.includes(key))) return false;
   const f = value.fields, c = value.configuration;
   if (Object.hasOwn(f, 'presentation_language') && !tag(f.presentation_language)
-    || Object.hasOwn(f, 'working_directory') && (typeof f.working_directory !== 'string' || !isAbsolute(f.working_directory) || f.working_directory.length > 4096)
+    || Object.hasOwn(f, 'working_directory') && (typeof f.working_directory !== 'string' || !absolutePath(f.working_directory) || f.working_directory.length > 4096)
     || Object.hasOwn(f, 'schema_version') && f.schema_version !== '1'
     || Object.hasOwn(f, 'assurance') && f.assurance !== 'cooperative_local'
     || Object.hasOwn(f, 'variant') && !['status-card', 'approval-envelope'].includes(f.variant)
     || Object.hasOwn(f, 'command.payload.route') && !['markdown', 'automatic', 'fallback'].includes(f['command.payload.route'])) return false;
   if (!exactObject(c, ['root', 'control', 'config_digest', 'values', 'sources', 'defaults_digest', 'control_layout'])
     || (c.control === 'active' ? c.control_layout !== CURRENT_LAYOUT : c.control_layout !== null)
-    || !(c.root === null || typeof c.root === 'string' && isAbsolute(c.root) && c.root.length <= 4096) || !['inactive', 'active'].includes(c.control)
+    || !(c.root === null || typeof c.root === 'string' && absolutePath(c.root) && c.root.length <= 4096) || !['inactive', 'active'].includes(c.control)
     || !(c.config_digest === null || hash(c.config_digest)) || !hash(c.defaults_digest)
     || !exactObject(c.values, preferenceKeys) || !exactObject(c.sources, preferenceKeys)
     || !tag(c.values.chat_language) || !tag(c.values.artifact_language)
@@ -82,7 +84,7 @@ export function resolutionRecord(record) {
   const { input_resolution: extension, ...body } = record;
   if (!plain(extension)) return null;
   const { record_version, ...resolution } = extension;
-  if (!['string', 'number'].includes(typeof record_version) || !validInputResolution(resolution)) return null;
+  if (!['string', 'number'].includes(typeof record_version) || !validInputResolution(resolution, { persisted: true })) return null;
   // Pending journals retain the owning family's digest (approval/revision have
   // their own domain digest). The committed receipt binds the full command and
   // journal recovery cross-checks both retained resolutions below that owner.

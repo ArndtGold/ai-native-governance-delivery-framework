@@ -85,8 +85,18 @@ Unknown/unowned partial states remain blocked. Successful setup returns creation
 `agdf_run/run.create` creates an unapproved Run from a semantic title and original operation UUID;
 pre-Run `operation-status` resolves a lost response without inventing a second Run.
 `authoring-inputs` returns versioned templates and exact sources with bounded cursors.
-`agdf_record/material.stage` transfers at most 16 KiB per part and 128 KiB per file, then seals
-Core-owned references for existing typed writers, including reviewed formal artefacts, unapproved
+`authoring-inputs.material_call` supplies a bound form: fill its UTF-8 content and use
+`agdf_record/material.stage` action `put` to seal files of at most 48 KiB each within the 64 KiB whole JSON request bound in one call.
+The Core computes byte counts, material identities and digests. Larger files retain the bounded
+multipart path (16 KiB per part, 128 KiB per file). Each multipart action has its own operation UUID;
+only an identical retry reuses a UUID. Returned `recording_calls` provide the binding and material
+reference; fill only the listed author/review fields. Ready `next_calls` are executable as supplied;
+do not add intake/revision fields to a supplied `continue_delivery` dispatch.
+Pass authored Markdown as UTF-8 string data through structured input. If a host uses JavaScript,
+author with its file-editing tool and pass the UTF-8 file read as the content value; embedding
+the whole document in a backtick literal makes Markdown syntax executable JavaScript syntax.
+This guidance adds no server-side file reader and changes no byte or input limit.
+These Core-owned references feed existing typed writers, including reviewed formal artefacts, unapproved
 UR replacement, Verified Change and closeout. Code edits, actual tests and Git execution remain
 external work; none of these operations grants approval.
 
@@ -246,3 +256,17 @@ They do not qualify an installed host or another OS. The fixed performance test 
 the actual owned plugin launcher with 20/20 samples and p95 limits of 2500 ms cold /
 1000 ms warm. Performance acceptance and native qualification are separate
 required evidence, not consequences of the topology declaration.
+
+The normal MCP path is `next_action.call`: either a ready call forwarded unchanged or a form with named `required_inputs` such as `content`, `title`, `reviewer`, `reviewed` or `response`. The adapter maps those names to the stored canonical payload fields. It retains the original target, Run, revision, permission group and operation UUID; it never fills authored content, review attestations or approval replies. The former competing `submit` form is absent. Raw requests remain accepted for compatibility, but the full original request is exposed only under the explicit `recovery_only` branch, with the exact field map and original UUID. Retain that branch and the actual submitted inputs for uncertain-outcome recovery; do not generate a replacement identity.
+
+Verified owned plugin launchers retain offered templates in a private bounded journal under their existing MCP data root. The namespace includes the serving surface, version and server/dispatcher/SDK identity. A reconnect at that same identity can resolve the original reference without a new UUID or refreshed revision. The original 30-minute lifetime is never renewed. No submitted author/review/reply inputs or execution receipts are added to this journal; it is transport storage, not canonical Run State or authority. Direct transports without this verified owner remain connection-local. Private material buffers have their separate existing generation lifetime and still require exact semantic-byte recovery after generation loss.
+
+Empty, malformed, unknown and known-expired references remain distinct. An unavailable live reference returns `prepared_call_unknown`, rather than blaming the authored command schema. Store failures are distinguished from missing references. A failed publication of a future reference never discards an already successful operation receipt; its exact original request remains in recovery. Every restored call still passes the current SDK, permission-group, Core and revision checks.
+
+For a unique Core-supplied normal next step, the adapter may execute one exact `agdf_inspect` call for `authoring-inputs`, `gate-check` or `operation-contract` and include it as `next_read.result`. `next_action.context_path` names that already-loaded context. The original operation outcome and receipt remain intact if this separate read fails. No dispatch, write, presentation or approval is chained automatically; `agdf_dispatch` is not read-only. Source pagination remains explicit. Internal read attempts/failures are accounted separately from outer MCP invocations in native observations.
+
+`authoring-inputs` supports `bundle:true` for bounded multi-document pages. Read every chunk and cursor without a duplicate writer-contract lookup. A retained first-page form is reusable only for the same exact manifest and an available connection reference; otherwise use the supplied first-page read. Page transport does not prove source review.
+
+Prepared references also retain explicitly offered `agdf_inspect` reads, including source pages, contract help and original-operation status. Read inputs stay `{}`; the original SDK schema validates the complete supplied request before registration. Target, Run, revision, cursor and original status selection are never inferred or refreshed. The actual `next_read.tool/arguments` remain the record of an already executed read; its separate `next_read.call` is the exact prepared retry. Explicit recovery reads remain Raw for reconnect, and dispatch retains its original schema. No reference changes permission or bypasses canonical validation.
+
+Bundled authoring reports use `document_bundle_v2`: `documents` contains complete text, `document_manifest` is metadata only, and `fragments` must be joined by identity and byte offsets across all cursors before editing. Missing content must never be coerced into a replacement string.

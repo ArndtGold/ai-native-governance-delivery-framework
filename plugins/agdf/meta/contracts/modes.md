@@ -18,6 +18,11 @@ Structured Delivery must not bypass missing approvals.
 New product semantics, functional change, user-visible behaviour, policy, persistence, architecture or release-critical work requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT before later artefacts or implementation.
 UR, PRD, SD, TP and QA report approvals require durable artefacts or linked authoritative repository SoT entries before the next gate can open.
 
+For design-relevant work in any selected mode, including Quick Task, Compact Delivery and Verified
+Change, read and apply quality.md's [Brand-Source Use Across Delivery Paths](quality.md#brand-source-use-across-delivery-paths)
+before the affected work. Reuse the exact current Quality module when already supplied; otherwise
+read that declared module through the existing contract reader. This adds no routing step or artefact.
+
 ## Quick Task Output
 
 Quick Tasks are intentionally lightweight, but they must not become invisible.

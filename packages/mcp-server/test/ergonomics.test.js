@@ -14,6 +14,9 @@ const missingBinding = mcpInputValidationHint('agdf_inspect', { operation: 'oper
 for (const field of ['run_id', 'expected_revision_id', 'primary_target', 'target_source']) assert.ok(missingBinding.includes(field));
 assert.match(missingBinding, /never silently replace a requested revision/u);
 assert.doesNotMatch(mcpInputValidationHint('agdf_inspect', { operation: 'operation-contract', module: 'agdf_run/run.create' }), /Supply run_id|Supply expected_revision_id/u);
+const setupHint = mcpInputValidationHint('agdf_inspect', { operation: 'operation-contract', module: 'project.initialize' });
+assert.match(setupHint, /agdf_project\/project.initialize/u);
+assert.doesNotMatch(setupHint, /Supply run_id|Supply expected_revision_id/u);
 assert.match(mcpInputValidationHint('agdf_dispatch', { skill_id: 'gate-check', run_id: 'Demo-Run-01' }), /canonical Run ID/u);
 assert.equal(mcpInputValidationHint('agdf_inspect', { operation: 'not-an-operation' }), '');
 assert.match(mcpInputValidationHint('agdf_inspect', { operation:'status' }), /status is invalid/u);
@@ -40,11 +43,14 @@ try { for (const modern of [false, true]) {
       assert.equal(status.content[0].text, JSON.stringify(status.structuredContent), 'compact MCP text preserves the complete structured result');
       const navigation = status.structuredContent.navigation;
       assert.deepEqual(navigation.read_context, base, 'reusable context contains only validated read selectors, no revision or authority');
-      assert.equal(navigation.next_calls[0].arguments.operation, 'presentation-document', 'document read precedes optional command help');
-      assert.equal(navigation.next_calls[0].arguments.presentation_id, fixture.presentationId);
-      let read = navigation.next_calls[0].arguments, content = '', offset = 0;
+      assert.equal(navigation.next_calls[0].operation.operation, 'presentation-document', 'document read precedes optional command help');
+      assert.equal(navigation.next_calls[0].operation.presentation_id, fixture.presentationId);
+      assert.equal(navigation.next_calls[0].recovery_only.original_call.arguments.presentation_id, fixture.presentationId);
+      let read = navigation.next_calls[0], content = '', offset = 0;
       do {
-        const document = await client.callTool({ name: 'agdf_inspect', arguments: read });
+        assert.deepEqual(Object.keys(read.arguments).sort(), ['inputs', 'prepared_call_id']);
+        assert.deepEqual(read.arguments.inputs, {});
+        const document = await client.callTool({ name: read.tool, arguments: read.arguments });
         assert.equal(document.isError, undefined, JSON.stringify(document));
         assert.equal(document.content[0].text, JSON.stringify(document.structuredContent), 'compact MCP text preserves document bytes and navigation');
         const report = document.structuredContent.report;
@@ -52,7 +58,11 @@ try { for (const modern of [false, true]) {
         assert.equal(report.byte_start, offset);
         content += report.content;
         offset = report.byte_end;
-        read = report.complete ? null : { ...read, cursor: report.next_cursor };
+        read = report.complete ? null : report.next_calls[0];
+        if (read) {
+          assert.equal(read.operation.cursor, report.next_cursor);
+          assert.equal(read.recovery_only.original_call.arguments.cursor, report.next_cursor);
+        }
       } while (read);
       const expected = readFileSync(join(fixture.root, `.agdf/control/runs/${fixture.runId}/control/presentations/${fixture.presentationId}.document`));
       assert.deepEqual(Buffer.from(content), expected, 'exact immutable document bytes retained');
@@ -93,6 +103,35 @@ try { for (const modern of [false, true]) {
       const badRun = await client.callTool({ name: 'agdf_dispatch', arguments: { ...base, skill_id: 'gate-check', run_id: 'Demo-Run-01' } });
       assert.equal(badRun.isError, true);
       assert.match(JSON.stringify(badRun), /canonical Run ID/u);
+      const { run_id: _selectedRun, ...unbound } = base;
+      const malformedBootstrap = await client.callTool({ name: 'agdf_dispatch', arguments: {
+        ...unbound, skill_id: 'gate-check', intake: true, intake_mode: 'new' } });
+      assert.equal(malformedBootstrap.isError, true);
+      assert.match(JSON.stringify(malformedBootstrap), /omits BOTH run_id and intake_mode/u);
+      assert.match(JSON.stringify(malformedBootstrap), /never invent a Run ID/u);
+      const nullRun = await client.callTool({ name: 'agdf_dispatch', arguments: { ...unbound, skill_id: 'gate-check', intake: true, run_id: null } });
+      assert.equal(nullRun.isError, true, 'null never substitutes for omitted initial selectors.');
+      const malformedCreator = await client.callTool({ name: 'agdf_run', arguments: { ...unbound,
+        schema_version: '1', target_id: fixture.targetId, operation_id: '00000000-0000-4000-8000-000000000001', assurance: 'cooperative_local',
+        command: { kind: 'run.create', payload: { title: 'Rejected malformed creator', language: 'en' } } } });
+      assert.equal(malformedCreator.isError, true);
+      assert.match(JSON.stringify(malformedCreator), /accepts only command.payload.title/u);
+      const wrongApprovalModule = await client.callTool({ name: 'agdf_inspect', arguments: { ...base,
+        operation: 'operation-contract', module: 'agdf_approve/run-approve', expected_revision_id: revision, gate: 'UR', target_id: fixture.targetId } });
+      assert.equal(wrongApprovalModule.isError, true);
+      assert.equal(wrongApprovalModule.structuredContent.outcome, 'invalid_input');
+      const moduleRecovery = wrongApprovalModule.structuredContent.recovery.next_calls[0];
+      assert.equal(moduleRecovery.arguments.prepared_call_id, undefined, 'Explicit invalid-input recovery stays usable across reconnect.');
+      assert.equal(moduleRecovery.arguments.inputs, undefined);
+      assert.deepEqual(moduleRecovery, { tool: 'agdf_inspect', arguments: { ...base,
+        operation: 'operation-contract', module: 'agdf_approve/approval.record', expected_revision_id: revision, gate: 'UR', target_id: fixture.targetId } });
+      const suppliedHelp = await client.callTool({ name: moduleRecovery.tool, arguments: moduleRecovery.arguments });
+      assert.equal(suppliedHelp.isError, undefined, 'Only the registered read-only schema lookup is suggested; no approval is recorded.');
+      const incompleteDocument = await client.callTool({ name: 'agdf_inspect', arguments: { ...base,
+        operation: 'presentation-document', presentation_id: fixture.presentationId, target_id: fixture.targetId } });
+      assert.equal(incompleteDocument.isError, true);
+      assert.match(JSON.stringify(incompleteDocument), /Supply expected_revision_id.*Supply gate/u);
+      assert.match(JSON.stringify(incompleteDocument), /never silently replace a requested revision/u);
       const stale = await client.callTool({ name: 'agdf_inspect', arguments: { ...base, operation: 'operation-contract', module: 'agdf_record/step.record', expected_revision_id: '00000000-0000-4000-8000-000000000001' } });
       assert.equal(stale.isError, true);
       assert.equal(stale.structuredContent.report.reason, 'operation_binding_stale_or_invalid');

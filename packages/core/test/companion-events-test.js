@@ -153,7 +153,7 @@ test('SDD-006: two interleaving writers with rotation leave a bounded, readable 
 });
 
 test('CR A6: the event root keeps the caller\'s spelling of the same directory (junction), never a foreign one', t => {
-  const base = mkdtempSync(join(tmpdir(), 'agdf-event-root-'));
+  const base = mkdtempSync(join(realpathSync(tmpdir()), 'agdf-event-root-'));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const real = join(base, 'project'), other = join(base, 'other'), link = join(base, 'linked');
   mkdirSync(real); mkdirSync(other);

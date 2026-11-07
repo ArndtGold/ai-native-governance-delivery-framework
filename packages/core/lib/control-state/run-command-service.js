@@ -1,7 +1,8 @@
 import { runEvidencePath } from './run-identity.js';
 import { resolveMcpInput } from '../mcp-input-resolution.js';
 import { resources } from '../resources/context.js';
-import { commandGroupDefinition } from './run-command-schema.js';
+import { continueDeliveryCall, preparedCommandCall, originalOperationCall } from './prepared-control-calls.js';
+import { commandGroupDefinition, PROPOSAL_COMMAND_KINDS, PROPOSAL_MATERIAL_SLOT } from './run-command-schema.js';
 import { inspectRunInputResolution } from './run-input-resolution.js';
 
 import { resolutionRecordVersion, currentInputResolution, isOriginalInputResolution, withInputResolution } from './input-resolution.js';
@@ -104,7 +105,8 @@ function proposalInput(root, input, grants) {
   const observed = safeOperationStatus(root, input);
   if (observed.status === 'recorded' || input.command.kind === 'source_revision.recover' && observed.status === 'committed_recovery_required') return { reference: canonical };
   const material = grantedMaterial(input, reference, grants);
-  if (material.slot !== 'EVIDENCE') throw Error('material_binding_invalid');
+  if (material.slot !== PROPOSAL_MATERIAL_SLOT) throw Object.assign(Error('material_binding_invalid'), {
+    recovery: `A source revision proposal must be staged in slot ${PROPOSAL_MATERIAL_SLOT}, not ${material.slot}. Stage it with the material_call of operation-contract agdf_revise/${input.command.kind}, then retry with the new reference. No command was dispatched.` });
   return { reference: canonical, material: { path: canonical.path, digest: canonical.digest, content: material.content } };
 }
 export function createRunCommandService({ packageVersion = '0.14.5', enabledGroups = Object.keys(RUN_COMMAND_GROUPS), checkpoint = () => {}, runtimeControl, materialGrants = [], gitObservation, initializationProducer, inputDefaults = resources.defaults } = {}) {
@@ -150,6 +152,7 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           // The envelope already carries this exact receipt; the family copy only doubled the response.
           family_result: family.receipt && receipt && canonicalJson(family.receipt) === canonicalJson(receipt)
             ? (({ receipt: _receipt, ...rest }) => rest)(family) : family, ...extra };
+        response.operation_status_call = originalOperationCall(input);
         if (['accepted', 'already_applied'].includes(outcome)) {
           const common = { presentation_language: input.presentation_language, working_directory: input.working_directory,
             primary_target: input.primary_target, target_source: input.target_source, target_id: input.target_id };
@@ -164,8 +167,20 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
                 module: 'agdf_prepare/presentation.prepare', run_id, expected_revision_id: response.current.revision_id, gate: 'UR' })];
           }
           if (input.command.kind === 'presentation.prepare' && family.presentation_id && family.revision_id)
-            response.next_calls = [inspect({ operation: 'presentation-document', run_id: input.run_id,
-              expected_revision_id: family.revision_id, gate: family.gate, presentation_id: family.presentation_id })];
+            response.next_calls = response.current.lifecycle === 'active' && response.current.revision_id === family.revision_id
+              ? [preparedCommandCall('agdf_prepare', 'presentation.deliver', { ...input, expected_revision_id: family.revision_id },
+                { gate: family.gate, presentationId: family.presentation_id }).call]
+              : [inspect({ operation: 'presentation-document', run_id: input.run_id,
+                expected_revision_id: family.revision_id, gate: family.gate, presentation_id: family.presentation_id })];
+          // An accepted preview continues with its apply form: same UUID and preview digest,
+          // with the proposal reference and the person's confirmation left as inputs.
+          if (input.command.kind === 'source_revision.preview' && family.preview_digest && family.confirmation_selector)
+            response.recording_calls = [preparedCommandCall('agdf_revise', 'source_revision.apply', input, { revision: {
+              operation_id: input.operation_id, source_gate: input.command.payload.source_gate,
+              preview_digest: family.preview_digest, confirmation_selector: family.confirmation_selector } })];
+          if (!response.historical_effect && response.current.available && response.current.lifecycle === 'active'
+              && ['run.create', 'run.create_from_planned', 'step.record', 'artefact.record', 'ur_draft.replace', 'approval.record'].includes(input.command.kind))
+            response.next_calls = [continueDeliveryCall({ ...input, primary_target: root }, response.current.run_id ?? family.run_id ?? selectedInput.run_id)];
         }
         if (Buffer.byteLength(JSON.stringify(response)) > (input.command.kind === 'project.initialize' ? 16384 : RUN_COMMAND_LIMITS.result_bytes)) return { schema_version: '1', outcome: dispatched ? 'effect_unknown' : 'rejected',
           reason: 'command_result_budget_exceeded', operation_id: input.operation_id, binding: response.binding, authorizes: false,
@@ -217,9 +232,13 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
           const state = inspectCanonicalProject(root, { operationId: input.operation_id });
           if (state.receipt?.operation.operation_id === input.operation_id && state.receipt.operation.request_digest !== requestDigest)
             return result('rejected', 'operation_payload_conflict', {}, { dispatch: 'not_dispatched' });
-          if (state.operation_status === 'recorded' && state.status !== 'pending') return result('already_applied', null, {
-            receipt: state.receipt, historical_effect: true, status: 'unchanged', created_run: false,
-            created_gate_approval: false, next_calls: inspectProjectState(root, input, gitObservation).next_calls });
+          if (state.operation_status === 'recorded' && state.status !== 'pending') {
+            const continuation = inspectProjectState(root, input, gitObservation);
+            return result('already_applied', null, {
+              receipt: state.receipt, historical_effect: true, status: 'unchanged', created_run: false,
+              created_gate_approval: false, next_calls: continuation.next_calls,
+              ...(continuation.recovery_only ? { recovery_only: continuation.recovery_only } : {}) });
+          }
           if (state.status === 'blocked') return result('rejected', state.reason, {}, { dispatch: 'not_dispatched' });
           canonicalInitPlan(payload.language); // Resource/plan failures are known before dispatch.
           if (state.operation?.operation_id === input.operation_id && state.operation.request_digest !== requestDigest)
@@ -235,8 +254,10 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
               afterPublish: () => checkpoint('project_after_publish'), afterReceipt: () => checkpoint('project_after_receipt'),
               beforeMarkerCleanup: () => checkpoint('project_before_marker_cleanup') });
           checkpoint('before_result');
+          const continuation = inspectProjectState(root, input, gitObservation);
           return result(family.historical_effect ? 'already_applied' : 'accepted', null,
-            { ...family, next_calls: inspectProjectState(root, input, gitObservation).next_calls });
+            { ...family, next_calls: continuation.next_calls,
+              ...(continuation.recovery_only ? { recovery_only: continuation.recovery_only } : {}) });
         }
         if (kind === 'run.create') {
           // Preflight only; the writer repeats validation before publication.
@@ -267,6 +288,9 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
             } })).then(family => result(family.outcome, family.reason, family, { runtime_control: true }),
               error => result('effect_unknown', error.message, {}, { runtime_control: true }));
         }
+        // Binding the staged proposal is input validation: a missing or misplaced
+        // proposal is rejected before dispatch, never reported as an unknown effect.
+        const proposal = PROPOSAL_COMMAND_KINDS.includes(kind) ? proposalInput(root, input, materialGrants) : null;
         checkpoint('before_dispatch'); dispatched = true;
         if (kind === 'presentation.prepare') {
           family = withOwnedFileLock(runPath(root, input.run_id), () => {
@@ -290,12 +314,10 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
             resolveMaterial: reference => grantedMaterial(input, reference, materialGrants), gitObservation });
         } else if (kind === 'operation.recover') family = boundedRecover(root, input);
         else if (kind === 'source_revision.preview' || kind === 'source_revision.apply') {
-          const proposal = proposalInput(root, input, materialGrants);
           const revised = { ...bound, sourceGate: payload.source_gate, evidence: proposal.reference.path, previewDigest: payload.preview_digest,
             proposalBinding: proposal.reference, proposalMaterial: proposal.material, confirmation: payload.confirmation, commandContext: context, packageVersion };
           family = kind.endsWith('.apply') ? applySourceRevision(root, revised, { afterWrite: checkpoint }) : previewSourceRevision(root, revised);
         } else if (kind === 'source_revision.recover') {
-          const proposal = proposalInput(root, input, materialGrants);
           family = recoverSourceRevision(root, { ...bound, proposalBinding: proposal.reference, proposalMaterial: proposal.material, evidence: proposal.reference.path, sourceGate: payload.source_gate,
             recoveryRevisionId: payload.recovery_revision_id, pendingDigest: payload.pending_digest });
         } else if (kind === 'prd_revision.reopen') {
@@ -331,7 +353,9 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
             operation: 'project-state', primary_target: root, target_source: input.target_source,
             working_directory: input.working_directory, presentation_language: input.presentation_language } }] });
         if (error.message === 'AGDF_OPERATION_PAYLOAD_CONFLICT') return result('rejected', 'operation_payload_conflict');
-        return result(dispatched ? 'effect_unknown' : 'rejected', error.message, {}, { dispatch: dispatched ? 'unknown' : 'not_dispatched' });
+        // A pre-dispatch input error may name its own correction.
+        return result(dispatched ? 'effect_unknown' : 'rejected', error.message, {}, { dispatch: dispatched ? 'unknown' : 'not_dispatched',
+          ...(!dispatched && error.recovery ? { recovery: error.recovery } : {}) });
       }
     });
   };

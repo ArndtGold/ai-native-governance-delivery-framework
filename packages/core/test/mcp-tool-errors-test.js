@@ -46,7 +46,7 @@ for (const language of ['en', 'de', 'fr']) {
   assert.deepEqual(consumeToolResult('agdf_cockpit_read', projectToolResult('agdf_cockpit_read', { operation: 'preview' }, preview, pack)).domain, preview);
   assert.throws(() => describe('agdf_cockpit_read', { operation: 'preview' }, { ...preview, data: { preview: { ...preview.data.preview, content_digest: 'invalid' } } }), /tool_result_invalid/);
   for (const operation of ['freshness', 'changes']) assert.equal(describe('agdf_cockpit_read', { operation }, envelope('stale')).failed, false);
-  for (const [reason, action] of [['operation_source_invalid', 'correct_input'], ['presentation_missing', 'refresh_binding'], ['closeout_not_ready', 'obtain_authority']]) {
+  for (const [reason, action] of [['operation_source_invalid', 'correct_input'], ['presentation_missing', 'refresh_binding'], ['prepared_call_unknown', 'refresh_binding'], ['prepared_call_store_unavailable', 'retry_after_prerequisite'], ['closeout_not_ready', 'obtain_authority']]) {
     const d = describe('agdf_record', {}, { schema_version: '1', outcome: 'rejected', reason, authorizes: false });
     assert.equal(d.code, reason); assert.equal(d.action, action); assert.ok(d.message.includes(pack.mcpErrors.causes[reason]));
     if (reason === 'operation_source_invalid') assert.match(d.message, /path|digest/);
@@ -66,6 +66,8 @@ for (const language of ['en', 'de', 'fr']) {
 }
 assert.equal(localePack(registry, 'fr'), localePack(registry, 'en'));
 assert.deepEqual(executionFacts(Error('PRIVATE'), { phase: 'parse' }), { code: 'dispatch_worker_failed', dispatch: 'not_dispatched' });
+assert.deepEqual(executionFacts({ facts: { code: 'prepared_call_unknown', dispatch: 'not_dispatched', field: 'arguments' } }, { phase: 'parse' }),
+  { code: 'prepared_call_unknown', dispatch: 'not_dispatched', field: 'arguments' });
 assert.deepEqual(executionFacts({ code: 'resource_denied', message: 'PRIVATE' }), { code: 'dispatch_worker_failed', dispatch: 'unknown' });
 assert.deepEqual(executionFacts({ facts: { code: 'resource_denied', dispatch: 'not_dispatched', field: '/secret' } }), { code: 'dispatch_worker_failed', dispatch: 'unknown' });
 const shutdownFacts = { code: 'dispatch_worker_termination_unconfirmed', dispatch: 'unknown',

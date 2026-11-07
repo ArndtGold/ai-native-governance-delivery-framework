@@ -22,7 +22,7 @@
   "scripts": {
     "test:contract": "node ./test/worker-build.test.js && node ./test/contract.test.js",
     "test:continuation": "node ./test/continuation.test.js",
-    "test:protocol": "node ./test/defaulted-inputs.test.js && node ./test/protocol.test.js && node ./test/ergonomics.test.js && node ./test/skill-names.test.js && node ./test/tool-errors.test.js && node ./test/pre-dispatch-failure.test.js && node ./test/companion-journal.test.js && node ./test/doctor-observation.test.js",
+    "test:protocol": "node ./test/defaulted-inputs.test.js && node ./test/protocol.test.js && node ./test/ergonomics.test.js && node ./test/skill-names.test.js && node ./test/tool-errors.test.js && node ./test/pre-dispatch-failure.test.js && node ./test/companion-journal.test.js && node ./test/doctor-observation.test.js && node ./test/prepared-call-transport.test.js && node ./test/prepared-call-journal.test.js && node --test ./test/next-action.test.js && node ./test/safe-read-continuation.test.js && node ./test/prepared-submission.test.js && node ./test/prepared-reads.test.js && node ./test/prepared-reconnect.test.js",
     "test:safety": "node ./test/safety.test.js && node ./test/worker-lock-release.test.js && node ./test/worker-deadline.test.js",
     "test:cockpit-gating": "node ./test/cockpit-gating.test.js",
     "test:provenance": "node ./test/provenance.test.js",

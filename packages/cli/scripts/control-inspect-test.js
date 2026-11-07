@@ -43,7 +43,10 @@ assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.oper
 assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "authoring-inputs", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations", "project-state", "inventory", "planned-inventory", "planned-entry"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially/);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Use next_action\.call/);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /primary_target,target_source/);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Run status needs run_id\+expected_revision_id/);
+assert.match(inspectContractHelp().parameters.cursor.description, /copy next_cursor/);
 
 // Published operation dependencies agree with the shared runtime policy.
 const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
@@ -305,7 +308,7 @@ try {
   assert.equal(unknownModule.outcome, "invalid_input");
   assert.match(unknownModule.recovery.action, /^module_unknown: does-not-exist\. Available modules: /u);
 
-  // AC-003: the dispatcher's presentation_required carries the read-only preview with the gate-check digests.
+  // AC-003: presentation_required supplies a bound preparation call without emitting a duplicate preview.
   const runtime = createMcpDispatchRuntime({ surface: "claude", verifyRuntime: () => {} });
   const dispatch = runtime.tool("agdf_dispatch");
   const presented = dispatch.execute(dispatch.parse({
@@ -318,7 +321,15 @@ try {
   assert.equal(presented.presentation, null, 'MCP routing does not emit a duplicate decision preview');
   const gate = cliJson(["gate-check", "--run", "inspect-run", "--language", "de"], root);
   assert.equal(presented.continuation.control_transport, 'typed_mcp');
-  assert.ok(presented.continuation.next_calls.some(call => call.arguments.module === 'agdf_prepare/presentation.prepare'));
+  assert.equal(presented.continuation.next_calls.length, 1, 'Ready preparation needs no extra contract lookup.');
+  const prepareCall = presented.continuation.next_calls[0];
+  assert.equal(prepareCall.tool, 'agdf_prepare');
+  assert.equal(prepareCall.arguments.command.kind, 'presentation.prepare');
+  assert.equal(prepareCall.arguments.command.payload.gate, gate.current_gate);
+  assert.equal(prepareCall.arguments.run_id, 'inspect-run');
+  assert.equal(prepareCall.arguments.expected_revision_id, gate.approval_presentation.revision_id);
+  assert.equal(prepareCall.arguments.presentation_language, 'de');
+  assert.doesNotThrow(() => runtime.tool('agdf_prepare').parse(prepareCall.arguments));
   assert.equal(presented.continuation.steps, undefined, 'available MCP control needs no validator shell step');
 
 

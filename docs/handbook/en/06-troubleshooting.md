@@ -2,7 +2,7 @@
 language: en
 chapter_role: troubleshooting
 translation_of: ../de/06-fehlerbehebung.md
-source_revision: sha256:f68dd821a498f4fa5267a4a116c437822f5964a6c1182ed275624d82a479abc8
+source_revision: sha256:92554dcd9a05e10992b5f5914087e60f1c6bf2b04db0b26408fc797b8161e6f4
 translation_status: reviewed
 ---
 
@@ -156,6 +156,29 @@ Check the status for:
 A finding is routed back to its responsible owner. It must not simply be overwritten at a later
 gate. If the agent cannot name a concrete next step, request an AGDF gate check for the explicitly
 named run.
+
+## The next tool call fails
+
+Ask the agent to identify the last call actually submitted and its response. The appropriate
+recovery depends on the boundary involved:
+
+| Observation | Next step |
+|---|---|
+| The host cannot execute the calling code or resolve the tool name. | Correct the call and its registered host entry point. This failure does not prove that MCP is unavailable. Earlier successful calls in the same sequence still count. |
+| An offered reference is unknown or expired. | Use the reported recovery path for that exact project and run. Do not substitute the target, revision or identifiers. |
+| Content validation identifies a missing or contradictory section. | Correct the specific finding through the offered authoring path, then validate and present the new revision. A justified rejection demonstrates working validation. |
+| The outcome of a write attempt is unclear. | First inspect the original operation and its stored receipt. A missing continuation response alone does not justify a new write. |
+
+Long documents must be passed as text data. When an agent inserts Markdown into its own calling
+code, document characters can break the call before the intended AGDF action is reached.
+Additional domain explanations do not repair that integration failure. The
+[MCP integration guidelines](../../architecture/09-mcp-integrationsrichtlinien.md) describe the
+responsible technical checks and remaining limits.
+
+Report the submitted call, observed response, project/run and version together. A model's error
+explanation alone does not replace this trace. The
+[documented test example](../../development/native-authoring-recovery-2026-11-05.md#completed-resumption-campaign-on-2026-11-06)
+shows why functional completion and error-free execution are reported separately.
 
 ## Version or package errors
 

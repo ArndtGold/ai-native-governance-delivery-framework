@@ -196,7 +196,8 @@ const OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...WORKER_MCP_DISPAT
   'lib/mcp-owner-protocol.js', 'lib/mcp-lifecycle/facade-runtime.js', 'lib/mcp-lifecycle/facade-thread-entry.js',
   'lib/mcp-lifecycle/owner-client.js', 'lib/mcp-lifecycle/thread-owner.js']);
 const DEFAULT_RESOURCE_ENTRIES = Object.freeze(['generated/plugins/agdf/meta/agdf-defaults.json', 'generated/plugins/agdf/meta/agdf-defaults.schema.json']);
-export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES, ...DEFAULT_RESOURCE_ENTRIES]);
+const PREPARED_JOURNAL_ENTRY = 'lib/mcp-lifecycle/prepared-call-journal.js';
+export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES, PREPARED_JOURNAL_ENTRY, ...DEFAULT_RESOURCE_ENTRIES]);
 function declaresOwnerEntry(root) {
   const entry = readJson(join(root, 'package.json'))?.exports?.['./mcp-owner-protocol'];
   if (entry !== undefined && entry !== './lib/mcp-owner-protocol.js') throw Error('AGDF_MCP_OWNER_EXPORT_INVALID');
@@ -222,8 +223,14 @@ const legacyDispatcherEntries = root => existsSync(join(root, "runtime", "core")
 const dispatcherEntries = root => {
   const entries = legacyDispatcherEntries(root);
   const protocol = join(root, 'lib/mcp-protocol-runtime.js');
-  return entries.includes('lib/mcp-protocol-runtime.js') && readFileSync(protocol, 'utf8').includes('resolveMcpInput')
+  const withResources = entries.includes('lib/mcp-protocol-runtime.js') && readFileSync(protocol, 'utf8').includes('resolveMcpInput')
     ? [...entries, ...DEFAULT_RESOURCE_ENTRIES] : entries;
+  // The already-digested consuming module selects this new dependency. Older
+  // images keep their original digest; deleting a required new helper cannot
+  // masquerade as a historical image or silently downgrade its inventory.
+  return entries.includes('lib/mcp-lifecycle/package.js')
+    && readFileSync(join(root, 'lib/mcp-lifecycle/package.js'), 'utf8').includes("from './prepared-call-journal.js'")
+    ? [...withResources, PREPARED_JOURNAL_ENTRY] : withResources;
 };
 
 // Projection and digesting select the same actual declared image. Old packages

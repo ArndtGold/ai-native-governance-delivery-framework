@@ -2,6 +2,7 @@ import { runDocumentPath } from '../control-state/run-identity.js';
 import { extractField } from "../control-evaluation/verified-change.js";
 import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "../resources/artefact-templates.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
+import { readinessFindingsNote } from "./readiness-findings.js";
 
 // Pure assignment over evaluated state and checked source facts; no writer or approval.
 export function tpDefinitionPhase(targetDir, control, input, sources) {
@@ -11,7 +12,7 @@ export function tpDefinitionPhase(targetDir, control, input, sources) {
       || control?.status_card?.run_id !== input.run_id || !state || !sources
       || control.current_gate !== "TP" || !["open", "blocked"].includes(control.status)
       || !["none", "Approval: TP"].includes(control.missing_approval)
-      || !["none", "AGDF_TP_TRACEABILITY_INCOMPLETE"].includes(control.blocking_reason)
+      || !["none", "AGDF_TP_TRACEABILITY_INCOMPLETE", "AGDF_APPROVAL_SUMMARY_INCOMPLETE"].includes(control.blocking_reason)
       || (control.doctor_report?.findings ?? []).some(f => ["block", "revise"].includes(f.severity))
       || state.approvals.get("SD")?.status !== "approved"
       || state.artefacts.get("SD")?.status !== "approved"
@@ -37,6 +38,7 @@ export function tpDefinitionPhase(targetDir, control, input, sources) {
     artifact_path: artifactPath, template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.TP),
     source_artifacts: Object.freeze(sources.map(s => s.path)),
     sources: Object.freeze(sources.map(s => Object.freeze({ ...s }))), draft_registered: registered,
-    instruction: "Execute tp-definition from these exact approved PRD/SD and analytical inputs. Preserve ready drafts without explicit revision intent. Keep criteria-chain-v1, declare tp-decisions-v1, resolve SD later_tp decisions and specify executable evidence obligations. Material questions block approval and require a concrete clarification at the earliest existing source owner; no silent source edits. Use the shared typed recording procedure, then redispatch gate-check for this run with continue_delivery true to obtain its clarification or presentation continuation. Changed drafts require fresh presentation and a new deliberate Approval: TP.",
+    instruction: "Execute tp-definition from these exact approved PRD/SD and analytical inputs. Preserve ready drafts without explicit revision intent. Keep criteria-chain-v1, declare tp-decisions-v1, resolve SD later_tp decisions and specify executable evidence obligations. Material questions block approval and require a concrete clarification at the earliest existing source owner; no silent source edits. Correct diagnosed own unapproved summary formatting through this authoring route and recheck before recording; preserve approved intent and protected sources. Use the shared typed recording procedure, then redispatch gate-check for this run with continue_delivery true to obtain its clarification or presentation continuation. Changed drafts require fresh presentation and a new deliberate Approval: TP."
+      + readinessFindingsNote(control.traceability_readiness),
   });
 }

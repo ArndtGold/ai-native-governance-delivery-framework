@@ -41,10 +41,22 @@ try {
     const grant = { ...reference, content, slot: 'EVIDENCE', target_id: envelope.target_id, run_id: envelope.run_id, expected_revision_id: envelope.expected_revision_id };
     const staged = createCoreServices({ observers: { materialGrants: [grant] } }).command;
     const stagedPreviewInput = { ...envelope, command: { kind: 'source_revision.preview', payload: { source_gate: 'TP', proposal: reference } } };
+    const misplaced = createCoreServices({ observers: { materialGrants: [{ ...grant, slot: 'QA' }] } }).command('agdf_revise', stagedPreviewInput);
+    assert.deepEqual([misplaced.outcome, misplaced.reason, misplaced.dispatch], ['rejected', 'material_binding_invalid', 'not_dispatched'],
+      'A proposal staged in another slot is an input error before dispatch, never an unknown effect.');
+    assert.ok(misplaced.recovery.includes('slot EVIDENCE, not QA'), 'The rejection names the required slot.');
     const stagedPreview = staged('agdf_revise', stagedPreviewInput);
     assert.equal(stagedPreview.outcome, 'accepted', JSON.stringify(stagedPreview));
     const stagedApply = { ...envelope, command: { kind: 'source_revision.apply', payload: { ...stagedPreviewInput.command.payload,
       preview_digest: stagedPreview.family_result.preview_digest, confirmation: stagedPreview.family_result.confirmation_selector } } };
+    // The preview supplies the apply form with its own UUID; only proposal and confirmation remain.
+    const applyForm = stagedPreview.recording_calls[0];
+    assert.deepEqual(applyForm.required_inputs, ['/command/payload/proposal', '/command/payload/confirmation']);
+    assert.equal(applyForm.confirmation_contract.confirmation_value, stagedPreview.family_result.confirmation_selector);
+    const filled = structuredClone(applyForm.call.arguments);
+    Object.assign(filled.command.payload, { proposal: reference, confirmation: stagedPreview.family_result.confirmation_selector });
+    assert.deepEqual(filled.command, stagedApply.command);
+    assert.equal(filled.operation_id, stagedApply.operation_id, 'Apply keeps the UUID that the proposal binds.');
     const stagedResult = staged('agdf_revise', stagedApply);
     assert.equal(stagedResult.outcome, 'accepted', JSON.stringify(stagedResult));
     assert.ok(readValidatedRevisionArchive(root, stagedResult.receipt).manifest, JSON.stringify(stagedResult));

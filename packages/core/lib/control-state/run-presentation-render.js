@@ -1,4 +1,4 @@
-import { readAcceptanceCriteria } from "../control-evaluation/traceability-readiness.js";
+import { readAcceptanceCriteria, ACCEPTANCE_CRITERIA_FORMAT, TRACEABILITY_CONTRACT } from "../control-evaluation/traceability-readiness.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "../control-read/fs.js";
 import { basename } from "node:path";
@@ -43,6 +43,14 @@ export function presentationVersionComparison(root, state, gate, currentDigest) 
 const MAX_APPROVAL_ARTEFACT_BYTES = 131072;
 const MAX_LOCALIZED_SUMMARY_ITEM_CHARS = 1200;
 const MAX_LOCALIZED_SUMMARY_CHARS = 24000;
+const PRD_LOCALIZED_SUMMARY_FIELDS = Object.freeze([
+  { pattern: /^(?:[-*]\s*)?(?:Nutzerziel|User intent|Ziel|Goal)\s*:/iu,
+    de: '- Ziel:', en: '- Goal:', reason: 'approval_summary_user_goal_missing' },
+  { pattern: /^(?:[-*]\s*)?(?:Umfang|Scope|Produktumfang|Product scope)\s*:/iu,
+    de: '- Umfang:', en: '- Scope:', reason: 'approval_summary_scope_missing' },
+  { pattern: /^(?:[-*]\s*)?(?:Entscheidungen|Decisions|Geklärte Entscheidungen|Resolved decisions|Offene Entscheidungen|Open decisions)\s*:/iu,
+    de: '- Entscheidungen:', en: '- Decisions:', reason: 'approval_summary_decisions_missing', conditional: true },
+]);
 const SUMMARY_SECTIONS = Object.freeze({
   UR: [
     ["Problem", /problem|need|anlass/iu], ["Ziel", /goal|objective|ziel/iu],
@@ -83,8 +91,13 @@ const SUMMARY_LABELS_EN = Object.freeze({
 export const hash = (value) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
 
 function compactSummaryText(value) {
-  return value.replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1").replace(/`([^`]+)`/gu, "$1")
-    .replace(/<[^>]+>/gu, "").replace(/\s+/gu, " ").trim();
+  // Markup outside code spans is dropped. A code span naming syntax such as
+  // `node app.js <file>` keeps its backticks: unwrapped, Markdown would treat
+  // <file> as an HTML tag and the reader would lose it.
+  return value.replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
+    .split(/(`[^`]+`)/u)
+    .map(part => /^`[^`]+`$/u.test(part) ? (part.includes("<") ? part : part.slice(1, -1)) : part.replace(/<[^>]+>/gu, ""))
+    .join("").replace(/\s+/gu, " ").trim();
 }
 
 function userFacingSummaryText(value) {
@@ -111,14 +124,14 @@ function substantiveMarkdown(markdown) {
   return markdown.replace(/^## AGDF Approval Summary \([^\r\n]*\)\s*\r?\n[\s\S]*?(?=^#{1,2}\s|(?![\s\S]))/gmu, "");
 }
 
-function criterionEntries(markdown) {
-  const parsed = readAcceptanceCriteria(substantiveMarkdown(markdown));
+function criterionEntries(markdown, source) {
+  const parsed = readAcceptanceCriteria(substantiveMarkdown(markdown), { source });
   if (parsed.diagnostics.length) throw Object.assign(new Error("approval_summary_source_criteria_invalid"), { diagnostics: parsed.diagnostics });
   return parsed.entries;
 }
 
 function criterionDescription(entry) {
-  for (const field of ["observable_success", "visible_feedback", "expected_effective_state"]) {
+  for (const field of ACCEPTANCE_CRITERIA_FORMAT.description_fields) {
     const value = String(entry.fields[field] ?? "").trim();
     if (value) return capitalizeSummary(compactSummaryText(value));
   }
@@ -158,14 +171,33 @@ function validateLocalizedSummaryBlock(gate, block, sourceMarkdown, sourceLangua
     if (summaryIds.some((id) => !sourceSet.has(id))) throw new Error("approval_summary_criteria_unknown");
     if (summaryIds.length !== sourceIds.length || sourceIds.some((id) => !summaryIds.includes(id)))
       throw new Error("approval_summary_criteria_incomplete");
-    if (!lines.some((line) => /^(?:[-*]\s*)?(?:Nutzerziel|User intent|Ziel|Goal)\s*:/iu.test(line)))
-      throw new Error("approval_summary_user_goal_missing");
-    if (!lines.some((line) => /^(?:[-*]\s*)?(?:Umfang|Scope|Produktumfang|Product scope)\s*:/iu.test(line)))
-      throw new Error("approval_summary_scope_missing");
     const decisions = approvalDecisionEntries(sourceMarkdown);
-    if (decisions.length && !lines.some((line) => /^(?:[-*]\s*)?(?:Entscheidungen|Decisions|Geklärte Entscheidungen|Resolved decisions|Offene Entscheidungen|Open decisions)\s*:/iu.test(line)))
-      throw new Error("approval_summary_decisions_missing");
+    for (const field of PRD_LOCALIZED_SUMMARY_FIELDS)
+      if ((!field.conditional || decisions.length) && !lines.some(line => field.pattern.test(line))) throw new Error(field.reason);
   }
+}
+
+// Syntax guidance comes from the presentation owner, never inferred product
+// content. An incomplete source remains readable through its authoring route.
+export function approvalSummaryAuthoringFormat(gate, markdown, languages) {
+  if (!languages.approval_summary_required || !['UR', 'PRD', 'SD', 'TP', 'QA'].includes(gate)) return null;
+  const locale = languages.presentation_language.toLowerCase().startsWith('de') ? 'de' : 'en';
+  const format = { heading: languages.approval_summary_heading, body_required: true,
+    required_fields: localizedDecisionFields(gate, '', { locale, sourceLanguage: languages.artifact_language }).gaps.map(gap => gap.expected),
+    instruction: 'Use the exact heading and a nonempty authored summary in the presentation language. Required fields are separate list declarations with concrete content; a heading or generic criteria paragraph does not replace them. This is syntax guidance, never supplied product content, review or approval.' };
+  if (gate === 'PRD') {
+    const decisions = approvalDecisionEntries(markdown);
+    format.required_fields = PRD_LOCALIZED_SUMMARY_FIELDS.filter(field => !field.conditional || decisions.length).map(field => field[locale]);
+    format.conditional_fields = [{ field: PRD_LOCALIZED_SUMMARY_FIELDS.find(field => field.conditional)[locale],
+      when: 'Required when the source PRD contains Approval Decisions rows.' }];
+    try {
+      const entries = criterionEntries(markdown);
+      format.criterion_fields = entries.map(entry => `- ${entry.id}:`);
+      format.criteria_state = entries.length ? 'available' : 'not_declared';
+    } catch { format.criterion_fields = []; format.criteria_state = 'source_invalid'; }
+    format.criteria_instruction = 'For every exact criterion_id in the authored PRD, write one separate list item beginning with that ID followed by a colon, exactly once. Retain the source IDs; do not combine them in a generic criteria item. If IDs are not yet available, complete the source criteria first.';
+  }
+  return format;
 }
 
 function requiredLocalizedSummary(gate, markdown, languages, { path } = {}) {
@@ -186,6 +218,11 @@ function requiredLocalizedSummary(gate, markdown, languages, { path } = {}) {
 export function evaluateApprovalSummaryReadiness(gate, markdown, languages, { path } = {}) {
   try {
     requiredLocalizedSummary(gate, markdown, languages, { path });
+    if (gate === "PRD" && markdown.includes(TRACEABILITY_CONTRACT)
+        && languages.artifact_language === languages.presentation_language.split("-")[0]) {
+      artifactSummary(gate, markdown, { language: languages.presentation_language,
+        sourceLanguage: languages.artifact_language, artefactPath: path });
+    }
     return Object.freeze({ ready: true, required_heading: languages.approval_summary_heading, reason: null });
   } catch (error) {
     if (!String(error.message).startsWith("approval_summary_")) throw error;
@@ -197,12 +234,25 @@ export function evaluateApprovalSummaryReadiness(gate, markdown, languages, { pa
 export function renderApprovalSummaryIssue(summary, { path, presentationLanguage }) {
   const locale = resolvePresentationLocale(interactionLocales, presentationLanguage);
   const pack = localePack(interactionLocales, locale), german = locale.split("-")[0] === "de";
-  const expected = {
-    approval_summary_user_goal_missing: german ? "- Ziel:" : "- Goal:",
-    approval_summary_scope_missing: german ? "- Umfang:" : "- Scope:",
-    approval_summary_decisions_missing: german ? "- Entscheidungen:" : "- Decisions:",
-    approval_summary_field_unreadable: summary.diagnostics?.map(row => row.expected).join("` · `") || undefined,
-  }[summary.reason] ?? summary.required_heading;
+  if (summary.reason === "approval_summary_criterion_content_missing") {
+    const fields = ACCEPTANCE_CRITERIA_FORMAT.description_fields.map(field => `\`${field}\``).join(" / ");
+    const locations = (summary.diagnostics ?? []).map(row =>
+      `- ${row.criterion_id}${row.line ? ` (${german ? 'Zeile' : 'line'} ${row.line})` : ''}`).join("\n");
+    return [
+      `${german ? 'PRD-Quellkriterien korrigieren' : 'Correct PRD source criteria'}: \`${path}\``,
+      `${pack.statusCard.summaryReason}: \`${summary.reason}\``,
+      locations,
+      german
+        ? `Je betroffenem Kriterium mindestens eines dieser Felder einzeln und mit Inhalt angeben: ${fields}. Zusammengesetzte Feldnamen werden nicht aufgeteilt.`
+        : `For each affected criterion, provide at least one separate nonempty field: ${fields}. Combined field names are not split.`,
+      german
+        ? 'Eine zusätzliche AGDF Approval Summary ersetzt diese Quellfelder nicht. Die Kriterien-IDs und den fachlichen Inhalt erhalten; über den bestehenden Autorpfad korrigieren und erneut prüfen.'
+        : 'An additional AGDF Approval Summary does not replace these source fields. Preserve criterion IDs and product intent; correct through the existing authoring route and recheck.',
+    ].filter(Boolean).join("\n");
+  }
+  const expected = PRD_LOCALIZED_SUMMARY_FIELDS.find(field => field.reason === summary.reason)?.[german ? 'de' : 'en']
+    ?? (summary.reason === 'approval_summary_field_unreadable' ? summary.diagnostics?.map(row => row.expected).join("` · `") || undefined : undefined)
+    ?? summary.required_heading;
   return [
     `${pack.statusCard.summaryRecovery}: \`${path}\``,
     `${pack.statusCard.summaryReason}: \`${summary.reason}\``,
@@ -210,7 +260,8 @@ export function renderApprovalSummaryIssue(summary, { path, presentationLanguage
   ].join("\n");
 }
 
-function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
+// Pure summary extraction; exported so its text rules are tested directly.
+export function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
   const lines = markdown.replace(/\r\n?/gu, "\n").split("\n");
   for (let index = 0; index < lines.length; index += 1) {
     const heading = lines[index].match(/^(#{2,6})\s+(?:\d+\.\s*)?(.+?)\s*#*\s*$/u);
@@ -233,6 +284,9 @@ function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
       }
       if (contentPattern && !contentPattern.test(line)) continue;
       const cleaned = userFacingSummaryText(line);
+      // A lead-in such as "covers exactly these points:" says nothing on its own;
+      // the items that follow it carry the content.
+      if (/:$/u.test(cleaned)) continue;
       if (!cleaned || /^(?:what|which|how|who|every field|specify|decision:|status:|gate:|date:|owner:)/iu.test(cleaned)
           || /^(?:ui_ux_impact|ux_intent_definition|primary_user_intent|success_signal|primary_decision_or_action):/iu.test(cleaned)) continue;
       body.push(cleaned);
@@ -275,14 +329,15 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
     if (decision) items.unshift(`- ${german ? 'Entscheidung' : 'Decision'}: ${decision}`);
   }
   if (gate === "PRD") {
-    const criteria = criterionEntries(source);
+    const criteria = criterionEntries(source, artefactPath);
     if (!criteria.length) throw new Error("approval_summary_criteria_missing");
     if (new Set(criteria.map((entry) => entry.id)).size !== criteria.length) throw new Error("approval_summary_source_criteria_duplicate");
-    const criterionRows = criteria.map((entry) => {
-      const description = criterionDescription(entry);
-      if (!description) throw new Error("approval_summary_criterion_content_missing");
-      return `  - ${entry.id}: ${description}`;
+    const missing = criteria.filter(entry => !criterionDescription(entry));
+    if (missing.length) throw Object.assign(new Error("approval_summary_criterion_content_missing"), {
+      diagnostics: missing.map(entry => ({ code: 'criterion_description_missing', source: entry.source,
+        line: entry.line, criterion_id: entry.id, expected: ACCEPTANCE_CRITERIA_FORMAT.description_fields })),
     });
+    const criterionRows = criteria.map(entry => `  - ${entry.id}: ${criterionDescription(entry)}`);
     items.push(`- ${german ? "Abnahmekriterien" : "Acceptance criteria"}:\n${criterionRows.join("\n")}`);
     const decisions = approvalDecisionEntries(source);
     if (decisions.length) {
@@ -388,16 +443,17 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
         const languageName = pack.statusCard[locale.split("-")[0] === "de" ? "languageGerman" : "languageEnglish"];
         const artifactLabel = german ? "Artefakt" : "Artefact";
         const requiredHeading = languages.approval_summary_heading ?? `AGDF Approval Summary (${locale}; source=${sourceLanguage})`;
+        const sourceIssue = error.message === 'approval_summary_criterion_content_missing';
         error.recovery = [
-          `## ${pack.statusCard.summaryRecovery}`,
+          `## ${sourceIssue ? (german ? 'PRD-Quellkriterien korrigieren' : 'Correct PRD source criteria') : pack.statusCard.summaryRecovery}`,
           `Run: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\``,
           renderApprovalSummaryIssue({ reason: error.message, required_heading: requiredHeading, diagnostics: error.diagnostics }, {
             path, presentationLanguage: p.presentation_language,
           }),
-          pack.operationalValues.approvalSummaryRecovery.replace("{language}", languageName),
-          `${german ? "Erforderlicher Abschnitt" : "Required section"}: \`${requiredHeading}\``,
+          ...(!sourceIssue ? [pack.operationalValues.approvalSummaryRecovery.replace("{language}", languageName),
+            `${german ? "Erforderlicher Abschnitt" : "Required section"}: \`${requiredHeading}\``] : []),
           `${artifactLabel}: [${basename(path)}](<${path}>)`,
-          pack.operationalValues.completeMissingApprovalSummary,
+          ...(!sourceIssue ? [pack.operationalValues.completeMissingApprovalSummary] : []),
         ].join("\n\n");
       }
       throw error;

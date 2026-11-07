@@ -7,20 +7,20 @@
     "adversarial"
   ],
   "source_fingerprints": {
-    "delivery-path-search": "f3dfa87d54db817af6b52c6fa7dd1ea19304bd2d599bcce2b9dcd49a1d049f59",
-    "brownfield-analysis": "fe4aaa75d727f7e1ceb3f7c41ed36e9be8c75236c80c0158a2ddcdd361bdd0a0",
-    "ux-intent-definition": "111de2275eeca5ec5c70b624142f1e2eaad3dc891e1d4d32f9e11a29aa3cf821",
-    "clean-implementation-review": "896e7f983c084ce5f75d5893e4bfb966945b5c624d9100eccdc33d4680a8ed7a",
-    "code-review": "79365fe3a950ed5187663ce54185fd87dea59f07156c6a0b7b06dd8cdfb58827",
-    "delivery-closeout": "8a3c9dae2c73d29991e8091c44c76bdccb28b687923aa155e1b22b383191b4ad",
-    "ur-definition": "da69dc9ed2640ac33c323b61c3fc16c074347dd1c81a33ea5df37750982ed413",
-    "prd-definition": "e9e44eb8cb0ba977e50dad465a9268220df377262880921fead48dcf74b6a9df",
-    "sd-definition": "4de2d533dc3efd4699952cc7cb3912c478a308f5fa23029f79eb6b580834be9f",
-    "tp-definition": "e4a31d3ce1489c08691814eed25996565dc5e0eb10bc948063930c8e065260d6",
-    "gate-check": "aefde16e37e24dfb6feebe57436c40db9360e69fc789f5003768cf804923412e",
-    "qa-gate": "0c77a0b77788e52d770893c1528b8910b359dc058d2817eb6c0100c0287c69e7",
-    "release-or": "f8f62da8f8acd128b4a5e6b9bb372068e3dfba7daa9e5601815a346cd44fa7cf",
-    "task-plan-review": "2d0f6c18c065493e3dda8542f10c91c94d9c101dabaf7bfb5ab8fd2ec29ca7e3"
+    "delivery-path-search": "b3d73d30e40c5b544538d4a2f49287d2f47eaa95089d6ff85e4193acb72c604a",
+    "brownfield-analysis": "b1c10a7cc034e4c1784cee0bdf3be6b571781afab1d5e96830d09f863d51a0e3",
+    "ux-intent-definition": "a485e59fadaa86ed65a3dd857d4208b086217e8fbb4a93decf4c7cc361851bac",
+    "clean-implementation-review": "0fa1da1648b213bf3ff4cdc381e0a1712c2d1aff5c46b0bb8d1836b90069fde0",
+    "code-review": "888b0af0b895979c637a4cb85ac28d83d68afce4e499175fd0031c07b01c2f8a",
+    "delivery-closeout": "415982516b5cf3c3cabf28dc2f17360424d0dd0077ff8479fc27ca174ccdb896",
+    "ur-definition": "62ea468493cb383459fd19b1c9670d5ae5dd8b5638fe1befc251475d8c89a891",
+    "prd-definition": "a167f480f0e2756403230504245d9d90fcbd01f6e323e92a11980bf32c504116",
+    "sd-definition": "f83ebc64e5882fd7659c6b19175b3e433521617b621579dec3fef482c670bde8",
+    "tp-definition": "3204fbc2183b6a0170117502ebb561d97565d5d933927fd27ac7edd9f7b5fc58",
+    "gate-check": "6d490b1c72c9f8760f2d7d4dcfb5e6a289a25a26d6ef7f759406c74a3182bb28",
+    "qa-gate": "56c6562a59fe51c4b3df5ea677107e7ee6e01a3932799f4c1b542ef7acfdd7d4",
+    "release-or": "8cef218a815175d405835062dc125eca43563192065521bf1c7cea0c28346648",
+    "task-plan-review": "2e9c055c6159226851e4ae5e4f7c8f51d4c56a912b9cb968e612f75ea3495b9c"
   },
   "thresholds": {
     "coverage": 1,
@@ -108,6 +108,323 @@
         "tp-definition-direct-target-unresolved"
       ],
       "boundary": "Source-reference revalidation of deterministic fixtures only; no changed expectations, thresholds, source governance, new model observations or human approval. Existing live evidence is unchanged."
+    },
+    "prd_source_fields_repair": {
+      "scope": "Direct user-authorized repair without AGDF workflow. Revalidated the seven deterministic PRD routing, derivation, clarification, approval and preview reference assertions against exact source-field authoring guidance; expectations and thresholds are unchanged.",
+      "previous_source_fingerprint": "e9e44eb8cb0ba977e50dad465a9268220df377262880921fead48dcf74b6a9df",
+      "changed_source": "plugins/agdf/meta/contracts/prd-definition.md",
+      "case_ids": [
+        "prd-definition-normal",
+        "prd-definition-boundary",
+        "prd-definition-adversarial",
+        "prd-definition-direct-target-unresolved",
+        "prd-preview-stale-or-chat-only",
+        "prd-preview-review-handoff",
+        "prd-preview-changed-after-presentation"
+      ],
+      "boundary": "Source-reference revalidation only; not a new native model observation, human approval or acceptance. Runtime readiness/recovery regressions have separate executable tests."
+    },
+    "sd_tp_summary_readiness_repair": {
+      "scope": "Direct user-authorized repair without AGDF workflow. Revalidated the eight deterministic SD/TP routing, source derivation, draft preservation, clarification and fresh approval reference assertions against additive author-owned summary correction findings.",
+      "previous_source_fingerprints": {
+        "sd-definition": "4de2d533dc3efd4699952cc7cb3912c478a308f5fa23029f79eb6b580834be9f",
+        "tp-definition": "e4a31d3ce1489c08691814eed25996565dc5e0eb10bc948063930c8e065260d6"
+      },
+      "changed_sources": [
+        "packages/core/lib/skill-dispatch/sd-definition.js",
+        "packages/core/lib/skill-dispatch/tp-definition.js"
+      ],
+      "case_ids": [
+        "sd-definition-normal",
+        "sd-definition-boundary",
+        "sd-definition-adversarial",
+        "sd-definition-direct-target-unresolved",
+        "tp-definition-normal",
+        "tp-definition-boundary",
+        "tp-definition-adversarial",
+        "tp-definition-direct-target-unresolved"
+      ],
+      "boundary": "Source-reference revalidation only. Expectations, thresholds and non-fingerprint observation data are unchanged; no new native model observation, human approval or acceptance. Runtime failure, recovery and approval behavior is covered by separate executable regressions."
+    },
+    "prepared_control_transport": {
+      "scope": "Direct user-authorized repository fix without an AGDF Run. Revalidated the 15 PRD/SD/TP deterministic routing, source-authority, draft-preservation and fresh-approval reference assertions against additive prepared-call and small UTF-8 staging guidance. Canonical writer/review/approval semantics remain unchanged.",
+      "previous_source_fingerprints": {
+        "prd-definition": "9d5a9a04161c7226715f2ef9cc823d758506dd10539ca545154708ec0977a658",
+        "sd-definition": "909fa1b8bced8f6eca95eab27dd1f4fb924282f9ee79b5a9ccb2c835511946ec",
+        "tp-definition": "27856afe296c3ba33b454db9eda99271702621f4f335e0c1d47b44da01bb0e8c"
+      },
+      "changed_source": "plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+      "case_ids": [
+        "prd-definition-normal",
+        "prd-definition-boundary",
+        "prd-definition-adversarial",
+        "prd-definition-direct-target-unresolved",
+        "prd-preview-stale-or-chat-only",
+        "prd-preview-review-handoff",
+        "prd-preview-changed-after-presentation",
+        "sd-definition-normal",
+        "sd-definition-boundary",
+        "sd-definition-adversarial",
+        "sd-definition-direct-target-unresolved",
+        "tp-definition-normal",
+        "tp-definition-boundary",
+        "tp-definition-adversarial",
+        "tp-definition-direct-target-unresolved"
+      ],
+      "boundary": "Only deterministic reference fingerprints changed. No expectations, thresholds, action observations, native evidence or human acceptance were changed. New executable transport and protocol checks are separate evidence."
+    },
+    "native_invocation_ergonomics": {
+      "method": "Direct repository repair explicitly without AGDF. Canonical schema/transport and source-bundle changes reviewed against unchanged deterministic case assertions.",
+      "changed_source_fingerprints": {
+        "prd-definition": {
+          "previous": "2ec85191e8ab1c69a2ced2334bc4e4f4380212a9195824928ed48c8848429432",
+          "current": "65d5b0634cda626d32572f1401acf97e8efdc6731a7858031004a9c6e68087fa"
+        },
+        "sd-definition": {
+          "previous": "4d809b9597560e7327d032a9dcb272b6fd49a4f1d94e4e4f9c86518a3c0339ac",
+          "current": "05b77afee45241039866693d018f7edd376d281159ee716c5ca2e47c037ad73b"
+        },
+        "tp-definition": {
+          "previous": "3a9cf754156b9cb6cebc62580e1b415b1528d690361a6cc3f6d3970b2ce7290e",
+          "current": "e19835e184c231b0e9fa0e07e009a04b45bb9de60b4d254160d7d862a96ca67f"
+        }
+      },
+      "boundary": "Reference fingerprint refresh only. No native or human acceptance inferred; native test evidence is recorded separately."
+    },
+    "native_authoring_handoff_followup": {
+      "method": "Direct source repair without AGDF, after retained native findings: bound incomplete authoring needs no duplicate intake, actual source text differs from metadata, and prepared language must stay explicit.",
+      "changed_source_fingerprints": {
+        "ur-definition": {
+          "previous": "da69dc9ed2640ac33c323b61c3fc16c074347dd1c81a33ea5df37750982ed413",
+          "current": "62ea468493cb383459fd19b1c9670d5ae5dd8b5638fe1befc251475d8c89a891"
+        },
+        "prd-definition": {
+          "previous": "65d5b0634cda626d32572f1401acf97e8efdc6731a7858031004a9c6e68087fa",
+          "current": "2b9ef2496950cce49a3e6ad4c32bd27041c647c87d207d2e385e1289b9b3ce16"
+        },
+        "sd-definition": {
+          "previous": "05b77afee45241039866693d018f7edd376d281159ee716c5ca2e47c037ad73b",
+          "current": "bd76f99c7d782d1ada37230e023d003abc38f6a3e61d638bd193989e676d1e47"
+        },
+        "tp-definition": {
+          "previous": "e19835e184c231b0e9fa0e07e009a04b45bb9de60b4d254160d7d862a96ca67f",
+          "current": "f5f696c8dc738f301296591b1340b00d033758f267da34baf7ae908fb14b14e7"
+        }
+      },
+      "boundary": "Deterministic reference fingerprints only; case assertions/thresholds unchanged. No independent human acceptance or clean native result inferred."
+    },
+    "bounded_inline_transport": {
+      "date": "2026-11-05",
+      "reason": "Revalidate shared authoring transport guidance for bounded direct UTF-8 text independently from multipart pieces.",
+      "changed_source_fingerprints": {
+        "prd-definition": {
+          "previous": "2b9ef2496950cce49a3e6ad4c32bd27041c647c87d207d2e385e1289b9b3ce16",
+          "current": "fecc5f60c8fefdc247baf62df797c228c3c0391e436465add1886994e2d40c5a"
+        },
+        "sd-definition": {
+          "previous": "bd76f99c7d782d1ada37230e023d003abc38f6a3e61d638bd193989e676d1e47",
+          "current": "48b014b9722b6f06ae8463936236258004a1784b0a73aec3be1e84f9d5152173"
+        },
+        "tp-definition": {
+          "previous": "f5f696c8dc738f301296591b1340b00d033758f267da34baf7ae908fb14b14e7",
+          "current": "52c13dcfee750a911b20c0e3f42f71ee8babb35f84161f3685e67dd29022d76c"
+        }
+      },
+      "boundary": "Deterministic reference fingerprints only; all case assertions, observations except source fingerprints, and thresholds unchanged. No native or human acceptance inferred."
+    },
+    "resumable_prepared_calls": {
+      "date": "2026-11-06",
+      "reason": "Revalidate canonical named author-input and resumable-reference guidance; separate unknown transport references from command schema errors.",
+      "changed_source_fingerprints": {
+        "prd-definition": {
+          "previous": "c95b2983b42f048e19ae8e85fd781ac1323fd6eebc7fbeef626d59be24e5bcf7",
+          "current": "e8384d08f54159b663e09a51350c92d67a2f57e1b64a7c0b96bc90cf23a35cd6"
+        },
+        "sd-definition": {
+          "previous": "5e5c236cbaf9c3702172d65bef071b75984d7124f5a7ad70d128dca35ffe6e59",
+          "current": "3a87c0f8e813fd4a1367196f8b6283b36fcf01eed0b9d3f9c303037bf822c920"
+        },
+        "tp-definition": {
+          "previous": "ecfbba5753ee776ca3052af4206aa2c1f5e24f5edebff5e7c9768e4cc0ab72d2",
+          "current": "e2817f2a6193eb6876d49d0f91bc1da84b581feb01433b13be865c38d44f760d"
+        }
+      },
+      "boundary": "Deterministic reference fingerprints only; all assertions, observations except source fingerprints, and thresholds unchanged. No native qualification or independent human acceptance inferred."
+    },
+    "brand_source_reference_review": {
+      "work_boundary": "Explicitly authorized direct English instruction/documentation change without AGDF; all existing Run state is preserved.",
+      "scope": "Reviewed 100 existing deterministic reference cases against shared brand-source guidance and stage-specific instructions. Fixtures declare no material brand source; routing, approval, mutation, preview, quality assertions and 100-percent thresholds remain unchanged.",
+      "changed_sources": [
+        "plugins/agdf/meta/contracts/quality.md",
+        "plugins/agdf/meta/contracts/modes.md",
+        "plugins/agdf/skills/ux-intent-definition/SKILL.md",
+        "plugins/agdf/meta/contracts/prd-definition.md",
+        "plugins/agdf/meta/contracts/sd-definition.md"
+      ],
+      "source_coverage_expansion": {
+        "case_files": [
+          "evals/cases/delivery-path-search.json",
+          "evals/cases/gate-check.json",
+          "evals/cases/release-or.json",
+          "evals/cases/tp-definition.json"
+        ],
+        "case_rows": 41,
+        "appended_references": 65,
+        "reason": "Declare changed Quality/Modes context already consumed by the existing selected skills; no prompt or expected-result change."
+      },
+      "previous_source_fingerprints": {
+        "delivery-path-search": "eb8fdb3e70f62908ea4b21b8b63d6eee9446a77c60de8ff5be3c673631f81129",
+        "brownfield-analysis": "23346ce7d5fa612c502ae6aed4a57858bd1b98fd92f9330a89831a25a6c49d98",
+        "ux-intent-definition": "69c119015cf30f667ea23c3306a94d8e9f474b962b597560d40a314a83c47aac",
+        "clean-implementation-review": "097396df30cb5818705bf1fc95b9f747c2428d96c4f19a8a2c625f9cce6ad52a",
+        "code-review": "0574e5646566d07adf8f17b90c77d86b92b6abe7aaab65ede870f26a4c1f2636",
+        "prd-definition": "ac01ffe1397e13769a019cdd02d6144aecfc90b42e673dd74e6d3351c870daea",
+        "sd-definition": "9b4224d29a6cb0aa0bb2c08b2cef1ef07058324a5b1ba029e48fe9ed69b49ad7",
+        "tp-definition": "e3257bbe37f555fab55b578acec7fa0cd5ff4277bdefd0d5cdc4ff970e6412fc",
+        "gate-check": "d762daf317f2c4d22d758a580376377bca6b65e2eefd8cbcd8baef28d0869c28",
+        "qa-gate": "898e3efc7aa89537141717a57b9bc13c1450c28481ecb49e0483bddb45c81bf1",
+        "release-or": "fc473a92832cb7f4667926167392424e6f7f793e379b2b8fee336d75f6f9a9a4",
+        "task-plan-review": "d2d5cd11b32fe74b3c5d80f587208f1fbf4a719fa61c4bd71e160942fd161109"
+      },
+      "case_ids": [
+        "brownfield-normal",
+        "brownfield-boundary",
+        "brownfield-adversarial",
+        "brownfield-depth-bounded-multi-owner",
+        "brownfield-depth-single-owner-policy",
+        "brownfield-depth-broad-migration",
+        "brownfield-depth-missing-facts",
+        "brownfield-depth-conflicting-facts",
+        "brownfield-depth-numeric-proxy",
+        "brownfield-depth-architecture-runtime",
+        "brownfield-depth-external-contract",
+        "brownfield-depth-release-cross-host",
+        "brownfield-depth-unbounded-coordination",
+        "brownfield-direct-target-unresolved",
+        "brownfield-architecture-owner-boundary",
+        "brownfield-architecture-retained-tradeoff",
+        "brownfield-architecture-complete-tradeoff",
+        "brownfield-architecture-incomplete-debt",
+        "brownfield-architecture-decisive-evidence-missing",
+        "brownfield-architecture-local-not-applicable",
+        "brownfield-architecture-focused-diagram",
+        "clean-review-normal",
+        "clean-review-boundary",
+        "clean-review-adversarial",
+        "clean-review-direct-target-unresolved",
+        "code-review-normal",
+        "code-review-boundary",
+        "code-review-adversarial",
+        "code-review-direct-target-unresolved",
+        "delivery-path-search-normal",
+        "delivery-path-search-boundary",
+        "delivery-path-search-adversarial",
+        "delivery-path-search-cross-scope",
+        "delivery-path-search-direct-target-unresolved",
+        "gate-check-normal",
+        "gate-check-boundary",
+        "gate-check-adversarial",
+        "gate-check-approval-without-artefact",
+        "gate-check-prd-approved",
+        "gate-check-tp-approved",
+        "gate-check-unevidenced-mode-slice",
+        "gate-check-implicit-consent",
+        "gate-check-legacy-freigabe",
+        "gate-check-scope-classification-ungated",
+        "gate-check-scope-classification-verified-change",
+        "gate-check-scope-classification-ambiguous",
+        "gate-check-scope-classification-gated",
+        "gate-check-target-explicit-file-over-cwd",
+        "gate-check-target-evidence-not-mutation",
+        "gate-check-target-governance-after-resolution",
+        "gate-check-target-multiple-plausible",
+        "gate-check-target-content-mismatch",
+        "gate-check-target-unavailable-retry",
+        "gate-check-target-continued-turn",
+        "gate-check-target-explicit-change",
+        "gate-check-copilot-repoless-generalchat",
+        "gate-check-copilot-repoless-prior-ur-bait",
+        "gate-check-ungoverned-without-intent",
+        "prd-definition-normal",
+        "prd-definition-boundary",
+        "prd-definition-adversarial",
+        "prd-definition-direct-target-unresolved",
+        "prd-preview-stale-or-chat-only",
+        "prd-preview-review-handoff",
+        "prd-preview-changed-after-presentation",
+        "qa-gate-normal",
+        "qa-gate-boundary",
+        "qa-gate-adversarial",
+        "qa-gate-direct-target-unresolved",
+        "qa-gate-resolved-unique-run",
+        "qa-gate-resolved-run-ambiguous",
+        "qa-gate-resolved-missing-review",
+        "qa-gate-card-approval-bait",
+        "release-or-normal",
+        "release-or-boundary",
+        "release-or-adversarial",
+        "release-or-parent-resolved",
+        "release-or-parent-open",
+        "release-or-parent-accepted-open",
+        "release-or-programme-readiness",
+        "release-or-direct-target-unresolved",
+        "sd-definition-normal",
+        "sd-definition-boundary",
+        "sd-definition-adversarial",
+        "sd-definition-direct-target-unresolved",
+        "task-plan-review-normal",
+        "task-plan-review-boundary",
+        "task-plan-review-adversarial",
+        "task-plan-review-direct-target-unresolved",
+        "tp-definition-normal",
+        "tp-definition-boundary",
+        "tp-definition-adversarial",
+        "tp-definition-direct-target-unresolved",
+        "ux-intent-definition-normal",
+        "ux-intent-definition-boundary",
+        "ux-intent-definition-adversarial",
+        "ux-intent-direct-target-unresolved",
+        "ux-preview-durable-evidence",
+        "ux-preview-required-tool-unavailable",
+        "ux-preview-foreign-or-escaping-path"
+      ],
+      "boundary": "Source-reference revalidation only. No live model evaluation, native observation, brand-source-consumption or UI-fidelity proof, human review or acceptance."
+    },
+    "brand_hash_fallback_reference_review": {
+      "work_boundary": "Direct source-contract change without an AGDF Run. Existing Runs are preserved.",
+      "scope": "Resolve brand links relative to the project registry and record the SHA-256 of consumed bytes when an exact Git revision is unavailable. Align the UX template decision field with the existing validator.",
+      "changed_sources": [
+        "plugins/agdf/meta/contracts/quality.md",
+        "plugins/agdf/skills/ux-intent-definition/SKILL.md",
+        "plugins/agdf/control/templates/artefacts/UX_INTENT_DEFINITION.md"
+      ],
+      "previous_source_fingerprints": {
+        "delivery-path-search": "cbae66d43ebbfa2f24802b3f021a38305def597da54d60d3c0d0a79c904204c4",
+        "brownfield-analysis": "92d14b35fa9e992c1a8440b1444b1f3efbfaad855e3ccd107b774edfcb416578",
+        "ux-intent-definition": "2331a1f0ee04a686bcc76e85bb5045f177edb0dd2c562826b72f44c08a5b8f5b",
+        "clean-implementation-review": "85aa4eea0c172dbf93d79c2ff12f48afa94da8b4c8fd51066a05b7b3d8dde18a",
+        "code-review": "c11e97b3bac2d0ed4c3d81810823c66e0ebc0f17938b8c222ccc89b2e00f94ea",
+        "tp-definition": "47bc9da2947bc331f137a2a7a88496cda330c245fbc7230921138e60e81a1708",
+        "gate-check": "cac269f4e5a97a3b9fa2b6cf9143fe9e6612a0cc3ffd64764cf5339c23f840d2",
+        "qa-gate": "24acd81f956ff485f49ea562fc4f72fcd4568ae68d1906098f16e30a8e4931f4",
+        "release-or": "67589bb95427cf0e9fe983ac313584a5989ddaabfd8f64ee9581b14f33b45c65",
+        "task-plan-review": "c7a0e736e14c56c1fc088dca480ad3ab7f94402a35a70d3183d4b7c62ad42d10"
+      },
+      "replay_rows": 89,
+      "boundary": "Existing fixtures have no declared material brand source. Their assertions, results and thresholds remain unchanged. Only deterministic source fingerprints were refreshed."
+    },
+    "pr60_combined_source_reference_review": {
+      "work_boundary": "Direct CI repair for PR #60 in an isolated checkout without AGDF.",
+      "source_base": "11d7d79b8df279c923f0f3b2561718d20a17cb49",
+      "previous_feature_head": "c149e7b34e9b41c92a9ec42952efb406e27d6f32",
+      "previous_feature_fingerprints": {
+        "ur-definition": "369a0763f298f8b33c527bed4de82f374dca6ef260ccbbaf966b97fa19beb693",
+        "prd-definition": "e81ec4e9c3055dff38093481f65b22a19d9341525d406e085cea7f6ed0cb98c8",
+        "sd-definition": "a4b990a6c1218e53278a8486ba0e7135940c545cf9e5b5eea0a232a190f4c57c",
+        "tp-definition": "836698db7eed43122cbbadb19922540f80da2cdcb4127fb016a3c0dd9829a587"
+      },
+      "replay_rows_updated": 20,
+      "boundary": "The merged source fingerprints were recalculated. Case assertions, observed results and thresholds are identical on both parents. Existing reference review metadata remains attributable to its source."
     }
   }
 }

@@ -2,7 +2,7 @@
 language: en
 chapter_role: closeout_and_delivery
 translation_of: ../de/05-abschluss-und-auslieferung.md
-source_revision: sha256:8045edf05c3caca1824bed78ad2d00bf61e2956aa7724c2857b0517f56db4cc6
+source_revision: sha256:0753400239d95331b9f2cb76732953f6aea64318016e62c4032635854ab6f546
 translation_status: reviewed
 ---
 
@@ -82,6 +82,29 @@ broader claim.
 For important claims, name the evidence source, version or scope and the boundary of the check. A
 host observation that was not performed remains visibly `unverified`; it is not inferred from
 repository tests.
+
+## Reading native agent tests
+
+An agent can complete the requested task after corrections while still encountering technical
+errors or an invocation time limit. A useful test report therefore records separately:
+
+- **Task completion:** Which cases completed the whole path, including required corrections and
+  fresh decision presentations?
+- **Execution quality:** Which tool or calling-code failures, resumptions or time limits occurred?
+- **Test environment:** Which source revision, installed candidate, host, model and fixed scope
+  were actually observed?
+- **Claim boundary:** Which paths were untested, which findings remain open and which decisions
+  were simulated only for the test?
+
+The [native SD/TP test on 6 November 2026](../../development/native-authoring-recovery-2026-11-05.md#completed-resumption-campaign-on-2026-11-06)
+provides a concrete example. All three fresh cases completed correction, a new presentation and
+simulated approval for SD and TP. The 181 MCP calls had no MCP execution failures. Four calling-code
+errors, two reached invocation time limits and an incorrectly mapped file comparison remained
+documented. The result is **3/3 functionally completed, 0/3 entirely error-free**.
+
+Simulated approvals demonstrate the tested workflow. Human UAT remains a separate observation and
+decision. The evaluator itself also needs traceable criteria: a faulty comparison must neither hide
+actually observed tool use nor be removed retrospectively from the original result.
 
 ## Orchestration Report and Delivery Closeout
 

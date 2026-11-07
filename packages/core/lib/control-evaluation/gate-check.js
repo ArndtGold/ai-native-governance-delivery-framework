@@ -9,7 +9,8 @@ import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js
 import { effectiveNextAllowedAction } from "./next-action.js";
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from "./run-state.js";
-import { renderReviewableApproval } from "../control-state/run-presentation-render.js";
+import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue, renderReviewableApproval } from "../control-state/run-presentation-render.js";
+import { readFileSync } from "../control-read/fs.js";
 import { evaluateUrReadiness } from "./ur-readiness.js";
 import { inspectDefinitionSources } from "./definition-sources.js";
 import { evaluatePrdReadiness } from "./prd-readiness.js";
@@ -427,31 +428,58 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   if (status === "open" && prdReadiness && transitionDecision.next_operation?.type !== "reassess_source_analysis" && isGateSatisfied(runState, "UR") && isInternalStepSatisfied(runState, "Brownfield Review")
       && ["structured_delivery", "structured_slice"].includes(modeSliceDecision(runState))) {
     const inputFacts = inspectDefinitionSources(targetDir, runState, extractField(runState.content, "run_id"), "PRD", ["UR", "Brownfield Review"]);
-    if (inputFacts.issue) prdReadiness = { ready: false, open_decisions: [...prdReadiness.open_decisions,
+    if (inputFacts.issue) prdReadiness = { ...prdReadiness, ready: false, source_issue: inputFacts.issue, open_decisions: [...prdReadiness.open_decisions,
       renderDefinitionSourceRecovery(inputFacts.issue, { registry: interactionLocales, requestedLocale: presentationLocale })] };
   }
   if (status === "open" && currentGate === "PRD" && prdReadiness && !prdReadiness.ready) {
     status = "blocked";
+    const checks = prdReadiness.readiness_checks;
     blockingReason = "AGDF_PRD_DECISIONS_OPEN";
+    if (checks?.decisions_ready) {
+      const sourceCriteriaIncomplete = !checks.approval_summary.ready && [
+        "approval_summary_criterion_content_missing", "approval_summary_source_criteria_invalid",
+        "approval_summary_source_criteria_duplicate", "approval_summary_criteria_missing",
+      ].includes(checks.approval_summary.reason);
+      blockingReason = prdReadiness.source_issue || !checks.preview_ready || !checks.criteria_ready || sourceCriteriaIncomplete
+        ? "AGDF_PRD_READINESS_INCOMPLETE" : "AGDF_APPROVAL_SUMMARY_INCOMPLETE";
+    }
     allowed = ["complete the listed PRD readiness items together and record a new run revision"];
     forbidden = [...forbidden, "present or approve PRD before required decisions and acceptance criteria are ready"];
     // Fixed text keeps the card localizable; detailed gaps travel separately in prd_readiness.open_decisions.
     nextAllowedAction = "complete the open PRD readiness items together, then record the revision through the inspected current recording operation";
   }
-  const sdReadiness = currentGate === "SD" && approvalArtefactReady ? evaluateSdReadiness(targetDir, runState) : null;
-  const traceabilityReadiness = status === "open" && approvalArtefactReady && currentGate === "SD"
+  let sdReadiness = currentGate === "SD" && approvalArtefactReady ? evaluateSdReadiness(targetDir, runState) : null;
+  let traceabilityReadiness = status === "open" && approvalArtefactReady && currentGate === "SD"
     ? evaluateSdTraceability(targetDir, runState)
     : status === "open" && approvalArtefactReady && currentGate === "TP"
       ? evaluateTpTraceability(targetDir, runState)
       : null;
-  if (status === "open" && sdReadiness && !sdReadiness.ready) {
+  // Presentation readiness belongs to the existing authoring gate, not to the
+  // traceability grammar. Use the same summary owner as preflight and rendering
+  // before a registered SD/TP draft can bypass its author and request approval.
+  let approvalSummaryReadiness = null;
+  if (status === "open" && approvalArtefactReady && ["SD", "TP"].includes(currentGate)) {
+    const path = runState.artefacts.get(currentGate).path;
+    const file = resolvedArtefactFile(targetDir, path);
+    const languages = resolveArtifactPresentationLanguages(targetDir, presentationLocale);
+    const summary = evaluateApprovalSummaryReadiness(currentGate, readFileSync(file, "utf8"), languages, { path });
+    if (!summary.ready) {
+      approvalSummaryReadiness = summary;
+      const issue = renderApprovalSummaryIssue(summary, { path, presentationLanguage: presentationLocale });
+      if (currentGate === "SD") sdReadiness = { ...sdReadiness, ready: false, decisions_ready: sdReadiness.ready,
+        open_decisions: [...sdReadiness.open_decisions, issue] };
+      else traceabilityReadiness = { ...traceabilityReadiness, ready: false, traceability_ready: traceabilityReadiness.ready,
+        open_items: [...traceabilityReadiness.open_items, issue] };
+    }
+  }
+  if (status === "open" && sdReadiness && !sdReadiness.ready && sdReadiness.decisions_ready !== true) {
     status = "blocked";
     blockingReason = "AGDF_SD_DECISIONS_OPEN";
     allowed = ["complete the listed SD readiness items together and record a new run revision"];
     forbidden = [...forbidden, "present or approve SD before required design decisions are ready"];
     nextAllowedAction = "complete the open SD readiness items together, then record the revision with the shared artefact writer";
   }
-  if (status === "open" && traceabilityReadiness && !traceabilityReadiness.ready) {
+  if (status === "open" && traceabilityReadiness && !traceabilityReadiness.ready && traceabilityReadiness.traceability_ready !== true) {
     status = "blocked";
     blockingReason = currentGate === "SD" ? "AGDF_SD_TRACEABILITY_INCOMPLETE" : "AGDF_TP_TRACEABILITY_INCOMPLETE";
     allowed = [currentGate === "SD"
@@ -461,6 +489,15 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     nextAllowedAction = currentGate === "SD"
       ? "complete the listed SD traceability rows, then record the revision through the inspected current recording operation"
       : "complete the listed TP traceability rows, then record the revision through the inspected current recording operation";
+  }
+  if (status === "open" && approvalSummaryReadiness) {
+    status = "blocked";
+    blockingReason = "AGDF_APPROVAL_SUMMARY_INCOMPLETE";
+  }
+  if (blockingReason === "AGDF_APPROVAL_SUMMARY_INCOMPLETE") {
+    allowed = ["complete the current artefact approval summary and record a new run revision"];
+    forbidden = [...forbidden, "present or approve the current artefact before its required approval summary is ready"];
+    nextAllowedAction = "complete the current artefact approval summary, then record the revision through the inspected current recording operation";
   }
   if (status === "open" && /^Approval: /u.test(missingApproval) && !approvalArtefactReady) {
     allowed = allowed.filter((action) => !/^request exact .* approval$/iu.test(action));
@@ -662,6 +699,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     ...(prdReadiness ? { prd_readiness: prdReadiness } : {}),
     ...(sdReadiness ? { sd_readiness: sdReadiness } : {}),
     ...(traceabilityReadiness ? { traceability_readiness: traceabilityReadiness } : {}),
+    ...(approvalSummaryReadiness ? { approval_summary_readiness: approvalSummaryReadiness } : {}),
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,
     allowed,

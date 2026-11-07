@@ -22,7 +22,7 @@ import { join } from "node:path";
 import { runPath } from "./run-state-reader.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { exactApprovedArtefacts, readContainedJson, validateBindingProof } from "./artefact-binding-proof.js";
-import { SOURCE_GATES, appendSourceRevision, readSourceRevisions, revisionHistoryPrefix, sourceRevisionImpact, sourceRevisionConfirmation, validExpandedRevisionProof } from "./run-source-revisions.js";
+import { SOURCE_GATES, appendSourceRevision, readSourceRevisions, revisionHistoryPrefix, sourceRevisionImpact, sourceRevisionConfirmation, revisionProofProblems } from "./run-source-revisions.js";
 import { collectRevisionHistory, byteDigest, inspectRevisionHistory, readHistoryBytes } from "./run-revision-history.js";
 import { commitRunStepLocked, recoverPendingRunStepLocked, pendingRunStepConflictIds, readPendingRunStepJournal, readPendingSourceRevisionJournal } from "./run-step-transaction.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
@@ -139,27 +139,45 @@ function prepareSourceRevision(root, input) {
       || boundary.approved.includes(row.type) && state.approvals.get(row.type)?.status !== "approved")) throw revisionError("approved_source_invalid");
   if (input.commandContext && input.proposalBinding?.path !== evidence) throw revisionError('revision_source_binding_invalid');
   const boundProposal = input.proposalMaterial ? { validate: () => {} } : input.proposalBinding ? readOperationSource(root, runId, input.proposalBinding) : null;
-  if (!exactObject(proposal, REVISION_PROPOSAL_FIELDS)
-      || proposal.target_id !== resolveControlCommandTarget(root).target_id
-      || proposal.run_id !== runId || proposal.expected_revision_id !== revisionId || proposal.operation_id !== operationId
-      || proposal.source_gate !== sourceGate || !nonempty(proposal.reason) || !nonempty(proposal.intended_change)
-      || canonicalJson(proposal.sources) !== canonicalJson(sources)) throw revisionError("revision_proposal_invalid");
+  // Name each violated field with its expected binding: these are facts the caller
+  // may read anyway, and the proposal can only be corrected when they are known.
+  const expected = { target_id: resolveControlCommandTarget(root).target_id, run_id: runId, expected_revision_id: revisionId,
+    operation_id: operationId, source_gate: sourceGate, sources };
+  const problems = [
+    ...(exactObject(proposal, REVISION_PROPOSAL_FIELDS) ? [] : [`fields must be exactly ${REVISION_PROPOSAL_FIELDS.join(", ")}`]),
+    ...Object.entries(expected).filter(([key, value]) => canonicalJson(proposal[key] ?? null) !== canonicalJson(value))
+      .map(([key, value]) => `${key} must be ${canonicalJson(value)}`),
+    ...["reason", "intended_change"].filter(key => !nonempty(proposal[key])).map(key => `${key} must be nonempty text`),
+  ];
+  if (problems.length) throw revisionError("revision_proposal_invalid",
+    `Correct the staged proposal and stage it again; operation_id is the UUID of this source_revision command. ${problems.join("; ")}.`);
   const assessment = proposal.impact_assessment, index = SOURCE_GATES.indexOf(sourceGate);
-  if (!exactObject(assessment, REVISION_IMPACT_FIELDS)
-      || !nonempty(assessment.reviewer) || assessment.earliest_source !== sourceGate || !nonempty(assessment.implementation_evidence)
-      || !Array.isArray(assessment.unresolved) || assessment.unresolved.length
-      || !Array.isArray(assessment.upstream) || assessment.upstream.length !== index
-      || !assessment.upstream.every((row, i) => exactObject(row, REVISION_UPSTREAM_FIELDS)
-        && nonempty(row.rationale) && canonicalJson({ type: row.type, path: row.path, digest: row.digest }) === canonicalJson(sources[i]))) throw revisionError("source_impact_unresolved", "Resolve the earliest changed source and unchanged upstream rationale with its owner; then regenerate the proposal.");
-  const analyticalTypes = ["Brownfield Review", "UX Intent Definition"].filter(type => state.artefacts.get(type)?.path);
-  if (!Array.isArray(assessment.analyses) || assessment.analyses.length !== analyticalTypes.length
-      || !assessment.analyses.every((row, i) => exactObject(row, REVISION_ANALYSIS_FIELDS)
-        && row.type === analyticalTypes[i] && row.path === state.artefacts.get(row.type).path
-        && row.digest === artefactFileDigest(root, row.path) && nonempty(row.reason)
-        && ["retain", "reassess"].includes(row.disposition) && (sourceGate !== "UR" || row.disposition === "reassess"))) throw revisionError("analysis_applicability_unresolved");
+  // Like the binding check above, each rejection names the expected entries.
+  const identity = row => canonicalJson({ type: row?.type, path: row?.path, digest: row?.digest });
+  const upstream = sources.slice(0, index);
+  const impactProblems = [
+    ...(exactObject(assessment, REVISION_IMPACT_FIELDS) ? [] : [`impact_assessment fields must be exactly ${REVISION_IMPACT_FIELDS.join(", ")}`]),
+    ...(nonempty(assessment?.reviewer) ? [] : ["impact_assessment.reviewer must be nonempty text"]),
+    ...(assessment?.earliest_source === sourceGate ? [] : [`impact_assessment.earliest_source must be "${sourceGate}"`]),
+    ...(nonempty(assessment?.implementation_evidence) ? [] : ["impact_assessment.implementation_evidence must be nonempty text"]),
+    ...(Array.isArray(assessment?.unresolved) && !assessment.unresolved.length ? [] : ["impact_assessment.unresolved must be []"]),
+    ...(Array.isArray(assessment?.upstream) && assessment.upstream.length === upstream.length
+      && assessment.upstream.every((row, i) => exactObject(row, REVISION_UPSTREAM_FIELDS) && nonempty(row.rationale) && identity(row) === identity(upstream[i]))
+      ? [] : [`impact_assessment.upstream must list exactly ${canonicalJson(upstream)} in order, each with a nonempty rationale`]),
+  ];
+  if (impactProblems.length) throw revisionError("source_impact_unresolved",
+    `Resolve the earliest changed source and unchanged upstream rationale with its owner; then regenerate the proposal. ${impactProblems.join("; ")}.`);
+  const analyses = ["Brownfield Review", "UX Intent Definition"].filter(type => state.artefacts.get(type)?.path)
+    .map(type => ({ type, path: state.artefacts.get(type).path, digest: artefactFileDigest(root, state.artefacts.get(type).path) }));
+  const dispositions = sourceGate === "UR" ? ["reassess"] : ["retain", "reassess"];
+  if (!Array.isArray(assessment.analyses) || assessment.analyses.length !== analyses.length
+      || !assessment.analyses.every((row, i) => exactObject(row, REVISION_ANALYSIS_FIELDS) && identity(row) === identity(analyses[i])
+        && nonempty(row.reason) && dispositions.includes(row.disposition)))
+    throw revisionError("analysis_applicability_unresolved", `Set impact_assessment.analyses to exactly the registered analyses ${canonicalJson(analyses)} in order, each with a nonempty reason and disposition ${dispositions.join(" or ")}; unregistered analyses are not listed.`);
   const readArtefact = path => { try { return readHistoryBytes(root, path).toString('utf8'); } catch { return undefined; } };
-  if (!validExpandedRevisionProof(proposal, state, readArtefact, boundary.initiating_phase))
-    throw revisionError('revision_impact_proof_invalid', 'Bind concrete changed statements, earliest source, actual phase and every exact quality record; unknown or affected associations require reassessment.');
+  const proofProblems = revisionProofProblems(proposal, state, readArtefact, boundary.initiating_phase);
+  if (proofProblems.length) throw revisionError('revision_impact_proof_invalid',
+    `Bind concrete changed statements, earliest source, actual phase and every exact quality record; unknown or affected associations require reassessment. ${proofProblems.slice(0, 5).join('; ')}.`);
   const affected = SOURCE_GATES.slice(index);
   const qualityPaths = proposal.quality_assessment.map(row => row.record.path).filter(Boolean);
   const history = collectRunRevisionClosure(root, run, state, operationId, boundary.approved, [evidence, ...qualityPaths], { proposalMaterial: input.proposalMaterial });

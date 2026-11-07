@@ -243,10 +243,13 @@ The requested effect, not discovery, decides AGDF activation.
 ### Delivery intent transport
 
 A delivery request without a confirmed run binding first dispatches gate-check with intake true
-and no run_id. Its resolve_delivery_run continuation supplies canonical UR scope evidence for the
+and neither run_id nor intake_mode; null or invented IDs are not substitutes. Its resolve_delivery_run continuation supplies canonical UR scope evidence for the
 coding agent's assignment. One unequivocal same-scope continuation uses resume, its run_id and
-expected_revision_id; a clear independent scope uses new and an unused `run-<original-operation-uuid>` ID even when unrelated
-runs exist. Single-run count, recency, shared files and ambient AGDF_RUN_ID prove no scope match.
+expected_revision_id. A clear independent scope follows the supplied new-Run operation even when
+unrelated Runs exist: MCP uses agdf_run/run.create, then its returned Run/revision and resume call.
+Never interpret intake_mode:new as MCP Run creation or invent an unused Run ID. The CLI fallback's
+prospective ID is derived only from its original run-create operation UUID.
+Single-run count, recency, shared files and ambient AGDF_RUN_ID prove no scope match.
 Overlapping plausible scopes require one question about the work, not a technical Run-ID choice.
 Incomplete inventory is a technical failure, never evidence for a new scope. Read-only requests omit intake and
 continue_delivery. On a bound run, continue_delivery requests the next canonical internal

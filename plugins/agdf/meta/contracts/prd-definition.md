@@ -29,12 +29,39 @@ Users And Roles; Constraints; Evidence Requirements; Risks And Open Questions; A
 Next Step. Populate relevant fields concretely or justify not_applicable. Product authority and
 visible presentation owner are distinct; technical storage/architecture/task choices belong later.
 
+Use the exact separate criterion keys advertised by the existing PRD authoring-format contract.
+Do not concatenate field names to shorten the document. Its description fields are source data,
+including when artefact and chat use the same language; a localized approval-summary section
+cannot replace missing source fields. Use the existing authoring-readiness check to find affected
+criterion IDs and correct their fields before requesting a presentation.
+
 Derive supported scope, roles, constraints and observable acceptance from the approved need and
 confirmed context. Preserve non-goals and unique stable criterion_id values; never invent users,
 product promises, approval, new scope or later design. Each applicable UX criterion names working
 mode, source state, action, expected effective state, visible feedback, blocker/failure behavior,
 recovery/next action, observable success and required evidence. Structural completeness is not
 semantic proof: retain the concrete inputs/draft and reasoned derivation for later review.
+
+### Brand-informed UX criteria
+
+For design-relevant work, use the applicable project brand source and any supplied UX source
+references. Retain the exact path, version or content digest and relevant passages in the existing
+UX Intent And Success and Evidence Requirements sections. Do not substitute a same-named file from
+another project or the AGDF plugin. Brand material is design context, not product or approval
+authority; the approved UR and adopted PRD remain authoritative. Confirm the consumed version
+matches the cited source before adopting criteria; never silently replace a stale reference.
+
+Translate supported perception goals and information priorities into observable acceptance using
+the existing criterion fields and stable criterion_id values. Link each adopted criterion to its
+source passage, intended user outcome, visible feedback and required evidence. Adjectives such as
+modern, premium or clear do not by themselves establish an acceptance criterion. Concrete tokens,
+typography, layout and component choices remain SD concerns.
+
+Reuse any supplied UX applicability decision; do not introduce an analytical step solely because a
+brand file exists. Work without a relevant design impact needs no new brand file or separate brand
+gate. Material missing, stale or conflicting source intent stays visible in the existing Approval
+Decisions table and follows the clarification/revision owners below. Source presence alone is not
+verified fidelity or implemented behavior.
 
 ## Clarify product decisions
 
@@ -65,7 +92,11 @@ open until actually answered. Scope changes return to the earliest affected owne
 does not prescribe SD choices or prove working implementation.
 
 Gate-check alone evaluates readiness. Permission to finish clarification under
-AGDF_PRD_DECISIONS_OPEN does not remove the blocker or permit approval. Missing required UX input
+AGDF_PRD_DECISIONS_OPEN, AGDF_PRD_READINESS_INCOMPLETE or
+AGDF_APPROVAL_SUMMARY_INCOMPLETE does not remove the blocker or permit approval.
+The first code identifies product-decision gaps; the latter codes identify source/criteria
+or approval-summary gaps. Follow the concrete findings and the supplied recording call;
+do not treat a summary-format defect as a new product decision. Missing required UX input
 and unrelated integrity/source blockers are not PRD clarification permission. Use the interaction
 contract Bounded internal recovery route for eligible UX preparation; do not author PRD first.
 
@@ -97,6 +128,14 @@ A changed or unavailable required file requires repair/revision and a fresh pres
 an approval reply. Existing unmarked URs need no descriptor; an authored descriptor always binds.
 
 ## Explicit revision and recording
+
+A returned bound authoring continuation for an incomplete own unapproved draft already
+selects its correction route. Consume its authoring-inputs/material_call/recording_calls
+forms directly and use the supplied update_draft value. Do not dispatch this author again
+or add another intake for that same snapshot. The *_action revise route below is only for
+NEW editing intent on an already READY draft, and uses skill_id gate-check, never an author
+skill ID or a host skill alias. After saving, follow the returned continuation once.
+
 
 Before recording, use the continuation's resolved language and summary fields with
 gate-artifact-preparation's Language and approval summary preparation. A translated summary

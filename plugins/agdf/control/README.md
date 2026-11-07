@@ -11,6 +11,7 @@ Explicit initialization creates `control_layout: "run-folders-v1"`. This is the 
   SOT_REGISTRY.md
   CONTEXT_GRAPH.md
   AGENT_QUALITY_CONTRACTS.json
+  BRAND.md
   templates/
   planned/<plan_id>/UR.md
   runs/<run_id>/
@@ -27,6 +28,10 @@ Explicit initialization creates `control_layout: "run-folders-v1"`. This is the 
 ```
 
 Configuration, templates and curated project context stay project-wide. A multi-Run closure preview is a target-wide decision proposal under `closure-previews/`; it changes no Run until deliberately applied. Run-owned outputs never use a separate top-level artefacts directory.
+
+`BRAND.md` starts as a neutral English worksheet. Complete it with the project's
+own design intent and declare the finished source in `SOT_REGISTRY.md` when it is
+authoritative for design work.
 
 `RUN_STATE.md` keeps identity, objective, mode and typed decisions, source bindings and operations. Approval status, current gate, current document references, relationship chains, evidence summaries and inventory are derived when read. They are not separately writable tables or a second state file. A binding embeds its reviewer attestation; no separate RECORD/REVIEW JSON repeats its mapping. A planned handoff records its source in the creation receipt and immutable planning snapshot, without an origin JSON copy.
 

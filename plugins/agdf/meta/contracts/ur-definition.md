@@ -42,7 +42,7 @@ For `phase: ur_definition`, use only the returned governance_target, run_id, rev
 template_path is the absolute, version-matched template owned by the installed plugin runtime.
 Repository copies under `.agdf/control/templates/` are derived scaffold references and never
 override this authoring source. Read the template without rewriting it; persist only artifact_path.
-A direct invocation first dispatches ur-definition; without a bound run follow the existing
+An already returned bound `ur_definition` continuation satisfies entry: consume its authoring inputs and writer forms directly. Do not repeat author dispatch or intake for that same snapshot. A direct invocation without such a continuation first dispatches ur-definition; without a bound run follow the existing
 resolve_delivery_run assignment, then gate-check intake/resume with its expected_revision_id.
 Never use AGDF_RUN_ID, cwd, discovery or a previous approval as authority. Missing, stale,
 foreign, invalid or approved bindings require fresh control routing; do not write.
@@ -104,7 +104,7 @@ follows its current-request language contract and does not change the artefact l
 
 Before recording a complete draft, when `approval_summary_required` is true, include exactly
 one `## <approval_summary_heading>` section using the supplied heading verbatim. Write a
-complete summary in the resolved presentation language covering problem, goal, affected users,
+complete summary in the resolved presentation language. Read `approval_summary_format.required_fields` from authoring-inputs: those exact list field declarations need concrete authored values; prose or a heading alone is not a named field. Cover problem, goal, affected users,
 scope, non-goals, acceptance signals, source ownership, risks/unknowns and next step.
 Do not truncate decision-relevant content or use ellipses. The existing approval renderer's
 limits and validation apply. This summary is editorial; the UR remains authoritative.
@@ -116,9 +116,13 @@ is required merely to complete an unapproved incomplete draft.
 
 A new draft is recorded through existing run-step --step ur --title <short title>, using
 --dir <governance_target> --run <run_id> --revision <revision_id>.
-For an already registered unapproved draft, require explicit user revision intent. Resume
-through gate-check with intake true, intake_mode resume, run_id, expected_revision_id and
-ur_action revise (CLI --ur-action revise). Ordinary intake of a ready draft still presents it.
+When this bound continuation returns a registered, incomplete unapproved draft, correct its
+readiness gaps directly through the supplied `ur_draft.replace` form. The existing authoring
+route already covers completing that same need; do not open another intake or dispatch.
+A deliberate change to an already READY registered draft outside that continuation still
+requires explicit user revision intent: enter via gate-check with intake true, intake_mode
+resume, run_id, expected_revision_id and ur_action revise (CLI --ur-action revise).
+Ordinary intake of a ready draft still presents it. Never substitute a field named revision.
 Stage the replacement and use ur_draft.replace with the current binding. The writer
 publishes the document and typed evidence atomically. Never edit bound bytes, reseal
 an unknown change or alter an approved UR or its approval.

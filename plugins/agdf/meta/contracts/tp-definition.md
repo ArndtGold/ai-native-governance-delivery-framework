@@ -69,6 +69,14 @@ not independent proof of human provenance. Table headings may use levels two thr
 
 ## Recording and revision
 
+A returned bound authoring continuation for an incomplete own unapproved draft already
+selects its correction route. Consume its authoring-inputs/material_call/recording_calls
+forms directly and use the supplied update_draft value. Do not dispatch this author again
+or add another intake for that same snapshot. The *_action revise route below is only for
+NEW editing intent on an already READY draft, and uses skill_id gate-check, never an author
+skill ID or a host skill alias. After saving, follow the returned continuation once.
+
+
 A ready draft without new editing intent is presented unchanged. Explicit ready-draft revision uses
 gate-check intake true, intake_mode resume, exact run_id/expected_revision_id and tp_action revise
 (CLI --tp-action revise), exclusive of other source actions and continue_delivery. Approved changes

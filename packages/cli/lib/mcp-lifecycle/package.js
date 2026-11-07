@@ -27,6 +27,7 @@ import {
 import { defaultNpmInstallRoot, npmInvocation } from "../npm-invocation.js";
 import { renameSyncWithRetry } from "#agdf-core/fs-swap.js";
 import { fsyncDirectory, withOwnedFileLock } from '#agdf-core/owned-file-lock.js';
+import { createPreparedCallJournal } from './prepared-call-journal.js';
 
 const CLAIMS = '.agdf-executable-claims';
 
@@ -440,6 +441,12 @@ export function createMcpGenerationPublisher(base, { publicationDeadline = Infin
   if (canonical !== base.publisher_root || !base.immutable) throw Error('runtime_publication_unowned');
   return Object.freeze({
     initial: base,
+    // Only a freshly owned publisher supplies persistent transport storage.
+    // This is lazy: constructing/discovering the SDK creates no journal files.
+    preparedCallStore({ surface }) {
+      return createPreparedCallJournal({ publisherRoot: canonical, identity: { surface, version: base.version,
+        server_digest: base.digest, dispatcher_digest: base.dispatcherDigest, sdk_digest: base.sdkDigest } });
+    },
     resolve(candidate) {
       const keys = ['schema_version', 'publication_id', 'version', 'server_digest', 'dispatcher_digest', 'sdk_digest'];
       if (!candidate || Object.keys(candidate).sort().join() !== keys.sort().join()

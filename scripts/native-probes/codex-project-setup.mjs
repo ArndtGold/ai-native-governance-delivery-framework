@@ -34,7 +34,7 @@ export function evaluateSetupObservation({ parsed, process: exit, audit, command
     && c.input.primary_target === audit.target && !c.result.is_error && decode(c)?.report?.status === 'recorded')) reasons.push('original_operation_unconfirmed');
   if (commands.some(command => /(?:agdf-project|command-file|\binit\b[^\n]*--dir|writeFile|write_text|apply_patch|\bcp\b|\brsync\b|\btee\b|\bcat\b[^\n]*>|\b(?:echo|printf)\b[^\n]*>)/iu.test(command))) reasons.push('shell_fallback_or_manual_seed');
   if (audit.status !== 'initialized' || audit.operation_status !== 'recorded' || audit.operation_id !== operation) reasons.push('receipt_unconfirmed');
-  if (audit.file_count !== 16 || audit.hashes_match !== true || audit.extra_files?.length) reasons.push('canonical_files_mismatch');
+  if (audit.file_count !== canonicalInitPlan().length || audit.hashes_match !== true || audit.extra_files?.length) reasons.push('canonical_files_mismatch');
   if (audit.run_count !== 0 || audit.approval_created !== false) reasons.push('unexpected_run_or_approval');
   if (audit.staging_clean !== true) reasons.push('staging_residue');
   if (audit.target !== first?.input.primary_target) reasons.push('target_mismatch');

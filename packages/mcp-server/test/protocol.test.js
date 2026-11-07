@@ -1,3 +1,5 @@
+import { preparedTransportSchema } from '../src/prepared-call-transport.js';
+import { nextActionOutputSchema } from '../src/safe-read-continuation.js';
 import assert from "node:assert/strict";
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -47,9 +49,16 @@ async function assertGuidedInspection(client) {
     assert.equal(navigation.next_calls.length, 2);
     for (const next of navigation.next_calls) {
       assert.equal(next.tool, 'agdf_inspect');
+      assert.deepEqual(Object.keys(next.arguments).sort(), ['inputs', 'prepared_call_id']);
+      assert.deepEqual(next.arguments.inputs, {});
+      assert.equal(next.operation.kind, 'inspect.read'); assert.equal(next.operation.read_only, true);
       assert.equal((await call(next.arguments)).report.available, true);
     }
-    const document = navigation.next_calls.find(next => next.arguments.operation === 'presentation-document').arguments;
+    const documentCall = navigation.next_calls.find(next => next.operation.operation === 'presentation-document');
+    const document = documentCall.recovery_only.original_call.arguments;
+    assert.equal(documentCall.operation.expected_revision_id, document.expected_revision_id);
+    assert.equal(documentCall.operation.run_id, fixture.runId);
+    // Deliberately altered Raw recovery requests retain independent binding rejection coverage.
     for (const override of [
       { expected_revision_id: '00000000-0000-4000-8000-000000000000' },
       { gate: 'PRD' }, { run_id: 'foreign-run' },
@@ -69,15 +78,15 @@ async function assertGuidedInspection(client) {
     const ambiguousBefore = snapshot();
     const ambiguous = (await read()).navigation;
     assert.equal(ambiguous.presentation_catalog.state, 'ambiguous');
-    assert.equal(ambiguous.next_calls.some(next => next.arguments.operation === 'presentation-document'), false);
-    assert.equal((await call(document)).report.available, true, 'exact conversation binding remains readable despite ambiguous discovery');
+    assert.equal(ambiguous.next_calls.some(next => next.operation.operation === 'presentation-document'), false);
+    assert.equal((await call(documentCall.arguments)).report.available, true, 'exact conversation binding remains readable despite ambiguous discovery');
     assert.deepEqual(snapshot(), ambiguousBefore);
 
     fixture.restore();
     rmSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'control/presentations'), { recursive: true });
     const missingBefore = snapshot(); const missing = (await read()).navigation;
     assert.equal(missing.presentation_catalog.state, 'none');
-    assert.equal(missing.next_calls.some(next => next.arguments.operation === 'presentation-document'), false);
+    assert.equal(missing.next_calls.some(next => next.operation.operation === 'presentation-document'), false);
     assert.deepEqual(snapshot(), missingBefore, 'missing documents are never prepared by a read');
 
     fixture.restore();
@@ -99,10 +108,12 @@ async function assertGuidedInspection(client) {
     const historicalBefore = snapshot(); const historical = (await read()).navigation;
     assert.equal(historical.presentation_catalog.state, 'unique');
     assert.equal(historical.presentation_catalog.candidates[0].applicability, 'historical');
-    const historicalDocument = historical.next_calls.find(next => next.arguments.operation === 'presentation-document');
-    const currentContract = historical.next_calls.find(next => next.arguments.operation === 'operation-contract');
-    assert.equal(historicalDocument.arguments.expected_revision_id, original);
-    assert.equal(currentContract.arguments.expected_revision_id, current);
+    const historicalDocument = historical.next_calls.find(next => next.operation.operation === 'presentation-document');
+    const currentContract = historical.next_calls.find(next => next.operation.operation === 'operation-contract');
+    assert.equal(historicalDocument.operation.expected_revision_id, original);
+    assert.equal(currentContract.operation.expected_revision_id, current);
+    assert.equal(historicalDocument.recovery_only.original_call.arguments.expected_revision_id, original);
+    assert.equal(currentContract.recovery_only.original_call.arguments.expected_revision_id, current);
     assert.equal((await call(historicalDocument.arguments)).report.applicability, 'historical');
     assert.equal((await call(currentContract.arguments)).report.available, true);
     for (const [index, revision] of [original, current].entries()) {
@@ -140,10 +151,17 @@ for (const modern of [false, true]) {
     assert.ok(tools[1].outputSchema, 'output validation retained');
     for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.type || field.enum || field.$ref, 'discovery retains input types');
     for (const name of ['target_source', 'primary_target', 'module', 'gate']) assert.ok(tools[1].inputSchema.properties[name].description?.length > 10);
-    const help = JSON.parse(tools[1].description.match(/\{[^\n]+\}/u)[0]);
-    assert.equal(help.module, 'agdf_run/run.create', 'complete creation help is discoverable before selecting a Run');
+    assert.match(tools[1].description, /Raw bound reads need working_directory,presentation_language,primary_target,target_source/u, 'Raw discovery keeps target authority explicit.');
     assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
-    assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+    assert.deepEqual(tools[1].inputSchema, preparedTransportSchema('agdf_inspect', CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema));
+    const setupRead = { operation: 'project-state', presentation_language: 'de', working_directory: '/tmp',
+      primary_target: '/tmp', target_source: 'explicit_target' };
+    for (const changed of [{ run_id: 'foreign-run' }, { expected_revision_id: '00000000-0000-4000-8000-000000000000' },
+      { primary_target: undefined }, { target_source: undefined }]) {
+      const rejected = await client.callTool({ name: 'agdf_inspect', arguments: { ...setupRead, ...changed } });
+      assert.equal(rejected.isError, true);
+      assert.equal(rejected.structuredContent, undefined, 'The real SDK requires explicit setup target authority and rejects Run/revision selectors.');
+    }
     await assertGuidedInspection(client);
     const draft = artifactReadinessFixture();
     try {
@@ -181,8 +199,8 @@ for (const modern of [false, true]) {
     assert.equal(inspectRejected.structuredContent, undefined);
     assert.equal(tools[0].name, "agdf_dispatch");
     assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
-    assert.deepEqual(tools[0].inputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema);
-    assert.deepEqual(tools[0].outputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema);
+    assert.deepEqual(tools[0].inputSchema, preparedTransportSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema));
+    assert.deepEqual(tools[0].outputSchema, nextActionOutputSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema));
 
     for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
       const result = await client.callTool({

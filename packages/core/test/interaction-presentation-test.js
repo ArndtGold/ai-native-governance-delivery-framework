@@ -585,6 +585,29 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   assert.match(prdBlockedCard.markdown, /Behebung/);
   assert.doesNotMatch(prdBlockedCard.markdown, /Wartet auf/u);
 
+  for (const [language, pack] of Object.entries(sourceRegistry.locales)) {
+    for (const [reason, key] of [
+      ['AGDF_PRD_READINESS_INCOMPLETE', 'blockedPrdReadiness'],
+      ['AGDF_APPROVAL_SUMMARY_INCOMPLETE', 'blockedApprovalSummary'],
+    ]) {
+      const card = renderOperationalStatusCard({
+        run_id: 'status-run', presentation_language: language, status: 'blocked', current_gate: 'PRD',
+        allowed_now: [sourceRegistry.locales.en.operationalValues.completeApprovalSummary],
+        forbidden_now: [sourceRegistry.locales.en.operationalValues.forbidApprovalBeforeSummaryReady],
+        blocking_condition: reason, prd_readiness_items: ['approval_summary_criteria_incomplete'],
+        missing_approval: 'none', next_user_gate: 'none', user_action_required: 'no',
+        internal_next_step: sourceRegistry.locales.en.operationalValues.nextApprovalSummary,
+        next_step: sourceRegistry.locales.en.operationalValues.nextApprovalSummary,
+        next_gate_after_approval: 'none', allowed_after_approval: 'none',
+        quality_outlook: sourceRegistry.locales.en.operationalValues.noAdditionalQualityFollowUp,
+      }, { registry: sourceRegistry, humanPresentation: { gateTitle: 'PRD' } });
+      assert.ok(card, language + ': ' + reason);
+      assert.ok(card.markdown.includes(pack.operationalValues[key]), card.markdown);
+      assert.ok(card.markdown.includes(pack.operationalValues.nextApprovalSummary), card.markdown);
+      assert.doesNotMatch(card.markdown, /Approval: PRD/u);
+    }
+  }
+
   const postTpRunState = {
     content: "- run_id: status-run\n- mode: structured_delivery\n- lifecycle: active",
     mode_slice_decision: { decision: "structured_delivery" },

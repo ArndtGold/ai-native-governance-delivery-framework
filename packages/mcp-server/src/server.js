@@ -1,3 +1,6 @@
+import { createPreparedCallTransport, preparedTransportSchema } from './prepared-call-transport.js';
+import { appendSafeReadContinuation, nextActionOutputSchema } from './safe-read-continuation.js';
+import { createNextActionProjection } from './next-action.js';
 import { boundStdioOutput } from './stdio-output.js';
 import { McpServer, ProtocolError, ProtocolErrorCode, fromJsonSchema } from "@modelcontextprotocol/server";
 import { serveStdio, StdioServerTransport } from "@modelcontextprotocol/server/stdio";
@@ -11,14 +14,40 @@ import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabili
 
 export const SERVER_NAME = "agdf-mcp";
 
-function toolResult(runtime, name, input, result, serialize = runtime.serialize, provider, peer, facts) {
+// A folded follow-up read is a convenience. Hosts move large tool output into
+// files (Claude Code from roughly 80 KB of text), which costs the model more
+// round trips than a separate read, so a read is inlined only below this size.
+const INLINE_READ_TEXT_BYTES = 48 * 1024;
+const byteLength = value => Buffer.byteLength(typeof value === 'string' ? value : JSON.stringify(value), 'utf8');
+
+function omittedFollowup(nextRead) {
+  return { ...nextRead, result: null, failure: {
+    code: 'read_followup_output_limit', phase: 'wire_budget', original_effect_unchanged: true,
+    instruction: 'The original result and receipt are unchanged. Its follow-up read was not inlined to keep this response small; run only that supplied read call separately.',
+  } };
+}
+
+function toolResult(runtime, name, input, result, { serialize = runtime.serialize, consume = runtime.consumeToolResult,
+  provider, peer, facts, preparedCalls, actions, nextRead } = {}) {
   // A generation must supply its own descriptor. Never reinterpret old results
   // with the facade's current runtime. Local owners project after postprocessing.
-  const emit = value => {
+  const emit = (value, { followup, decorate = true } = {}) => {
     const projected = Object.hasOwn(value._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? value
       : runtime.projectToolResult(name, input, value, facts);
-    const { domain, metadata, descriptor } = runtime.consumeToolResult(name, projected);
-    const text = serialize(domain);
+    const { domain, metadata, descriptor } = consume(name, projected);
+    // Validate and bound the canonical domain with its existing owner first.
+    // Additive MCP navigation has its own explicit wire projection; it is not
+    // passed back into a closed Core result serializer as canonical state.
+    const canonical = JSON.parse(serialize(domain));
+    const navigable = followup ? { ...canonical, next_read: followup } : canonical;
+    const decorated = decorate && preparedCalls ? preparedCalls.decorate(navigable) : navigable;
+    if (decorated.next_read?.result?.report?.material_transport?.instructions) {
+      const transport = decorated.next_read.result.report.material_transport;
+      transport.instructions = transport.instructions.replaceAll('response.structuredContent.report',
+        'response.structuredContent.next_read.result.report').replaceAll('JSON.parse(response.content[0].text).report',
+        'JSON.parse(response.content[0].text).next_read.result.report');
+    }
+    const text = JSON.stringify(actions ? actions.project(decorated) : decorated);
     const response = {
       content: [{ type: 'text', text: domain.presentation_delivery?.text ?? text },
         ...(descriptor.failed ? [{ type: 'text', text: descriptor.message }] : [])],
@@ -29,18 +58,29 @@ function toolResult(runtime, name, input, result, serialize = runtime.serialize,
     };
     return response;
   };
-  let response = emit(result);
-  if (runtime.responseLimit && Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) {
-    // The fallback itself is projected, checked and measured; no recursive call.
-    const limitFacts = { code: 'resource_limit', dispatch: 'unknown' };
-    const failure = runtime.projectToolResult(name, input, runtime.failure('resource_limit', name, input, limitFacts), limitFacts);
-    response = emit(failure);
-    if (Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) throw Error('tool_result_invalid');
+  const withinLimit = response => !runtime.responseLimit || byteLength(response) <= runtime.responseLimit;
+  // Optional additions are dropped before the result itself is touched: first the
+  // inlined read, then the transport decoration (whose recovery copies can double
+  // large forms). Only a canonical result that alone exceeds the limit becomes
+  // resource_limit, so navigation can never turn a committed write into unknown.
+  const variants = [
+    ...(nextRead?.result ? [{ followup: nextRead, inlineRead: true }] : []),
+    ...(nextRead ? [{ followup: nextRead.result ? omittedFollowup(nextRead) : nextRead }] : []),
+    {}, { decorate: false },
+  ];
+  for (const { inlineRead, ...variant } of variants) {
+    const response = emit(result, variant);
+    if (withinLimit(response) && (!inlineRead || byteLength(response.content[0].text) <= INLINE_READ_TEXT_BYTES)) return response;
   }
+  // The fallback itself is projected, checked and measured; no recursive call.
+  const limitFacts = { code: 'resource_limit', dispatch: 'unknown' };
+  const failure = runtime.projectToolResult(name, input, runtime.failure('resource_limit', name, input, limitFacts), limitFacts);
+  const response = emit(failure);
+  if (!withinLimit(response)) throw Error('tool_result_invalid');
   return response;
 }
 
-export function buildAgdfServer({ runtime, executor, era } = {}) {
+export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = {}) {
   if (!runtime?.definition || typeof runtime.serialize !== "function") {
     throw new TypeError("AGDF MCP runtime is required");
   }
@@ -48,6 +88,15 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     throw new TypeError("AGDF MCP owned runtime is required");
   }
   const tools = runtime.tools ?? [{ name: runtime.definition.name, definition: runtime.definition, parse: runtime.parse, execute: runtime.execute }];
+  // Discovery and retained reads share the original SDK validators. Compile
+  // lazily; constructing the transport never validates or executes a request.
+  const schemaProvider = new AjvJsonSchemaValidator();
+  const deferredSchemas = { getValidator(schema) {
+    let validate;
+    return value => (validate ??= schemaProvider.getValidator(schema))(value);
+  } };
+  const inspectTool = tools.find(tool => tool.name === 'agdf_inspect');
+  const validateInspect = inspectTool && deferredSchemas.getValidator(inspectTool.definition.inputSchema);
   const dispatchExecutor = executor ?? {
     execute: async (argumentsValue, { toolName, signal } = {}) => {
       const tool = tools.find((entry) => entry.name === (toolName ?? runtime.definition.name));
@@ -59,7 +108,14 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     },
     close: async () => runtime.close?.(),
   };
-  const registrations = new Map();
+  const registrations = new Map(), preparedCalls = createPreparedCallTransport({
+    store: preparedCallStore,
+    // A read reference retains a supplied canonical request, never an inferred
+    // target. Validate the unwrapped arguments with the original SDK schema.
+    validateRead: call => inspectTool?.definition.annotations?.readOnlyHint === true
+      && validateInspect(call.arguments).valid,
+  }),
+    actions = createNextActionProjection({ isAvailable: call => preparedCalls.isAvailable(call) });
   class AgdfServer extends McpServer {
     async connect(transport) {
       return super.connect(capabilityTransport(transport, message => modernToolUiDenial(message,
@@ -68,7 +124,8 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   }
   const server = new AgdfServer(
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
-    { capabilities: { tools: {}, ...(runtime.ui ? { resources: {} } : {}) } },
+    { capabilities: { tools: {}, ...(runtime.ui ? { resources: {} } : {}) },
+      instructions: 'Use the returned next_action.call as the normal path for reads and writes. Fill only its named inputs from actual authored content, review or a new deliberate reply; ready calls retain inputs:{} and are forwarded unchanged. The adapter retains the exact target, Run, revision, selectors and original operation identity. Do not reconstruct raw reads or status requests, retype references or use cloning helpers. Owned plugin references retain their original lifetime across reconnects at the same runtime; other connections use explicit recovery_only instructions and the saved original request. A safe inspect may already be included as next_read.result; consume it without repeating it. next_read.tool/arguments describe that executed read; next_read.call is its supplied retry only. A terminal action stops work. No reference or continuation grants authority or approval.' },
   );
   // Capability checks guard execution and resource access. Codex must first
   // discover the plugin tool metadata before selecting its UI-capable route.
@@ -81,9 +138,17 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     connection_id: randomUUID(), server_module: fileURLToPath(import.meta.url),
     version: runtime.trustedContext.expectedVersion,
   }) : undefined;
-  const respond = (name, input, result, serialize, context, facts) => toolResult(runtime, name, input, result, serialize, provider, provider ? {
-    client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
-  } : undefined, facts);
+  // The handler validates a result before choosing its follow-up read; the
+  // response variants then reuse that validation instead of repeating it.
+  const consumed = new WeakMap();
+  const consume = (name, value) => {
+    if (!consumed.has(value)) consumed.set(value, runtime.consumeToolResult(name, value));
+    return consumed.get(value);
+  };
+  const respond = (name, input, result, serialize, context, facts, nextRead) => toolResult(runtime, name, input, result, {
+    serialize, consume, provider, facts, preparedCalls, actions, nextRead, peer: provider ? {
+      client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
+    } : undefined });
   // Companion events (SD SDD-006): only the process that executed a call journals its final result.
   // Behind the generation facade (projected results) the generation has journaled every result it
   // produced; a failure thrown here (lost connection, unknown response, unavailable generation,
@@ -95,21 +160,39 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   };
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
-  // Discovery needs the exact schemas, but does not execute any tool. Compile
-  // each validator on its first validation, using the same SDK provider/options.
-  // Input validation still precedes execution; successful output is still checked.
-  const schemaProvider = new AjvJsonSchemaValidator();
-  const deferredSchemas = { getValidator(schema) {
-    let validate;
-    return value => (validate ??= schemaProvider.getValidator(schema))(value);
-  } };
+  const nextRead = async (result, context) => appendSafeReadContinuation(result, {
+    allowed: !context.signal?.aborted && !!inspectTool && inspectTool.definition.annotations?.readOnlyHint === true
+      && uiAllowed(context) && (!inspectTool.requiresUi || supportsUi(context)),
+    validate: call => ['working_directory', 'presentation_language', 'primary_target', 'target_source']
+      .every(key => typeof call.arguments[key] === 'string' && call.arguments[key].length)
+      && validateInspect(call.arguments).valid,
+    execute: async call => {
+      const name = call.tool;
+      const input = runtime.prepareInput?.(name, call.arguments) ?? call.arguments;
+      const parentOwned = typeof inspectTool.parentOwned === 'function' ? inspectTool.parentOwned(input) : inspectTool.parentOwned;
+      let observed = parentOwned
+        ? await inspectTool.execute(inspectTool.parse(input), context.signal,
+          { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) })
+        : await dispatchExecutor.execute(input, { signal: context.signal, toolName: name,
+          trusted: runtime.prepareDispatch?.(name, input) });
+      if (runtime.postprocessToolResult) observed = await runtime.postprocessToolResult(name, input, observed,
+        { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
+      const projected = runtime.projectToolResult(name, input, observed);
+      const { domain } = runtime.consumeToolResult(name, projected);
+      return JSON.parse((inspectTool.serialize ?? runtime.serialize)(domain));
+    },
+  });
   for (const tool of tools) {
     const { name, definition, serialize } = tool;
-    const schema = fromJsonSchema(definition.inputSchema, { getValidator(inputSchema) {
+    const schema = fromJsonSchema(preparedTransportSchema(name, definition.inputSchema), { getValidator(inputSchema) {
       const validate = deferredSchemas.getValidator(inputSchema);
       return input => {
         const checked = validate(input);
         if (checked.valid) return checked;
+        const preparedHint = preparedCalls.validationHint(name, input);
+        // Validation has already failed. The exact transport correction is more
+        // useful here than every unrelated alternative in the raw-command union.
+        if (preparedHint) return { ...checked, errorMessage: preparedHint };
         const hint = runtime.inputValidationHint?.(name, input);
         return hint ? { ...checked, errorMessage: `${hint} Schema: ${checked.errorMessage}` } : checked;
       };
@@ -120,7 +203,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
         description: definition.description,
         annotations: definition.annotations,
         inputSchema: schema,
-        ...(definition.outputSchema ? { outputSchema: fromJsonSchema(definition.outputSchema, deferredSchemas) } : {}),
+        ...(definition.outputSchema ? { outputSchema: fromJsonSchema(nextActionOutputSchema(name, definition.outputSchema), deferredSchemas) } : {}),
         ...(definition._meta ? { _meta: definition._meta } : {}),
       },
       async (argumentsValue, context) => {
@@ -132,10 +215,12 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
           const failure = runtime.projectToolResult(name, argumentsValue, runtime.failure(denied, name, argumentsValue, facts), facts);
           return respond(name, argumentsValue, failure, serialize ?? runtime.serialize, context, facts);
         }
-        const parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(argumentsValue) : tool.parentOwned;
-        let phase = parentOwned ? 'parse' : 'execute';
+        let parentOwned;
+        let phase = 'parse';
         try {
           phase = 'parse';
+          argumentsValue = preparedCalls.resolve(name, argumentsValue);
+          parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(argumentsValue) : tool.parentOwned;
           argumentsValue = runtime.prepareInput?.(name, argumentsValue) ?? argumentsValue;
           phase = parentOwned ? 'parse' : 'execute';
           let result;
@@ -147,14 +232,19 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
             trusted: runtime.prepareDispatch?.(name, argumentsValue) });
           if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, argumentsValue, result,
             { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
-          if (journaling()) {
-            result = Object.hasOwn(result._meta ?? {}, 'agdf/tool-result') ? result : runtime.projectToolResult(name, argumentsValue, result);
-            journal(name, argumentsValue, result);
-          }
-          return respond(name, argumentsValue, result, serialize ?? runtime.serialize, context);
+          // Validate the producer and its canonical domain before consuming any
+          // supplied continuation. Malformed output must not start another read.
+          const checked = Object.hasOwn(result._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? result
+            : runtime.projectToolResult(name, argumentsValue, result);
+          const { domain } = consume(name, checked);
+          if (journaling()) journal(name, argumentsValue, checked);
+          const continued = await nextRead(domain, context);
+          return respond(name, argumentsValue, checked, serialize ?? runtime.serialize, context, undefined, continued.next_read);
         } catch (error) {
           const facts = runtime.normalizeFailure(error, { phase });
-          const failure = runtime.failure(facts.code, name, argumentsValue, { ...facts, elapsed_ms: performance.now() - started });
+          const help = phase === 'parse' ? preparedCalls.validationHint(name, argumentsValue) : '';
+          const failure = { ...runtime.failure(facts.code, name, argumentsValue, { ...facts, elapsed_ms: performance.now() - started }),
+            ...(help ? { prepared_call_help: help } : {}) };
           // A local execution/delivery failure is owned here, including malformed
           // producer output. It never causes re-execution or a second write.
           const projected = runtime.projectToolResult(name, argumentsValue, failure, facts);
@@ -180,7 +270,7 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
       const listedTools = tools.map(({ name, definition }) => ({
         name, description: definition.description, inputSchema: server.toolInputSchemaJson(name),
         annotations: definition.annotations, ...(definition._meta ? { _meta: definition._meta } : {}),
-        ...(definition.outputSchema ? { outputSchema: definition.outputSchema } : {}),
+        ...(definition.outputSchema ? { outputSchema: nextActionOutputSchema(name, definition.outputSchema) } : {}),
       }));
       const listedResource = { uri: resource.uri, name: runtime.ui.label ?? 'AGDF Cockpit', mimeType: resource.mimeType, _meta: resource._meta };
       server.server.removeRequestHandler("tools/list");
@@ -191,14 +281,14 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
     }
   }
   return Object.assign(server, {
-    closeAgdfRuntime: async () => { await dispatchExecutor.close(); return runtime.close?.(); },
+    closeAgdfRuntime: async () => { preparedCalls.close(); actions.close(); await dispatchExecutor.close(); return runtime.close?.(); },
   });
 }
 
-export function serveAgdfStdio({ runtime, executor, onerror } = {}) {
+export function serveAgdfStdio({ runtime, executor, onerror, preparedCallStore } = {}) {
   const instances = new Set();
   const handle = serveStdio(({ era }) => {
-    const server = buildAgdfServer({ runtime, executor, era });
+    const server = buildAgdfServer({ runtime, executor, era, preparedCallStore });
     instances.add(server);
     return server;
   }, {

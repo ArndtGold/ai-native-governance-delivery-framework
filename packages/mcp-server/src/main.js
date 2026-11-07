@@ -73,6 +73,7 @@ export async function runMcpServer({ surface, cockpitDir, cockpitMode, runtime, 
   const handle = serveAgdfStdio({
     runtime,
     executor: dispatchExecutor,
+    preparedCallStore: ownedPublication ? ownedPublisher?.preparedCallStore?.({ surface }) : undefined,
     onerror(code) {
       process.stderr.write(`${code}\n`);
     },

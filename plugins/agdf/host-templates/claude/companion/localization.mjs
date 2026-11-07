@@ -1,8 +1,7 @@
-// Localization (SDD-05, AC-005) with the existing AGDF data: the chat language from config.json,
-// gate titles and next-step values from meta/agdf-interaction-locales.json (the registry), and the
-// companion's own labels from companion/locales.json. Mirrors resolveConfiguredChatLanguage
-// (packages/core/lib/resources/context.js) and localizedOperationalValue
-// (packages/core/lib/interaction-presentation.js); parity tests keep them equal.
+// Localization (SDD-05, AC-005; SD SDD-004) with the existing AGDF data: the chat language from
+// config.json and every text from meta/agdf-interaction-locales.json (the registry): gate titles and
+// the companion section. Next steps and blocking texts arrive localized in the run view. Mirrors
+// resolveConfiguredChatLanguage (packages/core/lib/resources/context.js); parity tests keep it equal.
 
 const TAG = /^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/u;
 
@@ -25,7 +24,7 @@ export function resolveLocale(registry, requested) {
 }
 
 // Claude's own `language` setting is free text: a supported language tag (exact or base language)
-// or one of a locale's `languageNames` in the companion's locales.json, compared without case;
+// or one of a locale's `languageNames` in the catalog's companion section, compared without case;
 // anything else names no locale (null).
 export function settingLocale(registry, labels, value) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -34,7 +33,7 @@ export function settingLocale(registry, labels, value) {
   if (tag && (registry.locales[tag] || registry.locales[tag.split('-')[0]])) return resolveLocale(registry, tag);
   const name = text.toLowerCase();
   const match = Object.entries(labels?.locales ?? {})
-    .find(([locale, pack]) => registry.locales[locale] && (pack.languageNames ?? []).some(entry => entry.toLowerCase() === name));
+    .find(([locale, pack]) => registry.locales[locale] && Object.values(pack.languageNames ?? {}).some(entry => String(entry).toLowerCase() === name));
   return match?.[0] ?? null;
 }
 
@@ -53,31 +52,10 @@ export function gateTitle(registry, locale, gate) {
   return registry.locales[locale]?.gateTitles?.[gate] ?? registry.locales[registry.fallbackLocale]?.gateTitles?.[gate] ?? gate;
 }
 
-// The localized status-card value for a next-step source text, or the source text itself
-// ({ text, isLocalized }); an empty or "none" value becomes the pack's "none".
-export function localizeNextStep(registry, locale, value) {
-  const source = String(value ?? '').trim();
-  const pack = registry.locales[locale];
-  const fallback = registry.locales[registry.fallbackLocale];
-  if (!source || source === 'none') return { text: pack.primary.none, isLocalized: true };
-  if (locale === registry.fallbackLocale) return { text: source, isLocalized: true };
-  const groups = [
-    [fallback.operationalValues, pack.operationalValues],
-    [fallback.primary.actions, pack.primary.actions],
-    [fallback.primary.afterApproval, pack.primary.afterApproval],
-  ];
-  for (const [sources, targets] of groups) {
-    for (const [key, text] of Object.entries(sources ?? {})) {
-      if (text === source) {
-        const localized = String(targets?.[key] ?? '').trim();
-        return localized ? { text: localized, isLocalized: true } : { text: source, isLocalized: false };
-      }
-    }
-  }
-  if (fallback.primary.quality === source && String(pack.primary.quality ?? '').trim()) {
-    return { text: pack.primary.quality.trim(), isLocalized: true };
-  }
-  return { text: source, isLocalized: false };
+// The companion's labels: the catalog's companion section per locale, in the shape label() reads.
+export function companionLabels(registry) {
+  return { fallbackLocale: registry.fallbackLocale,
+    locales: Object.fromEntries(Object.entries(registry.locales).map(([locale, pack]) => [locale, pack.companion ?? {}])) };
 }
 
 // A companion label by dotted path with {name} parameters; missing keys fall back to the

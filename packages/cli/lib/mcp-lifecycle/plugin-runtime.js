@@ -1,5 +1,5 @@
 import { execFileSync, spawn, fork } from "node:child_process";
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmdirSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync, rmdirSync, unlinkSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
 import { createHash, randomUUID } from 'node:crypto';
@@ -15,6 +15,12 @@ const SDK_PACKAGE_SPEC = "@modelcontextprotocol/server@2.0.0";
 // the shipped digest; the override deliberately restores the unverified install and is recorded.
 export const SDK_BUNDLE = Object.freeze({ manifest: "package.json", lock: "package-lock.json", expected: "expected-sdk.json" });
 export const SDK_OVERRIDE_ENV = "AGDF_MCP_ALLOW_UNVERIFIED_SDK";
+// The journal's data-root variable (COMPANION_DATA_ROOT_ENV of core companion/journal.js), kept as a
+// literal so the launcher stays free of the journal module; the journal test asserts both agree.
+export const COMPANION_DATA_ROOT_ENV = "AGDF_COMPANION_DATA_ROOT";
+// The journal's directory and its two files below the data root (JOURNAL_DIRECTORY, JOURNAL_FILE and
+// JOURNAL_ROTATED_FILE of core companion/journal.js), owned and removed with the runtime (SD SDD-006).
+export const COMPANION_JOURNAL = Object.freeze({ directory: "companion", files: Object.freeze(["events.jsonl", "events.1.jsonl"]) });
 export const SDK_VERIFICATION = Object.freeze({ verified: "verified", override: "unverified_override" });
 
 function readJson(path) {
@@ -249,6 +255,10 @@ export async function launchPluginMcpServer({
     return null;
   }
   const { surface, dataRoot, cockpitDir, cockpitMode, prepareOnly } = invocation;
+  // Companion events (companion core SDD-006): the facade and its generations journal final tool
+  // results below the data root this launcher received; the variable reaches them with the facade's
+  // environment only. Preparation keeps the launcher's own environment.
+  const facadeEnv = typeof dataRoot === 'string' && dataRoot ? { ...env, [COMPANION_DATA_ROOT_ENV]: resolve(dataRoot) } : env;
   const publicationDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS;
   let runtime, waitingOwner;
   try {
@@ -256,7 +266,7 @@ export async function launchPluginMcpServer({
     // preparation. It cannot claim or start a facade until the private message
     // carries the successfully verified publication.
     if (!prepareOnly && !startFacade && acquireClaim === acquireMcpExecutableClaim && ensure === ensurePluginMcpRuntime)
-      waitingOwner = startFacadeOwner({ surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline });
+      waitingOwner = startFacadeOwner({ surface, cockpitDir, cockpitMode, pluginRoot, env: facadeEnv, publicationDeadline });
     // Reject a damaged installed dispatcher before publication, claim acquisition
     // or SDK execution. Its downstream resource context cannot qualify a facade;
     // starting one first would correctly retain its unconfirmed executable use.
@@ -285,7 +295,7 @@ export async function launchPluginMcpServer({
   // executable before fork and releases only after orderly teardown AND exit.
   if (!startFacade && acquireClaim === acquireMcpExecutableClaim) {
     try {
-      const owner = waitingOwner ?? startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline });
+      const owner = waitingOwner ?? startFacadeOwner({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env: facadeEnv, publicationDeadline });
       waitingOwner?.activate(runtime);
       return await owner.settled;
     }
@@ -299,7 +309,7 @@ export async function launchPluginMcpServer({
       ? error.message : 'AGDF_MCP_EXECUTABLE_CLAIM_INVALID';
     stderr.write(`${launcherFailureLine(code)}\n`); process.exitCode = 1; return null;
   }
-  try { return await (startFacade ?? supervisePluginMcpFacade)({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline, claim }); }
+  try { return await (startFacade ?? supervisePluginMcpFacade)({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env: facadeEnv, publicationDeadline, claim }); }
   catch (error) {
     const code = Object.hasOwn(LAUNCHER_FAILURES, error?.message) ? error.message : 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
     stderr.write(`${launcherFailureLine(code, 'facade')}\n`); process.exitCode = 1; return null;
@@ -376,12 +386,18 @@ export const claudePluginMcpConstants = Object.freeze({ sdkPackageSpec: SDK_PACK
 
 // Codex keeps the plugin-local MCP runtime in an AGDF-owned data root because it passes no plugin data
 // directory; `codex plugin remove` cannot delete it. `dataRoot` is the launcher data root (--data);
-// uninstall removes it only when it holds nothing but owned runtimes and abandoned stages under mcp/.
+// uninstall removes it only when it holds nothing but owned runtimes and abandoned stages under mcp/
+// and the companion journal (a plain directory holding only its own regular files).
+function ownedCompanionJournal(dataRoot) {
+  const directory = join(dataRoot, COMPANION_JOURNAL.directory), stats = lstatSync(directory);
+  if (!stats.isDirectory() || stats.isSymbolicLink()) return false;
+  return readdirSync(directory).every(name => COMPANION_JOURNAL.files.includes(name) && lstatSync(join(directory, name)).isFile());
+}
 export function inspectPluginMcpDataRoot(dataRoot) {
   if (!existsSync(dataRoot)) return "absent";
   try {
     if (!lstatSync(dataRoot).isDirectory() || lstatSync(dataRoot).isSymbolicLink()) return "foreign";
-    if (readdirSync(dataRoot).some((name) => name !== "mcp")) return "foreign";
+    if (readdirSync(dataRoot).some((name) => name !== "mcp" && !(name === COMPANION_JOURNAL.directory && ownedCompanionJournal(dataRoot)))) return "foreign";
     const mcpDataRoot = join(realpathSync(dataRoot), "mcp");
     if (!existsSync(mcpDataRoot)) return "owned";
     if (!lstatSync(mcpDataRoot).isDirectory() || lstatSync(mcpDataRoot).isSymbolicLink()) return "foreign";
@@ -431,6 +447,12 @@ export function retirePluginMcpDataRoot(dataRoot, revalidate = () => {}) {
     }
     if (existsSync(generations)) rmdirSync(generations);
     if (existsSync(mcp)) rmdirSync(mcp);
+    const journal = join(dataRoot, COMPANION_JOURNAL.directory);
+    if (existsSync(journal)) {
+      revalidate();
+      for (const name of COMPANION_JOURNAL.files) if (existsSync(join(journal, name))) unlinkSync(join(journal, name));
+      rmdirSync(journal);
+    }
     revalidate(); rmdirSync(dataRoot);
     return true;
   } catch (error) {

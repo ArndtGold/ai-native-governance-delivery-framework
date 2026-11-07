@@ -34,6 +34,7 @@ export const commandRegistry = Object.freeze([
   command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
   command("init", { preferred: [" [--operation <original-uuid>]"], scaffold: [""] }),
   command('project-state', { local: [' --dir <absolute-git-root> [--json] [--language <tag>]'] }),
+  command('run-view', { local: [' --dir <absolute-git-root> [--json] [--language <tag>] [--run <run-id>]...'] }),
   command('operation-status', { local: [' --dir <absolute-git-root> --module project.initialize/<original-uuid> [--json] [--language <tag>]'] }),
   command("config", { scaffold: [" --language de"] }),
   command("target-check", { local: [` --json [--language <tag>] [--working-directory <absolute-path>] [--target-source ${TASK_TARGET_SOURCE_GRAMMAR} --primary-target <absolute-path>]`] }),
@@ -72,7 +73,7 @@ export function supportedCommandNames() {
 export function validateCommandOptions(options) {
   if (options.native && (options.target !== 'status' || options.surface !== 'codex' || !options.dirExplicit || !options.dirInputAbsolute))
     throw Error('--native requires status --surface codex --dir <absolute-target>.');
-  if (['project-state', 'operation-status'].includes(options.target)) {
+  if (['project-state', 'operation-status', 'run-view'].includes(options.target)) {
     if (!options.dirExplicit || !options.dirInputAbsolute) throw Error('Project reads require an explicit absolute --dir Git root.');
     if (options.target === 'operation-status' && !/^project\.initialize\/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/u.test(options.contractModule ?? ''))
       throw Error('operation-status requires --module project.initialize/<original-uuid>.');

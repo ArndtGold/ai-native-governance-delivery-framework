@@ -1,6 +1,6 @@
 import { extractField } from '../control-evaluation/verified-change.js';
 import { transitionDecisionForRunState } from '../control-evaluation/gate-policy.js';
-import { runDocumentPath, runEvidencePath, isRunDataPath } from './run-identity.js';
+import { runDocumentPath, runEvidencePath, isRunDataPath, RUN_STEP_SLOTS } from './run-identity.js';
 import { resolutionRecordVersion } from './input-resolution.js';
 import { resolveControlCommandTarget } from './approval-command-contract.js';
 
@@ -132,7 +132,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     stagedSource = resolveMaterial?.(input.sourceBinding);
     const slot = input.step === 'internal' ? input.internalStep : input.step === 'verified_change' ? 'Verified Change'
       : input.step === 'closeout' && stagedSource?.slot === 'Verified Change' ? 'Verified Change'
-      : ({ ur: 'UR', route: 'Brownfield Review', review: 'CR', evidence: 'EVIDENCE', closeout: 'OR' })[input.step];
+      : RUN_STEP_SLOTS[input.step];
     if (!stagedSource || stagedSource.slot !== slot) return rejected(runId, 'material_slot_mismatch');
     const file = slot === 'EVIDENCE' ? `EVIDENCE-${stagedSource.digest.slice(7)}.md`
       : ({ UR: 'UR.md', OR: 'OR.md', 'Verified Change': 'VERIFIED_CHANGE.md', ...INTERNAL_STEP_FILES })[slot];

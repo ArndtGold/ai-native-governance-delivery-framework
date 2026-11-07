@@ -1,0 +1,856 @@
+{
+  "schema_version": "3",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "run-d2818184-27fc-40ae-9195-70d080d3e926",
+  "expected_revision_id": "2a9b36e4-4e3a-4f92-b4bf-f481c8572d4a",
+  "operation_id": "fbfbe051-c9bb-4443-8346-4e15464ca848",
+  "source_gate": "TP",
+  "reason": "The native check T-013 at UAT found that the host refused the companion module (F1, fixed in code after the QA approval), that the companion shows no count for an unsupported legacy store although PRD AC-002 asks for count and reason (F2, a TP gap at T-004/SCN-004), and the owner requested event and notice texts without the run id (F5, implemented after the QA approval). The owner chose on 2026-11-07 a TP source revision so that CD+Tests, the reviews and QA cover the final code.",
+  "intended_change": "TP: T-004 and SCN-004 require the run-folder count for an unsupported layout; new T-014 with SCN-023 (host load regression) and T-015 with SCN-024 (event and notice texts); increment 2 and the sufficiency rule extend to T-015 and SCN-024; known limit for toasts in pop-out windows. UR, PRD and SD stay unchanged. The F1 and F5 code exists; F2 needs a code change after the renewed TP approval.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+      "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude (agent analysis for Arndt Gold)",
+    "earliest_source": "TP",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+        "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+        "rationale": "User intent and scope are unchanged."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+        "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+        "rationale": "AC-002 already asks for count and reason for an unsupported store; P1 notices and the event list are unchanged; the event text wording is not a PRD criterion."
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+        "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+        "rationale": "SDD-003 already carries the store diagnosis with counts; SDD-010 already limits the companion to the run-view process call; no design decision changes."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+        "reason": "Route and depth facts are unaffected by a TP task and scenario change."
+      },
+      {
+        "type": "UX Intent Definition",
+        "disposition": "retain",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+        "reason": "Intent, working modes, visible states and P1 notices are unchanged; only TP tasks and scenarios change."
+      }
+    ],
+    "implementation_evidence": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/evidence/T-013-NATIVE_CHECK-01.md @ sha256:2026fa90ef4f994051a65637528df09cd8deca532231be9a7d16c6406576271a",
+    "unresolved": []
+  },
+  "policy_version": 2,
+  "initiating_phase": "UAT",
+  "changed_statements": [
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "readable runs still listed (SDD-003) | Arndt Gold | T-002 |",
+      "intended_change": "readable runs still listed (SDD-003); for an unsupported layout the store also carries the count of its run folders (`store.run_folders`), so the companion names count and reason instead of \"Keine offenen Runs\" (PRD AC-002, T-013 finding F2) | Arndt Gold | T-002 |",
+      "reason": "Native check T-013 finding F2: PRD AC-002 asks for count and reason also for an unsupported store, but T-004 and SCN-004 asked only for the reason of F09, so the companion showed no count on the archived legacy store."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "F09 yields `control_layout_unsupported`;",
+      "intended_change": "F09 yields `control_layout_unsupported` with the count of its run folders and the companion renders count and reason;",
+      "reason": "Native check T-013 finding F2: PRD AC-002 asks for count and reason also for an unsupported store, but T-004 and SCN-004 asked only for the reason of F09, so the companion showed no count on the archived legacy store."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "| T-013 | Native check in the Claude desktop app on Windows 11 with screenshots and measured refresh time as UAT input: current project, disposable legacy store, live events during a short run | Arndt Gold | T-012 |",
+      "intended_change": "| T-013 | Native check in the Claude desktop app on Windows 11 with screenshots and measured refresh time as UAT input: current project, disposable legacy store, live events during a short run | Arndt Gold | T-012 |\n| T-014 | Host load regression after the T-013 finding F1: the companion uses every `$` noun only at its call site (the run-view reader receives a call-site wrapper of `$.process.run`), the adapter test rejects a `$` noun used as a value, the integrity test names the exact process call sites, and `claude plugin validate` passes on the generated plugin | Arndt Gold | T-013 |\n| T-015 | Event and notice texts after the owner request of 2026-11-06: pane lines and toasts of the shown run name no run, those of another run name its objective or a short id (`events.ofRun`), notice toasts name no run; catalog, companion tests, generated assets and the compatibility record follow | Arndt Gold | T-013 |",
+      "reason": "Native check T-013 findings F1, F2 and F5; owner decision of 2026-11-07 to cover them through a TP source revision."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "increment 2 is T-007 to T-013 (PRD decision P3)",
+      "intended_change": "increment 2 is T-007 to T-015 (PRD decision P3; T-014 and T-015 follow the native check of 2026-11-06)",
+      "reason": "Native check T-013 findings F1, F2 and F5; owner decision of 2026-11-07 to cover them through a TP source revision."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "| AC-005 | SDD-007 | T-010 | SCN-011 | With an injected clock a new journal line for the current root triggers a run-view call and a notice within one 2-second tick; lines of other roots are ignored with win32 separator and case normalization; malformed lines are skipped; without fingerprint change, event or language change no run-view call happens | `claude-companion-adapter-test.js` output with process-call counts |",
+      "intended_change": "| AC-005 | SDD-007 | T-010 | SCN-011 | With an injected clock a new journal line for the current root triggers a run-view call and a notice within one 2-second tick; lines of other roots are ignored with win32 separator and case normalization; malformed lines are skipped; without fingerprint change, event or language change no run-view call happens | `claude-companion-adapter-test.js` output with process-call counts |\n| AC-005 | SDD-007 | T-015 | SCN-024 | An event of the shown run renders without a run name, an event of another run with its objective or, without objective, its short id `run-xxxxxxxx`; notice toasts carry no run id; the de and en catalogs carry `events.ofRun` | `claude-companion-test.js` text cases and `claude-companion-adapter-test.js` toast cases |",
+      "reason": "Owner request of 2026-11-06 during the native check (finding F5): event lines and toasts repeated the full run id the header already shows; the change exists in the code but no TP task or scenario covers it."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "| AC-009 | SDD-010 | T-006 | SCN-016 | The companion imports no Core module; its only process call is the read-only `run-view` command; it writes only `companion-state.json`; its hooks never block or change an MCP call; the digest of `.agdf/control` is unchanged across simulated companion activity and real run-view calls; an injected control write or a second command in a probe module makes the check fail | `claude-companion-integrity-test.js` output |",
+      "intended_change": "| AC-009 | SDD-010 | T-006 | SCN-016 | The companion imports no Core module; its only process call is the read-only `run-view` command; it writes only `companion-state.json`; its hooks never block or change an MCP call; the digest of `.agdf/control` is unchanged across simulated companion activity and real run-view calls; an injected control write or a second command in a probe module makes the check fail | `claude-companion-integrity-test.js` output |\n| AC-009 | SDD-010 | T-014 | SCN-023 | Every companion module uses `$` nouns only at their call site, `register.mjs` holds exactly one `$.process.run(` wrapper and `run-state.mjs` the single `processes.run(` call; the check fails against the code that passed `$.process` as a value; `claude plugin validate` reports no error for the generated plugin | `claude-companion-adapter-test.js` and `claude-companion-integrity-test.js` output, red run against the old code, `claude plugin validate` output |",
+      "reason": "Native check T-013 finding F1 (evidence/T-013-NATIVE_CHECK-01.md): the desktop host refused the whole companion hooks module because register.mjs passed $.process as a value; the fix exists in the code since 2026-11-06 but no TP task or scenario covers it."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "| AC-005 | SCN-011 | `npm --prefix packages/cli run test:claude-companion` | local Windows 11 workstation | fake `$` with injected clock, file access and process | Claude agent, accountable Arndt Gold | adapter assertions and call counts pass | stop, fix, re-run |",
+      "intended_change": "| AC-005 | SCN-011 | `npm --prefix packages/cli run test:claude-companion` | local Windows 11 workstation | fake `$` with injected clock, file access and process | Claude agent, accountable Arndt Gold | adapter assertions and call counts pass | stop, fix, re-run |\n| AC-005 | SCN-024 | `npm --prefix packages/cli run test:claude-companion` | local Windows 11 workstation | fake `$` with an event of the shown run and one of another run | Claude agent, accountable Arndt Gold | text and toast assertions pass in de and en | stop, fix, re-run |",
+      "reason": "Owner request of 2026-11-06 during the native check (finding F5): event lines and toasts repeated the full run id the header already shows; the change exists in the code but no TP task or scenario covers it."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "| AC-009 | SCN-016 | `node packages/cli/scripts/claude-companion-integrity-test.js` | local Windows 11 workstation; PR CI | generated companion rebuilt | Claude agent, accountable Arndt Gold | import, process, write-scope, hook and digest assertions pass, probes detected | block QA; observation-only guarantee is mandatory |",
+      "intended_change": "| AC-009 | SCN-016 | `node packages/cli/scripts/claude-companion-integrity-test.js` | local Windows 11 workstation; PR CI | generated companion rebuilt | Claude agent, accountable Arndt Gold | import, process, write-scope, hook and digest assertions pass, probes detected | block QA; observation-only guarantee is mandatory |\n| AC-009 | SCN-023 | `npm --prefix packages/cli run test:claude-companion` and `claude plugin validate packages/cli/generated/plugins/agdf` | local Windows 11 workstation with the Claude CLI; the static checks also in PR CI | generated companion rebuilt | Claude agent, accountable Arndt Gold | spelling and call-site assertions pass, red against the old code, validation passed | block QA; a module the host refuses never reaches the person |",
+      "reason": "Native check T-013 finding F1 (evidence/T-013-NATIVE_CHECK-01.md): the desktop host refused the whole companion hooks module because register.mjs passed $.process as a value; the fix exists in the code since 2026-11-06 but no TP task or scenario covers it."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "verification is complete when SCN-001 to SCN-022 pass on the final revision",
+      "intended_change": "verification is complete when SCN-001 to SCN-024 pass on the final revision",
+      "reason": "Native check T-013 findings F1, F2 and F5; owner decision of 2026-11-07 to cover them through a TP source revision."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+      "statement": "`$.process` availability is proven in the Claude desktop app only (SD gap).",
+      "intended_change": "`$.process` availability is proven in the Claude desktop app only (SD gap). The desktop app draws plugin toasts only in its main window, never in a pop-out session window (T-013 observation).",
+      "reason": "Native check T-013 findings F1, F2 and F5; owner decision of 2026-11-07 to cover them through a TP source revision."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+        "status": "done"
+      },
+      "record_digest": "sha256:562467e1346bed1b1bb328b8f87957fdc28e1b15ac0cc2e8a77e313e6cff51bb",
+      "operation_id": "b0477632-e592-4c0d-b282-b36a5b71b382",
+      "source_set_digest": "sha256:6372368586fe96969655c9d5997ef3f8fc8750d405b81dc1322af9262113a7f9",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Bound to UR only; the route structured_delivery and its depth facts are unaffected by a TP task and scenario change."
+    },
+    {
+      "record": {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+        "status": "done"
+      },
+      "record_digest": "sha256:6cdeca54fbf69e8c8ee960f9b140ab3efe8f1164fe961c3ba5e538da2e05b41b",
+      "operation_id": "28221120-bdd9-4948-bbb9-3122a617d7e2",
+      "source_set_digest": "sha256:85496dbba68d5705c42012c077782461a6cf96c562b835de1a79ad139fb1a8ab",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Bound to UR and Brownfield Review only; intent, working modes, visible states and P1 notices are unchanged."
+    },
+    {
+      "record": {
+        "type": "QA",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/QA_REPORT.md",
+        "digest": "sha256:c3ca8daa31a42b10e58e408fd35b89eae7482d72f2aec6007f60a0e502aafd34",
+        "status": "revise"
+      },
+      "record_digest": "sha256:fce8eb7687f3ec9d4a6dc3f91193f809c5b950b7bd04f8faa031c2b2badbb2e9",
+      "operation_id": "09150228-3338-4791-ade8-22c9d349f673",
+      "source_set_digest": "sha256:b04794b10060e3e54bb93294f1bac2daf58a13d9e00689d9c213d1a9c24bb2b2",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        },
+        {
+          "digest": "sha256:8a5ec05f2ed4e2db3e11cdf33cdbdb46cee318f22c624963fa53f3d0dd2ba2c5",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP_REVIEW.md",
+          "status": "revise",
+          "type": "TP Review"
+        },
+        {
+          "digest": "sha256:dbec3eade46dbf022eb7c63148cadf2b773104328f88979754980c56dbc0d02e",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CLEAN_IMPLEMENTATION_REVIEW.md",
+          "status": "done",
+          "type": "Clean Implementation Review"
+        },
+        {
+          "digest": "sha256:1bd25698498acdeaf77ba15384110b0664122e50b2670f58cfe7da1cf1f3ce5f",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+          "status": "done",
+          "type": "CR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the QA is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:92df2f2a7487138d3bd0e45576c2257eac71306b660141433b1e625fbf95a206",
+        "status": "done"
+      },
+      "record_digest": "sha256:b13b84dd2c2a7e74712eac049e36feb56bbec1da927d870ea66865a70b5ab7ef",
+      "operation_id": "2f56b0b4-dc98-4fc9-8914-45a30842de89",
+      "source_set_digest": "sha256:c1882a07169ae24b93f85e611dbde2ec9e27a62385443dd6982322c6b4421920",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the Brownfield Analysis is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+        "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+        "status": "done"
+      },
+      "record_digest": "sha256:02f74bc08870c7c4bfe916f6e0b7f7e3a1204ebd602d37f18edffe5e98fea462",
+      "operation_id": "a3a1f8c5-598c-4b99-ab5e-bc0efadf507d",
+      "source_set_digest": "sha256:8effb74c35af8753659123e29c3b1f2e336704510b7abffce42d1adfe6ba0040",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:92df2f2a7487138d3bd0e45576c2257eac71306b660141433b1e625fbf95a206",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the CD+Tests is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "CR",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+        "digest": "sha256:1bd25698498acdeaf77ba15384110b0664122e50b2670f58cfe7da1cf1f3ce5f",
+        "status": "done"
+      },
+      "record_digest": "sha256:6340068bfcc40e18991da0c72d40f34094c2375e8a7d12564055def2fce88534",
+      "operation_id": "74955a9c-9ab8-43f7-90db-b6a060385a27",
+      "source_set_digest": "sha256:b8b8d7b0fcd18da91843d26aef5634547ff4b8c176614ed7a832ed942b9c9a15",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the CR is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "TP Review",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP_REVIEW.md",
+        "digest": "sha256:8a5ec05f2ed4e2db3e11cdf33cdbdb46cee318f22c624963fa53f3d0dd2ba2c5",
+        "status": "revise"
+      },
+      "record_digest": "sha256:550a1540b5017524837614423721b785fc122bf092cdd4c697cb97c0ab08ec4c",
+      "operation_id": "e5092831-5dde-4a3a-82c3-bf8247bb431a",
+      "source_set_digest": "sha256:b8b8d7b0fcd18da91843d26aef5634547ff4b8c176614ed7a832ed942b9c9a15",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the TP Review is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "Clean Implementation Review",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:dbec3eade46dbf022eb7c63148cadf2b773104328f88979754980c56dbc0d02e",
+        "status": "done"
+      },
+      "record_digest": "sha256:5cb1ef5e5e085c5f0f562fa084a3ef3fab53ff1428c64eae5d3819c210cebb6a",
+      "operation_id": "ebf15811-8d1e-4a97-8a67-50e37797ceb9",
+      "source_set_digest": "sha256:b8b8d7b0fcd18da91843d26aef5634547ff4b8c176614ed7a832ed942b9c9a15",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the Clean Implementation Review is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:92df2f2a7487138d3bd0e45576c2257eac71306b660141433b1e625fbf95a206",
+        "status": "documented"
+      },
+      "record_digest": "sha256:768b01144b0fd98f9a195c3eecbad8c9f2b0f638d644e5fa01ffb3604789d20b",
+      "operation_id": "2f56b0b4-dc98-4fc9-8914-45a30842de89",
+      "source_set_digest": "sha256:c1882a07169ae24b93f85e611dbde2ec9e27a62385443dd6982322c6b4421920",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the evidence row is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+        "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+        "status": "documented"
+      },
+      "record_digest": "sha256:747f2fb9328084e36c76d8d38a5c2eb97a959e5920e69c271341fa65dd0372ad",
+      "operation_id": "a3a1f8c5-598c-4b99-ab5e-bc0efadf507d",
+      "source_set_digest": "sha256:8effb74c35af8753659123e29c3b1f2e336704510b7abffce42d1adfe6ba0040",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:92df2f2a7487138d3bd0e45576c2257eac71306b660141433b1e625fbf95a206",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the evidence row is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+        "digest": "sha256:1bd25698498acdeaf77ba15384110b0664122e50b2670f58cfe7da1cf1f3ce5f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:4dce912c7e6dba43afc0210945cdbb23e144dcf70e7956a441c9b2be34837ea4",
+      "operation_id": "74955a9c-9ab8-43f7-90db-b6a060385a27",
+      "source_set_digest": "sha256:b8b8d7b0fcd18da91843d26aef5634547ff4b8c176614ed7a832ed942b9c9a15",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the evidence row is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+        "digest": "sha256:1bd25698498acdeaf77ba15384110b0664122e50b2670f58cfe7da1cf1f3ce5f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:1eddacc183905ef0af938f47f6ed73952157c4ba7ae0bddedc8ebe945d37fcc0",
+      "operation_id": "74955a9c-9ab8-43f7-90db-b6a060385a27",
+      "source_set_digest": "sha256:b8b8d7b0fcd18da91843d26aef5634547ff4b8c176614ed7a832ed942b9c9a15",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the evidence row is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP_REVIEW.md",
+        "digest": "sha256:8a5ec05f2ed4e2db3e11cdf33cdbdb46cee318f22c624963fa53f3d0dd2ba2c5",
+        "status": "documented"
+      },
+      "record_digest": "sha256:14d2594d6c751e01dc399b996c556ab2d53d348dbd6cfbdb3c28d56f1a3219af",
+      "operation_id": "e5092831-5dde-4a3a-82c3-bf8247bb431a",
+      "source_set_digest": "sha256:b8b8d7b0fcd18da91843d26aef5634547ff4b8c176614ed7a832ed942b9c9a15",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the evidence row is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:dbec3eade46dbf022eb7c63148cadf2b773104328f88979754980c56dbc0d02e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:3a1f544027aa5a78a1b8b2bc773b71bfe3cde5e23f076870dbe1aff2f0f160c3",
+      "operation_id": "ebf15811-8d1e-4a97-8a67-50e37797ceb9",
+      "source_set_digest": "sha256:b8b8d7b0fcd18da91843d26aef5634547ff4b8c176614ed7a832ed942b9c9a15",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the evidence row is renewed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/QA_REPORT.md",
+        "digest": "sha256:c3ca8daa31a42b10e58e408fd35b89eae7482d72f2aec6007f60a0e502aafd34",
+        "status": "documented"
+      },
+      "record_digest": "sha256:1b2902fbf96b9f6600fe5c5335419abdfb073631c86c62ba0ce0db13be6704c6",
+      "operation_id": "09150228-3338-4791-ade8-22c9d349f673",
+      "source_set_digest": "sha256:b04794b10060e3e54bb93294f1bac2daf58a13d9e00689d9c213d1a9c24bb2b2",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9b959dc9680207e368d8baf7ffb73e942f2e31f409b6cdf45b71dda51414cf66",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:4477fc25e6168443d09836806447758454dfa5c45242517044e63964990230fa",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:c3821a2e9247a82141accf097456cb75a526fe5b3f217c6a814815932f9e3fbf",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:500fe72b9ca9ea8615dfc475eaece43cdee7d045ba6e750e75f87065c2b60668",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        },
+        {
+          "digest": "sha256:8a5ec05f2ed4e2db3e11cdf33cdbdb46cee318f22c624963fa53f3d0dd2ba2c5",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP_REVIEW.md",
+          "status": "revise",
+          "type": "TP Review"
+        },
+        {
+          "digest": "sha256:dbec3eade46dbf022eb7c63148cadf2b773104328f88979754980c56dbc0d02e",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CLEAN_IMPLEMENTATION_REVIEW.md",
+          "status": "done",
+          "type": "Clean Implementation Review"
+        },
+        {
+          "digest": "sha256:1bd25698498acdeaf77ba15384110b0664122e50b2670f58cfe7da1cf1f3ce5f",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+          "status": "done",
+          "type": "CR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to the TP or work built on it, which this revision supersedes; the evidence row is renewed against the revised TP."
+    }
+  ]
+}

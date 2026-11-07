@@ -8,7 +8,8 @@ import { pathToFileURL } from "node:url";
 import { EventEmitter } from 'node:events';
 import { planGlobalUninstall, applyLifecyclePlan } from '../lib/lifecycle/operations.js';
 import { mcpPackageConstants, acquireMcpExecutableClaim, mcpRuntimeRetirementState } from "../lib/mcp-lifecycle/package.js";
-import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot, launchPluginMcpServer, launcherFailureLine, parseLauncherArguments, supervisePluginMcpFacade } from "../lib/mcp-lifecycle/plugin-runtime.js";
+import { COMPANION_JOURNAL, ensurePluginMcpRuntime, inspectPluginMcpDataRoot, launchPluginMcpServer, launcherFailureLine, parseLauncherArguments, retirePluginMcpDataRoot, supervisePluginMcpFacade } from "../lib/mcp-lifecycle/plugin-runtime.js";
+import { JOURNAL_DIRECTORY, JOURNAL_FILE, JOURNAL_LIMIT_BYTES, JOURNAL_ROTATED_FILE, appendJournalEvent } from "../../core/lib/companion/journal.js";
 import { npmCalls, offlineNpm, pluginRoot, version } from "../../../scripts/support/plugin-mcp-fixture.js";
 
 // Bootstrap needs generic file ownership, not Run semantics. Reject a future
@@ -179,6 +180,21 @@ try {
   writeFileSync(join(ownedData, "user-notes.txt"), "keep\n");
   assert.equal(inspectPluginMcpDataRoot(ownedData), "foreign");
   assert.equal(inspectPluginMcpDataRoot(dataRoot), "foreign", "an unowned sibling under mcp/ blocks removal");
+
+  // The companion journal the MCP server writes below a Codex data root belongs to the owned root and
+  // is removed with it (SD SDD-006, CR finding A1); anything else in its directory stays foreign.
+  assert.deepEqual(COMPANION_JOURNAL, { directory: JOURNAL_DIRECTORY, files: [JOURNAL_FILE, JOURNAL_ROTATED_FILE] });
+  const journalData = join(root, "journal");
+  ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot: journalData, exec: offlineNpm });
+  const event = { schema_version: "companion-event/1", id: "e", kind: "approval_requested", text: "x".repeat(200) };
+  for (let index = 0; index < 3; index += 1) assert.equal(appendJournalEvent(journalData, { ...event, id: `e${index}` }, { limit: 512 }), true);
+  assert.deepEqual(readdirSync(join(journalData, JOURNAL_DIRECTORY)).sort(), [JOURNAL_ROTATED_FILE, JOURNAL_FILE].sort(), "both journal files exist");
+  assert.equal(inspectPluginMcpDataRoot(journalData), "owned", "the journal keeps the data root owned");
+  writeFileSync(join(journalData, JOURNAL_DIRECTORY, "notes.txt"), "keep\n");
+  assert.equal(inspectPluginMcpDataRoot(journalData), "foreign", "a foreign file in the journal directory blocks removal");
+  rmSync(join(journalData, JOURNAL_DIRECTORY, "notes.txt"));
+  assert.equal(retirePluginMcpDataRoot(journalData), true);
+  assert.equal(existsSync(journalData), false, "retirement removes the journal with the runtime");
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

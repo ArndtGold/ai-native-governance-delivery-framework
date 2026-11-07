@@ -1,0 +1,35 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Companion core in Core: host-neutral run view, MCP events and figure states
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Die Konzepte des Begleiters stecken nur im Claude-Mod. Er rechnet anders als die MCP-Statuskarte, verschweigt unlesbare Runs und sieht nicht, was der Agent über MCP tut.
+- Ziel: Der Begleiter zeigt auf einen Blick und wahrheitsgetreu, wo jeder Run steht und was der Agent über AGDF getan hat. Er meldet sofort, wenn du gebraucht wirst oder etwas schiefging.
+- Umfang: Schritt 1 bringt eine gemeinsame Run-Ansicht in Core mit Diagnose unlesbarer Runs sowie Figurzustände und Texte im zentralen Katalog; Statuskarte und Claude-Begleiter nutzen sie. Schritt 2 bringt Ereignisse, die der AGDF-MCP-Server aus seinen eigenen Ergebnissen ableitet, mit Review-Fakten zum erfassten Material.
+- Entscheidungen: P1 Toasts für Freigabe angefragt, Wirkung unbekannt, Wiederherstellung nötig, Run abgeschlossen und Digest-Abweichung, der Rest nur im Bereich. P2 Vorschau höchstens 40 Zeilen oder 4 KiB, keine Schwärzung. P3 zwei Schritte im selben Run. P4 keine Schemaänderung: automatischer Abgleich nur bei angegebener Quelldatei, sonst prüfst du die Vorschau. Ereigniskanal, MCP-Schnittstelle und Aufteilung des Gate-Check-Bewerters entscheidet das SD.
+- AC-001: Begleiter und Statuskarte zeigen für denselben Run denselben Zustand, Pfad, dieselbe fehlende Freigabe und denselben nächsten Schritt.
+- AC-002: Bei nur unlesbaren Runs oder nicht unterstütztem Bestand nennt der Begleiter Anzahl und Grund statt „Keine offenen Runs“.
+- AC-003: Im gemischten Projekt werden lesbare Runs gelistet und der Hinweis auf unlesbare Runs bleibt sichtbar.
+- AC-004: Ein hostneutraler Verbraucher ohne Claude-Mod stellt Run-Ansicht, Ereignisse und Figurzustand allein aus Core-Ausgaben dar.
+- AC-005: Ein Ereignis erreicht den Begleiter vor seiner nächsten 30-Sekunden-Abfrage.
+- AC-006: Es gibt Ereignisse für Freigabe angefragt, Freigabe erfasst, Aufruf abgelehnt, Wirkung unbekannt, Wiederherstellung nötig und Run abgeschlossen, jeweils aus echten MCP-Ergebnissen.
+- AC-007: Zum erfassten Material siehst du eine begrenzte Vorschau, Größe und den erfassten Digest, bei angegebener Quelldatei auch, ob er zu ihr passt.
+- AC-008: Passt eine Erfassung nicht mehr zu ihrer angegebenen Quelldatei, erscheint eine Warnung; Material ohne Quelldatei prüfst du über die Vorschau, ein automatischer Vergleich wird nicht behauptet.
+- AC-009: Der Begleiter schreibt nie unter .agdf/control, hält keinen MCP-Aufruf an und erfasst keine Freigabe.
+- AC-010: Figurzustände und alle Begleitertexte kommen aus dem zentralen Katalog, auf Deutsch und Englisch.
+- AC-011: Bestehendes Verhalten, Tests und MCP-Ergebnisse bleiben unverändert, abgesehen vom korrigierten nächsten Schritt und den neuen Hinweisen und Ereignissen.
+- Nicht im Umfang: keine Codex-Oberfläche, keine Freigabe über den Begleiter, kein Anhalten von Aufrufen, keine Schreibzugriffe des Begleiters, keine Migration alter Bestände.
+- Risiken: Die Aufteilung des zentralen Gate-Check-Bewerters ist ein größerer Umbau. Die Zustellung der Ereignisse hängt davon ab, was der Mod lesen darf. Die Copilot-Nutzlast kann knapp werden.
+- Nächster Schritt: PRD prüfen und nur mit `Approval: PRD` freigeben; danach folgt das Lösungsdesign (SD).
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Produktanforderungen · Revision: `8f8a458a-9431-4799-948e-bf3f11a15851`
+
+SHA-256: `sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642`

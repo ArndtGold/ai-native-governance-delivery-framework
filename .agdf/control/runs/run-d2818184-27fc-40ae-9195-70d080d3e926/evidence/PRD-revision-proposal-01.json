@@ -1,0 +1,796 @@
+{
+  "schema_version": "3",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "run-d2818184-27fc-40ae-9195-70d080d3e926",
+  "expected_revision_id": "0d9515a3-c8ea-4205-ab1e-1496a1deb4f2",
+  "operation_id": "f40ed3bf-c27a-410c-83e7-5f13fee67e7e",
+  "source_gate": "PRD",
+  "reason": "TP Review (revision 35) recorded the owner-accepted deviations C1 and C5 as open design gaps TPR-02 and TPR-03, because an acceptance does not resolve a gap against approved sources. This revision writes the owner decisions of 2026-11-06 into the approved sources so the delivered behavior matches them.",
+  "intended_change": "PRD AC-008 and its evidence requirement: drift covers the run documents the run state binds plus the record-time source match of a path recording; a declared input file changed after recording is not compared. SD SDD-003/SDD-008 and TP T-004, T-009, SCN-004, SCN-014: too_large is reserved with count 0, drift compares bound documents. No code change follows from the revision; the delivered implementation already behaves this way.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+      "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude (agent analysis for Arndt Gold)",
+    "earliest_source": "PRD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+        "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+        "rationale": "User intent and scope are unchanged: the owner still sees what was recorded and whether it changed; only the precision of AC-008 changes."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+        "reason": "Route and depth facts are unaffected by the reason vocabulary and the drift scope."
+      },
+      {
+        "type": "UX Intent Definition",
+        "disposition": "retain",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+        "reason": "Primary intent, working modes, visible state types and P1 notices are unchanged; AC-008 is narrowed in the PRD only."
+      }
+    ],
+    "implementation_evidence": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/evidence/CD-contradictions.md @ sha256:9f410b41c438e91825112913bde30f5db03c7483f75ba68c61edeee2d9456014",
+    "unresolved": []
+  },
+  "policy_version": 2,
+  "initiating_phase": "QA",
+  "changed_statements": [
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+      "statement": "source_state: a recording that names a run-local source file whose current digest differs from the recorded digest, or staged material without a declared source",
+      "intended_change": "source_state: a run document the run state binds with a recorded digest (the recorded artefact or evidence report) whose current canonical digest differs from that digest, or staged material without a declared source; a path recording reports at record time whether its named run-local source file matches",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+      "statement": "expected_effective_state: digest-mismatch warning for a declared source file; for staged material the source match is \"not determinable\" and no mismatch is claimed",
+      "intended_change": "expected_effective_state: drift warning for a changed bound run document and the record-time source match of a path recording in its event; for staged material the source match is \"not determinable\" and no mismatch is claimed",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+      "statement": "observable_success: A recording that no longer matches its declared source file is shown as a warning, and staged material is shown with its preview and the note that no automatic comparison is possible",
+      "intended_change": "observable_success: A recorded run document that no longer matches its recorded digest is shown as a warning, a path recording shows whether its source file matched when it was recorded, and staged material is shown with its preview and the note that no automatic comparison is possible; a source file changed only after recording is not compared (follow-up decision)",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+      "statement": "evidence: test with a source file changed after recording (warning) and a reproduced 2026-11-05 base64 corruption pattern (preview shown, no mismatch claimed)",
+      "intended_change": "evidence: test with a bound run document changed after recording (warning), the record-time source match of a path recording, and a reproduced 2026-11-05 base64 corruption pattern (preview shown, no mismatch claimed)",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+      "statement": "Review-fact tests including truncation, a source file changed after recording, and a reproduced staged corruption shown through the preview without a mismatch claim (AC-007, AC-008).",
+      "intended_change": "Review-fact tests including truncation, a bound run document changed after recording, the record-time source match, and a reproduced staged corruption shown through the preview without a mismatch claim (AC-007, AC-008).",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+      "statement": "Drift of declared sources is part of the run view.",
+      "intended_change": "Drift of the run documents the run state binds is part of the run view.",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+      "statement": "a per-run reason (`run_version_unsupported`, `run_state_invalid`, `too_large`, `missing`) with counts",
+      "intended_change": "a per-run reason (`run_version_unsupported`, `run_state_invalid`, `missing`, derived from the reader findings) with counts; `too_large` stays in the reason vocabulary with count 0 until Core defines a per-run size rule, and an oversized run state is reported as `run_state_invalid`",
+      "reason": "Contradiction C1 (evidence/CD-contradictions.md, TP Review TPR-02): Core has no per-run size rule in the read path, so no reader produces too_large; an oversized RUN_STATE is reported as run_state_invalid; the owner decided on 2026-11-06 to keep the reason with count 0 and never invent it."
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+      "statement": "and the run view compares declared sources from Run Operations with their current canonical digest through the existing node digest owner to raise a drift warning (AC-008); rationale: decision P4 forbids an MCP schema change, so only declared sources are compared",
+      "intended_change": "and the run view compares the documents the run state binds with a recorded digest (effective artefact binding destination, latest evidence report per path) with their current canonical digest through the existing node digest owner to raise a drift warning (AC-008); rationale: decision P4 forbids an MCP schema change and Run Operations keep no declared input path, so a recording's input file is compared only at record time",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+      "statement": "a source file changed after recording (drift warning)",
+      "intended_change": "a bound run document changed after recording (drift warning) and the record-time source match",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+      "statement": "Drift warning for declared run-local sources via run-view digest comparison with the node digest owner; staged material shows \"not_determinable\" | Run Operations receipts plus `artefactFileDigest`",
+      "intended_change": "Drift warning for bound run documents via run-view digest comparison with the node digest owner, record-time source match for path recordings; staged material shows \"not_determinable\" | Artefact and Evidence Bindings plus `artefactFileDigest`",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+      "statement": "`control_layout_unsupported`, `run_version_unsupported`, `run_state_invalid`, `too_large`, `missing` with counts",
+      "intended_change": "`control_layout_unsupported`, `run_version_unsupported`, `run_state_invalid`, `missing` with counts (`too_large` reserved with count 0, SDD-003)",
+      "reason": "Contradiction C1 (evidence/CD-contradictions.md, TP Review TPR-02): Core has no per-run size rule in the read path, so no reader produces too_large; an oversized RUN_STATE is reported as run_state_invalid; the owner decided on 2026-11-06 to keep the reason with count 0 and never invent it."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+      "statement": "F11 and F12 yield their per-run reasons",
+      "intended_change": "F11 and F12 (oversized RUN_STATE) yield `run_state_invalid`",
+      "reason": "Contradiction C1 (evidence/CD-contradictions.md, TP Review TPR-02): Core has no per-run size rule in the read path, so no reader produces too_large; an oversized RUN_STATE is reported as run_state_invalid; the owner decided on 2026-11-06 to keep the reason with count 0 and never invent it."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+      "statement": "drift warning in the run view for declared run-local sources with the existing node digest owner (SDD-008)",
+      "intended_change": "drift warning in the run view for bound run documents with the existing node digest owner (SDD-008)",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+      "statement": "After the declared source file of a recording is changed, the run view raises a drift warning naming the document, the recorded and the current digest",
+      "intended_change": "After a bound run document (recorded artefact or evidence report) is changed, the run view raises a drift warning naming the document, the recorded and the current digest",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+      "statement": "recorded fixture with declared source",
+      "intended_change": "recorded fixture with a bound document",
+      "reason": "Contradiction C5 (evidence/CD-contradictions.md, TP Review TPR-03): Run Operations keep no declared input path of a recording (0 of 38 receipts on this run), so a declared input file changed after recording cannot be compared at a later read; the owner accepted on 2026-11-06 the drift check of bound run documents plus the record-time source match, and persisting the input path would change the recording write path, which this PRD excludes."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+        "status": "done"
+      },
+      "record_digest": "sha256:562467e1346bed1b1bb328b8f87957fdc28e1b15ac0cc2e8a77e313e6cff51bb",
+      "operation_id": "b0477632-e592-4c0d-b282-b36a5b71b382",
+      "source_set_digest": "sha256:6372368586fe96969655c9d5997ef3f8fc8750d405b81dc1322af9262113a7f9",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Bound only to UR; the route structured_delivery and its depth facts are unaffected by the reason vocabulary and the drift scope."
+    },
+    {
+      "record": {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+        "status": "done"
+      },
+      "record_digest": "sha256:6cdeca54fbf69e8c8ee960f9b140ab3efe8f1164fe961c3ba5e538da2e05b41b",
+      "operation_id": "28221120-bdd9-4948-bbb9-3122a617d7e2",
+      "source_set_digest": "sha256:85496dbba68d5705c42012c077782461a6cf96c562b835de1a79ad139fb1a8ab",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Bound to UR and Brownfield Review only; primary intent, working modes, visible state types and P1 notices are unchanged; only the PRD wording of AC-008 is narrowed."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:f41c5a64f5a4c9216e85b537180598951b96966e724dc84d5be6613911692ee7",
+        "status": "done"
+      },
+      "record_digest": "sha256:b13b84dd2c2a7e74712eac049e36feb56bbec1da927d870ea66865a70b5ab7ef",
+      "operation_id": "6a7bb7e2-6fd7-4102-a7ed-a98baf77d76a",
+      "source_set_digest": "sha256:dc842b3df154d2409553b662e6b12d9717b8b9150aca313486dff65749d33e36",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the Brownfield Analysis is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+        "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+        "status": "done"
+      },
+      "record_digest": "sha256:02f74bc08870c7c4bfe916f6e0b7f7e3a1204ebd602d37f18edffe5e98fea462",
+      "operation_id": "eced13ca-9749-4a51-966e-cac7eded4b94",
+      "source_set_digest": "sha256:efc1e762b57086eb7f628c811110c65868fd6711c2f44395041589246d5cfa62",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:f41c5a64f5a4c9216e85b537180598951b96966e724dc84d5be6613911692ee7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the CD+Tests is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "CR",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+        "digest": "sha256:d83c58985d9b87ce86c015e60c115a18d82b6d5741645f7cf970113941d8c345",
+        "status": "done"
+      },
+      "record_digest": "sha256:6340068bfcc40e18991da0c72d40f34094c2375e8a7d12564055def2fce88534",
+      "operation_id": "b12da80f-f812-4809-9360-47ae9607b791",
+      "source_set_digest": "sha256:cb3b321916db2c48284975dababb4c45bc1d0869567d21b3746fe8a428a9334f",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the CR is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "TP Review",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP_REVIEW.md",
+        "digest": "sha256:1ee0a978a14fb07724b52f05d4d1a83a5b45792254bbbb8743c4f979953f39ef",
+        "status": "revise"
+      },
+      "record_digest": "sha256:550a1540b5017524837614423721b785fc122bf092cdd4c697cb97c0ab08ec4c",
+      "operation_id": "b5661258-68b9-47e6-a95e-b9dac4900796",
+      "source_set_digest": "sha256:cb3b321916db2c48284975dababb4c45bc1d0869567d21b3746fe8a428a9334f",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the TP Review is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "Clean Implementation Review",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:04cec9f0895c3d215b5e5bb7276ced43e9c3e9246952930ec4591730faeddc60",
+        "status": "done"
+      },
+      "record_digest": "sha256:5cb1ef5e5e085c5f0f562fa084a3ef3fab53ff1428c64eae5d3819c210cebb6a",
+      "operation_id": "7d83fcf6-180a-4f6b-8fea-e3a2e67eb980",
+      "source_set_digest": "sha256:cb3b321916db2c48284975dababb4c45bc1d0869567d21b3746fe8a428a9334f",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the Clean Implementation Review is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:f41c5a64f5a4c9216e85b537180598951b96966e724dc84d5be6613911692ee7",
+        "status": "documented"
+      },
+      "record_digest": "sha256:1fb03db7f895e8203e5c0f29d6b6e73fc241102fb5743d03f6f8a228291821c0",
+      "operation_id": "6a7bb7e2-6fd7-4102-a7ed-a98baf77d76a",
+      "source_set_digest": "sha256:dc842b3df154d2409553b662e6b12d9717b8b9150aca313486dff65749d33e36",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the evidence row is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+        "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+        "status": "documented"
+      },
+      "record_digest": "sha256:9605aec146a838b538ba9fe4e863b39460d84accd32685d20cd8b91a0499e5be",
+      "operation_id": "eced13ca-9749-4a51-966e-cac7eded4b94",
+      "source_set_digest": "sha256:efc1e762b57086eb7f628c811110c65868fd6711c2f44395041589246d5cfa62",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:f41c5a64f5a4c9216e85b537180598951b96966e724dc84d5be6613911692ee7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the evidence row is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+        "digest": "sha256:d83c58985d9b87ce86c015e60c115a18d82b6d5741645f7cf970113941d8c345",
+        "status": "documented"
+      },
+      "record_digest": "sha256:8e13d9ce7c2e38fc8ba3a929c0899de4f7a739e44101d64e6b34501dae205034",
+      "operation_id": "b12da80f-f812-4809-9360-47ae9607b791",
+      "source_set_digest": "sha256:cb3b321916db2c48284975dababb4c45bc1d0869567d21b3746fe8a428a9334f",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the evidence row is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP_REVIEW.md",
+        "digest": "sha256:1ee0a978a14fb07724b52f05d4d1a83a5b45792254bbbb8743c4f979953f39ef",
+        "status": "documented"
+      },
+      "record_digest": "sha256:b9e725e5bf5489c862a89f367d0e85df3ce0fb06092ea623aaa6595402021deb",
+      "operation_id": "b5661258-68b9-47e6-a95e-b9dac4900796",
+      "source_set_digest": "sha256:cb3b321916db2c48284975dababb4c45bc1d0869567d21b3746fe8a428a9334f",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the evidence row is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:04cec9f0895c3d215b5e5bb7276ced43e9c3e9246952930ec4591730faeddc60",
+        "status": "documented"
+      },
+      "record_digest": "sha256:48f3f68d3dab3fe47297b37738bb2aaeac61a4971c7a7240903449463157e582",
+      "operation_id": "7d83fcf6-180a-4f6b-8fea-e3a2e67eb980",
+      "source_set_digest": "sha256:cb3b321916db2c48284975dababb4c45bc1d0869567d21b3746fe8a428a9334f",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the evidence row is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/evidence/CD_TESTS-probe-rv1-01.md",
+        "digest": "sha256:14109d1529e5fdd47ff56fb9d189e8c4e60a1114d97f9dc20c21543fe6398d03",
+        "status": "documented"
+      },
+      "record_digest": "sha256:555747b773deb5de04edd11179576b7cdfc7d633d3e086b46a97a22055eb1144",
+      "operation_id": "eb75e5a7-c726-40f8-a4fb-d20791146ec4",
+      "source_set_digest": "sha256:2f44d31001f3dcd8511260aa23f61ab9b9b10cf82af55c85e6aaf7c4ae1bde64",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the evidence row is renewed against the revised sources."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md",
+        "digest": "sha256:d83c58985d9b87ce86c015e60c115a18d82b6d5741645f7cf970113941d8c345",
+        "status": "documented"
+      },
+      "record_digest": "sha256:41e1abf6bfacb1389620eb0c594b3ffc1eff672d75fd48ddc8ef115b8dd82a07",
+      "operation_id": "b12da80f-f812-4809-9360-47ae9607b791",
+      "source_set_digest": "sha256:cb3b321916db2c48284975dababb4c45bc1d0869567d21b3746fe8a428a9334f",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:3a45e45d8a4353aee5e2d1bd74739d4e6d39dfcfce6432326b66d3588dc639b9",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:52a4785df9aeebc5970a8334819775525bb270677963df0655695eb483423330",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:b716e33232929fe222736569fcc3904d2040990f659f8adb844fba257b849f94",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to PRD, SD or TP, which this revision supersedes; the evidence row is renewed against the revised sources."
+    }
+  ]
+}

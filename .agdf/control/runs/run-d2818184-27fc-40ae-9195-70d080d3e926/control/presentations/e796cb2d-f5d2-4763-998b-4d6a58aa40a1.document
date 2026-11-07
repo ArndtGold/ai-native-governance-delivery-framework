@@ -1,0 +1,40 @@
+## Nutzerabnahme prüfen und entscheiden
+
+Begleiter-Kern in Core: Ansichtsmodell, MCP-Ereignisse und Figurzustände hostneutral
+
+- Ziel: Die hostneutralen Konzepte des Begleiters liegen in Core: eine Run-Ansicht, ein Ereignismodell aus den AGDF-MCP-Operationen sowie Figurzustände mit Texten. Claude-Begleiter und MCP-Statuskarte nutzen sie, eine Codex-Oberfläche kann später ohne eigene Logik darauf aufbauen.
+- Geliefertes Ergebnis: T-001 bis T-015 sind umgesetzt und belegt, die technische QA-Bewertung ist pass; Code Review, Clean Review und TP Review bestanden, kein Befund offen.
+- Technische QA: pass
+- Nachweisgrenzen: Die volle MCP-Server-Suite und Linux/macOS laufen erst in der PR-CI; nativ geprüft ist nur die Claude-Desktop-App unter Windows 11.
+- Risiken und offene Punkte: Eine Aktualisierung kostet 1,2 bis 2,8 Sekunden; Toasts erscheinen nur im Hauptfenster; die Formulierungspunkte F4 folgen in einem eigenen Auftrag.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- ur ·  (exact cooperative association)
+- route · UR (exact cooperative association)
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- evidence · UR, PRD, SD, TP (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 20
+
+- QA: .agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/QA_REPORT.md · sha256:cbb8bbc375b856ecbc7572a9168b39b12d09c270a5fa41afaca7e76b1bbe3f02
+- Review: .agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP_REVIEW.md · sha256:162baa1646e814ba46f0a3cef567832afa75d33d6aadc5fdc33424750860254d
+- Review: .agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:59c40fea419742a85c74ce8ff12448325937a7c8fe3f61c271efaf6cfc020b83
+- Review: .agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/CODE_REVIEW.md · sha256:ed082ab185b303a6ddabcd6b35e43b5faaadce5b862a817ce6f579f57ecf1eb9
+- UR: .agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md · sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95
+
+Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UAT.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Nutzerabnahme · Revision: `6c027fc2-c795-414c-94b2-45f18058cda0`
+
+SHA-256: `sha256:f68e8cd609f3545dfdb008e62827aea5b12b813d2d5196f37ba45f38468cee14`

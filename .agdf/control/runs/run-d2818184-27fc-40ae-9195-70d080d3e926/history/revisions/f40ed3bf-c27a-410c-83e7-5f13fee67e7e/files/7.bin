@@ -1,0 +1,26 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Companion core in Core: host-neutral run view, MCP events and figure states
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Die zentralen Konzepte des Begleiters stecken nur im Claude-Mod: wie ein Run dargestellt wird, welche Momente gemeldet werden und welche Figurzustände es gibt. Codex kann sie nicht nutzen. Der Begleiter rechnet den Run-Zustand anders aus als die MCP-Statuskarte, daher unterschiedliche „nächste Schritte“ und verschwiegene Alt-Runs. Auf die MCP-Aufrufe des Agenten reagiert er nicht, deshalb blieb etwa ein verfälschter UR am 05.11. unbemerkt.
+- Ziel: Die hostneutralen Konzepte des Begleiters liegen in Core: eine Run-Ansicht, ein Ereignismodell aus den AGDF-MCP-Operationen sowie Figurzustände mit Texten. Claude-Begleiter und MCP-Statuskarte nutzen sie, eine Codex-Oberfläche kann später ohne eigene Logik darauf aufbauen.
+- Betroffene: Projektverantwortliche, die Runs über den Begleiter verfolgen; Agenten und Hosts, die den Status über MCP lesen; Pfleger der Host-Adapter.
+- Umfang: gemeinsame Run-Ansicht in Core, inklusive Diagnose unlesbarer oder nicht unterstützter Runs. Ereignismodell, das der AGDF-MCP-Server selbst beobachtet: Freigabe angefragt bzw. erfasst, abgelehnt, Wirkung unbekannt, Wiederherstellung nötig, Run abgeschlossen. Review-Fakten zu erfasstem Material: Vorschau, Größe, Digest, Abgleich mit der Quelle. Figurzustände und Texte im zentralen Sprachkatalog. Der Claude-Begleiter wird auf diesen Kern umgestellt.
+- Nicht im Umfang: keine Codex-Oberfläche (eigener Run nach einer Prüfung auf macOS), keine Freigabe über den Begleiter, kein Anhalten von MCP-Aufrufen, kein Schreiben durch den Begleiter, keine Änderung an MCP-Schreibsemantik, Gates oder Fehlercodes, keine Migration alter Bestände.
+- Abnahme: Begleiter und Statuskarte zeigen für denselben Run dasselbe. Alt- und unlesbare Runs werden mit Anzahl und Grund genannt. Ein hostneutraler Verbraucher kann alles allein aus Core-Ausgaben darstellen. Ereignisse kommen ohne Warten auf die Dateiabfrage aus echten MCP-Ergebnissen. Ein verfälschter UR wird über Vorschau und Digest sichtbar. Das übrige Verhalten und die Tests bleiben unverändert.
+- Quellen: Begleiter-Module unter `plugins/agdf/host-templates/claude/companion/`, Core-Projektion und Gate-Regeln, Statuskarte in `control-inspect`, MCP-Server und Fehlerprojektion, Sprachkatalog `agdf-interaction-locales.json`, Codex-Oberflächen in `packages/control-ui/src/mcp/`.
+- Risiken: Zustellung und Lebensdauer der Ereignisse ohne zweite Wahrheitsquelle (Entscheidung im SD). Datenschutz und Größe der Materialvorschau. Codex-Fähigkeiten sind hier nicht nativ geprüft. Folgekette über Nutzlast und Kompatibilitätsnachweis. Die strukturierte Tiefe entscheidet die Brownfield Review.
+- Nächster Schritt: UR prüfen und nur mit `Approval: UR` freigeben. Danach folgen Brownfield Review und Routing vor dem PRD.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-d2818184-27fc-40ae-9195-70d080d3e926` · Nutzeranforderungen · Revision: `8977fe6d-017a-4e7e-816c-9920326b382f`
+
+SHA-256: `sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95`

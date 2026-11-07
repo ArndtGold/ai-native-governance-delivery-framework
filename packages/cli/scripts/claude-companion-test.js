@@ -1,198 +1,119 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { fixture } from "../../core/test/control-cockpit-fixtures.js";
-import { readRunState } from "../../core/lib/control-evaluation/run-state.js";
-import { LIFECYCLES as CORE_LIFECYCLES } from "../../core/lib/control-state/run-state-parser.js";
-import { replaceFirstScalar } from "../../core/lib/control-state/run-state-edits.js";
-import { createRun } from "../../core/lib/control-state/run-state-repository.js";
-import { evaluateGateCheck } from "../../core/lib/control-evaluation/gate-check.js";
-import { transitionDecisionForRunState } from "../../core/lib/control-evaluation/gate-policy.js";
-import { modeSliceDecision } from "../../core/lib/control-evaluation/run-state-policy.js";
-import { isDecisionContentPlaceholder } from "../../core/lib/control-evaluation/decision-content-readiness.js";
-import { parseRunState as parseCoreRunState } from "../../core/lib/control-state/run-state-parser.js";
-import { sealRunState } from "../../core/lib/control-state/run-seal.js";
-import { isOperationalValueRenderable } from "../../core/lib/interaction-presentation.js";
-import { resolveConfiguredChatLanguage } from "../../core/lib/resources/context.js";
+import { deriveFigureState } from "../../core/lib/companion/figure-state.js";
 import { claudePluginDataRoot } from "../lib/mcp-lifecycle/plugin-runtime.js";
+import { resolveConfiguredChatLanguage } from "../../core/lib/resources/context.js";
 
-// The Claude companion's logic and host adapter (T-006): parity with the canonical writers and the
-// core reader, state rules, assignment, localization, gate bar, figure, terminal text, persistence
-// and the adapter against a fake host. The companion source is host-independent ES modules.
+// The Claude companion's logic (companion core T-006, SD SDD-010): the run view reader and its
+// process boundary, the turn overlay, assignment, localization from the central catalog, gate bar,
+// views, figure, notices, status line, persistence and chat-run navigation. Run semantics come from
+// the Core run view; its entries here carry the Core-derived figure, as the run-view command emits.
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const companionDir = join(repoRoot, "plugins", "agdf", "host-templates", "claude", "companion");
 const companion = name => import(pathToFileURL(join(companionDir, name)).href);
-const { BUILD_GATES, LIFECYCLES, MAX_RUN_STATE_BYTES, isPlaceholderText, parseRunState, readSnapshot, settleSnapshot } = await companion("run-state.mjs");
-const { parseRunState: parseGeneratedRunState } = await import(pathToFileURL(join(repoRoot, 'packages/cli/generated/plugins/agdf/companion/run-state.mjs')).href);
-const { displayState, runState } = await companion("state.mjs");
+const { BUILD_GATES, READ_FAILURE_REASONS, RUN_VIEW_TIMEOUT_MS, companionRun, isStructured, readSnapshot, runViewArgv, settleSnapshot, snapshotFromRunView } = await companion("run-state.mjs");
+const { displayState, runState, MOODS } = await companion("state.mjs");
 const { assignRun, namedRun, openRuns, stepSelection } = await companion("assignment.mjs");
-const { chatLocale, label, localizeNextStep, settingLocale } = await companion("localization.mjs");
+const { chatLocale, companionLabels, label, settingLocale } = await companion("localization.mjs");
 const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
 const { ACCESSORY_BOUNDS, ACCESSORY_REGION, BRICKS, BRICK_SIZE, FIGURE_BOX, FIGURE_TEXT, HAMMER, figureSvg } = await companion("figure.mjs");
 const { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } = await companion("notice.mjs");
 const { buildPanelView, terminalText } = await companion("view.mjs");
 const { STATE_FILE, parseCompanionState, pluginDataDir, serializeCompanionState } = await companion("persistence.mjs");
 const registry = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
-const labels = JSON.parse(readFileSync(join(companionDir, "locales.json"), "utf8"));
+const labels = companionLabels(registry);
 
-const nodeFs = {
-  exists: async path => existsSync(path),
-  list: async path => readdirSync(path).map(name => ({ name, kind: lstatSync(join(path, name)).isDirectory() ? "dir" : "file", isLink: lstatSync(join(path, name)).isSymbolicLink() })),
-  read: async path => readFileSync(path, "utf8"),
-};
-const runFile = (root, id) => join(root, ".agdf", "control", "runs", id, "RUN_STATE.md");
-const parsed = (root, id) => parseRunState(id, readFileSync(runFile(root, id), "utf8"));
-function setScalar(root, id, key, value) {
-  writeFileSync(runFile(root, id), sealRunState(root, replaceFirstScalar(readFileSync(runFile(root, id), "utf8"), key, value)));
-}
-const run = (overrides = {}) => ({ id: "r", lifecycle: "active", gate: "SD", decision: "in_progress", route: "structured_delivery", updatedAt: "2026-10-26T08:00:00.000Z",
-  missing: "No approval is pending.", next: "Draft the UR.", approved: ["UR", "PRD"], objective: "Show the run state.", ...overrides });
-function treeDigest(root) {
-  const hash = createHash("sha256");
-  const walk = path => { for (const name of readdirSync(path).sort()) {
-    const file = join(path, name);
-    if (lstatSync(file).isDirectory()) walk(file); else hash.update(relative(root, file)).update(readFileSync(file));
-  } };
-  walk(join(root, ".agdf", "control"));
-  return hash.digest("hex");
-}
+// A run-view entry as the command emits it, and the companion's run of it with the Core figure.
+const PATH = ["UR", "PRD", "SD", "TP", "QA", "UAT", "OR"];
+const path = (current, { done = PATH.indexOf(current) } = {}) => PATH.map((gate, at) => ({ gate, status: at < done ? "fulfilled" : gate === current ? "current" : "open" }));
+const entry = (overrides = {}) => ({ run_id: "r", title: "Show the run state.", lifecycle: "active", valid: true, evaluated: true, status: "open",
+  current_gate: "SD", mode: "structured_delivery", last_activity: "2026-10-26T08:00:00.000Z", missing_approval: "none", blocking_reason: "none",
+  blocking_text: "keine", next_step: "Draft the SD.", next_step_text: "Das SD entwerfen.", user_action_required: "no", path: path("SD"), ...overrides });
+const run = (overrides = {}) => { const value = entry(overrides); return companionRun({ ...value, figure: deriveFigureState(value) }); };
+const structured = (gate, overrides = {}) => run({ current_gate: gate, path: path("QA", { done: 4 }).map(row => row.gate === "QA" ? { ...row, status: "open" } : row), ...overrides });
+const snapshot = (runs, extra = {}) => ({ status: "ok", runs, unreadable: [], readAt: Date.parse("2026-10-26T08:10:00Z"), ...extra });
+const view = (input, locale = "de") => buildPanelView({ sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, isTurnActive: false,
+  registry, labels, locale, columns: 60, ...input });
 
-// SCN-005: fixtures written by the canonical writers parse to the core reader's values and moods.
-const created = fixture();
-async function approvalFixture() {
-  const f = fixture();
-  const route = f.context.call('step.record', { step: 'route', route: 'quick_task', reason: 'Companion route fixture', source: f.context.material(f.binding(), 'Brownfield Review', '# Brownfield Review\n\nSmall isolated read-only fixture.') }, f.binding());
-  assert.equal(route.outcome, 'accepted', JSON.stringify(route));
-  const p = f.context.call('presentation.prepare', { gate: 'UR' }, f.binding());
-  assert.equal(p.outcome, 'accepted', JSON.stringify(p));
-  return { ...f, presentationId: p.family_result.presentation_id, approve: () => f.context.call('approval.record', { gate: 'UR', presentation_id: p.family_result.presentation_id, response: 'Approval: UR' }, f.binding()) };
-}
-const approval = await approvalFixture();
-try {
-  const states = [];
-  createRun(created.root, "fixture-created");
-  for (const [rootFixture, id, expectedMood, label] of [
-    [created, "fixture-created", "laeuft", "created"],
-    [created, "fixture-completed", "fertig", "completed"],
-    [approval, "fixture-a", "wartet", "UR open"],
-  ]) states.push({ root: rootFixture.root, id, expectedMood, label });
-  // These are display-rule inputs, not writable fields in a version-4 Run.
-  for (const [decision, expectedMood] of [["revise", "blockiert"], ["block", "blockiert"], ["blocked", "blockiert"], ["decline", "blockiert"], ["pending", "wartet"], ["awaiting_uat", "wartet"]])
-    assert.equal(runState(run({ decision })).mood, expectedMood);
-  const checkParity = ({ root, id, expectedMood, label: name }) => {
-    const result = parsed(root, id);
-    assert.deepEqual(parseGeneratedRunState(id, readFileSync(runFile(root, id), "utf8")), result, `${name}: generated companion uses the same Core policy`);
-    assert.equal(result.ok, true, `${name}: canonical run state must parse`);
-    const core = readRunState(root, { runId: id });
-    for (const [mine, theirs] of [["lifecycle", "lifecycle"], ["gate", "current_gate"], ["decision", "decision"], ["updatedAt", "updated_at"]]) {
-      assert.equal(result.run[mine], String((theirs === "current_gate" ? transitionDecisionForRunState(core).current_gate : theirs === "decision" ? core.meta.lifecycle === "completed" ? "completed" : "in_progress" : core.meta[theirs]) ?? "").replace(/`/gu, "").trim(), `${name}: ${theirs} parity`);
-    }
-    const approvedByCore = [...core.approvals.entries()].filter(([, row]) => row.status === "approved").map(([gate]) => gate);
-    assert.deepEqual([...result.run.approved].sort(), approvedByCore.sort(), `${name}: approved gates parity`);
-    if (expectedMood !== null) assert.equal(runState(result.run).mood, expectedMood, `${name}: mood`);
-    return { result, core };
-  };
-  for (const state of states) checkParity(state);
-  // Run steps keep the control table's next step equal to the core's next allowed action.
-  assert.equal(checkParity(states[2]).result.run.next, readRunState(approval.root, { runId: "fixture-a" }).next_allowed_action);
-  assert.equal(approval.approve().outcome, "accepted");
-  const approved = checkParity({ root: approval.root, id: "fixture-a", expectedMood: "laeuft", label: "UR approved" });
-  assert.deepEqual(approved.result.run.approved, ["UR"]);
-  assert.equal(approved.result.run.next, approved.core.next_allowed_action);
-  // The approval fixture is routed as a quick task: its bar is the status card's compact path.
-  assert.deepEqual(gateMarks(approved.result.run), [{ gate: "UR", mark: "done" }, { gate: "Compact Delivery", mark: "current" }]);
-
-  // CR-F02: the canonical writers keep a review result in the step's Artefacts row and a declined
-  // presentation in the control table; the Run Meta decision stays `in_progress`. Both read as blockiert.
-  const review = approval.context.call('step.record', { step: 'review', decision: 'revise',
-    source: approval.context.material(approval.binding(), 'CR', '# Code Review\n\nDecision: revise\n\nThe synthetic diff needs one bounded correction.\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| CR-01 | implementation_gap | CD+Tests | open | Synthetic direct regression exposes the bounded defect. | Correct the fixture defect and rerun its regression. |\n') }, approval.binding());
-  assert.equal(review.outcome, 'accepted', JSON.stringify(review));
-  const revised = checkParity({ root: approval.root, id: "fixture-a", expectedMood: "blockiert", label: "Quick Task review revise" });
-  assert.deepEqual([revised.result.run.decision, revised.result.run.gate, revised.result.run.gateResult], ["in_progress", "Quick Task Execution", "revise"]);
-  assert.equal(revised.result.run.gateResult, revised.core.artefacts.get("CR").status, "the CR row status equals the core reader's");
-  assert.deepEqual(runState(revised.result.run).reason, { key: "blocked", gate: "Quick Task Execution", decision: "revise" });
-  const declined = await approvalFixture();
-  try {
-    const rejected = declined.context.call('presentation_decision.record', { gate: 'UR', presentation_id: declined.presentationId, action: 'reject', comment: '' }, declined.binding());
-    assert.equal(rejected.outcome, 'accepted', JSON.stringify(rejected));
-    const decline = checkParity({ root: declined.root, id: "fixture-a", expectedMood: "blockiert", label: "UR declined" });
-    assert.deepEqual([decline.result.run.gateDecision, runState(decline.result.run).reason.decision], ["reject", "decline"]);
-  } finally {
-    declined.close();
+// SCN-022 / SDD-010: the only process call is the read-only run view; failures never become a self-derived state.
+{
+  const runView = (runs, store = { status: "ok", reason: null }, diagnosis = { unreadable: [], counts: { unreadable: 0 } }) =>
+    JSON.stringify({ schema_version: "run-view/1", root: "C:/p", language: "de", store, counts: null, diagnosis, runs, authorizes: false });
+  const calls = [];
+  const processes = results => ({ run: async (argv, init) => { calls.push({ argv, init }); const next = results.shift(); if (next instanceof Error) throw next; return next; } });
+  const argv = runViewArgv({ pluginRoot: "C:/plugin", root: "C:/p", language: "de", runIds: ["picked"] });
+  assert.deepEqual(argv, ["node", "C:/plugin/runtime/agdf-local.js", "run-view", "--dir", "C:/p", "--json", "--language", "de", "--run", "picked"]);
+  const ok = await readSnapshot(processes([{ exitCode: 0, stdout: runView([{ ...entry(), figure: deriveFigureState(entry()) },
+    { run_id: "legacy", valid: false, evaluated: true, findings: ["AGDF_RUN_VERSION_UNSUPPORTED"] }], undefined,
+    { unreadable: [{ run_id: "legacy", reason: "run_version_unsupported" }], counts: { unreadable: 1 } }), stderr: "" }]),
+    { pluginRoot: "C:/plugin", root: "C:/p", language: "de", runIds: ["picked"], now: 5 });
+  assert.deepEqual(calls.at(-1), { argv, init: { timeoutMs: RUN_VIEW_TIMEOUT_MS } });
+  assert.equal(RUN_VIEW_TIMEOUT_MS, 10_000);
+  assert.deepEqual([ok.status, ok.runs.map(item => item.id), ok.unreadable, ok.readAt], ["ok", ["r"], [{ id: "legacy", reason: "run_version_unsupported" }], 5]);
+  assert.equal(ok.runs[0].figure.mood, "laeuft", "the figure comes from the run view");
+  // The host clock as $.clock.now() gives it: one reading before and one after the call.
+  const clockOf = elapsed => { const readings = [100, 100 + elapsed]; return async () => readings.shift(); };
+  const read = (result, elapsed = 0) => readSnapshot(processes([result]), { pluginRoot: "C:/plugin", root: "C:/p", language: "en", now: 9, clock: clockOf(elapsed) });
+  assert.deepEqual([(await read({ exitCode: 2, stdout: runView([], { status: "no_control", reason: null }) })).status], ["no_control"]);
+  const layout = await read({ exitCode: 2, stdout: runView([], { status: "unavailable", reason: "control_layout_unsupported" }) });
+  assert.deepEqual([layout.status, layout.reason, layout.runFolders], ["unavailable", "control_layout_unsupported", null]);
+  // AC-002 (T-004, T-013 finding F2): the run folders of an unsupported store are carried, a missing or
+  // non-positive count is none.
+  for (const [runFolders, expected] of [[189, 189], [0, null], ["189", null], [-1, null]]) {
+    const counted = await read({ exitCode: 2, stdout: runView([], { status: "unavailable", reason: "control_layout_unsupported", run_folders: runFolders }) });
+    assert.equal(counted.runFolders, expected, `run_folders ${JSON.stringify(runFolders)}`);
   }
-
-  // TPR-F01, CIR-F01: the companion accepts exactly the core lifecycles. Superseded and abandoned
-  // runs parse with core parity, are closed, are never assigned (even when changed in this session)
-  // and drop a remembered selection.
-  assert.deepEqual([...LIFECYCLES].sort(), [...CORE_LIFECYCLES].sort(), "companion lifecycles equal the core set");
-  for (const lifecycle of ["superseded", "abandoned"]) {
-    const id = `fixture-${lifecycle}`;
-    createRun(created.root, id);
-    setScalar(created.root, id, "lifecycle", lifecycle);
-    const { result } = checkParity({ root: created.root, id, expectedMood: null, label: lifecycle });
-    assert.equal(result.run.lifecycle, lifecycle);
-    const shown = assignRun({ runs: [result.run], sessionStartedAt: 0, selection: id });
-    assert.deepEqual([shown.run, shown.origin, shown.open, shown.dropSelection], [null, "none", [], true], `${lifecycle}: closed and never assigned`);
+  // CR finding CIR-06: a rejection is a timeout only after the whole budget elapsed, whatever its text says.
+  const shown = { exit: "Run-Ansicht-Befehl endete mit einem Fehler", timeout: "Lesen des Kontrollordners dauerte zu lange",
+    unavailable: "Run-Ansicht konnte nicht abgerufen werden", malformed: "Run-Ansicht lieferte ein unerwartetes Ergebnis",
+    source_changed: "Kontrollordner hat sich beim Lesen geändert" };
+  for (const [result, error, elapsed] of [[{ exitCode: 1, stdout: "", stderr: "usage" }, "exit"], [new Error("process killed"), "timeout", RUN_VIEW_TIMEOUT_MS],
+    [new Error("spawn node ENOENT"), "unavailable"], [new Error("runtime/agdf-local.js could not start"), "unavailable", 40],
+    [new Error("process timed out"), "unavailable", RUN_VIEW_TIMEOUT_MS - 1], [{ exitCode: 0, stdout: "{not json", stderr: "" }, "malformed"],
+    [{ exitCode: 0, stdout: JSON.stringify({ schema_version: "run-view/2", runs: [], store: {} }), stderr: "" }, "malformed"],
+    // CR delta review RV-1: a write during the read or the read budget is transient and keeps the last good view.
+    [{ exitCode: 2, stdout: runView([], { status: "unavailable", reason: "source_changed" }), stderr: "" }, "source_changed"],
+    [{ exitCode: 2, stdout: runView([], { status: "unavailable", reason: "timeout" }), stderr: "" }, "timeout"],
+    [{ exitCode: 0, stdout: runView([{ ...entry(), evaluated: false, evaluation_error: "source_changed", figure: { mood: "blockiert", reason: { key: "unreadable", reason: "source_changed" } } }]), stderr: "" }, "source_changed"]]) {
+    const failed = await read(result, elapsed);
+    assert.deepEqual([failed.status, failed.error, failed.runs.length], ["failed", error, 0], `failure ${error}`);
+    const kept = settleSnapshot(ok, failed);
+    assert.deepEqual([kept.status, kept.runs.length, kept.stale.error], ["ok", 1, error], `the last good view stays, marked stale (${error})`);
+    const without = view({ snapshot: settleSnapshot(null, failed) });
+    assert.deepEqual([without.mood, without.message, without.runId], ["bereit", `Run-Ansicht nicht verfügbar: ${shown[error]}`, undefined],
+      `without any view the companion names the failure and its reason (${error})`);
   }
-  // AC-010 (run closure): a run closed through the real closure operation leaves the open-run list.
-  createRun(created.root, "fixture-closed");
-  const closurePreviewResult = created.context.call('closure.preview', { entries: [{ run_id: 'fixture-closed', outcome: 'abandoned', reason: 'Companion regression' }] });
-  assert.equal(closurePreviewResult.outcome, 'accepted', JSON.stringify(closurePreviewResult));
-  const closurePreview = closurePreviewResult.family_result;
-  const closed = created.context.call('closure.apply', { preview_id: closurePreview.preview_id, confirmation: closurePreview.confirmation_phrase });
-  assert.equal(closed.outcome, 'accepted', JSON.stringify(closed));
-  assert.equal(closed.family_result.results[0].result, 'closed');
-  const afterClosure = await readSnapshot(nodeFs, created.root, { now: 1 });
-  assert.equal(afterClosure.runs.find(entry => entry.id === "fixture-closed")?.lifecycle, "abandoned");
-  assert.ok(!openRuns(afterClosure.runs).some(entry => entry.id === "fixture-closed"), "a closed run is not an open run");
-  const closedSelection = assignRun({ runs: afterClosure.runs, sessionStartedAt: 0, selection: "fixture-closed" });
-  assert.notEqual(closedSelection.run?.id, "fixture-closed"); assert.equal(closedSelection.dropSelection, true);
+  assert.deepEqual(Object.keys(shown).sort(), [...READ_FAILURE_REASONS].sort(), "every read failure reason is shown");
+  const unknown = view({ snapshot: settleSnapshot(null, { status: "failed", runs: [], unreadable: [], readAt: 1, error: "spawn EACCES C:\\secret" }) });
+  assert.equal(unknown.message, `Run-Ansicht nicht verfügbar: ${shown.unavailable}`, "an unknown failure text is never shown raw");
+  assert.equal(snapshotFromRunView(runView([{ ...entry({ run_id: "x" }), figure: deriveFigureState(entry()) }]), { now: 1 }).runs[0].nextText, "Das SD entwerfen.");
+}
 
-  // SCN-009 / SCN-006 inputs: reader conditions on the fixture targets.
-  const noControl = mkdtempSync(join(tmpdir(), "agdf-companion-plain-"));
-  assert.deepEqual(await readSnapshot(nodeFs, noControl, { now: 1 }), { status: "no_control", root: noControl, runs: [], unreadable: [], readAt: 1 });
-  mkdirSync(join(noControl, ".agdf", "control"), { recursive: true });
-  const empty = await readSnapshot(nodeFs, noControl, { now: 1 });
-  assert.deepEqual([empty.status, empty.runs.length], ["ok", 0]);
-  mkdirSync(join(noControl, ".agdf", "control", "runs", "broken"), { recursive: true });
-  writeFileSync(runFile(noControl, "broken"), "# not a run state\n");
-  mkdirSync(join(noControl, ".agdf", "control", "runs", "missing"), { recursive: true });
-  const broken = await readSnapshot(nodeFs, noControl, { now: 1 });
-  assert.deepEqual(broken.unreadable.sort((a, b) => a.id.localeCompare(b.id)), [{ id: "broken", reason: "format" }, { id: "missing", reason: "missing" }]);
-  assert.deepEqual(parseRunState("big", "x".repeat(MAX_RUN_STATE_BYTES + 1)), { ok: false, id: "big", reason: "too_large" });
-  assert.equal(parseRunState("other", readFileSync(runFile(created.root, "fixture-a"), "utf8")).ok, false, "run id must match its folder");
-  const failing = await readSnapshot({ ...nodeFs, list: async () => { throw new Error("EIO"); } }, created.root, { now: 2 });
-  assert.equal(failing.status, "failed");
-  const good = await readSnapshot(nodeFs, created.root, { now: 1 });
-  const stale = settleSnapshot(good, failing);
-  assert.deepEqual([stale.status, stale.stale.failedAt, stale.runs.length], ["ok", 2, good.runs.length]);
-  assert.equal(settleSnapshot(null, failing), failing);
-  rmSync(noControl, { recursive: true, force: true });
-
-  // SCN-006 and chat-run navigation SCN-012: a main-loop turn shows läuft, except that a run waiting for
-  // an approval or a decision stays wartet (the chat asks for it during that turn) and a run being built
-  // stays baut; blocked, working and done runs show läuft; the run-derived state returns afterwards.
-  const waiting = run({ missing: "Exact Approval: SD." });
+// The turn overlay: a main-loop turn shows läuft, except that waiting and building runs keep their mood.
+{
+  const waiting = run({ missing_approval: "Approval: SD" });
   assert.deepEqual(displayState(waiting, { isTurnActive: true }), { mood: "wartet", reason: { key: "waitingApproval", gate: "SD" } });
-  assert.deepEqual(displayState(run({ decision: "pending" }), { isTurnActive: true }), { mood: "wartet", reason: { key: "waitingDecision", gate: "SD" } });
-  for (const overrides of [{ decision: "revise" }, { decision: "in_progress" }, { lifecycle: "completed" }]) {
+  assert.deepEqual(displayState(run({ user_action_required: "yes" }), { isTurnActive: true }), { mood: "wartet", reason: { key: "waitingDecision", gate: "SD" } });
+  for (const overrides of [{ status: "blocked", blocking_reason: "AGDF_SD_DECISIONS_OPEN" }, {}, { lifecycle: "completed" }]) {
     assert.deepEqual(displayState(run(overrides), { isTurnActive: true }), { mood: "laeuft", reason: { key: "turnActive" } }, JSON.stringify(overrides));
   }
   assert.deepEqual(displayState(waiting), { mood: "wartet", reason: { key: "waitingApproval", gate: "SD" } });
-  assert.deepEqual(runState(run({ decision: "mystery" })), { mood: null, reason: { key: "unknownState" } });
-  assert.equal(displayState(run({ decision: "mystery" }), { isTurnActive: true }).mood, null, "a turn never hides an unreadable state");
-  assert.equal(runState(run({ lifecycle: "completed", decision: "revise" })).mood, "fertig");
+  assert.deepEqual(runState(null), { mood: "bereit", reason: { key: "idle" } });
+  assert.deepEqual(MOODS, ["laeuft", "baut", "wartet", "blockiert", "fertig", "bereit"]);
+  for (const gate of BUILD_GATES) assert.deepEqual(displayState(structured(gate), { isTurnActive: true }), { mood: "baut", reason: { key: "building", gate } });
+}
 
-  // SCN-007: assignment per session.
+// SCN-007: assignment per session.
+{
   const start = Date.parse("2026-10-26T08:00:00.000Z");
-  const before = run({ id: "before", updatedAt: "2026-10-26T07:59:59.000Z" });
-  const changedA = run({ id: "a", updatedAt: "2026-10-26T08:00:00.000Z" });
-  const changedB = run({ id: "b", updatedAt: "2026-10-26T08:05:00.000Z" });
-  const legacy = run({ id: "legacy", updatedAt: "" });
-  const doneInSession = run({ id: "done", lifecycle: "completed", updatedAt: "2026-10-26T08:06:00.000Z" });
+  const before = run({ run_id: "before", last_activity: "2026-10-26T07:59:59.000Z" });
+  const changedA = run({ run_id: "a", last_activity: "2026-10-26T08:00:00.000Z" });
+  const changedB = run({ run_id: "b", last_activity: "2026-10-26T08:05:00.000Z" });
+  const legacy = run({ run_id: "legacy", last_activity: null });
+  const doneInSession = run({ run_id: "done", lifecycle: "completed", last_activity: "2026-10-26T08:06:00.000Z" });
   assert.deepEqual(assignRun({ runs: [before, changedA, changedB], sessionStartedAt: start }).run.id, "b");
   assert.equal(assignRun({ runs: [before, changedA, changedB, doneInSession], sessionStartedAt: start }).run.id, "done", "a run completed in this session stays assigned");
   const remembered = assignRun({ runs: [before, legacy], sessionStartedAt: start, selection: "before" });
@@ -206,231 +127,101 @@ try {
   assert.equal(stepSelection(openRuns([before, changedA, changedB]), "b", 1), "a");
   assert.equal(stepSelection(openRuns([before, changedA, changedB]), "b", -1), "before");
   assert.equal(stepSelection([], "x", 1), null);
-} finally {
-  created.close();
-  approval.close();
 }
 
-// Follow-up SCN-006: for runs routed by the canonical writers, the companion reads the route like
-// `modeSliceDecision` and draws the status card's path and marks (without its own CD+Tests mark),
-// active and after completion; no compact or blocked route shows a structured gate.
-const UR_TEXT = "# UR: Route fixture\n\n## Problem\nShow the path of each route.\n\n## Goal\nKeep the companion's bar equal to the status card.\n\n## Scope\nDisposable fixture only.\n\n"
-  + "## AGDF Approval Summary (de; source=en)\n- Problem: Pfad je Route zeigen.\n- Ziel: Die Leiste des Begleiters gleicht der Statuskarte.\n- Umfang: Nur isolierter Test.\n";
-function routedRun(route) {
-  const target = fixture();
-  const id = "fixture-a";
-  try {
-    writeFileSync(join(target.root, ".agdf", "control", "runs", id, "documents", "BROWNFIELD_REVIEW.md"), "# Brownfield Review\n");
-    const revision = () => parseCoreRunState(readFileSync(target.runPath, "utf8"), id).meta.revision_id;
-    const step = values => {
-      const ur = values.step === 'ur';
-      const source = target.context.material(target.binding(), ur ? 'UR' : 'Brownfield Review', ur ? UR_TEXT : '# Brownfield Review\n\nA bounded synthetic route fixture.\n');
-      const result = target.context.call(ur ? 'ur_draft.replace' : 'step.record', ur ? { source, title: values.title } : { ...values, source }, target.binding());
-      assert.equal(result.outcome, 'accepted', JSON.stringify(result));
-    };
-    step({ step: "ur", title: "Route fixture" });
-    if (route) step({ step: "route", route, reason: `route fixture ${route}` });
-    const presentation = target.context.call("presentation.prepare", { gate: "UR" }, target.binding());
-    assert.equal(presentation.outcome, "accepted", JSON.stringify(presentation));
-    const approvedUr = target.context.call("approval.record", { gate: "UR", response: "Approval: UR", presentation_id: presentation.family_result.presentation_id }, target.binding());
-    assert.equal(approvedUr.outcome, "accepted", JSON.stringify(approvedUr));
-    return target;
-  } catch (error) {
-    target.close();
-    throw error;
-  }
-}
-const CARD_MARK = Object.freeze({ fulfilled: "done", current: "current", open: "open" });
-const cardPath = root => evaluateGateCheck(root, { runId: "fixture-a" }).status_card.breadcrumb.map(({ gate, status }) => ({ gate, mark: CARD_MARK[status] }));
-const companionPath = runState => gateMarks(runState).filter(({ gate }) => gate !== "CD+Tests");
-for (const route of [null, "quick_task", "verified_change", "structured_slice", "structured_delivery"]) {
-  const target = routedRun(route);
-  try {
-    const name = route ?? "undecided";
-    const result = parsed(target.root, "fixture-a");
-    assert.equal(result.ok, true, `${name}: parses`);
-    assert.equal(result.run.route, modeSliceDecision(readRunState(target.root, { runId: "fixture-a" })), `${name}: route parity`);
-    assert.deepEqual(companionPath(result.run), cardPath(target.root), `${name}: path parity`);
-    setScalar(target.root, "fixture-a", "lifecycle", "completed");
-    const completed = parsed(target.root, "fixture-a").run;
-    if (!["structured_slice", "structured_delivery"].includes(route)) {
-      assert.ok(!gateMarks(completed).some(({ gate }) => ["PRD", "SD", "TP", "CD+Tests"].includes(gate)), `${name}: completed run shows no structured gate`);
-    }
-    assert.deepEqual(companionPath(completed).map(({ gate }) => gate), cardPath(target.root).map(({ gate }) => gate), `${name}: completed path parity`);
-  } finally {
-    target.close();
-  }
-}
-// Retired blocked-route writes are refused by the current strict command schema.
-{
-  const f = fixture();
-  try {
-    const rejected = f.context.call('step.record', { step: 'route', route: 'block', reason: 'Unsupported current route', source: f.context.material(f.binding(), 'Brownfield Review', '# Review\n') }, f.binding());
-    assert.equal(rejected.reason, 'command_schema_invalid');
-  } finally { f.close(); }
-}
-// Format variants of the Mode/Slice Decision read like the core: backticks, a template value, a
-// missing scope reason or evidence, and the spaced heading.
-const variants = routedRun("quick_task");
-try {
-  const runPath = runFile(variants.root, "fixture-a");
-  const original = readFileSync(runPath, "utf8");
-  for (const [name, edit] of [
-    ["backticked decision", text => text.replace(/^- mode: quick_task$/mu, "- mode: `quick_task`")],
-    ["empty evidence", text => text.replace(/^(- evidence:).*$/mu, "$1")],
-    ["template scope reason", text => text.replace(/^(- scope_reason:).*$/mu, "$1 `a | b`")],
-    ["template decision", text => text.replace(/^- mode: quick_task$/mu, "- mode: `quick_task | verified_change | block`")],
-    ["spaced heading", text => text.replace(/^## Mode\/Slice Decision$/mu, "## Mode / Slice Decision")],
-  ]) {
-    const edited = edit(original);
-    assert.notEqual(edited, original, `${name}: the variant changes the run state`);
-    writeFileSync(runPath, sealRunState(variants.root, edited));
-    const observedVariant = parsed(variants.root, "fixture-a");
-    if (name === "template decision") { assert.equal(observedVariant.ok, false, "invalid current mode is unreadable, never guessed"); continue; }
-    const variantRun = observedVariant.run;
-    assert.equal(variantRun.route, modeSliceDecision(readRunState(variants.root, { runId: "fixture-a" })), `${name}: route parity`);
-  }
-} finally {
-  variants.close();
-}
-// Current typed approvals match Core; an injected retired derived table must be refused.
-const typed = routedRun('structured_delivery');
-try {
-  const path = runFile(typed.root, 'fixture-a'), text = readFileSync(path, 'utf8');
-  const observed = parseRunState('fixture-a', text);
-  assert.deepEqual(observed.run.approved, [...readRunState(typed.root, { runId: 'fixture-a' }).approvals].filter(([, row]) => row.status === 'approved').map(([gate]) => gate));
-  assert.equal(parseRunState('fixture-a', text + '\n## Approvals\n\n| UR | `approved` | forged table |\n').ok, false);
-  assert.equal(parseRunState('fixture-a', text.replace('control_state_version: 4', 'control_state_version: 2')).ok, false);
-} finally { typed.close(); }
-
-// SCN-008: valid localization agrees with the status-card/Core language rule.
-// Invalid control configuration is rejected by Core, even when the display-only
-// companion can read an incomplete setting; it never supplies execution authority.
-const configRoot = mkdtempSync(join(tmpdir(), "agdf-companion-locale-"));
-try {
-  const languageConfig = chat_language => JSON.stringify({ control_layout: "run-folders-v1", artifact_language: "en", chat_language, runtime_language: "en" });
-  for (const config of [null, ...["de", "de-AT", "fr"].map(languageConfig)]) {
-    rmSync(join(configRoot, ".agdf"), { recursive: true, force: true });
-    if (config !== null) { mkdirSync(join(configRoot, ".agdf", "control"), { recursive: true }); writeFileSync(join(configRoot, ".agdf", "control", "config.json"), config); }
-    assert.equal(chatLocale(registry, config), resolveConfiguredChatLanguage(configRoot), `chat language parity for ${config}`);
-  }
-  for (const [config, field] of [["{", "config"], [JSON.stringify({ control_layout: "run-folders-v1", chat_language: "de" }), "artifact_language"], [languageConfig("not a tag"), "chat_language"]]) {
-    const path = join(configRoot, ".agdf", "control", "config.json");
-    writeFileSync(path, config);
-    assert.throws(() => resolveConfiguredChatLanguage(configRoot), error => error.code === "configuration_invalid"
-      && error.facts.dispatch === "not_dispatched" && error.diagnostic.field === field, `invalid config must not silently default: ${config}`);
-    assert.equal(readFileSync(path, "utf8"), config, "language lookup never repairs invalid project configuration");
-  }
-} finally {
-  rmSync(configRoot, { recursive: true, force: true });
-}
-const fallback = registry.locales[registry.fallbackLocale];
-const sources = [...Object.values(fallback.operationalValues ?? {}), ...Object.values(fallback.primary.actions ?? {}),
-  ...Object.values(fallback.primary.afterApproval ?? {}), fallback.primary.quality, "A free text the status card does not know."].filter(Boolean);
-for (const source of sources) {
-  const localized = localizeNextStep(registry, "de", source);
-  assert.equal(localized.isLocalized, isOperationalValueRenderable(source, { registry, requestedLocale: "de" }), `next-step parity: ${source}`);
-  if (!localized.isLocalized) assert.equal(localized.text, source, "an unlocalized next step keeps its source text");
-}
-assert.equal(localizeNextStep(registry, "en", "Draft the UR.").text, "Draft the UR.");
-assert.equal(localizeNextStep(registry, "de", "none").text, registry.locales.de.primary.none);
-assert.deepEqual(Object.keys(labels.locales).sort(), Object.keys(registry.locales).sort(), "companion locale set equals the core registry");
+// SCN-017 / SD SDD-004: every text comes from the catalog's companion section; no locale file of its own.
+assert.equal(existsSync(join(companionDir, "locales.json")), false, "the companion keeps no text file of its own");
+assert.equal(existsSync(join(companionDir, "core.mjs")), false, "the companion keeps no Core bridge");
+assert.deepEqual(Object.keys(labels.locales).sort(), Object.keys(registry.locales).sort());
 assert.equal(labels.fallbackLocale, registry.fallbackLocale);
-const leaves = (node, prefix = "") => Object.entries(node).flatMap(([key, value]) => (value && typeof value === "object" ? leaves(value, `${prefix}${key}.`) : [[`${prefix}${key}`, value]]));
-const enLeaves = new Map(leaves(labels.locales.en));
-for (const locale of Object.keys(labels.locales)) assert.deepEqual(leaves(labels.locales[locale]).map(([key]) => key).sort(), [...enLeaves.keys()].sort(), `label keys of ${locale}`);
 assert.equal(label(labels, "de", "fields.position", { position: 2, count: 5 }), "2 von 5 offenen Runs");
 assert.equal(label(labels, "de", "missing.key"), "missing.key");
-
-// AC-005 / SCN-003: German views carry no English label; gate bar and fields per width.
-const englishOnly = new Set([...enLeaves].filter(([key, value]) => new Map(leaves(labels.locales.de)).get(key) !== value).map(([, value]) => value));
-const snapshot = runs => ({ status: "ok", runs, unreadable: [], readAt: Date.parse("2026-10-26T08:10:00Z") });
-const viewOf = (runs, extra = {}) => buildPanelView({ snapshot: snapshot(runs), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null,
-  isTurnActive: false, registry, labels, locale: "de", columns: 40, ...extra });
-const germanViews = [
-  viewOf([run({ id: "w", missing: "Exact Approval: SD.", updatedAt: "2026-10-26T08:01:00Z" })]),
-  viewOf([run({ id: "b", decision: "revise", updatedAt: "2026-10-26T08:01:00Z" })]),
-  viewOf([run({ id: "f", lifecycle: "completed", updatedAt: "2026-10-26T08:01:00Z" })]),
-  viewOf([run({ id: "l", updatedAt: "2026-10-26T08:01:00Z" })], { isTurnActive: true }),
-  viewOf([run({ id: "o", updatedAt: "2026-10-26T07:00:00Z" })]),
-  viewOf([]),
-  buildPanelView({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 }, registry, labels, locale: "de", columns: 40 }),
-  buildPanelView({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 }, registry, labels, locale: "de", columns: 40 }),
-  buildPanelView({ snapshot: { ...snapshot([]), unreadable: [{ id: "x", reason: "format" }] }, selection: "x", sessionStartedAt: 0, registry, labels, locale: "de", columns: 40 }),
-];
-assert.deepEqual(germanViews.map(view => view.stateLabel), ["wartet auf Freigabe", "blockiert", "fertig", "läuft", "bereit", "bereit", "bereit", "bereit", "bereit"]);
-assert.equal(germanViews[1].reason, "Lösungsdesign: Überarbeitung nötig");
-// A run-derived läuft names the next step; only a host-observed main-loop turn says that Claude is
-// working (docs/architecture/07-ui-konzept.md: no "working" claim without observed activity).
-const runningView = locale => buildPanelView({ snapshot: snapshot([run({ id: "r", updatedAt: "2026-10-26T08:01:00Z" })]),
-  sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, isTurnActive: false, registry, labels, locale, columns: 40 });
-assert.deepEqual([runningView("de").stateLabel, runningView("de").reason, runningView("en").reason], ["läuft", "Als Nächstes: Lösungsdesign", "Next: Solution design"]);
-assert.equal(germanViews[3].reason, "Claude arbeitet gerade an diesem Turn");
-assert.equal(germanViews[4].message, "Kein Run zugeordnet");
-assert.deepEqual([germanViews[5].message, germanViews[6].message, germanViews[6].hint],
-  ["Keine offenen Runs in diesem Projekt.", "Kein AGDF-Kontrollordner in „voice-projekt“.", "Geprüfter Projektordner: C:\\Workspace\\voice-projekt"]);
-// TPR-F02: the missing-control message names the checked folder in either path form; the terminal shows both lines.
-const noControlView = root => buildPanelView({ snapshot: { status: "no_control", root, runs: [], unreadable: [], readAt: 1 }, registry, labels, locale: "en", columns: 40 });
-assert.deepEqual([noControlView("/home/a/app/").message, noControlView("/home/a/app/").hint], ["No AGDF control folder in “app”.", "Checked project folder: /home/a/app/"]);
-assert.ok(terminalText(germanViews[6], { labels, locale: "de" }).includes("Kein AGDF-Kontrollordner in „voice-projekt“.\nGeprüfter Projektordner: C:\\Workspace\\voice-projekt\n"));
-assert.match(germanViews[7].message, /nicht lesbar: Kontrollordner/u);
-assert.match(germanViews[8].message, /unbekanntes Format/u);
-for (const view of germanViews) {
-  for (const field of ["title", "stateLabel", "reason", "message", "hint", "origin", "openCount", "readAt", "stale"]) {
-    if (view[field]) assert.equal(englishOnly.has(view[field]), false, `German panel shows English ${field}: ${view[field]}`);
+{
+  const used = new Set();
+  for (const name of readdirSync(companionDir).filter(file => file.endsWith(".mjs"))) {
+    const source = readFileSync(join(companionDir, name), "utf8");
+    for (const match of source.matchAll(/\bt\(\s*['"]([A-Za-z]+(?:\.[A-Za-z]+)+)['"]/gu)) used.add(match[1]);
+    assert.doesNotMatch(source, /^\s*import\s[^;]*from\s*['"](?!\.\/)/mu, `${name} imports only companion modules`);
+  }
+  assert.ok(used.size > 20, "the companion's static label keys are found");
+  for (const key of used) for (const locale of ["de", "en"]) {
+    assert.notEqual(label(labels, locale, key), key, `${locale} catalog copy for ${key}`);
   }
 }
-const assigned = germanViews[0];
-assert.deepEqual([assigned.gateBar, assigned.origin, assigned.isObjectiveExpanded, Boolean(assigned.readAt)], ["✓UR ✓PRD ●SD ○TP ○CD+Tests ○QA ○UAT ○OR", "In dieser Sitzung geändert", false, true]);
-for (const columns of [40, 60]) assert.ok(viewOf([run({ updatedAt: "2026-10-26T08:01:00Z" })], { columns }).gateBar.length <= columns, `gate bar fits ${columns} columns`);
-const marks = gateMarks(run());
-assert.equal(fullGateBar(marks).length, 39);
-assert.deepEqual([gateBar(marks, 39), gateBar(marks, 38)], [fullGateBar(marks), "✓✓●○○○○○ SD"]);
-assert.ok(!/\n/u.test(gateBar(marks, 10)), "the gate bar never wraps into two lines");
 
-// Follow-up SCN-001: the build phase as `CD+Tests` between TP and QA on structured paths.
-const structured = (gate, extra = {}) => run({ gate, approved: ["UR", "PRD", "SD", "TP"], ...extra });
-for (const route of ["structured_delivery", "structured_slice"]) {
-  for (const gate of BUILD_GATES) {
-    assert.equal(fullGateBar(gateMarks(structured(gate, { route }))), "✓UR ✓PRD ✓SD ✓TP ●CD+Tests ○QA ○UAT ○OR", `${route} at ${gate}`);
+// AC-005 / SCN-003: German views from the run view; gate bar and fields per width.
+{
+  const at = "2026-10-26T08:01:00Z";
+  const waiting = view({ snapshot: snapshot([run({ missing_approval: "Approval: SD", last_activity: at })]) });
+  assert.deepEqual([waiting.stateLabel, waiting.reason, waiting.nextStep, waiting.gateBar], ["wartet auf Freigabe", "Freigabe ausstehend: Lösungsdesign", "Das SD entwerfen.",
+    "✓UR ✓PRD ●SD ○TP ○CD+Tests ○QA ○UAT ○OR"]);
+  const blocked = view({ snapshot: snapshot([run({ status: "blocked", blocking_reason: "AGDF_RUN_SEAL_MISMATCH", blocking_text: "Siegel verletzt", last_activity: at })]) });
+  assert.deepEqual([blocked.stateLabel, blocked.reason], ["blockiert", "Lösungsdesign: Siegel verletzt"], "the status card's blocking text, also for doctor blocks");
+  const working = view({ snapshot: snapshot([run({ last_activity: at })]) });
+  assert.deepEqual([working.stateLabel, working.reason, view({ snapshot: snapshot([run({ last_activity: at })]) }, "en").reason], ["läuft", "Als Nächstes: Lösungsdesign", "Next: Solution design"]);
+  assert.equal(view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true }).reason, "Claude arbeitet gerade an diesem Turn");
+  const building = view({ snapshot: snapshot([structured("CD+Tests", { last_activity: at })]) });
+  assert.deepEqual([building.stateLabel, building.reason], ["baut", "In Arbeit: Implementierung und Tests"]);
+  assert.ok(terminalText(building, { labels, locale: "de" }).includes("(o_o) ⚒ baut · In Arbeit: Implementierung und Tests"));
+  const done = view({ snapshot: snapshot([run({ lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: at })]) });
+  assert.deepEqual([done.stateLabel, done.nextStep], ["fertig", null]);
+  assert.equal(view({ snapshot: snapshot([run({ run_id: "old", last_activity: "2026-10-26T07:00:00Z" })]) }).message, "Kein Run zugeordnet");
+  assert.equal(view({ snapshot: snapshot([]) }).message, "Keine offenen Runs in diesem Projekt.");
+  const noControl = view({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 } });
+  assert.deepEqual([noControl.message, noControl.hint], ["Kein AGDF-Kontrollordner in „voice-projekt“.", "Geprüfter Projektordner: C:\\Workspace\\voice-projekt"]);
+  const layout = view({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 } });
+  assert.equal(layout.message, "Run-Status nicht lesbar: Aufbau des Kontrollordners nicht unterstützt");
+  // AC-002 (T-004): with counted run folders the unsupported store names count and reason, never "Keine offenen Runs".
+  const counted = view({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runFolders: 189, runs: [], unreadable: [], readAt: 1 } });
+  assert.equal(counted.message, "189 Runs nicht lesbar: Aufbau des Kontrollordners nicht unterstützt");
+  assert.equal(view({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runFolders: 189, runs: [], unreadable: [], readAt: 1 } }, "en").message,
+    "189 runs not readable: control folder layout not supported");
+  // AC-002 / AC-003: unreadable runs are named with count and reason, beside the readable ones.
+  const legacyOnly = view({ snapshot: snapshot([], { unreadable: [{ id: "legacy", reason: "run_version_unsupported" }] }) });
+  assert.equal(legacyOnly.message, "1 Runs nicht lesbar: Run in einem älteren Format erfasst");
+  const mixed = view({ snapshot: snapshot([run({ missing_approval: "Approval: SD", last_activity: at })], { unreadable: [{ id: "legacy", reason: "run_version_unsupported" }] }) });
+  assert.deepEqual([mixed.stateLabel, mixed.unreadableHint], ["wartet auf Freigabe", "1 Runs nicht lesbar: Run in einem älteren Format erfasst"]);
+  assert.ok(terminalText(mixed, { labels, locale: "de" }).includes("1 Runs nicht lesbar"));
+  for (const item of [waiting, blocked, working, building, done, legacyOnly, mixed]) {
+    for (const english of ["waiting", "blocked", "Next step", "Approval pending"]) assert.ok(!JSON.stringify(item).includes(english), `German view carries no ${english}`);
   }
-  assert.equal(fullGateBar(gateMarks(structured("TP", { route, approved: ["UR", "PRD", "SD"] }))), "✓UR ✓PRD ✓SD ●TP ○CD+Tests ○QA ○UAT ○OR");
-  assert.equal(fullGateBar(gateMarks(structured("QA", { route }))), "✓UR ✓PRD ✓SD ✓TP ✓CD+Tests ●QA ○UAT ○OR");
-  assert.equal(fullGateBar(gateMarks(structured("UAT", { route, approved: ["UR", "PRD", "SD", "TP", "QA"] }))), "✓UR ✓PRD ✓SD ✓TP ✓CD+Tests ✓QA ●UAT ○OR");
-}
-const completedStructured = gateMarks(structured("OR", { lifecycle: "completed", approved: ["UR", "PRD", "SD", "TP", "QA", "UAT"] }));
-assert.equal(fullGateBar(completedStructured), "✓UR ✓PRD ✓SD ✓TP ✓CD+Tests ✓QA ✓UAT ✓OR");
-const buildMarks = gateMarks(structured("CD+Tests"));
-assert.ok(fullGateBar(buildMarks).length <= 40 && gateBar(buildMarks, 40) === fullGateBar(buildMarks), "the full structured bar fits 40 columns");
-assert.equal(gateBar(buildMarks, 38), "✓✓✓✓●○○○ CD+Tests", "below its width the condensed form names the current mark");
-// Follow-up SCN-006 (unit part): the other routes show the status card's path only.
-const compact = (route, gate, extra = {}) => fullGateBar(gateMarks(run({ route, gate, approved: ["UR"], ...extra })));
-assert.equal(compact("quick_task", "Quick Task Execution"), "✓UR ●Compact Delivery");
-assert.equal(compact("quick_task", "OR", { lifecycle: "completed" }), "✓UR ✓Compact Delivery");
-assert.equal(compact("verified_change", "Verified Change Execution"), "✓UR ●Verified Change ○OR");
-assert.equal(compact("verified_change", "OR"), "✓UR ✓Verified Change ●OR");
-assert.equal(compact("verified_change", "OR", { lifecycle: "completed" }), "✓UR ✓Verified Change ✓OR");
-assert.equal(compact("block", "Mode/Slice Decision"), "✓UR ●Block");
-assert.equal(compact("undecided", "UR", { approved: [] }), "●UR");
-assert.equal(compact("undecided", "Brownfield Review"), "✓UR");
-for (const route of ["mystery", "constructor", "toString"]) assert.equal(compact(route, "UR", { approved: [] }), "●UR", `unknown route ${route} reads as undecided`);
-for (const route of ["quick_task", "verified_change", "block"]) {
-  assert.ok(!/PRD|SD|TP|CD\+Tests/u.test(compact(route, "OR", { lifecycle: "completed", approved: ["UR", "PRD", "SD", "TP"] })), `${route} never shows structured gates`);
+  // Every text field of the German views is free of the companion catalog's English-only copy, and both
+  // locales carry the same keys (the check main had, CR finding C6).
+  const leaves = (value, prefix = "") => Object.entries(value ?? {}).flatMap(([key, item]) => (item && typeof item === "object"
+    ? leaves(item, `${prefix}${key}.`) : [[`${prefix}${key}`, item]]));
+  const enLeaves = new Map(leaves(labels.locales.en)), deLeaves = new Map(leaves(labels.locales.de));
+  assert.deepEqual([...deLeaves.keys()].sort(), [...enLeaves.keys()].sort(), "German and English companion keys agree");
+  const englishOnly = new Set([...enLeaves].filter(([key, value]) => deLeaves.get(key) !== value).map(([, value]) => value));
+  assert.ok(englishOnly.size > 50, "the English-only copy is found");
+  const fields = ["title", "stateLabel", "reason", "message", "hint", "unreadableHint", "origin", "openCount", "nextStep", "readAt", "stale", "eventsHint"];
+  let compared = 0;
+  for (const item of [waiting, blocked, working, building, done, noControl, layout, legacyOnly, mixed]) {
+    for (const field of fields) {
+      if (typeof item[field] !== "string") continue;
+      compared += 1;
+      assert.equal(englishOnly.has(item[field]), false, `German panel shows English ${field}: ${item[field]}`);
+    }
+  }
+  assert.ok(compared >= 25, "the German view fields are compared");
+  for (const columns of [40, 60]) assert.ok(view({ snapshot: snapshot([run({ last_activity: at })]), columns }).gateBar.length <= columns, `gate bar fits ${columns}`);
 }
 
-// Follow-up SCN-003: the build mood, its precedence and the turn overlay.
-for (const gate of BUILD_GATES) assert.deepEqual(runState(structured(gate)), { mood: "baut", reason: { key: "building", gate } });
-assert.equal(runState(structured("CR", { gateResult: "revise" })).mood, "blockiert", "blocked wins over building");
-assert.equal(runState(structured("CD+Tests", { missing: "Exact Approval: QA." })).mood, "wartet", "waiting wins over building");
-assert.equal(runState(structured("CD+Tests", { route: "quick_task" })).mood, "laeuft", "only structured runs build");
-assert.equal(runState(structured("QA")).mood, "laeuft");
-assert.deepEqual(displayState(structured("CD+Tests"), { isTurnActive: true }), { mood: "baut", reason: { key: "building", gate: "CD+Tests" } }, "a turn keeps the build state");
-assert.deepEqual(displayState(structured("QA"), { isTurnActive: true }), { mood: "laeuft", reason: { key: "turnActive" } });
-const buildView = locale => buildPanelView({ snapshot: snapshot([structured("CD+Tests", { id: "build", updatedAt: "2026-10-26T08:01:00Z" })]),
-  sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, isTurnActive: true, registry, labels, locale, columns: 40 });
-assert.deepEqual([buildView("de").stateLabel, buildView("de").reason, buildView("en").stateLabel, buildView("en").reason],
-  ["baut", "In Arbeit: Implementierung und Tests", "building", "In progress: Implementation and tests"]);
-assert.ok(terminalText(buildView("de"), { labels, locale: "de" }).includes("(o_o) ⚒ baut · In Arbeit: Implementierung und Tests"));
+// Follow-up SCN-001 / SCN-006: the gate bar draws the status card's path and adds the build phase on structured paths.
+{
+  const marks = gateMarks(run());
+  assert.equal(fullGateBar(marks), "✓UR ✓PRD ●SD ○TP ○CD+Tests ○QA ○UAT ○OR");
+  assert.deepEqual([gateBar(marks, 40), gateBar(marks, 38)], [fullGateBar(marks), "✓✓●○○○○○ SD"]);
+  assert.ok(!/\n/u.test(gateBar(marks, 10)), "the gate bar never wraps into two lines");
+  assert.equal(fullGateBar(gateMarks(structured("CD+Tests"))), "✓UR ✓PRD ✓SD ✓TP ●CD+Tests ○QA ○UAT ○OR");
+  assert.equal(gateBar(gateMarks(structured("CD+Tests")), 38), "✓✓✓✓●○○○ CD+Tests", "below its width the condensed form names the current mark");
+  const completed = run({ lifecycle: "completed", current_gate: "OR", path: PATH.map(gate => ({ gate, status: "fulfilled" })) });
+  assert.equal(fullGateBar(gateMarks(completed)), "✓UR ✓PRD ✓SD ✓TP ✓CD+Tests ✓QA ✓UAT ✓OR");
+  const compact = (route, rows) => fullGateBar(gateMarks(run({ mode: route, path: rows })));
+  assert.equal(compact("quick_task", [{ gate: "UR", status: "fulfilled" }, { gate: "Compact Delivery", status: "current" }]), "✓UR ●Compact Delivery");
+  assert.equal(compact("verified_change", [{ gate: "UR", status: "fulfilled" }, { gate: "Verified Change", status: "fulfilled" }, { gate: "OR", status: "blocked" }]), "✓UR ✓Verified Change ●OR");
+  assert.equal(compact("undecided", [{ gate: "UR", status: "current" }]), "●UR");
+  assert.equal(condensedGateBar(gateMarks(run({ path: [] }))), "", "a summarized run has no path");
+}
 
 // SCN-018: figure geometry, still pose and terminal text.
 const disjoint = (a, b) => a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
@@ -441,18 +232,16 @@ for (const [mood, bounds] of Object.entries(ACCESSORY_BOUNDS)) {
 }
 const wellFormed = svg => { const stack = []; for (const match of svg.matchAll(/<(\/?)([a-zA-Z]+)[^>]*?(\/?)>/gu)) {
   const [, close, name, self] = match; if (self) continue; if (close) { if (stack.pop() !== name) return false; } else stack.push(name); } return stack.length === 0; };
-for (const mood of ["laeuft", "baut", "wartet", "blockiert", "fertig", "neutral"]) {
+for (const mood of ["laeuft", "baut", "wartet", "blockiert", "fertig", "bereit"]) {
   const moving = figureSvg(mood, { title: "AGDF <x> & \"y\"" });
   const still = figureSvg(mood, { still: true, title: "AGDF" });
   assert.ok(wellFormed(moving) && wellFormed(still), `${mood} SVG is well-formed`);
   assert.equal(/<animate|<set\b/u.test(still), false, `${mood} still pose has no animation`);
   assert.ok(moving.length < 131072, "Svg source stays below the host limit");
   assert.ok(moving.includes("AGDF &lt;x&gt; &amp; &quot;y&quot;"), "title is escaped");
-  if (mood !== "neutral") assert.ok(/<animate/u.test(moving), `${mood} moves when not still`);
+  if (mood !== "bereit") assert.ok(/<animate/u.test(moving), `${mood} moves when not still`);
   assert.ok(FIGURE_TEXT[mood], `${mood} has a terminal face`);
 }
-const text = terminalText(assigned, { labels, locale: "de" });
-for (const required of ["AGDF Companion", "wartet auf Freigabe", "✓UR ✓PRD ●SD", "Nächster Schritt: ", "Stand "]) assert.ok(text.includes(required), `terminal text carries ${required}`);
 
 // Follow-up SCN-004: the hammer's swing and the bricks stay inside the declared bounds, which lie in
 // the accessory region; the strokes add at most 0.75 px on each side.
@@ -473,18 +262,18 @@ assert.ok(figureSvg("baut", { still: true }).includes(`rotate(${HAMMER.swing[1]}
 assert.equal(FIGURE_TEXT.baut, "(o_o) ⚒");
 
 // Follow-up SCN-008: toasts only for transitions of the same run into or within wartet and blockiert.
-const seen = (runId, state) => ({ kind: "run", runId, state });
-const working = runState(run());
-const waitingSd = runState(run({ missing: "Exact Approval: SD." }));
-const waitingQa = runState(run({ gate: "QA", missing: "Exact Approval: QA." }));
-const blockedRevise = runState(structured("CR", { gateResult: "revise" }));
-const blockedBlock = runState(structured("CR", { gateResult: "block" }));
+const seen = (runId, item) => observedRun({ snapshot: snapshot([{ ...item, id: runId, updatedAt: "2026-10-26T08:01:00Z" }]), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z") });
+const working = run();
+const waitingSd = run({ missing_approval: "Approval: SD" });
+const waitingQa = run({ current_gate: "QA", missing_approval: "Approval: QA" });
+const blockedRevise = structured("CR", { status: "blocked", blocking_reason: "qa_revise_required", blocking_text: "Überarbeitung nötig" });
+const blockedBlock = structured("CR", { status: "blocked", blocking_reason: "AGDF_SD_DECISIONS_OPEN", blocking_text: "blocked" });
 const steps = [];
 let observation = null;
 for (const [observed, name] of [[seen("a", waitingSd), "baseline"], [seen("a", waitingSd), "equal read"], [seen("a", working), "approved"],
   [seen("a", waitingQa), "waiting"], [seen("a", waitingQa), "equal read"], [{ kind: "unreadable" }, "unreadable"], [seen("a", waitingQa), "same after unreadable"],
   [seen("a", blockedRevise), "blocked"], [seen("a", blockedBlock), "decision changed"], [seen("b", waitingSd), "run switch"],
-  [seen("b", runState(structured("CD+Tests"))), "building"], [seen("b", runState(run({ lifecycle: "completed" }))), "done"], [{ kind: "idle" }, "no run"],
+  [seen("b", structured("CD+Tests")), "building"], [seen("b", run({ lifecycle: "completed" })), "done"], [{ kind: "idle" }, "no run"],
   [seen("b", waitingSd), "baseline after no run"]]) {
   const result = observeNotice(observation, observed);
   observation = result.observation;
@@ -495,26 +284,32 @@ assert.deepEqual(steps, [["baseline", null], ["equal read", null], ["approved", 
   ["no run", null], ["baseline after no run", null]]);
 assert.equal(observeNotice(null, seen("a", waitingQa)).notice, null, "the first observation is a baseline");
 assert.notEqual(observeNotice(observeNotice(null, seen("a", waitingSd)).observation, seen("a", waitingQa)).notice, null, "a new pending gate is announced");
-// The observation is the run-derived state: the turn overlay never reaches it.
-const overlaySnapshot = snapshot([run({ id: "o", missing: "Exact Approval: SD.", updatedAt: "2026-10-26T08:01:00Z" })]);
-assert.deepEqual(observedRun({ snapshot: overlaySnapshot, sessionStartedAt: Date.parse("2026-10-26T08:00:00Z") }), seen("o", waitingSd));
 assert.deepEqual(observedRun({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "unreadable" });
-assert.deepEqual(observedRun({ snapshot: { ...snapshot([]), unreadable: [{ id: "x", reason: "format" }] }, sessionStartedAt: 0, selection: "x" }), { kind: "unreadable" });
+assert.deepEqual(observedRun({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "unreadable" });
+assert.deepEqual(observedRun({ snapshot: { ...snapshot([]), unreadable: [{ id: "x", reason: "run_state_invalid" }] }, sessionStartedAt: 0, selection: "x" }), { kind: "unreadable" });
 assert.deepEqual(observedRun({ snapshot: null, sessionStartedAt: 0 }), { kind: "idle" });
 assert.deepEqual(observedRun({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "idle" });
-assert.deepEqual(observedRun({ snapshot: snapshot([run({ id: "m", decision: "mystery", updatedAt: "2026-10-26T08:01:00Z" })]), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z") }), { kind: "unreadable" });
-assert.equal(noticeText("r1", waitingSd, { registry, labels, locale: "de" }), "r1 wartet auf Freigabe: Lösungsdesign");
-assert.equal(noticeText("r1", blockedRevise, { registry, labels, locale: "de" }), "r1 ist blockiert: Code-Review – Überarbeitung nötig");
-assert.equal(noticeText("r1", runState(run({ decision: "awaiting_uat", gate: "UAT" })), { registry, labels, locale: "de" }), "r1 wartet auf Entscheidung: Nutzerabnahme");
-assert.equal(noticeText("r1", waitingQa, { registry, labels, locale: "en" }), "r1 is waiting for approval: Quality assurance");
-assert.equal(noticeText("r1", blockedBlock, { registry, labels, locale: "en" }), "r1 is blocked: Code review – blocked");
+// A notice concerns the run the status line follows and names no run (owner request of 2026-11-06, T-013).
+const notice = (item, locale = "de") => noticeText(seen("r1", item).state, { registry, labels, locale });
+assert.equal(notice(waitingSd), "Wartet auf Freigabe: Lösungsdesign");
+assert.equal(notice(blockedRevise), "Blockiert: Code-Review – Überarbeitung nötig");
+assert.equal(notice(run({ current_gate: "UAT", user_action_required: "yes" })), "Wartet auf Entscheidung: Nutzerabnahme");
+assert.equal(notice(waitingQa, "en"), "Waiting for approval: Quality assurance");
+assert.equal(notice(blockedBlock, "en"), "Blocked: Code review – blocked");
 
 // Follow-up SCN-013: status-line texts per state and locale.
 const status = (observed, locale = "de") => statusText(observed, { labels, locale });
-assert.deepEqual([status(seen("a", waitingQa)), status(seen("a", runState(structured("CR")))), status(seen("a", working)), status(seen("a", blockedRevise)),
-  status(seen("a", runState(run({ lifecycle: "completed" })))), status({ kind: "idle" }), status({ kind: "unreadable" })],
+assert.deepEqual([status(seen("a", waitingQa)), status(seen("a", structured("CR"))), status(seen("a", working)), status(seen("a", blockedRevise)),
+  status(seen("a", run({ lifecycle: "completed" }))), status({ kind: "idle" }), status({ kind: "unreadable" })],
 ["AGDF · QA · wartet", "AGDF · CR · baut", "AGDF · SD · läuft", "AGDF · CR · blockiert", "AGDF · fertig", "AGDF · bereit", "AGDF · nicht lesbar"]);
 assert.deepEqual([status(seen("a", waitingQa), "en"), status({ kind: "idle" }, "en"), status({ kind: "unreadable" }, "en")], ["AGDF · QA · waiting", "AGDF · idle", "AGDF · unreadable"]);
+
+// Follow-up SCN-018: one brand name in every locale; the command name is unchanged.
+for (const [locale, pack] of Object.entries(labels.locales)) {
+  assert.equal(pack.title, "AGDF Companion", `${locale} title`);
+  for (const key of ["description", "enabled", "disabled", "waiting"]) assert.ok(pack.command[key].includes("AGDF Companion"), `${locale} command.${key} names the brand`);
+}
+assert.ok(!/Begleiter|companion\b/u.test(JSON.stringify(labels)), "no other brand spelling in the companion's texts");
 
 // Follow-up SCN-011 (logic part): the generated chime is a short 8 kHz, 8-bit mono WAV.
 const clip = chimeClip();
@@ -529,32 +324,6 @@ assert.ok(Math.abs((wav.length - 44) / CHIME.rate - 0.3) < 0.001, "about 0.3 s")
 assert.equal(Buffer.from(wav).toString("base64"), clip.base64, "the module's encoder equals standard base64");
 assert.equal(CHIME.gain, 0.35);
 
-// Follow-up SCN-018: one brand name in every locale; the command name is unchanged.
-for (const [locale, pack] of Object.entries(labels.locales)) {
-  assert.equal(pack.title, "AGDF Companion", `${locale} title`);
-  for (const key of ["description", "enabled", "disabled", "waiting"]) assert.ok(pack.command[key].includes("AGDF Companion"), `${locale} command.${key} names the brand`);
-}
-assert.ok(!/Begleiter|companion\b/u.test(JSON.stringify(labels)), "no other brand spelling in the companion's texts");
-
-// Follow-up SCN-020: the placeholder rule equals the core's; a template objective is not shown.
-for (const value of ["Describe the trustworthy outcome.", "  describe   the TRUSTWORTHY outcome. ", "`TBD`", "todo", "<goal>", "draft | done", "pass | revise | block",
-  "What outcome should become possible?", "", "   ", "done", "Show the run state.", "A user who has switched the AGDF Companion on sees the build phase.", undefined]) {
-  assert.equal(isPlaceholderText(value), isDecisionContentPlaceholder(value), `placeholder parity for ${JSON.stringify(value)}`);
-}
-const freshTarget = fixture();
-const freshRoot = freshTarget.root;
-try {
-  createRun(freshRoot, "fresh-run");
-  assert.match(readFileSync(runFile(freshRoot, "fresh-run"), "utf8"), /Describe the trustworthy outcome\./u, "the canonical template objective");
-  const fresh = parsed(freshRoot, "fresh-run");
-  assert.equal(fresh.run.objective, "");
-  const freshView = buildPanelView({ snapshot: snapshot([{ ...fresh.run, updatedAt: "2026-10-26T08:01:00.000Z" }]), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"),
-    selection: null, isTurnActive: false, registry, labels, locale: "de", columns: 40 });
-  assert.ok(!freshView.objective && !terminalText(freshView, { labels, locale: "de" }).includes("Ziel:"), "no objective line for a template objective");
-} finally {
-  freshTarget.close();
-}
-
 // Follow-up SCN-021 (logic part): Claude's language setting chooses the locale only without AGDF
 // config: a supported tag or a language name, else the fallback.
 for (const [setting, expected] of [["de", "de"], ["de-AT", "de"], ["German", "de"], ["deutsch", "de"], [" Deutsch ", "de"], ["English", "en"], ["en-GB", "en"],
@@ -563,6 +332,30 @@ for (const [setting, expected] of [["de", "de"], ["de-AT", "de"], ["German", "de
 }
 assert.equal(settingLocale(registry, labels, "Klingon"), null);
 assert.equal(chatLocale(registry, JSON.stringify({ chat_language: "en" }), { setting: "de", labels }), "en", "an AGDF config wins over the setting");
+
+// SCN-008 (restored, CR finding C1): the companion's chat language, which it hands to `run-view
+// --language`, agrees with the status card's Core rule; Core rejects an invalid configuration without
+// repairing it, while the display-only companion never gains execution authority from it.
+{
+  const configRoot = mkdtempSync(join(tmpdir(), "agdf-companion-locale-"));
+  try {
+    const languageConfig = chat_language => JSON.stringify({ control_layout: "run-folders-v1", artifact_language: "en", chat_language, runtime_language: "en" });
+    for (const config of [null, ...["de", "de-AT", "fr", "DE"].map(languageConfig)]) {
+      rmSync(join(configRoot, ".agdf"), { recursive: true, force: true });
+      if (config !== null) { mkdirSync(join(configRoot, ".agdf", "control"), { recursive: true }); writeFileSync(join(configRoot, ".agdf", "control", "config.json"), config); }
+      assert.equal(chatLocale(registry, config), resolveConfiguredChatLanguage(configRoot), `chat language parity for ${config}`);
+    }
+    for (const [config, field] of [["{", "config"], [JSON.stringify({ control_layout: "run-folders-v1", chat_language: "de" }), "artifact_language"], [languageConfig("not a tag"), "chat_language"]]) {
+      const path = join(configRoot, ".agdf", "control", "config.json");
+      writeFileSync(path, config);
+      assert.throws(() => resolveConfiguredChatLanguage(configRoot), error => error.code === "configuration_invalid"
+        && error.facts.dispatch === "not_dispatched" && error.diagnostic.field === field, `invalid config must not silently default: ${config}`);
+      assert.equal(readFileSync(path, "utf8"), config, "language lookup never repairs invalid project configuration");
+    }
+  } finally {
+    rmSync(configRoot, { recursive: true, force: true });
+  }
+}
 
 // SDD-07: persistence location and format.
 const configDir = join(tmpdir(), "claude-config");
@@ -615,10 +408,10 @@ for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"
   const start = Date.parse("2026-10-28T08:00:00.000Z");
   const at = iso => Date.parse(iso);
   const runs = [
-    run({ id: "named", updatedAt: "2026-10-28T07:00:00.000Z" }),
-    run({ id: "changed", updatedAt: "2026-10-28T08:05:00.000Z" }),
-    run({ id: "picked", updatedAt: "2026-10-28T07:30:00.000Z" }),
-    run({ id: "done", lifecycle: "completed", updatedAt: "2026-10-28T07:10:00.000Z" }),
+    run({ run_id: "named", last_activity: "2026-10-28T07:00:00.000Z" }),
+    run({ run_id: "changed", last_activity: "2026-10-28T08:05:00.000Z" }),
+    run({ run_id: "picked", last_activity: "2026-10-28T07:30:00.000Z" }),
+    run({ run_id: "done", lifecycle: "completed", last_activity: "2026-10-28T07:10:00.000Z" }),
   ];
   const pick = (input) => { const result = assignRun({ runs, sessionStartedAt: start, ...input }); return [result.run?.id ?? null, result.origin, result.chatRunId]; };
   assert.deepEqual(pick({ mention: { runId: "named", at: at("2026-10-28T08:10:00Z") } }), ["named", "named", "named"], "a later mention wins");
@@ -631,6 +424,106 @@ for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"
   const quiet = runs.filter(item => item.id !== "changed");
   assert.deepEqual([assignRun({ runs: quiet, sessionStartedAt: start, selection: "picked" }).origin, assignRun({ runs: quiet, sessionStartedAt: start, selection: "picked" }).chatRunId], ["selected", null], "no chat run: the selection as today");
   assert.deepEqual(assignRun({ runs: quiet, sessionStartedAt: start, mention: { runId: "named", at: start }, selection: "picked", isBrowsing: true }).chatRunId, "named");
+}
+
+// Companion core SDD-007: the journal reader keeps a cursor, skips foreign and malformed lines, compares
+// roots normalized and falls back to the event time after a rotation; review facts stay bounded.
+{
+  const { EVENT_KINDS, TOAST_KINDS, eventText, latestReview, normalizeRoot, parseJournal, sameRoot, shortRunId, unseenEvents } = await companion("events.mjs");
+  const coreEvents = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "companion", "events.js")).href);
+  assert.deepEqual([EVENT_KINDS, TOAST_KINDS], [coreEvents.EVENT_KINDS, coreEvents.TOAST_KINDS], "the companion reads the kinds Core writes");
+  // CR finding CIR-04: every companion mirror of a Core value is pinned to its owner.
+  const mirror = await companion("events.mjs");
+  const coreJournal = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "companion", "journal.js")).href);
+  assert.deepEqual([mirror.JOURNAL_FILE, mirror.JOURNAL_ROTATED_FILE, mirror.journalDirectory("D")],
+    [coreJournal.JOURNAL_FILE, coreJournal.JOURNAL_ROTATED_FILE, `D/${coreJournal.JOURNAL_DIRECTORY}`], "the companion reads the files Core writes");
+  assert.ok(mirror.JOURNAL_READ_LIMIT >= coreJournal.JOURNAL_LIMIT_BYTES, "the bounded read covers a full journal file");
+  const coreFigure = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "companion", "figure-state.js")).href);
+  const coreIdentity = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "control-state", "run-identity.js")).href);
+  const coreOperations = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "control-state", "run-operations.js")).href);
+  assert.deepEqual(BUILD_GATES, coreFigure.BUILD_GATES, "the gate bar's build phase is Core's building phase");
+  assert.deepEqual(coreIdentity.RUN_MODES.filter(isStructured), coreFigure.STRUCTURED_MODES, "structured routes as Core names them");
+  assert.deepEqual(coreFigure.ENDED_LIFECYCLES, coreOperations.ENDED_LIFECYCLES, "the figure's ended lifecycles are the run lifecycle owner's");
+  const catalog = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "interaction-catalog.js")).href);
+  const classification = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "control-inspect", "run-classification.js")).href);
+  const runView = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "companion", "run-view.js")).href);
+  assert.deepEqual([...catalog.COMPANION_UNREADABLE_REASONS].sort(),
+    [...new Set([...runView.DIAGNOSIS_REASONS, ...classification.BOUNDED_READ_CODES, ...READ_FAILURE_REASONS])].sort(),
+    "the catalog has a text for every reason the run view, the bounded read and the companion produce");
+  for (const [left, right] of [["C:\\Work\\App", "c:/work/app/"], ["\\\\Server\\Share\\App", "//server/share/app"], ["/home/Work/App", "/home/work/app"],
+    ["/home/Work/App/", "/home/Work/App"], ["C:\\Work\\App", "C:\\Work\\Other"], ["P:\\", "p:\\"], ["P:", "p:/"]]) {
+    const win32 = /^(?:[a-z]:(?:[\\/]|$)|[\\/]{2})/iu.test(left);
+    assert.equal(mirror.sameRoot(left, right), coreEvents.sameRoot(left, right, { win32 }), `root comparison ${left} | ${right}`);
+  }
+  const ev = (id, at, fields = {}) => ({ schema_version: "companion-event/1", id, at, root: "C:\\Work\\App", run_id: "r1", gate: "SD", kind: "approval_requested", ...fields });
+  const text = [JSON.stringify(ev("a", "2026-11-05T10:00:00.000Z")), "{\"cut", JSON.stringify({ ...ev("x", "t"), schema_version: "companion-event/2" }),
+    JSON.stringify(ev("b", "2026-11-05T10:00:01.000Z", { root: "c:/work/app/" })), JSON.stringify(ev("c", "2026-11-05T10:00:02.000Z", { root: "D:\\Other" }))].join("\n");
+  const events = parseJournal(text);
+  assert.deepEqual(events.map(item => item.id), ["a", "b", "c"]);
+  assert.deepEqual(coreEvents.parseEventLines(text).map(item => item.id), ["a", "b", "c"], "the companion parses like Core");
+  assert.equal(normalizeRoot("C:\\Work\\App\\"), "c:/work/app");
+  assert.equal(normalizeRoot("/home/Work/App/"), "/home/Work/App", "POSIX roots keep their case");
+  assert.ok(sameRoot("C:\\Work\\App", "c:/work/app/") && !sameRoot("/a", "/A") && !sameRoot("", ""));
+  assert.deepEqual(unseenEvents(events, { root: "C:\\Work\\App", cursor: null }), { fresh: [], cursor: { id: "c", at: "2026-11-05T10:00:02.000Z" } }, "a first read is a baseline");
+  assert.deepEqual(unseenEvents(events, { root: "C:\\Work\\App", cursor: { id: "a", at: "x" } }).fresh.map(item => item.id), ["b"], "after the cursor, this root only");
+  assert.deepEqual(unseenEvents(events, { root: "C:\\Work\\App", cursor: { id: "gone", at: "2026-11-05T10:00:00.500Z" } }).fresh.map(item => item.id), ["b"], "a rotated cursor falls back to time");
+  assert.deepEqual(unseenEvents([], { root: "/p", cursor: { id: null, at: "t" } }), { fresh: [], cursor: { id: null, at: "t" } });
+  const tEn = (path, params) => label(labels, "en", path, params);
+  // Owner request of 2026-11-06 (T-013): the shown run's events name no run; another run follows the
+  // event text by its objective, else by its short id, so a cut line keeps the event.
+  assert.equal(eventText(ev("a", "t", { kind: "write_rejected", reason: "stale_revision" }), tEn), "Call rejected (stale_revision) · r1");
+  assert.equal(eventText(ev("a", "t"), tEn, { gateTitle: () => "Solution design", shownRunId: "r1" }), "Approval requested for Solution design",
+    "the shown run's event names no run");
+  assert.equal(eventText(ev("a", "t"), tEn, { gateTitle: () => "Solution design", shownRunId: "r2", runs: [{ id: "r1", objective: "Ship the export" }] }),
+    "Approval requested for Solution design · Ship the export", "another run is named by its objective");
+  assert.equal(eventText(ev("a", "t", { run_id: "run-4ee7b956-7ccc-4da0-97df-1f9415a483e0" }), tEn, { shownRunId: "r1" }), "Approval requested for SD · run-4ee7b956",
+    "a generated id without an objective is shortened");
+  assert.deepEqual(["run-4ee7b956-7ccc-4da0-97df-1f9415a483e0", "fixture-a", "run-4ee7b956"].map(shortRunId), ["run-4ee7b956", "fixture-a", "run-4ee7b956"]);
+  const review = latestReview([ev("a", "t", { kind: "material_staged", review: [{ slot: "SD", digest: `sha256:${"f".repeat(64)}`, bytes: 9, preview: "x", truncated: true, source_match: "guess" }] })], tEn);
+  assert.deepEqual(review, { summary: "SD: 9 bytes, sha256:ffffffff…", match: "facts unavailable", preview: "x", truncated: "preview truncated" }, "an unknown match is unavailable");
+  assert.equal(latestReview([ev("a", "t")], tEn), null);
+  for (const kind of EVENT_KINDS) for (const locale of ["de", "en"]) assert.notEqual(label(labels, locale, `events.${kind}`), `events.${kind}`, `${locale} text for ${kind}`);
+  // The view lists the events with their time, the newest review and the unavailable hint.
+  const shown = view({ snapshot: snapshot([run({ last_activity: "2026-10-26T08:01:00Z", drift: [{ document: "SD", path: "p", recorded_digest: `sha256:${"1".repeat(64)}`, current_digest: null }] })]),
+    events: [ev("b", "2026-11-05T10:00:01.000Z", { kind: "effect_unknown", run_id: "r" }), ev("c", "2026-11-05T10:00:00.000Z", { kind: "write_rejected", reason: "stale_revision" })],
+    eventsAvailable: false });
+  assert.deepEqual(shown.events.map(line => line.slice(6)), ["Wirkung unbekannt – Vorgangsstatus prüfen", "Aufruf abgelehnt (stale_revision) · r1"],
+    "the shown run's event names no run; another run's event names it after the text");
+  const pair = view({ snapshot: snapshot([run({ run_id: "a", objective: "First run" }), run({ run_id: "b", objective: "Second run" })]),
+    events: [ev("d", "2026-11-05T10:00:02.000Z", { run_id: "b" }), ev("e", "2026-11-05T10:00:01.000Z", { run_id: "a" })] });
+  assert.deepEqual([pair.runId, pair.events.map(line => line.slice(6))], ["a", ["Freigabe angefragt für Lösungsdesign · Second run", "Freigabe angefragt für Lösungsdesign"]],
+    "an event of another open run names it by its objective");
+  assert.equal(shown.eventsHint, "Ereignisse nicht verfügbar; der Run-Status wird weiter gelesen.");
+  assert.deepEqual(shown.drift, ["SD wurde nach der Erfassung geändert (erfasst sha256:11111111…, jetzt –). Aus der aktuellen Datei neu erfassen oder die Datei wiederherstellen."]);
+  assert.ok(terminalText(shown, { labels, locale: "de" }).includes("Ereignisse:\n"));
+
+  // CR finding B10: the terminal text shows the start of the preview beneath the material line.
+  const previewed = view({ snapshot: snapshot([run({ last_activity: "2026-10-26T08:01:00Z" })]),
+    events: [ev("p", "2026-11-05T10:00:03.000Z", { kind: "material_staged", review: [{ slot: "UR", digest: `sha256:${"a".repeat(64)}`, bytes: 30,
+      preview: "# UR\nLine two\nLine three\nLine four", truncated: false, source_match: "not_determinable" }] })] });
+  const terminal = terminalText(previewed, { labels, locale: "en" });
+  assert.ok(terminal.includes("\n  # UR\n  Line two\n  Line three\n"), terminal);
+  assert.ok(!terminal.includes("Line four"), "the terminal shows a bounded start of the preview");
+
+  // CR findings B4 and B7: durable facts need the run view's confirmation; an uncertain outcome stands
+  // until its run recorded a later operation.
+  const { isConfirmed, isStillUncertain } = await companion("events.mjs");
+  const runs = [{ id: "r1", lifecycle: "active", updatedAt: "2026-11-05T10:00:05.000Z", path: [{ gate: "UR", status: "fulfilled" }, { gate: "PRD", status: "open" }] },
+    { id: "r2", lifecycle: "completed", updatedAt: "2026-11-05T09:00:00.000Z", path: [] }];
+  assert.deepEqual([
+    isConfirmed(ev("a", "t", { kind: "approval_recorded", gate: "UR" }), runs),
+    isConfirmed(ev("a", "t", { kind: "approval_recorded", gate: "PRD" }), runs),
+    isConfirmed(ev("a", "t", { kind: "run_completed", run_id: "r2" }), runs),
+    isConfirmed(ev("a", "t", { kind: "run_completed" }), runs),
+    isConfirmed(ev("a", "t", { kind: "approval_recorded", run_id: "gone" }), runs),
+    isConfirmed(ev("a", "t", { kind: "write_rejected" }), []),
+  ], [true, false, true, false, false, true]);
+  assert.deepEqual([
+    isStillUncertain(ev("a", "2026-11-05T10:00:06.000Z", { kind: "effect_unknown" }), runs),
+    isStillUncertain(ev("a", "2026-11-05T10:00:04.000Z", { kind: "effect_unknown" }), runs),
+    isStillUncertain(ev("a", "2026-11-05T10:00:04.000Z", { kind: "recovery_required", run_id: "gone" }), runs),
+    isStillUncertain(ev("a", "2026-11-05T10:00:06.000Z", { kind: "write_rejected" }), runs),
+  ], [true, false, true, false]);
 }
 
 console.log("Claude companion logic tests passed");

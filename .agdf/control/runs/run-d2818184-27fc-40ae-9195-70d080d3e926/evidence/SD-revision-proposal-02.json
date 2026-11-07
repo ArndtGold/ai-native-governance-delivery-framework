@@ -1,0 +1,300 @@
+{
+  "schema_version": "3",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "run-d2818184-27fc-40ae-9195-70d080d3e926",
+  "expected_revision_id": "af97ee58-f8ae-4673-81ac-ccf199a6fac3",
+  "operation_id": "f007df42-8be9-456c-9c8d-6ddd6787e3d3",
+  "source_gate": "SD",
+  "reason": "T-002 sizing showed the approved pure split reworks about 25 central modules; a native probe confirmed that the Claude companion can obtain a node-side run view through $.process.run. The owner decided on 2026-11-05 to revise SD and TP accordingly.",
+  "intended_change": "Replace the pure split (SDD-001, SDD-002) by a Core run view projected from the unchanged evaluateGateCheck report and delivered through a read-only local run-view command; drop the mod SHA-256 (SDD-008); the companion calls the command via $.process.run and imports no Core module (SDD-010); renew TP tasks and scenarios.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+      "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+      "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:974adb56efb667fa7ea2e0ebc89f9f72d7cf71be7d699ec565d5e191652b4045"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude (agent analysis for Arndt Gold)",
+    "earliest_source": "SD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+        "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+        "rationale": "User intent and scope are unchanged; only the technical delivery of the run view changes."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+        "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+        "rationale": "PRD criteria stay valid; AC-001 parity becomes stronger (doctor findings included); the PRD constraint on pure imports and no Node built-ins in consumed Core code holds because the companion imports no Core module."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+        "reason": "Route structured_delivery and its depth facts are unaffected by how the run view reaches the companion."
+      },
+      {
+        "type": "UX Intent Definition",
+        "disposition": "retain",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+        "reason": "Working modes, visible states and P1 notices are unchanged."
+      }
+    ],
+    "implementation_evidence": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/evidence/T-002-design-finding-01.md @ sha256:3c99c521698348b212f0cd6fd9e95e08e339a66a10aafb241883381259fa5179",
+    "unresolved": []
+  },
+  "policy_version": 2,
+  "initiating_phase": "CD+Tests",
+  "changed_statements": [
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+      "statement": "Introduce a pure run-view projection `projectRunView(facts, options)` in `packages/core/lib/companion/run-view.js`, fed by `captureRunViewFacts(io)` with injected `{ exists, list, read }`",
+      "intended_change": "The run view is projected in Core from the unchanged evaluateGateCheck report plus store diagnosis, built node-side for all runs of a project root and exposed by a read-only local command run-view with versioned JSON.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+      "statement": "- SDD-002: Split the status-field part of `evaluateGateCheck` into pure functions over captured contents with an injected SHA-256 function",
+      "intended_change": "No split of evaluateGateCheck; doctor, readiness and next-step rules keep their single node owner, status card bytes stay unchanged by construction and the golden comparison remains the regression guard; parity covers runs with doctor findings too.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+      "statement": "digests in the mod use a pure SHA-256 in `packages/core/lib/companion/sha256.js` over `canonicalRunText`",
+      "intended_change": "Drift warnings use the existing node digest owner inside the run view; no SHA-256 implementation in the mod.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+      "statement": "- SDD-010: The Claude companion consumes the core through the existing generated bridge",
+      "intended_change": "The companion calls the read-only local command with $.process.run (node on PATH, as the SessionStart hook already requires), keeps the last good view with a stale marker on failure, imports no Core module and refreshes only on run-file change, journal event or language change.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+      "statement": "- Core modules consumed by the mod must have a pure import closure (no Node built-ins); this is enforced by the integrity test.",
+      "intended_change": "The companion imports no Core module; the integrity test asserts that it spawns only the read-only run-view command and writes nothing under .agdf/control.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+      "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+      "statement": "| Doctor findings in the companion | before_sd | resolved |",
+      "intended_change": "Superseded: the doctor runs inside the unchanged evaluateGateCheck that feeds the run view, so the companion shows doctor blocks like the status card.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:974adb56efb667fa7ea2e0ebc89f9f72d7cf71be7d699ec565d5e191652b4045",
+      "statement": "| T-002 | Extract the status-field rules of `evaluateGateCheck` into pure functions over captured contents",
+      "intended_change": "T-002 and T-003 become the Core run view (projection plus node reader) and the read-only run-view command; T-006 becomes the companion process adapter; T-009 drops the pure SHA-256.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:974adb56efb667fa7ea2e0ebc89f9f72d7cf71be7d699ec565d5e191652b4045",
+      "statement": "while the companion capture yields the pure state with integrity marked as not checked",
+      "intended_change": "SCN-020 expects the companion to show the same doctor block as the status card for F13.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+      "digest": "sha256:974adb56efb667fa7ea2e0ebc89f9f72d7cf71be7d699ec565d5e191652b4045",
+      "statement": "the pure SHA-256 equals node crypto for empty, single-block, multi-block, non-ASCII and CRLF-canonicalized inputs",
+      "intended_change": "SCN-015 drops the SHA-256 parity; a new scenario covers command failure, timeout and malformed output in the companion.",
+      "reason": "T-002 sizing: the pure split reaches 82 modules (34 importing Node, 4,872 lines) and would rework about 25 central modules; native probe 2026-11-05 showed $.process.run working in the Claude desktop app with 0.5-0.65 s per node-side run view; owner chose the node-side run view"
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+        "status": "done"
+      },
+      "record_digest": "sha256:562467e1346bed1b1bb328b8f87957fdc28e1b15ac0cc2e8a77e313e6cff51bb",
+      "operation_id": "b0477632-e592-4c0d-b282-b36a5b71b382",
+      "source_set_digest": "sha256:6372368586fe96969655c9d5997ef3f8fc8750d405b81dc1322af9262113a7f9",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Bound only to UR or Brownfield Review, which this SD revision does not change."
+    },
+    {
+      "record": {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+        "status": "done"
+      },
+      "record_digest": "sha256:6cdeca54fbf69e8c8ee960f9b140ab3efe8f1164fe961c3ba5e538da2e05b41b",
+      "operation_id": "28221120-bdd9-4948-bbb9-3122a617d7e2",
+      "source_set_digest": "sha256:85496dbba68d5705c42012c077782461a6cf96c562b835de1a79ad139fb1a8ab",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        }
+      ],
+      "association": "current",
+      "disposition": "retain",
+      "reason": "Bound only to UR or Brownfield Review, which this SD revision does not change."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:a2b3252b48ebc6a41a70edfc34e0811c858b6d3f9b47eaa25bb71838a2acc184",
+        "status": "done"
+      },
+      "record_digest": "sha256:b13b84dd2c2a7e74712eac049e36feb56bbec1da927d870ea66865a70b5ab7ef",
+      "operation_id": "258bd461-4715-46a8-ba7b-446602fd98aa",
+      "source_set_digest": "sha256:f2da5b8444b7c1b2b837c222632e753b22107c985af65d9c17667d36a7b12db8",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:974adb56efb667fa7ea2e0ebc89f9f72d7cf71be7d699ec565d5e191652b4045",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to SD or TP (or the pre-implementation analysis of them); repeated after the renewed TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:a2b3252b48ebc6a41a70edfc34e0811c858b6d3f9b47eaa25bb71838a2acc184",
+        "status": "documented"
+      },
+      "record_digest": "sha256:845b23e53cc071defbee29c1cd98a58dcfe901298715a3633326a03a7bff794e",
+      "operation_id": "258bd461-4715-46a8-ba7b-446602fd98aa",
+      "source_set_digest": "sha256:f2da5b8444b7c1b2b837c222632e753b22107c985af65d9c17667d36a7b12db8",
+      "sources": [
+        {
+          "digest": "sha256:00a55324a4a40f6abe5b0abd7194572ffa6623c4764787758e5a50cd9ae2ed95",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:dc4a4775fbe94d2581667ce3783e018ef5de59734f6d2b2083a388e8e3f99642",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:e46bc4d06d5237d44de8db24859d0f11b667419c72308a7dfdfd6e58a18c5360",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:974adb56efb667fa7ea2e0ebc89f9f72d7cf71be7d699ec565d5e191652b4045",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:de8a3f6d5551917fc9a027c1e90f3a7fcc3622854a5068aae242c5635e2752a7",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": "sha256:7dcf1dc3b76e0c8d3301fc2093ce2562d0ae97b77d49beadf920cfcd5c087253",
+          "path": ".agdf/control/runs/run-d2818184-27fc-40ae-9195-70d080d3e926/documents/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Bound to SD or TP (or the pre-implementation analysis of them); repeated after the renewed TP."
+    }
+  ]
+}

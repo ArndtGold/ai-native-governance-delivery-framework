@@ -66,7 +66,7 @@ export function inspectAuthoringInputs(root, input, { gitObservation } = {}) {
       const uxRequired = prdEligible && inspectDefinitionSources(root, state, input.run_id, 'PRD', ['UR', 'Brownfield Review']).issue?.repairable;
       const nextOperation = uxRequired ? { type: 'reassess_source_analysis', skill_id: 'ux-intent-definition', analysis: 'UX Intent Definition' } : evaluated.next_operation;
       return { languages, gate: evaluated.current_gate, authoring_owner: nextOperation?.type === 'record_closeout' ? 'OR'
-        : nextOperation?.analysis ?? nextOperation?.gate ?? evaluated.current_gate,
+        : nextOperation?.analysis ?? nextOperation?.internal_step ?? nextOperation?.gate ?? evaluated.current_gate,
         recording: inspectArtefactRecordingMode(state, evaluated.current_gate), mode: state.mode_slice_decision?.decision, next_operation: nextOperation, status: evaluated.status,
         blocking_reason: evaluated.blocking_reason, sources };
     });

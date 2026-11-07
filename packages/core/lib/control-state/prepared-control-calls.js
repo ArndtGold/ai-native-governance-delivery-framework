@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { RUN_COMMAND_DESCRIPTORS, validateRunCommand } from './run-command-schema.js';
+import { REPORT_DECISION_FORMAT } from '../control-evaluation/report-decision.js';
+import { MATERIAL_LIMITS } from './material-limits.js';
 
 // Call construction only. The existing command/dispatch owners still validate
 // intent, current bindings, review, presentation and every actual mutation.
@@ -43,11 +45,31 @@ function missing(schema, value, path) {
     ? (schema.required ?? []).includes(key) ? [`${path}/${key}`] : [] : missing(rule, value[key], `${path}/${key}`));
 }
 
-export function preparedCommandCall(group, kind, input, { gate, material, recording, presentationId } = {}) {
+// Authoring gates whose staged source uses another material slot. A Quick Task
+// closes with its mandatory Code Review, so that report is the material it stages.
+const MATERIAL_SLOT_BY_GATE = Object.freeze({ 'Mode/Slice Decision': 'Brownfield Review',
+  'Verified Change Execution': 'Verified Change', 'Quick Task Execution': 'CR' });
+const INTERNAL_STEPS = Object.freeze(['UX Intent Definition', 'Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR']);
+// Reports whose recorded result Core reads with readReportDecision.
+const DECISION_REPORT_SLOTS = new Set(['Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR']);
+
+// Selects the one step.record variant an authoring gate records, so the form's
+// required inputs name concrete fields instead of the ambiguous whole payload.
+function recordingStep(gate) {
+  if (gate === 'UR') return { step: 'ur' };
+  if (['Brownfield Review', 'Mode/Slice Decision'].includes(gate)) return { step: 'route' };
+  if (gate === 'Quick Task Execution') return { step: 'review' };
+  if (INTERNAL_STEPS.includes(gate)) return { step: 'internal', internal_step: gate };
+  return {};
+}
+
+// `revision` continues an accepted source revision preview: apply keeps the
+// preview's operation UUID, which the proposal binds, and its preview digest.
+export function preparedCommandCall(group, kind, input, { gate, material, recording, presentationId, revision } = {}) {
   if (!RUN_COMMAND_DESCRIPTORS[kind] || RUN_COMMAND_DESCRIPTORS[kind].group !== group) return undefined;
-  let payload = {};
+  let payload = {}, slot;
   if (kind === 'material.stage') {
-    const slot = ({ 'Mode/Slice Decision': 'Brownfield Review', 'Verified Change Execution': 'Verified Change' })[gate] ?? gate ?? 'EVIDENCE';
+    slot = MATERIAL_SLOT_BY_GATE[gate] ?? gate ?? 'EVIDENCE';
     const roles = RUN_COMMAND_DESCRIPTORS[kind].payload_schema.oneOf.find(row => row.properties.action.const === 'put').properties.files.items.properties.slot.enum;
     if (!roles.includes(slot)) return undefined;
     payload = { action: 'put', files: [{ slot }] };
@@ -58,15 +80,15 @@ export function preparedCommandCall(group, kind, input, { gate, material, record
     ...(gate ? { gate } : {}), ...(presentationId ? { presentation_id: presentationId } : {}),
     ...(kind === 'presentation.deliver' ? { route: 'automatic' } : {}) };
   if (kind === 'ur_draft.replace' && material) payload = { source: material };
-  if (kind === 'step.record') payload = { ...(material ? { source: material } : {}),
-    ...(gate === 'UR' ? { step: 'ur' } : ['Brownfield Review', 'Mode/Slice Decision'].includes(gate) ? { step: 'route' }
-      : gate === 'UX Intent Definition' ? { step: 'internal', internal_step: gate }
-        : ['Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR'].includes(gate) ? { step: 'internal', internal_step: gate } : {}) };
+  if (kind === 'step.record') payload = { ...(material ? { source: material } : {}), ...recordingStep(gate) };
+  // The proposal reference stays an input: staged material rarely outlives the
+  // person's confirmation, and restaging identical bytes keeps the same digest.
+  if (kind === 'source_revision.apply' && revision) payload = { source_gate: revision.source_gate, preview_digest: revision.preview_digest };
   const unbound = ['run.create', 'project.initialize'].includes(kind);
   const argumentsValue = { schema_version: '1', presentation_language: input.presentation_language,
     working_directory: input.working_directory, primary_target: input.primary_target, target_source: input.target_source,
     target_id: input.target_id, ...(!unbound ? { run_id: input.run_id, expected_revision_id: input.expected_revision_id } : {}),
-    operation_id: randomUUID(), assurance: 'cooperative_local', command: { kind, payload } };
+    operation_id: revision?.operation_id ?? randomUUID(), assurance: 'cooperative_local', command: { kind, payload } };
   const required = missing(RUN_COMMAND_DESCRIPTORS[kind].payload_schema, payload, '/command/payload');
   const valid = validateRunCommand(group, argumentsValue).length === 0;
   return { state: valid ? 'ready' : 'requires_author_input', call: { tool: group, arguments: argumentsValue },
@@ -78,6 +100,11 @@ export function preparedCommandCall(group, kind, input, { gate, material, record
         presentation_language: input.presentation_language, working_directory: input.working_directory,
         primary_target: input.primary_target, target_source: input.target_source,
         run_id: input.run_id, expected_revision_id: input.expected_revision_id } },
+      // Staged material is private to the serving MCP process and short-lived,
+      // so a recording that waits for a person must not stage first.
+      retention: { idle_ms: MATERIAL_LIMITS.idle, lifetime_ms: MATERIAL_LIMITS.lifetime, scope: 'serving MCP server process',
+        instruction: 'Stage only when every input of the following recording (for example reviewer and review confirmation) is already available. Staged material does not survive a reconnect or a pause beyond idle_ms. After expiry stage the identical bytes again: a form that takes the material reference as an input (closeout, source revision apply) is reused with the new reference, which keeps its UUID and any confirmation valid; otherwise use the recording form returned by the new staging.' },
+      ...(DECISION_REPORT_SLOTS.has(slot) ? { report_decision: REPORT_DECISION_FORMAT } : {}),
     } } : {}),
     ...(kind === 'approval.record' && gate ? { contract_call: { tool: 'agdf_inspect', arguments: {
       operation: 'operation-contract', module: 'agdf_approve/approval.record',
@@ -87,5 +114,7 @@ export function preparedCommandCall(group, kind, input, { gate, material, record
     } }, response_contract: {
       approval_value: `Approval: ${gate}`, exact: true,
       instruction: 'Only a NEW deliberate reply for this presentation. Put the exact reply alone in response; simulation/reviewer explanation belongs outside response. Never prefix or suffix the approval formula. This value is a format, not a decision or permission. The complete approval form already binds the revision and presentation; fill response without another contract read. If explanatory schema help is needed, copy contract_call exactly; never omit or guess expected_revision_id.' } } : {}),
+    ...(kind === 'source_revision.apply' && revision ? { confirmation_contract: { confirmation_value: revision.confirmation_selector, exact: true,
+      instruction: 'confirmation is only the person\'s NEW deliberate reply with exactly this text. proposal is the reference of the previewed proposal; if its staged material expired, stage the identical bytes again and use the new reference. This form keeps the previewed UUID and digest.' } } : {}),
     instruction: 'Fill required_inputs from actual authored content, review or a NEW deliberate reply. Preserve the supplied binding and UUID. Retry an uncertain dispatch with the identical call; each new logical command already has its own supplied UUID; do not regenerate it or put IDs in inputs. This form is not permission or an approval.' };
 }

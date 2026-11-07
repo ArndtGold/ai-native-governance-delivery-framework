@@ -1,11 +1,13 @@
 // Only a single, exact Core-supplied inspect call may be folded into a response.
 // Dispatch can repair sealed relationships; no dispatch or command is auto-run.
 const operations = new Set(['authoring-inputs', 'gate-check', 'operation-contract']);
-const writableOutcome = new Set(['accepted', 'already_applied']);
+// Only read results fold a follow-up read. A write result returns at once so a
+// slow or large follow-up can never delay or enlarge the receipt of a committed
+// write; its next read stays a normal supplied call.
 const readableOutcome = new Set(['inspect_result', 'skill_continuation', 'intake_continuation', 'control_result']);
 
 export function suppliedReadContinuation(result) {
-  if (!result || result.terminal === true || !writableOutcome.has(result.outcome) && !readableOutcome.has(result.outcome)) return null;
+  if (!result || result.terminal === true || !readableOutcome.has(result.outcome)) return null;
   if (result.outcome === 'inspect_result' && result.report?.available === false) return null;
   // Source pages are consumed explicitly, in order. Folding page N+1 into page N
   // would create two competing source locations and could lose the first form.
@@ -27,8 +29,8 @@ export function suppliedReadContinuation(result) {
 
 export async function appendSafeReadContinuation(result, { execute, validate, allowed = true } = {}) {
   let call, phase = 'selection';
-  // execute owns normal parsing, policy and result validation. A read failure is
-  // separate from the accepted write and can never cause that write to repeat.
+  // execute owns normal parsing, policy and result validation. A follow-up failure
+  // is separate from the original read result and never replaces it.
   try {
     call = allowed && suppliedReadContinuation(result);
     if (!call) return result;

@@ -205,6 +205,16 @@ assert.deepEqual(replying.required_inputs,['response']);assert.deepEqual(replyin
 const reply=canonical.resolve('agdf_approve',{...replying.call.arguments,inputs:{response:'Approval: TP'}});assert.equal(reply.command.payload.response,'Approval: TP');assert.equal(reply.command.payload.gate,'TP');
 assert.equal(canonical.resolve('agdf_approve',{...replying.call.arguments,inputs:{response:''}}).command.payload.response,'','An empty reply is never turned into approval.');
 assert.throws(()=>canonical.resolve('agdf_approve',{...replying.call.arguments,inputs:{response:'Approval: TP',presentation_id:'changed'}}),/command_schema_invalid/);
+// When Core cannot select one payload variant it asks for the whole payload. That
+// form stays a normal bound reference instead of becoming transport_unavailable.
+const stepRaw={...rawArguments,command:{kind:'step.record',payload:{}}};
+const wholePayload=canonical.decorate({prepared_call:{call:{tool:'agdf_record',arguments:stepRaw},required_inputs:['/command/payload']}}).prepared_call;
+assert.deepEqual(wholePayload.required_inputs,['payload']);assert.deepEqual(wholePayload.call.arguments.inputs,{});
+const authoredPayload={step:'evidence',source:{path:'evidence.md',digest:'sha256:'+'0'.repeat(64)},reason:'Actual reason',covers:'Actual scope'};
+const resolvedPayload=canonical.resolve('agdf_record',{...wholePayload.call.arguments,inputs:{payload:authoredPayload}});
+assert.deepEqual(resolvedPayload.command,{kind:'step.record',payload:authoredPayload});assert.equal(resolvedPayload.operation_id,stepRaw.operation_id);
+assert.equal(canonical.decorate({prepared_call:{call:{tool:'agdf_record',arguments:stepRaw},required_inputs:['/command/payload','/command/payload/step']}}).prepared_call.call,null,
+  'The whole payload is never combined with nested pointers.');
 const titled=canonical.decorate({prepared_call:{call:{tool:'agdf_run',arguments:{...rawArguments,command:{kind:'run.create',payload:{}}}},required_inputs:['/command/payload/title']}}).prepared_call;
 assert.deepEqual(titled.required_inputs,['title']);assert.equal(canonical.resolve('agdf_run',{...titled.call.arguments,inputs:{title:'Actual authored title'}}).command.payload.title,'Actual authored title');
 const filesRaw={...rawArguments,command:{kind:'material.stage',payload:{action:'put',files:[{slot:'SD'},{slot:'TP'}]}}};

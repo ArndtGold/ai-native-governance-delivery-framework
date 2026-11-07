@@ -185,6 +185,12 @@ try {
     writeFileSync(join(root, path), `# ${step}\nStatus: ${decision}\n- decision: ${decision}\nSynthetic exact current result.\n${syntheticFindings(decision)}`);
     return run('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision, source: { path, digest: artefactFileDigest(root, path) } } } });
   };
+  const undeclaredPath = f.prefix + 'UNDECLARED_SOURCE.md';
+  writeFileSync(join(root, undeclaredPath), '# Brownfield Analysis\n\n## Analysis\n\n- decision: pass\n');
+  const undeclared = service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: 'Brownfield Analysis',
+    decision: 'pass', source: { path: undeclaredPath, digest: artefactFileDigest(root, undeclaredPath) } } } });
+  assert.equal(undeclared.reason, 'internal_result_unconfirmed');
+  assert.ok(JSON.stringify(undeclared).includes('## Decision'), 'The rejection names where the result must stand.');
   for (const step of ['Brownfield Analysis', 'CD+Tests', 'CR']) assert.equal(internal(step).outcome, 'accepted', step);
   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
   writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic dead end\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests recorded.\n\n## Risks\nNo applicable open required finding.\n'));
@@ -316,8 +322,12 @@ try {
       return service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', material: { path: qaPath, digest: artefactFileDigest(root3, qaPath) }, reviewer: 'Synthetic QA reviewer', reviewed: true, update_draft: suffix !== '01' } } });
     };
     assert.equal(recordQa('01').outcome, 'accepted');
-    assert.equal(evaluateGateCheck(root3, { runId: f.runId }).next_allowed_action, 'Record TP Review and Clean Implementation Review before requesting Approval: QA.');
+    const owed = evaluateGateCheck(root3, { runId: f.runId });
+    assert.equal(owed.next_allowed_action, 'Record TP Review and Clean Implementation Review before requesting Approval: QA.');
+    assert.deepEqual([owed.next_operation.internal_step, owed.next_operation.skill_id], ['TP Review', 'task-plan-review'],
+      'The owed review, not the QA report, is the next authoring operation.');
     assert.equal(internal('TP Review').outcome, 'accepted', 'Reviews stay recordable at the QA gate.');
+    assert.equal(evaluateGateCheck(root3, { runId: f.runId }).next_operation.internal_step, 'Clean Implementation Review');
     assert.equal(internal('Clean Implementation Review').outcome, 'accepted');
     const stale = evaluateGateCheck(root3, { runId: f.runId });
     assert.equal(stale.missing_approval, 'none', 'A QA report older than the reviews is not presented for approval.');

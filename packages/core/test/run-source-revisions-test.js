@@ -235,7 +235,19 @@ try {
   reset(); const portable = prepare(); cloneOf();
   const cloneTarget = resolveControlCommandTarget(clone).target_id;
   assert.notEqual(cloneTarget, resolveControlCommandTarget(root).target_id);
-  assert.equal(previewSourceRevision(clone, portable.input).reason, "revision_proposal_invalid", "a proposal for the original checkout stays local");
+  const local = previewSourceRevision(clone, portable.input);
+  assert.equal(local.reason, "revision_proposal_invalid", "a proposal for the original checkout stays local");
+  assert.ok(local.recovery.includes(`target_id must be "${cloneTarget}"`), "The rejection names the violated binding and its expected value.");
+  const assessment = portable.value.impact_assessment;
+  writeFileSync(join(clone, portable.input.evidence), JSON.stringify({ ...portable.value, target_id: cloneTarget, impact_assessment: { ...assessment,
+    analyses: [...assessment.analyses, { type: "UX Intent Definition", disposition: "retain", path: "unregistered.md", digest: "sha256:" + "0".repeat(64), reason: "Not run." }] } }));
+  const unregistered = previewSourceRevision(clone, portable.input);
+  assert.equal(unregistered.reason, "analysis_applicability_unresolved");
+  assert.ok(unregistered.recovery.includes("exactly the registered analyses"), "The rejection lists the analyses the proposal must name.");
+  writeFileSync(join(clone, portable.input.evidence), JSON.stringify({ ...portable.value, target_id: cloneTarget, initiating_phase: "Invented phase" }));
+  const phase = previewSourceRevision(clone, portable.input);
+  assert.equal(phase.reason, "revision_impact_proof_invalid");
+  assert.ok(phase.recovery.includes(`initiating_phase must be "${portable.value.initiating_phase}"`), "The proof rejection names the violated rule.");
   writeFileSync(join(clone, portable.input.evidence), JSON.stringify({ ...portable.value, target_id: cloneTarget }));
   assert.equal(previewSourceRevision(clone, portable.input).outcome, "preview", "recorded approvals and bindings verify in the clone");
   assert.equal(applySourceRevision(root, portable.input).outcome, "reopened"); cloneOf();

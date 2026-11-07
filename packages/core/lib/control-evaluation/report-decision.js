@@ -222,6 +222,15 @@ export function readAuthoredContent(text, profile, { locale, sourceLanguage } = 
   return sections === 1 && (spec.paragraph ? lines.length : Object.keys(fields).length) ? spec.paragraph ? lines.join(' ') : fields : null;
 }
 
+// Authoring guidance owned next to the parser that enforces it. Only a level-1
+// title's metadata or a level-2 "Decision" section carries the result; a
+// "## Code Review" style heading closes the readable metadata block.
+export const REPORT_DECISION_FORMAT = Object.freeze({
+  section: '## Decision',
+  field: '- decision: <pass|revise|block>',
+  instruction: 'State the result in a level-2 "## Decision" section whose first line is "- decision: <value>". The value must equal the decision supplied when recording. A result under any other heading is not read.',
+});
+
 // Observe an authored technical result, never decide or approve QA. The closed
 // internal opt-in preserves analysis not_applicable; QA's domain stays unchanged.
 export function readReportDecision(text, { allowNotApplicable = false } = {}) {

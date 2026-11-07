@@ -24,6 +24,24 @@ export function closeoutContext(text) {
 }
 export const closeoutContextDigest = text => digest(`agdf-closeout-context/1\0${canonicalJson(closeoutContext(text))}`);
 
+// Bindings a structured OR states; the same tables drive the check and the
+// expectations returned with a refusal.
+const OR_SOURCE_FIELDS = Object.freeze({ related_ur: 'UR', related_prd: 'PRD', related_sd: 'SD', related_tp: 'TP', related_qa_report: 'QA' });
+const OR_GATE_ROWS = Object.freeze(['UR', 'PRD', 'SD', 'TP', 'Brownfield Review', 'Brownfield Analysis', 'CD+Tests', 'CR', 'QA', 'UAT']);
+const OR_MEMORY_TARGETS = Object.freeze(['context_graph', 'sot_registry', 'scope_artifact', 'open_questions', 'none']);
+const gateRowExpectation = (state, type) => ({
+  status: state.approvals.has(type) ? state.approvals.get(type).status : state.artefacts.get(type)?.status,
+  reference: state.artefacts.get(type)?.path || state.approvals.get(type)?.evidence,
+});
+function structuredOrExpectations(state, route) {
+  return {
+    fields: { ...Object.fromEntries(Object.entries(OR_SOURCE_FIELDS).map(([field, type]) => [field, state.artefacts.get(type)?.path ?? null])),
+      mode_slice_decision: route, current_gate: 'OR', decision: 'pass', required_approval: 'none' },
+    gate_state_rows: Object.fromEntries(OR_GATE_ROWS.map(type => [type, gateRowExpectation(state, type)])),
+    memory_target: OR_MEMORY_TARGETS, memory_fields: 'memory_reason and memory_refs need concrete text',
+  };
+}
+
 // Shared observation of registered OR and prepared OR candidates. Legacy reports retain
 // their documented formats; the new writer additionally requires the complete template.
 export function evaluateCloseoutReadiness(state, report, readArtefact, { prepared = false } = {}) {
@@ -85,14 +103,13 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
         ...Object.keys(context), 'next_allowed_action', 'required_approval', 'forbidden_until_then']) {
         if ([...report.matchAll(new RegExp(`^- ${field}:[ \\t]*(.*)$`, 'gmu'))].length !== 1) fail('or_field_ambiguous:' + field);
       }
-      for (const [field, type] of Object.entries({ related_ur: 'UR', related_prd: 'PRD', related_sd: 'SD', related_tp: 'TP', related_qa_report: 'QA' })) {
+      for (const [field, type] of Object.entries(OR_SOURCE_FIELDS)) {
         if (value(report, field) !== state.artefacts.get(type)?.path) fail('or_source_reference_invalid:' + field);
       }
       if (value(report, 'mode_slice_decision') !== route || value(report, 'current_gate') !== 'OR' || value(report, 'decision') !== 'pass') fail('or_control_binding_invalid');
       const gateRows = tableRows(markdownSection(report, 'Gate State')).filter(row => row[0] !== 'Gate or step');
-      for (const type of ['UR', 'PRD', 'SD', 'TP', 'Brownfield Review', 'Brownfield Analysis', 'CD+Tests', 'CR', 'QA', 'UAT']) {
-        const rows = gateRows.filter(row => row[0] === type), expected = state.approvals.has(type) ? state.approvals.get(type).status : state.artefacts.get(type)?.status;
-        const reference = state.artefacts.get(type)?.path || state.approvals.get(type)?.evidence;
+      for (const type of OR_GATE_ROWS) {
+        const rows = gateRows.filter(row => row[0] === type), { status: expected, reference } = gateRowExpectation(state, type);
         if (rows.length !== 1 || rows[0][1] !== expected || !concrete(rows[0][2])
           || cleanStatusCell(rows[0][2]) !== cleanStatusCell(reference)) fail('or_gate_state_unconfirmed:' + type);
       }
@@ -101,11 +118,12 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
         if (!concrete(text) || /<[^>]+>|\|[ \t]*\|/u.test(text)) fail('or_section_incomplete:' + section);
       }
       for (const section of ['Missing Evidence', 'Risks And Open Items']) if (/\|\s*(?:revise|block)\s*\|/u.test(markdownSection(report, section))) fail('or_required_obligation_open:' + section);
-      if (!['context_graph', 'sot_registry', 'scope_artifact', 'open_questions', 'none'].includes(context.memory_target)
+      if (!OR_MEMORY_TARGETS.includes(context.memory_target)
         || !concrete(context.memory_reason) || !concrete(context.memory_refs)) fail('or_knowledge_decision_incomplete');
       if (value(report, 'required_approval') !== 'none') fail('or_required_approval_open');
     }
   }
   return { ready: findings.length === 0, findings, route, context_digest: closeoutContextDigest(report),
-    parent_reconciliation: parent ?? null, programme_aggregation: programme ?? null };
+    parent_reconciliation: parent ?? null, programme_aggregation: programme ?? null,
+    ...(prepared && structured && findings.length ? { expected: structuredOrExpectations(state, route) } : {}) };
 }

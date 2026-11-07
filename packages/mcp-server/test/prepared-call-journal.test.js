@@ -108,6 +108,25 @@ try {
   assert.equal(retirePluginMcpDataRoot(dataRoot), true, 'Normal uninstall removes only verified owned journals after retiring runtimes.');
   assert.equal(existsSync(dataRoot), false);
 
+  // Cleanup covers every verified namespace (e.g. old and new runtime after an
+  // upgrade) and a root whose first namespace never fit the byte budget.
+  const multiData = join(work, 'multi-data'); mkdirSync(multiData, { mode: 0o700 });
+  const multiPublisher = join(multiData, 'mcp'); mkdirSync(multiPublisher, { mode: 0o700 });
+  for (const server_digest of ['4'.repeat(64), '5'.repeat(64)])
+    assert.ok(createPreparedCallTransport({ store: createPreparedCallJournal({ publisherRoot: multiPublisher, identity: { ...identity, server_digest } }) })
+      .decorate({ material_call: original.material_call }).material_call.call);
+  assert.equal(readdirSync(join(multiPublisher, 'prepared-calls')).length, 3, 'Two namespaces plus the owner marker.');
+  assert.equal(inspectPluginMcpDataRoot(multiData), 'owned');
+  assert.equal(retirePluginMcpDataRoot(multiData), true, 'Every verified namespace and the owner marker are removed together.');
+  assert.equal(existsSync(multiData), false);
+  const emptyData = join(work, 'empty-data'); mkdirSync(emptyData, { mode: 0o700 });
+  const emptyPublisher = join(emptyData, 'mcp'); mkdirSync(emptyPublisher, { mode: 0o700 });
+  assert.equal(createPreparedCallTransport({ store: createPreparedCallJournal({ publisherRoot: emptyPublisher, identity, maxBytes: 64 }) })
+    .decorate({ material_call: original.material_call }).material_call.call, null);
+  assert.deepEqual(readdirSync(join(emptyPublisher, 'prepared-calls')), ['owner.json'], 'Only the owned root marker was published.');
+  assert.equal(retirePluginMcpDataRoot(emptyData), true, 'An owned root without namespaces is removed as well.');
+  assert.equal(existsSync(emptyData), false);
+
   // The original issue time survives reconnect; a reconnect never restarts TTL.
   const expiryRoot = join(work, 'expiry'); mkdirSync(expiryRoot, { mode: 0o700 }); let time = 1000;
   const expiring = make(expiryRoot, { now: () => time, lifetimeMs: 10, maxEntries: 1 });

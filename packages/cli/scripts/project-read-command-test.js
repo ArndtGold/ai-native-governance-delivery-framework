@@ -39,7 +39,7 @@ test('public project reads use Core facts, retain original UUID and never write'
   }
   const human = call(['project-state', '--dir', f.root, '--language', 'de']);
   assert.equal(human.status, 0, human.stderr); assert.match(human.stdout, /initialized/);
-  assert.match(human.stdout, /Plan: 16 files; sha256:/); assert.match(human.stdout, /Receipt: sha256:/);
+  assert.match(human.stdout, /Plan: 17 files; sha256:/); assert.match(human.stdout, /Receipt: sha256:/);
 });
 test('the installed validator exposes the same reads and pending is a complete observation', async t => {
   let interrupted = false;

@@ -263,6 +263,9 @@ none
     assert.equal(rejected.outcome, 'rejected', JSON.stringify(rejected));
     assert.equal(rejected.reason, 'closeout_obligations_unfulfilled', JSON.stringify(rejected));
     assert.equal(readFileSync(f.state, 'utf8'), original, 'An OR assertion cannot establish missing actual authority.');
+    const expected = rejected.family_result?.expected ?? rejected.expected;
+    assert.equal(expected.fields.related_tp, `${f.prefix}TP.md`, 'The refusal states the bindings the OR must carry.');
+    assert.equal(expected.gate_state_rows.CR.reference, state.artefacts.get('CR').path);
   }
   writeFileSync(join(root, orPath), report);
   const unconfirmed = service('agdf_closeout', { ...input, command: { ...input.command, payload: { ...input.command.payload, confirmation: 'Tool allowed' } } });

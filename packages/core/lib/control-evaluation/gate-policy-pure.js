@@ -1,6 +1,6 @@
 import { extractField, verifiedChangeEscalationTargets } from "./gate-policy-inputs.js";
 import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state-policy.js";
-import { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from "./gate-policy-inputs.js";
+import { REVIEW_SKILLS, STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from "./gate-policy-inputs.js";
 
 
 // Shared policy over prepared facts. The Core supplies its validated receipt reader;
@@ -310,8 +310,9 @@ function gateDecisionForRunState(runState, verifiedChange = null) {
   const acceptedPlanDeviation = runState.qa_acceptance?.eligible || runState.qa_acceptance?.accepted;
   const structuredBeforeQaApproval = ["structured_slice", "structured_delivery"].includes(modeSliceDecision(runState))
     && gateApprovalStatus(runState, "QA") !== "approved";
-  if (structuredBeforeQaApproval && STRUCTURED_REQUIRED_REVIEWS.some(step => !isInternalStepSatisfied(runState, reviewArtefactType(runState, step))
-        && !(step === "TP Review" && acceptedPlanDeviation && runState.artefacts.get(step)?.status === "revise"))) {
+  const pendingReview = structuredBeforeQaApproval && STRUCTURED_REQUIRED_REVIEWS.find(step => !isInternalStepSatisfied(runState, reviewArtefactType(runState, step))
+    && !(step === "TP Review" && acceptedPlanDeviation && runState.artefacts.get(step)?.status === "revise"));
+  if (pendingReview) {
     return {
       status: "open",
       current_gate: "QA",
@@ -320,6 +321,9 @@ function gateDecisionForRunState(runState, verifiedChange = null) {
       allowed: ["record TP Review and Clean Implementation Review", "run QA gate"],
       forbidden: ["request QA approval", "request UAT approval", "release", "claim delivery readiness"],
       next_allowed_action: "Record TP Review and Clean Implementation Review before requesting Approval: QA.",
+      // Names the review owed next so authoring offers that report's forms, not the QA report's.
+      next_operation: { type: "record_required_review", skill_id: REVIEW_SKILLS[pendingReview], operation_key: "review.record",
+        actor: "agent", effect: "preparation", gate: "QA", internal_step: pendingReview },
     };
   }
   // A QA report recorded before current evidence (for example reviews recorded after it)

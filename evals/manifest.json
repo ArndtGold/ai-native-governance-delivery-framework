@@ -13,10 +13,10 @@
     "clean-implementation-review": "0fa1da1648b213bf3ff4cdc381e0a1712c2d1aff5c46b0bb8d1836b90069fde0",
     "code-review": "888b0af0b895979c637a4cb85ac28d83d68afce4e499175fd0031c07b01c2f8a",
     "delivery-closeout": "415982516b5cf3c3cabf28dc2f17360424d0dd0077ff8479fc27ca174ccdb896",
-    "ur-definition": "369a0763f298f8b33c527bed4de82f374dca6ef260ccbbaf966b97fa19beb693",
-    "prd-definition": "e81ec4e9c3055dff38093481f65b22a19d9341525d406e085cea7f6ed0cb98c8",
-    "sd-definition": "a4b990a6c1218e53278a8486ba0e7135940c545cf9e5b5eea0a232a190f4c57c",
-    "tp-definition": "836698db7eed43122cbbadb19922540f80da2cdcb4127fb016a3c0dd9829a587",
+    "ur-definition": "62ea468493cb383459fd19b1c9670d5ae5dd8b5638fe1befc251475d8c89a891",
+    "prd-definition": "a167f480f0e2756403230504245d9d90fcbd01f6e323e92a11980bf32c504116",
+    "sd-definition": "f83ebc64e5882fd7659c6b19175b3e433521617b621579dec3fef482c670bde8",
+    "tp-definition": "3204fbc2183b6a0170117502ebb561d97565d5d933927fd27ac7edd9f7b5fc58",
     "gate-check": "6d490b1c72c9f8760f2d7d4dcfb5e6a289a25a26d6ef7f759406c74a3182bb28",
     "qa-gate": "56c6562a59fe51c4b3df5ea677107e7ee6e01a3932799f4c1b542ef7acfdd7d4",
     "release-or": "8cef218a815175d405835062dc125eca43563192065521bf1c7cea0c28346648",
@@ -196,7 +196,7 @@
       "changed_source_fingerprints": {
         "ur-definition": {
           "previous": "da69dc9ed2640ac33c323b61c3fc16c074347dd1c81a33ea5df37750982ed413",
-          "current": "369a0763f298f8b33c527bed4de82f374dca6ef260ccbbaf966b97fa19beb693"
+          "current": "62ea468493cb383459fd19b1c9670d5ae5dd8b5638fe1befc251475d8c89a891"
         },
         "prd-definition": {
           "previous": "65d5b0634cda626d32572f1401acf97e8efdc6731a7858031004a9c6e68087fa",
@@ -238,15 +238,15 @@
       "changed_source_fingerprints": {
         "prd-definition": {
           "previous": "c95b2983b42f048e19ae8e85fd781ac1323fd6eebc7fbeef626d59be24e5bcf7",
-          "current": "ac01ffe1397e13769a019cdd02d6144aecfc90b42e673dd74e6d3351c870daea"
+          "current": "e8384d08f54159b663e09a51350c92d67a2f57e1b64a7c0b96bc90cf23a35cd6"
         },
         "sd-definition": {
           "previous": "5e5c236cbaf9c3702172d65bef071b75984d7124f5a7ad70d128dca35ffe6e59",
-          "current": "9b4224d29a6cb0aa0bb2c08b2cef1ef07058324a5b1ba029e48fe9ed69b49ad7"
+          "current": "3a87c0f8e813fd4a1367196f8b6283b36fcf01eed0b9d3f9c303037bf822c920"
         },
         "tp-definition": {
           "previous": "ecfbba5753ee776ca3052af4206aa2c1f5e24f5edebff5e7c9768e4cc0ab72d2",
-          "current": "e3257bbe37f555fab55b578acec7fa0cd5ff4277bdefd0d5cdc4ff970e6412fc"
+          "current": "e2817f2a6193eb6876d49d0f91bc1da84b581feb01433b13be865c38d44f760d"
         }
       },
       "boundary": "Deterministic reference fingerprints only; all assertions, observations except source fingerprints, and thresholds unchanged. No native qualification or independent human acceptance inferred."
@@ -412,6 +412,19 @@
       },
       "replay_rows": 89,
       "boundary": "Existing fixtures have no declared material brand source. Their assertions, results and thresholds remain unchanged. Only deterministic source fingerprints were refreshed."
+    },
+    "pr60_combined_source_reference_review": {
+      "work_boundary": "Direct CI repair for PR #60 in an isolated checkout without AGDF.",
+      "source_base": "11d7d79b8df279c923f0f3b2561718d20a17cb49",
+      "previous_feature_head": "c149e7b34e9b41c92a9ec42952efb406e27d6f32",
+      "previous_feature_fingerprints": {
+        "ur-definition": "369a0763f298f8b33c527bed4de82f374dca6ef260ccbbaf966b97fa19beb693",
+        "prd-definition": "e81ec4e9c3055dff38093481f65b22a19d9341525d406e085cea7f6ed0cb98c8",
+        "sd-definition": "a4b990a6c1218e53278a8486ba0e7135940c545cf9e5b5eea0a232a190f4c57c",
+        "tp-definition": "836698db7eed43122cbbadb19922540f80da2cdcb4127fb016a3c0dd9829a587"
+      },
+      "replay_rows_updated": 20,
+      "boundary": "The merged source fingerprints were recalculated. Case assertions, observed results and thresholds are identical on both parents. Existing reference review metadata remains attributable to its source."
     }
   }
 }

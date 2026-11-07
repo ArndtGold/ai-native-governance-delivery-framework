@@ -40,7 +40,7 @@ for (const modern of [false, true]) {
       const state = await call('agdf_inspect', { ...common, operation: 'project-state' });
       assert.equal(state.report.status, 'absent', JSON.stringify(state));
       assert.equal(state.report.repository.root, root); assert.equal(state.report.plan.version, MCP_PACKAGE_VERSION);
-      assert.equal(state.report.plan.file_count, 16); assert.match(state.report.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
+      assert.equal(state.report.plan.file_count, 17); assert.match(state.report.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
       assert.equal(Buffer.byteLength(JSON.stringify(state)) <= 16384, true);
       assert.equal(state.next_read, undefined, 'Bootstrap state does not embed the full setup command contract.');
       assert.equal(state.next_action.state, 'ready');

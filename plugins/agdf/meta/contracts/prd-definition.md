@@ -42,6 +42,27 @@ mode, source state, action, expected effective state, visible feedback, blocker/
 recovery/next action, observable success and required evidence. Structural completeness is not
 semantic proof: retain the concrete inputs/draft and reasoned derivation for later review.
 
+### Brand-informed UX criteria
+
+For design-relevant work, use the applicable project brand source and any supplied UX source
+references. Retain the exact path, version or content digest and relevant passages in the existing
+UX Intent And Success and Evidence Requirements sections. Do not substitute a same-named file from
+another project or the AGDF plugin. Brand material is design context, not product or approval
+authority; the approved UR and adopted PRD remain authoritative. Confirm the consumed version
+matches the cited source before adopting criteria; never silently replace a stale reference.
+
+Translate supported perception goals and information priorities into observable acceptance using
+the existing criterion fields and stable criterion_id values. Link each adopted criterion to its
+source passage, intended user outcome, visible feedback and required evidence. Adjectives such as
+modern, premium or clear do not by themselves establish an acceptance criterion. Concrete tokens,
+typography, layout and component choices remain SD concerns.
+
+Reuse any supplied UX applicability decision; do not introduce an analytical step solely because a
+brand file exists. Work without a relevant design impact needs no new brand file or separate brand
+gate. Material missing, stale or conflicting source intent stays visible in the existing Approval
+Decisions table and follows the clarification/revision owners below. Source presence alone is not
+verified fidelity or implemented behavior.
+
 ## Clarify product decisions
 
 Keep one Approval Decisions table: Decision | Timing | Status | Resolution | Owner. A product,

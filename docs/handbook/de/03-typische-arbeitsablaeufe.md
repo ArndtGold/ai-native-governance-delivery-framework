@@ -136,6 +136,40 @@ verhindert, dass der Coding-Agent fehlende Produktentscheidungen erst während d
 trifft. Bei einer kleinen, eindeutig beschriebenen Änderung kann sie ausdrücklich nicht erforderlich
 sein.
 
+### Markenquellen in überprüfbare UX-Kriterien übersetzen
+
+Bei gestaltungsrelevanten Vorhaben liest der Agent die ausdrücklich benannte Markenquelle des
+Zielprojekts. Sie beschreibt gewünschte Wahrnehmung und Informationsprioritäten. Für AGDF selbst
+liegt das englische Profil unter [.agdf/control/BRAND.md](../../../.agdf/control/BRAND.md).
+Das Quellenregister weist es als projektweite Gestaltungsquelle aus. Andere Produkte verwenden ihre
+eigenen Quellen. Allgemeine Adjektive oder vorhandene Farben ersetzen keine geklärte Markenabsicht.
+
+Die [gemeinsame Qualitätsregel](../../../plugins/agdf/meta/contracts/quality.md#brand-source-use-across-delivery-paths)
+gilt auch für kompakte Wege. Dort werden Quelle und beobachtbare Prüfungen im vorhandenen
+freigegebenen Umfang sowie im kompakten Ergebnis und Nachweis festgehalten; allein dafür werden
+keine PRD-/SD-Dokumente oder zusätzliche Analyseschritte erzeugt.
+
+Die UX-Analyse hält Quelle, Eigentümer, Geltungsbereich und passende Git-Revision im bestehenden
+Feld `evidence` fest. Fehlt eine verifizierte Revision für die gelesenen Bytes, erfasst sie vor der
+Ableitung den SHA-256-Hash der Datei. Sie übersetzt die relevante Textstelle in eine Priorität, ein konkretes
+Szenario und ein beobachtbares Ergebnis. Daraus entstehen Vorschläge im bestehenden Feld
+`proposed_prd_acceptance_criteria`, zusammen mit der benötigten Evidenz. Eine vorhandene Datei
+allein ist kein Nachweis für eine passende Oberfläche.
+
+Für AGDF zeigt das Markenprofil beispielsweise prüfbare Unterschiede zwischen entschiedenen und
+offenen Vorgängen, erreichbare Ergebnisquellen, den nächsten erlaubten Schritt und sichtbar
+fehlende Evidenz. Das Profil enthält dazu konkrete Szenarien und mögliche Prüfkriterien.
+Das PRD übernimmt bestätigte, zum Auftrag passende Kriterien mit seinen bestehenden Kennungen.
+SD legt anschließend die konkrete Gestaltung und ihre Umsetzung fest.
+
+Fehlt eine für eine wesentliche Entscheidung verlangte Quelle oder widerspricht sie dem
+freigegebenen Bedarf, bleibt die Frage im bestehenden Klärungs- oder Revisionsweg offen.
+Ein irrelevanter Markeninput kann im bestehenden Feld `evidence` begründet
+`not_applicable` sein; eine anderweitig erforderliche UX-Analyse bleibt erforderlich.
+Es entsteht weder ein neues Gate noch eine Pflicht-Markendatei für jedes
+Projekt. Reviews prüfen die übernommenen Kriterien mit der bestehenden UX Intent Fidelity;
+Beobachtung, tatsächliche Nutzerprüfung und noch ungeprüftes Verhalten bleiben unterscheidbar.
+
 ### Eine vorgeschlagene Oberfläche vor der PRD-Freigabe ausprobieren
 
 Wenn sich ein Bedienablauf anhand von Text schwer beurteilen lässt, hilft eine gezielte UI-Vorschau

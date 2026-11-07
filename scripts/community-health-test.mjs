@@ -20,6 +20,7 @@ const fixturePaths = [
   ".github",
   "docs/assets/github-social-preview.png",
   "docs/assets/intro.png",
+  ".agdf/control/BRAND.md",
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
   ".agdf/control/archive/source/runs/agdf-request-activation-boundary/documents/INSTRUCTION_FOOTPRINT_AUDIT.md",

@@ -57,12 +57,18 @@ const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-sta
 const inputSchema = {
   type: 'object', additionalProperties: false,
   required: ['operation', 'presentation_language', 'working_directory'],
-  $defs: { i: uuidSchema, b: { not: { enum: CONTROL_INSPECT_OPERATIONS.filter(op => !BOUND_INSPECT_OPERATIONS.includes(op)) } }, d: { enum: PRESENTATION_OPERATIONS }, m: { enum: ['operation-contract', 'operation-status'] } },
+  $defs: {
+    i: uuidSchema,
+    b: { not: { enum: CONTROL_INSPECT_OPERATIONS.filter(op => !BOUND_INSPECT_OPERATIONS.includes(op)) } },
+    d: { enum: PRESENTATION_OPERATIONS },
+    m: { enum: ['operation-contract', 'operation-status'] },
+    u: { not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } },
+  },
   properties: Object.fromEntries(Object.entries(fieldModel).map(([name, field]) => [name, { ...field.schema, description: field.description }])),
   dependentRequired: { target_source: ['primary_target'], primary_target: ['target_source'], target_id: ['primary_target', 'target_source'] },
   dependentSchemas: Object.fromEntries(Object.entries(fieldModel).filter(([, f]) => f.operations).map(([name, field]) => [name,
-    name === 'authoring_scope' ? { properties: { operation: { const: 'authoring-inputs' }, bundle: { const: true } },
-      required: ['bundle', 'run_id', 'expected_revision_id'] }
+    // Bundle selects authoring-inputs, whose Run binding requires an expected revision.
+    name === 'authoring_scope' ? { properties: { bundle: { const: true } }, required: ['bundle', 'run_id'] }
       : name === 'cursor' ? { anyOf: [ { properties: { operation: { enum: [...PRESENTATION_OPERATIONS, 'authoring-inputs'] } } },
       { properties: { operation: { const: 'doctor' }, all_active: { const: true } }, required: ['all_active'] },
       { properties: { operation: { const: 'operation-contract' }, module: { const: PRESENTATION_CATALOG_MODULE } } } ] }
@@ -70,15 +76,15 @@ const inputSchema = {
         : field.operations === PRESENTATION_OPERATIONS ? { $ref: '#/$defs/d' } : name === 'module' ? { enum: moduleOperations } : { enum: field.operations } } },
   ])),
   allOf: [
-    { if: { properties: { operation: { enum: ['project-state', 'planned-inventory', 'planned-entry'] } } }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
+    { if: { properties: { operation: { enum: ['project-state', 'planned-inventory', 'planned-entry'] } } }, then: { required: ['target_source', 'primary_target'], $ref: '#/$defs/u' } },
     { if: { properties: { operation: { const: 'planned-entry' } } }, then: { required: ['planning'] } },
-    { if: { required: ['planning'] }, then: { required: ['target_source', 'primary_target'], not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] } } },
+    { if: { required: ['planning'] }, then: { required: ['target_source', 'primary_target'], $ref: '#/$defs/u' } },
     { not: { properties: { all_active: { const: true } }, required: ['all_active', 'run_id'] } },
     { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
     { if: { properties: { operation: { $ref: '#/$defs/m' } } }, then: { required: ['module'] } },
     { if: { properties: { operation: { $ref: '#/$defs/b' } } }, then: { required: ['target_source'], anyOf: [
       { required: ['run_id', 'expected_revision_id'] },
-      { not: { anyOf: [{ required: ['run_id'] }, { required: ['expected_revision_id'] }] }, oneOf: [
+      { $ref: '#/$defs/u', oneOf: [
         { properties: { operation: { const: 'operation-status' } } },
         { properties: { operation: { const: 'operation-contract' }, module: { anyOf: [{ enum: ['agdf_run/run.create', 'agdf_project/project.initialize'] }, { pattern: '/(?:planned_|run\\.create_from_planned)' }] } }, required: ['module'] },
         { properties: { operation: { const: 'authoring-inputs' } }, required: ['planning'] },
@@ -93,6 +99,11 @@ inputSchema.dependentSchemas.operation = { allOf: inputSchema.allOf };
 delete inputSchema.allOf;
 // Full selector help is available on demand; discovery keeps the exact guards.
 for (const field of Object.values(inputSchema.properties)) delete field.description;
+Object.assign(inputSchema.properties.target_source, { description: 'Pair primary_target.' });
+Object.assign(inputSchema.properties.primary_target, { description: 'Confirmed target.' });
+Object.assign(inputSchema.properties.module, { description: 'Contract, group/kind or receipt UUID.' });
+Object.assign(inputSchema.properties.gate, { description: 'Not for gate-check.' });
+Object.assign(inputSchema.properties.target_id, { description: 'Required for docs; gate-check.' });
 
 const inspectContract = {
   name: "agdf_inspect",

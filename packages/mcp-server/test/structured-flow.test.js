@@ -132,19 +132,125 @@ try {
   await withStdioClient({ ...fixture, env: slow.env, modern, capabilities: { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } } }, async client => {
   const f = await createMcpDeliveryHarness(client, root); await f.startStructured(route);
   const service = f.call, target = f.target, bound = f.bound;
-  for (const step of ['CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR']) {
+  let recorded;
+  for (const step of ['CD+Tests', 'CR']) {
     const padding = step === 'CD+Tests' ? 'Synthetic evidence for ordinary paging.\n'.repeat(1200) : '';
     const source = await f.stage(step, '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n' + padding);
-    const recorded = await service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source } } });
+    recorded = await service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source } } });
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
   }
+  const dispatch = { presentation_language: 'en', working_directory: root, primary_target: root,
+    target_source: 'explicit_target', run_id: f.runId };
+  const follow = (action, inputs) => {
+    assert.ok(action?.call, JSON.stringify(action));
+    const { tool, arguments: args } = action.call;
+    return service(tool, inputs ? { ...args, inputs } : args);
+  };
+  const authoring = async continuation => {
+    let read = continuation.next_read?.result;
+    if (!read?.report?.available) read = await follow(continuation.next_action);
+    const documents = [];
+    for (;;) {
+      assert.equal(read.report?.available, true, JSON.stringify(read));
+      documents.push(...read.report.documents);
+      if (read.report.complete) break;
+      read = await follow(read.next_action);
+    }
+    assert.equal(read.report.run_id, f.runId);
+    assert.equal(read.report.revision_id, f.revision());
+    return { ...read, documents };
+  };
+  const stageReview = async (input, step, decision = 'pass', findings = '') => {
+    const staged = await follow(input.next_action, {
+      content: '# ' + step + '\n- decision: ' + decision + '\nSynthetic review result.\n' + findings,
+    });
+    assert.equal(staged.outcome, 'accepted', JSON.stringify(staged));
+    assert.equal(staged.family_result.files[0].slot, step);
+    assert.equal(staged.next_action.slot, step);
+    assert.equal(staged.next_action.operation.expected_revision_id, f.revision());
+    assert.deepEqual(staged.next_action.required_inputs, ['decision']);
+    return staged.next_action;
+  };
+
+  const initialState = readFileSync(f.state, 'utf8');
+  const initialStatus = await service('agdf_dispatch', { ...dispatch, skill_id: 'gate-check' });
+  assert.equal(initialStatus.outcome, 'control_result');
+  assert.equal(initialStatus.terminal, true);
+  assert.equal(initialStatus.control.next_operation.internal_step, 'TP Review');
+  assert.equal(readFileSync(f.state, 'utf8'), initialState);
+
+  const checkNegativeCases = !modern && route === 'structured_delivery';
+  for (const [step, skill] of [['TP Review', 'task-plan-review'], ['Clean Implementation Review', 'clean-implementation-review']]) {
+    const previousRevision = f.revision();
+    const continuation = await follow(recorded.next_action);
+    assert.equal(continuation.terminal, false, `Bound continuation must offer ${step} rather than a terminal status`);
+    assert.equal(continuation.continuation.skill_id, skill);
+    assert.equal(continuation.continuation.run_id, f.runId);
+    assert.equal(continuation.continuation.revision_id, previousRevision);
+    const direct = await authoring(await service('agdf_dispatch', { ...dispatch, skill_id: skill }));
+    assert.equal(direct.report.authoring_owner, step);
+    const directForm = await stageReview(direct, step);
+    let input = await authoring(continuation);
+    assert.equal(input.report.authoring_owner, step);
+
+    if (checkNegativeCases && step === 'TP Review') {
+      const findings = '\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n'
+        + '| F-01 | implementation_gap | CD+Tests | open | Synthetic assertion fails | Correct the synthetic implementation and rerun its test |\n';
+      const nonpass = await follow(await stageReview(input, step, 'revise', findings), { decision: 'revise' });
+      assert.equal(nonpass.outcome, 'accepted', JSON.stringify(nonpass));
+      const afterNonpass = await follow(nonpass.next_action);
+      assert.equal(afterNonpass.control.next_operation.internal_step, step);
+      assert.equal(afterNonpass.control.missing_approval, 'none');
+      const denied = await service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
+      assert.equal(denied.outcome, 'rejected');
+      input = await authoring(afterNonpass);
+    }
+
+    recorded = await follow(await stageReview(input, step), { decision: 'pass' });
+    assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
+    assert.notEqual(f.revision(), previousRevision);
+    assert.equal(readRunState(root, { runId: f.runId }).approvals.get('QA').status, 'missing');
+    if (checkNegativeCases && step === 'TP Review') {
+      const current = readFileSync(f.state, 'utf8');
+      const rejected = await follow(directForm, { decision: 'pass' });
+      assert.equal(rejected.reason, 'stale_revision', JSON.stringify(rejected));
+      assert.equal(readFileSync(f.state, 'utf8'), current);
+    }
+  }
+  const qaContinuation = await follow(recorded.next_action);
+  assert.equal(qaContinuation.terminal, false);
+  assert.equal(qaContinuation.continuation.skill_id, 'qa-gate');
+  assert.equal(qaContinuation.continuation.revision_id, f.revision());
+  const beforeReport = await service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
+  assert.equal(beforeReport.outcome, 'rejected');
+  if (checkNegativeCases) {
+    const state = readRunState(root, { runId: f.runId });
+    const cdPath = join(root, state.artefacts.get('CD+Tests').path);
+    const current = readFileSync(cdPath, 'utf8');
+    try {
+      writeFileSync(cdPath, current + '\nSuperseded implementation evidence in the disposable fixture.\n');
+      const stale = readRunState(root, { runId: f.runId });
+      assert.equal(stale.evidence_applicability.by_step.get('TP Review').applicability, 'superseded');
+      const afterStale = await follow(recorded.next_action);
+      assert.equal(afterStale.control.missing_approval, 'none');
+      assert.notEqual(afterStale.continuation?.skill_id, 'qa-gate');
+      assert.equal(stale.approvals.get('QA').status, 'missing');
+    } finally {
+      writeFileSync(cdPath, current);
+    }
+  }
   const qaPath = f.prefix + 'QA_REPORT.md';
-  const qaInputs = await f.inputs();
-  assert.equal(qaInputs[0].gate,'QA');
-  assert.ok(qaInputs[0].documents.some(row => row.role==='template' && row.type==='QA_REPORT'));
+  const qaInputs = await authoring(qaContinuation);
+  assert.equal(qaInputs.report.authoring_owner, 'QA');
+  assert.ok(qaInputs.documents.some(row => row.role === 'template' && row.type === 'QA_REPORT'));
   const qaText = withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
   const qa = await f.formal('QA', qaText);
   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
+  const qaDecision = await follow(qa.next_action);
+  assert.equal(qaDecision.continuation.phase, 'presentation_required');
+  assert.equal(qaDecision.next_action.operation.gate, 'QA');
+  assert.equal(qaDecision.next_action.operation.expected_revision_id, f.revision());
+  assert.equal(readRunState(root, { runId: f.runId }).approvals.get('QA').status, 'missing');
   for (const gate of ['QA', 'UAT']) {
     const preparedReply = await client.callTool({ name: 'agdf_prepare', arguments: { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } } });
     const prepare = preparedReply.structuredContent;

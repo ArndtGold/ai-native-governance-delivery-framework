@@ -178,9 +178,11 @@ export function createPreparedCallJournal({ publisherRoot, identity, now = Date.
       publishDirectory(root, { [MARKER]: json({ schema_version: 1, owner: OWNER }) }, 'root_staged');
     }
     assertOwner(root);
-    if (create) pruneNamespaces(now());
     if (!existsSync(dir)) {
       if (!create) return null;
+      // Verifying and pruning every namespace is costly; it runs only when a new
+      // namespace competes for the shared budget, not on every registration.
+      pruneNamespaces(now());
       const marker = json({ schema_version: 1, owner: OWNER, identity, created: now() });
       if (readdirSync(root).length - 1 >= MAX_NAMESPACES || size() + Buffer.byteLength(marker) + 32 + reserveBytes > maxBytes) return null;
       publishDirectory(dir, { [MARKER]: marker, [KEY]: randomBytes(32) }, 'namespace_staged');
@@ -217,7 +219,10 @@ export function createPreparedCallJournal({ publisherRoot, identity, now = Date.
         const rows = entries(key), time = now(); expire(rows, key, time);
         const previous = rows.find(row => row.state === 'available' && row.signature === digest && row.value === value);
         if (previous) return { id: previous.id, created: previous.created };
-        if (rows.filter(row => row.state === 'available').length >= maxEntries || size() + estimate > maxBytes) return null;
+        if (rows.filter(row => row.state === 'available').length >= maxEntries) return null;
+        // Stale candidate namespaces are reclaimed only when the shared byte budget is reached.
+        if (size() + estimate > maxBytes) pruneNamespaces(time);
+        if (size() + estimate > maxBytes) return null;
         const row = { schema_version: 1, namespace, id: randomUUID(), created, state: 'available', signature: digest, value };
         publish(row, key); return { id: row.id, created: row.created };
       }, estimate);

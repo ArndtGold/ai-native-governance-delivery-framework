@@ -61,6 +61,10 @@ try {
     contractModule: 'agdf_prepare/presentation.prepare' });
   assert.equal(discovery.report.presentation_catalog.state, 'unique', JSON.stringify(discovery));
   assert.equal(discovery.report.inspect_contract.examples.length, 5);
+  const staging = inspect({ ...readInput, operation: 'operation-contract', presentationId: undefined, targetId: undefined,
+    contractModule: 'agdf_record/material.stage' }).report;
+  assert.equal(staging.prepared_call.call.arguments.command.payload.files[0].slot, 'SD', 'The prepared staging form uses the current gate slot.');
+  assert.equal(staging.material_call.call.arguments.command.payload.files[0].slot, 'EVIDENCE', 'Revision proposals get their own staging form.');
   const setupExamples = discovery.report.inspect_contract.examples.filter(example => ['project-state', 'operation-status'].includes(example.operation));
   assert.deepEqual(setupExamples.map(example => example.operation), ['project-state', 'operation-status']);
   assert.match(setupExamples[1].module, /^project\.initialize\/[0-9a-f-]{36}$/u);

@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 const writeTools = new Set(['agdf_project', 'agdf_run', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
 const tools = new Set([...writeTools, 'agdf_inspect']);
 const referencePattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/u;
+const WHOLE_PAYLOAD = '/command/payload';
 const referenceSchema = { type: 'object', additionalProperties: false, required: ['prepared_call_id', 'inputs'], properties: {
   prepared_call_id: { type: 'string', pattern: '^[0-9a-f-]{36}$' },
   inputs: { type: 'object', maxProperties: 16 },
@@ -104,7 +105,10 @@ export function createPreparedCallTransport({ now = Date.now, maxEntries = 256, 
     if (!referencePattern.test(call.arguments.operation_id ?? '')
         || typeof call.arguments.command?.kind !== 'string' || !call.arguments.command.kind || !Array.isArray(required)
         || required.length > 16 || new Set(required).size !== required.length
-        || required.some(p => !/^\/command\/payload\/(?:[a-z_]+|[0-9]+)(?:\/(?:[a-z_]+|[0-9]+))*$/u.test(p)
+        // Core asks for the whole payload only when no single variant applies;
+        // it is then the one input, never combined with nested field pointers.
+        || required.includes(WHOLE_PAYLOAD) && required.length !== 1
+        || required.some(p => !/^\/command\/payload(?:\/(?:[a-z_]+|[0-9]+))*$/u.test(p)
           || p.split('/').some(k => ['__proto__', 'prototype', 'constructor'].includes(k)))) return false;
     return true;
   }

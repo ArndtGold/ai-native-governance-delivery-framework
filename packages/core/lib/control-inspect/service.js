@@ -13,6 +13,7 @@ import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resoluti
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
 import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, inspectModuleRecoveryCall, OPERATION_CONTRACT_MODULES, PRESENTATION_CATALOG_MODULE } from "./contract.js";
 import { RUN_COMMAND_DESCRIPTORS, operationContract } from '../control-state/run-command-contract.js';
+import { PROPOSAL_COMMAND_KINDS, PROPOSAL_MATERIAL_SLOT } from '../control-state/run-command-schema.js';
 import { inspectRunOperation } from '../control-state/run-operation-status.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { readRunState } from '../control-evaluation/run-state.js';
@@ -252,6 +253,10 @@ export function createControlInspectService(dependencies = {}) {
               prepared_call: preparedCommandCall(input.group, input.kind, { ...input, presentation_language: input.presentation_language, target_id: targetId },
                 { gate: input.gate ?? state.current_gate, recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) }),
               ...(input.kind === 'artefact.record' ? { recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) } : {}),
+              // Revision proposals are staged in their own slot. Offer that staging form with the
+              // revision commands and beside a material.stage form, whose prepared_call uses the gate's slot.
+              ...(PROPOSAL_COMMAND_KINDS.includes(input.kind) || input.kind === 'material.stage' ? { material_call: preparedCommandCall('agdf_record', 'material.stage',
+                { ...input, presentation_language: input.presentation_language, target_id: targetId }, { gate: PROPOSAL_MATERIAL_SLOT }) } : {}),
               ...(input.contract_module === PRESENTATION_CATALOG_MODULE ? {
                 inspect_contract: inspectContractHelp(),
                 presentation_catalog: readPresentationCatalog(target.governance_target, { runId: input.run_id,

@@ -9,6 +9,7 @@ import { PRD_DECISION_FORMAT } from '../control-evaluation/prd-readiness.js';
 import { SD_DECISION_FORMAT } from '../control-evaluation/sd-readiness.js';
 import { ACCEPTANCE_CRITERIA_FORMAT, TP_AUTHORING_FORMAT } from '../control-evaluation/traceability-readiness.js';
 import { UX_DECISION_FORMAT } from '../control-evaluation/definition-sources.js';
+import { REPORT_DECISION_FORMAT } from '../control-evaluation/report-decision.js';
 import { REVIEWED_BINDING_FORMAT, REVISION_PROPOSAL_FORMAT } from './recording-formats.js';
 import { relationshipForGate } from '../control-evaluation/delivery-relationships.js';
 import { PREVIEW_REVIEW_FORMAT } from './preview-review.js';
@@ -32,11 +33,13 @@ export function operationContract(group, kind, { gate } = {}) {
       replay: 'Every logical put/begin/append/seal/status call has its own operation UUID; reuse one UUID only for the identical request after uncertainty. transfer_id, not operation_id, links multipart actions. Seal/put return Core identity/digest. Generation loss requires restaging semantic bytes; preserve the future canonical write UUID.',
       lifecycle: 'A receipt-confirmed canonical commit retires its consumed set; otherwise discard it explicitly or let it expire.' } } : {}),
     internal_result_formats: kind === 'step.record' ? { 'UX Intent Definition': UX_DECISION_FORMAT,
-      reviews: { declaration: '- decision: pass | revise | block | not_applicable', result_scope: 'actual current owner report; no generated judgement or approval' } } : undefined,
+      reviews: { section: REPORT_DECISION_FORMAT.section, declaration: '- decision: pass | revise | block | not_applicable',
+        instruction: REPORT_DECISION_FORMAT.instruction, result_scope: 'actual current owner report; no generated judgement or approval' } } : undefined,
     reviewed_binding_format: kind === 'artefact.record' ? { ...REVIEWED_BINDING_FORMAT, current_relationship: relationshipForGate(gate) ?? null,
       destination_status: gate === 'QA' ? 'pass | revise | block matching the actual QA report' : 'draft' } : undefined,
     proposal_format: kind.startsWith('source_revision.') ? REVISION_PROPOSAL_FORMAT : undefined,
     ...(kind === 'closeout.record' ? { confirmation_format: closeoutConfirmation('{run_id}', '{expected_revision_id}', '{operation_id}', '{or.digest}'),
+      confirmation_binding: 'The confirmation names the operation UUID of the prepared closeout form. Keep using that same form: if the staged OR expired, stage the identical bytes and put the new reference into or; digest and confirmation stay valid. A newly read form has a new UUID and needs a new confirmation.',
       closeout_modes: { quick_task: 'OR-lite: Result, Evidence, Risk, Next Step', verified_change: 'Verified Change Mini-Closeout; retain the same canonical record',
         structured_slice: 'Existing OR-full closeout and its applicable obligations', structured_delivery: 'Existing OR-full closeout and its applicable obligations' } } : {}),
     ...(kind === 'verified_change.record' ? { canonical_receipt_kind: 'step.record', execution: 'Actual edits/tests/Git actions remain external; this writer records their bounded observed result.' } : {}),

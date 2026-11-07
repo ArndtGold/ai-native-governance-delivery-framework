@@ -91,8 +91,13 @@ const SUMMARY_LABELS_EN = Object.freeze({
 export const hash = (value) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
 
 function compactSummaryText(value) {
-  return value.replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1").replace(/`([^`]+)`/gu, "$1")
-    .replace(/<[^>]+>/gu, "").replace(/\s+/gu, " ").trim();
+  // Markup outside code spans is dropped. A code span naming syntax such as
+  // `node app.js <file>` keeps its backticks: unwrapped, Markdown would treat
+  // <file> as an HTML tag and the reader would lose it.
+  return value.replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
+    .split(/(`[^`]+`)/u)
+    .map(part => /^`[^`]+`$/u.test(part) ? (part.includes("<") ? part : part.slice(1, -1)) : part.replace(/<[^>]+>/gu, ""))
+    .join("").replace(/\s+/gu, " ").trim();
 }
 
 function userFacingSummaryText(value) {
@@ -255,7 +260,8 @@ export function renderApprovalSummaryIssue(summary, { path, presentationLanguage
   ].join("\n");
 }
 
-function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
+// Pure summary extraction; exported so its text rules are tested directly.
+export function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
   const lines = markdown.replace(/\r\n?/gu, "\n").split("\n");
   for (let index = 0; index < lines.length; index += 1) {
     const heading = lines[index].match(/^(#{2,6})\s+(?:\d+\.\s*)?(.+?)\s*#*\s*$/u);
@@ -278,6 +284,9 @@ function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
       }
       if (contentPattern && !contentPattern.test(line)) continue;
       const cleaned = userFacingSummaryText(line);
+      // A lead-in such as "covers exactly these points:" says nothing on its own;
+      // the items that follow it carry the content.
+      if (/:$/u.test(cleaned)) continue;
       if (!cleaned || /^(?:what|which|how|who|every field|specify|decision:|status:|gate:|date:|owner:)/iu.test(cleaned)
           || /^(?:ui_ux_impact|ux_intent_definition|primary_user_intent|success_signal|primary_decision_or_action):/iu.test(cleaned)) continue;
       body.push(cleaned);

@@ -37,10 +37,13 @@ export function evaluateUrContentReadiness(content, { languages, path = 'UR.md',
     const [heading, ...body] = block.split(/\r?\n/u);
     return { heading: heading.replace(/^\d+\.[ \t]*/u, "").trim(), body: body.join("\n").trim() };
   });
+  const placeholders = {};
   for (const section of sections) {
     const matches = blocks.filter(block => block.heading === section);
     const body = matches[0]?.body ?? "";
-    if (matches.length !== 1 || !body || templatePrompts.has(body) || /<[^>]+>|^(?:tbd|todo|to confirm)[ \t]*$/imu.test(body)) open.push(section);
+    const unfinished = unfinishedPlaceholders(body);
+    if (unfinished.length) placeholders[section] = unfinished;
+    if (matches.length !== 1 || !body || templatePrompts.has(body) || unfinished.length || /^(?:tbd|todo|to confirm)[ \t]*$/imu.test(body)) open.push(section);
   }
   const summary = evaluateApprovalSummaryReadiness("UR", content, languages);
   if (!summary.ready) open.push(summary.required_heading);
@@ -48,5 +51,15 @@ export function evaluateUrContentReadiness(content, { languages, path = 'UR.md',
   if (summary.reason === "approval_summary_field_unreadable") open.push(renderApprovalSummaryIssue(summary, {
     path, presentationLanguage: languages.presentation_language,
   }));
-  return { ready: open.length === 0, legacy: false, open_items: open, approval_summary: summary };
+  return { ready: open.length === 0, legacy: false, open_items: open, approval_summary: summary,
+    ...(Object.keys(placeholders).length ? { unfinished_placeholders: placeholders } : {}) };
+}
+
+// Inline code may name syntax metavariables, as in `node wordfreq.js <file>` or
+// `<word> <count>`. A single identifier in angle brackets inside a code span is
+// literal notation; prose placeholders and spaced prompts such as `<why ...>`
+// stay unfinished. The UR template carries no code-span prompts to hide.
+function unfinishedPlaceholders(body) {
+  const notation = body.replace(/`([^`\n]+)`/gu, (_span, code) => code.replace(/<[\p{L}][\p{L}\p{N}_-]*>/gu, ""));
+  return [...new Set(notation.match(/<[^>]+>/gu) ?? [])];
 }

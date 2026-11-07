@@ -14,19 +14,33 @@ import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabili
 
 export const SERVER_NAME = "agdf-mcp";
 
-function toolResult(runtime, name, input, result, serialize = runtime.serialize, provider, peer, facts, preparedCalls, actions, nextRead) {
+// A folded follow-up read is a convenience. Hosts move large tool output into
+// files (Claude Code from roughly 80 KB of text), which costs the model more
+// round trips than a separate read, so a read is inlined only below this size.
+const INLINE_READ_TEXT_BYTES = 48 * 1024;
+const byteLength = value => Buffer.byteLength(typeof value === 'string' ? value : JSON.stringify(value), 'utf8');
+
+function omittedFollowup(nextRead) {
+  return { ...nextRead, result: null, failure: {
+    code: 'read_followup_output_limit', phase: 'wire_budget', original_effect_unchanged: true,
+    instruction: 'The original result and receipt are unchanged. Its follow-up read was not inlined to keep this response small; run only that supplied read call separately.',
+  } };
+}
+
+function toolResult(runtime, name, input, result, { serialize = runtime.serialize, consume = runtime.consumeToolResult,
+  provider, peer, facts, preparedCalls, actions, nextRead } = {}) {
   // A generation must supply its own descriptor. Never reinterpret old results
   // with the facade's current runtime. Local owners project after postprocessing.
-  const emit = (value, followup) => {
+  const emit = (value, { followup, decorate = true } = {}) => {
     const projected = Object.hasOwn(value._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? value
       : runtime.projectToolResult(name, input, value, facts);
-    const { domain, metadata, descriptor } = runtime.consumeToolResult(name, projected);
+    const { domain, metadata, descriptor } = consume(name, projected);
     // Validate and bound the canonical domain with its existing owner first.
     // Additive MCP navigation has its own explicit wire projection; it is not
     // passed back into a closed Core result serializer as canonical state.
     const canonical = JSON.parse(serialize(domain));
     const navigable = followup ? { ...canonical, next_read: followup } : canonical;
-    const decorated = preparedCalls ? preparedCalls.decorate(navigable) : navigable;
+    const decorated = decorate && preparedCalls ? preparedCalls.decorate(navigable) : navigable;
     if (decorated.next_read?.result?.report?.material_transport?.instructions) {
       const transport = decorated.next_read.result.report.material_transport;
       transport.instructions = transport.instructions.replaceAll('response.structuredContent.report',
@@ -44,27 +58,25 @@ function toolResult(runtime, name, input, result, serialize = runtime.serialize,
     };
     return response;
   };
-  let response = emit(result, nextRead);
-  const exceedsLimit = value => runtime.responseLimit && Buffer.byteLength(JSON.stringify(value), 'utf8') > runtime.responseLimit;
-  if (nextRead && exceedsLimit(response)) {
-    // A successfully executed read can still be too large to include. Keep the
-    // original operation/receipt; dropping optional navigation must not turn a
-    // committed write into an unknown effect or cause it to execute again.
-    response = emit(result, { ...nextRead, result: null, failure: {
-      code: 'read_followup_output_limit', phase: 'wire_budget', original_effect_unchanged: true,
-      instruction: 'The original operation and receipt are unchanged. Its follow-up read exceeded the response budget; read only that supplied call separately, never repeat the successful write.',
-    } });
-    // At the exact boundary even failure framing may not fit. Preserve the
-    // original result alone before applying its existing whole-result limit.
-    if (exceedsLimit(response)) response = emit(result);
+  const withinLimit = response => !runtime.responseLimit || byteLength(response) <= runtime.responseLimit;
+  // Optional additions are dropped before the result itself is touched: first the
+  // inlined read, then the transport decoration (whose recovery copies can double
+  // large forms). Only a canonical result that alone exceeds the limit becomes
+  // resource_limit, so navigation can never turn a committed write into unknown.
+  const variants = [
+    ...(nextRead?.result ? [{ followup: nextRead, inlineRead: true }] : []),
+    ...(nextRead ? [{ followup: nextRead.result ? omittedFollowup(nextRead) : nextRead }] : []),
+    {}, { decorate: false },
+  ];
+  for (const { inlineRead, ...variant } of variants) {
+    const response = emit(result, variant);
+    if (withinLimit(response) && (!inlineRead || byteLength(response.content[0].text) <= INLINE_READ_TEXT_BYTES)) return response;
   }
-  if (exceedsLimit(response)) {
-    // The fallback itself is projected, checked and measured; no recursive call.
-    const limitFacts = { code: 'resource_limit', dispatch: 'unknown' };
-    const failure = runtime.projectToolResult(name, input, runtime.failure('resource_limit', name, input, limitFacts), limitFacts);
-    response = emit(failure);
-    if (Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) throw Error('tool_result_invalid');
-  }
+  // The fallback itself is projected, checked and measured; no recursive call.
+  const limitFacts = { code: 'resource_limit', dispatch: 'unknown' };
+  const failure = runtime.projectToolResult(name, input, runtime.failure('resource_limit', name, input, limitFacts), limitFacts);
+  const response = emit(failure);
+  if (!withinLimit(response)) throw Error('tool_result_invalid');
   return response;
 }
 
@@ -126,9 +138,17 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
     connection_id: randomUUID(), server_module: fileURLToPath(import.meta.url),
     version: runtime.trustedContext.expectedVersion,
   }) : undefined;
-  const respond = (name, input, result, serialize, context, facts, nextRead) => toolResult(runtime, name, input, result, serialize, provider, provider ? {
-    client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
-  } : undefined, facts, preparedCalls, actions, nextRead);
+  // The handler validates a result before choosing its follow-up read; the
+  // response variants then reuse that validation instead of repeating it.
+  const consumed = new WeakMap();
+  const consume = (name, value) => {
+    if (!consumed.has(value)) consumed.set(value, runtime.consumeToolResult(name, value));
+    return consumed.get(value);
+  };
+  const respond = (name, input, result, serialize, context, facts, nextRead) => toolResult(runtime, name, input, result, {
+    serialize, consume, provider, facts, preparedCalls, actions, nextRead, peer: provider ? {
+      client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
+    } : undefined });
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const nextRead = async (result, context) => appendSafeReadContinuation(result, {
@@ -207,7 +227,7 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
           // supplied continuation. Malformed output must not start another read.
           const checked = Object.hasOwn(result._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? result
             : runtime.projectToolResult(name, argumentsValue, result);
-          const { domain } = runtime.consumeToolResult(name, checked);
+          const { domain } = consume(name, checked);
           const continued = await nextRead(domain, context);
           return respond(name, argumentsValue, checked, serialize ?? runtime.serialize, context, undefined, continued.next_read);
         } catch (error) {

@@ -91,7 +91,7 @@ delete inputSchema.allOf;
 for (const field of Object.values(inputSchema.properties)) delete field.description;
 Object.assign(inputSchema.properties.target_source, { description: 'Pair primary_target.' });
 Object.assign(inputSchema.properties.primary_target, { description: 'Confirmed target.' });
-Object.assign(inputSchema.properties.module, { description: 'Contract group/kind; status original UUID. Setup project.initialize/UUID, no Run/revision.' });
+Object.assign(inputSchema.properties.module, { description: 'Contract: group/kind, e.g. agdf_project/project.initialize. Status: original UUID; setup status project.initialize/UUID without Run/revision.' });
 Object.assign(inputSchema.properties.gate, { description: 'Not for gate-check.' });
 Object.assign(inputSchema.properties.target_id, { description: 'Required for docs; gate-check.' });
 

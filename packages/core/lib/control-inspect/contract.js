@@ -91,13 +91,13 @@ delete inputSchema.allOf;
 for (const field of Object.values(inputSchema.properties)) delete field.description;
 Object.assign(inputSchema.properties.target_source, { description: 'Pair primary_target.' });
 Object.assign(inputSchema.properties.primary_target, { description: 'Confirmed target.' });
-Object.assign(inputSchema.properties.module, { description: 'Contract: group/kind, e.g. agdf_project/project.initialize. Status: original UUID; setup status project.initialize/UUID without Run/revision.' });
+Object.assign(inputSchema.properties.module, { description: 'Contract group/kind. Setup: agdf_project/project.initialize or status project.initialize/UUID.' });
 Object.assign(inputSchema.properties.gate, { description: 'Not for gate-check.' });
 Object.assign(inputSchema.properties.target_id, { description: 'Required for docs; gate-check.' });
 
 const inspectContract = {
   name: "agdf_inspect",
-  description: 'Read only. Use next_action.call. Raw bound reads need working_directory,presentation_language,primary_target,target_source. Run status needs run_id+expected_revision_id; creation status does not.',
+  description: 'Read only. Use next_action.call. Raw bound reads need working_directory,presentation_language,primary_target,target_source. Run status needs run_id+expected_revision_id. Setup omits both.',
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: projectMcpInputSchema(inputSchema),
   outputSchema: {

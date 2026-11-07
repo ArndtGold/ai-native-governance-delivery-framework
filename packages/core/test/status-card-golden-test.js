@@ -4,7 +4,8 @@
 //   AGDF_GOLDEN_RECORD=1 node --test packages/core/test/status-card-golden-test.js
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCompanionFixtures, volatileValues } from './fixtures/companion-fixtures.js';
 import { evaluateGateCheck, printGateCheckReport } from '../lib/control-evaluation/gate-check.js';
@@ -52,9 +53,27 @@ function normalize(value, volatile) {
   return walk(value);
 }
 
+// The absolute paths of the files the fixture wrote, as the platform joins them, each mapped to the root
+// followed by its POSIX relative path. Exact strings only, so the golden is the same on Windows and Linux
+// (artefact links in the cards); on POSIX hosts every pair is identical and nothing changes.
+function portablePaths(value, root) {
+  const pairs = [];
+  const walkFiles = dir => { for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) walkFiles(path);
+    else pairs.push([path, `${root}/${relative(root, path).split(sep).join('/')}`]);
+  } };
+  walkFiles(join(root, '.agdf', 'control'));
+  const changed = pairs.filter(([native, portable]) => native !== portable).sort((a, b) => b[0].length - a[0].length);
+  const replace = text => changed.reduce((out, [native, portable]) => out.split(native).join(portable), text);
+  const walk = item => typeof item === 'string' ? replace(item) : Array.isArray(item) ? item.map(walk)
+    : item && typeof item === 'object' ? Object.fromEntries(Object.entries(item).map(([key, entry]) => [key, walk(entry)])) : item;
+  return walk(value);
+}
+
 export function captureGolden(fx) {
   const capture = Object.fromEntries(LANGUAGES.map(language => [language, { cli: evaluate(fx, language, false), mcp: evaluate(fx, language, true) }]));
-  return { name: fx.name, ...normalize(capture, volatileValues(fx.root)) };
+  return { name: fx.name, ...normalize(portablePaths(capture, fx.root), volatileValues(fx.root)) };
 }
 
 test('status card output for the companion fixture set equals the recorded baseline', t => {

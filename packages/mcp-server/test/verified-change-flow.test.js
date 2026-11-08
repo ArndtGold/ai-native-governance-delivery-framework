@@ -65,7 +65,9 @@ for (const { modern } of deliveryModeCases(process.argv.slice(2))) {
       text = await readRecord(); assert.match(text, /execution_changed_paths: .*README.md/);
       text = text.replace('- delivered:\n', '- delivered: One README sentence was clarified and directly checked.\n')
         .replace('- intentionally_not_delivered:\n', '- intentionally_not_delivered: All other product changes.\n').replace('- next_step:\n', '- next_step: Optional explicit handoff only.\n');
-      const material = await h.stage('Verified Change', text);
+      const staged = await h.invoke('agdf_record', 'material.stage', { action: 'put', files: [{ slot: 'Verified Change', content: text }] });
+      assert.notEqual(staged.next_action?.operation?.kind, 'closeout.record');
+      const material = staged.family_result.files[0].reference;
       const help = await h.call('agdf_inspect', { operation: 'operation-contract', module: 'agdf_closeout/closeout.record', presentation_language: 'en',
         working_directory: root, primary_target: root, target_source: 'explicit_target', run_id: h.runId, expected_revision_id: h.revision() });
       const input = h.bound(), confirmation = help.report.confirmation_format.replace('{run_id}', h.runId).replace('{expected_revision_id}', input.expected_revision_id)

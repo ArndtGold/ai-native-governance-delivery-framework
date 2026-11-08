@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { canonicalJson, digest } from './approval-command-contract.js';
 import { RUN_COMMAND_DESCRIPTORS, validateRunCommand } from './run-command-schema.js';
+import { closeoutConfirmation } from '../control-evaluation/closeout-readiness.js';
 import { REPORT_DECISION_FORMAT } from '../control-evaluation/report-decision.js';
 import { MATERIAL_LIMITS } from './material-limits.js';
 
@@ -63,6 +65,13 @@ function recordingStep(gate) {
   return {};
 }
 
+// A restaged OR may have a different material handle but the same command identity.
+function stagedCloseoutOperationId(binding, reportDigest) {
+  const hash = digest(`agdf-staged-closeout/1\0${canonicalJson([binding, reportDigest])}`).slice(7, 39);
+  const variant = (8 | (Number.parseInt(hash[16], 16) & 3)).toString(16);
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-8${hash.slice(13, 16)}-${variant}${hash.slice(17, 20)}-${hash.slice(20)}`;
+}
+
 // `revision` continues an accepted source revision preview: apply keeps the
 // preview's operation UUID, which the proposal binds, and its preview digest.
 export function preparedCommandCall(group, kind, input, { gate, material, recording, presentationId, revision } = {}) {
@@ -85,10 +94,15 @@ export function preparedCommandCall(group, kind, input, { gate, material, record
   // person's confirmation, and restaging identical bytes keeps the same digest.
   if (kind === 'source_revision.apply' && revision) payload = { source_gate: revision.source_gate, preview_digest: revision.preview_digest };
   const unbound = ['run.create', 'project.initialize'].includes(kind);
-  const argumentsValue = { schema_version: '1', presentation_language: input.presentation_language,
+  const binding = { schema_version: '1', presentation_language: input.presentation_language,
     working_directory: input.working_directory, primary_target: input.primary_target, target_source: input.target_source,
     target_id: input.target_id, ...(!unbound ? { run_id: input.run_id, expected_revision_id: input.expected_revision_id } : {}),
-    operation_id: revision?.operation_id ?? randomUUID(), assurance: 'cooperative_local', command: { kind, payload } };
+    assurance: 'cooperative_local' };
+  const stagedCloseout = kind === 'closeout.record' && material;
+  const operation_id = stagedCloseout ? stagedCloseoutOperationId(binding, material.digest) : revision?.operation_id ?? randomUUID();
+  if (stagedCloseout) payload = { or: material,
+    confirmation: closeoutConfirmation(binding.run_id, binding.expected_revision_id, operation_id, material.digest) };
+  const argumentsValue = { ...binding, operation_id, command: { kind, payload } };
   const required = missing(RUN_COMMAND_DESCRIPTORS[kind].payload_schema, payload, '/command/payload');
   const valid = validateRunCommand(group, argumentsValue).length === 0;
   return { state: valid ? 'ready' : 'requires_author_input', call: { tool: group, arguments: argumentsValue },
@@ -116,5 +130,8 @@ export function preparedCommandCall(group, kind, input, { gate, material, record
       instruction: 'Only a NEW deliberate reply for this presentation. Put the exact reply alone in response; simulation/reviewer explanation belongs outside response. Never prefix or suffix the approval formula. This value is a format, not a decision or permission. The complete approval form already binds the revision and presentation; fill response without another contract read. If explanatory schema help is needed, copy contract_call exactly; never omit or guess expected_revision_id.' } } : {}),
     ...(kind === 'source_revision.apply' && revision ? { confirmation_contract: { confirmation_value: revision.confirmation_selector, exact: true,
       instruction: 'confirmation is only the person\'s NEW deliberate reply with exactly this text. proposal is the reference of the previewed proposal; if its staged material expired, stage the identical bytes again and use the new reference. This form keeps the previewed UUID and digest.' } } : {}),
-    instruction: 'Fill required_inputs from actual authored content, review or a NEW deliberate reply. Preserve the supplied binding and UUID. Retry an uncertain dispatch with the identical call; each new logical command already has its own supplied UUID; do not regenerate it or put IDs in inputs. This form is not permission or an approval.' };
+    ...(stagedCloseout && valid ? { operation_status_call: originalOperationCall(argumentsValue) } : {}),
+    instruction: stagedCloseout
+      ? 'Invoke the supplied closeout separately. If its effect is uncertain, inspect the original operation first. If material expired and restaging is appropriate, stage the identical OR with the original binding and use the returned form for the same operation and digest.'
+      : 'Fill required_inputs from actual authored content, review or a NEW deliberate reply. Preserve the supplied binding and UUID. Retry an uncertain dispatch with the identical call; each new logical command already has its own supplied UUID; do not regenerate it or put IDs in inputs. This form is not permission or an approval.' };
 }

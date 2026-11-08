@@ -32,9 +32,14 @@ export function withMaterialRecordingCalls(input, result) {
     const slot = authoring.material_call?.call.arguments.command.payload.files[0].slot;
     const files = (result.family_result.files ?? []).filter(file => file.reference && file.slot === slot);
     if (files.length !== 1 || !authoring.formats?.available) return result;
-    if (!['step.record', 'artefact.record', 'ur_draft.replace'].includes(authoring.formats.kind)) return result;
-    const form = preparedCommandCall(authoring.formats.group, authoring.formats.kind, input,
+    const { group, kind } = authoring.formats;
+    if (kind === 'closeout.record') {
+      if (!['structured_delivery', 'structured_slice'].includes(authoring.mode)
+          || authoring.next_operation?.type !== 'record_closeout' || authoring.authoring_owner !== 'OR' || slot !== 'OR') return result;
+    } else if (!['step.record', 'artefact.record', 'ur_draft.replace'].includes(kind)) return result;
+    const form = preparedCommandCall(group, kind, input,
       { gate: authoring.authoring_owner, material: files[0].reference, recording: authoring.recording });
+    if (kind === 'closeout.record' && form?.state !== 'ready') return result;
     if (form && authoring.authoring_owner === 'UX Intent Definition' && input.command.payload.action === 'put') {
       const text = input.command.payload.files.find(file => file.slot === slot)?.content;
       if (typeof text === 'string') {

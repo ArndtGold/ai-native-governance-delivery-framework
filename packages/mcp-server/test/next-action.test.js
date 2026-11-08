@@ -1,11 +1,28 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createNextActionProjection } from '../src/next-action.js';
+import { createPreparedCallTransport } from '../src/prepared-call-transport.js';
 
 const revision = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const presentation = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const target = 'sha256:' + 'a'.repeat(64);
 const reference = number => `${String(number).padStart(8, '0')}-cccc-4ccc-8ccc-cccccccccccc`;
+test('an unavailable OR recording form retains accepted staging and the original recovery request', () => {
+  const transport = createPreparedCallTransport({ maxEntries: 0 });
+  const original = { tool: 'agdf_closeout', arguments: {
+    operation_id: reference(1), target_id: target, run_id: 'fixture-run', expected_revision_id: revision,
+    command: { kind: 'closeout.record', payload: { or: { material_id: reference(2), digest: target }, confirmation: 'fixture binding' } },
+  } };
+  const stage = { outcome: 'accepted', family_result: { files: [{ slot: 'OR', sealed: true }] },
+    recording_calls: [{ slot: 'OR', state: 'ready', call: original, required_inputs: [] }] };
+  const projected = createNextActionProjection().project(transport.decorate(stage));
+  assert.equal(projected.outcome, 'accepted');
+  assert.deepEqual(projected.family_result, stage.family_result);
+  assert.equal(projected.next_action.state, 'requires_source');
+  assert.equal(projected.next_action.call, null);
+  assert.equal(projected.recording_calls[0].state, 'transport_unavailable');
+  assert.deepEqual(projected.recording_calls[0].recovery_only.original_call, original);
+});
 function form(number, fields = ['content'], kind = 'material.stage', tool = 'agdf_record') {
   return { state: fields.length ? 'requires_author_input' : 'ready',
     call: { tool, arguments: { prepared_call_id: reference(number), inputs: {} } },

@@ -3,7 +3,8 @@
 AGDF releases are coupled across the repository packages and public surfaces.
 Use one version and one release tag for the whole release.
 
-Version-specific notes: [AGDF 0.30.0 — simplified project model](docs/releases/0.30.0.md).
+Version-specific notes: [AGDF 0.31.0 — Companion Core and MCP continuation](docs/releases/0.31.0.md).
+The [0.30.0 notes](docs/releases/0.30.0.md) document the previous project-model change.
 These notes describe the prepared source version; registry publication and native qualification
 retain their separate checks below.
 

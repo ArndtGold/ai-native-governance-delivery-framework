@@ -6,13 +6,14 @@ import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
 import { createMcpDeliveryHarness } from './delivery-harness.js';
 import { resolveControlCommandTarget, canonicalJson, digest } from '../../core/lib/control-state/approval-command-contract.js';
 import { artefactFileDigest, runSealState } from '../../core/lib/control-state/run-seal.js';
 import { readRunState } from '../../core/lib/control-evaluation/run-state.js';
-import { closeoutConfirmation } from '../../core/lib/control-evaluation/closeout-readiness.js';
+import { readRunOperations } from '../../core/lib/control-state/run-operations.js';
 import { COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
 import { MCP_APP_UI_EXTENSION } from '../src/ui-capability.js';
 
@@ -320,7 +321,6 @@ try {
   }
   const state = readRunState(root, { runId: f.runId });
   const rows = ['UR', 'Brownfield Review', 'PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'CR', 'QA', 'UAT'].map(type => `| ${type} | ${state.approvals.get(type)?.status ?? state.artefacts.get(type).status} | ${state.artefacts.get(type)?.path || state.approvals.get(type).evidence} |`).join('\n');
-  const orPath = f.prefix + 'OR_CANDIDATE.md';
   const report = `# OR: Synthetic closeout
 Report mode: OR-full
 Status: done
@@ -364,17 +364,122 @@ none
 - required_approval: none
 - forbidden_until_then: Automatic Git or release action.
 `;
-  const orMaterial = await f.stage('OR', report);
+  const beforeStaging = readFileSync(f.state, 'utf8');
+  const stageOr = payload => f.invoke('agdf_record', 'material.stage', payload);
+  const inline = content => ({ action: 'put', files: [{ slot: 'OR', content }] });
+  const unrelated = await stageOr({ action: 'put', files: [{ slot: 'EVIDENCE', content: 'Unrelated staging' }] });
+  assert.notEqual(unrelated.next_action?.operation?.kind, 'closeout.record');
+  let staged;
+  if (route === 'structured_delivery') {
+    staged = await stageOr(inline(report));
+  } else {
+    const bytes = Buffer.from(report);
+    const started = await stageOr({ action: 'begin', files: [{ slot: 'OR', bytes: bytes.length }] });
+    const transfer_id = started.family_result.transfer_id;
+    assert.notEqual(started.next_action?.operation?.kind, 'closeout.record');
+    const appended = await stageOr({ action: 'append', transfer_id, file: 0, offset: 0, data: bytes.toString('base64') });
+    assert.notEqual(appended.next_action?.operation?.kind, 'closeout.record');
+    staged = await stageOr({ action: 'seal', transfer_id });
+  }
+  assert.equal(readFileSync(f.state, 'utf8'), beforeStaging, 'OR staging leaves canonical Run state unchanged.');
+  const action = staged.next_action;
+  assert.equal(action.state, 'ready', 'Successful structured OR staging offers a ready closeout action.');
+  assert.equal(staged.recording_calls.length, 1);
+  assert.equal(action.call.tool, 'agdf_closeout');
+  assert.deepEqual(action.required_inputs, []);
+  assert.deepEqual(action.call.arguments.inputs, {});
+  assert.equal(action.operation.kind, 'closeout.record');
+  assert.equal(action.operation.target_id, target);
+  assert.equal(action.operation.run_id, f.runId);
+  assert.equal(action.operation.expected_revision_id, f.revision());
+  const orMaterial = staged.family_result.files[0].reference;
+  const original = action.recovery_only.original_call.arguments;
+  assert.deepEqual(original.command.payload.or, orMaterial);
+  assert.equal(original.operation_id, action.operation.operation_id);
+  assert.match(original.command.payload.confirmation, /sha256:/u);
 
-  const input = { ...bound(), command: { kind: 'closeout.record', payload: { or: orMaterial, confirmation: 'synthetic invalid confirmation' } } };
-  const before = readFileSync(f.state, 'utf8');
-  const rejected = await service('agdf_closeout', input); assert.equal(rejected.reason, 'closeout_confirmation_required');
-  assert.equal(readFileSync(f.state, 'utf8'), before);
-  input.command.payload.confirmation = closeoutConfirmation(f.runId, input.expected_revision_id, input.operation_id, input.command.payload.or.digest);
-  const result = await service('agdf_closeout', input); assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+  for (const [reason, input] of [
+    ['closeout_confirmation_required', { ...original, operation_id: randomUUID(), command: { kind: 'closeout.record',
+      payload: { or: orMaterial, confirmation: 'synthetic invalid confirmation' } } }],
+    ['stale_revision', { ...original, expected_revision_id: randomUUID() }],
+    ['material_binding_mismatch', { ...original, command: { kind: 'closeout.record',
+      payload: { ...original.command.payload, or: { ...orMaterial, digest: digest('different report') } } } }],
+  ]) {
+    const rejected = await service('agdf_closeout', input);
+    assert.equal(rejected.reason, reason, JSON.stringify(rejected));
+    assert.equal(readFileSync(f.state, 'utf8'), beforeStaging);
+  }
+
+  let result;
+  if (modern && route === 'structured_delivery') {
+    const entry = join(root, 'drop-closeout-ack.mjs');
+    writeFileSync(entry, `import { runMcpServer } from ${JSON.stringify(pathToFileURL(join(fixture.serverRoot, 'src/main.js')).href)};
+const write = process.stdout.write.bind(process.stdout);
+let dropped = false;
+process.stdout.write = function (chunk, ...args) {
+  let packet;
+  try { packet = JSON.parse(String(chunk)); } catch {}
+  const result = packet?.result?.structuredContent;
+  if (!dropped && result?.operation_id === ${JSON.stringify(original.operation_id)} && result.outcome === 'accepted') {
+    dropped = true;
+    args.find(value => typeof value === 'function')?.();
+    return true;
+  }
+  return write(chunk, ...args);
+};
+await runMcpServer({ surface: 'codex' });
+`);
+    await withStdioClient({ ...fixture, modern, args: [entry] }, async reconnected => {
+      const invoke = async (tool, args) => (await reconnected.callTool({ name: tool, arguments: args })).structuredContent;
+      const restage = (content, selectors = {}) => invoke('agdf_record', { ...bound(), ...selectors,
+        command: { kind: 'material.stage', payload: inline(content) } });
+      const expired = await invoke('agdf_closeout', original);
+      assert.equal(expired.reason, 'material_transfer_expired', JSON.stringify(expired));
+      assert.equal(expired.dispatch, 'not_dispatched');
+      assert.equal(readFileSync(f.state, 'utf8'), beforeStaging);
+      const changed = await restage(report + '\nDifferent authored report.\n');
+      assert.notEqual(changed.next_action.operation.operation_id, original.operation_id);
+      const otherBinding = await restage(report, { presentation_language: 'de' });
+      assert.notEqual(otherBinding.next_action.operation.operation_id, original.operation_id);
+      const recovered = await restage(report);
+      const next = recovered.next_action;
+      assert.equal(next.state, 'ready');
+      assert.equal(next.operation.operation_id, original.operation_id);
+      const replacement = next.recovery_only.original_call.arguments.command.payload;
+      assert.notEqual(replacement.or.material_id, orMaterial.material_id);
+      assert.equal(replacement.or.digest, orMaterial.digest);
+      assert.equal(replacement.confirmation, original.command.payload.confirmation);
+      assert.deepEqual(next.call.arguments.inputs, {});
+      await assert.rejects(reconnected.callTool({ name: next.call.tool, arguments: next.call.arguments }, { timeout: 5000 }), /timed out|timeout/iu);
+      const status = await invoke(next.operation_status_call.tool, next.operation_status_call.arguments);
+      assert.equal(status.report.status, 'recorded', JSON.stringify(status));
+      assert.equal(status.report.receipt.operation_id, original.operation_id);
+      assert.equal(status.report.receipt.effect.record.or.digest, orMaterial.digest);
+      const replay = await invoke(next.call.tool, next.call.arguments);
+      assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
+      assert.deepEqual(replay.receipt, status.report.receipt);
+      result = replay;
+    });
+    const replay = await service('agdf_closeout', original);
+    assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
+    assert.deepEqual(replay.receipt, result.receipt);
+  } else {
+    result = await follow(action);
+    assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+    const replay = await follow(action);
+    assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
+    assert.deepEqual(replay.receipt, result.receipt);
+  }
   assert.equal(result.current.lifecycle, 'completed'); assert.equal(result.current.completion.fulfilled, true); assert.equal(result.current.next_operation, null);
-  assert.equal((await service('agdf_closeout', input)).outcome, 'already_applied');
-  assert.equal(runSealState(root, readFileSync(f.state, 'utf8')).status, 'valid');
+  assert.equal(result.receipt.effect.record.or.digest, orMaterial.digest);
+  assert.equal(artefactFileDigest(root, result.receipt.effect.record.or.path), orMaterial.digest);
+  const completed = readFileSync(f.state, 'utf8');
+  assert.equal(readRunOperations(completed).receipts.filter(row => row.operation_id === original.operation_id).length, 1);
+  const restaged = await service('agdf_record', { ...bound(), command: { kind: 'material.stage', payload: inline(report) } });
+  assert.equal(restaged.outcome, 'rejected');
+  assert.notEqual(restaged.next_action?.operation?.kind, 'closeout.record');
+  assert.equal(readFileSync(f.state, 'utf8'), completed);
+  assert.equal(runSealState(root, completed).status, 'valid');
   await checkCloseoutRead(f, context, slow);
   console.log(`Actual default-entrypoint STDIO ${route}: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.`);
   });

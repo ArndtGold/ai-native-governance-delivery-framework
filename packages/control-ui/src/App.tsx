@@ -214,7 +214,13 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         if (request.signal.aborted || controller.signal.aborted || generation !== sequence.current || document.hidden) return;
         if (result.code === 'source_changed' && live.current.route.view === 'detail') void navigate(live.current.route, true, true);
         else if (result.code) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: result.code }); }
-      } catch { if (!controller.signal.aborted && generation === sequence.current) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: 'read_failed' }); } }
+      } catch (error) {
+        if (!controller.signal.aborted && generation === sequence.current) {
+          const code = error instanceof Error && error.message === 'session_expired' ? error.message : 'read_failed';
+          void handoff?.invalidate();
+          dispatch({ type: 'stale', snapshot, code });
+        }
+      }
       finally { checking = false; }
     };
     let waiting: AbortController | null = null;

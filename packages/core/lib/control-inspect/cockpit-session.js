@@ -11,11 +11,11 @@ import { COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments } fr
 // One connection owns bounded independent read views. Retiring workers still occupy slots.
 export function createCockpitSessionService(root, {
   budget, poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
-    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false,
+    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false, integrationSurface,
 } = {}) {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const sessions = new Map();
-  let closed = false, renderGeneration = 0, publication = null;
+  let closed = false, renderGeneration = 0, publication = null, resourceIdentity = null;
   const failure = (code, viewTarget = target) => ({ schema_version: '2', target: viewTarget, snapshot_id: null, observed_as_of: null,
     source_digest: null, state: 'blocked', code, retryable: code !== 'session_expired', data: null, authorizes: false });
   function losePublication(session) {
@@ -59,6 +59,12 @@ export function createCockpitSessionService(root, {
   function touch(session) { session.touched = now(); schedule(session); }
   return Object.freeze({
     failure,
+    bindResourceIdentity({ digest, version } = {}) {
+      if (resourceIdentity || sessions.size || !/^[a-f0-9]{64}$/u.test(digest ?? '')
+        || typeof version !== 'string' || !/^[0-9A-Za-z.+-]{1,80}$/u.test(version)) throw Error('resource_identity_invalid');
+      resourceIdentity = Object.freeze({ schema_version: '1', version, resource_digest: `sha256:${digest}`,
+        resource_scope: 'server_validated', host_display: 'unconfirmed', candidate_match: 'unverified' });
+    },
     inspectOwnership() {
       return { views: sessions.size, active: [...sessions.values()].filter(row => !row.retired).length,
         uncertain: publication?.phase === 'uncertain' ? 1 : 0 };
@@ -99,6 +105,8 @@ export function createCockpitSessionService(root, {
       sessions.set(session.id, session); schedule(session);
       return { schema_version: '1', authorizes: false, target: viewTarget,
         _meta: { agdf_cockpit: { session_id: session.id, target: viewTarget, render_generation: ++renderGeneration,
+          ...(['codex', 'claude'].includes(integrationSurface) ? { integration_surface: integrationSurface } : {}),
+          ...(resourceIdentity ? { provenance: resourceIdentity } : {}),
           ...(input.run_id ? { initial_run_id: input.run_id } : {}),
           idle_timeout_ms: COCKPIT_LIMITS.idle, lifetime_ms: COCKPIT_LIMITS.lifetime } } };
     },

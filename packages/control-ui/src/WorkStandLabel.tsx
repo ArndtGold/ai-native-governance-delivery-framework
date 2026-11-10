@@ -1,0 +1,11 @@
+import type { Detail } from './types';
+import { observedAssessment } from './presentation';
+
+export function WorkStandLabel({ data, current, stale, reopen = false }: { data: Detail; current: boolean; stale: boolean; reopen?: boolean }) {
+  const assessment = observedAssessment(data, current);
+  const confirmed = assessment !== 'unconfirmed' && !(assessment === 'completed' && data.evaluation?.completion?.fulfilled !== true);
+  return <div className="work-stand-label">
+    <p>{confirmed ? 'Aktueller Arbeitsstand' : 'Zuletzt beobachteter Arbeitsstand'}</p>
+    {stale && <span>{reopen ? 'Sitzung nicht verfügbar. Cockpit erneut öffnen.' : 'Datenstand nicht aktuell. Bitte aktualisieren.'}</span>}
+  </div>;
+}

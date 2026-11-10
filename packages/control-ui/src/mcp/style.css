@@ -34,7 +34,13 @@
 .compact-navigation .run-figure { display: block; width: 120px; height: auto; max-width: 32%; flex: none; }
 .compact-actions { display: flex; flex-wrap: wrap; gap: var(--agdf-space-2); }
 .compact-actions button { display: inline-flex; align-items: center; justify-content: center; gap: var(--agdf-space-2); font-size: var(--agdf-text-sm); line-height: var(--agdf-text-leading-sm); min-height: 44px; }
-.compact-footnote { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--agdf-space-2); border-top: 1px solid var(--cockpit-line); margin-top: var(--agdf-space-3); padding-top: var(--agdf-space-3); color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+.compact-footnote { position: relative; border-top: 1px solid var(--cockpit-line); margin-top: var(--agdf-space-3); padding-top: var(--agdf-space-3); color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+.compact-footnote > time, .compact-footnote > span { display: block; padding-right: 5rem; }
+.compact-footnote > .cockpit-info { max-width: none; min-height: 1.5em; margin: 0; }
+.compact-footnote > .cockpit-info > summary { position: absolute; right: 0; top: var(--agdf-space-3); }
+.compact-footnote > .cockpit-info[open] > div, .compact-footnote > .cockpit-info[open] > p { padding-top: var(--agdf-space-2); }
+.compact-footnote .cockpit-info label { display: block; }
+.compact-footnote .cockpit-info input { display: block; width: min(100%, 32rem); box-sizing: border-box; }
 .compact-cockpit .notice { margin: var(--agdf-space-3) 0; padding: var(--agdf-space-3); }
 .host-probe { margin: var(--agdf-space-4); padding: var(--agdf-space-3); border: 1px solid var(--cockpit-line); border-radius: var(--agdf-radius-xl); }
 .host-probe pre { max-width: 100%; overflow: auto; white-space: pre-wrap; word-break: break-word; }
@@ -105,7 +111,6 @@
 /* The embedded card adapts to its own available width. */
 @container (min-width: 760px) {
   .compact-cockpit .backlog-overview { max-width: 64rem; margin-inline: auto; }
-  .compact-cockpit .backlog-tools { grid-template-columns: minmax(0, 3fr) minmax(13rem, 2fr); align-items: end; }
   .compact-cockpit .backlog-tools .backlog-search { margin-bottom: 0; }
   .compact-cockpit .undertaking-list { display: block; }
   .compact-cockpit .undertaking-list > li,
@@ -115,10 +120,10 @@
   .compact-cockpit .undertaking-list > li:not(:has(.undertaking)),
   .compact-cockpit .undertaking-list .undertaking {
     display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(10rem, 2fr) 1.5rem;
-    grid-template-areas: "title status arrow" "identity status arrow";
+    grid-template-columns: minmax(0, 1fr) 1.5rem;
+    grid-template-areas: "title arrow" "status arrow" "identity arrow";
     align-items: center;
-    column-gap: var(--agdf-space-4);
+    gap: var(--agdf-space-2) var(--agdf-space-4);
   }
   .compact-cockpit .undertaking-list h3 { grid-area: title; margin: 0; }
   .compact-cockpit .undertaking-list .status,

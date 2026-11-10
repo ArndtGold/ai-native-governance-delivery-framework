@@ -37,7 +37,7 @@ for (const compact of [true, false]) it(`SCN-071: named resource failure preserv
 it('SCN-062/079: fresh backlog labels stored status and next step, and only deliberate selection checks the Run', async () => {
   const read = vi.fn(async (path: string) => path === '/api/snapshot' ? { ...meta, data: backlog } : { ...focused, snapshot_id: 'selected' }) as unknown as ReadTransport;
   render(<App transport={read}/>);
-  await screen.findByText('Beobachteter Quellenstand: Awaiting TP'); expect(screen.getByText('Nächster Schritt: Stored next step')).toBeTruthy();
+  await screen.findByText('Awaiting TP'); expect(screen.getByText('Zuletzt beobachteter Stand')).toBeTruthy();
   expect(screen.queryByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeNull();
   expect(vi.mocked(read).mock.calls.map(c => c[0])).toEqual(['/api/snapshot']);
   fireEvent.click(screen.getByRole('button', { name: run.title }));
@@ -70,12 +70,13 @@ it('SCN-070: fresh document bundle replaces the parent and return resolves the n
     : { ...meta, data: { kind: 'run', run: parent } }) as unknown as ReadTransport;
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
+  fireEvent.click(screen.getByRole('button', { name: 'Technische Details' }));
   expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: /^Anforderungen Beschreibt/ }));
-  await screen.findByRole('heading', { name: 'Anforderungen', level: 1 });
-  fireEvent.click(screen.getByRole('button', { name: 'Dokument schließen' }));
+  fireEvent.click(screen.getByRole('button', { name: /ansehen: Anforderungen/ }));
+  await screen.findByRole('heading', { name: 'Original' });
+  fireEvent.click(screen.getByRole('button', { name: /Zurück zur (Übersicht|Statuskarte)/ }));
   await screen.findByRole('heading', { name: run.title, level: 1 });
-  await waitFor(() => expect(document.activeElement?.getAttribute('data-focus-id')).toBe('return-source'));
+  await waitFor(() => expect(document.activeElement?.getAttribute('data-focus-id')).toBe('document:return-source'));
   expect(vi.mocked(read).mock.calls.map(c => c[0])).toEqual(['/api/snapshot?run_id=run-a', '/api/documents/old-source?snapshot=snapshot', '/api/runs/run-a?snapshot=document']);
 });
 
@@ -106,9 +107,10 @@ for (const graphState of ['empty', 'partial', 'blocked'] as const) it(`context $
   }) as unknown as ReadTransport;
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
+  fireEvent.click(screen.getByRole('button', { name: 'Technische Details' }));
   expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: /^Anforderungen Beschreibt/ }));
-  await screen.findByRole('heading', { name: 'Anforderungen', level: 1 });
+  fireEvent.click(screen.getByRole('button', { name: /ansehen: Anforderungen/ }));
+  await screen.findByRole('heading', { name: 'Before context' });
   fireEvent.click(screen.getByRole('button', { name: 'Verknüpfter Kontext ansehen' }));
   await screen.findByText(graphState === 'partial' ? 'Knoten fehlt.' : 'Für dieses Vorhaben sind keine Knoten referenziert.');
   if (graphState === 'blocked') {
@@ -153,6 +155,7 @@ it('context capture cancels preceding freshness and pauses polling until its rep
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
+  fireEvent.click(screen.getByRole('button', { name: 'Technische Details' }));
   expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
   try {
     await act(async () => { await vi.advanceTimersByTimeAsync(5000); });

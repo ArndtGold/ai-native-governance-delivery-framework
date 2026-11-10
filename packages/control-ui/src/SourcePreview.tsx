@@ -5,7 +5,24 @@ import type { Detail, DocumentData, Envelope } from './types';
 import { PassiveMarkdown } from './DocumentView';
 
 type Preview = { key: string; content: string | null; format?: string; summary?: DocumentData['cockpit_summary']; message?: string };
-export function SourcePreview({ result, gate, read, current, compactSummary = false }: { result: Envelope<Detail>; gate: string; read?: ReadTransport; current: boolean; compactSummary?: boolean }) {
+// Only show a unique, explicitly named source section; never infer questions from other prose.
+function explicitQuestions(content: string) {
+  const lines = content.split(/\r?\n/), headings: { index: number; level: number }[] = [];
+  let fence: string | null = null;
+  lines.forEach((line, index) => {
+    const marker = line.match(/^\s*(`{3,}|~{3,})/);
+    if (marker) { if (!fence) fence = marker[1][0]; else if (fence === marker[1][0]) fence = null; return; }
+    if (fence) return;
+    const match = line.match(/^(#{2,6})\s+(?:Offene Fragen|Offene Punkte|Open Questions|Open Items)\s*#*\s*$/i);
+    if (match) headings.push({ index, level: match[1].length });
+  });
+  if (headings.length !== 1) return null;
+  const { index, level } = headings[0];
+  const end = lines.findIndex((line, i) => i > index && new RegExp(`^#{1,${level}}\\s+`).test(line));
+  const text = lines.slice(index + 1, end < 0 ? undefined : end).join('\n').trim();
+  return text && text.length <= 1200 ? text : null;
+}
+export function SourcePreview({ result, gate, read, current, compactSummary = false, clarification = false }: { result: Envelope<Detail>; gate: string; read?: ReadTransport; current: boolean; compactSummary?: boolean; clarification?: boolean }) {
   const data = result.data;
   const candidates = data?.resources.filter(r => r.run_id === data.run_id && r.type === gate && r.status === 'registered') ?? [];
   const resource = candidates.length === 1 ? candidates[0] : undefined;
@@ -43,10 +60,15 @@ export function SourcePreview({ result, gate, read, current, compactSummary = fa
   const excerpt = summary?.markdown ?? content.slice(0, 1600);
   if (compactSummary) {
     const short = summary?.items ?? [];
+    const questions = clarification ? summary?.markdown.split(/\r?\n/).filter(line => /^[-*]\s+(?:Offene Punkte|Offene Fragen|Open questions|Open items):\s*\S/i.test(line)) : undefined;
+    const explicit = clarification && shown.format === 'markdown' ? explicitQuestions(content) : null;
     const whole = shown.format === 'markdown' ? <PassiveMarkdown content={excerpt} links={{}} onOpen={() => {}}/> : <pre>{excerpt}</pre>;
     return <div className="run-gate-summary" aria-label="Zusammenfassung des Entwurfs">
-      {short.length > 0 && <ul>{short.map((item, i) => <li key={`${item.label}:${i}`}><strong>{item.label}:</strong> <PassiveMarkdown content={item.text} links={{}} onOpen={() => {}}/></li>)}</ul>}
-      <details><summary>{short.length ? 'Mehr anzeigen' : 'Zusammenfassung'}</summary>{whole}
+      {clarification ? <section aria-label="Klärungspunkte"><h3>Klärungspunkte</h3>{questions?.length === 1 || explicit
+        ? <PassiveMarkdown content={questions?.length === 1 ? questions[0] : explicit!} links={{}} onOpen={() => {}}/>
+        : <p>Konkrete Klärungspunkte sind in dieser Vorschau nicht verfügbar. Sieh dir die aktuelle Fassung an.</p>}</section>
+        : short.length > 0 && <ul>{short.map((item, i) => <li key={`${item.label}:${i}`}><strong>{item.label}:</strong> <PassiveMarkdown content={item.text} links={{}} onOpen={() => {}}/></li>)}</ul>}
+      <details><summary>{short.length || clarification ? 'Mehr anzeigen' : 'Zusammenfassung'}</summary>{whole}
         {!summary && content.length > excerpt.length && <p className="muted">Auszug · für den vollständigen Inhalt die Fassung öffnen.</p>}
       </details>
     </div>;

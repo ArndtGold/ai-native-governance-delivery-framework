@@ -27,7 +27,9 @@ export function mcpUiSourceDigest({ sourceRoot = repoRoot } = {}) {
     'plugins/agdf/meta/agdf-interaction-locales.json', 'plugins/agdf/host-templates/claude/companion/figure.mjs',
     'packages/core/lib/control-inspect/cockpit-contract.js',
     'packages/core/lib/control-state/run-identity.js',
-    'packages/core/lib/control-inspect/cockpit-list.js', 'packages/core/lib/control-state/run-work-summary-shape.js',
+    'packages/core/lib/control-inspect/cockpit-list.js', 'packages/core/lib/control-inspect/work-situation.js',
+    'packages/core/lib/control-inspect/cockpit-provenance.js',
+    'packages/core/lib/control-state/run-work-summary-shape.js',
     'packages/core/lib/control-evaluation/work-vocabulary.js',
     'pages/src/design/tokens.json', 'pages/src/styles/design-tokens.css', 'pages/scripts/design-tokens.mjs',
     'scripts/cockpit-ui-build.mjs']) collect(join(sourceRoot, path));

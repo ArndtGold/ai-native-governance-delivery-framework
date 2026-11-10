@@ -58,6 +58,12 @@ it('completed and zero-evidence observations never grant new permission',()=>{
  expect(screen.getByText('Vorhaben abgeschlossen')).toBeTruthy();expect(screen.getByText('Im Run-Dokument sind keine Nachweislücken gespeichert. Diese Angabe zählt keine Befunde aus QA- und Review-Berichten.')).toBeTruthy();
  expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
 });
+it('does not present an unconfirmed completion as completed in a condensed card',()=>{
+ const incomplete={...data,evaluation:{...data.evaluation!,control_assessment:{state:'completed' as const,authorizes:false as const},completion:undefined}};
+ render(<WorkStep data={incomplete} condensed/>);
+ expect(screen.queryByRole('heading',{name:'Vorhaben abgeschlossen'})).toBeNull();
+ expect(screen.getByRole('heading',{name:'Aktuelle Voraussetzungen nicht bestätigt'})).toBeTruthy();
+});
 it('shows an out-of-scope evaluation as unconfirmed without presenting the saved step as Core output',async()=>{
  const { RunDetail } = await import('../src/RunDetail');
  const unevaluated:Detail={...data,evaluation:{...data.evaluation!,status:'not_evaluated',control_assessment:{state:'unconfirmed',authorizes:false},blocking_reason:'not_evaluated',missing_approval:'not_evaluated',doctor_status:'not_evaluated',next_allowed_action:data.persisted!.next_allowed_action,next_action_de:null,

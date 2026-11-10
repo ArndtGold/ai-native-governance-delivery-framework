@@ -16,8 +16,12 @@ function subscribeToMotion(update: () => void) {
 
 const prefersStill = () => document.hidden || (window.matchMedia?.(motionQuery).matches ?? false);
 
+export function useReducedFigureMotion() {
+  return useSyncExternalStore(subscribeToMotion, prefersStill, () => true);
+}
+
 export function RunFigure({ state, enabled, visible = true }: { state: ReadingState; enabled: boolean; visible?: boolean }) {
-  const reduced = useSyncExternalStore(subscribeToMotion, prefersStill, () => true);
+  const reduced = useReducedFigureMotion();
   const [previous, setPrevious] = useState<FigureObservation | null>(null);
   const { detail, route, requestedRoute } = state;
   const runId = detail?.data?.run_id;
@@ -37,7 +41,8 @@ export function RunFigure({ state, enabled, visible = true }: { state: ReadingSt
   if (observation !== previous) setPrevious(observation);
   if (!observation) return null;
 
-  const svg = figureSvg(observation.mood, { ...observation, still: !current || !supplied });
+  const workGate = selected && confirmed && !state.stale && detail?.data?.evaluation?.current_gate === 'TP' ? 'TP' : undefined;
+  const svg = figureSvg(observation.mood, { ...observation, workGate, still: !current || !supplied });
   return <img className="run-figure" alt="" width={64} height={45}
     src={`data:image/svg+xml,${encodeURIComponent(svg)}`}/>;
 }

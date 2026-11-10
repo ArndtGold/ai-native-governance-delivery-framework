@@ -247,10 +247,34 @@ assert.equal(stillFaces.filter(Boolean).length, 6);
 assert.equal(new Set(stillFaces).size, 6, 'each mood has a distinct mouth shape in a still pose');
 assert.match(figureSvg("wartet", { gate: "QA" }), />QA<\/text>/u);
 const waitingGesture = figureSvg("wartet", { gate: "UR", gesture: true });
-assert.match(waitingGesture, /values="0 160 86;-4 160 86;4 160 86;0 160 86"[^>]*dur="0.9s" repeatCount="1"/u);
+assert.match(waitingGesture, /values="0 160 86;-8 160 86;8 160 86;-8 160 86;0 160 86"[^>]*dur="2.4s" repeatCount="1"/u);
 assert.doesNotMatch(figureSvg("wartet", { gate: "UR", still: true, gesture: true }), /<animate/u);
-assert.doesNotMatch(figureSvg("wartet", { gate: "UR" }), /dur="0.9s"/u);
+assert.doesNotMatch(figureSvg("wartet", { gate: "UR" }), /dur="2.4s"/u);
+for (const mood of ["baut", "wartet", "fertig"]) {
+  assert.match(figureSvg(mood, { gate: "UR", gesture: true }), /dur="2\.4s" repeatCount="1"/u, `${mood} transition has an observable duration`);
+  assert.doesNotMatch(figureSvg(mood, { gate: "UR", gesture: true, still: true }), /<animate/u);
+}
 assert.doesNotMatch(figureSvg("wartet", { gate: "</text><script>" }), /<text|<script/u);
+for (const mood of ["laeuft", "wartet", "blockiert"]) {
+  const plan = figureSvg(mood, { workGate: "TP", still: true, gate: "TP" });
+  assert.ok(wellFormed(plan));
+  assert.match(plan, /data-accessory="tp-plan"/u);
+  assert.match(plan, /data-tool="planning-pen"/u);
+  assert.doesNotMatch(plan, /<animate/u);
+  assert.match(figureSvg(mood, { workGate: "TP" }), /dur="29s"/u);
+  assert.doesNotMatch(figureSvg(mood, { workGate: "SD" }), /data-accessory="tp-plan"/u);
+}
+assert.match(figureSvg("blockiert", { workGate: "TP" }), /#ff9b8c/u);
+const showcase = figureSvg("laeuft", { workGate: "TP", showcase: true });
+assert.match(showcase, /data-accessory="tp-plan"/u);
+assert.match(showcase, /-7 155 80[^>]*dur="4s" repeatCount="indefinite"/u);
+assert.doesNotMatch(figureSvg("laeuft", { workGate: "TP", showcase: true, still: true }), /<animate/u);
+const warningGesture = figureSvg("blockiert", { gesture: true });
+assert.match(warningGesture, /-10 112 95;-50 112 95;-28 112 95;-50 112 95;-10 112 95[^>]*dur="2\.4s" repeatCount="1"/u, "warning waves twice over a visible, bounded interval");
+assert.match(warningGesture, /type="rotate" values="0 0 0;360 0 0"[^>]*dur="1s" repeatCount="1"/u, "warning symbol rotates once");
+assert.doesNotMatch(figureSvg("blockiert", { still: true, gesture: true }), /<animate/u, "reduced motion stays still");
+assert.equal(view({ snapshot: snapshot([structured("TP")]), showRunState: true }).workGate, "TP");
+assert.equal(view({ snapshot: snapshot([structured("TP")], { stale: { failedAt: 1 } }), showRunState: true }).workGate, undefined);
 assert.equal(FIGURE_TEXT.baut, "(o_o) ⚒");
 assert.match(figureSvg("baut", { still: true }), /data-tool="torque-wrench"/u);
 assert.doesNotMatch(figureSvg("wartet", { still: true }), /data-tool="torque-wrench"/u);
@@ -265,8 +289,28 @@ const approvalFigure = { mood: "wartet", reason: { key: "waitingApproval", gate:
 const buildFigure = { mood: "baut", reason: { key: "building", gate: "CD+Tests" } };
 const observe = (previous, figure, { current = true, scope = "project/run-a" } = {}) =>
   observeFigure(previous, { figure, current, scope });
+const warning = { mood: "blockiert", reason: { key: "blocked" } };
+const firstWarning = observe(null, warning);
+assert.equal(firstWarning.gesture, true, "first visible warning plays once");
+assert.equal(observe(firstWarning, structuredClone(warning)), firstWarning, "unchanged data does not replay");
+assert.equal(observe(firstWarning, warning, { scope: "project/run-b" }).gesture, true, "a different warning run is a new display");
+const hiddenWarning = observe(null, warning, { current: false });
+assert.equal(hiddenWarning.gesture, false, "unavailable or reduced-motion display stays still");
+assert.equal(observe(hiddenWarning, warning).gesture, true, "first current display plays the warning");
+const hiddenAgain = observe(firstWarning, warning, { current: false });
+assert.equal(observe(hiddenAgain, warning).gesture, false, "return from a temporary hidden state does not replay");
+for (const figure of [buildFigure, approvalFigure, { mood: "fertig", reason: { key: "completed" } }]) {
+  const first = observe(null, figure);
+  assert.equal(first.gesture, true, `${figure.mood} plays on first display`);
+  assert.equal(observe(first, structuredClone(figure)), first, `${figure.mood} does not replay on refresh`);
+  const hidden = observe(null, figure, { current: false });
+  assert.equal(hidden.gesture, false);
+  assert.equal(observe(hidden, figure).gesture, true, `${figure.mood} plays on first current display`);
+  const stale = observe(first, figure, { current: false });
+  assert.equal(observe(stale, figure).gesture, false, `${figure.mood} does not replay on visibility recovery`);
+}
 const baseline = observe(null, approvalFigure);
-assert.equal(baseline.gesture, false, "first observation does not replay a gesture");
+assert.equal(baseline.gesture, true, "first approval observation plays the gesture");
 assert.equal(baseline.gate, "QA");
 const transitioned = observe(baseline, buildFigure);
 assert.equal(transitioned.gesture, true);
@@ -277,7 +321,7 @@ assert.match(figureSvg("fertig", { gesture: true }), /repeatCount="1"/u);
 assert.equal(observe(transitioned, structuredClone(buildFigure)), transitioned, "same state keeps the image source");
 assert.equal(observe(transitioned, { ...buildFigure, reason: { ...buildFigure.reason, decision: "updated" } }).gesture, false, "metadata updates do not replay a gesture");
 assert.equal(observe(baseline, { mood: "wartet", reason: { key: "waitingApproval", gate: "UAT" } }).gesture, true, "a different approval is a meaningful transition");
-assert.equal(observe(transitioned, approvalFigure, { scope: "project/run-b" }).gesture, false);
+assert.equal(observe(transitioned, approvalFigure, { scope: "project/run-b" }).gesture, true);
 const stale = observe(transitioned, buildFigure, { current: false });
 assert.equal(stale.gesture, false);
 assert.equal(observe(stale, approvalFigure).gesture, false, "recovery seeds the current state");

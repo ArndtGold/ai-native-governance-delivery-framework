@@ -100,7 +100,7 @@ for (const pathname of ['/', '/card.html']) test(`workshop robot tracks the sele
     await page.locator('.run-link[data-focus-id="fixture-a"]').click();
     const image = page.locator('img.run-figure');
     const source = async () => decodeURIComponent(await image.getAttribute('src'));
-    await expect(page.locator(pathname === '/' ? '.breadcrumbs img.run-figure' : '.compact-navigation img.run-figure')).toBeVisible();
+    await expect(page.locator(pathname === '/' ? '.page-title img.run-figure' : '.compact-navigation img.run-figure')).toBeVisible();
     const docs = page.getByRole('region', { name: 'Dokumente', exact: true });
     const draft = page.getByRole('region', { name: 'Entwurfsprüfung', exact: true });
     const evidence = page.locator('.work-step-evidence > summary');
@@ -112,9 +112,12 @@ for (const pathname of ['/', '/card.html']) test(`workshop robot tracks the sele
       await details.click();
     }
     await expect(docs).toBeVisible();
-    await expect(draft).toBeVisible();
-    await expect(evidence).toBeVisible();
-    if (pathname !== '/') { await details.click(); await expect(docs).toBeHidden(); }
+    if (pathname !== '/') {
+      await expect(draft).toBeVisible();
+      await expect(evidence).toBeVisible();
+      await details.click();
+      await expect(docs).toBeHidden();
+    }
     await image.evaluate(node => node.decode());
     const waiting = await source();
     expect(waiting).toMatch(/url\(#metal\).*url\(#visor\)/s);
@@ -131,6 +134,11 @@ for (const pathname of ['/', '/card.html']) test(`workshop robot tracks the sele
     const blocked = await source();
     expect(blocked).toContain('#ff9b8c');
     expect(blocked).not.toContain('>UR</text>');
+    expect(blocked).toContain('dur="2.4s"');
+    const warningStart = await image.screenshot();
+    await page.waitForTimeout(550);
+    const warningMotion = await image.screenshot();
+    expect(warningMotion.equals(warningStart)).toBe(false);
     await image.screenshot({ path: evidencePath(`workshop-robot-blocked-${pathname === '/' ? 'expanded' : 'compact'}.png`) });
 
     const refresh = page.getByRole('button', { name: 'Neu laden', exact: true });
@@ -151,4 +159,34 @@ for (const pathname of ['/', '/card.html']) test(`workshop robot tracks the sele
     await service.close();
     f.close();
   }
+});
+
+for (const pathname of ['/', '/card.html']) test(`about close button works at its visible center in ${pathname}`, async ({ page }) => {
+  const f = await approvalFixture();
+  const service = await startControlServer({ dir: f.root });
+  try {
+    await page.setViewportSize({ width: pathname === '/' ? 900 : 420, height: 800 });
+    await page.addInitScript(({ secret, origin, pathname }) => {
+      if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret);
+    }, { secret: service.secret, origin: service.origin, pathname });
+    await page.goto(service.origin + pathname);
+    await page.locator('.run-link[data-focus-id="fixture-a"]').click();
+    await page.getByRole('button', { name: 'Über das Cockpit' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Dein Projekt im Blick' });
+    const close = dialog.getByRole('button', { name: 'Info schließen' });
+    await expect(dialog).toBeVisible();
+    const box = await close.boundingBox();
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    await close.hover();
+    const color = await close.evaluate(button => ({ color: getComputedStyle(button).color, background: getComputedStyle(button).backgroundColor }));
+    expect(color.color).toBe('rgb(255, 255, 255)');
+    expect(color.background).not.toBe('rgba(0, 0, 0, 0)');
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Über das Cockpit' })).toBeVisible();
+    await page.getByRole('button', { name: 'Über das Cockpit' }).click();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+  } finally { await service.close(); f.close(); }
 });

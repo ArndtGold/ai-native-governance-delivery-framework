@@ -84,8 +84,8 @@ it('a validated initial Run hides discovery; explicitly returning to backlog ena
   await screen.findByRole('heading',{name:'run-a'});
   expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
-  const search=await screen.findByRole('searchbox',{name:'Aktiv: Vorhaben suchen'});
-  expect(screen.queryByRole('combobox')).toBeNull();
+  const search=await screen.findByRole('searchbox',{name:'Suchen'});
+  expect(screen.getByRole('combobox',{name:'Lifecycle'})).toBeTruthy();
   fireEvent.change(search,{target:{value:'other-7'}});
   expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);
   fireEvent.click(screen.getByRole('button',{name:'Other 7'}));
@@ -101,7 +101,7 @@ it('a formerly inspected initial Run returns to confirmed removal backlog withou
   removed=true;fireEvent.click(screen.getByRole('button',{name:'Neu laden'}));
   await screen.findByText(/nicht mehr vorhanden. Kein anderer Run/);
   await waitFor(()=>expect((screen.getByRole('button',{name:'run-b'}) as HTMLButtonElement).disabled).toBe(false));
-  expect(screen.queryByRole('combobox')).toBeNull();
+  expect(screen.getByRole('combobox',{name:'Lifecycle'})).toBeTruthy();
   expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
 });
 it('SCN-039/043: named opening uses one exact request and resizing or prop changes preserve manual selection',async()=>{

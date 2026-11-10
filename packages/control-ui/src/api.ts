@@ -177,6 +177,12 @@ export function validateData(path: string, value: Envelope<unknown>) {
       valid = Array.isArray(data.entries) && data.entries.every(r => object(r)
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
         && !Object.hasOwn(r, 'saved_summary') && !Object.hasOwn(r, 'title_observation')
+        && (r.title_source === undefined || ['objective', 'run_id', 'ur'].includes(String(r.title_source)))
+        && (r.objective === undefined || nullableText(r.objective))
+        && (r.seal === undefined || ['valid', 'invalid', 'unsealed', 'unconfirmed'].includes(String(r.seal)))
+        && (r.lifecycle === undefined || r.lifecycle === null || ['active', 'completed', 'superseded', 'abandoned'].includes(String(r.lifecycle)))
+        && (r.attention_code === undefined || ['decision_required', 'clarification_required', 'blocked', 'in_progress', 'unclear', 'none'].includes(String(r.attention_code)))
+        && (r.last_activity === undefined || object(r.last_activity) && nullableText(r.last_activity.at) && text(r.last_activity.source) && nullableText(r.last_activity.precision))
         && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
         && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
         && (data.layout === 'run-folders-v1' && ['planned', 'run', 'archive'].includes(String(r.kind))

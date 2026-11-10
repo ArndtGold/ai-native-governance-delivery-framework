@@ -71,7 +71,7 @@ for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Coc
     }
     await frame.locator('.work-step-details > summary').click();
     await frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();
-    await expect(frame.getByRole('button', { name: 'Dokument schließen' })).toBeVisible();
+    await expect(frame.getByRole('button', { name: /Zurück zur (Übersicht|Statuskarte)/ })).toBeVisible();
     await frame.getByRole('button', { name: 'Verknüpfter Kontext ansehen', exact: true }).click();
     await expect(frame.getByRole('button', { name: 'Kontext übergeben', exact: true })).toBeEnabled();
     await frame.getByRole('button', { name: 'Kontext übergeben', exact: true }).click();

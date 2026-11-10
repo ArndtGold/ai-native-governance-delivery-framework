@@ -270,7 +270,7 @@ try {
   const waitingFigure = await figureSource(first);
   assert.match(waitingFigure, />UR<\/text>/u);
   assert.match(waitingFigure, /dur="12s"/u);
-  assert.doesNotMatch(waitingFigure, /data-gesture/u);
+  assert.match(waitingFigure, /data-gesture/u, "first visible approval plays its gesture");
   await (await entry(first, "retry"))();
   assert.equal(await figureSource(first), waitingFigure, "unchanged read keeps the SVG bytes");
 

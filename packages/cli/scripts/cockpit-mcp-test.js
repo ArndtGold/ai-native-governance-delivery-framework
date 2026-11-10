@@ -38,6 +38,8 @@ for (const modern of [false, true]) {
       const render = await client.callTool({ name: 'agdf_cockpit', arguments: {} });
       assert.equal(render.structuredContent.authorizes, false); assert.equal(render.structuredContent._meta, undefined);
       assert.equal(render._meta.agdf_cockpit.initial_run_id, undefined);
+      assert.deepEqual(render._meta.agdf_cockpit.provenance, { schema_version: '1', version: preparation.version,
+        resource_digest: preparation.ui.digest, resource_scope: 'server_validated', host_display: 'unconfirmed', candidate_match: 'unverified' });
       const session_id = render._meta.agdf_cockpit.session_id;
       const call = args => client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id, ...args } });
       const snapshot = (await call({ operation: 'snapshot' })).structuredContent;
@@ -146,7 +148,7 @@ for (const modern of [false, true]) {
     const history = archive.entries.filter(entry => entry.kind === 'run' && entry.key === 'fixture-ended');
     assert.equal(history.length, 1);
     assert.equal(history[0].section, 'completed');
-    assert.equal(history[0].stored_status, 'Historie');
+    assert.equal(history[0].stored_status, 'Vorhaben beendet');
 
   };
   const reader = createCockpitReader(g.root);

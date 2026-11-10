@@ -1,5 +1,5 @@
 // Same 24px canvas and 1.5px stroke convention as pages/src/components/Icon.astro.
-export function Icon({ name }: { name: 'reload' | 'expand' | 'check' | 'panel' | 'close' | 'search' | 'active' | 'planned' | 'completed' | 'archive' | 'back' | 'info' }) {
+export function Icon({ name }: { name: 'reload' | 'expand' | 'check' | 'panel' | 'close' | 'search' | 'active' | 'planned' | 'completed' | 'archive' | 'back' | 'info' | 'shield' | 'shield-alert' | 'shield-unknown' }) {
   const paths = {
     reload: 'M20 7v5h-5 M20 12a8 8 0 1 0-2.34 5.66',
     expand: 'M14 4h6v6 M20 4l-9 9 M10 4H4v16h16v-6',
@@ -13,6 +13,9 @@ export function Icon({ name }: { name: 'reload' | 'expand' | 'check' | 'panel' |
     archive: 'M4 8h16v12H4z M3 4h18v4H3z M9 12h6',
     back: 'M15 18l-6-6 6-6',
     info: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z M12 11v5 M12 8h.01',
+    shield: 'M12 2 20 5v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3Z M9 12l2 2 4-4',
+    'shield-alert': 'M12 2 20 5v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3Z M12 8v5 M12 16h.01',
+    'shield-unknown': 'M12 2 20 5v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3Z',
 
   };
   return <svg className="cockpit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]}/></svg>;

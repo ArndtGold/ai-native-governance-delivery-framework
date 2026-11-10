@@ -74,6 +74,7 @@ export function buildPanelView(input) {
     ...events(run.id),
     ...(input.showRunState ? { figure: state } : {}),
     mood: state.mood,
+    workGate: input.showRunState && run.evaluated && !snapshot.stale ? run.gate : undefined,
     stateLabel: t(`states.${state.mood}`),
     reason: t(`reasons.${state.reason.key}`, reasonParams),
     gateBar: gateBar(gateMarks(run), input.columns),

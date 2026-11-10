@@ -44,7 +44,7 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
     import("#agdf-core/control-inspect/cockpit-session.js"),
     import("#agdf-core/control-read/snapshot.js"),
   ]);
-  const session = createCockpitSessionService(root, { pluginMode });
+  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface });
   const renderDefinition = pluginMode ? COCKPIT_PLUGIN_RENDER_DEFINITION : COCKPIT_RENDER_DEFINITION;
   const tools = [
     { name: renderDefinition.name, definition: renderDefinition,
@@ -54,6 +54,7 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
   ];
   // Claude Code renders no MCP app UI today; its cockpit stays hidden until a client declares support.
   return Object.freeze({ ...errorSupport(true), mode: 'cockpit', definition: renderDefinition, tools,
+    bindResourceIdentity: identity => session.bindResourceIdentity(identity),
     producerIdentity: inspected.generationIdentity ?? null,
     uiCapabilityRequired: pluginMode || surface === 'claude', responseLimit: READ_LIMITS.response,
     ...(pluginMode ? { unsupportedUiCode: 'host_ui_unsupported' } : {}),

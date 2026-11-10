@@ -5,6 +5,25 @@ import type { Envelope } from '../src/types';
 import type { ReadTransport } from '../src/api';
 import { backlog, pointer, runData, runScope, fixtureMeta } from './scoped-fixtures';
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+for (const compact of [false, true]) it(`labels the current and retained stale work state (${compact ? 'compact' : 'expanded'})`, async () => {
+  let signalChange!: () => void;
+  const read = vi.fn(async (path: string) => {
+    if (path.startsWith('/api/freshness')) throw Error('read_failed');
+    return runScope(runData('run-a', 'My undertaking'));
+  }) as ReadTransport;
+  read.waitForChanges = vi.fn((_snapshot, signal) => new Promise<Envelope<{changed: boolean}>>((resolve, reject) => {
+    signalChange = () => resolve({ ...fixtureMeta, data: { changed: true } });
+    signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
+  }));
+  render(<App compact={compact} initialRunId="run-a" transport={read}/>);
+  expect(await screen.findByText('Aktueller Arbeitsstand')).toBeTruthy();
+  await waitFor(() => expect(signalChange).toBeTypeOf('function'));
+  await act(async () => signalChange());
+  expect(await screen.findByText('Zuletzt beobachteter Arbeitsstand')).toBeTruthy();
+  expect(screen.getByText('Datenstand nicht aktuell. Bitte aktualisieren.')).toBeTruthy();
+  expect(screen.queryByText('Aktueller Arbeitsstand')).toBeNull();
+  expect(screen.getByRole('button', {name: /Wiederholen/})).toBeTruthy();
+});
 it('background Run refresh retains source focus after opaque resource IDs are replaced', async () => {
   const run = runData('run-a', 'My undertaking');
   const source = { resource_id: 'old-source', run_id: 'run-a', type: 'Run State', path: '.agdf/control/runs/run-a/RUN_STATE.md', registered_reference: '.agdf/control/runs/run-a/RUN_STATE.md', status: 'registered' };
@@ -18,6 +37,7 @@ it('background Run refresh retains source focus after opaque resource IDs are re
     signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
   }));
   render(<App transport={read} initialRunId="run-a"/>);
+  fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
   await screen.findByRole('heading', { name: 'Dokumente' });
   const button = await screen.findByRole('button', { name: 'Stand des Vorhabens öffnen' }); button.focus();
   await waitFor(() => expect(deliver).toBeTypeOf('function'));
@@ -38,9 +58,9 @@ it('an open original stays readable after a change and requires a deliberate rel
     signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
   }));
   render(<App transport={read} initialRunId="run-a"/>);
+  fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
   await screen.findByRole('heading', { name: 'Dokumente' });
   fireEvent.click(await screen.findByRole('button', { name: 'Stand des Vorhabens öffnen' }));
-  fireEvent.click(await screen.findByText('Originaldokument lesen', { exact: true }));
   await screen.findByRole('heading', { name: 'Original stays here' });
   const before = vi.mocked(read).mock.calls.filter(c => c[0].startsWith('/api/snapshot')).length;
   await waitFor(() => expect(deliver).toBeTypeOf('function'));
@@ -65,21 +85,20 @@ it('SCN-017: overview change signal waits for deliberate reload and retains quer
     deliver = () => resolve({ ...backlog([]), data: { changed: true } });
     signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
   }));
-  render(<App transport={read}/>); await screen.findByText('Beobachteter Quellenstand: Awaiting QA');
+  render(<App transport={read}/>); await screen.findByText('Awaiting QA');
   screen.getByRole('searchbox').focus();
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'My undertaking' } });
-  screen.getByText('Quellenangaben').closest('details')!.open = true;
   const workspace = document.querySelector('.workspace')!; workspace.scrollTop = 180;
   await waitFor(() => expect(deliver).toBeTypeOf('function'));
   changed = true; await act(async () => deliver());
   const reload=await screen.findByRole('button',{name:'Neuer Stand verfügbar · Aktualisieren'});
-  expect(screen.getByText('Beobachteter Quellenstand: Awaiting QA')).toBeTruthy();
+  expect(screen.getByText('Awaiting QA')).toBeTruthy();
   expect((screen.getByRole('button',{name:'My undertaking'}) as HTMLButtonElement).disabled).toBe(true);
   expect(read).toHaveBeenCalledTimes(2);fireEvent.click(reload);
-  await screen.findByText('Beobachteter Quellenstand: Awaiting UAT');
+  await screen.findByText('Awaiting UAT');
   expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('My undertaking');
-  expect(screen.getByText('Quellenangaben')).toBeTruthy();
-  expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'})); expect(workspace.scrollTop).toBe(180); expect(screen.queryByText('Veraltet')).toBeNull(); expect(read).toHaveBeenCalledTimes(3);
+  expect(screen.queryByText('Quellenangaben')).toBeNull();
+  expect(document.activeElement).toBe(screen.getByRole('combobox',{name:'Bestandsbereich'})); expect(workspace.scrollTop).toBe(180); expect(screen.queryByText('Veraltet')).toBeNull(); expect(read).toHaveBeenCalledTimes(3);
 });
 it('hidden view cancels its waiting request and rechecks on return', async () => {
   const read = vi.fn(async (path: string) => path.startsWith('/api/freshness') ? { ...backlog([]), data: { unchanged: true } } : backlog([pointer('run-a', 'My undertaking')])) as ReadTransport;

@@ -96,7 +96,7 @@ test('document orientation separates approved Run facts from draft originals in 
       return url.pathname === `/api/runs/${run}`
         || url.pathname === '/api/snapshot' && url.searchParams.get('run_id') === run;
     });
-    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+    await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();
     expect((await returning).ok()).toBe(true);
     await expect(page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/})).toBeFocused();
     // Capture the same bound document through the embedded-card browser entry,
@@ -120,7 +120,7 @@ async function openSession(page, service, pathname = '/') {
   await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
   await page.goto(service.origin + pathname);
   await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
-  await expect(page.getByRole('heading', { name: pathname === '/card.html' ? 'AGDF Cockpit' : 'Gespeicherte Vorhaben',level:1 })).toBeVisible({ timeout: 12_000 });
+  await expect(page.getByRole('heading', { name: pathname === '/card.html' ? 'AGDF Cockpit' : 'Arbeit am Projekt',level:1 })).toBeVisible({ timeout: 12_000 });
   if (pathname === '/card.html') await expect(page.locator('.undertaking-list .run-link').first()).toBeEnabled({ timeout: 12_000 });
   expect(new URL(page.url()).hash).toBe('');
 }
@@ -167,15 +167,15 @@ test('SCN-044: Pages fonts survive host body overrides across card, list, Run an
     // Follow the registered evidence source from the same work unit, then return to it.
     await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true}).click();
-    await expect(page.getByRole('button',{name:'Dokument schließen',exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true})).toBeVisible();
     await expect(page.locator('.document')).toContainText('fixture-a');
-    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+    await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();
     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeFocused();
     if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
     await page.getByText('Originaldokument lesen',{exact:true}).click();
     await inspect('document','.document p');
     await expect(page.locator('.document')).toHaveCSS('font-size','16px');
-    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+    await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();
     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();
     await inspect('list','.run-link[data-focus-id="fixture-a"]');
     expect(remote).toEqual([]);
@@ -240,7 +240,7 @@ test('SCN-003/007/028/031: copied repository sources, explicit stored pointers, 
       await expect(page.locator('.page-title h1')).toBeFocused();
       await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
       await activate(document); await expect(page.locator('.page-title h1')).toBeFocused();
-      await activate(page.getByRole('button',{name:'Dokument schließen',exact:true}));
+      await activate(page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}));
       // Returning reads the Run again; check focus after that bounded operation settles.
       await expect(page.getByRole('button',{name:'Neu laden',exact:true})).toBeEnabled({timeout: READ_LIMITS.timeout});
       await expect(document).toBeFocused();
@@ -291,7 +291,7 @@ test('SCN-009/014/018/024: hostile document, stale reload, retry and removed sel
     await expect(page.getByRole('button', { name: 'Neu laden', exact: true })).toBeEnabled({ timeout: READ_LIMITS.timeout });
     await expect(page.getByRole('button', { name: 'Wiederholen', exact: true })).toHaveCount(0);
     await expect(page.locator('article.document')).toContainText('Updated document');
-    fs.rmSync(join(f.root, '.agdf/control/runs/fixture-a'), { recursive: true }); await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('heading', { name: 'Gespeicherte Vorhaben',level:1 })).toBeVisible(); await expect(page.getByText(/Der ausgewählte Run ist nicht mehr vorhanden/)).toBeVisible(); expect(remote).toEqual([]);
+    fs.rmSync(join(f.root, '.agdf/control/runs/fixture-a'), { recursive: true }); await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('heading', { name: 'Arbeit am Projekt',level:1 })).toBeVisible(); await expect(page.getByText(/Der ausgewählte Run ist nicht mehr vorhanden/)).toBeVisible(); expect(remote).toEqual([]);
   } finally { await service.close(); f.close(); }
 });
 
@@ -331,7 +331,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await expect(page.getByRole('group',{name:'Ansicht',exact:true})).toHaveCount(0);
     await page.evaluate(()=>window.scrollTo(0,300));await pinned();
     await page.screenshot({path:evidencePath('agdf-cockpit-sticky-document.png')});
-    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+    await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();
     const source=page.getByRole('button',{name:'Anforderungen öffnen',exact:true});await expect(source).toBeFocused();
     const h=await page.locator('.cockpit-brand-header').boundingBox(),r=await source.boundingBox();expect(r.y).toBeGreaterThanOrEqual(h.y+h.height-1);
     expect(remote).toEqual([]);
@@ -438,7 +438,7 @@ test('neutral light reading planes and Pages dark surfaces survive host colors a
     await inspect('run','.work-step',true);if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
     await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.locator('article.document')).toBeVisible();await inspect('document','.document-reading');
-    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(page.getByRole('group',{name:'Ansicht'})).toHaveCount(0);
+    await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(page.getByRole('group',{name:'Ansicht'})).toHaveCount(0);
     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();
     // Measure only the settled list; a loading pass replaces its panel and detached nodes report empty styles.
     await expect(page.locator('main > div[aria-busy="false"] > .panel')).toBeVisible();await inspect('list','main > div[aria-busy="false"] > .panel');
@@ -558,8 +558,8 @@ test('work action leads, qualifications stay honest and evidence access survives
     }
     const source=page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true});
     await expect(source).toBeVisible();await source.focus();await page.keyboard.press('Enter');
-    await expect(page.getByRole('button',{name:'Dokument schließen',exact:true})).toBeVisible();
-    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
+    await expect(page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true})).toBeVisible();
+    await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(source).toBeFocused();
     await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
     fs.writeFileSync(evidencePath('agdf-cockpit-work-hierarchy-observations.json'),JSON.stringify(observations,null,2));
   }finally{await service.close();expect(hashes(f.root)).toEqual(before);f.close();}

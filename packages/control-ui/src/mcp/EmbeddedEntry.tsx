@@ -9,6 +9,7 @@ import { HandoffController } from './handoff';
 import { createHandoffPort } from './handoff-port';
 import { HostProbe } from './HostProbe';
 import { createViewCloser } from './view-close';
+import { cockpitHostFromName, type CockpitHost } from '../host-label';
 
 export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
   const trace = useMemo(() => {
@@ -23,6 +24,7 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
   const [bootstrap, setBootstrap] = useState<RenderBootstrap | null>(null);
   const current = useRef<RenderBootstrap | null>(null);
   const [ready, setReady] = useState(false), [expanded, setExpanded] = useState(false), [problem, setProblem] = useState('');
+  const [cockpitHost, setCockpitHost] = useState<CockpitHost>('unknown');
   const terminal = useRef<HTMLElement>(null);
   const [closeState, setCloseState] = useState<'open' | 'closing' | 'closed' | 'blocked'>('open');
   useLayoutEffect(() => {
@@ -38,6 +40,7 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
     const update = () => {
       if (!alive) return;
       setReady(connected && !!bridge.session && !!bridge.app.getHostCapabilities()?.serverTools);
+      if (connected) setCockpitHost(cockpitHostFromName(bridge.app.getHostVersion()?.name, current.current?.integrationSurface));
       const host = bridge.app.getHostContext();
       if (host?.theme) applyDocumentTheme(host.theme);
       if (host?.styles?.variables) applyHostStyleVariables(host.styles.variables);
@@ -128,7 +131,7 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
-      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} compact={!expanded} handoff={handoff} onExpand={() => void open()}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
+      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} provenance={bootstrap.provenance} host={cockpitHost} compact={!expanded} handoff={handoff} onExpand={() => void open()}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
     {problem && <p role="alert">{problem}</p>}
     {closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;

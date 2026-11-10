@@ -19,6 +19,30 @@
 }
 .cockpit-brand-project { margin: var(--agdf-space-1) 0 0; font-size: var(--agdf-text-xs); line-height: var(--agdf-text-xs-leading); color: var(--cockpit-muted); overflow-wrap: anywhere; }
 .cockpit-brand-actions { display: flex; align-items: center; gap: var(--agdf-space-2); }
+.about-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(9, 29, 35, .55); }
+.about-cockpit { width: min(100%, 760px); max-height: min(90vh, 900px); overflow-y: auto; border-radius: 20px; background: var(--cockpit-surface, #fff); box-shadow: 0 20px 70px #102c3540; }
+.about-hero { position: relative; min-height: 235px; display: flex; align-items: end; padding: 30px; color: #fff; background: linear-gradient(90deg, rgba(8, 35, 42, .94), rgba(8, 35, 42, .38)), url('../../../pages/public/assets/race-control-track-visual.jpg?inline') center / cover; }
+.about-hero span { font-size: .7rem; font-weight: 700; letter-spacing: .16em; color: #9de6d8; }
+.about-hero h2 { margin: .45rem 0; font-size: clamp(1.65rem, 4vw, 2.5rem); color: #fff; }
+.about-hero p { max-width: 32rem; margin: 0; color: #e5f3f0; }
+.about-cockpit:focus { outline: none; }
+.about-cockpit .about-close { position: absolute; z-index: 2; top: 16px; right: 16px; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 50%; background: #092c34e8; color: #fff; font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.about-cockpit .about-close:hover, .about-cockpit .about-close:active { background: #092c34; color: #fff; }
+.about-close:focus:not(:focus-visible) { outline: none; }
+.about-close:focus-visible { outline: 2px solid #62e6d0; outline-offset: 2px; }
+.about-body { padding: 28px 30px 30px; color: var(--cockpit-text, #26383b); }
+.about-body h3 { margin: 0 0 8px; font-size: 1.1rem; }
+.about-body p { line-height: 1.55; margin: 0 0 20px; }
+.about-intro { display: flex; align-items: center; gap: 12px; }
+.about-intro > div { flex: 1; min-width: 0; }
+.about-intro img { flex: 0 0 auto; width: 150px; height: auto; }
+.about-read-only { padding: 14px 16px; border-radius: 12px; background: #eaf7f3; }
+.about-body .about-version { margin: 0; color: var(--cockpit-muted, #6d7778); font-size: .8rem; }
+.about-version details { display: inline; }
+.about-version summary { display: inline; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.about-version details[open] { display: inline; }
+.about-version details p { margin: .5rem 0 0; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .about-backdrop { padding: 10px; } .about-hero { min-height: 180px; padding: 22px; } .about-body { padding: 22px; } .about-intro img { width: 92px; } }
 .cockpit-brand-actions .read-only { white-space: nowrap; }
 .cockpit-brand-actions .refresh-control,
 .cockpit-brand-actions .refresh-control:hover { background: transparent; }

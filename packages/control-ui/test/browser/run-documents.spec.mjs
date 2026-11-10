@@ -34,7 +34,7 @@ test('SCN-001/004/015/016: visible zero/four actual registrations and unconfirme
         await expect(page.locator('.run-documents button').filter({hasText:'Freigegebene Anforderungen ansehen'})).toHaveCount(0);
         const source=page.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen',exact:true});await source.click();
         await expect(page.locator('.document-state-context')).toContainText('Approval: UR');await expect(page.locator('.document-state-context')).toContainText('Die genaue freigegebene Fassung ist nicht bestätigt.');
-        await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
+        await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(source).toBeFocused();
       }
       await page.screenshot({path:join(evidence,`actual-count-${count}.png`),fullPage:true});expect(treeBytes(f.root)).toEqual(before);
     }finally{await service.close();f.close();}
@@ -75,7 +75,7 @@ test('SCN-001/003/015/016/017: actual approved version and six registered resour
       await expect(page.locator('.document-state-context')).toContainText('Approval: UR');
       await expect(page.locator('.document-state-context')).toContainText('Freigabezeitpunkt, freigebende Person und Grundlage');
       await page.locator('.document-original > summary').focus();await page.keyboard.press('Enter');await expect(page.locator('article.document')).toContainText('UR: Approval fixture');
-      await page.getByRole('button',{name:'Dokument schließen',exact:true}).focus();await page.keyboard.press('Enter');await expect(action).toBeFocused();
+      await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).focus();await page.keyboard.press('Enter');await expect(action).toBeFocused();
       await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(action).toBeEnabled();
       expect(treeBytes(f.root)).toEqual(before);
     }
@@ -101,14 +101,14 @@ test('SCN-005/007/010/013/018: deliberate actual draft check survives document/r
       await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');
       await expect(page.locator('.run-document-state').filter({hasText:'Entwurf geprüft'})).toBeVisible();
       const source=page.getByRole('button',{name:'Entwurf ansehen: Produktanforderungen',exact:true});await source.focus();await page.keyboard.press('Enter');
-      await expect(page.locator('.document-state-context')).not.toContainText('Entwurf geprüft');await expect(page.getByText('Prüfdetails',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
+      await expect(page.locator('.document-state-context')).not.toContainText('Entwurf geprüft');await expect(page.getByText('Prüfdetails',{exact:true})).toBeVisible();await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(source).toBeFocused();
       await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');expect(treeBytes(f.root)).toEqual(before);
       fs.writeFileSync(f.path,readyPrd.replace('before_prd | resolved','before_prd | open'));f.reseal(s=>s);before=treeBytes(f.root);
       await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(page.locator('.draft-check')).toContainText('Noch nicht geprüft');await check.click();
       await expect(page.locator('.run-document-state').filter({hasText:'Überarbeitung nötig'})).toBeVisible();await source.click();
       await expect(page.locator('.document-state-context')).toContainText('Überarbeitung nötig');await expect(page.getByRole('list',{name:'Aktuelle Korrekturen'})).toContainText('Scope');
       await page.screenshot({path:join(evidence,`corrections-${route==='/'?'browser':'card'}.png`),fullPage:true});
-      await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();expect(treeBytes(f.root)).toEqual(before);
+      await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(source).toBeFocused();expect(treeBytes(f.root)).toEqual(before);
       await page.unroute('**/api/draft-check/**');fs.writeFileSync(f.path,readyPrd);f.reseal(s=>s);before=treeBytes(f.root);
     }
   }finally{await service.close();fs.rmSync(f.root,{recursive:true,force:true});}

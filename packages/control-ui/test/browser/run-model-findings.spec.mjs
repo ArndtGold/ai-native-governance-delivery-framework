@@ -34,7 +34,7 @@ test('run model: normalized open findings remain visible without a saved summary
         await page.screenshot({ path: evidencePath(`run-model-findings-${route === '/' ? 'expanded' : 'card'}-${width}.png`), fullPage: true });
       }
       await page.locator('.work-step-report-findings').getByRole('button', { name: 'Qualitätsprüfung öffnen', exact: true }).focus(); await page.keyboard.press('Enter');
-      await expect(page.getByRole('button', { name: 'Dokument schließen', exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Zurück zur (Übersicht|Statuskarte)/, exact: true })).toBeVisible();
       await page.getByText('Originaldokument lesen', { exact: true }).click();
       await expect(page.locator('article.document')).toContainText('Capture the exact native observation');
     }

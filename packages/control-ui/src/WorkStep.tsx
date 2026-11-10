@@ -3,6 +3,7 @@ import type { Detail, Resource, RunClosure } from './types';
 import { label } from './feedback';
 import { documentName, phaseName, gateLabel, observedAssessment, reportFindingsLabel, closurePerson, closureSuccessor } from './presentation';
 import { RunDocuments } from './RunDocuments';
+import { projectWorkSituation } from '../../core/lib/control-inspect/work-situation.js';
 
 // The closure receipt, as Core projects it; the confirming person is a cooperative statement.
 export function RunClosureFacts({ closure }: { closure: RunClosure }) {
@@ -20,11 +21,16 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
 }) {
   const id = useId(), e = data.evaluation;
   if (!e) return <>{children}{compactDetails && <details className="work-step-details"><summary>Details</summary>{compactDetails}</details>}</>;
-  const assessment = observedAssessment(data, current);
+  const observed = observedAssessment(data, current);
+  const assessment = condensed && observed === 'completed' && e.completion?.fulfilled !== true ? 'unconfirmed' : observed;
   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
-  const revisionRequired = assessment === 'blocked' && e.blocking_reason === 'presentation_version_decided';
-  const waiting = assessment === 'blocked' && e.blocking_reason === 'none' && e.missing_approval !== 'none';
+  const situation = projectWorkSituation({ assessment, gate: e.current_gate, blockingReason: e.blocking_reason, missingApproval: e.missing_approval, closureOutcome: data.closure?.outcome });
+  const revisionRequired = situation.kind === 'revision_required';
+  const waiting = situation.kind === 'approval_required';
+  const clarifying = situation.kind === 'clarification_required';
+  const building = situation.kind === 'in_progress';
+  const currentSources = sources.filter(resource => resource.type === e.current_gate && (!data.document_states || data.document_states.some(state => state.resource_id === resource.resource_id && state.source_state === 'available')));
   const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
   const closure = assessment === 'ended' ? data.closure ?? null : null;
   const title = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
@@ -37,10 +43,12 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
   const count = e.missing_evidence.length;
   const reportCount = data.work_summary?.open_obligation_count ?? 0;
   const reportSources = sources.filter(r => data.work_summary?.sources.some(s => s.path === r.path));
-  const summaryStatus = revisionRequired ? 'Überarbeitung nötig' : waiting ? 'Freigabe erforderlich'
-    : assessment === 'blocked' ? 'Blockiert' : title;
+  const summaryStatus = situation.kind === 'ended' && data.closure ? `Vorhaben beendet · ${label(data.closure.outcome)}` : situation.de;
   const summaryReason = revisionRequired ? 'Die vorgelegte Fassung muss überarbeitet werden. Der konkrete Grund ist hier nicht angegeben.'
-    : waiting ? 'Für diesen Schritt wird eine Freigabe benötigt. Der nächste Schritt zeigt, was dafür noch zu tun ist.' : explanation;
+    : waiting ? currentSources.length === 1 ? `Sieh dir die aktuelle Fassung an. Für diesen Schritt ist ${e.missing_approval} erforderlich.`
+      : `Für diesen Schritt ist ${e.missing_approval} erforderlich. Die zugehörige Fassung ist nicht eindeutig verfügbar.`
+    : clarifying ? 'Die Nutzeranforderungen müssen vor der Weiterarbeit geklärt werden.'
+    : building ? null : explanation;
   const nextAction = condensed && revisionRequired ? 'Fassung überarbeiten und erneut zur Entscheidung vorlegen.'
     : e.next_action_de ?? e.next_allowed_action;
   const primary = onOpen && (primarySource ? <button className="primary work-step-primary" data-focus-id={`step:${primarySource.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(primarySource, `step:${primarySource.resource_id}`)}>{documentName(primarySource.type)} öffnen</button>
@@ -72,19 +80,20 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
     {!condensed && <><div className="work-step-heading"><span className="work-step-eyebrow">Aus dem Run abgeleiteter Arbeitsstand</span><h2>{phaseName(data.persisted?.current_gate ?? e.current_gate)}</h2></div>
       <p className="work-step-saved">{data.persisted ? <>Aktuell als „{label(data.persisted.decision)}“ eingeordnet.</> : 'Aktuelle Einordnung nicht verfügbar.'}</p></>}
     {showGate && <p className="work-step-gate">{assessment === 'unconfirmed' ? 'Zuletzt beobachteter Schritt: ' : ''}{gateLabel(e.current_gate)}</p>}
-    {gateContent}
+    {!clarifying && gateContent}
     <div className="work-step-prerequisites" data-assessment={assessment}>
       <div className="work-step-status-row">
         {condensed ? <h2><span>{summaryStatus}</span>{!showGate && assessment !== 'unconfirmed' && <> · {phaseName(e.current_gate)}</>}</h2> : <h3>{title}</h3>}
         {figure}
       </div>
-      <p>{condensed ? summaryReason : explanation}</p>
+      {(condensed ? summaryReason : explanation) && <p>{condensed ? summaryReason : explanation}</p>}
       {(assessment === 'open' || assessment === 'blocked') && <p className="work-step-action">
         {condensed && <strong>Als Nächstes </strong>}{nextAction}</p>}
       {closure && <RunClosureFacts closure={closure}/>}
       {!condensed && primary}
       {children}
     </div>
+    {clarifying && gateContent}
     {compact && condensed ? <details className="work-step-details"><summary>Details</summary>
       {primary}{support}{compactDetails}
     </details> : !condensed && support}

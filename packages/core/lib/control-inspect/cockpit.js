@@ -133,12 +133,13 @@ export function createCockpitReader(root, options = {}) {
     const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
+    const urTitle = readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, '').trim();
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       closure: projectRunClosure(run.content), work_summary,
       ...(figure && { figure }),
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
-      objective: objective(run.content), title: resolveHumanRunTitle({
-        urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
+      objective: objective(run.content), title_source: urTitle ? 'ur' : objective(run.content) ? 'objective' : 'run_id', title: resolveHumanRunTitle({
+        urHeading: urTitle,
         runContent: run.content, runId: run.run_id,
       }),
       evaluation: assessed, persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,

@@ -71,3 +71,23 @@ it('rejects a structured summary bound to a different resource', async () => {
   expect(await screen.findByText(/Vorschau ist nicht verfügbar/)).toBeTruthy();
   expect(screen.queryByText('Falsches Dokument')).toBeNull();
 });
+it.each([true, false])('shows only source-bound clarification points when present (%s)', async hasQuestions => {
+  const a=source('source-a','snapshot-a'), revision='11111111-1111-4111-8111-111111111111', digest='a'.repeat(64);
+  a.data.revision_id=revision;
+  const document_state={ schema_version:'1' as const, resource_id:'source-a',run_id:'run-a',revision_id:revision,type:'UR',registered_reference:'UR.md',source_state:'available' as const,content_digest:digest,state:'draft' as const,version_kind:'draft' as const,reason:null,recorded_approval:null,check:null,authorizes:false as const };
+  a.data.document_states=[document_state];
+  const summary={state:'available' as const,gate:'UR',items:[{label:'Ziel',text:'Zieltext'}],markdown:hasQuestions ? '- Ziel: Zieltext\n- Offene Punkte: Wer darf freigeben?' : '- Ziel: Zieltext',authorizes:false as const,run_id:'run-a',resource_id:'source-a',revision_id:revision,content_digest:digest};
+  const read=vi.fn(async()=>({...reply(a,'Original'),data:{...reply(a,'Original').data,document_state,cockpit_summary:summary}})) as unknown as ReadTransport;
+  render(<SourcePreview compactSummary clarification result={a} gate="UR" read={read} current/>);
+  const section=await screen.findByRole('region',{name:'Klärungspunkte'});
+  expect(within(section).getByText(hasQuestions ? /Wer darf freigeben/ : /nicht verfügbar/)).toBeTruthy();
+  expect(within(section).queryByText('Zieltext')).toBeNull();
+});
+it('can show a unique explicit questions section when no approved summary exists', async () => {
+  const a=source('source-a','snapshot-a');
+  const read=vi.fn(async()=>reply(a,'# UR\n\n## Offene Fragen\n\n- Wer darf freigeben?\n\n## Ziel\n\nEin anderes Ziel.')) as unknown as ReadTransport;
+  render(<SourcePreview compactSummary clarification result={a} gate="UR" read={read} current/>);
+  const section=await screen.findByRole('region',{name:'Klärungspunkte'});
+  expect(within(section).getByText('Wer darf freigeben?')).toBeTruthy();
+  expect(within(section).queryByText('Ein anderes Ziel.')).toBeNull();
+});

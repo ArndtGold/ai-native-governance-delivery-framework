@@ -8,6 +8,9 @@ import { gateTitle, label } from './localization.mjs';
 import { runState } from './state.mjs';
 
 const NOTICE_MOODS = new Set(['wartet', 'blockiert']);
+// The reasons a toast announces: exactly those with a text under `notices` in the catalog. A run that
+// cannot be read is blocked in the pane and the status line, but raises no toast.
+const NOTICE_REASONS = new Set(['waitingApproval', 'waitingDecision', 'blocked']);
 
 // What the status line and the detector observe: { kind: 'run', runId, state } with the run-derived
 // state, { kind: 'unreadable' } or { kind: 'idle' } (nothing read yet, no control, no shown run).
@@ -33,7 +36,8 @@ export function observeNotice(previous, observed) {
   if (observed.kind !== 'run') return { observation: null, notice: null };
   const observation = { runId: observed.runId, signature: signature(observed.state) };
   const changed = previous?.runId === observed.runId && previous.signature !== observation.signature;
-  return { observation, notice: changed && NOTICE_MOODS.has(observed.state.mood) ? observed.state : null };
+  const announced = NOTICE_MOODS.has(observed.state.mood) && NOTICE_REASONS.has(observed.state.reason.key);
+  return { observation, notice: changed && announced ? observed.state : null };
 }
 
 // The toast for a notice, e.g. "Wartet auf Freigabe: Qualitätssicherung". A notice always concerns

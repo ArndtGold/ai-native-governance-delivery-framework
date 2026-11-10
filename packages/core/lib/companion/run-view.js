@@ -122,9 +122,10 @@ export function readRunDrift(root, runId) {
   return drift;
 }
 
-// Active and unreadable runs are evaluated; terminal runs are summarized unless requested by id,
-// so a large history does not cost one evaluation per run.
-const needsEvaluation = (entry, requested) => requested.has(entry.run_id) || !entry.valid || entry.lifecycle === 'active';
+// Active runs are evaluated; terminal and unreadable runs are summarized unless requested by id, so
+// neither a large history nor many unreadable runs cost one evaluation per run. An unreadable run's
+// reason and figure come from the inventory findings.
+const needsEvaluation = (entry, requested) => requested.has(entry.run_id) || (entry.valid && entry.lifecycle === 'active');
 
 // A write that lands during a capture invalidates it (source_changed); the read is repeated a bounded
 // number of times before the change is reported (CR delta review RV-1).

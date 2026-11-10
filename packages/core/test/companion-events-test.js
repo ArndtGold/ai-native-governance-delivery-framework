@@ -11,7 +11,7 @@ import { interactionLocales } from '../lib/resources/context.js';
 import { localePack } from '../lib/interaction-presentation.js';
 import { COMPANION_EVENT_SCHEMA, EVENT_KINDS, PREVIEW_LIMITS, TOAST_KINDS, TOOL_RESULT_META_KEY, deriveEvent, eventKind,
   parseEventLines, reviewFact, reviewPreview, sameRoot } from '../lib/companion/events.js';
-import { COMPANION_DATA_ROOT_ENV, JOURNAL_LIMIT_BYTES, JOURNAL_ROTATED_FILE, appendJournalEvent, eventRoot, journalPath } from '../lib/companion/journal.js';
+import { COMPANION_DATA_ROOT_ENV, JOURNAL_LIMIT_BYTES, JOURNAL_ROTATED_FILE, appendJournalEvent, createCompanionJournal, eventRoot, journalPath, reviewFacts } from '../lib/companion/journal.js';
 import { COMPANION_DATA_ROOT_ENV as LAUNCHER_ENV } from '../../cli/lib/mcp-lifecycle/plugin-runtime.js';
 
 const pack = localePack(interactionLocales, 'en');
@@ -39,6 +39,9 @@ test('SCN-012: each kind is derived exactly once from its MCP outcome; reads, re
     ['agdf_record', input('step.record', { step: 'ur', title: 't', source: { path: 'u.md', digest: `sha256:${'c'.repeat(64)}` } }), accepted, undefined, 'document_recorded', 'UR'],
     ['agdf_record', input('step.record', { step: 'internal', internal_step: 'CD+Tests', decision: 'pass', source: { path: 'e.md', digest: `sha256:${'c'.repeat(64)}` } }), accepted, undefined, 'document_recorded', 'CD+Tests'],
     ['agdf_record', input('artefact.record', { gate: 'PRD', material: { material_id: base.operation_id, digest: `sha256:${'d'.repeat(64)}` }, reviewer: 'r', reviewed: true }), accepted, undefined, 'document_recorded', 'PRD'],
+    // Review finding 7: the two other document recordings of run-steps.recordRunStep are events too.
+    ['agdf_record', input('verified_change.record', { phase: 'execution', source: { path: 'v.md', digest: `sha256:${'c'.repeat(64)}` } }), accepted, undefined, 'document_recorded', 'Verified Change'],
+    ['agdf_revise', input('ur_draft.replace', { title: 't', source: { material_id: base.operation_id, digest: `sha256:${'d'.repeat(64)}` } }), accepted, undefined, 'document_recorded', 'UR'],
     ['agdf_record', input('step.record', { step: 'ur', title: 't', source: { path: 'u.md', digest: `sha256:${'c'.repeat(64)}` } }),
       { schema_version: '1', outcome: 'rejected', authorizes: false, reason: 'material_transfer_expired', dispatch: 'not_dispatched' }, { code: 'material_transfer_expired', dispatch: 'not_dispatched' }, 'write_rejected', 'UR'],
     ['agdf_approve', input('approval.record', { gate: 'UR', presentation_id: base.operation_id, response: 'Approval: UR' }),
@@ -164,4 +167,26 @@ test('CR A6: the event root keeps the caller\'s spelling of the same directory (
   assert.equal(eventRoot({ primary_target: other }, root), root, 'another directory never replaces the resolved root');
   assert.equal(eventRoot({ primary_target: 'relative/path' }, root), root);
   assert.equal(eventRoot({}, root), root);
+});
+
+test('Review finding 7: the other document recordings carry review facts like step.record', t => {
+  const root = mkdtempSync(join(tmpdir(), 'agdf-review-facts-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const facts = (tool, value) => reviewFacts(tool, value, project(tool, value, accepted), { root });
+  const digest = `sha256:${'c'.repeat(64)}`;
+  const byPath = facts('agdf_record', input('verified_change.record', { phase: 'execution', source: { path: 'missing.md', digest } }));
+  assert.deepEqual(byPath.map(fact => [fact.slot, fact.source, fact.path, fact.digest, fact.source_match]), [['Verified Change', 'path', 'missing.md', digest, 'unavailable']]);
+  const staged = facts('agdf_revise', input('ur_draft.replace', { title: 't', source: { material_id: base.operation_id, digest } }));
+  assert.deepEqual(staged.map(fact => [fact.slot, fact.source, fact.digest, fact.source_match]), [['UR', 'staged', digest, 'not_determinable']]);
+});
+
+test('Review finding 4: a journal says whether a result leaves an event without writing one', t => {
+  const dataRoot = mkdtempSync(join(tmpdir(), 'agdf-observes-'));
+  t.after(() => rmSync(dataRoot, { recursive: true, force: true }));
+  const journal = createCompanionJournal({ dataRoot });
+  const recorded = input('step.record', { step: 'ur', title: 't', source: { path: 'u.md', digest: `sha256:${'c'.repeat(64)}` } });
+  assert.equal(journal.observes('agdf_record', recorded, project('agdf_record', recorded, accepted)), true);
+  assert.equal(journal.observes('agdf_inspect', { operation: 'gate-check' }, { outcome: 'inspect_result', authorizes: false }), false);
+  assert.equal(existsSync(journalPath(dataRoot)), false, 'asking writes nothing');
+  assert.equal(createCompanionJournal({ dataRoot: '' }).observes('agdf_record', recorded, project('agdf_record', recorded, accepted)), false);
 });

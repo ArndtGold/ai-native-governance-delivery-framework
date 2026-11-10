@@ -106,6 +106,7 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
     readBudget,
     delivery,
     observeOutcome: (name, input, result) => journal.observe(name, input, result),
+    observesOutcome: (name, input, result) => journal.observes(name, input, result),
     async postprocessToolResult(name, input, result) {
       const configuration = protocol.configurationProjection(input);
       if (configuration && name === 'agdf_inspect' && result.report) result = { ...result, report: { ...result.report, effective_configuration: configuration } };
@@ -144,6 +145,7 @@ export async function createMcpDecisionRuntime({ runtime, ui, appOnlyMediationQu
     action: (input, host) => session.action(input, host), close: () => session.close() });
   return Object.freeze({ ...protocol,
     observeOutcome: (name, input, result) => runtime.observeOutcome?.(name, input, result) ?? false,
+    observesOutcome: (name, input, result) => runtime.observesOutcome?.(name, input, result) ?? false,
     async postprocessToolResult(name, input, result, { uiSupported, client } = {}) {
       if (name === 'agdf_inspect' && input.operation === 'native-qualification' && result.report?.available) {
         return { ...result, report: { ...result.report, ui_rendering_support: uiSupported ? 'supported' : 'unsupported',

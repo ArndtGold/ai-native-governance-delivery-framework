@@ -91,7 +91,12 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
   const journaling = () => !runtime.requiresProjectedResult && typeof runtime.observeOutcome === 'function';
   const journalingFailures = () => typeof runtime.observeOutcome === 'function';
   const journal = (name, input, projected) => {
-    try { runtime.observeOutcome(name, input, projected); } catch { /* notification only */ }
+    try { return runtime.observeOutcome(name, input, projected) === true; } catch { return false; /* notification only */ }
+  };
+  // Whether a result the generation returned left an event there (it journals what it produces).
+  const generationJournaled = (name, input, result) => {
+    if (!runtime.requiresProjectedResult || !result) return false;
+    try { return runtime.observesOutcome?.(name, input, result) === true; } catch { return false; }
   };
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
@@ -134,6 +139,8 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
         }
         const parentOwned = typeof tool.parentOwned === 'function' ? tool.parentOwned(argumentsValue) : tool.parentOwned;
         let phase = parentOwned ? 'parse' : 'execute';
+        // Whether this call's result already left a companion event (written here or by its generation).
+        let journaled = false;
         try {
           phase = 'parse';
           argumentsValue = runtime.prepareInput?.(name, argumentsValue) ?? argumentsValue;
@@ -143,22 +150,29 @@ export function buildAgdfServer({ runtime, executor, era } = {}) {
             const parsed = tool.parse(argumentsValue); phase = 'execute';
             result = await tool.execute(parsed, context.signal,
               { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) });
-          } else result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name,
-            trusted: runtime.prepareDispatch?.(name, argumentsValue) });
+          } else {
+            result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name,
+              trusted: runtime.prepareDispatch?.(name, argumentsValue) });
+          }
+          // Behind the facade the generation journaled the result it returned.
+          journaled = generationJournaled(name, argumentsValue, result);
           if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, argumentsValue, result,
             { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
           if (journaling()) {
             result = Object.hasOwn(result._meta ?? {}, 'agdf/tool-result') ? result : runtime.projectToolResult(name, argumentsValue, result);
-            journal(name, argumentsValue, result);
+            journaled = journal(name, argumentsValue, result);
           }
           return respond(name, argumentsValue, result, serialize ?? runtime.serialize, context);
         } catch (error) {
+          // A facade failure raised after its generation had replied carries that reply.
+          journaled ||= generationJournaled(name, argumentsValue, error?.generationResult);
           const facts = runtime.normalizeFailure(error, { phase });
           const failure = runtime.failure(facts.code, name, argumentsValue, { ...facts, elapsed_ms: performance.now() - started });
           // A local execution/delivery failure is owned here, including malformed
           // producer output. It never causes re-execution or a second write.
           const projected = runtime.projectToolResult(name, argumentsValue, failure, facts);
-          if (journalingFailures()) journal(name, argumentsValue, projected);
+          // One call leaves at most one event: a failure after its result left an event adds none.
+          if (journalingFailures() && !journaled) journal(name, argumentsValue, projected);
           return respond(name, argumentsValue, projected, serialize ?? runtime.serialize, context, facts);
         }
       },

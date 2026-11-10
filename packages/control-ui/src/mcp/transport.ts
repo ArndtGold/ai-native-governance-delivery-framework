@@ -59,6 +59,10 @@ export class CockpitBridge {
         if (isClose && value.reason === 'session_expired') return value;
         throw Error(String(value.reason));
       }
+      // An expired Cockpit session can no longer supply a target for the read envelope.
+      if (!isClose && value.schema_version === '2' && value.state === 'blocked' && value.code === 'session_expired'
+        && value.target === null && value.snapshot_id === null && value.observed_as_of === null && value.source_digest === null
+        && value.retryable === false && value.data === null && value.authorizes === false) throw Error('session_expired');
       validateEnvelope(value);
       if (!['invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error'].includes(value.state)
         || value.data !== null || typeof value.code !== 'string' || !/^[a-z][a-z0-9_]{0,127}$/.test(value.code)) throw Error('read_failed');

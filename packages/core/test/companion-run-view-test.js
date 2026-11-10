@@ -47,7 +47,17 @@ test('SCN-001: run view entries equal the status card of the same run for F01 to
   assert.ok(localizedChecks >= 10, 'the localized next step is compared for most fixtures');
 });
 
-test('SCN-001: active and unreadable runs are evaluated, terminal runs are summarized unless requested', t => {
+test('Review finding 5: a completed run that evaluates as blocked is shown as blocked, not as done', () => {
+  const completed = { valid: true, lifecycle: 'completed', evaluated: true, status: 'blocked', current_gate: 'OR',
+    missing_approval: 'none', blocking_reason: 'AGDF_CLOSEOUT_EVIDENCE_MISSING', user_action_required: 'no', mode: 'quick_task' };
+  assert.deepEqual(deriveFigureState(completed), { mood: 'blockiert', reason: { key: 'blocked', gate: 'OR', decision: 'AGDF_CLOSEOUT_EVIDENCE_MISSING' } });
+  assert.deepEqual(deriveFigureState({ ...completed, status: 'open' }).mood, 'blockiert', 'a blocking reason alone blocks too');
+  assert.deepEqual(deriveFigureState({ ...completed, status: 'pass', blocking_reason: 'none' }), { mood: 'fertig', reason: { key: 'done' } });
+  assert.deepEqual(deriveFigureState({ valid: true, lifecycle: 'completed', evaluated: false }), { mood: 'fertig', reason: { key: 'done' } },
+    'a summarized completed run stays done');
+});
+
+test('SCN-001: active runs are evaluated, unreadable and terminal runs are summarized unless requested', t => {
   const [active, completed, mixed] = buildCompanionFixtures(t, ['F02', 'F07', 'F10']);
   assert.equal(readRunView(active.root).runs.find(run => run.run_id === active.runId).evaluated, true);
   const summary = readRunView(completed.root).runs.find(run => run.run_id === completed.runId);
@@ -55,7 +65,12 @@ test('SCN-001: active and unreadable runs are evaluated, terminal runs are summa
   assert.equal(summary.status, undefined, 'a summarized run carries no status card fields');
   const runs = readRunView(mixed.root).runs;
   assert.deepEqual(runs.map(run => [run.run_id === LEGACY_V2_RUN_ID ? 'legacy' : 'current', run.valid, run.evaluated]).sort(),
-    [['current', true, true], ['legacy', false, true]]);
+    [['current', true, true], ['legacy', false, false]], 'an unreadable run costs no gate check of its own (review finding 6)');
+  const legacy = runs.find(run => run.run_id === LEGACY_V2_RUN_ID);
+  assert.deepEqual([legacy.unreadable_reason, legacy.figure.mood, legacy.figure.reason.key], ['run_version_unsupported', 'blockiert', 'unreadable'],
+    'its reason and figure come from the inventory findings');
+  const requested = readRunView(mixed.root, { runIds: [LEGACY_V2_RUN_ID] }).runs.find(run => run.run_id === LEGACY_V2_RUN_ID);
+  assert.deepEqual([requested.valid, requested.evaluated], [false, true], 'requested by id it is still evaluated');
 });
 
 test('SCN-004/SCN-006: unreadable runs carry MCP reason codes and counts next to the readable runs', t => {

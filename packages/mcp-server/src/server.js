@@ -156,7 +156,12 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
   const journaling = () => !runtime.requiresProjectedResult && typeof runtime.observeOutcome === 'function';
   const journalingFailures = () => typeof runtime.observeOutcome === 'function';
   const journal = (name, input, projected) => {
-    try { runtime.observeOutcome(name, input, projected); } catch { /* notification only */ }
+    try { return runtime.observeOutcome(name, input, projected) === true; } catch { return false; /* notification only */ }
+  };
+  // Whether a result the generation returned left an event there (it journals what it produces).
+  const generationJournaled = (name, input, result) => {
+    if (!runtime.requiresProjectedResult || !result) return false;
+    try { return runtime.observesOutcome?.(name, input, result) === true; } catch { return false; }
   };
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
@@ -217,6 +222,8 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
         }
         let parentOwned;
         let phase = 'parse';
+        // Whether this call's result already left a companion event (written here or by its generation).
+        let journaled = false;
         try {
           phase = 'parse';
           argumentsValue = preparedCalls.resolve(name, argumentsValue);
@@ -228,8 +235,12 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
             const parsed = tool.parse(argumentsValue); phase = 'execute';
             result = await tool.execute(parsed, context.signal,
               { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) });
-          } else result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name,
-            trusted: runtime.prepareDispatch?.(name, argumentsValue) });
+          } else {
+            result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name,
+              trusted: runtime.prepareDispatch?.(name, argumentsValue) });
+          }
+          // Behind the facade the generation journaled the result it returned.
+          journaled = generationJournaled(name, argumentsValue, result);
           if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, argumentsValue, result,
             { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
           // Validate the producer and its canonical domain before consuming any
@@ -237,10 +248,12 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
           const checked = Object.hasOwn(result._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? result
             : runtime.projectToolResult(name, argumentsValue, result);
           const { domain } = consume(name, checked);
-          if (journaling()) journal(name, argumentsValue, checked);
+          if (journaling()) journaled = journal(name, argumentsValue, checked);
           const continued = await nextRead(domain, context);
           return respond(name, argumentsValue, checked, serialize ?? runtime.serialize, context, undefined, continued.next_read);
         } catch (error) {
+          // A facade failure raised after its generation had replied carries that reply.
+          journaled ||= generationJournaled(name, argumentsValue, error?.generationResult);
           const facts = runtime.normalizeFailure(error, { phase });
           const help = phase === 'parse' ? preparedCalls.validationHint(name, argumentsValue) : '';
           const failure = { ...runtime.failure(facts.code, name, argumentsValue, { ...facts, elapsed_ms: performance.now() - started }),
@@ -248,7 +261,8 @@ export function buildAgdfServer({ runtime, executor, era, preparedCallStore } = 
           // A local execution/delivery failure is owned here, including malformed
           // producer output. It never causes re-execution or a second write.
           const projected = runtime.projectToolResult(name, argumentsValue, failure, facts);
-          if (journalingFailures()) journal(name, argumentsValue, projected);
+          // One call leaves at most one event: a failure after its result left an event adds none.
+          if (journalingFailures() && !journaled) journal(name, argumentsValue, projected);
           return respond(name, argumentsValue, projected, serialize ?? runtime.serialize, context, facts);
         }
       },

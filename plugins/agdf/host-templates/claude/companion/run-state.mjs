@@ -10,6 +10,8 @@ export const READ_FAILURE_REASONS = Object.freeze(['timeout', 'unavailable', 'ex
 // Store reasons of a read that may succeed on the next attempt (a write during the read, the read
 // budget); they keep the last good view, marked stale, like a failed read (CR delta review RV-1).
 export const TRANSIENT_STORE_REASONS = Object.freeze(['source_changed', 'timeout']);
+// Evaluation errors of a single run that make the whole view incomplete (a write during its read).
+export const TRANSIENT_RUN_REASONS = Object.freeze(['source_changed']);
 // The internal steps between an approved TP and QA, shown as the build phase in the gate bar.
 export const BUILD_GATES = Object.freeze(['Brownfield Analysis', 'CD+Tests', 'CR']);
 export const isStructured = route => route === 'structured_delivery' || route === 'structured_slice';
@@ -57,7 +59,9 @@ export function snapshotFromRunView(stdout, { now }) {
   }
   // A run read while its files changed (after the run view's bounded retries) makes the view incomplete;
   // like a transient store failure it keeps the last good view instead of showing that run as blocked.
-  const changedRun = view.runs.find(run => TRANSIENT_STORE_REASONS.includes(run?.evaluation_error));
+  // A single run that ran into the read budget is not transient: it stays that run's own reason, so the
+  // other runs are still shown.
+  const changedRun = view.runs.find(run => TRANSIENT_RUN_REASONS.includes(run?.evaluation_error));
   if (changedRun) return { status: 'failed', runs: [], unreadable: [], readAt: now, error: changedRun.evaluation_error };
   const status = view.store.status === 'ok' ? 'ok' : view.store.status === 'no_control' ? 'no_control' : 'unavailable';
   return {
@@ -69,6 +73,9 @@ export function snapshotFromRunView(stdout, { now }) {
     runs: view.runs.filter(entry => entry.valid !== false && entry.listed !== false).map(companionRun),
     unreadable: (view.diagnosis?.unreadable ?? []).map(({ run_id, reason }) => ({ id: run_id, reason })),
     diagnosis: view.diagnosis ?? null,
+    // A run that ran into the read budget may read on the next attempt: the adapter keeps no
+    // fingerprint for such a view, so the next check reads again instead of waiting for a file change.
+    retry: view.runs.some(run => run?.evaluation_error === 'timeout'),
     readAt: now,
   };
 }

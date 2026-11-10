@@ -12,7 +12,8 @@ import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { isSafeControlRelativePath } from '../control-state/contained-file.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js';
-import { interactionLocales } from '../resources/context.js';
+import { interactionLocales, resolveArtifactPresentationLanguages } from '../resources/context.js';
+import { projectCockpitSummary } from '../control-state/run-presentation-render.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
 import { projectCockpitWork } from './cockpit-work.js';
 import { readControlLayout } from '../control-state/control-layout.js';
@@ -23,6 +24,7 @@ import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactRea
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
 import { runClosure } from '../control-state/run-operations.js';
+import { projectRunEntry } from '../companion/run-view.js';
 // Shared with the companion run view, in a module every runtime profile carries.
 import { boundedCode, projectCockpitAssessment } from './run-classification.js';
 export { boundedCode, projectCockpitAssessment };
@@ -124,17 +126,22 @@ export function createCockpitReader(root, options = {}) {
     const resources = manifest(run.run_id, state);
     const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
     const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
+    const assessed = report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside);
+    const figure = report?.status_card && assessed.control_assessment.state !== 'unconfirmed'
+      ? projectRunEntry({ run_id: run.run_id, lifecycle: run.meta.lifecycle }, report).figure
+      : undefined;
     const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       closure: projectRunClosure(run.content), work_summary,
+      ...(figure && { figure }),
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
       objective: objective(run.content), title: resolveHumanRunTitle({
         urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
         runContent: run.content, runId: run.run_id,
       }),
-      evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
+      evaluation: assessed, persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: report?.status ?? 'unavailable', artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources,
       draft_check, document_states, evidence_applicability: Object.fromEntries(['current', 'superseded', 'applicability_unknown'].map(group => [group,
@@ -234,7 +241,12 @@ export function createCockpitReader(root, options = {}) {
         if (registered) links[href] = registered.resource_id;
       }
       const document_state = details.get(resource.run_id)?.data?.document_states?.find(row => row.resource_id === resourceId);
-      return envelope({ resource, format, content, content_digest: rawDigest(bytes), links, ...(document_state ? { document_state } : {}) });
+      const summary = format === 'markdown' && document_state && ['UR', 'PRD', 'SD', 'TP'].includes(resource.type)
+        ? projectCockpitSummary(resource.type, content, resolveArtifactPresentationLanguages(root, 'de'), { runId: resource.run_id,
+          revisionId: document_state.revision_id, artefactPath: resource.path }) : null;
+      const cockpit_summary = summary && { ...summary, run_id: resource.run_id, resource_id: resource.resource_id,
+        revision_id: document_state.revision_id, content_digest: rawDigest(bytes) };
+      return envelope({ resource, format, content, content_digest: rawDigest(bytes), links, ...(document_state ? { document_state } : {}), ...(cockpit_summary ? { cockpit_summary } : {}) });
   }
   function discardScope(retainCheck = false) {
     if (!retainCheck) checkedDraft = null;
@@ -361,6 +373,14 @@ export function createCockpitReader(root, options = {}) {
           selected.data.run.evaluation, selected.data.run.resources, selected.data.run.draft_check);
         return selected;
       });
+    },
+    preview(resourceId, id, runId) {
+      const resource = documents.get(resourceId);
+      if (!resource || resource.run_id !== runId) fail('resource_denied');
+      assertSnapshot(id);
+      const result = readDocument(resourceId);
+      assertSnapshot(id);
+      return result;
     },
     document(resourceId, id, runId) {
       // Check selectors before revalidation or replacing the legitimate view.

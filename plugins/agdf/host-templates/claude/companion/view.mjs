@@ -6,7 +6,7 @@ import { assignRun } from './assignment.mjs';
 import { FIGURE_TEXT } from './figure.mjs';
 import { condensedGateBar, gateBar, gateMarks } from './gate-bar.mjs';
 import { gateTitle, label } from './localization.mjs';
-import { displayState } from './state.mjs';
+import { displayState, runState } from './state.mjs';
 import { READ_FAILURE_REASONS } from './run-state.mjs';
 import { eventText, latestReview, PANE_EVENTS, shortDigest } from './events.mjs';
 
@@ -66,12 +66,13 @@ export function buildPanelView(input) {
 
   const position = open.findIndex(item => item.id === run.id);
   const openCount = position >= 0 ? t('fields.position', { position: position + 1, count: open.length }) : t('fields.openRuns', { count: open.length });
-  const state = displayState(run, { isTurnActive: input.isTurnActive });
+  const state = input.showRunState ? runState(run) : displayState(run, { isTurnActive: input.isTurnActive });
   const reasonParams = { gate: gateTitle(registry, locale, state.reason.gate), decision: run.blockingText || state.reason.decision,
     reason: state.reason.reason ? t(`unreadable.${state.reason.reason}`) : '' };
   return {
     ...base,
     ...events(run.id),
+    ...(input.showRunState ? { figure: state } : {}),
     mood: state.mood,
     stateLabel: t(`states.${state.mood}`),
     reason: t(`reasons.${state.reason.key}`, reasonParams),

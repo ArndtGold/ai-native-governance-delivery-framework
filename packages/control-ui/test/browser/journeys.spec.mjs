@@ -104,7 +104,7 @@ test('document orientation separates approved Run facts from draft originals in 
     await page.setViewportSize({width:845,height:1100});
     await openSession(page,service,'/card.html');
     await page.locator('.run-link[data-focus-id=\"agdf-cockpit-mcp-app-20261005-01\"]').click();
-    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+    await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
     await expect(page.locator('.run-documents')).toBeVisible();
     await page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/}).click();
     await expect(page.locator('.document-reading')).toBeVisible();
@@ -162,9 +162,10 @@ test('SCN-044: Pages fonts survive host body overrides across card, list, Run an
     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await expect(page.locator('.compact-run')).toBeVisible();
     await inspect('card','.compact-run-summary h2');
-    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+    await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
     await inspect('run','.page-title h1');
     // Follow the registered evidence source from the same work unit, then return to it.
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true}).click();
     await expect(page.getByRole('button',{name:'Dokument schließen',exact:true})).toBeVisible();
     await expect(page.locator('.document')).toContainText('fixture-a');
@@ -189,7 +190,7 @@ test('SCN-002/005/007/008/010: explicit graph inspection stays passive and reada
   page.on('request',request=>{if(!request.url().startsWith(service.origin))remote.push(request.url());});
   try {
     await openSession(page,service);await page.locator('.run-link[data-focus-id="fixture-a"]').click();
-    await page.getByRole('button',{name:'Details',exact:true}).click();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.locator('.resources button').filter({hasText:/\/UR\.md/}).click();
     await page.getByRole('button',{name:'Verknüpfter Kontext ansehen'}).click();
     const context=page.getByRole('region',{name:'Verknüpfter Kontext'});
@@ -216,28 +217,28 @@ test('SCN-003/007/028/031: copied repository sources, explicit stored pointers, 
     await page.getByRole('searchbox').fill('agdf-control-cockpit-20261005-01'); await page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true }).click();
     await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.getByRole('region', { name: 'Zuletzt beobachteter Arbeitsschritt' })).toBeVisible();
     await expect(page.locator('.work-step-prerequisites')).toContainText('Aktuelle Voraussetzungen nicht bestätigt');
-    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
-    await page.getByRole('button',{name:'Details',exact:true}).click();
-    await expect(page.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('group',{name:'Ansicht'})).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
     // Chromium's full-page capture temporarily sets a one-pixel viewport and
     // legitimately triggers the narrow summary rule. Preserve this journey's
     // actual wide reading surface while recording its visible appearance.
     await page.screenshot({ path: evidencePath('agdf-cockpit-detail.png'), fullPage: false });
-    await expect(page.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
     const document = page.locator('.resources button').filter({ hasText: /\/UR\.md/ }); await document.focus(); await page.keyboard.press('Enter');
     await expect(page.locator('.page-title h1')).toBeFocused(); await page.getByText('Originaldokument lesen',{exact:true}).click(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
     await expect(page.getByRole('group', {name:'Ansicht'})).toHaveCount(0);
     const expectedSource = fs.readFileSync(join(root, '.agdf/control/artefacts/agdf-control-cockpit-20261005-01/UR.md'), 'utf8'); expect(expectedSource).toContain('Local read-only AGDF control cockpit');
     await page.screenshot({ path: evidencePath('agdf-cockpit-document.png'), fullPage: true });
     await page.getByRole('navigation', {name:'Vorhaben-Pfad'}).getByRole('button', {name:'Local read-only AGDF control cockpit',exact:true}).click(); await expect(document).toBeFocused();
-    await expect(page.getByRole('button', {name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
     await page.getByRole('button', { name: 'Alle Vorhaben', exact: true }).click(); await expect(page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true })).toBeFocused();
     // Complete the entire journey with each input method, including the return controls.
     for (const keyboard of [false, true]) {
       const activate = async button => { if (keyboard) { await button.focus(); await page.keyboard.press('Enter'); } else await button.click(); };
       await activate(page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true }));
       await expect(page.locator('.page-title h1')).toBeFocused();
-      await activate(page.getByRole('button',{name:'Details',exact:true}));
+      await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
       await activate(document); await expect(page.locator('.page-title h1')).toBeFocused();
       await activate(page.getByRole('button',{name:'Dokument schließen',exact:true}));
       // Returning reads the Run again; check focus after that bounded operation settles.
@@ -263,7 +264,7 @@ test('SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing a
     await page.getByRole('button', { name: 'Alle Vorhaben', exact: true }).click();
     await page.locator('.run-link[data-focus-id="fixture-a"]').click();
     await expect(page.getByText('Die gespeicherte Angabe weicht von der Core-Auswertung ab. Beide Quellen sind getrennt dargestellt; die Core-Auswertung bestimmt den Kontrollstatus.')).toBeVisible();
-    await page.getByRole('button',{name:'Details',exact:true}).click();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.getByText('Kontrollstatus und Quellen', {exact:true}).click(); await expect(page.getByText('QA', { exact: true })).toBeVisible(); await expect(page.getByText('UAT', { exact: true })).toBeVisible();
     await page.locator('.resources button').filter({ hasText: /\/UR\.md/ }).click(); await expect(page.getByText('Das registrierte Dokument fehlt. Quelle prüfen und erneut laden.')).toBeVisible();
     await page.screenshot({ path: evidencePath('agdf-cockpit-missing.png') });
@@ -276,7 +277,7 @@ test('SCN-009/014/018/024: hostile document, stale reload, retry and removed sel
   const f = fixture(); fs.writeFileSync(join(f.root, f.documentPath), '# Hostile document\n\nOriginal 日本語.\n\n<script>window.pwned=true</script>\n\n![remote](https://evil.invalid/img)\n\n[foreign](https://evil.invalid)\n');
   const service = await startControlServer({ dir: f.root }), remote = []; page.on('request', r => { if (!r.url().startsWith(service.origin)) remote.push(r.url()); });
   try {
-    await openSession(page, service); await page.locator('.run-link[data-focus-id="fixture-a"]').click(); await page.getByRole('button',{name:'Details',exact:true}).click();
+    await openSession(page, service); await page.locator('.run-link[data-focus-id="fixture-a"]').click(); await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.locator('.resources button').filter({ hasText: /\/UR\.md/ }).click();
     await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.locator('article.document')).toContainText('Original 日本語'); expect(await page.evaluate(() => window.pwned)).toBeUndefined(); expect(await page.locator('article.document img,article.document iframe,article.document script,article.document a').count()).toBe(0);
@@ -310,28 +311,20 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await page.setViewportSize({width:800,height:400});await openSession(page,service,'/card.html');
     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await expect(page.locator('.work-step')).toBeVisible();
+    await page.locator('.work-step-details > summary').click();
     await expect(page.locator('.run-documents')).toBeVisible();
     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
     await page.screenshot({path:evidencePath('agdf-cockpit-sticky-card.png')});
-    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
-    const slider=page.getByRole('group',{name:'Ansicht',exact:true});await expect(slider).toBeVisible();
-    await expect(slider).toHaveAttribute('data-mode','summary');
-    await page.getByRole('button',{name:'Details',exact:true}).click();
-    await expect(slider).toHaveAttribute('data-mode','details');
-    await expect.poll(()=>slider.evaluate(e=>new DOMMatrixReadOnly(getComputedStyle(e,'::before').transform).m41)).toBeGreaterThan(0);
-    await page.getByRole('button',{name:'Zusammenfassung',exact:true}).focus();
-    await page.getByRole('button',{name:'Zusammenfassung',exact:true}).press('Space');
-    await expect(slider).toHaveAttribute('data-mode','summary');
-    await expect.poll(()=>slider.evaluate(e=>new DOMMatrixReadOnly(getComputedStyle(e,'::before').transform).m41)).toBe(0);
-    await page.screenshot({path:evidencePath('agdf-cockpit-sliding-summary.png')});
-    await page.getByRole('button',{name:'Details',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
-    await page.setViewportSize({width:560,height:400});await expect(slider).toBeHidden();
-    await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toHaveCount(0);
-    await page.setViewportSize({width:800,height:400});await expect(slider).toBeVisible();
-    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
+    await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
+    await expect(page.getByRole('group',{name:'Ansicht',exact:true})).toHaveCount(0);
+    await expect(page.locator('.run-documents')).toBeVisible();
+    await expect(page.locator('.work-step--condensed')).toBeVisible();
+    for (const width of [560, 800]) {
+      await page.setViewportSize({width,height:400});
+      await expect(page.locator('.run-documents')).toBeVisible();
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    }
     await page.emulateMedia({reducedMotion:'reduce'});
-    expect(await slider.evaluate(e=>parseFloat(getComputedStyle(e,'::before').transitionDuration))).toBeLessThanOrEqual(.001);
     if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
     await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.getByRole('heading',{name:'Long original source',exact:true})).toBeVisible();
@@ -351,17 +344,12 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await page.setViewportSize({width:800,height:900});
     await openSession(page,service,'/card.html');
     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
-    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
-    await page.getByRole('button',{name:'Zusammenfassung',exact:true}).click();
-    await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
-    await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
-    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+    await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
+    await expect(page.locator('.work-step--condensed')).toBeVisible();
     await expect(page.locator('.work-step-prerequisites')).toHaveAttribute('data-assessment','blocked');
-    await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
-    await expect(page.locator('.work-step-evidence')).toContainText('Nachweis');
-    await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();
-    const order=await page.evaluate(()=>{const work=document.querySelector('.work-step'),goal=document.querySelector('.run-goal');return !!(work.compareDocumentPosition(goal)&Node.DOCUMENT_POSITION_FOLLOWING);});
-    expect(order).toBe(true);
+    await expect(page.locator('.work-step-status-row')).toContainText('Freigabe erforderlich');
+    await expect(page.locator('.run-documents, .work-step-evidence, .draft-check')).toHaveCount(3);
+    await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toHaveCount(0);
     await page.screenshot({path:evidencePath('agdf-cockpit-summary-current.png')});
     const refreshed = page.waitForResponse(response => new URL(response.url()).pathname === '/api/snapshot' && new URL(response.url()).searchParams.get('run_id') === 'fixture-a');
     fs.writeFileSync(f.runPath,sealRunState(f.root,fs.readFileSync(f.runPath,'utf8')+'\n\nUpdated fixture observation.\n'));
@@ -372,7 +360,9 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await expect(page.locator('.reading-feedback .notice')).toHaveCount(0);
     await expect(page.locator('footer')).toContainText('Verfügbar');
     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
-    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+    await expect(page.locator('.run-documents')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
+    await expect(page.locator('.run-documents')).toBeVisible();
     expect(hashes(f.root)).toEqual(afterChange);
   } finally {await service.close();f.close();}
 });
@@ -443,12 +433,12 @@ test('neutral light reading planes and Pages dark surfaces survive host colors a
       }
     };
     await inspect('card','.compact-cockpit');await inspect('card-step','.work-step',true);
-    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
-    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toHaveCount(0);
+    await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
+    await expect(page.getByRole('group',{name:'Ansicht'})).toHaveCount(0);await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
     await inspect('run','.work-step',true);if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
     await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.locator('article.document')).toBeVisible();await inspect('document','.document-reading');
-    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
+    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(page.getByRole('group',{name:'Ansicht'})).toHaveCount(0);
     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();
     // Measure only the settled list; a loading pass replaces its panel and detached nodes report empty styles.
     await expect(page.locator('main > div[aria-busy="false"] > .panel')).toBeVisible();await inspect('list','main > div[aria-busy="false"] > .panel');
@@ -502,17 +492,17 @@ test('Pages action and type hierarchy retains the Cockpit neutral light palette'
     const keys=['font','size','line','weight','bg','color','border','radius','padding'];
     // Disable transitions before assertions; color transitions are separately retained in CSS.
     await page.emulateMedia({reducedMotion:'reduce'});await reference.emulateMedia({reducedMotion:'reduce'});
+    await page.locator('.work-step-details > summary').click();
     await compare('card',page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true}),reference.getByRole('button',{name:'Primary',exact:true}),keys);
-    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
-    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
-    await compare('run',page.getByRole('button',{name:'Verknüpfter Kontext ansehen',exact:true}),reference.getByRole('button',{name:'Secondary',exact:true}),keys);
-    await page.getByRole('button',{name:'Zusammenfassung',exact:true}).hover();
-    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveCSS('border-top-color','rgba(0, 0, 0, 0)');
+    await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
+    await expect(page.getByRole('group',{name:'Ansicht'})).toHaveCount(0);
+    await expect(page.locator('.work-step--condensed')).toBeVisible();
     await expect(page.locator('.work-step')).toHaveCSS('padding','24px');
     await expect(page.locator('.work-step h2')).toHaveCSS('line-height','28px');
     expect((await styles(page.locator('.work-step h2'))).line).toBe((await styles(reference.locator('h4'))).line);
     expect((await page.locator('.cockpit-brand-header').boundingBox()).height).toBe(72);
-    await page.getByRole('button',{name:'Details',exact:true}).click();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
+    await compare('run',page.getByRole('button',{name:'Verknüpfter Kontext ansehen',exact:true}),reference.getByRole('button',{name:'Secondary',exact:true}),keys);
     await expect(page.locator('.resources strong').first()).toHaveCSS('font-weight','600');
     await expect(page.locator('.resources small').first()).toHaveCSS('font-weight','400');
     await expect(page.locator('.resources button > span:not([aria-hidden])').first()).toHaveCSS('font-weight','400');
@@ -538,7 +528,8 @@ test('work action leads, qualifications stay honest and evidence access survives
     expect(detail.data.run.persisted.next_allowed_action).toBe(e.next_allowed_action);
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
-    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+    await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);
     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
@@ -569,7 +560,7 @@ test('work action leads, qualifications stay honest and evidence access survives
     await expect(source).toBeVisible();await source.focus();await page.keyboard.press('Enter');
     await expect(page.getByRole('button',{name:'Dokument schließen',exact:true})).toBeVisible();
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
-    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
     fs.writeFileSync(evidencePath('agdf-cockpit-work-hierarchy-observations.json'),JSON.stringify(observations,null,2));
   }finally{await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
 });

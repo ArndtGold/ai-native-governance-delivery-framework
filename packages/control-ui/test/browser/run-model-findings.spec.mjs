@@ -20,7 +20,8 @@ test('run model: normalized open findings remain visible without a saved summary
     for (const route of ['/card.html', '/']) {
       await page.goto(service.origin + route);
       await page.getByRole('button', { name: 'Synthetic current Run', exact: true }).click();
-      if (route === '/card.html') await page.getByRole('button', { name: 'Run ansehen', exact: true }).click();
+      if (route === '/card.html') await page.getByRole('button', { name: 'Vorhaben öffnen', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
       const toggle = page.locator('.work-step-evidence > summary');
       await expect(toggle).toContainText('1 offener Berichtsbefund');
       await toggle.focus(); await page.keyboard.press('Enter');

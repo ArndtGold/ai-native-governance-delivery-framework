@@ -24,7 +24,7 @@ export function mcpUiSourceDigest({ sourceRoot = repoRoot } = {}) {
     'packages/control-ui/mcp.html', 'packages/control-ui/decision.html', 'packages/control-ui/vite.config.mjs',
     'packages/control-ui/package.json', 'packages/control-ui/package-lock.json',
     'packages/core/lib/interaction-catalog.js', 'packages/core/lib/mcp-resource-contract.js',
-    'plugins/agdf/meta/agdf-interaction-locales.json',
+    'plugins/agdf/meta/agdf-interaction-locales.json', 'plugins/agdf/host-templates/claude/companion/figure.mjs',
     'packages/core/lib/control-inspect/cockpit-contract.js',
     'packages/core/lib/control-state/run-identity.js',
     'packages/core/lib/control-inspect/cockpit-list.js', 'packages/core/lib/control-state/run-work-summary-shape.js',

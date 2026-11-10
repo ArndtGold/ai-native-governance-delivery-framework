@@ -11,13 +11,15 @@ export function WorkEmpty({ list }: { list: CockpitList<WorkEntry, Diagnostic> }
     : list.coverage === 'partial' ? 'Keine lesbaren Treffer. Der Bestand ist eingeschränkt; weitere Vorhaben können fehlen.'
     : list.query ? 'Keine Vorhaben für diese Suche.' : 'In diesem Bereich sind keine Vorhaben gespeichert.'}</p>;
 }
-export function WorkRow({ row, current, onSelect, onSelectPlanned, onSelectArchive }: { row: CockpitListRow<WorkEntry>; current: boolean;
+export function WorkRow({ row, current, compact = false, onSelect, onSelectPlanned, onSelectArchive }: { row: CockpitListRow<WorkEntry>; current: boolean; compact?: boolean;
   onSelect: (id: string) => void; onSelectPlanned?: (rowId: string) => void; onSelectArchive?: (rowId: string) => void }) {
   const r = row.entry;
   return <li data-work-row={row.identity}>
     <h3><button className="run-link" disabled={!current || !row.selectable || r.kind === 'planned' && !onSelectPlanned || r.kind === 'archive' && !onSelectArchive}
-      data-focus-id={r.key} onClick={() => r.kind === 'planned' ? onSelectPlanned?.(r.row_id!) : r.kind === 'archive' ? onSelectArchive?.(r.row_id!) : onSelect(r.key)}>{row.displayTitle}</button></h3>
-    <span className="status">Beobachteter Quellenstand: {r.stored_status || 'Nicht angegeben'}</span>
+      data-focus-id={r.key} onClick={() => r.kind === 'planned' ? onSelectPlanned?.(r.row_id!) : r.kind === 'archive' ? onSelectArchive?.(r.row_id!) : onSelect(r.key)}>{row.displayTitle}{compact && <span className="compact-row-arrow" aria-hidden="true">›</span>}</button></h3>
+    <span className="status">{compact ? 'Zuletzt: ' : 'Beobachteter Quellenstand: '}{r.stored_status || 'Nicht angegeben'}</span>
+    {compact && r.kind === 'run' && <p className="compact-row-id">{r.key}</p>}
+    {!compact && <>
     <p>{r.scope}{r.priority ? ` · Priorität: ${r.priority}` : ''}</p>
     <p className="row-step">Nächster Schritt: {r.stored_next_step || 'Nicht angegeben'}</p>
     <details className="row-source"><summary>Quellenangaben</summary><dl>
@@ -25,6 +27,6 @@ export function WorkRow({ row, current, onSelect, onSelectPlanned, onSelectArchi
       <dt>Kennung</dt><dd><code>{r.key}</code></dd>
       <dt>Quelle</dt><dd><code>{row.provenance.path}</code></dd>
       <dt>Inhaltskennung</dt><dd><code>{row.provenance.digest ?? 'Nicht verfügbar'}</code></dd>
-    </dl></details>
+    </dl></details></>}
   </li>;
 }

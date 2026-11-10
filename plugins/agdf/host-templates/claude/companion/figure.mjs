@@ -1,129 +1,155 @@
-// The companion figure (SDD-09, AC-010): an SVG document per mood. Accessories are drawn only inside
-// ACCESSORY_REGION, which lies outside FIGURE_BOX (the figure's extent including its motion), so no
-// accessory can cover the figure. The still pose emits no animation element at all.
-
+// Shared, self-contained artwork for the Companion and Cockpit. Core supplies the Run state.
 export const VIEW = Object.freeze({ width: 200, height: 140 });
-// Body, ears, feet and shadow span x 34..126, y 26..134; motion adds up to 7 px sideways and 10 px upwards.
-export const FIGURE_BOX = Object.freeze({ x: 20, y: 8, width: 120, height: 132 });
-export const ACCESSORY_REGION = Object.freeze({ x: 148, y: 8, width: 48, height: 48 });
-// Each accessory's extent in region coordinates, including its strokes and motion.
-export const ACCESSORY_BOUNDS = Object.freeze({
-  laeuft: { x: 8, y: 20, width: 32, height: 8 },
-  baut: { x: 1, y: 16, width: 45, height: 31 },
-  wartet: { x: 8, y: 8, width: 32, height: 32 },
-  blockiert: { x: 6, y: 6, width: 36, height: 36 },
-  fertig: { x: 1, y: 1, width: 46, height: 46 },
-  bereit: null,
+
+const SIGNAL = Object.freeze({
+  laeuft: '#a8d9ff',
+  baut: '#88f3ee',
+  wartet: '#ffd080',
+  blockiert: '#ff9b8c',
+  fertig: '#b8f5ad',
+  bereit: '#d0e4eb',
 });
-// The build accessory in region coordinates: a hammer swinging around the end of its handle between
-// the two angles (degrees, clockwise positive), and three bricks; strokes are at most 1.5 px wide.
-export const HAMMER = Object.freeze({ pivot: Object.freeze({ x: 36, y: 44 }), swing: Object.freeze([-55, 5]),
-  head: Object.freeze({ x: -6, y: -26, width: 12, height: 6 }), handle: Object.freeze({ x: -1.5, y: -20, width: 3, height: 20 }) });
-export const BRICKS = Object.freeze([{ x: 2, y: 38 }, { x: 17, y: 38 }, { x: 9.5, y: 30 }].map(Object.freeze));
-export const BRICK_SIZE = Object.freeze({ width: 14, height: 7 });
-
-const BODY = Object.freeze({
-  laeuft: { fill: '#4F7FD9', stroke: '#2D4E8F' },
-  baut: { fill: '#3E8FB0', stroke: '#235A70' },
-  wartet: { fill: '#E0A030', stroke: '#9A6A12' },
-  blockiert: { fill: '#D9534F', stroke: '#8F2D2A' },
-  fertig: { fill: '#3FA66A', stroke: '#23663F' },
-  bereit: { fill: '#9AA3B2', stroke: '#5C6575' },
+// Static shapes remain legible when reduced motion is requested; colors remain supplemental.
+const FACES = Object.freeze({
+  bereit:    { x: [62, 101], y: [52, 52], ry: [3.5, 3.5], mouth: 'M74 65h14', brow: '' },
+  laeuft:    { x: [64, 103], y: [52, 52], ry: [4, 4], mouth: 'M75 64q6 3 12 0', brow: '' },
+  baut:      { x: [66, 105], y: [52, 52], ry: [3.5, 3.5], mouth: 'M74 64q7 3 14 0', brow: 'M54 47q7-1 14 0 M94 47q7-1 14 0' },
+  wartet:    { x: [62, 101], y: [52, 52], ry: [4, 4], mouth: 'M75 64q6 2 12 0', brow: 'M55 45q5-3 12 0' },
+  blockiert: { x: [66, 105], y: [52, 52], ry: [4.5, 4.5], mouth: 'M75 66q6-3 12 0', brow: 'M54 46q6-2 13 0 M94 46q6-2 13 0' },
+  fertig:    { x: [62, 101], y: [52, 52], ry: [2.5, 2.5], mouth: 'M73 62q8 9 16 0', brow: '' },
 });
-const INK = '#1F2430';
+const GESTURES = new Set(['baut', 'wartet', 'blockiert', 'fertig']);
+const GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT', 'OR']);
 
-const escape = text => String(text).replace(/[&<>"]/gu, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
-const loop = (isMoving, animation) => (isMoving ? animation : '');
-
-function eyes(mood, isMoving) {
-  if (mood === 'blockiert') {
-    const cross = x => `<path d="M${x - 6} 66 l12 12 M${x + 6} 66 l-12 12" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
-    return cross(64) + cross(96);
-  }
-  if (mood === 'fertig') {
-    const arc = x => `<path d="M${x - 7} 74 q7 -9 14 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>`;
-    return arc(64) + arc(96);
-  }
-  const blink = loop(isMoving, '<animate attributeName="ry" values="9;9;1;9" keyTimes="0;0.9;0.95;1" dur="3.6s" repeatCount="indefinite"/>');
-  const look = mood === 'laeuft'
-    ? loop(isMoving, '<animateTransform attributeName="transform" type="translate" values="-3 0;3 0;-3 0" dur="1.6s" repeatCount="indefinite"/>')
-    : '';
-  // A figure that builds looks down at its work on the right.
-  const [dx, dy] = mood === 'baut' ? [3, 2] : [0, 0];
-  const eye = x => `<ellipse cx="${x}" cy="72" rx="9" ry="9" fill="#FFFFFF">${blink}</ellipse><g>${look}<circle cx="${x + dx}" cy="${73 + dy}" r="4" fill="${INK}"/></g>`;
-  return eye(64) + eye(96);
+export function observeFigure(previous, { scope, figure, current }) {
+  if (!scope || !figure || !Object.hasOwn(SIGNAL, figure.mood)) return null;
+  const { mood, reason } = figure;
+  const state = JSON.stringify([scope, mood, reason?.key, reason?.gate, reason?.decision, current]);
+  if (previous?.state === state) return previous;
+  const gate = reason?.key === 'waitingApproval' && GATES.has(reason.gate) ? reason.gate : undefined;
+  const changed = previous?.mood !== mood || (mood === 'wartet' && previous?.gate !== gate);
+  const gesture = Boolean(current && previous?.current && previous.scope === scope && changed && GESTURES.has(mood));
+  return { scope, state, current, mood, gate, gesture, sequence: (previous?.sequence ?? 0) + 1 };
 }
 
-const MOUTH = Object.freeze({
-  laeuft: `<ellipse cx="80" cy="96" rx="4" ry="5" fill="${INK}"/>`,
-  baut: `<path d="M74 97 q6 4 12 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-  wartet: `<path d="M72 97 h16" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-  blockiert: `<path d="M70 101 q10 -9 20 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-  fertig: `<path d="M68 93 q12 12 24 0" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-  bereit: `<path d="M73 97 h14" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-});
+const escape = text => String(text).replace(/[&<>"]/gu, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
+const motion = (type, values, duration, keyTimes = '0;0.5;1') =>
+  `<animateTransform attributeName="transform" type="${type}" values="${values}" keyTimes="${keyTimes}" dur="${duration}s" repeatCount="1"/>`;
 
-const MOTION = Object.freeze({
-  laeuft: '<animateTransform attributeName="transform" type="translate" values="0 0;0 -7;0 0" dur="0.7s" repeatCount="indefinite"/>',
-  // A slow bob in time with the hammer.
-  baut: '<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" keyTimes="0;0.35;1" dur="0.9s" repeatCount="indefinite"/>',
-  wartet: '<animateTransform attributeName="transform" type="rotate" values="-4 80 124;4 80 124;-4 80 124" dur="2.6s" repeatCount="indefinite"/>',
-  blockiert: '<animateTransform attributeName="transform" type="translate" values="0 0;-4 0;4 0;-4 0;4 0;0 0;0 0" keyTimes="0;0.04;0.08;0.12;0.16;0.2;1" dur="2.2s" repeatCount="indefinite"/>',
-  fertig: '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -10;0 0" keyTimes="0;0.6;0.8;1" dur="2s" repeatCount="indefinite"/>',
-  bereit: '',
-});
+function arm(mood, gesture) {
+  const pivot = '112 95';
+  const angles = { baut: [-10, -52, 12, -10], wartet: [-10, -34, -10], blockiert: [-10, -50, -10], fertig: [-10, 15, -10] }[mood] ?? [-10];
+  const movement = gesture && angles.length > 1
+    ? motion('rotate', angles.map(angle => `${angle} ${pivot}`).join(';'), mood === 'baut' ? 0.62 : 0.46, mood === 'baut' ? '0;0.32;0.56;1' : undefined)
+    : '';
+  const torqueWrench = mood === 'baut'
+    ? `<g data-tool="torque-wrench">
+      <rect x="149" y="53" width="6" height="43" rx="3" fill="url(#metal)" stroke="#546d7a"/>
+      <rect x="148" y="78" width="8" height="15" rx="3" fill="#29434b"/>
+      <path d="M149 82h6m-6 4h6" stroke="#89c9c6" stroke-width="1"/>
+      <circle cx="152" cy="52" r="7" fill="url(#metal)" stroke="#546d7a" stroke-width="1.3"/>
+      <path d="M150 48h4l2 4-2 4h-4l-2-4z" fill="#334852" stroke="#d5e5e9" stroke-width=".7"/>
+    </g>`
+    : '';
+  const flagMotion = gesture && mood === 'fertig' ? motion('rotate', '0 151 95;-5 151 95;5 151 95;0 151 95', 0.8, '0;0.33;0.66;1') : '';
+  const finishFlag = mood === 'fertig' ? `<g data-accessory="finish-flag">${flagMotion}
+    <path d="M151 95V42" fill="none" stroke="#546d7a" stroke-width="3" stroke-linecap="round"/>
+    <rect x="152" y="42" width="26" height="18" rx="1.5" fill="#f8fcff" stroke="#546d7a" stroke-width="1"/>
+    <path d="M152 42h6.5v6H152z M165 42h6.5v6H165z M158.5 48h6.5v6h-6.5z M171.5 48h6.5v6h-6.5z M152 54h6.5v6H152z M165 54h6.5v6H165z" fill="#25343d"/>
+  </g>` : '';
+  return `<g transform="rotate(${angles[0]} ${pivot})">${movement}${torqueWrench}${finishFlag}
+    <rect x="106" y="88" width="45" height="14" rx="7" fill="url(#metal)" stroke="#546d7a"/>
+    <circle cx="115" cy="95" r="4" fill="#243644" stroke="#adc3cb"/>
+    <rect x="143" y="86" width="15" height="18" rx="5" fill="url(#metal)" stroke="#546d7a"/>
+  </g>`;
+}
 
-// Drawn in region coordinates (0..48); ACCESSORY_BOUNDS states each extent.
-function accessory(mood, isMoving) {
-  if (mood === 'laeuft') {
-    const dot = (x, begin) => `<circle cx="${x}" cy="24" r="4" fill="#4F7FD9">${loop(isMoving, `<animate attributeName="opacity" values="0.2;1;0.2" dur="1.2s" begin="${begin}" repeatCount="indefinite"/>`)}</circle>`;
-    return dot(12, '0s') + dot(24, '0.2s') + dot(36, '0.4s');
-  }
-  if (mood === 'baut') {
-    // One brick appears per hammer stroke; the still pose shows all three and the raised hammer.
-    const brick = ({ x, y }, begin) => `<rect x="${x}" y="${y}" width="${BRICK_SIZE.width}" height="${BRICK_SIZE.height}" rx="1" fill="#C8643C" stroke="#7A3A1E" stroke-width="1.5" opacity="${isMoving ? 0 : 1}">`
-      + `${loop(isMoving, `<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.9;1" dur="2.7s" begin="${begin}" repeatCount="indefinite"/>`)}</rect>`;
-    const { pivot: { x: px, y: py }, swing: [strike, raised], head, handle } = HAMMER;
-    const swing = loop(isMoving, `<animateTransform attributeName="transform" type="rotate" values="${raised} ${px} ${py};${strike} ${px} ${py};${raised} ${px} ${py}" keyTimes="0;0.35;1" dur="0.9s" repeatCount="indefinite"/>`);
-    return BRICKS.map((position, index) => brick(position, `${index * 0.9}s`)).join('')
-      + `<g transform="rotate(${raised} ${px} ${py})">${swing}`
-      + `<rect x="${px + handle.x}" y="${py + handle.y}" width="${handle.width}" height="${handle.height}" rx="1" fill="#A0703C" stroke="#5C3A1A" stroke-width="1"/>`
-      + `<rect x="${px + head.x}" y="${py + head.y}" width="${head.width}" height="${head.height}" rx="1" fill="#8A93A3" stroke="#374151" stroke-width="1.5"/></g>`;
-  }
-  if (mood === 'wartet') {
-    const turn = loop(isMoving, '<animateTransform attributeName="transform" type="rotate" values="0 24 24;0 24 24;180 24 24" keyTimes="0;0.7;1" dur="2.4s" repeatCount="indefinite"/>');
-    return `<g>${turn}<path d="M16 12 h16 l-8 12 l8 12 h-16 l8 -12 z" fill="#FFF3D6" stroke="#9A6A12" stroke-width="2.5" stroke-linejoin="round"/></g>`;
+function accessory(mood, gate, gesture) {
+  if (mood === 'wartet' && gate) {
+    const raise = gesture ? motion('translate', '-2 5;0 -2;0 0', 0.9) : '';
+    const sway = gesture ? motion('rotate', '0 160 86;-4 160 86;4 160 86;0 160 86', 0.9, '0;0.35;0.65;1') : '';
+    return `<g>${raise}<g>${sway}<g transform="rotate(-7 160 86)">
+      <rect x="131" y="74" width="60" height="24" rx="6" fill="#fff6e4" stroke="#995a25" stroke-width="1.2"/>
+      <text x="161" y="90" text-anchor="middle" fill="#774100" font-size="13" font-weight="700" font-family="sans-serif">${gate}</text>
+    </g></g></g>`;
   }
   if (mood === 'blockiert') {
-    return '<g transform="translate(24 24)"><polygon points="-7,-17 7,-17 17,-7 17,7 7,17 -7,17 -17,7 -17,-7" fill="#D9534F" stroke="#8F2D2A" stroke-width="2"/>'
-      + '<rect x="-2" y="-10" width="4" height="12" rx="1.5" fill="#FFFFFF"/><circle cx="0" cy="7" r="2.4" fill="#FFFFFF"/></g>';
+    const alert = gesture ? motion('scale', '0.55;1.13;1', 0.48) : '';
+    return `<g transform="translate(162 49)"><g>${alert}
+      <path d="M-3 -13 Q0 -17 3 -13 L16 9 Q18 13 13 13 H-13 Q-18 13 -16 9Z" fill="#3b2830" stroke="#ff9b8c" stroke-width="2"/>
+      <path d="M0 -6 V3" stroke="#ff9b8c" stroke-width="3" stroke-linecap="round"/><circle cy="8" r="1.6" fill="#ff9b8c"/>
+    </g></g>`;
   }
-  if (mood === 'fertig') {
-    const sparkle = (x, y, begin) => `<path d="M${x} ${y - 7} L${x + 2} ${y - 2} L${x + 7} ${y} L${x + 2} ${y + 2} L${x} ${y + 7} L${x - 2} ${y + 2} L${x - 7} ${y} L${x - 2} ${y - 2} Z" fill="#F2C94C">`
-      + `${loop(isMoving, `<animate attributeName="opacity" values="0;1;0" dur="1.8s" begin="${begin}" repeatCount="indefinite"/>`)}</path>`;
-    return sparkle(8, 8, '0s') + sparkle(40, 8, '0.6s') + sparkle(40, 40, '1.2s')
-      + '<g transform="translate(22 28)"><circle r="12" fill="#FFFFFF" stroke="#23663F" stroke-width="2.5"/>'
-      + '<path d="M-6 0 l4 5 l8 -10" fill="none" stroke="#23663F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>';
+  if (mood === 'baut' && gesture) {
+    return '<path d="M165 102v-9m-5 5h10m4-8 4-4" fill="none" stroke="#88f3ee" stroke-width="2" stroke-linecap="round" opacity="0"><animate attributeName="opacity" values="0;1;0" begin="0.31s" dur="0.31s" repeatCount="1"/></path>';
   }
   return '';
 }
 
-// mood: one of the six moods; bereit also stands for no run assigned or an unreadable status.
-export function figureSvg(mood, { still = false, title = '' } = {}) {
-  const isMoving = !still;
-  const { fill, stroke } = BODY[mood];
-  const { x, y } = ACCESSORY_REGION;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW.width} ${VIEW.height}" width="${VIEW.width}" height="${VIEW.height}">`
-    + `<title>${escape(title)}</title>`
-    + '<ellipse cx="80" cy="128" rx="40" ry="6" fill="#000000" opacity="0.12"/>'
-    + `<g>${loop(isMoving, MOTION[mood])}`
-    + `<ellipse cx="62" cy="122" rx="11" ry="6" fill="${stroke}"/><ellipse cx="98" cy="122" rx="11" ry="6" fill="${stroke}"/>`
-    + `<path d="M34 84 q0 -46 46 -46 q46 0 46 46 q0 36 -46 36 q-46 0 -46 -36 z" fill="${fill}" stroke="${stroke}" stroke-width="3"/>`
-    + `<path d="M52 40 l-8 -14 l18 8 z M108 40 l8 -14 l-18 8 z" fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>`
-    + '<ellipse cx="80" cy="100" rx="26" ry="17" fill="#FFFFFF" opacity="0.28"/>'
-    + eyes(mood, isMoving) + MOUTH[mood] + '</g>'
-    + `<g transform="translate(${x} ${y})">${accessory(mood, isMoving)}</g>`
-    + '</svg>';
+export function figureSvg(mood, { still = false, title = '', gate, gesture = false, sequence = 0 } = {}) {
+  const signal = SIGNAL[mood] ?? SIGNAL.bereit;
+  const face = FACES[mood] ?? FACES.bereit;
+  const act = gesture && !still;
+  const eye = index => {
+    const ry = face.ry[index];
+    const blink = still ? '' : `<animate attributeName="ry" values="${ry};${ry};0.55;${ry};${ry}" keyTimes="0;0.965;0.973;0.983;1" dur="12s" repeatCount="indefinite"/>`;
+    return `<ellipse cx="${face.x[index]}" cy="${face.y[index]}" rx="8" ry="${ry}">${blink}</ellipse>`;
+  };
+  // Two small head movements are separated by unequal, long pauses; no motion in a still pose.
+  const idleHead = still ? '' : '<animateTransform attributeName="transform" type="rotate" values="0 82 82;0 82 82;3 82 82;0 82 82;0 82 82;-2 82 82;0 82 82;0 82 82" keyTimes="0;0.22;0.235;0.25;0.71;0.725;0.74;1" dur="31s" repeatCount="indefinite"/>';
+  const headBase = mood === 'wartet' ? 'rotate(3 82 82)' : 'rotate(0 82 82)';
+  const headTilt = act && mood === 'wartet' ? motion('rotate', '3 82 82;6 82 82;3 82 82', 0.48)
+    : act && mood === 'fertig' ? motion('rotate', '0 82 82;7 82 82;0 82 82', 0.53) : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW.width} ${VIEW.height}" width="${VIEW.width}" height="${VIEW.height}"${act && Number.isSafeInteger(sequence) ? ` data-gesture="${sequence}"` : ''}>
+  <title>${escape(title)}</title>
+  <defs>
+    <linearGradient id="metal" x2="88%" y2="100%">
+      <stop stop-color="#f8fcff"/><stop offset=".55" stop-color="#adc3cb"/><stop offset="1" stop-color="#546d7a"/>
+    </linearGradient>
+    <linearGradient id="visor" x2="66%" y2="100%"><stop stop-color="#425763"/><stop offset=".64" stop-color="#1c2d3b"/><stop offset="1" stop-color="#0f1a25"/></linearGradient>
+    <linearGradient id="glint"><stop stop-color="#f8fcff" stop-opacity="0"/><stop offset=".5" stop-color="#f8fcff" stop-opacity=".53"/><stop offset="1" stop-color="#f8fcff" stop-opacity="0"/></linearGradient>
+    <radialGradient id="shadow"><stop stop-color="#111f31" stop-opacity=".38"/><stop offset="1" stop-color="#111f31" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="88" cy="126" rx="64" ry="11" fill="url(#shadow)"/>
+  ${arm(mood, act)}
+  <g fill="url(#metal)" stroke="#546d7a" stroke-width="1.4">
+    <rect x="53" y="113" width="24" height="11" rx="4"/>
+    <rect x="91" y="113" width="24" height="11" rx="4"/>
+    <rect x="50" y="76" width="67" height="42" rx="16"/>
+  </g>
+  <g data-crew="vest">
+    <path d="M54 85 65 81 82 91 100 81 113 85 113 108 Q112 115 105 116 H61 Q54 115 54 108Z" fill="#284d53" stroke="#173942" stroke-width="1"/>
+    <path d="M60 85 68 83 77 91 71 95 60 91Z M104 85 97 83 88 91 94 95 104 91Z" fill="#77c8bd"/>
+    <path d="M57 105h11 M100 105h10" stroke="#c9ebd9" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M57 111h53" stroke="#65b3aa" stroke-width="1.2" opacity=".85"/>
+  </g>
+  <rect x="71" y="91" width="26" height="13" rx="4" fill="#1c2d3b" stroke="#546d7a"/>
+  <path d="M77 97h3m3 0h3m3 0h3" stroke="${signal}" stroke-width="3" stroke-linecap="round"/>
+  <g>${idleHead}<g transform="${headBase}">${headTilt}
+    <path d="M57 23 51 9" stroke="#546d7a" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="51" cy="9" r="4.5" fill="${signal}" stroke="#546d7a"/>
+    <rect x="123" y="43" width="17" height="24" rx="7" fill="url(#metal)" stroke="#546d7a" stroke-width="1.4"/>
+    <rect x="32" y="22" width="99" height="63" rx="22" fill="url(#metal)" stroke="#546d7a" stroke-width="1.4"/>
+    <g data-crew="headset">
+      <path d="M30 47 Q24 17 53 17 H109 Q136 17 135 47" fill="none" stroke="#234d54" stroke-width="5" stroke-linecap="round"/>
+      <path d="M35 30 Q40 20 53 20 H109 Q124 20 130 30" fill="none" stroke="#83c7bd" stroke-width="1.8" stroke-linecap="round"/>
+      <rect x="24" y="40" width="12" height="25" rx="6" fill="#26535a" stroke="#163940" stroke-width="1.2"/>
+      <rect x="128" y="40" width="12" height="25" rx="6" fill="#26535a" stroke="#163940" stroke-width="1.2"/>
+      <path d="M29 61 Q29 76 50 76" fill="none" stroke="#234d54" stroke-width="3" stroke-linecap="round"/>
+      <rect x="47" y="73" width="10" height="6" rx="3" fill="#24464d" stroke="#83c7bd" stroke-width=".8"/>
+    </g>
+    <path d="M48 28q6-3 14-3h38" stroke="#f8fcff" stroke-width="1.5" fill="none" opacity=".8"/>
+    <rect x="41" y="33" width="81" height="41" rx="13" fill="url(#visor)" stroke="#546d7a" stroke-width="1.3"/>
+    <path d="M49 39h65" stroke="url(#glint)" stroke-width="1.4"/>
+    <g fill="${signal}" stroke="${signal}" stroke-opacity=".25" stroke-width="2.5">
+      ${eye(0)}
+      ${eye(1)}
+    </g>
+    <path d="${face.mouth}" fill="none" stroke="${signal}" stroke-width="1.8" stroke-linecap="round"/>
+    ${face.brow ? `<path d="${face.brow}" fill="none" stroke="${signal}" stroke-width="1.4" stroke-linecap="round"/>` : ''}
+  </g></g>
+  ${accessory(mood, GATES.has(gate) ? gate : undefined, act)}
+</svg>`;
 }
 
 // The terminal has no Svg: a short face stands for the figure there.

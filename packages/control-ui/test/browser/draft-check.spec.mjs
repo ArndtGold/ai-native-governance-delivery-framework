@@ -26,6 +26,8 @@ test('SCN-015/016/018: built compact/expanded checks use actual Core, preserve k
       }
       await page.reload();
       await page.getByRole('button', { name: 'Draft check fixture', exact: true }).click();
+      if (route === '/card.html') await page.locator('.work-step-details > summary').click();
+      else await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
       const action = page.getByRole('button', { name: 'Entwurf prüfen', exact: true });
       await expect(action).toBeVisible();
       const count = requests.length;

@@ -18,6 +18,7 @@ parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
       : operation === 'planned' ? reader.planned(selector, snapshot)
       : operation === 'artifact_readiness' ? reader.artifactReadiness(input.run_id, snapshot, input.gate, input.expected_revision_id)
       : operation === 'document' ? reader.document(selector, snapshot, input?.run_id)
+      : operation === 'preview' ? reader.preview(selector, snapshot, input?.run_id)
       : operation === 'freshness' ? reader.freshness(snapshot)
       : operation === 'context' ? reader.context(selector, snapshot)
       : operation === 'prepare_context' ? reader.prepareContext(input)

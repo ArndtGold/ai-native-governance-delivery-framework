@@ -4,6 +4,9 @@ import { label } from './feedback';
 // Display wording only. Core owns evaluation, permission and source identity.
 const phases: Record<string, string> = { UR: 'Anforderungen klären', PRD: 'Produktanforderungen', SD: 'Lösung entwerfen', TP: 'Umsetzung planen', 'CD+Tests': 'Umsetzung und Prüfung', CR: 'Code-Prüfung', QA: 'Qualitätsprüfung', UAT: 'Abnahme', OR: 'Abschlussnachweise' };
 export const phaseName = (gate?: string | null) => gate ? phases[gate] ?? gate : 'Stand nicht verfügbar';
+// Gate names identify the current work without turning the figure into the only label.
+const gateLabels: Record<string, string> = { UR:'Nutzeranforderungen', PRD:'Produktanforderungen', SD:'Systemdesign', TP:'Arbeits- und Testplan', 'CD+Tests':'Umsetzung und Tests', CR:'Code-Prüfung', QA:'Qualitätsprüfung', UAT:'Abnahme', OR:'Abschlussnachweise' };
+export const gateLabel = (gate: string) => `${gateLabels[gate] ?? 'Arbeitsschritt'} · ${gate}`;
 const documents: Record<string, [string, string]> = {
   UR: ['Anforderungen', 'Beschreibt das Ziel und den vereinbarten Umfang des Vorhabens.'],
   PRD: ['Produktanforderungen', 'Beschreibt das gewünschte Verhalten und seine Akzeptanzkriterien.'],

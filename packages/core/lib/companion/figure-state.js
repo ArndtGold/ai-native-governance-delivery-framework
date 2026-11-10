@@ -21,7 +21,8 @@ export function deriveFigureState(entry) {
   if (!entry) return { mood: 'bereit', reason: { key: 'idle' } };
   if (entry.valid === false) return { mood: 'blockiert', reason: { key: 'unreadable', reason: entry.unreadable_reason ?? 'run_state_invalid' } };
   if (entry.evaluation_error) return { mood: 'blockiert', reason: { key: 'unreadable', reason: entry.evaluation_error } };
-  if (entry.lifecycle === 'completed') return { mood: 'fertig', reason: { key: 'done' } };
+  if (entry.lifecycle === 'completed') return entry.completion_confirmed === true
+    ? { mood: 'fertig', reason: { key: 'done' } } : { mood: 'bereit', reason: { key: 'idle' } };
   if (ENDED_LIFECYCLES.includes(entry.lifecycle)) return { mood: 'bereit', reason: { key: 'ended' } };
   if (!entry.evaluated) return { mood: 'bereit', reason: { key: 'idle' } };
   const gate = entry.current_gate;
@@ -30,7 +31,6 @@ export function deriveFigureState(entry) {
   const approval = pendingApproval(entry.missing_approval);
   if (approval) return { mood: 'wartet', reason: { key: 'waitingApproval', gate: approval } };
   if (entry.user_action_required === 'yes') return { mood: 'wartet', reason: { key: 'waitingDecision', gate } };
-  if (entry.status === 'pass') return { mood: 'fertig', reason: { key: 'done' } };
   if (STRUCTURED_MODES.includes(entry.mode) && BUILD_GATES.includes(gate)) return { mood: 'baut', reason: { key: 'building', gate } };
   return { mood: 'laeuft', reason: { key: 'working', gate } };
 }

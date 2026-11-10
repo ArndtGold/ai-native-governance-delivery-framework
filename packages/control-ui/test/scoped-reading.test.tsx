@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { App } from '../src/App';
 import { validateData, validateEnvelope, type ReadTransport } from '../src/api';
 import type { Detail, Envelope, Inventory, ReadingScope } from '../src/types';
@@ -70,7 +70,7 @@ it('SCN-070: fresh document bundle replaces the parent and return resolves the n
     : { ...meta, data: { kind: 'run', run: parent } }) as unknown as ReadTransport;
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
-  fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+  expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: /^Anforderungen Beschreibt/ }));
   await screen.findByRole('heading', { name: 'Anforderungen', level: 1 });
   fireEvent.click(screen.getByRole('button', { name: 'Dokument schließen' }));
@@ -106,7 +106,7 @@ for (const graphState of ['empty', 'partial', 'blocked'] as const) it(`context $
   }) as unknown as ReadTransport;
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
-  fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+  expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: /^Anforderungen Beschreibt/ }));
   await screen.findByRole('heading', { name: 'Anforderungen', level: 1 });
   fireEvent.click(screen.getByRole('button', { name: 'Verknüpfter Kontext ansehen' }));
@@ -116,10 +116,8 @@ for (const graphState of ['empty', 'partial', 'blocked'] as const) it(`context $
     expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
     return;
   }
-  expect(screen.getByText('Originaldokument lesen')).toBeTruthy();
-  expect(screen.getByText('Fresh context document', { selector: 'h1' })).toBeTruthy();
-  expect(screen.queryByText('Before context', { selector: 'h1' })).toBeNull();
-  expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
+  expect(within(screen.getByRole('article', {name:'Originaldokument'})).getByRole('heading', {name:'Fresh context document'})).toBeTruthy();
+  expect(screen.queryByText('Before context')).toBeNull();
 });
 
 it('SCN-062/071: a partial backlog announces its limitation once', async () => {
@@ -155,6 +153,7 @@ it('context capture cancels preceding freshness and pauses polling until its rep
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
+  expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
   try {
     await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
     expect(freshnessSignal).toBeDefined();

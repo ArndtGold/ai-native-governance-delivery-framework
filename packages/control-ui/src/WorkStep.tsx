@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import type { Detail, Resource, RunClosure } from './types';
 import { label } from './feedback';
-import { documentName, phaseName, observedAssessment, reportFindingsLabel, closurePerson, closureSuccessor } from './presentation';
+import { documentName, phaseName, gateLabel, observedAssessment, reportFindingsLabel, closurePerson, closureSuccessor } from './presentation';
 import { RunDocuments } from './RunDocuments';
 
 // The closure receipt, as Core projects it; the confirming person is a cooperative statement.
@@ -15,14 +15,16 @@ export function RunClosureFacts({ closure }: { closure: RunClosure }) {
   </dl>;
 }
 // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
-export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
-  data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; children?: ReactNode;
+export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, figure, compactDetails, children, evidenceOnly = false, showGate = false, gateContent }: {
+  data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; figure?: ReactNode; compactDetails?: ReactNode; children?: ReactNode; evidenceOnly?: boolean; showGate?: boolean; gateContent?: ReactNode;
 }) {
   const id = useId(), e = data.evaluation;
-  if (!e) return <>{children}</>;
+  if (!e) return <>{children}{compactDetails && <details className="work-step-details"><summary>Details</summary>{compactDetails}</details>}</>;
   const assessment = observedAssessment(data, current);
   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
+  const revisionRequired = assessment === 'blocked' && e.blocking_reason === 'presentation_version_decided';
+  const waiting = assessment === 'blocked' && e.blocking_reason === 'none' && e.missing_approval !== 'none';
   const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
   const closure = assessment === 'ended' ? data.closure ?? null : null;
   const title = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
@@ -35,19 +37,15 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
   const count = e.missing_evidence.length;
   const reportCount = data.work_summary?.open_obligation_count ?? 0;
   const reportSources = sources.filter(r => data.work_summary?.sources.some(s => s.path === r.path));
-  return <section className={`work-step agdf-surface agdf-controlled-surface${compact ? ' work-step--compact' : ' panel'}${condensed ? ' work-step--condensed' : ''}`} aria-label={current ? 'So geht dein Vorhaben weiter' : 'Zuletzt beobachteter Arbeitsschritt'}>
-    <div className="work-step-heading"><span className="work-step-eyebrow">Aus dem Run abgeleiteter Arbeitsstand</span><h2>{phaseName(data.persisted?.current_gate ?? e.current_gate)}</h2></div>
-    <p className="work-step-saved">{data.persisted ? <>Aktuell als „{label(data.persisted.decision)}“ eingeordnet.</> : 'Aktuelle Einordnung nicht verfügbar.'}</p>
-    <div className="work-step-prerequisites" data-assessment={assessment}>
-      <h3>{title}</h3><p>{explanation}</p>
-      {assessment === 'open' && <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>}
-      {assessment === 'blocked' && <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>}
-      {closure && <RunClosureFacts closure={closure}/>}
-      {onOpen && primarySource && <button className="primary work-step-primary" data-focus-id={`step:${primarySource.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(primarySource, `step:${primarySource.resource_id}`)}>{documentName(primarySource.type)} öffnen</button>}
-      {onOpen && !primarySource && <p className="muted">Keine registrierte Nachweisquelle für diesen Schritt verfügbar.</p>}
-      {children}
-    </div>
-    <div className="work-step-support">
+  const summaryStatus = revisionRequired ? 'Überarbeitung nötig' : waiting ? 'Freigabe erforderlich'
+    : assessment === 'blocked' ? 'Blockiert' : title;
+  const summaryReason = revisionRequired ? 'Die vorgelegte Fassung muss überarbeitet werden. Der konkrete Grund ist hier nicht angegeben.'
+    : waiting ? 'Für diesen Schritt wird eine Freigabe benötigt. Der nächste Schritt zeigt, was dafür noch zu tun ist.' : explanation;
+  const nextAction = condensed && revisionRequired ? 'Fassung überarbeiten und erneut zur Entscheidung vorlegen.'
+    : e.next_action_de ?? e.next_allowed_action;
+  const primary = onOpen && (primarySource ? <button className="primary work-step-primary" data-focus-id={`step:${primarySource.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(primarySource, `step:${primarySource.resource_id}`)}>{documentName(primarySource.type)} öffnen</button>
+    : <p className="muted">Keine registrierte Nachweisquelle für diesen Schritt verfügbar.</p>);
+  const support = <div className="work-step-support">
       <details className="work-step-evidence" aria-labelledby={id}><summary id={id}>{reportCount ? `Nachweise und offene Punkte · ${reportFindingsLabel(reportCount)}` : `Nachweislücken im Run-Dokument · ${count}`}</summary>
         {reportCount > 0 && <div className="work-step-report-findings"><p>{reportFindingsLabel(reportCount)} in den registrierten Berichten. Ein Sachverhalt kann in mehreren Berichten geführt sein.</p>
           {data.work_summary?.decisive_obligation && <p>Maßgeblicher Befund: <code>{data.work_summary.decisive_obligation.id}</code></p>}
@@ -67,7 +65,28 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
           <dl className="work-step-facts"><dt>Kontrollstatus</dt><dd>{label(e.status)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd><dt>{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}</dt><dd><code>{e.blocking_reason}</code></dd><dt>{current ? 'Ausstehende Freigabe' : 'Zuletzt ausstehende Freigabe'}</dt><dd><code>{e.missing_approval}</code></dd><dt>Nächster Schritt laut Quelle</dt><dd>{e.next_allowed_action}</dd></dl>
         </details>
       </details>
-      <RunDocuments data={data} onOpen={onOpen} sourceDisabled={sourceDisabled} current={current}/>
+      {!evidenceOnly && <RunDocuments data={data} onOpen={onOpen} sourceDisabled={sourceDisabled} current={current}/>}
+  </div>;
+  if (evidenceOnly) return <>{primarySource?.type === 'Run State' && primary}{support}</>;
+  return <section className={`work-step agdf-surface agdf-controlled-surface${compact ? ' work-step--compact' : ' panel'}${condensed ? ' work-step--condensed' : ''}`} aria-label={current ? 'So geht dein Vorhaben weiter' : 'Zuletzt beobachteter Arbeitsschritt'}>
+    {!condensed && <><div className="work-step-heading"><span className="work-step-eyebrow">Aus dem Run abgeleiteter Arbeitsstand</span><h2>{phaseName(data.persisted?.current_gate ?? e.current_gate)}</h2></div>
+      <p className="work-step-saved">{data.persisted ? <>Aktuell als „{label(data.persisted.decision)}“ eingeordnet.</> : 'Aktuelle Einordnung nicht verfügbar.'}</p></>}
+    {showGate && <p className="work-step-gate">{assessment === 'unconfirmed' ? 'Zuletzt beobachteter Schritt: ' : ''}{gateLabel(e.current_gate)}</p>}
+    {gateContent}
+    <div className="work-step-prerequisites" data-assessment={assessment}>
+      <div className="work-step-status-row">
+        {condensed ? <h2><span>{summaryStatus}</span>{!showGate && assessment !== 'unconfirmed' && <> · {phaseName(e.current_gate)}</>}</h2> : <h3>{title}</h3>}
+        {figure}
+      </div>
+      <p>{condensed ? summaryReason : explanation}</p>
+      {(assessment === 'open' || assessment === 'blocked') && <p className="work-step-action">
+        {condensed && <strong>Als Nächstes </strong>}{nextAction}</p>}
+      {closure && <RunClosureFacts closure={closure}/>}
+      {!condensed && primary}
+      {children}
     </div>
+    {compact && condensed ? <details className="work-step-details"><summary>Details</summary>
+      {primary}{support}{compactDetails}
+    </details> : !condensed && support}
   </section>;
 }

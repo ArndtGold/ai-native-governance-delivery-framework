@@ -23,6 +23,6 @@ export function BrandHeader({ projectPath, contextTitle, variant = 'view', headi
       {variant === 'card' ? <h1 ref={headingRef} tabIndex={-1}>AGDF Cockpit</h1> : <strong className="cockpit-brand-title">AGDF Cockpit</strong>}
       <p className="cockpit-brand-project" title={projectPath}>{contextTitle ?? project}</p>
     </div>
-    <div className="cockpit-brand-actions"><span className="read-only">Nur Lesen</span>{children}</div>
+    <div className="cockpit-brand-actions">{variant !== 'card' && <span className="read-only">Nur Lesen</span>}{children}</div>
   </header>;
 }

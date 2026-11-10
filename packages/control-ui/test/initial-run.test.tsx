@@ -13,6 +13,23 @@ const transport=()=>vi.fn(async(path:string)=>path.startsWith('/api/snapshot?run
 const sessionA='00000000-0000-4000-8000-000000000001',sessionB='00000000-0000-4000-8000-000000000002';
 const bootstrap=(session_id=sessionA,render_generation=1,initial_run_id:string|undefined='run-a')=>({structuredContent:{schema_version:'1',authorizes:false,target},_meta:{agdf_cockpit:{session_id,render_generation,initial_run_id,target}}});
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
+it('places the expanded Run companion beside the title, outside the status card', async () => {
+  render(<App initialRunId="run-a" transport={transport()}/>);
+  await screen.findByRole('heading', { name: 'run-a', level: 1 });
+  const navigation = screen.getByRole('navigation', { name: 'Vorhaben-Pfad' });
+  expect(navigation.querySelectorAll('.run-figure')).toHaveLength(0);
+  expect(document.querySelectorAll('.page-title--run .run-figure')).toHaveLength(1);
+  expect(document.querySelector('.work-step .run-figure')).toBeNull();
+  expect(screen.queryByRole('group', { name: 'Ansicht' })).toBeNull();
+  expect(navigation.querySelectorAll('.run-figure')).toHaveLength(0);
+  expect(document.querySelectorAll('.page-title--run .run-figure')).toHaveLength(1);
+  expect(document.querySelector('.work-step .run-figure')).toBeNull();
+  fireEvent.click(screen.getByRole('button', {name:'Technische Details'}));
+  const documents = screen.getByRole('heading', { name: 'Dokumente', level: 2 });
+  const evidence = screen.getByRole('heading', { name: 'Nachweise', level: 2 });
+  expect(documents).toBeTruthy(); expect(evidence).toBeTruthy();
+  expect(screen.queryByText('Aus dem Run abgeleiteter Arbeitsstand')).toBeNull();
+});
 it('retires the correct session when native teardown arrives before its first React render', async () => {
   const read = transport();
   const app = { setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{}), connect: vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
@@ -95,7 +112,9 @@ it('SCN-039/043: named opening uses one exact request and resizing or prop chang
   const row=await screen.findByRole('button',{name:'run-b'});
   fireEvent.click(row);await screen.findByRole('heading',{name:'run-b'});
   view.rerender(<App initialRunId="run-a" transport={read}/>);
-  expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();expect(screen.getByText('run-b',{selector:'code'})).toBeTruthy();
+  expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();
+  fireEvent.click(screen.getByRole('button',{name:'Technische Details'}));
+  expect(screen.getByText('run-b',{selector:'code'})).toBeTruthy();
   expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/snapshot'))).toHaveLength(2);
 });
 it('SCN-040: an unknown initial ID stays identified without discovery or an alternate Run',async()=>{
@@ -165,19 +184,17 @@ it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored
   const count=vi.mocked(read).mock.calls.length;
   await act(async()=>{mode='fullscreen';app.onhostcontextchanged();});
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();expect(vi.mocked(read).mock.calls.length).toBe(count);
-  fireEvent.click(screen.getByRole('button',{name:'Zusammenfassung'}));
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();
-  expect(screen.getByRole('button',{name:'Zusammenfassung'}).getAttribute('aria-pressed')).toBe('true');
-  expect(screen.queryByRole('button',{name:'Run ansehen'})).toBeNull();
-  expect(screen.queryByRole('heading',{name:'Dokumente'})).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Details'}));
+  expect(screen.queryByRole('group',{name:'Ansicht'})).toBeNull();
+  expect(screen.queryByRole('button',{name:'Vorhaben öffnen'})).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Technische Details'}));
   expect(screen.getByRole('heading',{name:'Dokumente'})).toBeTruthy();
   expect(app.requestDisplayMode).not.toHaveBeenCalled();
   expect(vi.mocked(read).mock.calls.length).toBe(count);
   await act(async()=>{mode='inline';app.onhostcontextchanged();});
   expect(screen.queryByRole('group',{name:'Ansicht'})).toBeNull();
   expect(screen.getByRole('heading',{name:'AGDF Cockpit',level:1})).toBe(document.activeElement);
-  expect(screen.getByRole('button',{name:'Run ansehen'})).toBeTruthy();
+  expect(screen.getByRole('button',{name:'Vorhaben öffnen'})).toBeTruthy();
 
   expect(app.updateModelContext).not.toHaveBeenCalled();expect(app.sendMessage).not.toHaveBeenCalled();
 });

@@ -1,5 +1,7 @@
 import { ArchiveDetail, type ArchiveLoader } from './ArchiveDetail';
 import { RunOverview } from "./RunOverview";
+import { OverviewList } from './OverviewList';
+import { Icon } from './mcp/Icon';
 import type { OverviewInventory, RunInventory } from "./types";
 import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from 'react';
@@ -9,9 +11,10 @@ import { ReadState } from './feedback';
 import { WorkCounts, WorkEmpty, WorkRow } from './WorkRows';
 
 const labels = ['Aktiv', 'Geplant', 'Beendet', 'Archiv'];
+const areaIcons = ['active', 'planned', 'completed', 'archive'] as const;
 const headings = ['Aktive Vorhaben', 'Geplante Vorhaben', 'Beendete Runs', 'Altbestandsarchiv'];
 export interface WorkView { section: string; filter: string }
-function WorkOverview({ result, onSelect, loadPlanned, loadArchive, view, onViewChange, current = true }: { result: Envelope<Inventory>; onSelect: (id: string) => void; loadArchive?: ArchiveLoader; loadPlanned?: (rowId: string, signal: AbortSignal) => Promise<Envelope<PlannedDocument>>; view?: WorkView; onViewChange?: (view: WorkView) => void; current?: boolean }) {
+function WorkOverview({ result, onSelect, loadPlanned, loadArchive, view, onViewChange, current = true, compact = false }: { compact?: boolean; result: Envelope<Inventory>; onSelect: (id: string) => void; loadArchive?: ArchiveLoader; loadPlanned?: (rowId: string, signal: AbortSignal) => Promise<Envelope<PlannedDocument>>; view?: WorkView; onViewChange?: (view: WorkView) => void; current?: boolean }) {
   const [localView, setLocalView] = useState<WorkView>({ section: COCKPIT_WORK_SECTIONS[0], filter: '' });
   const { section: rawSelected, filter } = view ?? localView;
   const selected = COCKPIT_WORK_SECTIONS.some(section => section === rawSelected) ? rawSelected : COCKPIT_WORK_SECTIONS[0];
@@ -44,25 +47,25 @@ function WorkOverview({ result, onSelect, loadPlanned, loadArchive, view, onView
     <div className="backlog-switch" role="group" aria-label="Bestandsbereich">
       {areas.map(area => <button key={area.section} type="button" aria-pressed={selected === area.section} aria-controls="backlog-list"
         onClick={() => changeView({ section: area.section, filter: '' })}>
-        <span className="backlog-area-label">{area.label}</span><strong>{area.list.sectionCount ?? 'Nicht verfügbar'}</strong>
+        {compact && <Icon name={areaIcons[labels.indexOf(area.label)]}/>}<span className="backlog-area-label">{area.label}</span><strong>{area.list.sectionCount ?? 'Nicht verfügbar'}</strong>
         {area.list.coverage === 'partial' && <small>Eingeschränkt</small>}
       </button>)}
     </div>
-    {inventory && <label className="search backlog-search">{labels[areaIndex]}: Vorhaben suchen<input type="search" data-focus-id="backlog-search" value={filter} onChange={e => changeView({ section: selected, filter: e.target.value })} placeholder="Titel, Schlüssel oder gespeicherter Status"/></label>}
+    {inventory && <label className="search backlog-search">{labels[areaIndex]}: Vorhaben suchen<span className="backlog-search-input">{compact && <Icon name="search"/>}<input type="search" data-focus-id="backlog-search" value={filter} onChange={e => changeView({ section: selected, filter: e.target.value })} placeholder="Titel, Schlüssel oder gespeicherter Status"/></span></label>}
     </div>
     {!!list.diagnostics.length && <details className="notice backlog-notice" role="status"><summary>Teilweise verfügbar · {labels[areaIndex]} · {list.diagnostics.length} {list.diagnostics.length === 1 ? 'Lesehinweis' : 'Lesehinweise'}</summary>
       <p>Hier sind Tabellen oder Einträge nicht eindeutig lesbar. Eingeschränkte Zähler sind kein vollständiger Bestand.</p>
       <ul>{list.diagnostics.map((d, i) => <li key={i}><code>{d.code}</code>{d.key && <code> · {d.key}</code>}{d.message && <p>{d.message}</p>}</li>)}</ul>
     </details>}
-    <p className="muted">Geplante URs nach Priorität und Titel; Runs in der kanonischen Bestandsreihenfolge. Die Suche umfasst Titel, Kennung und Quellenstand.</p>
+    {!compact && <p className="muted">Geplante URs nach Priorität und Titel; Runs in der kanonischen Bestandsreihenfolge. Die Suche umfasst Titel, Kennung und Quellenstand.</p>}
     <div className="backlog-heading">
       <h2 tabIndex={-1} data-focus-id="backlog-heading">{headings[areaIndex]}</h2><WorkCounts list={list}/>
     </div>
     </div>
-    <div id="backlog-list" role="region" aria-label={`Vorhaben · ${labels[areaIndex]}`} tabIndex={0}>
+    <OverviewList compact={compact} label={`Vorhaben · ${labels[areaIndex]}`}>
       {!inventory ? <ReadState state={result.state} code={result.code}/> : <WorkEmpty list={list}/>}
-      {!!list.rows.length && <ul className="undertaking-list">{list.rows.map(row => <WorkRow key={row.identity} row={row} current={current} onSelect={onSelect} onSelectPlanned={openPlanned} onSelectArchive={loadArchive ? setArchiveRow : undefined}/>)}</ul>}
-    </div>
+      {!!list.rows.length && <ul className="undertaking-list">{list.rows.map(row => <WorkRow compact={compact} key={row.identity} row={row} current={current} onSelect={onSelect} onSelectPlanned={openPlanned} onSelectArchive={loadArchive ? setArchiveRow : undefined}/>)}</ul>}
+    </OverviewList>
     {problem && <p role="alert">UR konnte nicht sicher gelesen werden: {problem}. Bestand neu laden.</p>}
     {planned && current && <article aria-label="Geplante UR" className="panel"><h2>{planned.entry.title}</h2>
       <p>Nur UR-Planung · Keine Run-Freigabe · {planned.entry.readiness.ready ? 'Übergabe ausdrücklich bestätigen' : 'Klärung offen'}</p>
@@ -73,6 +76,6 @@ function WorkOverview({ result, onSelect, loadPlanned, loadArchive, view, onView
 
 export function Overview(props: Omit<ComponentProps<typeof WorkOverview>, 'result'> & { result: Envelope<OverviewInventory> }) {
   return props.result.data?.kind === 'runs'
-    ? <RunOverview result={props.result as Envelope<RunInventory>} onSelect={props.onSelect} current={props.current ?? true} view={props.view} onViewChange={props.onViewChange}/>
+    ? <RunOverview result={props.result as Envelope<RunInventory>} onSelect={props.onSelect} current={props.current ?? true} view={props.view} onViewChange={props.onViewChange} compact={props.compact}/>
     : <WorkOverview {...props} result={props.result as Envelope<Inventory>}/>;
 }

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import { fixture } from '../../../core/test/control-cockpit-fixtures.js';
+import { approvalFixture, fixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { startControlServer, evidencePath } from './server-fixture.mjs';
 const content = status => `# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | My undertaking | ${status} | | UR | Check evidence |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n`;
 for (const theme of ['light', 'dark']) test(`actual ${theme} overview waits for deliberate reload after a file event`, async ({ page }) => {
@@ -50,7 +50,7 @@ for (const theme of ['light', 'dark']) test(`${theme} changed original uses the 
     await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
     await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
     await page.getByRole('button', { name: 'My undertaking' }).click();
-    await page.getByRole('button', { name: 'Details', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.locator('.resources button').filter({ hasText: /\/UR\.md/ }).click();
     await page.getByText('Originaldokument lesen', { exact: true }).click();
     await expect(page.locator('article.document')).toContainText('Before deliberate reload');
@@ -86,4 +86,69 @@ for (const theme of ['light', 'dark']) test(`${theme} changed original uses the 
     await expect(page.getByRole('button', { name: 'Neu laden', exact: true })).toBeEnabled();
     await expect(page.locator('main footer')).not.toContainText('Aktualisierung fehlgeschlagen');
   } finally { await service.close(); f.close(); }
+});
+
+for (const pathname of ['/', '/card.html']) test(`workshop robot tracks the selected Run in ${pathname}`, async ({ page }) => {
+  const f = await approvalFixture();
+  const service = await startControlServer({ dir: f.root });
+  try {
+    await page.setViewportSize({ width: pathname === '/' ? 900 : 420, height: 900 });
+    await page.addInitScript(({ secret, origin, pathname }) => {
+      if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret);
+    }, { secret: service.secret, origin: service.origin, pathname });
+    await page.goto(service.origin + pathname);
+    await page.locator('.run-link[data-focus-id="fixture-a"]').click();
+    const image = page.locator('img.run-figure');
+    const source = async () => decodeURIComponent(await image.getAttribute('src'));
+    await expect(page.locator(pathname === '/' ? '.breadcrumbs img.run-figure' : '.compact-navigation img.run-figure')).toBeVisible();
+    const docs = page.getByRole('region', { name: 'Dokumente', exact: true });
+    const draft = page.getByRole('region', { name: 'Entwurfsprüfung', exact: true });
+    const evidence = page.locator('.work-step-evidence > summary');
+    const details = page.locator('.work-step-details > summary');
+    if (pathname !== '/') {
+      await expect(docs).toBeHidden();
+      await expect(draft).toBeHidden();
+      await expect(evidence).toBeHidden();
+      await details.click();
+    }
+    await expect(docs).toBeVisible();
+    await expect(draft).toBeVisible();
+    await expect(evidence).toBeVisible();
+    if (pathname !== '/') { await details.click(); await expect(docs).toBeHidden(); }
+    await image.evaluate(node => node.decode());
+    const waiting = await source();
+    expect(waiting).toMatch(/url\(#metal\).*url\(#visor\)/s);
+    expect(waiting).toContain('>UR</text>');
+    expect(waiting).toContain('dur="12s"');
+    expect(waiting).not.toContain('data-gesture');
+    await image.screenshot({ path: evidencePath(`workshop-robot-waiting-${pathname === '/' ? 'expanded' : 'compact'}.png`) });
+
+    const change = f.context.call('presentation_decision.record', {
+      gate: 'UR', presentation_id: f.presentationId, action: 'request_change', comment: 'Synthetic workshop robot check',
+    }, f.binding());
+    expect(change.outcome).toBe('accepted');
+    await expect.poll(source, { timeout: 12_000 }).toMatch(/data-gesture="\d+".*repeatCount="1"/s);
+    const blocked = await source();
+    expect(blocked).toContain('#ff9b8c');
+    expect(blocked).not.toContain('>UR</text>');
+    await image.screenshot({ path: evidencePath(`workshop-robot-blocked-${pathname === '/' ? 'expanded' : 'compact'}.png`) });
+
+    const refresh = page.getByRole('button', { name: 'Neu laden', exact: true });
+    await refresh.click();
+    await expect(refresh).toBeEnabled();
+    expect(await source()).toBe(blocked);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect.poll(source).not.toContain('<animate');
+    expect(await source()).toContain('#ff9b8c');
+
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect.poll(source).toContain('dur="12s"');
+    await page.route('**/api/snapshot*', route => route.abort());
+    await refresh.click();
+    await expect.poll(source).not.toContain('<animate');
+    await expect(page.getByRole('button', { name: 'Aktualisierung fehlgeschlagen · Wiederholen' })).toBeEnabled();
+  } finally {
+    await service.close();
+    f.close();
+  }
 });

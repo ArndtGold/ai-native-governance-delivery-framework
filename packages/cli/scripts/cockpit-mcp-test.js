@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withStdioClient } from '../../mcp-server/test/helpers.js';
 import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
 import { COCKPIT_UI_URI, COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
+import { readRunView } from '../../core/lib/companion/run-view.js';
 import { evaluateGateCheck } from '../../core/lib/control-evaluation/gate-check.js';
 import { projectCockpitAssessment, createCockpitReader } from '../../core/lib/control-inspect/cockpit.js';
 import { createRun } from '../../core/lib/control-state/run-state-repository.js';
-import { previewRunClosure, applyRunClosure } from '../../core/lib/control-state/run-closure.js';
 
 // Tests can qualify an independently prepared owned runtime without replacing a
 // runtime currently registered by the host. Startup still verifies its markers.
@@ -29,7 +31,9 @@ for (const modern of [false, true]) {
       await assert.rejects(client.readResource({ uri: 'ui://agdf/cockpit/v1.html' }), /Resource not found: ui:\/\/agdf\/cockpit\/v1\.html/, 'An old UI URI cannot silently consume the new reading envelope');
       const resource = await client.readResource({ uri: COCKPIT_UI_URI });
       assert.equal(resource.contents[0].mimeType, COCKPIT_MIME); assert.match(resource.contents[0].text, /AGDF Cockpit/);
-      assert.match(resource.contents[0].text, /Gespeicherter Arbeitsstand/);
+      assert.match(resource.contents[0].text, /url\(#metal\).*url\(#visor\)/su);
+      const digest = createHash('sha256').update(resource.contents[0].text).digest('hex');
+      assert.equal(`sha256:${digest}`, preparation.ui.digest);
       assert.deepEqual(resource.contents[0]._meta.ui.csp.connectDomains, []);
       const render = await client.callTool({ name: 'agdf_cockpit', arguments: {} });
       assert.equal(render.structuredContent.authorizes, false); assert.equal(render.structuredContent._meta, undefined);
@@ -41,8 +45,14 @@ for (const modern of [false, true]) {
       const detail = (await call({ operation: 'run', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a' })).structuredContent;
       assert.deepEqual(detail.data.run.evaluation.control_assessment,
         projectCockpitAssessment(evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true }), detail.data.run.lifecycle));
+      const companion = readRunView(f.root, { runIds: ['fixture-a'] }).runs.find(run => run.run_id === 'fixture-a');
+      assert.deepEqual(detail.data.run.figure, companion.figure);
       const selected = detail.data.run.resources.find(r => r.type === 'UR');
       const docargs = { operation: 'document', snapshot_id: detail.snapshot_id, run_id: 'fixture-a', resource_id: selected.resource_id };
+      const inline = (await call({ ...docargs, operation: 'preview' })).structuredContent;
+      assert.equal(inline.state, 'available'); assert.equal(inline.snapshot_id, detail.snapshot_id);
+      assert.match(inline.data.content, /Fixture document/);
+      assert.equal((await call({ ...docargs, operation: 'preview', run_id: 'fixture-completed' })).structuredContent.code, 'resource_denied');
       const document=(await call(docargs)).structuredContent;
       assert.match(document.data.document.content, /Fixture document/); assert.notEqual(document.snapshot_id,detail.snapshot_id);
       const context = (await call({ operation: 'context', snapshot_id: document.snapshot_id, run_id: 'fixture-a' })).structuredContent;
@@ -98,9 +108,9 @@ for (const modern of [false, true]) {
       for (const args of [{ run_id: '' }, { run_id: '../foreign' }, { run_id: 'a'.repeat(129) }, { run_id: 'fixture-a', approval: 'TP' }]) {
         assert.equal((await client.callTool({ name: 'agdf_cockpit', arguments: args })).isError, true);
       }
-      const expired = (await call({ operation: 'snapshot' })).structuredContent;
-      assert.equal(expired.state, 'available');
-      assert.equal(expired.data.kind, 'runs');
+      const overview = (await call({ operation: 'snapshot' })).structuredContent;
+      assert.equal(overview.state, 'available');
+      assert.equal(overview.data.kind, 'work');
       await call({ operation: 'close' });
       assert.equal((await call({ operation: 'snapshot' })).structuredContent.code, 'session_expired');
       assert.deepEqual(treeBytes(f.root), before);
@@ -117,22 +127,26 @@ for (const modern of [false, true]) {
   const g = fixture();
   try {
   createRun(g.root, 'fixture-ended'); createRun(g.root, 'fixture-successor');
-  const backlogPath = join(g.root, '.agdf', 'control', 'MASTER_BACKLOG.md'), header = '|---:|---|---|---|---|---|---|\n';
-  writeFileSync(backlogPath, readFileSync(backlogPath, 'utf8').replace(header, `${header}| P1 | fixture-ended | Ended fixture work | Needs UR | | | Write the UR |\n`));
-  const closurePreview = previewRunClosure(g.root, { entries: [{ run_id: 'fixture-ended', outcome: 'superseded', reason: 'Replaced by the successor fixture', successor_run: 'fixture-successor' }] });
-  assert.equal(applyRunClosure(g.root, { previewId: closurePreview.preview_id, confirmation: closurePreview.confirmation_phrase },
-    { readIdentity: () => ({ name: 'Cockpit Owner', email: null, statement: 'cooperative' }) }).results[0].result, 'closed');
+  execFileSync('git', ['-C', g.root, 'config', 'user.name', 'Cockpit Owner']);
+  execFileSync('git', ['-C', g.root, 'config', 'user.email', '']);
+  const preview = g.context.call('closure.preview', { entries: [{ run_id: 'fixture-ended', outcome: 'superseded',
+    reason: 'Replaced by the successor fixture', successor_run: 'fixture-successor' }] });
+  assert.equal(preview.outcome, 'accepted', JSON.stringify(preview));
+  const closure = g.context.call('closure.apply', { preview_id: preview.family_result.preview_id,
+    confirmation: preview.family_result.confirmation_phrase });
+  assert.equal(closure.outcome, 'accepted', JSON.stringify(closure));
+  assert.equal(closure.family_result.results[0].result, 'closed');
   const expectEnded = (run, archive) => {
     assert.equal(run.lifecycle, 'superseded'); assert.equal(run.evaluation.control_assessment.state, 'ended');
     assert.equal(run.evaluation.next_operation, null); assert.deepEqual(run.evaluation.allowed, []);
     assert.deepEqual({ ...run.closure, closed_at: Boolean(run.closure.closed_at), operation_id: Boolean(run.closure.operation_id) }, { outcome: 'superseded',
       reason: 'Replaced by the successor fixture', successor: { kind: 'run', value: 'fixture-successor', verified: true },
       confirmed_by: { name: 'Cockpit Owner', email: null, statement: 'cooperative' }, closed_at: true, operation_id: true, receipt: 'recorded', authorizes: false });
-    assert.equal(archive.kind, 'runs');
-    const row = archive.runs.find(entry => entry.run_id === 'fixture-ended');
-    assert.equal(row.lifecycle, 'superseded'); assert.equal(row.attention.code, 'none');
-    assert.equal(row.closure.reason, 'Replaced by the successor fixture');
-    assert.equal(archive.runs.filter(entry => entry.run_id === 'fixture-ended').length, 1);
+    assert.equal(archive.kind, 'work');
+    const history = archive.entries.filter(entry => entry.kind === 'run' && entry.key === 'fixture-ended');
+    assert.equal(history.length, 1);
+    assert.equal(history[0].section, 'completed');
+    assert.equal(history[0].stored_status, 'Historie');
 
   };
   const reader = createCockpitReader(g.root);
@@ -143,7 +157,7 @@ for (const modern of [false, true]) {
       args: [preparation.entrypoint, '--surface', 'codex', '--cockpit-dir', g.root] }, async client => {
       const session_id = (await client.callTool({ name: 'agdf_cockpit', arguments: {} }))._meta.agdf_cockpit.session_id;
       const read = args => client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id, ...args } });
-      const inventory = (await read({ operation: 'snapshot' })).structuredContent;
+      const inventory = (await read({ operation: 'snapshot', view: 'runs' })).structuredContent;
       const detail = (await read({ operation: 'run', snapshot_id: inventory.snapshot_id, run_id: 'fixture-ended' })).structuredContent;
       assert.equal(detail.state, 'available', JSON.stringify(detail).slice(0, 400));
       expectEnded(detail.data.run, inventory.data);

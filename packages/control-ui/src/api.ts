@@ -131,6 +131,13 @@ const detailData = (data: unknown, allowInvalid = false): boolean => {
 export const documentData = (data: unknown) => object(data) && resources([data.resource])
   && (data.content === undefined || text(data.content) && ['markdown', 'json', 'text'].includes(String(data.format))
     && text(data.content_digest) && object(data.links) && Object.values(data.links).every(text))
+  && (data.cockpit_summary === undefined || object(data.cockpit_summary) && object(data.resource) && object(data.document_state)
+    && data.cockpit_summary.state === 'available' && data.cockpit_summary.authorizes === false
+    && data.cockpit_summary.run_id === data.resource.run_id && data.cockpit_summary.resource_id === data.resource.resource_id
+    && data.cockpit_summary.gate === data.resource.type && data.cockpit_summary.revision_id === data.document_state.revision_id
+    && data.cockpit_summary.content_digest === data.content_digest && text(data.cockpit_summary.markdown)
+    && (data.cockpit_summary.markdown as string).length <= 26000 && Array.isArray(data.cockpit_summary.items) && data.cockpit_summary.items.length <= 3
+    && data.cockpit_summary.items.every((row: unknown) => object(row) && text(row.label) && (row.label as string).length <= 80 && text(row.text) && (row.text as string).length <= 1200))
   && (data.document_state === undefined || validDocumentState(data.document_state, data.resource)
     && data.document_state.content_digest === data.content_digest
     && new TextEncoder().encode(JSON.stringify(data.document_state)).length <= 256 * 1024);
@@ -142,6 +149,9 @@ export function validateData(path: string, value: Envelope<unknown>) {
   if (object(data)) {
     if (path.startsWith('/api/changes')) valid = typeof data.changed === 'boolean';
     else if (path.startsWith('/api/freshness')) valid = data.unchanged === true;
+    else if (path.startsWith('/api/preview/')) valid = documentData(data) && object(data.resource)
+      && data.resource.resource_id === new URL(path, 'https://local.invalid').pathname.slice(13)
+      && data.resource.run_id === new URL(path, 'https://local.invalid').searchParams.get('run_id');
     else if (data.kind === 'runs' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/'))) {
       valid = ['complete', 'incomplete', 'absent'].includes(String(data.state)) && data.authorizes === false
         && Array.isArray(data.runs) && data.runs.every(r => object(r)

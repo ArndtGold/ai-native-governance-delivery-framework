@@ -59,6 +59,11 @@ test('SCN-020/022/032: loopback authenticated read journey, origin/method/select
     const d = (await request(service, '/api/runs/fixture-a?snapshot=' + s.snapshot_id)).body;
     assert.equal(s.data.kind, 'work'); assert.equal(d.data.kind, 'run');
     const resource = d.data.run.resources.find(r => r.type === 'UR');
+    const previewPath = `/api/preview/${resource.resource_id}?snapshot=${d.snapshot_id}&run_id=fixture-a`;
+    const preview = (await request(service, previewPath)).body;
+    assert.match(preview.data.content, /Fixture document/); assert.equal(preview.snapshot_id, d.snapshot_id);
+    assert.notEqual((await request(service, `/api/preview/${resource.resource_id}?snapshot=${d.snapshot_id}&run_id=fixture-completed`)).body.state, 'available');
+    assert.equal((await request(service, '/api/freshness?snapshot=' + d.snapshot_id)).body.data.unchanged, true);
     const doc = (await request(service, `/api/documents/${resource.resource_id}?snapshot=${d.snapshot_id}`)).body;
     assert.match(doc.data.document.content, /Fixture document/); assert.notEqual(doc.snapshot_id,d.snapshot_id);
     assert.equal((await request(service, '/api/freshness?snapshot=' + doc.snapshot_id)).body.data.unchanged, true);

@@ -154,7 +154,7 @@ export function createCockpitSessionService(root, {
           touch(session); return result;
         }
         if (['planned', 'archive'].includes(input.operation) && !session.rows.has(input.row_id)) return fail('resource_denied');
-        if (['document', 'prepare_context'].includes(input.operation)
+        if (['document', 'preview', 'prepare_context'].includes(input.operation)
           && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return fail('resource_denied');
         if (['context', 'artifact_readiness'].includes(input.operation) && input.run_id !== session.run_id) return fail('resource_denied');
         if (input.operation === 'artifact_readiness' && (!session.draft?.available || session.draft.gate !== input.gate

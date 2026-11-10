@@ -94,6 +94,11 @@ export class CockpitBridge {
       argumentsValue = { operation: 'artifact_readiness', snapshot_id, run_id: url.pathname.slice(17),
         gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') };
     }
+    else if (url.pathname.startsWith('/api/preview/')) {
+      const resource_id = url.pathname.slice(13), run_id = resourceRuns.get(resource_id);
+      if (!run_id || url.searchParams.get('run_id') !== run_id) throw Error('resource_denied');
+      argumentsValue = { operation: 'preview', snapshot_id, run_id, resource_id };
+    }
     else if (url.pathname.startsWith('/api/documents/')) {
       const resource_id = url.pathname.slice(15), run_id = resourceRuns.get(resource_id);
       if (!run_id) throw Error('resource_denied');

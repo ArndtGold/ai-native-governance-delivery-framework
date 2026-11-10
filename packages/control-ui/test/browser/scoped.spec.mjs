@@ -26,6 +26,7 @@ test('scoped HTTP reading preserves stored backlog, source navigation and Pages 
     await page.getByRole('button', { name: 'Fixture document' }).click();
     await expect(page.locator('.page-title h1')).toHaveText('Fixture document');
     release();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Dokument schließen' })).toBeVisible();
     await expect(page.locator('.document-original')).not.toHaveAttribute('open');

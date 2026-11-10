@@ -70,6 +70,8 @@ export function commandGate(command = {}) {
   const payload = command.payload ?? {};
   if (command.kind === 'closeout.record') return 'OR';
   if (command.kind === 'step.record') return payload.internal_step ?? RUN_STEP_SLOTS[payload.step] ?? null;
+  if (command.kind === 'verified_change.record') return 'Verified Change';
+  if (command.kind === 'ur_draft.replace') return 'UR';
   if (command.kind === 'operation.recover') return null;
   return typeof payload.gate === 'string' ? payload.gate : null;
 }
@@ -83,7 +85,8 @@ function successKind(command, result) {
   if (kind === 'approval.record') return 'approval_recorded';
   if (kind === 'closeout.record') return 'run_completed';
   if (kind === 'material.stage' && command.payload?.action === 'seal') return 'material_staged';
-  if (kind === 'step.record' || kind === 'artefact.record') return 'document_recorded';
+  // Every document recording of run-steps.recordRunStep (run-command-service.js).
+  if (['step.record', 'artefact.record', 'verified_change.record', 'ur_draft.replace'].includes(kind)) return 'document_recorded';
   return null;
 }
 

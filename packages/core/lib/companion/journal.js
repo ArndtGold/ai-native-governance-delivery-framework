@@ -160,6 +160,12 @@ export function createCompanionJournal({ dataRoot = process.env[COMPANION_DATA_R
   return Object.freeze({
     enabled,
     path: enabled ? journalPath(dataRoot) : null,
+    // Whether `observe` writes an event for this result, without writing: a facade asks this for a
+    // result its generation produced, and so already journaled.
+    observes(toolName, input, result) {
+      if (!enabled) return false;
+      try { return Boolean(eventKind(toolName, input, result)); } catch { return false; }
+    },
     observe(toolName, input, result) {
       if (!enabled) return false;
       try {

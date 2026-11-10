@@ -81,7 +81,8 @@ export function buildPanelView(input) {
     runId: run.id,
     objective: run.objective,
     isObjectiveExpanded: Boolean(input.isObjectiveExpanded),
-    nextStep: run.lifecycle === 'completed' ? null : run.nextText || null,
+    // A completed run names no next step, unless it is blocked: then the step says what to do about it.
+    nextStep: run.lifecycle === 'completed' && run.figure?.reason?.key !== 'blocked' ? null : run.nextText || null,
     unreadableHint,
     origin: t(`origin.${origin}`),
     originKind: origin,

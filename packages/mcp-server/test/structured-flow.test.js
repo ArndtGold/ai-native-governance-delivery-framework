@@ -3,36 +3,255 @@ import { withSyntheticQaContent } from '../../core/test/fixtures/decision-conten
 import assert from 'node:assert/strict';
 import { deliveryModeCases } from './fixtures/delivery-mode-cases.js';
 import { randomUUID } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { createOwnedRuntimeFixture } from './owned-runtime.js';
 import { withStdioClient } from './helpers.js';
 import { createMcpDeliveryHarness } from './delivery-harness.js';
 import { resolveControlCommandTarget, canonicalJson, digest } from '../../core/lib/control-state/approval-command-contract.js';
 import { artefactFileDigest, runSealState } from '../../core/lib/control-state/run-seal.js';
 import { readRunState } from '../../core/lib/control-evaluation/run-state.js';
-import { closeoutConfirmation } from '../../core/lib/control-evaluation/closeout-readiness.js';
+import { readRunOperations } from '../../core/lib/control-state/run-operations.js';
 import { COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
 import { MCP_APP_UI_EXTENSION } from '../src/ui-capability.js';
+
+function slowAuthoringGit(fixture, enabled) {
+  if (!enabled) return {};
+  const bin = join(fixture.governanceTarget, 'test-bin');
+  const log = join(bin, 'git.log');
+  const marker = join(bin, 'slow');
+  mkdirSync(bin);
+  writeFileSync(join(bin, 'git'), [
+    '#!/bin/sh',
+    'if [ -f "$AGDF_TEST_SLOW_GIT" ]; then',
+    '  case "$*" in',
+    '    "--no-optional-locks -c core.fsmonitor=false diff --no-ext-diff --no-textconv HEAD --name-only -z")',
+    '      printf "diff\\n" >> "$AGDF_TEST_GIT_LOG"; sleep 2.6 ;;',
+    '    "--no-optional-locks -c core.fsmonitor=false rev-parse HEAD") printf "head\\n" >> "$AGDF_TEST_GIT_LOG" ;;',
+    '    "--no-optional-locks -c core.fsmonitor=false ls-files --others --exclude-standard -z") printf "untracked\\n" >> "$AGDF_TEST_GIT_LOG" ;;',
+    '  esac',
+    'fi',
+    'exec "$AGDF_TEST_REAL_GIT" "$@"',
+  ].join('\n') + '\n', { mode: 0o755 });
+  return {
+    env: { PATH: bin + ':' + process.env.PATH, AGDF_TEST_SLOW_GIT: marker, AGDF_TEST_GIT_LOG: log,
+      AGDF_TEST_REAL_GIT: execFileSync('which', ['git'], { encoding: 'utf8' }).trim() },
+    enable: () => writeFileSync(marker, ''),
+    observed: () => existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n') : [],
+  };
+}
+
+async function checkCloseoutRead(f, context, slow) {
+  const status = readRunState(context.primary_target, { runId: f.runId });
+  const source = type => {
+    const path = status.artefacts.get(type).path.replace(/^`|`$/gu, '');
+    return readFileSync(join(context.primary_target, path), 'utf8');
+  };
+  const expected = { OR: source('OR'), QA: source('QA') };
+  const stateBefore = readFileSync(f.state, 'utf8');
+  slow.enable?.();
+  const start = performance.now();
+  const dispatch = await f.call('agdf_dispatch', { ...context, skill_id: 'delivery-closeout', run_id: f.runId });
+  assert.equal(dispatch.outcome, 'skill_continuation', JSON.stringify(dispatch.diagnostics));
+  assert.equal(dispatch.control.completion.fulfilled, true);
+  const offered = dispatch.continuation.next_calls[0];
+  const first = dispatch.next_read?.result ?? await f.call('agdf_inspect', offered.arguments);
+  const readArguments = offered.recovery_only?.original_call.arguments ?? offered.arguments;
+  const elapsed = Math.round(performance.now() - start);
+  const calls = slow.observed?.() ?? [];
+  assert.equal(readFileSync(f.state, 'utf8'), stateBefore);
+  assert.equal(readArguments.authoring_scope, 'delivery-closeout',
+    `Completed structured handoff did not offer its scoped read (elapsed_ms=${elapsed}, Git=${calls.join(',')}, page=${first.report?.page_index}, failure=${first.diagnostics?.[0]?.code}).`);
+  assert.equal(first.report.available, true);
+  assert.equal(first.report.complete, true);
+  assert.equal(first.report.material_call, undefined);
+  assert.equal(first.report.formats, undefined);
+  assert.equal(first.report.material_transport, undefined);
+  assert.deepEqual(Object.fromEntries(first.report.documents.map(row => [row.type, row.content])), expected);
+  assert.ok(first.report.documents.every(row => row.role === 'source'));
+  assert.deepEqual(first.report.document_manifest.map(row => row.type).sort(), ['OR', 'QA']);
+  assert.equal((dispatch.next_read?.result ? dispatch : first).next_action?.call, null);
+  if (slow.enable) assert.ok(elapsed < 10_000, `Scoped handoff took ${elapsed} ms`);
+  assert.deepEqual(calls, []);
+
+  const { authoring_scope, ...ordinaryRead } = readArguments;
+  let page = (await f.call('agdf_inspect', ordinaryRead)).report;
+  assert.ok(page.available);
+  assert.ok(page.document_manifest.some(row => row.role === 'template'));
+  assert.ok(page.next_cursor, 'The ordinary read covers multiple pages.');
+  const scoped = { ...ordinaryRead, authoring_scope };
+  assert.equal((await f.call('agdf_inspect', { ...scoped, cursor: page.next_cursor })).report.reason, 'authoring_cursor_stale_or_invalid');
+  assert.equal((await f.call('agdf_inspect', { ...scoped, expected_revision_id: randomUUID() })).report.reason, 'authoring_binding_stale_or_invalid');
+  const sources = new Map();
+  const manifest = page.document_manifest;
+  const manifestDigest = page.manifest_digest;
+  assert.equal(manifestDigest, digest(JSON.stringify({
+    target_id: f.target, run_id: f.runId, revision_id: f.revision(),
+    languages: { artifact_language: page.artifact_language, presentation_language: page.presentation_language,
+      approval_summary_required: page.approval_summary_required, approval_summary_heading: page.approval_summary_heading },
+    bundle: 2, gate: page.gate, authoring_owner: page.authoring_owner, recording: page.recording, documents: manifest,
+  })), 'Ordinary cursor still uses the existing unscoped manifest identity.');
+  let pageCount = 0;
+  for (;;) {
+    assert.equal(page.manifest_digest, manifestDigest);
+    assert.deepEqual(page.document_manifest, manifest);
+    assert.ok(++pageCount <= 8);
+    for (const row of [...page.documents, ...page.fragments]) {
+      const key = row.digest + ':' + row.type;
+      const prior = sources.get(key) ?? '';
+      assert.equal(Buffer.byteLength(prior), row.byte_start);
+      sources.set(key, prior + row.content);
+    }
+    if (page.complete) break;
+    page = (await f.call('agdf_inspect', page.next_calls[0].arguments)).report;
+    assert.ok(page.available);
+  }
+  for (const row of manifest.filter(row => row.role === 'source')) {
+    assert.equal(sources.get(row.digest + ':' + row.type), source(row.type));
+  }
+  const qa = f.file('QA_REPORT.md');
+  try {
+    writeFileSync(qa, expected.QA + '\nChanged protected source.\n');
+    assert.equal((await f.call('agdf_inspect', scoped)).report.reason, 'authoring_binding_stale_or_invalid');
+    assert.equal(readFileSync(qa, 'utf8'), expected.QA + '\nChanged protected source.\n');
+  } finally {
+    writeFileSync(qa, expected.QA);
+  }
+  assert.equal(readFileSync(f.state, 'utf8'), stateBefore);
+  assert.deepEqual(slow.observed?.() ?? [], []);
+  console.log(JSON.stringify({ closeout_scope: authoring_scope, elapsed_ms: elapsed, git_calls: calls,
+    ordinary_pages: pageCount, or_digest: digest(expected.OR), qa_digest: digest(expected.QA), state_unchanged: true }));
+}
 
 for (const { modern, route } of deliveryModeCases(process.argv.slice(2), { structured: true })) {
 const fixture = createOwnedRuntimeFixture({ controlRuns: [] }), root = fixture.governanceTarget;
 try {
-  await withStdioClient({ ...fixture, modern, capabilities: { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } } }, async client => {
+  const slow = slowAuthoringGit(fixture, process.env.AGDF_TEST_SLOW_CLOSEOUT_GIT === '1' && route === 'structured_delivery' && !modern);
+  const context = { presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'explicit_target' };
+  await withStdioClient({ ...fixture, env: slow.env, modern, capabilities: { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [COCKPIT_MIME] } } } }, async client => {
   const f = await createMcpDeliveryHarness(client, root); await f.startStructured(route);
   const service = f.call, target = f.target, bound = f.bound;
-  for (const step of ['CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR']) {
-    const source = await f.stage(step, '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n');
-    const recorded = await service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source } } });
+  let recorded;
+  for (const step of ['CD+Tests', 'CR']) {
+    const padding = step === 'CD+Tests' ? 'Synthetic evidence for ordinary paging.\n'.repeat(1200) : '';
+    const source = await f.stage(step, '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n' + padding);
+    recorded = await service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source } } });
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
   }
+  const dispatch = { presentation_language: 'en', working_directory: root, primary_target: root,
+    target_source: 'explicit_target', run_id: f.runId };
+  const follow = (action, inputs) => {
+    assert.ok(action?.call, JSON.stringify(action));
+    const { tool, arguments: args } = action.call;
+    return service(tool, inputs ? { ...args, inputs } : args);
+  };
+  const authoring = async continuation => {
+    let read = continuation.next_read?.result;
+    if (!read?.report?.available) read = await follow(continuation.next_action);
+    const documents = [];
+    for (;;) {
+      assert.equal(read.report?.available, true, JSON.stringify(read));
+      documents.push(...read.report.documents);
+      if (read.report.complete) break;
+      read = await follow(read.next_action);
+    }
+    assert.equal(read.report.run_id, f.runId);
+    assert.equal(read.report.revision_id, f.revision());
+    return { ...read, documents };
+  };
+  const stageReview = async (input, step, decision = 'pass', findings = '') => {
+    const staged = await follow(input.next_action, {
+      content: '# ' + step + '\n- decision: ' + decision + '\nSynthetic review result.\n' + findings,
+    });
+    assert.equal(staged.outcome, 'accepted', JSON.stringify(staged));
+    assert.equal(staged.family_result.files[0].slot, step);
+    assert.equal(staged.next_action.slot, step);
+    assert.equal(staged.next_action.operation.expected_revision_id, f.revision());
+    assert.deepEqual(staged.next_action.required_inputs, ['decision']);
+    return staged.next_action;
+  };
+
+  const initialState = readFileSync(f.state, 'utf8');
+  const initialStatus = await service('agdf_dispatch', { ...dispatch, skill_id: 'gate-check' });
+  assert.equal(initialStatus.outcome, 'control_result');
+  assert.equal(initialStatus.terminal, true);
+  assert.equal(initialStatus.control.next_operation.internal_step, 'TP Review');
+  assert.equal(readFileSync(f.state, 'utf8'), initialState);
+
+  const checkNegativeCases = !modern && route === 'structured_delivery';
+  for (const [step, skill] of [['TP Review', 'task-plan-review'], ['Clean Implementation Review', 'clean-implementation-review']]) {
+    const previousRevision = f.revision();
+    const continuation = await follow(recorded.next_action);
+    assert.equal(continuation.terminal, false, `Bound continuation must offer ${step} rather than a terminal status`);
+    assert.equal(continuation.continuation.skill_id, skill);
+    assert.equal(continuation.continuation.run_id, f.runId);
+    assert.equal(continuation.continuation.revision_id, previousRevision);
+    const direct = await authoring(await service('agdf_dispatch', { ...dispatch, skill_id: skill }));
+    assert.equal(direct.report.authoring_owner, step);
+    const directForm = await stageReview(direct, step);
+    let input = await authoring(continuation);
+    assert.equal(input.report.authoring_owner, step);
+
+    if (checkNegativeCases && step === 'TP Review') {
+      const findings = '\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n'
+        + '| F-01 | implementation_gap | CD+Tests | open | Synthetic assertion fails | Correct the synthetic implementation and rerun its test |\n';
+      const nonpass = await follow(await stageReview(input, step, 'revise', findings), { decision: 'revise' });
+      assert.equal(nonpass.outcome, 'accepted', JSON.stringify(nonpass));
+      const afterNonpass = await follow(nonpass.next_action);
+      assert.equal(afterNonpass.control.next_operation.internal_step, step);
+      assert.equal(afterNonpass.control.missing_approval, 'none');
+      const denied = await service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
+      assert.equal(denied.outcome, 'rejected');
+      input = await authoring(afterNonpass);
+    }
+
+    recorded = await follow(await stageReview(input, step), { decision: 'pass' });
+    assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
+    assert.notEqual(f.revision(), previousRevision);
+    assert.equal(readRunState(root, { runId: f.runId }).approvals.get('QA').status, 'missing');
+    if (checkNegativeCases && step === 'TP Review') {
+      const current = readFileSync(f.state, 'utf8');
+      const rejected = await follow(directForm, { decision: 'pass' });
+      assert.equal(rejected.reason, 'stale_revision', JSON.stringify(rejected));
+      assert.equal(readFileSync(f.state, 'utf8'), current);
+    }
+  }
+  const qaContinuation = await follow(recorded.next_action);
+  assert.equal(qaContinuation.terminal, false);
+  assert.equal(qaContinuation.continuation.skill_id, 'qa-gate');
+  assert.equal(qaContinuation.continuation.revision_id, f.revision());
+  const beforeReport = await service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
+  assert.equal(beforeReport.outcome, 'rejected');
+  if (checkNegativeCases) {
+    const state = readRunState(root, { runId: f.runId });
+    const cdPath = join(root, state.artefacts.get('CD+Tests').path);
+    const current = readFileSync(cdPath, 'utf8');
+    try {
+      writeFileSync(cdPath, current + '\nSuperseded implementation evidence in the disposable fixture.\n');
+      const stale = readRunState(root, { runId: f.runId });
+      assert.equal(stale.evidence_applicability.by_step.get('TP Review').applicability, 'superseded');
+      const afterStale = await follow(recorded.next_action);
+      assert.equal(afterStale.control.missing_approval, 'none');
+      assert.notEqual(afterStale.continuation?.skill_id, 'qa-gate');
+      assert.equal(stale.approvals.get('QA').status, 'missing');
+    } finally {
+      writeFileSync(cdPath, current);
+    }
+  }
   const qaPath = f.prefix + 'QA_REPORT.md';
-  const qaInputs = await f.inputs();
-  assert.equal(qaInputs[0].gate,'QA');
-  assert.ok(qaInputs[0].documents.some(row => row.role==='template' && row.type==='QA_REPORT'));
+  const qaInputs = await authoring(qaContinuation);
+  assert.equal(qaInputs.report.authoring_owner, 'QA');
+  assert.ok(qaInputs.documents.some(row => row.role === 'template' && row.type === 'QA_REPORT'));
   const qaText = withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
   const qa = await f.formal('QA', qaText);
   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
+  const qaDecision = await follow(qa.next_action);
+  assert.equal(qaDecision.continuation.phase, 'presentation_required');
+  assert.equal(qaDecision.next_action.operation.gate, 'QA');
+  assert.equal(qaDecision.next_action.operation.expected_revision_id, f.revision());
+  assert.equal(readRunState(root, { runId: f.runId }).approvals.get('QA').status, 'missing');
   for (const gate of ['QA', 'UAT']) {
     const preparedReply = await client.callTool({ name: 'agdf_prepare', arguments: { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } } });
     const prepare = preparedReply.structuredContent;
@@ -102,7 +321,6 @@ try {
   }
   const state = readRunState(root, { runId: f.runId });
   const rows = ['UR', 'Brownfield Review', 'PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'CR', 'QA', 'UAT'].map(type => `| ${type} | ${state.approvals.get(type)?.status ?? state.artefacts.get(type).status} | ${state.artefacts.get(type)?.path || state.approvals.get(type).evidence} |`).join('\n');
-  const orPath = f.prefix + 'OR_CANDIDATE.md';
   const report = `# OR: Synthetic closeout
 Report mode: OR-full
 Status: done
@@ -146,17 +364,123 @@ none
 - required_approval: none
 - forbidden_until_then: Automatic Git or release action.
 `;
-  const orMaterial = await f.stage('OR', report);
+  const beforeStaging = readFileSync(f.state, 'utf8');
+  const stageOr = payload => f.invoke('agdf_record', 'material.stage', payload);
+  const inline = content => ({ action: 'put', files: [{ slot: 'OR', content }] });
+  const unrelated = await stageOr({ action: 'put', files: [{ slot: 'EVIDENCE', content: 'Unrelated staging' }] });
+  assert.notEqual(unrelated.next_action?.operation?.kind, 'closeout.record');
+  let staged;
+  if (route === 'structured_delivery') {
+    staged = await stageOr(inline(report));
+  } else {
+    const bytes = Buffer.from(report);
+    const started = await stageOr({ action: 'begin', files: [{ slot: 'OR', bytes: bytes.length }] });
+    const transfer_id = started.family_result.transfer_id;
+    assert.notEqual(started.next_action?.operation?.kind, 'closeout.record');
+    const appended = await stageOr({ action: 'append', transfer_id, file: 0, offset: 0, data: bytes.toString('base64') });
+    assert.notEqual(appended.next_action?.operation?.kind, 'closeout.record');
+    staged = await stageOr({ action: 'seal', transfer_id });
+  }
+  assert.equal(readFileSync(f.state, 'utf8'), beforeStaging, 'OR staging leaves canonical Run state unchanged.');
+  const action = staged.next_action;
+  assert.equal(action.state, 'ready', 'Successful structured OR staging offers a ready closeout action.');
+  assert.equal(staged.recording_calls.length, 1);
+  assert.equal(action.call.tool, 'agdf_closeout');
+  assert.deepEqual(action.required_inputs, []);
+  assert.deepEqual(action.call.arguments.inputs, {});
+  assert.equal(action.operation.kind, 'closeout.record');
+  assert.equal(action.operation.target_id, target);
+  assert.equal(action.operation.run_id, f.runId);
+  assert.equal(action.operation.expected_revision_id, f.revision());
+  const orMaterial = staged.family_result.files[0].reference;
+  const original = action.recovery_only.original_call.arguments;
+  assert.deepEqual(original.command.payload.or, orMaterial);
+  assert.equal(original.operation_id, action.operation.operation_id);
+  assert.match(original.command.payload.confirmation, /sha256:/u);
 
-  const input = { ...bound(), command: { kind: 'closeout.record', payload: { or: orMaterial, confirmation: 'synthetic invalid confirmation' } } };
-  const before = readFileSync(f.state, 'utf8');
-  const rejected = await service('agdf_closeout', input); assert.equal(rejected.reason, 'closeout_confirmation_required');
-  assert.equal(readFileSync(f.state, 'utf8'), before);
-  input.command.payload.confirmation = closeoutConfirmation(f.runId, input.expected_revision_id, input.operation_id, input.command.payload.or.digest);
-  const result = await service('agdf_closeout', input); assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+  for (const [reason, input] of [
+    ['closeout_confirmation_required', { ...original, operation_id: randomUUID(), command: { kind: 'closeout.record',
+      payload: { or: orMaterial, confirmation: 'synthetic invalid confirmation' } } }],
+    ['stale_revision', { ...original, expected_revision_id: randomUUID() }],
+    ['material_binding_mismatch', { ...original, command: { kind: 'closeout.record',
+      payload: { ...original.command.payload, or: { ...orMaterial, digest: digest('different report') } } } }],
+  ]) {
+    const rejected = await service('agdf_closeout', input);
+    assert.equal(rejected.reason, reason, JSON.stringify(rejected));
+    assert.equal(readFileSync(f.state, 'utf8'), beforeStaging);
+  }
+
+  let result;
+  if (modern && route === 'structured_delivery') {
+    const entry = join(root, 'drop-closeout-ack.mjs');
+    writeFileSync(entry, `import { runMcpServer } from ${JSON.stringify(pathToFileURL(join(fixture.serverRoot, 'src/main.js')).href)};
+const write = process.stdout.write.bind(process.stdout);
+let dropped = false;
+process.stdout.write = function (chunk, ...args) {
+  let packet;
+  try { packet = JSON.parse(String(chunk)); } catch {}
+  const result = packet?.result?.structuredContent;
+  if (!dropped && result?.operation_id === ${JSON.stringify(original.operation_id)} && result.outcome === 'accepted') {
+    dropped = true;
+    args.find(value => typeof value === 'function')?.();
+    return true;
+  }
+  return write(chunk, ...args);
+};
+await runMcpServer({ surface: 'codex' });
+`);
+    await withStdioClient({ ...fixture, modern, args: [entry] }, async reconnected => {
+      const invoke = async (tool, args) => (await reconnected.callTool({ name: tool, arguments: args })).structuredContent;
+      const restage = (content, selectors = {}) => invoke('agdf_record', { ...bound(), ...selectors,
+        command: { kind: 'material.stage', payload: inline(content) } });
+      const expired = await invoke('agdf_closeout', original);
+      assert.equal(expired.reason, 'material_transfer_expired', JSON.stringify(expired));
+      assert.equal(expired.dispatch, 'not_dispatched');
+      assert.equal(readFileSync(f.state, 'utf8'), beforeStaging);
+      const changed = await restage(report + '\nDifferent authored report.\n');
+      assert.notEqual(changed.next_action.operation.operation_id, original.operation_id);
+      const otherBinding = await restage(report, { presentation_language: 'de' });
+      assert.notEqual(otherBinding.next_action.operation.operation_id, original.operation_id);
+      const recovered = await restage(report);
+      const next = recovered.next_action;
+      assert.equal(next.state, 'ready');
+      assert.equal(next.operation.operation_id, original.operation_id);
+      const replacement = next.recovery_only.original_call.arguments.command.payload;
+      assert.notEqual(replacement.or.material_id, orMaterial.material_id);
+      assert.equal(replacement.or.digest, orMaterial.digest);
+      assert.equal(replacement.confirmation, original.command.payload.confirmation);
+      assert.deepEqual(next.call.arguments.inputs, {});
+      await assert.rejects(reconnected.callTool({ name: next.call.tool, arguments: next.call.arguments }, { timeout: 5000 }), /timed out|timeout/iu);
+      const status = await invoke(next.operation_status_call.tool, next.operation_status_call.arguments);
+      assert.equal(status.report.status, 'recorded', JSON.stringify(status));
+      assert.equal(status.report.receipt.operation_id, original.operation_id);
+      assert.equal(status.report.receipt.effect.record.or.digest, orMaterial.digest);
+      const replay = await invoke(next.call.tool, next.call.arguments);
+      assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
+      assert.deepEqual(replay.receipt, status.report.receipt);
+      result = replay;
+    });
+    const replay = await service('agdf_closeout', original);
+    assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
+    assert.deepEqual(replay.receipt, result.receipt);
+  } else {
+    result = await follow(action);
+    assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+    const replay = await follow(action);
+    assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
+    assert.deepEqual(replay.receipt, result.receipt);
+  }
   assert.equal(result.current.lifecycle, 'completed'); assert.equal(result.current.completion.fulfilled, true); assert.equal(result.current.next_operation, null);
-  assert.equal((await service('agdf_closeout', input)).outcome, 'already_applied');
-  assert.equal(runSealState(root, readFileSync(f.state, 'utf8')).status, 'valid');
+  assert.equal(result.receipt.effect.record.or.digest, orMaterial.digest);
+  assert.equal(artefactFileDigest(root, result.receipt.effect.record.or.path), orMaterial.digest);
+  const completed = readFileSync(f.state, 'utf8');
+  assert.equal(readRunOperations(completed).receipts.filter(row => row.operation_id === original.operation_id).length, 1);
+  const restaged = await service('agdf_record', { ...bound(), command: { kind: 'material.stage', payload: inline(report) } });
+  assert.equal(restaged.outcome, 'rejected');
+  assert.notEqual(restaged.next_action?.operation?.kind, 'closeout.record');
+  assert.equal(readFileSync(f.state, 'utf8'), completed);
+  assert.equal(runSealState(root, completed).status, 'valid');
+  await checkCloseoutRead(f, context, slow);
   console.log(`Actual default-entrypoint STDIO ${route}: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.`);
   });
 } finally { fixture.dispose(); }

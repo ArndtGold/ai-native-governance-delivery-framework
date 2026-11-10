@@ -1,9 +1,24 @@
 import { readRunState } from '../control-evaluation/run-state.js';
 import { inspectArtefactRecordingMode } from '../control-state/run-artefact-recording.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
+import { continueDeliveryCall, preparedCommandCall } from '../control-state/prepared-control-calls.js';
+import { CLOSEOUT_AUTHORING_SCOPE } from '../control-inspect/selection.js';
 
 // Transport guidance over existing routes; code, tests and Git remain external.
 export function mcpControlContinuation(input, result, availableGroups = []) {
+  if (result.terminal && result.diagnostics?.[0]?.code === 'AGDF_CANONICAL_SCAFFOLD_REQUIRED'
+      && result.recovery && availableGroups.includes('agdf_project') && result.target?.governance_target)
+    return { ...result, recovery: { ...result.recovery, next_calls: [{ tool: 'agdf_inspect', arguments: { operation: 'operation-contract',
+      module: 'agdf_project/project.initialize', presentation_language: input.presentationLanguage,
+      working_directory: input.workingDirectory, primary_target: result.target.governance_target, target_source: input.targetSource } }] } };
+  // Keep the exact human setup card and terminal stop. This read is guidance
+  // for the next authorized turn, never initialization or setup authority.
+  if (result.terminal && result.control?.blocking_reason === 'AGDF_CONTROL_FILE_MISSING'
+      && availableGroups.includes('agdf_project') && result.target?.governance_target && input.targetSource)
+    return { ...result, recovery: { action: 'After the required setup reply, use the supplied read-only creation help. This call neither initializes nor authorizes setup.',
+      next_calls: [{ tool: 'agdf_inspect', arguments: { operation: 'operation-contract', module: 'agdf_project/project.initialize',
+        presentation_language: input.presentationLanguage, working_directory: input.workingDirectory,
+        primary_target: result.target.governance_target, target_source: input.targetSource } }] } };
   // A new Run over MCP is created by agdf_run/run.create; point at its contract instead of a retry.
   if (result.terminal && result.diagnostics?.[0]?.code === 'AGDF_NEW_RUN_OPERATION_REQUIRED' && result.recovery
       && availableGroups.includes('agdf_run') && result.target?.governance_target)
@@ -19,6 +34,11 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
   const bound = { ...common, run_id: run, expected_revision_id: revision };
   const inspect = (operation, extra = {}, bind = true) => ({ tool: 'agdf_inspect', arguments: { operation, ...(bind ? bound : common), ...extra } });
   const { steps, template_path, artifact_path, ...retained } = continuation;
+  if (continuation.phase === 'completed_delivery_closeout' && run && revision) {
+    return { ...result, continuation: { ...retained, control_transport: 'typed_mcp', external_execution: ['Git operations'],
+      instruction: 'Use the current control snapshot and the exact registered OR and QA evidence returned by the supplied read. Follow only its supplied evidence pages. Inspect Git separately for the explicitly requested handoff. This read grants no write or VCS authority.',
+      next_calls: [inspect('authoring-inputs', { bundle: true, authoring_scope: CLOSEOUT_AUTHORING_SCOPE })] } };
+  }
   let recording;
   if (['prd_definition', 'sd_definition', 'tp_definition'].includes(continuation.phase))
     recording = inspectArtefactRecordingMode(readRunState(root, { runId: run, ignoreRunIdEnv: true }), result.control.current_gate);
@@ -43,10 +63,12 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
     const group = kind === 'presentation.prepare' ? 'agdf_prepare' : kind === 'closeout.record' ? 'agdf_closeout'
       : kind === 'ur_draft.replace' ? 'agdf_revise' : 'agdf_record';
     requiredGroups = kind === 'presentation.prepare' ? [group] : [group, 'agdf_record'];
-    nextCalls = [inspect('authoring-inputs'), inspect('operation-contract', { module: `${group}/${kind}` })];
+    nextCalls = [inspect('authoring-inputs', { bundle: true })];
+    if (phase === 'presentation_required') nextCalls = [preparedCommandCall(group, kind, { ...bound, target_id: targetId },
+      { gate: result.control.current_gate }).call];
     instruction = phase === 'presentation_required'
       ? 'Prepare this gate via agdf_prepare/presentation.prepare, then presentation.deliver: default markdown, optional non-primary decision-view. Forward selected text once. Wait for a NEW deliberate response; earlier replies cannot approve it.'
-      : `${instruction} Typed MCP: read every authoring-inputs page for current templates/sources. Stage UTF-8 via agdf_record/material.stage: begin, parts <=16 KiB, seal. Use returned references with ${group}/${kind}; operation-contract supplies fields. Attest mappings only after source review. All four modes: control uses MCP; editing/tests/Git stay external. Redispatch this Run/returned revision. Use the inspected current control operation when these groups are available.`;
+      : `${instruction} Typed MCP: honor any question/stop instruction above first. An already bound authoring assignment needs no repeated author dispatch or intake for the same snapshot. Use next_action.call and fill only its declared input fields; the adapter retains immutable target/Run/revision/UUID. Ready calls are forwarded unchanged. After a canonical save, follow its returned next action once. Read complete documents[].content and join any fragments across all bundled authoring-inputs pages; document_manifest contains metadata only. Never coerce absent content into a replacement string. The included formats and bound forms replace a second operation-contract read. The material call takes plain UTF-8 <=48 KiB per file within the 64 KiB JSON request bound: put seals the private transfer in one call. The returned recording form requires actual author/review inputs, never an automatic review attestation. For larger files use multipart through its inspected contract, retaining each supplied action UUID. Recovery-only original calls are not an alternative normal path. continue_delivery dispatches deliberately have no expected_revision_id or intake fields. Attest mappings only after source review. All four modes: control uses MCP; editing/tests/Git stay external.`;
     if (continuation.mode === 'verified_change') instruction = instruction.replace(/through the existing record\/run-update owner/gu, 'through verified_change.record phase execution')
       .replace(/Complete the linked Verified Change Mini-Closeout.*?Git-aware CLI evaluation\./u, 'Stage the linked Verified Change Mini-Closeout and use closeout.record with its exact confirmation; the Core checks actual Git observations.');
   }
@@ -59,6 +81,7 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
       transport_reason: 'required_mcp_group_unavailable' } };
   return { ...result, presentation: continuation.phase === 'presentation_required' ? null : result.presentation,
     continuation: { ...retained, instruction, control_transport: 'typed_mcp', external_execution: ['source edits', 'actual tests', 'Git operations'],
+      ...(run && revision ? { resume_call: continueDeliveryCall({ ...common, run_id: run }) } : {}),
       ...(recording ? { recording, instruction: instruction + ' ' + recording.instruction } : {}),
       ...(nextCalls ? { next_calls: nextCalls } : {}) } };
 }

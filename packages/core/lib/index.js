@@ -4,12 +4,14 @@ import { createDeliveryContinuationService } from "./delivery-continuation/servi
 import { createControlInspectService } from "./control-inspect/service.js";
 import { createRunCommandService } from "./control-state/run-command-service.js";
 import { createRunMaterialStore } from './control-state/run-material.js';
+import { withMaterialRecordingCalls } from './control-inspect/material-recording-calls.js';
 import { evaluateGateCheck } from './control-evaluation/gate-check.js';
 import { evaluateDoctor } from './control-evaluation/doctor.js';
 export { createResourceContext, resources } from "./resources/context.js";
 export function createCoreServices({ resources: context = resources, observers = {}, runtimeBinding } = {}) {
   const contracts = { runtimeContractModules: () => runtimeContractModules(context.pluginDefinition), readRuntimeContract: module => readRuntimeContract(module, { context }), readSkillRuntimeContracts: skill => readSkillRuntimeContracts(skill, { context }) };
-  const material = createRunMaterialStore();
+  const store = createRunMaterialStore();
+  const material = Object.freeze({ ...store, stage: input => withMaterialRecordingCalls(input, store.stage(input)) });
   const reads = observers.gitObservation ? { ...observers,
     evaluateGateCheck: observers.evaluateGateCheck ?? ((root, selection) => evaluateGateCheck(root, selection, observers.gitObservation)),
     evaluateDoctor: observers.evaluateDoctor ?? ((root, selection) => evaluateDoctor(root, selection, observers.gitObservation)),

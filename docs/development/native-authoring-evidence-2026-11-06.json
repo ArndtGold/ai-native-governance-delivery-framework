@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "kind": "sanitized_derived_native_observation_summary",
+  "observation_date": "2026-11-06",
+  "tested_source_commit": "b89156e1f1dba9f179299daf3f593d3bd9b2ccbe",
+  "candidate": "0.30.0+codex.local-92f767cea8eb",
+  "provenance_boundary": "Derived from sealed private metadata and read-only analyses. This summary does not replace or modify the original traces, audits, thresholds or manifests.",
+  "environment": {
+    "codex_cli": "0.163.0",
+    "model": "gpt-6-luna",
+    "reasoning_effort": "high",
+    "observer_node": "v22.22.3",
+    "observer_platform": "darwin",
+    "observer_arch": "x64",
+    "architecture_boundary": "Observer process metadata only; physical CPU, Rosetta use and Codex process architecture were not established."
+  },
+  "method": {
+    "selected_fresh_projects": 3,
+    "case_replacement_or_replay": false,
+    "original_task_sha256": "2755116443cb439b1a4c46bb779615eb0afa3f331d64b9fd33f790a29ed9b6f8",
+    "original_task_and_generic_continuations_unchanged": true,
+    "per_invocation_limit_ms": 1200000,
+    "max_cli_invocations_per_case": 10,
+    "parent_chat_history_or_technical_assistance_supplied": false,
+    "normal_host_documentation_and_memory_access": true,
+    "simulated_test_approvals_only": true,
+    "controller_change": "Equivalent fresh, bound and verbatim displayed installed-local-CLI setup cards are also recognized.",
+    "local_cli_setup_branch_natively_exercised": false,
+    "scope": "Authoring and simulated approvals through SD and TP; no application implementation or independent human acceptance."
+  },
+  "outcome": {
+    "functional_sd_tp_passes": 3,
+    "clean_passes_under_original_predicate": 0,
+    "raw_aggregate_status": "findings",
+    "mcp_calls": 181,
+    "mcp_failures": 0,
+    "internal_adapter_reads": 39,
+    "internal_adapter_read_failures": 0,
+    "outer_tool_roundtrips": 233,
+    "host_script_failures": 4,
+    "invocation_time_limits_reached": 2
+  },
+  "cases": [
+    {
+      "id": "case-01",
+      "run_id": "run-c32046ee-984e-49d1-9c3f-9c704e9992b7",
+      "observed_delivery_mode": "structured_slice",
+      "active_cli_ms": 1390646,
+      "cli_invocations": 3,
+      "mcp_calls": 60,
+      "outer_tool_roundtrips": 82,
+      "internal_adapter_reads": 13,
+      "host_script_failures": 1,
+      "invocation_time_limits_reached": 1,
+      "functional_sd_correction": true,
+      "functional_tp_correction": true,
+      "raw_audit_status": "audit_findings",
+      "raw_failed_checks": ["exact_installed_runtime", "zero_failed_host_scripts", "within_each_invocation_cap"],
+      "host_failure_classification": ["Missing closing JavaScript output-parenthesis; not a Markdown/backtick interpolation failure."]
+    },
+    {
+      "id": "case-02",
+      "run_id": "run-2feb85d1-2b01-4f95-9649-7a6744f50e7b",
+      "observed_delivery_mode": "structured_delivery",
+      "active_cli_ms": 1618401,
+      "cli_invocations": 3,
+      "mcp_calls": 67,
+      "outer_tool_roundtrips": 83,
+      "internal_adapter_reads": 19,
+      "host_script_failures": 2,
+      "invocation_time_limits_reached": 1,
+      "functional_sd_correction": true,
+      "functional_tp_correction": true,
+      "raw_audit_status": "audit_findings",
+      "raw_failed_checks": ["exact_installed_runtime", "zero_failed_host_scripts", "within_each_invocation_cap"],
+      "host_failure_classification": ["Unescaped backtick breaks a JavaScript template string.", "Canonical agdf_record name used as a host function lookup instead of the registered qualified function; TypeError."]
+    },
+    {
+      "id": "case-03",
+      "run_id": "run-47272e59-4e91-4100-b1aa-1293127d3603",
+      "observed_delivery_mode": "structured_delivery",
+      "active_cli_ms": 1168133,
+      "cli_invocations": 2,
+      "mcp_calls": 54,
+      "outer_tool_roundtrips": 68,
+      "internal_adapter_reads": 7,
+      "host_script_failures": 1,
+      "invocation_time_limits_reached": 0,
+      "functional_sd_correction": true,
+      "functional_tp_correction": true,
+      "raw_audit_status": "audit_findings",
+      "raw_failed_checks": ["exact_installed_runtime", "zero_failed_host_scripts"],
+      "host_failure_classification": ["Unescaped inline backtick ends a JavaScript template string before a Run path, which is then parsed as code."]
+    }
+  ],
+  "functional_evidence_boundary": "Each case has a concrete supplied diagnosis, a regular author correction, a fresh corrected presentation and a simulated approval. An accepted canonical presentation.prepare with validated source summary can provide readiness evidence without an additional explicit artifact-readiness call.",
+  "runtime_identity": {
+    "metadata_observed_in_all_cases": true,
+    "dispatcher_digest": "5257735ac18825b088ff3e7deec458f586c3efdcd73c96e1e7585994d02e4d3f",
+    "raw_comparisons_per_case": 48,
+    "identical_comparisons_per_case": 47,
+    "raw_exact_installed_runtime_check": "failed_in_all_cases",
+    "mapping_finding": "The verifier expects a bootstrap-only module inside the narrowed MCP dispatcher image, although the declared projection excludes it.",
+    "affected_canonical_module": "packages/cli/lib/mcp-lifecycle/plugin-runtime.js",
+    "projection_owner": "packages/core/lib/runtime/plugin-provenance.js#mcpDispatcherRuntimeEntries",
+    "canonical_and_installed_bootstrap_module_identical": true,
+    "bootstrap_module_sha256": "ccdf45e436d97d1cf40dc562c655f5ee6fefb238c3382bf38e244fa021b83c34",
+    "raw_label_limitation": "Raw aggregate mcp_runtime_observed:false and summary runtime:not_observed conflate observation with a failed exact-file predicate. Metadata was observed; original audit outcomes and labels remain unchanged.",
+    "execution_boundary": "Installed-bootstrap byte equality alone is not separate proof of that module's execution."
+  },
+  "reference_resumption": {
+    "case_id": "case-01",
+    "reference": "0367f0fe-fb8e-4308-bfee-4cd7174663db",
+    "first_offer": "02-native/item_86",
+    "latest_prior_offer": "02-native/item_87",
+    "accepted_use": "03-native/item_6",
+    "tool": "agdf_record",
+    "operation_kind": "material.stage",
+    "payload_action": "put",
+    "effect_boundary": "Private authoring-material transfer; this witness does not establish cross-invocation canonical artefact recording.",
+    "outcome": "accepted",
+    "current_invocation_reoffer_before_use": false,
+    "original_request_sha256": "5e40f44ed9a0df733a63b78faf81757a8b6b76f5b61e022025ceff2feefda2c3",
+    "binding": {
+      "operation_id": "c627e967-b026-4fb6-82fc-897a5616f42c",
+      "target_id": "sha256:4704ae91c96f378fc52b951d02b414e1de966212414808bd9d0e00607880c6c6",
+      "run_id": "run-c32046ee-984e-49d1-9c3f-9c704e9992b7",
+      "expected_revision_id": "d76960a7-5f1d-4d3a-95b3-41e83ba193b1"
+    },
+    "original_operation_target_run_and_revision_binding_preserved": true,
+    "direct_cross_invocation_uses_observed": 1,
+    "other_cases_prove_direct_cross_invocation_reuse": false,
+    "serving_mcp_connection_or_storage_backend_identity_observed": false
+  },
+  "configuration": {
+    "parsed_snapshots": 33,
+    "all_snapshots_parsed": true,
+    "new_project_trust_leaves": 3,
+    "new_project_trust_leaves_per_case": 1,
+    "existing_leaf_values_changed": 0,
+    "existing_leaf_values_removed": 0,
+    "writer_attribution": "unresolved; timing alone is insufficient",
+    "raw_values_or_ephemeral_hmac_key_persisted": false,
+    "automatic_restoration_performed": false
+  },
+  "preservation": {
+    "prior_evidence_files": 1517,
+    "mapped_affected_source_files": 48,
+    "canonical_source_files": 365,
+    "existing_run_files": 49,
+    "foreign_untracked_files": 45,
+    "all_unchanged": true
+  },
+  "timing": {
+    "active_cli_ms": 4177180,
+    "outer_tool_interval_union_ms": 438343,
+    "outside_outer_tools_ms": 3738837,
+    "outside_outer_tools_percent_rounded": 89.5,
+    "outside_time_boundary": "Includes model, provider, host and serialization; not isolated model thinking time.",
+    "comparison_baseline_source_commit": "919d3cbfeb7f38dc839e245c476ca46f0b5f3b67",
+    "comparison_baseline_candidate": "0.30.0+codex.local-58c7c68c5f3e",
+    "general_speed_improvement_established": false,
+    "comparison_limits": ["Controller behavior changed.", "Case 02 changed from structured_slice to structured_delivery.", "The previous case 03 was blocked and cannot be credited as a fast successful baseline.", "Three observations do not establish general model reliability."]
+  },
+  "ci": {
+    "tested_commit": "b89156e1f1dba9f179299daf3f593d3bd9b2ccbe",
+    "run_number": 702,
+    "run_id": 42198544253,
+    "attempt": 1,
+    "url": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/actions/runs/42198544253",
+    "workflow_status": "completed",
+    "workflow_conclusion": "success",
+    "successful_canonical_jobs": 173,
+    "successful_head_checks": 174,
+    "legacy_statuses": 0,
+    "full_pagination_inventory_and_sha_run_attempt_check_bindings_verified": true,
+    "post_native_refresh_at": "2026-11-06T11:31:45.727Z",
+    "qualification_boundary": "Repository CI is separate from native host quality and independent human acceptance."
+  },
+  "sealed_source_manifests": [
+    {
+      "scope": "native_campaign",
+      "name": "evidence-manifest.json",
+      "files": 669,
+      "sha256": "e9d2948750011d8087756fcd44683833191704b667eac0fc5a093f2fe15f7cb6"
+    },
+    {
+      "scope": "separate_read_only_analysis",
+      "name": "observer-evidence-manifest.json",
+      "files": 56,
+      "sha256": "fc396bbb4fbb931a5024fd1a38c1ad8b8b720722fbc9d7dad27136324b4da6da"
+    },
+    {
+      "scope": "initial_exact_commit_ci",
+      "name": "ci-evidence-manifest.json",
+      "files": 125,
+      "sha256": "078a037a4472ec9e906acaf108bc2f1cd6e6987ccbc7e507005fcd57b029465d"
+    },
+    {
+      "scope": "post_native_ci_refresh",
+      "name": "ci-refresh-manifest.json",
+      "files": 11,
+      "sha256": "3a36ec8a251be907e3a5784b34ed93230c8501e6a21927d5777d59aa779010a0"
+    }
+  ],
+  "publication_boundary": "Only sanitized derived facts are published. Original archives are private; their manifest hashes identify retained evidence and do not provide public raw access or independent reproduction. No raw prompts, authored payloads, hidden reasoning, credentials, configuration values or personal filesystem paths are included. No generalized host qualification, human QA/UAT, merge or release approval follows."
+}

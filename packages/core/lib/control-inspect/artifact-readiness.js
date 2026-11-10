@@ -9,7 +9,7 @@ import { evaluateUrReadiness } from '../control-evaluation/ur-readiness.js';
 import { evaluateSdReadiness } from '../control-evaluation/sd-readiness.js';
 import { evaluateSdTraceability, evaluateTpTraceability } from '../control-evaluation/traceability-readiness.js';
 import { resolveArtifactPresentationLanguages } from '../resources/context.js';
-import { evaluateApprovalSummaryReadiness } from '../control-state/run-presentation-render.js';
+import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue } from '../control-state/run-presentation-render.js';
 import { artefactFileDigest, runSealState } from '../control-state/run-seal.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { extractField } from '../control-evaluation/verified-change.js';
@@ -26,7 +26,8 @@ export function describeArtifactReadiness(result) {
     'approval_summary_criteria_incomplete', 'approval_summary_user_goal_missing', 'approval_summary_scope_missing',
     'approval_summary_decisions_missing', 'approval_summary_criterion_content_missing', 'approval_summary_content_missing']);
   let findings = result.diagnostics.filter(row => names.has(row.code));
-  const readinessOwner = { AGDF_UR_REQUIREMENTS_INCOMPLETE: 'ur', AGDF_PRD_DECISIONS_OPEN: 'prd',
+  const readinessOwner = { AGDF_UR_REQUIREMENTS_INCOMPLETE: 'ur', AGDF_PRD_DECISIONS_OPEN: 'prd', AGDF_PRD_READINESS_INCOMPLETE: 'prd',
+    AGDF_APPROVAL_SUMMARY_INCOMPLETE: { PRD: 'prd', SD: 'sd', TP: 'traceability' }[result.gate],
     AGDF_SD_DECISIONS_OPEN: 'sd', AGDF_SD_TRACEABILITY_INCOMPLETE: 'traceability', AGDF_TP_TRACEABILITY_INCOMPLETE: 'traceability' };
   const key = readinessOwner[result.blocking_reason];
   const details = key && result.current_gate === result.gate && result.readiness_details?.[key];
@@ -88,7 +89,8 @@ export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId
   const languages = resolveArtifactPresentationLanguages(targetRoot, presentationLanguage);
   const summary = evaluateApprovalSummaryReadiness(gate, content, languages);
   checks.push({ name: 'approval_summary', ...summary });
-  if (!summary.ready) diagnostics.push({ code: summary.reason, message: `Prepare ${summary.required_heading} using the existing summary rules.` });
+  if (!summary.ready) diagnostics.push({ code: summary.reason,
+    message: renderApprovalSummaryIssue(summary, { path, presentationLanguage: languages.presentation_language }) });
   // Supply only an in-memory draft pointer; no Run, approval or binding is written.
   const candidate = { ...state, artefacts: new Map(state.artefacts) };
   candidate.artefacts.set(gate, { path, status: 'draft' });

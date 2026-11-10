@@ -76,6 +76,15 @@ test('SCN-012: each kind is derived exactly once from its MCP outcome; reads, re
   assert.deepEqual(TOAST_KINDS, ['approval_requested', 'effect_unknown', 'recovery_required', 'run_completed']);
 });
 
+test('historical presentation delivery does not project a request, and fresh fallback still does', () => {
+  const delivery = input('presentation.deliver', { gate: 'TP', presentation_id: base.operation_id, route: 'automatic' });
+  const historical = { ...accepted, historical_effect: true, presentation_delivery: { historical_delivery: true, text: '' } };
+  assert.equal(eventKind('agdf_prepare', delivery, project('agdf_prepare', delivery, historical)), null);
+  const fallback = { ...delivery, command: { ...delivery.command, payload: { ...delivery.command.payload, route: 'fallback' } } };
+  assert.equal(eventKind('agdf_prepare', fallback, { ...accepted, presentation_delivery: { historical_delivery: false } }), 'approval_requested');
+  assert.equal(eventKind('agdf_prepare', delivery, { outcome: 'rejected', reason: 'busy' }), 'write_rejected');
+});
+
 test('SCN-013: the preview keeps exactly 40 lines and 4096 bytes and truncates beyond', () => {
   const lines = count => Array.from({ length: count }, (_, index) => `line ${index + 1}`).join('\n');
   assert.deepEqual(reviewPreview(lines(40)), { text: lines(40), truncated: false, bytes: Buffer.byteLength(lines(40)) });
@@ -156,7 +165,7 @@ test('SDD-006: two interleaving writers with rotation leave a bounded, readable 
 });
 
 test('CR A6: the event root keeps the caller\'s spelling of the same directory (junction), never a foreign one', t => {
-  const base = mkdtempSync(join(tmpdir(), 'agdf-event-root-'));
+  const base = mkdtempSync(join(realpathSync(tmpdir()), 'agdf-event-root-'));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const real = join(base, 'project'), other = join(base, 'other'), link = join(base, 'linked');
   mkdirSync(real); mkdirSync(other);

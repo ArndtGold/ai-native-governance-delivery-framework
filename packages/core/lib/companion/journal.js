@@ -2,12 +2,13 @@
 // AGDF MCP tool result to `companion/events.jsonl` below the plugin data root, bounded to 256 KiB with
 // one rotation file `events.1.jsonl`. It is a notification channel only, never a source of truth, and
 // nothing here writes under `.agdf/control`. Every failure is swallowed: the tool result never changes.
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { appendFileSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, statSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import { resolveTaskTarget } from '../task-target-resolution.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { containedRegularFile } from '../control-state/contained-file.js';
+import { atomicWrite, withOwnedFileLock } from '../owned-file-lock.js';
 import { commandGate, deriveEvent, eventKind, reviewFact } from './events.js';
 
 export const JOURNAL_DIRECTORY = 'companion';
@@ -18,10 +19,64 @@ export const JOURNAL_LIMIT_BYTES = 256 * 1024;
 // processes through this variable (SDD-006).
 export const COMPANION_DATA_ROOT_ENV = 'AGDF_COMPANION_DATA_ROOT';
 const SOURCE_TEXT_LIMIT = 1024 * 1024;
+const RESERVATIONS_FILE = 'approval-requests.json';
+const RESERVATIONS_LIFETIME_MS = 30 * 60_000;
+const RESERVATIONS_MAX_ENTRIES = 8192;
+const RESERVATIONS_MAX_BYTES = 1024 * 1024;
+const RESERVATIONS_LOCK_WAIT_MS = 50;
+const DIGEST = /^[a-f0-9]{64}$/u;
 
 export const journalPath = dataRoot => join(dataRoot, JOURNAL_DIRECTORY, JOURNAL_FILE);
 
 const isLink = path => { try { return lstatSync(path).isSymbolicLink(); } catch { return false; } };
+
+function readReservations(path) {
+  let stat;
+  try { stat = lstatSync(path); }
+  catch (error) { if (error.code === 'ENOENT') return []; throw error; }
+  if (!stat.isFile() || stat.size > RESERVATIONS_MAX_BYTES) throw Error('invalid notification reservations');
+  const bytes = readFileSync(path);
+  if (bytes.length > RESERVATIONS_MAX_BYTES) throw Error('invalid notification reservations');
+  const stored = JSON.parse(bytes);
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) throw Error('invalid notification reservations');
+  const entries = Object.entries(stored);
+  if (entries.length > RESERVATIONS_MAX_ENTRIES
+      || entries.some(([key, expires]) => !DIGEST.test(key) || !Number.isSafeInteger(expires) || expires < 0)) {
+    throw Error('invalid notification reservations');
+  }
+  return entries;
+}
+
+// Only the notification survives a serving-process restart. Neither this
+// reservation nor the journal line participates in delivery or approval.
+function reserveApprovalRequest(dataRoot, input, at) {
+  const identity = [input.target_id, input.run_id, input.expected_revision_id,
+    input.command.payload.presentation_id, input.operation_id];
+  if (!identity.every(value => typeof value === 'string' && value.length > 0)) return false;
+  const key = createHash('sha256').update(JSON.stringify(identity)).digest('hex');
+  const directory = join(dataRoot, JOURNAL_DIRECTORY);
+  if (isLink(dataRoot) || isLink(directory)) return false;
+  mkdirSync(directory, { recursive: true, mode: 0o700 });
+  const path = join(directory, RESERVATIONS_FILE);
+  const deadline = performance.now() + RESERVATIONS_LOCK_WAIT_MS;
+  for (;;) {
+    try {
+      return withOwnedFileLock(path, () => {
+        const live = new Map(readReservations(path).filter(([, expires]) => expires > at));
+        if (live.has(key) || live.size >= RESERVATIONS_MAX_ENTRIES) return false;
+        live.set(key, at + RESERVATIONS_LIFETIME_MS);
+        const bytes = JSON.stringify(Object.fromEntries(live));
+        if (Buffer.byteLength(bytes) > RESERVATIONS_MAX_BYTES) return false;
+        atomicWrite(path, bytes);
+        return true;
+      });
+    } catch (error) {
+      const remaining = deadline - performance.now();
+      if (error.lock_owner_status !== 'live' || remaining <= 0) return false;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(5, remaining));
+    }
+  }
+}
 
 // Appends one event line; rotates first when the line would cross the bound. Returns whether the line
 // was written. Concurrent servers may interleave whole lines or lose some at rotation (accepted).
@@ -114,11 +169,15 @@ export function createCompanionJournal({ dataRoot = process.env[COMPANION_DATA_R
     observe(toolName, input, result) {
       if (!enabled) return false;
       try {
-        if (!eventKind(toolName, input, result)) return false;
+        const kind = eventKind(toolName, input, result);
+        if (!kind) return false;
         const root = commandRoot(input);
         const review = reviewFacts(toolName, input, result, { sealedFiles, root });
-        const event = deriveEvent(toolName, input, result, { id: newId(), at: now().toISOString(), root: eventRoot(input, root), review });
-        return event ? appendJournalEvent(dataRoot, event, { limit }) : false;
+        const at = now();
+        const event = deriveEvent(toolName, input, result, { id: newId(), at: at.toISOString(), root: eventRoot(input, root), review });
+        if (!event) return false;
+        if (kind === 'approval_requested' && !reserveApprovalRequest(dataRoot, input, at.getTime())) return false;
+        return appendJournalEvent(dataRoot, event, { limit });
       } catch {
         return false;
       }

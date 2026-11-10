@@ -70,7 +70,9 @@ assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
 assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /governed delivery intake \(catalog delivery\.start\) is the active route/u);
 assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /delivery wins mixed intent/u);
-assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /Omit it for status, approval or next-step questions/u);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /Omit intake for status, approval or next-step questions/u);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /omit BOTH run_id and intake_mode/u);
+assert.match(SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION, /supplied agdf_run\/run\.create form/u);
 assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /never grants approval or delivery authority/u);
 assert.ok(definition.description.endsWith(` ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`));
 assert.equal(schema.additionalProperties, false);
@@ -101,6 +103,8 @@ assert.match(schema.properties.presentation_language.description, /Invalid expli
 assert.match(schema.properties.presentation_language.description, /Core input remains complete/u);
 assert.match(schema.properties.primary_target.description, /Never derive it from working_directory alone/u);
 assert.match(schema.properties.run_id.description, /unequivocal same-scope assignment/u);
+assert.match(schema.properties.run_id.description, /never null/u);
+assert.match(schema.properties.run_id.description, /never invent an ID/u);
 assert.match(schema.properties.expected_revision_id.description, /resolve_delivery_run/u);
 assert.match(schema.properties.continue_delivery.description, /implementation-preparation Brownfield Analysis after TP approval/u);
 assert.match(schema.properties.continue_delivery.description, /OR closeout after UAT approval/u);
@@ -157,6 +161,14 @@ const deliveryInput = { skill_id: "gate-check", presentation_language: "de", wor
 const registry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
 const expectedRevision = "12345678-1234-4123-8123-123456789abc";
 const validateDispatch = new Ajv2020({ strict: false }).compile(schema);
+const initialIntake = { skill_id: 'gate-check', presentation_language: 'de', working_directory: '/tmp/agdf',
+  primary_target: '/tmp/agdf', target_source: 'explicit_target', intake: true };
+assert.equal(validateDispatch(initialIntake), true);
+for (const invalid of [{ ...initialIntake, intake_mode: 'new' }, { ...initialIntake, run_id: null },
+  { ...initialIntake, intake_mode: 'new', run_id: null }]) {
+  assert.equal(validateDispatch(invalid), false);
+  assert.throws(() => normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments(invalid, transportContext), registry));
+}
 for (const intake of [undefined, false, true]) for (const mode of [undefined, "new", "resume"])
 for (const continuation of [undefined, false, true]) for (const run of [undefined, "bound-run"])
 for (const revision of [undefined, expectedRevision]) {
@@ -324,22 +336,32 @@ for (const outcome of ["inspect_result", "target_unresolved", "invalid_input", "
   assert.equal(validateInspectOutput({ ...result, recovery: terminal ? null : { action: "Unexpected recovery." } }), false, `${outcome}: recovery follows the terminal branch`);
 }
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Read-only/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /^Read(?:-| )only\b/u);
 for (const field of ['run_id','expected_revision_id','target_source','primary_target'])
   assert.ok(inspectContractHelp().operations['authoring-inputs'].required.includes(field));
 const preRunHelp = inspectContractHelp().operations['operation-contract'].unbound;
 assert.equal(preRunHelp.module,'agdf_run/run.create');
 assert.equal(preRunHelp.required.includes('run_id'),false,'creation help is discoverable before a Run exists');
 assert.deepEqual(preRunHelp.omit,['run_id','expected_revision_id']);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /navigation\.next_calls sequentially; read all pages/u);
-const helpExample = JSON.parse(CONTROL_INSPECT_FUNCTION_DEFINITION.description.match(/\{[^\n]+\}/u)[0]);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Use next_action\.call/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /primary_target,target_source/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Run status needs run_id\+expected_revision_id/u);
+assert.match(inspectContractHelp().parameters.cursor.description, /copy next_cursor/u);
+// Creation guidance moved out of the bounded discovery description. Build the
+// advertised unbound recipe from the on-demand example and its declared module.
+const { operation: _projectOperation, ...exampleTarget } = inspectContractHelp().examples.find(example => example.operation === 'project-state');
+const helpExample = { ...exampleTarget, operation: 'operation-contract', module: preRunHelp.module };
 const validateHelpExample = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
 assert.equal(validateHelpExample(helpExample), true, 'discovered help example is complete and SDK-valid before a Run exists');
 assert.equal(helpExample.module, 'agdf_run/run.create');
 assert.equal(helpExample.primary_target, helpExample.working_directory);
 assert.equal(Object.hasOwn(helpExample, 'run_id'), false);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.target_source.description, /primary_target/u);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.primary_target.description, /target_source/u);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.dependentRequired.target_source, ['primary_target']);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.dependentRequired.primary_target, ['target_source']);
+for (const field of ['primary_target', 'target_source']) {
+  const incomplete = { ...helpExample }; delete incomplete[field];
+  assert.equal(validateHelpExample(incomplete), false, `Creation help requires ${field} even with working_directory supplied.`);
+}
 assert.equal(Object.hasOwn(definition.inputSchema, 'allOf'), false, 'dispatch root fields stay visible to Codex');
 assert.ok(definition.inputSchema.dependentSchemas.skill_id, 'required skill_id retains every dispatch constraint');
 assert.match(inspectContractHelp().parameters.module.description, /operation-status: original operation UUID from saved receipt, never a new UUID/u);

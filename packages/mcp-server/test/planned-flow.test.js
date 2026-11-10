@@ -53,14 +53,20 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
 
     const dispatch = await call('agdf_dispatch', { ...target, skill_id: 'ur-definition', planning });
     assert.equal(dispatch.outcome, 'skill_continuation'); assert.equal(dispatch.terminal, false); assert.equal(dispatch.authorizes, false);
-    let cursor, template = '';
+    let template = '', read = { tool: 'agdf_inspect', arguments: { ...target, operation: 'authoring-inputs', planning } };
     do {
-      const input = await call('agdf_inspect', { ...target, operation: 'authoring-inputs', planning, ...(cursor ? { cursor } : {}) });
+      const input = await call(read.tool, read.arguments);
       assert.equal(input.report.available, true, JSON.stringify(input));
       const chunk = input.report.chunk;
       if (chunk) template += JSON.stringify(chunk);
-      cursor = input.report.next_cursor;
-    } while (cursor);
+      read = input.report.complete ? null : input.report.next_calls[0];
+      if (read) {
+        assert.equal(read.operation.operation, 'authoring-inputs');
+        assert.equal(read.operation.cursor, input.report.next_cursor);
+        assert.deepEqual(Object.keys(read.arguments).sort(), ['inputs', 'prepared_call_id']);
+        assert.deepEqual(read.arguments.inputs, {});
+      }
+    } while (read);
     assert.match(template, /UR/u);
     const stage = async (scope, content) => {
       const bytes = Buffer.from(content);
@@ -103,13 +109,34 @@ for (const modern of [false, true]) test(`SCN-025/027: actual ${modern ? '2026-0
       command: { kind: 'run.create_from_planned', payload: { title: replaced.family_result.entry.title } } };
     const started = await call('agdf_run', handoff), repeated = await call('agdf_run', handoff);
     assert.equal(started.outcome, 'accepted'); assert.equal(repeated.outcome, 'already_applied'); assert.equal(started.family_result.run_id, repeated.family_result.run_id);
-    assert.equal(started.next_calls.length, 4);
+    assert.equal(started.next_calls.length, 1);
+    assert.equal(started.next_calls[0].tool, 'agdf_dispatch');
+    assert.equal(started.next_calls[0].arguments.continue_delivery, true);
+    assert.equal(started.next_calls[0].arguments.expected_revision_id, undefined);
     for (const next of started.next_calls) await call(next.tool, next.arguments);
     const prepared = await call('agdf_prepare', { ...target, target_id, run_id: started.family_result.run_id,
       expected_revision_id: started.current.revision_id, operation_id: randomUUID(),
       command: { kind: 'presentation.prepare', payload: { gate: 'UR' } } });
     assert.equal(prepared.next_calls.length, 1);
-    const document = await call(prepared.next_calls[0].tool, prepared.next_calls[0].arguments);
+    assert.equal(prepared.next_action.state, 'ready');
+    assert.equal(prepared.next_action.operation.kind, 'presentation.deliver');
+    assert.equal(prepared.next_action.operation.run_id, started.family_result.run_id);
+    assert.equal(prepared.next_action.operation.expected_revision_id, started.current.revision_id);
+    assert.equal(prepared.next_action.operation.presentation_id, prepared.family_result.presentation_id);
+    assert.equal(prepared.next_action.recovery_only.original_call.arguments.command.kind, 'presentation.deliver');
+    assert.deepEqual(prepared.next_action.call.arguments, prepared.next_calls[0].arguments);
+    assert.deepEqual(Object.keys(prepared.next_action.call.arguments).sort(), ['inputs', 'prepared_call_id']);
+    const delivered = await call(prepared.next_action.call.tool, prepared.next_action.call.arguments);
+    assert.equal(delivered.presentation_delivery.text, prepared.family_result.text);
+    assert.deepEqual(delivered.next_calls, []);
+    assert.equal(delivered.next_action.state, 'requires_new_reply');
+    assert.deepEqual(delivered.next_action.call.arguments.inputs, {}, 'No gate reply is populated by delivery.');
+    assert.deepEqual(delivered.next_action.required_inputs, ['response']);
+    assert.equal(delivered.next_action.recovery_only.original_call.arguments.command.payload.response, undefined);
+    assert.equal(delivered.next_action.operation.presentation_id, prepared.family_result.presentation_id);
+    const document = await call('agdf_inspect', { ...target, target_id, run_id: started.family_result.run_id,
+      expected_revision_id: started.current.revision_id, operation: 'presentation-document', gate: 'UR',
+      presentation_id: prepared.family_result.presentation_id });
     assert.equal(document.report.complete, true);
     assert.equal(document.report.byte_end, document.report.total_bytes);
     const inventory = await call('agdf_inspect', { ...target, operation: 'inventory' });

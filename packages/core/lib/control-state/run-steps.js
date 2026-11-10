@@ -48,7 +48,7 @@ import { withRunMutationLock, writeRunMutationLocked } from './run-mutation.js';
 import { APPROVAL_GATES as DECISION_GATES, REVISION_ID_PATTERN } from './run-identity.js';
 import { runSealState, artefactFileDigest } from './run-seal.js';
 import { inspectUxIntentDecision } from '../control-evaluation/definition-sources.js';
-import { readReportDecision } from '../control-evaluation/report-decision.js';
+import { readReportDecision, REPORT_DECISION_FORMAT } from '../control-evaluation/report-decision.js';
 import { prepareVerifiedChangeRecording } from './run-verified-change.js';
 
 // Record one typed transition and its owned files in a single sealed revision.
@@ -77,6 +77,8 @@ function readRunArtefact(root, runId, rawPath, limit = 131072) {
 // Review reports are read within the bound of the closeout quality inspection (inspectQaReports).
 const REVIEW_REPORT_LIMIT = 262144;
 // Every recording of a review or QA report applies the closeout quality rules; at most 64 diagnostics are returned.
+// The staged report must state the result where the parser reads it.
+const unconfirmedDecision = runId => rejected(runId, 'internal_result_unconfirmed', { recovery: REPORT_DECISION_FORMAT.instruction });
 const findingsRefusal = (runId, diagnostics) => rejected(runId, 'review_findings_invalid',
   { diagnostics: diagnostics.slice(0, 64), ...(diagnostics.length > 64 ? { diagnostics_truncated: true } : {}) });
 function qaReportDiagnostics(root, runId, qa, control, proposedContent) {
@@ -178,7 +180,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     if (step === "review") {
       if (!['CR', 'Quick Task Execution'].includes(before.current_gate)
           || !['pass', 'revise', 'block'].includes(input.decision)) return rejected(runId, "review_step_not_ready");
-      if (readReportDecision(operationSource.content) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
+      if (readReportDecision(operationSource.content) !== input.decision) return unconfirmedDecision(runId);
       const diagnostics = reviewFindingDiagnostics('CR', operationSource.content, { decision: input.decision });
       if (diagnostics.length) return findingsRefusal(runId, diagnostics);
     }
@@ -218,7 +220,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       if (!checked.well_formed || !checked.supported || checked.decision !== input.decision
         || input.decision === 'not_applicable' && (control.source_revision_ux_required || before.next_operation?.analysis === input.internalStep)) return rejected(runId, 'internal_result_unconfirmed');
     } else {
-      if (readReportDecision(operationSource.content, { allowNotApplicable: true }) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
+      if (readReportDecision(operationSource.content, { allowNotApplicable: true }) !== input.decision) return unconfirmedDecision(runId);
     }
     if (CORRECTABLE_REVIEWS.includes(input.internalStep)) {
       const diagnostics = reviewFindingDiagnostics(input.internalStep, operationSource.content, { decision: input.decision });
@@ -306,6 +308,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
         // The quality obligation still names the decisive finding and, where available, its correction path.
         const qa = readiness.findings.includes('closeout_quality_unconfirmed') ? inspectQaReports(root, control, runId, 'pass', 64, true) : null;
         return rejected(runId, 'closeout_obligations_unfulfilled', { findings: readiness.findings,
+          ...(readiness.expected ? { expected: readiness.expected } : {}),
           ...(qa?.reason ? { reason_detail: closeoutQualityDetail(qa, control) } : {}) });
       }
       if (!exactApprovedArtefacts(root, control)) return rejected(runId, 'approved_source_proof_invalid');

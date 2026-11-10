@@ -746,7 +746,12 @@
         "currentRunRecordEvidence": "Record actual evidence through the current Run evidence owner.",
         "currentRunSelectNoConversion": "Select a valid current Run; unsupported control is never converted automatically.",
         "currentRunCreateWithUuid": "create a current Run with an operation UUID",
-        "currentUrPersistBeforeApproval": "Create or select the current Run, then persist its UR revision before requesting approval."
+        "currentUrPersistBeforeApproval": "Create or select the current Run, then persist its UR revision before requesting approval.",
+        "blockedPrdReadiness": "PRD criteria or required sources are incomplete",
+        "blockedApprovalSummary": "The required approval summary is incomplete",
+        "completeApprovalSummary": "complete the current artefact approval summary and record a new run revision",
+        "forbidApprovalBeforeSummaryReady": "present or approve the current artefact before its required approval summary is ready",
+        "nextApprovalSummary": "complete the current artefact approval summary, then record the revision through the inspected current recording operation"
       },
       "scopeClassification": {
         "title": "AGDF scope classification",
@@ -1333,6 +1338,8 @@
           "stop": "Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation."
         },
         "causes": {
+          "prepared_call_unknown": "Reference unavailable, not proven expired. Nothing dispatched. Observe/recover the saved original UUID and request; retain its target, revision and inputs.",
+          "prepared_call_store_unavailable": "Private call store unavailable; nothing dispatched. Retain the original request and UUID. Repair storage or use explicit original-request recovery.",
           "operation_source_invalid": "Check the referenced path, UTF-8 content and current canonical digest. Re-read the source reference; do not invent a path or hash.",
           "presentation_missing": "Read the current binding and prepare its presentation. Obtain the required bound human reply before approval; do not substitute an old presentation.",
           "closeout_not_ready": "Read the current gate and missing prerequisites. Complete required evidence and human decisions before closeout; this attempt cannot complete the Run.",
@@ -2218,7 +2225,12 @@
         "currentRunRecordEvidence": "Tatsächliche Nachweise über die dafür vorgesehene Funktion des aktuellen Runs erfassen.",
         "currentRunSelectNoConversion": "Einen gültigen aktuellen Run auswählen; nicht unterstützte Steuerungsdaten werden niemals automatisch konvertiert.",
         "currentRunCreateWithUuid": "einen aktuellen Run mit einer Operations-UUID anlegen",
-        "currentUrPersistBeforeApproval": "Den aktuellen Run anlegen oder auswählen und seine UR-Revision vor der Freigabeanfrage dauerhaft speichern."
+        "currentUrPersistBeforeApproval": "Den aktuellen Run anlegen oder auswählen und seine UR-Revision vor der Freigabeanfrage dauerhaft speichern.",
+        "blockedPrdReadiness": "Die PRD-Kriterien oder erforderlichen Quellen sind noch unvollständig",
+        "blockedApprovalSummary": "Die erforderliche Freigabezusammenfassung ist unvollständig",
+        "completeApprovalSummary": "die Freigabezusammenfassung des aktuellen Artefakts vervollständigen und eine neue Run-Revision erfassen",
+        "forbidApprovalBeforeSummaryReady": "das aktuelle Artefakt präsentieren oder freigeben, bevor seine erforderliche Freigabezusammenfassung vollständig ist",
+        "nextApprovalSummary": "die Freigabezusammenfassung des aktuellen Artefakts vervollständigen und die Revision dann über den geprüften aktuellen Erfassungsvorgang erfassen"
       },
       "scopeClassification": {
         "title": "AGDF-Scope-Klassifizierung",
@@ -2805,6 +2817,8 @@
           "stop": "Stoppen und unterstützte Diagnosen prüfen. Keine Reparatur, kein Ziel und keine Ersatzoperation erfinden."
         },
         "causes": {
+          "prepared_call_unknown": "Verweis nicht verfügbar, Ablauf unbelegt. Nichts ausgeführt. Originalanfrage und UUID prüfen/wiederaufnehmen; Ziel, Revision und Eingaben erhalten.",
+          "prepared_call_store_unavailable": "Privater Aufrufspeicher nicht verfügbar; nichts ausgeführt. Originalanfrage und UUID erhalten. Speicher reparieren oder Originalanfrage-Wiederaufnahme nutzen.",
           "operation_source_invalid": "Referenzierten path, UTF-8-Inhalt und aktuellen digest prüfen. Quellreferenz erneut lesen; keinen Pfad oder Hash erfinden.",
           "presentation_missing": "Aktuelle Bindung und Präsentation vorbereiten. Gebundene menschliche Antwort vor der Freigabe einholen; keine alte Präsentation einsetzen.",
           "closeout_not_ready": "Aktuelles Gate und fehlende Voraussetzungen lesen. Erforderliche Nachweise und menschliche Entscheidungen vor dem Abschluss erfüllen; jetzt kein Abschluss.",

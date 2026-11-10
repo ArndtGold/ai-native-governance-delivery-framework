@@ -27,9 +27,11 @@ export function artifactReadinessFixture(gate = 'PRD', language = 'de', runId = 
   return { root, runId, gate, prefix, runPath, path, get revision(){return currentRevision();}, currentRevision,
     registerProjection(){seedProjectionResource(context,runPath,gate,prefix+gate+'.md');},
     close() { for (const fn of cleanup.reverse()) fn(); },
-    recordCandidate() { writeFileSync(authoring.file(gate + '.md'), readFileSync(path, 'utf8')); return authoring.recordGate(gate); },
+    recordCandidate(update = false, content = readFileSync(path, 'utf8')) {
+      writeFileSync(authoring.file(gate + '.md'), content); return authoring.recordGate(gate, update);
+    },
     approveCandidate() { const p = authoring.present(gate, language); if (p.value?.outcome !== 'accepted') return p; return authoring.approve(gate, p.value.family_result.presentation_id); },
     reseal: change => writeFileSync(runPath, sealRunState(root, change(readFileSync(runPath, 'utf8')))) };
 }
 
-export const readyPrd = `# PRD: Synthetic readiness\n\nOwner: Synthetic product owner\nTraceability contract: criteria-chain-v1\n\n## Product Scope\nRead the existing source without changing control state.\n\n## Acceptance Criteria\n- criterion_id: AC-001\n- expected_result: The user can read the selected document.\n\n## Approval Decisions\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Scope | before_prd | resolved | Reading only | Synthetic product owner |\n\n## AGDF Approval Summary (de; source=en)\n- Ziel: Die gewählte Quelle lesen.\n- Umfang: Nur Lesen, keine Änderung.\n- AC-001: Die gewählte Quelle bleibt lesbar.\n- Entscheidungen: Der Leseumfang ist geklärt.\n`;
+export const readyPrd = `# PRD: Synthetic readiness\n\nOwner: Synthetic product owner\nTraceability contract: criteria-chain-v1\n\n## Product Scope\nRead the existing source without changing control state.\n\n## Acceptance Criteria\n- criterion_id: AC-001\n- observable_success: The user can read the selected document.\n\n## Approval Decisions\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Scope | before_prd | resolved | Reading only | Synthetic product owner |\n\n## AGDF Approval Summary (de; source=en)\n- Ziel: Die gewählte Quelle lesen.\n- Umfang: Nur Lesen, keine Änderung.\n- AC-001: Die gewählte Quelle bleibt lesbar.\n- Entscheidungen: Der Leseumfang ist geklärt.\n`;

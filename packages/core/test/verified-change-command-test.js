@@ -13,6 +13,7 @@ import { createRunCommandService } from '../lib/control-state/run-command-servic
 import { canonicalRunText, runSealState } from '../lib/control-state/run-seal.js';
 import { digest, resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { closeoutConfirmation } from '../lib/control-evaluation/closeout-readiness.js';
+import { inspectAuthoringInputs } from '../lib/control-inspect/authoring-inputs.js';
 
 test('Git facts disable filesystem monitors and preserve the actual changed path', () => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-readonly-git-')));
@@ -72,7 +73,42 @@ test('Verified Change uses actual Git baseline and completes through canonical t
       { step: 'route', route: 'verified_change', reason: 'Bounded clean README copy with deterministic validation.' });
     assert.equal(routed.outcome, 'accepted', JSON.stringify(routed));
     assert.equal(routed.current.gate, 'Verified Change Execution', JSON.stringify(routed));
+    const wrongMode = inspectAuthoringInputs(root, { ...bound(), bundle: true, authoring_scope: 'delivery-closeout' },
+      { gitObservation: cliGitObservation });
+    assert.equal(wrongMode.reason, 'authoring_closeout_unavailable');
     writeFileSync(join(root, 'README.md'), 'After: clearer sentence.\n');
+    const currentHead = git(['rev-parse', 'HEAD']).trim();
+    const readWithGit = ({ head = currentHead, tracked = ['README.md'], nextHead = head, nextTracked = tracked } = {}) => {
+      const calls = [];
+      let observation = 0;
+      const read = inspectAuthoringInputs(root, { ...bound(), bundle: true }, { gitObservation: {
+        gitValue(path, args) {
+          assert.equal(path, root);
+          assert.deepEqual(args, ['rev-parse', 'HEAD']);
+          calls.push('head');
+          return observation++ ? nextHead : head;
+        },
+        gitPathList(path, args) {
+          assert.equal(path, root);
+          calls.push(args[0]);
+          return args[0] === 'diff' ? observation === 1 ? tracked : nextTracked : [];
+        },
+      } });
+      assert.deepEqual(calls, ['head', 'diff', 'ls-files', 'head', 'diff', 'ls-files']);
+      return read;
+    };
+    const currentRead = readWithGit();
+    assert.equal(currentRead.available, true);
+    assert.equal(currentRead.gate, 'Verified Change Execution');
+    assert.equal(currentRead.blocking_reason, 'none');
+    for (const change of [{ nextHead: 'f'.repeat(40) }, { nextTracked: ['unrelated.md'] }]) {
+      assert.equal(readWithGit(change).reason, 'authoring_binding_stale_or_invalid');
+    }
+    for (const facts of [{ head: null, tracked: null }, { tracked: ['unrelated.md'] }]) {
+      const blocked = readWithGit(facts);
+      assert.equal(blocked.available, true);
+      assert.equal(blocked.blocking_reason, 'verified_change_invalid_escalated');
+    }
     const executedText = record.replace('- status: eligible', '- status: executed').replace('- execution_scope_status: pending', '- execution_scope_status: pass').replace('- validation_status: pending', '- validation_status: pass');
     const stateBeforeFailure = readFileSync(state, 'utf8');
     writeFileSync(join(root, 'unexpected.txt'), 'Out of the approved candidate scope.\n');

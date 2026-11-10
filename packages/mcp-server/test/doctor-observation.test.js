@@ -43,7 +43,11 @@ try {
         assert.equal(report.inventory.accounted_count + report.inventory.remaining_count, wanted);
         if (report.next_cursor) {
           assert.equal(report.overall_status, null); assert.equal(report.completeness, 'partial');
-          assert.equal(report.next_calls.length, 1); args = report.next_calls[0].arguments;
+          assert.equal(report.next_calls.length, 1);
+          assert.equal(report.next_calls[0].operation.cursor, report.next_cursor);
+          assert.deepEqual(Object.keys(report.next_calls[0].arguments).sort(), ['inputs', 'prepared_call_id']);
+          assert.deepEqual(report.next_calls[0].arguments.inputs, {});
+          args = report.next_calls[0].arguments;
         } else break;
       } while (pages < 64);
       assert.equal(final.completeness, 'complete'); assert.equal(final.status, reference.status);
@@ -76,7 +80,10 @@ try {
           assert.equal(changed.structuredContent.report.available, false);
           assert.equal(changed.structuredContent.report.reason, 'source_changed');
           assert.equal(changed.structuredContent.report.overall_status, null);
-          assert.equal(changed.structuredContent.report.next_calls[0].arguments.cursor, undefined);
+          const restart = changed.structuredContent.report.next_calls[0];
+          assert.equal(restart.operation.cursor, undefined);
+          assert.equal(restart.recovery_only.original_call.arguments.cursor, undefined);
+          assert.deepEqual(Object.keys(restart.arguments).sort(), ['inputs', 'prepared_call_id']);
         } finally { writeFileSync(source, content); }
       }
     });
@@ -94,6 +101,7 @@ try {
       assert.equal(report.available, true); invalid += report.invalid_entries.length; final = report;
       findings.push(...report.findings);
       if (!report.next_cursor) break;
+      assert.equal(report.next_calls[0].operation.cursor, report.next_cursor);
       args = report.next_calls[0].arguments;
     }
     assert.equal(invalid, 2); assert.equal(final.inventory.accounted_count, 102);

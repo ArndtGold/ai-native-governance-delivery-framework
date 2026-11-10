@@ -1,7 +1,7 @@
 # UX Intent Definition: <Title>
 
 Status: draft | ready | blocked | not_applicable
-Decision: ready | blocked | not_applicable
+- decision: ready | blocked | not_applicable
 Based on: approved UR and post-UR routing evidence
 Date:
 Owner:

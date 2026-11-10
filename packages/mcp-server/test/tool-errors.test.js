@@ -11,6 +11,7 @@ import { createRun } from '../../core/lib/control-state/run-state-repository.js'
 import { withStdioClient, unresolvedArguments } from './helpers.js';
 import { createTestRuntime } from './runtime-fixture.js';
 import { buildAgdfServer } from '../src/server.js';
+import { nextActionOutputSchema } from '../src/safe-read-continuation.js';
 import { DispatchExecutionError, createWorkerDispatchExecutor } from '../src/worker.js';
 import { buildFixture } from '../../../evals/mcp-ergonomics/lib/fixtures.js';
 
@@ -110,7 +111,8 @@ await runMcpServer({ surface: 'codex', runtime, executor });
 `);
   try { await withStdioClient({ args: [entry], modern }, async client => {
     const listed = await client.listTools();
-    assert.deepEqual(listed.tools.find(tool => tool.name === 'agdf_dispatch').outputSchema, requiredOutput);
+    assert.deepEqual(listed.tools.find(tool => tool.name === 'agdf_dispatch').outputSchema,
+      nextActionOutputSchema('agdf_dispatch', requiredOutput));
     const invalid = await client.callTool({ name: 'agdf_dispatch', arguments: {} });
     assert.equal(invalid.isError, true); assert.equal(invalid.structuredContent, undefined);
     assert.equal(readFileSync(executed, 'utf8'), '', 'first invalid input cannot execute a tool');

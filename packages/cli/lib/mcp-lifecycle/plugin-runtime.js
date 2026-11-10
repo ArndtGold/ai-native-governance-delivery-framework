@@ -5,6 +5,7 @@ import process from "node:process";
 import { createHash, randomUUID } from 'node:crypto';
 import { digestDirectory, digestPluginMcpDispatcherSource, mcpDispatcherRuntimeEntries, mcpDispatcherPackageExports } from "#agdf-core/runtime/plugin-provenance.js";
 import { acquireMcpExecutableClaim, inspectMcpServerPackage, mcpPackageConstants, mcpRuntimeRetirementState, prepareMcpServerPackage, createMcpRuntimeRetirementTransaction } from "./package.js";
+import { inspectPreparedCallJournals, retirePreparedCallJournals } from './prepared-call-journal.js';
 
 // Plugin-local AGDF MCP runtime shared by the hosts whose runtime plugin declares the server itself:
 // Claude Code passes ${CLAUDE_PLUGIN_DATA}, which it deletes on uninstall; Codex receives an absolute
@@ -406,6 +407,10 @@ export function inspectPluginMcpDataRoot(dataRoot) {
       const path = join(mcpDataRoot, name);
       const stats = lstatSync(path);
       if (!stats.isDirectory() || stats.isSymbolicLink()) return "foreign";
+      if (name === 'prepared-calls') {
+        if (inspectPreparedCallJournals(mcpDataRoot) !== 'owned') return 'foreign';
+        continue;
+      }
       if (name !== 'generations') {
         if (!ownedRoot(path) && !name.startsWith('.stage-')) return 'foreign';
         protectedFiles = true; continue;
@@ -446,6 +451,7 @@ export function retirePluginMcpDataRoot(dataRoot, revalidate = () => {}) {
       rmdirSync(publication);
     }
     if (existsSync(generations)) rmdirSync(generations);
+    retirePreparedCallJournals(mcp);
     if (existsSync(mcp)) rmdirSync(mcp);
     const journal = join(dataRoot, COMPANION_JOURNAL.directory);
     if (existsSync(journal)) {

@@ -474,6 +474,8 @@ function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
     const reasonKeys = {
       AGDF_UR_REQUIREMENTS_INCOMPLETE: "blockedUrRequirements",
       AGDF_PRD_DECISIONS_OPEN: "blockedPrdDecisionsOpen",
+      AGDF_PRD_READINESS_INCOMPLETE: "blockedPrdReadiness",
+      AGDF_APPROVAL_SUMMARY_INCOMPLETE: "blockedApprovalSummary",
       AGDF_SD_DECISIONS_OPEN: "blockedSdDecisionsOpen",
       AGDF_SD_TRACEABILITY_INCOMPLETE: "blockedSdTraceability",
       AGDF_TP_TRACEABILITY_INCOMPLETE: "blockedTpTraceability",

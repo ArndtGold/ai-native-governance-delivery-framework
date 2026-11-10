@@ -593,7 +593,9 @@ stay read-only. Bound continuation may coordinate one sealed relationship correc
 Core continuation service before fresh routing; it creates no approval or presentation binding.
 Unrecorded previews cannot be used as run-approve evidence.
 
-For an implementation request without a confirmed run binding, dispatch intake without run_id
+For an implementation request without a confirmed run binding, dispatch intake with `intake:true`
+and omit **both** `run_id` and `intake_mode` (neither accepts a guessed binding; `run_id:null`
+is not valid)
 before inspecting runs. The dispatcher resolves the target and returns resolve_delivery_run before
 evaluating an individual gate, even with one active run. The coding agent compares the original
 request and confirmed conversation context with the candidate's full referenced UR scope; candidate
@@ -606,9 +608,13 @@ For one same-scope match redispatch intake_mode resume with run_id and expected_
 the inventory. The dispatcher rechecks target, active lifecycle, integrity and revision before gate
 presentation or continuation. A changed assignment returns fresh evidence for comparison; it does
 not silently adopt the newer scope or another run. Missing or invalid inventory blocks assignment
-and never becomes a no-match result. A new intake uses `run-<original-operation-uuid>` as its prospective ID. The current `run-create --title ... --operation <uuid>` command derives that exact ID; arbitrary named Run creation is unsupported. For a clear independent scope with no match use intake_mode
-new and an unused run_id, even when unrelated runs exist, without asking the user to select an ID
-or authorize bookkeeping again. If plausible scopes overlap, ask one focused question about the
+and never becomes a no-match result. For a clear independent scope with no match, follow the supplied
+new-Run operation. MCP uses the `agdf_run/run.create` form and then its returned Run/revision in the
+supplied resume call. Do not handcraft a prospective Run ID or interpret `intake_mode:new` as MCP
+Run creation. The CLI fallback's `run-create --title ... --operation <uuid>` derives
+`run-<original-operation-uuid>`; any prospective new-intake binding must use that exact original
+operation identity, never an arbitrary unused name. Unrelated Runs do not require another bookkeeping
+authorization or a technical Run-ID choice. If plausible scopes overlap, ask one focused question about the
 requested work; do not offer a technical Run-ID choice. Status and explicit run-selection requests
 retain their separate read-only presentation and create no run. Ambient AGDF_RUN_ID never selects
 an intake run. This assignment is transient; RUN_STATE.md and the UR remain the durable owners.

@@ -36,7 +36,9 @@ try {
   const source = async (name, content) => {
     const slot = ({ UR_CANDIDATE: 'UR', BROWNFIELD_CANDIDATE: 'Brownfield Review', CR_CANDIDATE: 'CR', OR_CANDIDATE: 'OR' })[name.replace('.md', '')];
     const stage = async payload => { const result = await service('agdf_record', { ...bound(), command: { kind: 'material.stage', payload } });
-      assert.equal(result.outcome, 'accepted', JSON.stringify(result)); return result.family_result; };
+      assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+      assert.notEqual(result.next_action?.operation?.kind, 'closeout.record', 'Quick Task staging retains its existing continuation.');
+      return result.family_result; };
     const bytes = Buffer.from(content), begun = await stage({ action: 'begin', files: [{ slot, bytes: bytes.length }] });
     for (let offset = 0; offset < bytes.length; offset += 16384) await stage({ action: 'append', transfer_id: begun.transfer_id,
       file: 0, offset, data: bytes.subarray(offset, offset + 16384).toString('base64') });
@@ -91,7 +93,12 @@ try {
   assert.deepEqual(format.required_sections, ['Result', 'Evidence', 'Risk', 'Next Step']);
   assert.deepEqual(format.required_metadata.map(row => row.label), ['Run', 'Report mode']);
   while (!inputs.complete) {
-    inputs = (await service('agdf_inspect', { ...authoringArgs, cursor: inputs.next_cursor })).report;
+    const next = inputs.next_calls[0];
+    assert.equal(next.operation.operation, 'authoring-inputs');
+    assert.equal(next.operation.cursor, inputs.next_cursor);
+    assert.deepEqual(Object.keys(next.arguments).sort(), ['inputs', 'prepared_call_id']);
+    assert.deepEqual(next.arguments.inputs, {});
+    inputs = (await service(next.tool, next.arguments)).report;
     assert.equal(inputs.available, true, JSON.stringify(inputs));
   }
   // Author the successful closeout from public discovery, not private format knowledge.

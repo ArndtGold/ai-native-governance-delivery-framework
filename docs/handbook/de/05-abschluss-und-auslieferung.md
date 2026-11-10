@@ -75,6 +75,30 @@ Nenne bei wichtigen Aussagen deshalb Quelle, Version oder Prüfumfang der Eviden
 Prüfung. Eine nicht ausgeführte Host-Beobachtung bleibt sichtbar `unverified`; sie wird nicht aus
 Repository-Tests abgeleitet.
 
+## Native Agententests lesen
+
+Ein Agent kann die beauftragte Aufgabe nach Korrekturen erfüllen und dabei trotzdem technische
+Fehler oder ein Zeitlimit erreichen. Ein belastbarer Prüfbericht nennt deshalb getrennt:
+
+- **Aufgabenerfüllung:** Welche Fälle wurden vollständig durchlaufen, einschließlich notwendiger
+  Korrekturen und frischer Entscheidungsvorlagen?
+- **Ablaufqualität:** Welche Werkzeug- und Aufruffehler, Wiederanläufe oder Zeitlimits traten auf?
+- **Prüfumgebung:** Welche Quellen, installierten Versionen, Hosts, Modelle und festen Grenzen
+  lagen der Prüfung zugrunde?
+- **Aussagegrenze:** Welche Wege blieben ungeprüft, welche Befunde offen und welche Entscheidungen
+  wurden nur für den Test simuliert?
+
+Ein konkretes Beispiel ist der [native SD-/TP-Test vom 6. November 2026](../../development/native-authoring-recovery-2026-11-05.md#completed-resumption-campaign-on-2026-11-06):
+Alle drei frischen Fälle durchliefen Korrektur, neue Vorlage und simulierte Freigabe für SD und TP.
+Die 181 MCP-Aufrufe hatten keinen MCP-Ausführungsfehler. Vier Fehler in aufrufendem Hilfscode,
+zwei erreichte Zeitlimits und ein falsch zugeordneter Dateivergleich blieben jedoch dokumentiert.
+Das Ergebnis lautet deshalb **3/3 funktional abgeschlossen, 0/3 vollständig fehlerfrei**.
+
+Simulierte Freigaben belegen den getesteten Ablauf. Menschliches UAT bleibt eine eigene Beobachtung
+und Entscheidung. Auch der Prüfer selbst braucht nachvollziehbare Kriterien: Ein fehlerhafter
+Vergleich darf weder eine tatsächlich beobachtete Werkzeugnutzung unsichtbar machen noch
+nachträglich aus dem ursprünglichen Ergebnis entfernt werden.
+
 ## Orchestration Report und Delivery Closeout
 
 Nach dem erforderlichen QA-/UAT-Weg fasst der Orchestration Report den Lauf zusammen. Er nennt

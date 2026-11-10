@@ -6,14 +6,16 @@
 // packages/core/test/companion-events-test.js; a full closeout run is outside this suite's budget.
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { Worker } from 'node:worker_threads';
+import { once } from 'node:events';
 import { Client } from '@modelcontextprotocol/client';
 import { InMemoryTransport } from '@modelcontextprotocol/server';
 import { pluginRoot } from '../../../scripts/support/plugin-mcp-fixture.js';
 import { parseEventLines } from '../../core/lib/companion/events.js';
-import { COMPANION_DATA_ROOT_ENV, journalPath } from '../../core/lib/companion/journal.js';
+import { COMPANION_DATA_ROOT_ENV, createCompanionJournal, journalPath } from '../../core/lib/companion/journal.js';
 import { artefactFileDigest } from '../../core/lib/control-state/run-seal-compute.js';
 import { resolveControlCommandTarget } from '../../core/lib/control-state/approval-command-contract.js';
 import { fixture as cockpitFixture } from '../../core/test/control-cockpit-fixtures.js';
@@ -29,6 +31,79 @@ const eventsOf = dataRoot => (existsSync(journalPath(dataRoot)) ? parseEventLine
 const ofOperation = (dataRoot, operationId) => eventsOf(dataRoot).filter(event => event.operation_id === operationId);
 const lines = count => Array.from({ length: count }, (_, index) => `Requirement line ${index + 1}.`).join('\n');
 const UR = '# UR: Companion journal\n## Problem\nThe owner misses AGDF outcomes.\n## Goal\nOutcomes reach the companion.\n## Scope\nOnly this fixture.\n';
+
+function deliveryInput(operation_id) {
+  return { target_id: `sha256:${'a'.repeat(64)}`, run_id: 'run-12345678-1234-4123-8123-123456789abc',
+    expected_revision_id: '12345678-1234-4123-8123-123456789abc', operation_id,
+    command: { kind: 'presentation.deliver', payload: { gate: 'TP', route: 'markdown',
+      presentation_id: '87654321-4321-4321-8321-cba987654321' } } };
+}
+const freshDelivery = { outcome: 'accepted', presentation_delivery: { historical_delivery: false } };
+
+// Producers share only the files. A barrier releases both after importing the
+// observer so the two reservations can contend in the same retry window.
+async function concurrentRequests(dataRoot, operationIds) {
+  const gate = new Int32Array(new SharedArrayBuffer(4));
+  const journalUrl = new URL('../../core/lib/companion/journal.js', import.meta.url).href;
+  const workers = operationIds.map(id => new Worker(`
+    const { parentPort, workerData } = require('node:worker_threads');
+    (async () => {
+      const { createCompanionJournal } = await import(workerData.journalUrl);
+      parentPort.postMessage('ready');
+      if (Atomics.wait(workerData.gate, 0, 0, 10000) === 'timed-out') throw Error('reservation barrier timed out');
+      const journal = createCompanionJournal({ dataRoot: workerData.dataRoot });
+      parentPort.postMessage(journal.observe('agdf_prepare', workerData.input, workerData.result));
+    })().catch(error => { throw error; });
+  `, { eval: true, workerData: { gate, journalUrl, dataRoot, input: deliveryInput(id), result: freshDelivery } }));
+  try {
+    const ready = await Promise.all(workers.map(worker => once(worker, 'message')));
+    assert.deepEqual(ready, workers.map(() => ['ready']));
+    const results = Promise.all(workers.map(worker => once(worker, 'message')));
+    Atomics.store(gate, 0, 1);
+    Atomics.notify(gate, 0);
+    return (await results).flat();
+  } finally {
+    await Promise.all(workers.map(worker => worker.terminate()));
+  }
+}
+
+{
+  const dataRoot = mkdtempSync(join(tmpdir(), 'agdf-reservations-'));
+  try {
+    const duplicate = randomUUID();
+    assert.deepEqual((await concurrentRequests(dataRoot, [duplicate, duplicate])).sort(), [false, true]);
+    assert.deepEqual(ofOperation(dataRoot, duplicate).map(row => row.kind), ['approval_requested']);
+    const independent = [randomUUID(), randomUUID()];
+    assert.deepEqual(await concurrentRequests(dataRoot, independent), [true, true]);
+    for (const id of independent) assert.deepEqual(ofOperation(dataRoot, id).map(row => row.kind), ['approval_requested']);
+
+    const index = join(dataRoot, 'companion', 'approval-requests.json');
+    let current = Date.now();
+    const journal = createCompanionJournal({ dataRoot, now: () => new Date(current) });
+    const submit = id => journal.observe('agdf_prepare', deliveryInput(id), freshDelivery);
+    const live = Object.fromEntries(Array.from({ length: 8192 }, (_, i) => [i.toString(16).padStart(64, '0'), current + 30 * 60_000]));
+    const full = JSON.stringify(live);
+    writeFileSync(index, full);
+    const id = randomUUID();
+    assert.equal(submit(id), false, 'capacity does not evict live reservations');
+    assert.equal(readFileSync(index, 'utf8'), full);
+    current += 30 * 60_000;
+    assert.equal(submit(id), true, 'expired reservations are pruned');
+    assert.equal(Object.keys(JSON.parse(readFileSync(index, 'utf8'))).length, 1);
+    assert.equal(submit(id), false, 'the new reservation remains live');
+
+    const interrupted = randomUUID();
+    rmSync(journalPath(dataRoot));
+    mkdirSync(journalPath(dataRoot)); // Reservation succeeds, appending to a directory fails.
+    assert.equal(submit(interrupted), false);
+    rmSync(journalPath(dataRoot), { recursive: true });
+    assert.equal(submit(interrupted), false, 'an uncertain append does not release its reservation');
+    assert.equal(existsSync(journalPath(dataRoot)), false);
+    console.log('Companion reservations preserve independent requests, expiry, capacity and append-failure isolation.');
+  } finally {
+    rmSync(dataRoot, { recursive: true, force: true });
+  }
+}
 
 // Real tool paths. The facade and plugin variants both execute in a generation child.
 const variants = [
@@ -95,6 +170,10 @@ for (const { label, modern, options } of variants) {
       assert.deepEqual(requested.map(event => [event.kind, event.gate, event.run_id]), [['approval_requested', 'UR', h.runId]], 'the line exists when the result returns');
       assert.ok(elapsed < 30_000, `the event is available after ${Math.round(elapsed)} ms`);
       console.log(`approval_requested journaled ${Math.round(elapsed)} ms after the call started (${label}).`);
+      const historical = await h.call('agdf_prepare', deliverArgs);
+      assert.equal(historical.outcome, 'accepted');
+      assert.equal(historical.presentation_delivery.historical_delivery, true);
+      assert.equal(ofOperation(dataRoot, deliverArgs.operation_id).length, 1, 'historical delivery cannot add a request');
       const approveArgs = { ...h.bound(), command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: prepared.family_result.presentation_id, response: 'Approval: UR' } } };
       assert.equal((await h.call('agdf_approve', approveArgs)).outcome, 'accepted');
       assert.deepEqual(ofOperation(dataRoot, approveArgs.operation_id).map(event => [event.kind, event.gate]), [['approval_recorded', 'UR']]);
@@ -119,6 +198,57 @@ for (const { label, modern, options } of variants) {
       // SCN-009: the host-neutral harness reads these tool-path events with the Core event module only.
       assert.deepEqual([...new Set(renderEvents(readFileSync(journalPath(dataRoot), 'utf8'), root).map(event => event.kind))].sort(),
         ['approval_recorded', 'approval_requested', 'document_recorded', 'material_staged', 'write_rejected']);
+
+      if (launcherData) {
+        const tp = await createMcpDeliveryHarness(client, root, 'Synthetic TP replay');
+        await tp.startStructured('structured_delivery', { beforeTpApproval: true });
+        const prepare = () => tp.invoke('agdf_prepare', 'presentation.prepare', { gate: 'TP' });
+        const preparedTp = await prepare();
+        const args = { ...tp.bound(), command: { kind: 'presentation.deliver', payload: {
+          gate: 'TP', presentation_id: preparedTp.family_result.presentation_id, route: 'markdown' } } };
+        const stateBeforeDelivery = readFileSync(tp.state, 'utf8');
+        const results = await Promise.all([tp.call('agdf_prepare', args), tp.call('agdf_prepare', args)]);
+        assert.ok(results.some(r => r.outcome === 'accepted' && !r.historical_effect), JSON.stringify(results));
+        assert.ok(results.every(r => r.outcome === 'accepted' || r.outcome === 'rejected'
+          && ['busy', 'dispatch_busy'].includes(r.reason)), JSON.stringify(results));
+        const repeat = await tp.call('agdf_prepare', args);
+        assert.equal(repeat.presentation_delivery.historical_delivery, true);
+        assert.equal(repeat.binding.expected_revision_id, args.expected_revision_id);
+        assert.equal(repeat.operation_id, args.operation_id);
+        assert.equal(ofOperation(dataRoot, args.operation_id).filter(row => row.kind === 'approval_requested').length, 1);
+
+        const noLog = await prepare();
+        const noLogArgs = { ...args, operation_id: randomUUID(), command: { ...args.command, payload: {
+          ...args.command.payload, presentation_id: noLog.family_result.presentation_id } } };
+        const journal = journalPath(dataRoot), savedJournal = `${journal}.saved`;
+        renameSync(journal, savedJournal);
+        mkdirSync(journal);
+        try {
+          const deliveredWithoutJournal = await tp.call('agdf_prepare', noLogArgs);
+          assert.equal(deliveredWithoutJournal.outcome, 'accepted');
+          assert.equal(deliveredWithoutJournal.presentation_delivery.text, noLog.family_result.text);
+          assert.equal(deliveredWithoutJournal.operation_id, noLogArgs.operation_id);
+        } finally {
+          rmSync(journal, { recursive: true });
+          renameSync(savedJournal, journal);
+        }
+        assert.equal(ofOperation(dataRoot, noLogArgs.operation_id).length, 0);
+
+        const independent = await prepare();
+        const independentArgs = { ...tp.bound(), command: { kind: 'presentation.deliver', payload: {
+          gate: 'TP', presentation_id: independent.family_result.presentation_id, route: 'markdown' } } };
+        assert.equal((await tp.call('agdf_prepare', independentArgs)).outcome, 'accepted');
+        assert.deepEqual(ofOperation(dataRoot, independentArgs.operation_id).map(row => row.kind), ['approval_requested']);
+        assert.equal(readFileSync(tp.state, 'utf8'), stateBeforeDelivery, 'preparation and delivery cannot approve TP');
+        const approval = { ...tp.bound(), command: { kind: 'approval.record', payload: {
+          gate: 'TP', presentation_id: independent.family_result.presentation_id, response: 'Approval: TP' } } };
+        const recorded = await tp.call('agdf_approve', approval);
+        const approvalReplay = await tp.call('agdf_approve', approval);
+        assert.equal(recorded.outcome, 'accepted');
+        assert.equal(approvalReplay.outcome, 'already_applied');
+        assert.deepEqual(approvalReplay.receipt, recorded.receipt);
+        assert.deepEqual(ofOperation(dataRoot, approval.operation_id).map(row => row.kind), ['approval_recorded']);
+      }
     });
 
     // SCN-010: an unwritable journal directory leaves the tool results unchanged.

@@ -1,3 +1,5 @@
+import { preparedTransportSchema } from '../src/prepared-call-transport.js';
+import { nextActionOutputSchema } from '../src/safe-read-continuation.js';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
 import { execFileSync, spawnSync } from "node:child_process";
@@ -75,8 +77,8 @@ assert.equal(tools[1].name, "agdf_inspect");
 assert.equal(tools[1].annotations.readOnlyHint, true);
 assert.equal(tools[0].name, SKILL_DISPATCH_FUNCTION_DEFINITION.name);
 assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
-assert.deepEqual(tools[0].inputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema);
-assert.deepEqual(tools[0].outputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema);
+assert.deepEqual(tools[0].inputSchema, preparedTransportSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema));
+assert.deepEqual(tools[0].outputSchema, nextActionOutputSchema('agdf_dispatch', SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema));
 assert.deepEqual(tools[0].annotations, SKILL_DISPATCH_FUNCTION_DEFINITION.annotations);
 assert.equal(tools[0].annotations.readOnlyHint, false);
 
@@ -176,7 +178,9 @@ try {
   const disabled = createTestRuntime('codex', { commandGroups: [] });
   try {
     const fallback = disabled.execute(disabled.parse(continuing));
-    const typed = runtime.execute(runtime.parse(continuing));
+    const typedResponse = await client.callTool({ name: 'agdf_dispatch', arguments: continuing });
+    assert.equal(typedResponse.isError, undefined, JSON.stringify(typedResponse));
+    const typed = typedResponse.structuredContent;
     assert.equal(fallback.continuation?.control_transport, 'cli_fallback', JSON.stringify(fallback));
     assert.equal(fallback.continuation.transport_reason, 'required_mcp_group_unavailable');
     assert.ok(fallback.continuation.missing_mcp_groups.every(group => !disabled.tools.some(tool => tool.name === group)));
@@ -184,6 +188,10 @@ try {
     assert.equal(typed.continuation?.control_transport, 'typed_mcp', JSON.stringify(typed));
     assert.ok(typed.continuation.next_calls.length > 0);
     for (const call of typed.continuation.next_calls) {
+      assert.equal(call.operation.kind, 'inspect.read');
+      assert.equal(call.operation.read_only, true);
+      assert.deepEqual(Object.keys(call.arguments).sort(), ['inputs', 'prepared_call_id']);
+      assert.deepEqual(call.arguments.inputs, {});
       const next = await client.callTool({name:call.tool,arguments:call.arguments});
       assert.equal(next.isError,undefined,JSON.stringify(next));
       assert.equal(next.structuredContent.report.authorizes,false);

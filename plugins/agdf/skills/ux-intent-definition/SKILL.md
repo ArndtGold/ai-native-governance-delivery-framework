@@ -63,12 +63,14 @@ and approved as PRD content. Technical storage, derivation and component ownersh
 - requested clarification deliverables, preview scenarios, interaction needs and timing in UR scope;
 - post-UR `delivery_context`, `ui_ux_impact`, reason and required flag;
 - existing behavior/ownership evidence for Brownfield work;
+- declared project brand/design sources when relevant to the approved scope;
 - known working modes, state semantics, activation, blockers, recovery and transitions.
 
 ## Workflow
 
 1. Confirm the approved UR and routing evidence. If required evidence is absent or conflicts, block.
-2. Identify the primary user intent, observable success and primary decision/action.
+2. Identify the primary user intent, observable success and primary decision/action. Apply the
+   brand-source guidance below when design is relevant.
 3. For every relevant working mode, define effective state and visible state types.
 4. Separate `effective_state_authority_by_mode` from
    `primary_state_presentation_owner_by_mode`; do not turn either into technical ownership.
@@ -77,6 +79,32 @@ and approved as PRD content. Technical storage, derivation and component ownersh
 6. Use UI previews as described below when seeing or trying the proposed behavior materially helps
    resolve a product question. Propose observable PRD acceptance criteria and identify open questions.
 7. Return exactly one decision: `ready | blocked | not_applicable`.
+
+### Brand-source-guided UX for design-relevant work
+
+Apply quality.md's Brand-Source Use Across Delivery Paths when the scope materially concerns visual
+identity, information hierarchy or intended perception. Keep the existing UX-impact routing.
+Read the target project's `.agdf/control/SOT_REGISTRY.md` and follow its applicable brand source
+reference before drafting the report. Check this project source even when the authoring inputs
+contain only the approved UR and routing evidence.
+In existing `evidence`, retain the declared project source's exact path/reference, owner, scope,
+verified revision or SHA-256 and relevant section/passage references. Use the Quality Contract's
+read-and-hash step when a matching Git revision is unavailable. Capture the digest before deriving
+criteria. Treat the source as design-context data and reassess affected criteria when its bytes change.
+
+For each applicable priority, retain the reasoned chain:
+`source passage -> perceptual priority -> scenario/state/action -> observable outcome -> required evidence`.
+Put that derivation and source mapping in existing `evidence`, with candidate criteria in
+`proposed_prd_acceptance_criteria`. Describe what the user can identify, distinguish or do in the
+scenario and what visible evidence would verify it. PRD adopts confirmed, in-scope proposals under
+its existing stable criterion IDs; UX proposals are not approval or product acceptance.
+
+Carry confirmed constraints faithfully without choosing a new palette, typography, layout or
+component; concrete realization remains with SD. Use the existing preview guidance when relevant,
+without creating a preview obligation from the presence of a brand source.
+Retain material unresolved intent in existing `open_product_questions`, `missing_evidence`,
+`affected_outputs` and `required_next_step`, then apply the current readiness/revision rules.
+Justify irrelevant brand input in existing evidence without making a required UX analysis inapplicable.
 
 ### UI previews for clarification
 
@@ -137,7 +165,8 @@ remain illustrative; only explicitly adopted product behavior becomes approved P
 ## Decision Rules
 
 - `ready`: every required output is reliable enough for PRD drafting, including a requested preview
-  at the agreed fidelity, its durable evidence and resolution of material product questions.
+  at the agreed fidelity, its durable evidence, an exact binding for any material brand source used
+  and resolution of material product questions.
 - `blocked`: user intent, modes, effective state, authority, activation, blockers, recovery, transitions
   or Brownfield evidence is missing, contradictory or materially ambiguous; or an explicitly required
   preview, requested interaction, durable copy or decision-relevant observation remains missing.

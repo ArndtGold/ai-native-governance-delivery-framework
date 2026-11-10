@@ -113,16 +113,14 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
       if (['agdf_record', 'agdf_revise', 'agdf_closeout'].includes(name)) services.material.settle(input, result);
       if (name !== 'agdf_prepare' || input.command?.kind !== 'presentation.prepare' || !result.family_result?.text) return result;
       delivery.remember(input, result);
-      const prepared = result.family_result, { operation_id, ...binding } = input;
+      const prepared = result.family_result;
       return { ...result, presentation_delivery: { mode: 'prepared', text: '', presentation_id: prepared.presentation_id,
         document_digest: prepared.document_digest, authorizes: false,
         ...(prepared.preview_review ? { preview_review: { operation: 'presentation-preview', version: prepared.preview_review.descriptor.version,
           content_digest: prepared.preview_review.rendered_digest, access_state: 'not_observed', target_id: input.target_id,
           run_id: input.run_id, gate: 'PRD', expected_revision_id: input.expected_revision_id, presentation_id: prepared.presentation_id } } : {}),
-        instruction: 'Prepared, not delivered. Optionally open agdf_decision_view as a non-primary preview. Then presentation.deliver selects once. Default route markdown; no second summary.',
-        next_calls: [{ tool: 'agdf_prepare', arguments: { ...binding, command: { kind: 'presentation.deliver',
-          payload: { gate: input.command.payload.gate, presentation_id: prepared.presentation_id, route: 'markdown' } } },
-          required_input: { operation_id: 'Generate a new UUID for delivery; no gate approval is required.' } }] } };
+        instruction: 'Prepared, not delivered. Optionally open agdf_decision_view as a non-primary preview. Follow the authoritative top-level next action for presentation.deliver; its original UUID and binding are already supplied. No second summary and no generated delivery UUID.',
+        next_action_source: 'next_calls' } };
     },
     async close() { services.material.close(); delivery.close(); await diagnostic.close(); },
     inspectOwnership() { const d = diagnostic.inspectOwnership(); return { diagnostic: d, read_workers: readBudget.inspect(),

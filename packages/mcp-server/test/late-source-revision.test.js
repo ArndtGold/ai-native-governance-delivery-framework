@@ -28,7 +28,10 @@ try {
     for (const tool of tools.filter(tool => ['agdf_dispatch', 'agdf_inspect'].includes(tool.name))) for (const name of ["source_gate", "preview_digest", "revision_mode", "operation_id"])
       assert.equal(Object.hasOwn(tool.inputSchema.properties, name), false);
     for (const tool of tools.filter(tool => !['agdf_dispatch', 'agdf_inspect'].includes(tool.name))) {
-      assert.ok(tool.inputSchema.required.includes('operation_id'), 'Every new write group requires the original operation UUID.');
+      const [raw, prepared] = tool.inputSchema.anyOf;
+      assert.ok(raw.required.includes('operation_id'), 'Every raw write still requires the original operation UUID.');
+      assert.deepEqual(prepared.required, ['prepared_call_id', 'inputs'], 'Prepared mode references the stored original command.');
+      assert.equal(prepared.maxProperties, 2, 'Prepared mode cannot override the stored UUID or binding with raw fields.');
       for (const name of ['source_gate', 'preview_digest', 'revision_mode']) assert.equal(Object.hasOwn(tool.inputSchema.properties, name), false);
     }
     const target = { presentation_language: "de", working_directory: root, target_source: "explicit_target", primary_target: root, run_id: f.runId };

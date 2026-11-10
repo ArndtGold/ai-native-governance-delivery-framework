@@ -209,7 +209,7 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   const absent = inspectProjectState(root, input, cliGitObservation);
   assert.equal(absent.status, 'absent'); assert.equal(existsSync(join(root, '.agdf')), false);
   assert.equal(absent.repository.root, root); assert.match(absent.plan.plan_digest, /^sha256:[a-f0-9]{64}$/);
-  assert.equal(absent.plan.version, packageVersion); assert.equal(absent.plan.file_count, 16, 'current scaffold retains empty Git stores without a shared backlog');
+  assert.equal(absent.plan.version, packageVersion); assert.equal(absent.plan.file_count, 17, 'current scaffold includes the brand worksheet and empty Git stores');
   assert.equal(absent.setup.binding.target_id, input.target_id); assert.equal(absent.setup.requires_explicit_intent, true);
   assert.deepEqual(absent.setup.required_agent_fields, ['operation_id']);
   const created = run();
@@ -218,18 +218,32 @@ test('explicit pre-Run project setup publishes one fixed scaffold and original r
   assert.equal(created.family_result.status, 'created');
   assert.equal(created.receipt.kind, 'project.initialize');
   assert.equal(created.receipt.operation.operation_id, input.operation_id);
+  const initialized = inspectProjectState(root, input, cliGitObservation);
+  assert.equal(initialized.next_calls.length, 1, 'Run creation is the sole normal initialized-project continuation.');
+  assert.equal(initialized.next_calls[0].arguments.module, 'agdf_run/run.create');
+  const statusCall = initialized.recovery_only.status_call;
+  assert.equal(initialized.recovery_only.authorizes, false);
+  assert.equal(statusCall.arguments.operation, 'operation-status');
+  assert.equal(statusCall.arguments.module, `project.initialize/${input.operation_id}`);
+  assert.equal(statusCall.arguments.run_id, undefined); assert.equal(statusCall.arguments.expected_revision_id, undefined);
+  assert.deepEqual(created.family_result.next_calls, initialized.next_calls);
+  assert.deepEqual(created.family_result.recovery_only, initialized.recovery_only);
   assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
   assert.equal(Buffer.byteLength(JSON.stringify(created)) < 16384, true);
   const control = join(root, '.agdf/control'), config = join(control, 'config.json');
+  const brandTemplate = new URL('../../../plugins/agdf/control/templates/BRAND.md', import.meta.url);
+  assert.deepEqual(readFileSync(join(control, 'BRAND.md')), readFileSync(brandTemplate));
   const authored = JSON.parse(readFileSync(config, 'utf8')); authored.chat_language = 'de';
   writeFileSync(config, JSON.stringify(authored, null, 2) + '\n');
   assert.equal(existsSync(join(control, 'MASTER_BACKLOG.md')), false);
   writeFileSync(join(control, 'MASTER_BACKLOG.md'), '# Preserved legacy planning\n');
-  for (const name of ['MASTER_BACKLOG.md', 'CONTEXT_GRAPH.md', 'SOT_REGISTRY.md'])
+  for (const name of ['MASTER_BACKLOG.md', 'CONTEXT_GRAPH.md', 'SOT_REGISTRY.md', 'BRAND.md'])
     writeFileSync(join(control, name), readFileSync(join(control, name), 'utf8') + '\nHuman authored context retained.\n');
   const before = files(control), replay = run();
   assert.equal(replay.outcome, 'already_applied', JSON.stringify(replay));
   assert.deepEqual(replay.receipt, created.receipt);
+  assert.deepEqual(replay.family_result.next_calls, created.family_result.next_calls);
+  assert.deepEqual(replay.family_result.recovery_only, created.family_result.recovery_only);
   const unchanged = run({ ...input, operation_id: randomUUID() });
   assert.equal(unchanged.family_result.status, 'unchanged'); assert.equal(unchanged.receipt, null);
   assert.deepEqual(files(control), before);
@@ -243,8 +257,16 @@ for (const phase of ['project_after_publish', 'project_after_receipt', 'project_
     const lost = run(input, p => { if (p === phase) throw Error('injected_response_loss'); });
     assert.deepEqual(validateRunCommandResult(lost), []);
     assert.equal(lost.outcome, 'effect_unknown', JSON.stringify(lost));
+    assert.equal(lost.next_calls.length, 1, 'Uncertain initialization still selects original-operation recovery as its normal route.');
+    assert.equal(lost.next_calls[0].arguments.operation, 'operation-status');
+    assert.equal(lost.next_calls[0].arguments.module, `project.initialize/${input.operation_id}`);
     const observed = inspectCanonicalProject(root, { operationId: input.operation_id });
     assert.equal(['pending', 'initialized'].includes(observed.status), true, JSON.stringify(observed));
+    if (observed.status === 'pending') {
+      const pending = inspectProjectState(root, input, cliGitObservation);
+      assert.deepEqual(pending.next_calls, lost.next_calls, 'Pending setup keeps the exact recovery call visible in its normal route.');
+      assert.equal(pending.recovery_only, undefined);
+    }
     assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
     const done = run(); assert.equal(['accepted', 'already_applied'].includes(done.outcome), true, JSON.stringify(done));
     assert.equal(done.receipt.operation.operation_id, input.operation_id);
@@ -383,41 +405,83 @@ test('a non-regular pending marker blocks without reading a foreign FIFO', { ski
   assert.equal(existsSync(marker), true, 'the foreign object is preserved');
 }));
 
-test('real initializer retains its owned publication while a competing CLI request is rejected', async () => {
+test('real initializer retains its owned publication while a competing CLI request is rejected', { timeout: 180000 }, async () => {
+  // These bounds allow a slow CI fixture to start; they are not production latency guarantees.
+  const bounds = { ready: 45000, hold: 120000, contender: 30000, publication: 45000, cleanup: 10000 };
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-project-concurrent-')));
-  execFileSync('git', ['init', '-q', root]);
+  execFileSync('git', ['init', '-q', root], { timeout: 15000 });
   const intent = currentInitializationIntent(root, randomUUID(), 'test-concurrency');
-  const module = new URL('../lib/control-state/canonical-initialization.js', import.meta.url).href;
   const release = join(root, 'release-fixture-writer');
+  const readyMarker = 'locked\n';
   const ownerHelper = new URL('./fixtures/current-init-owner.js', import.meta.url).href;
   const script = `import {initializeCurrentProjectOwner as initializeCanonicalProject} from ${JSON.stringify(ownerHelper)};
-    import {existsSync} from 'node:fs';
+    import {existsSync,writeSync} from 'node:fs';
     const [root,intent,release]=process.argv.slice(1);
     initializeCanonicalProject(root,JSON.parse(intent),{beforePublish(){
-      process.stdout.write('locked\\n'); const until=Date.now()+10000;
+      writeSync(1,${JSON.stringify(readyMarker)}); const until=Date.now()+${bounds.hold};
       while(!existsSync(release)){if(Date.now()>until)throw Error('fixture-release-timeout');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);}
     }});`;
   const child = spawn(process.execPath, ['--input-type=module', '--eval', script, root, JSON.stringify(intent), release], { stdio: ['ignore', 'pipe', 'pipe'] });
-  let stderr = ''; child.stderr.on('data', b => { stderr += b; });
+  let stderr = '', stdout = '', spawnError;
+  child.stderr.on('data', b => { stderr = (stderr + b).slice(-65536); });
+  child.stdout.on('data', b => { stdout = (stdout + b).slice(0, 4096); });
+  child.once('error', error => { spawnError = error; });
+  const stopped = new Promise(resolve => child.once('close', (code, signal) => resolve({ code, signal })));
+  const bounded = async (promise, milliseconds, reason) => {
+    let timer;
+    try {
+      return await Promise.race([promise, new Promise((_, reject) => {
+        timer = setTimeout(() => reject(Error(`${reason}: ${stderr}`)), milliseconds);
+      })]);
+    } finally { clearTimeout(timer); }
+  };
+  const assertHeld = () => {
+    assert.equal(spawnError, undefined);
+    assert.equal(child.exitCode, null, stderr); assert.equal(child.signalCode, null, stderr);
+    assert.doesNotThrow(() => process.kill(child.pid, 0), 'the original initializer must still be alive');
+    const owner = JSON.parse(readFileSync(join(root, '.agdf/.canonical-init.lock'), 'utf8'));
+    assert.equal(owner.pid, child.pid, 'the live initializer must still own the initialization lock');
+    assert.equal(existsSync(release), false); assert.equal(existsSync(join(root, '.agdf/control')), false);
+    const pending = inspectCanonicalProject(root, { operationId: intent.operationId });
+    assert.equal(pending.status, 'pending', JSON.stringify(pending));
+    assert.equal(pending.operation_status, 'pending');
+    assert.equal(pending.operation.operation_id, intent.operationId);
+  };
   try {
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(Error('fixture-ready-timeout: ' + stderr)), 8000);
-      child.once('error', reject); child.stdout.once('data', () => { clearTimeout(timer); resolve(); });
+      const finish = error => {
+        clearTimeout(timer); child.stdout.off('data', onData); child.off('error', onError); child.off('exit', onExit);
+        if (error) reject(error); else resolve();
+      };
+      const onData = () => {
+        if (stdout === readyMarker) finish();
+        else if (!readyMarker.startsWith(stdout)) finish(Error(`fixture-ready-unexpected-output: ${JSON.stringify(stdout)}`));
+      };
+      const onError = error => finish(error);
+      const onExit = (code, signal) => finish(Error(`fixture-exited-before-ready (${code}, ${signal}): ${stderr}`));
+      const timer = setTimeout(() => finish(Error('fixture-ready-timeout: ' + stderr)), bounds.ready);
+      child.stdout.on('data', onData); child.once('error', onError); child.once('exit', onExit);
     });
+    assertHeld();
+    const heldFiles = files(join(root, '.agdf'));
     const cli = new URL('../../cli/bin/create-agdf.js', import.meta.url);
-    const contender = spawnSync(process.execPath, [fileURLToPath(cli), 'init', '--dir', root, '--language', 'en'], { encoding: 'utf8', timeout: 5000 });
+    const contender = spawnSync(process.execPath, [fileURLToPath(cli), 'init', '--dir', root, '--language', 'en'], { encoding: 'utf8', timeout: bounds.contender });
+    assert.equal(contender.error, undefined, contender.stderr); assert.equal(contender.signal, null);
     assert.notEqual(contender.status, 0); assert.equal(JSON.parse(contender.stdout).reason, 'initialization_ownership_unconfirmed');
-    const completed = new Promise((resolve, reject) => child.once('exit', code => code === 0 ? resolve() : reject(Error(stderr))));
-    writeFileSync(release, 'release only this owned fixture'); await completed;
+    assertHeld();
+    assert.deepEqual(files(join(root, '.agdf')), heldFiles, 'the rejected contender cannot alter the original owned stage or lock');
+    writeFileSync(release, 'release only this owned fixture');
+    const completed = await bounded(stopped, bounds.publication, 'fixture-publication-timeout');
+    assert.equal(spawnError, undefined); assert.equal(completed.code, 0, stderr); assert.equal(completed.signal, null);
+    assert.equal(stdout, readyMarker, 'readiness is the exact complete fixture handshake');
     const replay = initializeCanonicalProject(root, intent);
     assert.equal(replay.historical_effect, true);
     assert.equal(replay.receipt.operation.operation_id, intent.operationId);
     assert.equal(existsSync(join(root, '.agdf/.canonical-init.lock')), false);
     assert.deepEqual(readdirSync(join(root, '.agdf/control/runs')), ['.gitkeep']);
   } finally {
-    if (child.exitCode === null && child.signalCode === null) {
-      const stopped = new Promise(resolve => child.once('exit', resolve)); child.kill(); await stopped;
-    }
+    if (!spawnError && child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    await bounded(stopped, bounds.cleanup, 'fixture-cleanup-timeout');
     rmSync(root, { recursive: true, force: true });
   }
 });

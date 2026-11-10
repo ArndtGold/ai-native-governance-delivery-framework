@@ -50,7 +50,12 @@ export function sourceRevisionQualityFacts(state, readArtefact) {
   return facts;
 }
 
-export function validExpandedRevisionProof(proposal, state, readArtefact, phase) {
+export const validExpandedRevisionProof = (...args) => revisionProofProblems(...args).length === 0;
+
+// The same rules as a list of named violations, so a rejected proposal can be
+// corrected deliberately instead of by trial. Later checks rely on the structure
+// confirmed by earlier ones, so each block stops at its own violations.
+export function revisionProofProblems(proposal, state, readArtefact, phase) {
   const changed = proposal.changed_statements, affected = SOURCE_GATES.slice(SOURCE_GATES.indexOf(proposal.source_gate));
   const nonempty = value => typeof value === 'string' && value.trim() && value.length <= 4096;
   const assessmentProof = proposal.impact_assessment, index = SOURCE_GATES.indexOf(proposal.source_gate);
@@ -64,25 +69,40 @@ export function validExpandedRevisionProof(proposal, state, readArtefact, phase)
     || !Array.isArray(assessmentProof.analyses) || assessmentProof.analyses.length !== analyticalTypes.length
     || !assessmentProof.analyses.every((row, i) => exactObject(row, REVISION_ANALYSIS_FIELDS) && row.type === analyticalTypes[i]
       && row.path === state.artefacts.get(row.type).path && hashes(row.digest) && nonempty(row.reason)
-      && ['retain', 'reassess'].includes(row.disposition) && (proposal.source_gate !== 'UR' || row.disposition === 'reassess'))) return false;
-  if (proposal.policy_version !== 2 || proposal.initiating_phase !== phase || !Array.isArray(changed) || !changed.length
-      || !changed.every(row => exactObject(row, REVISION_STATEMENT_FIELDS) && affected.includes(row.type)
-        && proposal.sources.some(source => source.type === row.type && source.path === row.path && source.digest === row.digest)
-        && [row.statement, row.intended_change, row.reason].every(nonempty)
-        && String(readArtefact(row.path)).replace(/\r\n?/gu, '\n').includes(row.statement))
-      || !changed.some(row => row.type === proposal.source_gate)) return false;
+      && ['retain', 'reassess'].includes(row.disposition) && (proposal.source_gate !== 'UR' || row.disposition === 'reassess')))
+    return ['impact_assessment is invalid'];
+  const statementProblem = (row, i) => {
+    if (!exactObject(row, REVISION_STATEMENT_FIELDS)) return `changed_statements[${i}] fields must be exactly ${REVISION_STATEMENT_FIELDS.join(', ')}`;
+    if (!affected.includes(row.type)) return `changed_statements[${i}].type must be one of ${affected.join(', ')}`;
+    if (!proposal.sources.some(source => source.type === row.type && source.path === row.path && source.digest === row.digest))
+      return `changed_statements[${i}] path and digest must equal its entry in sources`;
+    if (![row.statement, row.intended_change, row.reason].every(nonempty)) return `changed_statements[${i}] statement, intended_change and reason must be nonempty text`;
+    if (!String(readArtefact(row.path)).replace(/\r\n?/gu, '\n').includes(row.statement))
+      return `changed_statements[${i}].statement must be an exact excerpt of ${row.path}`;
+    return null;
+  };
+  const changeProblems = [
+    ...(proposal.policy_version === 2 ? [] : ['policy_version must be 2']),
+    ...(proposal.initiating_phase === phase ? [] : [`initiating_phase must be "${phase}"`]),
+    ...(Array.isArray(changed) && changed.length ? changed.map(statementProblem).filter(Boolean) : ['changed_statements must be a nonempty list']),
+    ...(Array.isArray(changed) && changed.some(row => row?.type === proposal.source_gate) ? [] : [`changed_statements must include a ${proposal.source_gate} statement`]),
+  ];
+  if (changeProblems.length) return changeProblems;
   const facts = sourceRevisionQualityFacts(state, readArtefact), assessment = proposal.quality_assessment;
-  if (!Array.isArray(assessment) || !assessment.length || assessment.length !== facts.length) return false;
-  return assessment.every((row, i) => {
-    if (!exactObject(row, REVISION_QUALITY_FIELDS) || !['retain', 'reassess'].includes(row.disposition) || !nonempty(row.reason)) return false;
+  if (!Array.isArray(assessment) || !assessment.length || assessment.length !== facts.length)
+    return [`quality_assessment must contain exactly ${facts.length} rows, one per quality record in order`];
+  return assessment.map((row, i) => {
+    if (!exactObject(row, REVISION_QUALITY_FIELDS) || !['retain', 'reassess'].includes(row.disposition) || !nonempty(row.reason))
+      return `quality_assessment[${i}] needs exactly ${REVISION_QUALITY_FIELDS.join(', ')} with disposition retain or reassess and a nonempty reason`;
     const { disposition, reason, ...proof } = row;
-    if (canonicalJson(proof) !== canonicalJson(facts[i])) return false;
+    if (canonicalJson(proof) !== canonicalJson(facts[i])) return `quality_assessment[${i}] must copy quality record ${canonicalJson(facts[i])} unchanged`;
     const analysis = proposal.impact_assessment.analyses.find(item => item.type === row.record.type);
-    if (analysis && (analysis.disposition !== disposition || analysis.path !== row.record.path || analysis.digest !== row.record.digest)) return false;
-    return disposition !== 'retain' || row.association === 'current'
-      && !row.sources.some(source => affected.includes(source.type))
-      && !(proposal.source_gate === 'UR' && analysis);
-  });
+    if (analysis && (analysis.disposition !== disposition || analysis.path !== row.record.path || analysis.digest !== row.record.digest))
+      return `quality_assessment[${i}].disposition must equal the ${row.record.type} analysis disposition`;
+    if (disposition === 'retain' && !(row.association === 'current' && !row.sources.some(source => affected.includes(source.type))
+      && !(proposal.source_gate === 'UR' && analysis))) return `quality_assessment[${i}] must be reassess: its record is not current or depends on a changed source`;
+    return null;
+  }).filter(Boolean);
 }
 
 export function sourceRevisionImpact(proposal, activeBindings) {

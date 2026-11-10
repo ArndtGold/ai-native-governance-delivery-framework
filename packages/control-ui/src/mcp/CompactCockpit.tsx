@@ -7,15 +7,16 @@ import { BrandHeader } from '../BrandHeader';
 import { RefreshControl } from '../RefreshControl';
 import { Icon } from './Icon';
 import { WorkStep } from '../WorkStep';
+import type { DraftRowStatus } from '../RunDocuments';
 import { DocumentView } from '../DocumentView';
 import type { Resource } from '../types';
 import type { ArchiveLoader } from '../ArchiveDetail';
 
-export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onRuns, onExpand, onOpen, onBack, view, onViewChange, returnNotice, draftCheck, loadArchive }: {
+export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onRuns, onExpand, onOpen, onBack, view, onViewChange, returnNotice, draftCheck, draftStatus, loadArchive }: {
   state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean;
   initialRunId?: string; view: WorkView; onViewChange: (view: WorkView) => void; returnNotice?: string | null;
   onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onRuns?: () => void; onExpand?: () => void;
-  onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode; loadArchive?: ArchiveLoader;
+  onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode; draftStatus?: DraftRowStatus; loadArchive?: ArchiveLoader;
 }) {
   const data = state.detail?.data, e = data?.evaluation;
   const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
@@ -42,7 +43,7 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
         {state.detail?.code && <ReadState state={state.detail.state} code={state.detail.code}/>}
         {e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action) && <ReadState state="partial" code="persisted_mismatch"/>}
         </div><div className="compact-run-followup">
-        <WorkStep data={data} compact onOpen={onOpen} sourceDisabled={!usable} current={usable && state.detail?.state === 'available' && !(e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action))}>
+        <WorkStep data={data} compact draftStatus={draftStatus} onOpen={onOpen} sourceDisabled={!usable} current={usable && state.detail?.state === 'available' && !(e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action))}>
         <div className="compact-actions"><button className="text-link" disabled={!usable || !onExpand} onClick={onExpand}>Run ansehen <Icon name="expand"/></button><button className="text-link" disabled={expired || busy} onClick={onOverview}>Alle Vorhaben</button></div>
         </WorkStep></div>{draftCheck}
         <details className="compact-identity"><summary>Ziel und Run-ID · Originalangaben</summary><code className="compact-run-id">{data.run_id}</code>

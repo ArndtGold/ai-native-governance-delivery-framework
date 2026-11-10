@@ -2,7 +2,7 @@ import { useId, type ReactNode } from 'react';
 import type { Detail, Resource, RunClosure } from './types';
 import { label } from './feedback';
 import { documentName, phaseName, observedAssessment, reportFindingsLabel, closurePerson, closureSuccessor } from './presentation';
-import { RunDocuments } from './RunDocuments';
+import { RunDocuments, type DraftRowStatus } from './RunDocuments';
 
 // The closure receipt, as Core projects it; the confirming person is a cooperative statement.
 export function RunClosureFacts({ closure }: { closure: RunClosure }) {
@@ -15,8 +15,8 @@ export function RunClosureFacts({ closure }: { closure: RunClosure }) {
   </dl>;
 }
 // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
-export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
-  data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; children?: ReactNode;
+export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, draftStatus, children }: {
+  data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; draftStatus?: DraftRowStatus; children?: ReactNode;
 }) {
   const id = useId(), e = data.evaluation;
   if (!e) return <>{children}</>;
@@ -67,7 +67,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
           <dl className="work-step-facts"><dt>Kontrollstatus</dt><dd>{label(e.status)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd><dt>{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}</dt><dd><code>{e.blocking_reason}</code></dd><dt>{current ? 'Ausstehende Freigabe' : 'Zuletzt ausstehende Freigabe'}</dt><dd><code>{e.missing_approval}</code></dd><dt>Nächster Schritt laut Quelle</dt><dd>{e.next_allowed_action}</dd></dl>
         </details>
       </details>
-      <RunDocuments data={data} onOpen={onOpen} sourceDisabled={sourceDisabled} current={current}/>
+      <RunDocuments data={data} onOpen={onOpen} sourceDisabled={sourceDisabled} current={current} draftStatus={draftStatus}/>
     </div>
   </section>;
 }

@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import type { Envelope, Detail, Resource } from './types';
 import { WorkStep } from './WorkStep';
+import type { DraftRowStatus } from './RunDocuments';
 import { FlowEvidence } from './FlowEvidence';
 import { ReadState, label } from './feedback';
 import { documentName, documentPurpose, reportFindingsLabel } from './presentation';
-export function RunDetail({ result, onOpen, summaryOnly = false, current = true, draftCheck }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean; draftCheck?: ReactNode }) {
+export function RunDetail({ result, onOpen, summaryOnly = false, current = true, draftCheck, draftStatus }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean; draftCheck?: ReactNode; draftStatus?: DraftRowStatus }) {
   const data = result.data, e = data?.evaluation, p = data?.persisted;
   // An ended Run stores "none, run ended" while Core names its outcome; that is no mismatch.
   const ended = e?.control_assessment?.state === 'ended' && !!data?.closure;
@@ -14,7 +15,7 @@ export function RunDetail({ result, onOpen, summaryOnly = false, current = true,
     {mismatch && <ReadState state="partial" code="persisted_mismatch"/>}
     {!summaryOnly && <><div className="context-line"><code>{data?.run_id}</code><span>{label(data?.lifecycle)}</span></div>
       {data?.objective && <p className="objective">{data.objective}</p>}</>}
-    {data && <WorkStep data={data} onOpen={onOpen} condensed={summaryOnly} current={current && result.state === 'available' && !mismatch}/>}
+    {data && <WorkStep data={data} onOpen={onOpen} condensed={summaryOnly} draftStatus={draftStatus} current={current && result.state === 'available' && !mismatch}/>}
     {draftCheck}
     {data && <FlowEvidence data={data} onOpen={onOpen} current={current && result.state === 'available'}/>}
     {data?.work_summary && !ended && <section className="work-summary panel agdf-surface" aria-label="Offene Aufgabe"><h2>{data.work_summary.phase} · Offene Aufgabe und nächster Schritt</h2>

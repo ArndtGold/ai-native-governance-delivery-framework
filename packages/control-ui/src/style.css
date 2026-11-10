@@ -125,6 +125,10 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
 .run-document-state, .run-document-reference { font-size: var(--agdf-text-sm); color: var(--cockpit-muted); }
 .run-document-state { margin-top: var(--agdf-space-1); }
 .run-document-state[data-document-state="approved"], .run-document-state[data-document-state="draft_checked"] { color: var(--agdf-link-color); }
+.draft-check-inline { font-size: var(--agdf-text-sm); }
+.draft-check-status { color: var(--cockpit-muted); font-weight: var(--agdf-weight-semibold); }
+.draft-check-status[data-check-state="passed"] { color: var(--cockpit-accent); }
+.draft-check-inline > .text-link { display: block; }
 .run-document-action .text-link { max-width: 100%; white-space: normal; overflow-wrap: anywhere; min-height: 44px; }
 .document-state-context { margin-block: var(--agdf-space-3); }
 @container (min-width: 600px) {

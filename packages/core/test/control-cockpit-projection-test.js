@@ -4,11 +4,73 @@ import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { createCockpitReader, projectCockpitAssessment } from '../lib/control-inspect/cockpit.js';
 import { READ_LIMITS } from '../lib/control-read/snapshot.js';
+import { runEvidencePath } from '../lib/control-state/run-identity.js';
+import { canonicalEvidenceDigest } from '../lib/control-state/evidence-bindings.js';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+test('a current writer-bound evidence report opens through the scoped document selector', () => {
+  const f = fixture();
+  try {
+    const runId = 'fixture-a';
+    const content = '# Session recovery evidence\n\nThe selected run opened again.\n';
+    const binding = f.binding();
+    const source = f.context.material(binding, 'EVIDENCE', content);
+    assert.equal(f.context.call('step.record', {
+      step: 'evidence', source, reason: 'Session recovery observed', covers: 'Native Cockpit read',
+    }, binding).outcome, 'accepted');
+    const path = runEvidencePath(runId, `EVIDENCE-${source.digest.slice(7)}.md`);
+    const before = treeBytes(f.root);
+    const reader = createCockpitReader(f.root);
+    const snapshot = reader.snapshot(runId);
+    const { resources, evidence_applicability } = snapshot.data.run;
+    assert.ok(evidence_applicability.current.some(row => row.path === path && row.available === true));
+    const reportResources = resources.filter(row => row.registered_reference === path);
+    assert.equal(reportResources.length, 1, 'The registered report has one resource in the selected Run');
+    const report = reportResources[0];
+    assert.equal(report.status, 'registered');
+    assert.throws(() => reader.document(report.resource_id, snapshot.snapshot_id, 'fixture-completed'), /resource_denied/);
+    const document = reader.document(report.resource_id, snapshot.snapshot_id, runId);
+    assert.equal(document.state, 'available');
+    assert.equal(document.data.document.content, content);
+    assert.equal(document.data.document.resource.registered_reference, path);
+    assert.throws(() => reader.document(report.resource_id, snapshot.snapshot_id, runId), /resource_denied/);
+    assert.deepEqual(treeBytes(f.root), before);
+
+    fs.writeFileSync(join(f.root, path), 'Changed report bytes');
+    assert.equal(reader.snapshot(runId).data.run.resources.some(row => row.registered_reference === path), false);
+    fs.unlinkSync(join(f.root, path));
+    assert.equal(reader.snapshot(runId).data.run.resources.some(row => row.registered_reference === path), false);
+  } finally { f.close(); }
+});
+test('evidence registration preserves existing artefact identity and withholds unsupported files', () => {
+  const f = fixture();
+  try {
+    const runId = 'fixture-a';
+    const recordEvidence = (path, content) => {
+      assert.equal(f.context.call('step.record', {
+        step: 'evidence', source: { path, digest: canonicalEvidenceDigest(content) },
+        reason: 'Fixture report', covers: 'Native Cockpit read',
+      }, f.binding()).outcome, 'accepted');
+    };
+    recordEvidence(f.documentPath, fs.readFileSync(join(f.root, f.documentPath), 'utf8'));
+    const reader = createCockpitReader(f.root);
+    const resources = reader.snapshot(runId).data.run.resources.filter(row => row.registered_reference === f.documentPath);
+    assert.equal(resources.length, 1);
+    assert.equal(resources[0].type, 'UR');
+
+    const path = runEvidencePath(runId, 'report.html');
+    const content = '<h1>Unsupported report</h1>';
+    fs.mkdirSync(join(f.root, runEvidencePath(runId, '')), { recursive: true });
+    fs.writeFileSync(join(f.root, path), content);
+    recordEvidence(path, content);
+    const snapshot = reader.snapshot(runId);
+    assert.ok(snapshot.data.run.evidence_applicability.current.some(row => row.path === path && row.available === true));
+    assert.equal(snapshot.data.run.resources.some(row => row.registered_reference === path), false);
+  } finally { f.close(); }
+});
 test('Run overview works without a legacy backlog with bounded current source dependencies', () => {
   const f = fixture();
   try {

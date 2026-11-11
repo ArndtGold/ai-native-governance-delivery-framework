@@ -8,7 +8,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCompanionFixtures, volatileValues } from './fixtures/companion-fixtures.js';
-import { evaluateGateCheck, printGateCheckReport } from '../lib/control-evaluation/gate-check.js';
+import { buildStatusCard, evaluateGateCheck, printGateCheckReport } from '../lib/control-evaluation/gate-check.js';
 import { captureControlScope } from '../lib/control-read/snapshot.js';
 
 const GOLDEN = fileURLToPath(new URL('./fixtures/companion/status-card-golden.json', import.meta.url));
@@ -88,4 +88,24 @@ test('status card output for the companion fixture set equals the recorded basel
   const expected = JSON.parse(readFileSync(GOLDEN, 'utf8'));
   assert.deepEqual(Object.keys(actual), Object.keys(expected), 'fixture set changed');
   for (const id of Object.keys(expected)) assert.deepEqual(actual[id], expected[id], `${id} ${expected[id].name}: status card bytes or fields changed`);
+});
+
+// The path never shows two current entries: while an earlier gate of the path is the current gate, the
+// route entry after it is open (run run-921ef1f8-9792-4392-a2ea-6eb63c50bde6). A stored route with an
+// unapproved UR used to mark both, as in `●UR ●Compact Delivery`.
+test('the status card path marks at most one current entry', () => {
+  const pathOf = ({ route, currentGate, approved = [] }) => buildStatusCard({ status: 'open', currentGate, missingApproval: 'none', nextAllowedAction: 'x',
+    runState: { content: '', mode_slice_decision: { decision: route }, approvals: new Map(approved.map(gate => [gate, { status: 'approved' }])), artefacts: new Map(), meta: {} },
+  }).breadcrumb.map(({ gate, status }) => `${gate}:${status}`).join(' ');
+  for (const [route, entry] of [['quick_task', 'Compact Delivery'], ['verified_change', 'Verified Change'], ['block', 'Block']]) {
+    const waiting = pathOf({ route, currentGate: 'UR' });
+    assert.equal(waiting.match(/:current/gu).length, 1, `${route} with an unapproved UR: ${waiting}`);
+    assert.ok(waiting.startsWith(`UR:current ${entry}:open`), waiting);
+    assert.ok(pathOf({ route, currentGate: 'Brownfield Review', approved: ['UR'] }).startsWith(`UR:fulfilled ${entry}:current`),
+      `${route}: the route entry is current once the UR is approved`);
+  }
+  assert.equal(pathOf({ route: 'quick_task', currentGate: 'OR', approved: ['UR'] }), 'UR:fulfilled Compact Delivery:fulfilled');
+  assert.equal(pathOf({ route: 'verified_change', currentGate: 'OR', approved: ['UR'] }), 'UR:fulfilled Verified Change:fulfilled OR:current');
+  assert.equal(pathOf({ route: 'structured_delivery', currentGate: 'SD', approved: ['UR', 'PRD'] }),
+    'UR:fulfilled PRD:fulfilled SD:current TP:open QA:open UAT:open OR:open');
 });

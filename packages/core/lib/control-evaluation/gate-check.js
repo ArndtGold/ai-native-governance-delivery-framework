@@ -159,7 +159,7 @@ export function isReadyUserGateApproval({ status, currentGate, missingApproval }
 
 function buildBreadcrumbPath(modeSliceDecision, currentGate, runState) {
   const gates = BREADCRUMB_PATH_TEMPLATES[modeSliceDecision] ?? ["UR"];
-  return gates.map((gate) => {
+  return gates.map((gate, index) => {
     if (BREADCRUMB_STANDARD_GATES.includes(gate)) {
       if (gateApprovalStatus(runState, gate) === "approved") return { gate, status: "fulfilled" };
       if (gate === currentGate) return { gate, status: "current" };
@@ -170,6 +170,10 @@ function buildBreadcrumbPath(modeSliceDecision, currentGate, runState) {
     if (gate === currentGate) return { gate, status: "current" };
     if ((gate === "Verified Change" || gate === "Compact Delivery") && currentGate === "OR")
       return { gate, status: "fulfilled" };
+    // A path has one current entry: while an earlier gate is still the current one (a stored route
+    // with an unapproved UR), the route entry after it is open, not current by its route.
+    if (gates.slice(0, index).some((earlier) => earlier === currentGate && gateApprovalStatus(runState, earlier) !== "approved"))
+      return { gate, status: "open" };
     if (gate === "Verified Change" && modeSliceDecision === "verified_change")
       return { gate, status: "current" };
     if (gate === "Compact Delivery" && modeSliceDecision === "quick_task")

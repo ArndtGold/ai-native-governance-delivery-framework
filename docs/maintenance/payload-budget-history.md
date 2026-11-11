@@ -603,3 +603,5 @@ PR42 Windows root-confirmation repair: the same Git root is proven by full-width
 2026-11-10 — PR #71: shared Run inventory and work-situation projections add one runtime module. Exclude the Cockpit-only provenance helper and declaration from the Copilot profile, which does not ship the Cockpit. The measured payload changes from 457 files / 4,791,833 bytes to 458 files / 4,802,740 bytes (+1 file / 10,907 bytes); the baseline records the exact generated result with no reserve. Host qualification remains separate.
 
 2026-11-10 — PR #71 main integration: retain the companion review fixes and Cockpit work-state projection. The merged inventory is 458 files / 4,805,560 bytes, exactly measured with no reserve; the changes relative to main are +1 file / 10,908 bytes. No native host qualification is inferred.
+
+2026-11-11 — PR #72 main integration: the status card path keeps one current entry (run-921ef1f8-9792-4392-a2ea-6eb63c50bde6). The rule adds 467 bytes to `gate-check.js`; the measured payload changes from 458 files / 4,807,121 bytes to 458 files / 4,807,588 bytes, exactly measured with no reserve. No native host qualification is inferred.

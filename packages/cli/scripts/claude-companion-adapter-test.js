@@ -403,7 +403,8 @@ try {
       assert.match(texts(bar)[0], /^[✓●○]+ \S/u);
       assert.ok(id.props.label.length <= 40 - widest - 2, "every id fits beside the widest bar");
     }
-    assert.deepEqual(texts(barRows[0].children[1]), ["●● UR"], "a quick task at UR shows its own path");
+    // The path has one current entry: the route entry stays open while the UR is the current gate.
+    assert.deepEqual(texts(barRows[0].children[1]), ["●○ UR"], "a quick task at UR shows its own path");
     const narrow = await render(lister, "desktop", { bodyColumns: 24, scroll: { offset: 0, bodyRows: 60 } });
     assert.deepEqual([rowsOf(narrow).length, runsOf(narrow)], [0, 13], "a narrow pane lists the ids alone");
     assert.ok(buttons(narrow).filter(node => node.props.key.startsWith("run-")).every(node => !node.props.label.includes("…")));

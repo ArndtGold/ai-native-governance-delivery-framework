@@ -172,7 +172,7 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   // Runs finished before this session started, so none is assigned to the chat.
   const earlier = { last_activity: "2026-10-26T07:00:00Z" };
   const allDone = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" }), run({ ...earlier, run_id: "b", lifecycle: "completed" })]) });
-  assert.deepEqual([allDone.message, allDone.hint, allDone.idle], ["Alle Runs im Ziel. 🏁", "Was ist der nächste Stint? Sag's mir im Chat.", true]);
+  assert.deepEqual([allDone.message, allDone.hint, allDone.idle], ["Alle Runs im Ziel. 🏁", "Was steht als Nächstes an? Sag's mir im Chat.", true]);
   assert.equal(view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" })]) }, "en").message, "All runs across the line. 🏁");
   const partlyEnded = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" }), run({ ...earlier, run_id: "b", lifecycle: "abandoned" })]) });
   assert.deepEqual([partlyEnded.message, partlyEnded.hint], ["Keine offenen Runs in diesem Projekt.", undefined], "an abandoned run did not finish");

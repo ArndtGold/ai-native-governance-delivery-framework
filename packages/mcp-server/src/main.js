@@ -41,7 +41,10 @@ export async function runMcpServer({ surface, cockpitDir, cockpitMode, runtime, 
     runtime = thin ? await dispatcherRuntime.createMcpDecisionTransportRuntime({ runtime, ui })
       : await dispatcherRuntime.createMcpDecisionRuntime({ runtime, ui });
   }
-  if (runtime.mode === 'cockpit') loadCockpitResource(runtime.ui);
+  if (runtime.mode === 'cockpit') {
+    const resource = loadCockpitResource(runtime.ui);
+    runtime.bindResourceIdentity?.({ digest: resource.digest, version: serverVersion });
+  }
   let transport;
   if (ownedPublication) {
     const { createOwnedGenerationFacade } = await import('./generation.js');

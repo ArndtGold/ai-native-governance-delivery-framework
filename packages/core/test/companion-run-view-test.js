@@ -52,9 +52,9 @@ test('Review finding 5: a completed run that evaluates as blocked is shown as bl
     missing_approval: 'none', blocking_reason: 'AGDF_CLOSEOUT_EVIDENCE_MISSING', user_action_required: 'no', mode: 'quick_task' };
   assert.deepEqual(deriveFigureState(completed), { mood: 'blockiert', reason: { key: 'blocked', gate: 'OR', decision: 'AGDF_CLOSEOUT_EVIDENCE_MISSING' } });
   assert.deepEqual(deriveFigureState({ ...completed, status: 'open' }).mood, 'blockiert', 'a blocking reason alone blocks too');
-  assert.deepEqual(deriveFigureState({ ...completed, status: 'pass', blocking_reason: 'none' }), { mood: 'fertig', reason: { key: 'done' } });
-  assert.deepEqual(deriveFigureState({ valid: true, lifecycle: 'completed', evaluated: false }), { mood: 'fertig', reason: { key: 'done' } },
-    'a summarized completed run stays done');
+  assert.deepEqual(deriveFigureState({ ...completed, status: 'pass', blocking_reason: 'none', completion_confirmed: true }), { mood: 'fertig', reason: { key: 'done' } });
+  assert.deepEqual(deriveFigureState({ valid: true, lifecycle: 'completed', evaluated: false }), { mood: 'bereit', reason: { key: 'completionUnconfirmed' } },
+    'a summarized run does not claim confirmed completion');
 });
 
 test('SCN-001: active runs are evaluated, unreadable and terminal runs are summarized unless requested', t => {
@@ -120,6 +120,16 @@ test('SCN-004 (T-004, T-013 finding F2): an unsupported store counts its run fol
   assert.equal(readRunView(readable.root).store.run_folders, undefined, 'a supported store carries no folder count');
 });
 
+test('finish flag requires a confirmed completed Run, not an intermediate pass or stored lifecycle alone', () => {
+  const card = { status: 'pass', current_gate: 'OR', breadcrumb: [], missing_approval: 'none', blocking_condition: 'none', next_step: 'none', user_action_required: 'no' };
+  const report = { status_card: card, completion: { fulfilled: true }, doctor_status: 'pass' };
+  const entry = { run_id: 'test-run', lifecycle: 'completed', valid: true };
+  assert.equal(projectRunEntry(entry, report).figure.mood, 'fertig');
+  assert.deepEqual(projectRunEntry(entry, { ...report, completion: { fulfilled: false } }).figure, { mood: 'bereit', reason: { key: 'completionUnconfirmed' } }, 'an unconfirmed completion says so, not idle');
+  assert.equal(projectRunEntry(entry, null).figure.mood, 'bereit');
+  assert.notEqual(projectRunEntry({ ...entry, lifecycle: 'active' }, report).figure.mood, 'fertig');
+});
+
 test('SCN-008 (T-005): figure moods follow the status card and all six moods are reachable', t => {
   const expected = { F01: 'laeuft', F02: 'wartet', F03: 'wartet', F04: 'laeuft', F05: 'wartet', F06: 'fertig', F07: 'fertig',
     F08: 'blockiert', F09: 'blockiert', F10: 'wartet', F11: 'blockiert', F12: 'blockiert', F13: 'blockiert' };
@@ -144,7 +154,7 @@ test('SCN-017 (T-005): the catalog carries complete companion copy in de and en'
   for (const locale of ['en', 'de']) {
     const copy = registry.locales[locale].companion;
     for (const mood of COMPANION_MOODS) assert.ok(copy.states[mood]?.trim(), `${locale} mood ${mood}`);
-    for (const key of ['working', 'waitingApproval', 'waitingDecision', 'blocked', 'done', 'building', 'idle', 'ended', 'unreadable'])
+    for (const key of ['working', 'waitingApproval', 'waitingDecision', 'blocked', 'done', 'building', 'idle', 'completionUnconfirmed', 'ended', 'unreadable'])
       assert.ok(copy.reasons[key]?.trim(), `${locale} reason ${key}`);
     for (const reason of DIAGNOSIS_REASONS) assert.ok(copy.unreadable[reason]?.trim(), `${locale} diagnosis ${reason}`);
   }

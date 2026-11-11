@@ -26,8 +26,9 @@ test('scoped HTTP reading preserves stored backlog, source navigation and Pages 
     await page.getByRole('button', { name: 'Fixture document' }).click();
     await expect(page.locator('.page-title h1')).toHaveText('Fixture document');
     release();
+    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Dokument schließen' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Zurück zur (Übersicht|Statuskarte)/ })).toBeVisible();
     await expect(page.locator('.document-original')).not.toHaveAttribute('open');
     for (const theme of ['light', 'dark']) {
       await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
@@ -39,7 +40,7 @@ test('scoped HTTP reading preserves stored backlog, source navigation and Pages 
         await page.screenshot({ path: evidencePath(`agdf-scoped-${theme}-${width}.png`), fullPage: true });
       }
     }
-    await page.getByRole('button', { name: 'Dokument schließen' }).click();
+    await page.getByRole('button', { name: /Zurück zur (Übersicht|Statuskarte)/ }).click();
     await expect(page.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true })).toBeFocused();
     const reads = calls.filter(p => !p.startsWith('/api/freshness') && !p.startsWith('/api/backlog-titles') && !p.startsWith('/api/changes'));
     expect(reads.map(p => p.split('?')[0])).toEqual(['/api/snapshot', '/api/snapshot', '/api/snapshot', reads[3].split('?')[0], '/api/runs/fixture-a']);

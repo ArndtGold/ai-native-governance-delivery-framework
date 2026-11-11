@@ -23,6 +23,7 @@ it('MCP change wait forwards only bound session/snapshot and cancellation; it do
   await expect(bridge.read.waitForChanges!('snapshot', controller.signal, 'target')).rejects.toThrow('dto_invalid');
 });
 
+
 it.each([
   ['session_expired', 'Sitzung abgelaufen'],
   ['read_failed', 'Aktualisierung fehlgeschlagen'],

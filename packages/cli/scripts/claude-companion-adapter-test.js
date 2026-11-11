@@ -266,6 +266,14 @@ try {
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[target.root], "fixture-a");
   tree = await render(first);
   assert.ok(texts(tree).includes("Selected by you") && texts(tree).includes("waiting for approval"));
+  const figureSource = async host => find(await render(host), node => node.tag === "Svg")[0].props.source;
+  const waitingFigure = await figureSource(first);
+  assert.match(waitingFigure, />UR<\/text>/u);
+  assert.match(waitingFigure, /dur="12s"/u);
+  assert.match(waitingFigure, /data-gesture/u, "first visible approval plays its gesture");
+  await (await entry(first, "retry"))();
+  assert.equal(await figureSource(first), waitingFigure, "unchanged read keeps the SVG bytes");
+
   assert.ok(texts(find(tree, node => node.tag === "Text" && node.props.mono)[0])[0].length <= 40);
   // The stepping buttons show their localized label, which the desktop draws and which names them.
   // They share a row of their own; the count sits on the line above, so the row fits 40 columns
@@ -638,18 +646,25 @@ try {
   const review = decision => reportBlock(target.root, "fixture-a", decision);
   assert.equal(lastStatus(), "AGDF · Quick Task Execution · working");
   assert.deepEqual(first.log.toasts, [], "no toast for baselines, run switching or a working run");
+  await (await entry(first, "still"))();
+  await figureSource(first);
   review("revise");
   await reread(first);
+  const warningFigure = await figureSource(first);
+  assert.match(warningFigure, /data-gesture="\d+".*repeatCount="1"/su);
   await reread(first);
+  assert.equal(await figureSource(first), warningFigure);
+  await (await entry(first, "still"))();
   assert.deepEqual(first.log.toasts, ["Blocked: Quick Task Execution – revision needed"]);
   assert.equal(lastStatus(), "AGDF · Quick Task Execution · blocked");
   assert.deepEqual(first.log.audio, [], "the sound is off by default");
-  // A main-loop turn shows its overlay in the pane but changes neither the status line nor toasts.
+  // A main-loop turn preserves the canonical desktop figure. The terminal keeps its turn overlay.
   // Every applied read sets the status line again (live finding: the desktop dropped the one set
   // during session start), so the post-turn read repeats the same text.
   const statusCount = first.log.status.length;
   await first.fire("turn.start", {});
-  assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
+  assert.ok(texts(await render(first)).includes("blocked"));
+  assert.ok(texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
   const beforeTurnRead = first.log.invalidations;
   touch(target.root);
   await first.fire("turn.complete", {});
@@ -661,7 +676,8 @@ try {
   await first.fire("turn.start", { agentId: "sub" });
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"), "a subagent turn shows no overlay");
   await first.fire("turn.start", {});
-  assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
+  assert.ok(texts(await render(first)).includes("blocked"));
+  assert.ok(texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
   await first.fire("turn.complete", {});
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
@@ -758,8 +774,27 @@ try {
   const otherCleanup = [];
   const otherProject = currentFixture({ after(fn) { otherCleanup.push(fn); } }).root;
   second.where.root = otherProject;
+  second.$.process.run = async () => ({ exitCode: 1, stdout: "" });
   await (await entry(second, "retry"))();
-  assert.ok(texts(await render(second)).includes("No open runs in this project."));
+  assert.ok(!texts(await render(second)).includes("fixture-a"), "a failed project switch cannot show the previous Run");
+  assert.doesNotMatch(await figureSource(second), /<animate/u);
+  assert.ok(!(await figureSource(second)).includes('d="M74 63q7 6 14 0"'), "a failed read does not smile");
+  second.$.process.run = secondRun;
+  await (await entry(second, "retry"))();
+  assert.ok(texts(await render(second)).includes("Starting grid empty."), "a project without runs shows the empty starting grid");
+  // A readable project without an assigned run idles: the figure smiles, blinks unless the still pose is
+  // chosen, and never gestures.
+  const smile = 'd="M74 63q7 6 14 0"';
+  const stillIdle = await figureSource(second);
+  assert.doesNotMatch(stillIdle, /<animate/u, "this session chose the still pose");
+  assert.ok(stillIdle.includes(smile), "the still pose keeps the smile");
+  await (await entry(second, "still"))();
+  const idleFigure = await figureSource(second);
+  assert.match(idleFigure, /attributeName="ry"/u, "without an assigned run the figure blinks");
+  assert.ok(idleFigure.includes(smile), "without an assigned run the figure smiles");
+  assert.doesNotMatch(idleFigure, /data-gesture=/u, "without an assigned run the figure never gestures");
+  await (await entry(second, "still"))();
+  assert.doesNotMatch(await figureSource(second), /<animate/u);
   second.where.root = target.root;
   await (await entry(second, "retry"))();
   assert.ok(texts(await render(second)).includes("fixture-a"));
@@ -782,6 +817,12 @@ try {
     tree = await render(closingHost);
     assert.ok(texts(tree).includes("No open runs in this project."));
     assert.deepEqual(buttons(tree).filter(button => button.props.key.startsWith("run-")), []);
+    assert.doesNotMatch(find(tree, node => node.tag === "Svg")[0].props.source, /overview-tablet/u, "a superseded run did not finish, so no tablet");
+    writeFileSync(runPath, sealRunState(closing.root, replaceFirstScalar(readFileSync(runPath, "utf8"), "lifecycle", "completed")));
+    await (await entry(closingHost, "retry"))();
+    tree = await render(closingHost);
+    assert.ok(texts(tree).includes("All runs across the line. 🏁"));
+    assert.match(find(tree, node => node.tag === "Svg")[0].props.source, /data-accessory="overview-tablet"/u, "every run done shows the tablet");
   } finally {
     closing.close();
   }

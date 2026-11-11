@@ -11,6 +11,7 @@ import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+import { readRunView } from '../lib/companion/run-view.js';
 test('a current writer-bound evidence report opens through the scoped document selector', () => {
   const f = fixture();
   try {
@@ -112,6 +113,8 @@ test('captured assessment matches canonical gate evaluation and performs no writ
     const reader = createCockpitReader(f.root), s = reader.snapshot(), detail = reader.run('fixture-a', s.snapshot_id).data.run;
     assert.deepEqual(detail.evaluation.control_assessment, projectCockpitAssessment(report, detail.lifecycle));
     assert.equal(detail.evaluation.status, report.status);
+    assert.deepEqual(detail.figure, { mood: 'wartet', reason: { key: 'waitingApproval', gate: 'UR' } });
+    assert.deepEqual(detail.figure, readRunView(f.root, { runIds: ['fixture-a'] }).runs.find(run => run.run_id === 'fixture-a').figure);
     assert.deepEqual(treeBytes(f.root), before);
   } finally { f.close(); }
 });
@@ -142,6 +145,7 @@ test('SCN-001/002/008/020: Run inventory stays passive; selected valid, complete
     reader.freshness(document.snapshot_id); assert.deepEqual(treeBytes(f.root), before);
     const completed = reader.run('fixture-completed', document.snapshot_id);
     assert.equal(completed.data.run.lifecycle, 'completed'); assert.equal(completed.data.run.evaluation.control_assessment.state, 'unconfirmed', 'A synthetic lifecycle scalar alone supplies no completion evidence');
+    assert.equal(completed.data.run.figure, undefined);
     const broken = reader.run('broken', completed.snapshot_id); assert.equal(broken.code, 'invalid_run');
     assert.equal(broken.data.run.resources.length, 0); assert.ok(broken.data.run.diagnostics.length);
     const newer = reader.snapshot(); assert.throws(() => reader.run('fixture-a', broken.snapshot_id), /resource_denied/);

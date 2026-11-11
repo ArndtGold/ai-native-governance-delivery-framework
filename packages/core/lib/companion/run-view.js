@@ -66,6 +66,7 @@ export function projectRunEntry(inventoryEntry, report, { registry = interaction
     ...base,
     title: card.humanPresentation?.runTitle ?? base.title,
     evaluated: true,
+    completion_confirmed: base.lifecycle === 'completed' && report.completion?.fulfilled === true,
     status: card.status,
     current_gate: card.current_gate,
     path: card.breadcrumb.map(({ gate, status }) => ({ gate, status })),

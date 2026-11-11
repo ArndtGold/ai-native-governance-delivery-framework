@@ -27,15 +27,9 @@ function focused(state: 'unchecked' | 'passed' | 'corrections_required' = 'unche
   const envelope = selected('run-a', state !== 'unchecked');
   const run = (envelope.data as { run: ReturnType<typeof runData> }).run;
   const fixture = documentFixture();
-  run.persisted!.current_gate = 'UR'; run.evaluation!.current_gate = 'UR';
-  run.resources = fixture.resources.filter(resource => resource.type === 'UR');
+  run.persisted!.current_gate = 'PRD'; run.evaluation!.current_gate = 'PRD';
+  run.resources = fixture.resources.filter(resource => resource.type === 'PRD');
   const draft = run.draft_check!;
-  draft.source.gate = 'UR';
-  draft.source.artifact_path = run.resources[0].registered_reference;
-  if (draft.result) {
-    draft.result.gate = 'UR';
-    draft.result.artifact_path = draft.source.artifact_path;
-  }
   if (state === 'corrections_required') {
     const finding = { code: 'required_section_missing', message: 'Ein Pflichtabschnitt fehlt.' };
     draft.display = { state, reason: null, recovery: 'authoring', findings: [finding] };
@@ -43,7 +37,7 @@ function focused(state: 'unchecked' | 'passed' | 'corrections_required' = 'unche
     draft.result!.checks[0].ready = false;
     draft.result!.diagnostics = [finding];
   }
-  run.document_states = fixture.document_states!.filter(row => row.type === 'UR').map(row => ({
+  run.document_states = fixture.document_states!.filter(row => row.type === 'PRD').map(row => ({
     ...row, revision_id: revision,
     state: state === 'passed' ? 'draft_checked' : state === 'corrections_required' ? 'revision_required' : 'draft',
     check: draft.result ? { ...draft, content_digest: row.content_digest! } : null,
@@ -56,6 +50,8 @@ describe('Bound draft check', () => {
     let resolve!: (v: Envelope<ReadingScope>) => void;
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; }) : selected());
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+    await screen.findByRole('heading', { name: 'Dokumente' });
     const button = await screen.findByRole('button', { name: 'Entwurf prüfen' });
     expect(read).toHaveBeenCalledTimes(1); button.focus();
     fireEvent.click(button); fireEvent.click(button);
@@ -72,6 +68,7 @@ describe('Bound draft check', () => {
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; })
       : selected());
     render(<App compact transport={read as ReadTransport} initialRunId="run-a"/>);
+    (await screen.findByText('Details', { selector: 'summary' })).click();
     fireEvent.click(await screen.findByRole('button', { name: 'Entwurf prüfen' }));
     await screen.findByText('Prüfung läuft');
     fireEvent.click(screen.getByRole('button', { name: 'Alle Vorhaben' }));
@@ -83,6 +80,8 @@ describe('Bound draft check', () => {
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/')
       ? ++checks === 1 ? { ...selected(), state: 'blocked', code: 'busy', data: null } : selected('run-a', true) : selected());
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+    await screen.findByRole('heading', { name: 'Dokumente' });
     fireEvent.click(await screen.findByRole('button', { name: 'Entwurf prüfen' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Prüfung wiederholen' }));
     await screen.findByText('Entwurfsprüfung bestanden');
@@ -99,7 +98,7 @@ describe('Bound draft check', () => {
       return new Promise<Envelope<ReadingScope>>(resolve => { refresh = resolve; });
     });
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
-    const action = await screen.findByRole('button', { name: 'Entwurf ansehen: Anforderungen' });
+    const action = await screen.findByRole('button', { name: 'Entwurf ansehen: Produktanforderungen' });
     const row = action.closest('li')!;
     const status = row.querySelector('[data-check-state]')!;
     expect(status.textContent).toBe('Formale Prüfung bestanden');
@@ -122,14 +121,14 @@ describe('Bound draft check', () => {
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/')
       ? ++checks === 1 ? { ...focused(), state: 'blocked', code: 'busy', data: null } : focused('corrections_required') : focused());
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
-    const action = await screen.findByRole('button', { name: 'Entwurf ansehen: Anforderungen' });
+    const action = await screen.findByRole('button', { name: 'Entwurf ansehen: Produktanforderungen' });
     const retry = await screen.findByRole('button', { name: 'Erneut prüfen' });
     expect(retry.closest('li')).toBe(action.closest('li'));
     fireEvent.click(retry);
     const findingStatus = await screen.findByText('Korrekturen erforderlich');
     expect(findingStatus.closest('li')).toBe(action.closest('li'));
     expect(screen.queryByRole('button', { name: 'Erneut prüfen' })).toBeNull();
-    expect(screen.getByText('Prüfbefunde ansehen')).toBeTruthy();
+    expect(screen.getByText('Prüfquelle und Originalbefunde')).toBeTruthy();
     expect(checks).toBe(2);
   });
   it('recaptures a changed draft once and checks the replacement without a retry button', async () => {
@@ -157,6 +156,8 @@ describe('Bound draft check', () => {
     let resolve!: (v: Envelope<ReadingScope>) => void;
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; }) : selected());
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+    await screen.findByRole('heading', { name: 'Dokumente' });
     const button = await screen.findByRole('button', { name: 'Entwurf prüfen' }); vi.useFakeTimers();
     fireEvent.click(button); await act(async () => {});
     await act(async () => { vi.advanceTimersByTime(12_000); });

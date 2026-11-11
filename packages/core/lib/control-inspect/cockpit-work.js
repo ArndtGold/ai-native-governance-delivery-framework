@@ -7,13 +7,15 @@ import { COCKPIT_WORK_SECTIONS as sections } from './cockpit-list.js';
 // discriminator changes policy: order and per-row source identity come from Core,
 // never a Markdown table, stored rank, or adapter-specific lifecycle database.
 export function projectCockpitWork(root) {
-  const inventory = readWorkInventory(root, { language: 'de' });
+  const inventory = readWorkInventory(root, { language: 'de', includePresentation: true, cockpitAssessment: true });
   if (inventory.state === 'unavailable') return { state: 'error', code: 'work_inventory_unavailable', data: null };
   const entries = inventory.entries.map(row => {
     const planned = row.kind === 'planned';
     const section = planned ? sections[1] : row.lifecycle === 'active' || row.lifecycle === null ? sections[0] : sections[2];
     const key = planned ? row.plan_id : row.run_id;
-    return { kind: row.kind, identity: row.identity, section, key, original_key: key, title: row.title,
+    return { kind: row.kind, identity: row.identity, section, key, original_key: key, title: planned ? row.title : row.presentation?.name || key,
+      ...(!planned ? { title_source: row.presentation?.name ? 'ur' : 'run_id', objective: row.title_source === 'objective' ? row.title : null,
+        last_activity: row.last_activity, seal: row.presentation?.seal ?? 'unconfirmed', lifecycle: row.lifecycle, attention_code: row.attention.code } : {}),
       stored_status: planned ? ({ ready: 'Bereit zur Übergabe', draft: 'UR in Klärung', recovery_required: 'Wiederherstellung erforderlich', unconfirmed: 'Zuordnung ungeklärt', unavailable: 'Quelle nicht verfügbar' })[row.coverage]
         : row.attention.label, scope: planned ? 'UR-Planung' : 'Run', priority: row.priority ?? null,
       stored_next_step: planned ? row.actions.join(' · ') : row.next_action ?? '', source_links: row.source.path,

@@ -3,7 +3,9 @@ export interface Target { target_id: string; display_path: string }
 export interface Envelope<T> { schema_version: '2'; target: Target; snapshot_id: string | null; observed_as_of: string | null; source_digest: string | null; state: Availability; code: string | null; retryable: boolean; data: T | null }
 export interface Run { run_id: string; valid: boolean; lifecycle: string | null; revision_id: string | null; objective: string | null; title: string; source_path: string; status: string | null; current_gate: string | null; code: string | null;
   attention?: { blocking_reason: string; missing_approval: string; missing_evidence_count: number } }
-export interface WorkEntry { section: string; key: string; original_key: string; title: string; stored_status: string; scope: string;
+export interface WorkEntry { section: string; key: string; original_key: string; title: string; title_source?: 'objective' | 'run_id' | 'ur'; stored_status: string; scope: string;
+  objective?: string | null; last_activity?: { at: string | null; source: string; precision: string | null }; seal?: 'valid' | 'invalid' | 'unsealed' | 'unconfirmed';
+  lifecycle?: 'active' | 'completed' | 'superseded' | 'abandoned' | null; attention_code?: 'decision_required' | 'clarification_required' | 'blocked' | 'in_progress' | 'unclear' | 'none';
   kind: 'planned' | 'run' | 'archive'; identity: string; source: { path: string; digest: string | null }; coverage?: string; handoff_ready?: boolean; actions?: string[];
   priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean; row_id?: string }
 export interface WorkSummary { kind: string; phase: string; qa_outcome: string; lifecycle: string; recorded_approvals: string[];
@@ -30,7 +32,9 @@ export interface RunClosure { outcome: 'superseded' | 'abandoned'; reason: strin
   confirmed_by: { name: string | null; email: string | null; statement: 'cooperative' } | { statement: 'unknown' } | null; closed_at: string | null;
   operation_id: string | null; receipt: 'recorded' | 'unavailable'; authorizes: false }
 export interface NextOperation { type: string; operation_key: string; actor: 'agent' | 'human'; effect: string; gate: string; skill_id?: string }
-export interface Detail { run_id: string; title?: string; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
+export interface CompanionFigure { mood: string; reason: { key: string; gate?: string; decision?: string; reason?: string } }
+export interface Detail { run_id: string; title?: string; title_source?: 'ur' | 'objective' | 'run_id'; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
+  figure?: CompanionFigure;
   closure?: RunClosure | null;
   evidence_applicability?: Record<'current' | 'superseded' | 'applicability_unknown', EvidenceAssociation[]>;
   document_states?: DocumentState[];
@@ -58,7 +62,8 @@ export interface DocumentState {
   recorded_approval: { status: 'approved'; evidence: string } | null;
   check: (DraftCheckData & { content_digest: string }) | null; authorizes: false;
 }
-export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string; document_state?: DocumentState }
+export interface CockpitSummary { state: 'available'; gate: string; items: {label: string; text: string}[]; markdown: string; authorizes: false; run_id: string; resource_id: string; revision_id: string; content_digest: string }
+export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string; document_state?: DocumentState; cockpit_summary?: CockpitSummary }
 export interface Route { view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
 export interface GraphReference { resource_id: string; run_id: string; origin: string; path: string; node_id: string | null;
   graph_digest: string | null; content_digest: string | null; content: string | null;

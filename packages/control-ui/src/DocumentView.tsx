@@ -5,14 +5,14 @@ import { ReadState, label } from './feedback';
 import { documentPurpose, phaseName, observedAssessment, sourceSummary } from './presentation';
 import { documentPresentation, DocumentStateLabel } from './document-state';
 import { sameJson } from './api';
-export function PassiveMarkdown({ content, links, onOpen }: { content: string; links: Record<string, string>; onOpen: (id: string) => void }) {
-  return <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{
+export function PassiveMarkdown({ content, links, onOpen, preserveHtmlText = false }: { content: string; links: Record<string, string>; onOpen: (id: string) => void; preserveHtmlText?: boolean }) {
+  return <Markdown remarkPlugins={[remarkGfm]} skipHtml={!preserveHtmlText} components={{
     a: ({ href, children }) => href && Object.hasOwn(links, href) ? <button className="text-link" onClick={() => onOpen(links[href])}>{children}</button> : <span>{children}{href ? <span className="muted"> ({href})</span> : null}</span>,
     img: ({ alt }) => <span className="muted">[Bild: {alt || 'ohne Beschreibung'}]</span>,
     input: ({ checked }) => <span>{checked ? '☑' : '☐'}</span>,
   }}>{content}</Markdown>;
 }
-export function DocumentView({ result, onOpen, runTitle, detail, current = true }: { result: Envelope<DocumentData>; onOpen: (id: string) => void; runTitle?: string; detail?: Envelope<Detail>; current?: boolean }) {
+export function DocumentView({ result, onOpen, runTitle, detail, current = true, simple = false }: { result: Envelope<DocumentData>; onOpen: (id: string) => void; runTitle?: string; detail?: Envelope<Detail>; current?: boolean; simple?: boolean }) {
   const data = result.data;
   const bound = !!data && !!detail?.data && !!result.snapshot_id && result.snapshot_id === detail.snapshot_id
     && result.target.target_id === detail.target.target_id && data.resource.run_id === detail.data.run_id
@@ -36,6 +36,30 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true 
     : assessment === 'completed' ? 'Vorhaben abgeschlossen'
     : assessment === 'ended' && detail?.data?.closure ? `Vorhaben beendet · ${label(detail.data.closure.outcome)}` : 'Aktuelle Voraussetzungen nicht bestätigt';
   const summary = readable && data?.format === 'markdown' ? sourceSummary(data.content!) : null;
+  const checkDetails = confirmed && state?.check && <details className="document-provenance" aria-label="Prüfdetails"><summary>Prüfdetails</summary>
+      <p>Die formale Prüfung prüft die vorhandenen Autorenregeln. Sie ersetzt weder die inhaltliche Prüfung noch eine Freigabe.</p>
+      <dl className="document-source-fields"><dt>Prüfstand</dt><dd>{state.check.display.state === 'passed' ? 'Formale Prüfung bestanden' : state.check.display.state === 'corrections_required' ? 'Korrekturen erforderlich' : state.check.display.state === 'unchecked' ? 'Noch nicht geprüft' : 'Prüfung nicht verfügbar'}</dd>
+        <dt>Gate</dt><dd>{state.check.source.gate}</dd><dt>Revision</dt><dd><code>{state.check.source.revision_id}</code></dd>
+        <dt>Quelle</dt><dd><code>{state.check.source.artifact_path ?? 'Nicht verfügbar'}</code></dd><dt>SHA-256</dt><dd><code>{state.check.source.artifact_digest ?? 'Nicht verfügbar'}</code></dd>
+        <dt>Beobachtet</dt><dd>{result.observed_as_of ?? 'Nicht verfügbar'}</dd></dl>
+      {state.check.source.reason && <p>Originalgrund: <code>{state.check.source.reason}</code></p>}
+      {state.check.result && <details><summary>Originalbefunde</summary><pre>{JSON.stringify(state.check.result, null, 2)}</pre></details>}
+    </details>;
+  const sourceDetails = <details className="document-provenance"><summary>Quellenangaben</summary><dl className="document-source-fields"><dt>Dokumenttyp</dt><dd>{data?.resource.type ?? 'Dokument'}</dd><dt>Registrierte Quelle</dt><dd><code>{data?.resource.registered_reference}</code></dd>{data?.content_digest && <><dt>Quellenfingerabdruck</dt><dd><code>{data.content_digest}</code></dd></>}</dl></details>;
+  if (simple) return <>
+    <div className="document-state-context">{!(confirmed && state?.state === 'draft_checked') && <DocumentStateLabel state={state} type={data?.resource.type ?? ''} current={!!confirmed} recordedApproval={!!approval}/>}
+      {confirmed && state?.check?.display.findings?.length ? <ul aria-label="Aktuelle Korrekturen">{state.check.display.findings.map((finding, i) => <li key={`${finding.code}:${i}`}>{finding.message ?? finding.code}</li>)}</ul> : null}
+    </div>
+    {result.state !== 'available' ? <ReadState state={result.state} code={result.code}/> : data?.content !== undefined
+      ? <article className="document document-original-text" aria-label="Originaldokument">{data.format === 'markdown'
+        ? <PassiveMarkdown content={data.content} links={data.links ?? {}} onOpen={onOpen} preserveHtmlText/>
+        : <pre>{data.content}</pre>}</article>
+      : <ReadState state="error" code="dto_invalid"/>}
+    {readable && bound && current && <a className="document-download" download={(data?.resource.registered_reference.split('/').pop() || 'dokument.md').replace(/[^a-zA-Z0-9._-]/g, '_')}
+      href={`data:text/plain;charset=utf-8,${encodeURIComponent(data!.content!)}`}>Originaldatei herunterladen</a>}
+    {checkDetails}
+    {sourceDetails}
+  </>;
   return <>
     <section className="document-context" aria-label="Einordnung des Dokuments">
       {runTitle && <p>Zum Vorhaben <strong>{runTitle}</strong></p>}
@@ -55,7 +79,8 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true 
       </dl>
       <p className="muted document-status-note">Statusangaben im Original werden unverändert gezeigt. Maßgeblich für den gespeicherten Stand ist der Run-Stand; für die Weiterarbeit die aktuelle Kontrollauswertung. Eine gespeicherte Freigabe ersetzt diese Prüfung nicht.</p>
     </section>
-    <details className="document-provenance"><summary>Quellenangaben</summary><dl className="document-source-fields"><dt>Dokumenttyp</dt><dd>{data?.resource.type ?? 'Dokument'}</dd><dt>Registrierte Quelle</dt><dd><code>{data?.resource.registered_reference}</code></dd>{data?.content_digest && <><dt>Quellenfingerabdruck</dt><dd><code>{data.content_digest}</code></dd></>}</dl></details>
+    {checkDetails}
+    {sourceDetails}
     {result.state !== 'available' ? <ReadState state={result.state} code={result.code}/> : data?.content !== undefined
       ? <details className="document-original"><summary>Originaldokument lesen</summary><article className="document agdf-surface">{data.format === 'markdown' ? <PassiveMarkdown content={data.content} links={data.links ?? {}} onOpen={onOpen}/> : <pre>{data.content}</pre>}</article></details>
       : <ReadState state="error" code="dto_invalid"/>}

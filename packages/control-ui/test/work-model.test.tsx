@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Overview } from '../src/Overview';
 import { validateData } from '../src/api';
 import { backlog, pointer, runData } from './scoped-fixtures';
@@ -9,7 +9,7 @@ it('run model: shows canonical titles and source order without an auxiliary titl
   render(<Overview result={backlog([pointer('run-b', 'Beta'), pointer('run-a', 'Alpha')])} onSelect={vi.fn()}/>);
   expect(screen.getAllByRole('heading', { level: 3 }).map(node => node.textContent)).toEqual(['Beta', 'Alpha']);
   expect(screen.queryByText(/Legacy|Masterbacklog|laut Backlog/iu)).toBeNull();
-  expect(screen.getAllByText(/Beobachteter Quellenstand/)).toHaveLength(2);
+  expect(screen.getAllByText('Zuletzt beobachteter Stand')).toHaveLength(2);
 });
 it('run model: refuses obsolete or missing layout and removed parallel summary fields', () => {
   const current = backlog();
@@ -19,6 +19,28 @@ it('run model: refuses obsolete or missing layout and removed parallel summary f
   expect(() => validateData('/api/snapshot', { ...current, data: { ...current.data, kind: 'backlog' } })).toThrow();
   const rows = current.data!.entries.map(row => ({ ...row, saved_summary: { provenance_state: 'recorded' } }));
   expect(() => validateData('/api/snapshot', { ...current, data: { ...current.data, entries: rows } })).toThrow();
+});
+it('shows confirmed lifecycle separately from the saved status and leaves unknown lifecycle explicit', () => {
+  const rows = [
+    { ...pointer('a'), lifecycle: 'active' as const }, { ...pointer('b'), lifecycle: 'completed' as const },
+    { ...pointer('c'), lifecycle: 'superseded' as const }, { ...pointer('d'), lifecycle: 'abandoned' as const },
+    { ...pointer('e'), lifecycle: null },
+  ];
+  render(<Overview result={backlog(rows)} onSelect={vi.fn()}/>);
+  const lifecycleLabels = [...document.querySelectorAll('.work-row-lifecycle')].map(node => node.textContent);
+  for (const value of ['Aktiv', 'Abgeschlossen', 'Abgelöst', 'Abgebrochen', 'Lifecycle unbekannt']) expect(lifecycleLabels.some(label => label?.includes(value))).toBe(true);
+  expect(screen.getAllByText('Zuletzt beobachteter Stand')).toHaveLength(5);
+});
+it('places provenance in the selected run, with an explicit stale observation', () => {
+  const data = { ...runData('run-a'), title_source: 'ur' as const, resources: [{resource_id:'source',run_id:'run-a',type:'UR',path:'.agdf/control/runs/run-a/UR.md',registered_reference:'.agdf/control/runs/run-a/UR.md',status:'registered'}] };
+  render(<RunDetail result={{ ...backlog(), data }} current={false} onOpen={vi.fn()} sourceEntry={pointer('run-a')}/>);
+  const disclosure = screen.getByText('Quellen und Datenstand').closest('details')!;
+  expect(disclosure.open).toBe(false);
+  fireEvent.click(screen.getByText('Quellen und Datenstand'));
+  expect(disclosure.open).toBe(true);
+  expect(screen.getByText(/Überschrift des registrierten UR-Dokuments/)).toBeTruthy();
+  expect(screen.getByText(/Datenstand nicht aktuell/)).toBeTruthy();
+  expect(screen.getByText('Listenquelle')).toBeTruthy();
 });
 it('run model: current concrete obligation remains visible from the Run without a saved comparison', () => {
   const data = { ...runData('run-a'), work_summary: { kind: 'qa_evidence_open', phase: 'QA', qa_outcome: 'revise', lifecycle: 'active',

@@ -126,17 +126,19 @@ function entryOf(source, language) {
   const gateResult = facts?.artefacts.get(gate === 'Quick Task Execution' ? 'CR' : gate)?.status ?? null;
   const presentationDecision = source.observation?.presentation_decision === true;
   const missing = source.observation?.missing === 'none' ? '' : source.observation?.missing ?? '';
-  const attention = runAttention({ lifecycle, valid, decision, gateResult, presentationDecision, missing });
+  const situation = source.observation?.work_situation;
+  const attention = situation?.code ?? runAttention({ lifecycle, valid, decision, gateResult, presentationDecision, missing });
   const revision = /^[1-9]\d*$/u.test(meta.get("revision") ?? "") ? Number(meta.get("revision")) : null;
   const index = languageIndex(language);
   return {
     run_id: runId,
     ...(text ? objectiveTitle(text, runId) : { title: normalizedRunTitle(runId), title_source: "run_id" }),
+    ...(source.presentation ? { presentation: source.presentation } : {}),
     valid,
     lifecycle: valid ? lifecycle : null,
     current_gate: gate,
     decision,
-    attention: { code: attention, label: LABELS[attention][index] },
+    attention: { code: attention, label: situation ? (index === 1 ? situation.de : situation.en) : LABELS[attention][index] },
     basis: revision === null ? TEXT.basisUnknown[index]() : TEXT.basis[index](revision),
     last_activity: text ? lastActivity(decoded) : { at: null, source: "none", precision: null },
     revision,

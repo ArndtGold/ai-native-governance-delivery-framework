@@ -19,7 +19,7 @@ const { displayState, runState, MOODS } = await companion("state.mjs");
 const { assignRun, namedRun, openRuns, stepSelection } = await companion("assignment.mjs");
 const { chatLocale, companionLabels, label, settingLocale } = await companion("localization.mjs");
 const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
-const { ACCESSORY_BOUNDS, ACCESSORY_REGION, BRICKS, BRICK_SIZE, FIGURE_BOX, FIGURE_TEXT, HAMMER, figureSvg } = await companion("figure.mjs");
+const { FIGURE_TEXT, figureSvg, observeFigure } = await companion("figure.mjs");
 const { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } = await companion("notice.mjs");
 const { buildPanelView, terminalText } = await companion("view.mjs");
 const { STATE_FILE, parseCompanionState, pluginDataDir, serializeCompanionState } = await companion("persistence.mjs");
@@ -32,7 +32,7 @@ const path = (current, { done = PATH.indexOf(current) } = {}) => PATH.map((gate,
 const entry = (overrides = {}) => ({ run_id: "r", title: "Show the run state.", lifecycle: "active", valid: true, evaluated: true, status: "open",
   current_gate: "SD", mode: "structured_delivery", last_activity: "2026-10-26T08:00:00.000Z", missing_approval: "none", blocking_reason: "none",
   blocking_text: "keine", next_step: "Draft the SD.", next_step_text: "Das SD entwerfen.", user_action_required: "no", path: path("SD"), ...overrides });
-const run = (overrides = {}) => { const value = entry(overrides); return companionRun({ ...value, figure: deriveFigureState(value) }); };
+const run = (overrides = {}) => { const value = entry({ completion_confirmed: overrides.lifecycle === 'completed', ...overrides }); return companionRun({ ...value, figure: deriveFigureState(value) }); };
 const structured = (gate, overrides = {}) => run({ current_gate: gate, path: path("QA", { done: 4 }).map(row => row.gate === "QA" ? { ...row, status: "open" } : row), ...overrides });
 const snapshot = (runs, extra = {}) => ({ status: "ok", runs, unreadable: [], readAt: Date.parse("2026-10-26T08:10:00Z"), ...extra });
 const view = (input, locale = "de") => buildPanelView({ sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, isTurnActive: false,
@@ -166,7 +166,23 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   const done = view({ snapshot: snapshot([run({ lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: at })]) });
   assert.deepEqual([done.stateLabel, done.nextStep], ["fertig", null]);
   assert.equal(view({ snapshot: snapshot([run({ run_id: "old", last_activity: "2026-10-26T07:00:00Z" })]) }).message, "Kein Run zugeordnet");
-  assert.equal(view({ snapshot: snapshot([]) }).message, "Keine offenen Runs in diesem Projekt.");
+  // No run at all, every run completed, or a mix with ended runs: only the second claims "all done".
+  assert.deepEqual(["message", "hint"].map(key => view({ snapshot: snapshot([]) })[key]),
+    ["Startaufstellung leer.", "Erzähl mir im Chat, was du vorhast – ich mach den ersten Run startklar."]);
+  // Runs finished before this session started, so none is assigned to the chat.
+  const earlier = { last_activity: "2026-10-26T07:00:00Z" };
+  const allDone = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" }), run({ ...earlier, run_id: "b", lifecycle: "completed" })]) });
+  assert.deepEqual([allDone.message, allDone.hint, allDone.idle], ["Alle Runs im Ziel. 🏁", "Was steht als Nächstes an? Sag's mir im Chat.", true]);
+  assert.equal(view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" })]) }, "en").message, "All runs across the line. 🏁");
+  const partlyEnded = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" }), run({ ...earlier, run_id: "b", lifecycle: "abandoned" })]) });
+  assert.deepEqual([partlyEnded.message, partlyEnded.hint], ["Keine offenen Runs in diesem Projekt.", undefined], "an abandoned run did not finish");
+  assert.deepEqual([allDone.allDone, view({ snapshot: snapshot([]) }).allDone, partlyEnded.allDone], [true, undefined, undefined], "only all-done shows the tablet");
+  // Only a readable project without an assigned run idles (blinks); failures and reading stay still.
+  assert.equal(view({ snapshot: snapshot([]) }).idle, true);
+  assert.equal(view({ snapshot: snapshot([run({ run_id: "old", last_activity: "2026-10-26T07:00:00Z" })]) }).idle, true);
+  assert.equal(view({ snapshot: snapshot([], { unreadable: [{ id: "broken", reason: "run_state_invalid" }] }) }).idle, false);
+  assert.equal(view({ snapshot: null }).idle, undefined);
+  assert.equal(view({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 } }).idle, undefined);
   const noControl = view({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 } });
   assert.deepEqual([noControl.message, noControl.hint], ["Kein AGDF-Kontrollordner in „voice-projekt“.", "Geprüfter Projektordner: C:\\Workspace\\voice-projekt"]);
   const layout = view({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 } });
@@ -223,43 +239,118 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   assert.equal(condensedGateBar(gateMarks(run({ path: [] }))), "", "a summarized run has no path");
 }
 
-// SCN-018: figure geometry, still pose and terminal text.
-const disjoint = (a, b) => a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
-assert.ok(disjoint(FIGURE_BOX, ACCESSORY_REGION), "accessory region lies outside the figure box");
-for (const [mood, bounds] of Object.entries(ACCESSORY_BOUNDS)) {
-  if (!bounds) continue;
-  assert.ok(bounds.x >= 0 && bounds.y >= 0 && bounds.x + bounds.width <= ACCESSORY_REGION.width && bounds.y + bounds.height <= ACCESSORY_REGION.height, `${mood} accessory stays in its region`);
-}
+// SCN-018: shared artwork, blink cadence, bounded gestures and still pose.
 const wellFormed = svg => { const stack = []; for (const match of svg.matchAll(/<(\/?)([a-zA-Z]+)[^>]*?(\/?)>/gu)) {
   const [, close, name, self] = match; if (self) continue; if (close) { if (stack.pop() !== name) return false; } else stack.push(name); } return stack.length === 0; };
-for (const mood of ["laeuft", "baut", "wartet", "blockiert", "fertig", "bereit"]) {
-  const moving = figureSvg(mood, { title: "AGDF <x> & \"y\"" });
-  const still = figureSvg(mood, { still: true, title: "AGDF" });
+for (const mood of Object.keys(FIGURE_TEXT)) {
+  const moving = figureSvg(mood, { title: 'AGDF <x> & "y"', gate: "QA", gesture: true });
+  const still = figureSvg(mood, { still: true, gate: "QA", gesture: true });
   assert.ok(wellFormed(moving) && wellFormed(still), `${mood} SVG is well-formed`);
+  assert.match(still, /url\(#metal\).*url\(#visor\)/su);
+  assert.match(still, /data-crew="vest"/u);
+  assert.match(still, /data-crew="headset"/u);
   assert.equal(/<animate|<set\b/u.test(still), false, `${mood} still pose has no animation`);
   assert.ok(moving.length < 131072, "Svg source stays below the host limit");
   assert.ok(moving.includes("AGDF &lt;x&gt; &amp; &quot;y&quot;"), "title is escaped");
-  if (mood !== "bereit") assert.ok(/<animate/u.test(moving), `${mood} moves when not still`);
+  assert.equal(moving.match(/dur="12s" repeatCount="indefinite"/gu)?.length, 2, "both eyes blink at the same cadence");
+  assert.equal(moving.match(/dur="31s" repeatCount="indefinite"/gu)?.length, 1, "quiet head motion has long unequal pauses");
+  assert.equal(moving.includes('repeatCount="1"'), ["baut", "wartet", "blockiert", "fertig"].includes(mood));
   assert.ok(FIGURE_TEXT[mood], `${mood} has a terminal face`);
 }
-
-// Follow-up SCN-004: the hammer's swing and the bricks stay inside the declared bounds, which lie in
-// the accessory region; the strokes add at most 0.75 px on each side.
-const rotate = ({ x, y }, degrees) => {
-  const angle = (degrees * Math.PI) / 180;
-  return { x: HAMMER.pivot.x + x * Math.cos(angle) - y * Math.sin(angle), y: HAMMER.pivot.y + x * Math.sin(angle) + y * Math.cos(angle) };
-};
-const corners = ({ x, y, width, height }) => [[x, y], [x + width, y], [x, y + height], [x + width, y + height]].map(([cx, cy]) => ({ x: cx, y: cy }));
-const inBounds = ({ x, y }, bounds) => x - 0.75 >= bounds.x && x + 0.75 <= bounds.x + bounds.width && y - 0.75 >= bounds.y && y + 0.75 <= bounds.y + bounds.height;
-for (let degrees = HAMMER.swing[0]; degrees <= HAMMER.swing[1]; degrees += 0.5) {
-  for (const corner of [...corners(HAMMER.head), ...corners(HAMMER.handle)]) assert.ok(inBounds(rotate(corner, degrees), ACCESSORY_BOUNDS.baut), `hammer at ${degrees}° stays in its bounds`);
+// Faces must still differ when animation is disabled, so expression is not color-only.
+const stillFaces = Object.keys(FIGURE_TEXT).map(mood => figureSvg(mood, { still: true }).match(/<g fill="(#[a-f0-9]+)" stroke="\1"[\s\S]*?<\/g>\s*<path d="([^"]+)"/u)?.[2]);
+assert.equal(stillFaces.filter(Boolean).length, 6);
+assert.equal(new Set(stillFaces).size, 6, 'each mood has a distinct mouth shape in a still pose');
+assert.match(figureSvg("wartet", { gate: "QA" }), />QA<\/text>/u);
+const waitingGesture = figureSvg("wartet", { gate: "UR", gesture: true });
+assert.match(waitingGesture, /values="0 160 86;-8 160 86;8 160 86;-8 160 86;0 160 86"[^>]*dur="2.4s" repeatCount="1"/u);
+assert.doesNotMatch(figureSvg("wartet", { gate: "UR", still: true, gesture: true }), /<animate/u);
+assert.doesNotMatch(figureSvg("wartet", { gate: "UR" }), /dur="2.4s"/u);
+for (const mood of ["baut", "wartet", "fertig"]) {
+  assert.match(figureSvg(mood, { gate: "UR", gesture: true }), /dur="2\.4s" repeatCount="1"/u, `${mood} transition has an observable duration`);
+  assert.doesNotMatch(figureSvg(mood, { gate: "UR", gesture: true, still: true }), /<animate/u);
 }
-for (const brick of BRICKS) for (const corner of corners({ ...brick, ...BRICK_SIZE })) assert.ok(inBounds(corner, ACCESSORY_BOUNDS.baut), "bricks stay in their bounds");
-const building = figureSvg("baut");
-const pivot = `${HAMMER.pivot.x} ${HAMMER.pivot.y}`;
-assert.ok(building.includes(`values="${HAMMER.swing[1]} ${pivot};${HAMMER.swing[0]} ${pivot};${HAMMER.swing[1]} ${pivot}"`), "the drawn swing uses the tested angles");
-assert.ok(figureSvg("baut", { still: true }).includes(`rotate(${HAMMER.swing[1]} ${pivot})`), "the still pose holds the raised hammer");
+assert.doesNotMatch(figureSvg("wartet", { gate: "</text><script>" }), /<text|<script/u);
+for (const mood of ["laeuft", "wartet", "blockiert"]) {
+  const plan = figureSvg(mood, { workGate: "TP", still: true, gate: "TP" });
+  assert.ok(wellFormed(plan));
+  assert.match(plan, /data-accessory="tp-plan"/u);
+  assert.match(plan, /data-tool="planning-pen"/u);
+  assert.doesNotMatch(plan, /<animate/u);
+  assert.match(figureSvg(mood, { workGate: "TP" }), /dur="29s"/u);
+  assert.doesNotMatch(figureSvg(mood, { workGate: "SD" }), /data-accessory="tp-plan"/u);
+}
+assert.match(figureSvg("blockiert", { workGate: "TP" }), /#ff9b8c/u);
+const showcase = figureSvg("laeuft", { workGate: "TP", showcase: true });
+assert.match(showcase, /data-accessory="tp-plan"/u);
+assert.match(showcase, /-7 155 80[^>]*dur="4s" repeatCount="indefinite"/u);
+assert.doesNotMatch(figureSvg("laeuft", { workGate: "TP", showcase: true, still: true }), /<animate/u);
+const warningGesture = figureSvg("blockiert", { gesture: true });
+assert.match(warningGesture, /-10 112 95;-50 112 95;-28 112 95;-50 112 95;-10 112 95[^>]*dur="2\.4s" repeatCount="1"/u, "warning waves twice over a visible, bounded interval");
+assert.match(warningGesture, /type="rotate" values="0 0 0;360 0 0"[^>]*dur="1s" repeatCount="1"/u, "warning symbol rotates once");
+assert.doesNotMatch(figureSvg("blockiert", { still: true, gesture: true }), /<animate/u, "reduced motion stays still");
+assert.equal(view({ snapshot: snapshot([structured("TP")]), showRunState: true }).workGate, "TP");
+assert.equal(view({ snapshot: snapshot([structured("TP")], { stale: { failedAt: 1 } }), showRunState: true }).workGate, undefined);
 assert.equal(FIGURE_TEXT.baut, "(o_o) ⚒");
+assert.match(figureSvg("baut", { still: true }), /data-tool="torque-wrench"/u);
+assert.doesNotMatch(figureSvg("wartet", { still: true }), /data-tool="torque-wrench"/u);
+assert.match(figureSvg("fertig", { still: true }), /data-accessory="finish-flag"/u);
+assert.doesNotMatch(figureSvg("fertig", { still: true, gesture: true }), /<animate/u);
+assert.doesNotMatch(figureSvg("baut", { still: true }), /data-accessory="finish-flag"/u);
+// The idle smile changes only the ready face; a run state keeps its own face.
+assert.ok(figureSvg("bereit", { still: true, smile: true }).includes('d="M74 63q7 6 14 0"'));
+assert.ok(!figureSvg("bereit", { still: true }).includes('d="M74 63q7 6 14 0"'));
+assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("wartet", { still: true }));
+// The overview tablet: shown on request, still in the still pose, irregular (several cycle lengths) when moving.
+assert.match(figureSvg("bereit", { still: true, tablet: true }), /data-accessory="overview-tablet"/u);
+assert.doesNotMatch(figureSvg("bereit", { still: true }), /data-accessory="overview-tablet"/u);
+assert.doesNotMatch(figureSvg("bereit", { still: true, tablet: true }), /<animate/u);
+assert.deepEqual([...new Set(figureSvg("bereit", { tablet: true }).match(/dur="\d+s"/gu))].sort(), ['dur="12s"', 'dur="17s"', 'dur="23s"', 'dur="29s"', 'dur="31s"']);
+assert.equal(deriveFigureState(entry({ lifecycle: "completed", completion_confirmed: false })).mood, "bereit");
+assert.notEqual(deriveFigureState(entry({ status: "pass", lifecycle: "active" })).mood, "fertig");
+assert.equal(deriveFigureState(entry({ lifecycle: "completed", completion_confirmed: true })).mood, "fertig");
+
+const approvalFigure = { mood: "wartet", reason: { key: "waitingApproval", gate: "QA" } };
+const buildFigure = { mood: "baut", reason: { key: "building", gate: "CD+Tests" } };
+const observe = (previous, figure, { current = true, scope = "project/run-a" } = {}) =>
+  observeFigure(previous, { figure, current, scope });
+const warning = { mood: "blockiert", reason: { key: "blocked" } };
+const firstWarning = observe(null, warning);
+assert.equal(firstWarning.gesture, true, "first visible warning plays once");
+assert.equal(observe(firstWarning, structuredClone(warning)), firstWarning, "unchanged data does not replay");
+assert.equal(observe(firstWarning, warning, { scope: "project/run-b" }).gesture, true, "a different warning run is a new display");
+const hiddenWarning = observe(null, warning, { current: false });
+assert.equal(hiddenWarning.gesture, false, "unavailable or reduced-motion display stays still");
+assert.equal(observe(hiddenWarning, warning).gesture, true, "first current display plays the warning");
+const hiddenAgain = observe(firstWarning, warning, { current: false });
+assert.equal(observe(hiddenAgain, warning).gesture, false, "return from a temporary hidden state does not replay");
+for (const figure of [buildFigure, approvalFigure, { mood: "fertig", reason: { key: "completed" } }]) {
+  const first = observe(null, figure);
+  assert.equal(first.gesture, true, `${figure.mood} plays on first display`);
+  assert.equal(observe(first, structuredClone(figure)), first, `${figure.mood} does not replay on refresh`);
+  const hidden = observe(null, figure, { current: false });
+  assert.equal(hidden.gesture, false);
+  assert.equal(observe(hidden, figure).gesture, true, `${figure.mood} plays on first current display`);
+  const stale = observe(first, figure, { current: false });
+  assert.equal(observe(stale, figure).gesture, false, `${figure.mood} does not replay on visibility recovery`);
+}
+const baseline = observe(null, approvalFigure);
+assert.equal(baseline.gesture, true, "first approval observation plays the gesture");
+assert.equal(baseline.gate, "QA");
+const transitioned = observe(baseline, buildFigure);
+assert.equal(transitioned.gesture, true);
+const finished = observe(transitioned, { mood: "fertig", reason: { key: "completed" } });
+assert.equal(finished.gesture, true, "a confirmed completion waves the finish flag once");
+assert.equal(observe(finished, { mood: "fertig", reason: { key: "completed" } }), finished, "the same completion does not replay");
+assert.match(figureSvg("fertig", { gesture: true }), /repeatCount="1"/u);
+assert.equal(observe(transitioned, structuredClone(buildFigure)), transitioned, "same state keeps the image source");
+assert.equal(observe(transitioned, { ...buildFigure, reason: { ...buildFigure.reason, decision: "updated" } }).gesture, false, "metadata updates do not replay a gesture");
+assert.equal(observe(baseline, { mood: "wartet", reason: { key: "waitingApproval", gate: "UAT" } }).gesture, true, "a different approval is a meaningful transition");
+assert.equal(observe(transitioned, approvalFigure, { scope: "project/run-b" }).gesture, true);
+const stale = observe(transitioned, buildFigure, { current: false });
+assert.equal(stale.gesture, false);
+assert.equal(observe(stale, approvalFigure).gesture, false, "recovery seeds the current state");
+assert.equal(observe(transitioned, undefined), null);
 
 // Follow-up SCN-008: toasts only for transitions of the same run into or within wartet and blockiert.
 const seen = (runId, item) => observedRun({ snapshot: snapshot([{ ...item, id: runId, updatedAt: "2026-10-26T08:01:00Z" }]), sessionStartedAt: Date.parse("2026-10-26T08:00:00Z") });

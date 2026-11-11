@@ -50,13 +50,19 @@ it('an expired reading view preserves originals but disables all source navigati
  expect(screen.getByText('Aktuell als „In Arbeit“ eingeordnet.')).toBeTruthy();
 });
 it('a missing evaluation preserves the explicit read-navigation action',()=>{
- render(<WorkStep data={{...data,evaluation:undefined}}><button>Run ansehen</button></WorkStep>);
- expect(screen.getByRole('button',{name:'Run ansehen'})).toBeTruthy();expect(screen.queryByRole('region')).toBeNull();
+ render(<WorkStep data={{...data,evaluation:undefined}}><button>Vorhaben öffnen</button></WorkStep>);
+ expect(screen.getByRole('button',{name:'Vorhaben öffnen'})).toBeTruthy();expect(screen.queryByRole('region')).toBeNull();
 });
 it('completed and zero-evidence observations never grant new permission',()=>{
  render(<WorkStep data={{...data,evaluation:{...data.evaluation!,control_assessment:{state:'completed',authorizes:false},missing_evidence:[]}}}/>);
  expect(screen.getByText('Vorhaben abgeschlossen')).toBeTruthy();expect(screen.getByText('Im Run-Dokument sind keine Nachweislücken gespeichert. Diese Angabe zählt keine Befunde aus QA- und Review-Berichten.')).toBeTruthy();
  expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
+});
+it('does not present an unconfirmed completion as completed in a condensed card',()=>{
+ const incomplete={...data,evaluation:{...data.evaluation!,control_assessment:{state:'completed' as const,authorizes:false as const},completion:undefined}};
+ render(<WorkStep data={incomplete} condensed/>);
+ expect(screen.queryByRole('heading',{name:'Vorhaben abgeschlossen'})).toBeNull();
+ expect(screen.getByRole('heading',{name:'Aktuelle Voraussetzungen nicht bestätigt'})).toBeTruthy();
 });
 it('shows an out-of-scope evaluation as unconfirmed without presenting the saved step as Core output',async()=>{
  const { RunDetail } = await import('../src/RunDetail');
@@ -64,8 +70,9 @@ it('shows an out-of-scope evaluation as unconfirmed without presenting the saved
    diagnostics:[{code:'evaluation_out_of_scope',severity:'warning',path:'docs/notes.md',message:'outside'}]}};
  const envelope={schema_version:'2' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:unevaluated};
  expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:unevaluated}})).not.toThrow();
- render(<RunDetail result={envelope} onOpen={vi.fn()}/>);
+ const view = render(<RunDetail result={envelope} onOpen={vi.fn()}/>);
  expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();
+ view.rerender(<RunDetail result={envelope} onOpen={vi.fn()} technicalView/>);
  expect(screen.getByText(/Im Cockpit nicht ausgewertet/)).toBeTruthy();
  expect(screen.queryByText('Originalangabe der Core-Auswertung:',{exact:false})).toBeNull();
  expect(screen.getAllByText('Nicht ausgewertet').length).toBeGreaterThan(0);

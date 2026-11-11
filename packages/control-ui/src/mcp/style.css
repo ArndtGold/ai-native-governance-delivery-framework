@@ -30,9 +30,17 @@
 .compact-inventory ul { padding-left: var(--agdf-space-5); }
 .compact-inventory li + li { margin-top: var(--agdf-space-3); }
 .compact-inventory code, .compact-inventory button { overflow-wrap: anywhere; }
+.compact-navigation { align-items: center; justify-content: space-between; }
+.compact-navigation .run-figure { display: block; width: 120px; height: auto; max-width: 32%; flex: none; }
 .compact-actions { display: flex; flex-wrap: wrap; gap: var(--agdf-space-2); }
 .compact-actions button { display: inline-flex; align-items: center; justify-content: center; gap: var(--agdf-space-2); font-size: var(--agdf-text-sm); line-height: var(--agdf-text-leading-sm); min-height: 44px; }
-.compact-footnote { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--agdf-space-2); border-top: 1px solid var(--cockpit-line); margin-top: var(--agdf-space-3); padding-top: var(--agdf-space-3); color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+.compact-footnote { position: relative; border-top: 1px solid var(--cockpit-line); margin-top: var(--agdf-space-3); padding-top: var(--agdf-space-3); color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+.compact-footnote > time, .compact-footnote > span { display: block; padding-right: 5rem; }
+.compact-footnote > .cockpit-info { max-width: none; min-height: 1.5em; margin: 0; }
+.compact-footnote > .cockpit-info > summary { position: absolute; right: 0; top: var(--agdf-space-3); }
+.compact-footnote > .cockpit-info[open] > div, .compact-footnote > .cockpit-info[open] > p { padding-top: var(--agdf-space-2); }
+.compact-footnote .cockpit-info label { display: block; }
+.compact-footnote .cockpit-info input { display: block; width: min(100%, 32rem); box-sizing: border-box; }
 .compact-cockpit .notice { margin: var(--agdf-space-3) 0; padding: var(--agdf-space-3); }
 .host-probe { margin: var(--agdf-space-4); padding: var(--agdf-space-3); border: 1px solid var(--cockpit-line); border-radius: var(--agdf-radius-xl); }
 .host-probe pre { max-width: 100%; overflow: auto; white-space: pre-wrap; word-break: break-word; }
@@ -76,3 +84,82 @@
 .mcp-terminal { display: flow-root; margin: 0; padding: var(--agdf-space-4); min-height: 0; }
 .mcp-terminal h1 { font-size: var(--agdf-text-xl); margin: 0 0 var(--agdf-space-2); }
 .mcp-terminal p { margin: 0; }
+
+/* Keep the compact inventory scannable without removing its full-view detail. */
+.compact-cockpit .backlog-tools { display: grid; grid-template-columns: 1fr; }
+.compact-cockpit .backlog-switch { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--agdf-space-1); }
+.compact-cockpit .backlog-switch button { padding: var(--agdf-space-2); justify-content: center; }
+.compact-cockpit .undertaking-list > li { padding-block: var(--agdf-space-2); }
+.compact-cockpit .compact-row-id { margin: 0; font-size: var(--agdf-text-xs); color: var(--cockpit-muted); overflow-wrap: anywhere; }
+
+
+.compact-cockpit .backlog-scroll-wrap { position: relative; min-width: 0; }
+.compact-cockpit .backlog-scroll-wrap--scrollable { padding-bottom: 1.25rem; }
+.compact-cockpit .backlog-scroll-wrap #backlog-list { max-height: min(38vh, 25rem); }
+.compact-cockpit .backlog-scroll-description {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.compact-cockpit .backlog-scroll-edge {
+  position: absolute; inset: auto 0 0; height: 1.25rem; pointer-events: none;
+  display: flex; justify-content: center; align-items: end;
+  background: linear-gradient(to bottom, transparent, var(--cockpit-bg));
+  color: var(--cockpit-text); font-size: 1.25rem; line-height: 1; font-weight: 700;
+}
+
+.compact-cockpit .compact-row-arrow { display: none; }
+
+/* The embedded card adapts to its own available width. */
+@container (min-width: 760px) {
+  .compact-cockpit .backlog-overview { max-width: 64rem; margin-inline: auto; }
+  .compact-cockpit .backlog-tools .backlog-search { margin-bottom: 0; }
+  .compact-cockpit .undertaking-list { display: block; }
+  .compact-cockpit .undertaking-list > li,
+  .compact-cockpit .undertaking-list .undertaking {
+    position: relative;
+  }
+  .compact-cockpit .undertaking-list > li:not(:has(.undertaking)),
+  .compact-cockpit .undertaking-list .undertaking {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1.5rem;
+    grid-template-areas: "title arrow" "status arrow" "identity arrow";
+    align-items: center;
+    gap: var(--agdf-space-2) var(--agdf-space-4);
+  }
+  .compact-cockpit .undertaking-list h3 { grid-area: title; margin: 0; }
+  .compact-cockpit .undertaking-list .status,
+  .compact-cockpit .undertaking-list .undertaking > p:not(.compact-row-id) { grid-area: status; margin: 0; }
+  .compact-cockpit .undertaking-list .compact-row-id { grid-area: identity; }
+  .compact-cockpit .undertaking-list .compact-row-arrow {
+    display: block; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    color: var(--cockpit-muted); font-size: 1.5rem; font-weight: normal;
+  }
+  .compact-cockpit .backlog-scroll-wrap #backlog-list { max-height: min(55vh, 36rem); }
+}
+
+/* Icons reinforce existing text labels and never carry status by themselves. */
+.compact-cockpit .backlog-switch .cockpit-icon { width: 1rem; height: 1rem; flex: none; }
+.compact-cockpit .backlog-search-input { display: block; position: relative; }
+.compact-cockpit .backlog-search-input .cockpit-icon {
+  position: absolute; width: 1rem; height: 1rem; left: .75rem; top: 50%;
+  transform: translateY(-50%); color: var(--cockpit-muted); pointer-events: none;
+}
+.compact-cockpit .backlog-search-input input { padding-left: 2.25rem; }
+@container (max-width: 480px) {
+  .compact-cockpit .backlog-switch .cockpit-icon { display: none; }
+}
+
+/* Make the entire compact row behave like its existing accessible button. */
+.compact-cockpit .undertaking-list > li { position: relative; border-radius: var(--agdf-radius-md); }
+.compact-cockpit .undertaking-list .undertaking { position: static; }
+.compact-cockpit .undertaking-list .run-link:not(:disabled)::before {
+  content: ''; position: absolute; inset: 0; cursor: pointer;
+}
+@media (hover: hover) {
+  .compact-cockpit .undertaking-list > li:has(.run-link:not(:disabled):hover) { background: var(--cockpit-soft); }
+  .compact-cockpit .undertaking-list > li:has(.run-link:not(:disabled):hover) .compact-row-arrow { color: var(--cockpit-accent); }
+  .compact-cockpit .backlog-switch button:not([aria-pressed='true']):hover { background: var(--cockpit-soft); }
+}
+.compact-cockpit .undertaking-list > li:has(.run-link:focus-visible) {
+  outline: 2px solid var(--agdf-focus-color); outline-offset: -2px;
+}
+.compact-cockpit .undertaking-list .run-link:focus-visible { outline: none; }

@@ -69,8 +69,9 @@ for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Coc
       await frame.getByRole('searchbox').fill('fixture-a');
       await frame.locator('button[data-focus-id="fixture-a"]').click();
     }
+    await frame.locator('.work-step-details > summary').click();
     await frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();
-    await expect(frame.getByRole('button', { name: 'Dokument schließen' })).toBeVisible();
+    await expect(frame.getByRole('button', { name: /Zurück zur (Übersicht|Statuskarte)/ })).toBeVisible();
     await frame.getByRole('button', { name: 'Verknüpfter Kontext ansehen', exact: true }).click();
     await expect(frame.getByRole('button', { name: 'Kontext übergeben', exact: true })).toBeEnabled();
     await frame.getByRole('button', { name: 'Kontext übergeben', exact: true }).click();
@@ -166,6 +167,7 @@ test('MCP negative read retains correction; blocked run remains a successful vie
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     await page.goto('http://127.0.0.1:' + server.address().port);
     const frame = page.frameLocator('iframe');
+    await frame.locator('.work-step-details > summary').click();
     await expect(frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true })).toBeVisible();
     const run = replies.find(row => row.input.arguments.operation === 'snapshot').result;
     expect(run.isError).toBeUndefined(); expect(run.structuredContent.data.run.evaluation.blocking_reason).not.toBe('none');

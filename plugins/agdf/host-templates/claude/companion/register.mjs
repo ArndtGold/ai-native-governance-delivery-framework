@@ -11,7 +11,7 @@
 import { assignRun, namedRun, openRuns, stepSelection } from './assignment.mjs';
 import { EVENT_POLL_MS, JOURNAL_FILE, JOURNAL_READ_LIMIT, JOURNAL_ROTATED_FILE, PANE_EVENTS, STICKY_KINDS, TOAST_KINDS, eventText,
   isConfirmed, isStillUncertain, journalDirectory, namedEventText, parseJournal, unseenEvents } from './events.mjs';
-import { figureSvg } from './figure.mjs';
+import { figureSvg, observeFigure } from './figure.mjs';
 import { chatLocale, companionLabels, gateTitle, label } from './localization.mjs';
 import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
 import { STATE_FILE, defaultCompanionState, parseCompanionState, pluginDataDir, serializeCompanionState } from './persistence.mjs';
@@ -44,7 +44,7 @@ function createSession() {
   return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, dataDir: null, version: null, icon: null,
     choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
     isPreviewExpanded: false, isAboutShown: false, isMenuOpen: false, timer: null, eventTimer: null, reads: 0, appliedRead: 0,
-    observation: null, chatMention: null, isBrowsing: false, conversation: null,
+    observation: null, figureObservation: null, chatMention: null, isBrowsing: false, conversation: null,
     // Companion core SDD-007: the run-file fingerprint of the last run-view call, the journal cursor and
     // stamp, this root's events since the last main-loop turn and the drift warnings already announced.
     fingerprint: null, journalCursor: null, journalStamp: null, eventsAvailable: null, events: [], driftSeen: null,
@@ -142,16 +142,23 @@ async function refresh($, { quiet } = {}) {
     const root = await $.session.root();
     await followConversation($);
     const remembered = session.choices.selections[root];
+    // Keep evaluating the run already followed in this project when it leaves the active list;
+    // its completed state must be confirmed before the companion celebrates.
+    const observed = root === session.root ? observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt,
+      selection: remembered, mention: session.chatMention }).runId : null;
+    const runIds = [...new Set([remembered, observed].filter(Boolean))];
     // Taken before the call: a change during the call shows up at the next check.
     const ids = fingerprintIds(root);
     const print = await fingerprint($, root, ids);
     const next = await readSnapshot(processes($), { pluginRoot: $.plugin.root, root, language: session.locale,
-      runIds: remembered ? [remembered] : [], now: await $.clock.now(), clock: () => $.clock.now() });
+      runIds, now: await $.clock.now(), clock: () => $.clock.now() });
     if (read < session.appliedRead) return;
     session.appliedRead = read;
     if (root !== session.root) {
       // Another project root: its drift baseline, pane entries and preview start over (CR finding B3).
       session.driftSeen = null;
+      session.snapshot = null;
+      session.figureObservation = null;
       session.events = [];
       session.unconfirmed = [];
       session.isPreviewExpanded = false;
@@ -386,9 +393,14 @@ const press = ($, action) => async () => {
   redraw($);
 };
 
-function body($, e, view) {
+function body($, e) {
   const { Box, Text, Button, Svg, Link, Select } = $.ui.resolve(e);
   const isTerminal = e.surface === 'terminal' || !Svg;
+  const view = buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
+    mention: session.chatMention, isBrowsing: session.isBrowsing, showRunState: !isTerminal,
+    isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
+    columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded,
+    events: session.events, eventsAvailable: session.eventsAvailable ?? undefined });
   const rows = e.props?.scroll?.bodyRows;
   const fits = Number.isInteger(rows) && rows > 0;
   const columns = Number.isInteger(e.props?.bodyColumns) ? e.props.bodyColumns : 40;
@@ -482,8 +494,18 @@ function body($, e, view) {
     return h(Box, { flexDirection: 'column', gap: 1 },
       h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, about, actions);
   }
-  const figure = h(Svg, { source: figureSvg(view.mood, { still: session.choices.still, title: `${view.title}: ${view.stateLabel}` }),
-    alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !session.choices.still });
+  const scope = view.runId ? JSON.stringify([session.root, view.runId]) : null;
+  const quiet = !session.choices.enabled || session.choices.still || session.isHidden || Boolean(view.stale);
+  const still = quiet || !scope || ['unreadable', 'idle', 'completionUnconfirmed'].includes(view.figure?.reason.key);
+  // Without an assigned run a readable project smiles and keeps the idle motion (blinking) unless the
+  // still pose applies; it never gestures. The smile is a static face, so the still pose keeps it.
+  const idle = !scope && view.idle === true;
+  const idling = idle && !quiet;
+  session.figureObservation = observeFigure(session.figureObservation, { scope, figure: view.figure, current: !still });
+  const { gate, gesture, sequence } = session.figureObservation ?? {};
+  // With every run done the crew member checks the board: a tablet, never a finish flag (no run is shown).
+  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, gate, workGate: view.workGate, gesture, sequence }),
+    alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !still });
   // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
   // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of
   // 2026-10-28: a cell count sizes the body, a percentage does not; SDD-08).
@@ -551,6 +573,7 @@ export const register = on => {
         // Reading, the status line and the pane stop before the choice is stored, so a failing write
         // leaves none of them running (CR-F03); the choice is stored even if closing the pane fails.
         stopRefreshing();
+        session.figureObservation = null;
         silence($);
         try {
           await $.ui.close({ id: PANE });
@@ -615,6 +638,7 @@ export const register = on => {
   // stamps `origin` as `{ kind: 'plugin' | 'person' | 'unload' }`.
   on('ui.close', { id: PANE }, async ($, e, next) => {
     try {
+      session.figureObservation = null;
       if (e.origin?.kind === 'person') session.isHidden = true;
     } catch { /* observation only */ }
     return next(e);
@@ -623,11 +647,7 @@ export const register = on => {
   // A logic failure draws a neutral line instead of the panel; it never throws into the host.
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     try {
-      return body($, e, buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
-        mention: session.chatMention, isBrowsing: session.isBrowsing,
-        isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
-        columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded,
-        events: session.events, eventsAvailable: session.eventsAvailable ?? undefined }));
+      return body($, e);
     } catch (error) {
       const { Text } = $.ui.resolve(e);
       return h(Text, { dimColor: true }, `AGDF Companion: ${String(error?.message ?? error).slice(0, 200)}`);

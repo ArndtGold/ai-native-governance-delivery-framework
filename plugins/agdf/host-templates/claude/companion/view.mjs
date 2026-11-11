@@ -6,7 +6,7 @@ import { assignRun } from './assignment.mjs';
 import { FIGURE_TEXT } from './figure.mjs';
 import { condensedGateBar, gateBar, gateMarks } from './gate-bar.mjs';
 import { gateTitle, label } from './localization.mjs';
-import { displayState } from './state.mjs';
+import { displayState, runState } from './state.mjs';
 import { READ_FAILURE_REASONS } from './run-state.mjs';
 import { eventText, latestReview, PANE_EVENTS, shortDigest } from './events.mjs';
 
@@ -59,20 +59,30 @@ export function buildPanelView(input) {
   if (!run) {
     const broken = input.selection && snapshot.unreadable.find(item => item.id === input.selection);
     if (broken) return { ...unreadable(broken.reason), openRuns, chatRunId, unreadableHint };
-    if (!open.length) return neutral(unreadableHint ?? t('messages.noOpenRuns'));
-    return neutral(t('messages.noRunAssigned'), { hint: t('messages.noRunAssignedHint'), openRuns, chatRunId, unreadableHint,
+    // A readable project without an assigned run idles: the figure blinks but shows no run state.
+    if (!open.length) {
+      if (unreadableHint) return neutral(unreadableHint, { idle: false });
+      const runs = snapshot.runs ?? [];
+      // "All done" only when every run completed; superseded or abandoned runs did not finish.
+      if (!runs.length) return neutral(t('messages.noRunsYet'), { idle: true, hint: t('messages.noRunsYetHint') });
+      if (runs.every(item => item.lifecycle === 'completed')) return neutral(t('messages.allRunsDone'), { idle: true, allDone: true, hint: t('messages.allRunsDoneHint') });
+      return neutral(t('messages.noOpenRuns'), { idle: true });
+    }
+    return neutral(t('messages.noRunAssigned'), { idle: true, hint: t('messages.noRunAssignedHint'), openRuns, chatRunId, unreadableHint,
       openCount: t('fields.openRuns', { count: open.length }) });
   }
 
   const position = open.findIndex(item => item.id === run.id);
   const openCount = position >= 0 ? t('fields.position', { position: position + 1, count: open.length }) : t('fields.openRuns', { count: open.length });
-  const state = displayState(run, { isTurnActive: input.isTurnActive });
+  const state = input.showRunState ? runState(run) : displayState(run, { isTurnActive: input.isTurnActive });
   const reasonParams = { gate: gateTitle(registry, locale, state.reason.gate), decision: run.blockingText || state.reason.decision,
     reason: state.reason.reason ? t(`unreadable.${state.reason.reason}`) : '' };
   return {
     ...base,
     ...events(run.id),
+    ...(input.showRunState ? { figure: state } : {}),
     mood: state.mood,
+    workGate: input.showRunState && run.evaluated && !snapshot.stale ? run.gate : undefined,
     stateLabel: t(`states.${state.mood}`),
     reason: t(`reasons.${state.reason.key}`, reasonParams),
     gateBar: gateBar(gateMarks(run), input.columns),

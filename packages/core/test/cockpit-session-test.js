@@ -57,6 +57,11 @@ test('SCN-003/026/027: shared production worker reads same immutable source, no 
     const detail = await call({ operation: 'run', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a' });
     const resource = detail.data.run.resources.find(r => r.type === 'UR');
     const args = { operation: 'document', snapshot_id: detail.snapshot_id, run_id: 'fixture-a', resource_id: resource.resource_id };
+    const preview = await call({ ...args, operation: 'preview' });
+    assert.equal(preview.state, 'available'); assert.match(preview.data.content, /Fixture document/);
+    assert.equal(preview.snapshot_id, detail.snapshot_id);
+    assert.equal((await call({ ...args, operation: 'preview', run_id: 'fixture-completed' })).code, 'resource_denied');
+    assert.equal((await call({ ...args, operation: 'preview', resource_id: '00000000-0000-4000-8000-000000000000' })).code, 'resource_denied');
     assert.equal((await call({ ...args, run_id: 'fixture-completed' })).code, 'resource_denied');
     assert.equal((await call({ operation: 'freshness', snapshot_id: detail.snapshot_id })).data.unchanged, true);
     const document = await call(args); assert.match(document.data.document.content, /Fixture document/); assert.equal(document.authorizes, false);

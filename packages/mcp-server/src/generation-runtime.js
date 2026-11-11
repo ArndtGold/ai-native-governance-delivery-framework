@@ -41,6 +41,7 @@ export function startGenerationRuntime({ epoch, generation, channel }) {
           runtime = await createMcpDecisionRuntime({ runtime, ui });
         }
         if (runtime.ui) uiDigest = loadCockpitResource(runtime.ui).digest;
+        if (runtime.mode === 'cockpit' && uiDigest) runtime.bindResourceIdentity({ digest: uiDigest, version: inspected.expectedVersion });
         // Inspect reports package-owned immutable identities, not caller evidence.
         sdkDigest = inspected.generationIdentity.sdk_digest; serverDigest = inspected.generationIdentity.server_digest;
         executor = runtime.mode === 'cockpit' ? null : createAgdfWorkerExecutor(runtime, { releaseOwnedLock: releaseAbandonedOwnedLock });

@@ -96,6 +96,7 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     else if (/^\/api\/context\/[a-z0-9][a-z0-9._-]{0,127}$/.test(url.pathname)) { operation = 'context'; selector = url.pathname.slice(13); }
     else if (/^\/api\/draft-check\/[a-z0-9][a-z0-9._-]{0,127}$/.test(url.pathname)) { operation = 'artifact_readiness'; selector = url.pathname.slice(17); }
     else if (/^\/api\/documents\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'document'; selector = url.pathname.slice(15); }
+    else if (/^\/api\/preview\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'preview'; selector = url.pathname.slice(13); }
     else return send(403, error('resource_denied'));
     const params = [...url.searchParams.keys()];
     const draftParams = operation === 'artifact_readiness' && params.length === 3 && new Set(params).size === 3
@@ -105,13 +106,15 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     const archiveParams = operation === 'archive' && params.length >= 1 && params.length <= 2 && new Set(params).size === params.length
       && params.every(key => ['snapshot', 'resource'].includes(key)) && /^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')
       && (!url.searchParams.has('resource') || /^[a-f0-9-]{36}$/.test(url.searchParams.get('resource') ?? ''));
-    if (operation === 'archive' ? !archiveParams : operation === 'artifact_readiness' ? !draftParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && !((params[0] === 'run_id' && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(url.searchParams.get('run_id') ?? '')) || (params[0] === 'view' && ['runs'].includes(url.searchParams.get('view')))) : params.length !== 1 || params[0] !== 'snapshot'
+    const previewParams = operation === 'preview' && params.length === 2 && new Set(params).size === 2 && params.every(key => ['snapshot', 'run_id'].includes(key))
+      && /^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '') && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(url.searchParams.get('run_id') ?? '');
+    if (operation === 'preview' ? !previewParams : operation === 'archive' ? !archiveParams : operation === 'artifact_readiness' ? !draftParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && !((params[0] === 'run_id' && /^[a-z0-9][a-z0-9._-]{0,127}$/.test(url.searchParams.get('run_id') ?? '')) || (params[0] === 'view' && ['runs'].includes(url.searchParams.get('view')))) : params.length !== 1 || params[0] !== 'snapshot'
       || !/^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')) return send(403, error('resource_denied'));
     const cancellation = new AbortController();
     res.once('close', () => { if (!res.writableEnded) cancellation.abort(); });
     try {
       const result = operation === 'changes' ? await pool.waitForChange(url.searchParams.get('snapshot'), cancellation.signal) : await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
-        input: operation === 'archive' ? (url.searchParams.has('resource') ? { resource_id: url.searchParams.get('resource') } : {}) : operation === 'artifact_readiness' ? { run_id: selector, gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') }
+        input: operation === 'archive' ? (url.searchParams.has('resource') ? { resource_id: url.searchParams.get('resource') } : {}) : operation === 'artifact_readiness' ? { run_id: selector, gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') } : operation === 'preview' ? { run_id: url.searchParams.get('run_id') }
           : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : operation === 'snapshot' && url.searchParams.has('view') ? { view: url.searchParams.get('view') } : undefined }, cancellation.signal);
       send(200, result);
     } catch (e) { send(e.code === 'busy' ? 429 : e.code === 'timeout' ? 504 : 409, error(['resource_denied', 'source_changed', 'read_failed', 'resource_limit', 'busy', 'timeout', 'cancelled'].includes(e.code) ? e.code : 'read_failed')); }

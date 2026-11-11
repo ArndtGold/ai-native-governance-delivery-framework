@@ -25,6 +25,8 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
   const current = useRef<RenderBootstrap | null>(null);
   const [ready, setReady] = useState(false), [expanded, setExpanded] = useState(false), [problem, setProblem] = useState('');
   const [cockpitHost, setCockpitHost] = useState<CockpitHost>('unknown');
+  const [expansionProblem, setExpansionProblem] = useState('');
+  const expansionAttempt = useRef(0);
   const terminal = useRef<HTMLElement>(null);
   const [closeState, setCloseState] = useState<'open' | 'closing' | 'closed' | 'blocked'>('open');
   useLayoutEffect(() => {
@@ -44,8 +46,12 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       const host = bridge.app.getHostContext();
       if (host?.theme) applyDocumentTheme(host.theme);
       if (host?.styles?.variables) applyHostStyleVariables(host.styles.variables);
-      const mode = host?.displayMode;
-      setExpanded(mode === 'fullscreen' || mode === 'pip');
+      const isExpanded = host?.displayMode === 'fullscreen' || host?.displayMode === 'pip';
+      setExpanded(isExpanded);
+      if (isExpanded) {
+        expansionAttempt.current++;
+        setExpansionProblem('');
+      }
     };
     bridge.app.ontoolresult = result => {
       if (!alive) return;
@@ -66,6 +72,8 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
         void oldHandoff.invalidate().finally(() => bridge.operation({ operation: 'close' }, undefined, previous.sessionId)).catch(() => {});
       }
       current.current = next; bridge.session = next.sessionId;
+      expansionAttempt.current++;
+      setExpansionProblem('');
       setBootstrap(next); setProblem(''); setCloseState('open');
       update();
     };
@@ -117,22 +125,33 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
     }
   };
   const open = async () => {
+    const attempt = ++expansionAttempt.current;
+    const modes = bridge.app.getHostContext()?.availableDisplayModes ?? [];
+    const mode = modes.includes('fullscreen') ? 'fullscreen' : modes.includes('pip') ? 'pip' : null;
+    if (!mode) {
+      setExpansionProblem('Hier steht nur die kompakte Karte zur Verfügung. Du kannst darin weiterlesen.');
+      return;
+    }
     try {
-      const modes = bridge.app.getHostContext()?.availableDisplayModes ?? [];
-      const mode = modes.includes('fullscreen') ? 'fullscreen' : modes.includes('pip') ? 'pip' : null;
-      if (!mode) throw Error();
       const result = await bridge.request(() => bridge.app.requestDisplayMode({ mode }, { timeout: 10_000 }));
+      if (attempt !== expansionAttempt.current) return;
       if (result.mode !== 'fullscreen' && result.mode !== 'pip') throw Error();
       setExpanded(true);
-    } catch { setProblem('Eine größere Ansicht wurde nicht bestätigt. Nutze den vorhandenen Browser-Weg.'); }
+      setExpansionProblem('');
+    } catch {
+      if (attempt === expansionAttempt.current) {
+        setExpansionProblem('Die größere Ansicht wurde nicht bestätigt. Du kannst in der kompakten Karte weiterlesen.');
+      }
+    }
   };
+  const visibleProblem = problem || expansionProblem;
   return <div className="mcp-entry" data-terminal={closeState !== 'open' ? 'true' : undefined}>
     {closeState !== 'open' ? <section className="mcp-terminal" ref={terminal} aria-label="Cockpit-Sitzung schließen"><h1>AGDF Cockpit</h1><p role="status">{closeState === 'closing'
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
       : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} provenance={bootstrap.provenance} host={cockpitHost} compact={!expanded} handoff={handoff} onExpand={() => void open()}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
-    {problem && <p role="alert">{problem}</p>}
+    {visibleProblem && <p role="alert">{visibleProblem}</p>}
     {closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;
 }

@@ -198,6 +198,43 @@ it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored
 
   expect(app.updateModelContext).not.toHaveBeenCalled();expect(app.sendMessage).not.toHaveBeenCalled();
 });
+it('keeps the compact Run readable when expansion is unavailable or unconfirmed and clears the alert on success', async () => {
+  const read = transport();
+  let availableDisplayModes = ['inline'];
+  const requestDisplayMode = vi.fn()
+    .mockResolvedValueOnce({ mode: 'inline' })
+    .mockResolvedValueOnce({ mode: 'fullscreen' });
+  const app = {
+    setupSizeChangedNotifications: vi.fn(() => vi.fn()),
+    connect: vi.fn(async () => {}),
+    getHostVersion: () => ({ name: 'test-host', version: 'fixture' }),
+    getHostCapabilities: () => ({ serverTools: {} }),
+    getHostContext: () => ({ displayMode: 'inline', availableDisplayModes }),
+    requestDisplayMode,
+    ontoolresult: (_: unknown) => {},
+    onhostcontextchanged: () => {},
+  };
+  const bridge = { app, readForSession: () => read, request: (action: () => unknown) => action(), session: '' } as unknown as CockpitBridge;
+  render(<EmbeddedEntry bridge={bridge}/>);
+  await act(async () => app.ontoolresult(bootstrap()));
+  const expand = await screen.findByRole('button', { name: 'Run ansehen' });
+
+  fireEvent.click(expand);
+  expect(screen.getByRole('alert').textContent).toContain('Hier steht nur die kompakte Karte zur Verfügung');
+  expect(requestDisplayMode).not.toHaveBeenCalled();
+
+  availableDisplayModes = ['inline', 'fullscreen'];
+  fireEvent.click(expand);
+  await screen.findByText('Die größere Ansicht wurde nicht bestätigt. Du kannst in der kompakten Karte weiterlesen.');
+  expect(screen.getByRole('heading', { name: 'run-a', level: 2 })).toBeTruthy();
+
+  fireEvent.click(expand);
+  await screen.findByRole('heading', { name: 'run-a', level: 1 });
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(requestDisplayMode).toHaveBeenCalledTimes(2);
+  expect(vi.mocked(read).mock.calls.map(call => call[0])).toEqual(['/api/snapshot?run_id=run-a']);
+});
+
 it('SCN-042: a delayed server reply from the previous session cannot populate the current transport',async()=>{
   const bridge=new CockpitBridge();let finish!: (value:object)=>void;
   vi.spyOn(bridge.app,'getHostCapabilities').mockReturnValue({serverTools:{}});

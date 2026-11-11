@@ -59,8 +59,16 @@ export function buildPanelView(input) {
   if (!run) {
     const broken = input.selection && snapshot.unreadable.find(item => item.id === input.selection);
     if (broken) return { ...unreadable(broken.reason), openRuns, chatRunId, unreadableHint };
-    if (!open.length) return neutral(unreadableHint ?? t('messages.noOpenRuns'));
-    return neutral(t('messages.noRunAssigned'), { hint: t('messages.noRunAssignedHint'), openRuns, chatRunId, unreadableHint,
+    // A readable project without an assigned run idles: the figure blinks but shows no run state.
+    if (!open.length) {
+      if (unreadableHint) return neutral(unreadableHint, { idle: false });
+      const runs = snapshot.runs ?? [];
+      // "All done" only when every run completed; superseded or abandoned runs did not finish.
+      if (!runs.length) return neutral(t('messages.noRunsYet'), { idle: true, hint: t('messages.noRunsYetHint') });
+      if (runs.every(item => item.lifecycle === 'completed')) return neutral(t('messages.allRunsDone'), { idle: true, hint: t('messages.allRunsDoneHint') });
+      return neutral(t('messages.noOpenRuns'), { idle: true });
+    }
+    return neutral(t('messages.noRunAssigned'), { idle: true, hint: t('messages.noRunAssignedHint'), openRuns, chatRunId, unreadableHint,
       openCount: t('fields.openRuns', { count: open.length }) });
   }
 

@@ -166,7 +166,22 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   const done = view({ snapshot: snapshot([run({ lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: at })]) });
   assert.deepEqual([done.stateLabel, done.nextStep], ["fertig", null]);
   assert.equal(view({ snapshot: snapshot([run({ run_id: "old", last_activity: "2026-10-26T07:00:00Z" })]) }).message, "Kein Run zugeordnet");
-  assert.equal(view({ snapshot: snapshot([]) }).message, "Keine offenen Runs in diesem Projekt.");
+  // No run at all, every run completed, or a mix with ended runs: only the second claims "all done".
+  assert.deepEqual(["message", "hint"].map(key => view({ snapshot: snapshot([]) })[key]),
+    ["Startaufstellung leer.", "Erzähl mir im Chat, was du vorhast – ich mach den ersten Run startklar."]);
+  // Runs finished before this session started, so none is assigned to the chat.
+  const earlier = { last_activity: "2026-10-26T07:00:00Z" };
+  const allDone = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" }), run({ ...earlier, run_id: "b", lifecycle: "completed" })]) });
+  assert.deepEqual([allDone.message, allDone.hint, allDone.idle], ["Alle Runs im Ziel. 🏁", "Was ist der nächste Stint? Sag's mir im Chat.", true]);
+  assert.equal(view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" })]) }, "en").message, "All runs across the line. 🏁");
+  const partlyEnded = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" }), run({ ...earlier, run_id: "b", lifecycle: "abandoned" })]) });
+  assert.deepEqual([partlyEnded.message, partlyEnded.hint], ["Keine offenen Runs in diesem Projekt.", undefined], "an abandoned run did not finish");
+  // Only a readable project without an assigned run idles (blinks); failures and reading stay still.
+  assert.equal(view({ snapshot: snapshot([]) }).idle, true);
+  assert.equal(view({ snapshot: snapshot([run({ run_id: "old", last_activity: "2026-10-26T07:00:00Z" })]) }).idle, true);
+  assert.equal(view({ snapshot: snapshot([], { unreadable: [{ id: "broken", reason: "run_state_invalid" }] }) }).idle, false);
+  assert.equal(view({ snapshot: null }).idle, undefined);
+  assert.equal(view({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 } }).idle, undefined);
   const noControl = view({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 } });
   assert.deepEqual([noControl.message, noControl.hint], ["Kein AGDF-Kontrollordner in „voice-projekt“.", "Geprüfter Projektordner: C:\\Workspace\\voice-projekt"]);
   const layout = view({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 } });

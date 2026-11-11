@@ -779,7 +779,16 @@ try {
   assert.doesNotMatch(await figureSource(second), /<animate/u);
   second.$.process.run = secondRun;
   await (await entry(second, "retry"))();
-  assert.ok(texts(await render(second)).includes("No open runs in this project."));
+  assert.ok(texts(await render(second)).includes("Starting grid empty."), "a project without runs shows the empty starting grid");
+  // A readable project without an assigned run idles: the figure blinks unless the still pose is chosen,
+  // and never gestures.
+  assert.doesNotMatch(await figureSource(second), /<animate/u, "this session chose the still pose");
+  await (await entry(second, "still"))();
+  const idleFigure = await figureSource(second);
+  assert.match(idleFigure, /attributeName="ry"/u, "without an assigned run the figure blinks");
+  assert.doesNotMatch(idleFigure, /data-gesture=/u, "without an assigned run the figure never gestures");
+  await (await entry(second, "still"))();
+  assert.doesNotMatch(await figureSource(second), /<animate/u);
   second.where.root = target.root;
   await (await entry(second, "retry"))();
   assert.ok(texts(await render(second)).includes("fixture-a"));

@@ -495,11 +495,13 @@ function body($, e) {
       h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, about, actions);
   }
   const scope = view.runId ? JSON.stringify([session.root, view.runId]) : null;
-  const still = !scope || !session.choices.enabled || session.choices.still || session.isHidden
-    || Boolean(view.stale) || ['unreadable', 'idle'].includes(view.figure?.reason.key);
+  const quiet = !session.choices.enabled || session.choices.still || session.isHidden || Boolean(view.stale);
+  const still = quiet || !scope || ['unreadable', 'idle'].includes(view.figure?.reason.key);
+  // Without an assigned run a readable project keeps the idle motion (blinking); it never gestures.
+  const idling = !scope && view.idle === true && !quiet;
   session.figureObservation = observeFigure(session.figureObservation, { scope, figure: view.figure, current: !still });
   const { gate, gesture, sequence } = session.figureObservation ?? {};
-  const figure = h(Svg, { source: figureSvg(view.mood, { still, gate, workGate: view.workGate, gesture, sequence }),
+  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, gate, workGate: view.workGate, gesture, sequence }),
     alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !still });
   // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
   // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of

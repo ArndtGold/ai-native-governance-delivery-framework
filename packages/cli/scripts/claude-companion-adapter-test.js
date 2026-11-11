@@ -994,6 +994,18 @@ try {
     await host.fire("turn.complete", {});
     await settleLong();
 
+    // Review finding 2: the run view compares bound evidence reports too, so a changed file in the
+    // run's evidence folder reads it again.
+    const evidenceDir = join(evented.root, ".agdf", "control", "runs", "fixture-a", "evidence");
+    mkdirSync(evidenceDir, { recursive: true });
+    writeFileSync(join(evidenceDir, "EVIDENCE-review-finding-2.md"), "# Evidence\n");
+    await tick(REFRESH_MS);
+    const evidenceCalls = calls();
+    await tick(REFRESH_MS);
+    assert.equal(calls(), evidenceCalls, "an unchanged evidence folder reads nothing");
+    writeFileSync(join(evidenceDir, "EVIDENCE-review-finding-2.md"), "# Evidence\n\nchanged after recording\n");
+    await tick(REFRESH_MS);
+    assert.equal(calls(), evidenceCalls + 1, "a changed evidence report reads the run view");
     // The 30-second check reads the run view only on a changed fingerprint or language.
     before = calls();
     await tick(REFRESH_MS);

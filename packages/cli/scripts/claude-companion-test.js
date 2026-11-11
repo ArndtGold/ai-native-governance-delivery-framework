@@ -283,6 +283,34 @@ assert.deepEqual(steps, [["baseline", null], ["equal read", null], ["approved", 
   ["same after unreadable", null], ["blocked", "blockiert"], ["decision changed", "blockiert"], ["run switch", null], ["building", null], ["done", null],
   ["no run", null], ["baseline after no run", null]]);
 assert.equal(observeNotice(null, seen("a", waitingQa)).notice, null, "the first observation is a baseline");
+// Review finding 1: a run whose evaluation failed is shown as blocked in the pane and the status line,
+// but raises no toast: the catalog has no notice text for it, so the toast would read the raw key.
+const unreadableRun = run({ evaluated: false, evaluation_error: "resource_limit" });
+assert.deepEqual(unreadableRun.figure, { mood: "blockiert", reason: { key: "unreadable", reason: "resource_limit" } });
+const afterWorking = observeNotice(observeNotice(null, seen("a", working)).observation, seen("a", unreadableRun));
+assert.equal(afterWorking.notice, null, "an unreadable run raises no state toast");
+for (const key of ["waitingApproval", "waitingDecision", "blocked"]) for (const locale of ["de", "en"]) {
+  assert.notEqual(label(labels, locale, `notices.${key}`), `notices.${key}`, `every announced reason has a notice text (${key}, ${locale})`);
+}
+assert.notEqual(observeNotice(afterWorking.observation, seen("a", blockedRevise)).notice, null, "a block after the unreadable state is announced");
+// Review finding 3: one run whose evaluation ran into the read budget stays that run's problem; the
+// other runs are shown. A run read while its files changed still keeps the last good view (RV-1).
+const slow = snapshotFromRunView(JSON.stringify({ schema_version: "run-view/1", root: "/p", language: "de", store: { status: "ok", reason: null },
+  diagnosis: { unreadable: [], counts: { unreadable: 0, readable: 2, by_reason: {} } }, authorizes: false,
+  runs: [{ ...entry(), run_id: "fast", figure: deriveFigureState(entry()) },
+    { ...entry(), run_id: "slow", evaluated: false, evaluation_error: "timeout", figure: { mood: "blockiert", reason: { key: "unreadable", reason: "timeout" } } }] }), { now: 1 });
+assert.deepEqual([slow.status, slow.runs.map(item => [item.id, item.figure.mood])], ["ok", [["fast", "laeuft"], ["slow", "blockiert"]]],
+  "a single run's timeout does not discard the view");
+assert.equal(slow.retry, true, "a view with a timed-out run is read again at the next check");
+assert.equal(snapshotFromRunView(JSON.stringify({ schema_version: "run-view/1", root: "/p", store: { status: "ok", reason: null },
+  runs: [{ ...entry(), figure: deriveFigureState(entry()) }] }), { now: 1 }).retry, false);
+// Review finding 5 (adapter part): a completed run that evaluates as blocked shows the block and its next step.
+const completedBlocked = run({ lifecycle: "completed", status: "blocked", current_gate: "OR", blocking_reason: "AGDF_CLOSEOUT_EVIDENCE_MISSING",
+  blocking_text: "Abschluss-Evidenz fehlt", next_step_text: "Die Abschluss-Evidenz erfassen." });
+const completedBlockedView = view({ snapshot: snapshot([{ ...completedBlocked, updatedAt: "2026-10-26T08:01:00Z" }]) });
+assert.deepEqual([completedBlockedView.mood, completedBlockedView.nextStep], ["blockiert", "Die Abschluss-Evidenz erfassen."]);
+assert.equal(view({ snapshot: snapshot([{ ...run({ lifecycle: "completed", next_step_text: "x" }), updatedAt: "2026-10-26T08:01:00Z" }]) }).nextStep, null,
+  "a completed run names no next step");
 assert.notEqual(observeNotice(observeNotice(null, seen("a", waitingSd)).observation, seen("a", waitingQa)).notice, null, "a new pending gate is announced");
 assert.deepEqual(observedRun({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "unreadable" });
 assert.deepEqual(observedRun({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "unreadable" });

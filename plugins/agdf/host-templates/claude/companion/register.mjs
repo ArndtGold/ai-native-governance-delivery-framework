@@ -160,9 +160,10 @@ async function refresh($, { quiet } = {}) {
     session.snapshot = settleSnapshot(session.snapshot, next);
     if (next.status === 'ok') session.events = session.events.filter(event => !STICKY_KINDS.includes(event.kind) || isStillUncertain(event, next.runs));
     // A changed set of open runs is listed again, so the next check compares like with like. A failed
-    // read keeps no fingerprint, so the next check reads again (CR finding B1).
+    // read keeps no fingerprint, so the next check reads again (CR finding B1); so does a view with a
+    // run that ran into the read budget, which may read on the next attempt.
     const after = fingerprintIds(root);
-    session.fingerprint = next.status === 'failed' ? null
+    session.fingerprint = next.status === 'failed' || next.retry ? null
       : `${session.locale}|${after.join() === ids.join() ? print : await fingerprint($, root, after)}`;
     const chosen = selection();
     if (chosen && next.status === 'ok' && next.runs.length) {
@@ -180,8 +181,9 @@ async function refresh($, { quiet } = {}) {
 }
 
 // The run-file fingerprint (SDD-007): the run folders, `config.json` and, for each open or selected
-// run, its RUN_STATE and documents entries with size and modification time from `$.fs.list`. It reads
-// listings only, never a run file.
+// run, its RUN_STATE, documents and evidence entries with size and modification time from `$.fs.list`:
+// the files the run view compares for drift (bound documents and evidence reports). It reads listings
+// only, never a run file.
 const fingerprintIds = root => [...new Set([...(session.snapshot?.runs ?? []).filter(run => run.lifecycle === 'active').map(run => run.id),
   session.choices.selections[root]].filter(Boolean))].sort();
 
@@ -192,7 +194,11 @@ async function fingerprint($, root, ids = fingerprintIds(root)) {
   const runs = await list(`${control}/runs`);
   const parts = [`config:${files((await list(control))?.filter(entry => entry.name === 'config.json'))}`,
     `runs:${(runs ?? []).map(entry => entry.name).sort().join(',')}`];
-  for (const id of ids) parts.push(`${id}:${files(await list(`${control}/runs/${id}`))}|${files(await list(`${control}/runs/${id}/documents`))}`);
+  for (const id of ids) {
+    const folders = [];
+    for (const folder of ['', '/documents', '/evidence']) folders.push(files(await list(`${control}/runs/${id}${folder}`)));
+    parts.push(`${id}:${folders.join('|')}`);
+  }
   return parts.join(';');
 }
 

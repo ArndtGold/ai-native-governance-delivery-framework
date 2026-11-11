@@ -1,5 +1,5 @@
 import { readCockpitArchive, readArchiveDocument } from './cockpit-archive.js';
-import { runDocumentPath } from '../control-state/run-identity.js';
+import { runDocumentPath, runEvidencePath } from '../control-state/run-identity.js';
 import { existsSync } from '../control-read/fs.js';
 import { RUN_ID_PATTERN } from '../control-state/run-identity.js';
 import { join, posix, sep } from 'node:path';
@@ -80,9 +80,16 @@ export function createCockpitReader(root, options = {}) {
   function manifest(runId, state) {
     const result = [];
     const paths = new Set();
-    // The canonical state itself and each explicit Artefacts row are registrations.
-    // The canonical state path is platform-native; registrations use POSIX separators.
+    // Keep Run State and artefact registrations ahead of standalone evidence reports.
     const rows = [{ type: 'Run State', path: state.path?.split(sep).join(posix.sep) }, ...[...state.artefacts].map(([type, row]) => ({ type, ...row }))];
+    const evidenceRoot = runEvidencePath(runId, '') + '/';
+    for (const row of state.evidence_applicability.current) {
+      const path = row.report?.path;
+      if (row.available !== true || !path?.startsWith(evidenceRoot) || !isSafeControlRelativePath(path)
+        || !SUPPORTED.has(path.split('.').at(-1)?.toLowerCase())) continue;
+      const { bytes } = view.readOptionalFileSync(join(root, path), READ_LIMITS.preview);
+      if (bytes && !bytes.includes(0)) rows.push({ type: 'Evidence', path });
+    }
     for (const row of rows) {
       const path = String(row.path ?? '').replace(/^`|`$/g, '').trim();
       if (!path || path === 'none' || paths.has(path)) continue;

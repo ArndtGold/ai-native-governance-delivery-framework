@@ -1,15 +1,31 @@
 import type { Envelope, Detail } from './types';
 
 export interface DraftCheckAction { busy: boolean; problem: string | null; check: () => Promise<void> }
-export function DraftCheck({ result, action, current, onReload }: {
-  result: Envelope<Detail>; action: DraftCheckAction; current: boolean; onReload: () => void;
+export function DraftCheck({ result, action, current, onReload, inline = false }: {
+  result: Envelope<Detail>; action: DraftCheckAction; current: boolean; onReload: () => void; inline?: boolean;
 }) {
   const data = result.data, draft = data?.draft_check;
-  const state = !current ? 'stale' : action.busy ? 'checking' : action.problem ? 'unavailable' : draft?.display.state ?? 'unavailable';
+  const state = !current || inline && action.problem === 'source_changed' ? 'stale' : action.busy ? 'checking' : action.problem ? 'unavailable' : draft?.display.state ?? 'unavailable';
   const title = { stale: 'Prüfstand nicht aktuell', checking: 'Prüfung läuft', unavailable: 'Prüfung nicht verfügbar',
     unchecked: 'Noch nicht geprüft', passed: 'Entwurfsprüfung bestanden', corrections_required: 'Korrekturen erforderlich' }[state];
   const retry = action.problem === 'busy';
   const reopen = ['session_expired', 'session_invalid'].includes(action.problem ?? '');
+  const findings = draft?.display.findings?.length ? draft.display.findings : draft?.result?.diagnostics ?? [];
+  const findingList = !!findings.length && <ul>{findings.map((d, i) => <li key={`${d.code}:${i}`}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul>;
+  if (inline) {
+    // Busy preserves the capture. A technical read failure can invalidate it.
+    const retryWithReload = ['timeout', 'read_failed', 'dto_invalid'].includes(action.problem ?? '');
+    const canRetry = current && (retry || retryWithReload);
+    const status = state === 'passed' ? 'Formale Prüfung bestanden'
+      : state === 'checking' || state === 'unchecked' ? 'Formale Prüfung läuft …' : title;
+    return <div className="draft-check-inline">
+      <div className="draft-check-status" role="status" data-check-state={state}>{status}</div>
+      {canRetry && <button type="button" className="text-link" data-focus-id={`draft-check:${data?.run_id}`}
+        onClick={retryWithReload ? onReload : () => void action.check()}>Erneut prüfen</button>}
+      {current && reopen && <p className="muted">Öffne das Cockpit erneut, um die Prüfung wieder aufzunehmen.</p>}
+      {current && !action.problem && !!findings.length && <details><summary>Prüfbefunde ansehen</summary>{findingList}</details>}
+    </div>;
+  }
   return <section className="draft-check panel agdf-surface" aria-label="Entwurfsprüfung" aria-busy={action.busy}>
     <h2>Entwurfsprüfung{draft?.source.gate && ['UR', 'PRD', 'SD', 'TP'].includes(draft.source.gate) ? ` · ${draft.source.gate}` : ''}</h2>
     <p role="status" aria-live="polite"><strong>{title}</strong></p>
@@ -22,7 +38,7 @@ export function DraftCheck({ result, action, current, onReload }: {
     {(!current || action.problem && !retry && !reopen || draft?.display.recovery === 'reload') && <button type="button" onClick={onReload}>Stand neu laden</button>}
     {current && !action.problem && !draft?.source.available && <p>Für diesen Stand ist keine unterstützte Entwurfsprüfung verfügbar. Folge dem angezeigten nächsten Schritt des Vorhabens.</p>}
     {current && !action.problem && draft?.result && <>
-      {!!(draft.display.findings?.length || draft.result.diagnostics.length) && <ul>{(draft.display.findings?.length ? draft.display.findings : draft.result.diagnostics).map((d, i) => <li key={`${d.code}:${i}`}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul>}
+      {findingList}
       <p className="source-text">Nächster Schritt · Core-Original: {draft.result.next_action}</p>
     </>}
     <details><summary>Prüfquelle und Originalbefunde</summary>

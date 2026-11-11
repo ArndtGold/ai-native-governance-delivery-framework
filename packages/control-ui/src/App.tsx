@@ -15,6 +15,7 @@ import { documentName } from './presentation';
 import { Icon } from './mcp/Icon';
 import { useDraftCheck } from './useDraftCheck';
 import { DraftCheck } from './DraftCheck';
+import { draftCheckResource } from './RunDocuments';
 import { ContextPanel } from './ContextPanel';
 import type { HandoffController } from './mcp/handoff';
 import { COCKPIT_WORK_SECTIONS } from '../../core/lib/control-inspect/cockpit-list.js';
@@ -273,6 +274,43 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const status = readingStatus(state);
   const renderedGeneration = state.generation;
   const expired = hasExpiredSession(state), reloadRoute = state.requestedRoute ?? state.route;
+  const current = !state.stale && !state.problem && state.phase === 'ready';
+  const draftResource = draftCheckResource(state.detail?.data);
+  const draft = state.detail?.data?.draft_check;
+  const draftSource = draft?.source;
+  const draftBinding = draftResource && draftSource
+    ? JSON.stringify([draftSource.run_id, draftSource.gate, draftSource.revision_id, draftSource.artifact_digest]) : null;
+  const refreshedChangedDraft = useRef<string | null>(null);
+  const autoChecked = useRef<string | null>(null);
+  const checkReady = !!draftBinding && current && state.detail?.state === 'available'
+    && state.route.view === 'detail' && cardVisible && !!state.scope?.snapshot_id;
+  useEffect(() => {
+    if (!checkReady || !draftBinding) return;
+    if (draft?.display.state === 'passed' || draft?.display.state === 'corrections_required') refreshedChangedDraft.current = null;
+    const sourceChanged = draftAction.problem === 'source_changed' && refreshedChangedDraft.current !== draftBinding;
+    if (!draftAction.invalidated && !sourceChanged) return;
+    const refreshDraft = () => {
+      const active = live.current;
+      if (document.hidden || active.phase !== 'ready' || active.stale || active.requestedRoute) return;
+      if (sourceChanged) refreshedChangedDraft.current = draftBinding;
+      void navigate(active.route, true, true);
+    };
+    refreshDraft();
+    document.addEventListener('visibilitychange', refreshDraft);
+    return () => document.removeEventListener('visibilitychange', refreshDraft);
+  }, [checkReady, draftBinding, draft?.display.state, draftAction.invalidated, draftAction.problem, navigate]);
+  useEffect(() => {
+    if (!checkReady || !draftBinding || draft?.display.state !== 'unchecked' || document.hidden
+      || draftAction.invalidated || draftAction.busy || draftAction.problem) return;
+    const attempt = JSON.stringify([state.generation, draftBinding]);
+    if (autoChecked.current === attempt) return;
+    autoChecked.current = attempt;
+    void draftAction.check();
+  }, [checkReady, draftBinding, draft?.display.state, draftAction.invalidated, draftAction.busy, draftAction.problem, state.generation]);
+  const draftCheck = state.detail && <DraftCheck result={state.detail} action={draftAction}
+    current={current && !draftAction.invalidated} inline={!!draftResource}
+    onReload={() => void navigate(reloadRoute, true, !!draftResource)}/>;
+  const draftStatus = draftResource ? { resourceId: draftResource.resource_id, content: draftCheck } : undefined;
   const runTitle = state.detail?.data?.title ?? state.route.runId;
   const pageTitle = state.route.view === 'overview' ? 'Gespeicherte Vorhaben' : state.route.view === 'detail' || summarizing ? runTitle ?? 'Run verstehen' : documentName(state.document?.data?.resource.type);
   const readingContent = <>
@@ -290,7 +328,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       <div className={`reading-results${state.phase === 'loading' ? ' previous-content' : ''}`} aria-busy={state.phase === 'loading'}>
         {state.inventory?.data && state.route.view === 'overview' && <Overview result={state.inventory} current={state.phase === 'ready' && !state.stale && !state.problem} view={backlogView} onViewChange={setWorkView} onSelect={id => void navigate({ view: 'detail', runId: id })}
           loadArchive={loadArchive} loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })}/>}
-        {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} draftCheck={<DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
+        {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} draftStatus={draftStatus} draftCheck={draftStatus ? null : draftCheck} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
         {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
       {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} beforeRead={beforeContextRead} onScope={value => {
         if (draftPending.current || state.scope?.snapshot_id !== live.current.scope?.snapshot_id || renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
@@ -303,7 +341,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         dispatch({ type: 'ready', generation: sequence.current, route: { ...live.current.route, resourceId: doc?.data?.resource.resource_id }, scope: value, inventory: null, detail: parent, document: doc });
       }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready' || draftAction.busy} handoff={handoff}/>}
   </>;
-  if (compact) return <CompactCockpit loadArchive={loadArchive} draftCheck={state.detail && <DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
+  if (compact) return <CompactCockpit loadArchive={loadArchive} draftStatus={draftStatus} draftCheck={draftStatus ? null : draftCheck} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
     view={backlogView} onViewChange={setWorkView} returnNotice={backlogReturnNotice}
     onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview} onRuns={() => void navigate({ view: 'overview' })}

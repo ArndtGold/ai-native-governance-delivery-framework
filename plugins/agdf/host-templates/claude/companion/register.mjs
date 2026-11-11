@@ -496,7 +496,7 @@ function body($, e) {
   }
   const scope = view.runId ? JSON.stringify([session.root, view.runId]) : null;
   const quiet = !session.choices.enabled || session.choices.still || session.isHidden || Boolean(view.stale);
-  const still = quiet || !scope || ['unreadable', 'idle'].includes(view.figure?.reason.key);
+  const still = quiet || !scope || ['unreadable', 'idle', 'completionUnconfirmed'].includes(view.figure?.reason.key);
   // Without an assigned run a readable project smiles and keeps the idle motion (blinking) unless the
   // still pose applies; it never gestures. The smile is a static face, so the still pose keeps it.
   const idle = !scope && view.idle === true;

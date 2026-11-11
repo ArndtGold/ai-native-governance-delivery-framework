@@ -23,8 +23,9 @@ export function deriveFigureState(entry) {
   if (entry.evaluation_error) return { mood: 'blockiert', reason: { key: 'unreadable', reason: entry.evaluation_error } };
   // A completed run whose evaluation is blocked is not done: the block is shown like any other.
   const blocked = entry.evaluated === true && (entry.status === 'blocked' || Boolean(entry.blocking_reason && entry.blocking_reason !== 'none'));
+  // A completed run without confirmed completion is still shown, but claims nothing: its own reason.
   if (entry.lifecycle === 'completed' && !blocked) return entry.completion_confirmed === true
-    ? { mood: 'fertig', reason: { key: 'done' } } : { mood: 'bereit', reason: { key: 'idle' } };
+    ? { mood: 'fertig', reason: { key: 'done' } } : { mood: 'bereit', reason: { key: 'completionUnconfirmed' } };
   if (ENDED_LIFECYCLES.includes(entry.lifecycle)) return { mood: 'bereit', reason: { key: 'ended' } };
   if (!entry.evaluated) return { mood: 'bereit', reason: { key: 'idle' } };
   const gate = entry.current_gate;

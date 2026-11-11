@@ -53,7 +53,7 @@ test('Review finding 5: a completed run that evaluates as blocked is shown as bl
   assert.deepEqual(deriveFigureState(completed), { mood: 'blockiert', reason: { key: 'blocked', gate: 'OR', decision: 'AGDF_CLOSEOUT_EVIDENCE_MISSING' } });
   assert.deepEqual(deriveFigureState({ ...completed, status: 'open' }).mood, 'blockiert', 'a blocking reason alone blocks too');
   assert.deepEqual(deriveFigureState({ ...completed, status: 'pass', blocking_reason: 'none', completion_confirmed: true }), { mood: 'fertig', reason: { key: 'done' } });
-  assert.deepEqual(deriveFigureState({ valid: true, lifecycle: 'completed', evaluated: false }), { mood: 'bereit', reason: { key: 'idle' } },
+  assert.deepEqual(deriveFigureState({ valid: true, lifecycle: 'completed', evaluated: false }), { mood: 'bereit', reason: { key: 'completionUnconfirmed' } },
     'a summarized run does not claim confirmed completion');
 });
 
@@ -125,7 +125,7 @@ test('finish flag requires a confirmed completed Run, not an intermediate pass o
   const report = { status_card: card, completion: { fulfilled: true }, doctor_status: 'pass' };
   const entry = { run_id: 'test-run', lifecycle: 'completed', valid: true };
   assert.equal(projectRunEntry(entry, report).figure.mood, 'fertig');
-  assert.equal(projectRunEntry(entry, { ...report, completion: { fulfilled: false } }).figure.mood, 'bereit');
+  assert.deepEqual(projectRunEntry(entry, { ...report, completion: { fulfilled: false } }).figure, { mood: 'bereit', reason: { key: 'completionUnconfirmed' } }, 'an unconfirmed completion says so, not idle');
   assert.equal(projectRunEntry(entry, null).figure.mood, 'bereit');
   assert.notEqual(projectRunEntry({ ...entry, lifecycle: 'active' }, report).figure.mood, 'fertig');
 });
@@ -154,7 +154,7 @@ test('SCN-017 (T-005): the catalog carries complete companion copy in de and en'
   for (const locale of ['en', 'de']) {
     const copy = registry.locales[locale].companion;
     for (const mood of COMPANION_MOODS) assert.ok(copy.states[mood]?.trim(), `${locale} mood ${mood}`);
-    for (const key of ['working', 'waitingApproval', 'waitingDecision', 'blocked', 'done', 'building', 'idle', 'ended', 'unreadable'])
+    for (const key of ['working', 'waitingApproval', 'waitingDecision', 'blocked', 'done', 'building', 'idle', 'completionUnconfirmed', 'ended', 'unreadable'])
       assert.ok(copy.reasons[key]?.trim(), `${locale} reason ${key}`);
     for (const reason of DIAGNOSIS_REASONS) assert.ok(copy.unreadable[reason]?.trim(), `${locale} diagnosis ${reason}`);
   }

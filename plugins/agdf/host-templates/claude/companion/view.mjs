@@ -65,7 +65,7 @@ export function buildPanelView(input) {
       const runs = snapshot.runs ?? [];
       // "All done" only when every run completed; superseded or abandoned runs did not finish.
       if (!runs.length) return neutral(t('messages.noRunsYet'), { idle: true, hint: t('messages.noRunsYetHint') });
-      if (runs.every(item => item.lifecycle === 'completed')) return neutral(t('messages.allRunsDone'), { idle: true, hint: t('messages.allRunsDoneHint') });
+      if (runs.every(item => item.lifecycle === 'completed')) return neutral(t('messages.allRunsDone'), { idle: true, allDone: true, hint: t('messages.allRunsDoneHint') });
       return neutral(t('messages.noOpenRuns'), { idle: true });
     }
     return neutral(t('messages.noRunAssigned'), { idle: true, hint: t('messages.noRunAssignedHint'), openRuns, chatRunId, unreadableHint,

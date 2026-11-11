@@ -176,6 +176,7 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   assert.equal(view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" })]) }, "en").message, "All runs across the line. 🏁");
   const partlyEnded = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", lifecycle: "completed" }), run({ ...earlier, run_id: "b", lifecycle: "abandoned" })]) });
   assert.deepEqual([partlyEnded.message, partlyEnded.hint], ["Keine offenen Runs in diesem Projekt.", undefined], "an abandoned run did not finish");
+  assert.deepEqual([allDone.allDone, view({ snapshot: snapshot([]) }).allDone, partlyEnded.allDone], [true, undefined, undefined], "only all-done shows the tablet");
   // Only a readable project without an assigned run idles (blinks); failures and reading stay still.
   assert.equal(view({ snapshot: snapshot([]) }).idle, true);
   assert.equal(view({ snapshot: snapshot([run({ run_id: "old", last_activity: "2026-10-26T07:00:00Z" })]) }).idle, true);
@@ -300,6 +301,11 @@ assert.doesNotMatch(figureSvg("baut", { still: true }), /data-accessory="finish-
 assert.ok(figureSvg("bereit", { still: true, smile: true }).includes('d="M74 63q7 6 14 0"'));
 assert.ok(!figureSvg("bereit", { still: true }).includes('d="M74 63q7 6 14 0"'));
 assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("wartet", { still: true }));
+// The overview tablet: shown on request, still in the still pose, irregular (several cycle lengths) when moving.
+assert.match(figureSvg("bereit", { still: true, tablet: true }), /data-accessory="overview-tablet"/u);
+assert.doesNotMatch(figureSvg("bereit", { still: true }), /data-accessory="overview-tablet"/u);
+assert.doesNotMatch(figureSvg("bereit", { still: true, tablet: true }), /<animate/u);
+assert.deepEqual([...new Set(figureSvg("bereit", { tablet: true }).match(/dur="\d+s"/gu))].sort(), ['dur="12s"', 'dur="17s"', 'dur="23s"', 'dur="29s"', 'dur="31s"']);
 assert.equal(deriveFigureState(entry({ lifecycle: "completed", completion_confirmed: false })).mood, "bereit");
 assert.notEqual(deriveFigureState(entry({ status: "pass", lifecycle: "active" })).mood, "fertig");
 assert.equal(deriveFigureState(entry({ lifecycle: "completed", completion_confirmed: true })).mood, "fertig");

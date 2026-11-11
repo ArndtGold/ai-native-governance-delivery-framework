@@ -816,6 +816,12 @@ try {
     tree = await render(closingHost);
     assert.ok(texts(tree).includes("No open runs in this project."));
     assert.deepEqual(buttons(tree).filter(button => button.props.key.startsWith("run-")), []);
+    assert.doesNotMatch(find(tree, node => node.tag === "Svg")[0].props.source, /overview-tablet/u, "a superseded run did not finish, so no tablet");
+    writeFileSync(runPath, sealRunState(closing.root, replaceFirstScalar(readFileSync(runPath, "utf8"), "lifecycle", "completed")));
+    await (await entry(closingHost, "retry"))();
+    tree = await render(closingHost);
+    assert.ok(texts(tree).includes("All runs across the line. 🏁"));
+    assert.match(find(tree, node => node.tag === "Svg")[0].props.source, /data-accessory="overview-tablet"/u, "every run done shows the tablet");
   } finally {
     closing.close();
   }

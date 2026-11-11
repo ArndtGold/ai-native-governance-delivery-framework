@@ -93,6 +93,25 @@ function accessory(mood, gate, gesture) {
 }
 
 // A plan is a contextual prop, not a claim that a task or review has passed.
+// The overview tablet: a crew member looking at the board, no run state. Three independent cycles with
+// pairwise coprime lengths (17 s tap, 23 s scroll, 29 s lift) overlap with the blink (12 s) and the head
+// (31 s), so the motion stays irregular without randomness: an unchanged read keeps the same SVG bytes.
+function tabletAccessory(still) {
+  const lift = still ? '' : '<animateTransform attributeName="transform" type="rotate" values="-8 151 82;-8 151 82;-11 151 82;-10 151 82;-8 151 82;-8 151 82" keyTimes="0;0.41;0.44;0.5;0.54;1" dur="29s" repeatCount="indefinite"/>';
+  // A double tap early in the cycle, a single tap late, uneven pauses in between.
+  const tap = still ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;-3 -3;0 0;-3 -3;0 0;0 0;-3 -3;0 0;0 0" keyTimes="0;0.3;0.315;0.33;0.345;0.36;0.78;0.795;0.81;1" dur="17s" repeatCount="indefinite"/>';
+  // The screen scrolls one line, then the page quietly refreshes.
+  const scroll = still ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -5;0 -5;0 0" keyTimes="0;0.62;0.66;0.97;1" dur="23s" repeatCount="indefinite"/>'
+    + '<animate attributeName="opacity" values="1;1;0;1" keyTimes="0;0.96;0.98;1" dur="23s" repeatCount="indefinite"/>';
+  return `<g data-accessory="overview-tablet" transform="rotate(-8 151 82)">${lift}
+    <clipPath id="tablet-screen"><rect x="136" y="65" width="35" height="27" rx="2"/></clipPath>
+    <rect x="132" y="61" width="43" height="36" rx="5" fill="#213a43" stroke="#a9c3ca" stroke-width="2"/>
+    <rect x="136" y="65" width="35" height="27" rx="2" fill="#416a6c"/>
+    <g clip-path="url(#tablet-screen)"><g>${scroll}<path d="M141 72h20M141 77h15M141 82h18M141 87h12M141 92h17" stroke="#9edbd1" stroke-width="1.5" stroke-linecap="round"/></g></g>
+    <g>${tap}<rect x="135" y="86" width="13" height="9" rx="4" fill="url(#metal)" stroke="#41616a" stroke-width="1.5"/></g>
+  </g>`;
+}
+
 function planAccessory(still, showcase = false) {
   const movement = still ? '' : showcase ? '<animateTransform attributeName="transform" type="rotate" values="0 155 80;-7 155 80;7 155 80;-4 155 80;0 155 80;0 155 80" keyTimes="0;0.12;0.26;0.38;0.5;1" dur="4s" repeatCount="indefinite"/>' : '<animateTransform attributeName="transform" type="rotate" values="0 155 80;0 155 80;-3 155 80;0 155 80;0 155 80" keyTimes="0;0.71;0.74;0.77;1" dur="29s" repeatCount="indefinite"/>';
   const pen = still ? '' : showcase ? '<animateTransform attributeName="transform" type="translate" values="0 0;3 -3;0 0;0 0" keyTimes="0;0.18;0.36;1" dur="4s" repeatCount="indefinite"/>' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;2 -2;0 0;0 0" keyTimes="0;0.73;0.75;0.78;1" dur="29s" repeatCount="indefinite"/>';
@@ -106,7 +125,7 @@ function planAccessory(still, showcase = false) {
   </g>`;
 }
 
-export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false } = {}) {
+export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false, tablet = false } = {}) {
   const planning = workGate === 'TP';
   const signal = SIGNAL[mood] ?? SIGNAL.bereit;
   // A ready figure without a run to show may smile; it is a face only, never a run state.
@@ -172,6 +191,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
   </g></g>
   ${accessory(mood, !planning && GATES.has(gate) ? gate : undefined, act)}
   ${planning ? planAccessory(still, showcase) : ''}
+  ${tablet && !planning ? tabletAccessory(still) : ''}
 </svg>`;
 }
 

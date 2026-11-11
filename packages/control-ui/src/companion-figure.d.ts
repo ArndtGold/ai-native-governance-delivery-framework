@@ -13,7 +13,7 @@ declare module '*claude/companion/figure.mjs' {
   export function observeFigure(previous: FigureObservation | null, input: {
     scope: string | null; figure?: Figure; current: boolean;
   }): FigureObservation | null;
-  export function figureSvg(mood: string, options?: { still?: boolean; title?: string; gate?: string; workGate?: string; gesture?: boolean; sequence?: number; showcase?: boolean }): string;
+  export function figureSvg(mood: string, options?: { still?: boolean; title?: string; gate?: string; workGate?: string; gesture?: boolean; sequence?: number; showcase?: boolean; smile?: boolean; tablet?: boolean }): string;
 }
 
 declare module '*core/lib/control-inspect/work-situation.js' {

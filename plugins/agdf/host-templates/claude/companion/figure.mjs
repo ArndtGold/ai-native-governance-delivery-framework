@@ -18,6 +18,8 @@ const FACES = Object.freeze({
   blockiert: { x: [66, 105], y: [52, 52], ry: [4.5, 4.5], mouth: 'M75 66q6-3 12 0', brow: 'M54 46q6-2 13 0 M94 46q6-2 13 0' },
   fertig:    { x: [62, 101], y: [52, 52], ry: [2.5, 2.5], mouth: 'M73 62q8 9 16 0', brow: '' },
 });
+// A friendly, closed smile for the ready figure; softer than the open smile of `fertig`.
+const IDLE_SMILE = 'M74 63q7 6 14 0';
 const GESTURES = new Set(['baut', 'wartet', 'blockiert', 'fertig']);
 const GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT', 'OR']);
 
@@ -104,10 +106,11 @@ function planAccessory(still, showcase = false) {
   </g>`;
 }
 
-export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false } = {}) {
+export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false } = {}) {
   const planning = workGate === 'TP';
   const signal = SIGNAL[mood] ?? SIGNAL.bereit;
-  const face = FACES[mood] ?? FACES.bereit;
+  // A ready figure without a run to show may smile; it is a face only, never a run state.
+  const face = smile && mood === 'bereit' ? { ...FACES.bereit, mouth: IDLE_SMILE } : FACES[mood] ?? FACES.bereit;
   const act = gesture && !still;
   const eye = index => {
     const ry = face.ry[index];

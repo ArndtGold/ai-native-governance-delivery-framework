@@ -777,15 +777,20 @@ try {
   await (await entry(second, "retry"))();
   assert.ok(!texts(await render(second)).includes("fixture-a"), "a failed project switch cannot show the previous Run");
   assert.doesNotMatch(await figureSource(second), /<animate/u);
+  assert.ok(!(await figureSource(second)).includes('d="M74 63q7 6 14 0"'), "a failed read does not smile");
   second.$.process.run = secondRun;
   await (await entry(second, "retry"))();
   assert.ok(texts(await render(second)).includes("Starting grid empty."), "a project without runs shows the empty starting grid");
-  // A readable project without an assigned run idles: the figure blinks unless the still pose is chosen,
-  // and never gestures.
-  assert.doesNotMatch(await figureSource(second), /<animate/u, "this session chose the still pose");
+  // A readable project without an assigned run idles: the figure smiles, blinks unless the still pose is
+  // chosen, and never gestures.
+  const smile = 'd="M74 63q7 6 14 0"';
+  const stillIdle = await figureSource(second);
+  assert.doesNotMatch(stillIdle, /<animate/u, "this session chose the still pose");
+  assert.ok(stillIdle.includes(smile), "the still pose keeps the smile");
   await (await entry(second, "still"))();
   const idleFigure = await figureSource(second);
   assert.match(idleFigure, /attributeName="ry"/u, "without an assigned run the figure blinks");
+  assert.ok(idleFigure.includes(smile), "without an assigned run the figure smiles");
   assert.doesNotMatch(idleFigure, /data-gesture=/u, "without an assigned run the figure never gestures");
   await (await entry(second, "still"))();
   assert.doesNotMatch(await figureSource(second), /<animate/u);

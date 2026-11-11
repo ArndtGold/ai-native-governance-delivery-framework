@@ -296,6 +296,10 @@ assert.doesNotMatch(figureSvg("wartet", { still: true }), /data-tool="torque-wre
 assert.match(figureSvg("fertig", { still: true }), /data-accessory="finish-flag"/u);
 assert.doesNotMatch(figureSvg("fertig", { still: true, gesture: true }), /<animate/u);
 assert.doesNotMatch(figureSvg("baut", { still: true }), /data-accessory="finish-flag"/u);
+// The idle smile changes only the ready face; a run state keeps its own face.
+assert.ok(figureSvg("bereit", { still: true, smile: true }).includes('d="M74 63q7 6 14 0"'));
+assert.ok(!figureSvg("bereit", { still: true }).includes('d="M74 63q7 6 14 0"'));
+assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("wartet", { still: true }));
 assert.equal(deriveFigureState(entry({ lifecycle: "completed", completion_confirmed: false })).mood, "bereit");
 assert.notEqual(deriveFigureState(entry({ status: "pass", lifecycle: "active" })).mood, "fertig");
 assert.equal(deriveFigureState(entry({ lifecycle: "completed", completion_confirmed: true })).mood, "fertig");

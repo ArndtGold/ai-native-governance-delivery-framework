@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import type { Detail, Resource, RunClosure } from './types';
 import { label } from './feedback';
-import { documentName, phaseName, gateLabel, observedAssessment, reportFindingsLabel, closurePerson, closureSuccessor } from './presentation';
+import { completionUnconfirmed, documentName, phaseName, gateLabel, observedAssessment, reportFindingsLabel, closurePerson, closureSuccessor } from './presentation';
 import { RunDocuments } from './RunDocuments';
 import { projectWorkSituation } from '../../core/lib/control-inspect/work-situation.js';
 
@@ -21,8 +21,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
 }) {
   const id = useId(), e = data.evaluation;
   if (!e) return <>{children}{compactDetails && <details className="work-step-details"><summary>Details</summary>{compactDetails}</details>}</>;
-  const observed = observedAssessment(data, current);
-  const assessment = condensed && observed === 'completed' && e.completion?.fulfilled !== true ? 'unconfirmed' : observed;
+  const assessment = condensed && completionUnconfirmed(data) ? 'unconfirmed' : observedAssessment(data, current);
   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
   const situation = projectWorkSituation({ assessment, gate: e.current_gate, blockingReason: e.blocking_reason, missingApproval: e.missing_approval, closureOutcome: data.closure?.outcome });

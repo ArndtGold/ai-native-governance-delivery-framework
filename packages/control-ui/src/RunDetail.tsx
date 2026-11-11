@@ -7,7 +7,7 @@ import { SourcePreview } from './SourcePreview';
 import { SourceInfo } from './SourceInfo';
 import type { ReadTransport } from './api';
 import { ReadState, label } from './feedback';
-import { documentName, documentPurpose, observedAssessment, reportFindingsLabel } from './presentation';
+import { completionUnconfirmed, documentName, documentPurpose, observedAssessment, reportFindingsLabel } from './presentation';
 
 const authoringGates = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
 export function focusSituation(data: Detail, current: boolean) {
@@ -15,7 +15,7 @@ export function focusSituation(data: Detail, current: boolean) {
   const state = observedAssessment(data, current);
   if (!e || state === 'unconfirmed') return { kind: 'unconfirmed' as const, gate: null };
   if (state === 'ended') return { kind: 'ended' as const, gate: null };
-  if (state === 'completed' && e.completion?.fulfilled === true) return { kind: 'completed' as const, gate: null };
+  if (state === 'completed' && !completionUnconfirmed(data)) return { kind: 'completed' as const, gate: null };
   const gate = e.current_gate;
   const waiting = state === 'blocked' && e.blocking_reason === 'none' && e.missing_approval === `Approval: ${gate}`;
   const revision = state === 'blocked' && e.blocking_reason === 'presentation_version_decided';
@@ -38,8 +38,7 @@ export function RunDetail({ result, onOpen, summaryOnly = false, current = true,
   const mismatch = detailHasMismatch(data);
   // Retain the document row during refresh while its source controls are disabled.
   const situation = data ? focusSituation(data, result.state === 'available' && !mismatch) : null;
-  const completionUnconfirmed = e?.control_assessment?.state === 'completed' && e.completion?.fulfilled !== true;
-  const detailCurrent = current && result.state === 'available' && !mismatch && !completionUnconfirmed;
+  const detailCurrent = current && result.state === 'available' && !mismatch && !(data && completionUnconfirmed(data));
   const observedGate = situation?.gate ?? null;
   const draftSource = data?.draft_check?.source;
   const focusGate = current || draftSource?.available && draftSource.gate === observedGate ? observedGate : null;

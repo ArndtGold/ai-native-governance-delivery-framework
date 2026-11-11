@@ -7,6 +7,7 @@ import { BrandHeader } from '../BrandHeader';
 import { RefreshControl } from '../RefreshControl';
 import { Icon } from './Icon';
 import { WorkStep } from '../WorkStep';
+import { detailHasMismatch } from '../RunDetail';
 import { SourceInfo } from '../SourceInfo';
 import { WorkStandLabel } from '../WorkStandLabel';
 import { RunFigure } from '../RunFigure';
@@ -23,14 +24,12 @@ export function CompactCockpit({ state, headingRef, enabled, visible = true, ini
   onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode; loadArchive?: ArchiveLoader; loadPlanned?: (rowId: string, signal: AbortSignal) => Promise<Envelope<PlannedDocument>>;
   sourceEntry?: WorkEntry; onAbout: () => void; host?: CockpitHost;
 }) {
-  const data = state.detail?.data, e = data?.evaluation;
+  const data = state.detail?.data;
   const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
   const expired = hasExpiredSession(state);
   const status = readingStatus(state);
   const busy = state.phase === 'loading', usable = !expired && enabled && !busy && !state.stale && !state.problem && state.phase === 'ready' && !!state.scope?.data;
-  const ended = e?.control_assessment?.state === 'ended' && !!data?.closure;
-  const mismatch = !!(e && data.persisted && (data.persisted.current_gate !== e.current_gate
-    || !ended && data.persisted.next_allowed_action !== e.next_allowed_action));
+  const mismatch = detailHasMismatch(data);
   const current = usable && state.detail?.state === 'available' && !mismatch;
   const target = state.scope?.target.display_path;
   return <section className="compact-cockpit agdf-surface" aria-label="AGDF Cockpit" aria-busy={busy || state.refreshing}>

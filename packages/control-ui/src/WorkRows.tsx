@@ -2,11 +2,6 @@ import type { WorkSituation } from '../../core/lib/control-inspect/work-situatio
 import type { CockpitList, CockpitListRow } from '../../core/lib/control-inspect/cockpit-list.js';
 import type { WorkEntry, Diagnostic } from './types';
 import { Icon } from './mcp/Icon';
-export function WorkCounts({ list, filtered = false }: { list: CockpitList<WorkEntry, Diagnostic>; filtered?: boolean }) {
-  if (list.coverage === 'unavailable') return <p className="muted" role="status">Bereich nicht verfügbar · Anzahl nicht bestimmbar</p>;
-  return <p className="backlog-counts" role="status">{list.sectionCount} {list.coverage === 'partial' ? 'lesbare Einträge · Eingeschränkt' : list.sectionCount === 1 ? 'Eintrag' : 'Einträge'}
-    {(list.query || filtered) && <> · {list.matchCount} Treffer</>}</p>;
-}
 export function WorkEmpty({ list }: { list: CockpitList<WorkEntry, Diagnostic> }) {
   if (list.rows.length) return null;
   return <p className="muted" role="status">{list.coverage === 'unavailable' ? 'Dieser Bereich ist nicht auswertbar. Die Quelle prüfen und bewusst neu laden.'

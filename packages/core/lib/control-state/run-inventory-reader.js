@@ -13,10 +13,17 @@ import { parseControlState } from './run-state-parser.js';
 import { runSealState, listedArtefactPaths } from './run-seal.js';
 import { isSafeControlRelativePath } from './contained-file.js';
 
+const READ_BOUNDARY_CODES = ['source_changed', 'resource_limit', 'resource_denied', 'timeout'];
+const inControlScope = path => isSafeControlRelativePath(path) && path.startsWith('.agdf/control/');
+// The detail reader's boundary: a run registering sources outside .agdf/control cannot be proven here.
+const registersOnlyControlSources = content => listedArtefactPaths(content).every(inControlScope);
+
 // Feeds the pure inventory from the run discovery of the current read view: each run's parsed text
 // and, when the full parser rejected it, its findings. No run state is read a second time. `observe: false`
 // skips the per-run gate observation, which reads registered documents, for a caller that evaluates the
 // runs itself (the companion run view, which reads each run in its own captured snapshot).
+// `cockpitAssessment` evaluates active runs only, like the companion run view: terminal runs stay
+// summarized history, so a long history costs no gate evaluation per run and per refresh.
 export function readRunInventory(root, { language = "en", observe = true, includePresentation = false, cockpitAssessment = false } = {}) {
   if (!existsSync(join(root, '.agdf/control'))) return buildRunInventory(null, { language });
   readControlLayout(root);
@@ -32,10 +39,10 @@ export function readRunInventory(root, { language = "en", observe = true, includ
       try {
         const ur = parseControlState(run.content).artefacts.get('UR');
         const path = String(ur?.path ?? '').replace(/^`|`$/g, '').trim();
-        if (isSafeControlRelativePath(path) && path.startsWith('.agdf/control/')) name = readArtefactHeading(root, ur).replace(/^UR:\s*/i, '').trim();
+        if (inControlScope(path)) name = readArtefactHeading(root, ur).replace(/^UR:\s*/i, '').trim();
       } catch { /* An unreadable title must not hide the inventory. */ }
       try {
-        if (listedArtefactPaths(run.content).every(path => isSafeControlRelativePath(path) && path.startsWith('.agdf/control/'))) {
+        if (registersOnlyControlSources(run.content)) {
           const result = runSealState(root, run.content).status;
           seal = result === 'valid' ? 'valid' : result === 'unsealed' ? 'unsealed'
             : ['invalid', 'content_changed', 'approvals_changed'].includes(result) ? 'invalid' : 'unconfirmed';
@@ -48,13 +55,10 @@ export function readRunInventory(root, { language = "en", observe = true, includ
         const state = prepareRunContentState(root, run.content, run.path), decision = transitionDecisionForRunState(state);
         source.observation = { current_gate: decision.current_gate, decision: decision.status, missing: decision.missing_approval,
           next_action: decision.next_allowed_action, presentation_decision: Boolean(decision.presentation_decision?.decided) };
-        if (cockpitAssessment) {
-          // Match the detail reader's boundary: out-of-scope registrations cannot prove a current assessment.
-          const paths = listedArtefactPaths(run.content);
-          const safe = paths.every(path => isSafeControlRelativePath(path) && path.startsWith('.agdf/control/'));
+        if (cockpitAssessment && run.meta?.lifecycle === 'active') {
           let report = null;
-          if (safe) { try { report = evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true }); } catch (error) {
-            if (['source_changed', 'resource_limit', 'resource_denied', 'timeout'].includes(error.code)) throw error;
+          if (registersOnlyControlSources(run.content)) { try { report = evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true }); } catch (error) {
+            if (READ_BOUNDARY_CODES.includes(error.code)) throw error;
             // Preserve the Run but do not claim a verified assessment.
           } }
           const assessed = report ? projectCockpitAssessment(report, run.meta?.lifecycle) : { state: 'unconfirmed' };
@@ -66,7 +70,7 @@ export function readRunInventory(root, { language = "en", observe = true, includ
             missing: report.missing_approval, next_action: report.next_allowed_action });
         }
       } catch (error) {
-        if (cockpitAssessment && ['source_changed', 'resource_limit', 'resource_denied', 'timeout'].includes(error.code)) throw error;
+        if (cockpitAssessment && READ_BOUNDARY_CODES.includes(error.code)) throw error;
         source.findings = [{ code: 'AGDF_RUN_OBSERVATION_UNAVAILABLE' }];
       }
     }

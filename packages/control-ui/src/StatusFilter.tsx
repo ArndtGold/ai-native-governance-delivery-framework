@@ -1,10 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { Icon } from './mcp/Icon';
 
-export function StatusFilter({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
-  return <SelectionFilter label={label} value={value} options={[{value:'', label:'Alle Status'}, ...options.map(item => ({value:item, label:item}))]} onChange={onChange}/>;
-}
-
 export function areaCount(count: number | null, coverage: 'complete' | 'partial' | 'unavailable') {
   if (count === null || coverage === 'unavailable') return 'Anzahl nicht verfügbar';
   if (coverage === 'partial') return `Mindestens ${count} Vorhaben`;

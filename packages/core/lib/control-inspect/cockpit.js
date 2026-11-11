@@ -217,7 +217,8 @@ export function createCockpitReader(root, options = {}) {
       view.revalidate();
     } catch (error) { checkedDraft = null; invalidate(); inspected = null; graph = null; throw error; }
   }
-  function readDocument(resourceId) {
+  // Only the gate preview shows the authored summary; full document reads stay content-only.
+  function readDocument(resourceId, { withSummary = false } = {}) {
       const resource = documents.get(resourceId);
       if (!resource) fail('resource_denied');
       if (resource.status === 'blocked') return envelope({ resource }, 'blocked', 'resource_denied');
@@ -242,7 +243,7 @@ export function createCockpitReader(root, options = {}) {
         if (registered) links[href] = registered.resource_id;
       }
       const document_state = details.get(resource.run_id)?.data?.document_states?.find(row => row.resource_id === resourceId);
-      const summary = format === 'markdown' && document_state && ['UR', 'PRD', 'SD', 'TP'].includes(resource.type)
+      const summary = withSummary && format === 'markdown' && document_state && ['UR', 'PRD', 'SD', 'TP'].includes(resource.type)
         ? projectCockpitSummary(resource.type, content, resolveArtifactPresentationLanguages(root, 'de'), { runId: resource.run_id,
           revisionId: document_state.revision_id, artefactPath: resource.path }) : null;
       const cockpit_summary = summary && { ...summary, run_id: resource.run_id, resource_id: resource.resource_id,
@@ -379,7 +380,7 @@ export function createCockpitReader(root, options = {}) {
       const resource = documents.get(resourceId);
       if (!resource || resource.run_id !== runId) fail('resource_denied');
       assertSnapshot(id);
-      const result = readDocument(resourceId);
+      const result = readDocument(resourceId, { withSummary: true });
       assertSnapshot(id);
       return result;
     },

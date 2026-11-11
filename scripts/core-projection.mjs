@@ -55,7 +55,6 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
     'runtime/host-installation.js',
     'control-inspect/cockpit.js', 'control-inspect/cockpit-work.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
     'control-inspect/cockpit-list.js', 'control-inspect/cockpit-list.d.ts',
-    'control-inspect/cockpit-provenance.js', 'control-inspect/cockpit-provenance.d.ts',
     'control-read/cockpit-worker.js', 'control-read/control-changes.js',
     'control-inspect/decision-session.js',
     'control-state/decision-action-service.js',

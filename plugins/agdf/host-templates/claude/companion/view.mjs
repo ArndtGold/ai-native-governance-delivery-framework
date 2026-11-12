@@ -26,8 +26,10 @@ export const listedRunName = (run, t) => run.title || `${t('fields.newRun')} · 
 
 // Whose move it is (owner request of 2026-11-11): read from the figure state Core derived, so the
 // block never decides anything itself. `tone` is you (an approval or decision is yours), claude (the
-// agent works on the gate) or halt (the run is blocked). A state that concerns no gate work has no such
-// block, and neither has the terminal's turn overlay: its reason already says that Claude works.
+// agent works on the gate), next (the step is up next and nobody works on it) or halt (the run is
+// blocked). This function words the moves that are yours and the block; activityOf below words the work.
+// A state that concerns no gate work has no such block, and neither has the terminal's turn overlay
+// beside a run that is not working: its reason already says that Claude works.
 export function turnOf(state, run, t, gateName) {
   const { key, gate, decision } = state.reason;
   const at = gate ?? run.gate;
@@ -40,7 +42,34 @@ export function turnOf(state, run, t, gateName) {
   if (key === 'blocked') {
     return { tone: 'halt', who: t('turn.blocked'), what: t('reasons.blocked', { gate: gateName(at), decision: run.blockingText || decision || '' }), how: null, gate: at };
   }
-  return key === 'working' || key === 'building' ? { tone: 'claude', who: t('turn.claude'), what: gateName(at), how: null, gate: at } : null;
+  return null;
+}
+
+// Which kind of work a step is; the catalog's `activity` section words each kind once. A step the
+// table does not know is worded by its name.
+export const ACTIVITY_KINDS = Object.freeze({ UR: 'draft', PRD: 'draft', SD: 'draft', TP: 'draft',
+  'Brownfield Review': 'analysis', 'Brownfield Analysis': 'analysis', 'Mode/Slice Decision': 'route',
+  'CD+Tests': 'build', 'Quick Task Execution': 'build', 'Verified Change Execution': 'build',
+  CR: 'review', QA: 'quality', UAT: 'acceptance', OR: 'closeout' });
+
+// What a run is busy with (owner request of 2026-11-12: "läuft" named no activity). Read from the run's
+// own state, a step Claude works on or builds, never from the turn overlay. While a main-loop turn runs,
+// the line says what is being done and the block asks for a moment. Otherwise the run rests: the line
+// says what is up next and the block how to carry on. Returns { label, turn, resting } or null.
+export function activityOf(derived, run, isTurnActive, t, title) {
+  const { key, gate } = derived.reason;
+  const at = gate ?? run.gate;
+  if ((key !== 'working' && key !== 'building') || !at) return null;
+  const kind = ACTIVITY_KINDS[at] ?? 'other';
+  const named = title(at);
+  // A document or approval gate keeps its short name beside its title; an internal step has only a title.
+  const step = named !== at && /^[A-Z]{2,3}$/u.test(at) ? `${named} (${at})` : named;
+  const label = t(`activity.${kind}.${isTurnActive ? 'working' : 'idle'}`, { gate: at, step: named });
+  const drafting = kind === 'draft';
+  const turn = isTurnActive
+    ? { tone: 'claude', who: t('turn.moment'), what: drafting ? t('turn.drafting', { step }) : t('turn.workingOn', { step }), how: null, gate: at }
+    : { tone: 'next', who: t('turn.next'), what: drafting ? t('turn.draft', { step }) : step, how: t('turn.resume'), gate: at };
+  return { label, turn, resting: !isTurnActive };
 }
 
 // About two pane lines of the goal, cut at a word, so the block that asks for a move stays in sight.
@@ -123,14 +152,16 @@ export function buildPanelView(input) {
 
   const position = open.findIndex(item => item.id === run.id);
   const openCount = position >= 0 ? t('fields.position', { position: position + 1, count: open.length }) : t('fields.openRuns', { count: open.length });
-  const state = input.showRunState ? runState(run) : displayState(run, { isTurnActive: input.isTurnActive });
+  const derived = runState(run);
+  const state = input.showRunState ? derived : displayState(run, { isTurnActive: input.isTurnActive });
   const reasonParams = { gate: gateTitle(registry, locale, state.reason.gate), decision: run.blockingText || state.reason.decision,
     reason: state.reason.reason ? t(`unreadable.${state.reason.reason}`) : '' };
   // A gate by its localized title with its short name, e.g. "Produktanforderungen (PRD)".
   const gateName = gate => { const title = gateTitle(registry, locale, gate); return title === gate ? gate : `${title} (${gate})`; };
   const marks = gateMarks(run);
   const name = runName(run, t);
-  const turn = turnOf(state, run, t, gateName);
+  const activity = activityOf(derived, run, Boolean(input.isTurnActive), t, gate => gateTitle(registry, locale, gate));
+  const turn = activity?.turn ?? turnOf(state, run, t, gateName);
   // The goal in the display language; a goal that only repeats the name is not said twice.
   const goal = run.goal || run.objective;
   const objective = goal && goal !== name ? goal : '';
@@ -156,7 +187,10 @@ export function buildPanelView(input) {
     ...(input.showRunState ? { figure: state } : {}),
     mood: state.mood,
     workGate: input.showRunState && run.evaluated && !snapshot.stale ? run.gate : undefined,
-    stateLabel: t(`states.${state.mood}`),
+    // A working run names its activity; every other state keeps its word.
+    stateLabel: activity?.label ?? t(`states.${state.mood}`),
+    // The run rests: the step is up next and no main-loop turn works on it.
+    resting: activity?.resting === true,
     reason: t(`reasons.${state.reason.key}`, reasonParams),
     gateBar: gateBar(marks, input.columns),
     runId: run.id,

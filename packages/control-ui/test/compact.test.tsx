@@ -143,7 +143,8 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   expect(svg).toContain('#d0e4eb');expect(svg).not.toContain('#ff9b8c');expect(svg).not.toContain('data-gesture');
  });
  it('shows the TP plan only for a confirmed TP work step',async()=>{
-  const tp:Detail={...data, figure:{mood:'wartet',reason:{key:'waitingApproval',gate:'TP'}}, persisted:{...data.persisted!,current_gate:'TP'}, evaluation:{...data.evaluation!,current_gate:'TP'}};
+  // The plan is drawn while the TP is being drafted; a figure waiting for its approval holds the gate sign.
+  const tp:Detail={...data, figure:{mood:'laeuft',reason:{key:'working',gate:'TP'}}, persisted:{...data.persisted!,current_gate:'TP'}, evaluation:{...data.evaluation!,current_gate:'TP'}};
   const read=vi.fn(async(path:string)=>named(path)?runScope(tp):inventory) as unknown as ReadTransport;
   render(<App compact transport={read}/>);fireEvent.click(await readySelection('run-a'));
   await waitFor(()=>expect(document.querySelector('.compact-navigation img.run-figure')).toBeTruthy());

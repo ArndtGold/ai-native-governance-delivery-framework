@@ -32,8 +32,10 @@ and technical enforcement are separate claims. Use local status and a fresh host
 your own installation.
 
 > [!IMPORTANT]
-> **MCP and UI evidence.** The MCP and MCP App details below describe the repository build.
-> Verify the installed payload digest and the loaded host session when checking your installation.
+> **MCP and UI evidence:** The previously published AGDF 0.14.5 release did not include the MCP support
+> described here. The MCP and MCP App details below describe the repository development build.
+> They do not verify the payload currently resolved by `@agdf/cli@latest` or qualify a native host.
+> The version alone does not identify the payload; compare payload digests and the loaded session.
 > The runtime plugins for Codex, Claude Code and
 > GitHub Copilot declare MCP themselves; OpenCode uses separate registration. The public OpenAI
 > Skills-only candidate contains no MCP server. MCP availability alone does not establish UI support.

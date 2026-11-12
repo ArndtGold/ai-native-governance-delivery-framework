@@ -11,7 +11,8 @@ import { readRunState, readArtefactHeading } from '../control-evaluation/run-sta
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { isSafeControlRelativePath } from '../control-state/contained-file.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
-import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js';
+import { localePack } from '../interaction-presentation.js';
+import { runIdentity } from '../control-state/run-title.js';
 import { interactionLocales, resolveArtifactPresentationLanguages } from '../resources/context.js';
 import { projectCockpitSummary } from '../control-state/run-presentation-render.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
@@ -36,7 +37,7 @@ const DOCUMENT_GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
 const DESCRIPTION_LIMIT = 256 * 1024;
 const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
 const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
-const objective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
+const storedObjective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
 // History of an ended Run, read only from its sealed closure receipt; null for every other Run.
 export function projectRunClosure(content) {
   const closure = runClosure(content);
@@ -134,14 +135,14 @@ export function createCockpitReader(root, options = {}) {
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
     const urTitle = readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, '').trim();
+    const identity = runIdentity({ runId: run.run_id, runContent: run.content, urHeading: urTitle });
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       closure: projectRunClosure(run.content), work_summary,
       ...(figure && { figure }),
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
-      objective: objective(run.content), title_source: urTitle ? 'ur' : objective(run.content) ? 'objective' : 'run_id', title: resolveHumanRunTitle({
-        urHeading: urTitle,
-        runContent: run.content, runId: run.run_id,
-      }),
+      // The detail shows the stored Objective as written, placeholders included (owner decision);
+      // the title follows the shared Run title rule.
+      objective: storedObjective(run.content), title_source: identity.title_source, title: identity.title,
       evaluation: assessed, persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: report?.status ?? 'unavailable', artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources,

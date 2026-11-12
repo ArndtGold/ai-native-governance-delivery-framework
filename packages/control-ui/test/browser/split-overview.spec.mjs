@@ -136,7 +136,8 @@ test('wide list and long details scroll independently, and switching runs resets
     expect(hbox.y).toBeGreaterThanOrEqual(pbox.y - 1);
     expect(hbox.y).toBeLessThan(pbox.y + 30);
     await list.locator('[data-focus-id="fixture-completed"]').click();
-    await expect(panel.getByRole('heading', { name: 'Describe the trustworthy outcome.' })).toBeVisible();
+    // A template Objective is no title; the shared rule falls back to the Run ID.
+    await expect(panel.getByRole('heading', { name: 'Fixture Completed' })).toBeVisible();
     expect(await panel.evaluate(el => el.scrollTop)).toBe(0);
     expect(await list.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
     await page.setViewportSize({ width: 1600, height: 480 });

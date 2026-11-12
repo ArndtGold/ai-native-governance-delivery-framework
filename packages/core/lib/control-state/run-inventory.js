@@ -3,7 +3,9 @@
 // Callers pass validity findings from the full parser; this module never validates receipts.
 import { scalarFields, sectionTableRows, projectRunFacts } from "./run-state-document.js";
 import { RUN_ID_PATTERN } from "./run-identity.js";
-import { isDecisionContentPlaceholder } from "../control-evaluation/decision-content-placeholder.js";
+import { normalizedRunTitle, runIdentity } from "./run-title.js";
+
+export { normalizedRunTitle };
 
 export const RUN_INVENTORY_SCHEMA_VERSION = "1";
 export const RUN_INVENTORY_LIFECYCLES = Object.freeze(["active", "completed", "superseded", "abandoned"]);
@@ -42,29 +44,10 @@ const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/u;
 const plain = value => String(value ?? "").replace(/`/gu, "").trim();
 const clip = text => (text.length > TITLE_LIMIT ? `${text.slice(0, TITLE_LIMIT - 1)}…` : text);
 
-// The run-ID title every reader shows when no authored title exists.
-export function normalizedRunTitle(runId) {
-  const words = String(runId ?? "").replace(/[._-]+/g, " ").replace(/\s+/g, " ").trim();
-  return words ? words.replace(/\b\p{L}/gu, (letter) => letter.toUpperCase()) : "AGDF run";
-}
-
-// Lines of one level-two section up to the next heading; an empty section stays empty.
-function sectionLines(text, heading) {
-  const lines = text.split("\n"), start = lines.findIndex(line => line.trimEnd() === `## ${heading}`);
-  if (start < 0) return [];
-  const rest = lines.slice(start + 1), end = rest.findIndex(line => /^#{1,2} /u.test(line));
-  return end < 0 ? rest : rest.slice(0, end);
-}
-
-function objectiveTitle(text, runId) {
-  // The first paragraph, so hard-wrapped objectives stay whole.
-  const lines = sectionLines(text, "Objective").map(value => value.trim()), first = lines.findIndex(Boolean);
-  const paragraph = first < 0 ? [] : lines.slice(first), end = paragraph.indexOf("");
-  const line = (end < 0 ? paragraph : paragraph.slice(0, end)).join(" ");
-  const stripped = line.replace(/^(?:[-*>]|#+|\d+\.)\s+/u, "").replace(/\*\*|__|`/gu, "").replace(/\s+/gu, " ").trim();
-  return isDecisionContentPlaceholder(stripped)
-    ? { title: normalizedRunTitle(runId), title_source: "run_id" }
-    : { title: clip(stripped), title_source: "objective" };
+// The inventory reads no UR document, so its title source is the Objective or the Run ID.
+function titleFacts(text, runId) {
+  const { title, title_source, objective } = runIdentity({ runId, runContent: text });
+  return { title: clip(title), title_source, objective: objective === null ? null : clip(objective) };
 }
 
 // Base64url receipt cells decoded for display facts only; undecodable cells are skipped.
@@ -132,7 +115,7 @@ function entryOf(source, language) {
   const index = languageIndex(language);
   return {
     run_id: runId,
-    ...(text ? objectiveTitle(text, runId) : { title: normalizedRunTitle(runId), title_source: "run_id" }),
+    ...titleFacts(text, runId),
     ...(source.presentation ? { presentation: source.presentation } : {}),
     valid,
     lifecycle: valid ? lifecycle : null,

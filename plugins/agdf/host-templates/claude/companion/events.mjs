@@ -79,11 +79,13 @@ export const shortRunId = id => String(id ?? '').replace(/^(run-[0-9a-f]{8})(?:-
 
 // The name an event line gives its run, or null for the run the panel shows: the panel already names
 // that run, so its events carry no second id (owner request of 2026-11-06, T-013). Another run is
-// named by its objective from the run view, else by its short id. `naming` is { shownRunId, runs }.
+// named by its title from the run view, else by its objective, else by its short id. `naming` is
+// { shownRunId, runs }.
 export function eventRunLabel(runId, { shownRunId = null, runs = [] } = {}) {
   if (!runId || runId === shownRunId) return null;
-  const objective = runs.find(item => item.id === runId)?.objective;
-  return typeof objective === 'string' && objective.trim() ? objective.trim() : shortRunId(runId);
+  const run = runs.find(item => item.id === runId);
+  const name = [run?.title, run?.objective].find(value => typeof value === 'string' && value.trim());
+  return name ? name.trim() : shortRunId(runId);
 }
 
 // An event text with the name of a run other than the shown one after it, so a cut line keeps the event.

@@ -4,8 +4,12 @@
 // view sees exactly what the status card shows. Nothing here writes or authorizes.
 import { existsSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
-import { readFileSync } from '../control-read/fs.js';
+import { readFileSync, statSync } from '../control-read/fs.js';
 import { captureControlScope } from '../control-read/snapshot.js';
+import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from '../control-state/contained-file.js';
+import { parseControlState } from '../control-state/run-state-parser.js';
+import { runIdentity } from '../control-state/run-title.js';
+import { localizedDecisionFields } from '../control-evaluation/decision-content-readiness.js';
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { readRunInventory } from '../control-state/run-inventory-reader.js';
 import { runFolderEntries } from '../control-state/run-state-reader.js';
@@ -15,7 +19,7 @@ import { runRelativePath } from '../control-state/run-identity.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { boundedCode } from '../control-inspect/run-classification.js';
 import { localizeBlockingCondition, localizeOperationalValue } from '../interaction-presentation.js';
-import { interactionLocales } from '../resources/context.js';
+import { interactionLocales, resolveArtifactPresentationLanguages } from '../resources/context.js';
 import { deriveFigureState } from './figure-state.js';
 
 export const RUN_VIEW_SCHEMA = 'run-view/1';
@@ -43,13 +47,50 @@ export function projectDiagnosis(entries) {
   return { unreadable, counts: { unreadable: unreadable.length, readable: entries.length - unreadable.length, by_reason } };
 }
 
+const NAMING_TEXT_LIMIT = 500;
+const UR_READ_LIMIT = 131072;
+const bounded = value => (typeof value === 'string' && value.length > NAMING_TEXT_LIMIT ? `${value.slice(0, NAMING_TEXT_LIMIT - 1)}…` : value);
+
+// How a run names itself to a person, read inside the run's own snapshot: the stable title of the
+// shared Run title rule (registered UR heading, then the authored Objective; a bare Run ID is no
+// title) and the goal in the display language. Where display and artefact language differ, the goal
+// is the one the UR's localized approval summary states. An unreadable UR leaves both to the Run document.
+export function readRunNaming(root, runId, language = 'en') {
+  let content;
+  try { content = readFileSync(join(root, runRelativePath(runId, '', 'RUN_STATE.md')), 'utf8'); } catch { return null; }
+  let urHeading = '', localizedGoal = null;
+  try {
+    const path = String(parseControlState(content).artefacts.get('UR')?.path ?? '').replace(/^`|`$/gu, '').trim();
+    if (isSafeControlRelativePath(path) && path.startsWith('.agdf/control/') && !hasSymlinkComponent(root, path)) {
+      const file = containedRegularFile(root, path);
+      if (file.status === 'valid' && statSync(file.path).size <= UR_READ_LIMIT) {
+        const text = readFileSync(file.path, 'utf8');
+        urHeading = (text.match(/^#\s+(.+)$/mu)?.[1] ?? '').replace(/^UR:\s*/iu, '').trim();
+        const sourceLanguage = resolveArtifactPresentationLanguages(root, language).artifact_language;
+        localizedGoal = localizedDecisionFields('UR', text, { locale: String(language).split('-')[0], sourceLanguage, path }).fields.goal ?? null;
+      }
+    }
+  } catch (error) { if (error?.code === 'source_changed') throw error; }
+  const identity = runIdentity({ runId, runContent: content, urHeading });
+  return { run_title: identity.title_source === 'run_id' ? null : bounded(identity.title),
+    run_title_source: identity.title_source, goal: bounded(localizedGoal ?? identity.objective) };
+}
+
 // One run entry: inventory facts plus, when evaluated, the status card fields of its report.
-export function projectRunEntry(inventoryEntry, report, { registry = interactionLocales, language = 'en' } = {}) {
+// `naming` is readRunNaming's result for an evaluated run; without it the inventory names the run.
+export function projectRunEntry(inventoryEntry, report, { registry = interactionLocales, language = 'en', naming = null } = {}) {
+  const authored = inventoryEntry.title_source === 'objective' ? inventoryEntry.title ?? null : null;
   const base = {
     run_id: inventoryEntry.run_id,
     title: inventoryEntry.title ?? null,
-    // The authored objective only; a template objective or a run-id title is no goal (CR finding C2).
-    objective: inventoryEntry.title_source === 'objective' ? inventoryEntry.title ?? null : null,
+    // The stable human title, the same at every gate; null while only the Run ID could name the run.
+    run_title: naming ? naming.run_title : authored,
+    run_title_source: naming?.run_title_source ?? (authored ? 'objective' : 'run_id'),
+    // The goal in the display language where the UR states one, otherwise the authored objective.
+    goal: naming ? naming.goal : inventoryEntry.objective ?? null,
+    // The authored objective only, from the shared Run title rule; a template objective or a
+    // bare Run ID is no goal (CR finding C2).
+    objective: inventoryEntry.objective ?? null,
     lifecycle: inventoryEntry.lifecycle ?? null,
     valid: inventoryEntry.valid !== false,
     revision: inventoryEntry.revision ?? null,
@@ -154,12 +195,12 @@ export function readRunView(root, { language = 'en', runIds = [] } = {}) {
     try {
       return captured(readRoot, base => {
         const report = evaluateGateCheck(base, { runId, ignoreRunIdEnv: true, presentationLanguage: language });
-        return { report, drift: report?.status_card ? readRunDrift(base, runId) : null };
+        return { report, drift: report?.status_card ? readRunDrift(base, runId) : null, naming: readRunNaming(base, runId, language) };
       });
-    } catch (error) { return { report: { evaluation_error: boundedCode(error) }, drift: null }; }
+    } catch (error) { return { report: { evaluation_error: boundedCode(error) }, drift: null, naming: null }; }
   };
   const entryOf = (inventoryEntry, evaluated) => {
-    const entry = projectRunEntry(inventoryEntry, evaluated?.report ?? null, { language });
+    const entry = projectRunEntry(inventoryEntry, evaluated?.report ?? null, { language, naming: evaluated?.naming ?? null });
     return entry.evaluated && entry.valid !== false && evaluated.drift ? { ...entry, drift: evaluated.drift } : entry;
   };
   let inventory = null, store;

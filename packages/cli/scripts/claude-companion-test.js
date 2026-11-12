@@ -21,7 +21,7 @@ const { chatLocale, companionLabels, label, settingLocale } = await companion("l
 const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
 const { FIGURE_TEXT, figureSvg, observeFigure } = await companion("figure.mjs");
 const { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } = await companion("notice.mjs");
-const { buildPanelView, terminalText } = await companion("view.mjs");
+const { buildPanelView, goalLine, terminalText } = await companion("view.mjs");
 const { STATE_FILE, parseCompanionState, pluginDataDir, serializeCompanionState } = await companion("persistence.mjs");
 const registry = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 const labels = companionLabels(registry);
@@ -153,8 +153,10 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
 {
   const at = "2026-10-26T08:01:00Z";
   const waiting = view({ snapshot: snapshot([run({ missing_approval: "Approval: SD", last_activity: at })]) });
-  assert.deepEqual([waiting.stateLabel, waiting.reason, waiting.nextStep, waiting.gateBar], ["wartet auf Freigabe", "Freigabe ausstehend: Lösungsdesign", "Das SD entwerfen.",
+  // For an approval the turn block says what to do, so the next step moves behind the (i).
+  assert.deepEqual([waiting.stateLabel, waiting.reason, waiting.nextStep, waiting.gateBar], ["wartet auf Freigabe", "Freigabe ausstehend: Lösungsdesign", null,
     "✓UR ✓PRD ●SD ○TP ○CD+Tests ○QA ○UAT ○OR"]);
+  assert.deepEqual(waiting.info.at(-1), { label: "Nächster Schritt", text: "Das SD entwerfen." });
   const blocked = view({ snapshot: snapshot([run({ status: "blocked", blocking_reason: "AGDF_RUN_SEAL_MISMATCH", blocking_text: "Siegel verletzt", last_activity: at })]) });
   assert.deepEqual([blocked.stateLabel, blocked.reason], ["blockiert", "Lösungsdesign: Siegel verletzt"], "the status card's blocking text, also for doctor blocks");
   const working = view({ snapshot: snapshot([run({ last_activity: at })]) });
@@ -162,7 +164,73 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   assert.equal(view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true }).reason, "Claude arbeitet gerade an diesem Turn");
   const building = view({ snapshot: snapshot([structured("CD+Tests", { last_activity: at })]) });
   assert.deepEqual([building.stateLabel, building.reason], ["baut", "In Arbeit: Implementierung und Tests"]);
-  assert.ok(terminalText(building, { labels, locale: "de" }).includes("(o_o) ⚒ baut · In Arbeit: Implementierung und Tests"));
+  // The turn line says what the reason would, so the terminal names it once.
+  assert.ok(terminalText(building, { labels, locale: "de" }).includes("(o_o) ⚒ baut\nNeues Vorhaben · Strukturierte Lieferung · Schritt 5 von 8\nClaude arbeitet: Implementierung und Tests (CD+Tests)"));
+  // Owner request of 2026-11-11: a run is named by its title, never by its id; the panel says whose
+  // move it is and what the gate decides, and states the goal in the display language.
+  {
+    const titled = { run_title: "Status card path marks only one current gate", goal: "Der Pfad zeigt nie mehr als einen aktuellen Eintrag.", objective: "The path never shows more than one current entry.", last_activity: at };
+    const approval = view({ snapshot: snapshot([run({ ...titled, missing_approval: "Approval: SD" })]) });
+    assert.deepEqual([approval.name, approval.route, approval.objective], ["Status card path marks only one current gate", "Strukturierte Lieferung · Schritt 3 von 8",
+      "Der Pfad zeigt nie mehr als einen aktuellen Eintrag."], "title, path with position, and the goal in the display language");
+    assert.deepEqual(approval.turn, { tone: "you", who: "Du bist dran", what: "Lösungsdesign (SD) freigeben", how: "Im Chat mit „Approval: SD“", gate: "SD" });
+    assert.equal(approval.rationale, registry.locales.de.gateRationale.SD, "what the gate in question decides");
+    assert.deepEqual(view({ snapshot: snapshot([run({ ...titled, missing_approval: "Approval: SD" })]) }, "en").turn,
+      { tone: "you", who: "Your turn", what: "Approve Solution design (SD)", how: "In the chat with “Approval: SD”", gate: "SD" });
+    const decision = view({ snapshot: snapshot([run({ ...titled, user_action_required: "yes" })]) }).turn;
+    assert.deepEqual([decision.tone, decision.what, decision.how], ["you", "Entscheidung treffen: Lösungsdesign (SD)", null]);
+    assert.deepEqual([working.turn.tone, working.turn.who, working.turn.what], ["claude", "Claude arbeitet", "Lösungsdesign (SD)"]);
+    assert.deepEqual([blocked.turn.tone, blocked.turn.who, blocked.turn.what, blocked.rationale], ["halt", "Blockiert", "Lösungsdesign (SD): Siegel verletzt", null],
+      "a blocked run names its block instead of the gate's purpose");
+    const finished = view({ snapshot: snapshot([run({ lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: at })]) });
+    assert.deepEqual([finished.turn, finished.rationale], [null, null], "a completed run is nobody's move");
+    const overlaid = view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true });
+    assert.deepEqual([overlaid.turn, overlaid.rationale], [null, null], "the terminal's turn overlay already says that Claude works");
+    assert.ok(terminalText(overlaid, { labels, locale: "de" }).includes("läuft · Claude arbeitet gerade an diesem Turn\nNeues Vorhaben · Strukturierte Lieferung · Schritt 3 von 8"));
+    // Without a title the panel says "new run", and the run id stays a reference line at the end.
+    assert.deepEqual([working.name, working.runId, working.objective], ["Neues Vorhaben", "r", ""]);
+    const lines = terminalText(approval, { labels, locale: "de" }).split("\n");
+    assert.ok(lines.indexOf("Status card path marks only one current gate · Strukturierte Lieferung · Schritt 3 von 8") < lines.indexOf("r · In dieser Sitzung geändert"),
+      "the name stands before the run id");
+    assert.ok(lines.includes("Du bist dran: Lösungsdesign (SD) freigeben · Im Chat mit „Approval: SD“"));
+    assert.ok(lines.includes("(-_-) ⧗ wartet auf Freigabe"), "the state line carries no second reason");
+    // Owner request of 2026-11-12: the goal stands in sight under the run's name, before whose move it
+    // is; the gate's purpose and a step that only repeats the approval sit behind the (i), closed by default.
+    assert.equal(approval.goal, "Der Pfad zeigt nie mehr als einen aktuellen Eintrag.");
+    assert.ok(lines.indexOf("Status card path marks only one current gate · Strukturierte Lieferung · Schritt 3 von 8") + 1 === lines.indexOf("Ziel: Der Pfad zeigt nie mehr als einen aktuellen Eintrag.")
+      && lines.indexOf("Ziel: Der Pfad zeigt nie mehr als einen aktuellen Eintrag.") + 1 === lines.indexOf("Du bist dran: Lösungsdesign (SD) freigeben · Im Chat mit „Approval: SD“"), "name, goal, then whose move it is");
+    assert.deepEqual(approval.info, [
+      { label: "Wozu dieses Gate da ist", text: registry.locales.de.gateRationale.SD },
+      { label: "Nächster Schritt", text: "Das SD entwerfen." }], "a goal shown whole is not repeated behind the (i)");
+    assert.deepEqual([approval.isInfoExpanded, approval.nextStep], [false, null]);
+    for (const hidden of ["Wozu dieses Gate da ist:", "Nächster Schritt:"]) assert.ok(!lines.some(line => line.startsWith(hidden)), `${hidden} stays behind the (i)`);
+    const opened = terminalText(view({ snapshot: snapshot([run({ ...titled, missing_approval: "Approval: SD" })]), isInfoExpanded: true }), { labels, locale: "de" }).split("\n");
+    assert.deepEqual(opened.filter(line => /^(Ziel|Wozu dieses Gate da ist|Nächster Schritt):/u.test(line)),
+      ["Ziel: Der Pfad zeigt nie mehr als einen aktuellen Eintrag.", `Wozu dieses Gate da ist: ${registry.locales.de.gateRationale.SD}`, "Nächster Schritt: Das SD entwerfen."]);
+    const workingTitled = view({ snapshot: snapshot([run({ ...titled })]) });
+    assert.deepEqual([workingTitled.nextStep, workingTitled.info.map(item => item.label)], ["Das SD entwerfen.", ["Wozu dieses Gate da ist"]],
+      "while Claude works the next step says something new and stays in sight");
+    // About two pane lines of a long goal, cut at a word; the whole goal is the first entry behind the (i).
+    const long = "Der Pfad einer Statuskarte zeigt nie mehr als einen aktuellen Eintrag. Solange ein früheres Gate des Pfads das aktuelle ist, bleibt der Routen-Eintrag dahinter offen.";
+    const cut = view({ snapshot: snapshot([run({ ...titled, goal: long })]), columns: 40 });
+    assert.deepEqual([cut.goal, cut.info[0]], ["Der Pfad einer Statuskarte zeigt nie mehr als einen aktuellen Eintrag. Solange…", { label: "Ziel", text: long }]);
+    assert.ok(cut.goal.length <= 80 && goalLine(long, 200) === long && goalLine("kurz", 10) === "kurz", "the cut follows the pane width");
+    // Chat language en with English artefacts: no localized summary, so the goal is the Run document's objective.
+    const english = view({ snapshot: snapshot([run({ run_title: titled.run_title, goal: titled.objective, objective: titled.objective, missing_approval: "Approval: SD", last_activity: at })]) }, "en");
+    assert.deepEqual([english.goal, english.turn.who, english.info.map(item => item.label)], ["The path never shows more than one current entry.", "Your turn", ["What this gate decides", "Next step"]]);
+    assert.ok(terminalText(english, { labels, locale: "en" }).includes("Objective: The path never shows more than one current entry.\nYour turn: Approve Solution design (SD)"));
+    assert.deepEqual([blocked.nextStep, blocked.info], ["Das SD entwerfen.", []], "a blocked untitled run has nothing behind the (i)");
+    // A goal that only repeats the title is not said twice; a gate without a catalog title keeps its name.
+    assert.equal(view({ snapshot: snapshot([run({ run_title: "Same text.", goal: "Same text.", last_activity: at })]) }).objective, "");
+    const review = view({ snapshot: snapshot([run({ ...titled, current_gate: "Unknown Step", mode: "undecided", path: [{ gate: "UR", status: "fulfilled" }] })]) });
+    assert.deepEqual([review.turn.what, review.route, review.rationale], ["Unknown Step", "Lieferweg noch offen", null], "before the path is decided only that is said");
+    assert.equal(view({ snapshot: snapshot([run({ ...titled, mode: "quick_task", path: [{ gate: "UR", status: "fulfilled" }, { gate: "Compact Delivery", status: "current" }] })]) }).route,
+      "Compact Delivery · Schritt 2 von 2");
+    // The open-run list names runs too; an untitled one adds its short id to stay distinguishable.
+    const earlier = { last_activity: "2026-10-26T07:00:00Z" };
+    const listed = view({ snapshot: snapshot([run({ ...earlier, run_id: "a", run_title: "First undertaking" }), run({ ...earlier, run_id: "run-921ef1f8-9792-4392-a2ea-6eb63c50bde6" })]) });
+    assert.deepEqual(listed.openRuns.map(item => item.name).sort(), ["First undertaking", "Neues Vorhaben · run-921ef1f8"]);
+  }
   const done = view({ snapshot: snapshot([run({ lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: at })]) });
   assert.deepEqual([done.stateLabel, done.nextStep], ["fertig", null]);
   assert.equal(view({ snapshot: snapshot([run({ run_id: "old", last_activity: "2026-10-26T07:00:00Z" })]) }).message, "Kein Run zugeordnet");
@@ -184,7 +252,18 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   assert.equal(view({ snapshot: null }).idle, undefined);
   assert.equal(view({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 } }).idle, undefined);
   const noControl = view({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 } });
-  assert.deepEqual([noControl.message, noControl.hint], ["Kein AGDF-Kontrollordner in „voice-projekt“.", "Geprüfter Projektordner: C:\\Workspace\\voice-projekt"]);
+  // Owner request of 2026-11-12: a project without AGDF is invited to start; the checked path and the
+  // finding sit behind the (i), and the figure smiles, blinks and holds the start sign.
+  assert.deepEqual([noControl.message, noControl.hint, noControl.invite, noControl.idle, noControl.isInfoExpanded],
+    ["AGDF ist in diesem Projekt noch nicht eingerichtet.", "Sag mir im Chat, wenn du AGDF hier nutzen möchtest – ich richte es mit dir ein.", true, true, false]);
+  assert.deepEqual(noControl.info, [{ label: "Geprüfter Projektordner", text: "C:\\Workspace\\voice-projekt" }, { label: "Befund", text: "Kein AGDF-Kontrollordner in „voice-projekt“." }]);
+  const invited = terminalText(noControl, { labels, locale: "de" }).split("\n");
+  assert.deepEqual(invited.slice(0, 4), ["AGDF Companion", "(^_^)/ bereit", "AGDF ist in diesem Projekt noch nicht eingerichtet.", "Sag mir im Chat, wenn du AGDF hier nutzen möchtest – ich richte es mit dir ein."]);
+  assert.ok(!invited.some(line => line.includes("voice-projekt")), "the path stays behind the (i)");
+  const invitedOpen = terminalText(view({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 }, isInfoExpanded: true }), { labels, locale: "de" });
+  assert.ok(invitedOpen.includes("Geprüfter Projektordner: C:\\Workspace\\voice-projekt\nBefund: Kein AGDF-Kontrollordner in „voice-projekt“."));
+  assert.deepEqual(["message", "invite"].map(key => view({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 } }, "en")[key]), ["AGDF isn't set up in this project yet.", true]);
+  for (const other of [view({ snapshot: snapshot([]) }), view({ snapshot: null })]) assert.equal(other.invite, undefined, "only a project without AGDF is invited");
   const layout = view({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 } });
   assert.equal(layout.message, "Run-Status nicht lesbar: Aufbau des Kontrollordners nicht unterstützt");
   // AC-002 (T-004): with counted run folders the unsupported store names count and reason, never "Keine offenen Runs".
@@ -209,13 +288,14 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   assert.deepEqual([...deLeaves.keys()].sort(), [...enLeaves.keys()].sort(), "German and English companion keys agree");
   const englishOnly = new Set([...enLeaves].filter(([key, value]) => deLeaves.get(key) !== value).map(([, value]) => value));
   assert.ok(englishOnly.size > 50, "the English-only copy is found");
-  const fields = ["title", "stateLabel", "reason", "message", "hint", "unreadableHint", "origin", "openCount", "nextStep", "readAt", "stale", "eventsHint"];
+  const fields = ["title", "stateLabel", "reason", "message", "hint", "unreadableHint", "origin", "openCount", "nextStep", "readAt", "stale", "eventsHint",
+    "name", "route", "rationale"];
   let compared = 0;
   for (const item of [waiting, blocked, working, building, done, noControl, layout, legacyOnly, mixed]) {
-    for (const field of fields) {
-      if (typeof item[field] !== "string") continue;
+    for (const [field, value] of [...fields.map(key => [key, item[key]]), ...["who", "what", "how"].map(key => [`turn.${key}`, item.turn?.[key]])]) {
+      if (typeof value !== "string") continue;
       compared += 1;
-      assert.equal(englishOnly.has(item[field]), false, `German panel shows English ${field}: ${item[field]}`);
+      assert.equal(englishOnly.has(value), false, `German panel shows English ${field}: ${value}`);
     }
   }
   assert.ok(compared >= 25, "the German view fields are compared");
@@ -301,6 +381,21 @@ assert.doesNotMatch(figureSvg("baut", { still: true }), /data-accessory="finish-
 assert.ok(figureSvg("bereit", { still: true, smile: true }).includes('d="M74 63q7 6 14 0"'));
 assert.ok(!figureSvg("bereit", { still: true }).includes('d="M74 63q7 6 14 0"'));
 assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("wartet", { still: true }));
+// The start sign of a project without AGDF (owner request of 2026-11-12): the pit crew's round sign in a
+// raised hand, only for a ready figure; its sway is idle motion, so the still pose keeps the sign and drops
+// the motion, and it never stands beside the tablet or the TP plan.
+{
+  const sign = figureSvg("bereit", { invite: true, smile: true });
+  assert.match(sign, /data-accessory="start-sign"[\s\S]*>START<\/text>/u);
+  assert.match(sign, /<g transform="rotate\(-30 112 95\)"><animateTransform[^>]+dur="5s" repeatCount="indefinite"/u, "the raised arm sways");
+  const stillSign = figureSvg("bereit", { invite: true, smile: true, still: true });
+  assert.match(stillSign, /data-accessory="start-sign"/u);
+  assert.doesNotMatch(stillSign, /<animate/u, "the still pose has no motion");
+  assert.doesNotMatch(figureSvg("bereit", { smile: true }), /start-sign/u, "not without the invitation");
+  for (const mood of ["laeuft", "baut", "wartet", "blockiert", "fertig"]) assert.doesNotMatch(figureSvg(mood, { invite: true }), /start-sign/u, mood + " shows a run state, never the invitation");
+  assert.doesNotMatch(figureSvg("bereit", { invite: true, tablet: true }), /overview-tablet/u, "one accessory at a time");
+  assert.doesNotMatch(figureSvg("bereit", { invite: true, workGate: "TP" }), /start-sign/u);
+}
 // The overview tablet: shown on request, still in the still pose, irregular (several cycle lengths) when moving.
 assert.match(figureSvg("bereit", { still: true, tablet: true }), /data-accessory="overview-tablet"/u);
 assert.doesNotMatch(figureSvg("bereit", { still: true }), /data-accessory="overview-tablet"/u);
@@ -407,7 +502,9 @@ assert.deepEqual(observedRun({ snapshot: { status: "failed", runs: [], unreadabl
 assert.deepEqual(observedRun({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "unreadable" });
 assert.deepEqual(observedRun({ snapshot: { ...snapshot([]), unreadable: [{ id: "x", reason: "run_state_invalid" }] }, sessionStartedAt: 0, selection: "x" }), { kind: "unreadable" });
 assert.deepEqual(observedRun({ snapshot: null, sessionStartedAt: 0 }), { kind: "idle" });
-assert.deepEqual(observedRun({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "idle" });
+assert.deepEqual(observedRun({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "notSetUp" });
+assert.deepEqual(["de", "en"].map(locale => statusText({ kind: "notSetUp" }, { labels, locale })), ["AGDF · nicht eingerichtet", "AGDF · not set up"], "told apart from a set-up project with nothing to do");
+assert.deepEqual(observeNotice({ runId: "r", signature: "x" }, { kind: "notSetUp" }), { observation: null, notice: null }, "no toast without AGDF");
 // A notice concerns the run the status line follows and names no run (owner request of 2026-11-06, T-013).
 const notice = (item, locale = "de") => noticeText(seen("r1", item).state, { registry, labels, locale });
 assert.equal(notice(waitingSd), "Wartet auf Freigabe: Lösungsdesign");

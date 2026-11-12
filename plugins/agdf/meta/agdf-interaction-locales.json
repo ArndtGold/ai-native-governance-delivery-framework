@@ -1379,7 +1379,12 @@
           "moreRuns": "+ {count} more",
           "position": "{position} of {count} open runs",
           "events": "Events",
-          "material": "Material"
+          "material": "Material",
+          "newRun": "New run",
+          "gatePurpose": "What this gate decides",
+          "checkedFolder": "Checked project folder",
+          "finding": "Finding",
+          "step": "Step {position} of {count}"
         },
         "actions": {
           "retry": "Read again",
@@ -1391,6 +1396,8 @@
           "soundOff": "Sound off",
           "expand": "More",
           "collapse": "Less",
+          "infoShow": "ⓘ Details",
+          "infoHide": "ⓘ Hide details",
           "previous": "Previous run",
           "next": "Next run",
           "about": "About",
@@ -1426,6 +1433,7 @@
           "blockiert": "blocked",
           "fertig": "done",
           "bereit": "idle",
+          "notSetUp": "not set up",
           "unreadable": "unreadable"
         },
         "reasons": {
@@ -1440,6 +1448,20 @@
           "idle": "No run shown",
           "completionUnconfirmed": "Completion not confirmed",
           "unreadable": "Run not readable: {reason}"
+        },
+        "routes": {
+          "quick_task": "Compact Delivery",
+          "verified_change": "Verified Change",
+          "structured": "Structured delivery",
+          "undecided": "Delivery path open"
+        },
+        "turn": {
+          "you": "Your turn",
+          "claude": "Claude is working",
+          "blocked": "Blocked",
+          "approve": "Approve {gate}",
+          "decide": "Decide: {gate}",
+          "inChat": "In the chat with “{approval}”"
         },
         "unreadable": {
           "missing": "run state file missing or not readable",
@@ -1460,7 +1482,8 @@
         "messages": {
           "reading": "Reading run state …",
           "noControl": "No AGDF control folder in “{folder}”.",
-          "noControlHint": "Checked project folder: {path}",
+          "notSetUp": "AGDF isn't set up in this project yet.",
+          "notSetUpHint": "Tell me in the chat if you'd like to use AGDF here – I'll set it up with you.",
           "noOpenRuns": "No open runs in this project.",
           "allRunsDone": "All runs across the line. 🏁",
           "allRunsDoneHint": "What's next? Just tell me in the chat.",
@@ -2863,7 +2886,12 @@
           "moreRuns": "+ {count} weitere",
           "position": "{position} von {count} offenen Runs",
           "events": "Ereignisse",
-          "material": "Material"
+          "material": "Material",
+          "newRun": "Neues Vorhaben",
+          "gatePurpose": "Wozu dieses Gate da ist",
+          "checkedFolder": "Geprüfter Projektordner",
+          "finding": "Befund",
+          "step": "Schritt {position} von {count}"
         },
         "actions": {
           "retry": "Neu lesen",
@@ -2875,6 +2903,8 @@
           "soundOff": "Ton aus",
           "expand": "Mehr",
           "collapse": "Weniger",
+          "infoShow": "ⓘ Details",
+          "infoHide": "ⓘ Details ausblenden",
           "previous": "Vorheriger Run",
           "next": "Nächster Run",
           "about": "About",
@@ -2910,6 +2940,7 @@
           "blockiert": "blockiert",
           "fertig": "fertig",
           "bereit": "bereit",
+          "notSetUp": "nicht eingerichtet",
           "unreadable": "nicht lesbar"
         },
         "reasons": {
@@ -2924,6 +2955,20 @@
           "idle": "Kein Run angezeigt",
           "completionUnconfirmed": "Abschluss nicht bestätigt",
           "unreadable": "Run nicht lesbar: {reason}"
+        },
+        "routes": {
+          "quick_task": "Compact Delivery",
+          "verified_change": "Verified Change",
+          "structured": "Strukturierte Lieferung",
+          "undecided": "Lieferweg noch offen"
+        },
+        "turn": {
+          "you": "Du bist dran",
+          "claude": "Claude arbeitet",
+          "blocked": "Blockiert",
+          "approve": "{gate} freigeben",
+          "decide": "Entscheidung treffen: {gate}",
+          "inChat": "Im Chat mit „{approval}“"
         },
         "unreadable": {
           "missing": "Run-Datei fehlt oder ist nicht lesbar",
@@ -2944,7 +2989,8 @@
         "messages": {
           "reading": "Run-Status wird gelesen …",
           "noControl": "Kein AGDF-Kontrollordner in „{folder}“.",
-          "noControlHint": "Geprüfter Projektordner: {path}",
+          "notSetUp": "AGDF ist in diesem Projekt noch nicht eingerichtet.",
+          "notSetUpHint": "Sag mir im Chat, wenn du AGDF hier nutzen möchtest – ich richte es mit dir ein.",
           "noOpenRuns": "Keine offenen Runs in diesem Projekt.",
           "allRunsDone": "Alle Runs im Ziel. 🏁",
           "allRunsDoneHint": "Was steht als Nächstes an? Sag's mir im Chat.",

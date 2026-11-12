@@ -39,10 +39,12 @@ const BODY_RESERVE = 0;
 // stay beside the widest bar (owner request of 2026-10-28); a narrower pane lists the ids alone.
 const ID_ROOM = 18;
 const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
+// The colour of the "whose move" line: yours, the agent's, or a block.
+const TURN_COLOR = Object.freeze({ you: 'warning', claude: 'suggestion', halt: 'error' });
 
 function createSession() {
   return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, dataDir: null, version: null, icon: null,
-    choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
+    choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isInfoExpanded: false,
     isPreviewExpanded: false, isAboutShown: false, isMenuOpen: false, timer: null, eventTimer: null, reads: 0, appliedRead: 0,
     observation: null, figureObservation: null, chatMention: null, isBrowsing: false, conversation: null,
     // Companion core SDD-007: the run-file fingerprint of the last run-view call, the journal cursor and
@@ -388,6 +390,11 @@ export function fitRunId(id, room) {
   return `${id.slice(0, room - 1 - tail)}…${id.slice(id.length - tail)}`;
 }
 
+// A run name cut at its end to `room` characters; a name reads from its start, unlike an id.
+export function fitRunName(name, room) {
+  return name.length <= room ? name : `${name.slice(0, Math.max(1, room - 1))}…`;
+}
+
 const press = ($, action) => async () => {
   try { await action(); } catch { /* a failed action leaves the last drawing */ }
   redraw($);
@@ -399,7 +406,7 @@ function body($, e) {
   const view = buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
     mention: session.chatMention, isBrowsing: session.isBrowsing, showRunState: !isTerminal,
     isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
-    columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded,
+    columns: e.props?.bodyColumns ?? Infinity, isInfoExpanded: session.isInfoExpanded,
     events: session.events, eventsAvailable: session.eventsAvailable ?? undefined });
   const rows = e.props?.scroll?.bodyRows;
   const fits = Number.isInteger(rows) && rows > 0;
@@ -461,14 +468,15 @@ function body($, e) {
   // The terminal keeps its six; the desktop lists as many as fit and gives the last row to "+ N more".
   const listed = isTerminal ? view.openRuns.slice(0, LISTED_RUNS)
     : view.openRuns.length <= capacity ? view.openRuns : view.openRuns.slice(0, capacity - 1);
-  // One listed run: the id as a plain button and, where the pane has room for the widest listed bar, its
-  // condensed gate bar at the right edge, every id shortened to the same room (the same rule for all rows,
-  // live check of 2026-10-28). The bar keeps its width; an id that still runs over is cut by the surface.
+  // One listed run: its name as a plain button (owner request of 2026-11-11: a run id tells a person
+  // nothing) and, where the pane has room for the widest listed bar, its condensed gate bar at the right
+  // edge, every name cut to the same room (the same rule for all rows, live check of 2026-10-28). The bar
+  // keeps its width; a name that still runs over is cut by the surface.
   const widest = Math.max(0, ...listed.map(run => run.bar?.length ?? 0));
   const room = columns - widest - 2;
   const withBars = widest > 0 && room >= ID_ROOM;
   const runRow = run => {
-    const id = h(Button, { key: `run-${run.id}`, plain: true, label: withBars ? fitRunId(run.id, room) : run.id, onPress: select(run.id) });
+    const id = h(Button, { key: `run-${run.id}`, plain: true, label: fitRunName(run.name ?? run.id, withBars ? room : columns), onPress: select(run.id) });
     return withBars && run.bar
       ? h(Box, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 1 },
         h(Box, { flexShrink: 1 }, id), h(Box, { flexShrink: 0 }, h(Text, { dimColor: true, mono: true }, run.bar)))
@@ -490,9 +498,14 @@ function body($, e) {
         ...listed.map(runRow),
         !isTerminal && view.openRuns.length > listed.length ? h(Text, { dimColor: true }, t('fields.moreRuns', { count: view.openRuns.length - listed.length })) : null))
     : null;
+  // The (i) opens the run's details on purpose (owner request of 2026-11-12); closed by default and
+  // only offered when there is something behind it. The label names the action, so it reads alone.
+  const infoButton = view.info?.length ? h(Button, { key: 'info', plain: true,
+    label: view.isInfoExpanded ? t('actions.infoHide') : t('actions.infoShow'),
+    onPress: press($, async () => { session.isInfoExpanded = !session.isInfoExpanded; }) }) : null;
   if (isTerminal) {
     return h(Box, { flexDirection: 'column', gap: 1 },
-      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, about, actions);
+      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), infoButton, runList, about, actions);
   }
   const scope = view.runId ? JSON.stringify([session.root, view.runId]) : null;
   const quiet = !session.choices.enabled || session.choices.still || session.isHidden || Boolean(view.stale);
@@ -504,7 +517,7 @@ function body($, e) {
   session.figureObservation = observeFigure(session.figureObservation, { scope, figure: view.figure, current: !still });
   const { gate, gesture, sequence } = session.figureObservation ?? {};
   // With every run done the crew member checks the board: a tablet, never a finish flag (no run is shown).
-  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, gate, workGate: view.workGate, gesture, sequence }),
+  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, invite: idle && view.invite === true, gate, workGate: view.workGate, gesture, sequence }),
     alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !still });
   // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
   // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of
@@ -513,21 +526,35 @@ function body($, e) {
     h(Box, { flexDirection: 'column', alignItems: 'center' },
       figure,
       h(Text, { color: COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
-      view.reason ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.reason) : null),
-    view.message ? h(Text, {}, view.message) : null,
+      // The turn block below says what the reason would; without one the reason stays under the state.
+      view.reason && !view.turn ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.reason) : null),
+    // An invitation reads as the pane's headline; every other message stays plain.
+    view.message ? h(Text, view.invite ? { weight: 'semibold', wrap: 'wrap' } : {}, view.message) : null,
     view.hint ? h(Text, { dimColor: true }, view.hint) : null,
     view.unreadableHint && view.unreadableHint !== view.message ? h(Text, { color: 'warning' }, view.unreadableHint) : null,
+    // The run by its name, with its delivery path and the position on it.
+    view.name ? h(Box, { flexDirection: 'column' },
+      h(Text, { weight: 'semibold', wrap: 'wrap' }, view.name),
+      view.route ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.route) : null) : null,
+    // The run's goal in the chat language, before whose move it is: what an approval is measured against.
+    view.goal ? h(Box, { flexDirection: 'column' },
+      h(Text, { dimColor: true }, t('fields.objective')),
+      h(Text, { wrap: 'wrap' }, view.goal)) : null,
+    // Whose move it is, what it is and, for an approval, how it is given.
+    view.turn ? h(Box, { flexDirection: 'column', borderStyle: 'single', borderDimColor: true, paddingX: 1 },
+      h(Text, { color: TURN_COLOR[view.turn.tone], weight: 'semibold' }, view.turn.who),
+      h(Text, { wrap: 'wrap' }, view.turn.what),
+      view.turn.how ? h(Text, { dimColor: true, wrap: 'wrap' }, view.turn.how) : null) : null,
     view.gateBar ? h(Text, { mono: true, wrap: 'truncate-end' }, view.gateBar) : null,
-    view.runId ? h(Box, { flexDirection: 'column' },
-      h(Text, { weight: 'semibold', wrap: 'truncate-end' }, view.runId),
-      view.origin ? h(Text, { dimColor: true }, view.origin) : null) : null,
-    view.objective ? h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-      h(Text, { dimColor: true, wrap: view.isObjectiveExpanded ? 'wrap' : 'truncate-end' }, view.objective),
-      h(Button, { key: 'objective', plain: true, label: view.isObjectiveExpanded ? t('actions.collapse') : t('actions.expand'),
-        onPress: press($, async () => { session.isObjectiveExpanded = !session.isObjectiveExpanded; }) })) : null,
     view.nextStep ? h(Box, { flexDirection: 'column' },
       h(Text, { dimColor: true }, t('fields.nextStep')),
       h(Text, {}, view.nextStep)) : null,
+    // The (i) and, once opened, the details behind it: a goal that was cut, the gate's purpose, a repeated step.
+    infoButton,
+    view.isInfoExpanded && view.info?.length ? h(Box, { flexDirection: 'column', gap: 1, borderStyle: 'single', borderDimColor: true, paddingX: 1 },
+      ...view.info.map(item => h(Box, { flexDirection: 'column' },
+        h(Text, { dimColor: true }, item.label),
+        h(Text, { wrap: 'wrap' }, item.text)))) : null,
     ...(view.drift ?? []).map(text => h(Text, { color: 'warning' }, text)),
     view.events ? h(Box, { flexDirection: 'column' },
       h(Text, { dimColor: true }, t('fields.events')),
@@ -542,6 +569,10 @@ function body($, e) {
       view.review.truncated ? h(Text, { dimColor: true }, view.review.truncated) : null) : null,
     view.eventsHint ? h(Text, { dimColor: true }, view.eventsHint) : null,
     runList,
+    // The run id is a reference for commands, so it stands last and dim.
+    view.runId ? h(Box, { flexDirection: 'column' },
+      h(Text, { dimColor: true, mono: true, wrap: 'truncate-end' }, view.runId),
+      view.origin ? h(Text, { dimColor: true }, view.origin) : null) : null,
     view.stale ? h(Text, { color: 'warning' }, view.stale) : null,
     about),
     actions);

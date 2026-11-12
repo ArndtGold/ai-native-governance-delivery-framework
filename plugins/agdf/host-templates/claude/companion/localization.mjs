@@ -52,6 +52,11 @@ export function gateTitle(registry, locale, gate) {
   return registry.locales[locale]?.gateTitles?.[gate] ?? registry.locales[registry.fallbackLocale]?.gateTitles?.[gate] ?? gate;
 }
 
+// What a gate decides, in one sentence from the catalog; null for a step without one.
+export function gateRationale(registry, locale, gate) {
+  return registry.locales[locale]?.gateRationale?.[gate] ?? registry.locales[registry.fallbackLocale]?.gateRationale?.[gate] ?? null;
+}
+
 // The companion's labels: the catalog's companion section per locale, in the shape label() reads.
 export function companionLabels(registry) {
   return { fallbackLocale: registry.fallbackLocale,

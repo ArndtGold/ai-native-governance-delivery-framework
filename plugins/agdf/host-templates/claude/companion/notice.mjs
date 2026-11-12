@@ -13,11 +13,13 @@ const NOTICE_MOODS = new Set(['wartet', 'blockiert']);
 const NOTICE_REASONS = new Set(['waitingApproval', 'waitingDecision', 'blocked']);
 
 // What the status line and the detector observe: { kind: 'run', runId, state } with the run-derived
-// state, { kind: 'unreadable' } or { kind: 'idle' } (nothing read yet, no control, no shown run).
+// state, { kind: 'unreadable' }, { kind: 'notSetUp' } (a project without AGDF control) or
+// { kind: 'idle' } (nothing read yet, no shown run).
 // mention: the chat's named run (chat-run navigation SDD-06); browsing never changes what is observed.
 export function observedRun({ snapshot, sessionStartedAt, selection = null, mention = null }) {
   if (!snapshot) return { kind: 'idle' };
   if (snapshot.status === 'failed' || snapshot.status === 'unavailable') return { kind: 'unreadable' };
+  if (snapshot.status === 'no_control') return { kind: 'notSetUp' };
   if (snapshot.status !== 'ok') return { kind: 'idle' };
   const { run } = assignRun({ runs: snapshot.runs, sessionStartedAt, selection, mention });
   if (!run) return selection && snapshot.unreadable.some(item => item.id === selection) ? { kind: 'unreadable' } : { kind: 'idle' };
@@ -53,6 +55,8 @@ export function noticeText(state, { registry, labels, locale }) {
 export function statusText(observed, { labels, locale }) {
   const t = path => label(labels, locale, path);
   if (observed.kind === 'unreadable') return `AGDF · ${t('statusStates.unreadable')}`;
+  // A project without AGDF is told apart from a set-up project that has nothing to do.
+  if (observed.kind === 'notSetUp') return `AGDF · ${t('statusStates.notSetUp')}`;
   if (observed.kind !== 'run') return `AGDF · ${t('statusStates.bereit')}`;
   const { mood, reason } = observed.state;
   return mood === 'fertig' || !reason.gate ? `AGDF · ${t(`statusStates.${mood}`)}` : `AGDF · ${reason.gate} · ${t(`statusStates.${mood}`)}`;

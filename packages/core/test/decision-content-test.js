@@ -66,7 +66,9 @@ assert.equal(authoredGoal('## Goal\n```\nA fabricated goal.\n```'),null);
 assert.equal(authoredGoal('## Goal\nDescribe the trustworthy outcome.'),null);
 assert.equal(concreteDecisionContent('The sample says “Describe the trustworthy outcome.”; the actual bug is fixed.'),true);
 assert.equal(concreteDecisionContent('The integration supports A | B.'),true);
-for (const value of ['', '<Title>', 'TODO', '`pass | revise | block`', 'Describe the trustworthy outcome.', 'none']) assert.equal(concreteDecisionContent(value),false,value);
+for (const value of ['', '<Title>', 'TODO', '`pass | revise | block`', 'Describe the trustworthy outcome.', 'none',
+  'run-921ef1f8-9792-4392-a2ea-6eb63c50bde6', '`run-921ef1f8-9792-4392-a2ea-6eb63c50bde6`']) assert.equal(concreteDecisionContent(value),false,value);
+assert.equal(concreteDecisionContent('Fix run-921ef1f8-9792-4392-a2ea-6eb63c50bde6 so its card shows one current gate.'),true,'Prose naming a Run stays content');
 assert.equal(concreteDecisionContent('none',{allowNone:true}),true);
 assert.equal(concreteDecisionContent('x'.repeat(1201)),false);
 assert.equal(readReportDecision('## 1. QA Decision\nDecision: pass\n## 2. TP Coverage\n- delivered_result: Decision: block'),'pass');
@@ -227,7 +229,9 @@ const writerRoot=mkdtempSync(join(tmpdir(),'agdf-orientation-'));
 try {
   initializeCurrentControl(writerRoot);
   const service=createCoreServices().command;
-  for(const [id,goal,custom]of [['concrete','The declared fixture goal can be inspected.',null],['custom','The declared fixture goal can be inspected.','Keep this explicit custom orientation.'],['missing','> Example:\nA fabricated goal.',null]]){
+  const runIdTitled=`run-${randomUUID()}`;
+  for(const [id,goal,custom,expected]of [['concrete','The declared fixture goal can be inspected.',null],['custom','The declared fixture goal can be inspected.','Keep this explicit custom orientation.'],['missing','> Example:\nA fabricated goal.',null],
+    [runIdTitled,'The declared fixture goal can be inspected.',runIdTitled,'The declared fixture goal can be inspected.']]){
     const statePath=createRun(writerRoot,id, `## Objective\n\n${custom??'Describe the trustworthy outcome.'}\n\n## Mode/Slice Decision\n\n- scope_reason:\n- evidence:\n\n## Relationships\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n\n## Closeout\n\n- quality_outlook:\n`),dir=join(writerRoot, '.agdf/control/runs', id, 'documents');mkdirSync(dir,{recursive:true});
     const ur='# UR\n## Problem\nOne isolated requirement.\n## Goal\n'+goal+'\n## Scope\nIsolated fixture only.\n## Non-Goals\nNo live approval.';
     const path=join(dir,'UR_INCOMING.md');writeFileSync(path,ur);
@@ -236,7 +240,7 @@ try {
     const recorded=submit('step.record');
     assert.equal(recorded.outcome,'accepted',JSON.stringify(recorded));
     const current=readRun(writerRoot,id),objective=readAuthoredContent(current.content,'objective');
-    assert.equal(objective,custom??(id==='missing'?'Describe the trustworthy outcome.':goal));
+    assert.equal(objective,expected??custom??(id==='missing'?'Describe the trustworthy outcome.':goal),'A bare Run ID Objective is replaced by the UR Goal');
     assert.equal(readFileSync(path,'utf8'),ur,'Projection does not rewrite its source.');
     if(id==='missing'){
       const captured=current.content,check=evaluateGateCheck(writerRoot,{runId:id});

@@ -126,6 +126,17 @@ test('semantic creation titles preserve literal dollar expressions and reject bl
     'command_schema_invalid');
 }));
 
+test('a bare Run ID creation title leaves the Objective prompt for the UR Goal projection', () => fixture(({ root, input, service }) => {
+  const runId = `run-${input.operation_id}`;
+  const result = service('agdf_run', { ...input, command: { kind: 'run.create', payload: { title: runId } } });
+  assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+  assert.equal(result.receipt.effect.record.title, runId, 'the receipt keeps the requested title');
+  const state = readFileSync(join(root, `.agdf/control/runs/${runId}/RUN_STATE.md`), 'utf8');
+  assert.match(state, /## Objective\n\nDescribe the trustworthy outcome\.\n/u, 'the Run ID is no orientation');
+  assert.equal(parseRunState(state, runId).valid, true);
+  assert.equal(runSealState(root, state).status, 'valid');
+}));
+
 test('creation titles cannot inject line separators into canonical Run structure', () => fixture(({ root, input, service }) => {
   for (const title of ['Trailing newline\n', 'Injected\u2028## Approvals', 'Injected\u2029## Run Meta', 'Trailing carriage return\r']) {
     const result = service('agdf_run', { ...input, operation_id: randomUUID(), command: { kind: 'run.create', payload: { title } } });

@@ -585,6 +585,39 @@ try {
   // SCN-006 with chat-run navigation SCN-012: a main-loop turn keeps a waiting run's state, since the chat
   // asks for the approval during that turn (a working run shows the overlay further below); subagent
   // turns change nothing; completion re-reads.
+  // Owner request of 2026-11-11: the pane names the shown run by its title, says whose move it is and
+  // keeps the run id as a dim reference after everything a person reads.
+  {
+    const tree = await render(first), shown = texts(tree);
+    const [name, yours, bar, id] = ["Fixture document", "Your turn", shown.find(text => /^[✓●○]/u.test(text)), "fixture-a"].map(text => shown.indexOf(text));
+    assert.ok(name >= 0 && name < yours && yours < bar && bar < id, `title, whose move, gate bar, then the run id: ${JSON.stringify(shown)}`);
+    assert.ok(shown.some(text => /^Approve .+ \(UR\)$/u.test(text)) && shown.some(text => text === "In the chat with “Approval: UR”"), "the approval and how it is given");
+    assert.ok(!shown.some(text => text.startsWith("Approval pending")), "the turn block replaces the reason under the state");
+    const idText = find(tree, node => node.tag === "Text" && texts(node)[0] === "fixture-a")[0];
+    assert.deepEqual([idText.props.dimColor, idText.props.mono, idText.props.weight], [true, true, undefined], "the run id is a reference, not a heading");
+    const terminal = texts(await render(first, "terminal")).join("\n").split("\n");
+    assert.ok(terminal.indexOf("Fixture document · Compact Delivery · Step 1 of 2") >= 0 && terminal.some(line => line.startsWith("fixture-a · ")), `the terminal names the run and keeps the id: ${JSON.stringify(terminal)}`);
+    const { fitRunName } = await freshModule();
+    assert.deepEqual([fitRunName("Status card path marks only one current gate", 20), fitRunName("Short", 20)], ["Status card path ma…", "Short"]);
+    // Owner request of 2026-11-12: the goal stays in sight between the run's name and whose move it is;
+    // the gate's purpose and the repeated approval step sit behind the (i), which opens and closes them
+    // on both surfaces.
+    const purpose = "UR clarifies what you want, why and for whom — before anything gets built that nobody needed.";
+    for (const surface of ["desktop", "terminal"]) {
+      const closed = await render(first, surface), closedText = texts(closed).join("\n");
+      assert.equal(button(closed, "info").props.label, "ⓘ Details", `${surface}: the (i) is offered`);
+      assert.ok(!closedText.includes(purpose) && !closedText.includes("Review the linked artefact"), `${surface}: the details stay closed by default`);
+      const at = text => closedText.indexOf(text);
+      assert.ok(at("Fixture document") >= 0 && at("Fixture document") < at("Preserve one explicit intent.") && at("Preserve one explicit intent.") < at("Your turn"),
+        `${surface}: name, goal, then whose move it is: ${closedText}`);
+      await button(closed, "info").props.onPress();
+      const opened = await render(first, surface), openedText = texts(opened).join("\n");
+      assert.equal(button(opened, "info").props.label, "ⓘ Hide details");
+      assert.ok(openedText.includes(purpose) && openedText.includes("Preserve one explicit intent.") && openedText.includes("Review the linked artefact"),
+        `${surface}: the (i) shows the purpose and the repeated step: ${openedText}`);
+      await button(opened, "info").props.onPress();
+    }
+  }
   await first.fire("turn.start", { agentId: "sub" });
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"));
   await first.fire("turn.start", {});
@@ -630,7 +663,8 @@ try {
   assert.equal(svg.props.isInteractive, false);
   const terminal = await render(first, "terminal");
   assert.equal(find(terminal, node => node.tag === "Svg").length, 0);
-  assert.match(texts(terminal).join("\n"), /waiting for approval[\s\S]*[✓●○]UR[\s\S]*Next step: /u);
+  // For an approval the next step sits behind the (i); the turn line says what to do (2026-11-12).
+  assert.match(texts(terminal).join("\n"), /waiting for approval[\s\S]*Your turn: Approve [\s\S]*[✓●○]UR/u);
 
   // A change in this session takes over from the selection (most recent wins).
   assert.equal(target.approve().outcome, "accepted");
@@ -997,11 +1031,11 @@ try {
     append(line({ root: spelled }));
     await tick(EVENT_POLL_MS);
     assert.equal(calls(), before + 1, "a new event reads the run view once");
-    // No run is shown yet, so each event names its run by the objective after the text (owner request
-    // of 2026-11-06, T-013).
-    assert.match(host.log.toasts.at(-1), /^Approval requested for \S.* · Preserve one explicit intent\.$/u, "approval requested is a toast");
+    // No run is shown yet, so each event names its run by its title after the text (owner requests
+    // of 2026-11-06, T-013, and 2026-11-11).
+    assert.match(host.log.toasts.at(-1), /^Approval requested for \S.* · Fixture document$/u, "approval requested is a toast");
     assert.equal(host.log.toasts.length, toastsBefore + 1, "the run's own state toast is not repeated beside its event");
-    assert.ok((await shown()).some(text => /^\d{2}:\d{2} Approval requested for .* · Preserve one explicit intent\.$/u.test(text)), "the pane lists the event with its time");
+    assert.ok((await shown()).some(text => /^\d{2}:\d{2} Approval requested for .* · Fixture document$/u.test(text)), "the pane lists the event with its time");
 
     // Approval recorded and write rejected stay in the pane; effect unknown is a toast; run completed
     // waits for the run view to confirm it.
@@ -1009,10 +1043,10 @@ try {
     append(line({ kind: "approval_recorded" }), line({ kind: "write_rejected", outcome: "rejected", reason: "stale_revision" }));
     await tick(EVENT_POLL_MS);
     assert.equal(host.log.toasts.length, quiet, "pane-only kinds raise no toast");
-    assert.ok((await shown()).some(text => text.endsWith("Call rejected (stale_revision) · Preserve one explicit intent.")));
+    assert.ok((await shown()).some(text => text.endsWith("Call rejected (stale_revision) · Fixture document")));
     append(line({ kind: "effect_unknown", outcome: "effect_unknown", reason: "dispatch_timeout", gate: "EVIDENCE" }));
     await tick(EVENT_POLL_MS);
-    assert.equal(host.log.toasts.at(-1), "Effect unknown – check the operation status · Preserve one explicit intent.");
+    assert.equal(host.log.toasts.at(-1), "Effect unknown – check the operation status · Fixture document");
     const completedBefore = host.log.toasts.length;
     append(line({ kind: "run_completed", gate: "OR" }));
     await tick(EVENT_POLL_MS);
@@ -1032,7 +1066,7 @@ try {
     await host.fire("turn.start", { text: "next" });
     lines = await shown();
     assert.ok(!lines.some(text => /^\d{2}:\d{2} (Approval requested|Call rejected|Material staged)/u.test(text)), "the next main-loop turn clears the event entries");
-    assert.ok(lines.some(text => text.endsWith("Effect unknown – check the operation status · Preserve one explicit intent.")), "an uncertain outcome stays past the turn");
+    assert.ok(lines.some(text => text.endsWith("Effect unknown – check the operation status · Fixture document")), "an uncertain outcome stays past the turn");
     await host.fire("turn.complete", {});
     await settleLong();
 
@@ -1154,7 +1188,7 @@ try {
     await tick(EVENT_POLL_MS);
     assert.match(host.log.toasts.at(-1) ?? "", /^Approval requested for .* · elsewhere-run$/u, "the new root's event is announced");
     assert.equal(host.log.toasts.length, movedToasts + 1);
-    assert.ok(!(await shown()).some(text => /^\d{2}:\d{2} .*(fixture-a|Preserve one explicit intent\.)$/u.test(text)), "the old root's entries leave the pane");
+    assert.ok(!(await shown()).some(text => /^\d{2}:\d{2} .*(fixture-a|Fixture document)$/u.test(text)), "the old root's entries leave the pane");
     host.where.root = evented.root;
     await tick(EVENT_POLL_MS);
     await tick(REFRESH_MS);

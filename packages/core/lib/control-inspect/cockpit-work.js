@@ -14,7 +14,7 @@ export function projectCockpitWork(root) {
     const section = planned ? sections[1] : row.lifecycle === 'active' || row.lifecycle === null ? sections[0] : sections[2];
     const key = planned ? row.plan_id : row.run_id;
     return { kind: row.kind, identity: row.identity, section, key, original_key: key, title: planned ? row.title : row.presentation?.name || key,
-      ...(!planned ? { title_source: row.presentation?.name ? 'ur' : 'run_id', objective: row.title_source === 'objective' ? row.title : null,
+      ...(!planned ? { title_source: row.presentation?.name ? 'ur' : 'run_id', objective: row.objective ?? null,
         last_activity: row.last_activity, seal: row.presentation?.seal ?? 'unconfirmed', lifecycle: row.lifecycle, attention_code: row.attention.code } : {}),
       stored_status: planned ? ({ ready: 'Bereit zur Übergabe', draft: 'UR in Klärung', recovery_required: 'Wiederherstellung erforderlich', unconfirmed: 'Zuordnung ungeklärt', unavailable: 'Quelle nicht verfügbar' })[row.coverage]
         : row.attention.label, scope: planned ? 'UR-Planung' : 'Run', priority: row.priority ?? null,

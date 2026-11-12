@@ -43,6 +43,11 @@ export function companionRun(entry) {
     drift: Object.freeze((entry.drift ?? []).map(item => Object.freeze({ ...item }))),
     // The authored objective, never the status card's run title or a template text.
     objective: clip(entry.objective ?? ''),
+    // The run's stable human title (registered UR heading, else the authored objective); empty while
+    // only the run id could name it. The goal is the objective in the display language where the UR
+    // states one.
+    title: clip(entry.run_title ?? ''),
+    goal: clip(entry.goal ?? entry.objective ?? ''),
   });
 }
 

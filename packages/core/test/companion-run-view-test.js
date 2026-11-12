@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildCompanionFixtures, LEGACY_V2_RUN_ID } from './fixtures/companion-fixtures.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
-import { CAPTURE_ATTEMPTS, captured, projectRunEntry, readRunView, RUN_VIEW_SCHEMA, DIAGNOSIS_REASONS } from '../lib/companion/run-view.js';
+import { CAPTURE_ATTEMPTS, captured, projectRunEntry, readRunNaming, readRunView, RUN_VIEW_SCHEMA, DIAGNOSIS_REASONS } from '../lib/companion/run-view.js';
 import { fixture as cockpitFixture } from './control-cockpit-fixtures.js';
 import { deriveFigureState, COMPANION_MOODS } from '../lib/companion/figure-state.js';
 import { validateInteractionCatalog } from '../lib/interaction-catalog-validation.js';
@@ -191,9 +191,10 @@ test('CR A7: a run whose evaluation threw is shown as unreadable with its bounde
 
 test('CR C2: the run view carries the authored objective only, never a run-id title or the card title', () => {
   const base = { run_id: 'run-a', lifecycle: 'active', valid: true, findings: [] };
-  assert.equal(projectRunEntry({ ...base, title: 'Ship the companion', title_source: 'objective' }, null).objective, 'Ship the companion');
-  assert.equal(projectRunEntry({ ...base, title: 'Run A', title_source: 'run_id' }, null).objective, null, 'a template objective leaves no goal');
+  assert.equal(projectRunEntry({ ...base, title: 'Ship the companion', title_source: 'objective', objective: 'Ship the companion' }, null).objective, 'Ship the companion');
+  assert.equal(projectRunEntry({ ...base, title: 'Run A', title_source: 'run_id', objective: null }, null).objective, null, 'a template objective leaves no goal');
   assert.equal(projectRunEntry({ ...base, title: 'Run A' }, null).objective, null);
+  assert.equal(projectRunEntry({ ...base, title: 'Ship the companion', title_source: 'objective' }, null).objective, null, 'the title is never read as the goal');
 });
 
 test('CIR-01/RV-2: each run is evaluated inside its own captured snapshot, so a document outside the control folder blocks only its run', () => {
@@ -261,4 +262,26 @@ test('CIR-04: the figure reads a pending approval like the run inventory, so a n
   assert.deepEqual(deriveFigureState(entry('Approval: QA')), { mood: 'wartet', reason: { key: 'waitingApproval', gate: 'QA' } });
   for (const negated of ['No Approval: QA', 'not Approval: QA', 'Without Approval: QA'])
     assert.notEqual(deriveFigureState(entry(negated)).mood, 'wartet', negated);
+});
+
+test('owner request 2026-11-11: an evaluated run names itself by its UR heading and states its goal in the display language', t => {
+  const f = cockpitFixture(); t.after(() => f.close());
+  const entry = language => readRunView(f.root, { language }).runs.find(run => run.run_id === 'fixture-a');
+  const english = entry('en');
+  assert.deepEqual([english.run_title, english.run_title_source], ['Fixture document', 'ur'], 'the registered UR heading, the same at every gate');
+  assert.equal(english.goal, english.objective, 'without a localized summary the goal is the authored objective');
+  // A display language that differs from the artefact language reads the goal from the UR's localized
+  // approval summary; the Run document and the English view stay as they are.
+  const ur = join(f.root, f.documentPath), before = readFileSync(f.runPath, 'utf8');
+  writeFileSync(ur, `${readFileSync(ur, 'utf8')}\n## AGDF Approval Summary (de; source=en)\n\nZiel: Eine ausdrückliche Absicht bleibt erhalten.\n`);
+  assert.equal(readRunNaming(f.root, 'fixture-a', 'de').goal, 'Eine ausdrückliche Absicht bleibt erhalten.');
+  assert.equal(readRunNaming(f.root, 'fixture-a', 'en').goal, english.objective);
+  assert.equal(readFileSync(f.runPath, 'utf8'), before, 'naming a run writes nothing');
+  assert.equal(readRunNaming(f.root, 'no-such-run', 'de'), null, 'an unreadable run state names nothing');
+  // Without an evaluation the inventory names the run: an authored objective is its title, a run id is none.
+  const base = { run_id: 'run-a', lifecycle: 'completed', valid: true, findings: [] };
+  const authored = projectRunEntry({ ...base, title: 'Ship the companion', title_source: 'objective', objective: 'Ship the companion' }, null);
+  assert.deepEqual([authored.run_title, authored.run_title_source, authored.goal], ['Ship the companion', 'objective', 'Ship the companion']);
+  const unnamed = projectRunEntry({ ...base, title: 'Run A', title_source: 'run_id', objective: null }, null);
+  assert.deepEqual([unnamed.run_title, unnamed.run_title_source, unnamed.goal], [null, 'run_id', null], 'a run id is never a title');
 });

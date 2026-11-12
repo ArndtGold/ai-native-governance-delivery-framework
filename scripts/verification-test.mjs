@@ -19,6 +19,10 @@ test('full plan preserves dependency ordering and mandatory package consumers in
     assert.ok(ids.indexOf('dependencies') < ids.indexOf('ui-dependencies'));
     assert.ok(ids.indexOf('ui-dependencies') < ids.indexOf('ui-build'));
     assert.ok(ids.indexOf('ui-build') < ids.indexOf('generate'), 'package generation requires fresh MCP UI resources');
+    const ui = plan.find(stage => stage.id === 'ui-tests');
+    assert.ok(ids.indexOf('generate') < ids.indexOf(ui.id), 'HTTP tests require generated Core resources');
+    assert.deepEqual(ui.commands, [['run', 'typecheck'], ['run', 'build'], ['test']]
+      .map(args => ({ tool: 'npm', cwd: 'packages/control-ui', args })));
     for (const early of ['build-contracts', 'evals']) {
       assert.ok(ids.indexOf('generate') < ids.indexOf(early));
       assert.ok(ids.indexOf(early) < ids.indexOf('assemble'));
@@ -47,7 +51,7 @@ test('build shares CI checks without recursive builds; evidence preparation rema
   assert.deepEqual(build.map(item => item.id), ['ui-dependencies', 'ui-build', 'generate', 'build-contracts', 'evals', 'compatibility-freshness', 'assemble']);
   for (const item of build) assert.deepEqual(item, verificationPlan({ stage: item.id })[0]);
   assert.deepEqual(verificationPlan({ profile: 'prepare' }).map(item => item.id), ['ui-dependencies', 'ui-build', 'generate', 'assemble', 'prepare']);
-  assert.ok(verificationPlan().every(item => item.commands.every(command => !command.args.includes('build'))));
+  assert.ok(verificationPlan().every(item => item.commands.every(command => command.cwd || !command.args.includes('build'))));
   assert.throws(() => verificationPlan({ profile: 'unchecked' }), /Unknown/);
   assert.throws(() => verificationPlan({ profile: 'build', stage: 'assemble' }), /no stage/);
   assert.throws(() => verificationPlan({ profile: 'build', lane: 'runtime' }), /no stage/);

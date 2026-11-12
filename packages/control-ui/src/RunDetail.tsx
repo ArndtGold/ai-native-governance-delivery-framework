@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import type { Envelope, Detail, Resource, WorkEntry } from './types';
 import { WorkStep } from './WorkStep';
 import { RunDocuments } from './RunDocuments';
@@ -32,7 +32,14 @@ export function detailHasMismatch(data: Detail | null | undefined) {
   const ended = e?.control_assessment?.state === 'ended' && !!data?.closure;
   return !!(e && p && (p.current_gate !== e.current_gate || !ended && p.next_allowed_action !== e.next_allowed_action));
 }
-export function RunDetail({ result, onOpen, summaryOnly = false, current = true, draftCheck, read, technicalContext, technicalView = false, onBackFromTechnical, sourceEntry }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean; draftCheck?: ReactNode; read?: ReadTransport; technicalContext?: ReactNode; technicalView?: boolean; onBackFromTechnical?: () => void; sourceEntry?: WorkEntry }) {
+export function RunDetail({ result, onOpen, summaryOnly = false, current = true, draftCheck, read, technicalContext, technicalView = false, onOpenTechnical, onBackFromTechnical, sourceEntry }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean; draftCheck?: ReactNode; read?: ReadTransport; technicalContext?: ReactNode; technicalView?: boolean; onOpenTechnical?: () => void; onBackFromTechnical?: () => void; sourceEntry?: WorkEntry }) {
+  const viewButton = useRef<HTMLButtonElement>(null);
+  const focusAfterSwitch = useRef(false);
+  useLayoutEffect(() => {
+    if (!focusAfterSwitch.current) return;
+    focusAfterSwitch.current = false;
+    viewButton.current?.focus();
+  }, [technicalView]);
   const data = result.data, e = data?.evaluation, p = data?.persisted;
   const ended = e?.control_assessment?.state === 'ended' && !!data?.closure;
   const mismatch = detailHasMismatch(data);
@@ -60,7 +67,11 @@ export function RunDetail({ result, onOpen, summaryOnly = false, current = true,
     <WorkStep data={data} onOpen={onOpen} evidenceOnly current={current && result.state === 'available' && !mismatch}/>
     {data.evidence_applicability && <details><summary>Zuordnung der Nachweise</summary><FlowEvidence data={data} onOpen={onOpen} current={current && result.state === 'available'}/></details>}
   </section>;
-  const technical = <section className="run-technical-view" aria-label="Technische Details"><button type="button" className="text-link" onClick={onBackFromTechnical}>Zurück zum Vorhaben</button><h2>Technische Details</h2>
+  const technical = <section className="run-technical-view" aria-label="Technische Details"><button ref={viewButton} type="button" className="text-link run-detail-link" onClick={() => {
+    if (!onBackFromTechnical) return;
+    focusAfterSwitch.current = true;
+    onBackFromTechnical();
+  }}>Zurück zum Vorhaben</button><h2>Technische Details</h2>
     <div className="context-line"><code>{data?.run_id}</code></div>{data?.objective && <p className="objective">{data.objective}</p>}
     {evidence}
     {data && (!focusGate || otherDocuments) && <section className="panel agdf-surface run-detail-documents" aria-label="Dokumente"><h2>{focusGate ? 'Weitere Dokumente' : 'Dokumente'}</h2>
@@ -103,6 +114,10 @@ export function RunDetail({ result, onOpen, summaryOnly = false, current = true,
         : <p>{completionSources.length ? 'Registrierte Abschlussquellen sind nicht verfügbar.' : 'Keine Abschlussquellen registriert.'}</p>}
       {readableCompletionSources.length > 0 && readableCompletionSources.length < completionSources.length && <p>Weitere registrierte Abschlussquellen sind nicht verfügbar.</p>}
     </section>}
+    {data && !summaryOnly && onOpenTechnical && <button ref={viewButton} type="button" className="text-link run-detail-link" onClick={() => {
+      focusAfterSwitch.current = true;
+      onOpenTechnical();
+    }}>Nachweise und weitere Dokumente</button>}
     {data && <SourceInfo result={result} entry={sourceEntry} current={detailCurrent}/>}
 
   </>;

@@ -50,7 +50,7 @@ describe('Bound draft check', () => {
     let resolve!: (v: Envelope<ReadingScope>) => void;
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; }) : selected());
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
-    fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Nachweise und weitere Dokumente' }));
     await screen.findByRole('heading', { name: 'Dokumente' });
     const button = await screen.findByRole('button', { name: 'Entwurf prüfen' });
     expect(read).toHaveBeenCalledTimes(1); button.focus();
@@ -80,7 +80,7 @@ describe('Bound draft check', () => {
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/')
       ? ++checks === 1 ? { ...selected(), state: 'blocked', code: 'busy', data: null } : selected('run-a', true) : selected());
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
-    fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Nachweise und weitere Dokumente' }));
     await screen.findByRole('heading', { name: 'Dokumente' });
     fireEvent.click(await screen.findByRole('button', { name: 'Entwurf prüfen' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Prüfung wiederholen' }));
@@ -156,7 +156,7 @@ describe('Bound draft check', () => {
     let resolve!: (v: Envelope<ReadingScope>) => void;
     const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; }) : selected());
     render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
-    fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Nachweise und weitere Dokumente' }));
     await screen.findByRole('heading', { name: 'Dokumente' });
     const button = await screen.findByRole('button', { name: 'Entwurf prüfen' }); vi.useFakeTimers();
     fireEvent.click(button); await act(async () => {});

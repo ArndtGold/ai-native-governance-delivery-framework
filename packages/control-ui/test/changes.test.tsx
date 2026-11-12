@@ -37,7 +37,7 @@ it('background Run refresh retains source focus after opaque resource IDs are re
     signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
   }));
   render(<App transport={read} initialRunId="run-a"/>);
-  fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Nachweise und weitere Dokumente' }));
   await screen.findByRole('heading', { name: 'Dokumente' });
   const button = await screen.findByRole('button', { name: 'Stand des Vorhabens öffnen' }); button.focus();
   await waitFor(() => expect(deliver).toBeTypeOf('function'));
@@ -58,7 +58,7 @@ it('an open original stays readable after a change and requires a deliberate rel
     signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
   }));
   render(<App transport={read} initialRunId="run-a"/>);
-  fireEvent.click(await screen.findByRole('button', { name: 'Technische Details' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Nachweise und weitere Dokumente' }));
   await screen.findByRole('heading', { name: 'Dokumente' });
   fireEvent.click(await screen.findByRole('button', { name: 'Stand des Vorhabens öffnen' }));
   await screen.findByRole('heading', { name: 'Original stays here' });

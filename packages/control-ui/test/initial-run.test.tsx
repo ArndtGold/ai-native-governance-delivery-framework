@@ -14,7 +14,8 @@ const sessionA='00000000-0000-4000-8000-000000000001',sessionB='00000000-0000-40
 const bootstrap=(session_id=sessionA,render_generation=1,initial_run_id:string|undefined='run-a')=>({structuredContent:{schema_version:'1',authorizes:false,target},_meta:{agdf_cockpit:{session_id,render_generation,initial_run_id,target}}});
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
 it('places the expanded Run companion beside the title, outside the status card', async () => {
-  render(<App initialRunId="run-a" transport={transport()}/>);
+  const read = transport();
+  render(<App initialRunId="run-a" transport={read}/>);
   await screen.findByRole('heading', { name: 'run-a', level: 1 });
   const navigation = screen.getByRole('navigation', { name: 'Vorhaben-Pfad' });
   expect(navigation.querySelectorAll('.run-figure')).toHaveLength(0);
@@ -24,11 +25,19 @@ it('places the expanded Run companion beside the title, outside the status card'
   expect(navigation.querySelectorAll('.run-figure')).toHaveLength(0);
   expect(document.querySelectorAll('.page-title--run .run-figure')).toHaveLength(1);
   expect(document.querySelector('.work-step .run-figure')).toBeNull();
-  fireEvent.click(screen.getByRole('button', {name:'Technische Details'}));
+  const detailsLink = { name: 'Nachweise und weitere Dokumente' };
+  const requestCount = vi.mocked(read).mock.calls.length;
+  fireEvent.click(screen.getByRole('button', detailsLink));
   const documents = screen.getByRole('heading', { name: 'Dokumente', level: 2 });
   const evidence = screen.getByRole('heading', { name: 'Nachweise', level: 2 });
   expect(documents).toBeTruthy(); expect(evidence).toBeTruthy();
   expect(screen.queryByText('Aus dem Run abgeleiteter Arbeitsstand')).toBeNull();
+  const back = screen.getByRole('button', { name: 'Zurück zum Vorhaben' });
+  expect(document.activeElement).toBe(back);
+  fireEvent.click(back);
+  expect(screen.queryByRole('region', { name: 'Technische Details' })).toBeNull();
+  expect(document.activeElement).toBe(screen.getByRole('button', detailsLink));
+  expect(vi.mocked(read).mock.calls).toHaveLength(requestCount);
 });
 it('retires the correct session when native teardown arrives before its first React render', async () => {
   const read = transport();
@@ -113,7 +122,7 @@ it('SCN-039/043: named opening uses one exact request and resizing or prop chang
   fireEvent.click(row);await screen.findByRole('heading',{name:'run-b'});
   view.rerender(<App initialRunId="run-a" transport={read}/>);
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();
-  fireEvent.click(screen.getByRole('button',{name:'Technische Details'}));
+  fireEvent.click(screen.getByRole('button',{name:'Nachweise und weitere Dokumente'}));
   expect(screen.getByText('run-b',{selector:'code'})).toBeTruthy();
   expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/snapshot'))).toHaveLength(2);
 });
@@ -187,7 +196,7 @@ it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();
   expect(screen.queryByRole('group',{name:'Ansicht'})).toBeNull();
   expect(screen.queryByRole('button',{name:'Vorhaben öffnen'})).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Technische Details'}));
+  fireEvent.click(screen.getByRole('button',{name:'Nachweise und weitere Dokumente'}));
   expect(screen.getByRole('heading',{name:'Dokumente'})).toBeTruthy();
   expect(app.requestDisplayMode).not.toHaveBeenCalled();
   expect(vi.mocked(read).mock.calls.length).toBe(count);
@@ -217,7 +226,7 @@ it('keeps the compact Run readable when expansion is unavailable or unconfirmed 
   const bridge = { app, readForSession: () => read, request: (action: () => unknown) => action(), session: '' } as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async () => app.ontoolresult(bootstrap()));
-  const expand = await screen.findByRole('button', { name: 'Run ansehen' });
+  const expand = await screen.findByRole('button', { name: 'Vorhaben öffnen' });
 
   fireEvent.click(expand);
   expect(screen.getByRole('alert').textContent).toContain('Hier steht nur die kompakte Karte zur Verfügung');

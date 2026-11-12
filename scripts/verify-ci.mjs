@@ -18,6 +18,12 @@ const stages = [
   { id: 'ui-build', build: true, prepare: true,
     commands: [npm(['run', 'build:mcp'], { cwd: 'packages/control-ui' })] },
   { id: 'generate', build: true, prepare: true, commands: [node('scripts/sync-package-assets.js')] },
+  // The HTTP suite needs the generated Core resources and the browser build in dist/.
+  { id: 'ui-tests', commands: [
+    npm(['run', 'typecheck'], { cwd: 'packages/control-ui' }),
+    npm(['run', 'build'], { cwd: 'packages/control-ui' }),
+    npm(['test'], { cwd: 'packages/control-ui' }),
+  ] },
   { id: 'build-contracts', build: true, commands: [node('packages/cli/scripts/build-contract-test.js')] },
   { id: 'evals', build: true, commands: [npm(['--prefix', 'packages/cli', 'run', 'eval:skills'])] },
   { id: 'compatibility-freshness', build: true, repository: true,

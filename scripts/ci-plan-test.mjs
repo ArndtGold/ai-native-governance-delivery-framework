@@ -54,6 +54,9 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
         assert.ok(ids.includes(before), `${row.id}: missing ${before}`);
       }
       assert.ok(ids.indexOf('ui-build') < ids.indexOf('generate'));
+      const runsUiTests = row.kind === 'checks' && row.area === 'ui';
+      assert.equal(ids.includes('ui-tests'), runsUiTests, row.id);
+      if (runsUiTests) assert.ok(ids.indexOf('generate') < ids.indexOf('ui-tests'), row.id);
       assert.ok(ids.indexOf('assemble') < ids.indexOf('mcp-dependencies'));
       if (row.kind === 'tests') {
         assert.ok(row.commands.every(command => command.domain === row.area), `${row.id}: mixed functional areas`);

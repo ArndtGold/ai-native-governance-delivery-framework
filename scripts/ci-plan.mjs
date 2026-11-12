@@ -22,6 +22,7 @@ export const CI_EXECUTION_BUDGET_MS = 8 * 60 * 1000;
 const prerequisites = new Set(['dependencies', 'ui-dependencies', 'ui-build', 'generate', 'build-contracts', 'evals', 'assemble', 'prepare', 'mcp-dependencies']);
 const checkAreas = {
   contracts: { label: 'Repository contracts', shortLabel: 'Contracts', stages: ['maintenance', 'shell'] },
+  ui: { label: 'Cockpit UI', shortLabel: 'Cockpit UI', stages: ['ui-tests'] },
   compatibility: { label: 'Runtime & host compatibility', shortLabel: 'Compat', stages: ['compatibility-freshness', 'runtime', 'built-runtime', 'host-compatibility', 'mcp-ergonomics'] },
   // Keep one ownership list. Nested groups reserve independent Windows budgets
   // for packing/consumers instead of timing out a later stage after earlier passes.

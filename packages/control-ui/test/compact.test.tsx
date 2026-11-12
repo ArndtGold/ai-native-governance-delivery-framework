@@ -121,7 +121,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   const read=vi.fn(async(path:string)=>path.startsWith('/api/documents/')?doc:runScope(parent)) as unknown as ReadTransport;
   render(<App initialRunId="run-a" transport={read}/>);await screen.findByRole('heading',{name:'Deliver cockpit',level:1});
   await screen.findByText('Freigegebenen Umfang umsetzen.');
-  fireEvent.click(screen.getByRole('button',{name:'Technische Details'}));
+  fireEvent.click(screen.getByRole('button',{name:'Nachweise und weitere Dokumente'}));
   for(let i=0;i<2;i++){
    fireEvent.click(screen.getByRole('button',{name:/ansehen: Anforderungen/}));
    await screen.findByRole('heading',{name:'Original document'});
@@ -224,7 +224,7 @@ it('expanded Run refreshes quietly and retains open evidence and its exact selec
  // test emits the event; visible text alone can precede effect registration.
  await act(async()=>{render(<App initialRunId="run-a" transport={read}/>);});
  await screen.findByRole('heading',{name:'Deliver cockpit'});
- fireEvent.click(screen.getByRole('button',{name:'Technische Details'}));
+ fireEvent.click(screen.getByRole('button',{name:'Nachweise und weitere Dokumente'}));
  await screen.findByRole('heading',{name:'Dokumente'});
  const evidence=screen.getByText('Nachweislücken im Run-Dokument · 1').closest('details')!;
  evidence.open=true;

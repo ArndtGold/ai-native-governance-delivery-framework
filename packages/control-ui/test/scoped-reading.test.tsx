@@ -70,7 +70,7 @@ it('SCN-070: fresh document bundle replaces the parent and return resolves the n
     : { ...meta, data: { kind: 'run', run: parent } }) as unknown as ReadTransport;
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
-  fireEvent.click(screen.getByRole('button', { name: 'Technische Details' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Nachweise und weitere Dokumente' }));
   expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: /ansehen: Anforderungen/ }));
   await screen.findByRole('heading', { name: 'Original' });
@@ -107,7 +107,7 @@ for (const graphState of ['empty', 'partial', 'blocked'] as const) it(`context $
   }) as unknown as ReadTransport;
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
-  fireEvent.click(screen.getByRole('button', { name: 'Technische Details' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Nachweise und weitere Dokumente' }));
   expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: /ansehen: Anforderungen/ }));
   await screen.findByRole('heading', { name: 'Before context' });
@@ -155,7 +155,7 @@ it('context capture cancels preceding freshness and pauses polling until its rep
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
   render(<App transport={read} initialRunId="run-a"/>);
   await screen.findByRole('heading', { name: run.title, level: 1 });
-  fireEvent.click(screen.getByRole('button', { name: 'Technische Details' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Nachweise und weitere Dokumente' }));
   expect(screen.getByRole('heading', { name: 'Dokumente' })).toBeTruthy();
   try {
     await act(async () => { await vi.advanceTimersByTimeAsync(5000); });

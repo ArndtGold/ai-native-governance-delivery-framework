@@ -1,24 +1,25 @@
 # Installation and Setup
 
-## 0.30.0 support scope
+## 0.32.0 support scope
+
+The [0.32.0 release notes](docs/releases/0.32.0.md) describe the prepared source candidate.
+The installation commands using `@latest` resolve the currently published npm version.
 
 The voluntary native qualification targets are Claude Code CLI on Windows and Codex CLI on macOS,
-each with five candidate-bound cases; qualification covers only the exact reviewed tuple. Native
-evidence does not gate publication or require a new run for every version. Final-candidate native
-qualification for 0.20.0 remains incomplete and is historical; it does not qualify 0.30.0. Codex Desktop and
-Claude Desktop are **manually checked**: the maintainer reports successful AGDF invocation, upgrade
-and recovery, but exact Desktop identities remain unverified, so they are not qualified and do not
-gate publication. Codex CLI on Windows/Linux remains **unqualified**, outside this qualification matrix.
-GitHub Copilot and OpenCode are **experimentally supported in 0.30.0**. Both have adapters and
-automated regression tests; native qualification is not currently claimed. Tests with simulated
-hosts do not establish behavior in an actual Copilot or OpenCode session. CLI/protocol/CI success
-proves no Desktop, other operating-system or embedded MCP App capability.
-See [0.20.0 scope and evidence handoff](docs/maintenance/release-0.20.0.md).
-For the prepared 0.30.0 version, the simplified project model and existing-project limitations,
-see the [0.30.0 release notes](docs/releases/0.30.0.md). Updating a plugin does not migrate project
-control. Only explicit `run-folders-v1`, version-4 Runs and current records are supported; old
-layouts remain unchanged and unsupported. The separate [offline archive import](docs/maintenance/cockpit-archive-import.md)
-preserves old development control for reading, without renewing its approvals.
+each with five candidate-bound cases. Qualification covers the exact reviewed tuple and is
+independent of npm publication. The [0.20.0 handoff](docs/maintenance/release-0.20.0.md) records
+historical evidence and its gaps, including reported manual Desktop checks. Codex CLI on Windows
+and Linux is outside that qualification matrix. Repository checks for 0.32.0 cover the candidate
+build, packages and automated fixtures. Native host qualification requires candidate-bound evidence.
+
+GitHub Copilot and OpenCode are **experimentally supported in 0.32.0**. Both have adapters and
+automated regression tests. Native qualification for these integrations requires evidence from
+an actual host session.
+
+Updating a plugin does not migrate project control. The current readers support explicit
+`run-folders-v1`, version-4 Runs and current records. The separate
+[offline archive import](docs/maintenance/cockpit-archive-import.md) preserves old development
+control for reading, without renewing its approvals.
 
 Install AGDF for the coding agent you use. AGDF provides the appropriate plugin, native skills or
 supported repository surface. It does not approve work automatically or replace product ownership, engineering
@@ -31,10 +32,8 @@ and technical enforcement are separate claims. Use local status and a fresh host
 your own installation.
 
 > [!IMPORTANT]
-> **MCP and UI evidence:** The previously published AGDF 0.14.5 release did not include the MCP support
-> described here. The MCP and MCP App details below describe the repository development build.
-> They do not verify the payload currently resolved by `@agdf/cli@latest` or qualify a native host.
-> The version alone does not identify the payload; compare payload digests and the loaded session.
+> **MCP and UI evidence.** The MCP and MCP App details below describe the repository build.
+> Verify the installed payload digest and the loaded host session when checking your installation.
 > The runtime plugins for Codex, Claude Code and
 > GitHub Copilot declare MCP themselves; OpenCode uses separate registration. The public OpenAI
 > Skills-only candidate contains no MCP server. MCP availability alone does not establish UI support.
@@ -57,9 +56,9 @@ repository-local commands inside the target Git repository, not inside this AGDF
 | Codex available in your personal environment | `npx --yes @agdf/cli@latest codex` | Installs or updates the global plugin and verifies its version through the Codex CLI. | Start a new Codex task and ask: `Run an AGDF gate check for this request.` |
 | Codex only for one repository | `npx --yes @agdf/cli@latest codex-repo` | Writes the local marketplace and plugin files; restart Codex, open `/plugins`, select **This repository**, then install `agdf`. | Start a new task in that repository and ask for a gate check. |
 | Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after a full restart. | Start a fresh session and use `/gate-check` for new build or change intent. |
-| GitHub Copilot plugin (**experimental in 0.30.0**) | `npx --yes @agdf/cli@latest copilot` | Installs through Copilot CLI. If `copilot` is not on `PATH`, the installer runs a pinned official `@github/copilot` package through npm and verifies the installed version. | Restart Copilot, verify Installed Plugins and the `agdf-` skills, then request an AGDF gate check. |
-| OpenCode, global discovery (**experimental in 0.30.0**) | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Create durable control in a repository before expecting governance to be active. |
-| OpenCode, repository governance (**experimental in 0.30.0**) | `npx --yes @agdf/cli@latest opencode-repo` | Writes durable control configuration and templates without copying a runtime surface. Re-run `opencode-status --json` from that repository. | Load `agdf-global-gate-check` through OpenCode's native skill tool. |
+| GitHub Copilot plugin (**experimental in 0.32.0**) | `npx --yes @agdf/cli@latest copilot` | Installs through Copilot CLI. If `copilot` is not on `PATH`, the installer runs a pinned official `@github/copilot` package through npm and verifies the installed version. | Restart Copilot, verify Installed Plugins and the `agdf-` skills, then request an AGDF gate check. |
+| OpenCode, global discovery (**experimental in 0.32.0**) | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Create durable control in a repository before expecting governance to be active. |
+| OpenCode, repository governance (**experimental in 0.32.0**) | `npx --yes @agdf/cli@latest opencode-repo` | Writes durable control configuration and templates without copying a runtime surface. Re-run `opencode-status --json` from that repository. | Load `agdf-global-gate-check` through OpenCode's native skill tool. |
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
@@ -931,7 +930,7 @@ flag, AGDF derives the preference from the local system locale.
 
 ## OpenCode
 
-**Experimental support in 0.30.0.** The adapter and automated regression tests are maintained;
+**Experimental support in 0.32.0.** The adapter and automated regression tests are maintained;
 native qualification is not currently claimed. Installation and SDK declarations do not prove
 that AGDF runs correctly in a fresh OpenCode session.
 
@@ -1347,7 +1346,7 @@ created separately with `init` when the delivery run requires it.
 
 ## GitHub Copilot
 
-**Experimental support in 0.30.0.** The adapter and automated regression tests are maintained;
+**Experimental support in 0.32.0.** The adapter and automated regression tests are maintained;
 native qualification is not currently claimed. Successful installation and skill discovery do not
 prove behavior in a fresh Copilot session or another Copilot client variant.
 

@@ -53,6 +53,13 @@ test('wide overview keeps a readable selected card beside the list and narrows s
     expect(geometry.text).toBeLessThanOrEqual(geometry.client + 1);
     const listBox = await list.boundingBox(), panelBox = await panel.boundingBox();
     expect(listBox.x + listBox.width).toBeLessThan(panelBox.x);
+    const detailsLink = panel.getByRole('button', { name: 'Nachweise und weitere Dokumente' });
+    await detailsLink.press('Enter');
+    await expect(panel.getByRole('region', { name: 'Technische Details' })).toBeVisible();
+    const back = panel.getByRole('button', { name: 'Zurück zum Vorhaben' });
+    await expect(back).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(detailsLink).toBeFocused();
     await status.click(); await page.getByRole('option', { name: 'Abgeschlossen' }).click();
     await expect(list.locator('[data-focus-id="fixture-completed"]')).toBeVisible();
     await expect(list.locator('[data-focus-id="fixture-a"]')).toHaveCount(0);

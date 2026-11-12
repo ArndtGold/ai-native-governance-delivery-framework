@@ -40,7 +40,7 @@ const BODY_RESERVE = 0;
 const ID_ROOM = 18;
 const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
 // The colour of the "whose move" line: yours, the agent's, or a block.
-const TURN_COLOR = Object.freeze({ you: 'warning', claude: 'suggestion', halt: 'error' });
+const TURN_COLOR = Object.freeze({ you: 'warning', claude: 'suggestion', halt: 'error', next: undefined });
 
 function createSession() {
   return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, dataDir: null, version: null, icon: null,
@@ -505,7 +505,7 @@ function body($, e) {
     onPress: press($, async () => { session.isInfoExpanded = !session.isInfoExpanded; }) }) : null;
   if (isTerminal) {
     return h(Box, { flexDirection: 'column', gap: 1 },
-      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), infoButton, runList, about, actions);
+      h(Text, { color: view.resting ? undefined : COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), infoButton, runList, about, actions);
   }
   const scope = view.runId ? JSON.stringify([session.root, view.runId]) : null;
   const quiet = !session.choices.enabled || session.choices.still || session.isHidden || Boolean(view.stale);
@@ -517,7 +517,7 @@ function body($, e) {
   session.figureObservation = observeFigure(session.figureObservation, { scope, figure: view.figure, current: !still });
   const { gate, gesture, sequence } = session.figureObservation ?? {};
   // With every run done the crew member checks the board: a tablet, never a finish flag (no run is shown).
-  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, invite: idle && view.invite === true, gate, workGate: view.workGate, gesture, sequence }),
+  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, invite: idle && view.invite === true, resting: view.resting === true, gate, workGate: view.workGate, gesture, sequence }),
     alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !still });
   // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
   // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of
@@ -525,7 +525,8 @@ function body($, e) {
   return h(Box, { flexDirection: 'column', gap: 1, ...(fits ? { minHeight: rows - BODY_RESERVE } : {}) }, h(Box, { flexDirection: 'column', gap: 1, flexGrow: 1 },
     h(Box, { flexDirection: 'column', alignItems: 'center' },
       figure,
-      h(Text, { color: COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
+      // A resting run carries no signal colour: nothing happens and nothing is asked of the person.
+      h(Text, { color: view.resting ? undefined : COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
       // The turn block below says what the reason would; without one the reason stays under the state.
       view.reason && !view.turn ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.reason) : null),
     // An invitation reads as the pane's headline; every other message stays plain.

@@ -21,7 +21,7 @@ const { chatLocale, companionLabels, label, settingLocale } = await companion("l
 const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
 const { FIGURE_TEXT, figureSvg, observeFigure } = await companion("figure.mjs");
 const { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } = await companion("notice.mjs");
-const { buildPanelView, goalLine, terminalText } = await companion("view.mjs");
+const { ACTIVITY_KINDS, buildPanelView, goalLine, terminalText } = await companion("view.mjs");
 const { STATE_FILE, parseCompanionState, pluginDataDir, serializeCompanionState } = await companion("persistence.mjs");
 const registry = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 const labels = companionLabels(registry);
@@ -160,12 +160,17 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   const blocked = view({ snapshot: snapshot([run({ status: "blocked", blocking_reason: "AGDF_RUN_SEAL_MISMATCH", blocking_text: "Siegel verletzt", last_activity: at })]) });
   assert.deepEqual([blocked.stateLabel, blocked.reason], ["blockiert", "Lösungsdesign: Siegel verletzt"], "the status card's blocking text, also for doctor blocks");
   const working = view({ snapshot: snapshot([run({ last_activity: at })]) });
-  assert.deepEqual([working.stateLabel, working.reason, view({ snapshot: snapshot([run({ last_activity: at })]) }, "en").reason], ["läuft", "Als Nächstes: Lösungsdesign", "Next: Solution design"]);
+  // Owner request of 2026-11-12: "läuft" named no activity. A working run says what is up next while it
+  // rests and what is being done while a main-loop turn runs; the reason field keeps the Core wording.
+  assert.deepEqual([working.stateLabel, working.resting, working.reason, view({ snapshot: snapshot([run({ last_activity: at })]) }, "en").reason],
+    ["SD-Entwurf steht an", true, "Als Nächstes: Lösungsdesign", "Next: Solution design"]);
   assert.equal(view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true }).reason, "Claude arbeitet gerade an diesem Turn");
   const building = view({ snapshot: snapshot([structured("CD+Tests", { last_activity: at })]) });
-  assert.deepEqual([building.stateLabel, building.reason], ["baut", "In Arbeit: Implementierung und Tests"]);
+  assert.deepEqual([building.mood, building.stateLabel, building.reason], ["baut", "Umsetzung steht an", "In Arbeit: Implementierung und Tests"]);
   // The turn line says what the reason would, so the terminal names it once.
-  assert.ok(terminalText(building, { labels, locale: "de" }).includes("(o_o) ⚒ baut\nNeues Vorhaben · Strukturierte Lieferung · Schritt 5 von 8\nClaude arbeitet: Implementierung und Tests (CD+Tests)"));
+  assert.ok(terminalText(building, { labels, locale: "de" }).includes("(o_o) ⚒ Umsetzung steht an\nNeues Vorhaben · Strukturierte Lieferung · Schritt 5 von 8\nAls Nächstes: Implementierung und Tests · Sag mir im Chat, wenn ich weitermachen soll."));
+  const buildingNow = view({ snapshot: snapshot([structured("CD+Tests", { last_activity: at })]), isTurnActive: true });
+  assert.deepEqual([buildingNow.stateLabel, buildingNow.resting, buildingNow.turn.who, buildingNow.turn.what], ["baut und testet", false, "Einen Augenblick", "Ich arbeite gerade daran: Implementierung und Tests"]);
   // Owner request of 2026-11-11: a run is named by its title, never by its id; the panel says whose
   // move it is and what the gate decides, and states the goal in the display language.
   {
@@ -179,14 +184,48 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
       { tone: "you", who: "Your turn", what: "Approve Solution design (SD)", how: "In the chat with “Approval: SD”", gate: "SD" });
     const decision = view({ snapshot: snapshot([run({ ...titled, user_action_required: "yes" })]) }).turn;
     assert.deepEqual([decision.tone, decision.what, decision.how], ["you", "Entscheidung treffen: Lösungsdesign (SD)", null]);
-    assert.deepEqual([working.turn.tone, working.turn.who, working.turn.what], ["claude", "Claude arbeitet", "Lösungsdesign (SD)"]);
+    assert.deepEqual(working.turn, { tone: "next", who: "Als Nächstes", what: "Entwurf: Lösungsdesign (SD)", how: "Sag mir im Chat, wenn ich weitermachen soll.", gate: "SD" },
+      "a resting run says what is up next and how to carry on");
     assert.deepEqual([blocked.turn.tone, blocked.turn.who, blocked.turn.what, blocked.rationale], ["halt", "Blockiert", "Lösungsdesign (SD): Siegel verletzt", null],
       "a blocked run names its block instead of the gate's purpose");
     const finished = view({ snapshot: snapshot([run({ lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: at })]) });
     assert.deepEqual([finished.turn, finished.rationale], [null, null], "a completed run is nobody's move");
+    // While a main-loop turn runs, the same run says what is being done and asks for a moment.
     const overlaid = view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true });
-    assert.deepEqual([overlaid.turn, overlaid.rationale], [null, null], "the terminal's turn overlay already says that Claude works");
-    assert.ok(terminalText(overlaid, { labels, locale: "de" }).includes("läuft · Claude arbeitet gerade an diesem Turn\nNeues Vorhaben · Strukturierte Lieferung · Schritt 3 von 8"));
+    assert.deepEqual([overlaid.stateLabel, overlaid.resting, overlaid.rationale], ["schreibt am SD-Entwurf", false, registry.locales.de.gateRationale.SD]);
+    assert.deepEqual(overlaid.turn, { tone: "claude", who: "Einen Augenblick", what: "Ich bereite einen Entwurf für dich vor: Lösungsdesign (SD)", how: null, gate: "SD" });
+    assert.ok(terminalText(overlaid, { labels, locale: "de" }).includes("(o_o) … schreibt am SD-Entwurf\nNeues Vorhaben · Strukturierte Lieferung · Schritt 3 von 8\nEinen Augenblick: Ich bereite einen Entwurf für dich vor: Lösungsdesign (SD)"));
+    assert.deepEqual(view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true }, "en").turn,
+      { tone: "claude", who: "One moment", what: "I'm preparing a draft for you: Solution design (SD)", how: null, gate: "SD" });
+    // The pane draws the run's own state, never the turn overlay; the texts follow the turn all the same.
+    const paneNow = view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true, showRunState: true });
+    assert.deepEqual([paneNow.mood, paneNow.stateLabel, paneNow.turn.who, paneNow.resting], ["laeuft", "schreibt am SD-Entwurf", "Einen Augenblick", false]);
+    // A turn beside a blocked run keeps the overlay's own reason: the activity belongs to a working run only.
+    const blockedTurn = view({ snapshot: snapshot([run({ status: "blocked", blocking_reason: "AGDF_RUN_SEAL_MISMATCH", blocking_text: "Siegel verletzt", last_activity: at })]), isTurnActive: true });
+    assert.deepEqual([blockedTurn.stateLabel, blockedTurn.turn, blockedTurn.resting], ["läuft", null, false]);
+    assert.ok(terminalText(blockedTurn, { labels, locale: "de" }).includes("läuft · Claude arbeitet gerade an diesem Turn"));
+    // Every step has its own wording; a step the table does not know is named, and nothing says "läuft".
+    const stepView = (gate, isTurnActive, mode = "structured_delivery", locale = "de") =>
+      view({ snapshot: snapshot([run({ current_gate: gate, mode, last_activity: at })]), isTurnActive, showRunState: true }, locale);
+    const worded = [
+      ["UR", "schreibt am UR-Entwurf", "UR-Entwurf steht an"], ["PRD", "schreibt am PRD-Entwurf", "PRD-Entwurf steht an"],
+      ["TP", "schreibt am TP-Entwurf", "TP-Entwurf steht an"], ["Brownfield Review", "analysiert den Bestand", "Bestandsanalyse steht an"],
+      ["Brownfield Analysis", "analysiert den Bestand", "Bestandsanalyse steht an"], ["Mode/Slice Decision", "wählt den Lieferweg", "Lieferweg steht an"],
+      ["CD+Tests", "baut und testet", "Umsetzung steht an"], ["Quick Task Execution", "baut und testet", "Umsetzung steht an"],
+      ["Verified Change Execution", "baut und testet", "Umsetzung steht an"], ["CR", "prüft den Code", "Code-Prüfung steht an"],
+      ["QA", "prüft die Qualität", "Qualitätsprüfung steht an"], ["UAT", "bereitet die Abnahme vor", "Abnahme steht an"],
+      ["OR", "schließt ab", "Abschluss steht an"], ["Something New", "arbeitet an: Something New", "Something New steht an"]];
+    for (const [gate, busy, next] of worded) {
+      assert.deepEqual([stepView(gate, true).stateLabel, stepView(gate, false).stateLabel], [busy, next], gate);
+      for (const isTurnActive of [true, false]) for (const locale of ["de", "en"]) {
+        const shown = stepView(gate, isTurnActive, "structured_delivery", locale);
+        for (const text of [shown.stateLabel, shown.turn.who, shown.turn.what]) assert.ok(text && !/\{\w+\}|activity\.|turn\./u.test(text), `${locale} ${gate}: ${text}`);
+      }
+    }
+    assert.deepEqual(Object.keys(ACTIVITY_KINDS).sort(), ["Brownfield Analysis", "Brownfield Review", "CD+Tests", "CR", "Mode/Slice Decision", "OR", "PRD", "QA", "Quick Task Execution", "SD", "TP", "UAT", "UR", "Verified Change Execution"]);
+    // An internal step is named by its title alone; a document or approval gate keeps its short name.
+    assert.deepEqual([stepView("Brownfield Review", false).turn.what, stepView("QA", false).turn.what, stepView("CD+Tests", true, "structured_delivery", "en").turn.what],
+      ["Brownfield-Prüfung", "Qualitätssicherung (QA)", "I'm working on it: Implementation and tests"]);
     // Without a title the panel says "new run", and the run id stays a reference line at the end.
     assert.deepEqual([working.name, working.runId, working.objective], ["Neues Vorhaben", "r", ""]);
     const lines = terminalText(approval, { labels, locale: "de" }).split("\n");
@@ -351,15 +390,44 @@ for (const mood of ["baut", "wartet", "fertig"]) {
   assert.doesNotMatch(figureSvg(mood, { gate: "UR", gesture: true, still: true }), /<animate/u);
 }
 assert.doesNotMatch(figureSvg("wartet", { gate: "</text><script>" }), /<text|<script/u);
-for (const mood of ["laeuft", "wartet", "blockiert"]) {
-  const plan = figureSvg(mood, { workGate: "TP", still: true, gate: "TP" });
-  assert.ok(wellFormed(plan));
-  assert.match(plan, /data-accessory="tp-plan"/u);
-  assert.match(plan, /data-tool="planning-pen"/u);
-  assert.doesNotMatch(plan, /<animate/u);
-  assert.match(figureSvg(mood, { workGate: "TP" }), /dur="29s"/u);
-  assert.doesNotMatch(figureSvg(mood, { workGate: "SD" }), /data-accessory="tp-plan"/u);
+// Owner request of 2026-11-12: a working figure is never empty-handed, and the same rule holds at all four
+// document gates. While Claude drafts UR, PRD, SD or TP the figure writes on that gate's clipboard (at TP
+// it is the TP plan and keeps that name); a waiting figure holds its gate sign, a blocked one its warning,
+// and a step without a document has no clipboard.
+for (const gate of ["UR", "PRD", "SD", "TP"]) {
+  const name = gate === "TP" ? "tp-plan" : "gate-board";
+  const board = new RegExp(`data-accessory="${name}"`, "u");
+  const drafting = figureSvg("laeuft", { workGate: gate, still: true });
+  assert.ok(wellFormed(drafting));
+  assert.match(drafting, new RegExp(`data-accessory="${name}"[\\s\\S]*>${gate}</text>`, "u"), `${gate} is named on the clipboard`);
+  assert.match(drafting, /data-tool="planning-pen"/u);
+  assert.doesNotMatch(drafting, /<animate/u);
+  // The still pose shows the full sheet with the pen at rest; in motion the pen writes the three lines
+  // one after another, each appearing behind it, and the sheet starts anew every nine seconds.
+  assert.equal((drafting.match(/<path d="M146 \d+h\d+"\/>/gu) ?? []).length, 3, "the still sheet is full");
+  const writing = figureSvg("laeuft", { workGate: gate });
+  assert.match(writing, /data-tool="planning-pen"><animateTransform attributeName="transform" type="translate" values="-22 -17;4 -17;-22 -11;1 -11;-22 -5;-2 -5;0 0;0 0;-22 -17"[^>]*dur="9s" repeatCount="indefinite"/u, "the pen follows the lines and rests");
+  assert.equal((writing.match(/<animate attributeName="stroke-dashoffset"[^>]*dur="9s" repeatCount="indefinite"/gu) ?? []).length, 3, "each line is written in turn");
+  assert.match(writing, /data-sheet="lines"[^>]*><animate attributeName="opacity" values="1;1;0;1;1"/u, "the sheet fades before it starts anew");
+  assert.doesNotMatch(writing, /dur="29s"/u, "no leftover of the former, nearly still TP plan");
+  for (const mood of ["wartet", "blockiert", "baut", "fertig", "bereit"]) assert.doesNotMatch(figureSvg(mood, { workGate: gate, gate }), board, `${mood} at ${gate} drafts nothing`);
+  const waiting = figureSvg("wartet", { workGate: gate, gate });
+  assert.match(waiting, new RegExp(`<rect x="131" y="74"[\\s\\S]*>${gate}</text>`, "u"), `a waiting figure holds the ${gate} sign`);
+  assert.doesNotMatch(waiting, /data-tool="planning-pen"/u);
 }
+assert.match(figureSvg("laeuft", { workGate: "PRD", still: true }), /<rect x="136" y="63" width="26"[^>]*\/>\s*<text x="149"/u, "a three-letter gate gets a wider label");
+// While the run rests (nobody works on the step right now) the pen lies on the full sheet; the figure
+// still blinks, since only the writing would claim work.
+{
+  const restingBoard = figureSvg("laeuft", { workGate: "PRD", resting: true });
+  assert.equal((restingBoard.match(/<path d="M146 \d+h\d+"\/>/gu) ?? []).length, 3, "the resting sheet is full");
+  assert.doesNotMatch(restingBoard, /dur="9s"/u, "nothing is being written");
+  assert.match(restingBoard, /dur="12s"/u, "the figure still blinks");
+}
+for (const gate of ["Brownfield Review", "Mode/Slice Decision", "CD+Tests", "QA", undefined]) assert.doesNotMatch(figureSvg("laeuft", { workGate: gate }), /gate-board|tp-plan/u, `${gate} has no clipboard`);
+assert.equal(view({ snapshot: snapshot([run({ last_activity: "2026-10-26T08:01:00Z" })]), showRunState: true }).workGate, "SD", "the pane hands the working gate to the figure");
+// A blocked TP run shows the warning alone, like every other gate.
+assert.doesNotMatch(figureSvg("blockiert", { workGate: "TP", gate: "TP" }), /tp-plan|planning-pen/u);
 assert.match(figureSvg("blockiert", { workGate: "TP" }), /#ff9b8c/u);
 const showcase = figureSvg("laeuft", { workGate: "TP", showcase: true });
 assert.match(showcase, /data-accessory="tp-plan"/u);
@@ -383,7 +451,7 @@ assert.ok(!figureSvg("bereit", { still: true }).includes('d="M74 63q7 6 14 0"'))
 assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("wartet", { still: true }));
 // The start sign of a project without AGDF (owner request of 2026-11-12): the pit crew's round sign in a
 // raised hand, only for a ready figure; its sway is idle motion, so the still pose keeps the sign and drops
-// the motion, and it never stands beside the tablet or the TP plan.
+// the motion. It never stands beside the tablet, a clipboard or the showpiece plan.
 {
   const sign = figureSvg("bereit", { invite: true, smile: true });
   assert.match(sign, /data-accessory="start-sign"[\s\S]*>START<\/text>/u);
@@ -394,7 +462,10 @@ assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("warte
   assert.doesNotMatch(figureSvg("bereit", { smile: true }), /start-sign/u, "not without the invitation");
   for (const mood of ["laeuft", "baut", "wartet", "blockiert", "fertig"]) assert.doesNotMatch(figureSvg(mood, { invite: true }), /start-sign/u, mood + " shows a run state, never the invitation");
   assert.doesNotMatch(figureSvg("bereit", { invite: true, tablet: true }), /overview-tablet/u, "one accessory at a time");
-  assert.doesNotMatch(figureSvg("bereit", { invite: true, workGate: "TP" }), /start-sign/u);
+  // A ready figure drafts nothing, so a stray working gate draws no clipboard beside the sign; the
+  // About page's showpiece plan keeps the hand for itself.
+  assert.doesNotMatch(figureSvg("bereit", { invite: true, workGate: "TP" }), /tp-plan|planning-pen/u);
+  assert.doesNotMatch(figureSvg("bereit", { invite: true, workGate: "TP", showcase: true }), /start-sign/u);
 }
 // The overview tablet: shown on request, still in the still pose, irregular (several cycle lengths) when moving.
 assert.match(figureSvg("bereit", { still: true, tablet: true }), /data-accessory="overview-tablet"/u);

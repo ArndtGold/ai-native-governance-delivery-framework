@@ -54,14 +54,14 @@ function startSign(still) {
     </g>` };
 }
 
-function arm(mood, gesture, planning, invite = null) {
+function arm(mood, gesture, showpiece, invite = null) {
   const pivot = '112 95';
   const angles = invite ? [invite.angle]
     : { baut: [-10, -52, 12, -52, -10], wartet: [-10, -34, -20, -34, -10], blockiert: [-10, -50, -28, -50, -10], fertig: [-10, 15, -2, 15, -10] }[mood] ?? [-10];
   const movement = invite ? invite.sway : gesture && angles.length > 1
     ? motion('rotate', angles.map(angle => `${angle} ${pivot}`).join(';'), 2.4, '0;0.2;0.5;0.75;1')
     : '';
-  const torqueWrench = mood === 'baut' && !planning
+  const torqueWrench = mood === 'baut' && !showpiece
     ? `<g data-tool="torque-wrench">
       <rect x="149" y="53" width="6" height="43" rx="3" fill="url(#metal)" stroke="#546d7a"/>
       <rect x="148" y="78" width="8" height="15" rx="3" fill="#29434b"/>
@@ -125,9 +125,11 @@ function tabletAccessory(still) {
   </g>`;
 }
 
-function planAccessory(still, showcase = false) {
-  const movement = still ? '' : showcase ? '<animateTransform attributeName="transform" type="rotate" values="0 155 80;-7 155 80;7 155 80;-4 155 80;0 155 80;0 155 80" keyTimes="0;0.12;0.26;0.38;0.5;1" dur="4s" repeatCount="indefinite"/>' : '<animateTransform attributeName="transform" type="rotate" values="0 155 80;0 155 80;-3 155 80;0 155 80;0 155 80" keyTimes="0;0.71;0.74;0.77;1" dur="29s" repeatCount="indefinite"/>';
-  const pen = still ? '' : showcase ? '<animateTransform attributeName="transform" type="translate" values="0 0;3 -3;0 0;0 0" keyTimes="0;0.18;0.36;1" dur="4s" repeatCount="indefinite"/>' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 0;2 -2;0 0;0 0" keyTimes="0;0.73;0.75;0.78;1" dur="29s" repeatCount="indefinite"/>';
+// The TP plan as a showpiece (the cockpit's About page): a full sheet that the figure waves about.
+// A run's own TP work is drawn by the writing clipboard below, like every other document gate.
+function showpiecePlan(still) {
+  const movement = still ? '' : '<animateTransform attributeName="transform" type="rotate" values="0 155 80;-7 155 80;7 155 80;-4 155 80;0 155 80;0 155 80" keyTimes="0;0.12;0.26;0.38;0.5;1" dur="4s" repeatCount="indefinite"/>';
+  const pen = still ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;3 -3;0 0;0 0" keyTimes="0;0.18;0.36;1" dur="4s" repeatCount="indefinite"/>';
   return `<g data-accessory="tp-plan" transform="rotate(-6 157 81)">${movement}
     <rect x="127" y="54" width="62" height="49" rx="6" fill="#25454b" stroke="#a9c3cb" stroke-width="2"/>
     <rect x="132" y="59" width="52" height="39" rx="3" fill="#e8f4ed"/>
@@ -138,10 +140,53 @@ function planAccessory(still, showcase = false) {
   </g>`;
 }
 
-export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false, tablet = false, invite = false } = {}) {
-  const planning = workGate === 'TP';
+// The document gates Claude drafts. A working figure writes on that gate's clipboard, so it is never
+// empty-handed (owner request of 2026-11-12). The same rule holds at all four: the clipboard while Claude
+// works, the gate sign while an approval is pending, the warning while the run is blocked.
+const DRAFT_GATES = new Set(['UR', 'PRD', 'SD', 'TP']);
+// One sheet takes WRITING.cycle seconds: the pen writes the three lines one after another, rests beside
+// the full sheet, the lines fade and the sheet starts anew. Each line is { y, length, from, to } in
+// seconds; the nib's tip rests at (168, 96), so a pen at (x, y) is moved by (x - 168, y - 96).
+const WRITING = Object.freeze({ cycle: 9, rest: 6.8, fade: 8, reset: 8.6,
+  lines: Object.freeze([{ y: 79, length: 26, from: 0, to: 2 }, { y: 85, length: 23, from: 2.4, to: 4.2 }, { y: 91, length: 20, from: 4.6, to: 6.2 }]) });
+
+// The clipboard of a document gate. In motion the lines appear behind the writing pen; the still pose
+// shows the full sheet with the pen at rest. At TP it is the TP plan and keeps that name.
+function draftBoard(label, still) {
+  const { cycle, rest, fade, reset, lines } = WRITING;
+  const at = seconds => +(seconds / cycle).toFixed(3);
+  const times = list => list.map(at).join(';');
+  const animated = (attribute, values, keyTimes) => `<animate attributeName="${attribute}" values="${values.join(';')}" keyTimes="${times(keyTimes)}" dur="${cycle}s" repeatCount="indefinite"/>`;
+  const tip = (x, y) => `${x - 168} ${y - 96}`;
+  const written = lines.map(({ y, length, from, to }) => {
+    if (still) return `<path d="M146 ${y}h${length}"/>`;
+    // Hidden until its turn, drawn while the pen passes, kept until the sheet resets.
+    const [values, keyTimes] = from ? [[length, length, 0, 0, length, length], [0, from, to, reset - 0.01, reset, cycle]]
+      : [[length, 0, 0, length, length], [0, to, reset - 0.01, reset, cycle]];
+    return `<path d="M146 ${y}h${length}" stroke-dasharray="${length} ${length}" stroke-dashoffset="${length}">${animated('stroke-dashoffset', values, keyTimes)}</path>`;
+  }).join('');
+  const penPath = lines.flatMap(({ y, length }) => [tip(146, y), tip(146 + length, y)]);
+  const pen = still ? '' : `<animateTransform attributeName="transform" type="translate" values="${[...penPath, '0 0', '0 0', penPath[0]].join(';')}" keyTimes="${times([...lines.flatMap(({ from, to }) => [from, to]), rest, reset, cycle])}" dur="${cycle}s" repeatCount="indefinite"/>`;
+  const wide = label.length > 2;
+  return `<g data-accessory="${label === 'TP' ? 'tp-plan' : 'gate-board'}" transform="rotate(-6 157 81)">
+    <rect x="127" y="54" width="62" height="49" rx="6" fill="#25454b" stroke="#a9c3cb" stroke-width="2"/>
+    <rect x="132" y="59" width="52" height="39" rx="3" fill="#e8f4ed"/>
+    <rect x="136" y="63" width="${wide ? 26 : 20}" height="11" rx="3" fill="#c9e8dc"/>
+    <text x="${wide ? 149 : 146}" y="71" text-anchor="middle" fill="#17544e" font-size="8" font-weight="700" font-family="sans-serif">${label}</text>
+    <path d="M139 79h3m-3 6h3m-3 6h3" fill="none" stroke="#4d867b" stroke-width="1.5" stroke-linecap="round"/>
+    <g data-sheet="lines" fill="none" stroke="#4d867b" stroke-width="1.5" stroke-linecap="round">${still ? '' : animated('opacity', [1, 1, 0, 1, 1], [0, fade, reset - 0.01, reset, cycle])}${written}</g>
+    <g data-tool="planning-pen">${pen}<path d="M170 93l10-14" stroke="#243e48" stroke-width="3" stroke-linecap="round"/><path d="M170 93l-2 3" stroke="#d59751" stroke-width="2" stroke-linecap="round"/><rect x="174" y="87" width="11" height="8" rx="4" fill="url(#metal)" stroke="#546d7a" stroke-width="1"/></g>
+  </g>`;
+}
+
+export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false, tablet = false, invite = false, resting = false } = {}) {
+  // The About page shows the TP plan as a showpiece, whatever the mood.
+  const showpiece = showcase && workGate === 'TP';
+  // Only a working figure drafts: a waiting one keeps its gate sign and a blocked one its warning.
+  // While the run rests (`resting`: nobody works on the step right now) the pen lies on the full sheet.
+  const board = !showpiece && mood === 'laeuft' && DRAFT_GATES.has(workGate) ? workGate : null;
   // The start sign belongs to a ready figure that shows no run; it is an invitation, never a run state.
-  const inviting = invite && mood === 'bereit' && !planning ? startSign(still) : null;
+  const inviting = invite && mood === 'bereit' && !showpiece ? startSign(still) : null;
   const signal = SIGNAL[mood] ?? SIGNAL.bereit;
   // A ready figure without a run to show may smile; it is a face only, never a run state.
   const face = smile && mood === 'bereit' ? { ...FACES.bereit, mouth: IDLE_SMILE } : FACES[mood] ?? FACES.bereit;
@@ -167,7 +212,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
     <radialGradient id="shadow"><stop stop-color="#111f31" stop-opacity=".38"/><stop offset="1" stop-color="#111f31" stop-opacity="0"/></radialGradient>
   </defs>
   <ellipse cx="88" cy="126" rx="64" ry="11" fill="url(#shadow)"/>
-  ${arm(mood, act, planning, inviting)}
+  ${arm(mood, act, showpiece, inviting)}
   <g fill="url(#metal)" stroke="#546d7a" stroke-width="1.4">
     <rect x="53" y="113" width="24" height="11" rx="4"/>
     <rect x="91" y="113" width="24" height="11" rx="4"/>
@@ -204,9 +249,9 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
     <path d="${face.mouth}" fill="none" stroke="${signal}" stroke-width="1.8" stroke-linecap="round"/>
     ${face.brow ? `<path d="${face.brow}" fill="none" stroke="${signal}" stroke-width="1.4" stroke-linecap="round"/>` : ''}
   </g></g>
-  ${accessory(mood, !planning && GATES.has(gate) ? gate : undefined, act)}
-  ${planning ? planAccessory(still, showcase) : ''}
-  ${tablet && !planning && !inviting ? tabletAccessory(still) : ''}
+  ${accessory(mood, !showpiece && GATES.has(gate) ? gate : undefined, act)}
+  ${showpiece ? showpiecePlan(still) : board ? draftBoard(board, still || resting) : ''}
+  ${tablet && !showpiece && !inviting ? tabletAccessory(still) : ''}
 </svg>`;
 }
 

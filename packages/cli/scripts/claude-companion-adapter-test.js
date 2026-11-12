@@ -523,7 +523,11 @@ try {
     await lister.fire("turn.start", { text: "Weiter mit extra-11." });
     await settle();
     let odd = await look(lister);
-    assert.ok(texts(odd.tree).includes("working"));
+    // During the turn the pane says what is being done (owner request of 2026-11-12), no longer "working".
+    assert.ok(texts(odd.tree).includes("drafting the UR") && texts(odd.tree).includes("One moment"));
+    const busy = find(odd.tree, node => node.tag === "Text" && texts(node)[0] === "drafting the UR")[0];
+    assert.equal(busy.props.color, "suggestion", "work in progress carries the working colour");
+    assert.match(find(odd.tree, node => node.tag === "Svg")[0].props.source, /data-accessory="gate-board"[\s\S]*dur="9s"/u, "the figure writes while the turn runs");
     assert.ok(button(odd.tree, "next"), "stepping from an undrafted chat run");
     const afterOdd = await neighbour("extra-11", 1);
     await button(odd.tree, "next").props.onPress();
@@ -535,7 +539,7 @@ try {
     await button((await look(lister)).tree, "previous").props.onPress();
     await settle();
     odd = await look(lister);
-    assert.deepEqual([texts(odd.tree).includes("working"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an undrafted run offers the way back");
+    assert.deepEqual([texts(odd.tree).includes("drafting the UR"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an undrafted run offers the way back");
 
     // CR-F02: every recorded mention is announced, also one that names the chat's run again.
     const announced = lister.log.status.length;
@@ -670,7 +674,9 @@ try {
   assert.equal(target.approve().outcome, "accepted");
   await (await entry(first, "retry"))();
   tree = await render(first);
-  assert.ok(texts(tree).includes("Changed in this session") && texts(tree).includes("working"));
+  // The run rests after the approval: the pane names the step that is up next and how to carry on.
+  assert.ok(texts(tree).includes("Changed in this session") && texts(tree).includes("Implementation is next") && texts(tree).includes("Up next"));
+  assert.equal(find(tree, node => node.tag === "Text" && texts(node)[0] === "Implementation is next")[0].props.color, undefined, "a resting run carries no signal colour");
 
   // Follow-up SCN-009, SCN-011, SCN-013, SCN-014: toasts and the status line follow the shown run's
   // run-derived state. Selecting the waiting run was a baseline and its approval to working raised

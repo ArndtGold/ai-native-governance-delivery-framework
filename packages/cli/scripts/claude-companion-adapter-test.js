@@ -919,10 +919,35 @@ try {
       await reread(host);
       return texts(await render(host));
     };
-    assert.ok((await languageOf(plain, { language: "Deutsch" })).some(line => line.startsWith("Kein AGDF-Kontrollordner")), "German from the setting");
-    assert.ok((await languageOf(plain, { language: "de" })).some(line => line.startsWith("Kein AGDF-Kontrollordner")), "German from the tag");
-    assert.ok((await languageOf(plain, {})).some(line => line.startsWith("No AGDF control folder")), "English without a setting");
-    assert.ok((await languageOf(plain, { language: "Deutsch" }, true)).some(line => line.startsWith("No AGDF control folder")), "English when the read fails");
+    assert.ok((await languageOf(plain, { language: "Deutsch" })).some(line => line.startsWith("AGDF ist in diesem Projekt noch nicht eingerichtet")), "German from the setting");
+    assert.ok((await languageOf(plain, { language: "de" })).some(line => line.startsWith("AGDF ist in diesem Projekt noch nicht eingerichtet")), "German from the tag");
+    assert.ok((await languageOf(plain, {})).some(line => line.startsWith("AGDF isn't set up in this project yet")), "English without a setting");
+    assert.ok((await languageOf(plain, { language: "Deutsch" }, true)).some(line => line.startsWith("AGDF isn't set up in this project yet")), "English when the read fails");
+    // Owner request of 2026-11-12: a project without AGDF is invited to start. The figure smiles and
+    // holds the start sign, the checked path and the finding open behind the (i), and the status line
+    // says "not set up" instead of "idle".
+    {
+      const host = await session({ projectRoot: plain, settings: {} });
+      await host.fire("session.start");
+      await reread(host);
+      const closed = await render(host), closedText = texts(closed);
+      const svg = find(closed, node => node.tag === "Svg")[0].props.source;
+      assert.match(svg, /data-accessory="start-sign"/u, "the figure holds the start sign");
+      assert.ok(closedText.includes("Tell me in the chat if you'd like to use AGDF here – I'll set it up with you."));
+      assert.ok(!closedText.some(line => line.includes("No AGDF control folder")), "the finding stays behind the (i)");
+      assert.equal(find(closed, node => node.tag === "Text" && texts(node)[0] === "AGDF isn't set up in this project yet.")[0].props.weight, "semibold", "the invitation is the pane's headline");
+      await button(closed, "info").props.onPress();
+      const opened = texts(await render(host));
+      assert.ok(opened.includes("Checked project folder") && opened.includes("Finding") && opened.some(line => line.startsWith("No AGDF control folder in")), "the (i) shows the path and the finding");
+      assert.equal(host.log.status.at(-1), "AGDF · not set up");
+      const terminal = texts(await render(host, "terminal")).join("\n");
+      assert.ok(terminal.includes("(^_^)/ idle\nAGDF isn't set up in this project yet."), "the terminal invites too");
+      // "Motion off" keeps the sign and drops its sway.
+      await (await entry(host, "still"))();
+      const stillSvg = find(await render(host), node => node.tag === "Svg")[0].props.source;
+      assert.ok(/data-accessory="start-sign"/u.test(stillSvg) && !/<animate/u.test(stillSvg), "the still pose keeps the sign without motion");
+      await (await entry(host, "still"))();
+    }
     // CR-F05: an English label of the shown run proves that the config (en) wins over the setting (de).
     const configured = await languageOf(target.root, { language: "de" });
     assert.ok(configured.includes("fixture-a") && configured.includes("Next step") && !configured.includes("Nächster Schritt"),

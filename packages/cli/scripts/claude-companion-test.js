@@ -252,7 +252,18 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   assert.equal(view({ snapshot: null }).idle, undefined);
   assert.equal(view({ snapshot: { status: "failed", runs: [], unreadable: [], readAt: 1 } }).idle, undefined);
   const noControl = view({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 } });
-  assert.deepEqual([noControl.message, noControl.hint], ["Kein AGDF-Kontrollordner in „voice-projekt“.", "Geprüfter Projektordner: C:\\Workspace\\voice-projekt"]);
+  // Owner request of 2026-11-12: a project without AGDF is invited to start; the checked path and the
+  // finding sit behind the (i), and the figure smiles, blinks and holds the start sign.
+  assert.deepEqual([noControl.message, noControl.hint, noControl.invite, noControl.idle, noControl.isInfoExpanded],
+    ["AGDF ist in diesem Projekt noch nicht eingerichtet.", "Sag mir im Chat, wenn du AGDF hier nutzen möchtest – ich richte es mit dir ein.", true, true, false]);
+  assert.deepEqual(noControl.info, [{ label: "Geprüfter Projektordner", text: "C:\\Workspace\\voice-projekt" }, { label: "Befund", text: "Kein AGDF-Kontrollordner in „voice-projekt“." }]);
+  const invited = terminalText(noControl, { labels, locale: "de" }).split("\n");
+  assert.deepEqual(invited.slice(0, 4), ["AGDF Companion", "(^_^)/ bereit", "AGDF ist in diesem Projekt noch nicht eingerichtet.", "Sag mir im Chat, wenn du AGDF hier nutzen möchtest – ich richte es mit dir ein."]);
+  assert.ok(!invited.some(line => line.includes("voice-projekt")), "the path stays behind the (i)");
+  const invitedOpen = terminalText(view({ snapshot: { status: "no_control", root: "C:\\Workspace\\voice-projekt", runs: [], unreadable: [], readAt: 1 }, isInfoExpanded: true }), { labels, locale: "de" });
+  assert.ok(invitedOpen.includes("Geprüfter Projektordner: C:\\Workspace\\voice-projekt\nBefund: Kein AGDF-Kontrollordner in „voice-projekt“."));
+  assert.deepEqual(["message", "invite"].map(key => view({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 } }, "en")[key]), ["AGDF isn't set up in this project yet.", true]);
+  for (const other of [view({ snapshot: snapshot([]) }), view({ snapshot: null })]) assert.equal(other.invite, undefined, "only a project without AGDF is invited");
   const layout = view({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 } });
   assert.equal(layout.message, "Run-Status nicht lesbar: Aufbau des Kontrollordners nicht unterstützt");
   // AC-002 (T-004): with counted run folders the unsupported store names count and reason, never "Keine offenen Runs".
@@ -370,6 +381,21 @@ assert.doesNotMatch(figureSvg("baut", { still: true }), /data-accessory="finish-
 assert.ok(figureSvg("bereit", { still: true, smile: true }).includes('d="M74 63q7 6 14 0"'));
 assert.ok(!figureSvg("bereit", { still: true }).includes('d="M74 63q7 6 14 0"'));
 assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("wartet", { still: true }));
+// The start sign of a project without AGDF (owner request of 2026-11-12): the pit crew's round sign in a
+// raised hand, only for a ready figure; its sway is idle motion, so the still pose keeps the sign and drops
+// the motion, and it never stands beside the tablet or the TP plan.
+{
+  const sign = figureSvg("bereit", { invite: true, smile: true });
+  assert.match(sign, /data-accessory="start-sign"[\s\S]*>START<\/text>/u);
+  assert.match(sign, /<g transform="rotate\(-30 112 95\)"><animateTransform[^>]+dur="5s" repeatCount="indefinite"/u, "the raised arm sways");
+  const stillSign = figureSvg("bereit", { invite: true, smile: true, still: true });
+  assert.match(stillSign, /data-accessory="start-sign"/u);
+  assert.doesNotMatch(stillSign, /<animate/u, "the still pose has no motion");
+  assert.doesNotMatch(figureSvg("bereit", { smile: true }), /start-sign/u, "not without the invitation");
+  for (const mood of ["laeuft", "baut", "wartet", "blockiert", "fertig"]) assert.doesNotMatch(figureSvg(mood, { invite: true }), /start-sign/u, mood + " shows a run state, never the invitation");
+  assert.doesNotMatch(figureSvg("bereit", { invite: true, tablet: true }), /overview-tablet/u, "one accessory at a time");
+  assert.doesNotMatch(figureSvg("bereit", { invite: true, workGate: "TP" }), /start-sign/u);
+}
 // The overview tablet: shown on request, still in the still pose, irregular (several cycle lengths) when moving.
 assert.match(figureSvg("bereit", { still: true, tablet: true }), /data-accessory="overview-tablet"/u);
 assert.doesNotMatch(figureSvg("bereit", { still: true }), /data-accessory="overview-tablet"/u);
@@ -476,7 +502,9 @@ assert.deepEqual(observedRun({ snapshot: { status: "failed", runs: [], unreadabl
 assert.deepEqual(observedRun({ snapshot: { status: "unavailable", reason: "control_layout_unsupported", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "unreadable" });
 assert.deepEqual(observedRun({ snapshot: { ...snapshot([]), unreadable: [{ id: "x", reason: "run_state_invalid" }] }, sessionStartedAt: 0, selection: "x" }), { kind: "unreadable" });
 assert.deepEqual(observedRun({ snapshot: null, sessionStartedAt: 0 }), { kind: "idle" });
-assert.deepEqual(observedRun({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "idle" });
+assert.deepEqual(observedRun({ snapshot: { status: "no_control", root: "/p", runs: [], unreadable: [], readAt: 1 }, sessionStartedAt: 0 }), { kind: "notSetUp" });
+assert.deepEqual(["de", "en"].map(locale => statusText({ kind: "notSetUp" }, { labels, locale })), ["AGDF · nicht eingerichtet", "AGDF · not set up"], "told apart from a set-up project with nothing to do");
+assert.deepEqual(observeNotice({ runId: "r", signature: "x" }, { kind: "notSetUp" }), { observation: null, notice: null }, "no toast without AGDF");
 // A notice concerns the run the status line follows and names no run (owner request of 2026-11-06, T-013).
 const notice = (item, locale = "de") => noticeText(seen("r1", item).state, { registry, labels, locale });
 assert.equal(notice(waitingSd), "Wartet auf Freigabe: Lösungsdesign");

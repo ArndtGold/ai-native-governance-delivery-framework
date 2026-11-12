@@ -42,10 +42,23 @@ const escape = text => String(text).replace(/[&<>"]/gu, char => ({ '&': '&amp;',
 const motion = (type, values, duration, keyTimes = '0;0.5;1') =>
   `<animateTransform attributeName="transform" type="${type}" values="${values}" keyTimes="${keyTimes}" dur="${duration}s" repeatCount="1"/>`;
 
-function arm(mood, gesture, planning) {
+// The pit crew's round release sign (owner request of 2026-11-12): a project without AGDF is invited to
+// start. The raised arm holds it; the counter-rotation keeps the sign nearly upright in the hand, and
+// the slow sway is idle motion, so a still pose leaves it out. The word is part of the artwork.
+function startSign(still) {
+  const sway = still ? '' : '<animateTransform attributeName="transform" type="rotate" values="-30 112 95;-36 112 95;-30 112 95;-25 112 95;-30 112 95" dur="5s" repeatCount="indefinite"/>';
+  return { angle: -30, sway, sign: `<g data-accessory="start-sign" transform="rotate(45 150 95)">
+      <path d="M150 95V62" stroke="#546d7a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="150" cy="48" r="17" fill="#17544e" stroke="#c9ebd9" stroke-width="2.5"/>
+      <text x="150" y="51.5" text-anchor="middle" fill="#f8fcff" font-size="9" font-weight="700" font-family="sans-serif">START</text>
+    </g>` };
+}
+
+function arm(mood, gesture, planning, invite = null) {
   const pivot = '112 95';
-  const angles = { baut: [-10, -52, 12, -52, -10], wartet: [-10, -34, -20, -34, -10], blockiert: [-10, -50, -28, -50, -10], fertig: [-10, 15, -2, 15, -10] }[mood] ?? [-10];
-  const movement = gesture && angles.length > 1
+  const angles = invite ? [invite.angle]
+    : { baut: [-10, -52, 12, -52, -10], wartet: [-10, -34, -20, -34, -10], blockiert: [-10, -50, -28, -50, -10], fertig: [-10, 15, -2, 15, -10] }[mood] ?? [-10];
+  const movement = invite ? invite.sway : gesture && angles.length > 1
     ? motion('rotate', angles.map(angle => `${angle} ${pivot}`).join(';'), 2.4, '0;0.2;0.5;0.75;1')
     : '';
   const torqueWrench = mood === 'baut' && !planning
@@ -63,7 +76,7 @@ function arm(mood, gesture, planning) {
     <rect x="152" y="42" width="26" height="18" rx="1.5" fill="#f8fcff" stroke="#546d7a" stroke-width="1"/>
     <path d="M152 42h6.5v6H152z M165 42h6.5v6H165z M158.5 48h6.5v6h-6.5z M171.5 48h6.5v6h-6.5z M152 54h6.5v6H152z M165 54h6.5v6H165z" fill="#25343d"/>
   </g>` : '';
-  return `<g transform="rotate(${angles[0]} ${pivot})">${movement}${torqueWrench}${finishFlag}
+  return `<g transform="rotate(${angles[0]} ${pivot})">${movement}${torqueWrench}${finishFlag}${invite?.sign ?? ''}
     <rect x="106" y="88" width="45" height="14" rx="7" fill="url(#metal)" stroke="#546d7a"/>
     <circle cx="115" cy="95" r="4" fill="#243644" stroke="#adc3cb"/>
     <rect x="143" y="86" width="15" height="18" rx="5" fill="url(#metal)" stroke="#546d7a"/>
@@ -125,8 +138,10 @@ function planAccessory(still, showcase = false) {
   </g>`;
 }
 
-export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false, tablet = false } = {}) {
+export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false, tablet = false, invite = false } = {}) {
   const planning = workGate === 'TP';
+  // The start sign belongs to a ready figure that shows no run; it is an invitation, never a run state.
+  const inviting = invite && mood === 'bereit' && !planning ? startSign(still) : null;
   const signal = SIGNAL[mood] ?? SIGNAL.bereit;
   // A ready figure without a run to show may smile; it is a face only, never a run state.
   const face = smile && mood === 'bereit' ? { ...FACES.bereit, mouth: IDLE_SMILE } : FACES[mood] ?? FACES.bereit;
@@ -152,7 +167,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
     <radialGradient id="shadow"><stop stop-color="#111f31" stop-opacity=".38"/><stop offset="1" stop-color="#111f31" stop-opacity="0"/></radialGradient>
   </defs>
   <ellipse cx="88" cy="126" rx="64" ry="11" fill="url(#shadow)"/>
-  ${arm(mood, act, planning)}
+  ${arm(mood, act, planning, inviting)}
   <g fill="url(#metal)" stroke="#546d7a" stroke-width="1.4">
     <rect x="53" y="113" width="24" height="11" rx="4"/>
     <rect x="91" y="113" width="24" height="11" rx="4"/>
@@ -191,7 +206,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
   </g></g>
   ${accessory(mood, !planning && GATES.has(gate) ? gate : undefined, act)}
   ${planning ? planAccessory(still, showcase) : ''}
-  ${tablet && !planning ? tabletAccessory(still) : ''}
+  ${tablet && !planning && !inviting ? tabletAccessory(still) : ''}
 </svg>`;
 }
 
@@ -204,3 +219,5 @@ export const FIGURE_TEXT = Object.freeze({
   fertig: '(^_^) ✓',
   bereit: '(·_·)',
 });
+// The inviting figure of a project without AGDF: a friendly face with a raised hand.
+export const INVITE_TEXT = '(^_^)/';

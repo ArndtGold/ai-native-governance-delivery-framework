@@ -3,7 +3,7 @@
 // host-independent; the adapter draws it on desktop or as text in the terminal.
 
 import { assignRun } from './assignment.mjs';
-import { FIGURE_TEXT } from './figure.mjs';
+import { FIGURE_TEXT, INVITE_TEXT } from './figure.mjs';
 import { condensedGateBar, gateBar, gateMarks } from './gate-bar.mjs';
 import { gateRationale, gateTitle, label } from './localization.mjs';
 import { displayState, runState } from './state.mjs';
@@ -90,7 +90,12 @@ export function buildPanelView(input) {
       : unreadable(reason);
   }
   if (snapshot.status === 'no_control') {
-    return neutral(t('messages.noControl', { folder: folderName(snapshot.root) }), { hint: t('messages.noControlHint', { path: snapshot.root ?? '' }) });
+    // A project without AGDF is invited to start, not told about a missing folder (owner request of
+    // 2026-11-12): the figure holds the start sign, and the checked path and the finding sit behind the (i).
+    return neutral(t('messages.notSetUp'), { hint: t('messages.notSetUpHint'), invite: true, idle: true,
+      isInfoExpanded: Boolean(input.isInfoExpanded), info: [
+        { label: t('fields.checkedFolder'), text: snapshot.root ?? '' },
+        { label: t('fields.finding'), text: t('messages.noControl', { folder: folderName(snapshot.root) }) }] });
   }
 
   const { run, origin, open, chatRunId } = assignRun({ runs: snapshot.runs, sessionStartedAt: input.sessionStartedAt, selection: input.selection,
@@ -193,7 +198,7 @@ function eventFields(input, t, naming) {
 export function terminalText(view, { labels, locale }) {
   const t = path => label(labels, locale, path);
   // The turn line says what the reason would; without one the reason stays beside the state.
-  const lines = [view.title, `${FIGURE_TEXT[view.mood]} ${view.stateLabel}${view.reason && !view.turn ? ` · ${view.reason}` : ''}`];
+  const lines = [view.title, `${view.invite ? INVITE_TEXT : FIGURE_TEXT[view.mood]} ${view.stateLabel}${view.reason && !view.turn ? ` · ${view.reason}` : ''}`];
   if (view.message) lines.push(view.message);
   if (view.hint) lines.push(view.hint);
   if (view.unreadableHint && view.unreadableHint !== view.message) lines.push(view.unreadableHint);

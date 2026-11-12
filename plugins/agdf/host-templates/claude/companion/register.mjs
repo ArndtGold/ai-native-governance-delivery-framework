@@ -517,7 +517,7 @@ function body($, e) {
   session.figureObservation = observeFigure(session.figureObservation, { scope, figure: view.figure, current: !still });
   const { gate, gesture, sequence } = session.figureObservation ?? {};
   // With every run done the crew member checks the board: a tablet, never a finish flag (no run is shown).
-  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, gate, workGate: view.workGate, gesture, sequence }),
+  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, invite: idle && view.invite === true, gate, workGate: view.workGate, gesture, sequence }),
     alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !still });
   // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
   // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of
@@ -528,7 +528,8 @@ function body($, e) {
       h(Text, { color: COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
       // The turn block below says what the reason would; without one the reason stays under the state.
       view.reason && !view.turn ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.reason) : null),
-    view.message ? h(Text, {}, view.message) : null,
+    // An invitation reads as the pane's headline; every other message stays plain.
+    view.message ? h(Text, view.invite ? { weight: 'semibold', wrap: 'wrap' } : {}, view.message) : null,
     view.hint ? h(Text, { dimColor: true }, view.hint) : null,
     view.unreadableHint && view.unreadableHint !== view.message ? h(Text, { color: 'warning' }, view.unreadableHint) : null,
     // The run by its name, with its delivery path and the position on it.

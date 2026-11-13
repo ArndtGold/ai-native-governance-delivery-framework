@@ -1,12 +1,9 @@
-# AGDF 0.31.0 — Skills-only Candidate
+# AGDF 0.32.0 — Skills-only Candidate
 
-The [full 0.31.0 release notes](https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/docs/releases/0.31.0.md)
-cover Companion Core, brand-guided UX criteria and MCP delivery continuation since 0.30.0.
-The public Skills-only profile provides workflow guidance. When a project supplies an
-authoritative brand source, the design guidance connects it to observable acceptance criteria.
-Companion runtime, MCP continuation and project initialization belong to the runtime-bearing
-distributions. This source record establishes the intended package scope and leaves publication
-and exact-candidate native qualification to their separate checks.
+The [full 0.32.0 release notes](https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/docs/releases/0.32.0.md)
+cover clearer work views in Cockpit and the Claude Companion, access to registered evidence, and
+UI checks in Guardrails. Cockpit and Companion are features of the runtime-bearing distributions.
+Publication and exact-candidate native qualification have separate checks.
 
 This candidate packages the canonical AGDF workflow skills for public discovery in ChatGPT and
 Codex. It helps users assess delivery fit, preserve explicit human approvals, inspect existing-system

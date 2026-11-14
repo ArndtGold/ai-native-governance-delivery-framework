@@ -605,3 +605,5 @@ PR42 Windows root-confirmation repair: the same Git root is proven by full-width
 2026-11-10 — PR #71 main integration: retain the companion review fixes and Cockpit work-state projection. The merged inventory is 458 files / 4,805,560 bytes, exactly measured with no reserve; the changes relative to main are +1 file / 10,908 bytes. No native host qualification is inferred.
 
 2026-11-11 — PR #72 main integration: the status card path keeps one current entry (run-921ef1f8-9792-4392-a2ea-6eb63c50bde6). The rule adds 467 bytes to `gate-check.js`; the measured payload changes from 458 files / 4,807,121 bytes to 458 files / 4,807,588 bytes, exactly measured with no reserve. No native host qualification is inferred.
+
+2026-11-14 — The shared MCP server can return the read-only Cockpit display status call as its next action. In the generated Copilot inventory, only `mcp/server/src/next-action.js` grows, by 94 bytes. The exact budget changes from 459 files / 4,820,971 bytes to 459 files / 4,821,065 bytes with no reserve. The Cockpit UI and Companion assets stay outside the Copilot package.

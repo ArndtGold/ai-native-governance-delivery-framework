@@ -297,7 +297,7 @@ for (const accepted of [true, false]) it(`closed card settles public inline mode
     }),requestTeardown:vi.fn(async()=>{order.push('teardown');}),ontoolresult:(_:unknown)=>{},onhostcontextchanged:()=>{}};
   const operation=vi.fn(async()=>{order.push('close');return {...fixtureMeta,state:'available',code:null,data:{closed:true}};});
   const bridge={app,readForSession:()=>read,operation,session:''} as unknown as CockpitBridge;
-  render(<EmbeddedEntry bridge={bridge}/>);
+  render(<EmbeddedEntry bridge={bridge} diagnostics/>);
   await act(async()=>app.ontoolresult(bootstrap()));
   await screen.findByRole('button',{name:'SDK-Nachweis aufzeichnen'});
   fireEvent.click(screen.getByRole('button',{name:'SDK-Nachweis aufzeichnen'}));

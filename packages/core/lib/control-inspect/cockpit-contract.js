@@ -13,6 +13,9 @@ function operation(name, fields = {}, optional = []) {
   return { type: 'object', additionalProperties: false, properties, required: Object.keys(properties).filter(key => !optional.includes(key)) };
 }
 export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
+  operation('display_ack', { snapshot_id: id }),
+  { type: 'object', additionalProperties: false, properties: { operation: { const: 'display_status' }, display_id: id },
+    required: ['operation', 'display_id'] },
   operation('snapshot', { run_id: run, view: { type: 'string', enum: ['runs'] } }, ['run_id', 'view']),
   operation('archive', { snapshot_id: id, row_id: id, resource_id: id }, ['resource_id']),
   operation('planned', { snapshot_id: id, row_id: id }),
@@ -41,7 +44,7 @@ export const COCKPIT_RENDER_DEFINITION = Object.freeze({ name: 'agdf_cockpit',
   annotations, inputSchema: { type: 'object', properties: { run_id: run }, additionalProperties: false },
   _meta: { ui: { resourceUri: COCKPIT_UI_URI, visibility: ['model', 'app'] } } });
 export const COCKPIT_READ_DEFINITION = Object.freeze({ name: 'agdf_cockpit_read',
-  description: 'Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Draft checks are read-only authoring checks and never approve or authorize delivery.',
+  description: 'Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Use the supplied display_status call to check whether the Cockpit reported its first visible render. Only the Cockpit UI sends display_ack. Draft checks never approve or authorize delivery.',
   annotations, inputSchema: COCKPIT_READ_SCHEMA,
   _meta: { ui: { visibility: ['model', 'app'] } } });
 

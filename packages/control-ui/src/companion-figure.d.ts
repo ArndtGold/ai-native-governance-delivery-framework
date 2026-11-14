@@ -20,3 +20,8 @@ declare module '*core/lib/control-inspect/work-situation.js' {
   export interface WorkSituation { kind: string; code: string; en: string; de: string }
   export function projectWorkSituation(input: { assessment?: string; gate?: string; blockingReason?: string; missingApproval?: string; closureOutcome?: string }): WorkSituation;
 }
+
+declare module '*claude/companion/gate-bar.mjs' {
+  export function gateMarks(run: { path: import('./types').CompanionStatus['path']; gate?: string; route: string; lifecycle: string | null }):
+    { gate: string; mark: 'done' | 'current' | 'open' }[];
+}

@@ -38,6 +38,7 @@ const DESCRIPTION_LIMIT = 256 * 1024;
 const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
 const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
 const storedObjective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
+const companionText = value => typeof value === 'string' ? value.slice(0, 500) : '';
 // History of an ended Run, read only from its sealed closure receipt; null for every other Run.
 export function projectRunClosure(content) {
   const closure = runClosure(content);
@@ -128,17 +129,30 @@ export function createCockpitReader(root, options = {}) {
     const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
     const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
     const assessed = report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside);
-    const figure = report?.status_card && assessed.control_assessment.state !== 'unconfirmed'
-      ? projectRunEntry({ run_id: run.run_id, lifecycle: run.meta.lifecycle }, report).figure
-      : undefined;
+    const companion = report?.status_card && assessed.control_assessment.state !== 'unconfirmed'
+      ? projectRunEntry({ run_id: run.run_id, lifecycle: run.meta.lifecycle }, report, { language: 'de' }) : undefined;
+    const decisionGate = report?.current_gate;
+    const operation = report?.next_operation;
+    const decision = report?.status === 'open' && report.blocking_reason === 'none'
+      && report.missing_approval === `Approval: ${decisionGate}` && operation?.type === 'human_gate_decision'
+      && operation.actor === 'human' && operation.gate === decisionGate
+      ? state.presentation_decisions.get(decisionGate) : null;
     const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
+    const finding = assessed.control_assessment.state === 'blocked' && resources.find(resource => resource.status === 'registered'
+      && resource.path === work_summary?.decisive_obligation?.source_path);
+    const findingBytes = finding && SUPPORTED.has(finding.path.split('.').at(-1)?.toLowerCase())
+      && view.readOptionalFileSync(join(root, finding.path), READ_LIMITS.preview).bytes;
+    const findingDigest = findingBytes && !findingBytes.includes(0) ? rawDigest(findingBytes) : null;
     const urTitle = readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, '').trim();
     const identity = runIdentity({ runId: run.run_id, runContent: run.content, urHeading: urTitle });
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       closure: projectRunClosure(run.content), work_summary,
-      ...(figure && { figure }),
+      ...(companion && { figure: companion.figure, companion: { route: companion.mode, path: companion.path,
+        next_text: companionText(companion.next_step_text), blocking_text: companionText(companion.blocking_text),
+        ...(decision?.available && !decision.decided && { decision_material_version: decision.material_version }),
+        ...(findingDigest && { finding: { resource_id: finding.resource_id, content_digest: findingDigest } }) } }),
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
       // The detail shows the stored Objective as written, placeholders included (owner decision);
       // the title follows the shared Run title rule.
@@ -258,12 +272,19 @@ export function createCockpitReader(root, options = {}) {
     plannedRows = new Map(); archiveRows = new Map();
   }
   function selectedRun(runId) {
-    const run = discoverRuns(root).find(row => row.run_id === runId);
+    const runs = discoverRuns(root);
+    const run = runs.find(row => row.run_id === runId);
     if (!run) { checkedDraft = null; return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } }; }
     if (!run.valid) { checkedDraft = null; return { state: run.findings.some(row => row.classification === 'unsupported_version') ? 'unsupported' : 'invalid', code: run.findings.some(row => row.classification === 'unsupported_version') ? 'run_version_unsupported' : 'invalid_run', data: { kind: 'run', requested_run_id: runId,
       run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
     }
     const data = detail(run);
+    // Reuse the captured project inventory. The footer needs only the ordered IDs,
+    // so it can browse without replacing the card's snapshot with an overview read.
+    const activity = row => row.meta.updated_at ? Date.parse(row.meta.updated_at) : -Infinity;
+    data.active_run_ids = runs.filter(row => row.valid && row.meta.lifecycle === 'active')
+      .sort((a, b) => activity(b) - activity(a) || a.run_id.localeCompare(b.run_id))
+      .map(row => row.run_id);
     details.set(runId, { state: 'available', code: null, data });
     return { state: 'available', code: null, data: { kind: 'run', run: data } };
   }

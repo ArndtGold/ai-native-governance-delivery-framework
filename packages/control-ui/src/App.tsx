@@ -10,6 +10,8 @@ import { OverviewFigure } from './OverviewFigure';
 import { WorkStandLabel } from './WorkStandLabel';
 import { DocumentView } from './DocumentView';
 import { CompactCockpit } from './mcp/CompactCockpit';
+import { companionDecision } from './mcp/CompanionCard';
+import { useCompanionSound } from './mcp/useCompanionSound';
 import { BrandMark } from './BrandMark';
 import { BrandHeader } from './BrandHeader';
 import { RefreshControl } from './RefreshControl';
@@ -25,14 +27,24 @@ import type { CockpitProvenance } from './mcp/bootstrap';
 import { AboutCockpit } from './AboutCockpit';
 import type { CockpitHost } from './host-label';
 
-export function App({ secret = '', transport, compact = false, onExpand, initialRunId, handoff, provenance, host = 'unknown' }: { secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; initialRunId?: string; handoff?: HandoffController; provenance?: CockpitProvenance; host?: CockpitHost }) {
+type ObservedSource = { target: string; snapshot: string; revision: string; resource: Resource; digest: string };
+
+export function App({ secret = '', transport, compact: hostCompact = false, onExpand, onReturnToCompact, initialRunId, handoff, provenance, host = 'unknown', onDisplay }: {
+  secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; onReturnToCompact?: () => Promise<void>;
+  initialRunId?: string; handoff?: HandoffController; provenance?: CockpitProvenance; host?: CockpitHost;
+  onDisplay?: (snapshotId: string, signal: AbortSignal) => Promise<boolean>;
+}) {
   const enabled = !!transport || !!secret;
   const [state, dispatch] = useReducer(readingReducer, initialState);
   const [backlogView, setWorkView] = useState<WorkView>({ section: 'runs', filter: '' });
   const [overviewSnapshot, setOverviewSnapshot] = useState<Envelope<OverviewInventory> | null>(null);
+  // Codex can open the app directly in a fullscreen host surface, including a narrow side panel.
+  // A selected Run starts at the Companion card in either host surface.
+  const compact = hostCompact || (host === 'codex' && state.route.view === 'detail');
   const [wideWorkspace, setWideWorkspace] = useState(false);
   const [technicalView, setTechnicalView] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [companionMotion, setCompanionMotion] = useState(true);
   const closeAbout = useCallback(() => setAboutOpen(false), []);
   useLayoutEffect(() => { setTechnicalView(false); }, [state.route.runId]);
   const [backlogReturnNotice, setBacklogReturnNotice] = useState<string | null>(null);
@@ -61,9 +73,39 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const live = useRef(state); live.current = state;
   const sequence = useRef(0), pending = useRef<AbortController | null>(null), heading = useRef<HTMLHeadingElement>(null);
   const cardVisible = useCardVisibility(heading, compact), wasCardVisible = useRef(true), focusAfterRead = useRef(true);
+  const displayReported = useRef(false);
+  const initialView = initialRunId ? state.route.view === 'detail' && state.detail?.data?.run_id === initialRunId
+    : state.route.view === 'overview' && !!state.inventory?.data;
+  const displaySnapshot = initialView && state.phase === 'ready' && !state.stale && !state.problem
+    && state.scope && ['available', 'empty', 'partial'].includes(state.scope.state) ? state.scope.snapshot_id : null;
+  useEffect(() => {
+    if (!onDisplay || !displaySnapshot || displayReported.current || typeof IntersectionObserver === 'undefined') return;
+    const element = compact ? heading.current?.closest('.compact-cockpit')?.querySelector('.compact-run h2, .compact-overview-heading h2') : heading.current;
+    if (!element) return;
+    const controller = new AbortController();
+    let intersecting = false, pending = false;
+    const report = async () => {
+      if (!intersecting || document.visibilityState !== 'visible' || !element.isConnected || getComputedStyle(element).visibility !== 'visible'
+        || controller.signal.aborted || pending || displayReported.current) return;
+      pending = true;
+      try {
+        if (await onDisplay(displaySnapshot, controller.signal)) displayReported.current = true;
+      } catch { /* A failed acknowledgement leaves display status pending and reading usable. */ }
+      finally { pending = false; }
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      intersecting = !!entry?.isIntersecting && entry.intersectionRatio > 0;
+      void report();
+    });
+    observer.observe(element);
+    const visibilityChanged = () => { void report(); };
+    document.addEventListener('visibilitychange', visibilityChanged);
+    return () => { observer.disconnect(); controller.abort(); document.removeEventListener('visibilitychange', visibilityChanged); };
+  }, [onDisplay, displaySnapshot, compact]);
   const returnFocus = useRef<string | null>(null);
   const returnSource = useRef<{ type: string; reference: string; prefix: string } | null>(null);
   const documentOrigin = useRef<string | null>(null);
+  const companionSourceOpenedInline = useRef(false);
   const returnListScroll = useRef<number | null>(null);
   const readingPosition = useRef<{ generation: number; open: string[]; scroll: { element: Element; top: number; left: number }[]; x: number; y: number; focus: string | null;
     resource?: { type: string; reference: string; prefix: string } } | null>(null);
@@ -93,7 +135,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         x: window.scrollX, y: window.scrollY, focus,
         ...(resource && focus ? { resource: { type: resource.type, reference: resource.registered_reference, prefix: focus.slice(0, -resource.resource_id.length) } } : {}) };
   };
-  const navigate = useCallback(async (requested: Route, reload = false, background = false) => {
+  const navigate = useCallback(async (requested: Route, reload = false, background = false, observed?: ObservedSource) => {
     if (hasExpiredSession(live.current)) return;
     draftPending.current?.abort();
     void handoff?.invalidate();
@@ -109,6 +151,8 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       let scope = live.current.scope;
       const refresh = reload || live.current.stale || !scope?.snapshot_id;
       let route = requested;
+      if (observed && (refresh || scope?.target.target_id !== observed.target || scope.snapshot_id !== observed.snapshot
+        || live.current.detail?.data?.revision_id !== observed.revision)) throw Error('source_changed');
       const expected = scope?.snapshot_id ? { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true } : undefined;
       if (refresh || requested.view === 'overview') {
         scope = await read<ReadingScope>('/api/snapshot' + (requested.runId ? '?run_id=' + requested.runId : ''), controller.signal, expected);
@@ -127,12 +171,24 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         if (!('run' in scope.data) || !scope.data.run || scope.data.run.run_id !== route.runId) throw Error('dto_invalid');
         const resource = scope.data.run.resources.find(r => refresh
           ? r.registered_reference === route.resourcePath : r.resource_id === route.resourceId);
-        if (!resource) { route = { view: 'detail', runId: route.runId }; removed = true; }
+        if (!resource) {
+          if (observed) throw Error('source_changed');
+          route = { view: 'detail', runId: route.runId }; removed = true;
+        }
         else {
           scope = await read<ReadingScope>(`/api/documents/${resource.resource_id}?snapshot=${scope.snapshot_id}`, controller.signal,
             { target: scope.target.target_id, snapshot: scope.snapshot_id!, replacement: true });
           if (controller.signal.aborted || generation !== sequence.current) return;
           if (!scope.data || scope.data.kind !== 'document' || scope.data.run.run_id !== route.runId) throw Error(scope.code ?? 'dto_invalid');
+          if (observed) {
+            const document = scope.data.document;
+            if (scope.state !== 'available' || !document || document.content === undefined) throw Error(scope.code ?? 'document_missing');
+            if (scope.target.target_id !== observed.target || scope.data.run.revision_id !== observed.revision
+              || document.resource.run_id !== observed.resource.run_id || document.resource.type !== observed.resource.type
+              || document.resource.registered_reference !== observed.resource.registered_reference || document.resource.path !== observed.resource.path
+              || document.resource.status !== observed.resource.status
+              || document.content_digest !== observed.digest) throw Error('source_changed');
+          }
           if (!scope.data.document) { route = { view: 'detail', runId: route.runId }; removed = true; }
           else {
             if (scope.data.document.resource.type !== resource.type || scope.data.document.resource.registered_reference !== resource.registered_reference) throw Error('dto_invalid');
@@ -154,7 +210,11 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       const detail = data.kind !== 'work' && data.kind !== 'runs' && data.run ? { ...scope, data: data.run } as Envelope<Detail> : null;
       const document = data.kind === 'document' && data.document ? { ...scope, data: data.document } as Envelope<DocumentData> : null;
       dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
-    } catch (error) { if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed' }); }
+      return observed && document ? generation : undefined;
+    } catch (error) {
+      if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed',
+        ...(observed && { recoverRoute: { view: 'detail' as const, runId: observed.resource.run_id } }) });
+    }
   }, [read, handoff]);
   const draftAction = useDraftCheck({ live, read, visible: cardVisible, pending: draftPending, handoff,
     before: () => { freshnessPending.current?.abort(); },
@@ -186,7 +246,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (returnSource.current) {
       const binding = returnSource.current; returnSource.current = null;
       const resource = state.detail?.data?.resources.find(r => r.type === binding.type && r.registered_reference === binding.reference);
-      origin = resource ? binding.prefix + resource.resource_id : null;
+      if (resource) origin = binding.prefix + resource.resource_id;
     }
     const focusTargets = state.route.view === 'overview' ? '.undertaking-list .run-link[data-focus-id]' : '[data-focus-id]';
     const control = origin ? [...document.querySelectorAll<HTMLElement>(focusTargets)].find(e => e.dataset.focusId === origin && !(e instanceof HTMLButtonElement && e.disabled)) : null;
@@ -196,7 +256,8 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         ? 'Das Vorhaben liegt außerhalb des aktuellen Ausschnitts oder ist nicht auswählbar. Suche anpassen oder die Übersicht vergrößern.'
         : 'Das zuvor geöffnete Vorhaben ist nicht mehr im gelesenen Bestand enthalten.');
     }
-    const fallback = state.route.view === 'overview' ? document.querySelector<HTMLElement>('[data-focus-id="backlog-heading"]') : null;
+    const fallback = state.route.view === 'overview' ? document.querySelector<HTMLElement>('[data-focus-id="backlog-heading"]')
+      : state.route.view === 'detail' && origin?.startsWith('companion:') ? document.querySelector<HTMLElement>('[data-focus-id="companion-run-heading"]') : null;
     // Returning to an inspected source must restore a visible focus target, even when
     // the newly mounted summary starts with closed disclosures.
     if (control) for (let parent = control.parentElement; parent; parent = parent.parentElement) {
@@ -266,19 +327,37 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     returnSource.current = null;
     void navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference });
   };
+  const openCompanionSource = async (resource: Resource, digest: string) => {
+    const current = live.current;
+    const revision = current.detail?.data?.revision_id;
+    const scope = current.scope;
+    if (!revision || !scope?.snapshot_id || draftPending.current || current.phase !== 'ready' || current.stale || current.problem
+      || current.route.view !== 'detail' || current.route.runId !== resource.run_id
+      || !current.detail?.data?.resources.includes(resource)) return;
+    returnSource.current = null;
+    documentOrigin.current = `companion:${resource.resource_id}`;
+    companionSourceOpenedInline.current = hostCompact;
+    const generation = await navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference },
+      false, false, { target: scope.target.target_id, snapshot: scope.snapshot_id, revision, resource, digest });
+    if (hostCompact && generation !== undefined && generation === sequence.current) onExpand?.();
+  };
   const showOverview = () => {
     setBacklogReturnNotice(null);
     returnFocus.current = state.route.runId ?? null;
     void navigate({ view: 'overview' });
   };
-  const showRun = () => {
+  const showRun = async () => {
+    const generation = sequence.current;
+    if (!hostCompact && companionSourceOpenedInline.current && documentOrigin.current?.startsWith('companion:')) await onReturnToCompact?.();
+    if (generation !== sequence.current) return;
     returnFocus.current = documentOrigin.current ?? state.route.resourceId ?? null;
     const resource = state.document?.data?.resource;
     if (resource) returnSource.current = { type: resource.type, reference: resource.registered_reference,
       prefix: documentOrigin.current?.includes(':') ? documentOrigin.current.slice(0, documentOrigin.current.indexOf(':') + 1) : '' };
-    void navigate({ view: 'detail', runId: state.route.runId });
+    void navigate({ view: 'detail', runId: state.route.runId }, state.stale);
   };
   const documentVisible = state.route.view === 'document';
+  const returningToCompanion = documentVisible && documentOrigin.current?.startsWith('companion:');
   const splitView = !compact && wideWorkspace && !!overviewSnapshot && !documentVisible;
   useLayoutEffect(() => {
     if (!splitView || state.phase !== 'ready' || returnListScroll.current === null) return;
@@ -291,6 +370,32 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const runTitle = state.detail?.data?.title ?? state.route.runId;
   const pageTitle = state.route.view === 'overview' ? 'Arbeit am Projekt' : runTitle ?? (documentVisible ? documentName(state.document?.data?.resource.type) : 'Run verstehen');
   const detail = state.detail?.data;
+  const currentCompanion = host === 'codex' && compact && enabled && cardVisible && state.route.view === 'detail'
+    && !!state.scope?.data && !state.requestedRoute && state.phase === 'ready' && !state.refreshing && !state.stale && !state.problem && !expired
+    && state.detail?.state === 'available' && detail && detail.run_id === state.route.runId
+    ? companionDecision(detail, !detailHasMismatch(detail)) : null;
+  const soundScope = currentCompanion && currentCompanion.assessment !== 'unconfirmed'
+    ? JSON.stringify([state.scope?.target.target_id, detail?.run_id]) : null;
+  const decisionMaterial = detail?.companion?.decision_material_version;
+  const { sound, onToggleSound, silenceNextSelection } = useCompanionSound(soundScope, currentCompanion?.human && decisionMaterial
+    ? JSON.stringify([detail?.evaluation?.current_gate, decisionMaterial]) : null);
+  const activeRunIds = detail?.active_run_ids ?? [];
+  const runIndex = detail ? activeRunIds.indexOf(detail.run_id) : -1;
+  const browseRun = (runId: string, focusId?: string) => {
+    if (runId === state.route.runId || state.phase === 'loading' || state.refreshing) return;
+    silenceNextSelection();
+    returnFocus.current = focusId ?? null;
+    // A background draft check can already have replaced the old selector on the server.
+    void navigate({ view: 'detail', runId }, true);
+  };
+  const onStepRun = (offset: -1 | 1) => {
+    if (activeRunIds.length < 2 || state.phase !== 'ready' || state.requestedRoute || state.stale || state.problem) return;
+    const from = runIndex < 0 ? (offset === 1 ? -1 : 0) : runIndex;
+    const nextRun = activeRunIds[(from + offset + activeRunIds.length) % activeRunIds.length];
+    browseRun(nextRun, offset === 1 ? 'companion-next-run' : 'companion-previous-run');
+  };
+  const chatRunId = initialRoute.runId;
+  const onReturnToChatRun = chatRunId && state.route.runId !== chatRunId ? () => browseRun(chatRunId) : undefined;
   const selectedSituation = detail?.evaluation && state.route.view === 'detail' && detail.run_id === state.route.runId
     && state.detail?.state === 'available' && state.phase === 'ready' && !state.refreshing && !state.stale && !state.problem && !expired
     ? projectWorkSituation({ assessment: observedAssessment(detail, true), gate: detail.evaluation.current_gate,
@@ -302,6 +407,8 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const draftSource = detail?.draft_check?.source;
   const draftDisplay = detail?.draft_check?.display.state;
   const focusedDraft = !!observedFocusGate && draftSource?.gate === observedFocusGate;
+  const sourcePending = draftAction.busy || !!(focusedDraft && draftSource?.available && draftDisplay === 'unchecked'
+    && !draftAction.invalidated && !draftAction.problem && cardVisible && !document.hidden);
   const draftBinding = draftSource?.available && JSON.stringify([draftSource.run_id, draftSource.gate, draftSource.revision_id, draftSource.artifact_digest]);
   const refreshedChangedDraft = useRef<string | null>(null);
   useEffect(() => {
@@ -359,18 +466,22 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       {state.route.view === 'document' && technicalContext}
 
   </>;
-  if (compact) return <><CompactCockpit host={host} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={cardVisible} loadArchive={loadArchive} loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })} draftCheck={state.detail && <DraftCheck automatic={!!focusGate && state.detail.data?.draft_check?.source.gate === focusGate} result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
+  if (compact) return <><CompactCockpit host={host} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={cardVisible} loadArchive={loadArchive} loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })} draftCheck={state.detail && <DraftCheck automatic={!!focusGate && state.detail.data?.draft_check?.source.gate === focusGate} result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
     view={backlogView} onViewChange={setWorkView} returnNotice={backlogReturnNotice}
     onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview} onRuns={() => void navigate({ view: 'overview' })}
-    onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onBack={showRun} onExpand={onExpand}/>{aboutOpen && <AboutCockpit onClose={closeAbout} provenance={provenance} host={host}/>}</>;
+    onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onOpenCompanion={openCompanionSource} onBack={showRun}
+    onExpand={onExpand}
+    motion={companionMotion} onToggleMotion={() => setCompanionMotion(motion => !motion)} sourcePending={sourcePending}
+    sound={sound} onToggleSound={onToggleSound} activeRunCount={activeRunIds.length} runIndex={runIndex}
+    onStepRun={onStepRun} onReturnToChatRun={onReturnToChatRun}/>{aboutOpen && <AboutCockpit onClose={closeAbout} provenance={provenance} host={host}/>}</>;
   return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
     <div className={`workspace${state.route.view === 'overview' || splitView ? ' workspace--overview' : ''}${documentVisible ? ' workspace--document' : ''}`} ref={workspace}><BrandHeader host={host} projectPath={state.scope?.target.display_path} contextTitle={documentVisible ? runTitle : undefined} variant={documentVisible ? 'document' : 'view'}>
       <button type="button" className="run-technical-toggle" aria-label="Über das Cockpit" title="Über das Cockpit" onClick={() => setAboutOpen(true)}><Icon name="info"/></button>
       <RefreshControl state={state} enabled={enabled} onReload={() => void navigate(reloadRoute, true)}/>
     </BrandHeader><main>
       {!splitView && state.route.view !== 'overview' && <nav className="breadcrumbs" aria-label="Vorhaben-Pfad"><ol>
-        <li>{documentVisible ? <button onClick={showRun} disabled={expired || state.phase === 'loading'}><Icon name="back"/>{wideWorkspace && overviewSnapshot ? 'Zurück zur Übersicht' : 'Zurück zur Statuskarte'}</button>
+        <li>{documentVisible ? <button onClick={showRun} disabled={expired || state.phase === 'loading'}><Icon name="back"/>{wideWorkspace && overviewSnapshot && !returningToCompanion ? 'Zurück zur Übersicht' : 'Zurück zur Statuskarte'}</button>
           : <button onClick={showOverview} disabled={expired || state.phase === 'loading'}><Icon name="back"/>Alle Vorhaben</button>}</li>
       </ol></nav>}
       {splitView ? <>
@@ -397,4 +508,4 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       <footer className="cockpit-footer"><span>Lokale Beobachtung · {status.title}{status.previous && ' · Vorheriger Datenstand bleibt sichtbar'} · Das Cockpit verändert keine Kontrolldateien.</span></footer>
     </main></div>{aboutOpen && <AboutCockpit onClose={closeAbout} provenance={provenance} host={host}/>}</div>;
 }
-const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'read_failed', 'busy', 'timeout', 'resource_limit', 'control_absent', 'dto_invalid', 'control_layout_unsupported', 'run_version_unsupported', 'control_invalid', 'run_missing', 'invalid_run'].map(c => [c, true]));
+const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'document_missing', 'document_removed', 'document_unsupported', 'read_failed', 'busy', 'timeout', 'resource_limit', 'control_absent', 'dto_invalid', 'control_layout_unsupported', 'run_version_unsupported', 'control_invalid', 'run_missing', 'invalid_run'].map(c => [c, true]));

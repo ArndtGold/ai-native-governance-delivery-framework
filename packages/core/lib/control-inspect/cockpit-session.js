@@ -98,13 +98,18 @@ export function createCockpitSessionService(root, {
       }
       if (sessions.size >= COCKPIT_LIMITS.sessions) return failure('resource_limit', viewTarget);
       // No await between capacity check and ownership publication.
-      const session = { id: randomUUID(), root: viewRoot, target: viewTarget,
+      const session = { id: randomUUID(), displayId: randomUUID(), initialRunId: input.run_id ?? null,
+        displayed: null, displaySnapshot: null, root: viewRoot, target: viewTarget,
         created: now(), touched: now(), pool: poolFactory(viewRoot),
         documents: new Map(), rows: new Set(), snapshot: null, run_id: null, draft: null, generation: 0, retired: false, retirement: null, timer: null,
         completion: null };
       sessions.set(session.id, session); schedule(session);
       return { schema_version: '1', authorizes: false, target: viewTarget,
+        display: { state: 'pending', run_id: session.initialRunId },
+        next_calls: [{ tool: 'agdf_cockpit_read', arguments: { operation: 'display_status', display_id: session.displayId },
+          instruction: 'Check this receipt before saying the Cockpit was shown. If pending, allow a short interval for the UI to load and check once more. Only ui_reported_visible confirms that the app reported a visible first render.' }],
         _meta: { agdf_cockpit: { session_id: session.id, target: viewTarget, render_generation: ++renderGeneration,
+          display_ack: true,
           ...(['codex', 'claude'].includes(integrationSurface) ? { integration_surface: integrationSurface } : {}),
           ...(resourceIdentity ? { provenance: resourceIdentity } : {}),
           ...(input.run_id ? { initial_run_id: input.run_id } : {}),
@@ -116,9 +121,21 @@ export function createCockpitSessionService(root, {
       const accepted = data => ({ ...fail(null), state: 'available', retryable: false, data });
       try {
         input = parseCockpitArguments(input);
+        if (input.operation === 'display_status') {
+          const view = [...sessions.values()].find(row => row.displayId === input.display_id);
+          if (!view) return fail('session_expired');
+          session = active(view.id);
+          return accepted({ display: session.displayed ?? { state: 'pending', run_id: session.initialRunId } });
+        }
         session = active(input.session_id);
         generation = session.generation;
         if (input.operation === 'close') { await retire(session); return accepted({ closed: true }); }
+        if (input.operation === 'display_ack') {
+          if (signal?.aborted) return fail('cancelled');
+          if (session.snapshot !== input.snapshot_id || session.displaySnapshot !== input.snapshot_id) return fail('resource_denied');
+          session.displayed ??= { state: 'ui_reported_visible', run_id: session.initialRunId, observed_at: new Date(now()).toISOString() };
+          return accepted({ display: session.displayed });
+        }
         // These transitions belong solely to this connection, never the worker
         // or a mutable client-side current session.
         if (input.operation === 'complete_context_invalidation') {
@@ -198,6 +215,12 @@ export function createCockpitSessionService(root, {
         }
         if (!['resource_denied', 'context_superseded', 'busy', 'context_cleanup_uncertain'].includes(result.code)) touch(session);
         if (replacement && result.snapshot_id) session.snapshot = result.snapshot_id;
+        if (replacement && !session.displayed) {
+          const initialView = session.initialRunId === null
+            ? ['work', 'runs'].includes(result.data?.kind) && !result.data.removed_run_id
+            : result.data?.kind === 'run' && result.data.run?.run_id === session.initialRunId;
+          session.displaySnapshot = initialView && ['available', 'empty', 'partial'].includes(result.state) ? session.snapshot : null;
+        }
         if (replacement && result.data?.kind === 'work') for (const row of result.data.entries) session.rows.add(row.row_id);
         if (replacement) { session.run_id = result.data?.run?.run_id ?? null; session.draft = result.data?.run?.draft_check?.source ?? null; }
         if (replacement && result.data?.run?.resources) for (const resource of result.data.run.resources) {

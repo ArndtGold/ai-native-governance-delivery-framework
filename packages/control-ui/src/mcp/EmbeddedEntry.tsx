@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react';
 import { App } from '../App';
 import { flushSync } from 'react-dom';
 import { CockpitBridge } from './transport';
@@ -11,16 +11,16 @@ import { HostProbe } from './HostProbe';
 import { createViewCloser } from './view-close';
 import { cockpitHostFromName, type CockpitHost } from '../host-label';
 
-export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
+export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: CockpitBridge; diagnostics?: boolean }) {
   const trace = useMemo(() => {
+    if (!diagnostics) return undefined;
     const logLifecycle = lifecycleConsole(row => console.warn('AGDF_SDK_TRACE ' + row));
     return new SdkTrace(row => {
-    // Native Host logs retain warning output when the view is destroyed; the
-    // recorder emits only after deliberate opt-in and remains bounded.
-    logLifecycle(row);
-    if (bridge.app.getHostCapabilities()?.logging) void bridge.app.sendLog({ level: 'info', logger: 'agdf.sdk.trace', data: row }).catch(() => {});
+      // The recorder emits only after deliberate opt-in and remains bounded.
+      logLifecycle(row);
+      if (bridge.app.getHostCapabilities()?.logging) void bridge.app.sendLog({ level: 'info', logger: 'agdf.sdk.trace', data: row }).catch(() => {});
     });
-  }, [bridge]);
+  }, [bridge, diagnostics]);
   const [bootstrap, setBootstrap] = useState<RenderBootstrap | null>(null);
   const current = useRef<RenderBootstrap | null>(null);
   const [ready, setReady] = useState(false), [expanded, setExpanded] = useState(false), [problem, setProblem] = useState('');
@@ -34,6 +34,13 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
   }, [bridge, ready, closeState]);
   const handoff = useMemo(() => new HandoffController(createHandoffPort(bridge, bootstrap?.sessionId ?? '')), [bridge, bootstrap?.sessionId]);
   const transport = useMemo(() => bridge.readForSession(bootstrap?.sessionId ?? ''), [bridge, bootstrap?.sessionId]);
+  const reportDisplay = useCallback(async (snapshotId: string, signal: AbortSignal) => {
+    if (!bootstrap || current.current?.sessionId !== bootstrap.sessionId) return false;
+    const result = await bridge.operation({ operation: 'display_ack', snapshot_id: snapshotId }, signal, bootstrap.sessionId) as {
+      state?: string; data?: { display?: { state?: string } };
+    };
+    return result.state === 'available' && result.data?.display?.state === 'ui_reported_visible';
+  }, [bridge, bootstrap]);
   const handoffRef = useRef(handoff); handoffRef.current = handoff;
   const closer = useMemo(() => createViewCloser(bridge, handoff, bootstrap?.sessionId ?? '', bootstrap?.targetId ?? ''), [bridge, handoff, bootstrap?.sessionId, bootstrap?.targetId]);
   const closerRef = useRef(closer); closerRef.current = closer;
@@ -90,7 +97,8 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       }
       return {};
     };
-    void bridge.app.connect(trace.wrap(new PostMessageTransport(window.parent, window.parent)), { timeout: 10_000 }).then(() => { connected = true; update(); }).catch(() => { if (alive) setProblem('Die Codex-Anbindung konnte nicht bestätigt werden.'); });
+    const hostTransport = new PostMessageTransport(window.parent, window.parent);
+    void bridge.app.connect(trace ? trace.wrap(hostTransport) : hostTransport, { timeout: 10_000 }).then(() => { connected = true; update(); }).catch(() => { if (alive) setProblem('Die Codex-Anbindung konnte nicht bestätigt werden.'); });
     return () => { alive = false; };
   }, [bridge, trace]);
   const closeFromApp = async () => {
@@ -144,14 +152,22 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       }
     }
   };
+  const returnToCompact = async () => {
+    if (!bridge.app.getHostContext()?.availableDisplayModes?.includes('inline')) return;
+    const attempt = ++expansionAttempt.current;
+    try {
+      const result = await bridge.request(() => bridge.app.requestDisplayMode({ mode: 'inline' }, { timeout: 10_000 }));
+      if (attempt === expansionAttempt.current && result.mode === 'inline') setExpanded(false);
+    } catch { /* The expanded reader can still return to the inspected Run. */ }
+  };
   const visibleProblem = problem || expansionProblem;
   return <div className="mcp-entry" data-terminal={closeState !== 'open' ? 'true' : undefined}>
     {closeState !== 'open' ? <section className="mcp-terminal" ref={terminal} aria-label="Cockpit-Sitzung schließen"><h1>AGDF Cockpit</h1><p role="status">{closeState === 'closing'
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
-      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} provenance={bootstrap.provenance} host={cockpitHost} compact={!expanded} handoff={handoff} onExpand={() => void open()}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
+      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} provenance={bootstrap.provenance} host={cockpitHost} compact={!expanded} handoff={handoff} onExpand={() => void open()} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
     {visibleProblem && <p role="alert">{visibleProblem}</p>}
-    {closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
+    {trace && closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;
 }

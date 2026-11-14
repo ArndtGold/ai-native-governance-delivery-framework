@@ -13,6 +13,7 @@ export const messages: Record<string, string> = {
   invalid_run: 'Dieser Run ist ungültig. Die Quelldaten außerhalb des Cockpits prüfen.',
   run_removed: 'Der ausgewählte Run ist nicht mehr vorhanden. Einen anderen Run auswählen.',
   document_missing: 'Das registrierte Dokument fehlt. Quelle prüfen und erneut laden.',
+  document_removed: 'Die Quelle gehört nicht mehr zu den registrierten Dokumenten dieses Runs. Lies den Run neu.',
   document_unsupported: 'Dieses Dokument kann nicht als UTF-8-Markdown, JSON oder Text angezeigt werden.',
   resource_denied: 'Dieser Zugriff ist gesperrt. Eine erlaubte, registrierte Kontrollressource auswählen.',
   source_changed: 'Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.',

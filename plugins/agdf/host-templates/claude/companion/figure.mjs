@@ -21,7 +21,8 @@ const FACES = Object.freeze({
 // A friendly, closed smile for the ready figure; softer than the open smile of `fertig`.
 const IDLE_SMILE = 'M74 63q7 6 14 0';
 const GESTURES = new Set(['baut', 'wartet', 'blockiert', 'fertig']);
-const GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT', 'OR']);
+const REMINDER_GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
+const GATES = new Set([...REMINDER_GATES, 'OR']);
 
 export function observeFigure(previous, { scope, figure, current }) {
   if (!scope || !figure || !Object.hasOwn(SIGNAL, figure.mood)) return null;
@@ -42,6 +43,27 @@ const escape = text => String(text).replace(/[&<>"]/gu, char => ({ '&': '&amp;',
 const motion = (type, values, duration, keyTimes = '0;0.5;1') =>
   `<animateTransform attributeName="transform" type="${type}" values="${values}" keyTimes="${keyTimes}" dur="${duration}s" repeatCount="1"/>`;
 
+// One shared timeline keeps the hand, sign and nod in sync. Unequal rests keep the rhythm varied
+// without changing the SVG on each read. An already seen approval resumes after a quiet pause.
+const APPROVAL_FRAMES = [0, 0.32, 0.58, 1.02, 1.5];
+const APPROVAL_PAUSES = [17, 26, 12, 22, 28, 15, 24];
+const approvalTimeline = [];
+let approvalCycle = 0;
+for (const pause of APPROVAL_PAUSES) {
+  approvalTimeline.push(...APPROVAL_FRAMES.map((frame, pose) => ({ at: approvalCycle + frame, pose })));
+  approvalCycle += APPROVAL_FRAMES.at(-1) + pause;
+}
+approvalTimeline.push({ at: approvalCycle, pose: 0 });
+const approvalTimes = approvalTimeline.map(({ at }) => (at / approvalCycle).toFixed(5)).join(';');
+const approvalEasing = approvalTimeline.slice(1).map(() => '.33 0 .67 1').join(';');
+
+function approvalMotion(first) {
+  return (type, poses) => {
+    const values = approvalTimeline.map(({ pose }) => poses[pose]).join(';');
+    return `<animateTransform attributeName="transform" type="${type}" values="${values}" keyTimes="${approvalTimes}" calcMode="spline" keySplines="${approvalEasing}" begin="${first ? 0 : APPROVAL_PAUSES.at(-1)}s" dur="${approvalCycle}s" repeatCount="indefinite"/>`;
+  };
+}
+
 // The pit crew's round release sign (owner request of 2026-11-12): a project without AGDF is invited to
 // start. The raised arm holds it; the counter-rotation keeps the sign nearly upright in the hand, and
 // the slow sway is idle motion, so a still pose leaves it out. The word is part of the artwork.
@@ -54,11 +76,12 @@ function startSign(still) {
     </g>` };
 }
 
-function arm(mood, gesture, showpiece, invite = null) {
+function arm(mood, gesture, showpiece, invite, approval) {
   const pivot = '112 95';
   const angles = invite ? [invite.angle]
     : { baut: [-10, -52, 12, -52, -10], wartet: [-10, -34, -20, -34, -10], blockiert: [-10, -50, -28, -50, -10], fertig: [-10, 15, -2, 15, -10] }[mood] ?? [-10];
-  const movement = invite ? invite.sway : gesture && angles.length > 1
+  const movement = approval ? approval('rotate', [-10, -46, -46, -46, -10].map(angle => `${angle} ${pivot}`))
+    : invite ? invite.sway : gesture && angles.length > 1
     ? motion('rotate', angles.map(angle => `${angle} ${pivot}`).join(';'), 2.4, '0;0.2;0.5;0.75;1')
     : '';
   const torqueWrench = mood === 'baut' && !showpiece
@@ -83,11 +106,13 @@ function arm(mood, gesture, showpiece, invite = null) {
   </g>`;
 }
 
-function accessory(mood, gate, gesture) {
+function accessory(mood, gate, gesture, approval) {
   if (mood === 'wartet' && gate) {
-    const raise = gesture ? motion('translate', '-2 5;0 -2;0 0', 2.4) : '';
-    const sway = gesture ? motion('rotate', '0 160 86;-8 160 86;8 160 86;-8 160 86;0 160 86', 2.4, '0;0.2;0.5;0.75;1') : '';
-    return `<g>${raise}<g>${sway}<g transform="rotate(-7 160 86)">
+    const raise = approval ? approval('translate', ['0 0', '-7 -24', '-7 -24', '-7 -24', '0 0'])
+      : gesture ? motion('translate', '-2 5;0 -2;0 0', 2.4) : '';
+    const sway = approval ? approval('rotate', [0, 7, 7, 7, 0].map(angle => `${angle} 160 86`))
+      : gesture ? motion('rotate', '0 160 86;-8 160 86;8 160 86;-8 160 86;0 160 86', 2.4, '0;0.2;0.5;0.75;1') : '';
+    return `<g data-accessory="approval-sign">${raise}<g>${sway}<g transform="rotate(-7 160 86)">
       <rect x="131" y="74" width="60" height="24" rx="6" fill="#fff6e4" stroke="#995a25" stroke-width="1.2"/>
       <text x="161" y="90" text-anchor="middle" fill="#774100" font-size="13" font-weight="700" font-family="sans-serif">${gate}</text>
     </g></g></g>`;
@@ -191,15 +216,18 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
   // A ready figure without a run to show may smile; it is a face only, never a run state.
   const face = smile && mood === 'bereit' ? { ...FACES.bereit, mouth: IDLE_SMILE } : FACES[mood] ?? FACES.bereit;
   const act = gesture && !still;
+  const signGate = !showpiece && GATES.has(gate) ? gate : undefined;
+  const approval = !still && mood === 'wartet' && REMINDER_GATES.has(signGate) ? approvalMotion(act) : null;
   const eye = index => {
     const ry = face.ry[index];
     const blink = still ? '' : showcase ? `<animate attributeName="ry" values="${ry};${ry};0.55;${ry};${ry}" keyTimes="0;0.2;0.23;0.27;1" dur="4s" repeatCount="indefinite"/>` : `<animate attributeName="ry" values="${ry};${ry};0.55;${ry};${ry}" keyTimes="0;0.965;0.973;0.983;1" dur="12s" repeatCount="indefinite"/>`;
     return `<ellipse cx="${face.x[index]}" cy="${face.y[index]}" rx="8" ry="${ry}">${blink}</ellipse>`;
   };
   // Two small head movements are separated by unequal, long pauses; no motion in a still pose.
-  const idleHead = still ? '' : '<animateTransform attributeName="transform" type="rotate" values="0 82 82;0 82 82;3 82 82;0 82 82;0 82 82;-2 82 82;0 82 82;0 82 82" keyTimes="0;0.22;0.235;0.25;0.71;0.725;0.74;1" dur="31s" repeatCount="indefinite"/>';
+  const idleHead = still || approval ? '' : '<animateTransform attributeName="transform" type="rotate" values="0 82 82;0 82 82;3 82 82;0 82 82;0 82 82;-2 82 82;0 82 82;0 82 82" keyTimes="0;0.22;0.235;0.25;0.71;0.725;0.74;1" dur="31s" repeatCount="indefinite"/>';
   const headBase = mood === 'wartet' ? 'rotate(3 82 82)' : 'rotate(0 82 82)';
-  const headTilt = act && mood === 'wartet' ? motion('rotate', '3 82 82;6 82 82;3 82 82', 2.4)
+  const headTilt = approval ? approval('rotate', ['3 82 82', '3 82 82', '10 82 82', '3 82 82', '3 82 82'])
+    : act && mood === 'wartet' ? motion('rotate', '3 82 82;6 82 82;3 82 82', 2.4)
     : act && mood === 'fertig' ? motion('rotate', '0 82 82;7 82 82;0 82 82', 2.4) : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW.width} ${VIEW.height}" width="${VIEW.width}" height="${VIEW.height}"${act && Number.isSafeInteger(sequence) ? ` data-gesture="${sequence}"` : ''}>
   <title>${escape(title)}</title>
@@ -212,7 +240,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
     <radialGradient id="shadow"><stop stop-color="#111f31" stop-opacity=".38"/><stop offset="1" stop-color="#111f31" stop-opacity="0"/></radialGradient>
   </defs>
   <ellipse cx="88" cy="126" rx="64" ry="11" fill="url(#shadow)"/>
-  ${arm(mood, act, showpiece, inviting)}
+  ${arm(mood, act, showpiece, inviting, approval)}
   <g fill="url(#metal)" stroke="#546d7a" stroke-width="1.4">
     <rect x="53" y="113" width="24" height="11" rx="4"/>
     <rect x="91" y="113" width="24" height="11" rx="4"/>
@@ -249,7 +277,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
     <path d="${face.mouth}" fill="none" stroke="${signal}" stroke-width="1.8" stroke-linecap="round"/>
     ${face.brow ? `<path d="${face.brow}" fill="none" stroke="${signal}" stroke-width="1.4" stroke-linecap="round"/>` : ''}
   </g></g>
-  ${accessory(mood, !showpiece && GATES.has(gate) ? gate : undefined, act)}
+  ${accessory(mood, signGate, act, approval)}
   ${showpiece ? showpiecePlan(still) : board ? draftBoard(board, still || resting) : ''}
   ${tablet && !showpiece && !inviting ? tabletAccessory(still) : ''}
 </svg>`;

@@ -2,9 +2,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { App } from '../src/App';
 import { BrowserEntry } from '../src/BrowserEntry';
-import type { ReadTransport } from '../src/api';
+import { validateData, type ReadTransport } from '../src/api';
 import type { Detail, Envelope, ReadingScope } from '../src/types';
-import { backlog, pointer, runData, fixtureMeta, runScope } from './scoped-fixtures';
+import { backlog, pointer, runData, fixtureMeta, runScope, documentFixture } from './scoped-fixtures';
 const inventory = {...backlog([pointer('run-a','Deliver cockpit')]),state:'partial' as const,code:'backlog_partial',data:{...backlog([pointer('run-a','Deliver cockpit')]).data!,diagnostics:[{code:'malformed_pointer',message:'Stored pointer incomplete.'}]}};
 const data:Detail={...runData('run-a','Deliver cockpit'),revision_id:'rev',evaluation:{...runData('run-a').evaluation!,approvals:[{gate:'TP',status:'approved',evidence:'exact approval'},{gate:'QA',status:'missing',evidence:''}],missing_evidence:[{missing_evidence:'Host context still unverified'}]}};
 const detail=runScope(data);
@@ -15,6 +15,358 @@ async function readySelection(key='run-a'){await screen.findByRole('searchbox');
 function chooseArea(name:string){fireEvent.click(screen.getByRole('combobox',{name:'Bestandsbereich'}));fireEvent.click(screen.getByRole('option',{name}));}
 async function tick(){await act(async()=>{await vi.advanceTimersByTimeAsync(5000);});}
 afterEach(()=>{cleanup();vi.restoreAllMocks();vi.useRealTimers();vi.unstubAllGlobals();});
+
+function companionDraft() {
+  const run = documentFixture();
+  run.title = 'Karte mit registriertem Entwurf';
+  run.objective = 'Passende Quelle direkt lesen';
+  run.evaluation = { ...run.evaluation!, current_gate: 'PRD', missing_approval: 'Approval: PRD', control_assessment: { state: 'blocked', authorizes: false } };
+  run.persisted = { ...run.persisted!, current_gate: 'PRD' };
+  run.figure = { mood: 'wartet', reason: { key: 'waitingApproval', gate: 'PRD' } };
+  run.companion = { route: 'structured_slice', path: [{ gate: 'UR', status: 'fulfilled' }, { gate: 'PRD', status: 'current' }, { gate: 'QA', status: 'open' }],
+    next_text: 'Die Fassung prüfen.', blocking_text: 'none' };
+  return run;
+}
+
+function draftRead(run = companionDraft()) {
+  const resource = { ...run.resources.find(source => source.type === 'PRD')!, resource_id: 'reissued-prd' };
+  const documentState = { ...run.document_states!.find(row => row.type === 'PRD')!, resource_id: resource.resource_id };
+  return { ...fixtureMeta, snapshot_id: 'document-snapshot', data: { kind: 'document' as const,
+    run: { ...run, resources: run.resources.map(r => r.type === 'PRD' ? resource : r), document_states: run.document_states!.map(row => row.type === 'PRD' ? documentState : row) },
+    document: { resource, format: 'markdown', content: '# Registrierte PRD-Fassung', content_digest: documentState.content_digest!, document_state: documentState, links: {} } } };
+}
+
+describe('Codex Companion status card', () => {
+  const primary = () => screen.getByRole('button', { name: 'PRD-Entwurf öffnen' });
+
+  it('shows the footer switcher only with multiple active Runs and returns to the original Chat Run silently', async () => {
+    const start = vi.fn();
+    vi.stubGlobal('AudioContext', class {
+      state = 'running';
+      destination = {};
+      resume = vi.fn(async () => {});
+      decodeAudioData = vi.fn(async () => ({}));
+      createBufferSource = () => ({ connect() {}, start });
+      close = vi.fn(async () => {});
+    });
+    let activeRunIds = ['run-a'];
+    let material = 'a';
+    const read = vi.fn(async (path: string) => {
+      const id = path.match(/\/api\/runs\/(run-[a-c])|run_id=(run-[a-c])/)?.slice(1).find(Boolean) ?? 'run-a';
+      const run = companionDraft();
+      return runScope({ ...run, run_id: id, title: `Run ${id}`, active_run_ids: activeRunIds,
+        resources: [], document_states: [], companion: { ...run.companion!, decision_material_version: 'sha256:' + material.repeat(64) } });
+    }) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId="run-a"/>);
+    await screen.findByRole('heading', { name: 'Run run-a' });
+    expect(screen.queryByRole('navigation', { name: 'Aktive Runs' })).toBeNull();
+    const choose = (name: string, role = 'menuitem') => {
+      fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
+      fireEvent.click(screen.getByRole(role, { name }));
+    };
+    choose('Hinweiston', 'menuitemcheckbox');
+    activeRunIds = ['run-a', 'run-b', 'run-c'];
+    choose('Neu lesen');
+    await screen.findByText('1 von 3');
+    const previous = screen.getByRole('button', { name: 'Vorheriger Run' });
+    fireEvent.click(previous);
+    await screen.findByRole('heading', { name: 'Run run-c' });
+    expect(screen.getByText('3 von 3')).toBeTruthy();
+    expect(document.activeElement).toBe(previous);
+    material = 'b';
+    choose('Zurück zum Chat-Run');
+    await screen.findByRole('heading', { name: 'Run run-a' });
+    expect(start).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Nächster Run' }));
+    await screen.findByRole('heading', { name: 'Run run-b' });
+    expect(screen.getByText('2 von 3')).toBeTruthy();
+    expect(start).not.toHaveBeenCalled();
+    material = 'c';
+    choose('Neu lesen');
+    await waitFor(() => expect(start).toHaveBeenCalledTimes(1));
+  });
+
+  it('keeps the cue independent and silent on enable, revisit, stale and expired observations', async () => {
+    const start = vi.fn();
+    const close = vi.fn(async () => {});
+    vi.stubGlobal('AudioContext', class {
+      state = 'running';
+      destination = {};
+      resume = vi.fn(async () => {});
+      decodeAudioData = vi.fn(async () => ({}));
+      createBufferSource = () => ({ connect() {}, start });
+      close = close;
+    });
+    let material = 'a', readProblem = '', previous = false, mismatch = false;
+    const observed = () => {
+      const run = companionDraft();
+      run.companion!.decision_material_version = 'sha256:' + material.repeat(64);
+      if (mismatch) run.persisted!.current_gate = 'QA';
+      return run;
+    };
+    const read = vi.fn(async (path: string) => {
+      if (readProblem) throw Error(readProblem);
+      if (path.startsWith('/api/documents/')) return draftRead(observed());
+      const response = runScope(observed());
+      return previous ? { ...response, state: 'stale' as const, code: 'source_changed' } : response;
+    }) as unknown as ReadTransport;
+    const show = () => render(<App host="codex" compact transport={read} initialRunId="run-a"/>);
+    const view = show();
+    await screen.findByText('Du bist dran');
+    const menu = () => screen.getByRole('button', { name: 'AGDF Companion' });
+    const checkbox = (name: string) => screen.getByRole('menuitemcheckbox', { name });
+    const toggle = (name: string) => { fireEvent.click(menu()); fireEvent.click(checkbox(name)); };
+    const reread = async () => {
+      fireEvent.click(menu());
+      await act(async () => { fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' })); });
+    };
+
+    fireEvent.click(menu());
+    expect(checkbox('Hinweiston').getAttribute('aria-checked')).toBe('false');
+    fireEvent.click(checkbox('Hinweiston'));
+    toggle('Bewegung');
+    expect(start).not.toHaveBeenCalled();
+    fireEvent.click(menu());
+    expect(checkbox('Hinweiston').getAttribute('aria-checked')).toBe('true');
+    expect(checkbox('Bewegung').getAttribute('aria-checked')).toBe('false');
+    fireEvent.keyDown(checkbox('Hinweiston'), { key: 'Escape' });
+    material = 'b';
+    await reread();
+    expect(start).toHaveBeenCalledTimes(1);
+    await reread();
+    expect(start).toHaveBeenCalledTimes(1);
+    toggle('Hinweiston');
+    material = 'c';
+    await reread();
+    toggle('Hinweiston');
+    await reread();
+    expect(start).toHaveBeenCalledTimes(1);
+    material = 'd';
+    previous = true;
+    await reread();
+    expect(start).toHaveBeenCalledTimes(1);
+    previous = false;
+    await reread();
+    expect(start).toHaveBeenCalledTimes(2);
+    material = 'e';
+    mismatch = true;
+    await reread();
+    expect(start).toHaveBeenCalledTimes(2);
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    material = 'f';
+    mismatch = false;
+    await reread();
+    expect(start).toHaveBeenCalledTimes(2);
+    hidden.mockRestore();
+    readProblem = 'session_expired';
+    await reread();
+    await screen.findByText(/Öffne das Cockpit im Chat erneut/);
+    expect(start).toHaveBeenCalledTimes(2);
+    view.unmount();
+    expect(close).toHaveBeenCalledTimes(2);
+    readProblem = '';
+    show();
+    await screen.findByText('Du bist dran');
+    fireEvent.click(menu());
+    expect(checkbox('Hinweiston').getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('contains failed and obsolete playback while keeping the PRD reader usable', async () => {
+    const buffer = {} as AudioBuffer;
+    let finishDecode!: (buffer: AudioBuffer) => void;
+    const deferredBuffer = new Promise<AudioBuffer>(resolve => { finishDecode = resolve; });
+    const decode = vi.fn<() => Promise<AudioBuffer>>().mockReturnValueOnce(deferredBuffer).mockResolvedValue(buffer);
+    const start = vi.fn().mockImplementationOnce(() => { throw Error('audio unavailable'); });
+    vi.stubGlobal('AudioContext', class {
+      state = 'running';
+      destination = {};
+      resume = vi.fn(async () => {});
+      close = vi.fn(async () => {});
+      decodeAudioData = decode;
+      createBufferSource = () => ({ connect() {}, start });
+    });
+    let material = 'a';
+    const read = vi.fn(async (path: string) => {
+      const run = companionDraft();
+      run.companion!.decision_material_version = 'sha256:' + material.repeat(64);
+      return path.startsWith('/api/documents/') ? draftRead(run) : runScope(run);
+    }) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId="run-a"/>);
+    await screen.findByText('Du bist dran');
+    const choose = async (name: string) => {
+      fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
+      const item = screen.getByRole(name === 'Hinweiston' ? 'menuitemcheckbox' : 'menuitem', { name });
+      await act(async () => { fireEvent.click(item); });
+    };
+    await choose('Hinweiston');
+    material = 'b';
+    await choose('Neu lesen');
+    fireEvent.click(primary());
+    const back = await screen.findByRole('button', { name: 'Zurück zur Statuskarte' });
+    await act(async () => { finishDecode(buffer); });
+    fireEvent.click(back);
+    await screen.findByText('Du bist dran');
+    expect(start).not.toHaveBeenCalled();
+    material = 'c';
+    await choose('Neu lesen');
+    expect(start).toHaveBeenCalledTimes(1);
+    fireEvent.click(primary());
+    await screen.findByText('Registrierte PRD-Fassung');
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Statuskarte' }));
+    await screen.findByText('Du bist dran');
+    expect(start).toHaveBeenCalledTimes(1);
+    material = 'd';
+    await choose('Neu lesen');
+    expect(start).toHaveBeenCalledTimes(2);
+  });
+
+  it('opens the observed source in the existing reader and restores focus after the selector is reissued', async () => {
+    const run = companionDraft(), reply = draftRead(run);
+    const read = vi.fn(async (path: string) => path.startsWith('/api/documents/') ? reply : path.startsWith('/api/runs/')
+      ? runScope(reply.data.run, 'returned-snapshot') : runScope(run)) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByText('Du bist dran');
+    expect(screen.getByRole('heading', { name: 'AGDF Companion für Codex', level: 1 })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Alle Vorhaben' })).toBeNull();
+    expect(screen.getByText('Passende Quelle direkt lesen')).toBeTruthy();
+    const card = screen.getByRole('article', { name: 'Companion-Statuskarte' });
+    const approval = screen.getByText('Approval: PRD', { selector: 'code' });
+    expect(approval.closest('.companion-turn')).toBe(screen.getByText('Du bist dran').parentElement);
+    const progress = screen.getByRole('list', { name: 'Gate-Fortschritt' });
+    expect(primary().compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(progress.compareDocumentPosition(card.querySelector('summary')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(card.querySelector('details')?.open).toBe(false);
+    fireEvent.click(primary());
+    await screen.findByRole('button', { name: 'Zurück zur Statuskarte' });
+    expect(screen.getByRole('heading', { name: 'AGDF Cockpit für Codex', level: 1 })).toBeTruthy();
+    expect(vi.mocked(read).mock.calls.map(([path]) => path)).toContain('/api/documents/PRD?snapshot=run-snapshot');
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Statuskarte' }));
+    await waitFor(() => expect(document.activeElement).toBe(primary()));
+    expect(screen.getByRole('heading', { name: 'AGDF Companion für Codex', level: 1 })).toBeTruthy();
+    expect(primary().getAttribute('data-focus-id')).toBe('companion:reissued-prd');
+  });
+
+  it('returns focus to the same Run heading when its draft action ceases to apply', async () => {
+    const run = companionDraft(), reply = draftRead(run);
+    const returning: Detail = { ...run, resources: [], document_states: [],
+      evaluation: { ...run.evaluation!, missing_approval: 'none', control_assessment: { state: 'open', authorizes: false } } };
+    const read = vi.fn(async (path: string) => path.startsWith('/api/documents/') ? reply : path.startsWith('/api/runs/')
+      ? runScope(returning, 'returned-snapshot') : runScope(run)) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByText('Du bist dran');
+    fireEvent.click(primary());
+    fireEvent.click(await screen.findByRole('button', { name: 'Zurück zur Statuskarte' }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('heading', { name: run.title })));
+    expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
+    expect(screen.queryByText('Approval: PRD', { selector: 'code' })).toBeNull();
+  });
+
+  for (const change of ['revision', 'registration', 'digest', 'foreign Run', 'missing'] as const) {
+    it(`refuses a deferred direct read with changed ${change} and rereads the Run without opening replacement bytes`, async () => {
+      const run = companionDraft(), reply = draftRead(run);
+      if (change === 'revision') reply.data.run.revision_id = '00000000-0000-0000-0000-000000000002';
+      if (change === 'registration') reply.data.document.resource.registered_reference = '.agdf/control/other.md';
+      if (change === 'digest') reply.data.document.content_digest = 'b'.repeat(64);
+      if (change === 'foreign Run') reply.data.document.resource.run_id = 'run-b';
+      const response = change === 'missing' ? { ...reply, state: 'missing' as const, code: 'document_missing', data: { ...reply.data, document: null } } : reply;
+      let resolveRead!: (value: Envelope<ReadingScope>) => void;
+      const deferred = new Promise<Envelope<ReadingScope>>(resolve => { resolveRead = resolve; });
+      const read = vi.fn(async (path: string) => path.startsWith('/api/documents/') ? deferred : runScope(run)) as unknown as ReadTransport;
+      const expand = vi.fn();
+      render(<App host="codex" compact transport={read} initialRunId={run.run_id} onExpand={expand}/>);
+      await screen.findByText('Du bist dran');
+      fireEvent.click(primary());
+      await act(async () => { resolveRead(response); });
+      expect(screen.queryByRole('button', { name: 'Zurück zur Statuskarte' })).toBeNull();
+      expect(screen.queryByText('Registrierte PRD-Fassung')).toBeNull();
+      expect(screen.getByText('Zuletzt beobachteter Stand')).toBeTruthy();
+      expect(expand).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
+      await screen.findByText('Du bist dran');
+      expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/snapshot?run_id=run-a');
+      expect(vi.mocked(read).mock.calls.filter(([path]) => path.startsWith('/api/documents/'))).toHaveLength(1);
+    });
+  }
+
+  it('keeps optional display compatible and removes malformed gate progress', async () => {
+    const run = companionDraft();
+    const malformedCue = runScope({ ...run, companion: { ...run.companion!, decision_material_version: 'bad-cue' } });
+    expect(() => validateData('/api/snapshot?run_id=run-a', malformedCue)).not.toThrow();
+    expect(malformedCue.data?.kind === 'run' && malformedCue.data.run?.companion?.path).toEqual(run.companion!.path);
+    expect(malformedCue.data?.kind === 'run' && malformedCue.data.run?.companion?.decision_material_version).toBeUndefined();
+    const scope = runScope({ ...run, companion: { ...run.companion!, path: [{ gate: 'foreign', status: 'fulfilled' }] } });
+    expect(() => validateData('/api/snapshot?run_id=run-a', scope)).not.toThrow();
+    expect(scope.data?.kind === 'run' && scope.data.run?.companion).toBeUndefined();
+    const read = vi.fn(async () => scope) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByText('Du bist dran');
+    expect(primary()).toBeTruthy();
+    expect(screen.queryByRole('list', { name: 'Gate-Fortschritt' })).toBeNull();
+  });
+
+  it('shows pending work in a resting pose and identifies a blocker with no registered finding', async () => {
+    const run = companionDraft();
+    const pending = { ...run, figure: { mood: 'baut', reason: { key: 'building' } },
+      evaluation: { ...run.evaluation!, missing_approval: 'none', control_assessment: { state: 'open' as const, authorizes: false as const },
+        next_operation: { type: 'implement_approved_plan', operation_key: 'implementation.execute', actor: 'agent' as const, effect: 'implementation', gate: 'CD+Tests' } } };
+    const blocker: Detail = { ...run, evaluation: { ...run.evaluation!, status: 'blocked', missing_approval: 'none', control_assessment: { state: 'blocked', authorizes: false } },
+      companion: { ...run.companion!, blocking_text: 'Kontrollquelle muss geprüft werden.' } };
+    let value: Detail = pending;
+    const read = vi.fn(async () => runScope(value)) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByText('Schritt steht an');
+    expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
+    const figure = document.querySelector('.companion-card .run-figure')!;
+    expect(decodeURIComponent(figure.getAttribute('src')!)).not.toMatch(/<animate/);
+    expect(screen.queryByText('Du bist dran')).toBeNull();
+    value = blocker;
+    fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
+    await screen.findByText('Kontrollquelle muss geprüft werden.');
+    expect(screen.getByText('Kein passender registrierter Befund verfügbar.')).toBeTruthy();
+  });
+
+  it('retains the last observation and disables reread when the session expires', async () => {
+    const run = companionDraft();
+    let expired = false;
+    const read = vi.fn(async () => {
+      if (expired) throw Error('session_expired');
+      return runScope(run);
+    }) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByText('Du bist dran');
+    const menu = screen.getByRole('button', { name: 'AGDF Companion' });
+    fireEvent.click(menu);
+    expired = true;
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
+    await screen.findByText(/Öffne das Cockpit im Chat erneut/);
+    expect(screen.getByRole('heading', { name: run.title })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
+    fireEvent.click(menu);
+    expect((screen.getByRole('menuitem', { name: 'Neu lesen' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText(/Zuletzt gelesen/).getAttribute('datetime')).toBe(fixtureMeta.observed_as_of);
+  });
+
+  it('offers the decisive finding when Core supplies its scoped registration and digest', async () => {
+    const run = companionDraft();
+    const path = '.agdf/control/runs/run-a/evidence/finding.md';
+    const resource = { type: 'Evidence', status: 'registered', run_id: run.run_id, resource_id: 'finding', registered_reference: path, path };
+    const content_digest = 'f'.repeat(64);
+    run.resources = [resource];
+    run.document_states = [];
+    run.evaluation = { ...run.evaluation!, status: 'blocked', blocking_reason: 'review_blocked', missing_approval: 'none' };
+    run.companion = { ...run.companion!, blocking_text: 'Der Prüfbericht meldet eine offene Pflichtprüfung.', finding: { resource_id: resource.resource_id, content_digest } };
+    const reply = { ...fixtureMeta, snapshot_id: 'finding-snapshot', data: { kind: 'document', run,
+      document: { resource, format: 'markdown', content: '# Maßgeblicher Prüfbericht', content_digest, links: {} } } };
+    const read = vi.fn(async (url: string) => url.startsWith('/api/documents/') ? reply : runScope(run)) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Befund öffnen' }));
+    await screen.findByText('Maßgeblicher Prüfbericht');
+    expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/documents/finding?snapshot=run-snapshot');
+  });
+});
+
 describe('compact MCP entry using the shared scoped reading state',()=>{
  it('searches a large stored backlog without selecting a result; inspected Run replaces discovery controls',async()=>{
   const many=backlog([pointer('run-a','Deliver cockpit'),...Array.from({length:12},(_,i)=>pointer(`other-${i}`,`Other project ${i}`))]);

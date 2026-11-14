@@ -11,7 +11,58 @@ import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
-import { readRunView } from '../lib/companion/run-view.js';
+import { projectRunEntry } from '../lib/companion/run-view.js';
+import { currentFixture, currentRun } from './fixtures/current-run.js';
+import { buildCompanionFixtures, pendingCompanionUat, replaceCompanionPrd } from './fixtures/companion-fixtures.js';
+
+test('projects the same pending decision across snapshots and a new version for changed material', t => {
+  const [pending, preparation, invalid] = buildCompanionFixtures(t, ['F03', 'F04', 'F13']);
+  const f = currentFixture(t, { root: pending.root, initialize: false });
+  const reader = createCockpitReader(f.root);
+  const first = reader.snapshot(pending.runId).data.run;
+  const version = first.companion.decision_material_version;
+  assert.match(version, /^sha256:[a-f0-9]{64}$/);
+  const again = reader.snapshot(pending.runId).data.run;
+  assert.notEqual(again.resources[0].resource_id, first.resources[0].resource_id);
+  assert.equal(again.companion.decision_material_version, version);
+
+  replaceCompanionPrd(f, pending.runId, 'Boxenfunk B');
+  const changed = reader.snapshot(pending.runId).data.run;
+  assert.equal(changed.evaluation.next_operation.gate, 'PRD');
+  assert.match(changed.companion.decision_material_version, /^sha256:[a-f0-9]{64}$/);
+  assert.notEqual(changed.companion.decision_material_version, version);
+  replaceCompanionPrd(f, pending.runId, 'Boxenfunk B');
+  const recordedAgain = reader.snapshot(pending.runId).data.run;
+  assert.notEqual(recordedAgain.revision_id, changed.revision_id);
+  assert.equal(recordedAgain.companion.decision_material_version, changed.companion.decision_material_version);
+
+  for (const fixture of [preparation, invalid]) {
+    assert.equal(createCockpitReader(fixture.root).snapshot(fixture.runId).data.run?.companion?.decision_material_version, undefined);
+  }
+});
+
+test('projects pending UAT material without a registered UAT document', t => {
+  const f = currentFixture(t);
+  const run = pendingCompanionUat(f);
+  const data = createCockpitReader(f.root).snapshot(run.id).data.run;
+  assert.equal(data.evaluation.next_operation.gate, 'UAT');
+  assert.ok(!data.resources.some(resource => resource.type === 'UAT'));
+  assert.match(data.companion.decision_material_version, /^sha256:[a-f0-9]{64}$/);
+});
+
+test('a named card lists only active Runs of its repository in activity order', t => {
+  const [fixture] = buildCompanionFixtures(t, ['F06']);
+  const writer = currentFixture(t, { root: fixture.root, initialize: false });
+  const first = currentRun(writer, 'Earlier active Run');
+  const second = currentRun(writer, 'Later active Run');
+  const reader = createCockpitReader(fixture.root);
+  const completed = reader.snapshot(fixture.runId);
+  assert.equal(completed.data.run.lifecycle, 'completed');
+  assert.deepEqual(completed.data.run.active_run_ids, [second.id, first.id]);
+  const selected = reader.run(first.id, completed.snapshot_id);
+  assert.equal(selected.data.run.run_id, first.id);
+  assert.deepEqual(selected.data.run.active_run_ids, [second.id, first.id]);
+});
 test('a current writer-bound evidence report opens through the scoped document selector', () => {
   const f = fixture();
   try {
@@ -114,7 +165,12 @@ test('captured assessment matches canonical gate evaluation and performs no writ
     assert.deepEqual(detail.evaluation.control_assessment, projectCockpitAssessment(report, detail.lifecycle));
     assert.equal(detail.evaluation.status, report.status);
     assert.deepEqual(detail.figure, { mood: 'wartet', reason: { key: 'waitingApproval', gate: 'UR' } });
-    assert.deepEqual(detail.figure, readRunView(f.root, { runIds: ['fixture-a'] }).runs.find(run => run.run_id === 'fixture-a').figure);
+    const companion = projectRunEntry({ run_id: 'fixture-a', lifecycle: detail.lifecycle }, report, { language: 'de' });
+    assert.deepEqual(detail.figure, companion.figure);
+    assert.deepEqual(detail.companion.path, companion.path);
+    assert.equal(detail.companion.route, companion.mode);
+    assert.equal(detail.companion.next_text, companion.next_step_text);
+    assert.equal(detail.companion.blocking_text, companion.blocking_text);
     assert.deepEqual(treeBytes(f.root), before);
   } finally { f.close(); }
 });

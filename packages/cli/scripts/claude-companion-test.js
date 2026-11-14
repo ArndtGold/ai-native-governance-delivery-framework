@@ -372,8 +372,8 @@ for (const mood of Object.keys(FIGURE_TEXT)) {
   assert.ok(moving.length < 131072, "Svg source stays below the host limit");
   assert.ok(moving.includes("AGDF &lt;x&gt; &amp; &quot;y&quot;"), "title is escaped");
   assert.equal(moving.match(/dur="12s" repeatCount="indefinite"/gu)?.length, 2, "both eyes blink at the same cadence");
-  assert.equal(moving.match(/dur="31s" repeatCount="indefinite"/gu)?.length, 1, "quiet head motion has long unequal pauses");
-  assert.equal(moving.includes('repeatCount="1"'), ["baut", "wartet", "blockiert", "fertig"].includes(mood));
+  assert.equal(moving.includes('dur="31s" repeatCount="indefinite"'), mood !== "wartet", "the approval nod replaces quiet head motion");
+  assert.equal(moving.includes('repeatCount="1"'), ["baut", "blockiert", "fertig"].includes(mood));
   assert.ok(FIGURE_TEXT[mood], `${mood} has a terminal face`);
 }
 // Faces must still differ when animation is disabled, so expression is not color-only.
@@ -381,11 +381,24 @@ const stillFaces = Object.keys(FIGURE_TEXT).map(mood => figureSvg(mood, { still:
 assert.equal(stillFaces.filter(Boolean).length, 6);
 assert.equal(new Set(stillFaces).size, 6, 'each mood has a distinct mouth shape in a still pose');
 assert.match(figureSvg("wartet", { gate: "QA" }), />QA<\/text>/u);
-const waitingGesture = figureSvg("wartet", { gate: "UR", gesture: true });
-assert.match(waitingGesture, /values="0 160 86;-8 160 86;8 160 86;-8 160 86;0 160 86"[^>]*dur="2.4s" repeatCount="1"/u);
-assert.doesNotMatch(figureSvg("wartet", { gate: "UR", still: true, gesture: true }), /<animate/u);
-assert.doesNotMatch(figureSvg("wartet", { gate: "UR" }), /dur="2.4s"/u);
-for (const mood of ["baut", "wartet", "fertig"]) {
+for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+  const waiting = figureSvg("wartet", { gate, gesture: true });
+  const lift = waiting.match(/data-accessory="approval-sign"><animateTransform [^>]*type="translate" values="([^"]+)" keyTimes="([^"]+)"[^>]*begin="0s" dur="([\d.]+)s" repeatCount="indefinite"/u);
+  assert.ok(lift, `${gate} lifts the approval sign immediately and repeats`);
+  const [, values, keyTimes, duration] = lift;
+  const times = keyTimes.split(";").map(time => Number(time) * Number(duration));
+  const poses = values.split(";");
+  const starts = poses.flatMap((pose, index) => pose === "0 0" && poses[index + 1] !== "0 0" && poses[index + 1] !== undefined ? [index] : []);
+  const rests = starts.slice(1).map((start, i) => Math.round(times[start] - times[starts[i] + 4]));
+  rests.push(Math.round(Number(duration) - times[starts.at(-1) + 4]));
+  assert.ok(starts.length > 2 && new Set(rests).size > 2 && rests.every(rest => rest >= 12 && rest <= 28), "repeat pauses vary between 12 and 28 seconds");
+  assert.match(figureSvg("wartet", { gate }), /data-accessory="approval-sign"><animateTransform [^>]*begin="24s"/u, "an already seen decision resumes after a pause");
+  const still = figureSvg("wartet", { gate, still: true, gesture: true });
+  assert.ok(still.includes(`>${gate}</text>`));
+  assert.doesNotMatch(still, /<animate/u);
+}
+assert.match(figureSvg("wartet", { gate: "OR", gesture: true }), /dur="2\.4s" repeatCount="1"/u);
+for (const mood of ["baut", "fertig"]) {
   assert.match(figureSvg(mood, { gate: "UR", gesture: true }), /dur="2\.4s" repeatCount="1"/u, `${mood} transition has an observable duration`);
   assert.doesNotMatch(figureSvg(mood, { gate: "UR", gesture: true, still: true }), /<animate/u);
 }

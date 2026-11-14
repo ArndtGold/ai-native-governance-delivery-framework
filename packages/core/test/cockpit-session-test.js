@@ -145,6 +145,35 @@ test('SCN-039/042/046: render carries requested focus without eager capture; ord
     assert.deepEqual(treeBytes(f.root), before);
   } finally { await service.close(); f.close(); }
 });
+test('Cockpit display receipt is scoped to the opening view and its current snapshot', async () => {
+  const f = fixture(), before = treeBytes(f.root), service = createCockpitSessionService(f.root);
+  try {
+    const render = await service.render({ run_id: 'fixture-a' });
+    const session_id = render._meta.agdf_cockpit.session_id;
+    const status = render.next_calls[0].arguments;
+    assert.deepEqual((await service.read(status)).data.display, { state: 'pending', run_id: 'fixture-a' });
+    const ack = snapshot_id => service.read({ operation: 'display_ack', session_id, snapshot_id });
+    const other = await service.render({ run_id: 'fixture-completed' });
+    const otherId = other._meta.agdf_cockpit.session_id;
+    const foreign = await service.read({ operation: 'snapshot', session_id: otherId, run_id: 'fixture-completed' });
+    assert.equal((await ack(foreign.snapshot_id)).code, 'resource_denied');
+    const overview = await service.read({ operation: 'snapshot', session_id });
+    assert.equal((await ack(overview.snapshot_id)).code, 'resource_denied');
+    const opening = await service.read({ operation: 'snapshot', session_id, run_id: 'fixture-a' });
+    const refreshed = await service.read({ operation: 'snapshot', session_id, run_id: 'fixture-a' });
+    assert.equal((await ack(opening.snapshot_id)).code, 'resource_denied');
+    const confirmed = (await ack(refreshed.snapshot_id)).data.display;
+    assert.equal(confirmed.state, 'ui_reported_visible');
+    assert.equal(confirmed.run_id, 'fixture-a');
+    assert.deepEqual((await ack(refreshed.snapshot_id)).data.display, confirmed);
+    assert.deepEqual((await service.read(status)).data.display, confirmed);
+    assert.equal((await service.read(other.next_calls[0].arguments)).data.display.state, 'pending');
+    await service.read({ operation: 'close', session_id });
+    assert.equal((await service.read(status)).code, 'session_expired');
+    assert.deepEqual(treeBytes(f.root), before);
+  } finally { await service.close(); f.close(); }
+});
+
 test('SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen', async () => {
   const f = fixture(); let created = 0;
   const service = createCockpitSessionService(f.root, { poolFactory: () => { created += 1; return { close: async () => {}, request: async () => ({ data: null }) }; } });

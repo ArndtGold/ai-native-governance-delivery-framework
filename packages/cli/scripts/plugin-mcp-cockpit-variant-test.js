@@ -28,7 +28,7 @@ try {
     'packages/control-ui/mcp.html', 'packages/control-ui/decision.html',
     'packages/control-ui/vite.config.mjs', 'packages/control-ui/package.json',
     'packages/control-ui/package-lock.json', 'packages/core/lib',
-    'plugins/agdf/meta/agdf-interaction-locales.json', 'plugins/agdf/host-templates/claude/companion/figure.mjs', 'pages/src/design',
+    'plugins/agdf/meta/agdf-interaction-locales.json', 'plugins/agdf/host-templates/claude/companion', 'pages/src/design',
     'pages/src/styles/design-tokens.css', 'pages/scripts/design-tokens.mjs',
     'scripts/cockpit-ui-build.mjs']) {
     mkdirSync(dirname(join(sourceRoot, path)), { recursive: true });
@@ -44,7 +44,11 @@ try {
   const afterCatalogChange = mcpUiSourceDigest({ sourceRoot });
   const figurePath = join(sourceRoot, 'plugins/agdf/host-templates/claude/companion/figure.mjs');
   writeFileSync(figurePath, readFileSync(figurePath, 'utf8') + '\n// Changed figure fixture\n');
-  assert.notEqual(mcpUiSourceDigest({ sourceRoot }), afterCatalogChange);
+  const afterFigureChange = mcpUiSourceDigest({ sourceRoot });
+  assert.notEqual(afterFigureChange, afterCatalogChange);
+  const gateBarPath = join(sourceRoot, 'plugins/agdf/host-templates/claude/companion/gate-bar.mjs');
+  writeFileSync(gateBarPath, readFileSync(gateBarPath, 'utf8') + '\n// Changed gate bar fixture\n');
+  assert.notEqual(mcpUiSourceDigest({ sourceRoot }), afterFigureChange);
 
   const html = "<!doctype html><title>AGDF Cockpit</title>";
   const ui = readCockpitUiBuild({ uiRoot: build("valid", html) });

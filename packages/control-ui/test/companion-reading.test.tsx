@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { App } from '../src/App';
 import { StrictMode } from 'react';
 import type { ReadTransport } from '../src/api';
-import { documentFixture, fixtureMeta, runScope } from './scoped-fixtures';
+import { documentFixture, fixtureMeta, runData, runScope } from './scoped-fixtures';
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
@@ -333,4 +333,30 @@ it('preserves old bytes and offsets after a failed switch, then permits a delibe
   expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
   expect(screen.queryByText(/Die gewählte Fassung konnte nicht bestätigt werden/)).toBeNull();
   expect(sourceReads(read)).toBe(before + 1);
+});
+
+
+it('shows confirmed work on the selected Codex card and clears it on freshness without a reload', async () => {
+  width(650);
+  const gate = 'CD+Tests';
+  const run = runData('run-a');
+  run.evaluation!.next_operation = { actor: 'agent', type: 'implement_approved_plan', operation_key: 'delivery.implementation.complete',
+    effect: 'preparation', gate };
+  const record = { target_id: fixtureMeta.target.target_id, run_id: run.run_id, revision_id: run.revision_id!, gate,
+    expires_at: Date.now() + 25_000 };
+  let activity = { ...record, run_id: 'other-run' };
+  const read: ReadTransport = async path => (path.startsWith('/api/freshness')
+    ? { ...fixtureMeta, data: null, companion_observation: { activity } }
+    : { ...runScope(run), companion_observation: { activity } }) as never;
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByRole('heading', { name: run.run_id });
+  expect(screen.queryByText('Einen Augenblick')).toBeNull();
+  activity = record;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.getByText('Einen Augenblick')).toBeTruthy();
+  expect(screen.getByText(/Ich arbeite gerade daran/)).toBeTruthy();
+  activity = { ...record, expires_at: Date.now() - 1 };
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.queryByText('Einen Augenblick')).toBeNull();
+  expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
 });

@@ -16,11 +16,11 @@ import { DocumentView } from '../DocumentView';
 import { CompanionWorkspace, type CompanionConstraints } from './CompanionWorkspace';
 import type { CompanionReader } from '../useCompanionReader';
 import { CompanionCard, CompanionMenu } from './CompanionCard';
-import type { Resource, PlannedDocument, Envelope, WorkEntry } from '../types';
+import type { CompanionActivity, Resource, PlannedDocument, Envelope, WorkEntry } from '../types';
 import type { ArchiveLoader } from '../ArchiveDetail';
 import type { CockpitHost } from '../host-label';
 
-export function CompactCockpit({ state, headingRef, enabled, visible = true, onSelect, onReload, onOverview, onExpand, onOpen, onOpenCompanion, onBack, onAbout, view, onViewChange, returnNotice, draftCheck, sourcePending, loadArchive, loadPlanned, sourceEntry, host, motion, onToggleMotion, sound, onToggleSound, activeRunCount, runIndex, onStepRun, onReturnToChatRun, reader, onReaderWidth, companionConstraints, onReaderLink, onReaderClose, companionEmpty }: {
+export function CompactCockpit({ state, headingRef, enabled, visible = true, onSelect, onReload, onOverview, onExpand, onOpen, onOpenCompanion, onBack, onAbout, view, onViewChange, returnNotice, draftCheck, sourcePending, loadArchive, loadPlanned, sourceEntry, host, activity, motion, onToggleMotion, sound, onToggleSound, activeRunCount, runIndex, onStepRun, onReturnToChatRun, reader, onReaderWidth, companionConstraints, onReaderLink, onReaderClose, companionEmpty }: {
   reader: CompanionReader; onReaderWidth: (wide: boolean) => void; companionConstraints?: CompanionConstraints; onReaderLink: (id: string) => void; onReaderClose: () => void;
   state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean; visible?: boolean;
   view: WorkView; onViewChange: (view: WorkView) => void; returnNotice?: string | null;
@@ -29,7 +29,7 @@ export function CompactCockpit({ state, headingRef, enabled, visible = true, onS
   onOpenCompanion: (resource: Resource, digest: string) => void; sourcePending: boolean; motion: boolean; onToggleMotion: () => void;
   sound: boolean; onToggleSound: () => void;
   activeRunCount: number; runIndex: number; onStepRun: (offset: -1 | 1) => void; onReturnToChatRun?: () => void;
-  sourceEntry?: WorkEntry; onAbout: () => void; host?: CockpitHost; companionEmpty?: boolean;
+  sourceEntry?: WorkEntry; onAbout: () => void; host?: CockpitHost; activity?: CompanionActivity; companionEmpty?: boolean;
 }) {
   const data = state.detail?.data;
   const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
@@ -52,7 +52,7 @@ export function CompactCockpit({ state, headingRef, enabled, visible = true, onS
       </div></div> : state.route.view === 'document' && state.document ? <div className="compact-document">
         <button className="text-link" onClick={onBack} disabled={host === 'codex' ? !enabled || busy || expired : !usable}>Zurück zur Statuskarte</button>
         <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={selected?.title} onOpen={id => { const resource = data?.resources.find(r => r.resource_id === id); if (resource) onOpen?.(resource); }}/>
-      </div> : companionRun && data ? <CompanionCard key={data.run_id} state={state} data={data} current={current} visible={visible}
+      </div> : companionRun && data ? <CompanionCard key={data.run_id} state={state} data={data} activity={activity} current={current} visible={visible}
         enabled={enabled} motion={motion} mismatch={mismatch} sourcePending={sourcePending} sourceShown={reader.sourceShown} showWidthHint={reader.showWidthHint}
         onOpen={onOpenCompanion}/> : selected && data ? <div className="compact-run">
         <div className="compact-run-summary">

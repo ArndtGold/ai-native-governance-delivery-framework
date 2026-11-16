@@ -29,7 +29,15 @@ declare module '*claude/companion/gate-bar.mjs' {
   export function condensedGateBar(marks: GateMark[]): string;
 }
 
+declare module '*claude/companion/activity.mjs' {
+  export function matchesActivity(record: import('./types').CompanionActivity | undefined,
+    scope: Partial<import('./types').ActivityScope>, now: number): boolean;
+}
+
 declare module '*claude/companion/view.mjs' {
+  export function activityOf(derived: { reason: { key: 'building' | 'working'; gate: string } }, run: { gate: string },
+    isTurnActive: boolean, t: (path: string, params?: Record<string, string>) => string, title: (gate: string) => string):
+    { label: string; turn: { who: string; what: string } } | null;
   export function activityLabel(gate: string, isTurnActive: boolean,
     t: (path: string, params: Record<string, string>) => string, title: (gate: string) => string): string;
 }

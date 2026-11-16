@@ -1301,6 +1301,7 @@ if (codexPlugin && pluginDefinition) {
   if (codexPlugin.skills !== pluginDefinition.codex?.skills) failures.push("Codex plugin manifest must point skills to canonical AGDF skills path");
   // Claude auto-loads .mcp.json; portable Codex uses mcp.json, Claude its declared file under mcp/.
   if (isFile(join(pluginRoot, ".mcp.json"))) failures.push("plugin root must not contain .mcp.json; Codex uses mcp.json and Claude its declared file");
+  let hasCodexCockpit = false;
   if (sourceMode) {
     if (codexPlugin.mcpServers !== undefined) failures.push("source Codex plugin manifest must not declare MCP servers");
   } else {
@@ -1308,9 +1309,11 @@ if (codexPlugin && pluginDefinition) {
     if (codexPlugin.mcpServers !== "./mcp.json") failures.push("runtime Codex plugin manifest must declare the plugin-local MCP server file");
     if (!isFile(codexMcpPath) || !codexMcpShape(readFileSync(codexMcpPath, "utf8"))) {
       failures.push("runtime Codex MCP config must start only the plugin-local AGDF MCP launcher with an absolute data root");
-    } else if (readJson(codexMcpPath, 'Codex MCP config').mcpServers?.['agdf-cockpit']
-      && ['cockpit.html', 'manifest.json'].some(file => !isFile(join(pluginRoot, 'mcp/server/ui', file)))) {
-      failures.push('runtime Codex Cockpit declaration requires its bundled UI');
+    } else {
+      hasCodexCockpit = Boolean(readJson(codexMcpPath, 'Codex MCP config').mcpServers?.['agdf-cockpit']);
+      if (hasCodexCockpit && ['cockpit.html', 'manifest.json'].some(file => !isFile(join(pluginRoot, 'mcp/server/ui', file)))) {
+        failures.push('runtime Codex Cockpit declaration requires its bundled UI');
+      }
     }
   }
   if (codexPlugin.interface?.displayName !== pluginDefinition.displayName) failures.push("Codex plugin display name must match canonical AGDF plugin definition");
@@ -1327,7 +1330,21 @@ if (codexPlugin && pluginDefinition) {
   if (codexPlugin.interface?.brandColor !== pluginDefinition.brandColor) failures.push("Codex plugin brand color must match canonical AGDF plugin definition");
   if (JSON.stringify(codexPlugin.interface?.capabilities) !== JSON.stringify(pluginDefinition.codex?.capabilities)) failures.push("Codex plugin capabilities must match canonical AGDF plugin definition");
   if (JSON.stringify(codexPlugin.interface?.defaultPrompt) !== JSON.stringify(pluginDefinition.codex?.defaultPrompt)) failures.push("Codex plugin default prompts must match canonical AGDF plugin definition");
-  if (sourceMode ? Object.hasOwn(codexPlugin, "hooks") : codexPlugin.hooks !== "./hooks/hooks.json") failures.push("Codex hook declaration must match source/runtime profile");
+  const hooksPath = hasCodexCockpit ? "./hooks/codex.json" : "./hooks/hooks.json";
+  if (sourceMode ? Object.hasOwn(codexPlugin, "hooks") : codexPlugin.hooks !== hooksPath) {
+    failures.push("Codex hook declaration must match source/runtime profile");
+  }
+  if (hasCodexCockpit) {
+    const path = join(pluginRoot, hooksPath);
+    const config = isFile(path) ? readJson(path, "Codex Companion hooks") : null;
+    const shared = isFile(hooksConfigPath) ? readJson(hooksConfigPath, "Shared SessionStart hook") : null;
+    const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
+      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 1 };
+    const expected = { ...shared?.hooks, PostToolUse: [{ matcher: "^mcp__agdf__agdf_dispatch$", hooks: [observe] }],
+      Stop: [{ hooks: [observe] }], Interrupt: [{ hooks: [observe] }] };
+    if (JSON.stringify(config?.hooks) !== JSON.stringify(expected)) failures.push("Codex Companion hooks must match the scoped tool and native turn events");
+    assertFile(join(pluginRoot, "hooks", "companion-activity.mjs"), "Codex Companion observer");
+  }
 }
 
 if (claudePlugin && pluginDefinition) {
@@ -1646,7 +1663,7 @@ if (pluginDefinition) {
 // The AGDF companion is Claude-only (SDD-01, SDD-02): its build-only descriptor owns the runtime Claude
 // manifest's hooks declaration; the Codex manifest, the shared hooks, the shared definition and the
 // Copilot profile never reference it.
-const companionFiles = ["companion.json", "hooks.json", "register.mjs", "assignment.mjs", "events.mjs", "figure.mjs", "gate-bar.mjs",
+const companionFiles = ["activity.mjs", "companion.json", "hooks.json", "register.mjs", "assignment.mjs", "events.mjs", "figure.mjs", "gate-bar.mjs",
   "localization.mjs", "notice.mjs", "persistence.mjs", "run-state.mjs", "state.mjs", "view.mjs"];
 const copilotRuntimeProfile = !sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugin";
 const companionRoot = sourceMode ? join(pluginRoot, "host-templates", "claude", "companion") : join(pluginRoot, "companion");

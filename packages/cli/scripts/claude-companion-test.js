@@ -29,14 +29,16 @@ const labels = companionLabels(registry);
 // A run-view entry as the command emits it, and the companion's run of it with the Core figure.
 const PATH = ["UR", "PRD", "SD", "TP", "QA", "UAT", "OR"];
 const path = (current, { done = PATH.indexOf(current) } = {}) => PATH.map((gate, at) => ({ gate, status: at < done ? "fulfilled" : gate === current ? "current" : "open" }));
-const entry = (overrides = {}) => ({ run_id: "r", title: "Show the run state.", lifecycle: "active", valid: true, evaluated: true, status: "open",
+const revision = "0cc42104-b583-42a1-ad99-ebaa57da3e80";
+const entry = (overrides = {}) => ({ run_id: "r", revision_id: revision, title: "Show the run state.", lifecycle: "active", valid: true, evaluated: true, status: "open",
   current_gate: "SD", mode: "structured_delivery", last_activity: "2026-10-26T08:00:00.000Z", missing_approval: "none", blocking_reason: "none",
   blocking_text: "keine", next_step: "Draft the SD.", next_step_text: "Das SD entwerfen.", user_action_required: "no", path: path("SD"), ...overrides });
 const run = (overrides = {}) => { const value = entry({ completion_confirmed: overrides.lifecycle === 'completed', ...overrides }); return companionRun({ ...value, figure: deriveFigureState(value) }); };
 const structured = (gate, overrides = {}) => run({ current_gate: gate, path: path("QA", { done: 4 }).map(row => row.gate === "QA" ? { ...row, status: "open" } : row), ...overrides });
-const snapshot = (runs, extra = {}) => ({ status: "ok", runs, unreadable: [], readAt: Date.parse("2026-10-26T08:10:00Z"), ...extra });
-const view = (input, locale = "de") => buildPanelView({ sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, isTurnActive: false,
+const snapshot = (runs, extra = {}) => ({ status: "ok", root: "/fixture", runs, unreadable: [], readAt: Date.parse("2026-10-26T08:10:00Z"), ...extra });
+const view = (input, locale = "de") => buildPanelView({ sessionStartedAt: Date.parse("2026-10-26T08:00:00Z"), selection: null, now: 1000,
   registry, labels, locale, columns: 60, ...input });
+const activity = (gate = "SD") => [{ target_id: "/fixture", run_id: "r", revision_id: revision, gate, expires_at: 2000 }];
 
 // SCN-022 / SDD-010: the only process call is the read-only run view; failures never become a self-derived state.
 {
@@ -165,12 +167,12 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   // rests and what is being done while a main-loop turn runs; the reason field keeps the Core wording.
   assert.deepEqual([working.stateLabel, working.resting, working.reason, view({ snapshot: snapshot([run({ last_activity: at })]) }, "en").reason],
     ["SD-Entwurf steht an", true, "Als Nächstes: Lösungsdesign", "Next: Solution design"]);
-  assert.equal(view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true }).reason, "Claude arbeitet gerade an diesem Turn");
+  assert.equal(view({ snapshot: snapshot([run({ last_activity: at })]), activity: activity() }).reason, "Claude arbeitet gerade an diesem Turn");
   const building = view({ snapshot: snapshot([structured("CD+Tests", { last_activity: at })]) });
   assert.deepEqual([building.mood, building.stateLabel, building.reason], ["baut", "Umsetzung steht an", "In Arbeit: Implementierung und Tests"]);
   // The turn line says what the reason would, so the terminal names it once.
   assert.ok(terminalText(building, { labels, locale: "de" }).includes("(o_o) ⚒ Umsetzung steht an\nNeues Vorhaben · Strukturierte Lieferung · Schritt 5 von 8\nAls Nächstes: Implementierung und Tests · Sag mir im Chat, wenn ich weitermachen soll."));
-  const buildingNow = view({ snapshot: snapshot([structured("CD+Tests", { last_activity: at })]), isTurnActive: true });
+  const buildingNow = view({ snapshot: snapshot([structured("CD+Tests", { last_activity: at })]), activity: activity("CD+Tests") });
   assert.deepEqual([buildingNow.stateLabel, buildingNow.resting, buildingNow.turn.who, buildingNow.turn.what], ["baut und testet", false, "Einen Augenblick", "Ich arbeite gerade daran: Implementierung und Tests"]);
   // Owner request of 2026-11-11: a run is named by its title, never by its id; the panel says whose
   // move it is and what the gate decides, and states the goal in the display language.
@@ -193,22 +195,22 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
     const finished = view({ snapshot: snapshot([run({ lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: at })]) });
     assert.deepEqual([finished.turn, finished.rationale], [null, null], "a completed run is nobody's move");
     // While a main-loop turn runs, the same run says what is being done and asks for a moment.
-    const overlaid = view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true });
+    const overlaid = view({ snapshot: snapshot([run({ last_activity: at })]), activity: activity() });
     assert.deepEqual([overlaid.stateLabel, overlaid.resting, overlaid.rationale], ["schreibt am SD-Entwurf", false, registry.locales.de.gateRationale.SD]);
     assert.deepEqual(overlaid.turn, { tone: "claude", who: "Einen Augenblick", what: "Ich bereite einen Entwurf für dich vor: Lösungsdesign (SD)", how: null, gate: "SD" });
     assert.ok(terminalText(overlaid, { labels, locale: "de" }).includes("(o_o) … schreibt am SD-Entwurf\nNeues Vorhaben · Strukturierte Lieferung · Schritt 3 von 8\nEinen Augenblick: Ich bereite einen Entwurf für dich vor: Lösungsdesign (SD)"));
-    assert.deepEqual(view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true }, "en").turn,
+    assert.deepEqual(view({ snapshot: snapshot([run({ last_activity: at })]), activity: activity() }, "en").turn,
       { tone: "claude", who: "One moment", what: "I'm preparing a draft for you: Solution design (SD)", how: null, gate: "SD" });
     // The pane draws the run's own state, never the turn overlay; the texts follow the turn all the same.
-    const paneNow = view({ snapshot: snapshot([run({ last_activity: at })]), isTurnActive: true, showRunState: true });
+    const paneNow = view({ snapshot: snapshot([run({ last_activity: at })]), activity: activity(), showRunState: true });
     assert.deepEqual([paneNow.mood, paneNow.stateLabel, paneNow.turn.who, paneNow.resting], ["laeuft", "schreibt am SD-Entwurf", "Einen Augenblick", false]);
-    // A turn beside a blocked run keeps the overlay's own reason: the activity belongs to a working run only.
-    const blockedTurn = view({ snapshot: snapshot([run({ status: "blocked", blocking_reason: "AGDF_RUN_SEAL_MISMATCH", blocking_text: "Siegel verletzt", last_activity: at })]), isTurnActive: true });
-    assert.deepEqual([blockedTurn.stateLabel, blockedTurn.turn, blockedTurn.resting], ["läuft", null, false]);
-    assert.ok(terminalText(blockedTurn, { labels, locale: "de" }).includes("läuft · Claude arbeitet gerade an diesem Turn"));
+    // Even matching activity does not override a blocked Run.
+    const blockedTurn = view({ snapshot: snapshot([run({ status: "blocked", blocking_reason: "AGDF_RUN_SEAL_MISMATCH", blocking_text: "Siegel verletzt", last_activity: at })]), activity: activity() });
+    assert.deepEqual([blockedTurn.stateLabel, blockedTurn.turn, blockedTurn.resting], ["blockiert", blocked.turn, false]);
+    assert.ok(terminalText(blockedTurn, { labels, locale: "de" }).includes("blockiert"));
     // Every step has its own wording; a step the table does not know is named, and nothing says "läuft".
     const stepView = (gate, isTurnActive, mode = "structured_delivery", locale = "de") =>
-      view({ snapshot: snapshot([run({ current_gate: gate, mode, last_activity: at })]), isTurnActive, showRunState: true }, locale);
+      view({ snapshot: snapshot([run({ current_gate: gate, mode, last_activity: at })]), activity: isTurnActive ? activity(gate) : [], showRunState: true }, locale);
     const worded = [
       ["UR", "schreibt am UR-Entwurf", "UR-Entwurf steht an"], ["PRD", "schreibt am PRD-Entwurf", "PRD-Entwurf steht an"],
       ["TP", "schreibt am TP-Entwurf", "TP-Entwurf steht an"], ["Brownfield Review", "analysiert den Bestand", "Bestandsanalyse steht an"],

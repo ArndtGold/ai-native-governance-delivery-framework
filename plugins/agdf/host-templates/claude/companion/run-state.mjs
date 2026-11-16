@@ -28,6 +28,7 @@ export function runViewArgv({ pluginRoot, root, language, runIds = [] }) {
 export function companionRun(entry) {
   return Object.freeze({
     id: entry.run_id,
+    revision_id: entry.revision_id ?? null,
     lifecycle: entry.lifecycle,
     evaluated: entry.evaluated === true,
     gate: entry.current_gate ?? null,

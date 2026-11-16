@@ -655,7 +655,19 @@ export function syncPackageAssets({
     ? readCockpitUiBuild({ failure: `AGDF_COCKPIT_UI_BUILD_REQUIRED: run ${COCKPIT_UI_BUILD_COMMAND}, then retry the ${surface} build.` })
     : undefined });
   write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true, companion: claudeCompanionDescriptor }));
-  write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
+  const companionActivity = ['all', 'codex'].includes(surface);
+  if (companionActivity) {
+    const hooksRoot = join(generatedCodexPluginRoot, "hooks");
+    const codexHooks = JSON.parse(read(join(hooksRoot, "hooks.json")));
+    const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
+      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 1 };
+    codexHooks.hooks.PostToolUse = [{ matcher: "^mcp__agdf__agdf_dispatch$", hooks: [observe] }];
+    codexHooks.hooks.Stop = [{ hooks: [observe] }];
+    codexHooks.hooks.Interrupt = [{ hooks: [observe] }];
+    write(join(hooksRoot, "codex.json"), JSON.stringify(codexHooks, null, 2) + "\n");
+    write(join(hooksRoot, "companion-activity.mjs"), read(join(sourcePluginRoot, "host-templates", "codex", "companion-activity.mjs")));
+  }
+  write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true, companionActivity }));
   // Codex 0.160.0 selects portable mode when root plugin.json has $schema and then
   // loses SessionStart hooks, including the compatibility manifest's declaration.
   // Use its native manifest for this runtime bundle. Source/public and Copilot

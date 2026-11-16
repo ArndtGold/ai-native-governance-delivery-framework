@@ -219,13 +219,15 @@ try {
   writeFileSync(configPath, `${JSON.stringify({ ...JSON.parse(readFileSync(configPath, "utf8")), chat_language: "en" }, null, 2)}\n`);
   const controlBefore = controlDigest(target.root);
 
-  // SCN-011: observation only. Six hooks, a catch path on every gating-capable one, and the
+  // SCN-011: observation only. Lifecycle pass-through, two exact AGDF tool observers, and the
   // adapter source writes through $.fs.write in one place: the companion state file.
   const first = await session();
-  assert.deepEqual(first.hooks.map(item => item.event).sort(), ["command.run", "session.start", "turn.complete", "turn.start", "ui.close", "ui.render"]);
-  assert.deepEqual(first.hooks.filter(item => !item.catch).map(item => item.event), ["ui.render"]);
+  assert.deepEqual(first.hooks.map(item => item.event).sort(), ["command.run", "session.start", "tool.call", "tool.call", "turn.complete", "turn.start", "ui.close", "ui.render"]);
+  assert.deepEqual(first.hooks.filter(item => !item.catch).map(item => item.event), ["tool.call", "tool.call", "ui.render"]);
   assert.deepEqual(first.hooks.find(item => item.event === "command.run").matcher, { command: COMMAND });
   assert.deepEqual(first.hooks.find(item => item.event === "ui.close").matcher, { id: PANE });
+  assert.deepEqual(first.hooks.filter(item => item.event === "tool.call").map(item => item.matcher.tool),
+    ["mcp__agdf__agdf_dispatch", "mcp__plugin_agdf_agdf__agdf_dispatch"]);
   const source = readFileSync(join(companionDir, "register.mjs"), "utf8");
   assert.equal(source.match(/\$\.fs\.write\(/gu)?.length, 1, "one write site");
   assert.ok(!/\$\.state\.set|\$\.store\./u.test(source), "no host state or plugin store writes");
@@ -523,11 +525,8 @@ try {
     await lister.fire("turn.start", { text: "Weiter mit extra-11." });
     await settle();
     let odd = await look(lister);
-    // During the turn the pane says what is being done (owner request of 2026-11-12), no longer "working".
-    assert.ok(texts(odd.tree).includes("drafting the UR") && texts(odd.tree).includes("One moment"));
-    const busy = find(odd.tree, node => node.tag === "Text" && texts(node)[0] === "drafting the UR")[0];
-    assert.equal(busy.props.color, "suggestion", "work in progress carries the working colour");
-    assert.match(find(odd.tree, node => node.tag === "Svg")[0].props.source, /data-accessory="gate-board"[\s\S]*dur="9s"/u, "the figure writes while the turn runs");
+    assert.ok(texts(odd.tree).includes("UR draft is next"));
+    assert.ok(!texts(odd.tree).includes("One moment"), "a main turn without verified AGDF work stays pending");
     assert.ok(button(odd.tree, "next"), "stepping from an undrafted chat run");
     const afterOdd = await neighbour("extra-11", 1);
     await button(odd.tree, "next").props.onPress();
@@ -539,7 +538,7 @@ try {
     await button((await look(lister)).tree, "previous").props.onPress();
     await settle();
     odd = await look(lister);
-    assert.deepEqual([texts(odd.tree).includes("drafting the UR"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an undrafted run offers the way back");
+    assert.deepEqual([texts(odd.tree).includes("UR draft is next"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an undrafted run offers the way back");
 
     // CR-F02: every recorded mention is announced, also one that names the chat's run again.
     const announced = lister.log.status.length;
@@ -698,26 +697,25 @@ try {
   assert.deepEqual(first.log.toasts, ["Blocked: Quick Task Execution – revision needed"]);
   assert.equal(lastStatus(), "AGDF · Quick Task Execution · blocked");
   assert.deepEqual(first.log.audio, [], "the sound is off by default");
-  // A main-loop turn preserves the canonical desktop figure. The terminal keeps its turn overlay.
+  // A main-loop turn without confirmed work preserves the canonical state on both surfaces.
   // Every applied read sets the status line again (live finding: the desktop dropped the one set
   // during session start), so the post-turn read repeats the same text.
   const statusCount = first.log.status.length;
   await first.fire("turn.start", {});
   assert.ok(texts(await render(first)).includes("blocked"));
-  assert.ok(texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
+  assert.ok(!texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
   const beforeTurnRead = first.log.invalidations;
   touch(target.root);
   await first.fire("turn.complete", {});
   await waitFor(() => first.log.invalidations > beforeTurnRead, "the post-turn read");
   assert.equal(first.log.status.length, statusCount + 1, "the post-turn read sets the status line again");
   assert.deepEqual([first.log.status.at(-1), first.log.toasts.length], ["AGDF · Quick Task Execution · blocked", 1], "a turn changes neither the status text nor toasts");
-  // CR-F04: the overlay checks on a blocked run, which the overlay covers: a subagent turn shows none, and
-  // switching off during a main-loop turn and on again leaves no stale overlay.
+  // A subagent turn and an unrelated main-loop turn never change a blocked display.
   await first.fire("turn.start", { agentId: "sub" });
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"), "a subagent turn shows no overlay");
   await first.fire("turn.start", {});
   assert.ok(texts(await render(first)).includes("blocked"));
-  assert.ok(texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
+  assert.ok(!texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
   await first.fire("turn.complete", {});
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
@@ -1282,6 +1280,72 @@ try {
 } finally {
   target.close();
   rmSync(configRoot, { recursive: true, force: true });
+}
+
+// A native-shaped delayed response is owned by its tool entry's main turn and current project.
+const activityFixture = fixture();
+const activityConfig = mkdtempSync(join(tmpdir(), "agdf-companion-activity-"));
+try {
+  const { root, context, binding } = activityFixture;
+  const config = join(root, ".agdf", "control", "config.json");
+  writeFileSync(config, JSON.stringify({ ...JSON.parse(readFileSync(config, "utf8")), chat_language: "en" }));
+  const prepared = context.call("presentation.prepare", { gate: "UR" }, binding());
+  assert.equal(prepared.outcome, "accepted");
+  assert.equal(context.call("approval.record", { gate: "UR", presentation_id: prepared.family_result.presentation_id, response: "Approval: UR" }, binding()).outcome, "accepted");
+  const { run_id, expected_revision_id: revision_id } = binding();
+  const choiceDir = join(activityConfig, "plugins", "data", "agdf-agdf");
+  mkdirSync(choiceDir, { recursive: true });
+  writeFileSync(join(choiceDir, "companion-state.json"), JSON.stringify({
+    schema_version: 1, enabled: true, selections: { [root]: run_id },
+  }));
+  const host = fakeHost({ projectRoot: root, configDir: activityConfig });
+  host.attach(await freshModule());
+  await host.fire("session.start");
+  const observe = host.hooks.find(item => item.matcher?.tool === "mcp__agdf__agdf_dispatch").hook;
+  const call = { continue_delivery: true, primary_target: root, run_id, tool_use_id: "tool-1" };
+  const payload = {
+    outcome: "skill_continuation", terminal: false, authorizes: false,
+    target: { resolution_state: "resolved", governance_target: root },
+    continuation: { phase: "post_ur_review", governance_target: root, run_id, revision_id },
+    control: { current_gate: "Brownfield Review", next_operation: { actor: "agent" } },
+  };
+  const answer = { ref: 1, result: JSON.stringify(payload), text: "original text" };
+  const isWorking = async () => texts(await render(host)).includes("One moment");
+  const start = turnId => host.fire("turn.start", { turnId });
+  const complete = (turnId, reason = "answer") => host.fire("turn.complete", { turnId, reason });
+  await start("turn-1");
+  assert.equal(await isWorking(), false);
+  assert.equal(await observe(host.$, call, async () => answer), answer);
+  assert.equal(await isWorking(), true, JSON.stringify({ view: texts(await render(host)), timers: host.liveTimers() }));
+  assert.ok(texts(await render(host)).includes("analysing the existing system"));
+  await complete("turn-1");
+  assert.equal(await isWorking(), false);
+  await start("turn-2");
+  let release;
+  const delayed = observe(host.$, { ...call, tool_use_id: "tool-2" }, () => new Promise(resolve => { release = resolve; }));
+  await complete("turn-2", "aborted");
+  await start("turn-3");
+  release(answer);
+  assert.equal(await delayed, answer);
+  assert.equal(await isWorking(), false);
+  const error = Error("original tool error");
+  let attempts = 0;
+  await assert.rejects(observe(host.$, call, async () => { attempts++; throw error; }), value => value === error);
+  assert.equal(attempts, 1);
+  await host.fire("turn.start", { turnId: "sub-turn", agentId: "sub" });
+  assert.equal(await observe(host.$, call, async () => answer), answer);
+  assert.equal(await isWorking(), false);
+  await host.fire("turn.complete", { turnId: "sub-turn", agentId: "sub" });
+  await complete("turn-3");
+  await start("turn-4");
+  const changed = observe(host.$, call, () => new Promise(resolve => { release = resolve; }));
+  host.where.conversation = "conversation-2";
+  release(answer);
+  assert.equal(await changed, answer);
+  assert.equal(await isWorking(), false);
+} finally {
+  activityFixture.close();
+  rmSync(activityConfig, { recursive: true, force: true });
 }
 
 console.log("Claude companion adapter tests passed");

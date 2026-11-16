@@ -1,6 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { gateMarks } from '../../../../plugins/agdf/host-templates/claude/companion/gate-bar.mjs';
-import { activityLabel } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
+import { matchesActivity } from '../../../../plugins/agdf/host-templates/claude/companion/activity.mjs';
+import { activityLabel, activityOf } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
 import { companionLabels, label } from '../../../../plugins/agdf/host-templates/claude/companion/localization.mjs';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';
 import { RunFigure, useReducedFigureMotion } from '../RunFigure';
@@ -8,7 +9,7 @@ import { phaseName } from '../presentation';
 import { ReadState, readingStatus } from '../feedback';
 import { refreshUnavailable } from '../RefreshControl';
 import { hasExpiredSession, type ReadingState } from '../state';
-import type { Detail, Resource } from '../types';
+import type { CompanionActivity, Detail, Resource } from '../types';
 
 import { companionDecision, companionSource } from '../companion-source';
 import { Icon } from './Icon';
@@ -18,8 +19,8 @@ const gateRationales: Readonly<Record<string, string>> = registry.locales.de.gat
 const labels = companionLabels(registry);
 const companionLabel = (path: string, params?: Record<string, string>) => label(labels, 'de', path, params);
 
-export function CompanionCard({ state, data, current, visible, enabled, motion, mismatch, sourcePending, sourceShown, showWidthHint, onOpen }: {
-  state: ReadingState; data: Detail; current: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
+export function CompanionCard({ state, data, activity, current, visible, enabled, motion, mismatch, sourcePending, sourceShown, showWidthHint, onOpen }: {
+  state: ReadingState; data: Detail; activity?: CompanionActivity; current: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
   sourcePending: boolean; sourceShown?: boolean; showWidthHint?: boolean; onOpen: (resource: Resource, digest: string) => void;
 }) {
   const evaluation = data.evaluation;
@@ -31,13 +32,24 @@ export function CompanionCard({ state, data, current, visible, enabled, motion, 
   const previous = readingStatus(state).previous;
   const blocked = assessment === 'blocked' && !waiting;
   const pending = assessment === 'open' && !human;
-  // The Codex card observes a Run snapshot, not a live host turn. Name the pending work honestly.
+  const [, setActivityTime] = useState(0);
+  const active = current && visible !== false && !state.refreshing && !previous && !expired && pending
+    && evaluation?.next_operation?.actor === 'agent' && matchesActivity(activity, {
+      target_id: state.scope?.target.target_id, run_id: data.run_id, revision_id: data.revision_id ?? undefined, gate,
+    }, Date.now());
+  const activeUntil = active ? activity?.expires_at : undefined;
+  useEffect(() => {
+    if (activeUntil === undefined) return;
+    const timer = setTimeout(() => setActivityTime(Date.now()), Math.max(0, activeUntil - Date.now()));
+    return () => clearTimeout(timer);
+  }, [activeUntil]);
+  const work = active && gate ? activityOf({ reason: { key: 'working', gate } }, { gate }, true, companionLabel, phaseName) : null;
   const status = expired ? 'Sitzung abgelaufen' : previous ? 'Zuletzt beobachteter Stand' : blocked ? 'Blockiert'
     : waiting ? companionLabel('waitingCaptions.waitingApproval')
     : human ? companionLabel('waitingCaptions.waitingDecision') : completed ? 'Abgeschlossen'
-    : pending && gate ? activityLabel(gate, false, companionLabel, phaseName) : pending ? 'Schritt steht an'
+    : work ? work.label : pending && gate ? activityLabel(gate, false, companionLabel, phaseName) : pending ? 'Schritt steht an'
     : assessment === 'ended' ? 'Beendet' : 'Stand nicht bestätigt';
-  const tone = previous || expired ? 'previous' : blocked ? 'blocked' : human ? 'decision' : completed ? 'completed' : undefined;
+  const tone = previous || expired ? 'previous' : blocked ? 'blocked' : human ? 'decision' : completed ? 'completed' : work ? 'working' : undefined;
   const source = companionSource(data, state.scope?.target.target_id ?? '', !mismatch && state.detail?.state === 'available');
   const resource = source?.resource;
   const widthHintId = useId();
@@ -82,8 +94,8 @@ export function CompanionCard({ state, data, current, visible, enabled, motion, 
     {mismatch && <ReadState state="partial" code="persisted_mismatch"/>}
     {(blocked || human || pending) && <div className="companion-turn">
       <strong role={human && !previous && !expired ? 'status' : undefined}>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
-        : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
-      {reason && <p>{reason}</p>}
+        : work ? work.turn.who : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
+      {work ? <p>{work.turn.what}</p> : reason && <p>{reason}</p>}
       {approval && <p className="compact-muted">Wenn der Entwurf passt, antworte im Chat mit <code>{approval}</code>.</p>}
       {blocked && companion?.next_text && companion.next_text !== reason && <p>{companion.next_text}</p>}
       {resource && source && !expired && !sourceShown && <>

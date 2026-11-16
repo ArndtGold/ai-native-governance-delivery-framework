@@ -10,7 +10,7 @@ function publicValues(definition) {
 // written absolute paths; the source plugin and public candidates carry no runtime and no declaration.
 export const CODEX_RUNTIME_MCP_SERVERS = "./mcp.json";
 
-export function createCodexPluginManifest(definition, { publicCandidate = false, runtimeProfile = false } = {}) {
+export function createCodexPluginManifest(definition, { publicCandidate = false, runtimeProfile = false, companionActivity = false } = {}) {
   const distribution = publicValues(definition);
   const pluginInterface = publicCandidate ? {
     displayName: distribution.publicDisplayName,
@@ -33,7 +33,7 @@ export function createCodexPluginManifest(definition, { publicCandidate = false,
     license: definition.license,
     keywords: definition.keywords,
     skills: definition.codex.skills,
-    ...(runtimeProfile && !publicCandidate ? { hooks: `./${definition.codex.hooks}`, mcpServers: CODEX_RUNTIME_MCP_SERVERS } : {}),
+    ...(runtimeProfile && !publicCandidate ? { hooks: companionActivity ? "./hooks/codex.json" : `./${definition.codex.hooks}`, mcpServers: CODEX_RUNTIME_MCP_SERVERS } : {}),
     interface: {
       displayName: pluginInterface.displayName,
       shortDescription: pluginInterface.shortDescription,

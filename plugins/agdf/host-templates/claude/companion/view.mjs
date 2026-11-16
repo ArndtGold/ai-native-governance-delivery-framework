@@ -2,6 +2,7 @@
 // session's assignment and the user's choices into localized, display-ready fields. Read-only and
 // host-independent; the adapter draws it on desktop or as text in the terminal.
 
+import { selectActivity } from './activity.mjs';
 import { assignRun } from './assignment.mjs';
 import { FIGURE_TEXT, INVITE_TEXT } from './figure.mjs';
 import { condensedGateBar, gateBar, gateMarks } from './gate-bar.mjs';
@@ -97,7 +98,7 @@ export function routeLine(run, marks, t) {
   return key === 'undecided' || at < 0 ? t(`routes.${key}`) : `${t(`routes.${key}`)} · ${t('fields.step', { position: at + 1, count: marks.length })}`;
 }
 
-// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, isTurnActive, registry, labels,
+// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, activity, now, registry, labels,
 // locale, columns, isInfoExpanded, events, eventsAvailable }. Display only: the adapter persists
 // selection changes. `events` are this root's journal events since the last main-loop turn, newest first.
 export function buildPanelView(input) {
@@ -159,14 +160,17 @@ export function buildPanelView(input) {
   const position = open.findIndex(item => item.id === run.id);
   const openCount = position >= 0 ? t('fields.position', { position: position + 1, count: open.length }) : t('fields.openRuns', { count: open.length });
   const derived = runState(run);
-  const state = input.showRunState ? derived : displayState(run, { isTurnActive: input.isTurnActive });
+  const isTurnActive = !snapshot.stale && ['working', 'building'].includes(derived.reason.key) && Boolean(selectActivity(input.activity ?? [], {
+    target_id: snapshot.root, run_id: run.id, revision_id: run.revision_id, gate: run.gate,
+  }, input.now ?? Date.now()));
+  const state = input.showRunState ? derived : displayState(run, { isTurnActive });
   const reasonParams = { gate: gateTitle(registry, locale, state.reason.gate), decision: run.blockingText || state.reason.decision,
     reason: state.reason.reason ? t(`unreadable.${state.reason.reason}`) : '' };
   // A gate by its localized title with its short name, e.g. "Produktanforderungen (PRD)".
   const gateName = gate => { const title = gateTitle(registry, locale, gate); return title === gate ? gate : `${title} (${gate})`; };
   const marks = gateMarks(run);
   const name = runName(run, t);
-  const activity = activityOf(derived, run, Boolean(input.isTurnActive), t, gate => gateTitle(registry, locale, gate));
+  const activity = activityOf(derived, run, isTurnActive, t, gate => gateTitle(registry, locale, gate));
   const turn = activity?.turn ?? turnOf(state, run, t, gateName);
   const { key: reason } = state.reason;
   const caption = !snapshot.stale && (reason === 'waitingApproval' || reason === 'waitingDecision')

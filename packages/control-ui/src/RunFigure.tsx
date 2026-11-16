@@ -42,10 +42,16 @@ export function RunFigure({ state, enabled, visible = true, companion = false, m
     && (!companion || !!detail?.data?.companion) && !pending ? figure : undefined;
   const observation = observeFigure(previous, { scope, figure: supplied ?? { mood: 'bereit', reason: { key: 'unconfirmed' } }, current: current && !!supplied });
   if (observation !== previous) setPrevious(observation);
-  if (!observation) return null;
+  const idle = companion && route.view === 'overview';
+  if (!observation && !idle) return null;
 
   const workGate = !companion && selected && confirmed && !state.stale && detail?.data?.evaluation?.current_gate === 'TP' ? 'TP' : undefined;
-  const svg = figureSvg(observation.mood, { ...observation, workGate, still: !current || !supplied });
+  const idleReady = idle && enabled && state.phase === 'ready' && !state.stale && !state.problem;
+  const animateIdle = idleReady && visible && motion && !reduced;
+  const animateRun = current && (Boolean(supplied) || pending);
+  const svg = figureSvg(observation?.mood ?? 'bereit', {
+    ...observation, workGate, smile: idleReady || confirmed && pending, still: !animateIdle && !animateRun,
+  });
   return <img className="run-figure" alt="" width={64} height={45}
     src={`data:image/svg+xml,${encodeURIComponent(svg)}`}/>;
 }

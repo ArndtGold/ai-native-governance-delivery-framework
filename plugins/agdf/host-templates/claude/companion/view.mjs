@@ -52,6 +52,12 @@ export const ACTIVITY_KINDS = Object.freeze({ UR: 'draft', PRD: 'draft', SD: 'dr
   'CD+Tests': 'build', 'Quick Task Execution': 'build', 'Verified Change Execution': 'build',
   CR: 'review', QA: 'quality', UAT: 'acceptance', OR: 'closeout' });
 
+// Shared caption for each host. Only a host-confirmed active turn uses the working wording.
+export function activityLabel(gate, isTurnActive, t, title) {
+  const kind = ACTIVITY_KINDS[gate] ?? 'other';
+  return t(`activity.${kind}.${isTurnActive ? 'working' : 'idle'}`, { gate, step: title(gate) });
+}
+
 // What a run is busy with (owner request of 2026-11-12: "läuft" named no activity). Read from the run's
 // own state, a step Claude works on or builds, never from the turn overlay. While a main-loop turn runs,
 // the line says what is being done and the block asks for a moment. Otherwise the run rests: the line
@@ -64,7 +70,7 @@ export function activityOf(derived, run, isTurnActive, t, title) {
   const named = title(at);
   // A document or approval gate keeps its short name beside its title; an internal step has only a title.
   const step = named !== at && /^[A-Z]{2,3}$/u.test(at) ? `${named} (${at})` : named;
-  const label = t(`activity.${kind}.${isTurnActive ? 'working' : 'idle'}`, { gate: at, step: named });
+  const label = activityLabel(at, isTurnActive, t, title);
   const drafting = kind === 'draft';
   const turn = isTurnActive
     ? { tone: 'claude', who: t('turn.moment'), what: drafting ? t('turn.drafting', { step }) : t('turn.workingOn', { step }), how: null, gate: at }
@@ -162,6 +168,10 @@ export function buildPanelView(input) {
   const name = runName(run, t);
   const activity = activityOf(derived, run, Boolean(input.isTurnActive), t, gate => gateTitle(registry, locale, gate));
   const turn = activity?.turn ?? turnOf(state, run, t, gateName);
+  const { key: reason } = state.reason;
+  const caption = !snapshot.stale && (reason === 'waitingApproval' || reason === 'waitingDecision')
+    ? t(`waitingCaptions.${reason}`)
+    : t(`states.${state.mood}`);
   // The goal in the display language; a goal that only repeats the name is not said twice.
   const goal = run.goal || run.objective;
   const objective = goal && goal !== name ? goal : '';
@@ -187,8 +197,7 @@ export function buildPanelView(input) {
     ...(input.showRunState ? { figure: state } : {}),
     mood: state.mood,
     workGate: input.showRunState && run.evaluated && !snapshot.stale ? run.gate : undefined,
-    // A working run names its activity; every other state keeps its word.
-    stateLabel: activity?.label ?? t(`states.${state.mood}`),
+    stateLabel: activity?.label ?? caption,
     // The run rests: the step is up next and no main-loop turn works on it.
     resting: activity?.resting === true,
     reason: t(`reasons.${state.reason.key}`, reasonParams),

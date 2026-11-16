@@ -12,7 +12,8 @@ const changes = createControlChangeObserver(workerData.root, () => {
 });
 parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
   try {
-    const result = operation === 'snapshot' ? reader.snapshot(input?.run_id, input?.view)
+    const result = operation === 'companion_start' ? reader.companionStart(input?.run_id)
+      : operation === 'snapshot' ? reader.snapshot(input?.run_id, input?.view)
       : operation === 'run' ? reader.run(selector, snapshot)
       : operation === 'archive' ? reader.archive(selector, snapshot, input?.resource_id)
       : operation === 'planned' ? reader.planned(selector, snapshot)

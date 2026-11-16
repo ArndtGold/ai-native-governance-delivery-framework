@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react';
-import { App } from '../App';
+import { App, type CompanionDisplay } from '../App';
+import type { CompanionConstraints } from './CompanionWorkspace';
 import { flushSync } from 'react-dom';
 import { CockpitBridge } from './transport';
 import { applyDocumentTheme, applyHostStyleVariables, PostMessageTransport } from '@modelcontextprotocol/ext-apps';
@@ -25,6 +26,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
   const current = useRef<RenderBootstrap | null>(null);
   const [ready, setReady] = useState(false), [expanded, setExpanded] = useState(false), [problem, setProblem] = useState('');
   const [cockpitHost, setCockpitHost] = useState<CockpitHost>('unknown');
+  const [companionConstraints, setCompanionConstraints] = useState<CompanionConstraints>({});
   const [expansionProblem, setExpansionProblem] = useState('');
   const expansionAttempt = useRef(0);
   const terminal = useRef<HTMLElement>(null);
@@ -34,9 +36,10 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
   }, [bridge, ready, closeState]);
   const handoff = useMemo(() => new HandoffController(createHandoffPort(bridge, bootstrap?.sessionId ?? '')), [bridge, bootstrap?.sessionId]);
   const transport = useMemo(() => bridge.readForSession(bootstrap?.sessionId ?? ''), [bridge, bootstrap?.sessionId]);
-  const reportDisplay = useCallback(async (snapshotId: string, signal: AbortSignal) => {
+  const reportDisplay = useCallback(async (snapshotId: string, signal: AbortSignal, presentation?: CompanionDisplay) => {
     if (!bootstrap || current.current?.sessionId !== bootstrap.sessionId) return false;
-    const result = await bridge.operation({ operation: 'display_ack', snapshot_id: snapshotId }, signal, bootstrap.sessionId) as {
+    const result = await bridge.operation({ operation: 'display_ack', snapshot_id: snapshotId,
+      ...(presentation && { presentation }) }, signal, bootstrap.sessionId) as {
       state?: string; data?: { display?: { state?: string } };
     };
     return result.state === 'available' && result.data?.display?.state === 'ui_reported_visible';
@@ -53,6 +56,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
       const host = bridge.app.getHostContext();
       if (host?.theme) applyDocumentTheme(host.theme);
       if (host?.styles?.variables) applyHostStyleVariables(host.styles.variables);
+      setCompanionConstraints({ ...host?.containerDimensions, displayMode: host?.displayMode });
       const isExpanded = host?.displayMode === 'fullscreen' || host?.displayMode === 'pip';
       setExpanded(isExpanded);
       if (isExpanded) {
@@ -166,7 +170,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
-      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} provenance={bootstrap.provenance} host={cockpitHost} compact={!expanded} handoff={handoff} onExpand={() => void open()} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
+      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} companionEmpty={bootstrap.companionEmpty} companionFallback={bootstrap.companionFallback} provenance={bootstrap.provenance} host={cockpitHost} companionConstraints={companionConstraints} compact={!expanded} handoff={handoff} onExpand={() => void open()} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
     {visibleProblem && <p role="alert">{visibleProblem}</p>}
     {trace && closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;

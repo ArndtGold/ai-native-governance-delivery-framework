@@ -10,7 +10,9 @@ import { OverviewFigure } from './OverviewFigure';
 import { WorkStandLabel } from './WorkStandLabel';
 import { DocumentView } from './DocumentView';
 import { CompactCockpit } from './mcp/CompactCockpit';
-import { companionDecision } from './mcp/CompanionCard';
+import { companionDecision, companionSource, resolveSource, sourceKey, type CompanionSource } from './companion-source';
+import { useCompanionReader } from './useCompanionReader';
+import type { CompanionConstraints } from './mcp/CompanionWorkspace';
 import { useCompanionSound } from './mcp/useCompanionSound';
 import { BrandMark } from './BrandMark';
 import { BrandHeader } from './BrandHeader';
@@ -27,12 +29,13 @@ import type { CockpitProvenance } from './mcp/bootstrap';
 import { AboutCockpit } from './AboutCockpit';
 import type { CockpitHost } from './host-label';
 
-type ObservedSource = { target: string; snapshot: string; revision: string; resource: Resource; digest: string };
+type ObservedSource = { target: string; snapshot: string; revision: string; resource: Resource; digest: string; decision?: string | null; recoverBinding?: boolean };
+export type CompanionDisplay = { status: string; gate?: string; gate_state?: 'current' | 'done' };
 
-export function App({ secret = '', transport, compact: hostCompact = false, onExpand, onReturnToCompact, initialRunId, handoff, provenance, host = 'unknown', onDisplay }: {
+export function App({ secret = '', transport, compact: hostCompact = false, onExpand, initialRunId, companionEmpty = false, companionFallback, handoff, provenance, host = 'unknown', onDisplay, companionConstraints }: {
   secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; onReturnToCompact?: () => Promise<void>;
-  initialRunId?: string; handoff?: HandoffController; provenance?: CockpitProvenance; host?: CockpitHost;
-  onDisplay?: (snapshotId: string, signal: AbortSignal) => Promise<boolean>;
+  initialRunId?: string; companionEmpty?: boolean; companionFallback?: boolean; handoff?: HandoffController; provenance?: CockpitProvenance; host?: CockpitHost;
+  onDisplay?: (snapshotId: string, signal: AbortSignal, presentation?: CompanionDisplay) => Promise<boolean>; companionConstraints?: CompanionConstraints;
 }) {
   const enabled = !!transport || !!secret;
   const [state, dispatch] = useReducer(readingReducer, initialState);
@@ -40,7 +43,8 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   const [overviewSnapshot, setOverviewSnapshot] = useState<Envelope<OverviewInventory> | null>(null);
   // Codex can open the app directly in a fullscreen host surface, including a narrow side panel.
   // A selected Run starts at the Companion card in either host surface.
-  const compact = hostCompact || (host === 'codex' && state.route.view === 'detail');
+  const compact = hostCompact || (host === 'codex' && (state.route.view === 'detail' || companionEmpty));
+  const [companionWide, setCompanionWide] = useState(false);
   const [wideWorkspace, setWideWorkspace] = useState(false);
   const [technicalView, setTechnicalView] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -89,7 +93,13 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         || controller.signal.aborted || pending || displayReported.current) return;
       pending = true;
       try {
-        if (await onDisplay(displaySnapshot, controller.signal)) displayReported.current = true;
+        const card = element.closest<HTMLElement>('.companion-card');
+        const status = card?.querySelector('.companion-signal')?.textContent?.trim();
+        const gate = card?.dataset.displayGate;
+        const gateState = card?.dataset.displayGateState;
+        const presentation: CompanionDisplay | undefined = status ? { status,
+          ...(gate && (gateState === 'current' || gateState === 'done') ? { gate, gate_state: gateState } : {}) } : undefined;
+        if (await onDisplay(displaySnapshot, controller.signal, presentation)) displayReported.current = true;
       } catch { /* A failed acknowledgement leaves display status pending and reading usable. */ }
       finally { pending = false; }
     };
@@ -105,9 +115,8 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   const returnFocus = useRef<string | null>(null);
   const returnSource = useRef<{ type: string; reference: string; prefix: string } | null>(null);
   const documentOrigin = useRef<string | null>(null);
-  const companionSourceOpenedInline = useRef(false);
   const returnListScroll = useRef<number | null>(null);
-  const readingPosition = useRef<{ generation: number; open: string[]; scroll: { element: Element; top: number; left: number }[]; x: number; y: number; focus: string | null;
+  const readingPosition = useRef<{ generation: number; open: string[]; scroll: { element: Element; top: number; left: number }[]; x: number; y: number; focus: string | null; activeElement: Element | null;
     resource?: { type: string; reference: string; prefix: string } } | null>(null);
   const disclosureKey = (element: Element) => (element.closest('[data-backlog-row]')?.querySelector('[data-focus-id]')?.getAttribute('data-focus-id') ?? '')
     + ':' + (element.querySelector('summary')?.textContent?.replace(/ · \d+$/, '') ?? '');
@@ -132,10 +141,10 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       const resource = live.current.detail?.data?.resources.find(r => focus?.endsWith(r.resource_id));
       readingPosition.current = { generation, open: root ? [...root.querySelectorAll('details[open]')].map(disclosureKey) : [],
         scroll: elements.filter(e => e.scrollTop || e.scrollLeft).map(element => ({ element, top: element.scrollTop, left: element.scrollLeft })),
-        x: window.scrollX, y: window.scrollY, focus,
+        x: window.scrollX, y: window.scrollY, focus, activeElement: document.activeElement,
         ...(resource && focus ? { resource: { type: resource.type, reference: resource.registered_reference, prefix: focus.slice(0, -resource.resource_id.length) } } : {}) };
   };
-  const navigate = useCallback(async (requested: Route, reload = false, background = false, observed?: ObservedSource) => {
+  const navigate = useCallback(async (requested: Route, reload = false, background = false, observed?: ObservedSource, companionRead = false) => {
     if (hasExpiredSession(live.current)) return;
     draftPending.current?.abort();
     void handoff?.invalidate();
@@ -145,8 +154,8 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
     pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
     const generation = ++sequence.current;
     if (background) capturePosition(generation); else readingPosition.current = null;
-    focusAfterRead.current = !background;
-    dispatch({ type: 'begin', generation, route: requested, background });
+    focusAfterRead.current = !background && !companionRead;
+    dispatch({ type: 'begin', generation, route: companionRead ? { view: 'detail', runId: requested.runId } : requested, background });
     try {
       let scope = live.current.scope;
       const refresh = reload || live.current.stale || !scope?.snapshot_id;
@@ -169,15 +178,35 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       let removed = false;
       if (requested.view === 'document' && scope.data.kind !== 'work' && scope.data.kind !== 'runs') {
         if (!('run' in scope.data) || !scope.data.run || scope.data.run.run_id !== route.runId) throw Error('dto_invalid');
-        const resource = scope.data.run.resources.find(r => refresh
+        let resource = scope.data.run.resources.find(r => refresh
           ? r.registered_reference === route.resourcePath : r.resource_id === route.resourceId);
         if (!resource) {
           if (observed) throw Error('source_changed');
           route = { view: 'detail', runId: route.runId }; removed = true;
         }
         else {
-          scope = await read<ReadingScope>(`/api/documents/${resource.resource_id}?snapshot=${scope.snapshot_id}`, controller.signal,
-            { target: scope.target.target_id, snapshot: scope.snapshot_id!, replacement: true });
+          const readDocument = (selected: Resource, binding: Envelope<ReadingScope>) =>
+            read<ReadingScope>(`/api/documents/${selected.resource_id}?snapshot=${binding.snapshot_id}`, controller.signal,
+              { target: binding.target.target_id, snapshot: binding.snapshot_id!, replacement: true });
+          try {
+            scope = await readDocument(resource, scope);
+            if (observed && !scope.data) throw Error(scope.code ?? 'read_failed');
+          } catch (error) {
+            if (controller.signal.aborted || generation !== sequence.current) return;
+            const code = error instanceof Error && error.message in knownErrors ? error.message : 'read_failed';
+            if (!observed?.recoverBinding || !['resource_denied', 'read_failed'].includes(code)) throw error;
+            // Another capture can retire the panel's selectors during host expansion.
+            // Rebind once and only read the same registered bytes for the same decision.
+            const fresh = await read<ReadingScope>(`/api/snapshot?run_id=${requested.runId}`, controller.signal, expected);
+            if (controller.signal.aborted || generation !== sequence.current) return;
+            const run = fresh.data?.kind === 'run' ? fresh.data.run : null;
+            const source = run && fresh.state === 'available' && fresh.snapshot_id ? companionSource(run, fresh.target.target_id, !detailHasMismatch(run)) : null;
+            if (!source || fresh.target.target_id !== observed.target || run?.revision_id !== observed.revision
+              || source.decision !== observed.decision || source.key !== sourceKey(observed.target, observed.resource, observed.digest)
+              || source.resource.path !== observed.resource.path) throw Error(fresh.code ?? 'source_changed');
+            resource = source.resource;
+            scope = await readDocument(resource, fresh);
+          }
           if (controller.signal.aborted || generation !== sequence.current) return;
           if (!scope.data || scope.data.kind !== 'document' || scope.data.run.run_id !== route.runId) throw Error(scope.code ?? 'dto_invalid');
           if (observed) {
@@ -187,7 +216,8 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
               || document.resource.run_id !== observed.resource.run_id || document.resource.type !== observed.resource.type
               || document.resource.registered_reference !== observed.resource.registered_reference || document.resource.path !== observed.resource.path
               || document.resource.status !== observed.resource.status
-              || document.content_digest !== observed.digest) throw Error('source_changed');
+              || document.content_digest !== observed.digest
+              || observed.decision && companionSource(scope.data.run, scope.target.target_id, true)?.decision !== observed.decision) throw Error('source_changed');
           }
           if (!scope.data.document) { route = { view: 'detail', runId: route.runId }; removed = true; }
           else {
@@ -209,8 +239,8 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       const inventory = data.kind === 'work' || data.kind === 'runs' ? { ...scope, data } as Envelope<OverviewInventory> : null;
       const detail = data.kind !== 'work' && data.kind !== 'runs' && data.run ? { ...scope, data: data.run } as Envelope<Detail> : null;
       const document = data.kind === 'document' && data.document ? { ...scope, data: data.document } as Envelope<DocumentData> : null;
-      dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
-      return observed && document ? generation : undefined;
+      dispatch({ type: 'ready', generation, route: companionRead ? { view: 'detail', runId: requested.runId } : route, scope, inventory, detail, document: companionRead ? null : document, removed });
+      return observed && document && detail ? { generation, capture: { document, detail } } : undefined;
     } catch (error) {
       if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed',
         ...(observed && { recoverRoute: { view: 'detail' as const, runId: observed.resource.run_id } }) });
@@ -239,7 +269,9 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       const resource = position.resource && state.detail?.data?.resources.find(r => r.type === position.resource!.type && r.registered_reference === position.resource!.reference);
       const focusId = resource ? position.resource!.prefix + resource.resource_id : position.focus;
       const focus = [...(root?.querySelectorAll<HTMLElement>('[data-focus-id]') ?? [])].find(e => e.dataset.focusId === focusId);
-      focus?.focus({ preventScroll: true });
+      const active = document.activeElement;
+      // Background reads must not undo a user's focus movement while awaiting IO.
+      if (active === position.activeElement || !active || active === document.body || !active.isConnected) focus?.focus({ preventScroll: true });
     }
     if (!focusAfterRead.current) return;
     let origin = returnFocus.current; returnFocus.current = null;
@@ -325,21 +357,8 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
     returnListScroll.current = list?.scrollTop ?? null;
     documentOrigin.current = origin;
     returnSource.current = null;
-    void navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference });
-  };
-  const openCompanionSource = async (resource: Resource, digest: string) => {
-    const current = live.current;
-    const revision = current.detail?.data?.revision_id;
-    const scope = current.scope;
-    if (!revision || !scope?.snapshot_id || draftPending.current || current.phase !== 'ready' || current.stale || current.problem
-      || current.route.view !== 'detail' || current.route.runId !== resource.run_id
-      || !current.detail?.data?.resources.includes(resource)) return;
-    returnSource.current = null;
-    documentOrigin.current = `companion:${resource.resource_id}`;
-    companionSourceOpenedInline.current = hostCompact;
-    const generation = await navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference },
-      false, false, { target: scope.target.target_id, snapshot: scope.snapshot_id, revision, resource, digest });
-    if (hostCompact && generation !== undefined && generation === sequence.current) onExpand?.();
+    // A draft check may already have replaced the server capture before cancellation.
+    void navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference }, !!draftPending.current);
   };
   const showOverview = () => {
     setBacklogReturnNotice(null);
@@ -348,7 +367,6 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   };
   const showRun = async () => {
     const generation = sequence.current;
-    if (!hostCompact && companionSourceOpenedInline.current && documentOrigin.current?.startsWith('companion:')) await onReturnToCompact?.();
     if (generation !== sequence.current) return;
     returnFocus.current = documentOrigin.current ?? state.route.resourceId ?? null;
     const resource = state.document?.data?.resource;
@@ -370,32 +388,6 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   const runTitle = state.detail?.data?.title ?? state.route.runId;
   const pageTitle = state.route.view === 'overview' ? 'Arbeit am Projekt' : runTitle ?? (documentVisible ? documentName(state.document?.data?.resource.type) : 'Run verstehen');
   const detail = state.detail?.data;
-  const currentCompanion = host === 'codex' && compact && enabled && cardVisible && state.route.view === 'detail'
-    && !!state.scope?.data && !state.requestedRoute && state.phase === 'ready' && !state.refreshing && !state.stale && !state.problem && !expired
-    && state.detail?.state === 'available' && detail && detail.run_id === state.route.runId
-    ? companionDecision(detail, !detailHasMismatch(detail)) : null;
-  const soundScope = currentCompanion && currentCompanion.assessment !== 'unconfirmed'
-    ? JSON.stringify([state.scope?.target.target_id, detail?.run_id]) : null;
-  const decisionMaterial = detail?.companion?.decision_material_version;
-  const { sound, onToggleSound, silenceNextSelection } = useCompanionSound(soundScope, currentCompanion?.human && decisionMaterial
-    ? JSON.stringify([detail?.evaluation?.current_gate, decisionMaterial]) : null);
-  const activeRunIds = detail?.active_run_ids ?? [];
-  const runIndex = detail ? activeRunIds.indexOf(detail.run_id) : -1;
-  const browseRun = (runId: string, focusId?: string) => {
-    if (runId === state.route.runId || state.phase === 'loading' || state.refreshing) return;
-    silenceNextSelection();
-    returnFocus.current = focusId ?? null;
-    // A background draft check can already have replaced the old selector on the server.
-    void navigate({ view: 'detail', runId }, true);
-  };
-  const onStepRun = (offset: -1 | 1) => {
-    if (activeRunIds.length < 2 || state.phase !== 'ready' || state.requestedRoute || state.stale || state.problem) return;
-    const from = runIndex < 0 ? (offset === 1 ? -1 : 0) : runIndex;
-    const nextRun = activeRunIds[(from + offset + activeRunIds.length) % activeRunIds.length];
-    browseRun(nextRun, offset === 1 ? 'companion-next-run' : 'companion-previous-run');
-  };
-  const chatRunId = initialRoute.runId;
-  const onReturnToChatRun = chatRunId && state.route.runId !== chatRunId ? () => browseRun(chatRunId) : undefined;
   const selectedSituation = detail?.evaluation && state.route.view === 'detail' && detail.run_id === state.route.runId
     && state.detail?.state === 'available' && state.phase === 'ready' && !state.refreshing && !state.stale && !state.problem && !expired
     ? projectWorkSituation({ assessment: observedAssessment(detail, true), gate: detail.evaluation.current_gate,
@@ -407,8 +399,50 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   const draftSource = detail?.draft_check?.source;
   const draftDisplay = detail?.draft_check?.display.state;
   const focusedDraft = !!observedFocusGate && draftSource?.gate === observedFocusGate;
-  const sourcePending = draftAction.busy || !!(focusedDraft && draftSource?.available && draftDisplay === 'unchecked'
-    && !draftAction.invalidated && !draftAction.problem && cardVisible && !document.hidden);
+  const sourcePending = draftAction.busy || !!(focusedDraft && draftSource?.available && (draftAction.invalidated
+    || draftDisplay === 'unchecked' && !draftAction.problem && cardVisible && !document.hidden));
+  const loadCompanionSource = useCallback(async (source: CompanionSource, automatic: boolean, recoverBinding: boolean) => {
+    const active = live.current, scope = active.scope, revision = active.detail?.data?.revision_id;
+    if (!revision || !scope?.snapshot_id || draftPending.current || active.phase !== 'ready' || active.stale || active.problem
+      || active.route.view !== 'detail' || active.route.runId !== source.resource.run_id
+      || !active.detail?.data?.resources.includes(source.resource)) return;
+    const result = await navigate({ view: 'document', runId: source.resource.run_id, resourceId: source.resource.resource_id,
+      resourcePath: source.resource.registered_reference }, false, automatic,
+      { target: scope.target.target_id, snapshot: scope.snapshot_id, revision, resource: source.resource, digest: source.digest, decision: source.decision, recoverBinding }, true);
+    return result?.capture;
+  }, [navigate]);
+  const reader = useCompanionReader({ state, enabled: host === 'codex' && compact, visible: cardVisible, wide: companionWide, sourcePending, load: loadCompanionSource });
+  const companionVisible = cardVisible && (!reader.open || companionWide);
+  const openCompanionSource = (resource: Resource, digest: string) => {
+    const source = reader.offered;
+    if (source && source.resource === resource && source.digest === digest) void reader.openSource(source);
+  };
+  const currentCompanion = host === 'codex' && compact && enabled && companionVisible && state.route.view === 'detail'
+    && !!state.scope?.data && !state.requestedRoute && state.phase === 'ready' && !state.refreshing && !state.stale && !state.problem && !expired
+    && state.detail?.state === 'available' && detail && detail.run_id === state.route.runId
+    ? companionDecision(detail, !detailHasMismatch(detail)) : null;
+  const soundScope = currentCompanion && currentCompanion.assessment !== 'unconfirmed'
+    ? JSON.stringify([state.scope?.target.target_id, detail?.run_id]) : null;
+  const decisionMaterial = detail?.companion?.decision_material_version;
+  const { sound, onToggleSound, silenceNextSelection } = useCompanionSound(soundScope, currentCompanion?.human && decisionMaterial
+    ? JSON.stringify([detail?.evaluation?.current_gate, decisionMaterial]) : null);
+  const activeRunIds = detail?.active_run_ids ?? [];
+  const runIndex = detail?.lifecycle === 'active' ? activeRunIds.indexOf(detail.run_id) : -1;
+  const browseRun = (runId: string, focusId?: string) => {
+    if (runId === state.route.runId || state.phase === 'loading' || state.refreshing) return;
+    reader.savePosition();
+    silenceNextSelection();
+    returnFocus.current = focusId ?? null;
+    // A background draft check can already have replaced the old selector on the server.
+    void navigate({ view: 'detail', runId }, true);
+  };
+  const onStepRun = (offset: -1 | 1) => {
+    if (runIndex < 0 || activeRunIds.length < 2 || state.phase !== 'ready' || state.requestedRoute || state.stale || state.problem) return;
+    const nextRun = activeRunIds[(runIndex + offset + activeRunIds.length) % activeRunIds.length];
+    browseRun(nextRun, offset === 1 ? 'companion-next-run' : 'companion-previous-run');
+  };
+  const chatRunId = companionFallback ? undefined : initialRoute.runId;
+  const onReturnToChatRun = chatRunId && state.route.runId !== chatRunId ? () => browseRun(chatRunId) : undefined;
   const draftBinding = draftSource?.available && JSON.stringify([draftSource.run_id, draftSource.gate, draftSource.revision_id, draftSource.artifact_digest]);
   const refreshedChangedDraft = useRef<string | null>(null);
   useEffect(() => {
@@ -466,7 +500,18 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       {state.route.view === 'document' && technicalContext}
 
   </>;
-  if (compact) return <><CompactCockpit host={host} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={cardVisible} loadArchive={loadArchive} loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })} draftCheck={state.detail && <DraftCheck automatic={!!focusGate && state.detail.data?.draft_check?.source.gate === focusGate} result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled}
+  if (compact) return <><CompactCockpit host={host} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
+      reader.close();
+      void navigate({ view: 'detail', runId: state.route.runId }, state.stale, true);
+    }} onReaderLink={id => {
+      if (!reader.current || !detail || !state.scope) return;
+      const original = reader.capture?.detail.data?.resources.find(r => r.resource_id === id);
+      const resource = detail.resources.find(r => r.type === original?.type && r.registered_reference === original?.registered_reference);
+      const row = detail.document_states?.find(r => r.resource_id === resource?.resource_id);
+      if (!resource || !row?.content_digest) return;
+      const source = resolveSource(detail, state.scope.target.target_id, sourceKey(state.scope.target.target_id, resource, row.content_digest));
+      if (source) void reader.openSource(source);
+    }} onReaderWidth={setCompanionWide} companionConstraints={companionConstraints} loadArchive={loadArchive} loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })} draftCheck={state.detail && <DraftCheck automatic={!!focusGate && state.detail.data?.draft_check?.source.gate === focusGate} result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
     view={backlogView} onViewChange={setWorkView} returnNotice={backlogReturnNotice}
     onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview} onRuns={() => void navigate({ view: 'overview' })}

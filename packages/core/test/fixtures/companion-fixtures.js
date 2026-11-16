@@ -29,11 +29,11 @@ const route = (run, decision, ux = 'no') => accepted(run.step('route',
   `# Brownfield Review\n\nExisting personal filter service owns the values.\n- ux_intent_definition_required: ${ux}\n`,
   { route: decision, reason: 'Synthetic companion fixture prerequisite' }));
 const urApproved = run => { accepted(run.step('ur', clarifiedUr, { title: 'Synthetic saved filter' })); accepted(run.approve('UR')); };
-export function replaceCompanionPrd(f, runId, marker) {
+export function replaceCompanionPrd(f, runId, marker, appendix = '') {
   const path = runStatePath(f.root, runId);
   const revision = parseRunState(readFileSync(path, 'utf8')).meta.revision_id;
   const binding = { run_id: runId, expected_revision_id: revision };
-  const content = syntheticPrd().replace('Synthetic saved filter', `Synthetic saved filter ${marker}`);
+  const content = syntheticPrd().replace('Synthetic saved filter', `Synthetic saved filter ${marker}`) + appendix;
   return accepted(f.call('artefact.record', {
     gate: 'PRD', material: f.material(binding, 'PRD', content), reviewer: 'Synthetic reviewer', reviewed: true, update_draft: true,
   }, binding));

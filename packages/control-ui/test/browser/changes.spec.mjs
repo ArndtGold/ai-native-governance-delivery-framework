@@ -1,25 +1,25 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import { approvalFixture, fixture } from '../../../core/test/control-cockpit-fixtures.js';
+import { approvalFixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { startControlServer, evidencePath } from './server-fixture.mjs';
-const content = status => `# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | My undertaking | ${status} | | UR | Check evidence |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n`;
 for (const theme of ['light', 'dark']) test(`actual ${theme} overview waits for deliberate reload after a file event`, async ({ page }) => {
-  const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md'); fs.writeFileSync(path, content('Awaiting QA'));
+  const f = await approvalFixture();
   const service = await startControlServer({ dir: f.root });
+  let release;
   try {
-    await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click(); await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
-    await expect(page.getByText('Gespeicherter Stand laut Backlog: Awaiting QA')).toBeVisible();
-    await page.getByRole('searchbox').fill('My undertaking');
-    await page.getByText('Gespeicherte Angaben und Quellen', { exact: true }).click();
-    let release;
+    await page.goto(service.startupURL); await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
+    const run = page.getByRole('button', { name: 'Fixture document', exact: true });
+    const row = page.getByRole('listitem').filter({ has: run });
+    await expect(row).toContainText('Freigabe erforderlich');
+    await page.getByRole('searchbox').fill('Fixture document');
     const hold = new Promise(resolve => { release = resolve; });
     await page.route('**/api/snapshot*', async route => { await hold; await route.continue(); });
-    fs.writeFileSync(path + '.replacement', content('Awaiting UAT')); fs.renameSync(path + '.replacement', path);
+    expect(f.approve().outcome).toBe('accepted');
     const deliberate=page.getByRole('button',{name:'Neuer Stand verfügbar · Aktualisieren'});
     await expect(deliberate).toBeEnabled({timeout:3000});
-    await expect(page.getByText('Gespeicherter Stand laut Backlog: Awaiting QA')).toBeVisible();
-    await expect(page.getByRole('button',{name:'My undertaking'})).toBeDisabled();
+    await expect(row).toContainText('Freigabe erforderlich');
+    await expect(run).toBeDisabled();
     await deliberate.click();
     const refresh = page.getByRole('button', { name: 'Stand wird aktualisiert …' });
     await expect(refresh).toBeDisabled({ timeout: 3000 });
@@ -33,32 +33,27 @@ for (const theme of ['light', 'dark']) test(`actual ${theme} overview waits for 
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: evidencePath(`cockpit-refresh-${theme}-320.png`) });
     release();
-    await expect(page.getByText('Gespeicherter Stand laut Backlog: Awaiting UAT')).toBeVisible({ timeout: 3000 });
+    await expect(row).toContainText('Weiterarbeit offen', { timeout: 3000 });
     await expect(page.locator('.refresh-update-dot')).toHaveCount(0);
-    await expect(page.getByRole('searchbox')).toHaveValue('My undertaking');
-    await expect(page.locator('.row-source')).not.toHaveAttribute('open', '');
+    await expect(page.getByRole('searchbox')).toHaveValue('Fixture document');
     await expect(page.getByText('Veraltet', { exact: true })).toHaveCount(0);
-  } finally { await service.close(); f.close(); }
+  } finally { release?.(); await service.close(); f.close(); }
 });
 
 for (const theme of ['light', 'dark']) test(`${theme} changed original uses the header dot until deliberate reload`, async ({ page }) => {
-  const f = fixture(), path = join(f.root, f.documentPath);
-  fs.writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), content('Awaiting QA'));
-  fs.writeFileSync(path, '# Before deliberate reload');
+  const f = await approvalFixture(), path = join(f.root, f.documentPath);
   const service = await startControlServer({ dir: f.root });
   try {
-    await page.goto(service.startupURL); await page.getByRole('button', { name: 'Legacy-Backlog', exact: true }).click();
+    await page.goto(service.startupURL);
     await page.evaluate(t => document.documentElement.dataset.theme = t, theme);
-    await page.getByRole('button', { name: 'My undertaking' }).click();
-    await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
-    await page.locator('.resources button').filter({ hasText: /\/UR\.md/ }).click();
-    await page.getByText('Originaldokument lesen', { exact: true }).click();
-    await expect(page.locator('article.document')).toContainText('Before deliberate reload');
+    await page.locator('.run-link[data-focus-id="fixture-a"]').click();
+    await page.getByRole('button', { name: /: Anforderungen$/ }).click();
+    await expect(page.locator('article.document')).toContainText('Original source: ä, β, 日本語.');
     fs.writeFileSync(path + '.replacement', '# After deliberate reload'); fs.renameSync(path + '.replacement', path);
     const refresh = page.getByRole('button', { name: 'Quelle geändert · Neu laden' });
     await expect(refresh).toBeEnabled({ timeout: 3000 });
     await expect(page.locator('main footer')).toContainText('Neuer Stand verfügbar · Vorheriger Datenstand bleibt sichtbar');
-    await expect(page.locator('article.document')).toContainText('Before deliberate reload');
+    await expect(page.locator('article.document')).toContainText('Original source: ä, β, 日本語.');
     await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toHaveCount(0);
     for (const width of [320, 800]) {
       await page.setViewportSize({ width, height: 900 });
@@ -68,7 +63,6 @@ for (const theme of ['light', 'dark']) test(`${theme} changed original uses the 
       await page.screenshot({ path: evidencePath(`cockpit-source-change-${theme}-${width}.png`), fullPage: true });
     }
     await refresh.click();
-    await page.getByText('Originaldokument lesen', { exact: true }).click();
     await expect(page.locator('article.document')).toContainText('After deliberate reload');
     await expect(page.locator('.refresh-update-dot')).toHaveCount(0);
     await expect(page.locator('main footer')).not.toContainText('Vorheriger Datenstand');
@@ -123,7 +117,8 @@ for (const pathname of ['/', '/card.html']) test(`workshop robot tracks the sele
     expect(waiting).toMatch(/url\(#metal\).*url\(#visor\)/s);
     expect(waiting).toContain('>UR</text>');
     expect(waiting).toContain('dur="12s"');
-    expect(waiting).not.toContain('data-gesture');
+    expect(waiting).toMatch(/data-gesture="\d+"/);
+    expect(waiting).toContain('repeatCount="indefinite"');
     await image.screenshot({ path: evidencePath(`workshop-robot-waiting-${pathname === '/' ? 'expanded' : 'compact'}.png`) });
 
     const change = f.context.call('presentation_decision.record', {

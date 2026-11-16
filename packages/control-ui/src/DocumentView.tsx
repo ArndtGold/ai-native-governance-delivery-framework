@@ -1,4 +1,5 @@
 import Markdown from 'react-markdown';
+import type { ReactNode } from 'react';
 import remarkGfm from 'remark-gfm';
 import type { Envelope, DocumentData, Detail } from './types';
 import { ReadState, label } from './feedback';
@@ -12,12 +13,28 @@ export function PassiveMarkdown({ content, links, onOpen, preserveHtmlText = fal
     input: ({ checked }) => <span>{checked ? '☑' : '☐'}</span>,
   }}>{content}</Markdown>;
 }
-export function DocumentView({ result, onOpen, runTitle, detail, current = true, simple = false }: { result: Envelope<DocumentData>; onOpen: (id: string) => void; runTitle?: string; detail?: Envelope<Detail>; current?: boolean; simple?: boolean }) {
+function hasRegisteredDocumentBinding(result: Envelope<DocumentData>, detail?: Envelope<Detail>) {
   const data = result.data;
-  const bound = !!data && !!detail?.data && !!result.snapshot_id && result.snapshot_id === detail.snapshot_id
+  return !!data && !!detail?.data && !!result.snapshot_id && result.snapshot_id === detail.snapshot_id
     && result.target.target_id === detail.target.target_id && data.resource.run_id === detail.data.run_id
     && data.resource.status === 'registered' && detail.data.resources.some(r => r.resource_id === data.resource.resource_id
       && r.run_id === data.resource.run_id && r.type === data.resource.type && r.registered_reference === data.resource.registered_reference && r.status === 'registered');
+}
+
+export function OriginalDocumentDownload({ result, detail, current, className = 'document-download', children }: {
+  result: Envelope<DocumentData>; detail?: Envelope<Detail>; current: boolean; className?: string; children?: ReactNode;
+}) {
+  const data = result.data;
+  if (!current || result.state !== 'available' || data?.content === undefined || !hasRegisteredDocumentBinding(result, detail)) return null;
+  const label = 'Originaldatei herunterladen';
+  const filename = (data.resource.registered_reference.split('/').pop() || 'dokument.md').replace(/[^a-zA-Z0-9._-]/g, '_');
+  return <a className={className} download={filename} href={`data:text/plain;charset=utf-8,${encodeURIComponent(data.content)}`}
+    aria-label={label} title={children == null ? label : undefined}>{children ?? label}</a>;
+}
+
+export function DocumentView({ result, onOpen, runTitle, detail, current = true, simple = false, navigationEnabled = true, showDownload = true }: { result: Envelope<DocumentData>; onOpen: (id: string) => void; runTitle?: string; detail?: Envelope<Detail>; current?: boolean; simple?: boolean; navigationEnabled?: boolean; showDownload?: boolean }) {
+  const data = result.data;
+  const bound = hasRegisteredDocumentBinding(result, detail);
   const artefacts = Array.isArray(detail?.data?.persisted?.artefacts) ? detail.data.persisted.artefacts : [];
   const row = bound ? artefacts.find((v): v is { type: string; path: string; status: string } => {
     if (!v || typeof v !== 'object') return false;
@@ -45,18 +62,17 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true,
       {state.check.source.reason && <p>Originalgrund: <code>{state.check.source.reason}</code></p>}
       {state.check.result && <details><summary>Originalbefunde</summary><pre>{JSON.stringify(state.check.result, null, 2)}</pre></details>}
     </details>;
-  const sourceDetails = <details className="document-provenance"><summary>Quellenangaben</summary><dl className="document-source-fields"><dt>Dokumenttyp</dt><dd>{data?.resource.type ?? 'Dokument'}</dd><dt>Registrierte Quelle</dt><dd><code>{data?.resource.registered_reference}</code></dd>{data?.content_digest && <><dt>Quellenfingerabdruck</dt><dd><code>{data.content_digest}</code></dd></>}</dl></details>;
+  const sourceDetails = <details className="document-provenance"><summary>Quellenangaben</summary><dl className="document-source-fields"><dt>Beobachtete Run-Revision</dt><dd><code>{detail?.data?.revision_id ?? 'Nicht verfügbar'}</code></dd><dt>Beobachtet</dt><dd>{result.observed_as_of ?? 'Nicht verfügbar'}</dd><dt>Dokumenttyp</dt><dd>{data?.resource.type ?? 'Dokument'}</dd><dt>Registrierte Quelle</dt><dd><code>{data?.resource.registered_reference}</code></dd>{data?.content_digest && <><dt>Quellenfingerabdruck</dt><dd><code>{data.content_digest}</code></dd></>}</dl></details>;
   if (simple) return <>
     <div className="document-state-context">{!(confirmed && state?.state === 'draft_checked') && <DocumentStateLabel state={state} type={data?.resource.type ?? ''} current={!!confirmed} recordedApproval={!!approval}/>}
       {confirmed && state?.check?.display.findings?.length ? <ul aria-label="Aktuelle Korrekturen">{state.check.display.findings.map((finding, i) => <li key={`${finding.code}:${i}`}>{finding.message ?? finding.code}</li>)}</ul> : null}
     </div>
     {result.state !== 'available' ? <ReadState state={result.state} code={result.code}/> : data?.content !== undefined
       ? <article className="document document-original-text" aria-label="Originaldokument">{data.format === 'markdown'
-        ? <PassiveMarkdown content={data.content} links={data.links ?? {}} onOpen={onOpen} preserveHtmlText/>
+        ? <PassiveMarkdown content={data.content} links={navigationEnabled ? data.links ?? {} : {}} onOpen={onOpen} preserveHtmlText/>
         : <pre>{data.content}</pre>}</article>
       : <ReadState state="error" code="dto_invalid"/>}
-    {readable && bound && current && <a className="document-download" download={(data?.resource.registered_reference.split('/').pop() || 'dokument.md').replace(/[^a-zA-Z0-9._-]/g, '_')}
-      href={`data:text/plain;charset=utf-8,${encodeURIComponent(data!.content!)}`}>Originaldatei herunterladen</a>}
+    {showDownload && <OriginalDocumentDownload result={result} detail={detail} current={current}/>}
     {checkDetails}
     {sourceDetails}
   </>;

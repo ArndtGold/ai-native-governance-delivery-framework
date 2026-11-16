@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { App } from '../src/App';
 import { BrowserEntry } from '../src/BrowserEntry';
+import { CompanionProgress } from '../src/mcp/CompanionProgress';
 import { validateData, type ReadTransport } from '../src/api';
 import type { Detail, Envelope, ReadingScope } from '../src/types';
 import { backlog, pointer, runData, fixtureMeta, runScope, documentFixture } from './scoped-fixtures';
@@ -38,6 +39,30 @@ function draftRead(run = companionDraft()) {
 
 describe('Codex Companion status card', () => {
   const primary = () => screen.getByRole('button', { name: 'PRD-Entwurf öffnen' });
+
+  it('switches the shared gate bar with available space while preserving every accessible step', () => {
+    let available = 240;
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(() => available);
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 200, height: 19, top: 0, left: 0, bottom: 19, right: 200, x: 0, y: 0, toJSON() {} });
+    const marks = [{ gate: 'UR', mark: 'done' as const }, { gate: 'PRD', mark: 'current' as const }, { gate: 'SD', mark: 'open' as const }];
+    const view = render(<CompanionProgress marks={marks} previous={false}/>);
+    const visible = () => view.container.querySelector('.companion-gates-text')?.textContent;
+    expect(visible()).toBe('✓UR ●PRD ○SD');
+    available = 180; fireEvent(window, new Event('resize'));
+    expect(visible()).toBe('✓●○ PRD');
+    const list = screen.getByRole('list', { name: 'Gate-Fortschritt' });
+    expect(list.querySelectorAll('li')).toHaveLength(3);
+    expect(list.textContent).toBe('UR, ErledigtPRD, AktuellSD, Offen');
+    expect(list.querySelector('[aria-current="step"]')?.textContent).toBe('PRD, Aktuell');
+    view.rerender(<CompanionProgress marks={marks} previous/>);
+    expect(list.querySelector('[aria-current]')).toBeNull();
+    available = 240; fireEvent(window, new Event('resize'));
+    expect(visible()).toBe('✓UR ●PRD ○SD');
+    available = 180; fireEvent(window, new Event('resize'));
+    view.rerender(<CompanionProgress marks={marks.map(item => ({ ...item, mark: 'done' }))} previous={false}/>);
+    expect(visible()).toBe('✓✓✓');
+    expect(list.querySelector('[aria-current]')).toBeNull();
+  });
 
   it('shows the footer switcher only with multiple active Runs and returns to the original Chat Run silently', async () => {
     const start = vi.fn();
@@ -84,6 +109,36 @@ describe('Codex Companion status card', () => {
     material = 'c';
     choose('Neu lesen');
     await waitFor(() => expect(start).toHaveBeenCalledTimes(1));
+  });
+
+  it('hides the footer switcher on a completed Chat Run even when other Runs are active', async () => {
+    const run = runData('run-boxenfunk', 'Boxenfunk');
+    run.lifecycle = 'completed';
+    run.active_run_ids = ['run-a', 'run-b', 'run-c'];
+    run.persisted = { ...run.persisted!, current_gate: 'OR' };
+    run.evaluation = { ...run.evaluation!, status: 'pass', current_gate: 'OR',
+      completion: { status: 'completed', gate: 'OR', fulfilled: true },
+      control_assessment: { state: 'completed', authorizes: false } };
+    run.companion = { route: 'structured_slice', path: [{ gate: 'OR', status: 'fulfilled' }], next_text: '', blocking_text: '' };
+    const read = vi.fn(async () => runScope(run)) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByText('Abgeschlossen');
+    const card = screen.getByRole('article', { name: 'Companion-Statuskarte' });
+    expect(card.getAttribute('data-display-gate')).toBe('OR');
+    expect(card.getAttribute('data-display-gate-state')).toBe('done');
+    expect(screen.queryByRole('navigation', { name: 'Aktive Runs' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'AGDF Companion' })).toBeTruthy();
+  });
+
+  it('shows an idle Companion when a general opening finds only completed Runs', async () => {
+    const former = { ...pointer('run-boxenfunk', 'Boxenfunk'), section: 'completed' as const, lifecycle: 'completed' as const };
+    const read = vi.fn(async () => backlog([former])) as unknown as ReadTransport;
+    render(<App host="codex" transport={read} companionEmpty/>);
+    await screen.findByRole('heading', { name: 'Kein aktiver Run' });
+    expect(document.querySelector('.companion-card .run-figure')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'AGDF Companion für Codex', level: 1 })).toBeTruthy();
+    expect(screen.queryByText('Boxenfunk')).toBeNull();
+    expect(screen.queryByRole('navigation', { name: 'Aktive Runs' })).toBeNull();
   });
 
   it('keeps the cue independent and silent on enable, revisit, stale and expired observations', async () => {
@@ -145,6 +200,7 @@ describe('Codex Companion status card', () => {
     previous = true;
     await reread();
     expect(start).toHaveBeenCalledTimes(1);
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Stand nicht bestätigt');
     previous = false;
     await reread();
     expect(start).toHaveBeenCalledTimes(2);
@@ -152,12 +208,17 @@ describe('Codex Companion status card', () => {
     mismatch = true;
     await reread();
     expect(start).toHaveBeenCalledTimes(2);
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Stand nicht bestätigt');
     const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
     material = 'f';
     mismatch = false;
     await reread();
     expect(start).toHaveBeenCalledTimes(2);
     hidden.mockRestore();
+    readProblem = 'read_failed';
+    await reread();
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Zuletzt beobachteter Stand');
+    expect(start).toHaveBeenCalledTimes(2);
     readProblem = 'session_expired';
     await reread();
     await screen.findByText(/Öffne das Cockpit im Chat erneut/);
@@ -202,7 +263,7 @@ describe('Codex Companion status card', () => {
     material = 'b';
     await choose('Neu lesen');
     fireEvent.click(primary());
-    const back = await screen.findByRole('button', { name: 'Zurück zur Statuskarte' });
+    const back = await screen.findByRole('button', { name: 'Zurück zum Companion' });
     await act(async () => { finishDecode(buffer); });
     fireEvent.click(back);
     await screen.findByText('Du bist dran');
@@ -212,7 +273,7 @@ describe('Codex Companion status card', () => {
     expect(start).toHaveBeenCalledTimes(1);
     fireEvent.click(primary());
     await screen.findByText('Registrierte PRD-Fassung');
-    fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Statuskarte' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück zum Companion' }));
     await screen.findByText('Du bist dran');
     expect(start).toHaveBeenCalledTimes(1);
     material = 'd';
@@ -230,6 +291,12 @@ describe('Codex Companion status card', () => {
     expect(screen.queryByRole('button', { name: 'Alle Vorhaben' })).toBeNull();
     expect(screen.getByText('Passende Quelle direkt lesen')).toBeTruthy();
     const card = screen.getByRole('article', { name: 'Companion-Statuskarte' });
+    expect(card.querySelectorAll('[role="status"]')).toHaveLength(1);
+    expect(card.querySelector('[role="status"]')?.textContent).toBe('Du bist dran');
+    const caption = screen.getByText('Ich warte auf deine Freigabe');
+    expect(caption.closest('.companion-figure-block')).toBeTruthy();
+    expect(caption.compareDocumentPosition(screen.getByRole('heading', { name: run.title })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByText('Ich warte auf deine Entscheidung')).toBeNull();
     const approval = screen.getByText('Approval: PRD', { selector: 'code' });
     expect(approval.closest('.companion-turn')).toBe(screen.getByText('Du bist dran').parentElement);
     const progress = screen.getByRole('list', { name: 'Gate-Fortschritt' });
@@ -237,10 +304,10 @@ describe('Codex Companion status card', () => {
     expect(progress.compareDocumentPosition(card.querySelector('summary')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(card.querySelector('details')?.open).toBe(false);
     fireEvent.click(primary());
-    await screen.findByRole('button', { name: 'Zurück zur Statuskarte' });
-    expect(screen.getByRole('heading', { name: 'AGDF Cockpit für Codex', level: 1 })).toBeTruthy();
+    await screen.findByRole('button', { name: 'Zurück zum Companion' });
+    expect(screen.getByRole('heading', { name: 'AGDF Companion für Codex', level: 1 })).toBeTruthy();
     expect(vi.mocked(read).mock.calls.map(([path]) => path)).toContain('/api/documents/PRD?snapshot=run-snapshot');
-    fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Statuskarte' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Zurück zum Companion' }));
     await waitFor(() => expect(document.activeElement).toBe(primary()));
     expect(screen.getByRole('heading', { name: 'AGDF Companion für Codex', level: 1 })).toBeTruthy();
     expect(primary().getAttribute('data-focus-id')).toBe('companion:reissued-prd');
@@ -255,7 +322,7 @@ describe('Codex Companion status card', () => {
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
     await screen.findByText('Du bist dran');
     fireEvent.click(primary());
-    fireEvent.click(await screen.findByRole('button', { name: 'Zurück zur Statuskarte' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Zurück zum Companion' }));
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('heading', { name: run.title })));
     expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
     expect(screen.queryByText('Approval: PRD', { selector: 'code' })).toBeNull();
@@ -277,12 +344,11 @@ describe('Codex Companion status card', () => {
       await screen.findByText('Du bist dran');
       fireEvent.click(primary());
       await act(async () => { resolveRead(response); });
-      expect(screen.queryByRole('button', { name: 'Zurück zur Statuskarte' })).toBeNull();
+      expect(screen.getByRole('button', { name: 'Zurück zum Companion' })).toBeTruthy();
       expect(screen.queryByText('Registrierte PRD-Fassung')).toBeNull();
-      expect(screen.getByText('Zuletzt beobachteter Stand')).toBeTruthy();
+      expect(screen.getByText(/Die gewählte Fassung konnte nicht bestätigt werden/)).toBeTruthy();
       expect(expand).not.toHaveBeenCalled();
-      fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
-      fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Zurück zum Companion' }));
       await screen.findByText('Du bist dran');
       expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/snapshot?run_id=run-a');
       expect(vi.mocked(read).mock.calls.filter(([path]) => path.startsWith('/api/documents/'))).toHaveLength(1);
@@ -305,25 +371,62 @@ describe('Codex Companion status card', () => {
     expect(screen.queryByRole('list', { name: 'Gate-Fortschritt' })).toBeNull();
   });
 
+  it.each([
+    ['Brownfield Review', 'Bestandsanalyse steht an'],
+    ['Brownfield Analysis', 'Bestandsanalyse steht an'],
+    ['PRD', 'PRD-Entwurf steht an'],
+    ['QA', 'Qualitätsprüfung steht an'],
+    ['Neuer Schritt', 'Neuer Schritt steht an'],
+  ])('names pending %s work below the figure without claiming a live activity', async (gate, caption) => {
+    const run = companionDraft();
+    run.persisted!.current_gate = gate;
+    run.evaluation = { ...run.evaluation!, current_gate: gate, missing_approval: 'none',
+      control_assessment: { state: 'open', authorizes: false } };
+    run.figure = { mood: 'laeuft', reason: { key: 'working', gate } };
+    const read = vi.fn(async () => runScope(run)) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    const signal = await screen.findByText(caption);
+    expect(signal.closest('.companion-figure-block')).toBeTruthy();
+    expect(signal.getAttribute('role')).toBe('status');
+    expect(screen.queryByText('Du bist dran')).toBeNull();
+  });
+
+  it('addresses the user when a decision is pending without a formal approval', async () => {
+    const run = companionDraft();
+    run.evaluation = { ...run.evaluation!, missing_approval: 'none', control_assessment: { state: 'open', authorizes: false } };
+    run.figure = { mood: 'wartet', reason: { key: 'waitingDecision', gate: 'PRD' } };
+    const read = vi.fn(async () => runScope(run)) as unknown as ReadTransport;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    const caption = await screen.findByText('Ich warte auf deine Entscheidung');
+    expect(caption.closest('.companion-figure-block')).toBeTruthy();
+    expect(screen.getByText('Du bist dran')).toBeTruthy();
+    expect(screen.queryByText('Approval: PRD')).toBeNull();
+  });
+
   it('shows pending work in a resting pose and identifies a blocker with no registered finding', async () => {
     const run = companionDraft();
     const pending = { ...run, figure: { mood: 'baut', reason: { key: 'building' } },
-      evaluation: { ...run.evaluation!, missing_approval: 'none', control_assessment: { state: 'open' as const, authorizes: false as const },
+      persisted: { ...run.persisted!, current_gate: 'CD+Tests' },
+      evaluation: { ...run.evaluation!, current_gate: 'CD+Tests', missing_approval: 'none', control_assessment: { state: 'open' as const, authorizes: false as const },
         next_operation: { type: 'implement_approved_plan', operation_key: 'implementation.execute', actor: 'agent' as const, effect: 'implementation', gate: 'CD+Tests' } } };
     const blocker: Detail = { ...run, evaluation: { ...run.evaluation!, status: 'blocked', missing_approval: 'none', control_assessment: { state: 'blocked', authorizes: false } },
       companion: { ...run.companion!, blocking_text: 'Kontrollquelle muss geprüft werden.' } };
     let value: Detail = pending;
     const read = vi.fn(async () => runScope(value)) as unknown as ReadTransport;
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
-    await screen.findByText('Schritt steht an');
+    await screen.findByText('Umsetzung steht an');
     expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
     const figure = document.querySelector('.companion-card .run-figure')!;
-    expect(decodeURIComponent(figure.getAttribute('src')!)).not.toMatch(/<animate/);
+    const pose = decodeURIComponent(figure.getAttribute('src')!);
+    expect(pose).toContain('data-arm="folded"');
+    expect(pose).toContain('data-antenna="receiving"');
+    expect(pose).not.toContain('data-tool="torque-wrench"');
     expect(screen.queryByText('Du bist dran')).toBeNull();
     value = blocker;
     fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
     await screen.findByText('Kontrollquelle muss geprüft werden.');
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Blockiert');
     expect(screen.getByText('Kein passender registrierter Befund verfügbar.')).toBeTruthy();
   });
 
@@ -341,6 +444,7 @@ describe('Codex Companion status card', () => {
     expired = true;
     fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
     await screen.findByText(/Öffne das Cockpit im Chat erneut/);
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Sitzung abgelaufen');
     expect(screen.getByRole('heading', { name: run.title })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
     fireEvent.click(menu);

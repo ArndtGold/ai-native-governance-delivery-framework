@@ -22,6 +22,20 @@ declare module '*core/lib/control-inspect/work-situation.js' {
 }
 
 declare module '*claude/companion/gate-bar.mjs' {
+  export interface GateMark { gate: string; mark: 'done' | 'current' | 'open' }
   export function gateMarks(run: { path: import('./types').CompanionStatus['path']; gate?: string; route: string; lifecycle: string | null }):
-    { gate: string; mark: 'done' | 'current' | 'open' }[];
+    GateMark[];
+  export function fullGateBar(marks: GateMark[]): string;
+  export function condensedGateBar(marks: GateMark[]): string;
+}
+
+declare module '*claude/companion/view.mjs' {
+  export function activityLabel(gate: string, isTurnActive: boolean,
+    t: (path: string, params: Record<string, string>) => string, title: (gate: string) => string): string;
+}
+
+declare module '*claude/companion/localization.mjs' {
+  interface CompanionLabels { fallbackLocale: string; locales: Record<string, unknown> }
+  export function companionLabels(registry: { fallbackLocale: string; locales: Record<string, { companion?: unknown }> }): CompanionLabels;
+  export function label(labels: CompanionLabels, locale: string, path: string, params?: Record<string, string>): string;
 }

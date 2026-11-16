@@ -39,6 +39,9 @@ const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
 const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
 const storedObjective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
 const companionText = value => typeof value === 'string' ? value.slice(0, 500) : '';
+const activity = row => Date.parse(row.meta.updated_at || row.last_updated_at) || 0;
+const activeRuns = runs => runs.filter(row => row.valid && row.meta.lifecycle === 'active')
+  .sort((a, b) => activity(b) - activity(a) || a.run_id.localeCompare(b.run_id));
 // History of an ended Run, read only from its sealed closure receipt; null for every other Run.
 export function projectRunClosure(content) {
   const closure = runClosure(content);
@@ -281,10 +284,7 @@ export function createCockpitReader(root, options = {}) {
     const data = detail(run);
     // Reuse the captured project inventory. The footer needs only the ordered IDs,
     // so it can browse without replacing the card's snapshot with an overview read.
-    const activity = row => row.meta.updated_at ? Date.parse(row.meta.updated_at) : -Infinity;
-    data.active_run_ids = runs.filter(row => row.valid && row.meta.lifecycle === 'active')
-      .sort((a, b) => activity(b) - activity(a) || a.run_id.localeCompare(b.run_id))
-      .map(row => row.run_id);
+    data.active_run_ids = activeRuns(runs).map(row => row.run_id);
     details.set(runId, { state: 'available', code: null, data });
     return { state: 'available', code: null, data: { kind: 'run', run: data } };
   }
@@ -331,6 +331,26 @@ export function createCockpitReader(root, options = {}) {
     return { state: document.state, code: document.code, data: { kind: 'document', run: selected.data.run, document: document.data } };
   }
   return Object.freeze({
+    companionStart(preferredRunId) {
+      const result = replaceScope(() => {
+        const candidates = activeRuns(discoverRuns(root));
+        const preferred = candidates.find(row => row.run_id === preferredRunId);
+        const selected = preferred ?? candidates.find(row => {
+          const candidate = detail(row);
+          documents.clear();
+          const { evaluation, persisted, figure } = candidate;
+          const waiting = evaluation.status === 'open' && evaluation.blocking_reason === 'none'
+            && evaluation.missing_approval === `Approval: ${evaluation.current_gate}`;
+          return persisted.current_gate === evaluation.current_gate
+            && persisted.next_allowed_action === evaluation.next_allowed_action
+            && (waiting || evaluation.control_assessment.state === 'open'
+              && (evaluation.next_operation?.actor === 'human' || figure?.reason.key === 'waitingDecision'));
+        }) ?? candidates[0];
+        return { state: 'available', code: null, data: { run_id: selected?.run_id ?? null } };
+      });
+      discardScope();
+      return result;
+    },
     snapshot(runId, scope = 'runs') {
       if (scope !== 'runs' || runId !== undefined && scope !== 'runs') fail('resource_denied');
       if (runId !== undefined && !RUN_ID_PATTERN.test(runId)) fail('resource_denied');

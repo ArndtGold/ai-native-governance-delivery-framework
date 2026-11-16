@@ -1,0 +1,20 @@
+## Qualitätssicherung prüfen und entscheiden
+
+QA Report: Companion shows planned URs instead of an empty state
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ergebnis: Zeigt der Begleiter keinen Run, zeigt er jetzt die neueste geplante UR (in dieser Sitzung geändert oder kein Run offen) mit Titel, „UR-Planung · noch kein Run“, Ziel, „Wer ist dran“ für Entwurf (schreibt während eines Turns, ruht sonst), bereit (im Chat übergeben) und unklar (im Chat klären), Gate-Leiste, Hinweis auf abgeschlossene Runs und weitere URs, Plan-ID und Statuszeile „AGDF · UR-Planung“. Die Run-Ansicht des Core listet nicht übergebene geplante URs und fällt bei Fehlern auf eine leere Liste zurück; eine neue oder geänderte UR wird genau einmal neu gelesen. Alle Prüfungen grün, vier Review-Befunde behoben und nachgeprüft.
+- Grenzen: Das echte Claude-Panel wurde nicht geprüft; sichtbar belegt ist das Verhalten durch Bilder aus dem echten Codepfad außerhalb von Claude und durch Adapter-Tests. Browser-Tests des Cockpits liefen nicht (außerhalb des TP), CI steht aus, weil noch nichts committet ist.
+- Risiken: Eine UR ohne deutsche Freigabe-Zusammenfassung erscheint auf Deutsch als Entwurf (im PRD akzeptiert). „Schreibt am UR-Entwurf“ erscheint bei jedem Turn, weil der Begleiter nicht sieht, was der Turn tut.
+
+Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: QA.
+
+### Fassung und Quellen
+
+Run: `run-9c609e83-5a41-4644-8892-3aed624a617d` · Qualitätssicherung · Revision: `7ef2f62c-48a8-4ff2-a8fe-08d16f5c6ffb`
+
+SHA-256: `sha256:594fcd9f79de9b921e46b3f620b1a89d89addfe07a9dcc4a75c068fb9de0ddbb`

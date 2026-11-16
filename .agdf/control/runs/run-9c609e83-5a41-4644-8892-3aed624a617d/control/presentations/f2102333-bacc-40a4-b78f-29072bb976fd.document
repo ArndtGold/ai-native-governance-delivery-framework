@@ -1,0 +1,29 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Companion shows planned URs instead of an empty state
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Der Begleiter zeigt eine geplante UR, die noch kein Run ist, mit Titel, Ziel und nächstem Schritt, statt zu behaupten, alle Runs seien fertig.
+- Umfang: Die lesende Run-Ansicht listet nicht übergebene geplante URs (Plan-ID, Titel, Abdeckung, Ziel, letzte Änderung); ein unlesbarer Planungsordner ergibt eine leere Liste. Zeigt der Begleiter keinen Run, zeigt er die neueste geplante UR, wenn sie sich in dieser Sitzung geändert hat oder kein Run offen ist. Angezeigt werden Zustandszeile, Titel, „UR-Planung · noch kein Run“, Ziel, „Wer ist dran“, Gate-Leiste mit UR-Planung, Details, Hinweis auf abgeschlossene Runs und weitere URs, Plan-ID; Figur, Statuszeile „AGDF · UR-Planung“ und Terminal passen dazu; neues Lesen bei neuer oder geänderter UR; Texte in de und en.
+- Entscheidungen: Auswahlregel wie in der UR festgelegt, ohne Auswahl-UI; die Bereitschaftsregel des Core bleibt unverändert (eine UR ohne deutsche Zusammenfassung erscheint auf Deutsch als Entwurf); bei unklarer Abdeckung „braucht Klärung“ mit Hinweis auf den Chat; Form des neuen Felds und Änderungserkennung legt das SD fest.
+- AC-001: Entwurf ohne offenen Run zeigt Titel, „UR-Planung · noch kein Run“, Ziel, „Als Nächstes“, Gate-Leiste und Plan-ID, ohne Leer- oder „Alle Runs im Ziel“-Meldung, in Panel und Terminal, de und en.
+- AC-002: Während eines Turns lautet die Zeile „schreibt am UR-Entwurf“, der Block „Einen Augenblick“, und die Figur schreibt auf dem Klemmbrett; danach ruht sie wieder.
+- AC-003: Eine vollständige UR erscheint als „UR bereit zur Übergabe“ mit „Übergabe in einen Run“ und dem Hinweis, das im Chat zu sagen.
+- AC-004: Abdeckung recovery_required, unconfirmed oder unavailable erscheint als „UR-Planung braucht Klärung“ mit eigenem Text je Abdeckung und Hinweis auf den Chat.
+- AC-005: Nach der Übergabe verschwindet die UR aus der Planungsliste und der Begleiter zeigt den Run wie bisher.
+- AC-006: Ein unlesbarer Planungsordner lässt die Run-Ansicht nicht scheitern; Runs bleiben sichtbar.
+- AC-007: Statuszeile „AGDF · UR-Planung“, Hinweise „Abgeschlossene Runs: n“ und „Weitere URs in Planung: n“, alle Texte in der Chat-Sprache ohne Sprachmischung.
+- AC-008: Eine neue oder geänderte geplante UR löst genau ein neues Lesen aus; ohne Änderung wird nicht neu gelesen.
+- AC-009: Verhalten für Runs und für Projekte ohne AGDF bleibt unverändert; bestehende Testsuiten laufen durch.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-9c609e83-5a41-4644-8892-3aed624a617d` · Produktanforderungen · Revision: `510a9bcd-6bc0-4649-901c-59df69bae969`
+
+SHA-256: `sha256:59cb82cc8845543df8c8ac6c42fda81d89f0e54a44bfebc1fc9029873f236bcb`

@@ -22,6 +22,6 @@ bridge.addEventListener('loggingmessage', value => { logs.push(value); });
 bridge.oncalltool = async params => (await fetch('/tool', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(params) })).json();
 bridge.oninitialized = async () => { await bridge.sendToolResult(await (await fetch('/prepared')).json()); };
 bridge.onrequestteardown = async () => { if (new URLSearchParams(location.search).get('closeMode') === 'accepted') await bridge.teardownResource({}); };
-(window as unknown as { sdkTraceHarness: unknown }).sdkTraceHarness = { logs, teardown: () => bridge.teardownResource({}) };
+(window as unknown as { sdkTraceHarness: unknown }).sdkTraceHarness = { logs, setContext: (value: Parameters<typeof bridge.setHostContext>[0]) => bridge.setHostContext({ displayMode: displayModes[0], availableDisplayModes: [...displayModes], locale: 'de', ...value }), teardown: () => bridge.teardownResource({}) };
 await bridge.connect(new PostMessageTransport(iframe.contentWindow!, iframe.contentWindow!));
 iframe.src = new URLSearchParams(location.search).has('closeMode') ? '/cockpit.html?diagnostics=1' : '/cockpit.html';

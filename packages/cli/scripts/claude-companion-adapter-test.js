@@ -265,7 +265,7 @@ try {
   await runButton.props.onPress();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[target.root], "fixture-a");
   tree = await render(first);
-  assert.ok(texts(tree).includes("Selected by you") && texts(tree).includes("waiting for approval"));
+  assert.ok(texts(tree).includes("Selected by you") && texts(tree).includes("I’m waiting for your approval"));
   const figureSource = async host => find(await render(host), node => node.tag === "Svg")[0].props.source;
   const waitingFigure = await figureSource(first);
   assert.match(waitingFigure, />UR<\/text>/u);
@@ -625,7 +625,7 @@ try {
   await first.fire("turn.start", { agentId: "sub" });
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"));
   await first.fire("turn.start", {});
-  assert.deepEqual([texts(await render(first)).includes("waiting for approval"), texts(await render(first)).includes("Claude is working on this turn")], [true, false], "a waiting run stays waiting during a turn");
+  assert.deepEqual([texts(await render(first)).includes("I’m waiting for your approval"), texts(await render(first)).includes("Claude is working on this turn")], [true, false], "a waiting run stays waiting during a turn");
   // CR-F10: turn.complete answers the host before the post-turn read has finished.
   const reads = first.log.invalidations;
   const realRun = first.$.process.run;
@@ -638,7 +638,7 @@ try {
   first.$.process.run = realRun;
   releaseList();
   await waitFor(() => first.log.invalidations > reads, "the post-turn redraw");
-  assert.ok(texts(await render(first)).includes("waiting for approval"));
+  assert.ok(texts(await render(first)).includes("I’m waiting for your approval"));
 
   // CR-F05: switching off during a turn and on again leaves no stale "working" overlay.
   await first.fire("turn.start", {});
@@ -657,7 +657,7 @@ try {
   await (await entry(first, "retry"))();
   releaseEmpty();
   await slowRead;
-  assert.ok(texts(await render(first)).includes("waiting for approval"), "the newer read stays on screen");
+  assert.ok(texts(await render(first)).includes("I’m waiting for your approval"), "the newer read stays on screen");
 
   // AC-010: the still pose persists and removes all motion; the terminal draws text.
   await (await entry(first, "still"))();
@@ -668,7 +668,7 @@ try {
   const terminal = await render(first, "terminal");
   assert.equal(find(terminal, node => node.tag === "Svg").length, 0);
   // For an approval the next step sits behind the (i); the turn line says what to do (2026-11-12).
-  assert.match(texts(terminal).join("\n"), /waiting for approval[\s\S]*Your turn: Approve [\s\S]*[✓●○]UR/u);
+  assert.match(texts(terminal).join("\n"), /I’m waiting for your approval[\s\S]*Your turn: Approve [\s\S]*[✓●○]UR/u);
 
   // A change in this session takes over from the selection (most recent wins).
   assert.equal(target.approve().outcome, "accepted");

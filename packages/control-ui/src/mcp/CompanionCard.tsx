@@ -1,45 +1,26 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { gateMarks } from '../../../../plugins/agdf/host-templates/claude/companion/gate-bar.mjs';
+import { activityLabel } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
+import { companionLabels, label } from '../../../../plugins/agdf/host-templates/claude/companion/localization.mjs';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';
 import { RunFigure, useReducedFigureMotion } from '../RunFigure';
-import { observedAssessment, phaseName } from '../presentation';
+import { phaseName } from '../presentation';
 import { ReadState, readingStatus } from '../feedback';
 import { refreshUnavailable } from '../RefreshControl';
 import { hasExpiredSession, type ReadingState } from '../state';
 import type { Detail, Resource } from '../types';
 
-const gateGlyph = { done: '✓', current: '●', open: '○' };
-const gateMarkLabel = { done: 'Erledigt', current: 'Aktuell', open: 'Offen' };
+import { companionDecision, companionSource } from '../companion-source';
+import { Icon } from './Icon';
+import { CompanionProgress } from './CompanionProgress';
+
 const gateRationales: Readonly<Record<string, string>> = registry.locales.de.gateRationale;
+const labels = companionLabels(registry);
+const companionLabel = (path: string, params?: Record<string, string>) => label(labels, 'de', path, params);
 
-function sourceFor(data: Detail, blocked: boolean, waiting: boolean) {
-  if (waiting) {
-    const draft = data.document_states?.find(row => row.type === data.evaluation?.current_gate && row.version_kind === 'draft'
-      && row.source_state === 'available' && row.run_id === data.run_id && row.revision_id === data.revision_id);
-    if (draft?.content_digest) return { resourceId: draft.resource_id, digest: draft.content_digest };
-  }
-  if (blocked && data.companion?.finding) {
-    const finding = data.companion.finding;
-    return { resourceId: finding.resource_id, digest: finding.content_digest };
-  }
-  return null;
-}
-
-export function companionDecision(data: Detail, current: boolean) {
-  const assessment = observedAssessment(data, current);
-  const evaluation = data.evaluation;
-  const gate = evaluation?.current_gate;
-  // The reader's assessment blocks delivery until approval; the same Core report
-  // can identify that as a ready human decision rather than a delivery problem.
-  const waiting = !!gate && assessment !== 'unconfirmed' && evaluation?.status === 'open'
-    && evaluation.blocking_reason === 'none' && evaluation.missing_approval === `Approval: ${gate}`;
-  const human = waiting || assessment === 'open' && (evaluation?.next_operation?.actor === 'human' || data.figure?.reason?.key === 'waitingDecision');
-  return { assessment, waiting, human };
-}
-
-export function CompanionCard({ state, data, current, visible, enabled, motion, mismatch, sourcePending, onOpen }: {
+export function CompanionCard({ state, data, current, visible, enabled, motion, mismatch, sourcePending, sourceShown, showWidthHint, onOpen }: {
   state: ReadingState; data: Detail; current: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
-  sourcePending: boolean; onOpen: (resource: Resource, digest: string) => void;
+  sourcePending: boolean; sourceShown?: boolean; showWidthHint?: boolean; onOpen: (resource: Resource, digest: string) => void;
 }) {
   const evaluation = data.evaluation;
   const companion = data.companion;
@@ -50,13 +31,23 @@ export function CompanionCard({ state, data, current, visible, enabled, motion, 
   const previous = readingStatus(state).previous;
   const blocked = assessment === 'blocked' && !waiting;
   const pending = assessment === 'open' && !human;
+  // The Codex card observes a Run snapshot, not a live host turn. Name the pending work honestly.
   const status = expired ? 'Sitzung abgelaufen' : previous ? 'Zuletzt beobachteter Stand' : blocked ? 'Blockiert'
-    : human ? 'Entscheidung offen' : completed ? 'Abgeschlossen' : pending ? 'Schritt steht an'
+    : waiting ? companionLabel('waitingCaptions.waitingApproval')
+    : human ? companionLabel('waitingCaptions.waitingDecision') : completed ? 'Abgeschlossen'
+    : pending && gate ? activityLabel(gate, false, companionLabel, phaseName) : pending ? 'Schritt steht an'
     : assessment === 'ended' ? 'Beendet' : 'Stand nicht bestätigt';
   const tone = previous || expired ? 'previous' : blocked ? 'blocked' : human ? 'decision' : completed ? 'completed' : undefined;
-  const source = sourceFor(data, blocked, waiting);
-  const resource = data.resources.find(item => item.resource_id === source?.resourceId && item.status === 'registered' && item.run_id === data.run_id);
+  const source = companionSource(data, state.scope?.target.target_id ?? '', !mismatch && state.detail?.state === 'available');
+  const resource = source?.resource;
+  const widthHintId = useId();
+  const showSourceHint = current && !blocked && showWidthHint;
   const marks = companion && assessment !== 'unconfirmed' ? gateMarks({ path: companion.path, gate, route: companion.route, lifecycle: data.lifecycle }) : [];
+  const displayGate = current && !previous
+    ? marks.find(mark => mark.mark === 'current') ?? (completed ? marks.filter(mark => mark.mark === 'done').at(-1) : undefined)
+    : undefined;
+  const currentStep = current && !previous && companion?.route !== 'undecided'
+    ? marks.findIndex(({ mark }) => mark === 'current') + 1 : 0;
   const reason = waiting ? `${phaseName(gate)} zur Entscheidung lesen.` : blocked
     ? companion?.blocking_text || 'Die Kontrollauswertung meldet ein Hindernis.'
     : companion?.next_text || evaluation?.next_action_de;
@@ -78,34 +69,36 @@ export function CompanionCard({ state, data, current, visible, enabled, motion, 
   const nextStep = companion?.next_text || evaluation?.next_action_de;
   const approvalStep = waiting && nextStep && nextStep !== reason ? nextStep : null;
 
-  return <article className="compact-run companion-card" data-tone={tone} aria-label="Companion-Statuskarte">
+  return <article className="compact-run companion-card" data-tone={tone} aria-label="Companion-Statuskarte"
+    data-display-gate={displayGate?.gate} data-display-gate-state={displayGate?.mark}>
     <div className="companion-figure-block">
       <RunFigure state={state} enabled={enabled} visible={visible} motion={motion} companion/>
-      <p className="companion-signal" role="status">{status}</p>
+      <p className="companion-signal" role={!human || previous || expired ? 'status' : undefined}>{status}</p>
     </div>
     <h2 tabIndex={-1} data-focus-id="companion-run-heading">{title}</h2>
+    {currentStep > 0 && <p className="companion-pit-stop">Boxenstopp {currentStep} von {marks.length}</p>}
     {goal && <div className="companion-goal"><strong>Ziel</strong><p ref={goalPreview}>{goal}</p></div>}
     {state.detail?.code && <ReadState state={state.detail.state} code={state.detail.code}/>}
     {mismatch && <ReadState state="partial" code="persisted_mismatch"/>}
     {(blocked || human || pending) && <div className="companion-turn">
-      <strong>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
+      <strong role={human && !previous && !expired ? 'status' : undefined}>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
         : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
       {reason && <p>{reason}</p>}
       {approval && <p className="compact-muted">Wenn der Entwurf passt, antworte im Chat mit <code>{approval}</code>.</p>}
       {blocked && companion?.next_text && companion.next_text !== reason && <p>{companion.next_text}</p>}
-      {resource && source && current && <button type="button" className="primary companion-source" aria-disabled={sourcePending || undefined} data-focus-id={`companion:${resource.resource_id}`}
-        onClick={() => { if (!sourcePending) onOpen(resource, source.digest); }}>{blocked ? 'Befund öffnen' : `${resource.type}-Entwurf öffnen`}</button>}
+      {resource && source && !expired && !sourceShown && <>
+        <button type="button" className="companion-source" aria-disabled={!current || sourcePending || undefined}
+          aria-describedby={showSourceHint ? widthHintId : undefined} data-focus-id={`companion:${resource.resource_id}`}
+          onClick={() => { if (current && !sourcePending) onOpen(resource, source.digest); }}>{blocked ? 'Befund öffnen' : `${resource.type}-Entwurf öffnen`}</button>
+        {showSourceHint && <p className="companion-source-hint" id={widthHintId}>In einer breiteren Ansicht öffnet sich der Entwurf automatisch daneben.</p>}
+      </>}
       {current && !resource && (waiting || blocked) && <p className="compact-muted">{waiting ? 'Der registrierte Entwurf ist nicht verfügbar.' : 'Kein passender registrierter Befund verfügbar.'}</p>}
     </div>}
-    {marks.length > 0 && <ol className="companion-gates" aria-label="Gate-Fortschritt">
-      {marks.map(({ gate: name, mark }) => <li key={name} data-mark={mark} aria-current={mark === 'current' && !previous ? 'step' : undefined}>
-        <span aria-hidden="true">{gateGlyph[mark]}</span> <span aria-label={`${name}, ${gateMarkLabel[mark]}`}>{name}</span>
-      </li>)}
-    </ol>}
+    {marks.length > 0 && <CompanionProgress marks={marks} previous={previous}/>}
     {(goal && goalClipped || rationale || approvalStep) && <details className="companion-details"><summary>ⓘ Details</summary>
       <dl>
-        {goal && goalClipped && <><dt>Ziel</dt><dd className="companion-full-goal">{goal}</dd></>}
         {rationale && <><dt>Wozu dieses Gate da ist</dt><dd>{rationale}</dd></>}
+        {goal && goalClipped && <><dt>Ziel</dt><dd className="companion-full-goal">{goal}</dd></>}
         {approvalStep && <><dt>Nächster Schritt</dt><dd>{approvalStep}</dd></>}
       </dl>
     </details>}
@@ -168,7 +161,7 @@ export function CompanionMenu({ state, enabled, motion, onToggleMotion, sound, o
     <div ref={control} className="companion-menu" onBlur={event => {
       if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) setOpenAt(null);
     }}>
-      <button ref={trigger} className="companion-menu-trigger" type="button" aria-haspopup="menu" aria-expanded={!!openAt}
+      <button ref={trigger} className="companion-menu-trigger" type="button" aria-label="AGDF Companion" title="Companion-Menü" aria-haspopup="menu" aria-expanded={!!openAt}
         aria-controls={openAt ? menuId : undefined} onClick={() => openAt ? close() : setOpenAt('first')}
         onKeyDown={event => {
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -177,7 +170,10 @@ export function CompanionMenu({ state, enabled, motion, onToggleMotion, sound, o
             if (openAt) items().at(edge === 'first' ? 0 : -1)?.focus();
             else setOpenAt(edge);
           }
-        }}>AGDF Companion <span className="companion-menu-chevron" aria-hidden="true"/></button>
+        }}>
+        <span className="companion-menu-label">AGDF Companion <span className="companion-menu-chevron" aria-hidden="true"/></span>
+        <Icon name="more"/>
+      </button>
       {openAt && <div ref={menu} id={menuId} className="companion-menu-options" role="menu" aria-label="AGDF Companion" onKeyDown={navigateMenu}>
         {onReturnToChatRun && <button type="button" role="menuitem" tabIndex={-1} onClick={() => { close(); onReturnToChatRun(); }}>Zurück zum Chat-Run</button>}
         <button type="button" role="menuitemcheckbox" tabIndex={-1} aria-checked={motion} aria-describedby={reduced ? hintId : undefined}

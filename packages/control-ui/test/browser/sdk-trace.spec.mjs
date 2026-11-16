@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, chromium } from '@playwright/test';
 import { build } from 'vite';
 import { createServer } from 'node:http';
-import { readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -15,9 +15,70 @@ import { createCockpitSessionService } from '../../../core/lib/control-inspect/c
 import { COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, parseCockpitArguments } from '../../../core/lib/control-inspect/cockpit-contract.js';
 import { readCockpitUiBuild } from '../../../../scripts/cockpit-ui-build.mjs';
 import { evidencePath } from './server-fixture.mjs';
+import { JSDOM } from 'jsdom';
+import { clarifiedUr } from '../../../core/test/planned-fixtures.js';
 
-for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a registered PRD and restores the compact card from ${surface} (synthetic SDK host)`, async ({ page }) => {
-  const cleanups = [], [fixture] = buildCompanionFixtures({ after: callback => cleanups.push(callback) }, ['F03']);
+// Optional retained design input. The normal repository suite needs no private Run.
+// This uses the same Core/SDK/built-UI harness, never another product renderer.
+const referenceDirectory = process.env.AGDF_COMPANION_REFERENCE_DIR;
+const checkBrowserZoom = process.env.AGDF_COMPANION_BROWSER_ZOOM === '1';
+
+async function launchZoomBrowser(temporary) {
+  const extension = join(temporary, 'browser-zoom');
+  mkdirSync(extension);
+  writeFileSync(join(extension, 'manifest.json'), JSON.stringify({ manifest_version: 3,
+    name: 'Local Companion zoom test', version: '1.0', permissions: ['tabs'], background: { service_worker: 'zoom.js' } }));
+  writeFileSync(join(extension, 'zoom.js'), 'chrome.runtime.onInstalled.addListener(() => {});');
+  return chromium.launchPersistentContext(join(temporary, 'browser-profile'), {
+    channel: 'chromium', headless: true,
+    args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`],
+  });
+}
+
+function referenceFixture(cleanups) {
+  const doc = new JSDOM(readFileSync(join(referenceDirectory, 'index.html'), 'utf8')).window.document;
+  const title = doc.querySelector('[data-run-heading]').textContent;
+  const goal = doc.querySelector('.run-goal').textContent;
+  const markdown = [...doc.querySelector('[data-prd]').children].map(el => {
+    if (/^H[1-6]$/.test(el.tagName)) return '#'.repeat(Number(el.tagName[1])) + ' ' + el.textContent;
+    if (el.matches('ul, ol')) return [...el.children].map((li, i) => (el.tagName === 'UL' ? '- ' : `${i + 1}. `) + li.textContent).join('\n');
+    if (el.classList.contains('doc-meta')) return [...el.children].map(row => row.textContent).join('  \n');
+    return el.textContent;
+  }).join('\n\n') + `
+
+Owner: Synthetic visual author
+Traceability contract: criteria-chain-v1
+
+## Acceptance Criteria
+- criterion_id: AC-001
+- requirement: Preserve the complete reference sample as Markdown in the existing reader.
+- observable_success: The sample title, paragraphs and lists are visible beside the current Companion.
+
+## Approval Decisions
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Synthetic sample ownership | before_prd | resolved | Disposable visual reference only | Test author |
+
+## AGDF Approval Summary (de; source=en)
+- Ziel: Den Entwurf zusammen mit dem Companion lesen.
+- Umfang: Rein synthetische visuelle Prüfung.
+- AC-001: Der vollständige Beispieltext bleibt im bestehenden Markdown-Leser erhalten.
+- Entscheidungen: Beispieldaten im isolierten Test; keine menschliche Abnahme.
+`;
+  const writer = currentFixture({ after: callback => cleanups.push(callback) });
+  const run = currentRun(writer, goal);
+  const check = result => expect(result.outcome).toBe('accepted');
+  check(run.step('ur', clarifiedUr.replace('Independent work', title).replace('Preserve one explicit intent.', goal), { title }));
+  check(run.approve('UR'));
+  check(run.step('route', '# Brownfield Review\n\nSynthetic reading sample.\n- ux_intent_definition_required: no\n', { route: 'structured_slice', reason: 'Disposable reference fixture' }));
+  check(run.record('PRD', markdown));
+  return { root: writer.root, runId: run.id, markdown, title, goal };
+}
+
+for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference'] : [])]) test(`built Codex Companion opens a registered PRD and restores the compact card from ${surface} (synthetic SDK host)`, async ({ page: defaultPage }) => {
+  test.setTimeout(180_000);
+  const cleanups = [];
+  const fixture = surface === 'reference' ? referenceFixture(cleanups) : buildCompanionFixtures({ after: callback => cleanups.push(callback) }, ['F03'])[0];
   const writer = currentFixture({ after: callback => cleanups.push(callback) }, { root: fixture.root, initialize: false });
   const temporary = mkdtempSync(join(tmpdir(), 'agdf-companion-browser-'));
   const ui = readCockpitUiBuild(), session = createCockpitSessionService(fixture.root, { integrationSurface: 'codex' });
@@ -31,12 +92,20 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
     capabilities: { extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: [ui.manifest.mime_type] } } },
   });
   const [a, b] = InMemoryTransport.createLinkedPair();
-  let server;
+  let server, zoomContext;
+  let page = defaultPage;
+  let supersedeBeforeDocument, supersededDocumentCode;
   const before = treeBytes(fixture.root);
   try {
+    if (checkBrowserZoom && surface === 'panel') {
+      zoomContext = await launchZoomBrowser(temporary);
+      page = zoomContext.pages()[0];
+    }
     await sdkServer.connect(b);
     await client.connect(a);
-    const prepared = await client.callTool({ name: 'agdf_cockpit', arguments: { run_id: fixture.runId } });
+    let prepared = await client.callTool({ name: 'agdf_cockpit', arguments: {
+      run_id: fixture.runId, ...(surface === 'panel' ? { view: 'companion' } : {}),
+    } });
     expect(prepared.isError).toBeUndefined();
     const displayCheck = prepared.structuredContent.next_action.call;
     expect(displayCheck.arguments.operation).toBe('display_status');
@@ -49,10 +118,23 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
         if (req.url === '/tool' && req.method === 'POST') {
           const chunks = [];
           for await (const data of req) chunks.push(data);
-          const result = await client.callTool(JSON.parse(Buffer.concat(chunks).toString()));
+          const request = JSON.parse(Buffer.concat(chunks).toString());
+          const { operation, session_id, run_id } = request.arguments ?? {};
+          const supersede = operation === 'document' && session_id === supersedeBeforeDocument && !!session_id;
+          if (supersede) {
+            supersedeBeforeDocument = undefined;
+            // A parallel host view has already selected the same Run again.
+            await session.read({ operation: 'snapshot', session_id, run_id });
+          }
+          const result = await client.callTool(request);
+          if (supersede) supersededDocumentCode = result.structuredContent?.code;
           res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(result)); return;
         }
         if (req.url === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
+        if (surface === 'reference' && ['/reference.html', '/base.css'].includes(req.url)) {
+          res.setHeader('content-type', req.url === '/base.css' ? 'text/css' : 'text/html');
+          res.end(readFileSync(join(referenceDirectory, req.url === '/base.css' ? 'base.css' : 'index.html'))); return;
+        }
         res.setHeader('content-type', req.url === '/host.js' ? 'text/javascript' : 'text/html');
         res.end(req.url === '/cockpit.html' ? ui.files['cockpit.html'] : req.url === '/host.js' ? readFileSync(join(temporary, 'host.js'))
           : '<!doctype html><style>body{margin:0}iframe{display:block;width:100%;height:100vh;border:0}</style><iframe title="Synthetic Cockpit"></iframe><script type="module" src="/host.js"></script>');
@@ -73,11 +155,100 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
     const frame = page.frameLocator('iframe');
     const card = frame.getByRole('article', { name: 'Companion-Statuskarte' });
     const source = card.getByRole('button', { name: 'PRD-Entwurf öffnen' });
+    if (surface === 'reference') {
+      const reference = await page.context().newPage();
+      const metrics = [];
+      try {
+        await reference.emulateMedia({ reducedMotion: 'reduce' });
+        await reference.goto(`http://127.0.0.1:${server.address().port}/reference.html`);
+        const layout = frame.locator('.companion-workspace');
+        const refLayout = reference.locator('#companion-document-demo .workspace');
+        const measure = async (locator, selectors) => locator.evaluate((root, selectors) => Object.fromEntries(Object.entries(selectors).map(([name, selector]) => {
+          const el = root.querySelector(selector), css = getComputedStyle(el), box = el.getBoundingClientRect();
+          return [name, { text: el.textContent.trim(), width: box.width, height: box.height, font: css.fontFamily, size: css.fontSize,
+            lineHeight: css.lineHeight, color: css.color, background: css.backgroundColor, padding: css.padding, gap: css.gap }];
+        })), selectors);
+        for (const width of [1360, 360]) for (const theme of ['light', 'dark']) {
+          const inset = await layout.evaluate(el => innerWidth - el.getBoundingClientRect().width);
+          await page.setViewportSize({ width: Math.round(width + inset), height: 900 });
+          const refInset = await refLayout.evaluate(el => innerWidth - el.getBoundingClientRect().width);
+          await reference.setViewportSize({ width: Math.round(width + refInset), height: 900 });
+          await reference.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+          const chrome = await layout.evaluate(el => el.closest('.compact-cockpit').getBoundingClientRect().height - el.getBoundingClientRect().height);
+          await page.evaluate(({ theme, height }) => window.sdkTraceHarness.setContext({ theme, containerDimensions: { height } }), { theme, height: 704 + chrome });
+          await expect(layout).toHaveAttribute('data-wide', String(width >= 850));
+          await expect.poll(() => layout.evaluate(el => el.getBoundingClientRect().height)).toBe(704);
+          if (width < 850) {
+            if (await frame.getByRole('button', { name: 'Zurück zum Companion' }).count()) await frame.getByRole('button', { name: 'Zurück zum Companion' }).click();
+            if (await reference.locator('[data-close]').isVisible()) await reference.locator('[data-close]').click();
+            await expect(source).toBeVisible();
+            await expect(source).toBeEnabled();
+            await expect(card.getByText('Du bist dran', { exact: true })).toBeVisible();
+            await layout.screenshot({ path: evidencePath(`matched-product-${width}-${theme}-card.png`) });
+            await refLayout.screenshot({ path: evidencePath(`matched-reference-${width}-${theme}-card.png`) });
+            await source.click(); await reference.locator('[data-open]').click();
+          }
+          await expect(frame.getByRole('article', { name: 'Originaldokument' }).getByRole('heading', { name: 'PRD: Entwürfe direkt im Companion lesen' })).toBeVisible();
+          await expect(frame.getByRole('region', { name: 'Entwurf lesen' })).toHaveAttribute('aria-busy', 'false');
+          await expect(frame.getByText('Gelesene Fassung · aktueller Stand nicht bestätigt')).toHaveCount(0);
+          await expect(frame.getByText('Überarbeitung nötig', { exact: false })).toHaveCount(0);
+          await expect(source).toHaveCount(0);
+          await frame.locator('.companion-reader-scroll').evaluate(el => { el.scrollTop = 0; });
+          await reference.locator('[data-scroller]').evaluate(el => { el.scrollTop = 0; });
+          await frame.locator('body').evaluate(() => document.activeElement?.blur());
+          await reference.locator('body').evaluate(() => document.activeElement?.blur());
+          await layout.screenshot({ path: evidencePath(`matched-product-${width}-${theme}.png`) });
+          await refLayout.screenshot({ path: evidencePath(`matched-reference-${width}-${theme}.png`) });
+          const product = await measure(layout, { title: '.document h1', section: '.document h2', paragraph: '.document > p', cardTitle: '.companion-card h2', turn: '.companion-turn > strong', phases: '.companion-gates', footer: '.companion-footer' });
+          const original = await measure(refLayout, { title: '.document h1', section: '.document h2', paragraph: '.document > p', cardTitle: '.run-title', turn: '.turn-line', phases: '.gates', footer: '.companion-footer' });
+          for (const key of ['cardTitle', 'turn']) {
+            expect(product[key].size, `${key} size`).toBe(original[key].size);
+            expect(product[key].lineHeight, `${key} line height`).toBe(original[key].lineHeight);
+          }
+          expect(product.title.text).toBe(original.title.text);
+          expect(product.cardTitle.text).toBe(original.cardTitle.text);
+          metrics.push({ width, theme, product, reference: original });
+        }
+        writeFileSync(evidencePath('matched-metrics.json'), JSON.stringify({ source: fixture.markdown, metrics,
+          integrationDifferences: ['Canonical readiness decision table retained after sample; metadata stays Markdown, not the illustrative grid.', 'Original F1 header, complete phases, actual source revision and compact accessible menu retained.', 'Draft typography scales with reader width.'] }, null, 2));
+      } finally { await reference.close(); }
+      return;
+    }
     await expect(card.getByText('Du bist dran')).toBeVisible();
+    await expect(card.locator('.companion-figure-block .companion-signal')).toHaveText('Ich warte auf deine Freigabe');
+    await expect(card.locator('.companion-signal')).toBeVisible();
+    const section = frame.getByRole('region', { name: 'AGDF Cockpit', exact: true });
+    await expect.poll(() => section.evaluate(el => {
+      const left = el.getBoundingClientRect().left;
+      const column = el.querySelector('.companion-column').getBoundingClientRect().left;
+      const heading = el.querySelector('.companion-card h2').getBoundingClientRect().left;
+      const menu = el.querySelector('.companion-menu-trigger').getBoundingClientRect().left;
+      return { edge: column - left, textInset: heading - column, menuInset: menu - column };
+    })).toEqual({ edge: 1, textInset: 26, menuInset: 16 });
+    if (surface === 'panel') {
+      for (const height of [1392, 820]) {
+        await page.setViewportSize({ width: 360, height });
+        await expect.poll(() => section.evaluate(el => {
+          const bottom = el.querySelector('footer').getBoundingClientRect().bottom;
+          return Math.abs(el.ownerDocument.defaultView.innerHeight - bottom);
+        })).toBeLessThanOrEqual(1);
+        await expect.poll(async () => Math.round((await section.boundingBox()).height)).toBe(height);
+      }
+    } else {
+      await expect.poll(async () => Math.round((await section.boundingBox()).height)).toBe(760);
+    }
     await expect(frame.getByText('Host-Verbindung prüfen', { exact: true })).toHaveCount(0);
-    await expect.poll(display).toMatchObject({ state: 'ui_reported_visible', run_id: fixture.runId });
+    await expect.poll(display).toMatchObject({ state: 'ui_reported_visible', run_id: fixture.runId, presentation: {
+      title: await card.getByRole('heading', { level: 2 }).innerText(),
+      status: 'Ich warte auf deine Freigabe', gate: 'PRD', gate_state: 'current',
+    } });
     await expect(frame.getByRole('button', { name: 'Alle Vorhaben', exact: true })).toHaveCount(0);
     await expect(card.getByRole('list', { name: 'Gate-Fortschritt' }).locator('[aria-current="step"]')).toContainText('PRD');
+    const gateBar = card.locator('.companion-gates-text');
+    const pitStop = card.getByText('Boxenstopp 2 von 8', { exact: true });
+    await expect(pitStop).toBeVisible();
+    await expect(gateBar).toHaveText('✓UR ●PRD ○SD ○TP ○CD+Tests ○QA ○UAT ○OR');
+    await expect(card.getByRole('list', { name: 'Gate-Fortschritt' }).getByRole('listitem')).toHaveCount(8);
     expect(await card.evaluate(el => el.ownerDocument.documentElement.scrollWidth <= el.ownerDocument.defaultView.innerWidth)).toBe(true);
     await page.screenshot({ path: evidencePath(`codex-companion-${surface}-360.png`), fullPage: true });
     const details = card.getByText('ⓘ Details', { exact: true });
@@ -95,7 +266,6 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
     const motion = options.getByRole('menuitemcheckbox', { name: 'Bewegung' });
     const sound = options.getByRole('menuitemcheckbox', { name: 'Hinweiston' });
     const starts = () => frame.locator('body').evaluate(() => window.companionAudioStarts);
-    const section = frame.getByRole('region', { name: 'AGDF Cockpit', exact: true });
     await menu.focus();
     const sectionBeforeMenu = await section.boundingBox();
     await menu.press('Enter');
@@ -126,10 +296,10 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
     await frame.getByRole('button', { name: 'Companion-Information schließen' }).click();
     await expect(menu).toBeFocused();
     await source.click();
-    await expect(frame.getByRole('button', { name: 'Zurück zur Statuskarte' })).toBeVisible();
-    await expect(frame.locator('.workspace--document')).toBeVisible();
+    await expect(frame.getByRole('button', { name: 'Zurück zum Companion' })).toBeVisible();
+    await expect(frame.locator('.companion-reader')).toBeVisible();
     await expect(frame.getByRole('article', { name: 'Originaldokument' }).getByText('PRD: Synthetic saved filter', { exact: true })).toBeVisible();
-    await frame.getByRole('button', { name: 'Zurück zur Statuskarte' }).click();
+    await frame.getByRole('button', { name: 'Zurück zum Companion' }).click();
     await expect(source).toBeFocused();
     await menu.press('Enter');
     await expect(motion).toHaveAttribute('aria-checked', 'false');
@@ -151,7 +321,7 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
       const afterUpdate = treeBytes(fixture.root);
       await source.click();
       await expect(frame.getByRole('article', { name: 'Originaldokument' }).getByText(`PRD: Synthetic saved filter ${marker}`, { exact: true })).toBeVisible();
-      await frame.getByRole('button', { name: 'Zurück zur Statuskarte' }).click();
+      await frame.getByRole('button', { name: 'Zurück zum Companion' }).click();
       await expect(source).toBeFocused();
       await menu.press('Enter');
       await expect(sound).toHaveAttribute('aria-checked', 'true');
@@ -160,15 +330,14 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
       expect(await starts()).toBe(index + 1);
       expect(treeBytes(fixture.root)).toEqual(afterUpdate);
     }
-    if (surface === 'panel') {
-      expect(await page.evaluate(() => window.sdkTraceHarness.logs.filter(row => row.kind === 'display-mode-request'))).toEqual([]);
-    }
+    expect(await page.evaluate(() => window.sdkTraceHarness.logs.filter(row => row.kind === 'display-mode-request'))).toEqual([]);
     await expect(frame.getByRole('navigation', { name: 'Aktive Runs' })).toHaveCount(0);
     currentRun(writer, 'Zweiter Test-Run');
     currentRun(writer, 'Dritter Test-Run');
     await menu.press('Enter');
     await reload.click();
     const navigation = frame.getByRole('navigation', { name: 'Aktive Runs' });
+    await expect(navigation.getByText('aktive Runs', { exact: true })).toBeVisible();
     await expect(navigation).toContainText('3 von 3');
     const nextRun = navigation.getByRole('button', { name: 'Nächster Run' });
     await expect(nextRun).toBeEnabled();
@@ -177,31 +346,374 @@ for (const surface of ['inline', 'panel']) test(`built Codex Companion opens a r
     await expect(card.getByRole('heading', { name: 'Dritter Test-Run' })).toBeVisible();
     await expect(nextRun).toBeFocused();
     const time = frame.locator('.companion-footer time');
+    const menuLabel = menu.locator('.companion-menu-label');
     for (const width of [520, 360, 320]) {
       await page.setViewportSize({ width, height: 820 });
       await expect(time).toBeVisible();
-      const [menuBox, navBox, timeBox] = await Promise.all([menu.boundingBox(), navigation.boundingBox(), time.boundingBox()]);
-      expect(await card.evaluate(el => el.ownerDocument.documentElement.scrollWidth <= el.ownerDocument.defaultView.innerWidth)).toBe(true);
-      expect(menuBox.x + menuBox.width).toBeLessThan(timeBox.x);
-      if (width > 340) {
-        expect(menuBox.x + menuBox.width).toBeLessThan(navBox.x);
-        expect(navBox.x + navBox.width).toBeLessThan(timeBox.x);
-        expect(Math.abs(menuBox.y - navBox.y)).toBeLessThan(2);
-      } else {
-        expect(navBox.y + navBox.height).toBeLessThanOrEqual(menuBox.y);
-      }
+      if (surface === 'inline' && width === 520) {
+        await expect(menuLabel).toBeVisible();
+        await expect(menuLabel.locator('.companion-menu-chevron')).toBeVisible();
+      } else await expect(menuLabel).toBeHidden();
+      // ResizeObserver and host size notifications settle asynchronously. Measure
+      // the complete footer in one layout, not three different animation frames.
+      await expect.poll(() => frame.locator('.companion-footer').evaluate(el => {
+        const menu = el.querySelector('.companion-menu-trigger').getBoundingClientRect();
+        const nav = el.querySelector('nav').getBoundingClientRect();
+        const time = el.querySelector('time').getBoundingClientRect();
+        const footer = el.getBoundingClientRect();
+        const card = el.closest('.compact-cockpit').getBoundingClientRect();
+        return el.ownerDocument.documentElement.scrollWidth <= innerWidth && menu.right < nav.left && nav.right < time.left
+          && Math.abs(nav.left + nav.width / 2 - (card.left + card.width / 2)) < 1
+          && Math.abs(footer.bottom - (card.bottom - 1)) < 1
+          && Math.abs(nav.y - menu.y) < 2 && menu.width >= 44 && menu.height >= 44
+          && [...el.querySelectorAll('nav button')].every(button => button.getBoundingClientRect().width >= 44);
+      })).toBe(true);
     }
+    if (surface === 'inline') await page.screenshot({ path: evidencePath('companion-footer-320.png'), fullPage: true });
     await menu.press('Enter');
     await options.getByRole('menuitem', { name: 'Zurück zum Chat-Run' }).click();
     await expect(navigation).toContainText('3 von 3');
     await expect(source).toBeEnabled();
     expect(await starts()).toBe(2);
+    if (surface === 'inline') {
+      // The same built UI/session now exercises the composed reader, never a mock.
+      await menu.click(); await sound.click();
+      const appendix = '\n\n## FIRST-READER-MARKER\n\n'
+        + Array.from({ length: 30 }, (_, i) => `### Abschnitt ${i + 1}\n\n` + 'Lesetext zur Quelle und Entscheidung.\n\n'.repeat(5)).join('\n\n')
+        + '\n\n- Ebene eins\n  - Ebene zwei\n\n| Sehr breite Tabelle | Wert |\n| --- | --- |\n| ' + 'Zelle'.repeat(90) + ' | Ende |\n\n```text\n' + 'original-code-'.repeat(120) + '\n```\n\n'
+        + '[Externe Quelle](https://example.invalid/passiv)\n\n![Passives Bild](https://example.invalid/image.png)\n\n<div>Passives HTML</div>\n\n## LAST-READER-MARKER\n\nVollständiges Ende.\n';
+      replaceCompanionPrd(writer, fixture.runId, 'Langer Entwurf', appendix);
+      await menu.press('Enter'); await expect(reload).toBeEnabled(); await reload.press('Enter');
+      await expect(options).toBeHidden();
+      await expect(source).not.toHaveAttribute('aria-disabled', 'true');
+      const layout = frame.locator('.companion-workspace');
+      const inset = await layout.evaluate(el => innerWidth - el.getBoundingClientRect().width);
+      // At the same width, the inline card fills its container while the
+      // expanded host keeps the standalone Companion compact.
+      await page.setViewportSize({ width: 500, height: 820 });
+      const column = frame.locator('.companion-column');
+      await expect.poll(async () => (await section.boundingBox()).width).toBe(500);
+      await expect.poll(async () => (await column.boundingBox()).width).toBe(500 - inset);
+      const rightInset = () => column.evaluate(el => el.closest('.compact-cockpit').getBoundingClientRect().right - el.getBoundingClientRect().right);
+      await expect.poll(rightInset).toBe(1);
+      await page.evaluate(() => window.sdkTraceHarness.setContext({ displayMode: 'fullscreen' }));
+      await expect.poll(async () => (await section.boundingBox()).width).toBe(362);
+      await expect.poll(async () => (await column.boundingBox()).width).toBe(360);
+      await page.evaluate(() => window.sdkTraceHarness.setContext({ displayMode: 'inline' }));
+      await expect.poll(async () => (await section.boundingBox()).width).toBe(500);
+      await expect.poll(async () => (await column.boundingBox()).width).toBe(500 - inset);
+      await page.screenshot({ path: evidencePath('companion-chat-500-closed.png'), fullPage: true });
+      await expect(options).toBeHidden();
+      await source.click();
+      await expect(frame.getByRole('region', { name: 'Entwurf lesen' })).toBeVisible();
+      await page.setViewportSize({ width: 750, height: 820 });
+      await expect.poll(async () => (await section.boundingBox()).width).toBe(750);
+      const draft = frame.getByRole('article', { name: 'Originaldokument' });
+      const intermediateFont = await draft.evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+      expect(intermediateFont).toBeGreaterThan(14);
+      expect(intermediateFont).toBeLessThan(16);
+      await frame.getByRole('button', { name: 'Zurück zum Companion' }).click();
+      await expect(source).toBeFocused();
+      await expect.poll(async () => (await column.boundingBox()).width).toBe(750 - inset);
+      // The manual open/close above dismisses this decision. A new synthetic
+      // decision verifies auto-open still uses the available host width.
+      replaceCompanionPrd(writer, fixture.runId, 'Langer Entwurf nach Rückweg', appendix);
+      await menu.click(); await reload.click();
+      await expect(source).toBeEnabled();
+      await page.setViewportSize({ width: 849, height: 820 });
+      await expect(layout).toHaveAttribute('data-wide', 'false');
+      await expect(frame.getByRole('region', { name: 'Entwurf lesen' })).toHaveCount(0);
+      await source.focus();
+      await page.setViewportSize({ width: 850, height: 820 });
+      await expect(layout).toHaveAttribute('data-wide', 'true');
+      await expect(gateBar).toHaveText('✓UR ●PRD ○SD ○TP ○CD+Tests ○QA ○UAT ○OR');
+      await expect(pitStop).toBeVisible();
+      const reader = frame.getByRole('region', { name: 'Entwurf lesen' }), content = frame.getByRole('article', { name: 'Originaldokument' });
+      const scroll = frame.locator('.companion-reader-scroll'), runHeading = card.locator('[data-focus-id="companion-run-heading"]');
+      const revision = reader.locator('.companion-reader-revision');
+      await expect(content.getByRole('heading', { name: 'FIRST-READER-MARKER' })).toBeAttached();
+      expect(await content.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeCloseTo(14.1, 1);
+      await expect(content.getByRole('heading', { name: 'LAST-READER-MARKER' })).toBeAttached();
+      await expect(source).toHaveCount(0);
+      await expect(card.getByRole('button', { name: 'Zum Entwurf' })).toHaveCount(0);
+      await expect(runHeading).toBeFocused();
+      await expect(revision).toBeVisible();
+      const capturedRevision = await revision.textContent();
+      await expect(reader.getByRole('button', { name: 'Aktuellen Entwurf öffnen' })).toHaveCount(0);
+      expect((await frame.locator('.companion-column').boundingBox()).width).toBeLessThanOrEqual(360);
+      await expect.poll(rightInset).toBe(1);
+      const original = readFileSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'documents/PRD.md'), 'utf8');
+      const download = reader.locator('header').getByRole('link', { name: 'Originaldatei herunterladen' });
+      const downloadHint = download.getByText('Download', { exact: true });
+      await expect(downloadHint).toBeHidden();
+      await download.hover();
+      await expect(downloadHint).toBeVisible();
+      expect(decodeURIComponent((await download.getAttribute('href')).split(',')[1])).toBe(original);
+      const [saved] = await Promise.all([page.waitForEvent('download'), download.click()]);
+      expect(saved.suggestedFilename()).toBe('PRD.md');
+      expect(readFileSync(await saved.path(), 'utf8')).toBe(original);
+      await expect(scroll.getByRole('link', { name: 'Originaldatei herunterladen' })).toHaveCount(0);
+      await expect(content.locator('img, script, a')).toHaveCount(0);
+      await expect(content.getByText('[Bild: Passives Bild]', { exact: true })).toBeVisible();
+      if (await options.isVisible()) await options.press('Escape');
+      await page.setViewportSize({ width: 1360, height: 820 });
+      await expect(content).toHaveCSS('font-size', '16px');
+      await expect(content.getByRole('heading', { level: 1 })).toHaveCSS('font-size', '28px');
+      await page.screenshot({ path: evidencePath('companion-reading-overview.png'), fullPage: true });
+      await scroll.evaluate(el => { el.scrollTop = el.scrollHeight / 2; });
+      const offset = await scroll.evaluate(el => el.scrollTop);
+      await expect(download).toBeInViewport();
+      await frame.getByRole('button', { name: 'Entwurf schließen' }).hover();
+      await frame.getByRole('button', { name: 'Entwurf schließen' }).press('Shift+Tab');
+      await expect(download).toBeFocused();
+      await expect(downloadHint).toBeVisible();
+      await download.press('Tab');
+      await expect(frame.getByRole('button', { name: 'Entwurf schließen' })).toBeFocused();
+      await frame.getByRole('button', { name: 'Entwurf schließen' }).focus();
+      await frame.getByRole('button', { name: 'Entwurf schließen' }).press('Tab');
+      await expect(scroll).toBeFocused();
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(offset);
+      await page.setViewportSize({ width: 1360, height: 820 });
+      await page.screenshot({ path: evidencePath('companion-reading-wide-light.png'), fullPage: true });
+      await page.evaluate(() => window.sdkTraceHarness.setContext({ theme: 'dark', displayMode: 'fullscreen', containerDimensions: { maxHeight: 620, width: 1360 } }));
+      await expect.poll(async () => (await section.boundingBox()).height).toBeLessThanOrEqual(620);
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(offset);
+      await expect.poll(() => content.evaluate(el => {
+        const luminance = color => {
+          const [r, g, b] = color.match(/[\d.]+/g).slice(0, 3).map(value => {
+            const channel = Number(value) / 255;
+            return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
+          });
+          return .2126 * r + .7152 * g + .0722 * b;
+        };
+        const background = luminance(getComputedStyle(el.closest('.companion-reader')).backgroundColor);
+        return Math.min(...[...el.querySelectorAll('h1, h2, h3, p, li')].map(text => {
+          const foreground = luminance(getComputedStyle(text).color);
+          return (Math.max(background, foreground) + .05) / (Math.min(background, foreground) + .05);
+        }));
+      })).toBeGreaterThanOrEqual(4.5);
+      await page.screenshot({ path: evidencePath('companion-reading-wide-dark.png'), fullPage: true });
+      await about.click();
+      await page.setViewportSize({ width: 1361, height: 820 });
+      await frame.getByRole('dialog').press('Escape');
+      await expect.poll(async () => Math.round((await section.boundingBox()).height)).toBe(620);
+      await page.setViewportSize({ width: 1360, height: 620 });
+      await frame.locator('.mcp-entry').evaluate(el => {
+        const message = document.createElement('p'); message.dataset.testHostMessage = 'true';
+        message.style.cssText = 'height:64px;margin:0'; message.textContent = 'Synthetischer Host-Hinweis'; el.append(message);
+      });
+      await expect.poll(async () => Math.round((await section.boundingBox()).height)).toBe(556);
+      await frame.locator('[data-test-host-message]').evaluate(el => el.remove());
+      await expect.poll(async () => Math.round((await section.boundingBox()).height)).toBe(620);
+      await page.setViewportSize({ width: 1360, height: 820 });
+      await menu.click();
+      const [readerBox, menuBox] = await Promise.all([reader.boundingBox(), options.boundingBox()]);
+      expect(menuBox.x).toBeGreaterThanOrEqual(readerBox.x + readerBox.width);
+      await reload.press('Escape');
+      await page.evaluate(() => window.sdkTraceHarness.setContext({ theme: 'light', displayMode: 'pip', containerDimensions: { height: 420, width: 1360 } }));
+      await expect.poll(async () => (await section.boundingBox()).height).toBeLessThanOrEqual(420);
+      await expect(content).toHaveCSS('font-size', '16px');
+      await scroll.evaluate(el => { el.scrollTop = el.scrollHeight; });
+      await expect(content.getByText('Vollständiges Ende.')).toBeVisible();
+      await expect(revision).toBeVisible();
+      await expect(menu).toBeVisible();
+      await menu.click();
+      expect((await options.boundingBox()).y).toBeGreaterThanOrEqual(0);
+      await reload.press('Escape');
+      await page.screenshot({ path: evidencePath('companion-reading-low-panel.png'), fullPage: true });
+      await page.evaluate(() => window.sdkTraceHarness.setContext({ theme: 'light', displayMode: 'inline', containerDimensions: { maxHeight: 760, width: 1360 } }));
+      await scroll.evaluate(el => { el.scrollTop = 500; });
+      await runHeading.focus();
+      await page.setViewportSize({ width: 320, height: 820 });
+      await expect(card).toBeVisible();
+      await expect(runHeading).toBeFocused();
+      await expect(reader).toHaveCount(0);
+      await source.click();
+      await expect(card).toBeHidden();
+      await expect(content).toHaveCSS('font-size', '13.5px');
+      await expect(content.getByRole('heading', { level: 1 })).toHaveCSS('font-size', '23.625px');
+      await expect(reader.getByRole('heading', { name: 'Produktanforderungen · Entwurf' })).toBeFocused();
+      await expect(download).toBeInViewport();
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(500);
+      expect(await reader.evaluate(el => el.ownerDocument.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      expect(await content.locator('table').first().evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
+      expect((await reader.locator('.companion-reader-header').boundingBox()).height).toBeLessThanOrEqual(80);
+      expect((await frame.locator('.cockpit-brand-header').boundingBox()).height).toBeLessThanOrEqual(80);
+      await page.screenshot({ path: evidencePath('companion-reading-narrow.png'), fullPage: true });
+      await page.setViewportSize({ width: 1360, height: 820 });
+      await scroll.focus();
+      replaceCompanionPrd(writer, fixture.runId, 'Neue Entscheidung', appendix);
+      const change = reader.getByRole('button', { name: 'Aktuellen Entwurf öffnen' });
+      await expect(change).toBeVisible({ timeout: 12000 });
+      await expect(revision).toHaveText(capturedRevision);
+      await expect(scroll).toBeFocused();
+      await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Langer Entwurf' })).toBeAttached();
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(500);
+      await expect(download).toHaveCount(0);
+      await page.screenshot({ path: evidencePath('companion-reading-new-decision.png'), fullPage: true });
+      // SCN-CDR-020/030: a transport failure must preserve the old immutable reading.
+      const failSource = async route => {
+        if (route.request().postDataJSON()?.arguments?.operation === 'document') await route.abort();
+        else await route.continue();
+      };
+      await page.route('**/tool', failSource);
+      await expect(change).toBeEnabled(); await change.focus(); await change.press('Enter');
+      await expect(reader.getByRole('alert')).toContainText('Die gewählte Fassung konnte nicht bestätigt werden');
+      await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Langer Entwurf' })).toBeAttached();
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(500);
+      await expect(download).toHaveCount(0);
+      await page.screenshot({ path: evidencePath('companion-reading-failed-switch.png'), fullPage: true });
+      await page.unroute('**/tool', failSource);
+      await reader.getByRole('button', { name: 'Run neu lesen' }).click();
+      await expect(change).toBeEnabled(); await change.focus(); await change.press('Enter');
+      await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Neue Entscheidung' })).toBeAttached();
+      await expect(revision).not.toHaveText(capturedRevision);
+      await expect(reader.getByRole('heading', { name: 'Produktanforderungen · Entwurf' })).toBeFocused();
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(0);
+      // SCN-CDR-017/027/028: retain position metadata, re-read on return, never swap a vanished version silently.
+      await scroll.evaluate(el => { el.scrollTop = 345; });
+      const cycleRun = async () => {
+        await expect(nextRun).toBeEnabled(); await nextRun.click();
+        await expect(navigation).toContainText('1 von 3');
+        await expect(nextRun).toBeEnabled(); await nextRun.click();
+        await expect(navigation).toContainText('2 von 3');
+        await expect(nextRun).toBeEnabled(); await nextRun.click();
+        await expect(navigation).toContainText('3 von 3');
+      };
+      await cycleRun();
+      await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Neue Entscheidung' })).toBeAttached();
+      await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBe(345);
+      await expect(nextRun).toBeEnabled(); await nextRun.click();
+      await expect(navigation).toContainText('1 von 3');
+      replaceCompanionPrd(writer, fixture.runId, 'Nach Run-Rückkehr', appendix);
+      await expect(nextRun).toBeEnabled(); await nextRun.click();
+      await expect(navigation).toContainText('2 von 3');
+      await expect(nextRun).toBeEnabled(); await nextRun.click();
+      await expect(navigation).toContainText('3 von 3');
+      await expect(reader.getByRole('alert')).toContainText('Die zuvor gelesene Fassung ist nicht mehr verfügbar');
+      await expect(content).toHaveCount(0);
+      await expect(change).toBeEnabled(); await change.click();
+      await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Nach Run-Rückkehr' })).toBeAttached();
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(0);
+      await reader.getByRole('button', { name: 'Entwurf schließen' }).click();
+      await expect(source).toBeFocused();
+      await menu.click(); await reload.click();
+      await page.setViewportSize({ width: 849, height: 820 });
+      await page.setViewportSize({ width: 1360, height: 820 });
+      await expect(reader).toHaveCount(0);
+      await expect.poll(async () => (await section.boundingBox()).width).toBe(1360);
+      await cycleRun();
+      await expect(source).not.toHaveAttribute('aria-disabled', 'true');
+      await expect(reader).toHaveCount(0);
+      expect(await page.evaluate(() => window.sdkTraceHarness.logs.filter(row => row.kind === 'display-mode-request'))).toEqual([]);
+    } else if (surface === 'panel') {
+      const longReadingSample = '\n\n## Leseposition\n\n' + 'Lesetext für den Entwurf.\n\n'.repeat(45)
+        + '| Breite Tabelle | Ergebnis |\n| --- | --- |\n| ' + 'Tabelle'.repeat(95) + ' | Ende |\n';
+      replaceCompanionPrd(writer, fixture.runId, 'Boxenfunk C', longReadingSample);
+      prepared = await client.callTool({ name: 'agdf_cockpit', arguments: { run_id: fixture.runId } });
+      supersedeBeforeDocument = prepared._meta.agdf_cockpit.session_id;
+      await page.setViewportSize({ width: 523, height: 820 });
+      await page.goto(`http://127.0.0.1:${server.address().port}/?companion=panel&first-open=1`);
+      const reader = frame.getByRole('region', { name: 'Entwurf lesen' });
+      await expect(source).toBeEnabled();
+      await expect(reader).toBeHidden();
+      await page.setViewportSize({ width: 524, height: 820 });
+      await expect(reader.getByRole('heading', { name: 'Produktanforderungen · Entwurf' })).toBeVisible();
+      await expect(reader.getByRole('heading', { name: 'PRD: Synthetic saved filter Boxenfunk C' })).toBeVisible();
+      await expect(reader.getByRole('alert')).toHaveCount(0);
+      expect(supersededDocumentCode).toBe('resource_denied');
+      const layout = frame.locator('.companion-workspace');
+      const document = reader.getByRole('article', { name: 'Originaldokument' });
+      const fontSize = () => document.evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+      const opacity = () => reader.evaluate(el => Number(getComputedStyle(el).opacity));
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await expect.poll(opacity).toBeCloseTo(0.0036, 4);
+      const smallestReader = await reader.boundingBox();
+      const closeAtSmallest = await reader.getByRole('button', { name: 'Entwurf schließen' }).boundingBox();
+      expect(closeAtSmallest.x + closeAtSmallest.width).toBeLessThanOrEqual(smallestReader.x + smallestReader.width);
+      await page.setViewportSize({ width: 800, height: 820 });
+      await expect.poll(() => layout.evaluate(() => innerWidth)).toBe(800);
+      await expect.poll(opacity).toBe(1);
+      await expect.poll(fontSize).toBeGreaterThan(13.5);
+      await page.setViewportSize({ width: 660, height: 820 });
+      await expect.poll(opacity).toBeCloseTo(0.49, 2);
+      const opacityOnShrink = await opacity();
+      await page.setViewportSize({ width: 524, height: 820 });
+      await expect.poll(() => layout.evaluate(() => innerWidth)).toBe(524);
+      await expect(reader).toBeVisible();
+      await expect.poll(fontSize).toBeCloseTo(13.5, 1);
+      await expect.poll(opacity).toBeCloseTo(0.0036, 4);
+      const close = reader.getByRole('button', { name: 'Entwurf schließen' });
+      await close.press('Tab');
+      const viewport = reader.locator('.companion-reader-scroll');
+      await expect(viewport).toBeFocused();
+      await expect.poll(opacity).toBe(1);
+      await viewport.evaluate(el => { el.scrollTop = 240; });
+      await expect.poll(() => viewport.evaluate(el => el.scrollTop)).toBe(240);
+      await page.setViewportSize({ width: 523, height: 820 });
+      await expect(reader).toBeHidden();
+      await expect(card).toBeVisible();
+      await expect(source).toBeFocused();
+      await source.press('Tab');
+      await expect(frame.getByText('ⓘ Details', { exact: true })).toBeFocused();
+      const companion = await layout.locator('.companion-column').boundingBox();
+      expect(companion.width).toBe(360);
+      expect(companion.x + companion.width).toBe(522);
+      await page.setViewportSize({ width: 660, height: 820 });
+      await expect(reader.getByRole('heading', { name: 'PRD: Synthetic saved filter Boxenfunk C' })).toBeVisible();
+      await expect.poll(opacity).toBe(opacityOnShrink);
+      await expect.poll(() => viewport.evaluate(el => el.scrollTop)).toBe(240);
+      await page.setViewportSize({ width: 800, height: 820 });
+      await expect.poll(opacity).toBe(1);
+      if (zoomContext) {
+        // Chromium's tab zoom affects layout CSS pixels without pinch scaling.
+        await page.setViewportSize({ width: 1660, height: 1300 });
+        const measure = () => page.evaluate(() => ({ width: innerWidth, dpr: devicePixelRatio, visualScale: visualViewport.scale }));
+        const beforeZoom = await measure();
+        const worker = zoomContext.serviceWorkers()[0] ?? await zoomContext.waitForEvent('serviceworker');
+        const zoomFactor = await worker.evaluate(async url => {
+          const [tab] = await chrome.tabs.query({ url });
+          await chrome.tabs.setZoom(tab.id, 2);
+          return chrome.tabs.getZoom(tab.id);
+        }, new URL(page.url()).origin + '/*');
+        expect(zoomFactor).toBe(2);
+        await expect.poll(measure).toEqual({ width: beforeZoom.width / 2, dpr: beforeZoom.dpr * 2, visualScale: 1 });
+        const wideZoom = await measure();
+        const header = reader.getByRole('heading', { name: 'Produktanforderungen · Entwurf' });
+        const footerMenu = frame.locator('.companion-footer').getByRole('button', { name: 'AGDF Companion' });
+        await expect(header).toBeInViewport();
+        await expect(footerMenu).toBeInViewport();
+        await close.press('Tab');
+        await expect(viewport).toBeFocused();
+        const table = document.getByRole('table').filter({ hasText: 'Breite Tabelle' });
+        await expect.poll(() => table.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
+        await expect.poll(() => layout.evaluate(el => el.ownerDocument.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await footerMenu.press('Enter');
+        await expect(frame.getByRole('menuitem', { name: 'Neu lesen' })).toBeVisible();
+        await page.keyboard.press('Escape');
+        await page.screenshot({ path: evidencePath('companion-reader-zoom-200-wide.png') });
+
+        await page.setViewportSize({ width: 760, height: 1100 });
+        const narrowZoom = await measure();
+        expect(narrowZoom.width).toBe(380);
+        await expect(card).toBeInViewport();
+        await source.press('Enter');
+        await expect(header).toBeFocused();
+        await expect.poll(() => layout.evaluate(el => el.ownerDocument.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await page.screenshot({ path: evidencePath('companion-reader-zoom-200-narrow.png') });
+        await reader.getByRole('button', { name: 'Zurück zum Companion' }).press('Enter');
+        await expect(source).toBeFocused();
+        await expect(footerMenu).toBeInViewport();
+        writeFileSync(evidencePath('companion-reader-zoom-200.json'), JSON.stringify({ zoomFactor, beforeZoom, wideZoom, narrowZoom }, null, 2));
+      }
+    }
   } finally {
     const frame = await page.frameLocator('iframe').locator('body').innerText({ timeout: 1000 }).catch(() => null);
     writeFileSync(evidencePath(`codex-companion-${surface}-synthetic-host.txt`), frame ?? 'No visible iframe content');
     await sdkServer.closeAgdfRuntime();
     if (server) await new Promise(resolve => server.close(resolve));
     await client.close(); await sdkServer.close();
+    await zoomContext?.close();
     for (const cleanup of cleanups.reverse()) await cleanup();
     rmSync(temporary, { recursive: true, force: true });
   }
@@ -362,12 +874,12 @@ test('MCP negative read retains correction; blocked run remains a successful vie
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     await page.goto('http://127.0.0.1:' + server.address().port);
     const frame = page.frameLocator('iframe');
-    await frame.locator('.work-step-details > summary').click();
+    await frame.getByRole('button', { name: 'Nachweise und weitere Dokumente', exact: true }).click();
     await expect(frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true })).toBeVisible();
     const run = replies.find(row => row.input.arguments.operation === 'snapshot').result;
     expect(run.isError).toBeUndefined(); expect(run.structuredContent.data.run.evaluation.blocking_reason).not.toBe('none');
     expect(run.structuredContent.data.run.document_states.some(row => row.source_state === 'missing')).toBe(true);
-    await expect(frame.getByText('Dokument nicht verfügbar.', { exact: true })).toBeVisible();
+    await expect(frame.getByRole('region', { name: 'Dokumente', exact: true }).getByText('Dokument nicht verfügbar.', { exact: true })).toBeVisible();
     await page.screenshot({ path: evidencePath('mcp-cockpit-blocked-run.png'), fullPage: true });
     deny = true;
     await frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();

@@ -7,6 +7,7 @@ import { createCockpitSessionService } from '../lib/control-inspect/cockpit-sess
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { parseCockpitArguments, COCKPIT_LIMITS, COCKPIT_RENDER_DEFINITION } from '../lib/control-inspect/cockpit-contract.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
+import { createRun } from '../lib/control-state/run-state-repository.js';
 
 test('SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session', async () => {
   const f = fixture(), before = treeBytes(f.root), service = createCockpitSessionService(f.root);
@@ -113,12 +114,53 @@ test('SCN-039/041: optional render ID uses the same bounded strict Run schema, p
   assert.deepEqual(COCKPIT_RENDER_DEFINITION.inputSchema.properties.run_id,
     { type: 'string', pattern: '^[a-z0-9][a-z0-9._-]{0,127}$' });
   assert.deepEqual(parseCockpitArguments({ run_id: 'fixture-a' }, true), { run_id: 'fixture-a' });
+  assert.deepEqual(parseCockpitArguments({ view: 'companion', run_id: 'fixture-a' }, true), { view: 'companion', run_id: 'fixture-a' });
+  assert.throws(() => parseCockpitArguments({ view: 'overview' }, true), /resource_denied/);
   assert.deepEqual(parseCockpitArguments({ run_id: 'a'.repeat(128) }, true), { run_id: 'a'.repeat(128) });
   for (const value of [{ run_id: '' }, { run_id: undefined }, { run_id: 12 }, { run_id: '../foreign' },
     { run_id: 'ünicode' }, { run_id: 'a'.repeat(129) }, { run_id: 'fixture-a', path: '/tmp' },
     { run_id: 'fixture-a', approval: 'TP' }, { run_id: 'https://external.invalid' }]) {
     assert.throws(() => parseCockpitArguments(value, true), /resource_denied/);
   }
+});
+
+test('Companion opening prefers the active Chat Run, then a decision, then the newest active Run', async () => {
+  const f = fixture(), service = createCockpitSessionService(f.root);
+  const working = 'fixture-zz-working', older = 'fixture-00-older';
+  try {
+    createRun(f.root, older, undefined, { prepare: text => text.replace(/^- updated_at: .+$/m, '- updated_at: 2000-01-01T00:00:00.000Z') });
+    createRun(f.root, working);
+    const before = treeBytes(f.root);
+    async function open(input) {
+      const rendered = await service.render(input);
+      assert.equal(rendered.authorizes, false);
+      const meta = rendered._meta.agdf_cockpit;
+      assert.equal(rendered.display.run_id, meta.initial_run_id ?? null);
+      const snapshot = await service.read({ operation: 'snapshot', session_id: meta.session_id,
+        ...(meta.initial_run_id ? { run_id: meta.initial_run_id } : {}) });
+      const presentation = meta.companion_empty ? { status: 'Kein aktiver Run' } : undefined;
+      const ack = await service.read({ operation: 'display_ack', session_id: meta.session_id, snapshot_id: snapshot.snapshot_id,
+        ...(presentation && { presentation }) });
+      assert.equal(ack.data.display.state, 'ui_reported_visible');
+      assert.deepEqual(ack.data.display.presentation, presentation);
+      await service.read({ operation: 'close', session_id: meta.session_id });
+      return meta;
+    }
+    assert.equal((await open({ view: 'companion', run_id: working })).initial_run_id, working);
+    const fallback = await open({ view: 'companion', run_id: 'fixture-completed' });
+    assert.equal(fallback.initial_run_id, 'fixture-a');
+    assert.equal(fallback.companion_fallback, true);
+    assert.equal((await open({ run_id: 'fixture-completed' })).initial_run_id, 'fixture-completed');
+    assert.equal((await open({})).companion_empty, undefined);
+    assert.deepEqual(treeBytes(f.root), before);
+    fs.rmSync(join(f.root, '.agdf/control/runs/fixture-a'), { recursive: true });
+    assert.equal((await open({ view: 'companion' })).initial_run_id, working);
+    fs.rmSync(join(f.root, '.agdf/control/runs', working), { recursive: true });
+    fs.rmSync(join(f.root, '.agdf/control/runs', older), { recursive: true });
+    const empty = await open({ view: 'companion' });
+    assert.equal(empty.initial_run_id, undefined);
+    assert.equal(empty.companion_empty, true);
+  } finally { await service.close(); f.close(); }
 });
 test('SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write', async () => {
   const f = fixture(), before = treeBytes(f.root), requests = [];
@@ -152,7 +194,8 @@ test('Cockpit display receipt is scoped to the opening view and its current snap
     const session_id = render._meta.agdf_cockpit.session_id;
     const status = render.next_calls[0].arguments;
     assert.deepEqual((await service.read(status)).data.display, { state: 'pending', run_id: 'fixture-a' });
-    const ack = snapshot_id => service.read({ operation: 'display_ack', session_id, snapshot_id });
+    const presentation = { status: 'Ich warte auf deine Freigabe', gate: 'UR', gate_state: 'current' };
+    const ack = (snapshot_id, shown = presentation) => service.read({ operation: 'display_ack', session_id, snapshot_id, presentation: shown });
     const other = await service.render({ run_id: 'fixture-completed' });
     const otherId = other._meta.agdf_cockpit.session_id;
     const foreign = await service.read({ operation: 'snapshot', session_id: otherId, run_id: 'fixture-completed' });
@@ -162,10 +205,13 @@ test('Cockpit display receipt is scoped to the opening view and its current snap
     const opening = await service.read({ operation: 'snapshot', session_id, run_id: 'fixture-a' });
     const refreshed = await service.read({ operation: 'snapshot', session_id, run_id: 'fixture-a' });
     assert.equal((await ack(opening.snapshot_id)).code, 'resource_denied');
+    assert.equal((await ack(refreshed.snapshot_id, { ...presentation, title: 'Falscher Run' })).code, 'resource_denied');
+    assert.equal((await ack(refreshed.snapshot_id, { status: 'Abgeschlossen', gate: 'UR' })).code, 'resource_denied');
     const confirmed = (await ack(refreshed.snapshot_id)).data.display;
     assert.equal(confirmed.state, 'ui_reported_visible');
     assert.equal(confirmed.run_id, 'fixture-a');
-    assert.deepEqual((await ack(refreshed.snapshot_id)).data.display, confirmed);
+    assert.deepEqual(confirmed.presentation, { ...presentation, title: refreshed.data.run.title });
+    assert.deepEqual((await ack(refreshed.snapshot_id, { status: 'Abgeschlossen' })).data.display, confirmed);
     assert.deepEqual((await service.read(status)).data.display, confirmed);
     assert.equal((await service.read(other.next_calls[0].arguments)).data.display.state, 'pending');
     await service.read({ operation: 'close', session_id });

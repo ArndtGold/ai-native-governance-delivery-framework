@@ -154,8 +154,9 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   const at = "2026-10-26T08:01:00Z";
   const waiting = view({ snapshot: snapshot([run({ missing_approval: "Approval: SD", last_activity: at })]) });
   // For an approval the turn block says what to do, so the next step moves behind the (i).
-  assert.deepEqual([waiting.stateLabel, waiting.reason, waiting.nextStep, waiting.gateBar], ["wartet auf Freigabe", "Freigabe ausstehend: Lösungsdesign", null,
+  assert.deepEqual([waiting.stateLabel, waiting.reason, waiting.nextStep, waiting.gateBar], ["Ich warte auf deine Freigabe", "Freigabe ausstehend: Lösungsdesign", null,
     "✓UR ✓PRD ●SD ○TP ○CD+Tests ○QA ○UAT ○OR"]);
+  assert.equal(view({ snapshot: snapshot([run({ missing_approval: "Approval: SD" })], { stale: { failedAt: 1 } }) }).stateLabel, "wartet");
   assert.deepEqual(waiting.info.at(-1), { label: "Nächster Schritt", text: "Das SD entwerfen." });
   const blocked = view({ snapshot: snapshot([run({ status: "blocked", blocking_reason: "AGDF_RUN_SEAL_MISMATCH", blocking_text: "Siegel verletzt", last_activity: at })]) });
   assert.deepEqual([blocked.stateLabel, blocked.reason], ["blockiert", "Lösungsdesign: Siegel verletzt"], "the status card's blocking text, also for doctor blocks");
@@ -182,8 +183,9 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
     assert.equal(approval.rationale, registry.locales.de.gateRationale.SD, "what the gate in question decides");
     assert.deepEqual(view({ snapshot: snapshot([run({ ...titled, missing_approval: "Approval: SD" })]) }, "en").turn,
       { tone: "you", who: "Your turn", what: "Approve Solution design (SD)", how: "In the chat with “Approval: SD”", gate: "SD" });
-    const decision = view({ snapshot: snapshot([run({ ...titled, user_action_required: "yes" })]) }).turn;
-    assert.deepEqual([decision.tone, decision.what, decision.how], ["you", "Entscheidung treffen: Lösungsdesign (SD)", null]);
+    const decision = view({ snapshot: snapshot([run({ ...titled, user_action_required: "yes" })]) });
+    assert.deepEqual([decision.stateLabel, decision.turn.tone, decision.turn.what, decision.turn.how],
+      ["Ich warte auf deine Entscheidung", "you", "Entscheidung treffen: Lösungsdesign (SD)", null]);
     assert.deepEqual(working.turn, { tone: "next", who: "Als Nächstes", what: "Entwurf: Lösungsdesign (SD)", how: "Sag mir im Chat, wenn ich weitermachen soll.", gate: "SD" },
       "a resting run says what is up next and how to carry on");
     assert.deepEqual([blocked.turn.tone, blocked.turn.who, blocked.turn.what, blocked.rationale], ["halt", "Blockiert", "Lösungsdesign (SD): Siegel verletzt", null],
@@ -232,7 +234,7 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
     assert.ok(lines.indexOf("Status card path marks only one current gate · Strukturierte Lieferung · Schritt 3 von 8") < lines.indexOf("r · In dieser Sitzung geändert"),
       "the name stands before the run id");
     assert.ok(lines.includes("Du bist dran: Lösungsdesign (SD) freigeben · Im Chat mit „Approval: SD“"));
-    assert.ok(lines.includes("(-_-) ⧗ wartet auf Freigabe"), "the state line carries no second reason");
+    assert.ok(lines.includes("(-_-) ⧗ Ich warte auf deine Freigabe"), "the state line carries no second reason");
     // Owner request of 2026-11-12: the goal stands in sight under the run's name, before whose move it
     // is; the gate's purpose and a step that only repeats the approval sit behind the (i), closed by default.
     assert.equal(approval.goal, "Der Pfad zeigt nie mehr als einen aktuellen Eintrag.");
@@ -314,7 +316,7 @@ assert.equal(label(labels, "de", "missing.key"), "missing.key");
   const legacyOnly = view({ snapshot: snapshot([], { unreadable: [{ id: "legacy", reason: "run_version_unsupported" }] }) });
   assert.equal(legacyOnly.message, "1 Runs nicht lesbar: Run in einem älteren Format erfasst");
   const mixed = view({ snapshot: snapshot([run({ missing_approval: "Approval: SD", last_activity: at })], { unreadable: [{ id: "legacy", reason: "run_version_unsupported" }] }) });
-  assert.deepEqual([mixed.stateLabel, mixed.unreadableHint], ["wartet auf Freigabe", "1 Runs nicht lesbar: Run in einem älteren Format erfasst"]);
+  assert.deepEqual([mixed.stateLabel, mixed.unreadableHint], ["Ich warte auf deine Freigabe", "1 Runs nicht lesbar: Run in einem älteren Format erfasst"]);
   assert.ok(terminalText(mixed, { labels, locale: "de" }).includes("1 Runs nicht lesbar"));
   for (const item of [waiting, blocked, working, building, done, legacyOnly, mixed]) {
     for (const english of ["waiting", "blocked", "Next step", "Approval pending"]) assert.ok(!JSON.stringify(item).includes(english), `German view carries no ${english}`);
@@ -458,9 +460,12 @@ assert.doesNotMatch(figureSvg("wartet", { still: true }), /data-tool="torque-wre
 assert.match(figureSvg("fertig", { still: true }), /data-accessory="finish-flag"/u);
 assert.doesNotMatch(figureSvg("fertig", { still: true, gesture: true }), /<animate/u);
 assert.doesNotMatch(figureSvg("baut", { still: true }), /data-accessory="finish-flag"/u);
-// The idle smile changes only the ready face; a run state keeps its own face.
-assert.ok(figureSvg("bereit", { still: true, smile: true }).includes('d="M74 63q7 6 14 0"'));
-assert.ok(!figureSvg("bereit", { still: true }).includes('d="M74 63q7 6 14 0"'));
+const neutral = figureSvg("bereit", { still: true });
+assert.match(neutral, /d="M74 63q7 6 14 0"/u);
+assert.match(neutral, /data-arm="folded"/u);
+assert.doesNotMatch(neutral, /<rect x="143" y="86"|data-antenna="receiving"/u);
+assert.match(figureSvg("bereit"), /data-antenna="receiving"[^>]*>\s*<animate [^>]*repeatCount="indefinite"/u);
+assert.doesNotMatch(figureSvg("wartet", { gate: "QA" }), /data-arm="folded"|data-antenna="receiving"/u);
 assert.equal(figureSvg("wartet", { still: true, smile: true }), figureSvg("wartet", { still: true }));
 // The start sign of a project without AGDF (owner request of 2026-11-12): the pit crew's round sign in a
 // raised hand, only for a ready figure; its sway is idle motion, so the still pose keeps the sign and drops

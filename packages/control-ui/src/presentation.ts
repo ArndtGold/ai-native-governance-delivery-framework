@@ -13,6 +13,7 @@ const documents: Record<string, [string, string]> = {
   SD: ['Lösungskonzept', 'Beschreibt die gewählte Lösung und ihre Entscheidungen.'],
   TP: ['Umsetzungs- und Prüfplan', 'Verbindet die geplanten Aufgaben mit ihren Prüfungen.'],
   QA: ['Qualitätsprüfung', 'Dokumentiert die Qualitätsbewertung und ihre Nachweise.'],
+  UAT: ['Abnahme', 'Dokumentiert die Prüfung aus Nutzersicht.'],
   'Run State': ['Stand des Vorhabens', 'Enthält den gespeicherten Kontrollstand und seine Quellenverweise.'],
   'Brownfield Review': ['Einordnung des Vorhabens', 'Ordnet Umfang, Auswirkungen und den passenden Umsetzungsweg ein.'],
   'Brownfield Analysis': ['Bestandsanalyse', 'Prüft bestehende Bausteine, Wiederverwendung und Umsetzungsrisiken.'],

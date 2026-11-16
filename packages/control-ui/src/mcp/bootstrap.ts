@@ -1,5 +1,5 @@
 export interface CockpitProvenance { schema_version: '1'; version: string; resource_digest: string; resource_scope: 'server_validated'; host_display: 'unconfirmed'; candidate_match: 'unverified' }
-export interface RenderBootstrap { sessionId: string; targetId: string; initialRunId?: string; generation: number; displayAck: boolean; provenance?: CockpitProvenance; integrationSurface?: 'codex' | 'claude' }
+export interface RenderBootstrap { sessionId: string; targetId: string; initialRunId?: string; companionEmpty?: boolean; companionFallback?: boolean; generation: number; displayAck: boolean; provenance?: CockpitProvenance; integrationSurface?: 'codex' | 'claude' }
 
 // Only scoped render metadata may initialize a reader; ordinary read results do not reset it.
 export function readRenderBootstrap(result: { isError?: boolean; _meta?: Record<string, unknown>; structuredContent?: unknown }): RenderBootstrap | null {
@@ -23,6 +23,8 @@ export function readRenderBootstrap(result: { isError?: boolean; _meta?: Record<
     ? p as unknown as CockpitProvenance : undefined;
   return { sessionId: value.session_id, targetId: target.target_id, generation: value.render_generation as number, displayAck: value.display_ack === true,
     ...(['codex', 'claude'].includes(value.integration_surface as string) ? { integrationSurface: value.integration_surface as 'codex' | 'claude' } : {}),
+    ...(value.initial_run_id === undefined && value.companion_empty === true ? { companionEmpty: true } : {}),
+    ...(value.initial_run_id && value.companion_fallback === true ? { companionFallback: true } : {}),
     ...(provenance ? { provenance } : {}),
     ...(typeof value.initial_run_id === 'string' ? { initialRunId: value.initial_run_id } : {}) };
 }

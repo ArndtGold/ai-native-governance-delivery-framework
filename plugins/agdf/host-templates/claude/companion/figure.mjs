@@ -20,6 +20,23 @@ const FACES = Object.freeze({
 });
 // A friendly, closed smile for the ready figure; softer than the open smile of `fertig`.
 const IDLE_SMILE = 'M74 63q7 6 14 0';
+const foldedArm = `<g data-arm="folded">
+    <rect x="108" y="84" width="15" height="29" rx="7" fill="url(#metal)" stroke="#546d7a" stroke-width="1.4"/>
+    <path d="M119 94v10" stroke="#7a99a5" stroke-width="1.4" stroke-linecap="round"/>
+  </g>`;
+
+// Two short pulses, followed by a quiet interval. The longer loop gives the
+// neutral figure varied pauses and stays stable across repeat readings.
+const antennaCycle = 43;
+const antennaPairs = [2, 14, 31];
+const antennaTimes = [0, ...antennaPairs.flatMap(start => [0, .18, .39, .59, .88].map(offset => start + offset)), antennaCycle]
+  .map(seconds => (seconds / antennaCycle).toFixed(5)).join(';');
+const antennaValues = [0, ...antennaPairs.flatMap(() => [0, .68, 0, .6, 0]), 0].join(';');
+const neutralAntenna = `<g data-antenna="receiving" opacity="0">
+      <animate attributeName="opacity" values="${antennaValues}" keyTimes="${antennaTimes}" dur="${antennaCycle}s" repeatCount="indefinite"/>
+      <circle cx="51" cy="9" r="7" fill="#a4f7ef" opacity=".38"/>
+      <circle cx="51" cy="9" r="3.7" fill="#f2fffc"/>
+    </g>`;
 const GESTURES = new Set(['baut', 'wartet', 'blockiert', 'fertig']);
 const REMINDER_GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
 const GATES = new Set([...REMINDER_GATES, 'OR']);
@@ -204,7 +221,7 @@ function draftBoard(label, still) {
   </g>`;
 }
 
-export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile = false, tablet = false, invite = false, resting = false } = {}) {
+export function figureSvg(mood, { still = false, title = '', gate, workGate, gesture = false, sequence = 0, showcase = false, smile, tablet = false, invite = false, resting = false } = {}) {
   // The About page shows the TP plan as a showpiece, whatever the mood.
   const showpiece = showcase && workGate === 'TP';
   // Only a working figure drafts: a waiting one keeps its gate sign and a blocked one its warning.
@@ -212,9 +229,11 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
   const board = !showpiece && mood === 'laeuft' && DRAFT_GATES.has(workGate) ? workGate : null;
   // The start sign belongs to a ready figure that shows no run; it is an invitation, never a run state.
   const inviting = invite && mood === 'bereit' && !showpiece ? startSign(still) : null;
+  const neutral = mood === 'bereit' && !inviting && !showpiece && !tablet;
+  const viewLeft = neutral ? 82 - VIEW.width / 2 : 0;
   const signal = SIGNAL[mood] ?? SIGNAL.bereit;
-  // A ready figure without a run to show may smile; it is a face only, never a run state.
-  const face = smile && mood === 'bereit' ? { ...FACES.bereit, mouth: IDLE_SMILE } : FACES[mood] ?? FACES.bereit;
+  const face = (smile ?? neutral) && mood === 'bereit'
+    ? { ...FACES.bereit, ry: [4, 4], mouth: IDLE_SMILE } : FACES[mood] ?? FACES.bereit;
   const act = gesture && !still;
   const signGate = !showpiece && GATES.has(gate) ? gate : undefined;
   const approval = !still && mood === 'wartet' && REMINDER_GATES.has(signGate) ? approvalMotion(act) : null;
@@ -229,7 +248,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
   const headTilt = approval ? approval('rotate', ['3 82 82', '3 82 82', '10 82 82', '3 82 82', '3 82 82'])
     : act && mood === 'wartet' ? motion('rotate', '3 82 82;6 82 82;3 82 82', 2.4)
     : act && mood === 'fertig' ? motion('rotate', '0 82 82;7 82 82;0 82 82', 2.4) : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW.width} ${VIEW.height}" width="${VIEW.width}" height="${VIEW.height}"${act && Number.isSafeInteger(sequence) ? ` data-gesture="${sequence}"` : ''}>
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewLeft} 0 ${VIEW.width} ${VIEW.height}" width="${VIEW.width}" height="${VIEW.height}"${act && Number.isSafeInteger(sequence) ? ` data-gesture="${sequence}"` : ''}>
   <title>${escape(title)}</title>
   <defs>
     <linearGradient id="metal" x2="88%" y2="100%">
@@ -240,7 +259,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
     <radialGradient id="shadow"><stop stop-color="#111f31" stop-opacity=".38"/><stop offset="1" stop-color="#111f31" stop-opacity="0"/></radialGradient>
   </defs>
   <ellipse cx="88" cy="126" rx="64" ry="11" fill="url(#shadow)"/>
-  ${arm(mood, act, showpiece, inviting, approval)}
+  ${neutral ? foldedArm : arm(mood, act, showpiece, inviting, approval)}
   <g fill="url(#metal)" stroke="#546d7a" stroke-width="1.4">
     <rect x="53" y="113" width="24" height="11" rx="4"/>
     <rect x="91" y="113" width="24" height="11" rx="4"/>
@@ -257,6 +276,7 @@ export function figureSvg(mood, { still = false, title = '', gate, workGate, ges
   <g>${idleHead}<g transform="${headBase}">${headTilt}
     <path d="M57 23 51 9" stroke="#546d7a" stroke-width="3.5" stroke-linecap="round"/>
     <circle cx="51" cy="9" r="4.5" fill="${signal}" stroke="#546d7a"/>
+    ${neutral && !still ? neutralAntenna : ''}
     <rect x="123" y="43" width="17" height="24" rx="7" fill="url(#metal)" stroke="#546d7a" stroke-width="1.4"/>
     <rect x="32" y="22" width="99" height="63" rx="22" fill="url(#metal)" stroke="#546d7a" stroke-width="1.4"/>
     <g data-crew="headset">

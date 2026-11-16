@@ -37,7 +37,6 @@ main { max-width: 1450px; margin: auto; padding: var(--agdf-space-8) var(--agdf-
 .page-title { display: flex; justify-content: space-between; gap: var(--agdf-space-5); align-items: center; margin-bottom: var(--agdf-space-6); }
 .page-title > div:first-child { min-width: 0; }
 .page-title h1 { overflow-wrap: anywhere; }
-.page-title h1:focus-visible { outline: none; text-decoration: underline; text-decoration-color: var(--agdf-focus-color); text-decoration-thickness: var(--agdf-focus-width); text-underline-offset: var(--agdf-focus-offset); }
 .page-title p { margin: 0; font-size: var(--agdf-text-sm); }
 .overview-repository { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .65rem; margin-top: var(--agdf-space-3) !important; color: var(--cockpit-muted); font-size: var(--agdf-text-sm); }
 .overview-repository code { color: var(--cockpit-text); overflow-wrap: anywhere; }
@@ -300,7 +299,11 @@ footer { padding: var(--agdf-space-6) 0 var(--agdf-space-2); font-size: var(--ag
 .undertaking-list .run-link:not(:disabled)::before { content: ''; position: absolute; inset: 0; cursor: pointer; }
 .undertaking-list :is(details, summary) { position: relative; z-index: 1; }
 @media (hover: hover) { .undertaking-list > li:has(.run-link:not(:disabled):hover) { background: var(--cockpit-soft); border-color: var(--cockpit-accent); } }
-.undertaking-list > li:has(.run-link:focus-visible) { outline: 2px solid var(--agdf-focus-color); outline-offset: 2px; }
+.undertaking-list > li:has(.run-link:focus-visible) {
+  outline: var(--cockpit-focus-width) solid var(--cockpit-focus-color);
+  outline-offset: var(--cockpit-focus-offset);
+}
+.undertaking-list > li:has(.run-link:focus-visible) .run-link:focus-visible { outline: none; }
 .undertaking-list .row-step, .row-phase, .row-limitation, .work-summary { display: block; overflow-wrap: anywhere; white-space: pre-wrap; }
 .undertaking-list .row-source { border-bottom: 0; padding-bottom: 0; }
 .undertaking-list summary { min-height: 44px; padding-block: var(--agdf-space-2); }

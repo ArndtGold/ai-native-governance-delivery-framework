@@ -150,7 +150,7 @@ async function refresh($, { quiet } = {}) {
       selection: remembered, mention: session.chatMention }).runId : null;
     const runIds = [...new Set([remembered, observed].filter(Boolean))];
     // Taken before the call: a change during the call shows up at the next check.
-    const ids = fingerprintIds(root);
+    const ids = fingerprintIds(root), plans = plannedIds();
     const print = await fingerprint($, root, ids);
     const next = await readSnapshot(processes($), { pluginRoot: $.plugin.root, root, language: session.locale,
       runIds, now: await $.clock.now(), clock: () => $.clock.now() });
@@ -168,12 +168,14 @@ async function refresh($, { quiet } = {}) {
     session.root = root;
     session.snapshot = settleSnapshot(session.snapshot, next);
     if (next.status === 'ok') session.events = session.events.filter(event => !STICKY_KINDS.includes(event.kind) || isStillUncertain(event, next.runs));
-    // A changed set of open runs is listed again, so the next check compares like with like. A failed
-    // read keeps no fingerprint, so the next check reads again (CR finding B1); so does a view with a
-    // run that ran into the read budget, which may read on the next attempt.
+    // A changed set of open runs or planned URs is listed again, so the next check compares like with
+    // like and a new planned UR is not read twice. A failed read keeps no fingerprint, so the next check
+    // reads again (CR finding B1); so does a view with a run that ran into the read budget, which may
+    // read on the next attempt.
     const after = fingerprintIds(root);
+    const same = after.join() === ids.join() && plannedIds() === plans;
     session.fingerprint = next.status === 'failed' || next.retry ? null
-      : `${session.locale}|${after.join() === ids.join() ? print : await fingerprint($, root, after)}`;
+      : `${session.locale}|${same ? print : await fingerprint($, root, after)}`;
     const chosen = selection();
     if (chosen && next.status === 'ok' && next.runs.length) {
       const { dropSelection } = assignRun({ runs: next.runs, sessionStartedAt: session.startedAt, selection: chosen });
@@ -195,6 +197,8 @@ async function refresh($, { quiet } = {}) {
 // only, never a run file.
 const fingerprintIds = root => [...new Set([...(session.snapshot?.runs ?? []).filter(run => run.lifecycle === 'active').map(run => run.id),
   session.choices.selections[root]].filter(Boolean))].sort();
+// The planned URs whose folders the fingerprint lists file by file.
+const plannedIds = () => (session.snapshot?.planned ?? []).map(plan => plan.id).sort().join();
 
 async function fingerprint($, root, ids = fingerprintIds(root)) {
   const list = async path => { try { return await $.fs.list(path); } catch { return null; } };
@@ -203,6 +207,12 @@ async function fingerprint($, root, ids = fingerprintIds(root)) {
   const runs = await list(`${control}/runs`);
   const parts = [`config:${files((await list(control))?.filter(entry => entry.name === 'config.json'))}`,
     `runs:${(runs ?? []).map(entry => entry.name).sort().join(',')}`];
+  // Planned URs are no run yet: a new planning folder or a changed planned UR reads the run view again.
+  const planned = ((await list(`${control}/planned`)) ?? []).map(entry => entry.name).sort();
+  parts.push(`planned:${planned.join(',')}`);
+  for (const plan of session.snapshot?.planned ?? []) {
+    if (planned.includes(plan.id)) parts.push(`${plan.id}:${files(await list(`${control}/planned/${plan.id}`))}`);
+  }
   for (const id of ids) {
     const folders = [];
     for (const folder of ['', '/documents', '/evidence']) folders.push(files(await list(`${control}/runs/${id}${folder}`)));
@@ -377,7 +387,9 @@ const wrappedRows = (value, columns) => (value ? Math.ceil(value.length / Math.m
 export function listCapacity(view, { rows, columns, isAboutShown = false }) {
   const blocks = [view.message, view.hint, view.unreadableHint !== view.message ? view.unreadableHint : null, view.stale,
     ...(view.drift ?? []), ...(view.events ? [view.events.join(' '), ...view.events.map(() => ' ')] : []),
-    ...(view.review ? [view.review.summary, view.review.match, ' ', ' '] : []), view.eventsHint].filter(Boolean);
+    ...(view.review ? [view.review.summary, view.review.match, ' ', ' '] : []), view.eventsHint,
+    // Beside a planned UR the list shares the body with its name, route, goal, turn box, gate bar, note and id.
+    ...(view.planId ? [view.name, view.route, view.goal, view.turn?.who, view.turn?.what, view.turn?.how, view.gateBar, view.note, view.planId] : [])].filter(Boolean);
   const fixed = DESKTOP_ROWS.figure + DESKTOP_ROWS.footer + DESKTOP_ROWS.spare + (isAboutShown ? DESKTOP_ROWS.about : 0) + 1
     + blocks.reduce((sum, value) => sum + wrappedRows(value, columns), 0) + DESKTOP_ROWS.gap * (blocks.length + 3);
   return Math.max(LISTED_RUNS, Math.floor(rows - fixed));
@@ -507,7 +519,9 @@ function body($, e) {
     return h(Box, { flexDirection: 'column', gap: 1 },
       h(Text, { color: view.resting ? undefined : COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), infoButton, runList, about, actions);
   }
-  const scope = view.runId ? JSON.stringify([session.root, view.runId]) : null;
+  // A planned UR is shown like a run, so the figure moves for it too.
+  const shownId = view.runId ?? view.planId;
+  const scope = shownId ? JSON.stringify([session.root, shownId]) : null;
   const quiet = !session.choices.enabled || session.choices.still || session.isHidden || Boolean(view.stale);
   const still = quiet || !scope || ['unreadable', 'idle', 'completionUnconfirmed'].includes(view.figure?.reason.key);
   // Without an assigned run a readable project smiles and keeps the idle motion (blinking) unless the
@@ -570,9 +584,11 @@ function body($, e) {
       view.review.truncated ? h(Text, { dimColor: true }, view.review.truncated) : null) : null,
     view.eventsHint ? h(Text, { dimColor: true }, view.eventsHint) : null,
     runList,
-    // The run id is a reference for commands, so it stands last and dim.
-    view.runId ? h(Box, { flexDirection: 'column' },
-      h(Text, { dimColor: true, mono: true, wrap: 'truncate-end' }, view.runId),
+    // Beside a planned UR: how many runs are done and how many more URs are in planning.
+    view.note ? h(Text, { dimColor: true }, view.note) : null,
+    // The run id, or the planning id, is a reference for commands, so it stands last and dim.
+    shownId ? h(Box, { flexDirection: 'column' },
+      h(Text, { dimColor: true, mono: true, wrap: 'truncate-end' }, shownId),
       view.origin ? h(Text, { dimColor: true }, view.origin) : null) : null,
     view.stale ? h(Text, { color: 'warning' }, view.stale) : null,
     about),

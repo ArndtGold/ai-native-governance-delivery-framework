@@ -6,6 +6,7 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { fixture } from "../../core/test/control-cockpit-fixtures.js";
 import { currentFixture } from "../../core/test/fixtures/current-run.js";
+import { boundMutatePlannedUr, completeUr, plannedFixture } from "../../core/test/planned-fixtures.js";
 import { replaceFirstScalar } from "../../core/lib/control-state/run-state-edits.js";
 import { sealRunState } from "../../core/lib/control-state/run-seal.js";
 import { createRun } from "../../core/lib/control-state/run-state-repository.js";
@@ -374,6 +375,10 @@ try {
   assert.equal(listCapacity(listView, { rows: 50, columns: 40 }) - listCapacity(listView, { rows: 40, columns: 40 }), 10, "each body row adds a run");
   assert.equal(listCapacity(listView, { rows: 50, columns: 40 }) - listCapacity(listView, { rows: 50, columns: 40, isAboutShown: true }), 7, "About takes its rows");
   assert.ok(listCapacity({ ...listView, hint: "x".repeat(400) }, { rows: 50, columns: 40 }) < listCapacity(listView, { rows: 50, columns: 40 }), "a longer hint takes rows");
+  // CR finding of 2026-11-16: beside a planned UR its name, route, goal, turn box, gate bar, note and id take rows too.
+  const planView = { ...listView, planId: "plan-1", name: "Draft undertaking", route: "UR planning · no run yet", goal: "Preserve one explicit intent.",
+    turn: { who: "Up next", what: "Draft: User requirements (UR)", how: "Tell me in the chat when I should continue." }, gateBar: "●UR planning", note: "Completed runs: 1" };
+  assert.ok(listCapacity(planView, { rows: 50, columns: 40 }) <= listCapacity(listView, { rows: 50, columns: 40 }) - 8, "a planned UR leaves fewer rows for the list");
   const many = await approvalFixture();
   try {
     const manyConfig = join(many.root, ".agdf", "control", "config.json");
@@ -953,6 +958,61 @@ try {
       const stillSvg = find(await render(host), node => node.tag === "Svg")[0].props.source;
       assert.ok(/data-accessory="start-sign"/u.test(stillSvg) && !/<animate/u.test(stillSvg), "the still pose keeps the sign without motion");
       await (await entry(host, "still"))();
+    }
+    // Owner finding of 2026-11-16: a planned UR is no run yet, and the pane said "all runs done" while
+    // one was drafted. It is shown like a run at the UR gate, and a new planned UR reads the run view again.
+    {
+      const cleanups = [];
+      const planning = plannedFixture({ after: fn => cleanups.push(fn) }, []);
+      try {
+        const create = title => {
+          const operation_id = randomUUID();
+          boundMutatePlannedUr(planning, { kind: "planned_ur.create", operation_id, expected_digest: null, content: completeUr.replace("Independent work", title), priority: "normal" });
+          return `plan-${operation_id}`;
+        };
+        const host = await session({ projectRoot: planning, settings: {} });
+        await host.fire("session.start");
+        if (!JSON.parse(readFileSync(statePath, "utf8")).enabled) await host.fire("command.run", { command: COMMAND });
+        const settleLong = async () => { for (let turn = 0; turn < 400; turn += 1) await new Promise(resolve => setImmediate(resolve)); };
+        const tick = async ms => { for (const timer of host.log.timers.filter(item => !item.cancelled && item.ms === ms)) timer.fn(); await settleLong(); };
+        await reread(host);
+        assert.ok(texts(await render(host)).some(text => text.startsWith("Starting grid empty")), "a project without runs or planned URs is empty");
+        const calls = () => host.log.processes.length, before = calls();
+        await tick(REFRESH_MS);
+        assert.equal(calls(), before, "an unchanged project is not read again");
+        // A first planned UR appears in the planning folder: the pane reads again and shows it.
+        const planId = create("Draft undertaking");
+        await tick(REFRESH_MS);
+        assert.equal(calls(), before + 1, "a new planned UR reads the run view again");
+        // CR finding of 2026-11-16: the fingerprint taken with the new planned UR matches the next check.
+        await tick(REFRESH_MS);
+        assert.equal(calls(), before + 1, "a new planned UR is read once, not twice");
+        const tree = await render(host), shown = texts(tree);
+        for (const text of ["UR draft is next", "Draft undertaking", "UR planning · no run yet", "Up next", "Draft: User requirements (UR)", "●UR planning", planId]) {
+          assert.ok(shown.includes(text), `the pane shows "${text}": ${JSON.stringify(shown)}`);
+        }
+        assert.ok(!shown.some(text => /Starting grid empty|All runs across the line|No run assigned/u.test(text)), "no empty-state message beside a planned UR");
+        const svg = find(tree, node => node.tag === "Svg")[0].props.source;
+        assert.ok(/data-accessory="gate-board"[\s\S]*>UR<\/text>/u.test(svg) && !/dur="9s"/u.test(svg), "the figure holds the UR clipboard and rests");
+        const idText = find(tree, node => node.tag === "Text" && texts(node)[0] === planId)[0];
+        assert.deepEqual([idText.props.dimColor, idText.props.mono], [true, true], "the planning id is a reference line");
+        assert.equal(host.log.status.at(-1), "AGDF · UR planning");
+        // During a main-loop turn the draft is being written.
+        await host.fire("turn.start", {});
+        const busy = await render(host);
+        assert.ok(texts(busy).includes("drafting the UR") && texts(busy).includes("One moment"));
+        assert.match(find(busy, node => node.tag === "Svg")[0].props.source, /data-accessory="gate-board"[\s\S]*dur="9s"/u, "the figure writes while the turn runs");
+        await host.fire("turn.complete", {});
+        await settleLong();
+        // A changed planned UR is read again as well.
+        const again = calls();
+        const ur = join(planning, ".agdf", "control", "planned", planId, "UR.md"), later = new Date(Date.now() + 120_000);
+        utimesSync(ur, later, later);
+        await tick(REFRESH_MS);
+        assert.equal(calls(), again + 1, "a changed planned UR reads the run view again");
+        const terminal = texts(await render(host, "terminal")).join("\n");
+        assert.ok(terminal.includes("UR draft is next\nDraft undertaking · UR planning · no run yet") && terminal.includes(planId), "the terminal shows the planned UR too");
+      } finally { for (const cleanup of cleanups) cleanup(); }
     }
     // CR-F05: an English label of the shown run proves that the config (en) wins over the setting (de).
     const configured = await languageOf(target.root, { language: "de" });

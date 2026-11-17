@@ -9,7 +9,8 @@ import { captureControlScope } from '../control-read/snapshot.js';
 import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from '../control-state/contained-file.js';
 import { parseControlState } from '../control-state/run-state-parser.js';
 import { runIdentity } from '../control-state/run-title.js';
-import { localizedDecisionFields } from '../control-evaluation/decision-content-readiness.js';
+import { authoredGoal, localizedDecisionFields } from '../control-evaluation/decision-content-readiness.js';
+import { projectPlannedInventory } from '../control-state/planned-inventory.js';
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { readRunInventory } from '../control-state/run-inventory-reader.js';
 import { runFolderEntries } from '../control-state/run-state-reader.js';
@@ -55,25 +56,50 @@ const bounded = value => (typeof value === 'string' && value.length > NAMING_TEX
 // shared Run title rule (registered UR heading, then the authored Objective; a bare Run ID is no
 // title) and the goal in the display language. Where display and artefact language differ, the goal
 // is the one the UR's localized approval summary states. An unreadable UR leaves both to the Run document.
+// What one UR document says about itself, read inside the caller's snapshot: its heading without
+// the "UR:" prefix, the goal its localized approval summary states for the display language, the goal
+// it authors in the artefact language, and when the file last changed. A document outside the control
+// folder, behind a link or over the read limit yields nothing; only a changed source is passed on.
+function readUrFacts(root, path, language) {
+  const facts = { heading: '', localizedGoal: null, authoredGoal: null, changedAt: null };
+  try {
+    if (!isSafeControlRelativePath(path) || !path.startsWith('.agdf/control/') || hasSymlinkComponent(root, path)) return facts;
+    const file = containedRegularFile(root, path);
+    if (file.status !== 'valid') return facts;
+    const stat = statSync(file.path);
+    if (stat.size > UR_READ_LIMIT) return facts;
+    const text = readFileSync(file.path, 'utf8');
+    facts.heading = (text.match(/^#\s+(.+)$/mu)?.[1] ?? '').replace(/^UR:\s*/iu, '').trim();
+    const sourceLanguage = resolveArtifactPresentationLanguages(root, language).artifact_language;
+    facts.localizedGoal = localizedDecisionFields('UR', text, { locale: String(language).split('-')[0], sourceLanguage, path }).fields.goal ?? null;
+    facts.authoredGoal = authoredGoal(text);
+    facts.changedAt = Number.isFinite(stat.mtimeMs) ? new Date(stat.mtimeMs).toISOString() : null;
+  } catch (error) { if (error?.code === 'source_changed') throw error; }
+  return facts;
+}
+
 export function readRunNaming(root, runId, language = 'en') {
   let content;
   try { content = readFileSync(join(root, runRelativePath(runId, '', 'RUN_STATE.md')), 'utf8'); } catch { return null; }
-  let urHeading = '', localizedGoal = null;
-  try {
-    const path = String(parseControlState(content).artefacts.get('UR')?.path ?? '').replace(/^`|`$/gu, '').trim();
-    if (isSafeControlRelativePath(path) && path.startsWith('.agdf/control/') && !hasSymlinkComponent(root, path)) {
-      const file = containedRegularFile(root, path);
-      if (file.status === 'valid' && statSync(file.path).size <= UR_READ_LIMIT) {
-        const text = readFileSync(file.path, 'utf8');
-        urHeading = (text.match(/^#\s+(.+)$/mu)?.[1] ?? '').replace(/^UR:\s*/iu, '').trim();
-        const sourceLanguage = resolveArtifactPresentationLanguages(root, language).artifact_language;
-        localizedGoal = localizedDecisionFields('UR', text, { locale: String(language).split('-')[0], sourceLanguage, path }).fields.goal ?? null;
-      }
-    }
-  } catch (error) { if (error?.code === 'source_changed') throw error; }
+  let path = '';
+  try { path = String(parseControlState(content).artefacts.get('UR')?.path ?? '').replace(/^`|`$/gu, '').trim(); } catch { /* no registered UR */ }
+  const { heading: urHeading, localizedGoal } = readUrFacts(root, path, language);
   const identity = runIdentity({ runId, runContent: content, urHeading });
   return { run_title: identity.title_source === 'run_id' ? null : bounded(identity.title),
     run_title_source: identity.title_source, goal: bounded(localizedGoal ?? identity.objective) };
+}
+
+// Planned URs that are no run yet (owner finding of 2026-11-16: the companion said "all runs done"
+// while a new UR was being drafted). The planning inventory the cockpit lists is the source; an entry
+// already handed over to a run is that run and is left out. Each entry carries its title, its
+// planning state (draft, ready, or one that needs clarification), its goal in the display language
+// and when its UR last changed. Read inside one captured snapshot; nothing is written.
+export function readPlannedView(root, language = 'en') {
+  return projectPlannedInventory(root, { language }).entries.filter(entry => entry.coverage !== 'transferred').map(entry => {
+    const facts = readUrFacts(root, entry.source.path, language);
+    return { plan_id: entry.plan_id, title: bounded(entry.title), coverage: entry.coverage,
+      goal: bounded(facts.localizedGoal ?? facts.authoredGoal), last_change: facts.changedAt };
+  });
 }
 
 // One run entry: inventory facts plus, when evaluated, the status card fields of its report.
@@ -124,7 +150,7 @@ export function projectRunEntry(inventoryEntry, report, { registry = interaction
 const withFigure = entry => ({ ...entry, figure: deriveFigureState(entry) });
 
 // Pure assembly of the versioned view from already evaluated parts.
-export function projectRunView({ root, language, store, entries }) {
+export function projectRunView({ root, language, store, entries, planned = [] }) {
   return {
     schema_version: RUN_VIEW_SCHEMA,
     root,
@@ -132,6 +158,8 @@ export function projectRunView({ root, language, store, entries }) {
     store,
     diagnosis: projectDiagnosis(entries.filter(entry => entry.listed !== false)),
     runs: entries,
+    // Planned URs that are no run yet; empty when the planning store cannot be read.
+    planned,
     authorizes: false,
   };
 }
@@ -223,5 +251,10 @@ export function readRunView(root, { language = 'en', runIds = [] } = {}) {
     // evaluated for its card, never counted in the diagnosis of listed runs.
     entries.push({ ...entryOf({ run_id: runId, findings: [] }, evaluate(runId)), valid: null, listed: false });
   }
-  return projectRunView({ root, language, store, entries });
+  // The planning list is an addition: a planning store that cannot be read leaves the run view as it is.
+  let planned = [];
+  if (store.status === 'ok') {
+    try { planned = captured(readRoot, base => readPlannedView(base, language)); } catch { /* shown without planned URs */ }
+  }
+  return projectRunView({ root, language, store, entries, planned });
 }

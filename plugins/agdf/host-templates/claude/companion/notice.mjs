@@ -3,7 +3,7 @@
 // run-derived state, never on the turn overlay, so a turn neither flips the status line nor raises a
 // toast. Host-independent; the adapter shows the results.
 
-import { assignRun } from './assignment.mjs';
+import { assignRun, openRuns, pickPlan } from './assignment.mjs';
 import { gateTitle, label } from './localization.mjs';
 import { runState } from './state.mjs';
 
@@ -22,7 +22,11 @@ export function observedRun({ snapshot, sessionStartedAt, selection = null, ment
   if (snapshot.status === 'no_control') return { kind: 'notSetUp' };
   if (snapshot.status !== 'ok') return { kind: 'idle' };
   const { run } = assignRun({ runs: snapshot.runs, sessionStartedAt, selection, mention });
-  if (!run) return selection && snapshot.unreadable.some(item => item.id === selection) ? { kind: 'unreadable' } : { kind: 'idle' };
+  if (!run) {
+    if (selection && snapshot.unreadable.some(item => item.id === selection)) return { kind: 'unreadable' };
+    // No run is shown: a UR in planning is told apart from a project with nothing under way.
+    return pickPlan(snapshot.planned, { sessionStartedAt, hasOpenRuns: openRuns(snapshot.runs).length > 0 }) ? { kind: 'planned' } : { kind: 'idle' };
+  }
   const figure = runState(run);
   // The blocking text arrives localized in the run view; the signature keeps the code.
   return { kind: 'run', runId: run.id, state: { ...figure, reason: { ...figure.reason, decisionText: run.blockingText || undefined } } };
@@ -57,6 +61,7 @@ export function statusText(observed, { labels, locale }) {
   if (observed.kind === 'unreadable') return `AGDF · ${t('statusStates.unreadable')}`;
   // A project without AGDF is told apart from a set-up project that has nothing to do.
   if (observed.kind === 'notSetUp') return `AGDF · ${t('statusStates.notSetUp')}`;
+  if (observed.kind === 'planned') return `AGDF · ${t('statusStates.planned')}`;
   if (observed.kind !== 'run') return `AGDF · ${t('statusStates.bereit')}`;
   const { mood, reason } = observed.state;
   return mood === 'fertig' || !reason.gate ? `AGDF · ${t(`statusStates.${mood}`)}` : `AGDF · ${reason.gate} · ${t(`statusStates.${mood}`)}`;

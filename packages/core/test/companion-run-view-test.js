@@ -4,7 +4,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildCompanionFixtures, LEGACY_V2_RUN_ID } from './fixtures/companion-fixtures.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
-import { CAPTURE_ATTEMPTS, captured, projectRunEntry, readRunNaming, readRunView, RUN_VIEW_SCHEMA, DIAGNOSIS_REASONS } from '../lib/companion/run-view.js';
+import { CAPTURE_ATTEMPTS, captured, projectRunEntry, readPlannedView, readRunNaming, readRunView, RUN_VIEW_SCHEMA, DIAGNOSIS_REASONS } from '../lib/companion/run-view.js';
+import { boundCreateRunFromPlanned, boundMutatePlannedUr, clarifiedUr, completeUr, plannedFixture } from './planned-fixtures.js';
+import { plannedTextDigest } from '../lib/control-state/planned-entry.js';
+import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
+import { randomUUID } from 'node:crypto';
 import { fixture as cockpitFixture } from './control-cockpit-fixtures.js';
 import { deriveFigureState, COMPANION_MOODS } from '../lib/companion/figure-state.js';
 import { validateInteractionCatalog } from '../lib/interaction-catalog-validation.js';
@@ -284,4 +288,53 @@ test('owner request 2026-11-11: an evaluated run names itself by its UR heading 
   assert.deepEqual([authored.run_title, authored.run_title_source, authored.goal], ['Ship the companion', 'objective', 'Ship the companion']);
   const unnamed = projectRunEntry({ ...base, title: 'Run A', title_source: 'run_id', objective: null }, null);
   assert.deepEqual([unnamed.run_title, unnamed.run_title_source, unnamed.goal], [null, 'run_id', null], 'a run id is never a title');
+});
+
+test('owner finding 2026-11-16: a planned UR that is no run yet is part of the run view', t => {
+  const root = plannedFixture(t, []);
+  assert.deepEqual(readRunView(root, { language: 'en' }).planned, [], 'a project without planned URs lists none');
+  const create = (title, content) => {
+    const operation_id = randomUUID();
+    boundMutatePlannedUr(root, { kind: 'planned_ur.create', operation_id, expected_digest: null, content: content.replace('Independent work', title), priority: 'normal' });
+    return `plan-${operation_id}`;
+  };
+  // A UR whose requirements are clarified is ready for its handover; one without that is a draft.
+  const readyId = create('Ready undertaking', clarifiedUr), draftId = create('Draft undertaking', completeUr);
+  const view = readRunView(root, { language: 'en' });
+  assert.deepEqual([view.authorizes, view.store.status, view.runs.length], [false, 'ok', 0]);
+  const byId = Object.fromEntries(view.planned.map(plan => [plan.plan_id, plan]));
+  assert.deepEqual(Object.keys(byId).sort(), [draftId, readyId].sort());
+  assert.deepEqual([byId[readyId].title, byId[readyId].coverage, byId[readyId].goal], ['Ready undertaking', 'ready', 'Preserve one explicit intent.']);
+  assert.deepEqual([byId[draftId].title, byId[draftId].coverage, byId[draftId].goal], ['Draft undertaking', 'draft', 'Preserve one explicit intent.']);
+  for (const plan of view.planned) assert.match(plan.last_change, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u, 'when the planned UR last changed');
+  assert.deepEqual(readPlannedView(root, 'en'), view.planned, 'the run view carries exactly the planning list');
+  // Where display and artefact language differ, the goal is the one the localized summary states.
+  const ready = join(root, '.agdf/control/planned', readyId, 'UR.md'), bytes = readFileSync(ready, 'utf8');
+  assert.equal(readRunView(root, { language: 'de' }).planned.find(plan => plan.plan_id === readyId).goal, 'Preserve one explicit intent.', 'no summary: the authored goal');
+  // CR finding of 2026-11-16: with a localized summary the German view takes its goal, the English one the authored goal.
+  const draftPath = join(root, '.agdf/control/planned', draftId, 'UR.md'), draftBytes = readFileSync(draftPath, 'utf8');
+  writeFileSync(draftPath, `${draftBytes}\n## AGDF Approval Summary (de; source=en)\n\nZiel: Eine ausdrückliche Absicht bleibt erhalten.\n`);
+  const goalIn = language => readRunView(root, { language }).planned.find(plan => plan.plan_id === draftId)?.goal;
+  assert.deepEqual([goalIn('de'), goalIn('en')], ['Eine ausdrückliche Absicht bleibt erhalten.', 'Preserve one explicit intent.']);
+  writeFileSync(draftPath, draftBytes);
+  // Handed over, the planned UR is its run and leaves the planning list.
+  const handed = boundCreateRunFromPlanned(root, { operation_id: randomUUID(), plan_id: readyId, expected_digest: plannedTextDigest(bytes),
+    target_id: resolveControlCommandTarget(root).target_id, title: 'Ready undertaking' });
+  const after = readRunView(root, { language: 'en' });
+  assert.deepEqual(after.planned.map(plan => plan.plan_id), [draftId], 'a transferred planned UR is listed as its run only');
+  assert.deepEqual(after.runs.map(run => [run.run_id, run.lifecycle]), [[handed.run_id, 'active']]);
+  assert.equal(readFileSync(ready, 'utf8'), bytes, 'reading the planning list writes nothing');
+});
+
+test('a planning store that cannot be read leaves the run view as it is', t => {
+  const f = cockpitFixture(); t.after(() => f.close());
+  rmSync(join(f.root, '.agdf/control/planned'), { recursive: true, force: true });
+  const view = readRunView(f.root, { language: 'en' });
+  assert.deepEqual([view.store.status, view.planned], ['ok', []]);
+  assert.ok(view.runs.some(run => run.run_id === 'fixture-a'), 'the runs are still listed');
+  // CR finding of 2026-11-16: a planning store that exists but cannot be read as a folder.
+  writeFileSync(join(f.root, '.agdf/control/planned'), 'not a folder');
+  const broken = readRunView(f.root, { language: 'en' });
+  assert.deepEqual([broken.store.status, broken.planned], ['ok', []]);
+  assert.ok(broken.runs.some(run => run.run_id === 'fixture-a'), 'the runs are still listed beside a broken planning store');
 });

@@ -11,6 +11,16 @@ const newestFirst = (left, right) => changedAt(right) - changedAt(left) || left.
 const ASSIGNABLE = new Set(['active', 'completed']);
 export const openRuns = runs => runs.filter(run => run.lifecycle === 'active').sort(newestFirst);
 
+// The planned UR the pane shows when it shows no run (owner finding of 2026-11-16): a UR in planning is
+// no run yet, so a project whose runs are all done may still have work under way. The newest planned UR
+// is shown when it changed in this session, or when no run is open at all; otherwise the open runs keep
+// the pane. Returns { plan, count } with the number of open planned URs, or null. Display only.
+export function pickPlan(planned, { sessionStartedAt, hasOpenRuns }) {
+  const open = [...(planned ?? [])].sort(newestFirst);
+  if (!open.length) return null;
+  return changedAt(open[0]) >= sessionStartedAt || !hasOpenRuns ? { plan: open[0], count: open.length } : null;
+}
+
 // A run id is made of these characters; a mention counts only as a whole token. A dot ends a mention
 // unless an id character follows it, so a sentence may end with a run id (chat-run navigation SDD-01).
 const ID_CHAR = /[a-z0-9_-]/iu;

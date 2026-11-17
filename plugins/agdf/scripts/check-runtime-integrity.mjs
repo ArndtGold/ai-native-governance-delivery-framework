@@ -1339,7 +1339,7 @@ if (codexPlugin && pluginDefinition) {
     const config = isFile(path) ? readJson(path, "Codex Companion hooks") : null;
     const shared = isFile(hooksConfigPath) ? readJson(hooksConfigPath, "Shared SessionStart hook") : null;
     const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
-      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 1 };
+      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 3 };
     const expected = {
       ...shared?.hooks,
       PostToolUse: [{ matcher: "^mcp__agdf__agdf_dispatch$",
@@ -1665,9 +1665,10 @@ if (pluginDefinition) {
   }
 }
 
-// The AGDF companion is Claude-only (SDD-01, SDD-02): its build-only descriptor owns the runtime Claude
-// manifest's hooks declaration; the Codex manifest, the shared hooks, the shared definition and the
-// Copilot profile never reference it.
+// The AGDF companion pane is Claude-only (SDD-01, SDD-02): its build-only descriptor owns the runtime
+// Claude manifest's hooks declaration; the Codex manifest, the shared hooks, the shared definition and the
+// Copilot profile never reference it. Its host-neutral activity policy (activity.mjs) is the one file
+// Core also loads, as a projected copy, for the Codex Cockpit activity observer.
 const companionFiles = ["activity.mjs", "companion.json", "hooks.json", "register.mjs", "assignment.mjs", "events.mjs", "figure.mjs", "gate-bar.mjs",
   "localization.mjs", "notice.mjs", "persistence.mjs", "run-state.mjs", "state.mjs", "view.mjs"];
 const copilotRuntimeProfile = !sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugin";

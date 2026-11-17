@@ -80,6 +80,8 @@ export function snapshotFromRunView(stdout, { now }) {
   return {
     status,
     root: view.root,
+    // The realpath MCP resolves for this root; a view without it compares the root's own spelling only.
+    canonicalRoot: typeof view.canonical_root === 'string' && view.canonical_root ? view.canonical_root : null,
     reason: view.store.reason ?? null,
     // The run folders of an unsupported store, which the run view counts without reading them (AC-002).
     runFolders: Number.isSafeInteger(view.store.run_folders) && view.store.run_folders > 0 ? view.store.run_folders : null,

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
-import { appendFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -1406,6 +1406,66 @@ try {
   release(answer);
   assert.equal(await changed, answer);
   assert.equal(await isWorking(), false);
+  await complete("turn-4");
+  const settle = async () => { for (let turn = 0; turn < 400; turn += 1) await new Promise(resolve => setImmediate(resolve)); };
+
+  // The first turn after a /clear or resume: the cached conversation is still the previous one.
+  host.where.conversation = "conversation-3";
+  await start("turn-5");
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "tool-5" }, async () => answer), answer);
+  assert.equal(await isWorking(), true, "the conversation is read beside the call, not from the cache");
+  // The 30-second check notices the new conversation and keeps the turn running in it.
+  host.log.timers.find(timer => timer.ms === REFRESH_MS && !timer.cancelled).fn();
+  await settle();
+  assert.equal(await isWorking(), true, "a conversation change between turns keeps the running turn");
+  // Confirmed work stays current while the native turn runs, beyond its first 30 seconds.
+  const realNow = Date.now;
+  const renewal = () => host.log.timers.filter(timer => timer.ms === 15_000 && !timer.cancelled).at(-1);
+  try {
+    Date.now = () => realNow() + 20_000;
+    renewal().fn();
+    Date.now = () => realNow() + 45_000;
+    assert.equal(await isWorking(), true, "renewed work outlives its first lifetime");
+    renewal().fn();
+    Date.now = () => realNow() + 70_000;
+    assert.equal(await isWorking(), true);
+  } finally { Date.now = realNow; }
+  await complete("turn-5");
+  assert.equal(await isWorking(), false);
+  assert.equal(renewal(), undefined, "the turn end stops the renewal");
+
+  // An aborted main turn also stops its subagents, even when they never report their own end.
+  await start("turn-6");
+  await host.fire("turn.start", { turnId: "lost-sub", agentId: "sub" });
+  await complete("turn-6", "aborted");
+  await start("turn-7");
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "tool-7" }, async () => answer), answer);
+  assert.equal(await isWorking(), true, "a subagent lost in an abort does not block later turns");
+  await complete("turn-7");
+
+  // A project opened through a junction: Core answers with the realpath, the session keeps the link.
+  const linked = `${root}-linked`;
+  symlinkSync(root, linked, "junction");
+  try {
+    writeFileSync(join(choiceDir, "companion-state.json"), JSON.stringify({
+      schema_version: 1, enabled: true, selections: { [linked]: run_id },
+    }));
+    const viaLink = fakeHost({ projectRoot: linked, configDir: activityConfig });
+    viaLink.attach(await freshModule());
+    await viaLink.fire("session.start");
+    const observeLink = viaLink.hooks.find(item => item.matcher?.tool === "mcp__agdf__agdf_dispatch").hook;
+    const canonical = realpathSync(linked);
+    assert.notEqual(canonical, linked);
+    const canonicalAnswer = { ref: 2, result: JSON.stringify({ ...payload, target: { ...payload.target, governance_target: canonical },
+      continuation: { ...payload.continuation, governance_target: canonical } }) };
+    await viaLink.fire("turn.start", { turnId: "linked-turn" });
+    assert.equal(await observeLink(viaLink.$, { ...call, primary_target: linked.replaceAll("\\", "/"), tool_use_id: "linked-tool" },
+      async () => canonicalAnswer), canonicalAnswer);
+    assert.ok(texts(await render(viaLink)).includes("One moment"), "the run view's realpath identifies the linked project");
+    await viaLink.fire("turn.complete", { turnId: "linked-turn", reason: "answer" });
+  } finally {
+    rmSync(linked, { force: true });
+  }
 } finally {
   activityFixture.close();
   rmSync(activityConfig, { recursive: true, force: true });

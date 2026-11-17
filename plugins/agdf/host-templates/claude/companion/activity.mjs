@@ -2,32 +2,51 @@ export const activityLifetime = 30_000;
 const deduplicationWindow = 5 * 60_000;
 export const activityRecordLimit = 64;
 const toolLimit = 12;
-const id = /^[a-z0-9_-]{1,128}$/iu;
+// Host IDs are ASCII. Without a case-insensitive Unicode class, U+212A and U+017F cannot pass as k and s.
+const id = /^[A-Za-z0-9_-]{1,128}$/u;
 const runId = /^[a-z0-9][a-z0-9._-]{0,127}$/u;
 export const isActivityId = value => typeof value === 'string' && id.test(value);
 const revision = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu;
+// Each continuation phase that hands agent work on the current gate, with the gates Core emits it for.
+// `null` takes the reported current gate; a continuation that names its own gate must name that one.
 const workPhases = new Map([
-  ['post_ur_review', 'Brownfield Review'],
-  ['pre_implementation_analysis', 'Brownfield Analysis'],
-  ['prd_definition', 'PRD'],
-  ['sd_definition', 'SD'],
-  ['tp_definition', 'TP'],
-  ['implementation', 'CD+Tests'],
+  ['post_ur_review', ['Brownfield Review', 'Mode/Slice Decision']],
+  ['pre_implementation_analysis', ['Brownfield Analysis']],
+  ['prd_definition', ['PRD']],
+  ['sd_definition', ['SD']],
+  ['tp_definition', ['TP']],
+  ['implementation', ['CD+Tests']],
+  ['compact_implementation', ['Quick Task Execution', 'Verified Change Execution']],
+  ['verified_change_record', ['Verified Change Execution']],
+  ['compact_closeout', ['Quick Task Execution', 'OR']],
+  ['required_gate_artifact', null],
+  ['post_uat_closeout', ['OR']],
 ]);
 
-// The host supplies the turn identity. Core supplies the work scope and current step.
+function workGate(continuation, current) {
+  if (!workPhases.has(continuation?.phase) || typeof current !== 'string' || !current) return null;
+  const gates = workPhases.get(continuation.phase);
+  if (gates ? !gates.includes(current) : continuation.gate !== undefined && continuation.gate !== current) return null;
+  return current;
+}
+
+// The host supplies the turn identity. Core supplies the work scope and current step. The returned
+// governance target is Core's canonical resolution, so the request's own spelling of it is not compared.
 export function workBinding(request, result) {
   const continuation = result?.continuation;
   const target = result?.target?.governance_target;
-  const gate = workPhases.get(continuation?.phase);
+  const gate = workGate(continuation, result?.control?.current_gate);
   if (request?.continue_delivery !== true || result?.outcome !== 'skill_continuation' || result.terminal !== false
-    || result.authorizes !== false || !gate || result.control?.current_gate !== gate || result.control?.next_operation?.actor !== 'agent'
+    || result.authorizes !== false || !gate || result.control?.next_operation?.actor !== 'agent'
     || result.target?.resolution_state !== 'resolved' || typeof target !== 'string' || !target
-    || (request.primary_target !== undefined && request.primary_target !== target)
     || target !== continuation.governance_target || typeof continuation.run_id !== 'string' || !runId.test(continuation.run_id)
     || request.run_id !== continuation.run_id || typeof continuation.revision_id !== 'string' || !revision.test(continuation.revision_id)) return null;
   return { target_id: target, run_id: continuation.run_id, revision_id: continuation.revision_id, gate };
 }
+
+// Holds every observation back for one deduplication window: used when the window overflows or a
+// stored set cannot be read, because neither can prove which turns already ended.
+export const quarantineActivity = now => [{ quarantined: true, until: now + deduplicationWindow }];
 
 export function updateActivity(records, event, now) {
   const { kind, session, turn, tool, binding } = event;
@@ -41,12 +60,25 @@ export function updateActivity(records, event, now) {
   if (!terminal && (!['work', 'lost'].includes(kind) || !isActivityId(tool)
     || previous?.terminal || tools.includes(tool) || tools.length >= toolLimit || (kind === 'work' ? !binding : !previous))) return null;
   const next = current.filter(row => !sameTurn(row));
-  if (next.length >= activityRecordLimit) return [{ quarantined: true, until: now + deduplicationWindow }];
+  if (next.length >= activityRecordLimit) return quarantineActivity(now);
   const lifetime = { session, turn, until: now + deduplicationWindow };
   if (terminal) return [...next, { ...lifetime, terminal: true, kind }];
   return [...next, {
     ...lifetime, ...binding, tools: [...tools, tool], expires_at: kind === 'work' ? now + activityLifetime : 0,
   }];
+}
+
+// Extends confirmed work while its host turn is still running. Only a host that reports the turn's end
+// itself may renew; expired, lost or terminal work stays as it is. Returns null when nothing was renewed.
+export function renewActivity(records, { session, turn }, now) {
+  let renewed = false;
+  const next = records.map(row => {
+    if (row.session !== session || row.turn !== turn || row.terminal || row.quarantined
+      || !Number.isSafeInteger(row.expires_at) || row.expires_at <= now) return row;
+    renewed = true;
+    return { ...row, expires_at: now + activityLifetime, until: Math.max(row.until, now + deduplicationWindow) };
+  });
+  return renewed ? next : null;
 }
 
 export function matchesActivity(record, scope, now) {

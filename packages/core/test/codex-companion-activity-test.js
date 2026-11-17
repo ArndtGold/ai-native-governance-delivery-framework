@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
@@ -61,8 +61,7 @@ function fullRows(binding, count, character) {
 
 test('the maximum valid observation set stays writable and expires normally', t => {
   const { root, binding, gate, post } = fixture(t, 'a'.repeat(128));
-  // The case-insensitive host ID validator also accepts the three-byte Kelvin sign.
-  const character = 'K';
+  const character = 'k';
   const store = seedStore(root, fullRows(binding, 63, character));
   for (let tool = 0; tool < 12; tool++) {
     const event = { ...post, session_id: character.repeat(128),
@@ -70,7 +69,7 @@ test('the maximum valid observation set stays writable and expires normally', t 
     assert.equal(observeCodexActivity(root, event, 1000), true, `tool ${tool}`);
   }
   const bytes = statSync(store).size;
-  assert.ok(bytes > 144 * 1024 && bytes <= 384 * 1024);
+  assert.ok(bytes > 128 * 1024 && bytes <= 160 * 1024, String(bytes));
   assert.equal(observeCodexActivity(root, post, 301_001), true);
   assert.deepEqual(readCodexActivity(root, binding, 301_002), { gate, expires_at: 331_001 });
 });
@@ -84,4 +83,31 @@ test('an oversized store from the previous build accepts fresh work and retains 
   assert.equal(observeCodexActivity(root, post, 32_000), true);
   assert.equal(observeCodexActivity(root, { ...post, turn_id: 'ended-turn' }, 32_001), false);
   assert.deepEqual(readCodexActivity(root, binding, 32_002), { gate, expires_at: 62_000 });
+});
+
+test('an unreadable store holds observations for one window and then starts over', t => {
+  const { root, binding, gate, post } = fixture(t);
+  for (const content of ['{"broken"', '[null]', JSON.stringify({ rows: [] }), 'x'.repeat(161 * 1024)]) {
+    const store = join(root, 'companion', 'codex-activity.json');
+    if (existsSync(store)) rmSync(store); else mkdirSync(join(root, 'companion'));
+    writeFileSync(store, content);
+    assert.equal(observeCodexActivity(root, post, 1000), false, 'the repair itself records nothing');
+    assert.deepEqual(JSON.parse(readFileSync(store, 'utf8')), [{ quarantined: true, until: 301_000 }]);
+    assert.equal(observeCodexActivity(root, { ...post, tool_use_id: 'held' }, 2000), false, 'work waits for the window');
+    assert.equal(readCodexActivity(root, binding, 2000), null);
+    assert.equal(observeCodexActivity(root, { ...post, tool_use_id: 'later' }, 301_000), true);
+    assert.deepEqual(readCodexActivity(root, binding, 301_001), { gate, expires_at: 331_000 });
+  }
+});
+
+test('a turn that ends without observed work leaves the store as it is', t => {
+  const { root, common, post } = fixture(t);
+  assert.equal(observeCodexActivity(root, { ...common, hook_event_name: 'Stop' }, 1000), false);
+  assert.equal(existsSync(join(root, 'companion', 'codex-activity.json')), false);
+  assert.equal(observeCodexActivity(root, post, 1100), true);
+  assert.equal(observeCodexActivity(root, { ...common, turn_id: 'quiet-turn', hook_event_name: 'Stop' }, 1200), false);
+  assert.equal(JSON.parse(readFileSync(join(root, 'companion', 'codex-activity.json'), 'utf8')).length, 1);
+  assert.equal(observeCodexActivity(root, { ...common, hook_event_name: 'Stop' }, 1300), true, 'a turn with work is retired');
+  assert.equal(observeCodexActivity(root, { ...common, turn_id: 'interrupted', hook_event_name: 'Interrupt' }, 1400), true,
+    'an interruption keeps its marker against a late result');
 });

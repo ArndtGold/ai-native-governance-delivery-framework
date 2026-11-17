@@ -659,8 +659,10 @@ export function syncPackageAssets({
   if (companionActivity) {
     const hooksRoot = join(generatedCodexPluginRoot, "hooks");
     const codexHooks = JSON.parse(read(join(hooksRoot, "hooks.json")));
+    // Node start, the bounded stdin read, a short wait for another session's write and one synced
+    // replacement must fit; a cold Windows start alone can take most of a second.
     const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
-      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 1 };
+      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 3 };
     codexHooks.hooks.PostToolUse = [{ matcher: "^mcp__agdf__agdf_dispatch$",
       hooks: [{ ...observe, statusMessage: "AGDF Companion · Detect Run Activity" }] }];
     codexHooks.hooks.Stop = [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn End" }] }];

@@ -225,7 +225,8 @@ export function createCockpitSessionService(root, {
           selector: ['planned', 'archive'].includes(input.operation) ? input.row_id : ['run', 'context'].includes(input.operation) ? input.run_id : input.resource_id, input }, signal);
         if (active(session.id) !== session || generation !== session.generation) return fail('session_expired');
         const response = { ...result, authorizes: false };
-        if (Buffer.byteLength(JSON.stringify(response), 'utf8') > READ_LIMITS.response) throw new ControlReadError('resource_limit');
+        const responseBytes = Buffer.byteLength(JSON.stringify(response), 'utf8');
+        if (responseBytes > READ_LIMITS.response) throw new ControlReadError('resource_limit');
         if (reservation) {
           if (publication !== reservation) return fail('context_superseded');
           if (result.state === 'available' && result.data?.packet) {
@@ -256,8 +257,10 @@ export function createCockpitSessionService(root, {
           && (replacement || input.operation === 'freshness')) {
           const binding = session.companionBinding;
           const activity = readCodexActivity(companionDataRoot, binding, now());
-          if (activity) response.companion_observation = { activity: { ...binding, expires_at: activity.expires_at } };
-          if (activity && Buffer.byteLength(JSON.stringify(response), 'utf8') > READ_LIMITS.response) delete response.companion_observation;
+          const observation = activity ? { activity: { ...binding, expires_at: activity.expires_at } } : null;
+          // The key is appended last, so it adds exactly its own serialized bytes to the measured response.
+          if (observation && responseBytes + Buffer.byteLength(`,"companion_observation":${JSON.stringify(observation)}`, 'utf8')
+            <= READ_LIMITS.response) response.companion_observation = observation;
         }
         if (replacement && result.data?.run?.resources) for (const resource of result.data.run.resources) {
           session.documents.set(resource.resource_id, `${result.snapshot_id}:${result.data.run.run_id}`);

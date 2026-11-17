@@ -360,3 +360,25 @@ it('shows confirmed work on the selected Codex card and clears it on freshness w
   expect(screen.queryByText('Einen Augenblick')).toBeNull();
   expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
 });
+
+it('polls the Codex card quickly only while the shown step waits for the agent', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+  width(650);
+  const quickChecks = async (actor: 'agent' | 'human') => {
+    const run = runData(`run-${actor}`);
+    run.evaluation!.next_operation = { actor, type: 'implement_approved_plan', operation_key: 'delivery.implementation.complete',
+      effect: 'preparation', gate: 'CD+Tests' };
+    const read = vi.fn(async (path: string) => (path.startsWith('/api/freshness')
+      ? { ...fixtureMeta, data: null } : runScope(run))) as unknown as ReadTransport;
+    const view = render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByRole('heading', { name: run.run_id });
+    const checks = () => vi.mocked(read).mock.calls.filter(([path]) => path.startsWith('/api/freshness')).length;
+    const before = checks();
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+    const quick = checks() - before;
+    view.unmount();
+    return quick;
+  };
+  expect(await quickChecks('agent')).toBe(1);
+  expect(await quickChecks('human')).toBe(0);
+});

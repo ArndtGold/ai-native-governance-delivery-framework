@@ -98,7 +98,7 @@ export function routeLine(run, marks, t) {
   return key === 'undecided' || at < 0 ? t(`routes.${key}`) : `${t(`routes.${key}`)} · ${t('fields.step', { position: at + 1, count: marks.length })}`;
 }
 
-// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, activity, now, registry, labels,
+// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, isTurnActive (planned UR only), activity, now, registry, labels,
 // locale, columns, isInfoExpanded, events, eventsAvailable }. Display only: the adapter persists
 // selection changes. `events` are this root's journal events since the last main-loop turn, newest first.
 export function buildPanelView(input) {

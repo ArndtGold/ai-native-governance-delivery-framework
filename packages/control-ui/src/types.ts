@@ -1,6 +1,8 @@
 export type Availability = 'available' | 'empty' | 'partial' | 'invalid' | 'missing' | 'unsupported' | 'blocked' | 'stale' | 'error';
 export interface Target { target_id: string; display_path: string }
-export interface Envelope<T> { schema_version: '2'; target: Target; snapshot_id: string | null; observed_as_of: string | null; source_digest: string | null; state: Availability; code: string | null; retryable: boolean; data: T | null }
+export interface ActivityScope { target_id: string; run_id: string; revision_id: string; gate: string }
+export interface CompanionActivity extends ActivityScope { expires_at: number }
+export interface Envelope<T> { schema_version: '2'; target: Target; snapshot_id: string | null; observed_as_of: string | null; source_digest: string | null; state: Availability; code: string | null; retryable: boolean; data: T | null; companion_observation?: { activity: CompanionActivity } }
 export interface Run { run_id: string; valid: boolean; lifecycle: string | null; revision_id: string | null; objective: string | null; title: string; source_path: string; status: string | null; current_gate: string | null; code: string | null;
   attention?: { blocking_reason: string; missing_approval: string; missing_evidence_count: number } }
 export interface WorkEntry { section: string; key: string; original_key: string; title: string; title_source?: 'objective' | 'run_id' | 'ur'; stored_status: string; scope: string;

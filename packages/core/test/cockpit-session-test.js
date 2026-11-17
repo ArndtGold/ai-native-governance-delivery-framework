@@ -7,6 +7,8 @@ import { createCockpitSessionService } from '../lib/control-inspect/cockpit-sess
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { parseCockpitArguments, COCKPIT_LIMITS, COCKPIT_RENDER_DEFINITION } from '../lib/control-inspect/cockpit-contract.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
+import { observeCodexActivity } from '../lib/companion/codex-activity.js';
+import { tmpdir } from 'node:os';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 
 test('SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session', async () => {
@@ -409,4 +411,48 @@ test('plugin production workers preserve cross-project data and one publication 
     assert.equal((await y.call(y.selectors)).state, 'available');
     assert.deepEqual(treeBytes(a.root), beforeA); assert.deepEqual(treeBytes(b.root), beforeB);
   } finally { await service.close(); a.close(); b.close(); }
+});
+
+
+test('Codex freshness attaches current Companion activity only to the selected Run and revision', async () => {
+  const f = fixture(), data = fs.mkdtempSync(join(tmpdir(), 'cockpit-companion-scope-'));
+  const service = createCockpitSessionService(f.root, { integrationSurface: 'codex', companionDataRoot: data });
+  try {
+    const prepared = f.context.call('presentation.prepare', { gate: 'UR' }, f.binding());
+    assert.equal(prepared.outcome, 'accepted');
+    assert.equal(f.context.call('approval.record', { gate: 'UR', presentation_id: prepared.family_result.presentation_id, response: 'Approval: UR' }, f.binding()).outcome, 'accepted');
+    const { run_id, expected_revision_id: revision_id } = f.binding();
+    const gate = 'Brownfield Review';
+    const { session_id } = (await service.render())._meta.agdf_cockpit;
+    const call = input => service.read({ session_id, ...input });
+    const run = await call({ operation: 'snapshot', run_id });
+    assert.equal(run.data.run.evaluation.current_gate, gate);
+    assert.equal(run.companion_observation?.activity, undefined);
+    const observation = { session_id: 'chat-1', turn_id: 'turn-1', tool_use_id: 'tool-1',
+      hook_event_name: 'PostToolUse', tool_name: 'mcp__agdf__agdf_dispatch',
+      tool_input: { continue_delivery: true, run_id },
+      tool_response: { structuredContent: {
+        outcome: 'skill_continuation', terminal: false, authorizes: false,
+        target: { resolution_state: 'resolved', governance_target: f.root },
+        continuation: { phase: 'post_ur_review', run_id, revision_id, governance_target: f.root },
+        control: { current_gate: gate, next_operation: { actor: 'agent' } },
+      } },
+    };
+    assert.equal(observeCodexActivity(data, observation), true);
+    const read = async snapshot_id => (await call({ operation: 'freshness', snapshot_id })).companion_observation?.activity;
+    const active = await read(run.snapshot_id);
+    assert.deepEqual(active, { target_id: run.target.target_id, run_id, revision_id, gate, expires_at: active?.expires_at });
+    const other = await call({ operation: 'snapshot', run_id: 'fixture-completed' });
+    assert.equal(other.companion_observation?.activity, undefined);
+    assert.equal(await read(other.snapshot_id), undefined);
+    assert.equal(await read(run.snapshot_id), undefined, 'an obsolete snapshot cannot attach evidence');
+    const returned = await call({ operation: 'snapshot', run_id });
+    assert.deepEqual(returned.companion_observation?.activity, active);
+    assert.equal(observeCodexActivity(data, { ...observation, hook_event_name: 'Interrupt' }), true);
+    assert.equal(await read(returned.snapshot_id), undefined);
+  } finally {
+    await service.close();
+    fs.rmSync(data, { recursive: true, force: true });
+    f.close();
+  }
 });

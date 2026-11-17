@@ -264,3 +264,17 @@ export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
   }
 }
 
+// Waits a bounded time while a live owner holds the lock, then rethrows its lock error. Any other
+// failure, including an unknown or abandoned owner, propagates at once; nothing is reclaimed here.
+export function withOwnedFileLockWait(path, work, { waitMs = 0, checkpoint } = {}) {
+  const deadline = performance.now() + waitMs;
+  for (;;) {
+    try { return withOwnedFileLock(path, work, { checkpoint }); }
+    catch (error) {
+      const remaining = deadline - performance.now();
+      if (error?.lock_owner_status !== 'live' || remaining <= 0) throw error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(5, remaining));
+    }
+  }
+}
+

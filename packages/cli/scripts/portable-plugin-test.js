@@ -30,7 +30,7 @@ for (const [root, profile] of [[source, "source"], [publicRoot, "public"], [runt
   if (profile !== "source") assert.equal(result.files.some((path) => path.startsWith("host-templates/")), false);
 }
 const local = read(runtime, ".codex-plugin/plugin.json");
-assert.equal(local.hooks, "./hooks/hooks.json");
+assert.equal(local.hooks, read(runtime, "mcp.json").mcpServers?.['agdf-cockpit'] ? "./hooks/codex.json" : "./hooks/hooks.json");
 assert.equal(local.mcpServers, "./mcp.json");
 assert.equal(existsSync(join(runtime, "plugin.json")), false, "Codex must select the native manifest to discover SessionStart");
 assert.equal(read(runtime, "hooks/hooks.json").hooks.SessionStart.length, 1);
@@ -63,7 +63,7 @@ for (const key of ["hooks", "mcpServers", "app"]) {
 }
 negative("runtime-inline", runtime, "runtime", (r) => write(r, "plugin.json", inline), /AGDF_PORTABLE_PROFILE_INVALID/);
 negative("runtime-portable-shadow", runtime, "runtime", (r) => write(r, "plugin.json", createPortablePluginManifest(definition, { runtimeProfile: true })), /AGDF_PORTABLE_PROFILE_INVALID/);
-negative("runtime-hook-missing", runtime, "runtime", (r) => rmSync(join(r, "hooks/hooks.json")), /AGDF_PUBLIC_PLUGIN_BUNDLE_PATH_MISSING/);
+negative("runtime-hook-missing", runtime, "runtime", (r) => rmSync(join(r, local.hooks)), /AGDF_PUBLIC_PLUGIN_BUNDLE_PATH_MISSING/);
 negative("runtime-mcp-missing", runtime, "runtime", (r) => rmSync(join(r, "mcp.json")), /AGDF_PUBLIC_PLUGIN_BUNDLE_PATH_MISSING/);
 negative("runtime-mcp-type", runtime, "runtime", (r) => { const c = read(r, "mcp.json"); delete c.mcpServers.agdf.type; write(r, "mcp.json", c); }, /AGDF_PORTABLE_SCHEMA_INVALID/);
 negative("runtime-mcp-extra-server", runtime, "runtime", (r) => { const c = read(r, "mcp.json"); c.mcpServers.other = c.mcpServers.agdf; write(r, "mcp.json", c); }, /AGDF_PORTABLE_PROFILE_INVALID/);

@@ -130,7 +130,8 @@ export function validatePortableProfile(root, { profile, validateSchema } = {}) 
     if (!isDeepStrictEqual(mcp, JSON.parse(renderCodexPluginMcpConfig({ cockpit })))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: portable MCP differs from canonical projection");
     if (cockpit) for (const path of ['mcp/server/ui/cockpit.html', 'mcp/server/ui/manifest.json']) declaredPath(root, `./${path}`, path);
     for (const path of ["mcp/claude.mcp.json", "mcp/agdf-mcp-launch.js", "runtime/agdf-session-check.js"]) declaredPath(root, `./${path}`, path);
-    if (!isDeepStrictEqual(fallback, createCodexPluginManifest(definition, { runtimeProfile: true }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: runtime fallback differs from canonical projection");
+    if (!isDeepStrictEqual(fallback, createCodexPluginManifest(definition, { runtimeProfile: true, companionActivity: cockpit }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: runtime fallback differs from canonical projection");
+    if (cockpit) declaredPath(root, './hooks/companion-activity.mjs', 'Codex Companion activity hook');
     // The Claude-only companion: its shipped descriptor drives the runtime Claude manifest projection.
     declaredPath(root, "./companion/companion.json", "Claude companion descriptor");
     const companion = JSON.parse(readFileSync(join(root, "companion", "companion.json"), "utf8"));

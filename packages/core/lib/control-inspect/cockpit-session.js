@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { relative, sep } from 'node:path';
+import { COMPANION_DATA_ROOT_ENV } from '../companion/journal.js';
+import { readCodexActivity } from '../companion/codex-activity.js';
 import { ReadWorkerPool } from '../control-read/cockpit-pool.js';
 import { READ_LIMITS, ControlReadError } from '../control-read/snapshot.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
@@ -11,7 +13,7 @@ import { COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments } fr
 // One connection owns bounded independent read views. Retiring workers still occupy slots.
 export function createCockpitSessionService(root, {
   budget, poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
-    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false, integrationSurface,
+    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false, integrationSurface, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV],
 } = {}) {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const sessions = new Map();
@@ -223,7 +225,8 @@ export function createCockpitSessionService(root, {
           selector: ['planned', 'archive'].includes(input.operation) ? input.row_id : ['run', 'context'].includes(input.operation) ? input.run_id : input.resource_id, input }, signal);
         if (active(session.id) !== session || generation !== session.generation) return fail('session_expired');
         const response = { ...result, authorizes: false };
-        if (Buffer.byteLength(JSON.stringify(response), 'utf8') > READ_LIMITS.response) throw new ControlReadError('resource_limit');
+        const responseBytes = Buffer.byteLength(JSON.stringify(response), 'utf8');
+        if (responseBytes > READ_LIMITS.response) throw new ControlReadError('resource_limit');
         if (reservation) {
           if (publication !== reservation) return fail('context_superseded');
           if (result.state === 'available' && result.data?.packet) {
@@ -241,7 +244,24 @@ export function createCockpitSessionService(root, {
             ? { id: result.snapshot_id, title: run ? run.title ?? run.run_id : undefined } : null;
         }
         if (replacement && result.data?.kind === 'work') for (const row of result.data.entries) session.rows.add(row.row_id);
-        if (replacement) { session.run_id = result.data?.run?.run_id ?? null; session.draft = result.data?.run?.draft_check?.source ?? null; }
+        if (replacement) {
+          const run = result.data?.run;
+          session.run_id = run?.run_id ?? null;
+          session.draft = run?.draft_check?.source ?? null;
+          session.companionBinding = run?.revision_id && run.lifecycle === 'active'
+            && run.evaluation?.next_operation?.actor === 'agent' ? {
+              target_id: session.target.target_id, run_id: run.run_id, revision_id: run.revision_id, gate: run.evaluation.current_gate,
+            } : null;
+        }
+        if (companionDataRoot && integrationSurface === 'codex' && session.companionBinding && response.data
+          && (replacement || input.operation === 'freshness')) {
+          const binding = session.companionBinding;
+          const activity = readCodexActivity(companionDataRoot, binding, now());
+          const observation = activity ? { activity: { ...binding, expires_at: activity.expires_at } } : null;
+          // The key is appended last, so it adds exactly its own serialized bytes to the measured response.
+          if (observation && responseBytes + Buffer.byteLength(`,"companion_observation":${JSON.stringify(observation)}`, 'utf8')
+            <= READ_LIMITS.response) response.companion_observation = observation;
+        }
         if (replacement && result.data?.run?.resources) for (const resource of result.data.run.resources) {
           session.documents.set(resource.resource_id, `${result.snapshot_id}:${result.data.run.run_id}`);
         }

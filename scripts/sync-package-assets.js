@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
 import { syncPluginMcp } from "./sync-plugin-mcp.js";
 import { COCKPIT_UI_BUILD_COMMAND, readCockpitUiBuild, readDecisionUiBuild } from "./cockpit-ui-build.mjs";
+import { codexCompanionHooks } from "../plugins/agdf/scripts/codex-companion-hooks.mjs";
 import { validateInteractionCatalog } from "../packages/core/lib/interaction-catalog-validation.js";
 import {
   renderClaudePluginManifest,
@@ -655,7 +656,15 @@ export function syncPackageAssets({
     ? readCockpitUiBuild({ failure: `AGDF_COCKPIT_UI_BUILD_REQUIRED: run ${COCKPIT_UI_BUILD_COMMAND}, then retry the ${surface} build.` })
     : undefined });
   write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true, companion: claudeCompanionDescriptor }));
-  write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
+  const companionActivity = ['all', 'codex'].includes(surface);
+  if (companionActivity) {
+    const hooksRoot = join(generatedCodexPluginRoot, "hooks");
+    // The single hook profile ships beside the runtime integrity check, which compares against it.
+    const codexHooks = codexCompanionHooks(JSON.parse(read(join(hooksRoot, "hooks.json"))));
+    write(join(hooksRoot, "codex.json"), JSON.stringify(codexHooks, null, 2) + "\n");
+    write(join(hooksRoot, "companion-activity.mjs"), read(join(sourcePluginRoot, "host-templates", "codex", "companion-activity.mjs")));
+  }
+  write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true, companionActivity }));
   // Codex 0.160.0 selects portable mode when root plugin.json has $schema and then
   // loses SessionStart hooks, including the compatibility manifest's declaration.
   // Use its native manifest for this runtime bundle. Source/public and Copilot

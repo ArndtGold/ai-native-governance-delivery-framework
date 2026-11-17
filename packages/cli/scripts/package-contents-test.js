@@ -40,6 +40,9 @@ const required = [
   'generated/plugins/agdf-planning/skills/planning/SKILL.md',
   'generated/plugins/agdf-planning/meta/agdf-planning.definition.json',
   "generated/plugins/agdf/.claude-plugin/plugin.json",
+  "generated/plugins/agdf/companion/activity.mjs",
+  "generated/plugins/agdf/hooks/codex.json",
+  "generated/plugins/agdf/hooks/companion-activity.mjs",
   "generated/plugins/agdf/companion/companion.json",
   "generated/plugins/agdf/companion/hooks.json",
   "generated/plugins/agdf/companion/register.mjs",
@@ -59,6 +62,7 @@ const required = [
   "generated/plugins/agdf/runtime/create-agdf/bin/agdf-validator.js",
   "generated/plugins/agdf/runtime/create-agdf/lib/runtime/validator-application.js",
   "generated/plugins/agdf/scripts/check-runtime-integrity.mjs",
+  "generated/plugins/agdf/scripts/codex-companion-hooks.mjs",
   "generated/plugins/agdf/scripts/agent-skills-conformance.mjs",
   "generated/plugins/agdf/scripts/instruction-footprint.mjs",
   "generated/plugins/agdf/meta/agent-skills-conformance.json",
@@ -90,16 +94,19 @@ for (const excluded of [
   "generated/plugins/agdf/hooks/copilot-hooks.json",
   "generated/plugins/agdf/copilot-skills/agdf-gate-check/SKILL.md",
 ]) assert.equal(files.includes(excluded), false, `shared plugin package must exclude Copilot-only path ${excluded}`);
-// The companion ships only in the shared runtime plugin, never as a build template or in Copilot.
-// Core's host-neutral companion modules (companion core SDD-001, SDD-004, SDD-005) are runtime Core
-// code, not the Claude companion: they ship wherever the runtime Core ships, as exactly these files.
+// The Claude UI ships in the shared runtime plugin. Core modules ship per runtime profile.
 const CORE_COMPANION = /(^|\/)runtime\/core\/lib\/companion\/[^/]+$/u;
 const CORE_COMPANION_FILES = ["events.js", "figure-state.js", "journal.js", "run-view.js"];
+const COCKPIT_COMPANION_FILES = ["activity.js", "codex-activity.js", ...CORE_COMPANION_FILES].sort();
 assert.deepEqual(files.filter((path) => path.includes("/companion/") && !path.startsWith("generated/plugins/agdf/companion/") && !CORE_COMPANION.test(path)), [],
   "package must carry the Claude companion only under generated/plugins/agdf/companion/");
-for (const runtimeRoot of ["runtime/core/lib/companion/", "generated/plugins/agdf/runtime/create-agdf/runtime/core/lib/companion/"]) {
-  assert.deepEqual(files.filter((path) => path.startsWith(runtimeRoot)).map((path) => path.slice(runtimeRoot.length)).sort(), CORE_COMPANION_FILES,
-    `${runtimeRoot} must hold exactly the host-neutral Core companion modules`);
+for (const [runtimeRoot, expected] of [
+  ["runtime/core/lib/companion/", COCKPIT_COMPANION_FILES],
+  ["generated/plugins/agdf/runtime/create-agdf/runtime/core/lib/companion/", COCKPIT_COMPANION_FILES],
+  ["generated/plugins/copilot/agdf/runtime/create-agdf/runtime/core/lib/companion/", CORE_COMPANION_FILES],
+]) {
+  assert.deepEqual(files.filter((path) => path.startsWith(runtimeRoot)).map((path) => path.slice(runtimeRoot.length)).sort(), expected,
+    `${runtimeRoot} must hold exactly the Core companion modules for its profile`);
 }
 assert.equal(new Set(files).size, files.length, "package file inventory must not contain duplicate paths");
 assert.equal(packageManifest.files.includes("generated"), false, "package manifest must not include the unbounded generated tree");

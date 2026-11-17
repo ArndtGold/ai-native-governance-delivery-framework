@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { appendFileSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { appendFileSync, readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verificationPlan, executeVerificationPlan } from './verify-ci.mjs';
@@ -141,6 +141,25 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
       args: [...command.args, '--source-gate', gate, '--phase', phase], isolated: true, domain: 'revisions',
       seconds: share(command.seconds, total) })));
   }).map(command => ({ ...command, id: createHash('sha256').update(identity(command)).digest('hex').slice(0, 12) }));
+}
+
+// CI runs only what testInventory expands from the npm chains, so a Core test file that no chain
+// names never runs. A file may stay outside CI only through an entry here: file path -> reason.
+export const CI_EXEMPT_CORE_TESTS = new Map([
+  ['packages/core/test/expanded-source-revision-test.js', 'All 22 source/phase cells run in one process (265 s on a local Windows '
+    + 'machine), beyond the 360 s partition budget. It runs locally through test:expanded-source-revision until it accepts '
+    + 'the cell selectors of packages/mcp-server/test/expanded-source-revision.test.js.'],
+]);
+
+export function plannedTestFiles({ repository = root, inventory = testInventory({ repository }) } = {}) {
+  return new Set(inventory.filter(command => command.tool === 'node').map(command =>
+    relative(repository, resolve(repository, command.cwd, command.args.find(arg => !arg.startsWith('--')))).replaceAll('\\', '/')));
+}
+
+export function uncoveredCoreTests({ repository = root, inventory = testInventory({ repository }) } = {}) {
+  const planned = plannedTestFiles({ repository, inventory });
+  return readdirSync(join(repository, 'packages', 'core', 'test')).filter(name => name.endsWith('-test.js')).sort()
+    .map(name => `packages/core/test/${name}`).filter(file => !planned.has(file) && !CI_EXEMPT_CORE_TESTS.has(file));
 }
 
 export function partitionTests(commands, speed) {

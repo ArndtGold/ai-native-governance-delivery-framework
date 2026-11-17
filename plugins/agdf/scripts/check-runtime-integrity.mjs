@@ -1340,8 +1340,13 @@ if (codexPlugin && pluginDefinition) {
     const shared = isFile(hooksConfigPath) ? readJson(hooksConfigPath, "Shared SessionStart hook") : null;
     const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
       commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 1 };
-    const expected = { ...shared?.hooks, PostToolUse: [{ matcher: "^mcp__agdf__agdf_dispatch$", hooks: [observe] }],
-      Stop: [{ hooks: [observe] }], Interrupt: [{ hooks: [observe] }] };
+    const expected = {
+      ...shared?.hooks,
+      PostToolUse: [{ matcher: "^mcp__agdf__agdf_dispatch$",
+        hooks: [{ ...observe, statusMessage: "AGDF Companion · Detect Run Activity" }] }],
+      Stop: [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn End" }] }],
+      Interrupt: [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn Interruption" }] }],
+    };
     if (JSON.stringify(config?.hooks) !== JSON.stringify(expected)) failures.push("Codex Companion hooks must match the scoped tool and native turn events");
     assertFile(join(pluginRoot, "hooks", "companion-activity.mjs"), "Codex Companion observer");
   }

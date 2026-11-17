@@ -661,9 +661,10 @@ export function syncPackageAssets({
     const codexHooks = JSON.parse(read(join(hooksRoot, "hooks.json")));
     const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
       commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 1 };
-    codexHooks.hooks.PostToolUse = [{ matcher: "^mcp__agdf__agdf_dispatch$", hooks: [observe] }];
-    codexHooks.hooks.Stop = [{ hooks: [observe] }];
-    codexHooks.hooks.Interrupt = [{ hooks: [observe] }];
+    codexHooks.hooks.PostToolUse = [{ matcher: "^mcp__agdf__agdf_dispatch$",
+      hooks: [{ ...observe, statusMessage: "AGDF Companion · Detect Run Activity" }] }];
+    codexHooks.hooks.Stop = [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn End" }] }];
+    codexHooks.hooks.Interrupt = [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn Interruption" }] }];
     write(join(hooksRoot, "codex.json"), JSON.stringify(codexHooks, null, 2) + "\n");
     write(join(hooksRoot, "companion-activity.mjs"), read(join(sourcePluginRoot, "host-templates", "codex", "companion-activity.mjs")));
   }

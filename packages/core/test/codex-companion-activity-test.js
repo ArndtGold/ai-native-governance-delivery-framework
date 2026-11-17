@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
@@ -110,4 +110,34 @@ test('a turn that ends without observed work leaves the store as it is', t => {
   assert.equal(observeCodexActivity(root, { ...common, hook_event_name: 'Stop' }, 1300), true, 'a turn with work is retired');
   assert.equal(observeCodexActivity(root, { ...common, turn_id: 'interrupted', hook_event_name: 'Interrupt' }, 1400), true,
     'an interruption keeps its marker against a late result');
+});
+
+test('a store reached through a file link is neither read nor written', t => {
+  const { root, binding, post } = fixture(t);
+  assert.equal(observeCodexActivity(root, post, 1000), true);
+  const store = join(root, 'companion', 'codex-activity.json');
+  const target = join(root, 'elsewhere.json');
+  renameSync(store, target);
+  const bytes = readFileSync(target, 'utf8');
+  try { symlinkSync(target, store, 'file'); } catch (error) {
+    if (error.code !== 'EPERM') throw error;
+    t.skip('creating a file symlink needs a privilege on this machine');
+    return;
+  }
+  assert.equal(readCodexActivity(root, binding, 1001), null, 'matching work behind a link is not read');
+  assert.equal(observeCodexActivity(root, { ...post, tool_use_id: 'through-link' }, 1002), false);
+  assert.equal(readFileSync(target, 'utf8'), bytes, 'the link target stays unchanged');
+});
+
+test('a companion directory reached through a junction is neither read nor written', t => {
+  const { root, binding, post } = fixture(t);
+  assert.equal(observeCodexActivity(root, post, 1000), true);
+  const companion = join(root, 'companion');
+  const moved = join(root, 'companion-target');
+  renameSync(companion, moved);
+  const bytes = readFileSync(join(moved, 'codex-activity.json'), 'utf8');
+  symlinkSync(moved, companion, 'junction');
+  assert.equal(readCodexActivity(root, binding, 1001), null);
+  assert.equal(observeCodexActivity(root, { ...post, tool_use_id: 'through-junction' }, 1002), false);
+  assert.equal(readFileSync(join(moved, 'codex-activity.json'), 'utf8'), bytes);
 });

@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
 import { syncPluginMcp } from "./sync-plugin-mcp.js";
 import { COCKPIT_UI_BUILD_COMMAND, readCockpitUiBuild, readDecisionUiBuild } from "./cockpit-ui-build.mjs";
+import { codexCompanionHooks } from "../plugins/agdf/scripts/codex-companion-hooks.mjs";
 import { validateInteractionCatalog } from "../packages/core/lib/interaction-catalog-validation.js";
 import {
   renderClaudePluginManifest,
@@ -658,15 +659,8 @@ export function syncPackageAssets({
   const companionActivity = ['all', 'codex'].includes(surface);
   if (companionActivity) {
     const hooksRoot = join(generatedCodexPluginRoot, "hooks");
-    const codexHooks = JSON.parse(read(join(hooksRoot, "hooks.json")));
-    // Node start, the bounded stdin read, a short wait for another session's write and one synced
-    // replacement must fit; a cold Windows start alone can take most of a second.
-    const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
-      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 3 };
-    codexHooks.hooks.PostToolUse = [{ matcher: "^mcp__agdf__agdf_dispatch$",
-      hooks: [{ ...observe, statusMessage: "AGDF Companion · Detect Run Activity" }] }];
-    codexHooks.hooks.Stop = [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn End" }] }];
-    codexHooks.hooks.Interrupt = [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn Interruption" }] }];
+    // The single hook profile ships beside the runtime integrity check, which compares against it.
+    const codexHooks = codexCompanionHooks(JSON.parse(read(join(hooksRoot, "hooks.json"))));
     write(join(hooksRoot, "codex.json"), JSON.stringify(codexHooks, null, 2) + "\n");
     write(join(hooksRoot, "companion-activity.mjs"), read(join(sourcePluginRoot, "host-templates", "codex", "companion-activity.mjs")));
   }

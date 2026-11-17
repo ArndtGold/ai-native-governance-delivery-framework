@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { gateMarks } from '../../../../plugins/agdf/host-templates/claude/companion/gate-bar.mjs';
-import { matchesActivity } from '../../../../plugins/agdf/host-templates/claude/companion/activity.mjs';
+import { matchesActivity } from '../../../core/lib/companion/activity.js';
 import { activityLabel, activityOf } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
 import { companionLabels, label } from '../../../../plugins/agdf/host-templates/claude/companion/localization.mjs';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';

@@ -29,7 +29,7 @@ declare module '*claude/companion/gate-bar.mjs' {
   export function condensedGateBar(marks: GateMark[]): string;
 }
 
-declare module '*claude/companion/activity.mjs' {
+declare module '*core/lib/companion/activity.js' {
   export function matchesActivity(record: import('./types').CompanionActivity | undefined,
     scope: Partial<import('./types').ActivityScope>, now: number): boolean;
 }

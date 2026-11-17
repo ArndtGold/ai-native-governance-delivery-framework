@@ -92,4 +92,29 @@ try {
   assert.equal(releaseAbandonedOwnedLock(lock, ownToken), 'released');
 } finally { rmSync(root, { recursive: true, force: true }); }
 
+// Structure slice SDD-005: one bounded wait for a live owner, shared by the journal and the activity store.
+const waitRoot = mkdtempSync(join(tmpdir(), "agdf-lock-wait-"));
+try {
+  const waitPath = join(waitRoot, "store.json");
+  const waitLock = `${waitPath}.lock`;
+  const liveRecord = `${JSON.stringify({ schema_version: 1, pid: process.pid, token: randomUUID(), started_at: "2000-01-01T00:00:00.000Z" })}
+`;
+  writeFileSync(waitLock, liveRecord);
+  let ran = false;
+  const started = performance.now();
+  assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => { ran = true; }, { waitMs: 40 }),
+    error => error.message === "AGDF_RUN_WRITE_LOCKED" && error.lock_owner_status === "live");
+  assert.ok(performance.now() - started >= 35, "a live owner is waited for until the bound");
+  assert.equal(ran, false);
+  assert.equal(readFileSync(waitLock, "utf8"), liveRecord, "the live owner's lock is not reclaimed");
+  writeFileSync(waitLock, "unknown owner");
+  const unknownStart = performance.now();
+  assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => {}, { waitMs: 500 }),
+    error => error.message === "AGDF_RUN_WRITE_LOCKED" && error.lock_owner_status !== "live");
+  assert.ok(performance.now() - unknownStart < 400, "an owner that is not live is never waited for");
+  rmSync(waitLock);
+  assert.equal(filePrimitives.withOwnedFileLockWait(waitPath, () => "done", { waitMs: 40 }), "done");
+  assert.equal(existsSync(waitLock), false, "a free lock is taken and released");
+} finally { rmSync(waitRoot, { recursive: true, force: true }); }
+
 console.log("Run lock owner recovery passed.");

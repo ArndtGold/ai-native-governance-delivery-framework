@@ -93,6 +93,14 @@ try {
   console.error("- AGDF_AGENT_SKILLS_VALIDATOR_MISSING: scripts/agent-skills-conformance.mjs must be present and loadable");
   process.exit(1);
 }
+let codexCompanionHooks;
+try {
+  ({ codexCompanionHooks } = await import("./codex-companion-hooks.mjs"));
+} catch {
+  console.error("[agdf-runtime-integrity] FAIL");
+  console.error("- AGDF_CODEX_COMPANION_HOOKS_MISSING: scripts/codex-companion-hooks.mjs must be present and loadable");
+  process.exit(1);
+}
 let extractSerializedDescriptionScalar;
 let requestActivationKernelFingerprint;
 let validateInstructionFootprintProfile;
@@ -1338,16 +1346,8 @@ if (codexPlugin && pluginDefinition) {
     const path = join(pluginRoot, hooksPath);
     const config = isFile(path) ? readJson(path, "Codex Companion hooks") : null;
     const shared = isFile(hooksConfigPath) ? readJson(hooksConfigPath, "Shared SessionStart hook") : null;
-    const observe = { type: "command", command: 'node "${PLUGIN_ROOT}/hooks/companion-activity.mjs"',
-      commandWindows: 'node "$env:PLUGIN_ROOT\\hooks\\companion-activity.mjs"', timeout: 3 };
-    const expected = {
-      ...shared?.hooks,
-      PostToolUse: [{ matcher: "^mcp__agdf__agdf_dispatch$",
-        hooks: [{ ...observe, statusMessage: "AGDF Companion · Detect Run Activity" }] }],
-      Stop: [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn End" }] }],
-      Interrupt: [{ hooks: [{ ...observe, statusMessage: "AGDF Companion · Record Turn Interruption" }] }],
-    };
-    if (JSON.stringify(config?.hooks) !== JSON.stringify(expected)) failures.push("Codex Companion hooks must match the scoped tool and native turn events");
+    // The shipped profile module is the single definition the package build also used.
+    if (JSON.stringify(config) !== JSON.stringify(codexCompanionHooks(shared))) failures.push("Codex Companion hooks must match the scoped tool and native turn events");
     assertFile(join(pluginRoot, "hooks", "companion-activity.mjs"), "Codex Companion observer");
   }
 }
@@ -1667,8 +1667,8 @@ if (pluginDefinition) {
 
 // The AGDF companion pane is Claude-only (SDD-01, SDD-02): its build-only descriptor owns the runtime
 // Claude manifest's hooks declaration; the Codex manifest, the shared hooks, the shared definition and the
-// Copilot profile never reference it. Its host-neutral activity policy (activity.mjs) is the one file
-// Core also loads, as a projected copy, for the Codex Cockpit activity observer.
+// Copilot profile never reference it. Its activity.mjs is a byte-identical copy of Core's canonical
+// companion/activity.js, because the companion imports no Core module.
 const companionFiles = ["activity.mjs", "companion.json", "hooks.json", "register.mjs", "assignment.mjs", "events.mjs", "figure.mjs", "gate-bar.mjs",
   "localization.mjs", "notice.mjs", "persistence.mjs", "run-state.mjs", "state.mjs", "view.mjs"];
 const copilotRuntimeProfile = !sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugin";
@@ -1687,6 +1687,12 @@ if (copilotRuntimeProfile) {
   const companionHooks = isFile(companionHooksPath) ? readJson(companionHooksPath, "Claude companion hooks") : null;
   if (JSON.stringify(companionHooks) !== JSON.stringify({ modules: ["./register.mjs"] })) {
     failures.push("Claude companion hooks must load only ./register.mjs");
+  }
+  const policyCopy = join(companionRoot, "activity.mjs");
+  const policyCanonical = sourceMode ? join(repoRoot, "packages", "core", "lib", "companion", "activity.js")
+    : join(pluginRoot, "runtime", "create-agdf", "runtime", "core", "lib", "companion", "activity.js");
+  if (isFile(policyCopy) && isFile(policyCanonical) && !readFileSync(policyCopy).equals(readFileSync(policyCanonical))) {
+    failures.push("Claude companion activity.mjs must equal Core's companion/activity.js byte for byte");
   }
   if (claudePlugin && (sourceMode ? Object.hasOwn(claudePlugin, "hooks") : claudePlugin.hooks !== descriptor?.hooks)) {
     failures.push("Claude plugin manifest must declare the companion only in the runtime profile, from its descriptor");

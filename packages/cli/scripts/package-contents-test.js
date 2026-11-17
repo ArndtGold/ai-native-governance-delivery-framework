@@ -62,6 +62,7 @@ const required = [
   "generated/plugins/agdf/runtime/create-agdf/bin/agdf-validator.js",
   "generated/plugins/agdf/runtime/create-agdf/lib/runtime/validator-application.js",
   "generated/plugins/agdf/scripts/check-runtime-integrity.mjs",
+  "generated/plugins/agdf/scripts/codex-companion-hooks.mjs",
   "generated/plugins/agdf/scripts/agent-skills-conformance.mjs",
   "generated/plugins/agdf/scripts/instruction-footprint.mjs",
   "generated/plugins/agdf/meta/agent-skills-conformance.json",
@@ -96,7 +97,7 @@ for (const excluded of [
 // The Claude UI ships in the shared runtime plugin. Core modules ship per runtime profile.
 const CORE_COMPANION = /(^|\/)runtime\/core\/lib\/companion\/[^/]+$/u;
 const CORE_COMPANION_FILES = ["events.js", "figure-state.js", "journal.js", "run-view.js"];
-const COCKPIT_COMPANION_FILES = ["activity.mjs", "codex-activity.js", ...CORE_COMPANION_FILES];
+const COCKPIT_COMPANION_FILES = ["activity.js", "codex-activity.js", ...CORE_COMPANION_FILES].sort();
 assert.deepEqual(files.filter((path) => path.includes("/companion/") && !path.startsWith("generated/plugins/agdf/companion/") && !CORE_COMPANION.test(path)), [],
   "package must carry the Claude companion only under generated/plugins/agdf/companion/");
 for (const [runtimeRoot, expected] of [

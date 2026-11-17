@@ -1,3 +1,7 @@
+// Canonical owner of the host-neutral Companion activity policy: packages/core/lib/companion/activity.js.
+// The Claude Companion imports no Core module, so it ships a byte-identical copy as companion/activity.mjs;
+// the Companion integrity test and the runtime integrity check compare the two.
+
 export const activityLifetime = 30_000;
 const deduplicationWindow = 5 * 60_000;
 export const activityRecordLimit = 64;

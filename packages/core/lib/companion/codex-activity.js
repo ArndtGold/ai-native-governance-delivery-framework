@@ -1,17 +1,19 @@
 import { constants, closeSync, fstatSync, lstatSync, mkdirSync, openSync, readSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
-import { atomicWrite, withOwnedFileLock } from '../owned-file-lock.js';
+import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
-import { companionActivityURL } from '../resources/binding.js';
+import { hasSymlinkComponent } from '../control-state/contained-file.js';
+import { activityRecordLimit, workBinding, updateActivity, quarantineActivity, selectActivity, isActivityId } from './activity.js';
 
-const { activityRecordLimit, workBinding, updateActivity, quarantineActivity, selectActivity, isActivityId } = await import(companionActivityURL);
 // A row holds at most 14 ASCII IDs of 128 bytes: session, turn and 12 tool IDs. The ASCII scope,
 // timestamps and JSON framing fit in the remaining 768 bytes.
 const maxBytes = activityRecordLimit * (14 * 128 + 768);
 // Hooks of other Codex sessions hold the store only for one bounded write; an event waits that long.
 const LOCK_WAIT_MS = 250;
+const STORE_FILE = 'codex-activity.json';
 const INVALID_STORE = 'invalid_activity_store';
 const invalidStore = () => Object.assign(new Error(INVALID_STORE), { code: INVALID_STORE });
+const linkedStore = () => Object.assign(new Error('activity_store_link'), { code: 'activity_store_link' });
 
 function directory(dataRoot, create = false) {
   if (typeof dataRoot !== 'string' || !isAbsolute(dataRoot) || !lstatSync(dataRoot).isDirectory()) return null;
@@ -21,12 +23,17 @@ function directory(dataRoot, create = false) {
 }
 
 // Content this build cannot accept is an invalid store; a link, another file type or an I/O failure
-// is not, so it is never overwritten.
-function load(path) {
+// is not, so it is never overwritten. Windows has no O_NOFOLLOW: a link is refused before opening,
+// and the opened descriptor must still be the file the path names.
+function load(root) {
+  const path = join(root, STORE_FILE);
+  if (hasSymlinkComponent(root, STORE_FILE)) throw linkedStore();
   let fd;
   try {
-    fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+    fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
     const stat = fstatSync(fd);
+    const named = lstatSync(path);
+    if (named.isSymbolicLink() || named.dev !== stat.dev || named.ino !== stat.ino) throw linkedStore();
     if (!stat.isFile()) throw Error('activity_store_not_file');
     if (stat.size > maxBytes) throw invalidStore();
     const bytes = Buffer.allocUnsafe(stat.size + 1);
@@ -46,18 +53,6 @@ function load(path) {
   }
 }
 
-function withStoreLock(path, work) {
-  const deadline = performance.now() + LOCK_WAIT_MS;
-  for (;;) {
-    try { return withOwnedFileLock(path, work); }
-    catch (error) {
-      const remaining = deadline - performance.now();
-      if (error.lock_owner_status !== 'live' || remaining <= 0) throw error;
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(5, remaining));
-    }
-  }
-}
-
 export function observeCodexActivity(dataRoot, input, now = Date.now()) {
   const { hook_event_name: event, session_id: session, turn_id: turn, tool_use_id: tool } = input ?? {};
   if (!isActivityId(session) || !isActivityId(turn)) return false;
@@ -72,10 +67,10 @@ export function observeCodexActivity(dataRoot, input, now = Date.now()) {
     const kind = terminal ? (event === 'Stop' ? 'ended' : 'interrupted') : (binding ? 'work' : 'lost');
     const root = directory(dataRoot, terminal || Boolean(binding));
     if (!root) return false;
-    const path = join(root, 'codex-activity.json');
-    return withStoreLock(path, () => {
+    const path = join(root, STORE_FILE);
+    return withOwnedFileLockWait(path, () => {
       let records;
-      try { records = load(path); } catch (error) {
+      try { records = load(root); } catch (error) {
         if (error.code !== INVALID_STORE) throw error;
         // An unreadable store cannot prove which turns ended: every observation waits one window, then
         // the store starts over. Repairing it here keeps a store from an older or newer build recoverable.
@@ -91,7 +86,7 @@ export function observeCodexActivity(dataRoot, input, now = Date.now()) {
       if (Buffer.byteLength(bytes, 'utf8') > maxBytes) return false;
       atomicWrite(path, bytes);
       return true;
-    });
+    }, { waitMs: LOCK_WAIT_MS });
   } catch { return false; }
 }
 
@@ -99,7 +94,7 @@ export function readCodexActivity(dataRoot, binding, now = Date.now()) {
   try {
     const root = directory(dataRoot);
     if (!root || !binding?.gate) return null;
-    const record = selectActivity(load(join(root, 'codex-activity.json')), binding, now);
+    const record = selectActivity(load(root), binding, now);
     return record ? { gate: binding.gate, expires_at: record.expires_at } : null;
   } catch { return null; }
 }

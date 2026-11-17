@@ -46,14 +46,13 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
   rmSync(target, { recursive: true, force: true });
   mkdirSync(target, { recursive: true });
   cpSync(join(coreRoot, 'lib'), join(target, 'lib'), { recursive: true });
-  if (!copilot) cpSync(join(repoRoot, 'plugins/agdf/host-templates/claude/companion/activity.mjs'), join(target, 'lib/companion/activity.mjs'));
   projectCoreDependencies(target);
   // Copilot exposes the default dispatcher/inspector, never the private Codex cockpit.
   // Keep snapshot and the shared worker pool: default readiness and doctor use
   // these owners too. The diagnostic worker has no private cockpit dependency.
   // The Claude Code installation drift check has no Copilot consumer either.
   if (copilot) for (const module of [
-    'runtime/host-installation.js', 'companion/codex-activity.js',
+    'runtime/host-installation.js', 'companion/codex-activity.js', 'companion/activity.js',
     'control-inspect/cockpit.js', 'control-inspect/cockpit-work.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
     'control-inspect/cockpit-list.js', 'control-inspect/cockpit-list.d.ts',
     'control-read/cockpit-worker.js', 'control-read/control-changes.js',
@@ -98,7 +97,6 @@ export function renderProjectedBinding({ copilot = false } = {}) {
     '}',
     'const pluginRoot = trustedPluginRoot();',
     contracts,
-    ...(!copilot ? ['export const companionActivityURL = new URL("../companion/activity.mjs", import.meta.url);'] : []),
     'export const templatesURL = (pluginRoot ? directoryURL(join(pluginRoot, "control", "templates")) : null)',
     '  ?? directoryURL(fileURLToPath(new URL("../../control/templates/", packageURL)))',
     '  ?? directoryURL(fileURLToPath(new URL("plugins/agdf/control/templates/", generatedURL)))',

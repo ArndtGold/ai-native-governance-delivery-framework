@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { activityLifetime, activityRecordLimit, isActivityId, quarantineActivity, renewActivity, workBinding, updateActivity, selectActivity } from '../../../plugins/agdf/host-templates/claude/companion/activity.mjs';
+import { activityLifetime, activityRecordLimit, isActivityId, quarantineActivity, renewActivity, workBinding, updateActivity, selectActivity } from '../lib/companion/activity.js';
 
 const target = '/repo';
 const run = 'run-a.with-dots';

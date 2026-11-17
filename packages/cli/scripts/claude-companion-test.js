@@ -14,9 +14,9 @@ import { resolveConfiguredChatLanguage } from "../../core/lib/resources/context.
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const companionDir = join(repoRoot, "plugins", "agdf", "host-templates", "claude", "companion");
 const companion = name => import(pathToFileURL(join(companionDir, name)).href);
-const { BUILD_GATES, READ_FAILURE_REASONS, RUN_VIEW_TIMEOUT_MS, companionRun, isStructured, readSnapshot, runViewArgv, settleSnapshot, snapshotFromRunView } = await companion("run-state.mjs");
+const { BUILD_GATES, READ_FAILURE_REASONS, RUN_VIEW_TIMEOUT_MS, companionPlan, companionRun, isStructured, readSnapshot, runViewArgv, settleSnapshot, snapshotFromRunView } = await companion("run-state.mjs");
 const { displayState, runState, MOODS } = await companion("state.mjs");
-const { assignRun, namedRun, openRuns, stepSelection } = await companion("assignment.mjs");
+const { assignRun, namedRun, openRuns, pickPlan, stepSelection } = await companion("assignment.mjs");
 const { chatLocale, companionLabels, label, settingLocale } = await companion("localization.mjs");
 const { condensedGateBar, fullGateBar, gateBar, gateMarks } = await companion("gate-bar.mjs");
 const { FIGURE_TEXT, figureSvg, observeFigure } = await companion("figure.mjs");
@@ -834,3 +834,74 @@ for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"
 }
 
 console.log("Claude companion logic tests passed");
+
+// Owner finding of 2026-11-16: the pane said "all runs done" while the chat drafted a new UR. A planned
+// UR is no run yet; the pane shows it like a run at the UR gate when it shows no run.
+{
+  const start = Date.parse("2026-10-26T08:00:00Z"), inSession = "2026-10-26T08:05:00.000Z", before = "2026-10-26T07:00:00.000Z";
+  const plan = (overrides = {}) => companionPlan({ plan_id: "plan-3aa47292-2068-4a16-9060-71be297df087", title: "Vorhandene Unterlagen als Vorbereitung",
+    coverage: "draft", goal: "Wer Unterlagen hat, kann sie VOICE geben.", last_change: inSession, ...overrides });
+  const done = run({ run_id: "done", lifecycle: "completed", status: "pass", current_gate: "OR", last_activity: before });
+  const openOld = run({ run_id: "open-old", last_activity: before });
+  const planned = (plans, runs = [done], extra = {}) => view({ snapshot: snapshot(runs, { planned: plans }), ...extra });
+
+  // Which planned UR is shown: the newest, when it changed in this session or no run is open.
+  assert.equal(pickPlan([], { sessionStartedAt: start, hasOpenRuns: false }), null);
+  assert.equal(pickPlan(undefined, { sessionStartedAt: start, hasOpenRuns: false }), null);
+  const older = plan({ plan_id: "plan-old", last_change: before }), newer = plan({ plan_id: "plan-new" });
+  assert.deepEqual([pickPlan([older, newer], { sessionStartedAt: start, hasOpenRuns: true }).plan.id, pickPlan([older, newer], { sessionStartedAt: start, hasOpenRuns: true }).count], ["plan-new", 2]);
+  assert.equal(pickPlan([older], { sessionStartedAt: start, hasOpenRuns: true }), null, "an older planned UR leaves the pane to the open runs");
+  assert.equal(pickPlan([older], { sessionStartedAt: start, hasOpenRuns: false }).plan.id, "plan-old", "with no open run it is shown all the same");
+
+  // A draft: the pane names the planned UR and says what is up next, never "all runs done".
+  const resting = planned([plan()]);
+  assert.deepEqual([resting.message, resting.allDone, resting.idle, resting.runId], [undefined, undefined, undefined, undefined]);
+  assert.deepEqual([resting.mood, resting.stateLabel, resting.resting, resting.name, resting.route, resting.goal, resting.gateBar, resting.planId, resting.note],
+    ["laeuft", "UR-Entwurf steht an", true, "Vorhandene Unterlagen als Vorbereitung", "UR-Planung · noch kein Run", "Wer Unterlagen hat, kann sie VOICE geben.", "●UR-Planung",
+      "plan-3aa47292-2068-4a16-9060-71be297df087", "Abgeschlossene Runs: 1"]);
+  assert.deepEqual(resting.turn, { tone: "next", who: "Als Nächstes", what: "Entwurf: Nutzeranforderungen (UR)", how: "Sag mir im Chat, wenn ich weitermachen soll.", gate: "UR" });
+  assert.deepEqual(resting.info, [{ label: "Wozu dieses Gate da ist", text: registry.locales.de.gateRationale.UR }]);
+  // While a main-loop turn runs, Claude writes the draft.
+  const writing = planned([plan()], [done], { isTurnActive: true, showRunState: true });
+  assert.deepEqual([writing.stateLabel, writing.resting, writing.workGate, writing.figure], ["schreibt am UR-Entwurf", false, "UR", { mood: "laeuft", reason: { key: "working", gate: "UR" } }]);
+  assert.deepEqual(writing.turn, { tone: "claude", who: "Einen Augenblick", what: "Ich bereite einen Entwurf für dich vor: Nutzeranforderungen (UR)", how: null, gate: "UR" });
+  // Ready for its handover, or in need of clarification: nothing is written, the next move is named.
+  const ready = planned([plan({ coverage: "ready" })], [done], { isTurnActive: true });
+  assert.deepEqual([ready.stateLabel, ready.resting, ready.turn.what, ready.turn.how], ["UR bereit zur Übergabe", true, "Übergabe in einen Run", "Sag mir im Chat, wenn ich die UR übergeben soll."]);
+  for (const [coverage, text] of [["recovery_required", "Wiederherstellung erforderlich"], ["unconfirmed", "Zuordnung ungeklärt"], ["unavailable", "Quelle nicht verfügbar"]]) {
+    const unclear = planned([plan({ coverage })]);
+    assert.deepEqual([unclear.stateLabel, unclear.turn.what, unclear.turn.how], ["UR-Planung braucht Klärung", text, "Sag mir im Chat, wenn ich das klären soll."]);
+  }
+  // English, an untitled plan, a goal that repeats the title, and several planned URs.
+  const english = view({ snapshot: snapshot([done], { planned: [plan({ title: "", goal: "" }), older] }) }, "en");
+  assert.deepEqual([english.stateLabel, english.name, english.route, english.goal, english.note, english.turn.what],
+    ["UR draft is next", "Untitled UR", "UR planning · no run yet", "", "Completed runs: 1 · More URs in planning: 1", "Draft: User requirements (UR)"]);
+  // CR finding of 2026-11-16: Core names a placeholder entry by its plan id; the id is not said twice.
+  const placeholder = planned([plan({ title: "plan-3aa47292-2068-4a16-9060-71be297df087", coverage: "unavailable" })]);
+  assert.deepEqual([placeholder.name, placeholder.planId], ["UR ohne Titel", "plan-3aa47292-2068-4a16-9060-71be297df087"]);
+  assert.equal(planned([plan({ goal: "Vorhandene Unterlagen als Vorbereitung" })]).goal, "", "a goal that repeats the title is not said twice");
+  // A run that is shown keeps the pane; with open runs but none assigned, an older planned UR stays out.
+  assert.equal(view({ snapshot: snapshot([run({ last_activity: inSession })], { planned: [plan()] }) }).planId, undefined, "a shown run keeps the pane");
+  assert.equal(planned([older], [openOld]).message, "Kein Run zugeordnet");
+  const beside = planned([plan()], [openOld]);
+  assert.deepEqual([beside.planId, beside.openRuns.map(item => item.id), beside.openCount, beside.note], ["plan-3aa47292-2068-4a16-9060-71be297df087", ["open-old"], "1 offene Runs", null],
+    "a planned UR of this session is shown, and the open runs stay listed");
+  // Without planned URs nothing changes; a snapshot without the field reads like an empty list.
+  assert.equal(planned([]).message, "Alle Runs im Ziel. 🏁");
+  assert.equal(view({ snapshot: snapshot([done]) }).message, "Alle Runs im Ziel. 🏁");
+  // The terminal and the status line say the same.
+  const lines = terminalText(resting, { labels, locale: "de" }).split("\n");
+  assert.deepEqual(lines.slice(1, 5), ["(o_o) … UR-Entwurf steht an", "Vorhandene Unterlagen als Vorbereitung · UR-Planung · noch kein Run", "Ziel: Wer Unterlagen hat, kann sie VOICE geben.",
+    "Als Nächstes: Entwurf: Nutzeranforderungen (UR) · Sag mir im Chat, wenn ich weitermachen soll."]);
+  assert.ok(lines.includes("Abgeschlossene Runs: 1") && lines.includes("plan-3aa47292-2068-4a16-9060-71be297df087"), "the note and the planning id stand at the end");
+  const seen = plans => observedRun({ snapshot: snapshot([done], { planned: plans }), sessionStartedAt: start });
+  assert.deepEqual([seen([plan()]), seen([])], [{ kind: "planned" }, { kind: "idle" }]);
+  assert.deepEqual(["de", "en"].map(locale => statusText({ kind: "planned" }, { labels, locale })), ["AGDF · UR-Planung", "AGDF · UR planning"]);
+  assert.deepEqual(observeNotice({ runId: "r", signature: "x" }, { kind: "planned" }), { observation: null, notice: null }, "a planned UR raises no toast");
+  // The run view's planning list becomes the snapshot's; malformed entries are left out.
+  const read = snapshotFromRunView(JSON.stringify({ schema_version: "run-view/1", root: "C:/p", language: "de", store: { status: "ok", reason: null }, runs: [],
+    planned: [{ plan_id: "plan-a", title: "A", coverage: "ready", goal: "G", last_change: inSession }, { title: "no id" }, null], diagnosis: { unreadable: [] }, authorizes: false }), { now: 1 });
+  assert.deepEqual(read.planned, [{ id: "plan-a", title: "A", coverage: "ready", goal: "G", updatedAt: inSession }]);
+  assert.deepEqual(snapshotFromRunView(JSON.stringify({ schema_version: "run-view/1", root: "C:/p", language: "de", store: { status: "ok", reason: null }, runs: [], authorizes: false }), { now: 1 }).planned, []);
+}
+console.log("Planned UR view tests passed");

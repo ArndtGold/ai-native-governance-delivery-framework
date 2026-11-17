@@ -21,8 +21,8 @@ export function validateInteractionCatalog(registry) {
     check(`${language}.flowEvidence`, pack.flowEvidence, FLOW_EVIDENCE_LABEL_KEYS);
     check(`${language}.companion.states`, pack.companion?.states, COMPANION_MOODS);
     check(`${language}.companion.waitingCaptions`, pack.companion?.waitingCaptions, ["waitingApproval", "waitingDecision"]);
-    // Beside the moods the status line names a run view that cannot be read and a project without AGDF.
-    check(`${language}.companion.statusStates`, pack.companion?.statusStates, [...COMPANION_MOODS, "unreadable", "notSetUp"]);
+    // Beside the moods the status line names a run view that cannot be read, a project without AGDF and a UR in planning.
+    check(`${language}.companion.statusStates`, pack.companion?.statusStates, [...COMPANION_MOODS, "unreadable", "notSetUp", "planned"]);
     const unreadable = pack.companion?.unreadable;
     check(`${language}.companion.unreadable`, unreadable && Object.fromEntries(COMPANION_UNREADABLE_REASONS.map(key => [key, unreadable[key]])), COMPANION_UNREADABLE_REASONS);
   }

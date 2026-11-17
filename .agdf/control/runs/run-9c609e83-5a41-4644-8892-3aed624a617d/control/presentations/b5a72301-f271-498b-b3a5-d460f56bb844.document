@@ -1,0 +1,26 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Companion shows planned URs instead of an empty state
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Solange kein Run offen ist oder sich eine geplante UR in dieser Sitzung ändert, zeigt der Begleiter die geplante UR mit Titel, Ziel und dem Hinweis „UR-Planung · noch kein Run“ statt „Alle Runs im Ziel“, und sagt, was als Nächstes kommt.
+- Problem: Der Begleiter kennt nur Runs. Im Projekt voice meldete er „Alle Runs im Ziel“, während im Chat eine UR entworfen wurde. Panel und Chat widersprechen sich.
+- Betroffene: Nutzer von AGDF in Claude Code mit offenem Begleiter, die Bedarfe als geplante UR erfassen; der Owner bei der Durchsicht.
+- Umfang: Die lesende Run-Ansicht des Core listet nicht übergebene geplante URs (Titel, Abdeckung, Ziel, letzte Änderung); der Begleiter wählt die neueste passende, zeigt Titel, Ziel, „Wer ist dran“, Gate-Leiste mit UR-Planung, Details, einen Hinweis auf abgeschlossene Runs und weitere URs sowie die Plan-ID; Figur mit Klemmbrett (schreibt während eines Turns, ruht sonst); Statuszeile „AGDF · UR-Planung“; neues Lesen bei neuer oder geänderter UR; Texte in de und en; Tests.
+- Nicht enthalten: Kein Schreiben aus dem Begleiter, keine Änderung an Planungsregeln oder an der Übergabe in einen Run, keine Auswahl zwischen mehreren URs, keine Änderung an Cockpit oder anderen Hosts, keine Übersetzung von UR-Titeln.
+- Abnahmesignale: Entworfene UR ohne offenen Run erscheint mit Titel und „UR-Planung“; eine vollständige UR erscheint als bereit zur Übergabe; nach der Übergabe zeigt der Begleiter den Run; ein unlesbarer Planungsordner bricht die Anzeige nicht; Statuszeile und Figur passen; bestehendes Verhalten für Runs und Projekte ohne AGDF bleibt gleich.
+- Maßgebliche Quellen: Core-Run-Ansicht `run-view.js`, Planungsinventur `projectPlannedInventory`, Titelregel `runIdentity`, Begleiter-Vorlage unter `plugins/agdf/host-templates/claude/companion/`, Interaktionskatalog mit Validierung, Kette für Katalogänderungen, PR #73 und #75.
+- Risiken: Ein ohne Run geschriebener Umsetzungskandidat liegt uncommittet auf `feat/companion-planned-ur` und muss gegen PRD/SD/TP geprüft werden; Bereitschaft hängt von der Anzeigesprache ab; zusätzlicher Lesezugriff bei jeder Aktualisierung; „Claude entwirft“ gilt für jeden Turn; keine Prüfung im echten Claude-Panel.
+- Nächster Schritt: UR prüfen und mit `Approval: UR` freigeben. Eine Vorschau vor dem PRD ist nicht nötig, die Mocks hat der Owner bereits gesehen.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-9c609e83-5a41-4644-8892-3aed624a617d` · Nutzeranforderungen · Revision: `8e7d6cfd-ea69-49c4-a7e6-895ba72530a6`
+
+SHA-256: `sha256:67e75fd8b880fb459316771ff360857bac45d43a26426a3ef569b56a1686b2f8`

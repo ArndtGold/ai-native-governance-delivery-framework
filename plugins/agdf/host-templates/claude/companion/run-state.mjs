@@ -52,6 +52,13 @@ export function companionRun(entry) {
   });
 }
 
+// One planned UR of the run view: no run yet, so it carries no gate path. `coverage` is its planning
+// state (draft, ready, or one that needs clarification).
+export function companionPlan(entry) {
+  return Object.freeze({ id: entry.plan_id, title: clip(entry.title ?? ''), coverage: entry.coverage ?? 'draft',
+    goal: clip(entry.goal ?? ''), updatedAt: entry.last_change ?? '' });
+}
+
 // stdout of the command as a snapshot: { status, root, runs, unreadable, diagnosis, readAt }.
 // status is ok, no_control, unavailable (store diagnosis with reason) or failed (no usable view).
 export function snapshotFromRunView(stdout, { now }) {
@@ -77,6 +84,8 @@ export function snapshotFromRunView(stdout, { now }) {
     // The run folders of an unsupported store, which the run view counts without reading them (AC-002).
     runFolders: Number.isSafeInteger(view.store.run_folders) && view.store.run_folders > 0 ? view.store.run_folders : null,
     runs: view.runs.filter(entry => entry.valid !== false && entry.listed !== false).map(companionRun),
+    // Planned URs that are no run yet; a run view without the field has none.
+    planned: (Array.isArray(view.planned) ? view.planned : []).filter(entry => typeof entry?.plan_id === 'string').map(companionPlan),
     unreadable: (view.diagnosis?.unreadable ?? []).map(({ run_id, reason }) => ({ id: run_id, reason })),
     diagnosis: view.diagnosis ?? null,
     // A run that ran into the read budget may read on the next attempt: the adapter keeps no

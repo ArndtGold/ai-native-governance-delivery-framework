@@ -3,7 +3,7 @@
 // host-independent; the adapter draws it on desktop or as text in the terminal.
 
 import { selectActivity } from './activity.mjs';
-import { assignRun } from './assignment.mjs';
+import { assignRun, pickPlan } from './assignment.mjs';
 import { FIGURE_TEXT, INVITE_TEXT } from './figure.mjs';
 import { condensedGateBar, gateBar, gateMarks } from './gate-bar.mjs';
 import { gateRationale, gateTitle, label } from './localization.mjs';
@@ -144,6 +144,40 @@ export function buildPanelView(input) {
   if (!run) {
     const broken = input.selection && snapshot.unreadable.find(item => item.id === input.selection);
     if (broken) return { ...unreadable(broken.reason), openRuns, chatRunId, unreadableHint };
+    // A UR in planning is work under way although it is no run yet: it is shown like a run at the UR
+    // gate instead of "all runs done" or "no run assigned" (owner finding of 2026-11-16).
+    const picked = pickPlan(snapshot.planned, { sessionStartedAt: input.sessionStartedAt, hasOpenRuns: open.length > 0 });
+    if (picked) {
+      const { plan } = picked;
+      const isTurnActive = Boolean(input.isTurnActive);
+      const step = `${gateTitle(registry, locale, 'UR')} (UR)`;
+      const drafting = plan.coverage === 'draft', ready = plan.coverage === 'ready';
+      // Only a draft is written on; a ready or unclear planning entry waits for the next move.
+      const writing = drafting && isTurnActive;
+      const stateLabel = drafting ? t(`activity.draft.${isTurnActive ? 'working' : 'idle'}`, { gate: 'UR', step }) : ready ? t('planned.ready') : t('planned.unclear');
+      const turn = writing ? { tone: 'claude', who: t('turn.moment'), what: t('turn.drafting', { step }), how: null, gate: 'UR' }
+        : drafting ? { tone: 'next', who: t('turn.next'), what: t('turn.draft', { step }), how: t('turn.resume'), gate: 'UR' }
+        : ready ? { tone: 'next', who: t('turn.next'), what: t('planned.handoff'), how: t('planned.handoffHint'), gate: 'UR' }
+        : { tone: 'next', who: t('turn.next'), what: label(labels, locale, `planned.states.${plan.coverage}`), how: t('planned.clarifyHint'), gate: 'UR' };
+      // A planned UR is no run: without a title of its own (Core names a placeholder entry by its id,
+      // which already stands as the reference line) it is an untitled UR, not a "new run".
+      const name = plan.title && plan.title !== plan.id ? plan.title : t('planned.untitled');
+      const objective = plan.goal && plan.goal !== name ? plan.goal : '';
+      const goalShown = objective ? goalLine(objective, input.columns) : '';
+      const rationale = gateRationale(registry, locale, 'UR');
+      const done = (snapshot.runs ?? []).filter(item => item.lifecycle === 'completed').length;
+      const note = [done ? t('planned.doneRuns', { count: done }) : null, picked.count > 1 ? t('planned.more', { count: picked.count - 1 }) : null].filter(Boolean).join(' · ');
+      return { ...base, ...events(null),
+        // The figure works at the UR gate; it is no run state, so nothing is read from a run.
+        ...(input.showRunState ? { figure: { mood: 'laeuft', reason: { key: 'working', gate: 'UR' } } } : {}),
+        mood: 'laeuft', workGate: input.showRunState && !snapshot.stale ? 'UR' : undefined,
+        stateLabel, resting: !writing, planId: plan.id, name, route: t('planned.route'), turn, rationale,
+        objective, goal: goalShown, isInfoExpanded: Boolean(input.isInfoExpanded),
+        info: [objective && goalShown !== objective ? { label: t('fields.objective'), text: objective } : null,
+          rationale ? { label: t('fields.gatePurpose'), text: rationale } : null].filter(Boolean),
+        gateBar: t('planned.bar'), nextStep: null, note: note || null, unreadableHint, openRuns, chatRunId,
+        ...(open.length ? { openCount: t('fields.openRuns', { count: open.length }) } : {}) };
+    }
     // A readable project without an assigned run idles: the figure blinks but shows no run state.
     if (!open.length) {
       if (unreadableHint) return neutral(unreadableHint, { idle: false });
@@ -264,6 +298,8 @@ export function terminalText(view, { labels, locale }) {
     if (view.review.preview) lines.push(...view.review.preview.split('\n').slice(0, TERMINAL_PREVIEW_LINES).map(line => `  ${line}`));
   }
   if (view.eventsHint) lines.push(view.eventsHint);
+  if (view.note) lines.push(view.note);
+  if (view.planId) lines.push(view.planId);
   // The run id is a reference, so it stands after what a person reads.
   if (view.runId) lines.push(view.origin ? `${view.runId} · ${view.origin}` : view.runId);
   if (view.stale) lines.push(view.stale);

@@ -31,7 +31,7 @@ export const TEST_DOMAINS = {
     'test:run-revision', 'test:late-source-revision', 'test:late-source-revision-performance',
   ] },
   mcp: { label: 'MCP & Cockpit', shortLabel: 'MCP', scripts: [
-    'test:mcp-lifecycle', 'test:plugin-mcp-runtime', 'test:plugin-mcp-cockpit-variant',
+    'test:mcp-lifecycle', 'test:plugin-mcp-runtime', 'test:plugin-mcp-cockpit-variant', 'test:cockpit-core',
     'test:claude-plugin-mcp', 'test:codex-plugin-mcp', 'test:mcp-server',
   ] },
   presentation: { label: 'Presentation & language', shortLabel: 'Language', scripts: [

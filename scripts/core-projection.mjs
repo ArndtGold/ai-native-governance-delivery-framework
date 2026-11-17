@@ -52,7 +52,7 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
   // these owners too. The diagnostic worker has no private cockpit dependency.
   // The Claude Code installation drift check has no Copilot consumer either.
   if (copilot) for (const module of [
-    'runtime/host-installation.js',
+    'runtime/host-installation.js', 'companion/codex-activity.js', 'companion/activity.js',
     'control-inspect/cockpit.js', 'control-inspect/cockpit-work.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
     'control-inspect/cockpit-list.js', 'control-inspect/cockpit-list.d.ts',
     'control-read/cockpit-worker.js', 'control-read/control-changes.js',

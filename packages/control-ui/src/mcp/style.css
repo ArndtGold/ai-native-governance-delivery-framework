@@ -76,6 +76,7 @@
 .companion-figure-block .run-figure { width: 170px; max-width: 100%; height: auto; }
 /* Claude Text(size: heading, weight: bold), default density: 14/18 px and 600. */
 .companion-card .companion-signal { width: fit-content; color: var(--companion-text); font-size: .875rem; line-height: 1.125rem; font-weight: 600; }
+.companion-card[data-tone='working'] :is(.companion-signal, .companion-turn > strong) { color: light-dark(#005ab5, #9ac9ff); }
 .companion-card[data-tone='decision'] :is(.companion-signal, .companion-turn > strong) { color: var(--companion-warning); }
 .companion-card[data-tone='blocked'] :is(.companion-signal, .companion-turn > strong) { color: var(--companion-error); }
 .companion-card[data-tone='completed'] .companion-signal { color: var(--companion-success); }

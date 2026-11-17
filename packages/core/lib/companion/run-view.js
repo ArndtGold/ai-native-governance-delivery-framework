@@ -149,11 +149,13 @@ export function projectRunEntry(inventoryEntry, report, { registry = interaction
 }
 const withFigure = entry => ({ ...entry, figure: deriveFigureState(entry) });
 
-// Pure assembly of the versioned view from already evaluated parts.
-export function projectRunView({ root, language, store, entries, planned = [] }) {
+// Pure assembly of the versioned view from already evaluated parts. `canonical_root` is the realpath
+// MCP resolves for the same root, so a host can recognize its own dispatch results for this root.
+export function projectRunView({ root, canonicalRoot = null, language, store, entries, planned = [] }) {
   return {
     schema_version: RUN_VIEW_SCHEMA,
     root,
+    canonical_root: canonicalRoot,
     language,
     store,
     diagnosis: projectDiagnosis(entries.filter(entry => entry.listed !== false)),
@@ -256,5 +258,5 @@ export function readRunView(root, { language = 'en', runIds = [] } = {}) {
   if (store.status === 'ok') {
     try { planned = captured(readRoot, base => readPlannedView(base, language)); } catch { /* shown without planned URs */ }
   }
-  return projectRunView({ root, language, store, entries, planned });
+  return projectRunView({ root, canonicalRoot: readRoot, language, store, entries, planned });
 }

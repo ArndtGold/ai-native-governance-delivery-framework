@@ -338,3 +338,14 @@ test('a planning store that cannot be read leaves the run view as it is', t => {
   assert.deepEqual([broken.store.status, broken.planned], ['ok', []]);
   assert.ok(broken.runs.some(run => run.run_id === 'fixture-a'), 'the runs are still listed beside a broken planning store');
 });
+
+test('the view names the realpath MCP resolves beside the caller spelling of its root', t => {
+  const f = cockpitFixture();
+  t.after(() => f.close());
+  const linked = `${f.root}-linked`;
+  symlinkSync(f.root, linked, 'junction');
+  t.after(() => rmSync(linked, { recursive: false, force: true }));
+  const view = readRunView(linked, { language: 'en' });
+  assert.deepEqual([view.root, view.canonical_root], [linked, resolveControlCommandTarget(linked).root]);
+  assert.equal(readRunView(join(f.root, 'missing')).canonical_root, null, 'a missing root has no realpath');
+});

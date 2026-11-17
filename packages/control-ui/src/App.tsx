@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState } from 'react';
 import { createApi, type ReadTransport } from './api';
 import { initialState, readingReducer, hasExpiredSession } from './state';
-import type { Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
+import type { CompanionActivity, Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
 import { ReadState, ReadingFeedback, readingStatus, label } from './feedback';
 import { Overview, type WorkView } from './Overview';
 import { RunDetail, detailHasMismatch, focusSituation } from './RunDetail';
@@ -30,6 +30,9 @@ import { AboutCockpit } from './AboutCockpit';
 import type { CockpitHost } from './host-label';
 
 type ObservedSource = { target: string; snapshot: string; revision: string; resource: Resource; digest: string; decision?: string | null; recoverBinding?: boolean };
+type CompanionRefresh = { snapshot: string; generation: number; activity?: CompanionActivity };
+const sameActivity = (a?: CompanionActivity, b?: CompanionActivity) => a === b || (!!a && !!b && a.target_id === b.target_id
+  && a.run_id === b.run_id && a.revision_id === b.revision_id && a.gate === b.gate && a.expires_at === b.expires_at);
 export type CompanionDisplay = { status: string; gate?: string; gate_state?: 'current' | 'done' };
 
 export function App({ secret = '', transport, compact: hostCompact = false, onExpand, initialRunId, companionEmpty = false, companionFallback, handoff, provenance, host = 'unknown', onDisplay, companionConstraints }: {
@@ -39,6 +42,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
 }) {
   const enabled = !!transport || !!secret;
   const [state, dispatch] = useReducer(readingReducer, initialState);
+  const [companionRefresh, setCompanionRefresh] = useState<CompanionRefresh | null>(null);
   const [backlogView, setWorkView] = useState<WorkView>({ section: 'runs', filter: '' });
   const [overviewSnapshot, setOverviewSnapshot] = useState<Envelope<OverviewInventory> | null>(null);
   // Codex can open the app directly in a fullscreen host surface, including a narrow side panel.
@@ -297,6 +301,10 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
     }
     (control ?? fallback ?? heading.current)?.focus();
   }, [state.phase, state.route, state.refreshing, state.generation, state.scope]);
+  // Activity outside the control files appears only while a shown Codex step waits for the agent;
+  // every other view keeps the regular freshness interval.
+  const watchActivity = host === 'codex' && compact && state.route.view === 'detail'
+    && state.detail?.data?.evaluation?.next_operation?.actor === 'agent';
   useEffect(() => {
     const justShown = cardVisible && !wasCardVisible.current; wasCardVisible.current = cardVisible;
     const snapshot = state.scope?.snapshot_id;
@@ -315,6 +323,12 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         if (request.signal.aborted || controller.signal.aborted || generation !== sequence.current || document.hidden) return;
         if (result.code === 'source_changed' && live.current.route.view === 'detail') void navigate(live.current.route, true, true);
         else if (result.code) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: result.code }); }
+        else if (host === 'codex' && compact) {
+          // An unchanged observation keeps its state, so a quiet poll does not redraw the Cockpit.
+          const activity = result.companion_observation?.activity;
+          setCompanionRefresh(previous => previous?.snapshot === snapshot && previous.generation === generation
+            && sameActivity(previous.activity, activity) ? previous : { snapshot, generation, activity });
+        }
       } catch (error) {
         if (!controller.signal.aborted && generation === sequence.current) {
           const code = error instanceof Error && error.message === 'session_expired' ? error.message : 'read_failed';
@@ -346,11 +360,11 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       void handoff?.invalidate(); waiting?.abort(); window.clearTimeout(restart);
       if (!document.hidden) { void check(); restart = window.setTimeout(() => { void listen(); }, 250); }
     };
-    const timer = window.setInterval(check, 5000); document.addEventListener('visibilitychange', visibility);
+    const timer = window.setInterval(check, watchActivity ? 2000 : 5000); document.addEventListener('visibilitychange', visibility);
     if (justShown) void check();
     void listen();
     return () => { window.clearInterval(timer); window.clearTimeout(restart); waiting?.abort(); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
-  }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff, draftAction.busy]);
+  }, [state.scope, state.stale, state.phase, watchActivity, read, navigate, host, compact, cardVisible, handoff, draftAction.busy]);
   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
   const open = (resource: Resource, origin = resource.resource_id) => {
     const list = workspace.current?.querySelector<HTMLElement>('#backlog-list');
@@ -500,7 +514,9 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       {state.route.view === 'document' && technicalContext}
 
   </>;
-  if (compact) return <><CompactCockpit host={host} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
+  if (compact) return <><CompactCockpit host={host}
+    activity={companionRefresh?.snapshot === state.scope?.snapshot_id && companionRefresh?.generation === state.generation
+      ? companionRefresh.activity : state.scope?.companion_observation?.activity} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
       reader.close();
       void navigate({ view: 'detail', runId: state.route.runId }, state.stale, true);
     }} onReaderLink={id => {

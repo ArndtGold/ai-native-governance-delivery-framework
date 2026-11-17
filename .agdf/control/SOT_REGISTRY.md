@@ -27,6 +27,7 @@ Primary entries identify the authoritative source and accountable owner for a do
 | Public privacy, terms and support contract | PRIVACY.md; TERMS.md; SUPPORT.md; SECURITY.md; LICENSE; NOTICE; TRADEMARKS.md | active | Arndt Gold | 2026-08-17 |
 | OpenAI candidate build, local/public manifest projection and exact-bundle validation | scripts/public-plugin/; scripts/build-public-plugin.js; packages/cli/scripts/public-plugin-test.js | active | AGDF | 2026-08-18 |
 | User handbook semantics and translations | docs/handbook/de/ (canonical German); docs/handbook/en/ (derived English); scripts/check-community-health.mjs (parity validation) | active | Arndt Gold | 2026-08-18 |
+| Host-neutral Companion turn-activity policy (lifetime, work phases, scope matching) | packages/core/lib/companion/activity.js (canonical); plugins/agdf/host-templates/claude/companion/activity.mjs (byte-identical copy, checked by claude-companion-integrity-test.js and check-runtime-integrity.mjs) | active | AGDF | 2026-11-17 |
 
 ## Physical Package Ownership
 

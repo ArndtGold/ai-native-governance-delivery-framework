@@ -3,7 +3,7 @@
 // the own pane, the status line and toasts. Run state comes only from the plugin runtime's read-only
 // `run-view` command through `$.process`, called on a changed run-file fingerprint, a new journal event
 // of this root or a changed language; the companion imports no Core module. Observation only: no
-// gating hook, every hook passes its event on through a catch path, and nothing is written under
+// gating decision, observers forward their events, and nothing is written under
 // .agdf/control. Session state lives in this module and is
 // redrawn through `$.ui.invalidate`. Elements come from the surface table and are built with the
 // host's global `h`.
@@ -16,11 +16,14 @@ import { chatLocale, companionLabels, gateTitle, label } from './localization.mj
 import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
 import { STATE_FILE, defaultCompanionState, parseCompanionState, pluginDataDir, serializeCompanionState } from './persistence.mjs';
 import { readSnapshot, settleSnapshot } from './run-state.mjs';
+import { activityLifetime, isActivityId, renewActivity, updateActivity, workBinding } from './activity.mjs';
 import { buildPanelView, terminalText } from './view.mjs';
 
 export const PANE = 'agdf-companion';
 export const COMMAND = 'agdf-companion';
 export const REFRESH_MS = 30_000;
+// Confirmed work is renewed well inside its lifetime while the native main turn still runs.
+const ACTIVITY_RENEW_MS = activityLifetime / 2;
 export const MENU = 'menu';
 export const ABOUT_URL = 'https://agdf.iself.eu';
 const LISTED_RUNS = 6;
@@ -44,7 +47,7 @@ const TURN_COLOR = Object.freeze({ you: 'warning', claude: 'suggestion', halt: '
 
 function createSession() {
   return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, dataDir: null, version: null, icon: null,
-    choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isInfoExpanded: false,
+    choices: defaultCompanionState(), isHidden: false, snapshot: null, mainTurn: null, subagentTurns: new Set(), activity: [], activityTimer: null, isInfoExpanded: false,
     isPreviewExpanded: false, isAboutShown: false, isMenuOpen: false, timer: null, eventTimer: null, reads: 0, appliedRead: 0,
     observation: null, figureObservation: null, chatMention: null, isBrowsing: false, conversation: null,
     // Companion core SDD-007: the run-file fingerprint of the last run-view call, the journal cursor and
@@ -157,6 +160,7 @@ async function refresh($, { quiet } = {}) {
     if (read < session.appliedRead) return;
     session.appliedRead = read;
     if (root !== session.root) {
+      if (session.root) resetActivity();
       // Another project root: its drift baseline, pane entries and preview start over (CR finding B3).
       session.driftSeen = null;
       session.snapshot = null;
@@ -309,6 +313,7 @@ async function followConversation($) {
   try { conversation = await $.session.id(); } catch { /* no conversation id on this host */ }
   const changed = Boolean(session.conversation) && conversation !== session.conversation;
   if (changed) {
+    forgetConversation(conversation);
     session.chatMention = null;
     session.isBrowsing = false;
     session.observation = null;
@@ -316,6 +321,90 @@ async function followConversation($) {
   }
   session.conversation = conversation;
   return changed;
+}
+
+function stopActivityTimer() {
+  session.activityTimer?.cancel();
+  session.activityTimer = null;
+}
+
+function resetActivity() {
+  session.mainTurn = null;
+  session.subagentTurns.clear();
+  session.activity = [];
+  stopActivityTimer();
+}
+
+// A `/clear` or resume happens between turns, so a main turn still running belongs to the new
+// conversation unless it already observed work in another one. Work of other conversations ends here.
+function forgetConversation(conversation) {
+  const turn = session.mainTurn;
+  if (turn?.conversation !== undefined && turn.conversation !== conversation) session.mainTurn = null;
+  session.subagentTurns.clear();
+  session.activity = session.activity.filter(row => row.session === conversation);
+  if (!session.activity.length) stopActivityTimer();
+}
+
+function retireActivity($, e) {
+  const turn = session.mainTurn;
+  if (turn?.id !== e.turnId) return;
+  session.mainTurn = null;
+  // An aborted main turn also stops its foreground subagents, which need not report their own end.
+  if (e.reason === 'aborted') session.subagentTurns.clear();
+  stopActivityTimer();
+  if (turn.conversation !== undefined) {
+    session.activity = updateActivity(session.activity, {
+      kind: e.reason === 'aborted' ? 'interrupted' : 'ended', session: turn.conversation, turn: turn.id,
+    }, Date.now()) ?? [];
+  }
+  redraw($);
+}
+
+async function observeDispatch($, e, next) {
+  const turn = session.subagentTurns.size || e.agentId !== undefined ? null : session.mainTurn;
+  const { tool_use_id: tool, continue_delivery, primary_target, run_id } = e;
+  // The conversation and root at the call, read beside it: the cached values refresh only at the next
+  // check, so the first turn after a `/clear` or resume would otherwise compare against the old ones.
+  const started = turn?.eligible ? (async () => [await $.session.id(), await $.session.root()])().catch(() => null) : null;
+  const answered = await next(e);
+  try {
+    if (!started || turn !== session.mainTurn || !turn.eligible || !session.choices.enabled
+      || continue_delivery !== true || !isActivityId(tool)) return answered;
+    const [before, conversation, root] = await Promise.all([started, $.session.id(), $.session.root()]);
+    if (!before || turn !== session.mainTurn || !turn.eligible || conversation !== before[0] || root !== before[1]
+      || (turn.conversation !== undefined && turn.conversation !== conversation)) return answered;
+    const payload = answered?.result;
+    let result = payload;
+    if (typeof payload === 'string') {
+      try { result = JSON.parse(payload); } catch { result = null; }
+    }
+    const confirmed = answered?.isError === true ? null : workBinding({ continue_delivery, primary_target, run_id }, result);
+    // Core returns the canonical target; the run view of this root names the same folder by its realpath,
+    // so a symlinked or junction root is still this project. The binding keeps the root's own spelling.
+    const canonical = session.snapshot?.root === root ? session.snapshot.canonicalRoot : null;
+    const binding = confirmed && (confirmed.target_id === root || (canonical && confirmed.target_id === canonical))
+      ? { ...confirmed, target_id: root } : null;
+    const activity = updateActivity(session.activity, {
+      kind: binding ? 'work' : 'lost', session: conversation, turn: turn.id, tool, binding,
+    }, Date.now());
+    if (!activity) return answered;
+    turn.conversation = conversation;
+    session.activity = activity;
+    stopActivityTimer();
+    if (binding) {
+      // The native turn end retires the work, so it stays current while that turn runs.
+      session.activityTimer = $.clock.every(ACTIVITY_RENEW_MS, () => {
+        const renewed = session.mainTurn === turn && turn.eligible
+          ? renewActivity(session.activity, { session: conversation, turn: turn.id }, Date.now()) : null;
+        if (renewed) session.activity = renewed;
+        else stopActivityTimer();
+        redraw($);
+      });
+      void check($).catch(() => {});
+    }
+    redraw($);
+  } catch { /* an unverified observation cannot alter the tool response */ }
+  return answered;
 }
 
 function stopRefreshing() {
@@ -417,7 +506,9 @@ function body($, e) {
   const isTerminal = e.surface === 'terminal' || !Svg;
   const view = buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
     mention: session.chatMention, isBrowsing: session.isBrowsing, showRunState: !isTerminal,
-    isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
+    // A planned UR has no Run to correlate with a dispatch, so it uses the native main turn.
+    isTurnActive: session.mainTurn !== null, activity: session.activity,
+    registry: session.registry, labels: session.labels, locale: session.locale,
     columns: e.props?.bodyColumns ?? Infinity, isInfoExpanded: session.isInfoExpanded,
     events: session.events, eventsAvailable: session.eventsAvailable ?? undefined });
   const rows = e.props?.scroll?.bodyRows;
@@ -595,8 +686,7 @@ function body($, e) {
     actions);
 }
 
-// Each registration carries a `.catch` that passes the event on, so even an overrun or a
-// misreturn leaves the host's own behaviour in place (SDD-10).
+// Lifecycle registrations can pass through an event if the host invokes their fallback.
 const passOn = ($, e, next) => next(e);
 
 export const register = on => {
@@ -621,6 +711,7 @@ export const register = on => {
         // Reading, the status line and the pane stop before the choice is stored, so a failing write
         // leaves none of them running (CR-F03); the choice is stored even if closing the pane fails.
         stopRefreshing();
+        resetActivity();
         session.figureObservation = null;
         silence($);
         try {
@@ -638,16 +729,34 @@ export const register = on => {
     }
   }).catch(() => ({ text: `${COMMAND}: unavailable` }));
 
+  for (const tool of ['mcp__agdf__agdf_dispatch', 'mcp__plugin_agdf_agdf__agdf_dispatch']) {
+    // The tool's own rejection propagates through next. Retrying it could repeat the invocation.
+    on('tool.call', { tool }, observeDispatch);
+  }
+
   on('turn.start', async ($, e, next) => {
     try {
+      if (e.agentId !== undefined && isActivityId(e.turnId)) {
+        session.subagentTurns.add(e.turnId);
+        if (session.mainTurn) {
+          session.mainTurn.eligible = false;
+          session.activity = [];
+          stopActivityTimer();
+          redraw($);
+        }
+      }
       if (e.agentId === undefined && session.choices.enabled) {
+        const concurrent = Boolean(session.mainTurn) || session.subagentTurns.size > 0;
+        session.activity = [];
+        stopActivityTimer();
+        // The conversation is taken from the turn's first observed dispatch, never from a cached value.
+        session.mainTurn = isActivityId(e.turnId) ? { id: e.turnId, eligible: !concurrent } : null;
         // A main-loop turn ends browsing and may name the chat's run (chat-run navigation SDD-02, SDD-04);
         // the host clock is read beside the event, never before it is passed on (SDD-11).
         session.isBrowsing = false;
         // Pane entries of events clear at the next main-loop turn (PRD state transitions); an uncertain
         // outcome stays until its run recorded a later operation (CR finding B7).
         session.events = session.events.filter(event => STICKY_KINDS.includes(event.kind));
-        if (!session.isHidden) session.isTurnActive = true;
         redraw($);
         const prompt = e.text;
         void $.clock.now().then(at => { if (noteMention(prompt, at)) { announce($); redraw($); } }).catch(() => {});
@@ -657,11 +766,13 @@ export const register = on => {
   }).catch(passOn);
 
   on('turn.complete', async ($, e, next) => {
+    try {
+      if (e.agentId === undefined) retireActivity($, e);
+      else session.subagentTurns.delete(e.turnId);
+    } catch { /* observation only */ }
     const answered = await next(e);
     try {
       if (e.agentId === undefined) {
-        // Cleared on every main-loop completion, also while switched off, so no stale overlay remains.
-        session.isTurnActive = false;
         // The check runs after the host has its answer, never inside the hook; a hidden pane keeps
         // the status line and toasts current (follow-up SDD-08). It reads the journal and, on a
         // changed run-file fingerprint, the run view (SDD-007); the turn overlay ends with a redraw

@@ -46,8 +46,9 @@ test('the packaged observer emits scoped hints, observes journal creation and re
     mkdirSync(journal, { recursive: true });
     appendFileSync(join(journal, 'events.jsonl'), '{}\n');
     await until('journal');
-    child.kill('SIGTERM');
-    assert.deepEqual(await closed, [0, null]);
+    assert.equal(child.kill('SIGTERM'), true);
+    // Windows terminates a child immediately; POSIX lets the observer retire its watchers.
+    assert.deepEqual(await closed, process.platform === 'win32' ? [null, 'SIGTERM'] : [0, null]);
     const count = lines.length;
     appendFileSync(active.runPath, '\n');
     await delay(200);

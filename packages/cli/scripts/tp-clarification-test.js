@@ -32,9 +32,15 @@ withTpFixture(f => {
   assert.equal(revision.continuation?.phase, 'tp_definition',
     'explicit revision of an open question must reach the bound author so a current answer can be incorporated');
   assert.equal(revision.control.blocking_reason, 'AGDF_TP_TRACEABILITY_INCOMPLETE', 'authoring never clears the finding');
-  const wrongAction = f.dispatch('gate-check', '--run', f.runId, '--intake', '--intake-mode', 'resume', '--revision', f.revision(), '--ur-action', 'revise');
-  assert.equal(wrongAction.terminal, true, 'a foreign source action stays rejected instead of becoming TP clarification');
-  assert.notEqual(wrongAction.continuation?.phase, 'tp_clarification');
+  const beforeUpstreamPreparation = f.bytes(), sourceRevision = f.revision();
+  const upstreamRevision = f.dispatch('gate-check', '--run', f.runId, '--intake', '--intake-mode', 'resume', '--revision', sourceRevision, '--ur-action', 'revise');
+  assert.equal(upstreamRevision.terminal, false);
+  assert.equal(upstreamRevision.continuation?.phase, 'source_revision_preparation', 'an explicit approved-source revision has its own preparation route');
+  assert.equal(upstreamRevision.continuation.source_gate, 'UR');
+  assert.equal(upstreamRevision.continuation.revision_id, sourceRevision);
+  assert.equal(upstreamRevision.authorizes, false);
+  assert.equal(f.bytes(), beforeUpstreamPreparation, 'upstream preparation changes no source or clarification record');
+  assert.equal(f.bound('--continue-delivery').continuation?.phase, 'tp_clarification', 'the unresolved TP question stays open');
   for (const [gap, gate, owner, evidence] of [
     ['requirements_gap', 'UR', 'ur-definition', 'changed user intent: source scope is uncertain'],
     ['design_gap', 'SD', 'sd-definition', 'Store owner boundary is not decided'],

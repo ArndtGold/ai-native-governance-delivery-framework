@@ -112,7 +112,8 @@ function reclaimAbandonedLock(path) {
     let original;
     try {
       const file = lstatSync(path);
-      if (!file.isFile() || file.size > 4096) throw lockError(path);
+      // A lock path that is no small regular file cannot name its owner: never wait for it.
+      if (!file.isFile() || file.size > 4096) throw Object.assign(lockError(path), { lock_owner_status: "unknown" });
       original = readFileSync(path, "utf8");
     } catch (error) {
       if (error?.code === "ENOENT") return;
@@ -239,6 +240,8 @@ export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
   } catch (error) {
     // No "released" here: if publishOwnedLock's own cleanup failed, the record may still
     // exist, and the host must keep the token to release it after the thread exits.
+    // The mark tells a bounded waiter that the work itself never ran.
+    if (error && typeof error === "object") error.lock_phase = "acquire";
     throw error;
   }
   const created = fstatSync(lockDescriptor);
@@ -264,15 +267,26 @@ export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
   }
 }
 
-// Waits a bounded time while a live owner holds the lock, then rethrows its lock error. Any other
-// failure, including an unknown or abandoned owner, propagates at once; nothing is reclaimed here.
+// Acquisition failures worth another attempt: a lock released between two checks, or Windows still
+// reporting a released lock file as delete-pending.
+const TRANSIENT_ACQUISITION = new Set(["EPERM", "EACCES", "EBUSY", "ENOENT"]);
+function retryableAcquisition(error) {
+  if (error?.lock_phase !== "acquire") return false;
+  if (error.lock_owner_status === "live") return true;
+  if (error.lock_owner_status !== undefined) return false;
+  return error.message === "AGDF_RUN_WRITE_LOCKED" || TRANSIENT_ACQUISITION.has(error.code);
+}
+
+// Waits a bounded time while the lock cannot be taken for a transient reason (a live owner, contention,
+// a delete-pending lock file), then rethrows the last lock error. A corrupt or unknown owner record and
+// any failure of the work itself propagate at once; nothing is reclaimed here and the work never repeats.
 export function withOwnedFileLockWait(path, work, { waitMs = 0, checkpoint } = {}) {
   const deadline = performance.now() + waitMs;
   for (;;) {
     try { return withOwnedFileLock(path, work, { checkpoint }); }
     catch (error) {
       const remaining = deadline - performance.now();
-      if (error?.lock_owner_status !== 'live' || remaining <= 0) throw error;
+      if (!retryableAcquisition(error) || remaining <= 0) throw error;
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(5, remaining));
     }
   }

@@ -98,7 +98,7 @@ export function routeLine(run, marks, t) {
   return key === 'undecided' || at < 0 ? t(`routes.${key}`) : `${t(`routes.${key}`)} · ${t('fields.step', { position: at + 1, count: marks.length })}`;
 }
 
-// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, isTurnActive (planned UR only), activity, now, registry, labels,
+// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, activity, now, registry, labels,
 // locale, columns, isInfoExpanded, events, eventsAvailable }. Display only: the adapter persists
 // selection changes. `events` are this root's journal events since the last main-loop turn, newest first.
 export function buildPanelView(input) {
@@ -149,7 +149,10 @@ export function buildPanelView(input) {
     const picked = pickPlan(snapshot.planned, { sessionStartedAt: input.sessionStartedAt, hasOpenRuns: open.length > 0 });
     if (picked) {
       const { plan } = picked;
-      const isTurnActive = Boolean(input.isTurnActive);
+      // Drafting needs a confirmed planned-UR dispatch of the running main turn for exactly this entry,
+      // read from a current snapshot like Run work.
+      const isTurnActive = !snapshot.stale && Boolean(selectActivity(input.activity ?? [], {
+        target_id: snapshot.root, plan_id: plan.id, gate: 'UR' }, input.now ?? Date.now()));
       const step = `${gateTitle(registry, locale, 'UR')} (UR)`;
       const drafting = plan.coverage === 'draft', ready = plan.coverage === 'ready';
       // Only a draft is written on; a ready or unclear planning entry waits for the next move.

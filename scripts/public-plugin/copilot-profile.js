@@ -119,7 +119,10 @@ export function validateCopilotPayload({ profileRoot, repoRoot, expectedVersion,
     bytes: entries.reduce((sum, entry) => sum + entry.bytes, 0),
   };
   if (checkBudget && (stats.files > baseline.max_files || stats.bytes > baseline.max_bytes)) {
-    throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}`);
+    // The baseline stays exact, without reserve: a reviewed growth raises it to the observed counts.
+    throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}. `
+      + `Review the growth, then raise the exact baseline without reserve: node scripts/payload-budget.js --accept --files ${stats.files} --bytes ${stats.bytes} --reason "<why this growth is needed>" `
+      + "and run the package asset sync again.");
   }
   if (inventory.stats?.files !== stats.files || inventory.stats?.bytes !== stats.bytes
       || inventory.baseline?.max_files !== baseline.max_files || inventory.baseline?.max_bytes !== baseline.max_bytes) {

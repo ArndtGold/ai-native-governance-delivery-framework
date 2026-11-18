@@ -112,9 +112,43 @@ try {
   assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => {}, { waitMs: 500 }),
     error => error.message === "AGDF_RUN_WRITE_LOCKED" && error.lock_owner_status !== "live");
   assert.ok(performance.now() - unknownStart < 400, "an owner that is not live is never waited for");
+  writeFileSync(waitLock, "x".repeat(5000));
+  const oversizedStart = performance.now();
+  assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => {}, { waitMs: 500 }),
+    error => error.message === "AGDF_RUN_WRITE_LOCKED" && error.lock_owner_status === "unknown");
+  assert.ok(performance.now() - oversizedStart < 400, "a lock record that cannot name its owner is never waited for");
   rmSync(waitLock);
   assert.equal(filePrimitives.withOwnedFileLockWait(waitPath, () => "done", { waitMs: 40 }), "done");
   assert.equal(existsSync(waitLock), false, "a free lock is taken and released");
+
+  // SCN-018 (AC-013): a transient acquisition failure, as Windows reports for a delete-pending lock file,
+  // is retried within the bound; the work runs once.
+  let failures = 0, runs = 0;
+  const flaky = stage => {
+    if (stage === "owner_staged" && failures < 2) {
+      failures++;
+      throw Object.assign(new Error("EPERM: operation not permitted, link"), { code: "EPERM" });
+    }
+  };
+  assert.equal(filePrimitives.withOwnedFileLockWait(waitPath, () => { runs++; return "taken"; }, { waitMs: 250, checkpoint: flaky }), "taken");
+  assert.deepEqual([failures, runs], [2, 1], "two transient failures, then one run of the work");
+  assert.equal(existsSync(waitLock), false);
+  assert.throws(() => filePrimitives.withOwnedFileLock(waitPath, () => {}, { checkpoint: stage => { if (stage === "owner_staged") throw Object.assign(new Error("EPERM"), { code: "EPERM" }); } }),
+    error => error.code === "EPERM" && error.lock_phase === "acquire", "an acquisition failure carries its phase");
+  // A failure of the work itself is never repeated, whatever its code.
+  let attempts = 0;
+  const workStart = performance.now();
+  assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => { attempts++; throw Object.assign(new Error("EPERM: write"), { code: "EPERM" }); }, { waitMs: 250 }),
+    error => error.code === "EPERM" && error.lock_phase === undefined);
+  assert.equal(attempts, 1, "the work runs once");
+  assert.ok(performance.now() - workStart < 200, "a work failure is not waited on");
+  assert.equal(existsSync(waitLock), false, "the lock is released after a work failure");
+  // A failure that persists ends at the bound with the last acquisition error.
+  const boundStart = performance.now();
+  assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => {}, { waitMs: 60,
+    checkpoint: stage => { if (stage === "owner_staged") throw Object.assign(new Error("EBUSY"), { code: "EBUSY" }); } }),
+  error => error.code === "EBUSY");
+  assert.ok(performance.now() - boundStart >= 55, "a persistent transient failure is retried until the bound");
 } finally { rmSync(waitRoot, { recursive: true, force: true }); }
 
 console.log("Run lock owner recovery passed.");

@@ -30,7 +30,7 @@ import { AboutCockpit } from './AboutCockpit';
 import type { CockpitHost } from './host-label';
 
 type ObservedSource = { target: string; snapshot: string; revision: string; resource: Resource; digest: string; decision?: string | null; recoverBinding?: boolean };
-type CompanionRefresh = { snapshot: string; generation: number; activity?: CompanionActivity };
+type CompanionRefresh = { snapshot: string; generation: number; activity?: CompanionActivity; unknown: boolean };
 const sameActivity = (a?: CompanionActivity, b?: CompanionActivity) => a === b || (!!a && !!b && a.target_id === b.target_id
   && a.run_id === b.run_id && a.revision_id === b.revision_id && a.gate === b.gate && a.expires_at === b.expires_at);
 export type CompanionDisplay = { status: string; gate?: string; gate_state?: 'current' | 'done' };
@@ -326,8 +326,9 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         else if (host === 'codex' && compact) {
           // An unchanged observation keeps its state, so a quiet poll does not redraw the Cockpit.
           const activity = result.companion_observation?.activity;
+          const unknown = result.companion_observation?.liveness === 'unknown';
           setCompanionRefresh(previous => previous?.snapshot === snapshot && previous.generation === generation
-            && sameActivity(previous.activity, activity) ? previous : { snapshot, generation, activity });
+            && sameActivity(previous.activity, activity) && previous.unknown === unknown ? previous : { snapshot, generation, activity, unknown });
         }
       } catch (error) {
         if (!controller.signal.aborted && generation === sequence.current) {
@@ -514,9 +515,11 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       {state.route.view === 'document' && technicalContext}
 
   </>;
+  const refreshed = companionRefresh?.snapshot === state.scope?.snapshot_id && companionRefresh?.generation === state.generation
+    ? companionRefresh : null;
   if (compact) return <><CompactCockpit host={host}
-    activity={companionRefresh?.snapshot === state.scope?.snapshot_id && companionRefresh?.generation === state.generation
-      ? companionRefresh.activity : state.scope?.companion_observation?.activity} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
+    activity={refreshed ? refreshed.activity : state.scope?.companion_observation?.activity}
+    activityUnknown={refreshed ? refreshed.unknown : state.scope?.companion_observation?.liveness === 'unknown'} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
       reader.close();
       void navigate({ view: 'detail', runId: state.route.runId }, state.stale, true);
     }} onReaderLink={id => {

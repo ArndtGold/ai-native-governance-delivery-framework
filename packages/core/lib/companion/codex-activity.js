@@ -3,17 +3,29 @@ import { isAbsolute, join } from 'node:path';
 import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { hasSymlinkComponent } from '../control-state/contained-file.js';
-import { activityRecordLimit, workBinding, updateActivity, quarantineActivity, selectActivity, isActivityId } from './activity.js';
+import { activityRecordLimit, codexTurnBound, isActivityId, isAgdfDispatchTool, quarantineActivity, retireTurns, selectActivity,
+  updateActivity, workBinding } from './activity.js';
 
+// The Codex Companion hook profile this build observes with. Codex runs a new or changed hook only after
+// the person trusts it again, so a sign of life counts only for the profile that wrote it. A Core test pins
+// this value to the digest of the Companion hook entries and the hook entry script.
+export const CODEX_HOOK_PROFILE = '2';
+// A sign of life of the hooks counts this long; every later session start or prompt renews it.
+const LIVENESS_WINDOW = 24 * 60 * 60_000;
 // A row holds at most 14 ASCII IDs of 128 bytes: session, turn and 12 tool IDs. The ASCII scope,
-// timestamps and JSON framing fit in the remaining 768 bytes.
-const maxBytes = activityRecordLimit * (14 * 128 + 768);
+// timestamps and JSON framing fit in the remaining 768 bytes. The one sign-of-life row has its own place
+// beside the activity rows, so a full store never hides that the hooks run.
+const storeRowLimit = activityRecordLimit + 1;
+const maxBytes = storeRowLimit * (14 * 128 + 768);
 // Hooks of other Codex sessions hold the store only for one bounded write; an event waits that long.
 const LOCK_WAIT_MS = 250;
 const STORE_FILE = 'codex-activity.json';
 const INVALID_STORE = 'invalid_activity_store';
 const invalidStore = () => Object.assign(new Error(INVALID_STORE), { code: INVALID_STORE });
 const linkedStore = () => Object.assign(new Error('activity_store_link'), { code: 'activity_store_link' });
+const isLiveness = row => row.liveness === true;
+const livenessRow = now => ({ liveness: true, profile: CODEX_HOOK_PROFILE, at: now, until: now + LIVENESS_WINDOW });
+const UNKNOWN = Object.freeze({ activity: null, liveness: 'unknown' });
 
 function directory(dataRoot, create = false) {
   if (typeof dataRoot !== 'string' || !isAbsolute(dataRoot) || !lstatSync(dataRoot).isDirectory()) return null;
@@ -42,7 +54,7 @@ function load(root) {
     if (length > maxBytes) throw invalidStore();
     let value;
     try { value = JSON.parse(bytes.subarray(0, length).toString('utf8')); } catch { throw invalidStore(); }
-    if (!Array.isArray(value) || value.length > activityRecordLimit
+    if (!Array.isArray(value) || value.length > storeRowLimit
       || value.some(row => !row || typeof row !== 'object' || Array.isArray(row))) throw invalidStore();
     return value;
   } catch (error) {
@@ -53,48 +65,73 @@ function load(root) {
   }
 }
 
+// Changes the store under its lock. `change` receives the live activity rows and the live sign of life
+// and returns the new ones, or null to leave the store as it is. The sign of life never reaches the
+// activity policy, which bounds the activity rows itself.
+function mutate(dataRoot, create, now, change) {
+  const root = directory(dataRoot, create);
+  if (!root) return false;
+  const path = join(root, STORE_FILE);
+  return withOwnedFileLockWait(path, () => {
+    let records;
+    try { records = load(root); } catch (error) {
+      if (error.code !== INVALID_STORE) throw error;
+      // An unreadable store cannot prove which turns ended: every observation waits one window, then
+      // the store starts over. Repairing it here keeps a store from an older or newer build recoverable.
+      atomicWrite(path, JSON.stringify(quarantineActivity(now)));
+      return false;
+    }
+    const current = records.filter(row => row.until > now);
+    const result = change(current.filter(row => !isLiveness(row)), current.find(isLiveness) ?? null);
+    if (!result) return false;
+    const rows = result.liveness ? [...result.activity, result.liveness] : result.activity;
+    const bytes = JSON.stringify(rows);
+    if (Buffer.byteLength(bytes, 'utf8') > maxBytes) return false;
+    atomicWrite(path, bytes);
+    return true;
+  }, { waitMs: LOCK_WAIT_MS });
+}
+
 export function observeCodexActivity(dataRoot, input, now = Date.now()) {
   const { hook_event_name: event, session_id: session, turn_id: turn, tool_use_id: tool } = input ?? {};
-  if (!isActivityId(session) || !isActivityId(turn)) return false;
-  const terminal = event === 'Stop' || event === 'Interrupt';
-  if (!terminal && (event !== 'PostToolUse' || input.tool_name !== 'mcp__agdf__agdf_dispatch'
-    || input.tool_input?.continue_delivery !== true || !isActivityId(tool))) return false;
-
+  if (!isActivityId(session)) return false;
   try {
+    // A session start is a sign of life only: compaction can start a session inside a running turn.
+    if (event === 'SessionStart') return mutate(dataRoot, true, now, activity => ({ activity, liveness: livenessRow(now) }));
+    if (!isActivityId(turn)) return false;
+    // A new prompt proves that the earlier turns of its session are over, whether or not they reported it.
+    if (event === 'UserPromptSubmit') {
+      return mutate(dataRoot, true, now, activity => ({ activity: retireTurns(activity, { session, turn }, now) ?? activity, liveness: livenessRow(now) }));
+    }
+    const terminal = event === 'Stop' || event === 'Interrupt';
+    if (!terminal && (event !== 'PostToolUse' || !isAgdfDispatchTool(input.tool_name)
+      || input.tool_input?.continue_delivery !== true || !isActivityId(tool))) return false;
     const binding = terminal || input.tool_response?.isError === true
       ? null : workBinding(input.tool_input, input.tool_response?.structuredContent);
     if (binding) binding.target_id = resolveControlCommandTarget(binding.target_id).target_id;
     const kind = terminal ? (event === 'Stop' ? 'ended' : 'interrupted') : (binding ? 'work' : 'lost');
-    const root = directory(dataRoot, terminal || Boolean(binding));
-    if (!root) return false;
-    const path = join(root, STORE_FILE);
-    return withOwnedFileLockWait(path, () => {
-      let records;
-      try { records = load(root); } catch (error) {
-        if (error.code !== INVALID_STORE) throw error;
-        // An unreadable store cannot prove which turns ended: every observation waits one window, then
-        // the store starts over. Repairing it here keeps a store from an older or newer build recoverable.
-        atomicWrite(path, JSON.stringify(quarantineActivity(now)));
-        return false;
-      }
+    return mutate(dataRoot, terminal || Boolean(binding), now, (activity, liveness) => {
       // A turn that ends after its tool results needs no marker unless it observed work: nothing of it
       // can arrive later. An interruption keeps its marker, since a running tool may still answer.
-      if (event === 'Stop' && !records.some(row => row.session === session && row.turn === turn && row.until > now)) return false;
-      const next = updateActivity(records, { kind, session, turn, tool, binding }, now);
-      if (!next) return false;
-      const bytes = JSON.stringify(next);
-      if (Buffer.byteLength(bytes, 'utf8') > maxBytes) return false;
-      atomicWrite(path, bytes);
-      return true;
-    }, { waitMs: LOCK_WAIT_MS });
+      if (event === 'Stop' && !activity.some(row => row.session === session && row.turn === turn)) return null;
+      // Codex has no timer to renew a running turn: its work lasts until the turn ends, a later prompt
+      // retires it, or the bound passes after its last confirmed dispatch.
+      const next = updateActivity(activity, { kind, session, turn, tool, binding }, now, { lifetime: codexTurnBound });
+      return next && { activity: next, liveness };
+    });
   } catch { return false; }
 }
 
-export function readCodexActivity(dataRoot, binding, now = Date.now()) {
+// What the Cockpit may show for its shown step: the matching work, and whether the Companion hooks of this
+// profile gave a sign of life. A missing, unreadable or quarantined store leaves both unknown.
+export function readCodexObservation(dataRoot, binding, now = Date.now()) {
   try {
     const root = directory(dataRoot);
-    if (!root || !binding?.gate) return null;
-    const record = selectActivity(load(root), binding, now);
-    return record ? { gate: binding.gate, expires_at: record.expires_at } : null;
-  } catch { return null; }
+    if (!root || !binding?.gate) return UNKNOWN;
+    const records = load(root).filter(row => row.until > now);
+    if (records.some(row => row.quarantined)) return UNKNOWN;
+    const record = selectActivity(records.filter(row => !isLiveness(row)), binding, now);
+    const observed = records.some(row => isLiveness(row) && row.profile === CODEX_HOOK_PROFILE && Number.isSafeInteger(row.at) && row.at <= now);
+    return { activity: record ? { gate: binding.gate, expires_at: record.expires_at } : null, liveness: observed ? 'observed' : 'unknown' };
+  } catch { return UNKNOWN; }
 }

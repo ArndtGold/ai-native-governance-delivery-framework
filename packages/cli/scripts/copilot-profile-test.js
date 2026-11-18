@@ -165,9 +165,12 @@ try {
     writeInventory(root, value);
     assert.throws(() => validate(root, { baseline: { ...baseline, max_files: baseline.max_files + 1 } }), /AGDF_COPILOT_PAYLOAD_EXCLUDED_SURFACE/);
   });
+  // SCN-021 (AC-015): the growth failure names the reviewed tool with the observed counts and a reason.
   assert.throws(
     () => validate(generatedRoot, { baseline: { max_files: first.stats.files, max_bytes: first.stats.bytes - 1 } }),
-    /AGDF_COPILOT_PAYLOAD_GROWTH/,
+    error => error.message.startsWith("AGDF_COPILOT_PAYLOAD_GROWTH:")
+      && error.message.includes(`node scripts/payload-budget.js --accept --files ${first.stats.files} --bytes ${first.stats.bytes} --reason `)
+      && error.message.includes("without reserve"),
   );
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });

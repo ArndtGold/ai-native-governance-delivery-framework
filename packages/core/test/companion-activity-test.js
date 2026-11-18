@@ -149,8 +149,11 @@ test('a hand-off after many results still ends work, and recent duplicates are i
 test('a new prompt retires earlier turns of its own session', () => {
   const other = { ...work, session: 'session-b', turn: 'turn-x', tool: 'tool-x', binding: { ...scope, run_id: 'run-b' } };
   const records = apply(apply([], work), other);
-  assert.equal(retireTurns(records, { session: 'session-c', turn: 'turn-z' }, clock + 1), null, 'another session retires nothing');
-  assert.equal(retireTurns(records, { session: 'session-a', turn: 'turn-a' }, clock + 1), null, 'a prompt of the same turn retires nothing');
+  const third = retireTurns(records, { session: 'session-c', turn: 'turn-z' }, clock + 1);
+  assert.ok(selected(third, scope, 2), 'another session keeps existing work');
+  const same = retireTurns(records, { session: 'session-a', turn: 'turn-a' }, clock + 1);
+  assert.ok(selected(same, scope, 2), 'a prompt of the same turn keeps its work');
+  assert.equal(retireTurns(same, { session: 'session-a', turn: 'turn-a' }, clock + 2), null, 'a duplicate prompt changes nothing');
   const retired = retireTurns(records, { session: 'session-a', turn: 'turn-b' }, clock + 1);
   assert.equal(selected(retired, scope, 2), null);
   assert.ok(selected(retired, { ...scope, run_id: 'run-b' }, 2), 'the other session keeps its work');
@@ -158,6 +161,26 @@ test('a new prompt retires earlier turns of its own session', () => {
   assert.ok(selected(apply(retired, { ...work, turn: 'turn-b', tool: 'new' }, 3), scope, 4), 'the new turn is judged on its own');
   assert.equal(retireTurns(quarantineActivity(clock), { session: 'session-a', turn: 'turn-b' }, clock + 1), null);
   assert.equal(retireTurns(records, { session: 'not valid', turn: 'turn-b' }, clock + 1), null);
+});
+
+test('a prompt fences unseen old results and preserves that fence through work, hand-off and end', () => {
+  const lease = { lifetime: codexTurnBound };
+  const current = { session: work.session, turn: 'turn-current' };
+  const start = retireTurns([], current, clock);
+  assert.equal(updateActivity(start, work, clock + 1, lease), null, 'an older turn with no previous result is refused');
+  const active = updateActivity(start, { ...work, ...current }, clock + 2, lease);
+  const handedOff = updateActivity(active, { ...work, ...current, kind: 'lost', tool: 'handoff' }, clock + 3, lease);
+  assert.equal(updateActivity(handedOff, work, clock + 4, lease), null, 'hand-off retains the current turn');
+  const ended = updateActivity(handedOff, { ...current, kind: 'ended' }, clock + 5, lease);
+  assert.equal(updateActivity(ended, { ...work, ...current, tool: 'late-current' }, clock + 300_006, lease), null,
+    'an ended current turn cannot revive after the short deduplication window');
+  assert.equal(updateActivity(ended, { ...work, tool: 'late-older' }, clock + 300_006, lease), null,
+    'the older turn cannot revive after its retirement marker expires');
+  const next = retireTurns(ended, { ...current, turn: 'turn-next' }, clock + 300_007);
+  assert.ok(updateActivity(next, { ...work, turn: 'turn-next', tool: 'next-work' }, clock + 300_008, lease));
+  assert.equal(next.filter(row => row.current_turn).length, 1, 'one current turn per session');
+  assert.deepEqual(retireTurns(Array.from({ length: activityRecordLimit }, (_, i) => ({ session: 'other-' + i, turn: 't', until: clock + codexTurnBound })), current, clock), quarantineActivity(clock),
+    'turn admission stays within the existing record bound');
 });
 
 // SCN-010 (SDD-010): drafting binds exactly the requested planning entry.

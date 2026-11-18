@@ -67,7 +67,7 @@ test('the hard bound ends abandoned work, and a later dispatch of the turn renew
 test('a new prompt retires a turn whose end was missed', t => {
   const { root, binding, post, activity } = fixture(t);
   assert.equal(observeCodexActivity(root, post, 1000), true);
-  const otherSession = { ...post, session_id: 'chat-2', turn_id: 'turn-9', tool_use_id: 'tool-9' };
+  const otherSession = { ...post, session_id: 'chat-2', turn_id: 'turn-10', tool_use_id: 'tool-9' };
   assert.equal(observeCodexActivity(root, { session_id: 'chat-2', turn_id: 'turn-10', hook_event_name: 'UserPromptSubmit' }, 1500), true);
   assert.ok(activity(binding, 1600), 'a prompt of another session leaves the work');
   assert.equal(observeCodexActivity(root, { session_id: 'chat-1', turn_id: 'turn-2', hook_event_name: 'UserPromptSubmit' }, 2000), true);
@@ -77,6 +77,20 @@ test('a new prompt retires a turn whose end was missed', t => {
   assert.ok(activity(binding, 3001), 'the new turn shows its own work');
   assert.equal(observeCodexActivity(root, otherSession, 3500), true);
   assert.deepEqual(activity(binding, 3501), { gate: binding.gate, expires_at: 3500 + HOUR }, 'two sessions on the same step show the later work');
+});
+
+test('a new prompt and its Stop reject the first delayed result of the previous turn', t => {
+  const { root, binding, common, post, activity } = fixture(t);
+  const current = { ...common, turn_id: 'turn-current' };
+  assert.equal(observeCodexActivity(root, { ...current, hook_event_name: 'UserPromptSubmit' }, 1000), true);
+  assert.equal(observeCodexActivity(root, { ...current, hook_event_name: 'Stop' }, 1001), true);
+  assert.equal(observeCodexActivity(root, post, 1002), false, 'the old turn had no result when the new prompt arrived');
+  assert.equal(observeCodexActivity(root, { ...post, tool_use_id: 'late-older' }, 302_000), false, 'the short deduplication window is insufficient for a whole turn');
+  assert.equal(observeCodexActivity(root, { ...post, ...current, tool_use_id: 'late-current' }, 302_001), false, 'Stop also fences late results of the current turn');
+  assert.equal(activity(binding, 302_002), null);
+  assert.equal(observeCodexActivity(root, { ...current, turn_id: 'turn-next', hook_event_name: 'UserPromptSubmit' }, 302_003), true);
+  assert.equal(observeCodexActivity(root, { ...post, turn_id: 'turn-next', tool_use_id: 'next-work' }, 302_004), true);
+  assert.ok(activity(binding, 302_005), 'a deliberate next turn still shows its own work');
 });
 
 // CR finding: a session that died without Stop must not hide the work of the next session.
@@ -102,7 +116,7 @@ test('a sign of life of the current hook profile tells observed from unknown', t
   assert.equal(liveness(1000 + DAY), 'unknown', 'a sign of life counts 24 hours');
   assert.equal(observeCodexActivity(root, { session_id: 'chat-1', turn_id: 'turn-2', hook_event_name: 'UserPromptSubmit' }, 2000), true);
   assert.equal(liveness(1000 + DAY), 'observed', 'a prompt renews it');
-  assert.equal(observeCodexActivity(root, post, 3000), true);
+  assert.equal(observeCodexActivity(root, { ...post, turn_id: 'turn-2' }, 3000), true);
   assert.equal(liveness(3001), 'observed', 'activity writes keep the sign of life');
   const store = join(root, 'companion', 'codex-activity.json');
   const rows = JSON.parse(readFileSync(store, 'utf8'));

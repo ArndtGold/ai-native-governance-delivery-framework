@@ -283,10 +283,13 @@ function retryableAcquisition(error) {
 export function withOwnedFileLockWait(path, work, { waitMs = 0, checkpoint } = {}) {
   const deadline = performance.now() + waitMs;
   for (;;) {
-    try { return withOwnedFileLock(path, work, { checkpoint }); }
+    let started = false;
+    try { return withOwnedFileLock(path, owner => { started = true; return work(owner); }, { checkpoint }); }
     catch (error) {
       const remaining = deadline - performance.now();
-      if (!retryableAcquisition(error) || remaining <= 0) throw error;
+      // A nested acquisition may carry the same marker. Once this work started,
+      // its error must propagate without repeating any of its effects.
+      if (started || !retryableAcquisition(error) || remaining <= 0) throw error;
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(5, remaining));
     }
   }

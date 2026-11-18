@@ -10,8 +10,8 @@
 //                                              and through Windows PowerShell as Codex runs commandWindows
 //   summarize --out <dir>                      write summary.json and summary.md from the recorded lines
 //
-// Raw lines keep field names, identities and ordering; home paths, the user name, secrets, prompt and answer
-// text are redacted before anything is written.
+// Records keep top-level field names, bounded host identities and ordering. All other
+// payload values, including tool inputs/results, are reduced to type/length.
 import { spawnSync } from 'node:child_process';
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, platform, release, tmpdir, userInfo } from 'node:os';
@@ -38,7 +38,9 @@ function options(argv) {
 const home = homedir();
 const user = (() => { try { return userInfo().username; } catch { return null; } })();
 const SECRET = /token|secret|password|authorization|api[_-]?key|cookie|credential/iu;
-const TEXT = new Set(['prompt', 'last_assistant_message']);
+const HOST_IDS = new Set(['session_id', 'turn_id', 'tool_use_id', 'tool_name', 'agent_id']);
+const HOST_ID = /^[A-Za-z0-9_-]{1,256}$/u;
+const SOURCES = new Set(['startup', 'resume', 'clear', 'compact']);
 
 function redactString(value) {
   let text = value;
@@ -47,13 +49,18 @@ function redactString(value) {
   return text.length > 600 ? `${text.slice(0, 600)}…(${text.length} chars)` : text;
 }
 
-export function redact(value, key = '') {
+export function redact(value, key = '', depth = 0) {
   if (SECRET.test(key)) return '<redacted>';
-  if (TEXT.has(key) && typeof value === 'string') return { redacted_text: true, length: value.length };
-  if (typeof value === 'string') return redactString(value);
-  if (Array.isArray(value)) return value.map(item => redact(item));
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([name, item]) => [name, redact(item, name)]));
-  return value;
+  if (typeof value === 'string') {
+    if (depth === 1 && (HOST_IDS.has(key) && HOST_ID.test(value)
+      || key === 'hook_event_name' && EVENTS.includes(value) || key === 'source' && SOURCES.has(value))) return value;
+    return { redacted_text: true, length: value.length };
+  }
+  if (Array.isArray(value)) return { redacted_value: true, type: 'array', length: value.length };
+  if (value && typeof value === 'object') return depth === 0
+    ? Object.fromEntries(Object.entries(value).map(([name, item]) => [name, redact(item, name, depth + 1)]))
+    : { redacted_value: true, type: 'object', fields: Object.keys(value).length };
+  return { redacted_value: true, type: value === null ? 'null' : typeof value };
 }
 
 function command(out) {
@@ -94,9 +101,10 @@ async function record({ out }) {
     const payload = JSON.parse(Buffer.concat(chunks).toString('utf8'));
     mkdirSync(out, { recursive: true });
     appendFileSync(join(out, RAW), `${JSON.stringify({ received_at: new Date().toISOString(), process_started_ms: Math.round(started),
-      handled_after_ms: Math.round(Date.now() - started), event: payload?.hook_event_name ?? null, payload: redact(payload) })}\n`);
+      handled_after_ms: Math.round(Date.now() - started), event: EVENTS.includes(payload?.hook_event_name) ? payload.hook_event_name : 'unknown', payload: redact(payload) })}\n`);
   } catch (error) {
-    try { appendFileSync(join(out, RAW), `${JSON.stringify({ received_at: new Date().toISOString(), error: String(error?.message ?? error).slice(0, 200) })}\n`); } catch {}
+    // Parser and filesystem errors may contain input excerpts or private paths.
+    try { appendFileSync(join(out, RAW), `${JSON.stringify({ received_at: new Date().toISOString(), error: error instanceof SyntaxError ? 'invalid_payload' : 'record_failed' })}\n`); } catch {}
   }
   process.stdout.write('{}\n');
 }

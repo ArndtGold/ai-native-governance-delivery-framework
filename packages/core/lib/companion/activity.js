@@ -87,6 +87,8 @@ export function updateActivity(records, event, now, { lifetime = activityLifetim
   const sameTurn = row => row.session === session && row.turn === turn;
   const current = records.filter(row => row.until > now);
   if (current.some(row => row.quarantined)) return null;
+  const admitted = current.find(row => row.session === session && row.current_turn === true);
+  if (!terminal && admitted && admitted.turn !== turn) return null;
   const previous = current.find(sameTurn);
   const tools = previous?.tools ?? [];
   // A hand-off or a later result is never refused for the number of results the turn already had.
@@ -94,27 +96,33 @@ export function updateActivity(records, event, now, { lifetime = activityLifetim
     || previous?.terminal || tools.includes(tool) || (kind === 'work' ? !binding : !previous))) return null;
   const next = current.filter(row => !sameTurn(row));
   if (next.length >= activityRecordLimit) return quarantineActivity(now);
-  if (terminal) return [...next, { session, turn, until: now + deduplicationWindow, terminal: true, kind }];
+  const admission = previous?.current_turn === true ? { current_turn: true } : {};
+  const retained = previous?.current_turn === true ? Math.max(previous.until, now + codexTurnBound) : 0;
+  if (terminal) return [...next, { session, turn, ...admission,
+    until: Math.max(now + deduplicationWindow, retained), terminal: true, kind }];
   const kept = kind === 'work' ? Math.max(deduplicationWindow, lifetime) : deduplicationWindow;
   return [...next, {
-    session, turn, until: now + kept, ...binding, tools: [...tools, tool].slice(-toolLimit),
+    session, turn, ...admission, until: Math.max(now + kept, retained), ...binding, tools: [...tools, tool].slice(-toolLimit),
     expires_at: kind === 'work' ? now + lifetime : 0,
   }];
 }
 
-// A new prompt proves that every earlier turn of its session is over: their rows become terminal, so a
-// late result cannot revive them. Other sessions keep theirs. Returns null when nothing was retired.
+// A prompt admits its exact turn for one bounded window, even before its first
+// result. Keep this admission on the same row through work, hand-off and Stop so
+// late results cannot revive an unseen older turn or an already-ended one.
 export function retireTurns(records, { session, turn }, now) {
   if (!isActivityId(session) || !isActivityId(turn)) return null;
   const current = records.filter(row => row.until > now);
   if (current.some(row => row.quarantined)) return null;
-  let retired = false;
-  const next = current.map(row => {
-    if (row.session !== session || row.turn === turn || row.terminal) return row;
-    retired = true;
+  const previous = current.find(row => row.session === session && row.turn === turn);
+  if (previous?.current_turn === true || previous?.terminal) return null;
+  const next = current.filter(row => row.session !== session || row.turn !== turn).map(row => {
+    if (row.session !== session || row.terminal && row.current_turn !== true) return row;
     return { session: row.session, turn: row.turn, until: now + deduplicationWindow, terminal: true, kind: 'retired' };
   });
-  return retired ? next : null;
+  if (next.length >= activityRecordLimit) return quarantineActivity(now);
+  return [...next, { session, turn, expires_at: 0, tools: [], ...previous,
+    current_turn: true, until: Math.max(previous?.until ?? 0, now + codexTurnBound) }];
 }
 
 // Extends confirmed work while its host turn is still running. Only a host that reports the turn's end

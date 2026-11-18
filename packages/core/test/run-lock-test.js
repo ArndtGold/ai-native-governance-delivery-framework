@@ -143,6 +143,20 @@ try {
   assert.equal(attempts, 1, "the work runs once");
   assert.ok(performance.now() - workStart < 200, "a work failure is not waited on");
   assert.equal(existsSync(waitLock), false, "the lock is released after a work failure");
+  // An inner acquisition error belongs to work that already started under this
+  // outer lock, even though the inner helper labels its own acquisition phase.
+  for (const code of ['ENOENT', 'EPERM', 'EACCES', 'EBUSY']) {
+    let nestedAttempts = 0;
+    const expected = Object.assign(new Error('nested acquisition'), { code });
+    assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => {
+      nestedAttempts++;
+      return filePrimitives.withOwnedFileLock(join(waitRoot, 'inner'), () => {}, {
+        checkpoint: stage => { if (stage === 'owner_staged') throw expected; },
+      });
+    }, { waitMs: 250 }), error => error === expected);
+    assert.equal(nestedAttempts, 1, `${code}: a nested acquisition must not repeat the work`);
+    assert.equal(existsSync(waitLock), false);
+  }
   // A failure that persists ends at the bound with the last acquisition error.
   const boundStart = performance.now();
   assert.throws(() => filePrimitives.withOwnedFileLockWait(waitPath, () => {}, { waitMs: 60,

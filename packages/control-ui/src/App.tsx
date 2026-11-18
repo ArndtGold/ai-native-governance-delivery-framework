@@ -1,17 +1,20 @@
-import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState } from 'react';
+import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState, type RefObject } from 'react';
 import { createApi, type ReadTransport } from './api';
 import { initialState, readingReducer, hasExpiredSession } from './state';
 import type { Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
 import { ReadState, ReadingFeedback, readingStatus } from './feedback';
 import { Overview, type WorkView } from './Overview';
 import { RunDetail } from './RunDetail';
-import { DocumentView } from './DocumentView';
+import { DocumentView, PassiveMarkdown } from './DocumentView';
+import { FlowEvidence } from './FlowEvidence';
+import { WorkStep } from './WorkStep';
+import { ReviewControls, ReviewHeader, captureReviewAnchor, restoreReviewAnchor, newReviewPositionNotice, type ReadingAnchor, type ReviewView } from './mcp/review-view';
 import { CompactCockpit } from './mcp/CompactCockpit';
 import { BrandMark } from './BrandMark';
 import { BrandHeader } from './BrandHeader';
 import { RefreshControl } from './RefreshControl';
 import { useCardVisibility } from './useCardVisibility';
-import { documentName } from './presentation';
+import { documentName, reviewBlocker, reviewTask } from './presentation';
 import { Icon } from './mcp/Icon';
 import { useDraftCheck } from './useDraftCheck';
 import { DraftCheck } from './DraftCheck';
@@ -19,12 +22,17 @@ import { ContextPanel } from './ContextPanel';
 import type { HandoffController } from './mcp/handoff';
 import { COCKPIT_WORK_SECTIONS } from '../../core/lib/control-inspect/cockpit-list.js';
 
-export function App({ secret = '', transport, compact = false, onExpand, initialRunId, handoff }: { secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; initialRunId?: string; handoff?: HandoffController }) {
+export interface CockpitCheckpoint {
+  target: string; runId: string; revision: string; path: string; type: string; digest: string; anchor?: ReadingAnchor;
+}
+
+export function App({ secret = '', transport, compact = false, onExpand, initialRunId, handoff, review, checkpoint }: { secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; initialRunId?: string; handoff?: HandoffController; review?: ReviewView; checkpoint?: RefObject<CockpitCheckpoint | null> }) {
   const enabled = !!transport || !!secret;
   const [state, dispatch] = useReducer(readingReducer, initialState);
   const [readerMode, setReaderMode] = useState<'summary' | 'details'>('summary');
   const [backlogView, setWorkView] = useState<WorkView>({ section: 'active', filter: '' });
   const [backlogReturnNotice, setBacklogReturnNotice] = useState<string | null>(null);
+  const [unavailableObservation, setUnavailableObservation] = useState<string | null>(null);
   const freshnessPending = useRef<AbortController | null>(null);
   const draftPending = useRef<AbortController | null>(null);
   const contextPending = useRef<symbol | null>(null);
@@ -52,7 +60,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   }, [wideReader, readerMode, state.route.view]);
   const live = useRef(state); live.current = state;
   const sequence = useRef(0), pending = useRef<AbortController | null>(null), heading = useRef<HTMLHeadingElement>(null);
-  const cardVisible = useCardVisibility(heading, compact), wasCardVisible = useRef(true), focusAfterRead = useRef(true);
+  const cardVisible = useCardVisibility(heading, compact, !!review && !!state.detail?.data), wasCardVisible = useRef(true), focusAfterRead = useRef(true);
   const returnFocus = useRef<string | null>(null);
   const returnSource = useRef<{ type: string; reference: string; prefix: string } | null>(null);
   const documentOrigin = useRef<string | null>(null);
@@ -72,7 +80,12 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     return read<import('./types').ArchiveData>(`/api/archive/${rowId}?snapshot=${scope.snapshot_id}${resourceId ? '&resource=' + resourceId : ''}`,
       signal, { target: scope.target.target_id, snapshot: scope.snapshot_id });
   }, [read]);
-  const initialRoute = useRef<Route>(initialRunId ? { view: 'detail', runId: initialRunId } : { view: 'overview' }).current;
+  const reviewRoot = useRef<HTMLElement>(null);
+  const restore = useRef(checkpoint?.current && checkpoint.current.runId === initialRunId ? checkpoint.current : null);
+  const hadCheckpointOnOpen = useRef(!!restore.current).current;
+  const [reviewNotice, setReviewNotice] = useState('');
+  const initialRoute = useRef<Route>(restore.current ? { view: 'document', runId: restore.current.runId, resourcePath: restore.current.path }
+    : initialRunId ? { view: 'detail', runId: initialRunId } : { view: 'overview' }).current;
   const capturePosition = (generation: number) => {
       const root = workspace.current ?? heading.current?.closest('.compact-cockpit');
       const elements = root ? [root, ...root.querySelectorAll('*')] : [];
@@ -94,6 +107,8 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
     pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
     const generation = ++sequence.current;
+    const displayed = review && background && requested.view === 'document' && live.current.document?.state === 'available'
+      ? live.current.document : null;
     if (background) capturePosition(generation); else readingPosition.current = null;
     focusAfterRead.current = !background;
     dispatch({ type: 'begin', generation, route: requested, background });
@@ -117,6 +132,17 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       let removed = false;
       if (requested.view === 'document' && scope.data.kind !== 'work' && scope.data.kind !== 'runs') {
         if (!('run' in scope.data) || !scope.data.run || scope.data.run.run_id !== route.runId) throw Error('dto_invalid');
+        const shown = displayed?.data;
+        if (shown && scope.target.target_id === displayed.target.target_id
+          && shown.resource.run_id === requested.runId && shown.resource.registered_reference === requested.resourcePath) {
+          const replacement = scope.data.run.document_states?.find(row =>
+            row.type === shown.resource.type && row.registered_reference === shown.resource.registered_reference);
+          if (replacement?.content_digest !== shown.content_digest) {
+            dispatch({ type: 'ready', generation, route, scope, inventory: null,
+              detail: { ...scope, data: scope.data.run }, document: displayed });
+            return;
+          }
+        }
         const resource = scope.data.run.resources.find(r => refresh
           ? r.registered_reference === route.resourcePath : r.resource_id === route.resourceId);
         if (!resource) { route = { view: 'detail', runId: route.runId }; removed = true; }
@@ -145,9 +171,20 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       const inventory = data.kind === 'work' || data.kind === 'runs' ? { ...scope, data } as Envelope<OverviewInventory> : null;
       const detail = data.kind !== 'work' && data.kind !== 'runs' && data.run ? { ...scope, data: data.run } as Envelope<Detail> : null;
       const document = data.kind === 'document' && data.document ? { ...scope, data: data.document } as Envelope<DocumentData> : null;
+      const retained = restore.current;
+      if (retained && (scope.target.target_id !== retained.target || detail?.data?.run_id !== retained.runId
+        || detail?.data?.revision_id !== retained.revision || document?.state !== 'available'
+        || document.data?.resource.registered_reference !== retained.path || document.data.resource.type !== retained.type
+        || document.data.content_digest !== retained.digest)) {
+        restore.current = null;
+        if (checkpoint) checkpoint.current = null;
+        setReviewNotice('Die bisherige Fassung konnte nicht bestätigt werden. Öffne die aktuelle Prüfung erneut.');
+        dispatch({ type: 'ready', generation, route: { view: 'detail', runId: requested.runId }, scope, inventory: null, detail, document: null });
+        return;
+      }
       dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
     } catch (error) { if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed' }); }
-  }, [read, handoff]);
+  }, [read, handoff, checkpoint, !!review]);
   const draftAction = useDraftCheck({ live, read, visible: cardVisible, pending: draftPending, handoff,
     before: () => { freshnessPending.current?.abort(); },
     commit: (scope, original) => {
@@ -200,6 +237,50 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     const justShown = cardVisible && !wasCardVisible.current; wasCardVisible.current = cardVisible;
     const snapshot = state.scope?.snapshot_id;
     if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible || draftAction.busy) return;
+    if (review) {
+      const target = state.scope!.target.target_id;
+      const controller = new AbortController();
+      let restart: ReturnType<typeof setTimeout> | undefined;
+      let waiting: AbortController | null = null;
+      const schedule = () => {
+        window.clearTimeout(restart);
+        if (!controller.signal.aborted && !document.hidden) restart = window.setTimeout(() => { void listen(); }, 250);
+      };
+      const refresh = () => { void navigate(live.current.route, true, true); };
+      const listen = async () => {
+        if (controller.signal.aborted || document.hidden || waiting) return;
+        if (contextPending.current || draftPending.current) { schedule(); return; }
+        if (!read.waitForChanges) { setUnavailableObservation(snapshot); return; }
+        const request = new AbortController(), generation = sequence.current;
+        waiting = request; freshnessPending.current = request;
+        const current = () => !controller.signal.aborted && !document.hidden && generation === sequence.current;
+        try {
+          const result = await read.waitForChanges(snapshot, request.signal, target);
+          if (!current() || request.signal.aborted) return;
+          if (result.code || typeof result.data?.changed !== 'boolean') throw Error('observation_unavailable');
+          setUnavailableObservation(null);
+          if (result.data.changed) refresh();
+          else schedule();
+        } catch {
+          if (current() && !request.signal.aborted) setUnavailableObservation(snapshot);
+        } finally {
+          if (waiting === request) waiting = null;
+          if (freshnessPending.current === request) freshnessPending.current = null;
+          if (request.signal.aborted && current()) schedule();
+        }
+      };
+      const visibility = () => {
+        void handoff?.invalidate();
+        waiting?.abort(); window.clearTimeout(restart);
+        if (!document.hidden) refresh();
+      };
+      document.addEventListener('visibilitychange', visibility);
+      if (justShown && !document.hidden) refresh(); else void listen();
+      return () => {
+        controller.abort(); waiting?.abort(); window.clearTimeout(restart);
+        document.removeEventListener('visibilitychange', visibility);
+      };
+    }
     let checking = false; const controller = new AbortController();
     const check = async () => {
       if (document.hidden || checking || draftPending.current || contextPending.current) return; checking = true;
@@ -243,15 +324,44 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (justShown) void check();
     void listen();
     return () => { window.clearInterval(timer); window.clearTimeout(restart); waiting?.abort(); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
-  }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff, draftAction.busy]);
+  }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff, draftAction.busy, !!review]);
   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
+  const recordReviewPosition = useCallback(() => {
+    const value = live.current, doc = value.document?.data, run = value.detail?.data, root = reviewRoot.current;
+    if (!checkpoint || !root || value.phase !== 'ready' || value.stale || value.document?.state !== 'available'
+      || !doc?.content_digest || !run?.revision_id || run.run_id !== doc.resource.run_id) return;
+    const anchor = captureReviewAnchor(root);
+    checkpoint.current = { target: value.document.target.target_id, runId: run.run_id, revision: run.revision_id,
+      path: doc.resource.registered_reference, type: doc.resource.type, digest: doc.content_digest, ...(anchor ? { anchor } : {}) };
+  }, [checkpoint]);
+  useEffect(() => {
+    if (!review || review.role === 'card') return;
+    window.addEventListener('scroll', recordReviewPosition, { passive: true });
+    return () => window.removeEventListener('scroll', recordReviewPosition);
+  }, [review?.role, recordReviewPosition]);
+  useLayoutEffect(() => {
+    if (!review || review.role === 'card' || state.phase !== 'ready' || state.stale || !reviewRoot.current || !state.document) return;
+    const retained = restore.current;
+    if (retained) {
+      restore.current = null;
+      if (!retained.anchor || !restoreReviewAnchor(reviewRoot.current, retained.anchor))
+        setReviewNotice('Die vorherige Lesestelle ist nicht verfügbar. Die bestätigte Fassung beginnt hier.');
+    } else if (checkpoint?.current?.anchor && checkpoint.current.digest === state.document.data?.content_digest
+      && checkpoint.current.runId === state.route.runId && checkpoint.current.revision === state.detail?.data?.revision_id
+      && checkpoint.current.path === state.document.data?.resource.registered_reference) restoreReviewAnchor(reviewRoot.current, checkpoint.current.anchor);
+    recordReviewPosition();
+  }, [review?.role, state.phase, state.stale, state.document, state.route.runId, checkpoint, recordReviewPosition]);
   const open = (resource: Resource, origin = resource.resource_id) => {
+    restore.current = null;
+    if (checkpoint) checkpoint.current = null;
+    setReviewNotice('');
     documentOrigin.current = origin;
     returnSource.current = null;
     void navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference });
   };
   const showOverview = () => {
     setBacklogReturnNotice(null);
+    if (checkpoint) checkpoint.current = null;
     returnFocus.current = state.route.runId ?? null;
     void navigate({ view: 'overview' });
   };
@@ -267,8 +377,23 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const status = readingStatus(state);
   const renderedGeneration = state.generation;
   const expired = hasExpiredSession(state), reloadRoute = state.requestedRoute ?? state.route;
+  const pinnedDocument = state.route.view === 'document' && !!state.document && state.document.snapshot_id !== state.scope?.snapshot_id;
+  const observationNotice = unavailableObservation && state.scope?.snapshot_id === unavailableObservation ? <>
+    <p role="status">Live-Status nicht verfügbar. Der zuletzt gelesene Stand bleibt sichtbar.</p>
+    <button type="button" onClick={() => void navigate(reloadRoute, true, true)}>Live-Status erneut prüfen</button>
+  </> : null;
   const runTitle = state.detail?.data?.title ?? state.route.runId;
   const pageTitle = state.route.view === 'overview' ? 'Gespeicherte Vorhaben' : state.route.view === 'detail' || summarizing ? runTitle ?? 'Run verstehen' : documentName(state.document?.data?.resource.type);
+  const contextPanel = state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} beforeRead={beforeContextRead} onScope={value => {
+        if (draftPending.current || state.scope?.snapshot_id !== live.current.scope?.snapshot_id || renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
+        // A successful context scope can have no graph nodes or unavailable refs.
+        // Core returns this kind only after reading the selected Run/document.
+        const selected = value.code === null && ['available', 'empty', 'partial'].includes(value.state)
+          ? { ...value, state: 'available' as const } : value;
+        const parent = { ...selected, data: value.data.run } as Envelope<Detail>;
+        const doc = value.data.document ? { ...selected, data: value.data.document } as Envelope<DocumentData> : null;
+        dispatch({ type: 'ready', generation: sequence.current, route: { ...live.current.route, resourceId: doc?.data?.resource.resource_id }, scope: value, inventory: null, detail: parent, document: doc });
+      }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || pinnedDocument || state.stale || state.phase !== 'ready' || draftAction.busy} handoff={handoff}/>;
   const readingContent = <>
       <div className={`page-title${documentVisible ? ' page-title--document' : ''}`}><div>{!summarizing && <div className="eyebrow">Dein Repository · Deine Vorhaben</div>}<h1 ref={heading} tabIndex={-1}>{pageTitle}</h1>{!summarizing && <p>{state.route.view === 'overview' ? 'Runs und geplante URs ansehen. Archivierte Altbestände bleiben ausschließlich lesbar.' : state.route.view === 'detail' || summarizing ? 'Ziel, offene Punkte und nächster erlaubter Schritt.' : 'Registrierte Quelle und ihre Bedeutung für das Vorhaben.'}</p>}</div>
         {documentVisible && <button type="button" className="document-close" aria-label="Dokument schließen" title="Dokument schließen" onClick={showRun} disabled={expired || state.phase === 'loading'}><Icon name="close"/></button>}
@@ -286,18 +411,92 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
           loadArchive={loadArchive} loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })}/>}
         {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} draftCheck={<DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
         {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
-      {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} beforeRead={beforeContextRead} onScope={value => {
-        if (draftPending.current || state.scope?.snapshot_id !== live.current.scope?.snapshot_id || renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
-        // A successful context scope can have no graph nodes or unavailable refs.
-        // Core returns this kind only after reading the selected Run/document.
-        const selected = value.code === null && ['available', 'empty', 'partial'].includes(value.state)
-          ? { ...value, state: 'available' as const } : value;
-        const parent = { ...selected, data: value.data.run } as Envelope<Detail>;
-        const doc = value.data.document ? { ...selected, data: value.data.document } as Envelope<DocumentData> : null;
-        dispatch({ type: 'ready', generation: sequence.current, route: { ...live.current.route, resourceId: doc?.data?.resource.resource_id }, scope: value, inventory: null, detail: parent, document: doc });
-      }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready' || draftAction.busy} handoff={handoff}/>}
+      {contextPanel}
   </>;
-  if (compact) return <CompactCockpit loadArchive={loadArchive} draftCheck={state.detail && <DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
+  const selected = state.detail?.data;
+  if (review && selected && state.route.view !== 'overview') {
+    const ready = enabled && !expired && !state.stale && !state.problem && state.phase === 'ready' && state.detail?.state === 'available';
+    const source = selected.resources.find(resource => resource.run_id === selected.run_id
+      && resource.status === 'registered' && resource.type === selected.evaluation?.current_gate);
+    const blocker = reviewBlocker(selected, ready);
+    const task = blocker ?? reviewTask(selected, ready, !!source);
+    const document = (ready || pinnedDocument) && state.document?.state === 'available' ? state.document.data : null;
+    const newer = pinnedDocument && document ? selected.document_states?.find(row => row.type === document.resource.type
+      && row.registered_reference === document.resource.registered_reference && row.source_state === 'available'
+      && row.content_digest && row.content_digest !== document.content_digest) : null;
+    const version = document?.document_state?.version_kind;
+    const reviewSource = ready && !blocker && source && (!document || document.resource.resource_id === source.resource_id) ? source : null;
+    const reviewVersion = selected.document_states?.find(row => row.resource_id === reviewSource?.resource_id
+      && row.source_state === 'available')?.version_kind;
+    const taskText = <p className="review-task" role={blocker ? 'status' : undefined}>{task}</p>;
+    const openReview = () => {
+      if (!ready) return;
+      if (blocker) {
+        void review.show('workspace');
+        return;
+      }
+      if (!document && source) open(source);
+      void review.show('reader');
+    };
+    const card = review.role === 'card';
+    const positionNotice = reviewNotice || (review.openedExpanded && !hadCheckpointOnOpen ? newReviewPositionNotice() : '');
+    return <section className={card ? 'compact-cockpit agdf-surface' : 'review-reader agdf-surface'} data-role={review.role}
+      ref={reviewRoot} onScrollCapture={recordReviewPosition} aria-label={card ? 'AGDF Cockpit' : 'AGDF Prüfung'}>
+      <ReviewHeader title={selected.title || selected.objective || 'Vorhaben ohne Titel'} headingRef={heading} role={review.role}/>
+      {card ? <>
+      <div className="review-task-card" data-blocked={!!blocker}>
+        {reviewSource && <p className="review-task-meta">{documentName(reviewSource.type)}{
+          reviewVersion === 'approved' ? ' · Freigegebene Fassung' : reviewVersion === 'draft' ? ' · Entwurf' : ''
+        }</p>}
+        {taskText}
+        <ReadingFeedback state={state}/>
+        {observationNotice}
+        {reviewNotice && <p role="status">{reviewNotice}</p>}
+        {ready ? <button type="button" className="primary" onClick={openReview}>{!blocker && (source || document) ? 'Prüfung öffnen' : 'Arbeitsstand ansehen'}</button>
+          : !expired && <button type="button" disabled={state.phase === 'loading'} onClick={() => void navigate(reloadRoute, true)}>Daten erneut prüfen</button>}
+      </div>
+      <details><summary>Weitere Optionen</summary><button type="button" onClick={showOverview} disabled={expired}>Alle Vorhaben</button>
+        <RefreshControl state={state} enabled={enabled} onReload={() => void navigate(reloadRoute, true)}/>
+        <p>Run <code>{selected.run_id}</code></p></details>
+      </> : <>
+      {taskText}
+      <ReviewControls view={review}/>
+      <ReadingFeedback state={state}/>
+      {observationNotice}
+      {pinnedDocument && <p role="status">{newer ? 'Eine neuere Fassung ist verfügbar.' : 'Die aktuelle Fassung ist nicht verfügbar.'}
+        {newer && <button type="button" onClick={() => void navigate(state.route, true)}>Neuere Fassung öffnen</button>}
+      </p>}
+      {positionNotice && <p role="status">{positionNotice}</p>}
+      {document && typeof document.content === 'string' ? <>
+        <div className="review-source"><strong>{documentName(document.resource.type)}</strong> · <span>{
+          version === 'approved' ? 'Freigegebene Fassung' : version === 'draft' ? 'Entwurf' : 'Gelesene Fassung'
+        }</span>
+          <details><summary>Quellenangaben</summary><code>{document.resource.registered_reference}</code>
+            <p>Revision <code>{document.document_state?.revision_id ?? (pinnedDocument ? null : selected.revision_id)}</code></p><p>Prüfsumme <code>{document.content_digest}</code></p></details>
+        </div>
+        <article className="document" data-review-source>{document.format === 'markdown'
+          ? <PassiveMarkdown content={document.content} links={document.links ?? {}} onOpen={id => {
+            const item = !pinnedDocument && selected.resources.find(r => r.resource_id === id); if (item) open(item);
+          }}/> : <pre>{document.content}</pre>}</article>
+      </> : ready && source ? <button type="button" className="primary" onClick={() => open(source)}>{reviewNotice ? 'Aktuelle Quelle öffnen' : documentName(source.type) + ' öffnen'}</button>
+        : ready && !source ? <p role="status">Für diesen Schritt liegt kein registriertes Dokument zur Prüfung vor.</p>
+        : !expired && state.phase !== 'loading' && <button type="button" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
+      </>}
+      <div hidden={review.role !== 'workspace'}>
+        <details><summary>Nachweise</summary><FlowEvidence data={selected} current={ready} onOpen={open}/></details>
+        <details><summary>Verlauf</summary>
+          {selected.evaluation?.approvals.map(row => <p key={row.gate}>{row.gate} · {row.status}</p>)}
+          <p>Ein Fassungsvergleich ist in einer gebundenen Entscheidungsansicht verfügbar.</p></details>
+        <details><summary>Arbeitsstand und Quellen</summary>
+          <WorkStep data={selected} current={ready} onOpen={open} sourceDisabled={!ready}/>
+          {state.route.view === 'detail' && state.detail && <DraftCheck result={state.detail} action={draftAction}
+            current={ready && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>}
+        </details>
+        {contextPanel}
+      </div>
+    </section>;
+  }
+  if (compact) return <CompactCockpit observationNotice={observationNotice} loadArchive={loadArchive} draftCheck={state.detail && <DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
     view={backlogView} onViewChange={setWorkView} returnNotice={backlogReturnNotice}
     onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview} onRuns={() => void navigate({ view: 'overview' })}

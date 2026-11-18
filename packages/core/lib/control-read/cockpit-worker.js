@@ -3,12 +3,16 @@ import { createControlChangeObserver } from './control-changes.js';
 import { createCockpitReader } from '../control-inspect/cockpit.js';
 const reader = createCockpitReader(workerData.root, { limits: workerData.limits });
 let current = null;
-const changes = createControlChangeObserver(workerData.root, () => {
+function observe() {
   if (!current) return;
   try { reader.freshness(current); }
   catch (error) {
-    parentPort.postMessage({ changed: current });
+    parentPort.postMessage(error.code === 'source_changed'
+      ? { changed: current } : { observationUnavailable: current });
   }
+}
+const changes = createControlChangeObserver(workerData.root, observe, {
+  unavailable: () => parentPort.postMessage({ observationUnavailable: current }),
 });
 parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
   try {
@@ -24,10 +28,19 @@ parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
       : operation === 'validate_context' ? reader.validateContext(input.context_id, input.generation)
       : operation === 'invalidate_context' ? reader.invalidateContext()
       : (() => { throw Object.assign(Error('resource_denied'), { code: 'resource_denied' }); })();
-    if (result.snapshot_id && ['snapshot', 'run', 'document', 'context', 'artifact_readiness'].includes(operation)) {
-      current = result.snapshot_id; changes.bind(reader.dependencies());
+    const replaces = result.snapshot_id && ['snapshot', 'run', 'document', 'context', 'artifact_readiness'].includes(operation);
+    let attached = false;
+    if (replaces) {
+      current = result.snapshot_id;
+      attached = changes.bind(reader.dependencies());
     }
     parentPort.postMessage({ id, result });
+    if (replaces) {
+      // Check the baseline once after attaching, covering a commit between the
+      // capture and watch registration without periodically reading the scope.
+      if (attached) observe();
+      else parentPort.postMessage({ observationUnavailable: current });
+    }
   } catch (error) { parentPort.postMessage({ id, error: error.code }); }
 });
 

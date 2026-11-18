@@ -8,6 +8,10 @@ import { randomUUID, createHash } from 'node:crypto';
 import { createOwnedRuntimeFixture } from '../../../mcp-server/test/owned-runtime.js';
 import { withStdioClient } from '../../../mcp-server/test/helpers.js';
 import { createSdDefinitionTestRun, syntheticSd } from '../../../cli/scripts/fixtures/sd-definition.js';
+import { createPrdDefinitionTestRun, syntheticPrd } from '../../../cli/scripts/fixtures/prd-definition.js';
+import { artefactFileDigest } from '../../../core/lib/control-state/run-seal.js';
+import { earlyPrdConfirmation } from '../../../core/lib/control-state/run-operations.js';
+import { createCoreServices } from '../../../core/lib/index.js';
 import { resolveControlCommandTarget } from '../../../core/lib/control-state/approval-command-contract.js';
 import { readDecisionUiBuild } from '../../../../scripts/cockpit-ui-build.mjs';
 import { evidencePath } from './server-fixture.mjs';
@@ -24,7 +28,7 @@ test('Automatic iframe disposal reaches the actual assembled Core and expires on
     await build({ configFile: false, logLevel: 'error', build: { outDir: temporary, emptyOutDir: false,
       lib: { entry: new URL('./decision-core-host.ts', import.meta.url).pathname, formats: ['es'], fileName: () => 'host.js' }, target: 'es2022', minify: false } });
     const f = createSdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, 'bin/create-agdf.js'), 'browser-close-only', process.env, { typedApprovals: true });
-    writeFileSync(f.file('SD.md'), syntheticSd()); expect(f.recordSd().value.outcome).toBe('recorded');
+    writeFileSync(f.file('SD.md'), syntheticSd()); expect(f.recordSd().value.outcome).toBe('accepted');
     const before = readFileSync(f.state), exchange = [];
     await withStdioClient({ ...fixture, capabilities: { extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: ['text/html;profile=mcp-app'] } } } }, async client => {
       const call = async input => { const result = await client.callTool(input); exchange.push({ request: input, result }); return result; };
@@ -91,9 +95,9 @@ test('Confirmed approval handoff retires its assembled Core session while keepin
       lib: { entry: new URL('./decision-core-host.ts', import.meta.url).pathname, formats: ['es'], fileName: () => 'host.js' }, target: 'es2022', minify: false } });
     const cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
     const f = createSdDefinitionTestRun(fixture.governanceTarget, cli, 'browser-approved-close', process.env, { typedApprovals: true });
-    writeFileSync(f.file('SD.md'), syntheticSd()); expect(f.recordSd().value.outcome).toBe('recorded');
+    writeFileSync(f.file('SD.md'), syntheticSd()); expect(f.recordSd().value.outcome).toBe('accepted');
     const independent = createSdDefinitionTestRun(fixture.governanceTarget, cli, 'browser-still-open', process.env, { typedApprovals: true });
-    writeFileSync(independent.file('SD.md'), syntheticSd()); expect(independent.recordSd().value.outcome).toBe('recorded');
+    writeFileSync(independent.file('SD.md'), syntheticSd()); expect(independent.recordSd().value.outcome).toBe('accepted');
     const independentBefore = readFileSync(independent.state), exchange = [];
     // Explicit experimental qualification is confined to this disposable
     // synthetic SDK host. This is not native mediation/human-origin evidence.
@@ -173,5 +177,89 @@ await runMcpServer({surface:'codex',runtime,executor:{execute(input,{toolName,si
   } finally {
     if (server) await new Promise(resolve => server.close(resolve));
     fixture.dispose(); rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('prepared PRD review uses the verified archive and the exact current source (synthetic host)', async ({ page }) => {
+  test.setTimeout(90_000);
+  const temporary = mkdtempSync(join(tmpdir(), 'agdf-core-review-browser-'));
+  const fixture = createOwnedRuntimeFixture({ candidateServerRoot: new URL('../../../../dist/npm/agdf-mcp-server/', import.meta.url).pathname });
+  const root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
+  const target = { working_directory: root, primary_target: root, target_source: 'explicit_target', target_id: resolveControlCommandTarget(root).target_id };
+  const bind = (run, kind, payload) => ({ schema_version: '1', assurance: 'cooperative_local', presentation_language: 'en', ...target,
+    run_id: run.runId, expected_revision_id: run.revision(), operation_id: randomUUID(), command: { kind, payload } });
+  let server;
+  try {
+    const current = createSdDefinitionTestRun(root, cli, 'review-pair', process.env, { typedApprovals: true });
+    const path = current.prefix + 'PRD.md', old = readFileSync(current.canonicalFile('PRD.md'), 'utf8');
+    const reopen = bind(current, 'prd_revision.reopen', { prd: { path, digest: artefactFileDigest(root, path) }, confirmation: '' });
+    reopen.command.payload.confirmation = earlyPrdConfirmation(current.runId, reopen.expected_revision_id, reopen.operation_id, reopen.command.payload.prd.digest);
+    const opened = createCoreServices().command('agdf_revise', reopen);
+    expect(opened.outcome, JSON.stringify(opened)).toBe('accepted');
+    const changed = syntheticPrd() + '\n## Revised review text\n\nThis paragraph belongs to the exact current source.\n';
+    writeFileSync(current.file('PRD.md'), changed);
+    const recorded = current.record(true);
+    expect(recorded.value?.outcome, recorded.text).toBe('accepted');
+    const noPrior = createPrdDefinitionTestRun(root, cli, 'review-no-prior');
+    writeFileSync(noPrior.file('PRD.md'), syntheticPrd());
+    const baseline = noPrior.record();
+    expect(baseline.value?.outcome, baseline.text).toBe('accepted');
+    await build({ configFile: false, logLevel: 'error', build: { outDir: temporary, emptyOutDir: false,
+      lib: { entry: new URL('./decision-core-host.ts', import.meta.url).pathname, formats: ['es'], fileName: () => 'host.js' },
+      target: 'es2022', minify: false } });
+    const ui = readDecisionUiBuild();
+    await withStdioClient({ ...fixture, capabilities: { extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: ['text/html;profile=mcp-app'] } } } }, async client => {
+      let prepared;
+      const calls = [];
+      const prepare = async run => {
+        const response = await client.callTool({ name: 'agdf_prepare', arguments: bind(run, 'presentation.prepare', { gate: 'PRD' }) });
+        expect(response.structuredContent.outcome, JSON.stringify(response.structuredContent)).toBe('accepted');
+        return client.callTool({ name: 'agdf_decision_view', arguments: { primary_target: root, target_id: target.target_id,
+          run_id: run.runId, expected_revision_id: run.revision(), gate: 'PRD', presentation_id: response.structuredContent.family_result.presentation_id } });
+      };
+      server = createServer(async (req, res) => {
+        if (req.url === '/tool') {
+          const body = []; for await (const data of req) body.push(data);
+          const call = JSON.parse(Buffer.concat(body).toString()); calls.push(call);
+          const response = await client.callTool(call);
+          res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(response)); return;
+        }
+        if (req.url === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
+        res.setHeader('content-type', req.url === '/host.js' ? 'text/javascript' : 'text/html');
+        res.end(req.url === '/decision.html' ? ui.files['decision.html'] : req.url === '/host.js' ? readFileSync(join(temporary, 'host.js'))
+          : '<!doctype html><iframe title="Decision fixture" style="width:100%;height:1200px"></iframe><script type="module" src="/host.js"></script>');
+      });
+      await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+      for (const [run, hasPair] of [[current, true], [noPrior, false]]) {
+        prepared = await prepare(run);
+        const meta = prepared._meta.agdf_decision;
+        expect(meta.comparison.state).toBe(hasPair ? 'available' : 'unavailable');
+        if (hasPair) expect(meta.comparison.previous_text).toBe(old);
+        await page.goto('http://127.0.0.1:' + server.address().port + (hasPair ? '' : '/?expanded=1'));
+        const frame = page.frameLocator('iframe');
+        if (hasPair) {
+          await frame.getByRole('button', { name: meta.labels.openDocument, exact: true }).click();
+          await expect(frame.locator('[data-review-source]')).toBeVisible();
+          await frame.getByRole('button', { name: 'Open workspace' }).click();
+        } else {
+          await expect(frame.getByText('This view was opened again. The previous reading position is unavailable.')).toBeVisible();
+          await expect(frame.locator('[data-review-source]')).toBeVisible();
+        }
+        await frame.getByText('Compare versions', { exact: true }).click();
+        if (hasPair) {
+          await expect(frame.locator('.review-versions')).toContainText('This paragraph belongs to the exact current source.');
+          await expect(frame.locator('.review-versions')).toContainText(meta.comparison.previous_digest);
+        } else await expect(frame.getByText(meta.labels.comparisonUnavailable, { exact: true })).toBeVisible();
+        await expect(frame.locator('[data-review-source]')).toBeVisible();
+        await page.screenshot({ path: evidencePath(`decision-review-${hasPair ? 'pair' : 'no-prior'}.png`) });
+        expect(await page.evaluate(() => window.coreHandoffs)).toEqual([]);
+      }
+      expect(calls.filter(call => call.arguments?.operation === 'authoring-inputs').length).toBeGreaterThan(0);
+      expect(calls.every(call => ['agdf_inspect', 'agdf_cockpit_read'].includes(call.name))).toBe(true);
+    });
+  } finally {
+    if (server) await new Promise(resolve => server.close(resolve));
+    fixture.dispose();
+    rmSync(temporary, { recursive: true, force: true });
   }
 });

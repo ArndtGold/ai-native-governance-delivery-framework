@@ -59,8 +59,7 @@ globalThis.h = (tag, props, ...children) => ({ tag, props: props ?? {}, children
 let instance = 0;
 // The host loads the module once per session; a query string gives each fake session its own instance.
 const freshModule = () => import(`${pathToFileURL(join(companionDir, "register.mjs")).href}?session=${++instance}`);
-const { COMMAND, PANE, REFRESH_MS } = await freshModule();
-const { EVENT_POLL_MS } = await import(pathToFileURL(join(companionDir, "events.mjs")).href);
+const { COMMAND, PANE } = await freshModule();
 const hostPath = path => (path.startsWith(`${pluginRoot}/meta/`) ? join(repoRoot, "plugins", "agdf", "meta", path.slice(pluginRoot.length + 6))
     : path === `${pluginRoot}/.claude-plugin/plugin.json` ? join(repoRoot, "plugins", "agdf", ".claude-plugin", "plugin.json")
       : path === `${pluginRoot}/assets/agdf-icon.svg` ? join(repoRoot, "plugins", "agdf", "assets", "agdf-icon.svg") : path);
@@ -109,9 +108,35 @@ const SURFACES = {
 // failChannels: toast and status throw, audio is missing and the settings read rejects (SDD-12).
 // failToast: only the toast throws, so a chime without a shown toast would be visible (CR-F01).
 function fakeHost({ projectRoot, configDir, failRoot = false, settings = {}, failChannels = false, failToast = false }) {
-  const log = { writes: [], opened: [], closed: [], commands: [], invalidations: 0, timers: [], passed: 0, toasts: [], status: [], audio: [], processes: [] };
+  const log = { writes: [], opened: [], closed: [], commands: [], invalidations: 0, timers: [], streams: [], passed: 0, toasts: [], status: [], audio: [], processes: [] };
   const where = { root: projectRoot, conversation: "conversation-1" };
   const fail = () => { throw new Error("channel unavailable"); };
+  const spawn = ({ argv }) => {
+    assert.deepEqual(argv.slice(0, 3), ["node", LOCAL_VALIDATOR, "companion-observe"]);
+    const items = ["ready\n"], readers = [];
+    const chunk = text => ({ done: false, value: { stream: "stdout", text } });
+    const stream = {
+      argv, closed: false,
+      [Symbol.asyncIterator]() { return this; },
+      next() {
+        if (this.closed) return Promise.resolve({ done: true });
+        return items.length ? Promise.resolve(chunk(items.shift())) : new Promise(resolve => readers.push(resolve));
+      },
+      return() {
+        this.closed = true;
+        for (const resolve of readers.splice(0)) resolve({ done: true });
+        return Promise.resolve({ done: true });
+      },
+      emit(signal) {
+        if (this.closed) return;
+        const text = signal + "\n";
+        if (readers.length) readers.shift()(chunk(text));
+        else items.push(text);
+      },
+    };
+    log.streams.push(stream);
+    return stream;
+  };
   const $ = {
     plugin: { name: "agdf", root: pluginRoot },
     clock: { now: async () => Date.now(), every: (ms, fn) => { const timer = { ms, fn, cancelled: false, cancel() { this.cancelled = true; } }; log.timers.push(timer); return timer; } },
@@ -119,7 +144,7 @@ function fakeHost({ projectRoot, configDir, failRoot = false, settings = {}, fai
     env: { get: async name => ({ CLAUDE_CONFIG_DIR: configDir })[name] },
     settings: { read: async ({ key }) => { if (failChannels) throw new Error("settings unavailable"); return settings[key]; } },
     ...(failChannels ? {} : { audio: { play: async (clip, options) => { log.audio.push({ clip, options }); } } }),
-    process: { run: (argv, init) => { log.processes.push(argv); return runLocal(argv, init); } },
+    process: { spawn, run: (argv, init) => { log.processes.push(argv); return runLocal(argv, init); } },
     // Listings carry size and time, as the host's list does; the companion reads no run file itself.
     fs: {
       exists: async path => existsSync(hostPath(path)),
@@ -152,13 +177,14 @@ function fakeHost({ projectRoot, configDir, failRoot = false, settings = {}, fai
   // as the next check of a real host would find it applied.
   let idle = async () => {};
   const fire = async (event, e = {}) => {
-    const result = await hooks.find(item => item.event === event).hook($, e, next);
+    const result = await hooks.find(item => item.event === event && (event !== "command.run" || item.matcher?.command === e.command)).hook($, e, next);
     if (event === "session.start" || event === "command.run") await idle();
     return result;
   };
   const attach = module => { idle = module.whenIdle; module.register(on); };
-  const liveTimers = () => log.timers.filter(timer => !timer.cancelled).length;
-  return { $, on, fire, attach, log, hooks, where, liveTimers };
+  const liveStreams = () => log.streams.filter(stream => !stream.closed).length;
+  const signal = value => log.streams.at(-1)?.emit(value);
+  return { $, on, fire, attach, log, hooks, where, liveStreams, signal };
 }
 // Background work (the post-turn read) settles over a few event-loop turns.
 async function waitFor(condition, label = "condition") {
@@ -222,7 +248,7 @@ try {
   // SCN-011: observation only. Six hooks, a catch path on every gating-capable one, and the
   // adapter source writes through $.fs.write in one place: the companion state file.
   const first = await session();
-  assert.deepEqual(first.hooks.map(item => item.event).sort(), ["command.run", "session.start", "turn.complete", "turn.start", "ui.close", "ui.render"]);
+  assert.deepEqual(first.hooks.map(item => item.event).sort(), ["command.run", "command.run", "session.end", "session.start", "turn.complete", "turn.start", "ui.close", "ui.render"]);
   assert.deepEqual(first.hooks.filter(item => !item.catch).map(item => item.event), ["ui.render"]);
   assert.deepEqual(first.hooks.find(item => item.event === "command.run").matcher, { command: COMMAND });
   assert.deepEqual(first.hooks.find(item => item.event === "ui.close").matcher, { id: PANE });
@@ -254,7 +280,8 @@ try {
   assert.equal(on.text, "AGDF Companion switched on.");
   assert.deepEqual(first.log.opened.at(-1), { id: PANE, title: "AGDF Companion" });
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).enabled, true);
-  assert.deepEqual(first.log.timers.slice(-2).map(timer => timer.ms), [EVENT_POLL_MS, REFRESH_MS]);
+  assert.equal(first.log.timers.length, 0, "no polling timers");
+  assert.equal(first.liveStreams(), 1);
 
   // AC-004: no change in this session, so no run is assigned and open runs are offered.
   let tree = await render(first);
@@ -541,6 +568,7 @@ try {
     assert.equal((await look(lister)).runId, "extra-03", "e.answer is the turn's answer");
     const extra13 = createListedRun(many, 'extra-13');
     await turnComplete(lister, "", { answer: "Created extra-13." });
+    lister.signal("run");
     await settle();
     assert.deepEqual([(await look(lister)).runId, (await look(lister)).origin], ["extra-13", "Named in the chat"], "a run created during the turn counts");
 
@@ -586,6 +614,7 @@ try {
   let releaseList = null;
   first.$.process.run = (argv, init) => new Promise(resolve => { releaseList = () => resolve(realRun(argv, init)); });
   touch(target.root);
+  first.signal("run");
   assert.deepEqual(await first.fire("turn.complete", { done: 1 }), { passed: { done: 1 } });
   assert.equal(first.log.invalidations, reads, "the hook returned before its read finished");
   await waitFor(() => releaseList, "the post-turn read");
@@ -600,7 +629,7 @@ try {
   await first.fire("turn.complete", {});
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"));
-  assert.equal(first.liveTimers(), 2, "exactly one journal and one check timer after switching off and on");
+  assert.equal(first.liveStreams(), 1, "exactly one observer stream after switching off and on");
 
   // CR-F07: of overlapping reads, an older one that finishes last never replaces the newer one.
   let releaseEmpty = null;
@@ -651,6 +680,7 @@ try {
   assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
   const beforeTurnRead = first.log.invalidations;
   touch(target.root);
+  first.signal("run");
   await first.fire("turn.complete", {});
   await waitFor(() => first.log.invalidations > beforeTurnRead, "the post-turn read");
   assert.equal(first.log.status.length, statusCount + 1, "the post-turn read sets the status line again");
@@ -688,16 +718,16 @@ try {
   // hides the pane for this session but keeps reading, so the status line and toasts stay current; a
   // close by the plugin itself does not hide it.
   await first.fire("ui.close", { id: PANE, origin: { kind: "plugin" } });
-  assert.equal(first.liveTimers(), 2, "a plugin close leaves the refresh running");
+  assert.equal(first.liveStreams(), 1, "a plugin close leaves the refresh running");
   await first.fire("ui.close", { id: PANE, origin: { kind: "person" } });
-  assert.equal(first.liveTimers(), 2, "the person's close keeps the refresh running");
+  assert.equal(first.liveStreams(), 1, "the person's close keeps the refresh running");
   await first.fire("turn.start", {});
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"), "no turn overlay is tracked for a hidden pane");
   review("block");
   touch(target.root);
-  const beforeHiddenRead = first.log.invalidations;
+  first.signal("run");
   await first.fire("turn.complete", {});
-  await waitFor(() => first.log.invalidations > beforeHiddenRead, "the post-turn read with the pane hidden");
+  await waitFor(() => first.log.toasts.length === 3, "the observation with the pane hidden");
   assert.equal(first.log.toasts.at(-1), "Blocked: Quick Task Execution – blocked", "a hidden pane still raises toasts");
   assert.equal(first.log.toasts.length, 3);
   // CR-F06: the command brings a hidden pane back without changing the stored choice.
@@ -705,8 +735,8 @@ try {
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).enabled, true, "showing a hidden pane keeps the stored choice");
   assert.equal(first.log.opened.length, opensBefore + 1);
-  assert.equal(first.liveTimers(), 2);
-  // CR-F07: overlapping starts (closed and reopened during a slow read) leave exactly one timer.
+  assert.equal(first.liveStreams(), 1);
+  // CR-F07: overlapping starts (closed and reopened during a slow read) leave exactly one stream.
   const pending = [];
   first.$.process.run = (argv, init) => new Promise(resolve => { pending.push(() => resolve(realRun(argv, init))); });
   await first.fire("ui.close", { id: PANE, origin: { kind: "person" } });
@@ -718,13 +748,13 @@ try {
   first.$.process.run = realRun;
   pending.forEach(release => release());
   await Promise.all([reopenA, reopenB]);
-  assert.equal(first.liveTimers(), 2, "overlapping starts leave one timer of each kind");
+  assert.equal(first.liveStreams(), 1, "overlapping starts leave one observer stream");
   const off = await first.fire("command.run", { command: COMMAND });
   assert.equal(off.text, "AGDF Companion switched off.");
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).enabled, false);
   assert.deepEqual(first.log.closed.at(-1), { id: PANE });
   assert.equal(first.log.status.at(-1), undefined, "switching off clears the status line");
-  assert.equal(first.liveTimers(), 0, "switching off stops reading");
+  assert.equal(first.liveStreams(), 0, "switching off stops reading");
   await first.fire("command.run", { command: COMMAND });
 
   // A new session keeps the choice and the remembered selection.
@@ -912,7 +942,7 @@ try {
     raceHost.$.fs.write = async () => { throw new Error("read-only"); };
     const closedBefore = raceHost.log.closed.length;
     assert.match((await raceHost.fire("command.run", { command: COMMAND })).text, /read-only/u);
-    assert.deepEqual([raceHost.log.status.at(-1), raceHost.liveTimers(), raceHost.log.closed.length], [undefined, 0, closedBefore + 1],
+    assert.deepEqual([raceHost.log.status.at(-1), raceHost.liveStreams(), raceHost.log.closed.length], [undefined, 0, closedBefore + 1],
       "a failing write still clears the status line, stops reading and closes the pane");
     raceHost.$.fs.write = realWrite;
     await raceHost.fire("command.run", { command: COMMAND });
@@ -935,7 +965,7 @@ try {
     if (!JSON.parse(readFileSync(statePath, "utf8")).enabled) await host.fire("command.run", { command: COMMAND });
     const calls = () => host.log.processes.length;
     const settleLong = async () => { for (let turn = 0; turn < 400; turn += 1) await new Promise(resolve => setImmediate(resolve)); };
-    const tick = async ms => { for (const timer of host.log.timers.filter(item => !item.cancelled && item.ms === ms)) timer.fn(); await settleLong(); };
+    const emit = async signal => { host.signal(signal); await settleLong(); };
     const line = fields => JSON.stringify({ schema_version: "companion-event/1", id: randomUUID(), at: new Date(Date.now() + 60_000).toISOString(),
       root: evented.root, run_id: "fixture-a", gate: "UR", kind: "approval_requested", outcome: "accepted", reason: null,
       operation_id: randomUUID(), review: null, ...fields });
@@ -943,17 +973,16 @@ try {
     const shown = async () => texts(await render(host, "desktop", { bodyColumns: 80 }));
 
     let before = calls();
-    await tick(EVENT_POLL_MS);
-    await tick(REFRESH_MS);
-    assert.equal(calls(), before, "quiet ticks call no run view");
+    await settleLong();
+    assert.equal(calls(), before, "an idle observer calls no run view");
     append(line({ root: join(tmpdir(), "another-project") }), "{not json", "{\"schema_version\":\"companion-event/1\",\"kind\":\"approval_requ");
     const toastsBefore = host.log.toasts.length;
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.deepEqual([calls(), host.log.toasts.length], [before, toastsBefore], "other roots and malformed lines change nothing");
     // The same root in another spelling: separators and, for a drive path, case.
     const spelled = /^[a-z]:\\/iu.test(evented.root) ? evented.root.replaceAll("\\", "/").toUpperCase() : `${evented.root}/`;
     append(line({ root: spelled }));
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.equal(calls(), before + 1, "a new event reads the run view once");
     // No run is shown yet, so each event names its run by the objective after the text (owner request
     // of 2026-11-06, T-013).
@@ -965,21 +994,21 @@ try {
     // waits for the run view to confirm it.
     const quiet = host.log.toasts.length;
     append(line({ kind: "approval_recorded" }), line({ kind: "write_rejected", outcome: "rejected", reason: "stale_revision" }));
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.equal(host.log.toasts.length, quiet, "pane-only kinds raise no toast");
     assert.ok((await shown()).some(text => text.endsWith("Call rejected (stale_revision) · Preserve one explicit intent.")));
     append(line({ kind: "effect_unknown", outcome: "effect_unknown", reason: "dispatch_timeout", gate: "EVIDENCE" }));
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.equal(host.log.toasts.at(-1), "Effect unknown – check the operation status · Preserve one explicit intent.");
     const completedBefore = host.log.toasts.length;
     append(line({ kind: "run_completed", gate: "OR" }));
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.equal(host.log.toasts.length, completedBefore, "an unconfirmed completion is no toast");
 
     // AC-007: the review facts of the newest staging show size, digest, source match and the preview.
     append(line({ kind: "material_staged", gate: "UR", review: [{ slot: "UR", source: "staged", path: null, digest: `sha256:${"a".repeat(64)}`,
       bytes: 14, preview: "# UR\nCorrupt 4Z", truncated: false, source_match: "not_determinable" }] }));
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     let lines = await shown();
     assert.ok(lines.includes("UR: 14 bytes, sha256:aaaaaaaa… · source not determinable – please check the preview"), JSON.stringify(lines));
     assert.ok(lines.includes("# UR"), "the first preview line is shown");
@@ -994,19 +1023,19 @@ try {
     await host.fire("turn.complete", {});
     await settleLong();
 
-    // The 30-second check reads the run view only on a changed fingerprint or language.
+    // No scheduled reads between stream notifications.
     before = calls();
-    await tick(REFRESH_MS);
+    await settleLong();
     assert.equal(calls(), before, "no change, no call");
     touch(evented.root);
-    await tick(REFRESH_MS);
+    await emit("run");
     assert.equal(calls(), before + 1, "a changed run file reads the run view");
     writeFileSync(eventConfig, englishText.replace("\"chat_language\": \"en\"", "\"chat_language\": \"de\""));
-    await tick(REFRESH_MS);
+    await emit("run");
     const languageCall = host.log.processes.at(-1);
     assert.deepEqual([calls(), languageCall[languageCall.indexOf("--language") + 1]], [before + 2, "de"], "a changed language reads the run view in that language");
     writeFileSync(eventConfig, englishText);
-    await tick(REFRESH_MS);
+    await emit("run");
 
     // SCN-014 (adapter part): a drift warning of the run view raises one toast and stays in the pane of
     // the shown run.
@@ -1029,7 +1058,7 @@ try {
     assert.equal(fulfilled, "UR", "the approved UR is fulfilled on the path");
     append(line({ kind: "approval_recorded", gate: "QA" }), line({ kind: "approval_recorded", gate: fulfilled }),
       line({ kind: "effect_unknown", outcome: "effect_unknown", reason: "dispatch_timeout", gate: "EVIDENCE", at: "2000-01-01T00:00:00.000Z" }));
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     lines = await shown();
     assert.equal(lines.filter(text => /^\d{2}:\d{2} Approval recorded for /u.test(text)).length, 1, `only the confirmed approval is shown: ${JSON.stringify(lines)}`);
     assert.equal(lines.filter(text => /^\d{2}:\d{2} Effect unknown – check the operation status$/u.test(text)).length, 2, "the shown run's events name no run");
@@ -1047,21 +1076,21 @@ try {
     append(line({}));
     renameSync(journal, rotatedJournal);
     writeFileSync(journal, `${line({})}\n`);
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.equal(host.log.toasts.length, rotationToasts + 2, "both the rotated and the current line are announced");
     rmSync(rotatedJournal);
 
-    // CR finding B1: a failed run-view read keeps no fingerprint, so the next check reads again.
+    // After a failed read, the next notification or deliberate retry reads again.
     const realRun = host.$.process.run;
     host.$.process.run = async argv => { host.log.processes.push(argv); throw new Error("timed out"); };
     touch(evented.root);
     before = calls();
-    await tick(REFRESH_MS);
+    await emit("run");
     assert.equal(calls(), before + 1, "the changed run file is read and the read fails");
     host.$.process.run = realRun;
-    await tick(REFRESH_MS);
-    assert.equal(calls(), before + 2, "the next check reads again although nothing changed");
-    await tick(REFRESH_MS);
+    await emit("run");
+    assert.equal(calls(), before + 2, "the next notification reads again");
+    await settleLong();
     assert.equal(calls(), before + 2, "after a good read the check is quiet again");
 
     // CR delta review RV-1: a durable event that arrives while the run view cannot be read waits for a
@@ -1073,13 +1102,13 @@ try {
     assert.equal(await approvedShown(), 0, "the main-loop turn cleared the pane");
     host.$.process.run = async argv => { host.log.processes.push(argv); throw new Error("spawn node ENOENT"); };
     append(line({ kind: "approval_recorded", gate: fulfilled }));
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.equal(await approvedShown(), 0, "not shown while the run view cannot confirm it");
     host.$.process.run = realRun;
-    await tick(REFRESH_MS);
-    await tick(EVENT_POLL_MS);
+    await emit("run");
+    await emit("journal");
     assert.equal(await approvedShown(), 1, "shown once a fresh run view confirms it");
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.equal(await approvedShown(), 1, "shown only once");
 
     // CR finding B2: a new conversation is noticed at the next check, which drops the chat's run.
@@ -1088,7 +1117,7 @@ try {
     const origin = async () => texts(await render(host, "desktop", { bodyColumns: 80 })).includes("Named in the chat");
     assert.equal(await origin(), true, "the answer named the chat's run");
     host.where.conversation = "conversation-2";
-    await tick(REFRESH_MS);
+    await emit("run");
     assert.equal(await origin(), false, "a new conversation starts without a chat run");
 
     // CR finding B3: after a root change the journal is filtered by the new root, and the old root's
@@ -1097,21 +1126,24 @@ try {
     host.where.root = elsewhere;
     const movedToasts = host.log.toasts.length;
     append(line({ root: elsewhere, run_id: "elsewhere-run" }));
-    await tick(EVENT_POLL_MS);
+    const oldStream = host.log.streams.at(-1);
+    await host.fire("command.run", { command: "cd" });
+    assert.equal(oldStream.closed, true, "a project switch retires the previous child");
+    await emit("journal");
     assert.match(host.log.toasts.at(-1) ?? "", /^Approval requested for .* · elsewhere-run$/u, "the new root's event is announced");
     assert.equal(host.log.toasts.length, movedToasts + 1);
     assert.ok(!(await shown()).some(text => /^\d{2}:\d{2} .*(fixture-a|Preserve one explicit intent\.)$/u.test(text)), "the old root's entries leave the pane");
     host.where.root = evented.root;
-    await tick(EVENT_POLL_MS);
-    await tick(REFRESH_MS);
+    await emit("journal");
+    await emit("run");
     rmSync(elsewhere, { recursive: true, force: true });
 
     // A missing journal shows "events unavailable"; the run state is still read.
     renameSync(journal, `${journal}.away`);
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.ok((await shown()).includes("Events unavailable; the run state is still read."));
     renameSync(`${journal}.away`, journal);
-    await tick(EVENT_POLL_MS);
+    await emit("journal");
     assert.ok(!(await shown()).includes("Events unavailable; the run state is still read."));
     await host.fire("command.run", { command: COMMAND });
     await host.fire("command.run", { command: COMMAND });

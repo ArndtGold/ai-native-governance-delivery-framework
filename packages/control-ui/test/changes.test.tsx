@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { App } from '../src/App';
-import type { Envelope } from '../src/types';
+import type { Detail, Envelope } from '../src/types';
 import type { ReadTransport } from '../src/api';
 import { backlog, pointer, runData, runScope, fixtureMeta } from './scoped-fixtures';
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
@@ -94,4 +94,66 @@ it('hidden view cancels its waiting request and rechecks on return', async () =>
     Object.defineProperty(document, 'hidden', { configurable: true, value: false }); fireEvent(document, new Event('visibilitychange'));
     await waitFor(() => expect(read).toHaveBeenCalledTimes(count + 1)); expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toContain('/api/freshness');
   } finally { if (descriptor) Object.defineProperty(document, 'hidden', descriptor); else Reflect.deleteProperty(document, 'hidden'); }
+});
+
+it('embedded observation reconciles the selected Run without freshness reads and retains an open document', async () => {
+  const path = '.agdf/control/runs/run-a/documents/UR.md';
+  const before = { resource_id: 'old-source', run_id: 'run-a', type: 'UR', registered_reference: path, path, status: 'registered' };
+  const after = { ...before, resource_id: 'new-source' };
+  const oldRun = runData('run-a', 'Observed undertaking');
+  oldRun.resources = [before];
+  oldRun.evaluation = { ...oldRun.evaluation!, current_gate: 'UR' };
+  const newRun: Detail = { ...oldRun, resources: [after], document_states: [{
+    schema_version: '1', type: 'UR', run_id: after.run_id, revision_id: 'new-revision', resource_id: after.resource_id,
+    registered_reference: path, source_state: 'available', content_digest: 'new-digest', state: 'draft',
+    version_kind: 'draft', reason: null, recorded_approval: null, check: null, authorizes: false,
+  }] };
+  let changed = false;
+  const read = vi.fn(async (url: string) => {
+    const run = changed ? newRun : oldRun;
+    if (!url.startsWith('/api/documents/')) return { ...runScope(run), snapshot_id: changed ? 'new-snapshot' : 'old-snapshot' };
+    return { ...fixtureMeta, snapshot_id: changed ? 'new-document' : 'old-document', data: { kind: 'document', run,
+      document: { resource: changed ? after : before, format: 'markdown',
+        content: changed ? '# New wording' : '# Original wording', content_digest: changed ? 'new-digest' : 'old-digest' } } };
+  }) as unknown as ReadTransport;
+  let pending: { snapshot: string; signal: AbortSignal; deliver: () => void; fail: () => void } | undefined;
+  read.waitForChanges = vi.fn((snapshot, signal) => new Promise<Envelope<{ changed: boolean }>>((resolve, reject) => {
+    pending = { snapshot, signal, deliver: () => resolve({ ...fixtureMeta, data: { changed: true } }),
+      fail: () => reject(Error('observation_unavailable')) };
+    signal.addEventListener('abort', () => reject(Error('cancelled')), { once: true });
+  }));
+  const review = { role: 'reader' as const, busy: false, fallback: false, openedExpanded: false,
+    observe: vi.fn(), show: vi.fn(async () => {}) };
+  const view = render(<App initialRunId="run-a" transport={read} review={review}/>);
+  fireEvent.click(await screen.findByRole('button', { name: 'Anforderungen öffnen' }));
+  const original = await screen.findByRole('heading', { name: 'Original wording' });
+  await waitFor(() => expect(pending?.snapshot).toBe('old-document'));
+  vi.useFakeTimers();
+  try { await act(async () => { await vi.advanceTimersByTimeAsync(12_000); }); }
+  finally { vi.useRealTimers(); }
+  expect(vi.mocked(read).mock.calls.map(call => call[0])).toEqual([
+    '/api/snapshot?run_id=run-a', '/api/documents/old-source?snapshot=old-snapshot',
+  ]);
+  changed = true;
+  await act(async () => pending!.deliver());
+  const loadNew = await screen.findByRole('button', { name: 'Neuere Fassung öffnen' });
+  expect(screen.getByRole('heading', { name: 'Original wording' })).toBe(original);
+  expect(screen.queryByRole('heading', { name: 'New wording' })).toBeNull();
+  await waitFor(() => expect(pending?.snapshot).toBe('new-snapshot'));
+  const retired = pending!.signal;
+  fireEvent.click(loadNew);
+  expect(retired.aborted).toBe(true);
+  await screen.findByRole('heading', { name: 'New wording' });
+  expect(vi.mocked(read).mock.calls.some(([url]) => url.includes('/api/freshness'))).toBe(false);
+  await waitFor(() => expect(pending?.snapshot).toBe('new-document'));
+  const unavailable = pending!;
+  await act(async () => unavailable.fail());
+  const retry = await screen.findByRole('button', { name: 'Live-Status erneut prüfen' });
+  expect(screen.getByRole('heading', { name: 'New wording' })).toBeTruthy();
+  fireEvent.click(retry);
+  await waitFor(() => expect(pending).not.toBe(unavailable));
+  expect(pending!.snapshot).toBe('new-document');
+  const closing = pending!.signal;
+  view.unmount();
+  expect(closing.aborted).toBe(true);
 });

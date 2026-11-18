@@ -245,6 +245,19 @@ export function resolveLocalValidator(options) {
   return { envelope: envelope(options.externalRequired ? "external_required" : "unavailable", options) };
 }
 
+export async function runLocalCompanionObserver(options, args, io = console) {
+  const resolved = resolveLocalValidator(options);
+  // The Mods host retires this process itself. Running through the synchronous
+  // wrapper would leave a grandchild behind when the host closes its stream.
+  if (options.surface !== 'claude' || resolved.envelope.source !== 'plugin_bundle'
+      || resolved.executable !== process.execPath || resolved.envelope.machine_validation !== 'owned_version_matched') {
+    io.error('AGDF companion observer requires the owned Claude runtime.');
+    return 2;
+  }
+  const { runCompanionObserver } = await import('./companion-observer.js');
+  return runCompanionObserver(args, io);
+}
+
 export function runLocalValidator(options, args, io = console) {
   const wrapperStart = process.hrtime.bigint().toString();
   const resolved = resolveLocalValidator(options);

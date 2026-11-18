@@ -1,3 +1,4 @@
+import { sourceRevisionBoundary } from '../control-state/run-revision-boundary.js';
 import { runDocumentPath } from '../control-state/run-identity.js';
 import { inspectDefinitionSources } from "../control-evaluation/definition-sources.js";
 import { prdDefinitionPhase } from "./prd-definition.js";
@@ -527,7 +528,20 @@ export function createSkillDispatchService(dependencies = {}) {
         // Approved-source changes belong to the separate reviewed preview/apply owner.
         const field = input.ur_action ? "ur_action" : input.prd_action ? "prd_action" : input.sd_action ? "sd_action" : "tp_action";
         const sourceGate = field.slice(0, -7).toUpperCase();
-        const sourceStatus = control.status_card?.runState?.approvals?.get(sourceGate)?.status ?? "missing";
+        const state = control.status_card?.runState;
+        const sourceStatus = state?.approvals?.get(sourceGate)?.status ?? "missing";
+        if (sourceStatus === "approved" && state.meta?.lifecycle === "active"
+            && sourceRevisionBoundary(state, sourceGate)) {
+          const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+          result.target = target;
+          result.control = controlSnapshot(control);
+          result.continuation = Object.freeze({ phase: "source_revision_preparation", skill_id: "gate-check",
+            governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
+            source_gate: sourceGate, presentation_language: input.presentation_language,
+            instruction: "Prepare the existing source revision preview for the affected approved source. Review the exact change and impact using the current operation contract. Ask a focused question if the proposed change is not known. Preparation does not apply or approve anything. Use a new deliberate confirmation bound to the delivered preview." });
+          timing.total_ms = round(milliseconds(started, now()));
+          return bindHostAction(result);
+        }
         const pack = localePack(rawInput.interactionLocales, input.presentation_language).skillDispatch.sourceInput;
         const action = renderInputRecovery({ field }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language });
         if (!action) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);

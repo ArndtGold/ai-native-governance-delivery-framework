@@ -2,8 +2,9 @@
 // synthetic browser host, never native host or human-decision qualification.
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
 const iframe = document.querySelector('iframe')!;
+const initialMode = new URLSearchParams(location.search).get('expanded') === '1' ? 'fullscreen' : 'inline';
 const bridge = new AppBridge(null, { name: 'Disposable Core browser host', version: '1' }, { serverTools: {}, message: { text: {} }, updateModelContext: {} }, {
-  hostContext: { theme: 'light', displayMode: 'inline', availableDisplayModes: ['inline', 'fullscreen'], locale: 'en' }
+  hostContext: { theme: 'light', displayMode: initialMode, availableDisplayModes: ['inline', 'fullscreen'], locale: 'en' }
 });
 const handoffs: unknown[] = [];
 bridge.onupdatemodelcontext = async value => { handoffs.push({ context: value }); return {}; };

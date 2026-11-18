@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { applyDocumentTheme, applyHostStyleVariables } from '@modelcontextprotocol/ext-apps';
 import { CockpitBridge } from './transport';
+import { validateData, validateEnvelope } from '../api';
+import type { ReadingScope } from '../types';
 import { readDecisionBootstrap, type DecisionBootstrap, type DecisionSubmission } from './decision-bootstrap';
 import { DecisionCard, readDecisionNext, type DecisionPort } from './DecisionCard';
+import { useReviewView, type ReadingAnchor } from './review-view';
+import { readCurrentComparisonSource } from './review-comparison';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';
 
 export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
+  const review = useReviewView(bridge);
+  const checkpoint = useRef<{ source: string; anchor?: ReadingAnchor } | null>(null);
   const [view, setView] = useState<DecisionBootstrap | null>(null), [connected, setConnected] = useState(false);
   const current = useRef<DecisionBootstrap | null>(null);
   const completed = useRef<DecisionBootstrap | null>(null);
@@ -54,6 +60,7 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
       const host = bridge.app.getHostContext();
       if (host?.theme) applyDocumentTheme(host.theme);
       if (host?.styles?.variables) applyHostStyleVariables(host.styles.variables);
+      review.observe();
     };
     bridge.app.ontoolresult = result => {
       if (!alive) return;
@@ -76,7 +83,7 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
     };
     void bridge.app.connect(undefined, { timeout: 10_000 }).then(() => { if (alive) { setConnected(true); theme(); } }).catch(() => {});
     return () => { window.removeEventListener('pagehide', pagehide); void retire(false).catch(() => {}); };
-  }, [bridge]);
+  }, [bridge, review.observe]);
   useEffect(() => {
     if (!view?.delivery_state || view.delivery_state === 'retired' || !connected) return;
     let alive = true, pending = false, acknowledged = false, intersecting = false;
@@ -126,7 +133,7 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
     const timer = setInterval(() => { void observe(); }, 1000);
     document.addEventListener('visibilitychange', visibility);
     return () => { alive = false; visibilityObserver?.disconnect(); cancelAnimationFrame(frame); clearInterval(timer); document.removeEventListener('visibilitychange', visibility); };
-  }, [bridge, connected, view?.session_id, view?.delivery_state]);
+  }, [bridge, connected, view?.session_id, view?.delivery_state, review.role]);
   const port = useMemo<DecisionPort | null>(() => {
     if (!view) return null;
     const call = async (name: string, argumentsValue: Record<string, unknown>) => {
@@ -223,6 +230,19 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
           || 'sha256:' + document.content_digest !== view.document_digest) throw Error('presented_document_unavailable');
         return document.content;
       },
+      comparison: () => readCurrentComparisonSource(view, args => call('agdf_inspect', args),
+        () => current.current === view && Date.now() < view.expires_at),
+      evidence: async () => {
+        if (current.current !== view) throw Error('session_invalid');
+        const result = await bridge.operation({ operation: 'snapshot', run_id: view.binding.run_id }, undefined, view.read_session_id);
+        validateEnvelope(result);
+        validateData('/api/snapshot', result);
+        const data = result.data as ReadingScope | null;
+        const run = data?.kind === 'run' ? data.run : null;
+        if (current.current !== view || result.state !== 'available' || result.target.target_id !== view.target.target_id
+          || run?.run_id !== view.binding.run_id || run.revision_id !== view.binding.expected_revision_id) throw Error('source_changed');
+        return run;
+      },
       inspect: async operation => {
         const result = await call('agdf_inspect', { operation: 'operation-status', module: operation, presentation_language: view.binding.presentation_language,
           working_directory: view.target.display_path, target_source: 'explicit_target', primary_target: view.target.display_path,
@@ -279,6 +299,6 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
     };
   }, [bridge, view]);
   const effectiveView = useMemo(() => view && !bridge.app.getHostCapabilities()?.serverTools ? { ...view, capability: 'not_qualified' as const, enabled_actions: [] } : view, [view, connected, bridge]);
-  return connected && effectiveView && port ? <DecisionCard key={effectiveView.session_id} view={effectiveView} port={port} closeWarning={closeWarning}/>
+  return connected && effectiveView && port ? <DecisionCard key={effectiveView.session_id} view={effectiveView} port={port} closeWarning={closeWarning} review={review} checkpoint={checkpoint}/>
     : <section className="decision-card"><h1>AGDF</h1><p role="status">{view?.labels.connecting ?? 'AGDF · …'}</p></section>;
 }

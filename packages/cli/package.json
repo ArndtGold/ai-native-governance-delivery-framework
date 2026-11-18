@@ -107,7 +107,7 @@
     "test:plugin-mcp-cockpit-variant": "node scripts/plugin-mcp-cockpit-variant-test.js",
     "test:claude-plugin-mcp": "node scripts/claude-plugin-mcp-test.js",
     "test:companion-run-view": "node --test ../core/test/status-card-golden-test.js ../core/test/companion-run-view-test.js ../core/test/companion-events-test.js ../core/test/companion-host-neutral-test.js scripts/run-view-command-test.js",
-    "test:claude-companion": "node scripts/claude-companion-test.js && node scripts/claude-companion-adapter-test.js && node scripts/claude-companion-integrity-test.js && node --test scripts/claude-companion-parity-test.js",
+    "test:claude-companion": "node scripts/claude-companion-test.js && node scripts/claude-companion-adapter-test.js && node scripts/claude-companion-integrity-test.js && node --test scripts/claude-companion-parity-test.js scripts/claude-companion-observer-test.js",
     "test:codex-plugin-mcp": "node scripts/codex-plugin-mcp-test.js && node scripts/codex-cockpit-config-test.js",
     "test:mcp-server": "npm --prefix ../mcp-server test",
     "test:verified-change": "node scripts/verified-change-test.js",

@@ -1,7 +1,7 @@
 import { useEffect, useState, type RefObject } from 'react';
 
 // Document visibility alone does not cover a chat card scrolled out of view.
-export function useCardVisibility(heading: RefObject<HTMLHeadingElement | null>, compact: boolean) {
+export function useCardVisibility(heading: RefObject<HTMLHeadingElement | null>, compact: boolean, selected = false) {
   const [intersecting, setIntersecting] = useState(() => !compact || typeof IntersectionObserver === 'undefined');
   useEffect(() => {
     if (!compact || typeof IntersectionObserver === 'undefined') { setIntersecting(true); return; }
@@ -13,6 +13,6 @@ export function useCardVisibility(heading: RefObject<HTMLHeadingElement | null>,
     });
     observer.observe(card);
     return () => observer.disconnect();
-  }, [heading, compact]);
+  }, [heading, compact, selected]);
   return !compact || intersecting;
 }

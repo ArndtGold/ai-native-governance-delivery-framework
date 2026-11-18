@@ -1,7 +1,7 @@
 import { runEvidencePath } from './run-identity.js';
 import { resolveMcpInput } from '../mcp-input-resolution.js';
 import { resources } from '../resources/context.js';
-import { continueDeliveryCall, preparedCommandCall, originalOperationCall } from './prepared-control-calls.js';
+import { continueDeliveryCall, preparedCommandCall, originalOperationCall, reopenedSourceAuthoringCall } from './prepared-control-calls.js';
 import { commandGroupDefinition, PROPOSAL_COMMAND_KINDS, PROPOSAL_MATERIAL_SLOT } from './run-command-schema.js';
 import { inspectRunInputResolution } from './run-input-resolution.js';
 
@@ -178,6 +178,12 @@ export function createRunCommandService({ packageVersion = '0.14.5', enabledGrou
             response.recording_calls = [preparedCommandCall('agdf_revise', 'source_revision.apply', input, { revision: {
               operation_id: input.operation_id, source_gate: input.command.payload.source_gate,
               preview_digest: family.preview_digest, confirmation_selector: family.confirmation_selector } })];
+          if (input.command.kind === 'source_revision.apply' && response.current.available
+              && response.current.lifecycle === 'active' && response.current.status === 'open'
+              && response.current.revision_id === status?.current_revision_id) {
+            const next = reopenedSourceAuthoringCall(input, status);
+            if (next) response.next_calls = [next];
+          }
           if (!response.historical_effect && response.current.available && response.current.lifecycle === 'active'
               && ['run.create', 'run.create_from_planned', 'step.record', 'artefact.record', 'ur_draft.replace', 'approval.record'].includes(input.command.kind))
             response.next_calls = [continueDeliveryCall({ ...input, primary_target: root }, response.current.run_id ?? family.run_id ?? selectedInput.run_id)];

@@ -1,7 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { PassiveMarkdown } from '../DocumentView';
 import type { DecisionBootstrap, DecisionSubmission } from './decision-bootstrap';
 import { matchedDecisionReceipt } from './decision-bootstrap';
+import { ReviewControls, ReviewHeader, captureReviewAnchor, restoreReviewAnchor, newReviewPositionNotice, type ReadingAnchor, type ReviewView } from './review-view';
+import type { Detail } from '../types';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';
 type Reply = Record<string, unknown>;
 export interface DecisionNext { revision_id: string; next_operation: { type: string; operation_key: string; actor: 'agent' | 'human'; effect: string; gate: string } }
@@ -20,14 +22,26 @@ export interface DecisionPort {
   submit: (input: DecisionSubmission) => Promise<Reply>;
   document: () => Promise<string>;
   preview?: () => Promise<string>;
+  comparison?: () => Promise<string>;
+  evidence?: () => Promise<Detail>;
   inspect: (operation: string) => Promise<Reply>;
   expand: () => Promise<void>;
   next?: (current: DecisionNext, approval: DecisionSubmission) => Promise<void>;
   saved?: () => void;
   pending?: (value: boolean) => void;
 }
-export function DecisionCard({ view, port, closeWarning = false }: { view: DecisionBootstrap; port: DecisionPort; closeWarning?: boolean }) {
+export function DecisionCard({ view, port, closeWarning = false, review, checkpoint }: { view: DecisionBootstrap; port: DecisionPort; closeWarning?: boolean;
+  review?: ReviewView; checkpoint?: RefObject<{ source: string; anchor?: ReadingAnchor } | null> }) {
   const l = view.labels, [status, setStatus] = useState('undecided'), [message, setMessage] = useState('');
+  const reviewRoot = useRef<HTMLElement>(null);
+  const [pair, setPair] = useState<string | null>(null), [comparing, setComparing] = useState(false);
+  const [compareProblem, setCompareProblem] = useState(false);
+  const [evidence, setEvidence] = useState<Detail | null>(null), [evidenceLoading, setEvidenceLoading] = useState(false);
+  const [evidenceProblem, setEvidenceProblem] = useState(false);
+  const hadCheckpointOnOpen = useRef(!!checkpoint?.current).current;
+  const [reviewNotice, setReviewNotice] = useState('');
+  const source = JSON.stringify([view.binding.target_id, view.binding.run_id, view.binding.expected_revision_id,
+    view.binding.presentation_id, view.document_digest, view.source_digest]);
   const [document, setDocument] = useState<string | null>(null), [reading, setReading] = useState(false), [checking, setChecking] = useState(false);
   const [next, setNext] = useState<DecisionNext | null>(null), [continuationMessage, setContinuationMessage] = useState('');
   const continuationStarted = useRef(false);
@@ -39,9 +53,9 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
   const previewFrame = useRef<HTMLIFrameElement>(null), previewButton = useRef<HTMLButtonElement>(null), previewBack = useRef<HTMLButtonElement>(null);
   const current = () => alive.current && Date.now() < view.expires_at;
   useEffect(() => {
-    if (document !== null) documentHeading.current?.focus();
-    else if (restoreFocus.current) { restoreFocus.current = false; openButton.current?.focus(); }
-  }, [document]);
+    if (restoreFocus.current && (!review || review.role === 'card')) { restoreFocus.current = false; openButton.current?.focus(); }
+    else if (document !== null) documentHeading.current?.focus();
+  }, [document, review?.role]);
   useLayoutEffect(() => {
     if (preview === null) return;
     previewBack.current?.focus();
@@ -116,11 +130,44 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
     try {
       const text = await port.document();
       if (!alive.current) return;
-      await port.expand();
-      if (alive.current) setDocument(text);
+      if (!review) await port.expand();
+      if (alive.current) { setDocument(text); if (review?.role === 'card') void review.show('reader'); }
     } catch { if (alive.current) setMessage(l.docUnavailable); }
     finally { if (alive.current) setReading(false); }
   };
+  const compare = async () => {
+    if (comparing || pair !== null || !port.comparison || view.comparison.state !== 'available') return;
+    setComparing(true); setCompareProblem(false);
+    try {
+      await port.document();
+      const content = await port.comparison();
+      if (alive.current && current()) setPair(content);
+    } catch { if (alive.current) setCompareProblem(true); }
+    finally { if (alive.current) setComparing(false); }
+  };
+  const readEvidence = async () => {
+    if (!port.evidence || evidence || evidenceLoading) return;
+    setEvidenceLoading(true); setEvidenceProblem(false);
+    try { const data = await port.evidence(); if (alive.current && current()) setEvidence(data); }
+    catch { if (alive.current) setEvidenceProblem(true); }
+    finally { if (alive.current) setEvidenceLoading(false); }
+  };
+  const recordReviewPosition = () => {
+    if (checkpoint && reviewRoot.current && document !== null) checkpoint.current = { source, anchor: captureReviewAnchor(reviewRoot.current) };
+  };
+  useLayoutEffect(() => {
+    if (!review || review.role === 'card' || document === null || !reviewRoot.current) return;
+    const retained = checkpoint?.current;
+    if (retained && (retained.source !== source || !retained.anchor || !restoreReviewAnchor(reviewRoot.current, retained.anchor))) {
+      if (checkpoint) checkpoint.current = null;
+      setReviewNotice(view.binding.presentation_language.startsWith('de')
+        ? 'Die vorherige Lesestelle konnte nicht bestätigt werden.' : 'The previous reading position could not be confirmed.');
+    }
+    if (checkpoint) checkpoint.current = { source, anchor: captureReviewAnchor(reviewRoot.current) };
+  }, [review?.role, document, source, checkpoint, view.binding.presentation_language]);
+  useEffect(() => {
+    if (review && review.role !== 'card' && document === null && !reading && !message && status === 'undecided' && view.delivery_state !== 'retired') void open();
+  }, [review?.role, document, reading, message, status, view.delivery_state]);
   const openPreview = async () => {
     if (previewReading || !view.preview || !port.preview || !current()) return;
     setPreviewReading(true); setPreviewReady(false);
@@ -161,7 +208,51 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
     <iframe key={previewAttempt} ref={previewFrame} title={l.previewTitle} sandbox="allow-scripts" referrerPolicy="no-referrer" srcDoc={preview}
       style={{ width: '100%', height: 600, border: 0 }} />
   </section>;
-  if (document !== null) return <section className="decision-card agdf-surface mcp-entry">
+  const de = view.binding.presentation_language.startsWith('de');
+  if (review && review.role !== 'card' && status !== 'saved') {
+    const previous = view.comparison.state === 'available' ? view.comparison : null;
+    const positionNotice = reviewNotice || (review.openedExpanded && !hadCheckpointOnOpen ? newReviewPositionNotice(view.binding.presentation_language) : '');
+    return <section className="decision-card review-reader agdf-surface mcp-entry" data-role={review.role} ref={reviewRoot} onScrollCapture={recordReviewPosition}>
+      <ReviewHeader title={view.title} headingRef={documentHeading} role={review.role}/>
+      <p className="review-task">{view.decision_heading ?? l.title}</p>
+      <ReviewControls view={review} language={view.binding.presentation_language} onCard={() => { restoreFocus.current = true; }}/>
+      {positionNotice && <p role="status">{positionNotice}</p>}
+      <div className="review-source">{view.gate_title ?? view.binding.gate} · {de ? 'Vorgelegte Fassung' : 'Presented version'}
+        <details><summary>{l.sources}</summary><p>{l.revision} <code>{view.binding.expected_revision_id}</code></p>
+          <code>{view.document_digest}</code></details></div>
+      {(status === 'stale' || status === 'expired') ? <p role="status">{message || l.sourceChanged}</p>
+        : document !== null ? <article className="document" data-review-source>
+        <PassiveMarkdown content={document} links={{}} onOpen={() => {}}/>
+      </article> : reading ? <p role="status">{l.connecting}</p> : <>
+        <p role="status">{message || l.docUnavailable}</p><button type="button" onClick={() => void open()}>{de ? 'Wiederholen' : 'Retry'}</button>
+      </>}
+      <div hidden={review.role !== 'workspace' || status !== 'undecided'}>
+        <details onToggle={event => { if (event.currentTarget.open && !compareProblem) void compare(); }}>
+          <summary>{de ? 'Fassungen vergleichen' : 'Compare versions'}</summary>
+          {!previous || !port.comparison ? <p>{l.comparisonUnavailable}</p> : comparing ? <p role="status">{l.connecting}</p>
+            : compareProblem ? <><p role="status">{l.comparisonUnavailable}</p><button type="button" onClick={() => void compare()}>{de ? 'Wiederholen' : 'Retry'}</button></>
+            : pair !== null ? <><p>{l.machineComparison}</p><p>{previous.unchanged ? l.documentUnchanged : l.documentChanged}</p><div className="review-versions">
+              <section><h2>{de ? 'Aktuelle Quellfassung' : 'Current source version'}</h2><p><code>{view.binding.expected_revision_id}</code></p><code>{previous.current_digest}</code>
+                <article className="document"><PassiveMarkdown content={pair} links={{}} onOpen={() => {}}/></article></section>
+              <section><h2>{l.previousDocument}</h2><p><code>{previous.previous_revision_id}</code></p><code>{previous.previous_digest}</code>
+                <article className="document"><PassiveMarkdown content={previous.previous_text} links={{}} onOpen={() => {}}/></article></section>
+            </div></> : null}
+        </details>
+        <details onToggle={event => { if (event.currentTarget.open && !evidenceProblem) void readEvidence(); }}>
+          <summary>{de ? 'Nachweise' : 'Evidence'}</summary>
+          {view.binding.material_sources.map(item => <p key={item.path}>{item.type} · <code>{item.path}</code><br/><code>{item.digest}</code></p>)}
+          {evidence?.evidence_applicability?.current.map((item, index) => <p key={index}>{item.step} · {item.path} · {item.reason}</p>)}
+          {evidenceProblem && <button type="button" onClick={() => void readEvidence()}>{de ? 'Nachweise erneut prüfen' : 'Retry evidence'}</button>}
+        </details>
+        <details onToggle={event => { if (event.currentTarget.open && !evidenceProblem) void readEvidence(); }}>
+          <summary>{de ? 'Verlauf' : 'History'}</summary>
+          {previous && <p>{l.previousDocument} · <code>{previous.previous_revision_id}</code></p>}
+          {evidence?.evaluation?.approvals.map(row => <p key={row.gate}>{row.gate} · {row.status}</p>)}
+        </details>
+      </div>
+    </section>;
+  }
+  if (document !== null && (!review || status === 'saved')) return <section className="decision-card agdf-surface mcp-entry">
     <button type="button" onClick={() => { restoreFocus.current = true; setDocument(null); }}>{l.back}</button>
     <h1 ref={documentHeading} tabIndex={-1}>{status === 'saved' ? view.binding.presentation_language.startsWith('de') ? 'Historische Fassung' : 'Historical version' : l.documentTitle} · {view.gate_title ?? view.binding.gate}</h1><p>{view.title}</p>
     <article className="document"><PassiveMarkdown content={document} links={{}} onOpen={() => {}}/></article>
@@ -169,6 +260,7 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
   if (view.delivery_state === 'preview') return <section className="decision-card agdf-surface mcp-entry">
     <p role="status">{view.binding.presentation_language.startsWith('de') ? 'Vorschau · keine primäre Entscheidungsansicht. Die Auslieferung steht noch aus.' : 'Preview · not a primary decision view. Delivery is pending.'}</p>
     <article className="document"><PassiveMarkdown content={view.summary} links={{}} onOpen={() => {}}/></article>
+    {review && <button type="button" ref={openButton} disabled={!view.resource_id || reading} onClick={() => void open()}>{l.openDocument}</button>}
     {previewAction}
   </section>;
   if (view.delivery_state === 'ui_primary' && status === 'saved') return <section className="decision-card agdf-surface mcp-entry">
@@ -183,6 +275,7 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
     <article className="document"><PassiveMarkdown content={view.summary} links={{}} onOpen={() => {}}/></article>
     {!nativeApprovalAvailable && <p role="status">{l.notQualified}</p>}
     <button type="button" disabled={disabled || !nativeApprovalAvailable} onClick={decide}>{l.approve}</button>
+    {review && <button type="button" ref={openButton} disabled={!view.resource_id || reading} onClick={() => void open()}>{l.openDocument}</button>}
     {previewAction}
     <p role="status">{message || l.notSaved}</p>
     {status === 'uncertain' && <button type="button" disabled={checking} onClick={() => void inspect()}>{l.checkOperation}</button>}
@@ -191,9 +284,9 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
     <h1>{view.decision_heading ?? l.title}</h1><p>{view.title}</p>
     {!nativeApprovalAvailable && <p role="status">{l.notQualified}</p>}
     <article className="decision-summary document"><PassiveMarkdown content={view.decision_brief || view.summary} links={{}} onOpen={() => {}}/></article>
-    {view.comparison.state === 'unavailable' ? <p>{l.comparisonUnavailable}</p> : <>
+    {!review && (view.comparison.state === 'unavailable' ? <p>{l.comparisonUnavailable}</p> : <>
       <p>{l.machineComparison}</p><p>{view.comparison.unchanged ? l.documentUnchanged : l.documentChanged}</p>
-    </>}
+    </>)}
     {status === 'undecided' && <p>{view.approval_effect && view.approval_effect_label
       ? <><strong>{view.approval_effect_label} </strong>{view.approval_effect}</> : l.consequence}</p>}
     <p>{l.sourceLanguage}</p>
@@ -211,7 +304,7 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
       {view.decision_brief && <article className="document"><PassiveMarkdown content={view.summary} links={{}} onOpen={() => {}}/></article>}<dl>
       <dt>{l.run}</dt><dd>{view.binding.run_id}</dd><dt>{l.revision}</dt><dd><code>{view.binding.expected_revision_id}</code></dd>
       {view.binding.material_sources.map(source => <div key={source.type}><dt>{source.type}</dt><dd><code>{source.path}</code><br/><code>{source.digest}</code></dd></div>)}
-    </dl>{view.comparison.state === 'available' && <>
+    </dl>{!review && view.comparison.state === 'available' && <>
       <p>{l.revision}: <code>{view.comparison.previous_revision_id}</code><br/><code>{view.comparison.previous_digest}</code></p>
       <details><summary>{l.previousDocument}</summary><article className="document"><PassiveMarkdown content={view.comparison.previous_text} links={{}} onOpen={() => {}}/></article></details>
     </>}</details>

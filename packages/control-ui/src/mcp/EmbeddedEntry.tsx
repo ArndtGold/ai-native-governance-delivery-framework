@@ -9,6 +9,8 @@ import { HandoffController } from './handoff';
 import { createHandoffPort } from './handoff-port';
 import { HostProbe } from './HostProbe';
 import { createViewCloser } from './view-close';
+import { useReviewView } from './review-view';
+import type { CockpitCheckpoint } from '../App';
 
 export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
   const trace = useMemo(() => {
@@ -22,7 +24,9 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
   }, [bridge]);
   const [bootstrap, setBootstrap] = useState<RenderBootstrap | null>(null);
   const current = useRef<RenderBootstrap | null>(null);
-  const [ready, setReady] = useState(false), [expanded, setExpanded] = useState(false), [problem, setProblem] = useState('');
+  const [ready, setReady] = useState(false), [problem, setProblem] = useState('');
+  const review = useReviewView(bridge);
+  const checkpoint = useRef<CockpitCheckpoint | null>(null);
   const terminal = useRef<HTMLElement>(null);
   const [closeState, setCloseState] = useState<'open' | 'closing' | 'closed' | 'blocked'>('open');
   useLayoutEffect(() => {
@@ -41,8 +45,7 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       const host = bridge.app.getHostContext();
       if (host?.theme) applyDocumentTheme(host.theme);
       if (host?.styles?.variables) applyHostStyleVariables(host.styles.variables);
-      const mode = host?.displayMode;
-      setExpanded(mode === 'fullscreen' || mode === 'pip');
+      review.observe();
     };
     bridge.app.ontoolresult = result => {
       if (!alive) return;
@@ -81,7 +84,7 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
     };
     void bridge.app.connect(trace.wrap(new PostMessageTransport(window.parent, window.parent)), { timeout: 10_000 }).then(() => { connected = true; update(); }).catch(() => { if (alive) setProblem('Die Codex-Anbindung konnte nicht bestätigt werden.'); });
     return () => { alive = false; };
-  }, [bridge, trace]);
+  }, [bridge, trace, review.observe]);
   const closeFromApp = async () => {
     const session = bootstrap?.sessionId;
     if (!session || current.current?.sessionId !== session) throw Error('session_changed');
@@ -101,7 +104,7 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       if (bridge.app.getHostContext()?.availableDisplayModes?.includes('inline')) {
         const result = await bridge.app.requestDisplayMode({ mode: 'inline' }, { timeout: 10_000 });
         if (result.mode !== 'inline') throw Error('inline_mode_unconfirmed');
-        flushSync(() => setExpanded(false));
+        review.observe();
       }
       if (terminal.current) {
         const box = terminal.current.getBoundingClientRect();
@@ -113,23 +116,13 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       throw error;
     }
   };
-  const open = async () => {
-    try {
-      const modes = bridge.app.getHostContext()?.availableDisplayModes ?? [];
-      const mode = modes.includes('fullscreen') ? 'fullscreen' : modes.includes('pip') ? 'pip' : null;
-      if (!mode) throw Error();
-      const result = await bridge.request(() => bridge.app.requestDisplayMode({ mode }, { timeout: 10_000 }));
-      if (result.mode !== 'fullscreen' && result.mode !== 'pip') throw Error();
-      setExpanded(true);
-    } catch { setProblem('Eine größere Ansicht wurde nicht bestätigt. Nutze den vorhandenen Browser-Weg.'); }
-  };
   return <div className="mcp-entry" data-terminal={closeState !== 'open' ? 'true' : undefined}>
     {closeState !== 'open' ? <section className="mcp-terminal" ref={terminal} aria-label="Cockpit-Sitzung schließen"><h1>AGDF Cockpit</h1><p role="status">{closeState === 'closing'
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
-      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} compact={!expanded} handoff={handoff} onExpand={() => void open()}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
+      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} compact={review.role === 'card'} handoff={handoff} review={review} checkpoint={checkpoint} onExpand={() => void review.show('reader')}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
     {problem && <p role="alert">{problem}</p>}
-    {closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
+    {closeState === 'open' && review.role !== 'card' && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;
 }

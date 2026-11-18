@@ -1176,11 +1176,17 @@ Profilmenü und Host-Navigation werden nicht als selbst gestaltete AGDF-Oberflä
 | Dokument groß | Eine gemeinsame zentrierte Lesefläche mit maximal 80ch, ohne weitere Rahmen um den Originaltext | Der aktuelle Gate-Bezug bleibt über dem Lesebereich; der Rückweg führt zur konkreten Entscheidung |
 | Hub groß | Bestehende Übersicht, Bereichsauswahl, Suche und zeilenweise Einträge | Suche über den definierten Run-Bestand; Verlauf im verfügbaren Panel unterhalb der Liste, statt einer zusätzlich gedrängten Spalte |
 
-Das große Cockpit rechts ist das angestrebte Bedienlayout. Der heutige Adapter fordert je nach
-verfügbarer Host-Fähigkeit `fullscreen` oder `pip` an und prüft die Bestätigung. Diese Anforderung
-garantiert keine bestimmte Position im Host. Die Einbindung in den rechten Bereich und der
-Erhalt des Gesprächs müssen deshalb bei der konkreten Host-Qualifizierung beobachtet werden.
-Die Gate-Orientierung wird in den vorhandenen Kopf integriert; Branding und Aufgabenbezug bilden keine gestapelten permanenten Köpfe.
+Der eingebettete Prüfweg unterscheidet drei Rollen. Die Chatkarte zeigt den gebundenen Run,
+die aktuelle Aufgabe und den Einstieg „Prüfung öffnen“. Die fokussierte Leseansicht zeigt
+die Aufgabe und ihre Fassung. Die Vollansicht stellt das Dokument vor die aufklappbaren
+Nachweise und den Verlauf. In einer vorbereiteten Entscheidungsansicht kann sie eine
+verifizierte Vorfassung mit der exakt gebundenen aktuellen Quelle vergleichen.
+
+Der Host entscheidet über verfügbare Ansichten und Platzierung. Die App fragt die fokussierte
+Ansicht über `pip` und die Vollansicht über `fullscreen` an, wenn der Host den Modus anbietet.
+Ohne Bestätigung bleibt die Prüfung in der vorhandenen Fläche lesbar. Der Rückweg innerhalb
+derselben Sitzung lässt den Leser offen. Ein neuer Leser prüft Run und Fassung erneut über MCP.
+Eine ausdrückliche Kontext- oder Nachrichtenübergabe bleibt eine eigene Aktion.
 
 Auf schmalen Flächen besteht der feste Kopf aus Vorhaben, Fassung und einer verdichteten
 Handlungserwartung. Ablauf, Branding und Herkunft beanspruchen keine weiteren dauerhaft

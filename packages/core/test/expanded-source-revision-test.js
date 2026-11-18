@@ -10,6 +10,11 @@ import { syntheticPrd } from '../../cli/scripts/fixtures/prd-definition.js';
 import { syntheticSd } from '../../cli/scripts/fixtures/sd-definition.js';
 import { syntheticTp } from '../../cli/scripts/fixtures/late-source-revision.js';
 import { readSourceRevisions } from '../lib/control-state/run-source-revisions.js';
+import { createControlInspectService } from '../lib/control-inspect/service.js';
+import { parseControlInspectFunctionArguments } from '../lib/control-inspect/contract.js';
+import { createCoreServices } from '../lib/index.js';
+import { mcpControlContinuation } from '../lib/skill-dispatch/mcp-continuation.js';
+import { interactionLocales } from '../lib/resources/context.js';
 import { sourceRevisionBoundary } from '../lib/control-state/run-revision-boundary.js';
 import { artefactFileDigest, runSealState } from '../lib/control-state/run-seal.js';
 import { validateRevisionHistory } from '../lib/control-state/run-revision-history.js';
@@ -24,13 +29,42 @@ try {
     restore(phase);const before=readFileSync(f.state,'utf8'), old=state();const {p,input,preview}=prepare(gate);
     assert.equal(preview.outcome,'accepted',JSON.stringify({gate,phase,preview}));assert.equal(readFileSync(f.state,'utf8'),before,'Preview is read-only');
     assert.equal(sourceRevisionBoundary(old,gate,1),null,'Retired policy cannot acquire authority');
+    if (cells === 0) {
+      const dispatchInput = { skillId: 'gate-check', surface: 'codex', presentationLanguage: 'en', expectedVersion: '0.31.0',
+        workingDirectory: root, primaryTarget: root, targetSource: 'continued_target', runId: f.runId,
+        intake: true, intakeMode: 'resume', expectedRevisionId: f.revision(), urAction: 'revise', interactionLocales };
+      const core = createCoreServices();
+      const routed = mcpControlContinuation(dispatchInput, core.dispatch(dispatchInput), ['agdf_record', 'agdf_revise']);
+      assert.equal(routed.continuation?.phase, 'source_revision_preparation', JSON.stringify(routed.diagnostics));
+      assert.equal(routed.continuation.source_gate, gate);
+      const [contract] = routed.continuation.next_calls;
+      const readInput = parseControlInspectFunctionArguments(contract.arguments,
+        { surface: 'codex', expectedVersion: '0.31.0', interactionLocales });
+      const form = core.inspect(readInput).report.prepared_call;
+      assert.equal(form.call.arguments.command.payload.source_gate, gate);
+      assert.ok(!form.required_inputs.some(key => key.endsWith('/source_gate')));
+      assert.equal(readFileSync(f.state, 'utf8'), before, 'Preparing the routed revision leaves the source intact');
+    }
+
     const applied={...input,command:{kind:'source_revision.apply',payload:{...input.command.payload,preview_digest:preview.family_result.preview_digest,confirmation:preview.family_result.confirmation_selector}}};
     const result=service('agdf_revise',applied);assert.equal(result.outcome,'accepted',JSON.stringify({gate,phase,result}));
     const after=state(), receipt=readSourceRevisions(after.content).receipts.at(-1);
     assert.equal(receipt.input_resolution.record_version,'4');assert.equal(receipt.policy_version,2);assert.equal(receipt.initiating_phase,phase);assert.equal(validateRevisionHistory(root,receipt),true);
     assert.equal(runSealState(root,after.content).status,'valid');assert.equal(after.approvals.get('QA').status,'missing');assert.equal(after.approvals.get('UAT').status,'missing');
     for(const type of ['UR','PRD','SD','TP'].slice(0,['UR','PRD','SD','TP'].indexOf(gate)))assert.deepEqual(after.approvals.get(type),old.approvals.get(type));
-    assert.equal(service('agdf_revise',applied).outcome,'already_applied');assert.equal(readSourceRevisions(state().content).receipts.length,1);cells++;
+    const [continuation] = result.next_calls;
+    assert.equal(continuation.tool, 'agdf_inspect');
+    assert.equal(continuation.arguments.operation, 'authoring-inputs');
+    assert.equal(continuation.arguments.expected_revision_id, receipt.resulting_revision_id);
+    const inspect = createControlInspectService();
+    const observed = inspect(parseControlInspectFunctionArguments(result.operation_status_call.arguments,
+      { surface: 'codex', expectedVersion: '0.31.0', interactionLocales }));
+    assert.equal(observed.outcome, 'inspect_result', JSON.stringify(observed.diagnostics));
+    assert.deepEqual(observed.report.next_calls, [continuation], 'Lost reply recovery offers the same bound authoring read');
+    const replay = service('agdf_revise', applied);
+    assert.equal(replay.outcome, 'already_applied');
+    assert.deepEqual(replay.next_calls, [continuation], 'Replay can resume only the current reopened revision');
+    assert.equal(readSourceRevisions(state().content).receipts.length,1);cells++;
     const tampered={...receipt,initiating_phase:phase==='QA'?'CD+Tests':'QA'};assert.equal(validateRevisionHistory(root,tampered),false,'Archive pins original phase');
   }
   assert.equal(cells,22);

@@ -32,10 +32,21 @@
 .cockpit-brand-header--document::before { opacity: var(--cockpit-document-visual-opacity, .12); }
 .cockpit-brand-header--document .cockpit-brand-mark { width: 30px; height: 30px; }
 .cockpit-brand-header--document .cockpit-brand-title { font-size: var(--agdf-text-base); }
+.cockpit-brand-header--review {
+  position: relative; z-index: auto;
+  margin: calc(-1 * var(--agdf-space-4)) calc(-1 * var(--agdf-space-4)) 0;
+  border-bottom: 1px solid var(--cockpit-line);
+  border-radius: var(--agdf-radius-2xl) var(--agdf-radius-2xl) 0 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: var(--agdf-space-3) var(--agdf-space-4);
+  overflow-wrap: anywhere;
+}
+.cockpit-brand-kicker { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
 @media (max-width: 380px) {
   .cockpit-brand-header { grid-template-columns: 30px minmax(0, 1fr) auto; gap: var(--agdf-space-2); padding: var(--agdf-space-4); }
   .cockpit-brand-mark { width: 30px; height: 30px; }
   .cockpit-brand-header--document { padding: var(--agdf-space-3) var(--agdf-space-4); }
+  .cockpit-brand-header--review { grid-template-columns: auto minmax(0, 1fr); padding: var(--agdf-space-3) var(--agdf-space-4); }
 }
 @container (max-width: 440px) {
   .cockpit-brand-header--card .cockpit-brand-actions { flex-direction: column; gap: var(--agdf-space-1); }

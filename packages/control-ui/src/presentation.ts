@@ -28,6 +28,52 @@ export function observedAssessment(data: Detail, current: boolean) {
   const matches = !data.persisted || data.persisted.current_gate === e?.current_gate && data.persisted.next_allowed_action === e?.next_allowed_action;
   return current && matches ? e?.control_assessment?.state ?? 'unconfirmed' : 'unconfirmed';
 }
+
+const reviewQuestions: Record<string, string> = {
+  UR: 'Prüfe, ob Ziel und Umfang deinem Auftrag entsprechen.',
+  PRD: 'Prüfe, ob das gewünschte Verhalten und die Akzeptanzkriterien stimmen.',
+  SD: 'Prüfe, ob die vorgeschlagene Lösung zum Vorhaben passt.',
+  TP: 'Prüfe, ob der Plan die vereinbarten Aufgaben und Prüfungen abdeckt.',
+  QA: 'Prüfe das Qualitätsergebnis und die zugehörigen Nachweise.',
+  UAT: 'Prüfe, ob das Ergebnis die vereinbarten Abnahmekriterien erfüllt.',
+};
+
+const reviewBlockerReasons: Record<string, string> = {
+  AGDF_RUN_SEAL_INVALID: 'Der gespeicherte Stand des Vorhabens konnte nicht verifiziert werden.',
+  approved_material_sources_changed: 'Eine Quelle zu einer bereits erteilten Freigabe hat sich geändert.',
+  presentation_version_decided: 'Zu dieser Fassung wurde bereits eine Entscheidung gespeichert.',
+  qa_blocked: 'Die Qualitätsprüfung blockiert die Weiterarbeit.',
+  qa_revise_required: 'Die Qualitätsprüfung verlangt eine Überarbeitung oder weitere Nachweise.',
+};
+
+export function reviewBlocker(data: Detail, current: boolean) {
+  const evaluation = data.evaluation;
+  // A fresh blocking observation can explain why the stored workflow is unconfirmed.
+  if (!current || evaluation?.control_assessment?.state !== 'blocked' || evaluation.blocking_reason === 'none') return null;
+  const reason = evaluation.blocking_reason;
+  const explanation = Object.hasOwn(reviewBlockerReasons, reason) ? reviewBlockerReasons[reason]
+    : 'Die Weiterarbeit ist gesperrt. Der genaue Grund steht hier nicht als Kurztext zur Verfügung.';
+  return `${explanation} Prüfe „Arbeitsstand und Quellen“ in der Vollansicht.`;
+}
+
+export function reviewTask(data: Detail, current: boolean, hasSource: boolean) {
+  const assessment = observedAssessment(data, current);
+  if (assessment === 'unconfirmed') return 'Der aktuelle Stand konnte nicht bestätigt werden.';
+  if (assessment === 'completed') return 'Das Vorhaben ist abgeschlossen.';
+  if (assessment === 'ended') return 'Das Vorhaben ist beendet.';
+  const evaluation = data.evaluation, operation = evaluation?.next_operation;
+  if (hasSource && evaluation?.blocking_reason === 'none' && operation?.actor === 'human' && operation.effect === 'decision'
+    && operation.operation_key === 'approval.record' && operation.gate === evaluation?.current_gate) {
+    return reviewQuestions[operation.gate] ?? 'Prüfe die vorgelegte Fassung.';
+  }
+  if (assessment === 'blocked') {
+    return evaluation?.missing_approval.startsWith('Approval: ')
+      ? 'Die Freigabe steht aus. Die Prüfgrundlage ist hier noch nicht verfügbar.'
+      : 'Die Weiterarbeit ist gesperrt. Öffne den Arbeitsstand für die verfügbaren Angaben.';
+  }
+  const phase = phases[evaluation?.current_gate ?? ''];
+  return phase ? `Aktueller Schritt · ${phase}` : 'Sieh dir den Stand des Vorhabens an.';
+}
 // Reuse an explicitly authored German summary. Never infer or translate source facts.
 export function sourceSummary(content: string): string | null {
   const lines = content.split(/\r?\n/), headings: number[] = [];

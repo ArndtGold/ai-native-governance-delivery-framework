@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { DocumentView } from '../src/DocumentView';
 import { sourceSummary } from '../src/presentation';
-import type { Envelope, Detail, DocumentData } from '../src/types';
+import type { Envelope, Detail, DocumentData, DocumentState } from '../src/types';
 const resource = { resource_id:'source', run_id:'run-a', type:'UR', path:'UR.md', registered_reference:'UR.md', status:'registered' };
 const base = { schema_version:'2' as const, target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'2026-10-07T10:00:00Z',source_digest:'digest',state:'available' as const,code:null,retryable:false };
 const content = '# Requirements\n\nStatus: draft\nGate approval: open\n\n## Goal\nAn English source.\n\n## AGDF Approval Summary (de; source=en)\n\nKunden können ihre Unterlagen schneller zuordnen.\n\nQuellen und fehlende Angaben bleiben sichtbar.\n\nNicht Teil der Kurzfassung.\n';
@@ -69,4 +69,41 @@ it('a document of an ended run names the closure instead of an open or unconfirm
   render(<DocumentView result={result} detail={ended} onOpen={vi.fn()}/>);
   expect(screen.getByText('Vorhaben beendet · Beendet')).toBeTruthy();
   expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
+});
+
+it('shows check details only for the confirmed matching document and capture', () => {
+  const check: DocumentState['check'] = { content_digest:'sha256:abc', source:{ run_id:'run-a', gate:'UR', revision_id:'revision', artifact_path:'UR.md', artifact_digest:'sha256:abc', available:true, reason:null }, display:{state:'passed', reason:null, recovery:'authoring'}, result:null };
+  const state: DocumentState = { schema_version:'1', resource_id:'source', run_id:'run-a', revision_id:'revision', type:'UR', registered_reference:'UR.md', source_state:'available', content_digest:'sha256:abc', state:'draft_checked', version_kind:'draft', reason:null, recorded_approval:null, check, authorizes:false };
+  const doc = {...result, data:{...result.data!, content_digest:'sha256:abc', document_state:state}};
+  const parent = {...detail, data:{...detail.data!, document_states:[state]}};
+  const {unmount} = render(<DocumentView result={doc} detail={parent} onOpen={vi.fn()}/>);
+  expect(screen.getByText('Prüfdetails').closest('details')?.open).toBe(false);
+  fireEvent.click(screen.getByText('Prüfdetails'));
+  expect(screen.getByText('Formale Prüfung bestanden')).toBeTruthy();
+  expect(screen.getByText(/ersetzt weder die inhaltliche Prüfung/)).toBeTruthy(); unmount();
+  const simple = render(<DocumentView simple result={doc} detail={parent} onOpen={vi.fn()}/>);
+  expect(screen.queryByText('Entwurf geprüft')).toBeNull();
+  expect(screen.getByText('Prüfdetails').closest('details')?.open).toBe(false); simple.unmount();
+  const stale = render(<DocumentView simple result={doc} detail={parent} current={false} onOpen={vi.fn()}/>);
+  expect(screen.getByText('Zuletzt beobachtet: Entwurf geprüft')).toBeTruthy(); stale.unmount();
+  render(<DocumentView result={doc} detail={{...parent, snapshot_id:'other'}} onOpen={vi.fn()}/>);
+  expect(screen.queryByText('Prüfdetails')).toBeNull();
+});
+
+it('simple reader formats Markdown and offers the exact original as a download', () => {
+  const raw = '# Original\n\n<script>alert(1)</script>\n\nEnde';
+  const {container} = render(<DocumentView simple result={{...result,data:{...result.data!,content:raw}}} detail={detail} onOpen={vi.fn()}/>);
+  const article = screen.getByRole('article',{name:'Originaldokument'});
+  expect(within(article).getByRole('heading', {name:'Original'})).toBeTruthy();
+  expect(article.textContent).toContain('<script>alert(1)</script>');
+  const link = screen.getByRole('link', {name:'Originaldatei herunterladen'});
+  expect(decodeURIComponent(link.getAttribute('href')!.split(',')[1])).toBe(raw);
+  expect(container.querySelector('script')).toBeNull();
+  expect(screen.queryByText('Worum es hier geht')).toBeNull();
+  expect(screen.queryByText('Originaldokument lesen')).toBeNull();
+});
+it('simple reader never replaces a missing original with a summary', () => {
+  render(<DocumentView simple result={{...result,state:'missing',code:'document_missing',data:{resource}}} detail={detail} onOpen={vi.fn()}/>);
+  expect(screen.queryByRole('article',{name:'Originaldokument'})).toBeNull();
+  expect(screen.getByText(/Das registrierte Dokument fehlt/)).toBeTruthy();
 });

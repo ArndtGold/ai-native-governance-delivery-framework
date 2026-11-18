@@ -1,0 +1,4957 @@
+[
+  {
+    "schema_version": 1,
+    "id": "codex.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "installed"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "original_result": "healthy"
+    },
+    "original": {
+      "result": "healthy",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:10.805Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        }
+      ]
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:10.805Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:10.905Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:11.017Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": null
+      },
+      "original_result": "control_result"
+    },
+    "original": {
+      "result": "control_result",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:11.954Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "target_unresolved",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "target_unresolved"
+    },
+    "original": {
+      "result": "target_unresolved",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:12.587Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "skill_continuation",
+        "terminal": false,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": "qa-gate"
+      },
+      "original_result": "skill_continuation"
+    },
+    "original": {
+      "result": "skill_continuation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:13.171Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "invalid_input",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "invalid_input"
+    },
+    "original": {
+      "result": "invalid_input",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:13.783Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "updated"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "previous_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "update_observed": true,
+      "payload_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea"
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:17.776Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "update-stale"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "previous_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "update_observed": true,
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:18.931Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": true,
+      "previous_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "recovered_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "foreign_preserved": true,
+      "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
+      "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
+      "permission_preserved": true,
+      "unresolved": [],
+      "original_result": "plugin_operation"
+    },
+    "original": {
+      "result": "plugin_operation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:25.114Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": false,
+      "previous_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "recovered_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "foreign_preserved": true,
+      "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
+      "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
+      "permission_preserved": true,
+      "unresolved": [
+        "injected_recovery_failure"
+      ],
+      "original_result": "plugin_operation",
+      "failures": [
+        {
+          "phase": "plugin_operation",
+          "status": "failed"
+        },
+        {
+          "phase": "recovery",
+          "status": "failed"
+        }
+      ]
+    },
+    "original": {
+      "result": "plugin_operation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:27.714Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "manual-checks"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:27.714Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "codex",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "trusted-unexecuted"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": true,
+      "original_result": "hook_trusted_session_unverified"
+    },
+    "original": {
+      "result": "hook_trusted_session_unverified",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:27.714Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5b777ee25a6cc61b0ae8eb4db744281a53137254b123b4452fc68ea7fca3094e",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "installed"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "original_result": "healthy"
+    },
+    "original": {
+      "result": "healthy",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:29.966Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        }
+      ]
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:29.966Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:30.086Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:30.208Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": null
+      },
+      "original_result": "control_result"
+    },
+    "original": {
+      "result": "control_result",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:30.816Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "target_unresolved",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "target_unresolved"
+    },
+    "original": {
+      "result": "target_unresolved",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:31.231Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "skill_continuation",
+        "terminal": false,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": "qa-gate"
+      },
+      "original_result": "skill_continuation"
+    },
+    "original": {
+      "result": "skill_continuation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:31.805Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "invalid_input",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "invalid_input"
+    },
+    "original": {
+      "result": "invalid_input",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:32.219Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "updated"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "previous_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "update_observed": true,
+      "payload_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea"
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:36.639Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "update-stale"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "previous_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "update_observed": true,
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:37.937Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": true,
+      "previous_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "recovered_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "foreign_preserved": true,
+      "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
+      "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
+      "permission_preserved": true,
+      "unresolved": [],
+      "original_result": "plugin_operation"
+    },
+    "original": {
+      "result": "plugin_operation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:45.448Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": false,
+      "previous_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "recovered_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "foreign_preserved": true,
+      "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
+      "permission_after": "5cde84ef32def8b818be4137a6f686d14912745a249102fe0ae15d6ff1554e37",
+      "permission_preserved": false,
+      "unresolved": [
+        "injected_recovery_failure"
+      ],
+      "original_result": "plugin_operation",
+      "failures": [
+        {
+          "phase": "plugin_operation",
+          "status": "failed"
+        },
+        {
+          "phase": "recovery",
+          "status": "failed"
+        }
+      ]
+    },
+    "original": {
+      "result": "plugin_operation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:47.189Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "manual-checks"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:47.189Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "claude",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "trusted-unexecuted"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": true,
+      "original_result": "trust_is_not_execution"
+    },
+    "original": {
+      "result": "trust_is_not_execution",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:47.189Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "9f49b1ca7a64a8491294fc6357875214cac275323e794dcc87f2c9259c87951f",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "installed"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "original_result": "healthy"
+    },
+    "original": {
+      "result": "healthy",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:53.953Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+        }
+      ]
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:53.953Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "924bf893412ee382e05bbbba0761c9777d822d01a0589bfc06ed2f7cb468b463"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:54.043Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "b4206f5053684aac1f43ff7de93bcc1f9edc0e93bda62e9eee35e15ebf6edf28"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:54.134Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": null
+      },
+      "original_result": "control_result"
+    },
+    "original": {
+      "result": "control_result",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:54.783Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "target_unresolved",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "target_unresolved"
+    },
+    "original": {
+      "result": "target_unresolved",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:55.272Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "skill_continuation",
+        "terminal": false,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": "qa-gate"
+      },
+      "original_result": "skill_continuation"
+    },
+    "original": {
+      "result": "skill_continuation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:56.081Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "invalid_input",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "invalid_input"
+    },
+    "original": {
+      "result": "invalid_input",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:51:56.729Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "updated"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "previous_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "update_observed": true,
+      "payload_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7"
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:06.765Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "update-stale"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "previous_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "update_observed": true,
+      "payload_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e"
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:07.590Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "1f5423ef23a7700462e1f5f1efacfcdb2752d10a6942d3a2a54e6a1020997dc8",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": true,
+      "previous_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7",
+      "recovered_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7",
+      "foreign_preserved": true,
+      "permission_before": "a9c6c46f6af66391e29e293d0fcbbf8b6519ec1be2be20b64051ea9af1529f0f",
+      "permission_after": "a9c6c46f6af66391e29e293d0fcbbf8b6519ec1be2be20b64051ea9af1529f0f",
+      "permission_preserved": true,
+      "unresolved": [],
+      "original_result": "verification"
+    },
+    "original": {
+      "result": "verification",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:29.982Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "1f5423ef23a7700462e1f5f1efacfcdb2752d10a6942d3a2a54e6a1020997dc8",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "1f5423ef23a7700462e1f5f1efacfcdb2752d10a6942d3a2a54e6a1020997dc8",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": false,
+      "previous_digest": "b38faf49ed9e439ee5217fc9c3387b4751fca09d90ac63c10c63916e123c66f7",
+      "recovered_digest": "1f5423ef23a7700462e1f5f1efacfcdb2752d10a6942d3a2a54e6a1020997dc8",
+      "foreign_preserved": true,
+      "permission_before": "a9c6c46f6af66391e29e293d0fcbbf8b6519ec1be2be20b64051ea9af1529f0f",
+      "permission_after": "a9c6c46f6af66391e29e293d0fcbbf8b6519ec1be2be20b64051ea9af1529f0f",
+      "permission_preserved": true,
+      "unresolved": [
+        "injected_recovery_failure"
+      ],
+      "original_result": "verification",
+      "failures": [
+        {
+          "phase": "verification",
+          "status": "failed"
+        },
+        {
+          "phase": "recovery",
+          "status": "failed"
+        }
+      ]
+    },
+    "original": {
+      "result": "verification",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:39.312Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "manual-checks"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:39.312Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "copilot",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "trusted-unexecuted"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "4e093d2078ce76b213f22afd36096a155c95d857a78a411ebc6a4102576e554e",
+      "runtime_digest": "19504f989f46a51390c03889883ece2801b686b4f6be55d8f12a6e0460101082"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": true,
+      "original_result": "trust_is_not_execution"
+    },
+    "original": {
+      "result": "trust_is_not_execution",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:39.312Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "d95b80082b128e215696beff3c31087ed1e02b1cffc346d3bcb9a734b3f1845a",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "installed"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "original_result": "installed"
+    },
+    "original": {
+      "result": "installed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:41.927Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+        }
+      ]
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:41.927Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "3dcd53d903587fab956528e7f80f1f1d685ba924b4bca9bc5764fd19e612730e"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:42.044Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08",
+      "expected_skills": [
+        "delivery-path-search",
+        "brownfield-analysis",
+        "ux-intent-definition",
+        "clean-implementation-review",
+        "code-review",
+        "delivery-closeout",
+        "ur-definition",
+        "prd-definition",
+        "sd-definition",
+        "tp-definition",
+        "gate-check",
+        "qa-gate",
+        "release-or",
+        "task-plan-review"
+      ],
+      "exposed_skills": [
+        {
+          "name": "delivery-path-search",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "brownfield-analysis",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "ux-intent-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "clean-implementation-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "code-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "delivery-closeout",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "ur-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "prd-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "tp-definition",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "gate-check",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "qa-gate",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "release-or",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        },
+        {
+          "name": "task-plan-review",
+          "enabled": true,
+          "payload_digest": "5c8b65e3861242968be39ee415118f42e829ab6848f4ffa480d7f41a59e0aa08"
+        }
+      ]
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:42.139Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": null
+      },
+      "original_result": "control_result"
+    },
+    "original": {
+      "result": "control_result",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:42.728Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "target_unresolved",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "target_unresolved"
+    },
+    "original": {
+      "result": "target_unresolved",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:43.211Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "skill_continuation",
+        "terminal": false,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": "fixture-target",
+        "gate": "UR",
+        "status": "open",
+        "continuation": "qa-gate"
+      },
+      "original_result": "skill_continuation"
+    },
+    "original": {
+      "result": "skill_continuation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:43.980Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "invocation": {
+        "observed": true,
+        "contract_version": 1,
+        "binding_version": "2",
+        "canonical_result": true,
+        "post_terminal_actions": 0
+      },
+      "canonical": {
+        "outcome": "invalid_input",
+        "terminal": true,
+        "authorizes": false,
+        "contract_version": 1,
+        "target": null,
+        "gate": null,
+        "status": null,
+        "continuation": null
+      },
+      "original_result": "invalid_input"
+    },
+    "original": {
+      "result": "invalid_input",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:44.542Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "updated"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "previous_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "update_observed": true,
+      "payload_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea"
+    },
+    "original": {
+      "result": "demonstrated",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:48.002Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "update-stale"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "previous_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "update_observed": true,
+      "payload_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438"
+    },
+    "original": {
+      "result": "failed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:49.139Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": true,
+      "previous_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "recovered_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "foreign_preserved": true,
+      "permission_before": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
+      "permission_after": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
+      "permission_preserved": true,
+      "unresolved": [],
+      "original_result": "plugin_operation"
+    },
+    "original": {
+      "result": "plugin_operation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:56.261Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": false,
+      "previous_digest": "efad207b1c3a5519de37b039f95d34284bcef0fd1c26f1a721d4c67d086196ea",
+      "recovered_digest": "15e5c9b831d7cb9aa4e164a2faac2282ea009a50ad765377aaf243ff573d1899",
+      "foreign_preserved": true,
+      "permission_before": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
+      "permission_after": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
+      "permission_preserved": true,
+      "unresolved": [
+        "injected_recovery_failure"
+      ],
+      "original_result": "plugin_operation",
+      "failures": [
+        {
+          "phase": "plugin_operation",
+          "status": "failed"
+        },
+        {
+          "phase": "recovery",
+          "status": "failed"
+        }
+      ]
+    },
+    "original": {
+      "result": "plugin_operation",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:59.485Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "manual-checks"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:59.485Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
+    "environment": {
+      "host": "opencode",
+      "variant": "simulated",
+      "host_version": null,
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/fixture",
+      "permission": "fixture-isolated",
+      "trust": "simulated",
+      "activation": "fixture",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": null,
+      "fixture_version": "1",
+      "condition": "trusted-unexecuted"
+    },
+    "expected": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "observed": {
+      "canonical_version": "0.32.0",
+      "source_digest": "504830380ae38189fc747d07929a81804197d1b3497e7b1323a000c176df8438",
+      "runtime_digest": "852fc369496c4b0aa6e1c2938adb51358dc5876701c7d32d2a56f5ac90324010"
+    },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": true,
+      "original_result": "trust_is_not_execution"
+    },
+    "original": {
+      "result": "trust_is_not_execution",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-11-17T10:52:59.485Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5c0d83ae06dcb9032d2442e0d9a4e179392fa46c980174d453287ef716eeb508",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "0238f318ed29d58e4a24182a52eb552f13dbba8fc2d2536e7ccee9d572340253"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude-20261024075045438-dispatch.installed",
+    "scenario": "dispatch",
+    "observed_at": "2026-10-24T07:50:45.438Z",
+    "environment": {
+      "host": "claude",
+      "variant": "cli",
+      "host_version": "2.1.302",
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/native",
+      "permission": "explicit_test_scope",
+      "trust": "native_process",
+      "activation": "deliberate_native_test",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": "claude-sonnet-5-5",
+      "fixture_version": null,
+      "condition": "release_qualification"
+    },
+    "expected": {
+      "canonical_version": "0.20.0",
+      "source_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "runtime_digest": "6c5ec6dd015c3b5e00250e18b5d5101bce545b386e0625969e1dd41489ae466a"
+    },
+    "observed": {
+      "canonical_version": "0.20.0",
+      "source_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "runtime_digest": "6c5ec6dd015c3b5e00250e18b5d5101bce545b386e0625969e1dd41489ae466a"
+    },
+    "source_fingerprint": null,
+    "lane": "fresh_host",
+    "method": "fresh_host_observation",
+    "claim": "installed",
+    "mechanism": "claude_cli_native_release",
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529"
+    },
+    "original": {
+      "result": "pass",
+      "evidence_class": "native_process"
+    },
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json",
+        "sha256": "33768215b7d92a67c54d5d35b3e0c4137cec24f0dc1b93bd3963fb23a8f1dc1c"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json",
+      "method": "reviewed_native_release_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude-20261024075321621-upgrade.updated",
+    "scenario": "upgrade",
+    "observed_at": "2026-10-24T07:53:21.621Z",
+    "environment": {
+      "host": "claude",
+      "variant": "cli",
+      "host_version": "2.1.302",
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/native",
+      "permission": "explicit_test_scope",
+      "trust": "native_process",
+      "activation": "deliberate_native_test",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": "claude-sonnet-5-5",
+      "fixture_version": null,
+      "condition": "release_qualification"
+    },
+    "expected": {
+      "canonical_version": "0.20.0",
+      "source_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "runtime_digest": "6c5ec6dd015c3b5e00250e18b5d5101bce545b386e0625969e1dd41489ae466a"
+    },
+    "observed": {
+      "canonical_version": "0.20.0",
+      "source_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "runtime_digest": "6c5ec6dd015c3b5e00250e18b5d5101bce545b386e0625969e1dd41489ae466a"
+    },
+    "source_fingerprint": null,
+    "lane": "fresh_host",
+    "method": "fresh_host_observation",
+    "claim": "updated",
+    "mechanism": "claude_cli_native_release",
+    "facts": {
+      "update_observed": true,
+      "previous_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289",
+      "payload_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "fresh_session_observed": true
+    },
+    "original": {
+      "result": "pass",
+      "evidence_class": "native_process"
+    },
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json",
+        "sha256": "33768215b7d92a67c54d5d35b3e0c4137cec24f0dc1b93bd3963fb23a8f1dc1c"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json",
+      "method": "reviewed_native_release_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude-20261024075425903-recovery.recoverable",
+    "scenario": "recovery",
+    "observed_at": "2026-10-24T07:54:25.903Z",
+    "environment": {
+      "host": "claude",
+      "variant": "cli",
+      "host_version": "2.1.302",
+      "os": "win32",
+      "target_os": null,
+      "path": "primary/native",
+      "permission": "explicit_test_scope",
+      "trust": "native_process",
+      "activation": "deliberate_native_test",
+      "runtime_version": "v22.22.3",
+      "sdk_version": null,
+      "model": "claude-sonnet-5-5",
+      "fixture_version": null,
+      "condition": "release_qualification"
+    },
+    "expected": {
+      "canonical_version": "0.20.0",
+      "source_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "runtime_digest": "6c5ec6dd015c3b5e00250e18b5d5101bce545b386e0625969e1dd41489ae466a"
+    },
+    "observed": {
+      "canonical_version": "0.20.0",
+      "source_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "runtime_digest": "6c5ec6dd015c3b5e00250e18b5d5101bce545b386e0625969e1dd41489ae466a"
+    },
+    "source_fingerprint": null,
+    "lane": "fresh_host",
+    "method": "fresh_host_observation",
+    "claim": "recoverable",
+    "mechanism": "claude_cli_native_release",
+    "facts": {
+      "failure_observed": true,
+      "recovery_observed": true,
+      "foreign_preserved": true,
+      "permission_preserved": true,
+      "previous_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289",
+      "recovered_digest": "99053ec327424c19acf76de2d69dc1f98b0d1b36b47b74e905eb0281f30fd529",
+      "unresolved": []
+    },
+    "original": {
+      "result": "pass",
+      "evidence_class": "native_process"
+    },
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json",
+        "sha256": "33768215b7d92a67c54d5d35b3e0c4137cec24f0dc1b93bd3963fb23a8f1dc1c"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/claude-cli-release-8e2b86992e009f5a597fdd45075c7e43f054b836f584fc68fc891c73f32bb692.json",
+      "method": "reviewed_native_release_facts"
+    }
+  }
+]

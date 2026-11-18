@@ -314,6 +314,54 @@ for (const { label, modern, options } of variants) {
     const relayedReply = await call(relaying, generationResult, 'agdf_record', relayed);
     assert.equal(relayedReply.isError, true, JSON.stringify(relayedReply));
     assert.deepEqual(ofOperation(dataRoot, relayed.operation_id), [], 'a relayed generation result is journaled by the generation only');
+    // Review finding 4: one call leaves at most one event. A failure after the result was journaled
+    // (here: the reply cannot be built) adds no contradicting second line, neither in the directly
+    // executing server nor in the facade relaying a result its generation already journaled.
+    const busy = { code: 'dispatch_busy', dispatch: 'not_dispatched' };
+    const producing = runtime => ({ execute: async args => runtime.projectToolResult('agdf_record', args, runtime.failure('dispatch_busy', 'agdf_record', args, busy), busy), close: async () => {} });
+    // Building the reply fails once, after the result was validated and journaled; `injected` counts
+    // the failures, so each case proves that its reply really failed.
+    let injected = 0;
+    const failingOnce = runtime => { let failed = false;
+      const once = serialize => (...args) => { if (!failed) { failed = true; injected += 1; throw new Error('reply cannot be built'); } return serialize(...args); };
+      const tools = runtime.tools.map(tool => ({ ...tool, serialize: once(tool.serialize ?? runtime.serialize) }));
+      return { ...runtime, serialize: once(runtime.serialize), tools, tool: name => tools.find(tool => tool.name === name) }; };
+    const delivered = { ...write, operation_id: randomUUID() }, direct = runtimeWith(dataRoot);
+    const deliveredReply = await call(failingOnce(direct), producing(direct), 'agdf_record', delivered);
+    assert.equal(deliveredReply.isError, true, JSON.stringify(deliveredReply));
+    assert.deepEqual(ofOperation(dataRoot, delivered.operation_id).map(event => [event.kind, event.reason]), [['write_rejected', 'dispatch_busy']],
+      'the journaled result stays the only event of its call');
+    assert.equal(injected, 1, 'the direct reply failed once');
+    const relayedTwice = { ...write, operation_id: randomUUID() }, relayingFacade = facade(dataRoot);
+    const relayedTwiceReply = await call(failingOnce(relayingFacade), producing(relayingFacade), 'agdf_record', relayedTwice);
+    assert.equal(relayedTwiceReply.isError, true, JSON.stringify(relayedTwiceReply));
+    assert.deepEqual(ofOperation(dataRoot, relayedTwice.operation_id), [], 'the facade adds no failure event to a result its generation journaled');
+    assert.equal(injected, 2, 'the relayed reply failed once');
+    // The production facade (generation.js) owns every tool itself (`parentOwned`) and invokes its
+    // generation from the tool; the same holds on that path, and for a failure the facade raises after
+    // the generation replied, which carries the reply as `generationResult`.
+    const owning = (runtime, execute) => { const tools = runtime.tools.map(tool => ({ ...tool, parentOwned: true, parse: value => value, execute }));
+      return { ...runtime, tools, tool: name => tools.find(tool => tool.name === name) }; };
+    const reply = (runtime, args) => runtime.projectToolResult('agdf_record', args, runtime.failure('dispatch_busy', 'agdf_record', args, busy), busy);
+    const owned = { ...write, operation_id: randomUUID() }, owningFacade = facade(dataRoot);
+    const ownedReply = await call(failingOnce(owning(owningFacade, async args => reply(owningFacade, args))), undefined, 'agdf_record', owned);
+    assert.equal(ownedReply.isError, true, JSON.stringify(ownedReply));
+    assert.deepEqual(ofOperation(dataRoot, owned.operation_id), [], 'the owning facade adds no event to a relayed generation result');
+    assert.equal(injected, 3, 'the owning facade reply failed once');
+    const late = { ...write, operation_id: randomUUID() };
+    await call(owning(owningFacade, async args => { throw Object.assign(new Error('generation_route_capacity'), { generationResult: reply(owningFacade, args) }); }), undefined, 'agdf_record', late);
+    assert.deepEqual(ofOperation(dataRoot, late.operation_id), [], 'a facade failure after the generation replied adds no event');
+    const lostOwned = { ...write, operation_id: randomUUID() };
+    await call(owning(owningFacade, async () => { throw new DispatchExecutionError('generation_connection_lost'); }), undefined, 'agdf_record', lostOwned);
+    assert.deepEqual(ofOperation(dataRoot, lostOwned.operation_id).map(event => event.kind), ['effect_unknown'], 'a failure without a generation reply is still journaled once');
+    // A result that left no event (as an accepted command outside the eight kinds does) followed by a
+    // failed reply still leaves the one failure event.
+    const silent = { ...write, operation_id: randomUUID() }, quiet = runtimeWith(dataRoot);
+    let skipped = false;
+    const withoutFirstEvent = { ...quiet, observeOutcome: (...args) => { if (!skipped) { skipped = true; return false; } return quiet.observeOutcome(...args); } };
+    await call(failingOnce(withoutFirstEvent), producing(quiet), 'agdf_record', silent);
+    assert.equal(ofOperation(dataRoot, silent.operation_id).length, 1, 'a failure after a result without an event is journaled once');
+    assert.equal(injected, 4, 'the reply after the silent result failed once');
     const reads = eventsOf(dataRoot).length;
     await call(runtimeWith(dataRoot), undefined, 'agdf_inspect', { presentation_language: 'en', working_directory: target.root, primary_target: target.root,
       target_source: 'explicit_target', operation: 'gate-check', run_id: 'fixture-a' });

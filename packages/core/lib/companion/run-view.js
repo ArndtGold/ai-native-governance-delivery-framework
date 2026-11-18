@@ -4,8 +4,13 @@
 // view sees exactly what the status card shows. Nothing here writes or authorizes.
 import { existsSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
-import { readFileSync } from '../control-read/fs.js';
+import { readFileSync, statSync } from '../control-read/fs.js';
 import { captureControlScope } from '../control-read/snapshot.js';
+import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from '../control-state/contained-file.js';
+import { parseControlState } from '../control-state/run-state-parser.js';
+import { runIdentity } from '../control-state/run-title.js';
+import { authoredGoal, localizedDecisionFields } from '../control-evaluation/decision-content-readiness.js';
+import { projectPlannedInventory } from '../control-state/planned-inventory.js';
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { readRunInventory } from '../control-state/run-inventory-reader.js';
 import { runFolderEntries } from '../control-state/run-state-reader.js';
@@ -15,7 +20,7 @@ import { runRelativePath } from '../control-state/run-identity.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { boundedCode } from '../control-inspect/run-classification.js';
 import { localizeBlockingCondition, localizeOperationalValue } from '../interaction-presentation.js';
-import { interactionLocales } from '../resources/context.js';
+import { interactionLocales, resolveArtifactPresentationLanguages } from '../resources/context.js';
 import { deriveFigureState } from './figure-state.js';
 
 export const RUN_VIEW_SCHEMA = 'run-view/1';
@@ -43,13 +48,75 @@ export function projectDiagnosis(entries) {
   return { unreadable, counts: { unreadable: unreadable.length, readable: entries.length - unreadable.length, by_reason } };
 }
 
+const NAMING_TEXT_LIMIT = 500;
+const UR_READ_LIMIT = 131072;
+const bounded = value => (typeof value === 'string' && value.length > NAMING_TEXT_LIMIT ? `${value.slice(0, NAMING_TEXT_LIMIT - 1)}…` : value);
+
+// How a run names itself to a person, read inside the run's own snapshot: the stable title of the
+// shared Run title rule (registered UR heading, then the authored Objective; a bare Run ID is no
+// title) and the goal in the display language. Where display and artefact language differ, the goal
+// is the one the UR's localized approval summary states. An unreadable UR leaves both to the Run document.
+// What one UR document says about itself, read inside the caller's snapshot: its heading without
+// the "UR:" prefix, the goal its localized approval summary states for the display language, the goal
+// it authors in the artefact language, and when the file last changed. A document outside the control
+// folder, behind a link or over the read limit yields nothing; only a changed source is passed on.
+function readUrFacts(root, path, language) {
+  const facts = { heading: '', localizedGoal: null, authoredGoal: null, changedAt: null };
+  try {
+    if (!isSafeControlRelativePath(path) || !path.startsWith('.agdf/control/') || hasSymlinkComponent(root, path)) return facts;
+    const file = containedRegularFile(root, path);
+    if (file.status !== 'valid') return facts;
+    const stat = statSync(file.path);
+    if (stat.size > UR_READ_LIMIT) return facts;
+    const text = readFileSync(file.path, 'utf8');
+    facts.heading = (text.match(/^#\s+(.+)$/mu)?.[1] ?? '').replace(/^UR:\s*/iu, '').trim();
+    const sourceLanguage = resolveArtifactPresentationLanguages(root, language).artifact_language;
+    facts.localizedGoal = localizedDecisionFields('UR', text, { locale: String(language).split('-')[0], sourceLanguage, path }).fields.goal ?? null;
+    facts.authoredGoal = authoredGoal(text);
+    facts.changedAt = Number.isFinite(stat.mtimeMs) ? new Date(stat.mtimeMs).toISOString() : null;
+  } catch (error) { if (error?.code === 'source_changed') throw error; }
+  return facts;
+}
+
+export function readRunNaming(root, runId, language = 'en') {
+  let content;
+  try { content = readFileSync(join(root, runRelativePath(runId, '', 'RUN_STATE.md')), 'utf8'); } catch { return null; }
+  let path = '';
+  try { path = String(parseControlState(content).artefacts.get('UR')?.path ?? '').replace(/^`|`$/gu, '').trim(); } catch { /* no registered UR */ }
+  const { heading: urHeading, localizedGoal } = readUrFacts(root, path, language);
+  const identity = runIdentity({ runId, runContent: content, urHeading });
+  return { run_title: identity.title_source === 'run_id' ? null : bounded(identity.title),
+    run_title_source: identity.title_source, goal: bounded(localizedGoal ?? identity.objective) };
+}
+
+// Planned URs that are no run yet (owner finding of 2026-11-16: the companion said "all runs done"
+// while a new UR was being drafted). The planning inventory the cockpit lists is the source; an entry
+// already handed over to a run is that run and is left out. Each entry carries its title, its
+// planning state (draft, ready, or one that needs clarification), its goal in the display language
+// and when its UR last changed. Read inside one captured snapshot; nothing is written.
+export function readPlannedView(root, language = 'en') {
+  return projectPlannedInventory(root, { language }).entries.filter(entry => entry.coverage !== 'transferred').map(entry => {
+    const facts = readUrFacts(root, entry.source.path, language);
+    return { plan_id: entry.plan_id, title: bounded(entry.title), coverage: entry.coverage,
+      goal: bounded(facts.localizedGoal ?? facts.authoredGoal), last_change: facts.changedAt };
+  });
+}
+
 // One run entry: inventory facts plus, when evaluated, the status card fields of its report.
-export function projectRunEntry(inventoryEntry, report, { registry = interactionLocales, language = 'en' } = {}) {
+// `naming` is readRunNaming's result for an evaluated run; without it the inventory names the run.
+export function projectRunEntry(inventoryEntry, report, { registry = interactionLocales, language = 'en', naming = null } = {}) {
+  const authored = inventoryEntry.title_source === 'objective' ? inventoryEntry.title ?? null : null;
   const base = {
     run_id: inventoryEntry.run_id,
     title: inventoryEntry.title ?? null,
-    // The authored objective only; a template objective or a run-id title is no goal (CR finding C2).
-    objective: inventoryEntry.title_source === 'objective' ? inventoryEntry.title ?? null : null,
+    // The stable human title, the same at every gate; null while only the Run ID could name the run.
+    run_title: naming ? naming.run_title : authored,
+    run_title_source: naming?.run_title_source ?? (authored ? 'objective' : 'run_id'),
+    // The goal in the display language where the UR states one, otherwise the authored objective.
+    goal: naming ? naming.goal : inventoryEntry.objective ?? null,
+    // The authored objective only, from the shared Run title rule; a template objective or a
+    // bare Run ID is no goal (CR finding C2).
+    objective: inventoryEntry.objective ?? null,
     lifecycle: inventoryEntry.lifecycle ?? null,
     valid: inventoryEntry.valid !== false,
     revision: inventoryEntry.revision ?? null,
@@ -66,6 +133,7 @@ export function projectRunEntry(inventoryEntry, report, { registry = interaction
     ...base,
     title: card.humanPresentation?.runTitle ?? base.title,
     evaluated: true,
+    completion_confirmed: base.lifecycle === 'completed' && report.completion?.fulfilled === true,
     status: card.status,
     current_gate: card.current_gate,
     path: card.breadcrumb.map(({ gate, status }) => ({ gate, status })),
@@ -81,15 +149,19 @@ export function projectRunEntry(inventoryEntry, report, { registry = interaction
 }
 const withFigure = entry => ({ ...entry, figure: deriveFigureState(entry) });
 
-// Pure assembly of the versioned view from already evaluated parts.
-export function projectRunView({ root, language, store, entries }) {
+// Pure assembly of the versioned view from already evaluated parts. `canonical_root` is the realpath
+// MCP resolves for the same root, so a host can recognize its own dispatch results for this root.
+export function projectRunView({ root, canonicalRoot = null, language, store, entries, planned = [] }) {
   return {
     schema_version: RUN_VIEW_SCHEMA,
     root,
+    canonical_root: canonicalRoot,
     language,
     store,
     diagnosis: projectDiagnosis(entries.filter(entry => entry.listed !== false)),
     runs: entries,
+    // Planned URs that are no run yet; empty when the planning store cannot be read.
+    planned,
     authorizes: false,
   };
 }
@@ -122,9 +194,10 @@ export function readRunDrift(root, runId) {
   return drift;
 }
 
-// Active and unreadable runs are evaluated; terminal runs are summarized unless requested by id,
-// so a large history does not cost one evaluation per run.
-const needsEvaluation = (entry, requested) => requested.has(entry.run_id) || !entry.valid || entry.lifecycle === 'active';
+// Active runs are evaluated; terminal and unreadable runs are summarized unless requested by id, so
+// neither a large history nor many unreadable runs cost one evaluation per run. An unreadable run's
+// reason and figure come from the inventory findings.
+const needsEvaluation = (entry, requested) => requested.has(entry.run_id) || (entry.valid && entry.lifecycle === 'active');
 
 // A write that lands during a capture invalidates it (source_changed); the read is repeated a bounded
 // number of times before the change is reported (CR delta review RV-1).
@@ -152,12 +225,12 @@ export function readRunView(root, { language = 'en', runIds = [] } = {}) {
     try {
       return captured(readRoot, base => {
         const report = evaluateGateCheck(base, { runId, ignoreRunIdEnv: true, presentationLanguage: language });
-        return { report, drift: report?.status_card ? readRunDrift(base, runId) : null };
+        return { report, drift: report?.status_card ? readRunDrift(base, runId) : null, naming: readRunNaming(base, runId, language) };
       });
-    } catch (error) { return { report: { evaluation_error: boundedCode(error) }, drift: null }; }
+    } catch (error) { return { report: { evaluation_error: boundedCode(error) }, drift: null, naming: null }; }
   };
   const entryOf = (inventoryEntry, evaluated) => {
-    const entry = projectRunEntry(inventoryEntry, evaluated?.report ?? null, { language });
+    const entry = projectRunEntry(inventoryEntry, evaluated?.report ?? null, { language, naming: evaluated?.naming ?? null });
     return entry.evaluated && entry.valid !== false && evaluated.drift ? { ...entry, drift: evaluated.drift } : entry;
   };
   let inventory = null, store;
@@ -180,5 +253,10 @@ export function readRunView(root, { language = 'en', runIds = [] } = {}) {
     // evaluated for its card, never counted in the diagnosis of listed runs.
     entries.push({ ...entryOf({ run_id: runId, findings: [] }, evaluate(runId)), valid: null, listed: false });
   }
-  return projectRunView({ root, language, store, entries });
+  // The planning list is an addition: a planning store that cannot be read leaves the run view as it is.
+  let planned = [];
+  if (store.status === 'ok') {
+    try { planned = captured(readRoot, base => readPlannedView(base, language)); } catch { /* shown without planned URs */ }
+  }
+  return projectRunView({ root, canonicalRoot: readRoot, language, store, entries, planned });
 }

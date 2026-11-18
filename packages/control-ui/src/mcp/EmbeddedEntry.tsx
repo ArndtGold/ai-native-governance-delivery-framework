@@ -1,5 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react';
-import { App } from '../App';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react';
+import { App, type CompanionDisplay } from '../App';
+import type { CompanionConstraints } from './CompanionWorkspace';
 import { flushSync } from 'react-dom';
 import { CockpitBridge } from './transport';
 import { applyDocumentTheme, applyHostStyleVariables, PostMessageTransport } from '@modelcontextprotocol/ext-apps';
@@ -11,20 +12,25 @@ import { HostProbe } from './HostProbe';
 import { createViewCloser } from './view-close';
 import { useReviewView } from './review-view';
 import type { CockpitCheckpoint } from '../App';
+import { cockpitHostFromName, type CockpitHost } from '../host-label';
 
-export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
+export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: CockpitBridge; diagnostics?: boolean }) {
   const trace = useMemo(() => {
+    if (!diagnostics) return undefined;
     const logLifecycle = lifecycleConsole(row => console.warn('AGDF_SDK_TRACE ' + row));
     return new SdkTrace(row => {
-    // Native Host logs retain warning output when the view is destroyed; the
-    // recorder emits only after deliberate opt-in and remains bounded.
-    logLifecycle(row);
-    if (bridge.app.getHostCapabilities()?.logging) void bridge.app.sendLog({ level: 'info', logger: 'agdf.sdk.trace', data: row }).catch(() => {});
+      // The recorder emits only after deliberate opt-in and remains bounded.
+      logLifecycle(row);
+      if (bridge.app.getHostCapabilities()?.logging) void bridge.app.sendLog({ level: 'info', logger: 'agdf.sdk.trace', data: row }).catch(() => {});
     });
-  }, [bridge]);
+  }, [bridge, diagnostics]);
   const [bootstrap, setBootstrap] = useState<RenderBootstrap | null>(null);
   const current = useRef<RenderBootstrap | null>(null);
-  const [ready, setReady] = useState(false), [problem, setProblem] = useState('');
+  const [ready, setReady] = useState(false), [expanded, setExpanded] = useState(false), [problem, setProblem] = useState('');
+  const [cockpitHost, setCockpitHost] = useState<CockpitHost>('unknown');
+  const [companionConstraints, setCompanionConstraints] = useState<CompanionConstraints>({});
+  const [expansionProblem, setExpansionProblem] = useState('');
+  const expansionAttempt = useRef(0);
   const review = useReviewView(bridge);
   const checkpoint = useRef<CockpitCheckpoint | null>(null);
   const terminal = useRef<HTMLElement>(null);
@@ -34,6 +40,14 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
   }, [bridge, ready, closeState]);
   const handoff = useMemo(() => new HandoffController(createHandoffPort(bridge, bootstrap?.sessionId ?? '')), [bridge, bootstrap?.sessionId]);
   const transport = useMemo(() => bridge.readForSession(bootstrap?.sessionId ?? ''), [bridge, bootstrap?.sessionId]);
+  const reportDisplay = useCallback(async (snapshotId: string, signal: AbortSignal, presentation?: CompanionDisplay) => {
+    if (!bootstrap || current.current?.sessionId !== bootstrap.sessionId) return false;
+    const result = await bridge.operation({ operation: 'display_ack', snapshot_id: snapshotId,
+      ...(presentation && { presentation }) }, signal, bootstrap.sessionId) as {
+      state?: string; data?: { display?: { state?: string } };
+    };
+    return result.state === 'available' && result.data?.display?.state === 'ui_reported_visible';
+  }, [bridge, bootstrap]);
   const handoffRef = useRef(handoff); handoffRef.current = handoff;
   const closer = useMemo(() => createViewCloser(bridge, handoff, bootstrap?.sessionId ?? '', bootstrap?.targetId ?? ''), [bridge, handoff, bootstrap?.sessionId, bootstrap?.targetId]);
   const closerRef = useRef(closer); closerRef.current = closer;
@@ -42,9 +56,17 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
     const update = () => {
       if (!alive) return;
       setReady(connected && !!bridge.session && !!bridge.app.getHostCapabilities()?.serverTools);
+      if (connected) setCockpitHost(cockpitHostFromName(bridge.app.getHostVersion()?.name, current.current?.integrationSurface));
       const host = bridge.app.getHostContext();
       if (host?.theme) applyDocumentTheme(host.theme);
       if (host?.styles?.variables) applyHostStyleVariables(host.styles.variables);
+      setCompanionConstraints({ ...host?.containerDimensions, displayMode: host?.displayMode });
+      const isExpanded = host?.displayMode === 'fullscreen' || host?.displayMode === 'pip';
+      setExpanded(isExpanded);
+      if (isExpanded) {
+        expansionAttempt.current++;
+        setExpansionProblem('');
+      }
       review.observe();
     };
     bridge.app.ontoolresult = result => {
@@ -66,6 +88,8 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
         void oldHandoff.invalidate().finally(() => bridge.operation({ operation: 'close' }, undefined, previous.sessionId)).catch(() => {});
       }
       current.current = next; bridge.session = next.sessionId;
+      expansionAttempt.current++;
+      setExpansionProblem('');
       setBootstrap(next); setProblem(''); setCloseState('open');
       update();
     };
@@ -82,7 +106,8 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       }
       return {};
     };
-    void bridge.app.connect(trace.wrap(new PostMessageTransport(window.parent, window.parent)), { timeout: 10_000 }).then(() => { connected = true; update(); }).catch(() => { if (alive) setProblem('Die Codex-Anbindung konnte nicht bestätigt werden.'); });
+    const hostTransport = new PostMessageTransport(window.parent, window.parent);
+    void bridge.app.connect(trace ? trace.wrap(hostTransport) : hostTransport, { timeout: 10_000 }).then(() => { connected = true; update(); }).catch(() => { if (alive) setProblem('Die Codex-Anbindung konnte nicht bestätigt werden.'); });
     return () => { alive = false; };
   }, [bridge, trace, review.observe]);
   const closeFromApp = async () => {
@@ -116,13 +141,42 @@ export function EmbeddedEntry({ bridge }: { bridge: CockpitBridge }) {
       throw error;
     }
   };
+  const open = async () => {
+    const attempt = ++expansionAttempt.current;
+    const modes = bridge.app.getHostContext()?.availableDisplayModes ?? [];
+    const mode = modes.includes('fullscreen') ? 'fullscreen' : modes.includes('pip') ? 'pip' : null;
+    if (!mode) {
+      setExpansionProblem('Hier steht nur die kompakte Karte zur Verfügung. Du kannst darin weiterlesen.');
+      return;
+    }
+    try {
+      const result = await bridge.request(() => bridge.app.requestDisplayMode({ mode }, { timeout: 10_000 }));
+      if (attempt !== expansionAttempt.current) return;
+      if (result.mode !== 'fullscreen' && result.mode !== 'pip') throw Error();
+      setExpanded(true);
+      setExpansionProblem('');
+    } catch {
+      if (attempt === expansionAttempt.current) {
+        setExpansionProblem('Die größere Ansicht wurde nicht bestätigt. Du kannst in der kompakten Karte weiterlesen.');
+      }
+    }
+  };
+  const returnToCompact = async () => {
+    if (!bridge.app.getHostContext()?.availableDisplayModes?.includes('inline')) return;
+    const attempt = ++expansionAttempt.current;
+    try {
+      const result = await bridge.request(() => bridge.app.requestDisplayMode({ mode: 'inline' }, { timeout: 10_000 }));
+      if (attempt === expansionAttempt.current && result.mode === 'inline') setExpanded(false);
+    } catch { /* The expanded reader can still return to the inspected Run. */ }
+  };
+  const visibleProblem = problem || expansionProblem;
   return <div className="mcp-entry" data-terminal={closeState !== 'open' ? 'true' : undefined}>
     {closeState !== 'open' ? <section className="mcp-terminal" ref={terminal} aria-label="Cockpit-Sitzung schließen"><h1>AGDF Cockpit</h1><p role="status">{closeState === 'closing'
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
-      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} compact={review.role === 'card'} handoff={handoff} review={review} checkpoint={checkpoint} onExpand={() => void review.show('reader')}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
-    {problem && <p role="alert">{problem}</p>}
-    {closeState === 'open' && review.role !== 'card' && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
+      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} companionEmpty={bootstrap.companionEmpty} companionFallback={bootstrap.companionFallback} provenance={bootstrap.provenance} host={cockpitHost} companionConstraints={companionConstraints} compact={cockpitHost === 'codex' ? !expanded : review.role === 'card'} handoff={handoff} review={cockpitHost === 'codex' ? undefined : review} checkpoint={checkpoint} onExpand={() => { if (cockpitHost === 'codex') void open(); else void review.show('reader'); }} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
+    {visibleProblem && <p role="alert">{visibleProblem}</p>}
+    {trace && closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;
 }

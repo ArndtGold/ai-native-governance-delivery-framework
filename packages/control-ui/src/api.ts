@@ -1,4 +1,4 @@
-import { runDocumentPath } from '../../core/lib/control-state/run-identity.js';
+import { RUN_ID_PATTERN, runDocumentPath } from '../../core/lib/control-state/run-identity.js';
 import type { Envelope } from './types';
 import { hasConsistentWorkCounts } from '../../core/lib/control-inspect/cockpit-list.js';
 import { validWorkSummary } from '../../core/lib/control-state/run-work-summary-shape.js';
@@ -30,6 +30,23 @@ const sha = (v: unknown) => typeof v === 'string' && /^sha256:[a-f0-9]{64}$/.tes
 const uuid = (v: unknown) => typeof v === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(v);
 const rawSha = (v: unknown) => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const documentGates = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
+const companionRoutes = new Set(['structured_slice', 'structured_delivery', 'quick_task', 'verified_change', 'block', 'undecided']);
+const companionGates = new Set([...documentGates, 'OR', 'Verified Change', 'Compact Delivery', 'Block']);
+function validCompanion(value: unknown, detail: Record<string, unknown>): boolean {
+  if (!object(value) || !companionRoutes.has(String(value.route)) || !Array.isArray(value.path)
+    || !value.path.length || value.path.length > companionGates.size
+    || new Set(value.path.map(row => object(row) ? row.gate : null)).size !== value.path.length
+    || !value.path.every(row => object(row) && companionGates.has(String(row.gate)) && ['fulfilled', 'current', 'open', 'blocked'].includes(String(row.status)))
+    || typeof value.next_text !== 'string' || value.next_text.length > 500
+    || typeof value.blocking_text !== 'string' || value.blocking_text.length > 500) return false;
+  const finding = value.finding;
+  if (finding === undefined) return true;
+  if (!object(finding) || !rawSha(finding.content_digest) || !object(detail.evaluation) || !object(detail.evaluation.control_assessment)
+    || detail.evaluation.control_assessment.state !== 'blocked' || !object(detail.work_summary) || !object(detail.work_summary.decisive_obligation)
+    || !Array.isArray(detail.resources)) return false;
+  const path = detail.work_summary.decisive_obligation.source_path;
+  return detail.resources.some(r => object(r) && r.resource_id === finding.resource_id && r.status === 'registered' && r.path === path);
+}
 export function validDraftCheck(v: unknown, runId: string, revision: unknown): boolean {
   if (!object(v) || !object(v.source) || !object(v.display)) return false;
   const s = v.source, d = v.display, r = v.result;
@@ -131,6 +148,13 @@ const detailData = (data: unknown, allowInvalid = false): boolean => {
 export const documentData = (data: unknown) => object(data) && resources([data.resource])
   && (data.content === undefined || text(data.content) && ['markdown', 'json', 'text'].includes(String(data.format))
     && text(data.content_digest) && object(data.links) && Object.values(data.links).every(text))
+  && (data.cockpit_summary === undefined || object(data.cockpit_summary) && object(data.resource) && object(data.document_state)
+    && data.cockpit_summary.state === 'available' && data.cockpit_summary.authorizes === false
+    && data.cockpit_summary.run_id === data.resource.run_id && data.cockpit_summary.resource_id === data.resource.resource_id
+    && data.cockpit_summary.gate === data.resource.type && data.cockpit_summary.revision_id === data.document_state.revision_id
+    && data.cockpit_summary.content_digest === data.content_digest && text(data.cockpit_summary.markdown)
+    && (data.cockpit_summary.markdown as string).length <= 26000 && Array.isArray(data.cockpit_summary.items) && data.cockpit_summary.items.length <= 3
+    && data.cockpit_summary.items.every((row: unknown) => object(row) && text(row.label) && (row.label as string).length <= 80 && text(row.text) && (row.text as string).length <= 1200))
   && (data.document_state === undefined || validDocumentState(data.document_state, data.resource)
     && data.document_state.content_digest === data.content_digest
     && new TextEncoder().encode(JSON.stringify(data.document_state)).length <= 256 * 1024);
@@ -142,6 +166,9 @@ export function validateData(path: string, value: Envelope<unknown>) {
   if (object(data)) {
     if (path.startsWith('/api/changes')) valid = typeof data.changed === 'boolean';
     else if (path.startsWith('/api/freshness')) valid = data.unchanged === true;
+    else if (path.startsWith('/api/preview/')) valid = documentData(data) && object(data.resource)
+      && data.resource.resource_id === new URL(path, 'https://local.invalid').pathname.slice(13)
+      && data.resource.run_id === new URL(path, 'https://local.invalid').searchParams.get('run_id');
     else if (data.kind === 'runs' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/'))) {
       valid = ['complete', 'incomplete', 'absent'].includes(String(data.state)) && data.authorizes === false
         && Array.isArray(data.runs) && data.runs.every(r => object(r)
@@ -167,6 +194,12 @@ export function validateData(path: string, value: Envelope<unknown>) {
       valid = Array.isArray(data.entries) && data.entries.every(r => object(r)
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
         && !Object.hasOwn(r, 'saved_summary') && !Object.hasOwn(r, 'title_observation')
+        && (r.title_source === undefined || ['objective', 'run_id', 'ur'].includes(String(r.title_source)))
+        && (r.objective === undefined || nullableText(r.objective))
+        && (r.seal === undefined || ['valid', 'invalid', 'unsealed', 'unconfirmed'].includes(String(r.seal)))
+        && (r.lifecycle === undefined || r.lifecycle === null || ['active', 'completed', 'superseded', 'abandoned'].includes(String(r.lifecycle)))
+        && (r.attention_code === undefined || ['decision_required', 'clarification_required', 'blocked', 'in_progress', 'unclear', 'none'].includes(String(r.attention_code)))
+        && (r.last_activity === undefined || object(r.last_activity) && nullableText(r.last_activity.at) && text(r.last_activity.source) && nullableText(r.last_activity.precision))
         && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
         && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
         && (data.layout === 'run-folders-v1' && ['planned', 'run', 'archive'].includes(String(r.kind))
@@ -217,6 +250,17 @@ export function validateData(path: string, value: Envelope<unknown>) {
     }
   }
   if (!valid) throw Error('dto_invalid');
+  // The optional presentation can be discarded without losing the scoped reader or its sources.
+  if (object(data) && ['run', 'document', 'context'].includes(String(data.kind)) && object(data.run)) {
+    const run = data.run;
+    if (run.companion !== undefined) {
+      if (!validCompanion(run.companion, run)) delete run.companion;
+      else if (object(run.companion) && !sha(run.companion.decision_material_version)) delete run.companion.decision_material_version;
+    }
+    const ids = run.active_run_ids;
+    if (ids !== undefined && (!Array.isArray(ids) || !ids.every(id => typeof id === 'string' && RUN_ID_PATTERN.test(id))
+      || new Set(ids).size !== ids.length || ids.includes(run.run_id) !== (run.lifecycle === 'active'))) delete run.active_run_ids;
+  }
   if (path.startsWith('/api/draft-check/') && value.state === 'available') {
     const url = new URL(path, 'https://local.invalid');
     if (!object(data) || !object(data.run) || !object(data.run.draft_check) || !object(data.run.draft_check.source)

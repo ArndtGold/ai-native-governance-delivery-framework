@@ -59,6 +59,10 @@ export class CockpitBridge {
         if (isClose && value.reason === 'session_expired') return value;
         throw Error(String(value.reason));
       }
+      // An expired Cockpit session can no longer supply a target for the read envelope.
+      if (!isClose && value.schema_version === '2' && value.state === 'blocked' && value.code === 'session_expired'
+        && value.target === null && value.snapshot_id === null && value.observed_as_of === null && value.source_digest === null
+        && value.retryable === false && value.data === null && value.authorizes === false) throw Error('session_expired');
       validateEnvelope(value);
       if (!['invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error'].includes(value.state)
         || value.data !== null || typeof value.code !== 'string' || !/^[a-z][a-z0-9_]{0,127}$/.test(value.code)) throw Error('read_failed');
@@ -89,6 +93,11 @@ export class CockpitBridge {
       if (keys.length !== 3 || new Set(keys).size !== 3 || !['snapshot', 'gate', 'expected_revision'].every(key => keys.includes(key))) throw Error('resource_denied');
       argumentsValue = { operation: 'artifact_readiness', snapshot_id, run_id: url.pathname.slice(17),
         gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') };
+    }
+    else if (url.pathname.startsWith('/api/preview/')) {
+      const resource_id = url.pathname.slice(13), run_id = resourceRuns.get(resource_id);
+      if (!run_id || url.searchParams.get('run_id') !== run_id) throw Error('resource_denied');
+      argumentsValue = { operation: 'preview', snapshot_id, run_id, resource_id };
     }
     else if (url.pathname.startsWith('/api/documents/')) {
       const resource_id = url.pathname.slice(15), run_id = resourceRuns.get(resource_id);

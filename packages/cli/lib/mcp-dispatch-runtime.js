@@ -44,7 +44,7 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
     import("#agdf-core/control-inspect/cockpit-session.js"),
     import("#agdf-core/control-read/snapshot.js"),
   ]);
-  const session = createCockpitSessionService(root, { pluginMode });
+  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface });
   const renderDefinition = pluginMode ? COCKPIT_PLUGIN_RENDER_DEFINITION : COCKPIT_RENDER_DEFINITION;
   const tools = [
     { name: renderDefinition.name, definition: renderDefinition,
@@ -54,6 +54,7 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
   ];
   // Claude Code renders no MCP app UI today; its cockpit stays hidden until a client declares support.
   return Object.freeze({ ...errorSupport(true), mode: 'cockpit', definition: renderDefinition, tools,
+    bindResourceIdentity: identity => session.bindResourceIdentity(identity),
     producerIdentity: inspected.generationIdentity ?? null,
     uiCapabilityRequired: pluginMode || surface === 'claude', responseLimit: READ_LIMITS.response,
     ...(pluginMode ? { unsupportedUiCode: 'host_ui_unsupported' } : {}),
@@ -106,6 +107,7 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
     readBudget,
     delivery,
     observeOutcome: (name, input, result) => journal.observe(name, input, result),
+    observesOutcome: (name, input, result) => journal.observes(name, input, result),
     async postprocessToolResult(name, input, result) {
       const configuration = protocol.configurationProjection(input);
       if (configuration && name === 'agdf_inspect' && result.report) result = { ...result, report: { ...result.report, effective_configuration: configuration } };
@@ -142,6 +144,7 @@ export async function createMcpDecisionRuntime({ runtime, ui, appOnlyMediationQu
     action: (input, host) => session.action(input, host), close: () => session.close() });
   return Object.freeze({ ...protocol,
     observeOutcome: (name, input, result) => runtime.observeOutcome?.(name, input, result) ?? false,
+    observesOutcome: (name, input, result) => runtime.observesOutcome?.(name, input, result) ?? false,
     async postprocessToolResult(name, input, result, { uiSupported, client } = {}) {
       if (name === 'agdf_inspect' && input.operation === 'native-qualification' && result.report?.available) {
         return { ...result, report: { ...result.report, ui_rendering_support: uiSupported ? 'supported' : 'unsupported',

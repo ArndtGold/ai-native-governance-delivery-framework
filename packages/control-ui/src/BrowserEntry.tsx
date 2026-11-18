@@ -14,7 +14,7 @@ export function BrowserEntry({ secret = '', transport, initialCompact = false, i
   }, [compact]);
   return <div ref={root} className={compact ? 'browser-card-layout' : 'browser-full-layout'}>
     <div className={initialCompact ? 'mcp-entry' : undefined}>
-      <App secret={secret} transport={transport} initialRunId={initialRunId} compact={compact} onExpand={() => setCompact(false)}/>
+      <App secret={secret} transport={transport} initialRunId={initialRunId} compact={compact} host="preview" onExpand={() => setCompact(false)}/>
     </div>
   </div>;
 }

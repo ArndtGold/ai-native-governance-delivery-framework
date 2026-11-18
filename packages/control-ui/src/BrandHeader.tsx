@@ -1,11 +1,11 @@
 import { useLayoutEffect, useRef, type ReactNode, type RefObject } from 'react';
 import { BrandMark } from './BrandMark';
 import './brand.css';
+import { cockpitTitle, type CockpitHost } from './host-label';
 
-export function BrandHeader({ projectPath, contextTitle, variant = 'view', headingRef, children, reviewTitle }: {
-  projectPath?: string; contextTitle?: string; variant?: 'card' | 'view' | 'document';
-  headingRef?: RefObject<HTMLHeadingElement | null>; children?: ReactNode;
-  reviewTitle?: string;
+export function BrandHeader({ projectPath, contextTitle, variant = 'view', headingRef, children, reviewTitle, host = 'unknown', title = cockpitTitle(host) }: {
+  projectPath?: string; contextTitle?: string; variant?: 'card' | 'view' | 'document'; title?: string; reviewTitle?: string;
+  headingRef?: RefObject<HTMLHeadingElement | null>; children?: ReactNode; host?: CockpitHost;
 }) {
   const project = projectPath?.split(/[\\/]/).filter(Boolean).at(-1) ?? 'Lokales Projekt';
   const header = useRef<HTMLElement>(null);
@@ -27,10 +27,10 @@ export function BrandHeader({ projectPath, contextTitle, variant = 'view', headi
       <h1 ref={headingRef} tabIndex={-1}>{reviewTitle}</h1>
     </div> : <>
       <div className="cockpit-brand-copy">
-        {variant === 'card' ? <h1 ref={headingRef} tabIndex={-1}>AGDF Cockpit</h1> : <strong className="cockpit-brand-title">AGDF Cockpit</strong>}
+        {variant === 'card' ? <h1 ref={headingRef} tabIndex={-1}>{title}</h1> : <strong className="cockpit-brand-title">{title}</strong>}
         <p className="cockpit-brand-project" title={projectPath}>{contextTitle ?? project}</p>
       </div>
-      <div className="cockpit-brand-actions"><span className="read-only">Nur Lesen</span>{children}</div>
+      <div className="cockpit-brand-actions">{variant !== 'card' && <span className="read-only">Nur Lesen</span>}{children}</div>
     </>}
   </header>;
 }

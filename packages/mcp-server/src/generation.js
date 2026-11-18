@@ -211,8 +211,9 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
       operations.set(key, row);
     }
     ++row.inflight; event(row, 'invoke', name);
+    let replied;
     try {
-      const result = (await request(row, 'invoke', { name, arguments: args }, actualContext, canonical ? args.operation_id : null, invokeMs)).payload;
+      const result = replied = (await request(row, 'invoke', { name, arguments: args }, actualContext, canonical ? args.operation_id : null, invokeMs)).payload;
       if (canonical && result.outcome === 'effect_unknown') row.unknown.add(key);
       if (name === 'agdf_inspect' && args.operation === 'operation-status' && result.report?.status === 'recorded'
         && (result.report.receipt?.operation_id ?? result.report.receipt?.operation?.operation_id) === id) row.unknown.delete(key);
@@ -228,7 +229,12 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
         }
       }
       return result;
-    } catch (error) { if (canonical && error.dispatch !== 'not_dispatched') row.unknown.add(key); throw error; }
+    } catch (error) {
+      // The generation journaled the reply it sent; a failure raised here afterwards carries it, so the
+      // server adds no second companion event for the same call.
+      if (replied && error && typeof error === 'object') error.generationResult = replied;
+      if (canonical && error.dispatch !== 'not_dispatched') row.unknown.add(key); throw error;
+    }
     finally { --row.inflight; if (closed && !row.inflight && !row.unknown.size) void retire(row, true); }
   }
   current = await reserve(publisher.initial, {}); current.state = 'current'; event(current, 'admitted');

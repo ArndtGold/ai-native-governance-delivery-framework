@@ -26,6 +26,14 @@ const failuresOf = root => {
   return { status: run.status, failures: `${run.stdout}${run.stderr}`.split(/\r?\n/u).filter(line => line.startsWith("- ")) };
 };
 
+// The companion's activity policy is a byte-identical copy of Core's canonical module, in the source
+// templates and in the generated runtime (structure slice SDD-002).
+const canonicalPolicy = readFileSync(join(repoRoot, "packages", "core", "lib", "companion", "activity.js"));
+assert.ok(readFileSync(join(repoRoot, "plugins", "agdf", "host-templates", "claude", "companion", "activity.mjs")).equals(canonicalPolicy),
+  "the source companion activity.mjs equals packages/core/lib/companion/activity.js");
+assert.ok(readFileSync(join(generated, "companion", "activity.mjs")).equals(canonicalPolicy),
+  "the generated companion activity.mjs equals the canonical Core module");
+
 // Companion core SDD-010 / SCN-022: the generated companion imports only its own modules, keeps no Core
 // bridge or text file of its own, starts no process but the runtime's read-only run view, and the
 // runtime it names answers that command without touching the control state.

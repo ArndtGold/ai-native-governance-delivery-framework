@@ -3,26 +3,21 @@
 # AI native Governance and Delivery Framework
 
 AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex und Claude Code.
-GitHub Copilot und OpenCode werden in **0.30.0 experimentell unterstützt**.
+GitHub Copilot und OpenCode werden in **0.32.0 experimentell unterstützt**.
 Für beide sind Adapter und automatisierte Regressionstests vorhanden; eine native Qualifizierung
 wird derzeit nicht beansprucht. Automatisierte Tests mit simulierten Hosts belegen keine Funktion
 in einer tatsächlichen Copilot- oder OpenCode-Sitzung.
 Zugleich ist AGDF ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
 
-**0.30.0 vereinfacht das Projektmodell:** kein Masterbacklog, einheitliche Run-Ordner und
-unabhängige geplante URs. Die [Release Notes](docs/releases/0.30.0.md) erklären die Änderungen
-seit 0.20.2 und die Grenzen für bestehende Projekte. Die folgenden 0.20.0-Nachweise bleiben historisch
-und qualifizieren keinen 0.30.0-Kandidaten.
+**Der Quellkandidat 0.32.0** macht Arbeitsstand, nächste Schritte und Nachweise im Cockpit
+leichter zugänglich. Der Claude-Companion zeigt Vorhaben mit Titel und Ziel und benennt die
+aktuelle oder anstehende Tätigkeit. Die [Release Notes](docs/releases/0.32.0.md) beschreiben die
+Änderungen seit 0.31.0.
 
-**0.20.0:** Native Qualifizierungsziele sind Claude Code CLI unter Windows und Codex CLI unter macOS,
-je mit fünf kandidatengebundenen Fällen. Native Nachweise sind freiwillig und keine Veröffentlichungsvoraussetzung;
-eine neue Version erzwingt keinen neuen nativen Lauf. Qualifiziert ist nur, was für das exakte Tupel belegt ist.
-Codex Desktop und Claude Desktop gelten als **manuell geprüft**: AGDF-Aufruf, Upgrade und Wiederherstellung
-sind von Hand als bestanden gemeldet, aber nicht maschinell qualifiziert und keine Veröffentlichungsvoraussetzung.
-Codex CLI unter Windows/Linux bleibt **unqualifiziert** und außerhalb dieser Qualifizierungsmatrix.
-Ältere Windows-Claude-CLI-Belege und macOS-Codex-CLI-Diagnosen bleiben historisch und zählen nicht für den finalen Kandidaten.
-Die vollständige native Abnahme des finalen 0.20.0-Kandidaten bleibt offen. Siehe
-[Release-Prozess](RELEASE.md#native-host-qualification), [Qualifizierungsumfang und Testübergabe](docs/maintenance/release-0.20.0.md) und
+Native Qualifizierung ist freiwillig und bezieht sich auf den jeweils geprüften Kandidaten.
+Die historischen 0.20.0-Belege und Desktop-Handprüfungen behalten ihren ursprünglichen Umfang.
+Siehe [Release-Prozess](RELEASE.md#native-host-qualification),
+[historische Testübergabe](docs/maintenance/release-0.20.0.md) und
 [aktuellen Kompatibilitätsbericht](docs/compatibility/HOST_COMPATIBILITY.md).
 
 ## Installieren und prüfen
@@ -58,7 +53,7 @@ Für Claude Code:
 npx --yes @agdf/cli@latest claude
 ```
 
-Für GitHub Copilot und OpenCode (**experimentelle Unterstützung in 0.30.0**):
+Für GitHub Copilot und OpenCode (**experimentelle Unterstützung in 0.32.0**):
 
 ```bash
 npx --yes @agdf/cli@latest copilot
@@ -77,7 +72,7 @@ Nachweise. Produktive Klickaktionen der Gate-Entscheidungsansicht sind bis zur Q
 deaktiviert. Details: [MCP und UI je Host](INSTALL.md#claude-code-and-codex-mcp-and-ui).
 
 GitHub Copilot erhält MCP ebenfalls über sein Runtime-Plugin. Für OpenCode kann der lokale
-MCP-Server separat registriert werden; beide Integrationen bleiben experimentell in 0.30.0.
+MCP-Server separat registriert werden; beide Integrationen bleiben experimentell in 0.32.0.
 MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`, `agdf_project`, `agdf_run`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 `agdf_dispatch` verwendet dieselbe kanonische
 Funktionsbeschreibung und Gate-Auswertung wie die CLI; `agdf_inspect` bietet lesenden Zugriff auf

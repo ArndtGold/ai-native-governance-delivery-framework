@@ -196,7 +196,9 @@ assert.equal(verifiedRefs[0].path, "");
 
 assert.equal(resolveHumanRunTitle({ currentArtefactHeading: "# Current title", urHeading: "# UR title", runContent: "## Objective\n\nObjective title", runId: "fallback-run" }), "Current title");
 assert.equal(resolveHumanRunTitle({ urHeading: "# UR title", runContent: "## Objective\n\nObjective title", runId: "fallback-run" }), "UR title");
-assert.equal(resolveHumanRunTitle({ runContent: "## Objective\n\nObjective title\nmore", runId: "fallback-run" }), "Objective title");
+assert.equal(resolveHumanRunTitle({ runContent: "## Objective\n\nObjective title\nmore\n\nSecond paragraph", runId: "fallback-run" }), "Objective title more");
+assert.equal(resolveHumanRunTitle({ runContent: "## Objective\n\nDescribe the trustworthy outcome.\n", runId: "fallback-run" }), "Fallback Run", "a template Objective is no title");
+assert.equal(resolveHumanRunTitle({ runContent: "## Objective\n\nrun-921ef1f8-9792-4392-a2ea-6eb63c50bde6\n", runId: "run-921ef1f8-9792-4392-a2ea-6eb63c50bde6" }), "Run 921ef1f8 9792 4392 A2ea 6eb63c50bde6", "a bare Run ID Objective is no title");
 assert.equal(resolveHumanRunTitle({ runContent: "", runId: "fallback-run" }), "Fallback Run");
 assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
 

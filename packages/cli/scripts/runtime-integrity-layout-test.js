@@ -127,13 +127,28 @@ try {
 
   const mcpPath = join(installedPluginRoot, 'mcp.json'), mcpBytes = readFileSync(mcpPath, 'utf8');
   const markerPath = join(installedPluginRoot, '.agdf-installation.json'), markerBytes = readFileSync(markerPath, 'utf8');
+  const codexPath = join(installedPluginRoot, '.codex-plugin/plugin.json'), codexBytes = readFileSync(codexPath, 'utf8');
   for (const cockpit of [false, true]) {
     writeFileSync(mcpPath, renderCodexPluginMcpConfig({ cockpit }));
+    writeFileSync(codexPath, JSON.stringify({ ...JSON.parse(codexBytes),
+      hooks: cockpit ? './hooks/codex.json' : './hooks/hooks.json' }));
     writeFileSync(markerPath, JSON.stringify({ ...JSON.parse(markerBytes),
       source_digest: digestNormalizedPluginSource(installedPluginRoot, JSON.parse(markerBytes).canonical_version) }));
     const historicalOrCurrent = runIntegrity(join(installedPluginRoot, 'scripts/check-runtime-integrity.mjs'));
     assert.equal(historicalOrCurrent.status, 0, combinedOutput(historicalOrCurrent));
   }
+  // A hooks/codex.json that deviates from the shipped profile module fails the check (structure slice SCN-002).
+  const codexHooksPath = join(installedPluginRoot, 'hooks/codex.json'), codexHooksBytes = readFileSync(codexHooksPath, 'utf8');
+  const deviating = JSON.parse(codexHooksBytes);
+  deviating.hooks.Stop[0].hooks[0].statusMessage = 'AGDF Companion · Another Label';
+  writeFileSync(codexHooksPath, `${JSON.stringify(deviating, null, 2)}\n`);
+  writeFileSync(markerPath, JSON.stringify({ ...JSON.parse(markerBytes),
+    source_digest: digestNormalizedPluginSource(installedPluginRoot, JSON.parse(markerBytes).canonical_version) }));
+  const deviatingHooks = runIntegrity(join(installedPluginRoot, 'scripts/check-runtime-integrity.mjs'));
+  assert.notEqual(deviatingHooks.status, 0, 'a deviating Codex hook profile must fail');
+  assert.match(combinedOutput(deviatingHooks), /Codex Companion hooks must match/);
+  writeFileSync(codexHooksPath, codexHooksBytes);
+  writeFileSync(codexPath, codexBytes);
   for (const mutate of [
     c => { c.mcpServers['agdf-cockpit'].args[4] = '/foreign/data'; },
     c => { c.mcpServers['agdf-cockpit'].args.pop(); },

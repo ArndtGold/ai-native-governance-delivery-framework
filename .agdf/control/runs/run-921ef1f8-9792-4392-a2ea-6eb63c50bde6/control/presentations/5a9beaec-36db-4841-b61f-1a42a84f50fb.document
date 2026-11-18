@@ -1,0 +1,34 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Status card path marks only one current gate
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+Problem: Der Pfad der Statuskarte kann zwei Einträge gleichzeitig als aktuell markieren. Im Companion-Pane des Testruns `begleiter-ur-test` steht `●UR ●Compact Delivery`, obwohl der Run noch auf die UR-Freigabe wartet. Ursache ist `buildBreadcrumbPath` in `packages/core/lib/control-evaluation/gate-check.js`: Die Routen-Einträge `Compact Delivery`, `Verified Change` und `Block` gelten als aktuell, sobald ihr Lieferweg gewählt ist, unabhängig vom aktuellen Gate. Das Verhalten ist mit `buildStatusCard` nachgestellt.
+
+Ziel: Der Pfad einer Statuskarte zeigt nie mehr als einen aktuellen Eintrag. Solange ein früheres Gate des Pfads das aktuelle ist, bleibt der Routen-Eintrag dahinter offen.
+
+Betroffene Nutzer: alle, die den Pfad der Statuskarte lesen, also Nutzer der Markdown-Statuskarte im Chat, der Gate-Leiste des AGDF Companion in Claude und anderer Abnehmer der Run-Ansicht.
+
+Umfang: die Regel in `buildBreadcrumbPath` für die drei Routen-Einträge; ein Test für die drei Lieferwege mit aktuellem Gate `UR` und nicht freigegebenem UR sowie für die unveränderten Fälle; neu erzeugte Golden-Datei der Statuskarte und abhängige Baselines, soweit die Änderung sie erfordert.
+
+Nicht-Ziele: keine Änderung an Gate-Regeln, Freigaben, aktuellem Gate oder nächstem Schritt; keine Änderung am Code der Companion-Gate-Leiste; keine Änderung an den beiden Navigationsschaltflächen bei nur einem offenen Run; keine Untersuchung, wie der Testrun `begleiter-ur-test` in seinen Zustand kam.
+
+Akzeptanzsignale: Ein Test mit Lieferweg `quick_task`, aktuellem Gate `UR` und nicht freigegebenem UR schlägt auf dem heutigen Code mit zwei aktuellen Einträgen fehl und läuft nach der Korrektur mit `UR:current`, `Compact Delivery:open` durch, ebenso für `verified_change` und `block`. Die bestehenden Tests zu Statuskarte, Run-Ansicht und Companion sowie der Golden-Vergleich laufen durch.
+
+Quellen: `packages/core/lib/control-evaluation/gate-check.js`, der Golden-Test `packages/core/test/status-card-golden-test.js` mit seiner Golden-Datei und die Companion-Gate-Leiste `gate-bar.mjs`.
+
+Risiken und offene Punkte: Im normalen Ablauf wird der Lieferweg erst nach der UR-Freigabe erfasst; der Fehler zeigt sich nur bei offenem UR und bereits gespeichertem Lieferweg. Welcher Fall beim Testrun vorliegt, ist unbekannt. Ein Abnehmer könnte sich auf den aktuellen Routen-Eintrag bei offenem UR verlassen; bekannt ist keiner. Die Änderung im Core geht in die Copilot-Payload ein, sodass die exakte Payload-Baseline und die Kompatibilitätsbelege angepasst werden müssen.
+
+Nächster Schritt: Dieses UR prüfen und nur mit `Approval: UR` freigeben.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-921ef1f8-9792-4392-a2ea-6eb63c50bde6` · Nutzeranforderungen · Revision: `4da29e8e-cea7-4759-9cf8-484043ca7bab`
+
+SHA-256: `sha256:4cc630c27d20ccbdfe3981456f293f45a1d4b7389afe53704b29015498f419f4`

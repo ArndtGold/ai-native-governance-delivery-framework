@@ -21,7 +21,12 @@ test('SCN-013: deterministic mutations during capture retry once, then fail', ()
       if (phase !== 'captured') return; captures++;
       const path = join(root, '.agdf/control/a.txt');
       if (operation === 'edit') fs.writeFileSync(path, String(captures));
-      if (operation === 'restore') { fs.writeFileSync(path, 'temp'); fs.writeFileSync(path, 'before'); }
+      if (operation === 'restore') {
+        fs.writeFileSync(path, 'temp'); fs.writeFileSync(path, 'before');
+        // Windows signs files without ctime, and a rewrite inside one timestamp tick keeps the old mtime (the
+        // captured bytes then still equal the source). Place the restore on a later tick, as any real one is.
+        if (process.platform === 'win32') fs.utimesSync(path, new Date(), new Date(Date.now() + 1000));
+      }
       if (operation === 'rename') { fs.renameSync(path, path + '.old'); fs.writeFileSync(path, 'before'); }
       if (operation === 'ancestor') { fs.renameSync(join(root, '.agdf/control'), join(root, '.agdf/control-old-' + captures)); fs.mkdirSync(join(root, '.agdf/control')); fs.writeFileSync(path, 'before'); }
     } }), /source_changed/); assert.equal(captures, 2); }

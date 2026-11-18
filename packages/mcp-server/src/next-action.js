@@ -8,7 +8,8 @@ function stable(value) {
   return object(value) ? Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])])) : value;
 }
 function callValue(value) {
-  return object(value) && knownTools.has(value.tool) && object(value.arguments)
+  return object(value) && object(value.arguments)
+    && (knownTools.has(value.tool) || value.tool === 'agdf_cockpit_read' && value.arguments.operation === 'display_status')
     ? { tool: value.tool, arguments: clone(value.arguments) } : null;
 }
 function formValue(value) {

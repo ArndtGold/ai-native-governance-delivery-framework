@@ -12,6 +12,7 @@ import { runSealState } from './run-seal.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
 import { COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
 import { withControlMutation } from './control-layout.js';
+import { isDecisionContentPlaceholder } from '../control-evaluation/decision-content-placeholder.js';
 
 import { creationRunId } from './run-identity.js';
 export { creationRunId };
@@ -50,7 +51,11 @@ export function createRunCommand(root, input, { requestDigest, packageVersion, c
           created_at: new Date().toISOString(), producer: { contract: 'run-command/1', package_version: packageVersion },
           assurance: COOPERATIVE_ASSURANCE, effect: { previous_revision_id: null,
             resulting_revision_id: parsed.meta.revision_id, revision: 1, record: { title: input.command.payload.title } } });
-        return appendRunOperation(content.replace('Describe the trustworthy outcome.', () => input.command.payload.title), receipt);
+        // Only a semantic title orients the Objective. A placeholder title such as the bare Run ID
+        // keeps the template prompt, so recording the UR projects its Goal there.
+        const title = input.command.payload.title;
+        const oriented = isDecisionContentPlaceholder(title) ? content : content.replace('Describe the trustworthy outcome.', () => title);
+        return appendRunOperation(oriented, receipt);
       },
       beforePublish: () => checkpoint('creation_before_publish'),
     });

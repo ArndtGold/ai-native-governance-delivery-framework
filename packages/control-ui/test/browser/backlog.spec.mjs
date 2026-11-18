@@ -99,7 +99,7 @@ test('backlog areas filter stored entries locally, keep search on return, and ma
     expect(requests.filter(p => p.startsWith('/api/backlog-titles')).every(path => new URL('http://local'+path).searchParams.get('rows').split(',').length <= 12)).toBe(true);
     await page.getByRole('searchbox').fill('fixture-completed');
     await page.getByRole('button', { name: 'Frühere Umsetzung' }).click();
-    await expect(page.locator('.page-title h1')).not.toHaveText('Gespeicherte Vorhaben');
+    await expect(page.locator('.page-title h1')).not.toHaveText('Arbeit am Projekt');
     await page.getByRole('button', { name: 'Alle Vorhaben', exact: true }).first().click();
     await expect(page.getByRole('button', { name: 'Archiv 2' })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('searchbox')).toHaveValue('fixture-completed');

@@ -13,6 +13,32 @@ const transport=()=>vi.fn(async(path:string)=>path.startsWith('/api/snapshot?run
 const sessionA='00000000-0000-4000-8000-000000000001',sessionB='00000000-0000-4000-8000-000000000002';
 const bootstrap=(session_id=sessionA,render_generation=1,initial_run_id:string|undefined='run-a')=>({structuredContent:{schema_version:'1',authorizes:false,target},_meta:{agdf_cockpit:{session_id,render_generation,initial_run_id,target}}});
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
+it('places the expanded Run companion beside the title, outside the status card', async () => {
+  const read = transport();
+  render(<App initialRunId="run-a" transport={read}/>);
+  await screen.findByRole('heading', { name: 'run-a', level: 1 });
+  const navigation = screen.getByRole('navigation', { name: 'Vorhaben-Pfad' });
+  expect(navigation.querySelectorAll('.run-figure')).toHaveLength(0);
+  expect(document.querySelectorAll('.page-title--run .run-figure')).toHaveLength(1);
+  expect(document.querySelector('.work-step .run-figure')).toBeNull();
+  expect(screen.queryByRole('group', { name: 'Ansicht' })).toBeNull();
+  expect(navigation.querySelectorAll('.run-figure')).toHaveLength(0);
+  expect(document.querySelectorAll('.page-title--run .run-figure')).toHaveLength(1);
+  expect(document.querySelector('.work-step .run-figure')).toBeNull();
+  const detailsLink = { name: 'Nachweise und weitere Dokumente' };
+  const requestCount = vi.mocked(read).mock.calls.length;
+  fireEvent.click(screen.getByRole('button', detailsLink));
+  const documents = screen.getByRole('heading', { name: 'Dokumente', level: 2 });
+  const evidence = screen.getByRole('heading', { name: 'Nachweise', level: 2 });
+  expect(documents).toBeTruthy(); expect(evidence).toBeTruthy();
+  expect(screen.queryByText('Aus dem Run abgeleiteter Arbeitsstand')).toBeNull();
+  const back = screen.getByRole('button', { name: 'Zurück zum Vorhaben' });
+  expect(document.activeElement).toBe(back);
+  fireEvent.click(back);
+  expect(screen.queryByRole('region', { name: 'Technische Details' })).toBeNull();
+  expect(document.activeElement).toBe(screen.getByRole('button', detailsLink));
+  expect(vi.mocked(read).mock.calls).toHaveLength(requestCount);
+});
 it('retires the correct session when native teardown arrives before its first React render', async () => {
   const read = transport();
   const app = { setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{}), connect: vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
@@ -67,8 +93,8 @@ it('a validated initial Run hides discovery; explicitly returning to backlog ena
   await screen.findByRole('heading',{name:'run-a'});
   expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
-  const search=await screen.findByRole('searchbox',{name:'Aktiv: Vorhaben suchen'});
-  expect(screen.queryByRole('combobox')).toBeNull();
+  const search=await screen.findByRole('searchbox',{name:'Suchen'});
+  expect(screen.getByRole('combobox',{name:'Lifecycle'})).toBeTruthy();
   fireEvent.change(search,{target:{value:'other-7'}});
   expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);
   fireEvent.click(screen.getByRole('button',{name:'Other 7'}));
@@ -84,7 +110,7 @@ it('a formerly inspected initial Run returns to confirmed removal backlog withou
   removed=true;fireEvent.click(screen.getByRole('button',{name:'Neu laden'}));
   await screen.findByText(/nicht mehr vorhanden. Kein anderer Run/);
   await waitFor(()=>expect((screen.getByRole('button',{name:'run-b'}) as HTMLButtonElement).disabled).toBe(false));
-  expect(screen.queryByRole('combobox')).toBeNull();
+  expect(screen.getByRole('combobox',{name:'Lifecycle'})).toBeTruthy();
   expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
 });
 it('SCN-039/043: named opening uses one exact request and resizing or prop changes preserve manual selection',async()=>{
@@ -95,7 +121,9 @@ it('SCN-039/043: named opening uses one exact request and resizing or prop chang
   const row=await screen.findByRole('button',{name:'run-b'});
   fireEvent.click(row);await screen.findByRole('heading',{name:'run-b'});
   view.rerender(<App initialRunId="run-a" transport={read}/>);
-  expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();expect(screen.getByText('run-b',{selector:'code'})).toBeTruthy();
+  expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();
+  fireEvent.click(screen.getByRole('button',{name:'Nachweise und weitere Dokumente'}));
+  expect(screen.getByText('run-b',{selector:'code'})).toBeTruthy();
   expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/snapshot'))).toHaveLength(2);
 });
 it('SCN-040: an unknown initial ID stays identified without discovery or an alternate Run',async()=>{
@@ -180,6 +208,46 @@ it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored
 
   expect(app.updateModelContext).not.toHaveBeenCalled();expect(app.sendMessage).not.toHaveBeenCalled();
 });
+it('keeps the review readable when expansion is unavailable or unconfirmed and clears the notice on success', async () => {
+  const read = transport();
+  let availableDisplayModes = ['inline'];
+  const requestDisplayMode = vi.fn()
+    .mockResolvedValueOnce({ mode: 'inline' })
+    .mockResolvedValueOnce({ mode: 'pip' });
+  const app = {
+    setupSizeChangedNotifications: vi.fn(() => vi.fn()),
+    connect: vi.fn(async () => {}),
+    getHostVersion: () => ({ name: 'test-host', version: 'fixture' }),
+    getHostCapabilities: () => ({ serverTools: {} }),
+    getHostContext: () => ({ displayMode: 'inline', availableDisplayModes }),
+    requestDisplayMode,
+    ontoolresult: (_: unknown) => {},
+    onhostcontextchanged: () => {},
+  };
+  const bridge = { app, readForSession: () => read, request: (action: () => unknown) => action(), session: '' } as unknown as CockpitBridge;
+  render(<EmbeddedEntry bridge={bridge}/>);
+  await act(async () => app.ontoolresult(bootstrap()));
+  const expand = await screen.findByRole('button', { name: 'Arbeitsstand ansehen' });
+
+  fireEvent.click(expand);
+  await screen.findByText('Der Host hat die gewählte Ansicht nicht bestätigt. Du kannst hier weiterlesen.');
+  expect(screen.getByRole('heading', { name: 'run-a', level: 1 })).toBeTruthy();
+  expect(requestDisplayMode).not.toHaveBeenCalled();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Karte' }));
+  availableDisplayModes = ['inline', 'pip'];
+  fireEvent.click(await screen.findByRole('button', { name: 'Arbeitsstand ansehen' }));
+  await screen.findByText('Der Host hat die gewählte Ansicht nicht bestätigt. Du kannst hier weiterlesen.');
+  expect(screen.getByRole('heading', { name: 'run-a', level: 1 })).toBeTruthy();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Karte' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Arbeitsstand ansehen' }));
+  await screen.findByRole('heading', { name: 'run-a', level: 1 });
+  await waitFor(() => expect(screen.queryByText('Der Host hat die gewählte Ansicht nicht bestätigt. Du kannst hier weiterlesen.')).toBeNull());
+  expect(requestDisplayMode).toHaveBeenCalledTimes(2);
+  expect(vi.mocked(read).mock.calls.map(call => call[0])).toEqual(['/api/snapshot?run_id=run-a']);
+});
+
 it('SCN-042: a delayed server reply from the previous session cannot populate the current transport',async()=>{
   const bridge=new CockpitBridge();let finish!: (value:object)=>void;
   vi.spyOn(bridge.app,'getHostCapabilities').mockReturnValue({serverTools:{}});
@@ -233,7 +301,7 @@ for (const accepted of [true, false]) it(`closed card settles public inline mode
     }),requestTeardown:vi.fn(async()=>{order.push('teardown');}),ontoolresult:(_:unknown)=>{},onhostcontextchanged:()=>{}};
   const operation=vi.fn(async()=>{order.push('close');return {...fixtureMeta,state:'available',code:null,data:{closed:true}};});
   const bridge={app,readForSession:()=>read,operation,session:''} as unknown as CockpitBridge;
-  render(<EmbeddedEntry bridge={bridge}/>);
+  render(<EmbeddedEntry bridge={bridge} diagnostics/>);
   await act(async()=>app.ontoolresult(bootstrap()));
   await screen.findByText('Eine frühere Lesestelle ist in dieser neu geöffneten Ansicht nicht verfügbar.');
   await screen.findByRole('button',{name:'SDK-Nachweis aufzeichnen'});

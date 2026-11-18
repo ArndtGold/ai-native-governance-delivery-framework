@@ -12,7 +12,8 @@ function pointer(f,run){fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKL
 async function open(page,service,route,run){
   await page.addInitScript(({secret,origin})=>{if(location.origin===origin)history.replaceState(null,'',location.pathname+'#'+secret);},{secret:service.secret,origin:service.origin});
   await page.goto(service.origin+route);await page.locator(`.run-link[data-focus-id="${run}"]`).click();
-  if(route==='/card.html')await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+  if(route==='/card.html')await page.getByRole('button',{name:'Vorhaben öffnen',exact:true}).click();
+  await expect(page.getByRole('heading', { name: 'Dokumente', exact: true })).toBeVisible();
   await expect(page.locator('.run-documents')).toBeVisible();
 }
 test('SCN-001/004/015/016: visible zero/four actual registrations and unconfirmed raw version retain passive original evidence',async({page})=>{
@@ -26,14 +27,14 @@ test('SCN-001/004/015/016: visible zero/four actual registrations and unconfirme
     }
     fs.writeFileSync(f.runPath,sealRunState(f.root,state));const before=treeBytes(f.root),service=await startControlServer({dir:f.root});
     try{
-      await open(page,service,'/','fixture-a');await expect(page.locator('.run-documents h3')).toHaveText(`Dokumente · ${count}`);await expect(page.locator('.run-document-row')).toHaveCount(count);
+      await open(page,service,'/','fixture-a');await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();await expect(page.locator('.run-document-row')).toHaveCount(count);
       if(count===0)await expect(page.getByText('Keine Dokumente registriert.',{exact:true})).toBeVisible();
       else{
         await expect(page.locator('.run-documents')).toContainText('Freigabe dieser Fassung nicht bestätigt');
         await expect(page.locator('.run-documents button').filter({hasText:'Freigegebene Anforderungen ansehen'})).toHaveCount(0);
         const source=page.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen',exact:true});await source.click();
         await expect(page.locator('.document-state-context')).toContainText('Approval: UR');await expect(page.locator('.document-state-context')).toContainText('Die genaue freigegebene Fassung ist nicht bestätigt.');
-        await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
+        await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(source).toBeFocused();
       }
       await page.screenshot({path:join(evidence,`actual-count-${count}.png`),fullPage:true});expect(treeBytes(f.root)).toEqual(before);
     }finally{await service.close();f.close();}
@@ -52,7 +53,7 @@ test('SCN-001/003/015/016/017: actual approved version and six registered resour
   try{
     for(const route of ['/','/card.html']){
       await open(page,service,route,'fixture-a');
-      await expect(page.locator('.run-documents h3')).toHaveText('Dokumente · 6');await expect(page.locator('.run-document-row')).toHaveCount(6);
+      await expect(page.locator('.run-document-row')).toHaveCount(6);await expect(page.locator('.run-document-row')).toHaveCount(6);
       await expect(page.locator('.run-documents details')).toHaveCount(0);await expect(page.locator('.run-documents button')).toHaveCount(4);
       const action=page.getByRole('button',{name:'Freigegebene Anforderungen ansehen: Anforderungen',exact:true});await expect(action).toBeVisible();
       await action.focus();await action.evaluate(e=>{window.documentAction=e;window.documentRow=e.closest('li');});
@@ -74,7 +75,7 @@ test('SCN-001/003/015/016/017: actual approved version and six registered resour
       await expect(page.locator('.document-state-context')).toContainText('Approval: UR');
       await expect(page.locator('.document-state-context')).toContainText('Freigabezeitpunkt, freigebende Person und Grundlage');
       await page.locator('.document-original > summary').focus();await page.keyboard.press('Enter');await expect(page.locator('article.document')).toContainText('UR: Approval fixture');
-      await page.getByRole('button',{name:'Dokument schließen',exact:true}).focus();await page.keyboard.press('Enter');await expect(action).toBeFocused();
+      await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).focus();await page.keyboard.press('Enter');await expect(action).toBeFocused();
       await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(action).toBeEnabled();
       expect(treeBytes(f.root)).toEqual(before);
     }
@@ -100,14 +101,14 @@ test('SCN-005/007/010/013/018: deliberate actual draft check survives document/r
       await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');
       await expect(page.locator('.run-document-state').filter({hasText:'Entwurf geprüft'})).toBeVisible();
       const source=page.getByRole('button',{name:'Entwurf ansehen: Produktanforderungen',exact:true});await source.focus();await page.keyboard.press('Enter');
-      await expect(page.locator('.document-state-context')).toContainText('Entwurf geprüft');await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
+      await expect(page.locator('.document-state-context')).not.toContainText('Entwurf geprüft');await expect(page.getByText('Prüfdetails',{exact:true})).toBeVisible();await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(source).toBeFocused();
       await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');expect(treeBytes(f.root)).toEqual(before);
       fs.writeFileSync(f.path,readyPrd.replace('before_prd | resolved','before_prd | open'));f.reseal(s=>s);before=treeBytes(f.root);
       await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(page.locator('.draft-check')).toContainText('Noch nicht geprüft');await check.click();
       await expect(page.locator('.run-document-state').filter({hasText:'Überarbeitung nötig'})).toBeVisible();await source.click();
       await expect(page.locator('.document-state-context')).toContainText('Überarbeitung nötig');await expect(page.getByRole('list',{name:'Aktuelle Korrekturen'})).toContainText('Scope');
       await page.screenshot({path:join(evidence,`corrections-${route==='/'?'browser':'card'}.png`),fullPage:true});
-      await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();expect(treeBytes(f.root)).toEqual(before);
+      await page.getByRole('button',{name:/Zurück zur (Übersicht|Statuskarte)/,exact:true}).click();await expect(source).toBeFocused();expect(treeBytes(f.root)).toEqual(before);
       await page.unroute('**/api/draft-check/**');fs.writeFileSync(f.path,readyPrd);f.reseal(s=>s);before=treeBytes(f.root);
     }
   }finally{await service.close();fs.rmSync(f.root,{recursive:true,force:true});}
@@ -132,7 +133,7 @@ test('SCN-001/010/015/017: built consumer renders multiple long references and o
       }
       await route.fulfill({response,json:e});
     });
-    await open(page,service,'/','fixture-a');await expect(page.locator('.run-documents h3')).toHaveText('Dokumente · 2');
+    await open(page,service,'/','fixture-a');await expect(page.locator('.run-document-row')).toHaveCount(2);
     await expect(page.locator('.run-document-row')).toHaveCount(2);await expect(page.locator('.run-document-reference')).toHaveCount(2);
     const names=await page.locator('.run-documents button').evaluateAll(rows=>rows.map(r=>r.getAttribute('aria-label')));expect(new Set(names).size).toBe(2);
     await page.setViewportSize({width:420,height:900});
@@ -140,7 +141,7 @@ test('SCN-001/010/015/017: built consumer renders multiple long references and o
     await expect(page.locator('.run-document-state').filter({hasText:'Freigabe dieser Fassung nicht bestätigt'})).toBeVisible();
     await page.screenshot({path:join(evidence,'multiple-consumer-references.png'),fullPage:true});
     variant='old';await page.getByRole('button',{name:'Neu laden',exact:true}).click();
-    await expect(page.locator('.run-documents h3')).toHaveText('Dokumente · 1');
+    await expect(page.locator('.run-document-row')).toHaveCount(1);
     await expect(page.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen',exact:true})).toBeVisible();
     await expect(page.locator('.run-document-state').filter({hasText:'Freigabe dieser Fassung nicht bestätigt'})).toBeVisible();
     await page.screenshot({path:join(evidence,'old-server-consumer-absence.png'),fullPage:true});

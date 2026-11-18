@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { parse } from 'yaml';
-import { ciJobs, ciJobPlan, ciGraphMatrices, testInventory, partitionTests, CI_TEST_BUDGET_SECONDS, CI_EXECUTION_BUDGET_MS } from './ci-plan.mjs';
+import { ciJobs, ciJobPlan, ciGraphMatrices, testInventory, partitionTests, plannedTestFiles, uncoveredCoreTests, CI_EXEMPT_CORE_TESTS, CI_TEST_BUDGET_SECONDS, CI_EXECUTION_BUDGET_MS } from './ci-plan.mjs';
 import { verificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
 import { CONTROL_COMMAND_PACKAGE_PARTS } from '../packages/cli/scripts/control-command-package-parts.js';
@@ -27,6 +27,22 @@ test('delivery mode CI cells preserve both routes and both protocol versions wit
   for(const args of [['--route','unknown'],['--protocol','unknown'],['--protocol'],['--protocol','legacy','--protocol','modern'],['--unknown','legacy']])
     assert.throws(()=>deliveryModeCases(args,{structured:true}),/invalid_delivery_test_selector/);
   assert.throws(()=>deliveryModeCases(['--route','structured_slice']),/invalid_delivery_test_selector/);
+});
+
+test('every Core test file runs in a CI partition and an unwired one is named', () => {
+  const uncovered = uncoveredCoreTests();
+  assert.deepEqual(uncovered, [], `Core test files outside every CI npm chain: ${uncovered.join(', ')}; `
+    + 'add each to the npm chain of its area (scripts/ci-test-domains.mjs) or to CI_EXEMPT_CORE_TESTS with a reason');
+  const unwired = 'packages/core/test/run-title-test.js';
+  const inventory = testInventory().filter(command => !command.args.some(arg => arg.endsWith('/run-title-test.js')));
+  assert.deepEqual(uncoveredCoreTests({ inventory }), [unwired]);
+  // An exception names an existing file that CI really leaves out, with a reason; a stale entry fails.
+  const ciFiles = plannedTestFiles();
+  for (const [file, reason] of CI_EXEMPT_CORE_TESTS) {
+    assert.ok(readdirSync(new URL('../packages/core/test/', import.meta.url)).includes(file.split('/').at(-1)), `${file} exists`);
+    assert.ok(reason.length > 20, `${file} states its reason`);
+    assert.ok(!ciFiles.has(file), `${file} runs in CI and needs no exception`);
+  }
 });
 
 test('every OS/Node lane covers the entire canonical inventory and required checks', () => {
@@ -54,6 +70,9 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
         assert.ok(ids.includes(before), `${row.id}: missing ${before}`);
       }
       assert.ok(ids.indexOf('ui-build') < ids.indexOf('generate'));
+      const runsUiTests = row.kind === 'checks' && row.area === 'ui';
+      assert.equal(ids.includes('ui-tests'), runsUiTests, row.id);
+      if (runsUiTests) assert.ok(ids.indexOf('generate') < ids.indexOf('ui-tests'), row.id);
       assert.ok(ids.indexOf('assemble') < ids.indexOf('mcp-dependencies'));
       if (row.kind === 'tests') {
         assert.ok(row.commands.every(command => command.domain === row.area), `${row.id}: mixed functional areas`);

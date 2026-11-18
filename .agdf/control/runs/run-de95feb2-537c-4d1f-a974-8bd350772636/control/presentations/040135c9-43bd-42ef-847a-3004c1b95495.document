@@ -1,0 +1,34 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Fix seven companion review findings before merge
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+Problem: Der Review des ungemergten Branches `feat/companion-core-run-view` ergab sieben Befunde im Companion (Run-Ansicht, Ereignis-Journal, Claude-Adapter); zwei sind am Code bestätigt, fünf plausibel.
+
+Ziel: Alle sieben Befunde sind auf dem Branch behoben und jeweils durch einen Test abgedeckt, sodass der Branch ohne diese Fehler gemergt werden kann.
+
+Betroffene Nutzer: Nutzer des AGDF Companion in Claude sowie Maintainer, die das Ereignis-Journal und den Befehl `run-view` verwenden.
+
+Umfang: (1) kein Toast mit dem rohen Schlüssel `notices.unreadable`; (2) Änderungen an Evidenzberichten lösen einen neuen Lesevorgang und damit die Drift-Warnung aus; (3) ein einzelner Run mit `timeout` verwirft nicht mehr die ganze Ansicht; (4) höchstens ein Journal-Ereignis je Tool-Aufruf; (5) ein abgeschlossener, aber blockierter Run wird als blockiert gezeigt; (6) ungültige Runs werden nur auf Anfrage per Id ausgewertet; (7) `verified_change.record` und `ur_draft.replace` erzeugen ein `document_recorded`-Ereignis mit Prüfangaben. Jede Korrektur erhält einen Test.
+
+Nicht-Ziele: keine neuen Companion-Funktionen, keine Änderung an Gate-Regeln, Statuskarte oder Schema-Versionen, keine Entscheidung über die unversionierten Dateien im Arbeitsbaum, kein Commit, Push oder Pull Request ohne gesonderten Auftrag.
+
+Akzeptanzsignale: Zu jedem Befund schlägt ein Test auf dem heutigen Stand fehl und läuft nach der Korrektur durch; `test:companion-run-view`, `test:claude-companion` und die Protokolltests des MCP-Servers laufen durch; generierte Paketinhalte und abhängige Baselines sind konsistent.
+
+Quellen: die freigegebenen Artefakte des Companion-Core-Runs `run-d2818184-27fc-40ae-9195-70d080d3e926` (SD SDD-001 bis SDD-010, PRD AC-002, AC-003, AC-007, AC-008), der Code unter `packages/core/lib/companion/`, `packages/mcp-server/src/` und `plugins/agdf/host-templates/claude/companion/` sowie die Review-Befunde vom 2026-11-10.
+
+Risiken und offene Punkte: Fünf Befunde sind nicht reproduziert; zeigt ein Test, dass einer nicht auftritt, wird er mit diesem Test als nicht zutreffend geschlossen. Bei Befund 3 bleibt das bewusste Verhalten für `source_changed` erhalten, nur ein `timeout` eines einzelnen Runs wird isoliert; das ist eine Annahme. Befund 5 ändert die Anzeige abgeschlossener Runs nach dem Vorbild der Cockpit-Einstufung `unconfirmed`. Änderungen unter `plugins/agdf` ziehen die Kette aus Payload-Baseline, Eval-Fingerprints und Kompatibilitätseintrag nach sich; native Claude-Evidenz kann veralten.
+
+Nächster Schritt: Dieses UR prüfen und nur mit `Approval: UR` freigeben.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-de95feb2-537c-4d1f-a974-8bd350772636` · Nutzeranforderungen · Revision: `2a56043f-0fec-4e29-b396-5819fcb198cf`
+
+SHA-256: `sha256:be212880898bf845b287bb48056b90863e163c09da8795829a246e53c72d5a31`

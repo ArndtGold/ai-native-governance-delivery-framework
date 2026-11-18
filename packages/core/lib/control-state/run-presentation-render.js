@@ -355,6 +355,35 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
   return { markdown: summary, digest: hash(summary) };
 }
 
+// Cockpit presentation reuses the same language and summary owner as authoring checks.
+// The structured rows are derived from that summary; no second content authority is created.
+export function projectCockpitSummary(gate, markdown, languages, context = {}) {
+  if (!['UR', 'PRD', 'SD', 'TP'].includes(gate)) return null;
+  try {
+    const readiness = evaluateApprovalSummaryReadiness(gate, markdown, languages, { path: context.artefactPath });
+    if (!readiness.ready) return null;
+    const summary = artifactSummary(gate, markdown, { ...context, language: languages.presentation_language, sourceLanguage: languages.artifact_language });
+    const priorities = {
+      UR: [/^(?:Ziel|Goal)$/iu, /^(?:Umfang|Scope)$/iu, /^(?:Abnahme|Abnahmesignal|Acceptance)$/iu],
+      PRD: [/^(?:Ziel|Nutzerziel|Goal|User intent)$/iu, /^(?:Umfang|Produktumfang|Scope|Product scope)$/iu, /^(?:AC-[A-Z0-9-]+)$/iu],
+      SD: [/^(?:Lösung|Solution)$/iu, /^(?:Verantwortung|Ownership)$/iu, /^(?:Entscheidungen|Design decisions)$/iu],
+      TP: [/^(?:Aufgaben|Tasks)$/iu, /^(?:Tests)$/iu, /^(?:Risiken|Risks)$/iu],
+    };
+    const rows = summary.markdown.split(/\r?\n/u).flatMap(line => {
+      const match = line.match(/^[-*]\s+([^:\n]{1,80}):\s*(\S.*)$/u);
+      return match && match[2].length <= 1200 ? [{ label: match[1].trim(), text: match[2].trim() }] : [];
+    });
+    const items = priorities[gate].flatMap(pattern => {
+      const matches = rows.filter(row => pattern.test(row.label));
+      return matches.length === 1 ? matches : [];
+    });
+    return { state: 'available', gate, items, markdown: summary.markdown, authorizes: false };
+  } catch (error) {
+    if (String(error.message).startsWith('approval_summary_')) return null;
+    throw error;
+  }
+}
+
 // A compact decision brief is a projection of the already validated, source-
 // authored summary. Missing authored fields stay absent; no agent/UI paraphrase.
 export function decisionBriefFromSummary(summary, language) {

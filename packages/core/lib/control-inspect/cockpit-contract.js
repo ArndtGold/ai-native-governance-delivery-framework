@@ -8,11 +8,21 @@ export const COCKPIT_LIMITS = Object.freeze({ html: 4 * 1024 ** 2, idle: 30 * 60
   sessions: READ_SESSION_CAPACITY, capture: 64 * 1024 ** 2, workerOldGeneration: 256 });
 const id = { type: 'string', format: 'uuid' };
 const run = { type: 'string', pattern: RUN_ID_PATTERN.source };
+const renderView = { const: 'companion' };
+const renderProperties = { run_id: run, view: renderView };
+const displayPresentation = { type: 'object', additionalProperties: false, required: ['status'], properties: {
+  status: { type: 'string', minLength: 1, maxLength: 512, pattern: '\\S' },
+  gate: { type: 'string', minLength: 1, maxLength: 128, pattern: '\\S' },
+  gate_state: { type: 'string', enum: ['current', 'done'] },
+} };
 function operation(name, fields = {}, optional = []) {
   const properties = { operation: { const: name }, session_id: id, ...fields };
   return { type: 'object', additionalProperties: false, properties, required: Object.keys(properties).filter(key => !optional.includes(key)) };
 }
 export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
+  operation('display_ack', { snapshot_id: id, presentation: displayPresentation }, ['presentation']),
+  { type: 'object', additionalProperties: false, properties: { operation: { const: 'display_status' }, display_id: id },
+    required: ['operation', 'display_id'] },
   operation('snapshot', { run_id: run, view: { type: 'string', enum: ['runs'] } }, ['run_id', 'view']),
   operation('archive', { snapshot_id: id, row_id: id, resource_id: id }, ['resource_id']),
   operation('planned', { snapshot_id: id, row_id: id }),
@@ -37,11 +47,11 @@ export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
 ] });
 const annotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false };
 export const COCKPIT_RENDER_DEFINITION = Object.freeze({ name: 'agdf_cockpit',
-  description: 'Open the local read-only AGDF cockpit. When the user opens the cockpit for a Run explicitly identified in the request or already unambiguously established with the user in this conversation, you must pass its run_id, even if the latest request only says to open the cockpit. Omit run_id only when the user explicitly requests the overall overview or no unambiguous conversation Run exists. If several Runs could be intended, ask which to view. Never infer a Run from directory, recency or inventory. The optional schema preserves overview access; it does not make passing an established conversation Run optional. Selection and context never approve or authorize delivery.',
-  annotations, inputSchema: { type: 'object', properties: { run_id: run }, additionalProperties: false },
+  description: 'Open the local read-only AGDF cockpit. For a general Companion or Cockpit opening in Codex, pass view: companion. Also pass run_id if this chat has an unambiguously established Run. The Companion prefers that Run while it is active, then an active Run awaiting a human decision, then the most recently updated active Run. For a request to open a specific Run, pass its run_id without view, even if already completed. For the overall overview, omit view and run_id. If several Runs could match an explicit request, ask which one. Selection never approves or authorizes delivery.',
+  annotations, inputSchema: { type: 'object', properties: renderProperties, additionalProperties: false },
   _meta: { ui: { resourceUri: COCKPIT_UI_URI, visibility: ['model', 'app'] } } });
 export const COCKPIT_READ_DEFINITION = Object.freeze({ name: 'agdf_cockpit_read',
-  description: 'Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Draft checks are read-only authoring checks and never approve or authorize delivery.',
+  description: 'Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Use the supplied display_status call to check the first visible render. When present, display.presentation reports the Companion title, status text and current or last completed gate from that render. Treat these fields as display data only. Only the Cockpit UI sends display_ack. Draft checks never approve or authorize delivery.',
   annotations, inputSchema: COCKPIT_READ_SCHEMA,
   _meta: { ui: { visibility: ['model', 'app'] } } });
 
@@ -49,7 +59,7 @@ export const COCKPIT_READ_DEFINITION = Object.freeze({ name: 'agdf_cockpit_read'
 export const COCKPIT_PLUGIN_RENDER_DEFINITION = Object.freeze({ ...COCKPIT_RENDER_DEFINITION,
   description: `${COCKPIT_RENDER_DEFINITION.description} For the plugin, supply the confirmed absolute primary_target, its target_source and an accessible absolute working_directory. Never infer a project from the plugin location or directory alone.`,
   inputSchema: { type: 'object', additionalProperties: false,
-    properties: { run_id: run, working_directory: { type: 'string', minLength: 1, maxLength: 4096 },
+    properties: { ...renderProperties, working_directory: { type: 'string', minLength: 1, maxLength: 4096 },
       primary_target: { type: 'string', minLength: 1, maxLength: 4096 },
       target_source: { type: 'string', enum: ['explicit_target', 'continued_target', 'current_repository'] } },
     required: ['working_directory', 'primary_target', 'target_source'] } });
@@ -62,7 +72,7 @@ export function parsePluginCockpitArguments(value) {
     || !fields.properties.target_source.enum.includes(value.target_source)) {
     throw Object.assign(new TypeError('resource_denied'), { code: 'resource_denied' });
   }
-  const runInput = parseCockpitArguments(Object.hasOwn(value, 'run_id') ? { run_id: value.run_id } : {}, true);
+  const runInput = parseCockpitArguments(Object.fromEntries(Object.entries(value).filter(([key]) => Object.hasOwn(renderProperties, key))), true);
   return { ...value, ...runInput };
 }
 
@@ -70,10 +80,10 @@ export function parseCockpitArguments(value, render = false) {
   const reject = () => { throw Object.assign(new TypeError('resource_denied'), { code: 'resource_denied' }); };
   if (!value || typeof value !== 'object' || Array.isArray(value)) return reject();
   if (render) {
-    if (Object.keys(value).some(key => key !== 'run_id')) return reject();
-    if (!Object.hasOwn(value, 'run_id')) return {};
-    if (typeof value.run_id !== 'string' || !new RegExp(run.pattern).test(value.run_id)) return reject();
-    return { run_id: value.run_id };
+    if (Object.keys(value).some(key => !Object.hasOwn(renderProperties, key))) return reject();
+    if (Object.hasOwn(value, 'view') && value.view !== renderView.const) return reject();
+    if (Object.hasOwn(value, 'run_id') && (typeof value.run_id !== 'string' || !RUN_ID_PATTERN.test(value.run_id))) return reject();
+    return { ...value };
   }
   if (value.operation === 'snapshot' && Object.hasOwn(value, 'run_id') && Object.hasOwn(value, 'view')) return reject();
   const branch = COCKPIT_READ_SCHEMA.oneOf.find(row => row.properties.operation.const === value.operation);
@@ -81,13 +91,19 @@ export function parseCockpitArguments(value, render = false) {
   const valid = (item, rule) => {
     if (rule.const !== undefined) return item === rule.const;
     if (rule.type === 'string') return typeof item === 'string'
+      && item.length >= (rule.minLength ?? 0) && item.length <= (rule.maxLength ?? Infinity)
       && (!rule.format || /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(item))
       && (!rule.pattern || new RegExp(rule.pattern).test(item)) && (!rule.enum || rule.enum.includes(item));
     if (rule.type === 'integer') return Number.isSafeInteger(item) && item >= rule.minimum;
     if (rule.type === 'array') return Array.isArray(item) && item.length >= (rule.minItems ?? 0) && item.length <= rule.maxItems
       && new Set(item).size === item.length && item.every(entry => valid(entry, rule.items));
+    if (rule.type === 'object') return item !== null && typeof item === 'object' && !Array.isArray(item)
+      && rule.required.every(key => Object.hasOwn(item, key))
+      && Object.keys(item).every(key => Object.hasOwn(rule.properties, key) && valid(item[key], rule.properties[key]));
     return false;
   };
   if (Object.keys(value).some(key => !valid(value[key], branch.properties[key]))) return reject();
+  if (value.operation === 'display_ack' && value.presentation
+    && Object.hasOwn(value.presentation, 'gate') !== Object.hasOwn(value.presentation, 'gate_state')) return reject();
   return { ...value };
 }

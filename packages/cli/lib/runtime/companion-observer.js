@@ -78,6 +78,7 @@ export async function runCompanionObserver(args, io = console, signal) {
     });
     const control = join(canonical, '.agdf', 'control');
     if (!observation.bind([{ path: join(control, 'runs'), subtree: true },
+      { path: join(control, 'planned'), subtree: true },
       { path: join(control, 'config.json') }, { path: join(control, 'VERSION') }])) {
       stop(2);
       return;

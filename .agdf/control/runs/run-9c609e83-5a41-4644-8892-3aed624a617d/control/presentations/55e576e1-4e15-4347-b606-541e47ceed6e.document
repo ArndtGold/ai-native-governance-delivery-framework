@@ -1,0 +1,21 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Companion shows planned URs instead of an empty state
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Technische Umsetzung der freigegebenen PRD-Anforderungen: Der Begleiter zeigt eine geplante UR statt einer Leer-Meldung.
+- Umfang: Die Run-Ansicht des Core bekommt ein zusätzliches Feld `planned` (Plan-ID, Titel, Abdeckung, Ziel, letzte Änderung; übergebene URs fehlen), gelesen in einem eigenen Schnappschuss mit leerer Liste bei Fehler. Ein gemeinsamer Leser liefert Überschrift und Ziel für Run-URs und geplante URs. Der Begleiter wählt mit `pickPlan` die neueste geplante UR, zeigt sie über den bestehenden Zweig ohne Run mit Klemmbrett-Regel für das UR-Gate, Statuszeile „AGDF · UR-Planung“ und neuen Katalogtexten in de und en. Der Fingerabdruck für die Aktualisierung erfasst Planungsordner und deren Dateien. Nichts wird geschrieben; Cockpit, Codex und Copilot bleiben unverändert.
+- Entscheidungen: Feldform und Änderungserkennung sind festgelegt (SDD-001, SDD-006); ob der vorhandene Kandidatencode übernommen, korrigiert oder ersetzt wird, entscheidet der TP je Aufgabe.
+- Prüfung: bestehende Testsuiten plus gezielte Fälle in Core-, Begleiter- und Adapter-Tests sowie Katalog-, Paket- und Kompatibilitätsprüfungen; das echte Claude-Panel wird nicht geprüft, gerenderte Bilder dienen als Sichtnachweis.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-9c609e83-5a41-4644-8892-3aed624a617d` · Lösungsdesign · Revision: `21ff08bb-9a38-4578-a9be-11367a154d46`
+
+SHA-256: `sha256:27057a365c4c75fb6e030fb83863e6679fadab18b4909a32b8677d1c296eabcd`

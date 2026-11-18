@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
-import { appendFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { fixture } from "../../core/test/control-cockpit-fixtures.js";
 import { currentFixture } from "../../core/test/fixtures/current-run.js";
+import { boundMutatePlannedUr, completeUr, plannedFixture } from "../../core/test/planned-fixtures.js";
 import { replaceFirstScalar } from "../../core/lib/control-state/run-state-edits.js";
 import { sealRunState } from "../../core/lib/control-state/run-seal.js";
 import { createRun } from "../../core/lib/control-state/run-state-repository.js";
@@ -245,13 +246,15 @@ try {
   writeFileSync(configPath, `${JSON.stringify({ ...JSON.parse(readFileSync(configPath, "utf8")), chat_language: "en" }, null, 2)}\n`);
   const controlBefore = controlDigest(target.root);
 
-  // SCN-011: observation only. Six hooks, a catch path on every gating-capable one, and the
+  // SCN-011: observation only. Lifecycle pass-through, two exact AGDF tool observers, and the
   // adapter source writes through $.fs.write in one place: the companion state file.
   const first = await session();
-  assert.deepEqual(first.hooks.map(item => item.event).sort(), ["command.run", "command.run", "session.end", "session.start", "turn.complete", "turn.start", "ui.close", "ui.render"]);
-  assert.deepEqual(first.hooks.filter(item => !item.catch).map(item => item.event), ["ui.render"]);
+  assert.deepEqual(first.hooks.map(item => item.event).sort(), ["command.run", "command.run", "session.end", "session.start", "tool.call", "tool.call", "turn.complete", "turn.start", "ui.close", "ui.render"]);
+  assert.deepEqual(first.hooks.filter(item => !item.catch).map(item => item.event), ["tool.call", "tool.call", "ui.render"]);
   assert.deepEqual(first.hooks.find(item => item.event === "command.run").matcher, { command: COMMAND });
   assert.deepEqual(first.hooks.find(item => item.event === "ui.close").matcher, { id: PANE });
+  assert.deepEqual(first.hooks.filter(item => item.event === "tool.call").map(item => item.matcher.tool),
+    ["mcp__agdf__agdf_dispatch", "mcp__plugin_agdf_agdf__agdf_dispatch"]);
   const source = readFileSync(join(companionDir, "register.mjs"), "utf8");
   assert.equal(source.match(/\$\.fs\.write\(/gu)?.length, 1, "one write site");
   assert.ok(!/\$\.state\.set|\$\.store\./u.test(source), "no host state or plugin store writes");
@@ -292,7 +295,15 @@ try {
   await runButton.props.onPress();
   assert.equal(JSON.parse(readFileSync(statePath, "utf8")).selections[target.root], "fixture-a");
   tree = await render(first);
-  assert.ok(texts(tree).includes("Selected by you") && texts(tree).includes("waiting for approval"));
+  assert.ok(texts(tree).includes("Selected by you") && texts(tree).includes("I’m waiting for your approval"));
+  const figureSource = async host => find(await render(host), node => node.tag === "Svg")[0].props.source;
+  const waitingFigure = await figureSource(first);
+  assert.match(waitingFigure, />UR<\/text>/u);
+  assert.match(waitingFigure, /dur="12s"/u);
+  assert.match(waitingFigure, /data-gesture/u, "first visible approval plays its gesture");
+  await (await entry(first, "retry"))();
+  assert.equal(await figureSource(first), waitingFigure, "unchanged read keeps the SVG bytes");
+
   assert.ok(texts(find(tree, node => node.tag === "Text" && node.props.mono)[0])[0].length <= 40);
   // The stepping buttons show their localized label, which the desktop draws and which names them.
   // They share a row of their own; the count sits on the line above, so the row fits 40 columns
@@ -393,6 +404,10 @@ try {
   assert.equal(listCapacity(listView, { rows: 50, columns: 40 }) - listCapacity(listView, { rows: 40, columns: 40 }), 10, "each body row adds a run");
   assert.equal(listCapacity(listView, { rows: 50, columns: 40 }) - listCapacity(listView, { rows: 50, columns: 40, isAboutShown: true }), 7, "About takes its rows");
   assert.ok(listCapacity({ ...listView, hint: "x".repeat(400) }, { rows: 50, columns: 40 }) < listCapacity(listView, { rows: 50, columns: 40 }), "a longer hint takes rows");
+  // CR finding of 2026-11-16: beside a planned UR its name, route, goal, turn box, gate bar, note and id take rows too.
+  const planView = { ...listView, planId: "plan-1", name: "Draft undertaking", route: "UR planning · no run yet", goal: "Preserve one explicit intent.",
+    turn: { who: "Up next", what: "Draft: User requirements (UR)", how: "Tell me in the chat when I should continue." }, gateBar: "●UR planning", note: "Completed runs: 1" };
+  assert.ok(listCapacity(planView, { rows: 50, columns: 40 }) <= listCapacity(listView, { rows: 50, columns: 40 }) - 8, "a planned UR leaves fewer rows for the list");
   const many = await approvalFixture();
   try {
     const manyConfig = join(many.root, ".agdf", "control", "config.json");
@@ -422,7 +437,8 @@ try {
       assert.match(texts(bar)[0], /^[✓●○]+ \S/u);
       assert.ok(id.props.label.length <= 40 - widest - 2, "every id fits beside the widest bar");
     }
-    assert.deepEqual(texts(barRows[0].children[1]), ["●● UR"], "a quick task at UR shows its own path");
+    // The path has one current entry: the route entry stays open while the UR is the current gate.
+    assert.deepEqual(texts(barRows[0].children[1]), ["●○ UR"], "a quick task at UR shows its own path");
     const narrow = await render(lister, "desktop", { bodyColumns: 24, scroll: { offset: 0, bodyRows: 60 } });
     assert.deepEqual([rowsOf(narrow).length, runsOf(narrow)], [0, 13], "a narrow pane lists the ids alone");
     assert.ok(buttons(narrow).filter(node => node.props.key.startsWith("run-")).every(node => !node.props.label.includes("…")));
@@ -541,7 +557,8 @@ try {
     await lister.fire("turn.start", { text: "Weiter mit extra-11." });
     await settle();
     let odd = await look(lister);
-    assert.ok(texts(odd.tree).includes("working"));
+    assert.ok(texts(odd.tree).includes("UR draft is next"));
+    assert.ok(!texts(odd.tree).includes("One moment"), "a main turn without verified AGDF work stays pending");
     assert.ok(button(odd.tree, "next"), "stepping from an undrafted chat run");
     const afterOdd = await neighbour("extra-11", 1);
     await button(odd.tree, "next").props.onPress();
@@ -553,7 +570,7 @@ try {
     await button((await look(lister)).tree, "previous").props.onPress();
     await settle();
     odd = await look(lister);
-    assert.deepEqual([texts(odd.tree).includes("working"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an undrafted run offers the way back");
+    assert.deepEqual([texts(odd.tree).includes("UR draft is next"), Boolean(button(odd.tree, "chat-return")), optionValues(odd.tree)[1]], [true, true, "chat"], "browsing to an undrafted run offers the way back");
 
     // CR-F02: every recorded mention is announced, also one that names the chat's run again.
     const announced = lister.log.status.length;
@@ -604,10 +621,43 @@ try {
   // SCN-006 with chat-run navigation SCN-012: a main-loop turn keeps a waiting run's state, since the chat
   // asks for the approval during that turn (a working run shows the overlay further below); subagent
   // turns change nothing; completion re-reads.
+  // Owner request of 2026-11-11: the pane names the shown run by its title, says whose move it is and
+  // keeps the run id as a dim reference after everything a person reads.
+  {
+    const tree = await render(first), shown = texts(tree);
+    const [name, yours, bar, id] = ["Fixture document", "Your turn", shown.find(text => /^[✓●○]/u.test(text)), "fixture-a"].map(text => shown.indexOf(text));
+    assert.ok(name >= 0 && name < yours && yours < bar && bar < id, `title, whose move, gate bar, then the run id: ${JSON.stringify(shown)}`);
+    assert.ok(shown.some(text => /^Approve .+ \(UR\)$/u.test(text)) && shown.some(text => text === "In the chat with “Approval: UR”"), "the approval and how it is given");
+    assert.ok(!shown.some(text => text.startsWith("Approval pending")), "the turn block replaces the reason under the state");
+    const idText = find(tree, node => node.tag === "Text" && texts(node)[0] === "fixture-a")[0];
+    assert.deepEqual([idText.props.dimColor, idText.props.mono, idText.props.weight], [true, true, undefined], "the run id is a reference, not a heading");
+    const terminal = texts(await render(first, "terminal")).join("\n").split("\n");
+    assert.ok(terminal.indexOf("Fixture document · Compact Delivery · Step 1 of 2") >= 0 && terminal.some(line => line.startsWith("fixture-a · ")), `the terminal names the run and keeps the id: ${JSON.stringify(terminal)}`);
+    const { fitRunName } = await freshModule();
+    assert.deepEqual([fitRunName("Status card path marks only one current gate", 20), fitRunName("Short", 20)], ["Status card path ma…", "Short"]);
+    // Owner request of 2026-11-12: the goal stays in sight between the run's name and whose move it is;
+    // the gate's purpose and the repeated approval step sit behind the (i), which opens and closes them
+    // on both surfaces.
+    const purpose = "UR clarifies what you want, why and for whom — before anything gets built that nobody needed.";
+    for (const surface of ["desktop", "terminal"]) {
+      const closed = await render(first, surface), closedText = texts(closed).join("\n");
+      assert.equal(button(closed, "info").props.label, "ⓘ Details", `${surface}: the (i) is offered`);
+      assert.ok(!closedText.includes(purpose) && !closedText.includes("Review the linked artefact"), `${surface}: the details stay closed by default`);
+      const at = text => closedText.indexOf(text);
+      assert.ok(at("Fixture document") >= 0 && at("Fixture document") < at("Preserve one explicit intent.") && at("Preserve one explicit intent.") < at("Your turn"),
+        `${surface}: name, goal, then whose move it is: ${closedText}`);
+      await button(closed, "info").props.onPress();
+      const opened = await render(first, surface), openedText = texts(opened).join("\n");
+      assert.equal(button(opened, "info").props.label, "ⓘ Hide details");
+      assert.ok(openedText.includes(purpose) && openedText.includes("Preserve one explicit intent.") && openedText.includes("Review the linked artefact"),
+        `${surface}: the (i) shows the purpose and the repeated step: ${openedText}`);
+      await button(opened, "info").props.onPress();
+    }
+  }
   await first.fire("turn.start", { agentId: "sub" });
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"));
   await first.fire("turn.start", {});
-  assert.deepEqual([texts(await render(first)).includes("waiting for approval"), texts(await render(first)).includes("Claude is working on this turn")], [true, false], "a waiting run stays waiting during a turn");
+  assert.deepEqual([texts(await render(first)).includes("I’m waiting for your approval"), texts(await render(first)).includes("Claude is working on this turn")], [true, false], "a waiting run stays waiting during a turn");
   // CR-F10: turn.complete answers the host before the post-turn read has finished.
   const reads = first.log.invalidations;
   const realRun = first.$.process.run;
@@ -621,7 +671,7 @@ try {
   first.$.process.run = realRun;
   releaseList();
   await waitFor(() => first.log.invalidations > reads, "the post-turn redraw");
-  assert.ok(texts(await render(first)).includes("waiting for approval"));
+  assert.ok(texts(await render(first)).includes("I’m waiting for your approval"));
 
   // CR-F05: switching off during a turn and on again leaves no stale "working" overlay.
   await first.fire("turn.start", {});
@@ -640,7 +690,7 @@ try {
   await (await entry(first, "retry"))();
   releaseEmpty();
   await slowRead;
-  assert.ok(texts(await render(first)).includes("waiting for approval"), "the newer read stays on screen");
+  assert.ok(texts(await render(first)).includes("I’m waiting for your approval"), "the newer read stays on screen");
 
   // AC-010: the still pose persists and removes all motion; the terminal draws text.
   await (await entry(first, "still"))();
@@ -650,13 +700,16 @@ try {
   assert.equal(svg.props.isInteractive, false);
   const terminal = await render(first, "terminal");
   assert.equal(find(terminal, node => node.tag === "Svg").length, 0);
-  assert.match(texts(terminal).join("\n"), /waiting for approval[\s\S]*[✓●○]UR[\s\S]*Next step: /u);
+  // For an approval the next step sits behind the (i); the turn line says what to do (2026-11-12).
+  assert.match(texts(terminal).join("\n"), /I’m waiting for your approval[\s\S]*Your turn: Approve [\s\S]*[✓●○]UR/u);
 
   // A change in this session takes over from the selection (most recent wins).
   assert.equal(target.approve().outcome, "accepted");
   await (await entry(first, "retry"))();
   tree = await render(first);
-  assert.ok(texts(tree).includes("Changed in this session") && texts(tree).includes("working"));
+  // The run rests after the approval: the pane names the step that is up next and how to carry on.
+  assert.ok(texts(tree).includes("Changed in this session") && texts(tree).includes("Implementation is next") && texts(tree).includes("Up next"));
+  assert.equal(find(tree, node => node.tag === "Text" && texts(node)[0] === "Implementation is next")[0].props.color, undefined, "a resting run carries no signal colour");
 
   // Follow-up SCN-009, SCN-011, SCN-013, SCN-014: toasts and the status line follow the shown run's
   // run-derived state. Selecting the waiting run was a baseline and its approval to working raised
@@ -666,18 +719,25 @@ try {
   const review = decision => reportBlock(target.root, "fixture-a", decision);
   assert.equal(lastStatus(), "AGDF · Quick Task Execution · working");
   assert.deepEqual(first.log.toasts, [], "no toast for baselines, run switching or a working run");
+  await (await entry(first, "still"))();
+  await figureSource(first);
   review("revise");
   await reread(first);
+  const warningFigure = await figureSource(first);
+  assert.match(warningFigure, /data-gesture="\d+".*repeatCount="1"/su);
   await reread(first);
+  assert.equal(await figureSource(first), warningFigure);
+  await (await entry(first, "still"))();
   assert.deepEqual(first.log.toasts, ["Blocked: Quick Task Execution – revision needed"]);
   assert.equal(lastStatus(), "AGDF · Quick Task Execution · blocked");
   assert.deepEqual(first.log.audio, [], "the sound is off by default");
-  // A main-loop turn shows its overlay in the pane but changes neither the status line nor toasts.
+  // A main-loop turn without confirmed work preserves the canonical state on both surfaces.
   // Every applied read sets the status line again (live finding: the desktop dropped the one set
   // during session start), so the post-turn read repeats the same text.
   const statusCount = first.log.status.length;
   await first.fire("turn.start", {});
-  assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
+  assert.ok(texts(await render(first)).includes("blocked"));
+  assert.ok(!texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
   const beforeTurnRead = first.log.invalidations;
   touch(target.root);
   first.signal("run");
@@ -685,12 +745,12 @@ try {
   await waitFor(() => first.log.invalidations > beforeTurnRead, "the post-turn read");
   assert.equal(first.log.status.length, statusCount + 1, "the post-turn read sets the status line again");
   assert.deepEqual([first.log.status.at(-1), first.log.toasts.length], ["AGDF · Quick Task Execution · blocked", 1], "a turn changes neither the status text nor toasts");
-  // CR-F04: the overlay checks on a blocked run, which the overlay covers: a subagent turn shows none, and
-  // switching off during a main-loop turn and on again leaves no stale overlay.
+  // A subagent turn and an unrelated main-loop turn never change a blocked display.
   await first.fire("turn.start", { agentId: "sub" });
   assert.ok(!texts(await render(first)).includes("Claude is working on this turn"), "a subagent turn shows no overlay");
   await first.fire("turn.start", {});
-  assert.ok(texts(await render(first)).includes("Claude is working on this turn"));
+  assert.ok(texts(await render(first)).includes("blocked"));
+  assert.ok(!texts(await render(first, "terminal")).some(text => text.includes("Claude is working on this turn")));
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched off.");
   await first.fire("turn.complete", {});
   assert.equal((await first.fire("command.run", { command: COMMAND })).text, "AGDF Companion switched on.");
@@ -787,8 +847,27 @@ try {
   const otherCleanup = [];
   const otherProject = currentFixture({ after(fn) { otherCleanup.push(fn); } }).root;
   second.where.root = otherProject;
+  second.$.process.run = async () => ({ exitCode: 1, stdout: "" });
   await (await entry(second, "retry"))();
-  assert.ok(texts(await render(second)).includes("No open runs in this project."));
+  assert.ok(!texts(await render(second)).includes("fixture-a"), "a failed project switch cannot show the previous Run");
+  assert.doesNotMatch(await figureSource(second), /<animate/u);
+  assert.ok(!(await figureSource(second)).includes('d="M74 63q7 6 14 0"'), "a failed read does not smile");
+  second.$.process.run = secondRun;
+  await (await entry(second, "retry"))();
+  assert.ok(texts(await render(second)).includes("Starting grid empty."), "a project without runs shows the empty starting grid");
+  // A readable project without an assigned run idles: the figure smiles, blinks unless the still pose is
+  // chosen, and never gestures.
+  const smile = 'd="M74 63q7 6 14 0"';
+  const stillIdle = await figureSource(second);
+  assert.doesNotMatch(stillIdle, /<animate/u, "this session chose the still pose");
+  assert.ok(stillIdle.includes(smile), "the still pose keeps the smile");
+  await (await entry(second, "still"))();
+  const idleFigure = await figureSource(second);
+  assert.match(idleFigure, /attributeName="ry"/u, "without an assigned run the figure blinks");
+  assert.ok(idleFigure.includes(smile), "without an assigned run the figure smiles");
+  assert.doesNotMatch(idleFigure, /data-gesture=/u, "without an assigned run the figure never gestures");
+  await (await entry(second, "still"))();
+  assert.doesNotMatch(await figureSource(second), /<animate/u);
   second.where.root = target.root;
   await (await entry(second, "retry"))();
   assert.ok(texts(await render(second)).includes("fixture-a"));
@@ -811,6 +890,12 @@ try {
     tree = await render(closingHost);
     assert.ok(texts(tree).includes("No open runs in this project."));
     assert.deepEqual(buttons(tree).filter(button => button.props.key.startsWith("run-")), []);
+    assert.doesNotMatch(find(tree, node => node.tag === "Svg")[0].props.source, /overview-tablet/u, "a superseded run did not finish, so no tablet");
+    writeFileSync(runPath, sealRunState(closing.root, replaceFirstScalar(readFileSync(runPath, "utf8"), "lifecycle", "completed")));
+    await (await entry(closingHost, "retry"))();
+    tree = await render(closingHost);
+    assert.ok(texts(tree).includes("All runs across the line. 🏁"));
+    assert.match(find(tree, node => node.tag === "Svg")[0].props.source, /data-accessory="overview-tablet"/u, "every run done shows the tablet");
   } finally {
     closing.close();
   }
@@ -873,10 +958,95 @@ try {
       await reread(host);
       return texts(await render(host));
     };
-    assert.ok((await languageOf(plain, { language: "Deutsch" })).some(line => line.startsWith("Kein AGDF-Kontrollordner")), "German from the setting");
-    assert.ok((await languageOf(plain, { language: "de" })).some(line => line.startsWith("Kein AGDF-Kontrollordner")), "German from the tag");
-    assert.ok((await languageOf(plain, {})).some(line => line.startsWith("No AGDF control folder")), "English without a setting");
-    assert.ok((await languageOf(plain, { language: "Deutsch" }, true)).some(line => line.startsWith("No AGDF control folder")), "English when the read fails");
+    assert.ok((await languageOf(plain, { language: "Deutsch" })).some(line => line.startsWith("AGDF ist in diesem Projekt noch nicht eingerichtet")), "German from the setting");
+    assert.ok((await languageOf(plain, { language: "de" })).some(line => line.startsWith("AGDF ist in diesem Projekt noch nicht eingerichtet")), "German from the tag");
+    assert.ok((await languageOf(plain, {})).some(line => line.startsWith("AGDF isn't set up in this project yet")), "English without a setting");
+    assert.ok((await languageOf(plain, { language: "Deutsch" }, true)).some(line => line.startsWith("AGDF isn't set up in this project yet")), "English when the read fails");
+    // Owner request of 2026-11-12: a project without AGDF is invited to start. The figure smiles and
+    // holds the start sign, the checked path and the finding open behind the (i), and the status line
+    // says "not set up" instead of "idle".
+    {
+      const host = await session({ projectRoot: plain, settings: {} });
+      await host.fire("session.start");
+      await reread(host);
+      const closed = await render(host), closedText = texts(closed);
+      const svg = find(closed, node => node.tag === "Svg")[0].props.source;
+      assert.match(svg, /data-accessory="start-sign"/u, "the figure holds the start sign");
+      assert.ok(closedText.includes("Tell me in the chat if you'd like to use AGDF here – I'll set it up with you."));
+      assert.ok(!closedText.some(line => line.includes("No AGDF control folder")), "the finding stays behind the (i)");
+      assert.equal(find(closed, node => node.tag === "Text" && texts(node)[0] === "AGDF isn't set up in this project yet.")[0].props.weight, "semibold", "the invitation is the pane's headline");
+      await button(closed, "info").props.onPress();
+      const opened = texts(await render(host));
+      assert.ok(opened.includes("Checked project folder") && opened.includes("Finding") && opened.some(line => line.startsWith("No AGDF control folder in")), "the (i) shows the path and the finding");
+      assert.equal(host.log.status.at(-1), "AGDF · not set up");
+      const terminal = texts(await render(host, "terminal")).join("\n");
+      assert.ok(terminal.includes("(^_^)/ idle\nAGDF isn't set up in this project yet."), "the terminal invites too");
+      // "Motion off" keeps the sign and drops its sway.
+      await (await entry(host, "still"))();
+      const stillSvg = find(await render(host), node => node.tag === "Svg")[0].props.source;
+      assert.ok(/data-accessory="start-sign"/u.test(stillSvg) && !/<animate/u.test(stillSvg), "the still pose keeps the sign without motion");
+      await (await entry(host, "still"))();
+    }
+    // Owner finding of 2026-11-16: a planned UR is no run yet, and the pane said "all runs done" while
+    // one was drafted. It is shown like a run at the UR gate, and a new planned UR reads the run view again.
+    {
+      const cleanups = [];
+      const planning = plannedFixture({ after: fn => cleanups.push(fn) }, []);
+      try {
+        const create = title => {
+          const operation_id = randomUUID();
+          boundMutatePlannedUr(planning, { kind: "planned_ur.create", operation_id, expected_digest: null, content: completeUr.replace("Independent work", title), priority: "normal" });
+          return `plan-${operation_id}`;
+        };
+        const host = await session({ projectRoot: planning, settings: {} });
+        await host.fire("session.start");
+        if (!JSON.parse(readFileSync(statePath, "utf8")).enabled) await host.fire("command.run", { command: COMMAND });
+        const settleLong = async () => { for (let turn = 0; turn < 400; turn += 1) await new Promise(resolve => setImmediate(resolve)); };
+        const tick = settleLong;
+        await reread(host);
+        assert.ok(texts(await render(host)).some(text => text.startsWith("Starting grid empty")), "a project without runs or planned URs is empty");
+        const calls = () => host.log.processes.length, before = calls();
+        await tick();
+        assert.equal(calls(), before, "an unchanged project is not read again");
+        // A first planned UR wakes the Core observer and is shown immediately.
+        const planId = create("Draft undertaking");
+        host.signal("run");
+        await settleLong();
+        assert.equal(calls(), before + 1, "a new planned UR reads the run view again");
+        // CR finding of 2026-11-16: the fingerprint taken with the new planned UR matches the next check.
+        await tick();
+        assert.equal(calls(), before + 1, "a new planned UR is read once, not twice");
+        const tree = await render(host), shown = texts(tree);
+        for (const text of ["UR draft is next", "Draft undertaking", "UR planning · no run yet", "Up next", "Draft: User requirements (UR)", "●UR planning", planId]) {
+          assert.ok(shown.includes(text), `the pane shows "${text}": ${JSON.stringify(shown)}`);
+        }
+        assert.ok(!shown.some(text => /Starting grid empty|All runs across the line|No run assigned/u.test(text)), "no empty-state message beside a planned UR");
+        const svg = find(tree, node => node.tag === "Svg")[0].props.source;
+        assert.ok(/data-accessory="gate-board"[\s\S]*>UR<\/text>/u.test(svg) && !/dur="9s"/u.test(svg), "the figure holds the UR clipboard and rests");
+        const idText = find(tree, node => node.tag === "Text" && texts(node)[0] === planId)[0];
+        assert.deepEqual([idText.props.dimColor, idText.props.mono], [true, true], "the planning id is a reference line");
+        assert.equal(host.log.status.at(-1), "AGDF · UR planning");
+        // During a main-loop turn the draft is being written.
+        const turnId = "planned-ur-turn";
+        await host.fire("turn.start", { turnId });
+        const busy = await render(host);
+        assert.ok(texts(busy).includes("drafting the UR") && texts(busy).includes("One moment"));
+        assert.match(find(busy, node => node.tag === "Svg")[0].props.source, /data-accessory="gate-board"[\s\S]*dur="9s"/u, "the figure writes while the turn runs");
+        await host.fire("turn.complete", { turnId, reason: "aborted" });
+        await settleLong();
+        const afterAbort = texts(await render(host));
+        assert.ok(afterAbort.includes("UR draft is next") && !afterAbort.includes("One moment"), "aborting the main turn restores the planned UR's pending state");
+        // A changed planned UR is read again as well.
+        const again = calls();
+        const ur = join(planning, ".agdf", "control", "planned", planId, "UR.md"), later = new Date(Date.now() + 120_000);
+        utimesSync(ur, later, later);
+        host.signal("run");
+        await settleLong();
+        assert.equal(calls(), again + 1, "a changed planned UR reads the run view again");
+        const terminal = texts(await render(host, "terminal")).join("\n");
+        assert.ok(terminal.includes("UR draft is next\nDraft undertaking · UR planning · no run yet") && terminal.includes(planId), "the terminal shows the planned UR too");
+      } finally { for (const cleanup of cleanups) cleanup(); }
+    }
     // CR-F05: an English label of the shown run proves that the config (en) wins over the setting (de).
     const configured = await languageOf(target.root, { language: "de" });
     assert.ok(configured.includes("fixture-a") && configured.includes("Next step") && !configured.includes("Nächster Schritt"),
@@ -984,11 +1154,11 @@ try {
     append(line({ root: spelled }));
     await emit("journal");
     assert.equal(calls(), before + 1, "a new event reads the run view once");
-    // No run is shown yet, so each event names its run by the objective after the text (owner request
-    // of 2026-11-06, T-013).
-    assert.match(host.log.toasts.at(-1), /^Approval requested for \S.* · Preserve one explicit intent\.$/u, "approval requested is a toast");
+    // No run is shown yet, so each event names its run by its title after the text (owner requests
+    // of 2026-11-06, T-013, and 2026-11-11).
+    assert.match(host.log.toasts.at(-1), /^Approval requested for \S.* · Fixture document$/u, "approval requested is a toast");
     assert.equal(host.log.toasts.length, toastsBefore + 1, "the run's own state toast is not repeated beside its event");
-    assert.ok((await shown()).some(text => /^\d{2}:\d{2} Approval requested for .* · Preserve one explicit intent\.$/u.test(text)), "the pane lists the event with its time");
+    assert.ok((await shown()).some(text => /^\d{2}:\d{2} Approval requested for .* · Fixture document$/u.test(text)), "the pane lists the event with its time");
 
     // Approval recorded and write rejected stay in the pane; effect unknown is a toast; run completed
     // waits for the run view to confirm it.
@@ -996,10 +1166,10 @@ try {
     append(line({ kind: "approval_recorded" }), line({ kind: "write_rejected", outcome: "rejected", reason: "stale_revision" }));
     await emit("journal");
     assert.equal(host.log.toasts.length, quiet, "pane-only kinds raise no toast");
-    assert.ok((await shown()).some(text => text.endsWith("Call rejected (stale_revision) · Preserve one explicit intent.")));
+    assert.ok((await shown()).some(text => text.endsWith("Call rejected (stale_revision) · Fixture document")));
     append(line({ kind: "effect_unknown", outcome: "effect_unknown", reason: "dispatch_timeout", gate: "EVIDENCE" }));
     await emit("journal");
-    assert.equal(host.log.toasts.at(-1), "Effect unknown – check the operation status · Preserve one explicit intent.");
+    assert.equal(host.log.toasts.at(-1), "Effect unknown – check the operation status · Fixture document");
     const completedBefore = host.log.toasts.length;
     append(line({ kind: "run_completed", gate: "OR" }));
     await emit("journal");
@@ -1019,7 +1189,7 @@ try {
     await host.fire("turn.start", { text: "next" });
     lines = await shown();
     assert.ok(!lines.some(text => /^\d{2}:\d{2} (Approval requested|Call rejected|Material staged)/u.test(text)), "the next main-loop turn clears the event entries");
-    assert.ok(lines.some(text => text.endsWith("Effect unknown – check the operation status · Preserve one explicit intent.")), "an uncertain outcome stays past the turn");
+    assert.ok(lines.some(text => text.endsWith("Effect unknown – check the operation status · Fixture document")), "an uncertain outcome stays past the turn");
     await host.fire("turn.complete", {});
     await settleLong();
 
@@ -1132,7 +1302,7 @@ try {
     await emit("journal");
     assert.match(host.log.toasts.at(-1) ?? "", /^Approval requested for .* · elsewhere-run$/u, "the new root's event is announced");
     assert.equal(host.log.toasts.length, movedToasts + 1);
-    assert.ok(!(await shown()).some(text => /^\d{2}:\d{2} .*(fixture-a|Preserve one explicit intent\.)$/u.test(text)), "the old root's entries leave the pane");
+    assert.ok(!(await shown()).some(text => /^\d{2}:\d{2} .*(fixture-a|Fixture document)$/u.test(text)), "the old root's entries leave the pane");
     host.where.root = evented.root;
     await emit("journal");
     await emit("run");
@@ -1195,6 +1365,132 @@ try {
 } finally {
   target.close();
   rmSync(configRoot, { recursive: true, force: true });
+}
+
+// A native-shaped delayed response is owned by its tool entry's main turn and current project.
+const activityFixture = fixture();
+const activityConfig = mkdtempSync(join(tmpdir(), "agdf-companion-activity-"));
+try {
+  const { root, context, binding } = activityFixture;
+  const config = join(root, ".agdf", "control", "config.json");
+  writeFileSync(config, JSON.stringify({ ...JSON.parse(readFileSync(config, "utf8")), chat_language: "en" }));
+  const prepared = context.call("presentation.prepare", { gate: "UR" }, binding());
+  assert.equal(prepared.outcome, "accepted");
+  assert.equal(context.call("approval.record", { gate: "UR", presentation_id: prepared.family_result.presentation_id, response: "Approval: UR" }, binding()).outcome, "accepted");
+  const { run_id, expected_revision_id: revision_id } = binding();
+  const choiceDir = join(activityConfig, "plugins", "data", "agdf-agdf");
+  mkdirSync(choiceDir, { recursive: true });
+  writeFileSync(join(choiceDir, "companion-state.json"), JSON.stringify({
+    schema_version: 1, enabled: true, selections: { [root]: run_id },
+  }));
+  const host = fakeHost({ projectRoot: root, configDir: activityConfig });
+  host.attach(await freshModule());
+  await host.fire("session.start");
+  const observe = host.hooks.find(item => item.matcher?.tool === "mcp__agdf__agdf_dispatch").hook;
+  const call = { continue_delivery: true, primary_target: root, run_id, tool_use_id: "tool-1" };
+  const payload = {
+    outcome: "skill_continuation", terminal: false, authorizes: false,
+    target: { resolution_state: "resolved", governance_target: root },
+    continuation: { phase: "post_ur_review", governance_target: root, run_id, revision_id },
+    control: { current_gate: "Brownfield Review", next_operation: { actor: "agent" } },
+  };
+  const answer = { ref: 1, result: JSON.stringify(payload), text: "original text" };
+  const isWorking = async () => texts(await render(host)).includes("One moment");
+  const start = turnId => host.fire("turn.start", { turnId });
+  const complete = (turnId, reason = "answer") => host.fire("turn.complete", { turnId, reason });
+  await start("turn-1");
+  assert.equal(await isWorking(), false);
+  assert.equal(await observe(host.$, call, async () => answer), answer);
+  assert.equal(await isWorking(), true, JSON.stringify({ view: texts(await render(host)), timers: host.log.timers.filter(timer => !timer.cancelled) }));
+  assert.ok(texts(await render(host)).includes("analysing the existing system"));
+  await complete("turn-1");
+  assert.equal(await isWorking(), false);
+  await start("turn-2");
+  let release;
+  const delayed = observe(host.$, { ...call, tool_use_id: "tool-2" }, () => new Promise(resolve => { release = resolve; }));
+  await complete("turn-2", "aborted");
+  await start("turn-3");
+  release(answer);
+  assert.equal(await delayed, answer);
+  assert.equal(await isWorking(), false);
+  const error = Error("original tool error");
+  let attempts = 0;
+  await assert.rejects(observe(host.$, call, async () => { attempts++; throw error; }), value => value === error);
+  assert.equal(attempts, 1);
+  await host.fire("turn.start", { turnId: "sub-turn", agentId: "sub" });
+  assert.equal(await observe(host.$, call, async () => answer), answer);
+  assert.equal(await isWorking(), false);
+  await host.fire("turn.complete", { turnId: "sub-turn", agentId: "sub" });
+  await complete("turn-3");
+  await start("turn-4");
+  const changed = observe(host.$, call, () => new Promise(resolve => { release = resolve; }));
+  host.where.conversation = "conversation-2";
+  release(answer);
+  assert.equal(await changed, answer);
+  assert.equal(await isWorking(), false);
+  await complete("turn-4");
+  const settle = async () => { for (let turn = 0; turn < 400; turn += 1) await new Promise(resolve => setImmediate(resolve)); };
+
+  // The first turn after a /clear or resume: the cached conversation is still the previous one.
+  host.where.conversation = "conversation-3";
+  await start("turn-5");
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "tool-5" }, async () => answer), answer);
+  assert.equal(await isWorking(), true, "the conversation is read beside the call, not from the cache");
+  // The next Core observer wake-up notices the new conversation and keeps the turn running in it.
+  host.signal("run");
+  await settle();
+  assert.equal(await isWorking(), true, "a conversation change between turns keeps the running turn");
+  // Confirmed work stays current while the native turn runs, beyond its first 30 seconds.
+  const realNow = Date.now;
+  const renewal = () => host.log.timers.filter(timer => timer.ms === 15_000 && !timer.cancelled).at(-1);
+  try {
+    Date.now = () => realNow() + 20_000;
+    renewal().fn();
+    Date.now = () => realNow() + 45_000;
+    assert.equal(await isWorking(), true, "renewed work outlives its first lifetime");
+    renewal().fn();
+    Date.now = () => realNow() + 70_000;
+    assert.equal(await isWorking(), true);
+  } finally { Date.now = realNow; }
+  await complete("turn-5");
+  assert.equal(await isWorking(), false);
+  assert.equal(renewal(), undefined, "the turn end stops the renewal");
+
+  // An aborted main turn also stops its subagents, even when they never report their own end.
+  await start("turn-6");
+  await host.fire("turn.start", { turnId: "lost-sub", agentId: "sub" });
+  await complete("turn-6", "aborted");
+  await start("turn-7");
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "tool-7" }, async () => answer), answer);
+  assert.equal(await isWorking(), true, "a subagent lost in an abort does not block later turns");
+  await complete("turn-7");
+
+  // A project opened through a junction: Core answers with the realpath, the session keeps the link.
+  const linked = `${root}-linked`;
+  symlinkSync(root, linked, "junction");
+  try {
+    writeFileSync(join(choiceDir, "companion-state.json"), JSON.stringify({
+      schema_version: 1, enabled: true, selections: { [linked]: run_id },
+    }));
+    const viaLink = fakeHost({ projectRoot: linked, configDir: activityConfig });
+    viaLink.attach(await freshModule());
+    await viaLink.fire("session.start");
+    const observeLink = viaLink.hooks.find(item => item.matcher?.tool === "mcp__agdf__agdf_dispatch").hook;
+    const canonical = realpathSync(linked);
+    assert.notEqual(canonical, linked);
+    const canonicalAnswer = { ref: 2, result: JSON.stringify({ ...payload, target: { ...payload.target, governance_target: canonical },
+      continuation: { ...payload.continuation, governance_target: canonical } }) };
+    await viaLink.fire("turn.start", { turnId: "linked-turn" });
+    assert.equal(await observeLink(viaLink.$, { ...call, primary_target: linked.replaceAll("\\", "/"), tool_use_id: "linked-tool" },
+      async () => canonicalAnswer), canonicalAnswer);
+    assert.ok(texts(await render(viaLink)).includes("One moment"), "the run view's realpath identifies the linked project");
+    await viaLink.fire("turn.complete", { turnId: "linked-turn", reason: "answer" });
+  } finally {
+    rmSync(linked, { force: true });
+  }
+} finally {
+  activityFixture.close();
+  rmSync(activityConfig, { recursive: true, force: true });
 }
 
 console.log("Claude companion adapter tests passed");

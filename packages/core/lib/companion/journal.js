@@ -8,7 +8,7 @@ import { isAbsolute, join, resolve } from 'node:path';
 import { resolveTaskTarget } from '../task-target-resolution.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { containedRegularFile } from '../control-state/contained-file.js';
-import { atomicWrite, withOwnedFileLock } from '../owned-file-lock.js';
+import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
 import { commandGate, deriveEvent, eventKind, reviewFact } from './events.js';
 
 export const JOURNAL_DIRECTORY = 'companion';
@@ -58,23 +58,18 @@ function reserveApprovalRequest(dataRoot, input, at) {
   if (isLink(dataRoot) || isLink(directory)) return false;
   mkdirSync(directory, { recursive: true, mode: 0o700 });
   const path = join(directory, RESERVATIONS_FILE);
-  const deadline = performance.now() + RESERVATIONS_LOCK_WAIT_MS;
-  for (;;) {
-    try {
-      return withOwnedFileLock(path, () => {
-        const live = new Map(readReservations(path).filter(([, expires]) => expires > at));
-        if (live.has(key) || live.size >= RESERVATIONS_MAX_ENTRIES) return false;
-        live.set(key, at + RESERVATIONS_LIFETIME_MS);
-        const bytes = JSON.stringify(Object.fromEntries(live));
-        if (Buffer.byteLength(bytes) > RESERVATIONS_MAX_BYTES) return false;
-        atomicWrite(path, bytes);
-        return true;
-      });
-    } catch (error) {
-      const remaining = deadline - performance.now();
-      if (error.lock_owner_status !== 'live' || remaining <= 0) return false;
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(5, remaining));
-    }
+  try {
+    return withOwnedFileLockWait(path, () => {
+      const live = new Map(readReservations(path).filter(([, expires]) => expires > at));
+      if (live.has(key) || live.size >= RESERVATIONS_MAX_ENTRIES) return false;
+      live.set(key, at + RESERVATIONS_LIFETIME_MS);
+      const bytes = JSON.stringify(Object.fromEntries(live));
+      if (Buffer.byteLength(bytes) > RESERVATIONS_MAX_BYTES) return false;
+      atomicWrite(path, bytes);
+      return true;
+    }, { waitMs: RESERVATIONS_LOCK_WAIT_MS });
+  } catch {
+    return false;
   }
 }
 
@@ -160,6 +155,12 @@ export function createCompanionJournal({ dataRoot = process.env[COMPANION_DATA_R
   return Object.freeze({
     enabled,
     path: enabled ? journalPath(dataRoot) : null,
+    // Whether `observe` writes an event for this result, without writing: a facade asks this for a
+    // result its generation produced, and so already journaled.
+    observes(toolName, input, result) {
+      if (!enabled) return false;
+      try { return Boolean(eventKind(toolName, input, result)); } catch { return false; }
+    },
     observe(toolName, input, result) {
       if (!enabled) return false;
       try {

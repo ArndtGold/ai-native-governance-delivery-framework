@@ -34,7 +34,12 @@ assert.equal(active.current_gate, 'PRD'); assert.equal(active.decision, 'open');
 assert.equal(active.title, 'Outcome of active-run.'); assert.equal(active.revision, 3);
 assert.equal(active.path, '.agdf/control/runs/active-run/RUN_STATE.md'); assert.equal(active.closure, null);
 assert.equal(entries.runs.find(row => row.run_id === 'wrapped-run').title, 'Create a discussion document for current capabilities.');
-for (const id of ['template-run', 'empty-run']) assert.equal(entries.runs.find(row => row.run_id === id).title_source, 'run_id');
+for (const id of ['template-run', 'empty-run']) {
+  const row = entries.runs.find(entry => entry.run_id === id);
+  assert.equal(row.title_source, 'run_id'); assert.equal(row.objective, null, 'a placeholder Objective is no goal');
+}
+assert.equal(active.objective, 'Outcome of active-run.');
+assert.equal(entries.runs.find(row => row.run_id === 'wrapped-run').objective, 'Create a discussion document for current capabilities.');
 assert.equal(entries.runs.find(row => row.run_id === 'completed-run').attention.code, 'none');
 assert(entries.runs.every(row => row.last_activity.at === null), 'updated_at cannot invent receipt activity');
 const noObservation = source('no-observation'); delete noObservation.observation;
@@ -102,4 +107,5 @@ function walk(file) {
 }
 walk(join(libRoot, 'control-state/run-inventory.js'));
 assert(seen.has(join(libRoot, 'control-state/run-identity.js')));
+assert(seen.has(join(libRoot, 'control-state/run-title.js')), 'the shared title rule stays pure');
 console.log('Current inventory: pure title/attention/order/count/locale rules, actual receipt activity and closure, partial discovery and contained current pending paths passed.');

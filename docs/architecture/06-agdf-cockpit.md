@@ -246,8 +246,9 @@ nicht im Speicher ersetzt: Codex muss die Verbindung neu aufbauen und das Cockpi
 
 ### SDK-Diagnose einer eingebetteten Cockpit-Ansicht
 
-Unter „Host-Verbindung prüfen“ kann für eine frische Ansicht „SDK-Nachweis aufzeichnen“
-gestartet werden. Der öffentliche SDK-Transport puffert zunächst nur Öffnen und Initialisierung.
+Die Diagnose erscheint nur in einer lokalen Testansicht unter `127.0.0.1`, wenn deren
+Cockpit-Dokument mit `?diagnostics=1` geladen wird. Dort startet „SDK-Nachweis aufzeichnen“
+die Aufzeichnung. Der öffentliche SDK-Transport puffert zunächst nur Öffnen und Initialisierung.
 Ab der Diagnoseaktion erfasst er die tatsächlich empfangenen und erfolgreich gesendeten
 JSON-RPC-Nachrichten dieser Ansicht, einschließlich Leseantworten und gegebenenfalls Teardown.
 Der Puffer ist auf 256 Ereignisse und 1 MiB begrenzt;
@@ -366,6 +367,13 @@ verpflichtend. Core prüft das bestätigte Projekt und bindet es unveränderlich
 Kontext-Eigentümer gelten gemeinsam über alle Projekte einer Verbindung. Nachfolgende Leseaufrufe
 akzeptieren weiterhin nur die vorhandenen Sitzungs-/Snapshot-Selektoren. Alte verzeichnisgebundene
 Codex-/Claude-Aufrufe behalten ihr Schema; das Plugin führt keine aktuelle globale Projektauswahl ein.
+
+Ein erfolgreicher Öffnungsaufruf gibt den Anzeigestatus `pending` und einen gebundenen Aufruf für
+`display_status` zurück. Die Oberfläche meldet den ersten sichtbaren Render über `display_ack`,
+sobald sie den angeforderten Run oder die Übersicht mit einem gültigen Snapshot zeigt. Die Sitzung
+akzeptiert die Meldung nur für den aktuellen Snapshot der angeforderten Ansicht. `display_status`
+liefert danach `ui_reported_visible` mit Run-ID und Beobachtungszeit. Die Meldung stammt aus der
+Oberfläche. Sie bleibt bis zum Ende der Ansicht abrufbar und verändert keine Projektdaten.
 
 Der sichtbare Name ist Cockpit, die technische Kennung `agdf-cockpit`. Unverändert bleiben
 `agdf_cockpit`, `agdf_cockpit_read` und `ui://agdf/cockpit/v1.html`. Pluginzugehörigkeit allein

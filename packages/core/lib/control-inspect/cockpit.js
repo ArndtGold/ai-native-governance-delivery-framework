@@ -1,5 +1,5 @@
 import { readCockpitArchive, readArchiveDocument } from './cockpit-archive.js';
-import { runDocumentPath } from '../control-state/run-identity.js';
+import { runDocumentPath, runEvidencePath } from '../control-state/run-identity.js';
 import { existsSync } from '../control-read/fs.js';
 import { RUN_ID_PATTERN } from '../control-state/run-identity.js';
 import { join, posix, sep } from 'node:path';
@@ -11,8 +11,10 @@ import { readRunState, readArtefactHeading } from '../control-evaluation/run-sta
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
 import { isSafeControlRelativePath } from '../control-state/contained-file.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
-import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js';
-import { interactionLocales } from '../resources/context.js';
+import { localePack } from '../interaction-presentation.js';
+import { runIdentity } from '../control-state/run-title.js';
+import { interactionLocales, resolveArtifactPresentationLanguages } from '../resources/context.js';
+import { projectCockpitSummary } from '../control-state/run-presentation-render.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
 import { projectCockpitWork } from './cockpit-work.js';
 import { readControlLayout } from '../control-state/control-layout.js';
@@ -23,6 +25,7 @@ import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactRea
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
 import { runClosure } from '../control-state/run-operations.js';
+import { projectRunEntry } from '../companion/run-view.js';
 // Shared with the companion run view, in a module every runtime profile carries.
 import { boundedCode, projectCockpitAssessment } from './run-classification.js';
 export { boundedCode, projectCockpitAssessment };
@@ -34,7 +37,11 @@ const DOCUMENT_GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
 const DESCRIPTION_LIMIT = 256 * 1024;
 const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
 const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
-const objective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
+const storedObjective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
+const companionText = value => typeof value === 'string' ? value.slice(0, 500) : '';
+const activity = row => Date.parse(row.meta.updated_at || row.last_updated_at) || 0;
+const activeRuns = runs => runs.filter(row => row.valid && row.meta.lifecycle === 'active')
+  .sort((a, b) => activity(b) - activity(a) || a.run_id.localeCompare(b.run_id));
 // History of an ended Run, read only from its sealed closure receipt; null for every other Run.
 export function projectRunClosure(content) {
   const closure = runClosure(content);
@@ -80,9 +87,16 @@ export function createCockpitReader(root, options = {}) {
   function manifest(runId, state) {
     const result = [];
     const paths = new Set();
-    // The canonical state itself and each explicit Artefacts row are registrations.
-    // The canonical state path is platform-native; registrations use POSIX separators.
+    // Keep Run State and artefact registrations ahead of standalone evidence reports.
     const rows = [{ type: 'Run State', path: state.path?.split(sep).join(posix.sep) }, ...[...state.artefacts].map(([type, row]) => ({ type, ...row }))];
+    const evidenceRoot = runEvidencePath(runId, '') + '/';
+    for (const row of state.evidence_applicability.current) {
+      const path = row.report?.path;
+      if (row.available !== true || !path?.startsWith(evidenceRoot) || !isSafeControlRelativePath(path)
+        || !SUPPORTED.has(path.split('.').at(-1)?.toLowerCase())) continue;
+      const { bytes } = view.readOptionalFileSync(join(root, path), READ_LIMITS.preview);
+      if (bytes && !bytes.includes(0)) rows.push({ type: 'Evidence', path });
+    }
     for (const row of rows) {
       const path = String(row.path ?? '').replace(/^`|`$/g, '').trim();
       if (!path || path === 'none' || paths.has(path)) continue;
@@ -117,17 +131,36 @@ export function createCockpitReader(root, options = {}) {
     const resources = manifest(run.run_id, state);
     const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
     const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
+    const assessed = report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside);
+    const companion = report?.status_card && assessed.control_assessment.state !== 'unconfirmed'
+      ? projectRunEntry({ run_id: run.run_id, lifecycle: run.meta.lifecycle }, report, { language: 'de' }) : undefined;
+    const decisionGate = report?.current_gate;
+    const operation = report?.next_operation;
+    const decision = report?.status === 'open' && report.blocking_reason === 'none'
+      && report.missing_approval === `Approval: ${decisionGate}` && operation?.type === 'human_gate_decision'
+      && operation.actor === 'human' && operation.gate === decisionGate
+      ? state.presentation_decisions.get(decisionGate) : null;
     const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
+    const finding = assessed.control_assessment.state === 'blocked' && resources.find(resource => resource.status === 'registered'
+      && resource.path === work_summary?.decisive_obligation?.source_path);
+    const findingBytes = finding && SUPPORTED.has(finding.path.split('.').at(-1)?.toLowerCase())
+      && view.readOptionalFileSync(join(root, finding.path), READ_LIMITS.preview).bytes;
+    const findingDigest = findingBytes && !findingBytes.includes(0) ? rawDigest(findingBytes) : null;
+    const urTitle = readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, '').trim();
+    const identity = runIdentity({ runId: run.run_id, runContent: run.content, urHeading: urTitle });
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       closure: projectRunClosure(run.content), work_summary,
+      ...(companion && { figure: companion.figure, companion: { route: companion.mode, path: companion.path,
+        next_text: companionText(companion.next_step_text), blocking_text: companionText(companion.blocking_text),
+        ...(decision?.available && !decision.decided && { decision_material_version: decision.material_version }),
+        ...(findingDigest && { finding: { resource_id: finding.resource_id, content_digest: findingDigest } }) } }),
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
-      objective: objective(run.content), title: resolveHumanRunTitle({
-        urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
-        runContent: run.content, runId: run.run_id,
-      }),
-      evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
+      // The detail shows the stored Objective as written, placeholders included (owner decision);
+      // the title follows the shared Run title rule.
+      objective: storedObjective(run.content), title_source: identity.title_source, title: identity.title,
+      evaluation: assessed, persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: report?.status ?? 'unavailable', artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources,
       draft_check, document_states, evidence_applicability: Object.fromEntries(['current', 'superseded', 'applicability_unknown'].map(group => [group,
@@ -202,7 +235,8 @@ export function createCockpitReader(root, options = {}) {
       view.revalidate();
     } catch (error) { checkedDraft = null; invalidate(); inspected = null; graph = null; throw error; }
   }
-  function readDocument(resourceId) {
+  // Only the gate preview shows the authored summary; full document reads stay content-only.
+  function readDocument(resourceId, { withSummary = false } = {}) {
       const resource = documents.get(resourceId);
       if (!resource) fail('resource_denied');
       if (resource.status === 'blocked') return envelope({ resource }, 'blocked', 'resource_denied');
@@ -227,7 +261,12 @@ export function createCockpitReader(root, options = {}) {
         if (registered) links[href] = registered.resource_id;
       }
       const document_state = details.get(resource.run_id)?.data?.document_states?.find(row => row.resource_id === resourceId);
-      return envelope({ resource, format, content, content_digest: rawDigest(bytes), links, ...(document_state ? { document_state } : {}) });
+      const summary = withSummary && format === 'markdown' && document_state && ['UR', 'PRD', 'SD', 'TP'].includes(resource.type)
+        ? projectCockpitSummary(resource.type, content, resolveArtifactPresentationLanguages(root, 'de'), { runId: resource.run_id,
+          revisionId: document_state.revision_id, artefactPath: resource.path }) : null;
+      const cockpit_summary = summary && { ...summary, run_id: resource.run_id, resource_id: resource.resource_id,
+        revision_id: document_state.revision_id, content_digest: rawDigest(bytes) };
+      return envelope({ resource, format, content, content_digest: rawDigest(bytes), links, ...(document_state ? { document_state } : {}), ...(cockpit_summary ? { cockpit_summary } : {}) });
   }
   function discardScope(retainCheck = false) {
     if (!retainCheck) checkedDraft = null;
@@ -236,12 +275,16 @@ export function createCockpitReader(root, options = {}) {
     plannedRows = new Map(); archiveRows = new Map();
   }
   function selectedRun(runId) {
-    const run = discoverRuns(root).find(row => row.run_id === runId);
+    const runs = discoverRuns(root);
+    const run = runs.find(row => row.run_id === runId);
     if (!run) { checkedDraft = null; return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } }; }
     if (!run.valid) { checkedDraft = null; return { state: run.findings.some(row => row.classification === 'unsupported_version') ? 'unsupported' : 'invalid', code: run.findings.some(row => row.classification === 'unsupported_version') ? 'run_version_unsupported' : 'invalid_run', data: { kind: 'run', requested_run_id: runId,
       run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
     }
     const data = detail(run);
+    // Reuse the captured project inventory. The footer needs only the ordered IDs,
+    // so it can browse without replacing the card's snapshot with an overview read.
+    data.active_run_ids = activeRuns(runs).map(row => row.run_id);
     details.set(runId, { state: 'available', code: null, data });
     return { state: 'available', code: null, data: { kind: 'run', run: data } };
   }
@@ -288,6 +331,26 @@ export function createCockpitReader(root, options = {}) {
     return { state: document.state, code: document.code, data: { kind: 'document', run: selected.data.run, document: document.data } };
   }
   return Object.freeze({
+    companionStart(preferredRunId) {
+      const result = replaceScope(() => {
+        const candidates = activeRuns(discoverRuns(root));
+        const preferred = candidates.find(row => row.run_id === preferredRunId);
+        const selected = preferred ?? candidates.find(row => {
+          const candidate = detail(row);
+          documents.clear();
+          const { evaluation, persisted, figure } = candidate;
+          const waiting = evaluation.status === 'open' && evaluation.blocking_reason === 'none'
+            && evaluation.missing_approval === `Approval: ${evaluation.current_gate}`;
+          return persisted.current_gate === evaluation.current_gate
+            && persisted.next_allowed_action === evaluation.next_allowed_action
+            && (waiting || evaluation.control_assessment.state === 'open'
+              && (evaluation.next_operation?.actor === 'human' || figure?.reason.key === 'waitingDecision'));
+        }) ?? candidates[0];
+        return { state: 'available', code: null, data: { run_id: selected?.run_id ?? null } };
+      });
+      discardScope();
+      return result;
+    },
     snapshot(runId, scope = 'runs') {
       if (scope !== 'runs' || runId !== undefined && scope !== 'runs') fail('resource_denied');
       if (runId !== undefined && !RUN_ID_PATTERN.test(runId)) fail('resource_denied');
@@ -354,6 +417,14 @@ export function createCockpitReader(root, options = {}) {
           selected.data.run.evaluation, selected.data.run.resources, selected.data.run.draft_check);
         return selected;
       });
+    },
+    preview(resourceId, id, runId) {
+      const resource = documents.get(resourceId);
+      if (!resource || resource.run_id !== runId) fail('resource_denied');
+      assertSnapshot(id);
+      const result = readDocument(resourceId, { withSummary: true });
+      assertSnapshot(id);
+      return result;
     },
     document(resourceId, id, runId) {
       // Check selectors before revalidation or replacing the legitimate view.

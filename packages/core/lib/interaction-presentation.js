@@ -1,5 +1,6 @@
 import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
-import { normalizedRunTitle, runInventoryHistoryLine } from "./control-state/run-inventory.js";
+import { runInventoryHistoryLine } from "./control-state/run-inventory.js";
+import { authoredObjective, normalizedRunTitle, plainHeading, runIdentity } from "./control-state/run-title.js";
 import { DISPATCH_RECOVERY_CODES, DECISION_CARD_COPY_BUDGETS } from "./interaction-catalog.js";
 import { TASK_TARGET_SOURCES, TASK_TARGET_UNRESOLVED_REASONS } from "./task-target-resolution.js";
 
@@ -229,16 +230,11 @@ function stripMarkdown(value) {
     .trim();
 }
 
-function section(content, heading) {
-  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return content.match(new RegExp(`(?:^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?=\\n## |$)`))?.[1]?.trim() ?? "";
-}
-
 export { normalizedRunTitle };
 
+// The current artefact heading names the card's document; otherwise the shared Run title rule applies.
 export function resolveHumanRunTitle({ currentArtefactHeading, urHeading, runContent, runId }) {
-  const objective = section(String(runContent ?? ""), "Objective").split(/\r?\n/).map(stripMarkdown).find(Boolean) ?? "";
-  return [currentArtefactHeading, urHeading, objective].map(stripMarkdown).find(Boolean) || normalizedRunTitle(runId);
+  return plainHeading(currentArtefactHeading) || runIdentity({ runId, runContent, urHeading }).title;
 }
 
 function displaySafeTitle(value, fallback) {
@@ -271,7 +267,7 @@ export function buildRunCandidates(runs) {
       return {
         run_id: run.run_id,
         display_title: displaySafeTitle(title, normalizedRunTitle(run.run_id)),
-        objective: displaySafeObjective(section(String(run.content ?? ""), "Objective"), normalizedRunTitle(run.run_id)),
+        objective: displaySafeObjective(authoredObjective(run.content), normalizedRunTitle(run.run_id)),
         current_gate: currentGate,
         decision: String(run.control_state?.decision || "unknown").replaceAll("`", "").trim() || "unknown",
         next_allowed_action: String(run.control_state?.next_allowed_action ?? "").trim(),

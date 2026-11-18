@@ -8,7 +8,7 @@ export const site = {
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     contactEmail: "agdf@iself.eu",
     license: "Apache-2.0",
-    version: "0.31.0",
+    version: "0.32.0",
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 20+ years enterprise experience",

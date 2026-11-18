@@ -10,6 +10,8 @@ export const READ_FAILURE_REASONS = Object.freeze(['timeout', 'unavailable', 'ex
 // Store reasons of a read that may succeed on the next attempt (a write during the read, the read
 // budget); they keep the last good view, marked stale, like a failed read (CR delta review RV-1).
 export const TRANSIENT_STORE_REASONS = Object.freeze(['source_changed', 'timeout']);
+// Evaluation errors of a single run that make the whole view incomplete (a write during its read).
+export const TRANSIENT_RUN_REASONS = Object.freeze(['source_changed']);
 // The internal steps between an approved TP and QA, shown as the build phase in the gate bar.
 export const BUILD_GATES = Object.freeze(['Brownfield Analysis', 'CD+Tests', 'CR']);
 export const isStructured = route => route === 'structured_delivery' || route === 'structured_slice';
@@ -26,6 +28,7 @@ export function runViewArgv({ pluginRoot, root, language, runIds = [] }) {
 export function companionRun(entry) {
   return Object.freeze({
     id: entry.run_id,
+    revision_id: entry.revision_id ?? null,
     lifecycle: entry.lifecycle,
     evaluated: entry.evaluated === true,
     gate: entry.current_gate ?? null,
@@ -41,7 +44,19 @@ export function companionRun(entry) {
     drift: Object.freeze((entry.drift ?? []).map(item => Object.freeze({ ...item }))),
     // The authored objective, never the status card's run title or a template text.
     objective: clip(entry.objective ?? ''),
+    // The run's stable human title (registered UR heading, else the authored objective); empty while
+    // only the run id could name it. The goal is the objective in the display language where the UR
+    // states one.
+    title: clip(entry.run_title ?? ''),
+    goal: clip(entry.goal ?? entry.objective ?? ''),
   });
+}
+
+// One planned UR of the run view: no run yet, so it carries no gate path. `coverage` is its planning
+// state (draft, ready, or one that needs clarification).
+export function companionPlan(entry) {
+  return Object.freeze({ id: entry.plan_id, title: clip(entry.title ?? ''), coverage: entry.coverage ?? 'draft',
+    goal: clip(entry.goal ?? ''), updatedAt: entry.last_change ?? '' });
 }
 
 // stdout of the command as a snapshot: { status, root, runs, unreadable, diagnosis, readAt }.
@@ -57,18 +72,27 @@ export function snapshotFromRunView(stdout, { now }) {
   }
   // A run read while its files changed (after the run view's bounded retries) makes the view incomplete;
   // like a transient store failure it keeps the last good view instead of showing that run as blocked.
-  const changedRun = view.runs.find(run => TRANSIENT_STORE_REASONS.includes(run?.evaluation_error));
+  // A single run that ran into the read budget is not transient: it stays that run's own reason, so the
+  // other runs are still shown.
+  const changedRun = view.runs.find(run => TRANSIENT_RUN_REASONS.includes(run?.evaluation_error));
   if (changedRun) return { status: 'failed', runs: [], unreadable: [], readAt: now, error: changedRun.evaluation_error };
   const status = view.store.status === 'ok' ? 'ok' : view.store.status === 'no_control' ? 'no_control' : 'unavailable';
   return {
     status,
     root: view.root,
+    // The realpath MCP resolves for this root; a view without it compares the root's own spelling only.
+    canonicalRoot: typeof view.canonical_root === 'string' && view.canonical_root ? view.canonical_root : null,
     reason: view.store.reason ?? null,
     // The run folders of an unsupported store, which the run view counts without reading them (AC-002).
     runFolders: Number.isSafeInteger(view.store.run_folders) && view.store.run_folders > 0 ? view.store.run_folders : null,
     runs: view.runs.filter(entry => entry.valid !== false && entry.listed !== false).map(companionRun),
+    // Planned URs that are no run yet; a run view without the field has none.
+    planned: (Array.isArray(view.planned) ? view.planned : []).filter(entry => typeof entry?.plan_id === 'string').map(companionPlan),
     unreadable: (view.diagnosis?.unreadable ?? []).map(({ run_id, reason }) => ({ id: run_id, reason })),
     diagnosis: view.diagnosis ?? null,
+    // A run that ran into the read budget may read on the next attempt: the adapter keeps no
+    // fingerprint for such a view, so the next check reads again instead of waiting for a file change.
+    retry: view.runs.some(run => run?.evaluation_error === 'timeout'),
     readAt: now,
   };
 }

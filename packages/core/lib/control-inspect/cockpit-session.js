@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { relative, sep } from 'node:path';
+import { COMPANION_DATA_ROOT_ENV } from '../companion/journal.js';
+import { readCodexActivity } from '../companion/codex-activity.js';
 import { ReadWorkerPool } from '../control-read/cockpit-pool.js';
 import { READ_LIMITS, ControlReadError } from '../control-read/snapshot.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
@@ -11,11 +13,11 @@ import { COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments } fr
 // One connection owns bounded independent read views. Retiring workers still occupy slots.
 export function createCockpitSessionService(root, {
   budget, poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
-    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false,
+    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false, integrationSurface, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV],
 } = {}) {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const sessions = new Map();
-  let closed = false, renderGeneration = 0, publication = null;
+  let closed = false, renderGeneration = 0, publication = null, resourceIdentity = null;
   const failure = (code, viewTarget = target) => ({ schema_version: '2', target: viewTarget, snapshot_id: null, observed_as_of: null,
     source_digest: null, state: 'blocked', code, retryable: code !== 'session_expired', data: null, authorizes: false });
   function losePublication(session) {
@@ -59,12 +61,19 @@ export function createCockpitSessionService(root, {
   function touch(session) { session.touched = now(); schedule(session); }
   return Object.freeze({
     failure,
+    bindResourceIdentity({ digest, version } = {}) {
+      if (resourceIdentity || sessions.size || !/^[a-f0-9]{64}$/u.test(digest ?? '')
+        || typeof version !== 'string' || !/^[0-9A-Za-z.+-]{1,80}$/u.test(version)) throw Error('resource_identity_invalid');
+      resourceIdentity = Object.freeze({ schema_version: '1', version, resource_digest: `sha256:${digest}`,
+        resource_scope: 'server_validated', host_display: 'unconfirmed', candidate_match: 'unverified' });
+    },
     inspectOwnership() {
       return { views: sessions.size, active: [...sessions.values()].filter(row => !row.retired).length,
         uncertain: publication?.phase === 'uncertain' ? 1 : 0 };
     },
     async render(input = {}) {
       input = pluginMode ? parsePluginCockpitArguments(input) : parseCockpitArguments(input, true);
+      const companionStart = input.view === 'companion';
       let viewRoot = root, viewTarget = target;
       if (pluginMode) {
         const resolved = resolveTaskTarget({ workingDirectory: input.working_directory,
@@ -73,7 +82,7 @@ export function createCockpitSessionService(root, {
           target_resolution: resolved, next_action: resolved.next_action };
         viewRoot = resolved.governance_target;
         viewTarget = { target_id: resolveControlCommandTarget(viewRoot).target_id, display_path: viewRoot };
-        if (input.run_id) {
+        if (input.run_id && !companionStart) {
           // Admission only: the worker still captures and evaluates fresh canonical bytes.
           let path;
           try { path = relative(viewRoot, runPath(viewRoot, input.run_id)).split(sep).join('/'); }
@@ -92,14 +101,34 @@ export function createCockpitSessionService(root, {
       }
       if (sessions.size >= COCKPIT_LIMITS.sessions) return failure('resource_limit', viewTarget);
       // No await between capacity check and ownership publication.
-      const session = { id: randomUUID(), root: viewRoot, target: viewTarget,
+      const session = { id: randomUUID(), displayId: randomUUID(), initialRunId: input.run_id ?? null,
+        displayed: null, displaySnapshot: null, companionStart, root: viewRoot, target: viewTarget,
         created: now(), touched: now(), pool: poolFactory(viewRoot),
         documents: new Map(), rows: new Set(), snapshot: null, run_id: null, draft: null, generation: 0, retired: false, retirement: null, timer: null,
         completion: null };
       sessions.set(session.id, session); schedule(session);
+      if (companionStart) {
+        try {
+          const result = await session.pool.request({ operation: 'companion_start', input });
+          active(session.id);
+          if (result.state !== 'available') throw new ControlReadError(result.code ?? 'read_failed');
+          session.initialRunId = result.data.run_id;
+        } catch (error) {
+          void retire(session);
+          return failure(error instanceof ControlReadError ? error.code : 'read_failed', viewTarget);
+        }
+      }
       return { schema_version: '1', authorizes: false, target: viewTarget,
+        display: { state: 'pending', run_id: session.initialRunId },
+        next_calls: [{ tool: 'agdf_cockpit_read', arguments: { operation: 'display_status', display_id: session.displayId },
+          instruction: 'Check this receipt before saying the Cockpit was shown. If pending, allow a short interval for the UI to load and check once more. Only ui_reported_visible confirms the first visible render. If display.presentation is present, use it to report what the Companion showed on opening.' }],
         _meta: { agdf_cockpit: { session_id: session.id, target: viewTarget, render_generation: ++renderGeneration,
-          ...(input.run_id ? { initial_run_id: input.run_id } : {}),
+          display_ack: true,
+          ...(['codex', 'claude'].includes(integrationSurface) ? { integration_surface: integrationSurface } : {}),
+          ...(resourceIdentity ? { provenance: resourceIdentity } : {}),
+          ...(session.initialRunId ? { initial_run_id: session.initialRunId } : {}),
+          ...(companionStart && (session.initialRunId === null ? { companion_empty: true }
+            : session.initialRunId !== input.run_id ? { companion_fallback: true } : {})),
           idle_timeout_ms: COCKPIT_LIMITS.idle, lifetime_ms: COCKPIT_LIMITS.lifetime } } };
     },
     async read(input, signal) {
@@ -108,9 +137,24 @@ export function createCockpitSessionService(root, {
       const accepted = data => ({ ...fail(null), state: 'available', retryable: false, data });
       try {
         input = parseCockpitArguments(input);
+        if (input.operation === 'display_status') {
+          const view = [...sessions.values()].find(row => row.displayId === input.display_id);
+          if (!view) return fail('session_expired');
+          session = active(view.id);
+          return accepted({ display: session.displayed ?? { state: 'pending', run_id: session.initialRunId } });
+        }
         session = active(input.session_id);
         generation = session.generation;
         if (input.operation === 'close') { await retire(session); return accepted({ closed: true }); }
+        if (input.operation === 'display_ack') {
+          if (signal?.aborted) return fail('cancelled');
+          if (session.snapshot !== input.snapshot_id || session.displaySnapshot?.id !== input.snapshot_id) return fail('resource_denied');
+          const title = session.displaySnapshot.title;
+          if (input.presentation && title === undefined && (!session.companionStart || input.presentation.gate)) return fail('resource_denied');
+          session.displayed ??= { state: 'ui_reported_visible', run_id: session.initialRunId, observed_at: new Date(now()).toISOString(),
+            ...(input.presentation && { presentation: { ...input.presentation, ...(title === undefined ? {} : { title }) } }) };
+          return accepted({ display: session.displayed });
+        }
         // These transitions belong solely to this connection, never the worker
         // or a mutable client-side current session.
         if (input.operation === 'complete_context_invalidation') {
@@ -154,7 +198,7 @@ export function createCockpitSessionService(root, {
           touch(session); return result;
         }
         if (['planned', 'archive'].includes(input.operation) && !session.rows.has(input.row_id)) return fail('resource_denied');
-        if (['document', 'prepare_context'].includes(input.operation)
+        if (['document', 'preview', 'prepare_context'].includes(input.operation)
           && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return fail('resource_denied');
         if (['context', 'artifact_readiness'].includes(input.operation) && input.run_id !== session.run_id) return fail('resource_denied');
         if (input.operation === 'artifact_readiness' && (!session.draft?.available || session.draft.gate !== input.gate
@@ -181,7 +225,8 @@ export function createCockpitSessionService(root, {
           selector: ['planned', 'archive'].includes(input.operation) ? input.row_id : ['run', 'context'].includes(input.operation) ? input.run_id : input.resource_id, input }, signal);
         if (active(session.id) !== session || generation !== session.generation) return fail('session_expired');
         const response = { ...result, authorizes: false };
-        if (Buffer.byteLength(JSON.stringify(response), 'utf8') > READ_LIMITS.response) throw new ControlReadError('resource_limit');
+        const responseBytes = Buffer.byteLength(JSON.stringify(response), 'utf8');
+        if (responseBytes > READ_LIMITS.response) throw new ControlReadError('resource_limit');
         if (reservation) {
           if (publication !== reservation) return fail('context_superseded');
           if (result.state === 'available' && result.data?.packet) {
@@ -190,8 +235,33 @@ export function createCockpitSessionService(root, {
         }
         if (!['resource_denied', 'context_superseded', 'busy', 'context_cleanup_uncertain'].includes(result.code)) touch(session);
         if (replacement && result.snapshot_id) session.snapshot = result.snapshot_id;
+        if (replacement && !session.displayed) {
+          const initialView = session.initialRunId === null
+            ? ['work', 'runs'].includes(result.data?.kind) && !result.data.removed_run_id
+            : result.data?.kind === 'run' && result.data.run?.run_id === session.initialRunId;
+          const run = result.data?.run;
+          session.displaySnapshot = initialView && result.snapshot_id && ['available', 'empty', 'partial'].includes(result.state)
+            ? { id: result.snapshot_id, title: run ? run.title ?? run.run_id : undefined } : null;
+        }
         if (replacement && result.data?.kind === 'work') for (const row of result.data.entries) session.rows.add(row.row_id);
-        if (replacement) { session.run_id = result.data?.run?.run_id ?? null; session.draft = result.data?.run?.draft_check?.source ?? null; }
+        if (replacement) {
+          const run = result.data?.run;
+          session.run_id = run?.run_id ?? null;
+          session.draft = run?.draft_check?.source ?? null;
+          session.companionBinding = run?.revision_id && run.lifecycle === 'active'
+            && run.evaluation?.next_operation?.actor === 'agent' ? {
+              target_id: session.target.target_id, run_id: run.run_id, revision_id: run.revision_id, gate: run.evaluation.current_gate,
+            } : null;
+        }
+        if (companionDataRoot && integrationSurface === 'codex' && session.companionBinding && response.data
+          && (replacement || input.operation === 'freshness')) {
+          const binding = session.companionBinding;
+          const activity = readCodexActivity(companionDataRoot, binding, now());
+          const observation = activity ? { activity: { ...binding, expires_at: activity.expires_at } } : null;
+          // The key is appended last, so it adds exactly its own serialized bytes to the measured response.
+          if (observation && responseBytes + Buffer.byteLength(`,"companion_observation":${JSON.stringify(observation)}`, 'utf8')
+            <= READ_LIMITS.response) response.companion_observation = observation;
+        }
         if (replacement && result.data?.run?.resources) for (const resource of result.data.run.resources) {
           session.documents.set(resource.resource_id, `${result.snapshot_id}:${result.data.run.run_id}`);
         }

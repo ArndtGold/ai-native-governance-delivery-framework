@@ -38,6 +38,11 @@ test('the packaged observer emits scoped hints, observes journal creation and re
     assert.deepEqual(lines, ['ready']);
     appendFileSync(active.runPath, '\n');
     await until('run');
+    lines.splice(0);
+    const planned = join(active.root, '.agdf', 'control', 'planned', 'plan-observer');
+    mkdirSync(planned, { recursive: true });
+    writeFileSync(join(planned, 'UR.md'), '# Planned requirements');
+    await until('run');
     mkdirSync(journal, { recursive: true });
     appendFileSync(join(journal, 'events.jsonl'), '{}\n');
     await until('journal');

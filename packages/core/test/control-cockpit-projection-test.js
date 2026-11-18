@@ -4,11 +4,125 @@ import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { createCockpitReader, projectCockpitAssessment } from '../lib/control-inspect/cockpit.js';
 import { READ_LIMITS } from '../lib/control-read/snapshot.js';
+import { runEvidencePath } from '../lib/control-state/run-identity.js';
+import { canonicalEvidenceDigest } from '../lib/control-state/evidence-bindings.js';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+import { projectRunEntry } from '../lib/companion/run-view.js';
+import { currentFixture, currentRun } from './fixtures/current-run.js';
+import { buildCompanionFixtures, pendingCompanionUat, replaceCompanionPrd } from './fixtures/companion-fixtures.js';
+
+test('projects the same pending decision across snapshots and a new version for changed material', t => {
+  const [pending, preparation, invalid] = buildCompanionFixtures(t, ['F03', 'F04', 'F13']);
+  const f = currentFixture(t, { root: pending.root, initialize: false });
+  const reader = createCockpitReader(f.root);
+  const first = reader.snapshot(pending.runId).data.run;
+  const version = first.companion.decision_material_version;
+  assert.match(version, /^sha256:[a-f0-9]{64}$/);
+  const again = reader.snapshot(pending.runId).data.run;
+  assert.notEqual(again.resources[0].resource_id, first.resources[0].resource_id);
+  assert.equal(again.companion.decision_material_version, version);
+
+  replaceCompanionPrd(f, pending.runId, 'Boxenfunk B');
+  const changed = reader.snapshot(pending.runId).data.run;
+  assert.equal(changed.evaluation.next_operation.gate, 'PRD');
+  assert.match(changed.companion.decision_material_version, /^sha256:[a-f0-9]{64}$/);
+  assert.notEqual(changed.companion.decision_material_version, version);
+  replaceCompanionPrd(f, pending.runId, 'Boxenfunk B');
+  const recordedAgain = reader.snapshot(pending.runId).data.run;
+  assert.notEqual(recordedAgain.revision_id, changed.revision_id);
+  assert.equal(recordedAgain.companion.decision_material_version, changed.companion.decision_material_version);
+
+  for (const fixture of [preparation, invalid]) {
+    assert.equal(createCockpitReader(fixture.root).snapshot(fixture.runId).data.run?.companion?.decision_material_version, undefined);
+  }
+});
+
+test('projects pending UAT material without a registered UAT document', t => {
+  const f = currentFixture(t);
+  const run = pendingCompanionUat(f);
+  const data = createCockpitReader(f.root).snapshot(run.id).data.run;
+  assert.equal(data.evaluation.next_operation.gate, 'UAT');
+  assert.ok(!data.resources.some(resource => resource.type === 'UAT'));
+  assert.match(data.companion.decision_material_version, /^sha256:[a-f0-9]{64}$/);
+});
+
+test('a named card lists only active Runs of its repository in activity order', t => {
+  const [fixture] = buildCompanionFixtures(t, ['F06']);
+  const writer = currentFixture(t, { root: fixture.root, initialize: false });
+  const first = currentRun(writer, 'Earlier active Run');
+  const second = currentRun(writer, 'Later active Run');
+  const reader = createCockpitReader(fixture.root);
+  const completed = reader.snapshot(fixture.runId);
+  assert.equal(completed.data.run.lifecycle, 'completed');
+  assert.deepEqual(completed.data.run.active_run_ids, [second.id, first.id]);
+  const selected = reader.run(first.id, completed.snapshot_id);
+  assert.equal(selected.data.run.run_id, first.id);
+  assert.deepEqual(selected.data.run.active_run_ids, [second.id, first.id]);
+});
+test('a current writer-bound evidence report opens through the scoped document selector', () => {
+  const f = fixture();
+  try {
+    const runId = 'fixture-a';
+    const content = '# Session recovery evidence\n\nThe selected run opened again.\n';
+    const binding = f.binding();
+    const source = f.context.material(binding, 'EVIDENCE', content);
+    assert.equal(f.context.call('step.record', {
+      step: 'evidence', source, reason: 'Session recovery observed', covers: 'Native Cockpit read',
+    }, binding).outcome, 'accepted');
+    const path = runEvidencePath(runId, `EVIDENCE-${source.digest.slice(7)}.md`);
+    const before = treeBytes(f.root);
+    const reader = createCockpitReader(f.root);
+    const snapshot = reader.snapshot(runId);
+    const { resources, evidence_applicability } = snapshot.data.run;
+    assert.ok(evidence_applicability.current.some(row => row.path === path && row.available === true));
+    const reportResources = resources.filter(row => row.registered_reference === path);
+    assert.equal(reportResources.length, 1, 'The registered report has one resource in the selected Run');
+    const report = reportResources[0];
+    assert.equal(report.status, 'registered');
+    assert.throws(() => reader.document(report.resource_id, snapshot.snapshot_id, 'fixture-completed'), /resource_denied/);
+    const document = reader.document(report.resource_id, snapshot.snapshot_id, runId);
+    assert.equal(document.state, 'available');
+    assert.equal(document.data.document.content, content);
+    assert.equal(document.data.document.resource.registered_reference, path);
+    assert.throws(() => reader.document(report.resource_id, snapshot.snapshot_id, runId), /resource_denied/);
+    assert.deepEqual(treeBytes(f.root), before);
+
+    fs.writeFileSync(join(f.root, path), 'Changed report bytes');
+    assert.equal(reader.snapshot(runId).data.run.resources.some(row => row.registered_reference === path), false);
+    fs.unlinkSync(join(f.root, path));
+    assert.equal(reader.snapshot(runId).data.run.resources.some(row => row.registered_reference === path), false);
+  } finally { f.close(); }
+});
+test('evidence registration preserves existing artefact identity and withholds unsupported files', () => {
+  const f = fixture();
+  try {
+    const runId = 'fixture-a';
+    const recordEvidence = (path, content) => {
+      assert.equal(f.context.call('step.record', {
+        step: 'evidence', source: { path, digest: canonicalEvidenceDigest(content) },
+        reason: 'Fixture report', covers: 'Native Cockpit read',
+      }, f.binding()).outcome, 'accepted');
+    };
+    recordEvidence(f.documentPath, fs.readFileSync(join(f.root, f.documentPath), 'utf8'));
+    const reader = createCockpitReader(f.root);
+    const resources = reader.snapshot(runId).data.run.resources.filter(row => row.registered_reference === f.documentPath);
+    assert.equal(resources.length, 1);
+    assert.equal(resources[0].type, 'UR');
+
+    const path = runEvidencePath(runId, 'report.html');
+    const content = '<h1>Unsupported report</h1>';
+    fs.mkdirSync(join(f.root, runEvidencePath(runId, '')), { recursive: true });
+    fs.writeFileSync(join(f.root, path), content);
+    recordEvidence(path, content);
+    const snapshot = reader.snapshot(runId);
+    assert.ok(snapshot.data.run.evidence_applicability.current.some(row => row.path === path && row.available === true));
+    assert.equal(snapshot.data.run.resources.some(row => row.registered_reference === path), false);
+  } finally { f.close(); }
+});
 test('Run overview works without a legacy backlog with bounded current source dependencies', () => {
   const f = fixture();
   try {
@@ -50,6 +164,13 @@ test('captured assessment matches canonical gate evaluation and performs no writ
     const reader = createCockpitReader(f.root), s = reader.snapshot(), detail = reader.run('fixture-a', s.snapshot_id).data.run;
     assert.deepEqual(detail.evaluation.control_assessment, projectCockpitAssessment(report, detail.lifecycle));
     assert.equal(detail.evaluation.status, report.status);
+    assert.deepEqual(detail.figure, { mood: 'wartet', reason: { key: 'waitingApproval', gate: 'UR' } });
+    const companion = projectRunEntry({ run_id: 'fixture-a', lifecycle: detail.lifecycle }, report, { language: 'de' });
+    assert.deepEqual(detail.figure, companion.figure);
+    assert.deepEqual(detail.companion.path, companion.path);
+    assert.equal(detail.companion.route, companion.mode);
+    assert.equal(detail.companion.next_text, companion.next_step_text);
+    assert.equal(detail.companion.blocking_text, companion.blocking_text);
     assert.deepEqual(treeBytes(f.root), before);
   } finally { f.close(); }
 });
@@ -80,6 +201,7 @@ test('SCN-001/002/008/020: Run inventory stays passive; selected valid, complete
     reader.freshness(document.snapshot_id); assert.deepEqual(treeBytes(f.root), before);
     const completed = reader.run('fixture-completed', document.snapshot_id);
     assert.equal(completed.data.run.lifecycle, 'completed'); assert.equal(completed.data.run.evaluation.control_assessment.state, 'unconfirmed', 'A synthetic lifecycle scalar alone supplies no completion evidence');
+    assert.equal(completed.data.run.figure, undefined);
     const broken = reader.run('broken', completed.snapshot_id); assert.equal(broken.code, 'invalid_run');
     assert.equal(broken.data.run.resources.length, 0); assert.ok(broken.data.run.diagnostics.length);
     const newer = reader.snapshot(); assert.throws(() => reader.run('fixture-a', broken.snapshot_id), /resource_denied/);

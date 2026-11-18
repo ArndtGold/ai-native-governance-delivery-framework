@@ -13,6 +13,7 @@ import { syntheticPrd } from '../../../cli/scripts/fixtures/prd-definition.js';
 import { syntheticSd } from '../../../cli/scripts/fixtures/sd-definition.js';
 import { syntheticTp } from '../../../cli/scripts/fixtures/tp-definition.js';
 import { closeoutConfirmation } from '../../lib/control-evaluation/closeout-readiness.js';
+import { parseRunState } from '../../lib/control-state/run-state-parser.js';
 
 const accepted = value => { assert.equal(value.outcome, 'accepted', JSON.stringify(value)); return value; };
 // A real archived control_state_version 2 run of this repository (no test loader exists for the
@@ -28,6 +29,15 @@ const route = (run, decision, ux = 'no') => accepted(run.step('route',
   `# Brownfield Review\n\nExisting personal filter service owns the values.\n- ux_intent_definition_required: ${ux}\n`,
   { route: decision, reason: 'Synthetic companion fixture prerequisite' }));
 const urApproved = run => { accepted(run.step('ur', clarifiedUr, { title: 'Synthetic saved filter' })); accepted(run.approve('UR')); };
+export function replaceCompanionPrd(f, runId, marker, appendix = '') {
+  const path = runStatePath(f.root, runId);
+  const revision = parseRunState(readFileSync(path, 'utf8')).meta.revision_id;
+  const binding = { run_id: runId, expected_revision_id: revision };
+  const content = syntheticPrd().replace('Synthetic saved filter', `Synthetic saved filter ${marker}`) + appendix;
+  return accepted(f.call('artefact.record', {
+    gate: 'PRD', material: f.material(binding, 'PRD', content), reviewer: 'Synthetic reviewer', reviewed: true, update_draft: true,
+  }, binding));
+}
 function placeLegacy(root) {
   mkdirSync(runDir(root, LEGACY_V2_RUN_ID), { recursive: true });
   writeFileSync(runStatePath(root, LEGACY_V2_RUN_ID), legacyV2RunState());
@@ -39,6 +49,13 @@ function structuredToQa(run) {
   accepted(run.step('internal', '# CD+Tests\n\nDecision: pass\n\nSynthetic filter values compared in this disposable test.\n', { internal_step: 'CD+Tests', decision: 'pass' }));
   for (const type of ['TP Review', 'Clean Implementation Review', 'CR'])
     accepted(run.step('internal', `# ${type}\n\nDecision: pass\n\nSynthetic fixture checks meet the declared local scope.\n`, { internal_step: type, decision: 'pass' }));
+}
+export function pendingCompanionUat(f) {
+  const run = currentRun(f);
+  structuredToQa(run);
+  accepted(run.record('QA', withSyntheticQaContent('# QA Report\n\nDecision: pass\n\n## Evidence\nSynthetic local fixture checks passed.\n')));
+  accepted(run.approve('QA'));
+  return run;
 }
 function closeout(run, text) {
   const operation_id = randomUUID(), binding = run.binding(), or = run.f.material(binding, 'OR', text);
@@ -65,9 +82,7 @@ const BUILDERS = Object.freeze({
     closeout(run, `# OR-lite: Synthetic saved filter\nRun: ${run.id}\nReport mode: OR-lite\n\n## Result\nSynthetic bounded outcome and evidence.\n\n## Evidence\nSynthetic bounded outcome and evidence.\n\n## Risk\nnone\n\n## Next Step\nSynthetic bounded outcome and evidence.\n`);
     return run.id; } },
   F07: { name: 'completed structured run', build: f => {
-    const run = currentRun(f); structuredToQa(run);
-    accepted(run.record('QA', withSyntheticQaContent('# QA Report\n\nDecision: pass\n\n## Evidence\nSynthetic local fixture checks passed.\n')));
-    accepted(run.approve('QA')); accepted(run.approve('UAT'));
+    const run = pendingCompanionUat(f); accepted(run.approve('UAT'));
     closeout(run, structuredCloseout(run)); return run.id; } },
   F08: { name: 'legacy v2 only', build: f => { placeLegacy(f.root); return LEGACY_V2_RUN_ID; } },
   F09: { name: 'unsupported control layout', build: f => {
@@ -103,10 +118,10 @@ export function volatileValues(root) {
 }
 
 // Builds the requested fixtures; `t` supplies after() cleanup like node:test.
-export function buildCompanionFixtures(t, ids = COMPANION_FIXTURE_IDS) {
+export function buildCompanionFixtures(t, ids = COMPANION_FIXTURE_IDS, options) {
   return ids.map(id => {
     const { name, build } = BUILDERS[id];
-    const f = currentFixture(t);
+    const f = currentFixture(t, options);
     const runId = build(f);
     return Object.freeze({ id, name, root: f.root, runId });
   });

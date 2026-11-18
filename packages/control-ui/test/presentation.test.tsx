@@ -10,10 +10,44 @@ import { backlog, pointer } from './scoped-fixtures';
 const stored = {...pointer(run.run_id,run.title), stored_status:'Awaiting TP',stored_next_step:'Unterlagen zuordnen und vergleichen.'};
 const inventory = backlog([stored]);
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
+function chooseArea(name:string){fireEvent.click(screen.getByRole('combobox',{name:'Bestandsbereich'}));fireEvent.click(screen.getByRole('option',{name}));}
+it('filters lifecycle and combines it with search without opening a Run',()=>{
+  const select=vi.fn();const first={...pointer('run-a','Erstes Vorhaben'),lifecycle:'active' as const};
+  const second={...pointer('run-b','Zweites Vorhaben'),section:'completed',lifecycle:'completed' as const};
+  render(<Overview result={backlog([first,second])} onSelect={select}/>);
+  fireEvent.click(screen.getByRole('combobox',{name:'Lifecycle'}));
+  fireEvent.click(screen.getByRole('option',{name:'Abgeschlossen'}));
+  expect(screen.getByRole('button',{name:'Zweites Vorhaben'})).toBeTruthy();
+  expect(screen.queryByRole('button',{name:'Erstes Vorhaben'})).toBeNull();
+  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);
+  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'Erstes'}});
+  expect(screen.getByText('Keine Runs für diesen Lifecycle und diese Suche.')).toBeTruthy();
+  expect(select).not.toHaveBeenCalled();
+});
+it('offers every lifecycle, filters unknown explicitly, and hides lifecycle for other areas',()=>{
+  const rows = [
+    {...pointer('a','Aktives Werk'),lifecycle:'active' as const},
+    {...pointer('b','Abgeschlossenes Werk'),section:'completed',lifecycle:'completed' as const},
+    {...pointer('c','Abgelöstes Werk'),section:'completed',lifecycle:'superseded' as const},
+    {...pointer('d','Abgebrochenes Werk'),section:'completed',lifecycle:'abandoned' as const},
+    {...pointer('e','Unbekanntes Werk'),lifecycle:null},
+    {...pointer('p','Plan'),section:'planned'}, {...pointer('z','Archiv'),section:'archive'},
+  ];
+  render(<Overview result={backlog(rows)} onSelect={vi.fn()}/>);
+  for(const [label,title] of [['Aktiv','Aktives Werk'],['Abgeschlossen','Abgeschlossenes Werk'],['Abgelöst','Abgelöstes Werk'],['Abgebrochen','Abgebrochenes Werk'],['Unbekannt','Unbekanntes Werk']]) {
+    fireEvent.click(screen.getByRole('combobox',{name:'Lifecycle'}));
+    fireEvent.click(screen.getByRole('option',{name:label}));
+    expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);
+    expect(screen.getByRole('button',{name:title})).toBeTruthy();
+  }
+  chooseArea('Geplant 1 Vorhaben');expect(screen.queryByRole('combobox',{name:'Lifecycle'})).toBeNull();
+  chooseArea('Archiv 1 Vorhaben');expect(screen.queryByRole('combobox',{name:'Lifecycle'})).toBeNull();
+  chooseArea('Runs 5 Vorhaben');expect(screen.getByRole('combobox',{name:'Lifecycle'}).textContent).toContain('Alle');
+});
 it('the list leads with the stored title and next step, labels pointer facts, and checks current control only on deliberate selection',()=>{
   const select=vi.fn();render(<Overview result={inventory} onSelect={select}/>);
-  expect(screen.getByText('Beobachteter Quellenstand: Awaiting TP')).toBeTruthy();
-  expect(screen.getByText('Nächster Schritt: Unterlagen zuordnen und vergleichen.')).toBeTruthy();
+  expect(screen.getByText('Awaiting TP')).toBeTruthy();
+  expect(screen.getByText('Zuletzt beobachteter Stand')).toBeTruthy();
   expect(screen.queryByText('Freigabe ausstehend')).toBeNull();expect(screen.queryByText('2 offene Nachweise')).toBeNull();
   expect(screen.queryByRole('button',{name:run.run_id})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:run.title}));expect(select).toHaveBeenCalledWith(run.run_id);
@@ -41,10 +75,15 @@ it('SCN-016: read adapters reject contradictory section counts before presentati
 it('run detail makes evidence readable, preserves mismatch warnings and keeps original controls behind disclosure',()=>{
   const resource={resource_id:'source',run_id:run.run_id,type:'UR',path:'UR.md',registered_reference:'UR.md',status:'registered'};
   const data:Detail={...run,resources:[resource],persisted:{current_gate:'SD',next_allowed_action:'old source action',decision:'in_progress',artefacts:[]},evaluation:{status:'open',current_gate:'TP',blocking_reason:'none',missing_approval:'Approval: TP',next_allowed_action:'Plan the work',next_action_de:'Die Umsetzung planen.',doctor_status:'pass',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[],missing_evidence:[{missing_evidence:'Abstimmung der Unterlagen fehlt.'}]}};
-  const open=vi.fn();render(<RunDetail result={{...inventory,data}} onOpen={open}/>);
-  expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();expect(screen.getByText('Abstimmung der Unterlagen fehlt.')).toBeTruthy();
+  const open=vi.fn();const view=render(<RunDetail result={{...inventory,data}} onOpen={open}/>);
+  expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();
   expect(screen.getByText(/Die gespeicherte Angabe weicht/).closest('details')).toBeNull();
+  view.rerender(<RunDetail result={{...inventory,data}} onOpen={open} technicalView/>);
+  expect(screen.getByText('Abstimmung der Unterlagen fehlt.')).toBeTruthy();
   expect(screen.getByText('Kontrollstatus und Quellen').closest('details')?.hasAttribute('open')).toBe(false);
+  expect((screen.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen'}) as HTMLButtonElement).disabled).toBe(true);
+  const consistent={...data,persisted:{...data.persisted!,current_gate:'TP',next_allowed_action:'Plan the work'}};
+  view.rerender(<RunDetail result={{...inventory,data:consistent}} onOpen={open} technicalView/>);
   fireEvent.click(screen.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen'}));expect(open).toHaveBeenCalledWith(resource,'document:source');
 });
 it('the document keeps exact source content and adds its undertaking and purpose',()=>{
@@ -56,26 +95,26 @@ it('the document keeps exact source content and adds its undertaking and purpose
   expect(screen.getByRole('heading',{name:'Original 日本語'})).toBeTruthy();expect(screen.getByText('Unveränderter Inhalt.')).toBeTruthy();
 });
 
-it('four stored sections have independent counts and filtering, default to active, and never inspect a Run on switching',()=>{
+it('runs include active and ended work, while planned and archive remain separate',()=>{
   const planned={...pointer('later','Geplantes Vorhaben'),section:'planned'};
   const ended={...pointer('old','Abgeschlossenes Vorhaben'),section:'completed',stored_status:'Superseded',stored_next_step:'Durch ein neues Vorhaben abgelöst.'};
   const archive={...pointer('imported','Archivierter Altbestand'),kind:'archive' as const,identity:'archive/imported',section:'archive'};
   const select=vi.fn();render(<Overview result={backlog([stored,planned,ended,archive])} onSelect={select}/>);
-  expect(screen.getByRole('button',{name:'Aktiv 1'}).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('combobox',{name:'Bestandsbereich'}).textContent).toBe('Runs⌄');
   expect(screen.queryByRole('button',{name:planned.title})).toBeNull();
   fireEvent.change(screen.getByRole('searchbox'),{target:{value:'kein Treffer'}});
   expect(screen.getByText('Keine Vorhaben für diese Suche.')).toBeTruthy();
-  fireEvent.click(screen.getByRole('button',{name:'Geplant 1'}));
+  chooseArea('Geplant 1 Vorhaben');
   expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('');
   expect(screen.getByRole('button',{name:planned.title})).toBeTruthy();
   expect(screen.queryByRole('button',{name:stored.title})).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Archiv 1'}));
+  chooseArea('Archiv 1 Vorhaben');
   expect(screen.getByRole('button',{name:archive.title})).toBeTruthy();
   expect(screen.queryByRole('button',{name:ended.title})).toBeNull();
   expect(select).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole('button',{name:'Beendet 1'}));
+  chooseArea('Runs 2 Vorhaben');
   expect(screen.queryByRole('button',{name:archive.title})).toBeNull();
-  expect(screen.getByText('Nächster Schritt: Durch ein neues Vorhaben abgelöst.')).toBeTruthy();
+  expect(screen.getByRole('button',{name:ended.title})).toBeTruthy();
   expect(select).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button',{name:ended.title}));expect(select).toHaveBeenCalledWith('old');
 });
@@ -84,24 +123,26 @@ it('unreadable sections have unavailable counts; readable sections and bad rows 
   result.state='partial';result.code='backlog_partial';
   result.data!.diagnostics=[{code:'work_entry_invalid',section:'active',key:stored.key},{code:'work_section_unavailable',section:'planned'}];
   render(<Overview result={result} onSelect={vi.fn()}/>);
-  expect(screen.getByRole('button',{name:'Aktiv 1 Eingeschränkt'})).toBeTruthy();
-  expect(screen.getByRole('button',{name:'Geplant Nicht verfügbar'})).toBeTruthy();
-  expect(screen.getByRole('button',{name:'Archiv 0'})).toBeTruthy();
-  expect(screen.getByText('Teilweise verfügbar · Aktiv · 1 Lesehinweis')).toBeTruthy();
-  expect(screen.getByText('Teilweise verfügbar · Aktiv · 1 Lesehinweis').closest('details')?.open).toBe(false);
-  fireEvent.click(screen.getByRole('button',{name:'Geplant Nicht verfügbar'}));
+  fireEvent.click(screen.getByRole('combobox',{name:'Bestandsbereich'}));
+  expect(screen.getByRole('option',{name:'Runs Mindestens 0 Vorhaben'}).getAttribute('aria-selected')).toBe('true');
+  expect(screen.getByRole('option',{name:'Geplant Anzahl nicht verfügbar'})).toBeTruthy();
+  expect(screen.getByRole('option',{name:'Archiv Keine Vorhaben'})).toBeTruthy();
+  fireEvent.keyDown(screen.getByRole('combobox',{name:'Bestandsbereich'}),{key:'Escape'});
+  expect(screen.getByText('Teilweise verfügbar · Runs · 1 Lesehinweis')).toBeTruthy();
+  expect(screen.getByText('Teilweise verfügbar · Runs · 1 Lesehinweis').closest('details')?.open).toBe(false);
+  chooseArea('Geplant Anzahl nicht verfügbar');
   expect(screen.getByText(/Dieser Bereich ist nicht auswertbar/)).toBeTruthy();
   expect(screen.queryByText('In diesem Bereich sind keine Vorhaben gespeichert.')).toBeNull();
 });
 it('a source refresh updates counts without changing the chosen section or search, and originals start closed',()=>{
   const planned={...pointer('later','Geplantes Vorhaben'),section:'planned'};
   const {rerender}=render(<Overview result={backlog([stored,planned])} onSelect={vi.fn()}/>);
-  fireEvent.click(screen.getByRole('button',{name:'Geplant 1'}));
+  chooseArea('Geplant 1 Vorhaben');
   fireEvent.change(screen.getByRole('searchbox'),{target:{value:'later'}});
   rerender(<Overview result={backlog([stored,planned,{...planned,key:'another',title:'Anderes Vorhaben'}])} onSelect={vi.fn()}/>);
-  expect(screen.getByRole('button',{name:'Geplant 2'}).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('combobox',{name:'Bestandsbereich'}).textContent).toBe('Geplant⌄');
   expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('later');
-  expect(screen.getByText('Quellenangaben').closest('details')?.open).toBe(false);
+  expect(screen.queryByText('Quellenangaben')).toBeNull();
   expect(screen.queryByRole('button',{name:'Aktuellen Stand prüfen'})).toBeNull();
 });
 it('backlog diagnostics validate section and key before they reach the view',()=>{
@@ -112,6 +153,6 @@ it('backlog diagnostics validate section and key before they reach the view',()=
 it('known scope tags move behind disclosure while original titles and unknown bracketed titles are preserved',()=>{
   render(<Overview result={backlog([{...stored,title:'[framework-maintenance] Kunden schneller beraten'},pointer('other','[Budget] Prüfen')])} onSelect={vi.fn()}/>);
   expect(screen.getByRole('button',{name:'Kunden schneller beraten'})).toBeTruthy();
-  expect(screen.getByText('[framework-maintenance] Kunden schneller beraten').closest('details')?.open).toBe(false);
+  expect(screen.queryByText('[framework-maintenance] Kunden schneller beraten')).toBeNull();
   expect(screen.getByRole('button',{name:'[Budget] Prüfen'})).toBeTruthy();
 });

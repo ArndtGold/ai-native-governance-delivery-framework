@@ -8,14 +8,16 @@ export function hasConsistentWorkCounts(inventory) {
     && inventory.entries.every(row => row && COCKPIT_WORK_SECTIONS.includes(row.section));
 }
 export function projectCockpitList(inventory, { section = 'active', query = '' } = {}) {
-  if (!COCKPIT_WORK_SECTIONS.includes(section)) throw Error('dto_invalid');
+  if (section !== 'runs' && !COCKPIT_WORK_SECTIONS.includes(section)) throw Error('dto_invalid');
   const normalized = query.trim().toLowerCase();
   if (!inventory) return { section, query: normalized, coverage: 'unavailable', diagnostics: [], sectionCount: null, matchCount: 0, rows: [] };
   if (!hasConsistentWorkCounts(inventory)) throw Error('dto_invalid');
-  const diagnostics = inventory.diagnostics.filter(row => !row.section || row.section === section);
-  if (diagnostics.some(row => row.code === 'work_section_unavailable')) return { section, query: normalized, coverage: 'unavailable', diagnostics, sectionCount: null, matchCount: null, rows: [] };
-  const selected = inventory.entries.map((entry, index) => ({ entry, index })).filter(row => row.entry.section === section);
-  const rows = selected.filter(({ entry }) => !normalized || [entry.title, entry.key, entry.stored_status]
+  const sections = section === 'runs' ? ['active', 'completed'] : [section];
+  const diagnostics = inventory.diagnostics.filter(row => !row.section || sections.includes(row.section));
+  const unavailable = sections.filter(s => diagnostics.some(row => row.code === 'work_section_unavailable' && (!row.section || row.section === s)));
+  if (unavailable.length === sections.length) return { section, query: normalized, coverage: 'unavailable', diagnostics, sectionCount: null, matchCount: null, rows: [] };
+  const selected = inventory.entries.map((entry, index) => ({ entry, index })).filter(row => sections.includes(row.entry.section) && !unavailable.includes(row.entry.section));
+  const rows = selected.filter(({ entry }) => !normalized || [entry.title, entry.key, entry.stored_status, entry.objective ?? '']
     .some(value => value.toLowerCase().includes(normalized))).map(({ entry, index }) => ({ entry, index,
       identity: JSON.stringify([entry.identity, entry.source.digest]), selectable: entry.selectable, displayTitle: entry.title.replace(/^\[(framework[-_]maintenance|external[-_]delivery)\]\s*/i, '') || entry.title,
       provenance: { path: entry.source.path, digest: entry.source.digest, originalTitle: entry.title } }));
@@ -25,10 +27,10 @@ export function projectCockpitList(inventory, { section = 'active', query = '' }
 
 // Presentation-only grouping/search over the shared inventory's already ordered entries.
 export function projectCockpitRuns(inventory, { section = 'active', query = '' } = {}) {
-  if (!['active', 'completed'].includes(section)) throw Error('dto_invalid');
+  if (!['active', 'completed', 'runs'].includes(section)) throw Error('dto_invalid');
   const normalized = query.trim().toLowerCase();
-  const entries = inventory.runs.filter(run => section === 'active'
-    ? !run.valid || run.lifecycle === 'active' : run.valid && run.lifecycle !== 'active');
+  const entries = inventory.runs.filter(run => section === 'runs' || (section === 'active'
+    ? !run.valid || run.lifecycle === 'active' : run.valid && run.lifecycle !== 'active'));
   const rows = entries.filter(run => !normalized || [run.title, run.run_id, run.attention.label]
     .some(value => value.toLowerCase().includes(normalized)));
   return { rows, sectionCount: entries.length, matchCount: rows.length,

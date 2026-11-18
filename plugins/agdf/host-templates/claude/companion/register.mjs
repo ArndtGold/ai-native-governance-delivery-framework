@@ -11,15 +11,18 @@
 import { assignRun, namedRun, openRuns, stepSelection } from './assignment.mjs';
 import { JOURNAL_FILE, JOURNAL_READ_LIMIT, JOURNAL_ROTATED_FILE, PANE_EVENTS, STICKY_KINDS, TOAST_KINDS, eventText,
   isConfirmed, isStillUncertain, journalDirectory, namedEventText, parseJournal, unseenEvents } from './events.mjs';
-import { figureSvg } from './figure.mjs';
+import { figureSvg, observeFigure } from './figure.mjs';
 import { chatLocale, companionLabels, gateTitle, label } from './localization.mjs';
 import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
 import { STATE_FILE, defaultCompanionState, parseCompanionState, pluginDataDir, serializeCompanionState } from './persistence.mjs';
 import { readSnapshot, settleSnapshot } from './run-state.mjs';
+import { activityLifetime, isActivityId, renewActivity, updateActivity, workBinding } from './activity.mjs';
 import { buildPanelView, terminalText } from './view.mjs';
 
 export const PANE = 'agdf-companion';
 export const COMMAND = 'agdf-companion';
+// Confirmed work is renewed well inside its lifetime while the native main turn still runs.
+const ACTIVITY_RENEW_MS = activityLifetime / 2;
 export const MENU = 'menu';
 export const ABOUT_URL = 'https://agdf.iself.eu';
 const LISTED_RUNS = 6;
@@ -38,12 +41,14 @@ const BODY_RESERVE = 0;
 // stay beside the widest bar (owner request of 2026-10-28); a narrower pane lists the ids alone.
 const ID_ROOM = 18;
 const COLOR = Object.freeze({ laeuft: 'suggestion', baut: 'suggestion', wartet: 'warning', blockiert: 'error', fertig: 'success' });
+// The colour of the "whose move" line: yours, the agent's, or a block.
+const TURN_COLOR = Object.freeze({ you: 'warning', claude: 'suggestion', halt: 'error', next: undefined });
 
 function createSession() {
   return { startedAt: 0, root: '', registry: null, labels: null, locale: 'en', statePath: null, dataDir: null, version: null, icon: null,
-    choices: defaultCompanionState(), isHidden: false, snapshot: null, isTurnActive: false, isObjectiveExpanded: false,
+    choices: defaultCompanionState(), isHidden: false, snapshot: null, mainTurn: null, subagentTurns: new Set(), activity: [], activityTimer: null, isObjectiveExpanded: false,
     isPreviewExpanded: false, isAboutShown: false, isMenuOpen: false, liveStream: null, retiring: Promise.resolve(), reads: 0, appliedRead: 0,
-    observation: null, chatMention: null, pendingMention: null, isBrowsing: false, conversation: null,
+    observation: null, figureObservation: null, chatMention: null, pendingMention: null, isBrowsing: false, conversation: null,
     // The journal cursor and stamp, this root's notices and the drift warnings already announced.
     journalCursor: null, journalStamp: null, eventsAvailable: null, events: [], driftSeen: null,
     // Durable events of this root waiting for a fresh run view to confirm them (CR delta review RV-1).
@@ -140,8 +145,13 @@ async function refresh($, { quiet } = {}) {
     && root === session.root && root === await $.session.root();
   try {
     const remembered = session.choices.selections[root];
+    // Keep evaluating the run already followed in this project when it leaves the active list;
+    // its completed state must be confirmed before the companion celebrates.
+    const observed = root === session.root ? observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt,
+      selection: remembered, mention: session.chatMention }).runId : null;
+    const runIds = [...new Set([remembered, observed].filter(Boolean))];
     const next = await readSnapshot(processes($), { pluginRoot: $.plugin.root, root, language: session.locale,
-      runIds: remembered ? [remembered] : [], now: await $.clock.now(), clock: () => $.clock.now() });
+      runIds, now: await $.clock.now(), clock: () => $.clock.now() });
     if (!(await stillCurrent())) return;
     session.appliedRead = read;
     session.snapshot = settleSnapshot(session.snapshot, next);
@@ -254,6 +264,7 @@ async function followConversation($) {
   try { conversation = await $.session.id(); } catch { /* no conversation id on this host */ }
   const changed = Boolean(session.conversation) && conversation !== session.conversation;
   if (changed) {
+    forgetConversation(conversation);
     session.chatMention = null;
     session.pendingMention = null;
     session.isBrowsing = false;
@@ -269,6 +280,90 @@ function markObservationUnavailable($) {
     readAt: Date.now(), error: 'unavailable' });
   announce($);
   redraw($);
+}
+
+function stopActivityTimer() {
+  session.activityTimer?.cancel();
+  session.activityTimer = null;
+}
+
+function resetActivity() {
+  session.mainTurn = null;
+  session.subagentTurns.clear();
+  session.activity = [];
+  stopActivityTimer();
+}
+
+// A `/clear` or resume happens between turns, so a main turn still running belongs to the new
+// conversation unless it already observed work in another one. Work of other conversations ends here.
+function forgetConversation(conversation) {
+  const turn = session.mainTurn;
+  if (turn?.conversation !== undefined && turn.conversation !== conversation) session.mainTurn = null;
+  session.subagentTurns.clear();
+  session.activity = session.activity.filter(row => row.session === conversation);
+  if (!session.activity.length) stopActivityTimer();
+}
+
+function retireActivity($, e) {
+  const turn = session.mainTurn;
+  if (turn?.id !== e.turnId) return;
+  session.mainTurn = null;
+  // An aborted main turn also stops its foreground subagents, which need not report their own end.
+  if (e.reason === 'aborted') session.subagentTurns.clear();
+  stopActivityTimer();
+  if (turn.conversation !== undefined) {
+    session.activity = updateActivity(session.activity, {
+      kind: e.reason === 'aborted' ? 'interrupted' : 'ended', session: turn.conversation, turn: turn.id,
+    }, Date.now()) ?? [];
+  }
+  redraw($);
+}
+
+async function observeDispatch($, e, next) {
+  const turn = session.subagentTurns.size || e.agentId !== undefined ? null : session.mainTurn;
+  const { tool_use_id: tool, continue_delivery, primary_target, run_id } = e;
+  // The conversation and root at the call, read beside it: the cached values refresh only at the next
+  // check, so the first turn after a `/clear` or resume would otherwise compare against the old ones.
+  const started = turn?.eligible ? (async () => [await $.session.id(), await $.session.root()])().catch(() => null) : null;
+  const answered = await next(e);
+  try {
+    if (!started || turn !== session.mainTurn || !turn.eligible || !session.choices.enabled
+      || continue_delivery !== true || !isActivityId(tool)) return answered;
+    const [before, conversation, root] = await Promise.all([started, $.session.id(), $.session.root()]);
+    if (!before || turn !== session.mainTurn || !turn.eligible || conversation !== before[0] || root !== before[1]
+      || (turn.conversation !== undefined && turn.conversation !== conversation)) return answered;
+    const payload = answered?.result;
+    let result = payload;
+    if (typeof payload === 'string') {
+      try { result = JSON.parse(payload); } catch { result = null; }
+    }
+    const confirmed = answered?.isError === true ? null : workBinding({ continue_delivery, primary_target, run_id }, result);
+    // Core returns the canonical target; the run view of this root names the same folder by its realpath,
+    // so a symlinked or junction root is still this project. The binding keeps the root's own spelling.
+    const canonical = session.snapshot?.root === root ? session.snapshot.canonicalRoot : null;
+    const binding = confirmed && (confirmed.target_id === root || (canonical && confirmed.target_id === canonical))
+      ? { ...confirmed, target_id: root } : null;
+    const activity = updateActivity(session.activity, {
+      kind: binding ? 'work' : 'lost', session: conversation, turn: turn.id, tool, binding,
+    }, Date.now());
+    if (!activity) return answered;
+    turn.conversation = conversation;
+    session.activity = activity;
+    stopActivityTimer();
+    if (binding) {
+      // The native turn end retires the work, so it stays current while that turn runs.
+      session.activityTimer = $.clock.every(ACTIVITY_RENEW_MS, () => {
+        const renewed = session.mainTurn === turn && turn.eligible
+          ? renewActivity(session.activity, { session: conversation, turn: turn.id }, Date.now()) : null;
+        if (renewed) session.activity = renewed;
+        else stopActivityTimer();
+        redraw($);
+      });
+      void check($).catch(() => {});
+    }
+    redraw($);
+  } catch { /* an unverified observation cannot alter the tool response */ }
+  return answered;
 }
 
 function stopRefreshing() {
@@ -288,6 +383,7 @@ function startObservation($, root) {
   session.liveStream = observer;
   const current = () => session.liveStream === observer && session.choices.enabled;
   if (root !== session.root) {
+    resetActivity();
     session.root = root;
     session.journalCursor = null;
     session.snapshot = null;
@@ -410,7 +506,9 @@ const wrappedRows = (value, columns) => (value ? Math.ceil(value.length / Math.m
 export function listCapacity(view, { rows, columns, isAboutShown = false }) {
   const blocks = [view.message, view.hint, view.unreadableHint !== view.message ? view.unreadableHint : null, view.stale,
     ...(view.drift ?? []), ...(view.events ? [view.events.join(' '), ...view.events.map(() => ' ')] : []),
-    ...(view.review ? [view.review.summary, view.review.match, ' ', ' '] : []), view.eventsHint].filter(Boolean);
+    ...(view.review ? [view.review.summary, view.review.match, ' ', ' '] : []), view.eventsHint,
+    // Beside a planned UR the list shares the body with its name, route, goal, turn box, gate bar, note and id.
+    ...(view.planId ? [view.name, view.route, view.goal, view.turn?.who, view.turn?.what, view.turn?.how, view.gateBar, view.note, view.planId] : [])].filter(Boolean);
   const fixed = DESKTOP_ROWS.figure + DESKTOP_ROWS.footer + DESKTOP_ROWS.spare + (isAboutShown ? DESKTOP_ROWS.about : 0) + 1
     + blocks.reduce((sum, value) => sum + wrappedRows(value, columns), 0) + DESKTOP_ROWS.gap * (blocks.length + 3);
   return Math.max(LISTED_RUNS, Math.floor(rows - fixed));
@@ -423,14 +521,26 @@ export function fitRunId(id, room) {
   return `${id.slice(0, room - 1 - tail)}…${id.slice(id.length - tail)}`;
 }
 
+// A run name cut at its end to `room` characters; a name reads from its start, unlike an id.
+export function fitRunName(name, room) {
+  return name.length <= room ? name : `${name.slice(0, Math.max(1, room - 1))}…`;
+}
+
 const press = ($, action) => async () => {
   try { await action(); } catch { /* a failed action leaves the last drawing */ }
   redraw($);
 };
 
-function body($, e, view) {
+function body($, e) {
   const { Box, Text, Button, Svg, Link, Select } = $.ui.resolve(e);
   const isTerminal = e.surface === 'terminal' || !Svg;
+  const view = buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
+    mention: session.chatMention, isBrowsing: session.isBrowsing, showRunState: !isTerminal,
+    // A planned UR has no Run to correlate with a dispatch, so it uses the native main turn.
+    isTurnActive: session.mainTurn !== null, activity: session.activity,
+    registry: session.registry, labels: session.labels, locale: session.locale,
+    columns: e.props?.bodyColumns ?? Infinity, isInfoExpanded: session.isInfoExpanded,
+    events: session.events, eventsAvailable: session.eventsAvailable ?? undefined });
   const rows = e.props?.scroll?.bodyRows;
   const fits = Number.isInteger(rows) && rows > 0;
   const columns = Number.isInteger(e.props?.bodyColumns) ? e.props.bodyColumns : 40;
@@ -491,14 +601,15 @@ function body($, e, view) {
   // The terminal keeps its six; the desktop lists as many as fit and gives the last row to "+ N more".
   const listed = isTerminal ? view.openRuns.slice(0, LISTED_RUNS)
     : view.openRuns.length <= capacity ? view.openRuns : view.openRuns.slice(0, capacity - 1);
-  // One listed run: the id as a plain button and, where the pane has room for the widest listed bar, its
-  // condensed gate bar at the right edge, every id shortened to the same room (the same rule for all rows,
-  // live check of 2026-10-28). The bar keeps its width; an id that still runs over is cut by the surface.
+  // One listed run: its name as a plain button (owner request of 2026-11-11: a run id tells a person
+  // nothing) and, where the pane has room for the widest listed bar, its condensed gate bar at the right
+  // edge, every name cut to the same room (the same rule for all rows, live check of 2026-10-28). The bar
+  // keeps its width; a name that still runs over is cut by the surface.
   const widest = Math.max(0, ...listed.map(run => run.bar?.length ?? 0));
   const room = columns - widest - 2;
   const withBars = widest > 0 && room >= ID_ROOM;
   const runRow = run => {
-    const id = h(Button, { key: `run-${run.id}`, plain: true, label: withBars ? fitRunId(run.id, room) : run.id, onPress: select(run.id) });
+    const id = h(Button, { key: `run-${run.id}`, plain: true, label: fitRunName(run.name ?? run.id, withBars ? room : columns), onPress: select(run.id) });
     return withBars && run.bar
       ? h(Box, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 1 },
         h(Box, { flexShrink: 1 }, id), h(Box, { flexShrink: 0 }, h(Text, { dimColor: true, mono: true }, run.bar)))
@@ -520,34 +631,66 @@ function body($, e, view) {
         ...listed.map(runRow),
         !isTerminal && view.openRuns.length > listed.length ? h(Text, { dimColor: true }, t('fields.moreRuns', { count: view.openRuns.length - listed.length })) : null))
     : null;
+  // The (i) opens the run's details on purpose (owner request of 2026-11-12); closed by default and
+  // only offered when there is something behind it. The label names the action, so it reads alone.
+  const infoButton = view.info?.length ? h(Button, { key: 'info', plain: true,
+    label: view.isInfoExpanded ? t('actions.infoHide') : t('actions.infoShow'),
+    onPress: press($, async () => { session.isInfoExpanded = !session.isInfoExpanded; }) }) : null;
   if (isTerminal) {
     return h(Box, { flexDirection: 'column', gap: 1 },
-      h(Text, { color: COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), runList, about, actions);
+      h(Text, { color: view.resting ? undefined : COLOR[view.mood] }, terminalText(view, { labels: session.labels, locale: session.locale })), infoButton, runList, about, actions);
   }
-  const figure = h(Svg, { source: figureSvg(view.mood, { still: session.choices.still, title: `${view.title}: ${view.stateLabel}` }),
-    alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !session.choices.still });
+  // A planned UR is shown like a run, so the figure moves for it too.
+  const shownId = view.runId ?? view.planId;
+  const scope = shownId ? JSON.stringify([session.root, shownId]) : null;
+  const quiet = !session.choices.enabled || session.choices.still || session.isHidden || Boolean(view.stale);
+  const still = quiet || !scope || ['unreadable', 'idle', 'completionUnconfirmed'].includes(view.figure?.reason.key);
+  // Without an assigned run a readable project smiles and keeps the idle motion (blinking) unless the
+  // still pose applies; it never gestures. The smile is a static face, so the still pose keeps it.
+  const idle = !scope && view.idle === true;
+  const idling = idle && !quiet;
+  session.figureObservation = observeFigure(session.figureObservation, { scope, figure: view.figure, current: !still });
+  const { gate, gesture, sequence } = session.figureObservation ?? {};
+  // With every run done the crew member checks the board: a tablet, never a finish flag (no run is shown).
+  const figure = h(Svg, { source: figureSvg(view.mood, { still: still && !idling, smile: idle, tablet: idle && view.allDone === true, invite: idle && view.invite === true, resting: view.resting === true, gate, workGate: view.workGate, gesture, sequence }),
+    alt: `${view.title}: ${view.stateLabel}`, width: 200, height: 140, isInteractive: !still });
   // The body is as tall as the pane's body rows less the probed reserve and the content grows, so the
   // footer sits at the bottom edge; a taller body scrolls with the footer last (live probes of
   // 2026-10-28: a cell count sizes the body, a percentage does not; SDD-08).
   return h(Box, { flexDirection: 'column', gap: 1, ...(fits ? { minHeight: rows - BODY_RESERVE } : {}) }, h(Box, { flexDirection: 'column', gap: 1, flexGrow: 1 },
     h(Box, { flexDirection: 'column', alignItems: 'center' },
       figure,
-      h(Text, { color: COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
-      view.reason ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.reason) : null),
-    view.message ? h(Text, {}, view.message) : null,
+      // A resting run carries no signal colour: nothing happens and nothing is asked of the person.
+      h(Text, { color: view.resting ? undefined : COLOR[view.mood], size: 'heading', weight: 'bold' }, view.stateLabel),
+      // The turn block below says what the reason would; without one the reason stays under the state.
+      view.reason && !view.turn ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.reason) : null),
+    // An invitation reads as the pane's headline; every other message stays plain.
+    view.message ? h(Text, view.invite ? { weight: 'semibold', wrap: 'wrap' } : {}, view.message) : null,
     view.hint ? h(Text, { dimColor: true }, view.hint) : null,
     view.unreadableHint && view.unreadableHint !== view.message ? h(Text, { color: 'warning' }, view.unreadableHint) : null,
+    // The run by its name, with its delivery path and the position on it.
+    view.name ? h(Box, { flexDirection: 'column' },
+      h(Text, { weight: 'semibold', wrap: 'wrap' }, view.name),
+      view.route ? h(Text, { dimColor: true, wrap: 'truncate-end' }, view.route) : null) : null,
+    // The run's goal in the chat language, before whose move it is: what an approval is measured against.
+    view.goal ? h(Box, { flexDirection: 'column' },
+      h(Text, { dimColor: true }, t('fields.objective')),
+      h(Text, { wrap: 'wrap' }, view.goal)) : null,
+    // Whose move it is, what it is and, for an approval, how it is given.
+    view.turn ? h(Box, { flexDirection: 'column', borderStyle: 'single', borderDimColor: true, paddingX: 1 },
+      h(Text, { color: TURN_COLOR[view.turn.tone], weight: 'semibold' }, view.turn.who),
+      h(Text, { wrap: 'wrap' }, view.turn.what),
+      view.turn.how ? h(Text, { dimColor: true, wrap: 'wrap' }, view.turn.how) : null) : null,
     view.gateBar ? h(Text, { mono: true, wrap: 'truncate-end' }, view.gateBar) : null,
-    view.runId ? h(Box, { flexDirection: 'column' },
-      h(Text, { weight: 'semibold', wrap: 'truncate-end' }, view.runId),
-      view.origin ? h(Text, { dimColor: true }, view.origin) : null) : null,
-    view.objective ? h(Box, { flexDirection: 'row', gap: 1, alignItems: 'center' },
-      h(Text, { dimColor: true, wrap: view.isObjectiveExpanded ? 'wrap' : 'truncate-end' }, view.objective),
-      h(Button, { key: 'objective', plain: true, label: view.isObjectiveExpanded ? t('actions.collapse') : t('actions.expand'),
-        onPress: press($, async () => { session.isObjectiveExpanded = !session.isObjectiveExpanded; }) })) : null,
     view.nextStep ? h(Box, { flexDirection: 'column' },
       h(Text, { dimColor: true }, t('fields.nextStep')),
       h(Text, {}, view.nextStep)) : null,
+    // The (i) and, once opened, the details behind it: a goal that was cut, the gate's purpose, a repeated step.
+    infoButton,
+    view.isInfoExpanded && view.info?.length ? h(Box, { flexDirection: 'column', gap: 1, borderStyle: 'single', borderDimColor: true, paddingX: 1 },
+      ...view.info.map(item => h(Box, { flexDirection: 'column' },
+        h(Text, { dimColor: true }, item.label),
+        h(Text, { wrap: 'wrap' }, item.text)))) : null,
     ...(view.drift ?? []).map(text => h(Text, { color: 'warning' }, text)),
     view.events ? h(Box, { flexDirection: 'column' },
       h(Text, { dimColor: true }, t('fields.events')),
@@ -562,13 +705,18 @@ function body($, e, view) {
       view.review.truncated ? h(Text, { dimColor: true }, view.review.truncated) : null) : null,
     view.eventsHint ? h(Text, { dimColor: true }, view.eventsHint) : null,
     runList,
+    // Beside a planned UR: how many runs are done and how many more URs are in planning.
+    view.note ? h(Text, { dimColor: true }, view.note) : null,
+    // The run id, or the planning id, is a reference for commands, so it stands last and dim.
+    shownId ? h(Box, { flexDirection: 'column' },
+      h(Text, { dimColor: true, mono: true, wrap: 'truncate-end' }, shownId),
+      view.origin ? h(Text, { dimColor: true }, view.origin) : null) : null,
     view.stale ? h(Text, { color: 'warning' }, view.stale) : null,
     about),
     actions);
 }
 
-// Each registration carries a `.catch` that passes the event on, so even an overrun or a
-// misreturn leaves the host's own behaviour in place (SDD-10).
+// Lifecycle registrations can pass through an event if the host invokes their fallback.
 const passOn = ($, e, next) => next(e);
 
 export const register = on => {
@@ -593,6 +741,8 @@ export const register = on => {
         // Reading, the status line and the pane stop before the choice is stored, so a failing write
         // leaves none of them running (CR-F03); the choice is stored even if closing the pane fails.
         stopRefreshing();
+        resetActivity();
+        session.figureObservation = null;
         silence($);
         try {
           await $.ui.close({ id: PANE });
@@ -609,16 +759,34 @@ export const register = on => {
     }
   }).catch(() => ({ text: `${COMMAND}: unavailable` }));
 
+  for (const tool of ['mcp__agdf__agdf_dispatch', 'mcp__plugin_agdf_agdf__agdf_dispatch']) {
+    // The tool's own rejection propagates through next. Retrying it could repeat the invocation.
+    on('tool.call', { tool }, observeDispatch);
+  }
+
   on('turn.start', async ($, e, next) => {
     try {
+      if (e.agentId !== undefined && isActivityId(e.turnId)) {
+        session.subagentTurns.add(e.turnId);
+        if (session.mainTurn) {
+          session.mainTurn.eligible = false;
+          session.activity = [];
+          stopActivityTimer();
+          redraw($);
+        }
+      }
       if (e.agentId === undefined && session.choices.enabled) {
+        const concurrent = Boolean(session.mainTurn) || session.subagentTurns.size > 0;
+        session.activity = [];
+        stopActivityTimer();
+        // The conversation is taken from the turn's first observed dispatch, never from a cached value.
+        session.mainTurn = isActivityId(e.turnId) ? { id: e.turnId, eligible: !concurrent } : null;
         // A main-loop turn ends browsing and may name the chat's run (chat-run navigation SDD-02, SDD-04);
         // the host clock is read beside the event, never before it is passed on (SDD-11).
         session.isBrowsing = false;
         // Pane entries of events clear at the next main-loop turn (PRD state transitions); an uncertain
         // outcome stays until its run recorded a later operation (CR finding B7).
         session.events = session.events.filter(event => STICKY_KINDS.includes(event.kind));
-        if (!session.isHidden) session.isTurnActive = true;
         redraw($);
         const prompt = e.text;
         void $.clock.now().then(at => { if (noteMention(prompt, at)) { announce($); redraw($); } }).catch(() => {});
@@ -628,11 +796,13 @@ export const register = on => {
   }).catch(passOn);
 
   on('turn.complete', async ($, e, next) => {
+    try {
+      if (e.agentId === undefined) retireActivity($, e);
+      else session.subagentTurns.delete(e.turnId);
+    } catch { /* observation only */ }
     const answered = await next(e);
     try {
       if (e.agentId === undefined) {
-        // Cleared on every main-loop completion, also while switched off, so no stale overlay remains.
-        session.isTurnActive = false;
         // The check runs after the host has its answer, never inside the hook; a hidden pane keeps
         // the status line and toasts current. The stream owns change observation. This hook checks
         // for a new project or conversation and clears the overlay. The turn's final answer (`e.answer`, else the text `next(e)` returned) is matched
@@ -661,6 +831,7 @@ export const register = on => {
 
   on('session.end', async ($, e, next) => {
     stopRefreshing();
+    resetActivity();
     return next(e);
   }).catch(passOn);
 
@@ -669,6 +840,7 @@ export const register = on => {
   // stamps `origin` as `{ kind: 'plugin' | 'person' | 'unload' }`.
   on('ui.close', { id: PANE }, async ($, e, next) => {
     try {
+      session.figureObservation = null;
       if (e.origin?.kind === 'person') session.isHidden = true;
     } catch { /* observation only */ }
     return next(e);
@@ -677,11 +849,7 @@ export const register = on => {
   // A logic failure draws a neutral line instead of the panel; it never throws into the host.
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     try {
-      return body($, e, buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
-        mention: session.chatMention, isBrowsing: session.isBrowsing,
-        isTurnActive: session.isTurnActive, registry: session.registry, labels: session.labels, locale: session.locale,
-        columns: e.props?.bodyColumns ?? Infinity, isObjectiveExpanded: session.isObjectiveExpanded,
-        events: session.events, eventsAvailable: session.eventsAvailable ?? undefined }));
+      return body($, e);
     } catch (error) {
       const { Text } = $.ui.resolve(e);
       return h(Text, { dimColor: true }, `AGDF Companion: ${String(error?.message ?? error).slice(0, 200)}`);

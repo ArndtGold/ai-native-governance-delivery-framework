@@ -2,13 +2,14 @@
 // session's assignment and the user's choices into localized, display-ready fields. Read-only and
 // host-independent; the adapter draws it on desktop or as text in the terminal.
 
-import { assignRun } from './assignment.mjs';
-import { FIGURE_TEXT } from './figure.mjs';
+import { selectActivity } from './activity.mjs';
+import { assignRun, pickPlan } from './assignment.mjs';
+import { FIGURE_TEXT, INVITE_TEXT } from './figure.mjs';
 import { condensedGateBar, gateBar, gateMarks } from './gate-bar.mjs';
-import { gateTitle, label } from './localization.mjs';
-import { displayState } from './state.mjs';
-import { READ_FAILURE_REASONS } from './run-state.mjs';
-import { eventText, latestReview, PANE_EVENTS, shortDigest } from './events.mjs';
+import { gateRationale, gateTitle, label } from './localization.mjs';
+import { displayState, runState } from './state.mjs';
+import { isStructured, READ_FAILURE_REASONS } from './run-state.mjs';
+import { eventText, latestReview, PANE_EVENTS, shortDigest, shortRunId } from './events.mjs';
 
 const two = value => String(value).padStart(2, '0');
 // Preview lines the terminal text shows beneath the material line.
@@ -18,8 +19,87 @@ const folderName = root => String(root ?? '').replace(/[\\/]+$/u, '').split(/[\\
 // Host-local wall-clock time, HH:MM.
 export const clockText = ms => { const at = new Date(ms); return `${two(at.getHours())}:${two(at.getMinutes())}`; };
 
-// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, isTurnActive, registry, labels,
-// locale, columns, isObjectiveExpanded, events, eventsAvailable }. Display only: the adapter persists
+// The name a person reads for the shown run: its stable title, else the catalog's "new run". The run
+// id never names a run; it stays a reference line at the panel's end.
+export const runName = (run, t) => run.title || t('fields.newRun');
+// A listed run needs a name that tells it from its neighbours, so an untitled one adds its short id.
+export const listedRunName = (run, t) => run.title || `${t('fields.newRun')} · ${shortRunId(run.id)}`;
+
+// Whose move it is (owner request of 2026-11-11): read from the figure state Core derived, so the
+// block never decides anything itself. `tone` is you (an approval or decision is yours), claude (the
+// agent works on the gate), next (the step is up next and nobody works on it) or halt (the run is
+// blocked). This function words the moves that are yours and the block; activityOf below words the work.
+// A state that concerns no gate work has no such block, and neither has the terminal's turn overlay
+// beside a run that is not working: its reason already says that Claude works.
+export function turnOf(state, run, t, gateName) {
+  const { key, gate, decision } = state.reason;
+  const at = gate ?? run.gate;
+  if (!at) return null;
+  if (key === 'waitingApproval') {
+    return { tone: 'you', who: t('turn.you'), what: t('turn.approve', { gate: gateName(at) }),
+      how: run.missing && run.missing !== 'none' ? t('turn.inChat', { approval: run.missing }) : null, gate: at };
+  }
+  if (key === 'waitingDecision') return { tone: 'you', who: t('turn.you'), what: t('turn.decide', { gate: gateName(at) }), how: null, gate: at };
+  if (key === 'blocked') {
+    return { tone: 'halt', who: t('turn.blocked'), what: t('reasons.blocked', { gate: gateName(at), decision: run.blockingText || decision || '' }), how: null, gate: at };
+  }
+  return null;
+}
+
+// Which kind of work a step is; the catalog's `activity` section words each kind once. A step the
+// table does not know is worded by its name.
+export const ACTIVITY_KINDS = Object.freeze({ UR: 'draft', PRD: 'draft', SD: 'draft', TP: 'draft',
+  'Brownfield Review': 'analysis', 'Brownfield Analysis': 'analysis', 'Mode/Slice Decision': 'route',
+  'CD+Tests': 'build', 'Quick Task Execution': 'build', 'Verified Change Execution': 'build',
+  CR: 'review', QA: 'quality', UAT: 'acceptance', OR: 'closeout' });
+
+// Shared caption for each host. Only a host-confirmed active turn uses the working wording.
+export function activityLabel(gate, isTurnActive, t, title) {
+  const kind = ACTIVITY_KINDS[gate] ?? 'other';
+  return t(`activity.${kind}.${isTurnActive ? 'working' : 'idle'}`, { gate, step: title(gate) });
+}
+
+// What a run is busy with (owner request of 2026-11-12: "läuft" named no activity). Read from the run's
+// own state, a step Claude works on or builds, never from the turn overlay. While a main-loop turn runs,
+// the line says what is being done and the block asks for a moment. Otherwise the run rests: the line
+// says what is up next and the block how to carry on. Returns { label, turn, resting } or null.
+export function activityOf(derived, run, isTurnActive, t, title) {
+  const { key, gate } = derived.reason;
+  const at = gate ?? run.gate;
+  if ((key !== 'working' && key !== 'building') || !at) return null;
+  const kind = ACTIVITY_KINDS[at] ?? 'other';
+  const named = title(at);
+  // A document or approval gate keeps its short name beside its title; an internal step has only a title.
+  const step = named !== at && /^[A-Z]{2,3}$/u.test(at) ? `${named} (${at})` : named;
+  const label = activityLabel(at, isTurnActive, t, title);
+  const drafting = kind === 'draft';
+  const turn = isTurnActive
+    ? { tone: 'claude', who: t('turn.moment'), what: drafting ? t('turn.drafting', { step }) : t('turn.workingOn', { step }), how: null, gate: at }
+    : { tone: 'next', who: t('turn.next'), what: drafting ? t('turn.draft', { step }) : step, how: t('turn.resume'), gate: at };
+  return { label, turn, resting: !isTurnActive };
+}
+
+// About two pane lines of the goal, cut at a word, so the block that asks for a move stays in sight.
+const GOAL_LINES = 2;
+export function goalLine(goal, columns) {
+  const room = Math.max(40, (Number.isFinite(columns) ? columns : 60) * GOAL_LINES);
+  if (goal.length <= room) return goal;
+  const cut = goal.slice(0, room - 1), at = cut.lastIndexOf(' ');
+  return `${(at > room / 2 ? cut.slice(0, at) : cut).replace(/[\s,;:.–-]+$/u, '')}…`;
+}
+
+// The delivery path and the position on it, e.g. "Strukturierte Lieferung · Schritt 2 von 8". Before
+// the path is decided only that is said; a path that names no current entry gives no position.
+export function routeLine(run, marks, t) {
+  const key = isStructured(run.route) ? 'structured' : run.route === 'quick_task' || run.route === 'verified_change' ? run.route
+    : (run.route === 'undecided' || run.route == null) && run.evaluated && run.lifecycle === 'active' ? 'undecided' : null;
+  if (!key) return null;
+  const at = marks.findIndex(({ mark }) => mark === 'current');
+  return key === 'undecided' || at < 0 ? t(`routes.${key}`) : `${t(`routes.${key}`)} · ${t('fields.step', { position: at + 1, count: marks.length })}`;
+}
+
+// input: { snapshot, sessionStartedAt, selection, mention, isBrowsing, isTurnActive (planned UR only), activity, now, registry, labels,
+// locale, columns, isInfoExpanded, events, eventsAvailable }. Display only: the adapter persists
 // selection changes. `events` are this root's journal events since the last main-loop turn, newest first.
 export function buildPanelView(input) {
   const { snapshot, registry, labels, locale } = input;
@@ -46,7 +126,12 @@ export function buildPanelView(input) {
       : unreadable(reason);
   }
   if (snapshot.status === 'no_control') {
-    return neutral(t('messages.noControl', { folder: folderName(snapshot.root) }), { hint: t('messages.noControlHint', { path: snapshot.root ?? '' }) });
+    // A project without AGDF is invited to start, not told about a missing folder (owner request of
+    // 2026-11-12): the figure holds the start sign, and the checked path and the finding sit behind the (i).
+    return neutral(t('messages.notSetUp'), { hint: t('messages.notSetUpHint'), invite: true, idle: true,
+      isInfoExpanded: Boolean(input.isInfoExpanded), info: [
+        { label: t('fields.checkedFolder'), text: snapshot.root ?? '' },
+        { label: t('fields.finding'), text: t('messages.noControl', { folder: folderName(snapshot.root) }) }] });
   }
 
   const { run, origin, open, chatRunId } = assignRun({ runs: snapshot.runs, sessionStartedAt: input.sessionStartedAt, selection: input.selection,
@@ -55,31 +140,117 @@ export function buildPanelView(input) {
   const reasons = [...new Set(snapshot.unreadable.map(item => t(`unreadable.${item.reason}`)))].join(', ');
   const unreadableHint = snapshot.unreadable.length ? t('messages.unreadableRuns', { count: snapshot.unreadable.length, reasons }) : null;
   // Each open run carries its condensed gate bar for the list (owner request of 2026-10-28).
-  const openRuns = open.map(item => ({ id: item.id, objective: item.objective, bar: condensedGateBar(gateMarks(item)) }));
+  const openRuns = open.map(item => ({ id: item.id, name: listedRunName(item, t), objective: item.objective, bar: condensedGateBar(gateMarks(item)) }));
   if (!run) {
     const broken = input.selection && snapshot.unreadable.find(item => item.id === input.selection);
     if (broken) return { ...unreadable(broken.reason), openRuns, chatRunId, unreadableHint };
-    if (!open.length) return neutral(unreadableHint ?? t('messages.noOpenRuns'));
-    return neutral(t('messages.noRunAssigned'), { hint: t('messages.noRunAssignedHint'), openRuns, chatRunId, unreadableHint,
+    // A UR in planning is work under way although it is no run yet: it is shown like a run at the UR
+    // gate instead of "all runs done" or "no run assigned" (owner finding of 2026-11-16).
+    const picked = pickPlan(snapshot.planned, { sessionStartedAt: input.sessionStartedAt, hasOpenRuns: open.length > 0 });
+    if (picked) {
+      const { plan } = picked;
+      const isTurnActive = Boolean(input.isTurnActive);
+      const step = `${gateTitle(registry, locale, 'UR')} (UR)`;
+      const drafting = plan.coverage === 'draft', ready = plan.coverage === 'ready';
+      // Only a draft is written on; a ready or unclear planning entry waits for the next move.
+      const writing = drafting && isTurnActive;
+      const stateLabel = drafting ? t(`activity.draft.${isTurnActive ? 'working' : 'idle'}`, { gate: 'UR', step }) : ready ? t('planned.ready') : t('planned.unclear');
+      const turn = writing ? { tone: 'claude', who: t('turn.moment'), what: t('turn.drafting', { step }), how: null, gate: 'UR' }
+        : drafting ? { tone: 'next', who: t('turn.next'), what: t('turn.draft', { step }), how: t('turn.resume'), gate: 'UR' }
+        : ready ? { tone: 'next', who: t('turn.next'), what: t('planned.handoff'), how: t('planned.handoffHint'), gate: 'UR' }
+        : { tone: 'next', who: t('turn.next'), what: label(labels, locale, `planned.states.${plan.coverage}`), how: t('planned.clarifyHint'), gate: 'UR' };
+      // A planned UR is no run: without a title of its own (Core names a placeholder entry by its id,
+      // which already stands as the reference line) it is an untitled UR, not a "new run".
+      const name = plan.title && plan.title !== plan.id ? plan.title : t('planned.untitled');
+      const objective = plan.goal && plan.goal !== name ? plan.goal : '';
+      const goalShown = objective ? goalLine(objective, input.columns) : '';
+      const rationale = gateRationale(registry, locale, 'UR');
+      const done = (snapshot.runs ?? []).filter(item => item.lifecycle === 'completed').length;
+      const note = [done ? t('planned.doneRuns', { count: done }) : null, picked.count > 1 ? t('planned.more', { count: picked.count - 1 }) : null].filter(Boolean).join(' · ');
+      return { ...base, ...events(null),
+        // The figure works at the UR gate; it is no run state, so nothing is read from a run.
+        ...(input.showRunState ? { figure: { mood: 'laeuft', reason: { key: 'working', gate: 'UR' } } } : {}),
+        mood: 'laeuft', workGate: input.showRunState && !snapshot.stale ? 'UR' : undefined,
+        stateLabel, resting: !writing, planId: plan.id, name, route: t('planned.route'), turn, rationale,
+        objective, goal: goalShown, isInfoExpanded: Boolean(input.isInfoExpanded),
+        info: [objective && goalShown !== objective ? { label: t('fields.objective'), text: objective } : null,
+          rationale ? { label: t('fields.gatePurpose'), text: rationale } : null].filter(Boolean),
+        gateBar: t('planned.bar'), nextStep: null, note: note || null, unreadableHint, openRuns, chatRunId,
+        ...(open.length ? { openCount: t('fields.openRuns', { count: open.length }) } : {}) };
+    }
+    // A readable project without an assigned run idles: the figure blinks but shows no run state.
+    if (!open.length) {
+      if (unreadableHint) return neutral(unreadableHint, { idle: false });
+      const runs = snapshot.runs ?? [];
+      // "All done" only when every run completed; superseded or abandoned runs did not finish.
+      if (!runs.length) return neutral(t('messages.noRunsYet'), { idle: true, hint: t('messages.noRunsYetHint') });
+      if (runs.every(item => item.lifecycle === 'completed')) return neutral(t('messages.allRunsDone'), { idle: true, allDone: true, hint: t('messages.allRunsDoneHint') });
+      return neutral(t('messages.noOpenRuns'), { idle: true });
+    }
+    return neutral(t('messages.noRunAssigned'), { idle: true, hint: t('messages.noRunAssignedHint'), openRuns, chatRunId, unreadableHint,
       openCount: t('fields.openRuns', { count: open.length }) });
   }
 
   const position = open.findIndex(item => item.id === run.id);
   const openCount = position >= 0 ? t('fields.position', { position: position + 1, count: open.length }) : t('fields.openRuns', { count: open.length });
-  const state = displayState(run, { isTurnActive: input.isTurnActive });
+  const derived = runState(run);
+  const isTurnActive = !snapshot.stale && ['working', 'building'].includes(derived.reason.key) && Boolean(selectActivity(input.activity ?? [], {
+    target_id: snapshot.root, run_id: run.id, revision_id: run.revision_id, gate: run.gate,
+  }, input.now ?? Date.now()));
+  const state = input.showRunState ? derived : displayState(run, { isTurnActive });
   const reasonParams = { gate: gateTitle(registry, locale, state.reason.gate), decision: run.blockingText || state.reason.decision,
     reason: state.reason.reason ? t(`unreadable.${state.reason.reason}`) : '' };
+  // A gate by its localized title with its short name, e.g. "Produktanforderungen (PRD)".
+  const gateName = gate => { const title = gateTitle(registry, locale, gate); return title === gate ? gate : `${title} (${gate})`; };
+  const marks = gateMarks(run);
+  const name = runName(run, t);
+  const activity = activityOf(derived, run, isTurnActive, t, gate => gateTitle(registry, locale, gate));
+  const turn = activity?.turn ?? turnOf(state, run, t, gateName);
+  const { key: reason } = state.reason;
+  const caption = !snapshot.stale && (reason === 'waitingApproval' || reason === 'waitingDecision')
+    ? t(`waitingCaptions.${reason}`)
+    : t(`states.${state.mood}`);
+  // The goal in the display language; a goal that only repeats the name is not said twice.
+  const goal = run.goal || run.objective;
+  const objective = goal && goal !== name ? goal : '';
+  // What the gate in question decides; a blocked run names its block instead.
+  const rationale = turn && turn.tone !== 'halt' ? gateRationale(registry, locale, turn.gate) : null;
+  // A completed run names no next step, unless it is blocked: then the step says what to do about it.
+  const step = run.lifecycle === 'completed' && run.figure?.reason?.key !== 'blocked' ? null : run.nextText || null;
+  // For an approval the turn block already says what to do and how, so the next step only repeats it.
+  const stepRepeats = Boolean(step) && state.reason.key === 'waitingApproval' && Boolean(turn);
+  // The goal stands under the run's name, before whose move it is: it is what an approval is measured
+  // against (owner request of 2026-11-12). About two pane lines of it; the rest is behind the (i).
+  const goalShown = objective ? goalLine(objective, input.columns) : '';
+  // Details a person opens on purpose behind the (i): a goal that was cut, what the gate decides, and
+  // a next step that only repeats the approval. Closed by default.
+  const info = [
+    objective && goalShown !== objective ? { label: t('fields.objective'), text: objective } : null,
+    rationale ? { label: t('fields.gatePurpose'), text: rationale } : null,
+    stepRepeats ? { label: t('fields.nextStep'), text: step } : null,
+  ].filter(Boolean);
   return {
     ...base,
     ...events(run.id),
+    ...(input.showRunState ? { figure: state } : {}),
     mood: state.mood,
-    stateLabel: t(`states.${state.mood}`),
+    workGate: input.showRunState && run.evaluated && !snapshot.stale ? run.gate : undefined,
+    stateLabel: activity?.label ?? caption,
+    // The run rests: the step is up next and no main-loop turn works on it.
+    resting: activity?.resting === true,
     reason: t(`reasons.${state.reason.key}`, reasonParams),
-    gateBar: gateBar(gateMarks(run), input.columns),
+    gateBar: gateBar(marks, input.columns),
     runId: run.id,
-    objective: run.objective,
-    isObjectiveExpanded: Boolean(input.isObjectiveExpanded),
-    nextStep: run.lifecycle === 'completed' ? null : run.nextText || null,
+    name,
+    route: routeLine(run, marks, t),
+    turn,
+    rationale,
+    objective,
+    goal: goalShown,
+    info,
+    isInfoExpanded: Boolean(input.isInfoExpanded),
+    // The next step stays in sight where it says something the turn block does not.
+    nextStep: stepRepeats ? null : step,
     unreadableHint,
     origin: t(`origin.${origin}`),
     originKind: origin,
@@ -107,14 +278,18 @@ function eventFields(input, t, naming) {
 // Text fallback for surfaces without Svg: state, gate bar and next step on separate lines.
 export function terminalText(view, { labels, locale }) {
   const t = path => label(labels, locale, path);
-  const lines = [view.title, `${FIGURE_TEXT[view.mood]} ${view.stateLabel}${view.reason ? ` · ${view.reason}` : ''}`];
+  // The turn line says what the reason would; without one the reason stays beside the state.
+  const lines = [view.title, `${view.invite ? INVITE_TEXT : FIGURE_TEXT[view.mood]} ${view.stateLabel}${view.reason && !view.turn ? ` · ${view.reason}` : ''}`];
   if (view.message) lines.push(view.message);
   if (view.hint) lines.push(view.hint);
   if (view.unreadableHint && view.unreadableHint !== view.message) lines.push(view.unreadableHint);
+  if (view.name) lines.push(view.route ? `${view.name} · ${view.route}` : view.name);
+  if (view.goal) lines.push(`${t('fields.objective')}: ${view.goal}`);
+  if (view.turn) lines.push(`${view.turn.who}: ${view.turn.what}${view.turn.how ? ` · ${view.turn.how}` : ''}`);
   if (view.gateBar) lines.push(view.gateBar);
-  if (view.runId) lines.push(view.origin ? `${view.runId} · ${view.origin}` : view.runId);
-  if (view.objective) lines.push(`${t('fields.objective')}: ${view.objective}`);
   if (view.nextStep) lines.push(`${t('fields.nextStep')}: ${view.nextStep}`);
+  // The (i) details appear only once opened; its button is drawn beside this text.
+  if (view.isInfoExpanded) for (const item of view.info ?? []) lines.push(`${item.label}: ${item.text}`);
   for (const warning of view.drift ?? []) lines.push(warning);
   if (view.events) lines.push(`${t('fields.events')}:`, ...view.events);
   if (view.review) {
@@ -123,6 +298,10 @@ export function terminalText(view, { labels, locale }) {
     if (view.review.preview) lines.push(...view.review.preview.split('\n').slice(0, TERMINAL_PREVIEW_LINES).map(line => `  ${line}`));
   }
   if (view.eventsHint) lines.push(view.eventsHint);
+  if (view.note) lines.push(view.note);
+  if (view.planId) lines.push(view.planId);
+  // The run id is a reference, so it stands after what a person reads.
+  if (view.runId) lines.push(view.origin ? `${view.runId} · ${view.origin}` : view.runId);
   if (view.stale) lines.push(view.stale);
   if (view.readAt) lines.push(view.readAt);
   return lines.join('\n');

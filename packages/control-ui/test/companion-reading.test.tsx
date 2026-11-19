@@ -281,7 +281,7 @@ it('keeps the workspace freshness loop running while the narrow card is hidden a
   vi.stubGlobal('AudioContext', class { state = 'running'; destination = {}; resume = async () => {}; decodeAudioData = async () => ({}); close = async () => {}; createBufferSource = () => ({ connect() {}, start }); });
   let run = base.run, changed = false;
   const read = vi.fn(async (path: string) => {
-    if (path.startsWith('/api/freshness')) return { ...fixtureMeta, code: changed ? 'source_changed' : null, data: null };
+    if (path.startsWith('/api/freshness')) return { ...fixtureMeta, code: changed ? 'source_changed' : null, data: changed ? null : { unchanged: true } };
     if (path.startsWith('/api/documents/')) return { ...fixtureMeta, snapshot_id: 'document', data: { kind: 'document', run: structuredClone(run), document: base.document } };
     return runScope(structuredClone(run));
   }) as unknown as ReadTransport;
@@ -346,7 +346,7 @@ it('shows confirmed work on the selected Codex card and clears it on freshness w
     expires_at: Date.now() + 25_000 };
   let activity = { ...record, run_id: 'other-run' };
   const read: ReadTransport = async path => (path.startsWith('/api/freshness')
-    ? { ...fixtureMeta, data: null, companion_observation: { activity } }
+    ? { ...fixtureMeta, data: { unchanged: true }, companion_observation: { activity } }
     : { ...runScope(run), companion_observation: { activity } }) as never;
   render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
   await screen.findByRole('heading', { name: run.run_id });
@@ -361,6 +361,39 @@ it('shows confirmed work on the selected Codex card and clears it on freshness w
   expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
 });
 
+// SCN-005 and SCN-023 (AC-003, AC-017): without a sign of life of the Codex hooks the card says that activity is
+// unknown, in a neutral tone, and returns to the resting step on the next freshness response without a reload.
+it('says that activity is unknown while the Codex hooks give no sign of life', async () => {
+  width(650);
+  const gate = 'CD+Tests';
+  const run = runData('run-a');
+  run.evaluation!.next_operation = { actor: 'agent', type: 'implement_approved_plan', operation_key: 'delivery.implementation.complete',
+    effect: 'preparation', gate };
+  let observation: Record<string, unknown> | undefined = { liveness: 'unknown' };
+  const read: ReadTransport = async path => (path.startsWith('/api/freshness')
+    ? { ...fixtureMeta, data: { unchanged: true }, ...(observation ? { companion_observation: observation } : {}) }
+    : { ...runScope(run), ...(observation ? { companion_observation: observation } : {}) }) as never;
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByRole('heading', { name: run.run_id });
+  expect(screen.getByText('Aktivität unbekannt')).toBeTruthy();
+  expect(screen.getByText('Die Companion sieht gerade nicht, ob Codex arbeitet. Prüfe in Codex unter /hooks, ob die AGDF-Hooks freigegeben sind.')).toBeTruthy();
+  expect(screen.queryByText('Einen Augenblick')).toBeNull();
+  const card = screen.getByRole('article', { name: 'Companion-Statuskarte' });
+  expect(card.getAttribute('data-tone')).toBeNull();
+  expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
+  observation = undefined;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.queryByText('Aktivität unbekannt')).toBeNull();
+  expect(screen.queryByText(/AGDF-Hooks freigegeben/)).toBeNull();
+  expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
+  const record = { target_id: fixtureMeta.target.target_id, run_id: run.run_id, revision_id: run.revision_id!, gate, expires_at: Date.now() + 25_000 };
+  observation = { activity: record };
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.getByText('Einen Augenblick')).toBeTruthy();
+  expect(screen.queryByText('Aktivität unbekannt')).toBeNull();
+  expect(card.getAttribute('data-tone')).toBe('working');
+});
+
 it('polls the Codex card quickly only while the shown step waits for the agent', async () => {
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
   width(650);
@@ -369,7 +402,7 @@ it('polls the Codex card quickly only while the shown step waits for the agent',
     run.evaluation!.next_operation = { actor, type: 'implement_approved_plan', operation_key: 'delivery.implementation.complete',
       effect: 'preparation', gate: 'CD+Tests' };
     const read = vi.fn(async (path: string) => (path.startsWith('/api/freshness')
-      ? { ...fixtureMeta, data: null } : runScope(run))) as unknown as ReadTransport;
+      ? { ...fixtureMeta, data: { unchanged: true } } : runScope(run))) as unknown as ReadTransport;
     const view = render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
     await screen.findByRole('heading', { name: run.run_id });
     const checks = () => vi.mocked(read).mock.calls.filter(([path]) => path.startsWith('/api/freshness')).length;

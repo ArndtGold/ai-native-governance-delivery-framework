@@ -19,8 +19,8 @@ const gateRationales: Readonly<Record<string, string>> = registry.locales.de.gat
 const labels = companionLabels(registry);
 const companionLabel = (path: string, params?: Record<string, string>) => label(labels, 'de', path, params);
 
-export function CompanionCard({ state, data, activity, current, visible, enabled, motion, mismatch, sourcePending, sourceShown, showWidthHint, onOpen }: {
-  state: ReadingState; data: Detail; activity?: CompanionActivity; current: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
+export function CompanionCard({ state, data, activity, activityUnknown, current, visible, enabled, motion, mismatch, sourcePending, sourceShown, showWidthHint, onOpen }: {
+  state: ReadingState; data: Detail; activity?: CompanionActivity; activityUnknown?: boolean; current: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
   sourcePending: boolean; sourceShown?: boolean; showWidthHint?: boolean; onOpen: (resource: Resource, digest: string) => void;
 }) {
   const evaluation = data.evaluation;
@@ -44,10 +44,14 @@ export function CompanionCard({ state, data, activity, current, visible, enabled
     return () => clearTimeout(timer);
   }, [activeUntil]);
   const work = active && gate ? activityOf({ reason: { key: 'working', gate } }, { gate }, true, companionLabel, phaseName) : null;
+  // Without a sign of life of the Codex Companion hooks the card cannot tell a resting agent from a blind
+  // Companion; it says so in a neutral tone instead of showing an idle step (brand: Visible uncertainty).
+  const unknown = !work && activityUnknown === true && current && visible !== false && !state.refreshing && !previous && !expired && pending
+    && evaluation?.next_operation?.actor === 'agent';
   const status = expired ? 'Sitzung abgelaufen' : previous ? 'Zuletzt beobachteter Stand' : blocked ? 'Blockiert'
     : waiting ? companionLabel('waitingCaptions.waitingApproval')
     : human ? companionLabel('waitingCaptions.waitingDecision') : completed ? 'Abgeschlossen'
-    : work ? work.label : pending && gate ? activityLabel(gate, false, companionLabel, phaseName) : pending ? 'Schritt steht an'
+    : work ? work.label : unknown ? 'Aktivität unbekannt' : pending && gate ? activityLabel(gate, false, companionLabel, phaseName) : pending ? 'Schritt steht an'
     : assessment === 'ended' ? 'Beendet' : 'Stand nicht bestätigt';
   const tone = previous || expired ? 'previous' : blocked ? 'blocked' : human ? 'decision' : completed ? 'completed' : work ? 'working' : undefined;
   const source = companionSource(data, state.scope?.target.target_id ?? '', !mismatch && state.detail?.state === 'available');
@@ -96,6 +100,7 @@ export function CompanionCard({ state, data, activity, current, visible, enabled
       <strong role={human && !previous && !expired ? 'status' : undefined}>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
         : work ? work.turn.who : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
       {work ? <p>{work.turn.what}</p> : reason && <p>{reason}</p>}
+      {unknown && <p className="compact-muted companion-liveness-hint">Die Companion sieht gerade nicht, ob Codex arbeitet. Prüfe in Codex unter /hooks, ob die AGDF-Hooks freigegeben sind.</p>}
       {approval && <p className="compact-muted">Wenn der Entwurf passt, antworte im Chat mit <code>{approval}</code>.</p>}
       {blocked && companion?.next_text && companion.next_text !== reason && <p>{companion.next_text}</p>}
       {resource && source && !expired && !sourceShown && <>

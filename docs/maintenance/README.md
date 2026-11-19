@@ -83,8 +83,8 @@ Codex-CLI-Nachweis für die Aktivierungsgrenze und Zielbindung:
 ## Explizite Paketbudget-Pflege
 
 ```sh
-npm --prefix create-agdf run sync-package-assets
-npm --prefix create-agdf run payload:budget
+npm --prefix packages/cli run sync-package-assets
+npm --prefix packages/cli run payload:budget
 ```
 
 Bei Größenüberschreitung bleibt das neue Inventar für den Bericht verfügbar. Dieser prüft
@@ -93,8 +93,8 @@ größte Dateien und verbleibenden Platz. Unerwartetes Wachstum zuerst untersuch
 Erst nach Prüfung explizite Grenzen und eine kurze aktuelle Begründung übernehmen:
 
 ```sh
-npm --prefix create-agdf run payload:budget -- --accept --files 104 --bytes 965362 --reason "Geprüfter Interaktionskatalog, Recovery-Texte und Claude-Sitzungshinweis"
-npm --prefix create-agdf run sync-package-assets
+npm --prefix packages/cli run payload:budget -- --accept --files 104 --bytes 965362 --reason "Geprüfter Interaktionskatalog, Recovery-Texte und Claude-Sitzungshinweis"
+npm --prefix packages/cli run sync-package-assets
 ```
 
 Diese Zahlen beschreiben den aktuellen Stand, keinen Freibrief für spätere Änderungen.
@@ -105,3 +105,30 @@ die bisherige Historie liegt in [payload-budget-history.md](payload-budget-histo
 Künftige Änderungen bleiben im Git-Diff nachvollziehbar.
 
 Hostbezogene lokale Vorbereitung bleibt hostbezogen; der All-Profiles-Release-Schutz bleibt erhalten.
+Schlägt der Paketbau mit `AGDF_COPILOT_PAYLOAD_GROWTH` fehl, nennt die Meldung die beobachteten Zahlen
+und den passenden Anhebe-Befehl; die Begründung bleibt Teil der Prüfung.
+
+## Lokale Prüfung in einem Worktree
+
+Ein frischer Worktree hat weder Abhängigkeiten noch generierte Dateien. Die Reihenfolge ist fest,
+weil spätere Schritte die Ergebnisse der früheren lesen:
+
+```sh
+npm ci
+npm run build:prepare
+npm ci --prefix packages/mcp-server
+```
+
+1. `npm ci` installiert die Abhängigkeiten der Workspaces.
+2. `npm run build:prepare` baut die Cockpit-Oberfläche, erzeugt die Plugin-Profile und den Runtime-Stand
+   unter `packages/*/generated`. Core- und CLI-Tests lesen diese Dateien.
+3. `npm ci --prefix packages/mcp-server` braucht die generierten Pakete aus Schritt 2; davor scheitert die
+   Installation.
+4. Danach laufen gezielte Suiten, zum Beispiel `npm --prefix packages/cli run test:companion-run-view`,
+   `npm --prefix packages/cli run test:claude-companion` oder `npm --prefix packages/mcp-server run test:protocol`.
+
+Nach einer Änderung an Quellen der Cockpit-Oberfläche (`packages/control-ui`, Companion-Ansicht und
+-Regeln) `npm run build:prepare` erneut ausführen, sonst bricht der Paketbau mit
+`AGDF_COCKPIT_UI_INVALID` oder `AGDF_DECISION_UI_INVALID` ab. Änderungen unter `plugins/agdf` ziehen
+das Paketbudget, die Eval-Fingerabdrücke und `npm run compatibility:record` nach sich; Windows ohne
+Symlink-Recht überspringt einzelne Link-Tests mit ausgewiesenem Grund.

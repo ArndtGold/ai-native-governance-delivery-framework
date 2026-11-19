@@ -414,7 +414,7 @@ test('plugin production workers preserve cross-project data and one publication 
 });
 
 
-test('Codex freshness attaches current Companion activity only to the selected Run and revision', async () => {
+test('Codex freshness attaches current Companion activity or unknown liveness only to the selected Run', async () => {
   const f = fixture(), data = fs.mkdtempSync(join(tmpdir(), 'cockpit-companion-scope-'));
   const service = createCockpitSessionService(f.root, { integrationSurface: 'codex', companionDataRoot: data });
   try {
@@ -427,7 +427,11 @@ test('Codex freshness attaches current Companion activity only to the selected R
     const call = input => service.read({ session_id, ...input });
     const run = await call({ operation: 'snapshot', run_id });
     assert.equal(run.data.run.evaluation.current_gate, gate);
-    assert.equal(run.companion_observation?.activity, undefined);
+    // SCN-004: without a sign of life of the Codex Companion hooks, activity is unknown, not idle.
+    assert.deepEqual(run.companion_observation, { liveness: 'unknown' });
+    assert.equal(observeCodexActivity(data, { session_id: 'chat-1', hook_event_name: 'SessionStart', source: 'startup' }), true);
+    assert.equal((await call({ operation: 'freshness', snapshot_id: run.snapshot_id })).companion_observation, undefined,
+      'a resting step with live hooks attaches nothing');
     const observation = { session_id: 'chat-1', turn_id: 'turn-1', tool_use_id: 'tool-1',
       hook_event_name: 'PostToolUse', tool_name: 'mcp__agdf__agdf_dispatch',
       tool_input: { continue_delivery: true, run_id },
@@ -443,13 +447,16 @@ test('Codex freshness attaches current Companion activity only to the selected R
     const active = await read(run.snapshot_id);
     assert.deepEqual(active, { target_id: run.target.target_id, run_id, revision_id, gate, expires_at: active?.expires_at });
     const other = await call({ operation: 'snapshot', run_id: 'fixture-completed' });
-    assert.equal(other.companion_observation?.activity, undefined);
+    assert.equal(other.companion_observation, undefined, 'a Run the agent does not act on gets no observation');
     assert.equal(await read(other.snapshot_id), undefined);
     assert.equal(await read(run.snapshot_id), undefined, 'an obsolete snapshot cannot attach evidence');
     const returned = await call({ operation: 'snapshot', run_id });
     assert.deepEqual(returned.companion_observation?.activity, active);
     assert.equal(observeCodexActivity(data, { ...observation, hook_event_name: 'Interrupt' }), true);
     assert.equal(await read(returned.snapshot_id), undefined);
+    fs.writeFileSync(join(data, 'companion', 'codex-activity.json'), '{"broken"');
+    assert.deepEqual((await call({ operation: 'freshness', snapshot_id: returned.snapshot_id })).companion_observation, { liveness: 'unknown' },
+      'an unreadable store leaves activity unknown');
   } finally {
     await service.close();
     fs.rmSync(data, { recursive: true, force: true });

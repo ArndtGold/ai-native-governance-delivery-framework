@@ -23,7 +23,8 @@ const RESERVATIONS_FILE = 'approval-requests.json';
 const RESERVATIONS_LIFETIME_MS = 30 * 60_000;
 const RESERVATIONS_MAX_ENTRIES = 8192;
 const RESERVATIONS_MAX_BYTES = 1024 * 1024;
-const RESERVATIONS_LOCK_WAIT_MS = 50;
+// A reservation waits for another server's fsync-backed write, which a slow Windows runner can stretch.
+const RESERVATIONS_LOCK_WAIT_MS = 250;
 const DIGEST = /^[a-f0-9]{64}$/u;
 
 export const journalPath = dataRoot => join(dataRoot, JOURNAL_DIRECTORY, JOURNAL_FILE);

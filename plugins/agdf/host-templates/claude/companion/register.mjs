@@ -16,7 +16,7 @@ import { chatLocale, companionLabels, gateTitle, label } from './localization.mj
 import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
 import { STATE_FILE, defaultCompanionState, parseCompanionState, pluginDataDir, serializeCompanionState } from './persistence.mjs';
 import { readSnapshot, settleSnapshot } from './run-state.mjs';
-import { activityLifetime, isActivityId, renewActivity, updateActivity, workBinding } from './activity.mjs';
+import { activityLifetime, isActivityId, plannedWorkBinding, renewActivity, updateActivity, workBinding } from './activity.mjs';
 import { buildPanelView, terminalText } from './view.mjs';
 
 export const PANE = 'agdf-companion';
@@ -361,24 +361,29 @@ function retireActivity($, e) {
 }
 
 async function observeDispatch($, e, next) {
+  // A subagent's dispatch, or one made while a subagent runs, is never main-turn work.
   const turn = session.subagentTurns.size || e.agentId !== undefined ? null : session.mainTurn;
-  const { tool_use_id: tool, continue_delivery, primary_target, run_id } = e;
+  const { tool_use_id: tool, continue_delivery, primary_target, run_id, planning } = e;
+  // Run work continues delivery; planned-UR authoring names its planning entry instead.
+  const planned = continue_delivery !== true && planning !== undefined;
   // The conversation and root at the call, read beside it: the cached values refresh only at the next
   // check, so the first turn after a `/clear` or resume would otherwise compare against the old ones.
   const started = turn?.eligible ? (async () => [await $.session.id(), await $.session.root()])().catch(() => null) : null;
   const answered = await next(e);
   try {
-    if (!started || turn !== session.mainTurn || !turn.eligible || !session.choices.enabled
-      || continue_delivery !== true || !isActivityId(tool)) return answered;
+    // A subagent that started while this call ran makes the main turn show no work either.
+    if (!started || turn !== session.mainTurn || !turn.eligible || session.subagentTurns.size || !session.choices.enabled
+      || (continue_delivery !== true && !planned) || !isActivityId(tool)) return answered;
     const [before, conversation, root] = await Promise.all([started, $.session.id(), $.session.root()]);
-    if (!before || turn !== session.mainTurn || !turn.eligible || conversation !== before[0] || root !== before[1]
+    if (!before || turn !== session.mainTurn || !turn.eligible || session.subagentTurns.size || conversation !== before[0] || root !== before[1]
       || (turn.conversation !== undefined && turn.conversation !== conversation)) return answered;
     const payload = answered?.result;
     let result = payload;
     if (typeof payload === 'string') {
       try { result = JSON.parse(payload); } catch { result = null; }
     }
-    const confirmed = answered?.isError === true ? null : workBinding({ continue_delivery, primary_target, run_id }, result);
+    const confirmed = answered?.isError === true ? null
+      : planned ? plannedWorkBinding({ planning }, result) : workBinding({ continue_delivery, primary_target, run_id }, result);
     // Core returns the canonical target; the run view of this root names the same folder by its realpath,
     // so a symlinked or junction root is still this project. The binding keeps the root's own spelling.
     const canonical = session.snapshot?.root === root ? session.snapshot.canonicalRoot : null;
@@ -394,7 +399,7 @@ async function observeDispatch($, e, next) {
     if (binding) {
       // The native turn end retires the work, so it stays current while that turn runs.
       session.activityTimer = $.clock.every(ACTIVITY_RENEW_MS, () => {
-        const renewed = session.mainTurn === turn && turn.eligible
+        const renewed = session.mainTurn === turn && turn.eligible && !session.subagentTurns.size
           ? renewActivity(session.activity, { session: conversation, turn: turn.id }, Date.now()) : null;
         if (renewed) session.activity = renewed;
         else stopActivityTimer();
@@ -506,8 +511,7 @@ function body($, e) {
   const isTerminal = e.surface === 'terminal' || !Svg;
   const view = buildPanelView({ snapshot: session.snapshot, sessionStartedAt: session.startedAt, selection: selection(),
     mention: session.chatMention, isBrowsing: session.isBrowsing, showRunState: !isTerminal,
-    // A planned UR has no Run to correlate with a dispatch, so it uses the native main turn.
-    isTurnActive: session.mainTurn !== null, activity: session.activity,
+    activity: session.activity,
     registry: session.registry, labels: session.labels, locale: session.locale,
     columns: e.props?.bodyColumns ?? Infinity, isInfoExpanded: session.isInfoExpanded,
     events: session.events, eventsAvailable: session.eventsAvailable ?? undefined });
@@ -737,20 +741,22 @@ export const register = on => {
   on('turn.start', async ($, e, next) => {
     try {
       if (e.agentId !== undefined && isActivityId(e.turnId)) {
+        // While a subagent runs, the main turn shows no work; it is counted again once its last subagent ended.
         session.subagentTurns.add(e.turnId);
         if (session.mainTurn) {
-          session.mainTurn.eligible = false;
           session.activity = [];
           stopActivityTimer();
           redraw($);
         }
       }
       if (e.agentId === undefined && session.choices.enabled) {
-        const concurrent = Boolean(session.mainTurn) || session.subagentTurns.size > 0;
+        // A new main turn retires an earlier one whose end was never reported, and the subagents left from
+        // it; the new turn is judged on its own.
+        session.subagentTurns.clear();
         session.activity = [];
         stopActivityTimer();
         // The conversation is taken from the turn's first observed dispatch, never from a cached value.
-        session.mainTurn = isActivityId(e.turnId) ? { id: e.turnId, eligible: !concurrent } : null;
+        session.mainTurn = isActivityId(e.turnId) ? { id: e.turnId, eligible: true } : null;
         // A main-loop turn ends browsing and may name the chat's run (chat-run navigation SDD-02, SDD-04);
         // the host clock is read beside the event, never before it is passed on (SDD-11).
         session.isBrowsing = false;

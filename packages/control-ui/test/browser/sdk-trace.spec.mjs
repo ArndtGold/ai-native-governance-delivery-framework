@@ -572,24 +572,27 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       expect(await scroll.evaluate(el => el.scrollTop)).toBe(0);
       // SCN-CDR-017/027/028: retain position metadata, re-read on return, never swap a vanished version silently.
       await scroll.evaluate(el => { el.scrollTop = 345; });
+      const subjectHeading = card.getByRole('heading', { level: 2 });
+      const subjectTitle = await subjectHeading.innerText();
       const cycleRun = async () => {
-        await expect(nextRun).toBeEnabled(); await nextRun.click();
-        await expect(navigation).toContainText('1 von 3');
-        await expect(nextRun).toBeEnabled(); await nextRun.click();
-        await expect(navigation).toContainText('2 von 3');
-        await expect(nextRun).toBeEnabled(); await nextRun.click();
-        await expect(navigation).toContainText('3 von 3');
+        const counter = navigation.locator('.companion-run-counter > span').first();
+        const start = Number((await counter.innerText()).match(/^(\d+) von 3$/)[1]);
+        for (let step = 1; step <= 3; step++) {
+          await expect(nextRun).toBeEnabled(); await nextRun.click();
+          await expect(counter).toHaveText(`${(start - 1 + step) % 3 + 1} von 3`);
+        }
       };
       await cycleRun();
       await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Neue Entscheidung' })).toBeAttached();
       await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBe(345);
+      await expect(subjectHeading).toHaveText(subjectTitle);
       await expect(nextRun).toBeEnabled(); await nextRun.click();
-      await expect(navigation).toContainText('1 von 3');
+      await expect(subjectHeading).not.toHaveText(subjectTitle);
       replaceCompanionPrd(writer, fixture.runId, 'Nach Run-Rückkehr', appendix);
-      await expect(nextRun).toBeEnabled(); await nextRun.click();
-      await expect(navigation).toContainText('2 von 3');
-      await expect(nextRun).toBeEnabled(); await nextRun.click();
-      await expect(navigation).toContainText('3 von 3');
+      // Updating a draft can reorder Runs by activity. Return by identity, never
+      // by its former ordinal; the full switcher cycle is checked above and below.
+      await menu.click();
+      await options.getByRole('menuitem', { name: 'Zurück zum Chat-Run' }).click();
       await expect(reader.getByRole('alert')).toContainText('Die zuvor gelesene Fassung ist nicht mehr verfügbar');
       await expect(content).toHaveCount(0);
       await expect(change).toBeEnabled(); await change.click();

@@ -861,12 +861,19 @@ console.log("Claude companion logic tests passed");
       "plan-3aa47292-2068-4a16-9060-71be297df087", "Abgeschlossene Runs: 1"]);
   assert.deepEqual(resting.turn, { tone: "next", who: "Als Nächstes", what: "Entwurf: Nutzeranforderungen (UR)", how: "Sag mir im Chat, wenn ich weitermachen soll.", gate: "UR" });
   assert.deepEqual(resting.info, [{ label: "Wozu dieses Gate da ist", text: registry.locales.de.gateRationale.UR }]);
-  // While a main-loop turn runs, Claude writes the draft.
-  const writing = planned([plan()], [done], { isTurnActive: true, showRunState: true });
+  // SCN-010 (AC-008): Claude writes the draft only for a confirmed planned-UR dispatch of exactly this entry.
+  const drafting = (planId = "plan-3aa47292-2068-4a16-9060-71be297df087") => [{ target_id: "/fixture", plan_id: planId, gate: "UR", expires_at: 2000 }];
+  assert.equal(planned([plan()], [done], { isTurnActive: true }).resting, true, "a main-loop turn alone no longer shows drafting");
+  assert.equal(planned([plan()], [done], { activity: drafting("plan-other") }).resting, true, "a dispatch for another entry shows no drafting");
+  assert.equal(planned([plan()], [done], { activity: [{ ...drafting()[0], target_id: "/elsewhere" }] }).resting, true, "another project shows no drafting");
+  assert.equal(view({ snapshot: snapshot([done], { planned: [plan()], stale: { failedAt: 900 } }), activity: drafting() }).resting, true,
+    "a stale snapshot shows no drafting");
+  assert.equal(planned([plan()], [done], { activity: [{ ...drafting()[0], expires_at: 1000 }] }).resting, true, "expired drafting ends");
+  const writing = planned([plan()], [done], { activity: drafting(), showRunState: true });
   assert.deepEqual([writing.stateLabel, writing.resting, writing.workGate, writing.figure], ["schreibt am UR-Entwurf", false, "UR", { mood: "laeuft", reason: { key: "working", gate: "UR" } }]);
   assert.deepEqual(writing.turn, { tone: "claude", who: "Einen Augenblick", what: "Ich bereite einen Entwurf für dich vor: Nutzeranforderungen (UR)", how: null, gate: "UR" });
   // Ready for its handover, or in need of clarification: nothing is written, the next move is named.
-  const ready = planned([plan({ coverage: "ready" })], [done], { isTurnActive: true });
+  const ready = planned([plan({ coverage: "ready" })], [done], { activity: drafting() });
   assert.deepEqual([ready.stateLabel, ready.resting, ready.turn.what, ready.turn.how], ["UR bereit zur Übergabe", true, "Übergabe in einen Run", "Sag mir im Chat, wenn ich die UR übergeben soll."]);
   for (const [coverage, text] of [["recovery_required", "Wiederherstellung erforderlich"], ["unconfirmed", "Zuordnung ungeklärt"], ["unavailable", "Quelle nicht verfügbar"]]) {
     const unclear = planned([plan({ coverage })]);

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { relative, sep } from 'node:path';
 import { COMPANION_DATA_ROOT_ENV } from '../companion/journal.js';
-import { readCodexActivity } from '../companion/codex-activity.js';
+import { readCodexObservation } from '../companion/codex-activity.js';
 import { ReadWorkerPool } from '../control-read/cockpit-pool.js';
 import { READ_LIMITS, ControlReadError } from '../control-read/snapshot.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
@@ -253,11 +253,14 @@ export function createCockpitSessionService(root, {
               target_id: session.target.target_id, run_id: run.run_id, revision_id: run.revision_id, gate: run.evaluation.current_gate,
             } : null;
         }
-        if (companionDataRoot && integrationSurface === 'codex' && session.companionBinding && response.data
+        if (integrationSurface === 'codex' && session.companionBinding && response.data
           && (replacement || input.operation === 'freshness')) {
           const binding = session.companionBinding;
-          const activity = readCodexActivity(companionDataRoot, binding, now());
-          const observation = activity ? { activity: { ...binding, expires_at: activity.expires_at } } : null;
+          // Confirmed work, or that activity is unknown when the Codex Companion hooks of this build gave no
+          // sign of life (also without a readable data root); a resting step with live hooks attaches nothing.
+          const seen = companionDataRoot ? readCodexObservation(companionDataRoot, binding, now()) : null;
+          const observation = seen?.activity ? { activity: { ...binding, expires_at: seen.activity.expires_at } }
+            : seen?.liveness === 'observed' ? null : { liveness: 'unknown' };
           // The key is appended last, so it adds exactly its own serialized bytes to the measured response.
           if (observation && responseBytes + Buffer.byteLength(`,"companion_observation":${JSON.stringify(observation)}`, 'utf8')
             <= READ_LIMITS.response) response.companion_observation = observation;

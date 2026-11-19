@@ -1026,9 +1026,19 @@ try {
         const idText = find(tree, node => node.tag === "Text" && texts(node)[0] === planId)[0];
         assert.deepEqual([idText.props.dimColor, idText.props.mono], [true, true], "the planning id is a reference line");
         assert.equal(host.log.status.at(-1), "AGDF · UR planning");
-        // During a main-loop turn the draft is being written.
+        // SCN-010 (AC-008): a main-loop turn alone writes nothing; a confirmed planned-UR dispatch for exactly
+        // this entry does.
         const turnId = "planned-ur-turn";
         await host.fire("turn.start", { turnId });
+        assert.ok(!texts(await render(host)).includes("One moment"), "a main-loop turn without a planning dispatch shows no drafting");
+        const observePlan = host.hooks.find(item => item.matcher?.tool === "mcp__agdf__agdf_dispatch").hook;
+        const planResult = id => ({ ref: 9, result: JSON.stringify({ outcome: "skill_continuation", terminal: false, authorizes: false,
+          target: { resolution_state: "resolved", governance_target: planning }, control: { scope: "planning", current_gate: null },
+          continuation: { phase: "planned_ur_definition", governance_target: planning, planning: { plan_id: id, expected_digest: null } } }) });
+        const otherPlan = "plan-00000000-0000-4000-8000-000000000000";
+        await observePlan(host.$, { planning: { plan_id: otherPlan, expected_digest: null }, tool_use_id: "plan-tool-0" }, async () => planResult(otherPlan));
+        assert.ok(!texts(await render(host)).includes("One moment"), "a dispatch for another planning entry shows no drafting");
+        await observePlan(host.$, { planning: { plan_id: planId, expected_digest: null }, tool_use_id: "plan-tool-1" }, async () => planResult(planId));
         const busy = await render(host);
         assert.ok(texts(busy).includes("drafting the UR") && texts(busy).includes("One moment"));
         assert.match(find(busy, node => node.tag === "Svg")[0].props.source, /data-accessory="gate-board"[\s\S]*dur="9s"/u, "the figure writes while the turn runs");
@@ -1421,7 +1431,37 @@ try {
   assert.equal(await observe(host.$, call, async () => answer), answer);
   assert.equal(await isWorking(), false);
   await host.fire("turn.complete", { turnId: "sub-turn", agentId: "sub" });
+  // SCN-008 (AC-006): a subagent's own dispatch never counts; the main turn counts again once its subagents ended.
+  assert.equal(await observe(host.$, { ...call, agentId: "sub", tool_use_id: "sub-tool" }, async () => answer), answer);
+  assert.equal(await isWorking(), false, "a subagent dispatch is no main-turn work");
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "after-sub" }, async () => answer), answer);
+  assert.equal(await isWorking(), true, "the main turn counts again after its last subagent ended");
+  // CR finding: a subagent that starts while a dispatch is still running keeps the main turn from showing work.
   await complete("turn-3");
+  await start("turn-3a");
+  const inFlight = observe(host.$, { ...call, tool_use_id: "tool-3a" }, () => new Promise(resolve => { release = resolve; }));
+  await host.fire("turn.start", { turnId: "parallel-sub", agentId: "sub" });
+  release(answer);
+  assert.equal(await inFlight, answer);
+  assert.equal(await isWorking(), false, "a dispatch that returns after a subagent started shows no work");
+  await host.fire("turn.complete", { turnId: "parallel-sub", agentId: "sub" });
+  // SCN-011 (AC-009): a main turn whose end was never reported does not block the next one.
+  await start("turn-3b");
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "tool-3b" }, async () => answer), answer);
+  assert.equal(await isWorking(), true);
+  await start("turn-3c");
+  assert.equal(await isWorking(), false, "the new main turn retires the earlier one");
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "tool-3c" }, async () => answer), answer);
+  assert.equal(await isWorking(), true, "the new main turn is judged on its own");
+  // A subagent whose end is never reported does not block a later main turn either.
+  await host.fire("turn.start", { turnId: "silent-sub", agentId: "sub" });
+  await complete("turn-3c");
+  await start("turn-3d");
+  // SCN-007 (AC-005): a dispatch bound to an earlier revision of the same step still shows work.
+  const earlier = { ref: 3, result: JSON.stringify({ ...payload, continuation: { ...payload.continuation, revision_id: randomUUID() } }) };
+  assert.equal(await observe(host.$, { ...call, tool_use_id: "tool-3d" }, async () => earlier), earlier);
+  assert.equal(await isWorking(), true, "an unreported subagent end does not block, and a same-turn revision keeps work");
+  await complete("turn-3d");
   await start("turn-4");
   const changed = observe(host.$, call, () => new Promise(resolve => { release = resolve; }));
   host.where.conversation = "conversation-2";
